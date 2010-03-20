@@ -1,0 +1,3 @@
+- Finish adding vector versions of all DistMatrix communications.
+- Automate the build process?
+- Add method for redistributing from one grid to another.

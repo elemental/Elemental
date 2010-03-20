@@ -1,0 +1,193 @@
+/*
+   Copyright 2009-2010 Jack Poulson
+
+   This file is part of Elemental.
+
+   Elemental is free software: you can redistribute it and/or modify it under
+   the terms of the GNU Lesser General Public License as published by the
+   Free Software Foundation; either version 3 of the License, or 
+   (at your option) any later version.
+
+   Elemental is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+*/
+#include "ElementalLAPACK_Internal.h"
+using namespace std;
+using namespace Elemental;
+using namespace Elemental::BLAS;
+using namespace Elemental::LAPACK::Internal;
+
+template<typename T>
+void
+Elemental::LAPACK::Internal::ReduceToRowEchelon
+( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+{
+#ifndef RELEASE
+    PushCallStack("LAPACK::Internal::ReduceToRowEchelon");
+    if( A.GetGrid() != B.GetGrid() )
+    {
+        if( A.GetGrid().VCRank() == 0 )
+            cerr << "A and B must be distributed over the same grid." << endl;
+    }
+    if( A.Height() != B.Height() )
+    {
+        if( A.GetGrid().VCRank() == 0 )
+            cerr << "A and B must be the same height." << endl;
+        DumpCallStack();
+        throw exception();
+    }
+#endif
+    const Grid& grid = A.GetGrid();
+
+    // Matrix views
+    DistMatrix<T,MC,MR>
+        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),  APan(grid),
+        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
+                               A20(grid), A21(grid), A22(grid);
+
+    DistMatrix<T,MC,MR>
+        BT(grid),  B0(grid),
+        BB(grid),  B1(grid),
+                   B2(grid);
+
+    // Temporary distributions
+    DistMatrix<T,Star,Star> A11_Star_Star(grid);
+    DistMatrix<T,Star,VR  > A12_Star_VR(grid);
+    DistMatrix<T,Star,MR  > A12_Star_MR(grid);
+    DistMatrix<T,VC,  Star> A21_VC_Star(grid);
+    DistMatrix<T,MC,  Star> A21_MC_Star(grid);
+    DistMatrix<T,Star,VR  > B1_Star_VR(grid);
+    DistMatrix<T,Star,MR  > B1_Star_MR(grid);
+    DistMatrix<int,Star,Star> p1_Star_Star(grid);
+
+    // In case B's columns are not aligned with A's
+    const bool BAligned = ( B.ColShift() == A.ColShift() );
+    DistMatrix<T,MC,Star> A21_MC_Star_B(grid);
+
+    // Pivot composition
+    vector<int> image;
+    vector<int> preimage;
+
+    // Start the algorithm
+    PartitionDownDiagonal( A, ATL, ATR,
+                              ABL, ABR );
+    PartitionDown( B, BT,
+                      BB );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal( ATL, /**/ ATR,  A00, /**/ A01, A02,
+                                /*************/ /******************/
+                                      /**/       A10, /**/ A11, A12,
+                                 ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        RepartitionDown( BT,  B0,
+                        /**/ /**/
+                              B1,
+                         BB,  B2 );
+
+        APan.View2x1( A12,
+                      A22 );
+
+        A11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
+        A12_Star_VR.AlignWith( A12 );
+        A12_Star_MR.AlignWith( A12 );
+        A21_VC_Star.AlignWith( A21 );
+        A21_MC_Star.AlignWith( A21 );
+        if( ! BAligned )
+            A21_MC_Star_B.AlignWith( B2 );
+        B1_Star_VR.AlignWith( B1 );
+        B1_Star_MR.AlignWith( B1 );
+        p1_Star_Star.ResizeTo( A11.Height(), 1 );
+        //--------------------------------------------------------------------//
+        A21_VC_Star = A21;
+        A11_Star_Star = A11;
+
+        PanelLU( A11_Star_Star,
+                 A21_VC_Star, p1_Star_Star, A00.Height() );
+        ComposePivots( p1_Star_Star, image, preimage, A00.Height() );
+        ApplyRowPivots( APan, image, preimage, A00.Height() );
+        ApplyRowPivots( BB,   image, preimage, A00.Height() );
+
+        A12_Star_VR = A12;
+        B1_Star_VR = B1;
+        Trsm( Left, Lower, Normal, Unit,
+              (T)1, A11_Star_Star.LockedLocalMatrix(),
+                    A12_Star_VR.LocalMatrix()         );
+        Trsm( Left, Lower, Normal, Unit,
+              (T)1, A11_Star_Star.LockedLocalMatrix(),
+                    B1_Star_VR.LocalMatrix()          );
+
+        A21_MC_Star = A21_VC_Star;
+        A12_Star_MR = A12_Star_VR;
+        B1_Star_MR = B1_Star_VR;
+        Gemm( Normal, Normal,
+              (T)-1, A21_MC_Star.LockedLocalMatrix(),
+                     A12_Star_MR.LockedLocalMatrix(),
+              (T) 1, A22.LocalMatrix()               );
+        if( BAligned )
+        {
+            Gemm( Normal, Normal,
+                  (T)-1, A21_MC_Star.LockedLocalMatrix(),
+                         B1_Star_MR.LockedLocalMatrix(),
+                  (T) 1, B2.LocalMatrix()                );
+        }
+        else
+        {
+            A21_MC_Star_B = A21_MC_Star;
+            Gemm( Normal, Normal, 
+                  (T)-1, A21_MC_Star_B.LockedLocalMatrix(),
+                         B1_Star_MR.LockedLocalMatrix(),
+                  (T) 1, B2.LocalMatrix()                  );
+        }
+
+        A11 = A11_Star_Star;
+        A12 = A12_Star_MR;
+        B1 = B1_Star_MR;
+        //--------------------------------------------------------------------//
+        A12_Star_VR.FreeConstraints();
+        A12_Star_MR.FreeConstraints();
+        A21_VC_Star.FreeConstraints();
+        A21_MC_Star.FreeConstraints();
+        if( ! BAligned )
+            A21_MC_Star_B.FreeConstraints();
+        B1_Star_VR.FreeConstraints();
+        B1_Star_MR.FreeConstraints();
+
+        SlidePartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
+                                         /**/       A10, A11, /**/ A12,
+                                   /*************/ /******************/
+                                    ABL, /**/ ABR,  A20, A21, /**/ A22 );
+
+        SlidePartitionDown( BT,  B0,
+                                 B1,
+                           /**/ /**/
+                            BB,  B2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template void
+Elemental::LAPACK::Internal::ReduceToRowEchelon
+( DistMatrix<float,MC,MR>& A, DistMatrix<float,MC,MR>& B );
+
+template void
+Elemental::LAPACK::Internal::ReduceToRowEchelon
+( DistMatrix<double,MC,MR>& A, DistMatrix<double,MC,MR>& B );
+
+#ifndef WITHOUT_COMPLEX
+template void
+Elemental::LAPACK::Internal::ReduceToRowEchelon
+( DistMatrix<scomplex,MC,MR>& A, DistMatrix<scomplex,MC,MR>& B );
+
+template void
+Elemental::LAPACK::Internal::ReduceToRowEchelon
+( DistMatrix<dcomplex,MC,MR>& A, DistMatrix<dcomplex,MC,MR>& B );
+#endif
+
