@@ -222,6 +222,8 @@ Elemental::LAPACK::Internal::CholL_Var3
 
         A21_MC_Star.AlignWith( A22 );
         A21_MR_Star.AlignWith( A22 );
+        A21_VC_Star.AlignWith( A22 );
+        A21_VR_Star.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_Star_Star = A11;
         LAPACK::Chol( Lower, A11_Star_Star.LocalMatrix() );
@@ -241,6 +243,8 @@ Elemental::LAPACK::Internal::CholL_Var3
         //--------------------------------------------------------------------//
         A21_MC_Star.FreeConstraints();
         A21_MR_Star.FreeConstraints();
+        A21_VC_Star.FreeConstraints();
+        A21_VR_Star.FreeConstraints();
 
         SlidePartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
                                          /**/       A10, A11, /**/ A12,

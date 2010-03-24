@@ -221,6 +221,8 @@ LAPACK::Internal::CholU_Var3
 
         A12_Star_MC.AlignWith( A22 );
         A12_Star_MR.AlignWith( A22 );
+        A12_Star_VC.AlignWith( A22 );
+        A12_Star_VR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_Star_Star = A11;
         LAPACK::Chol( Upper, A11_Star_Star.LocalMatrix() );
@@ -234,12 +236,14 @@ LAPACK::Internal::CholU_Var3
         A12_Star_VC = A12_Star_VR; 
         A12_Star_MC = A12_Star_VC;
         A12_Star_MR = A12_Star_VR;
-        BLAS::Internal::HerkLC_Update
+        BLAS::Internal::HerkUC_Update
         ( (T)-1, A12_Star_MC, A12_Star_MR, (T)1, A22 );
         A12 = A12_Star_MR;
         //--------------------------------------------------------------------//
         A12_Star_MC.FreeConstraints();
         A12_Star_MR.FreeConstraints();
+        A12_Star_VC.FreeConstraints();
+        A12_Star_VR.FreeConstraints();
 
         SlidePartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
                                          /**/       A10, A11, /**/ A12,
