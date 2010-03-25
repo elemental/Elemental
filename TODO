@@ -1,3 +1,20 @@
-- Finish adding vector versions of all DistMatrix communications.
-- Automate the build process?
+Relatively trivial but important 
+================================
+- Extend Tridiag to complex datatypes.
+
+Relatively trivial but not important
+====================================
+- Add shortcuts for square process grids and diagonally-aligned matrices
+
+Substantial effort and important
+================================
 - Add method for redistributing from one grid to another.
+- More LAPACK-level routines!
+- Complete parallel Level2 BLAS (e.g., Trmm)
+
+Substantial effort but not terribly important 
+=============================================
+- Finish adding vector versions of all DistMatrix communications.
+- Finish adding redistributions to and from [MD,* ]/[* ,MD] 
+- Automate the build process? (preferably not with autoconf)
+
