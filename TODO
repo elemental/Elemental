@@ -10,7 +10,7 @@ Substantial effort and important
 ================================
 - Add method for redistributing from one grid to another.
 - More LAPACK-level routines!
-- Complete parallel Level2 BLAS (e.g., Trmm)
+- Complete parallel Level2 BLAS (e.g., Trmv)
 
 Substantial effort but not terribly important 
 =============================================
