@@ -16,8 +16,8 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalBLAS_Internal.h"
-#include "ElementalLAPACK_Internal.h"
+#include "ElementalBLASInternal.h"
+#include "ElementalLAPACKInternal.h"
 using namespace std;
 using namespace Elemental;
 using namespace Elemental::wrappers::MPI;

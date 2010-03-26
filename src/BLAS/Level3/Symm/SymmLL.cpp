@@ -16,7 +16,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalBLAS_Internal.h"
+#include "ElementalBLASInternal.h"
 using namespace std;
 using namespace Elemental;
 
@@ -30,7 +30,7 @@ Elemental::BLAS::Internal::SymmLL
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::SymmLL");
 #endif
-    BLAS::Internal::SymmLL_C( alpha, A, B, beta, C );
+    BLAS::Internal::SymmLLC( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -38,13 +38,13 @@ Elemental::BLAS::Internal::SymmLL
 
 template<typename T>
 void
-Elemental::BLAS::Internal::SymmLL_C
+Elemental::BLAS::Internal::SymmLLC
 ( const T alpha, const DistMatrix<T,MC,MR>& A,
                  const DistMatrix<T,MC,MR>& B,
   const T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::SymmLL_C");
+    PushCallStack("BLAS::Internal::SymmLLC");
 #endif
     const Grid& grid = A.GetGrid();
 #ifndef RELEASE
@@ -160,7 +160,7 @@ template void Elemental::BLAS::Internal::SymmLL
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::SymmLL_C
+template void Elemental::BLAS::Internal::SymmLLC
 ( const float alpha, const DistMatrix<float,MC,MR>& A,
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
@@ -170,7 +170,7 @@ template void Elemental::BLAS::Internal::SymmLL
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::SymmLL_C
+template void Elemental::BLAS::Internal::SymmLLC
 ( const double alpha, const DistMatrix<double,MC,MR>& A,
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
@@ -181,7 +181,7 @@ template void Elemental::BLAS::Internal::SymmLL
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::SymmLL_C
+template void Elemental::BLAS::Internal::SymmLLC
 ( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
@@ -191,7 +191,7 @@ template void Elemental::BLAS::Internal::SymmLL
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::SymmLL_C
+template void Elemental::BLAS::Internal::SymmLLC
 ( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );

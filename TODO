@@ -1,6 +1,7 @@
 Relatively trivial but important 
 ================================
 - Extend Tridiag to complex datatypes.
+_ Finish adding dot product gemm algorithms for NT, TN, and TT options
 
 Relatively trivial but not important
 ====================================

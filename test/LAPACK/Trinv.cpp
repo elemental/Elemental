@@ -2,7 +2,7 @@
 #include <ctime>
 #include <sstream>
 #include "Elemental.h"
-#include "ElementalLAPACK_Internal.h"
+#include "ElementalLAPACKInternal.h"
 using namespace std;
 using namespace Elemental;
 using namespace Elemental::wrappers::MPI;

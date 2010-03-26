@@ -16,7 +16,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalLAPACK_Internal.h"
+#include "ElementalLAPACKInternal.h"
 using namespace Elemental;
 
 template<typename T>
@@ -29,7 +29,7 @@ Elemental::LAPACK::Trinv
 #ifndef RELEASE
     PushCallStack("LAPACK::Trinv");
 #endif
-    LAPACK::Internal::Trinv_Var3( shape, diagonal, A );
+    LAPACK::Internal::TrinvVar3( shape, diagonal, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -37,21 +37,21 @@ Elemental::LAPACK::Trinv
 
 template<typename T>
 void
-Elemental::LAPACK::Internal::Trinv_Var3
+Elemental::LAPACK::Internal::TrinvVar3
 ( const Shape shape, 
   const Diagonal diagonal, 
   DistMatrix<T,MC,MR>& A  )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::Trinv_Var3");
+    PushCallStack("LAPACK::Internal::TrinvVar3");
 #endif
     if( shape == Lower )
     {
-        LAPACK::Internal::TrinvL_Var3( diagonal, A );
+        LAPACK::Internal::TrinvLVar3( diagonal, A );
     }
     else
     {
-        LAPACK::Internal::TrinvU_Var3( diagonal, A );
+        LAPACK::Internal::TrinvUVar3( diagonal, A );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -63,7 +63,7 @@ template void Elemental::LAPACK::Trinv
   const Diagonal diagonal, 
   DistMatrix<float,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::Trinv_Var3
+template void Elemental::LAPACK::Internal::TrinvVar3
 ( const Shape shape, 
   const Diagonal diagonal, 
   DistMatrix<float,MC,MR>& A );
@@ -73,7 +73,7 @@ template void Elemental::LAPACK::Trinv
   const Diagonal diagonal, 
   DistMatrix<double,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::Trinv_Var3
+template void Elemental::LAPACK::Internal::TrinvVar3
 ( const Shape shape, 
   const Diagonal diagonal, 
   DistMatrix<double,MC,MR>& A );
@@ -84,7 +84,7 @@ template void Elemental::LAPACK::Trinv
   const Diagonal diagonal, 
   DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::Trinv_Var3
+template void Elemental::LAPACK::Internal::TrinvVar3
 ( const Shape shape, 
   const Diagonal diagonal,
   DistMatrix<scomplex,MC,MR>& A );
@@ -94,7 +94,7 @@ template void Elemental::LAPACK::Trinv
   const Diagonal diagonal, 
   DistMatrix<dcomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::Trinv_Var3
+template void Elemental::LAPACK::Internal::TrinvVar3
 ( const Shape shape, 
   const Diagonal diagonal,
   DistMatrix<dcomplex,MC,MR>& A );

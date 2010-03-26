@@ -20,7 +20,7 @@
 #include <ctime>
 #include <sstream>
 #include "Elemental.h"
-#include "ElementalBLAS_Internal.h"
+#include "ElementalBLASInternal.h"
 using namespace std;
 using namespace Elemental;
 using namespace Elemental::wrappers::MPI;

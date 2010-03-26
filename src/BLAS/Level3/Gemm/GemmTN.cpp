@@ -16,7 +16,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalBLAS_Internal.h"
+#include "ElementalBLASInternal.h"
 using namespace std;
 using namespace Elemental;
 
@@ -54,25 +54,25 @@ Elemental::BLAS::Internal::GemmTN
     {
 #ifndef RELEASE
         if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmTN routing to GemmTN_B." << endl;
+            cout << "  GemmTN routing to GemmTNB." << endl;
 #endif
-        BLAS::Internal::GemmTN_B( orientationOfA, alpha, A, B, beta, C );
+        BLAS::Internal::GemmTNB( orientationOfA, alpha, A, B, beta, C );
     }
     else if( n <= m && n <= weightTowardsC*k )
     {
 #ifndef RELEASE
         if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmTN routing to GemmTN_A." << endl;
+            cout << "  GemmTN routing to GemmTNA." << endl;
 #endif
-        BLAS::Internal::GemmTN_A( orientationOfA, alpha, A, B, beta, C );
+        BLAS::Internal::GemmTNA( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
 #ifndef RELEASE
         if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmTN routing to GemmTN_C." << endl;
+            cout << "  GemmTN routing to GemmTNC." << endl;
 #endif
-        BLAS::Internal::GemmTN_C( orientationOfA, alpha, A, B, beta, C );
+        BLAS::Internal::GemmTNC( orientationOfA, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -82,14 +82,14 @@ Elemental::BLAS::Internal::GemmTN
 // Transpose Normal Gemm that avoids communicating the matrix A.
 template<typename T> 
 void
-Elemental::BLAS::Internal::GemmTN_A
+Elemental::BLAS::Internal::GemmTNA
 ( const Orientation orientationOfA,
   const T alpha, const DistMatrix<T,MC,MR>& A,
                  const DistMatrix<T,MC,MR>& B,
   const T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemmTN_A");    
+    PushCallStack("BLAS::Internal::GemmTNA");    
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
     {
         if( A.GetGrid().VCRank() == 0 )
@@ -100,7 +100,7 @@ Elemental::BLAS::Internal::GemmTN_A
     if( orientationOfA == Normal )
     {
         if( A.GetGrid().VCRank() == 0 )
-            cerr << "GemmTN_A assumes A is (Conjugate)Transposed." << endl;
+            cerr << "GemmTNA assumes A is (Conjugate)Transposed." << endl;
         DumpCallStack();
         throw exception();
     }
@@ -110,7 +110,7 @@ Elemental::BLAS::Internal::GemmTN_A
     {
         if( A.GetGrid().VCRank() == 0 )
         {
-            cerr << "Nonconformal GemmTN_A: " <<
+            cerr << "Nonconformal GemmTNA: " <<
             endl << "  A ~ " << A.Height() << " x " << A.Width() <<
             endl << "  B ~ " << B.Height() << " x " << B.Width() <<
             endl << "  C ~ " << C.Height() << " x " << C.Width() <<
@@ -184,14 +184,14 @@ Elemental::BLAS::Internal::GemmTN_A
 // Transpose Normal Gemm that avoids communicating the matrix B.
 template<typename T> 
 void
-Elemental::BLAS::Internal::GemmTN_B
+Elemental::BLAS::Internal::GemmTNB
 ( const Orientation orientationOfA,
   const T alpha, const DistMatrix<T,MC,MR>& A,
                  const DistMatrix<T,MC,MR>& B,
   const T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemmTN_B");
+    PushCallStack("BLAS::Internal::GemmTNB");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
     {
         if( A.GetGrid().VCRank() == 0 )
@@ -202,7 +202,7 @@ Elemental::BLAS::Internal::GemmTN_B
     if( orientationOfA == Normal )
     {
         if( A.GetGrid().VCRank() == 0 )
-            cerr << "GemmTN_B assumes A is (Conjugate)Transposed." << endl;
+            cerr << "GemmTNB assumes A is (Conjugate)Transposed." << endl;
         DumpCallStack();
         throw exception();
     }
@@ -212,7 +212,7 @@ Elemental::BLAS::Internal::GemmTN_B
     {
         if( A.GetGrid().VCRank() == 0 )
         {
-            cerr << "Nonconformal GemmTN_B: " <<
+            cerr << "Nonconformal GemmTNB: " <<
             endl << "  A ~ " << A.Height() << " x " << A.Width() <<
             endl << "  B ~ " << B.Height() << " x " << B.Width() <<
             endl << "  C ~ " << C.Height() << " x " << C.Width() <<
@@ -286,14 +286,14 @@ Elemental::BLAS::Internal::GemmTN_B
 // Transpose Normal Gemm that avoids communicating the matrix C.
 template<typename T> 
 void
-Elemental::BLAS::Internal::GemmTN_C
+Elemental::BLAS::Internal::GemmTNC
 ( const Orientation orientationOfA,
   const T alpha, const DistMatrix<T,MC,MR>& A,
                  const DistMatrix<T,MC,MR>& B,
   const T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemmTN_C");
+    PushCallStack("BLAS::Internal::GemmTNC");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
     {
         if( A.GetGrid().VCRank() == 0 )
@@ -304,7 +304,7 @@ Elemental::BLAS::Internal::GemmTN_C
     if( orientationOfA == Normal )
     {
         if( A.GetGrid().VCRank() == 0 )
-            cerr << "GemmTN_C assumes A is (Conjugate)Transposed." << endl;
+            cerr << "GemmTNC assumes A is (Conjugate)Transposed." << endl;
         DumpCallStack();
         throw exception();
     }
@@ -314,7 +314,7 @@ Elemental::BLAS::Internal::GemmTN_C
     {
         if( A.GetGrid().VCRank() == 0 )
         {
-            cerr << "Nonconformal GemmTN_C: " <<
+            cerr << "Nonconformal GemmTNC: " <<
             endl << "  A ~ " << A.Height() << " x " << A.Width() <<
             endl << "  B ~ " << B.Height() << " x " << B.Width() <<
             endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
@@ -393,19 +393,19 @@ template void Elemental::BLAS::Internal::GemmTN
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_A
+template void Elemental::BLAS::Internal::GemmTNA
 ( const Orientation orientationOfA,
   const float alpha, const DistMatrix<float,MC,MR>& A,      
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_B
+template void Elemental::BLAS::Internal::GemmTNB
 ( const Orientation orientationOfA,
   const float alpha, const DistMatrix<float,MC,MR>& A,
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_C
+template void Elemental::BLAS::Internal::GemmTNC
 ( const Orientation orientationOfA,
   const float alpha, const DistMatrix<float,MC,MR>& A,
                      const DistMatrix<float,MC,MR>& B,
@@ -417,19 +417,19 @@ template void Elemental::BLAS::Internal::GemmTN
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_A
+template void Elemental::BLAS::Internal::GemmTNA
 ( const Orientation orientationOfA,
   const double alpha, const DistMatrix<double,MC,MR>& A,         
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_B
+template void Elemental::BLAS::Internal::GemmTNB
 ( const Orientation orientationOfA,
   const double alpha, const DistMatrix<double,MC,MR>& A,
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_C
+template void Elemental::BLAS::Internal::GemmTNC
 ( const Orientation orientationOfA,
   const double alpha, const DistMatrix<double,MC,MR>& A,
                       const DistMatrix<double,MC,MR>& B,
@@ -442,19 +442,19 @@ template void Elemental::BLAS::Internal::GemmTN
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_A
+template void Elemental::BLAS::Internal::GemmTNA
 ( const Orientation orientationOfA,
   const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_B
+template void Elemental::BLAS::Internal::GemmTNB
 ( const Orientation orientationOfA,
   const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_C
+template void Elemental::BLAS::Internal::GemmTNC
 ( const Orientation orientationOfA,
   const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
                         const DistMatrix<scomplex,MC,MR>& B,
@@ -466,19 +466,19 @@ template void Elemental::BLAS::Internal::GemmTN
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_A
+template void Elemental::BLAS::Internal::GemmTNA
 ( const Orientation orientationOfA,
   const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_B
+template void Elemental::BLAS::Internal::GemmTNB
 ( const Orientation orientationOfA,
   const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN_C
+template void Elemental::BLAS::Internal::GemmTNC
 ( const Orientation orientationOfA,
   const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,

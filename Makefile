@@ -157,7 +157,7 @@ src = $(coresrc) $(blassrc) $(lapacksrc)
 
 includefiles = Elemental.h \
                ElementalBLAS.h \
-               ElementalBLAS_Internal.h \
+               ElementalBLASInternal.h \
                ElementalDistMatrix.h \
                ElementalDistMatrix_MC_MR.h \
                ElementalDistMatrix_MC_Star.h \
@@ -175,7 +175,7 @@ includefiles = Elemental.h \
                ElementalEnvironment.h \
                ElementalGrid.h \
                ElementalLAPACK.h \
-               ElementalLAPACK_Internal.h \
+               ElementalLAPACKInternal.h \
                ElementalMemory.h \
                ElementalMatrix.h \
                ElementalPartitioning.h \

@@ -16,7 +16,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalBLAS_Internal.h"
+#include "ElementalBLASInternal.h"
 using namespace std;
 using namespace Elemental;
 
@@ -100,7 +100,7 @@ Elemental::BLAS::Internal::Her2kLC
         B1_Star_MR = B1;
         B1_Star_MC = B1_Star_MR;
 
-        BLAS::Internal::Her2kLC_Update
+        BLAS::Internal::Her2kLCUpdate
         ( alpha, A1_Star_MC, A1_Star_MR, 
                  B1_Star_MC, B1_Star_MR, (T)1, C ); 
         //--------------------------------------------------------------------//
@@ -126,7 +126,7 @@ Elemental::BLAS::Internal::Her2kLC
 
 template<typename T>
 void
-Elemental::BLAS::Internal::Her2kLC_Update
+Elemental::BLAS::Internal::Her2kLCUpdate
 ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
                  const DistMatrix<T,Star,MR>& A_Star_MR,
                  const DistMatrix<T,Star,MC>& B_Star_MC,
@@ -134,7 +134,7 @@ Elemental::BLAS::Internal::Her2kLC_Update
   const T beta,        DistMatrix<T,MC,  MR>& C         )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::Her2kLC_Update");
+    PushCallStack("BLAS::Internal::Her2kLCUpdate");
 #endif
     const Grid& grid = C.GetGrid();
 #ifndef RELEASE
@@ -159,7 +159,7 @@ Elemental::BLAS::Internal::Her2kLC_Update
     {
         if( grid.VCRank() == 0 )
         {
-            cerr << "Nonconformal Her2kLC_Update: " <<
+            cerr << "Nonconformal Her2kLCUpdate: " <<
             endl << "  A[* ,MC] ~ " << A_Star_MC.Height() << " x "
                                     << A_Star_MC.Width()  <<
             endl << "  A[* ,MR] ~ " << A_Star_MR.Height() << " x "
@@ -180,7 +180,7 @@ Elemental::BLAS::Internal::Her2kLC_Update
     {
         if( grid.VCRank() == 0 )
         {
-            cerr << "Misaligned Her2kLC_Update: " <<
+            cerr << "Misaligned Her2kLCUpdate: " <<
             endl << "  A[* ,MC] ~ " << A_Star_MC.RowAlignment() <<
             endl << "  A[* ,MR] ~ " << A_Star_MR.RowAlignment() <<
             endl << "  B[* ,MC] ~ " << B_Star_MC.RowAlignment() <<
@@ -303,7 +303,7 @@ template void Elemental::BLAS::Internal::Her2kLC
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Her2kLC_Update
+template void Elemental::BLAS::Internal::Her2kLCUpdate
 ( const float alpha, const DistMatrix<float,Star,MC>& A_Star_MC,
                      const DistMatrix<float,Star,MR>& A_Star_MR,
                      const DistMatrix<float,Star,MC>& B_Star_MC,
@@ -315,7 +315,7 @@ template void Elemental::BLAS::Internal::Her2kLC
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Her2kLC_Update
+template void Elemental::BLAS::Internal::Her2kLCUpdate
 ( const double alpha, const DistMatrix<double,Star,MC>& A_Star_MC,
                       const DistMatrix<double,Star,MR>& A_Star_MR,
                       const DistMatrix<double,Star,MC>& B_Star_MC,
@@ -328,7 +328,7 @@ template void Elemental::BLAS::Internal::Her2kLC
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Her2kLC_Update
+template void Elemental::BLAS::Internal::Her2kLCUpdate
 ( const scomplex alpha, 
   const DistMatrix<scomplex,Star,MC>& A_Star_MC,
   const DistMatrix<scomplex,Star,MR>& A_Star_MR,
@@ -342,7 +342,7 @@ template void Elemental::BLAS::Internal::Her2kLC
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Her2kLC_Update
+template void Elemental::BLAS::Internal::Her2kLCUpdate
 ( const dcomplex alpha, 
   const DistMatrix<dcomplex,Star,MC>& A_Star_MC,
   const DistMatrix<dcomplex,Star,MR>& A_Star_MR,
@@ -351,3 +351,4 @@ template void Elemental::BLAS::Internal::Her2kLC_Update
   const dcomplex beta, 
         DistMatrix<dcomplex,MC,MR>& C           );
 #endif
+

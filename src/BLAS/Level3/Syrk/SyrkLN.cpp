@@ -16,7 +16,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalBLAS_Internal.h"
+#include "ElementalBLASInternal.h"
 using namespace std;
 using namespace Elemental;
 
@@ -72,7 +72,7 @@ Elemental::BLAS::Internal::SyrkLN
         A1_MC_Star = A1;
         A1_MR_Star = A1_MC_Star;
 
-        BLAS::Internal::SyrkLN_Update
+        BLAS::Internal::SyrkLNUpdate
         ( alpha, A1_MC_Star, A1_MR_Star, (T)1, C ); 
         //--------------------------------------------------------------------//
         A1_MC_Star.FreeConstraints();
@@ -88,13 +88,13 @@ Elemental::BLAS::Internal::SyrkLN
 
 template<typename T>
 void
-Elemental::BLAS::Internal::SyrkLN_Update
+Elemental::BLAS::Internal::SyrkLNUpdate
 ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
                  const DistMatrix<T,MR,Star>& A_MR_Star,
   const T beta,        DistMatrix<T,MC,MR  >& C         )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::SyrkLN_Update");
+    PushCallStack("BLAS::Internal::SyrkLNUpdate");
 #endif
     const Grid& grid = C.GetGrid();
 #ifndef RELEASE
@@ -113,7 +113,7 @@ Elemental::BLAS::Internal::SyrkLN_Update
     {
         if( grid.VCRank() == 0 )
         {
-            cerr << "Nonconformal SyrkLN_Update: " <<
+            cerr << "Nonconformal SyrkLNUpdate: " <<
             endl << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
                                     << A_MC_Star.Width()  <<
             endl << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
@@ -128,7 +128,7 @@ Elemental::BLAS::Internal::SyrkLN_Update
     {
         if( grid.VCRank() == 0 )
         {
-            cerr << "Misaligned SyrkLN_Update: " <<
+            cerr << "Misaligned SyrkLNUpdate: " <<
             endl << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() <<
             endl << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() <<
             endl << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
@@ -226,7 +226,7 @@ template void Elemental::BLAS::Internal::SyrkLN
 ( const float alpha, const DistMatrix<float,MC,MR>& A,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::SyrkLN_Update
+template void Elemental::BLAS::Internal::SyrkLNUpdate
 ( const float alpha, const DistMatrix<float,MC,Star>& A_MC_Star,
                      const DistMatrix<float,MR,Star>& A_MR_Star,
   const float beta,        DistMatrix<float,MC,MR  >& C         );
@@ -235,7 +235,7 @@ template void Elemental::BLAS::Internal::SyrkLN
 ( const double alpha, const DistMatrix<double,MC,MR>& A,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::SyrkLN_Update
+template void Elemental::BLAS::Internal::SyrkLNUpdate
 ( const double alpha, const DistMatrix<double,MC,Star>& A_MC_Star,
                       const DistMatrix<double,MR,Star>& A_MR_Star,
   const double beta,        DistMatrix<double,MC,MR  >& C         );
@@ -245,7 +245,7 @@ template void Elemental::BLAS::Internal::SyrkLN
 ( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::SyrkLN_Update
+template void Elemental::BLAS::Internal::SyrkLNUpdate
 ( const scomplex alpha, 
   const DistMatrix<scomplex,MC,Star>& A_MC_Star,
   const DistMatrix<scomplex,MR,Star>& A_MR_Star,
@@ -256,7 +256,7 @@ template void Elemental::BLAS::Internal::SyrkLN
 ( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::SyrkLN_Update
+template void Elemental::BLAS::Internal::SyrkLNUpdate
 ( const dcomplex alpha, 
   const DistMatrix<dcomplex,MC,Star>& A_MC_Star,
   const DistMatrix<dcomplex,MR,Star>& A_MR_Star,

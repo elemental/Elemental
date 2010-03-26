@@ -16,7 +16,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalLAPACK_Internal.h"
+#include "ElementalLAPACKInternal.h"
 using namespace std;
 using namespace Elemental;
 
@@ -28,7 +28,7 @@ Elemental::LAPACK::Internal::TrinvL
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::TrinvL");
 #endif
-    TrinvL_Var3( diagonal, L );
+    TrinvLVar3( diagonal, L );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -36,11 +36,11 @@ Elemental::LAPACK::Internal::TrinvL
 
 template<typename T>
 void
-Elemental::LAPACK::Internal::TrinvL_Var3
+Elemental::LAPACK::Internal::TrinvLVar3
 ( const Diagonal diagonal, DistMatrix<T,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::TrinvL_Var3");
+    PushCallStack("LAPACK::Internal::TrinvLVar3");
     if( L.Height() != L.Width() )
     {
         if( L.GetGrid().VCRank() == 0 )
@@ -116,26 +116,26 @@ Elemental::LAPACK::Internal::TrinvL_Var3
 template void Elemental::LAPACK::Internal::TrinvL
 ( const Diagonal diagonal, DistMatrix<float,MC,MR>& L );
 
-template void Elemental::LAPACK::Internal::TrinvL_Var3
+template void Elemental::LAPACK::Internal::TrinvLVar3
 ( const Diagonal diagonal, DistMatrix<float,MC,MR>& L );
 
 template void Elemental::LAPACK::Internal::TrinvL
 ( const Diagonal diagonal, DistMatrix<double,MC,MR>& L );
 
-template void Elemental::LAPACK::Internal::TrinvL_Var3
+template void Elemental::LAPACK::Internal::TrinvLVar3
 ( const Diagonal diagonal, DistMatrix<double,MC,MR>& L );
 
 #ifndef WITHOUT_COMPLEX
 template void Elemental::LAPACK::Internal::TrinvL
 ( const Diagonal diagonal, DistMatrix<scomplex,MC,MR>& L );
 
-template void Elemental::LAPACK::Internal::TrinvL_Var3
+template void Elemental::LAPACK::Internal::TrinvLVar3
 ( const Diagonal diagonal, DistMatrix<scomplex,MC,MR>& L );
 
 template void Elemental::LAPACK::Internal::TrinvL
 ( const Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& L );
 
-template void Elemental::LAPACK::Internal::TrinvL_Var3
+template void Elemental::LAPACK::Internal::TrinvLVar3
 ( const Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& L );
 #endif
 

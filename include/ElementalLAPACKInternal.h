@@ -32,12 +32,12 @@ namespace Elemental
             //----------------------------------------------------------------//
             template<typename T>
             void
-            Chol_Var2
+            CholVar2
             ( const Shape shape, DistMatrix<T,MC,MR>& A );
 
             template<typename T>
             void
-            Chol_Var3
+            CholVar3
             ( const Shape shape, DistMatrix<T,MC,MR>& A );
 
             template<typename T>
@@ -50,19 +50,19 @@ namespace Elemental
 
             template<typename T>
             void
-            CholL_Var2( DistMatrix<T,MC,MR>& A );
+            CholLVar2( DistMatrix<T,MC,MR>& A );
 
             template<typename T>
             void
-            CholL_Var3( DistMatrix<T,MC,MR>& A );
+            CholLVar3( DistMatrix<T,MC,MR>& A );
 
             template<typename T>
             void
-            CholU_Var2( DistMatrix<T,MC,MR>& A );
+            CholUVar2( DistMatrix<T,MC,MR>& A );
  
             template<typename T>
             void
-            CholU_Var3( DistMatrix<T,MC,MR>& A );
+            CholUVar3( DistMatrix<T,MC,MR>& A );
             
             //----------------------------------------------------------------//
             // GaussElim                                                      //
@@ -228,7 +228,7 @@ namespace Elemental
             //----------------------------------------------------------------//
             template<typename T>
             void
-            Trinv_Var3
+            TrinvVar3
             ( const Shape shape, 
               const Diagonal diagonal,
               DistMatrix<T,MC,MR>& A  );
@@ -245,12 +245,12 @@ namespace Elemental
 
             template<typename T>
             void
-            TrinvL_Var3
+            TrinvLVar3
             ( const Diagonal diagonal, DistMatrix<T,MC,MR>& L );
 
             template<typename T>
             void
-            TrinvU_Var3
+            TrinvUVar3
             ( const Diagonal diagonal, DistMatrix<T,MC,MR>& U );
 
             //----------------------------------------------------------------//

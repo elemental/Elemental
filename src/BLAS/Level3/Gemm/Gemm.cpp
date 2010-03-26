@@ -16,7 +16,8 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalBLAS_Internal.h"
+#include "ElementalBLASInternal.h"
+using namespace std;
 using namespace Elemental;
 
 template<typename T>
@@ -55,7 +56,7 @@ Elemental::BLAS::Gemm
 
 template<typename T>
 void
-Elemental::BLAS::Internal::Gemm_A
+Elemental::BLAS::Internal::GemmA
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const T alpha, const DistMatrix<T,MC,MR>& A,
@@ -63,24 +64,24 @@ Elemental::BLAS::Internal::Gemm_A
   const T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::Gemm_A");
+    PushCallStack("BLAS::Internal::GemmA");
 #endif
     if( orientationOfA == Normal && orientationOfB == Normal )
     {
-        BLAS::Internal::GemmNN_A( alpha, A, B, beta, C );
+        BLAS::Internal::GemmNNA( alpha, A, B, beta, C );
     }
     else if( orientationOfA == Normal )
     {
-        BLAS::Internal::GemmNT_A( orientationOfB, alpha, A, B, beta, C );
+        BLAS::Internal::GemmNTA( orientationOfB, alpha, A, B, beta, C );
     }
     else if( orientationOfB == Normal )
     {
-        BLAS::Internal::GemmTN_A( orientationOfA, alpha, A, B, beta, C );
+        BLAS::Internal::GemmTNA( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
-        BLAS::Internal::GemmTT_A( orientationOfA, orientationOfB,
-                                  alpha, A, B, beta, C );
+        BLAS::Internal::GemmTTA( orientationOfA, orientationOfB,
+                                 alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -89,7 +90,7 @@ Elemental::BLAS::Internal::Gemm_A
 
 template<typename T>
 void
-Elemental::BLAS::Internal::Gemm_B
+Elemental::BLAS::Internal::GemmB
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const T alpha, const DistMatrix<T,MC,MR>& A,
@@ -97,24 +98,24 @@ Elemental::BLAS::Internal::Gemm_B
   const T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::Gemm_B");
+    PushCallStack("BLAS::Internal::GemmB");
 #endif
     if( orientationOfA == Normal && orientationOfB == Normal )
     {
-        BLAS::Internal::GemmNN_B( alpha, A, B, beta, C );
+        BLAS::Internal::GemmNNB( alpha, A, B, beta, C );
     }
     else if( orientationOfA == Normal )
     {
-        BLAS::Internal::GemmNT_B( orientationOfB, alpha, A, B, beta, C );
+        BLAS::Internal::GemmNTB( orientationOfB, alpha, A, B, beta, C );
     }
     else if( orientationOfB == Normal )
     {
-        BLAS::Internal::GemmTN_B( orientationOfA, alpha, A, B, beta, C );
+        BLAS::Internal::GemmTNB( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
-        BLAS::Internal::GemmTT_B( orientationOfA, orientationOfB, 
-                                  alpha, A, B, beta, C );
+        BLAS::Internal::GemmTTB( orientationOfA, orientationOfB, 
+                                 alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -123,7 +124,7 @@ Elemental::BLAS::Internal::Gemm_B
 
 template<typename T>
 void
-Elemental::BLAS::Internal::Gemm_C
+Elemental::BLAS::Internal::GemmC
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const T alpha, const DistMatrix<T,MC,MR>& A,
@@ -131,25 +132,71 @@ Elemental::BLAS::Internal::Gemm_C
   const T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::Gemm_C");
+    PushCallStack("BLAS::Internal::GemmC");
 #endif
     if( orientationOfA == Normal && orientationOfB == Normal )
     {
-        BLAS::Internal::GemmNN_C( alpha, A, B, beta, C );
+        BLAS::Internal::GemmNNC( alpha, A, B, beta, C );
     }
     else if( orientationOfA == Normal )
     {
-        BLAS::Internal::GemmNT_C( orientationOfB, alpha, A, B, beta, C );
+        BLAS::Internal::GemmNTC( orientationOfB, alpha, A, B, beta, C );
     }
     else if( orientationOfB == Normal )
     {
-        BLAS::Internal::GemmTN_C( orientationOfA, alpha, A, B, beta, C );
+        BLAS::Internal::GemmTNC( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
-        BLAS::Internal::GemmTT_C( orientationOfA, orientationOfB,
-                                  alpha, A, B, beta, C );
+        BLAS::Internal::GemmTTC( orientationOfA, orientationOfB,
+                                 alpha, A, B, beta, C );
     }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+Elemental::BLAS::Internal::GemmDot
+( const Orientation orientationOfA, 
+  const Orientation orientationOfB,
+  const T alpha, const DistMatrix<T,MC,MR>& A,
+                 const DistMatrix<T,MC,MR>& B,
+  const T beta,        DistMatrix<T,MC,MR>& C )
+{
+#ifndef RELEASE
+    PushCallStack("BLAS::Internal::GemmDot");
+#endif
+    if( orientationOfA == Normal && orientationOfB == Normal )
+    {
+        BLAS::Internal::GemmNNDot( alpha, A, B, beta, C );
+    }
+    else
+    {
+        if( A.GetGrid().VCRank() == 0 )
+            cerr << "GemmDot currently only implemented for NN case." << endl;
+#ifndef RELEASE 
+        DumpCallStack();
+#endif
+        throw exception();
+    }
+    // This code will be enabled when the routines are implemented
+    /*
+    else if( orientationOfA == Normal )
+    {
+        BLAS::Internal::GemmNTDot( orientationOfB, alpha, A, B, beta, C );
+    }
+    else if( orientationOfB == Normal )
+    {
+        BLAS::Internal::GemmTNDot( orientationOfA, alpha, A, B, beta, C );
+    }
+    else
+    {
+        BLAS::Internal::GemmTTDot( orientationOfA, orientationOfB,
+                                   alpha, A, B, beta, C );
+    }
+    */
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -162,21 +209,28 @@ template void Elemental::BLAS::Gemm
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_A
+template void Elemental::BLAS::Internal::GemmA
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const float alpha, const DistMatrix<float,MC,MR>& A,
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_B
+template void Elemental::BLAS::Internal::GemmB
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const float alpha, const DistMatrix<float,MC,MR>& A,
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_C
+template void Elemental::BLAS::Internal::GemmC
+( const Orientation orientationOfA, 
+  const Orientation orientationOfB,
+  const float alpha, const DistMatrix<float,MC,MR>& A,
+                     const DistMatrix<float,MC,MR>& B,
+  const float beta,        DistMatrix<float,MC,MR>& C );
+
+template void Elemental::BLAS::Internal::GemmDot
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const float alpha, const DistMatrix<float,MC,MR>& A,
@@ -190,21 +244,28 @@ template void Elemental::BLAS::Gemm
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_A
+template void Elemental::BLAS::Internal::GemmA
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const double alpha, const DistMatrix<double,MC,MR>& A,
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_B
+template void Elemental::BLAS::Internal::GemmB
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const double alpha, const DistMatrix<double,MC,MR>& A,
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_C
+template void Elemental::BLAS::Internal::GemmC
+( const Orientation orientationOfA, 
+  const Orientation orientationOfB,
+  const double alpha, const DistMatrix<double,MC,MR>& A,
+                      const DistMatrix<double,MC,MR>& B,
+  const double beta,        DistMatrix<double,MC,MR>& C );
+
+template void Elemental::BLAS::Internal::GemmDot
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const double alpha, const DistMatrix<double,MC,MR>& A,
@@ -219,22 +280,29 @@ template void Elemental::BLAS::Gemm
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_A
+template void Elemental::BLAS::Internal::GemmA
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_B
+template void Elemental::BLAS::Internal::GemmB
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_C
+template void Elemental::BLAS::Internal::GemmC
 ( const Orientation orientationOfA, 
+  const Orientation orientationOfB,
+  const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
+                        const DistMatrix<scomplex,MC,MR>& B,
+  const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+
+template void Elemental::BLAS::Internal::GemmDot
+( const Orientation orientationOfA,
   const Orientation orientationOfB,
   const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
                         const DistMatrix<scomplex,MC,MR>& B,
@@ -247,22 +315,29 @@ template void Elemental::BLAS::Gemm
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_A
+template void Elemental::BLAS::Internal::GemmA
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_B
+template void Elemental::BLAS::Internal::GemmB
 ( const Orientation orientationOfA, 
   const Orientation orientationOfB,
   const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Gemm_C
+template void Elemental::BLAS::Internal::GemmC
 ( const Orientation orientationOfA, 
+  const Orientation orientationOfB,
+  const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
+                        const DistMatrix<dcomplex,MC,MR>& B,
+  const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void Elemental::BLAS::Internal::GemmDot
+( const Orientation orientationOfA,
   const Orientation orientationOfB,
   const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,

@@ -20,7 +20,7 @@
 #include <ctime>
 #include <sstream>
 #include "Elemental.h"
-#include "ElementalBLAS_Internal.h"
+#include "ElementalBLASInternal.h"
 using namespace std;
 using namespace Elemental;
 using namespace Elemental::wrappers::MPI;
@@ -419,7 +419,7 @@ void TestParallelGemm
     }
     Barrier( grid.VCComm() );
     startTime = Time();
-    BLAS::Internal::Gemm_A
+    BLAS::Internal::GemmA
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     Barrier( grid.VCComm() );
     endTime = Time();
@@ -472,7 +472,7 @@ void TestParallelGemm
     }
     Barrier( grid.VCComm() );
     startTime = Time();
-    BLAS::Internal::Gemm_B
+    BLAS::Internal::GemmB
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     Barrier( grid.VCComm() );
     endTime = Time();
@@ -525,7 +525,7 @@ void TestParallelGemm
     }
     Barrier( grid.VCComm() );
     startTime = Time();
-    BLAS::Internal::Gemm_C
+    BLAS::Internal::GemmC
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     Barrier( grid.VCComm() );
     endTime = Time();
@@ -544,6 +544,62 @@ void TestParallelGemm
         TestParallelCorrectness
         ( orientationOfA, orientationOfB,
           alpha, A_ref, B_ref, beta, C_ref, C, printMatrices );
+    }
+    
+    if( orientationOfA == Normal && orientationOfB == Normal )
+    {
+        // Test the variant of Gemm for panel-panel dot products
+        if( grid.VCRank() == 0 )
+            cout << endl << "Dot Product Algorithm:" << endl;
+        A.SetToRandom();
+        B.SetToRandom();
+        C.SetToRandom();
+        if( testCorrectness )
+        {
+            if( grid.VCRank() == 0 )
+            {
+                cout << "  Making copies of original matrices...";
+                cout.flush();
+            }
+            A_ref = A;
+            B_ref = B;
+            C_ref = C;
+            if( grid.VCRank() == 0 )
+                cout << "DONE" << endl;
+        }
+        if( printMatrices )
+        {
+            A.Print("A");
+            B.Print("B");
+            C.Print("C");
+        }
+        if( grid.VCRank() == 0 )
+        {
+            cout << "  Starting Parallel Gemm...";
+            cout.flush();
+        }
+        Barrier( grid.VCComm() );
+        startTime = Time();
+        BLAS::Internal::GemmDot
+        ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
+        Barrier( grid.VCComm() );
+        endTime = Time();
+        runTime = endTime - startTime;
+        gFlops = BLAS::Internal::GemmGFlops<T>(m,n,k,runTime);
+        if( grid.VCRank() == 0 )
+            cout << "DONE. GFlops = " << gFlops << endl;
+        if( printMatrices )
+        {
+            ostringstream msg;
+            msg << "C := " << alpha << " A B + " << beta << " C";
+            C.Print( msg.str() );
+        }
+        if( testCorrectness )
+        {
+            TestParallelCorrectness
+            ( orientationOfA, orientationOfB,
+              alpha, A_ref, B_ref, beta, C_ref, C, printMatrices );
+        }
     }
 }
 

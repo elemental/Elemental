@@ -16,7 +16,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalBLAS_Internal.h"
+#include "ElementalBLASInternal.h"
 using namespace std;
 using namespace Elemental;
 
@@ -89,7 +89,7 @@ Elemental::BLAS::Internal::Syr2kLN
         B1_MC_Star = B1;
         B1_MR_Star = B1_MC_Star;
 
-        BLAS::Internal::Syr2kLN_Update
+        BLAS::Internal::Syr2kLNUpdate
         ( alpha, A1_MC_Star, A1_MR_Star, B1_MC_Star, B1_MR_Star, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_Star.FreeConstraints();
@@ -110,7 +110,7 @@ Elemental::BLAS::Internal::Syr2kLN
 
 template<typename T>
 void
-Elemental::BLAS::Internal::Syr2kLN_Update
+Elemental::BLAS::Internal::Syr2kLNUpdate
 ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
                  const DistMatrix<T,MR,Star>& A_MR_Star,
                  const DistMatrix<T,MC,Star>& B_MC_Star,
@@ -118,7 +118,7 @@ Elemental::BLAS::Internal::Syr2kLN_Update
   const T beta,        DistMatrix<T,MC,MR  >& C         )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::Syr2kLN_Update");
+    PushCallStack("BLAS::Internal::Syr2kLNUpdate");
 #endif
     const Grid& grid = C.GetGrid();
 #ifndef RELEASE
@@ -141,7 +141,7 @@ Elemental::BLAS::Internal::Syr2kLN_Update
     {
         if( grid.VCRank() == 0 )
         {
-            cerr << "Nonconformal Syr2kLN_Update: " <<
+            cerr << "Nonconformal Syr2kLNUpdate: " <<
             endl << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
                                     << A_MC_Star.Width()  <<
             endl << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
@@ -162,7 +162,7 @@ Elemental::BLAS::Internal::Syr2kLN_Update
     {
         if( grid.VCRank() == 0 )
         {
-            cerr << "Misaligned Syr2kLN_Update: " << 
+            cerr << "Misaligned Syr2kLNUpdate: " << 
             endl << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() <<
             endl << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() <<
             endl << "  B[MC,* ] ~ " << B_MC_Star.ColAlignment() <<
@@ -305,7 +305,7 @@ template void Elemental::BLAS::Internal::Syr2kLN
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Syr2kLN_Update
+template void Elemental::BLAS::Internal::Syr2kLNUpdate
 ( const float alpha, const DistMatrix<float,MC,Star>& A_MC_Star,
                      const DistMatrix<float,MR,Star>& A_MR_Star,
                      const DistMatrix<float,MC,Star>& B_MC_Star,
@@ -317,7 +317,7 @@ template void Elemental::BLAS::Internal::Syr2kLN
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Syr2kLN_Update
+template void Elemental::BLAS::Internal::Syr2kLNUpdate
 ( const double alpha, const DistMatrix<double,MC,Star>& A_MC_Star,
                       const DistMatrix<double,MR,Star>& A_MR_Star,
                       const DistMatrix<double,MC,Star>& B_MC_Star,
@@ -330,7 +330,7 @@ template void Elemental::BLAS::Internal::Syr2kLN
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Syr2kLN_Update
+template void Elemental::BLAS::Internal::Syr2kLNUpdate
 ( const scomplex alpha, 
   const DistMatrix<scomplex,MC,Star>& A_MC_Star,
   const DistMatrix<scomplex,MR,Star>& A_MR_Star,
@@ -344,7 +344,7 @@ template void Elemental::BLAS::Internal::Syr2kLN
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Syr2kLN_Update
+template void Elemental::BLAS::Internal::Syr2kLNUpdate
 ( const dcomplex alpha, 
   const DistMatrix<dcomplex,MC,Star>& A_MC_Star,
   const DistMatrix<dcomplex,MR,Star>& A_MR_Star,

@@ -16,8 +16,8 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalBLAS_Internal.h"
-#include "ElementalLAPACK_Internal.h"
+#include "ElementalBLASInternal.h"
+#include "ElementalLAPACKInternal.h"
 using namespace std;
 using namespace Elemental;
 
@@ -30,7 +30,7 @@ Elemental::LAPACK::Internal::CholU
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::CholU");
 #endif
-    LAPACK::Internal::CholU_Var2( A );
+    LAPACK::Internal::CholUVar2( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -67,11 +67,11 @@ Elemental::LAPACK::Internal::CholU
 */
 template<typename T>
 void
-Elemental::LAPACK::Internal::CholU_Var2
+Elemental::LAPACK::Internal::CholUVar2
 ( DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::CholU_Var2");
+    PushCallStack("LAPACK::Internal::CholUVar2");
     if( A.Height() != A.Width() )
     {
         if( A.GetGrid().VCRank() == 0 )
@@ -178,11 +178,11 @@ Elemental::LAPACK::Internal::CholU_Var2
 */
 template<typename T>
 void
-LAPACK::Internal::CholU_Var3
+LAPACK::Internal::CholUVar3
 ( DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::CholU_Var3");
+    PushCallStack("LAPACK::Internal::CholUVar3");
     if( A.Height() != A.Width() )
     {
         if( A.GetGrid().VCRank() == 0 )
@@ -236,7 +236,7 @@ LAPACK::Internal::CholU_Var3
         A12_Star_VC = A12_Star_VR; 
         A12_Star_MC = A12_Star_VC;
         A12_Star_MR = A12_Star_VR;
-        BLAS::Internal::HerkUC_Update
+        BLAS::Internal::HerkUCUpdate
         ( (T)-1, A12_Star_MC, A12_Star_MR, (T)1, A22 );
         A12 = A12_Star_MR;
         //--------------------------------------------------------------------//
@@ -258,38 +258,38 @@ LAPACK::Internal::CholU_Var3
 template void Elemental::LAPACK::Internal::CholU
 ( DistMatrix<float,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholU_Var2
+template void Elemental::LAPACK::Internal::CholUVar2
 ( DistMatrix<float,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholU_Var3
+template void Elemental::LAPACK::Internal::CholUVar3
 ( DistMatrix<float,MC,MR>& A );
 
 template void Elemental::LAPACK::Internal::CholU
 ( DistMatrix<double,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholU_Var2
+template void Elemental::LAPACK::Internal::CholUVar2
 ( DistMatrix<double,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholU_Var3
+template void Elemental::LAPACK::Internal::CholUVar3
 ( DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template void Elemental::LAPACK::Internal::CholU
 ( DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholU_Var2
+template void Elemental::LAPACK::Internal::CholUVar2
 ( DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholU_Var3
+template void Elemental::LAPACK::Internal::CholUVar3
 ( DistMatrix<scomplex,MC,MR>& A );
 
 template void Elemental::LAPACK::Internal::CholU
 ( DistMatrix<dcomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholU_Var2
+template void Elemental::LAPACK::Internal::CholUVar2
 ( DistMatrix<dcomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholU_Var3
+template void Elemental::LAPACK::Internal::CholUVar3
 ( DistMatrix<dcomplex,MC,MR>& A );
 #endif
 

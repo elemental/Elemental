@@ -418,7 +418,7 @@ namespace Elemental
             // Gemm where we avoid redistributing A.
             template<typename T>
             void
-            Gemm_A
+            GemmA
             ( const Orientation orientationOfA, 
               const Orientation orientationOfB,
               const T alpha, 
@@ -430,7 +430,7 @@ namespace Elemental
             // Gemm where we avoid redistributing B.
             template<typename T>
             void
-            Gemm_B
+            GemmB
             ( const Orientation orientationOfA, 
               const Orientation orientationOfB,
               const T alpha, 
@@ -442,10 +442,22 @@ namespace Elemental
             // Gemm where we avoid redistributing C.
             template<typename T>
             void
-            Gemm_C
+            GemmC
             ( const Orientation orientationOfA, 
               const Orientation orientationOfB,
               const T alpha, 
+              const DistMatrix<T,MC,MR>& A,
+              const DistMatrix<T,MC,MR>& B,
+              const T beta,
+                    DistMatrix<T,MC,MR>& C     );
+
+            // Gemm for panel-panel dot products.
+            template<typename T>
+            void
+            GemmDot
+            ( const Orientation orientationOfA,
+              const Orientation orientationOfB,
+              const T alpha,
               const DistMatrix<T,MC,MR>& A,
               const DistMatrix<T,MC,MR>& B,
               const T beta,
@@ -462,7 +474,7 @@ namespace Elemental
             // Normal Normal Gemm where we avoid redistributing A.
             template<typename T>
             void
-            GemmNN_A
+            GemmNNA
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -470,7 +482,7 @@ namespace Elemental
             // Normal Normal Gemm where we avoid redistributing B.
             template<typename T>
             void
-            GemmNN_B
+            GemmNNB
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -478,7 +490,15 @@ namespace Elemental
             // Normal Normal Gemm where we avoid redistributing C.
             template<typename T>
             void
-            GemmNN_C
+            GemmNNC
+            ( const T alpha, const DistMatrix<T,MC,MR>& A,
+                             const DistMatrix<T,MC,MR>& B,
+              const T beta,        DistMatrix<T,MC,MR>& C );
+
+            // Normal Normal Gemm for panel-panel dot product
+            template<typename T>
+            void
+            GemmNNDot
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -495,7 +515,7 @@ namespace Elemental
             // Normal (Conjugate)Transpose Gemm where we avoid redistributing A.
             template<typename T>
             void
-            GemmNT_A
+            GemmNTA
             ( const Orientation orientationOfB,
               const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
@@ -504,7 +524,7 @@ namespace Elemental
             // Normal (Conjugate)Transpose Gemm where we avoid redistributing B.
             template<typename T>
             void
-            GemmNT_B
+            GemmNTB
             ( const Orientation orientationOfB,
               const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
@@ -513,7 +533,16 @@ namespace Elemental
             // Normal (Conjugate)Transpose Gemm where we avoid redistributing C.
             template<typename T>
             void
-            GemmNT_C
+            GemmNTC
+            ( const Orientation orientationOfB,
+              const T alpha, const DistMatrix<T,MC,MR>& A,
+                             const DistMatrix<T,MC,MR>& B,
+              const T beta,        DistMatrix<T,MC,MR>& C );
+ 
+            // Normal (Conjugate)Transpose Gemm for panel-panel dot product
+            template<typename T>
+            void
+            GemmNTDot
             ( const Orientation orientationOfB,
               const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
@@ -531,7 +560,7 @@ namespace Elemental
             // (Conjugate)Transpose Normal Gemm where we avoid redistributing A.
             template<typename T>
             void
-            GemmTN_A
+            GemmTNA
             ( const Orientation orientationOfA,
               const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
@@ -540,7 +569,7 @@ namespace Elemental
             // (Conjugate)Transpose Normal Gemm where we avoid redistributing B.
             template<typename T>
             void
-            GemmTN_B
+            GemmTNB
             ( const Orientation orientationOfA,
               const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
@@ -549,7 +578,16 @@ namespace Elemental
             // (Conjugate)Transpose Normal Gemm where we avoid redistributing C.
             template<typename T>
             void
-            GemmTN_C
+            GemmTNC
+            ( const Orientation orientationOfA,
+              const T alpha, const DistMatrix<T,MC,MR>& A,
+                             const DistMatrix<T,MC,MR>& B,
+              const T beta,        DistMatrix<T,MC,MR>& C );
+
+            // (Conjugate)Transpose Normal Gemm for panel-panel dot product
+            template<typename T>
+            void
+            GemmTNDot
             ( const Orientation orientationOfA,
               const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
@@ -569,7 +607,7 @@ namespace Elemental
             // redistributing A.
             template<typename T>
             void
-            GemmTT_A
+            GemmTTA
             ( const Orientation orientationOfA, 
               const Orientation orientationOfB,
               const T alpha, const DistMatrix<T,MC,MR>& A,
@@ -580,7 +618,7 @@ namespace Elemental
             // redistributing B.
             template<typename T>
             void
-            GemmTT_B
+            GemmTTB
             ( const Orientation orientationOfA, 
               const Orientation orientationOfB,
               const T alpha, const DistMatrix<T,MC,MR>& A,
@@ -591,7 +629,18 @@ namespace Elemental
             // redistributing C.
             template<typename T>
             void
-            GemmTT_C
+            GemmTTC
+            ( const Orientation orientationOfA, 
+              const Orientation orientationOfB,
+              const T alpha, const DistMatrix<T,MC,MR>& A,
+                             const DistMatrix<T,MC,MR>& B,
+              const T beta,        DistMatrix<T,MC,MR>& C );
+
+            // (Conjugate)Transpose (Conjugate)Transpose Gemm for panel-panel
+            // dot product
+            template<typename T>
+            void
+            GemmTTDot
             ( const Orientation orientationOfA, 
               const Orientation orientationOfB,
               const T alpha, const DistMatrix<T,MC,MR>& A,
@@ -618,7 +667,7 @@ namespace Elemental
             // Left Lower Hemm where we avoid redistributing C
             template<typename T>
             void
-            HemmLL_C
+            HemmLLC
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -634,7 +683,7 @@ namespace Elemental
             // Left Upper Hemm where we avoid redistributing C
             template<typename T>
             void
-            HemmLU_C
+            HemmLUC
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -650,7 +699,7 @@ namespace Elemental
             // Right Lower Hemm where we avoid redistributing C
             template<typename T>
             void
-            HemmRL_C
+            HemmRLC
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -666,7 +715,7 @@ namespace Elemental
             // Right Upper Hemm where we avoid redistributing C
             template<typename T>
             void
-            HemmRU_C
+            HemmRUC
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -682,7 +731,7 @@ namespace Elemental
             // Lower, Normal Her2k Update
             template<typename T>
             void
-            Her2kLN_Update
+            Her2kLNUpdate
             ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
                              const DistMatrix<T,MR,Star>& A_MR_Star,
                              const DistMatrix<T,MC,Star>& B_MC_Star,
@@ -700,7 +749,7 @@ namespace Elemental
             // Lower, ConjugateTranspose Her2k Update
             template<typename T>
             void
-            Her2kLC_Update
+            Her2kLCUpdate
             ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
                              const DistMatrix<T,Star,MR>& A_MR_Star,
                              const DistMatrix<T,Star,MC>& B_MC_Star,
@@ -718,7 +767,7 @@ namespace Elemental
             // Upper, Normal Her2k Update
             template<typename T>
             void
-            Her2kUN_Update
+            Her2kUNUpdate
             ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
                              const DistMatrix<T,MR,Star>& A_MR_Star,
                              const DistMatrix<T,MC,Star>& B_MC_Star,
@@ -736,7 +785,7 @@ namespace Elemental
             // Upper, ConjugateTranspose Her2k Update
             template<typename T>
             void
-            Her2kUC_Update
+            Her2kUCUpdate
             ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
                              const DistMatrix<T,Star,MR>& A_MR_Star,
                              const DistMatrix<T,Star,MC>& B_MC_Star,
@@ -754,7 +803,7 @@ namespace Elemental
             // Lower, Normal Herk Update
             template<typename T>
             void
-            HerkLN_Update
+            HerkLNUpdate
             ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
                              const DistMatrix<T,MR,Star>& A_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C         );
@@ -769,7 +818,7 @@ namespace Elemental
             // Lower, ConjugateTranspose Herk Update
             template<typename T>
             void
-            HerkLC_Update
+            HerkLCUpdate
             ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
                              const DistMatrix<T,Star,MR>& A_Star_MR,
               const T beta,        DistMatrix<T,MC,  MR>& C         );
@@ -784,7 +833,7 @@ namespace Elemental
             // Upper, Normal Herk Update
             template<typename T>
             void
-            HerkUN_Update
+            HerkUNUpdate
             ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
                              const DistMatrix<T,MR,Star>& A_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C         );
@@ -799,7 +848,7 @@ namespace Elemental
             // Upper, ConjugateTranspose Herk Update
             template<typename T>
             void
-            HerkUC_Update
+            HerkUCUpdate
             ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
                              const DistMatrix<T,Star,MR>& A_Star_MR,
               const T beta,        DistMatrix<T,MC,  MR>& C         );
@@ -824,7 +873,7 @@ namespace Elemental
             // Left Lower Symm where we avoid redistributing C
             template<typename T>
             void
-            SymmLL_C
+            SymmLLC
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -840,7 +889,7 @@ namespace Elemental
             // Left Upper Symm where we avoid redistributing C
             template<typename T>
             void
-            SymmLU_C
+            SymmLUC
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -856,7 +905,7 @@ namespace Elemental
             // Right Lower Symm where we avoid redistributing C
             template<typename T>
             void
-            SymmRL_C
+            SymmRLC
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -872,7 +921,7 @@ namespace Elemental
             // Right Upper Symm where we avoid redistributing C
             template<typename T>
             void
-            SymmRU_C
+            SymmRUC
             ( const T alpha, const DistMatrix<T,MC,MR>& A,
                              const DistMatrix<T,MC,MR>& B,
               const T beta,        DistMatrix<T,MC,MR>& C );
@@ -888,7 +937,7 @@ namespace Elemental
             // Lower, Normal Syr2k Update
             template<typename T>
             void
-            Syr2kLN_Update
+            Syr2kLNUpdate
             ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
                              const DistMatrix<T,MR,Star>& A_MR_Star,
                              const DistMatrix<T,MC,Star>& B_MC_Star,
@@ -906,7 +955,7 @@ namespace Elemental
             // Lower, Transpose Syr2k Update
             template<typename T>
             void
-            Syr2kLT_Update
+            Syr2kLTUpdate
             ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
                              const DistMatrix<T,Star,MR>& A_MR_Star,
                              const DistMatrix<T,Star,MC>& B_MC_Star,
@@ -924,7 +973,7 @@ namespace Elemental
             // Upper, Normal Syr2k Update
             template<typename T>
             void
-            Syr2kUN_Update
+            Syr2kUNUpdate
             ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
                              const DistMatrix<T,MR,Star>& A_MR_Star,
                              const DistMatrix<T,MC,Star>& B_MC_Star,
@@ -942,7 +991,7 @@ namespace Elemental
             // Upper, Transpose Syr2k Update
             template<typename T>
             void
-            Syr2kUT_Update
+            Syr2kUTUpdate
             ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
                              const DistMatrix<T,Star,MR>& A_MR_Star,
                              const DistMatrix<T,Star,MC>& B_MC_Star,
@@ -959,7 +1008,7 @@ namespace Elemental
             // Lower, Normal Syrk Update
             template<typename T>
             void
-            SyrkLN_Update
+            SyrkLNUpdate
             ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
                              const DistMatrix<T,MR,Star>& A_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C         );
@@ -974,7 +1023,7 @@ namespace Elemental
             // Lower, Transpose Syrk Update
             template<typename T>
             void
-            SyrkLT_Update
+            SyrkLTUpdate
             ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
                              const DistMatrix<T,Star,MR>& A_Star_MR,
               const T beta,        DistMatrix<T,MC,  MR>& C         );
@@ -989,7 +1038,7 @@ namespace Elemental
             // Upper, Normal Syrk Update
             template<typename T>
             void
-            SyrkUN_Update
+            SyrkUNUpdate
             ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
                              const DistMatrix<T,MR,Star>& A_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C         );
@@ -1004,7 +1053,7 @@ namespace Elemental
             // Upper, Transpose Syrk Update
             template<typename T>
             void
-            SyrkUT_Update
+            SyrkUTUpdate
             ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
                              const DistMatrix<T,Star,MR>& A_Star_MR,
               const T beta,        DistMatrix<T,MC,  MR>& C         );

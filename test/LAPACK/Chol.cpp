@@ -2,7 +2,7 @@
 #include <ctime>
 #include <sstream>
 #include "Elemental.h"
-#include "ElementalLAPACK_Internal.h"
+#include "ElementalLAPACKInternal.h"
 using namespace std;
 using namespace Elemental;
 using namespace Elemental::wrappers::MPI;
@@ -188,9 +188,9 @@ void TestChol
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
     if( var3 )
-        LAPACK::Internal::Chol_Var3( shape, A );
+        LAPACK::Internal::CholVar3( shape, A );
     else
-        LAPACK::Internal::Chol_Var2( shape, A );
+        LAPACK::Internal::CholVar2( shape, A );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;

@@ -16,7 +16,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalBLAS_Internal.h"
+#include "ElementalBLASInternal.h"
 using namespace std;
 using namespace Elemental;
 
@@ -40,31 +40,40 @@ Elemental::BLAS::Internal::GemmNN
     const int m = C.Height();
     const int n = C.Width();
     const int k = A.Width();
-    const float weightTowardsC = 0.5;
+    const float weightTowardsC = 2.0;
+    const float weightAwayFromDot = 10.0;
 
-    if( m <= n && m <= weightTowardsC*k )
+    if( weightAwayFromDot*m <= k && weightAwayFromDot*n <= k )
     {
 #ifndef RELEASE
         if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmNN routing to GemmNN_B." << endl;
+            cout << "  GemmNN routing to GemmNNDot." << endl;
 #endif
-        BLAS::Internal::GemmNN_B( alpha, A, B, beta, C );    
+        BLAS::Internal::GemmNNDot( alpha, A, B, beta, C );
     }
-    else if( n <= m && n <= weightTowardsC*k )
+    else if( m <= n && weightTowardsC*m <= k )
     {
 #ifndef RELEASE
         if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmNN routing to GemmNN_A." << endl;
+            cout << "  GemmNN routing to GemmNNB." << endl;
 #endif
-        BLAS::Internal::GemmNN_A( alpha, A, B, beta, C );
+        BLAS::Internal::GemmNNB( alpha, A, B, beta, C );    
+    }
+    else if( n <= m && weightTowardsC*n <= k )
+    {
+#ifndef RELEASE
+        if( A.GetGrid().VCRank() == 0 )
+            cout << "  GemmNN routing to GemmNNA." << endl;
+#endif
+        BLAS::Internal::GemmNNA( alpha, A, B, beta, C );
     }
     else
     {
 #ifndef RELEASE
         if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmNN routing to GemmNN_C." << endl;
+            cout << "  GemmNN routing to GemmNNC." << endl;
 #endif
-        BLAS::Internal::GemmNN_C( alpha, A, B, beta, C );
+        BLAS::Internal::GemmNNC( alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -74,13 +83,13 @@ Elemental::BLAS::Internal::GemmNN
 // Normal Normal Gemm that avoids communicating the matrix A.
 template<typename T>
 void
-Elemental::BLAS::Internal::GemmNN_A
+Elemental::BLAS::Internal::GemmNNA
 ( const T alpha, const DistMatrix<T,MC,MR>& A,
                  const DistMatrix<T,MC,MR>& B,
   const T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemmNN_A");
+    PushCallStack("BLAS::Internal::GemmNNA");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
     {
         if( A.GetGrid().VCRank() == 0 )
@@ -94,7 +103,7 @@ Elemental::BLAS::Internal::GemmNN_A
     {
         if( A.GetGrid().VCRank() == 0 )
         {
-            cerr << "Nonconformal GemmNN_A: " <<
+            cerr << "Nonconformal GemmNNA: " <<
             endl << "  A ~ " << A.Height() << " x " << A.Width() << 
             endl << "  B ~ " << B.Height() << " x " << B.Width() <<
             endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
@@ -159,13 +168,13 @@ Elemental::BLAS::Internal::GemmNN_A
 // Normal Normal Gemm that avoids communicating the matrix B.
 template<typename T>
 void 
-Elemental::BLAS::Internal::GemmNN_B
+Elemental::BLAS::Internal::GemmNNB
 ( const T alpha, const DistMatrix<T,MC,MR>& A,
                  const DistMatrix<T,MC,MR>& B,
   const T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemmNN_B");
+    PushCallStack("BLAS::Internal::GemmNNB");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
     {
         if( A.GetGrid().VCRank() == 0 )
@@ -179,7 +188,7 @@ Elemental::BLAS::Internal::GemmNN_B
     {
         if( A.GetGrid().VCRank() == 0 )
         {
-            cerr << "Nonconformal GemmNN_B: " <<
+            cerr << "Nonconformal GemmNNB: " <<
             endl << "  A ~ " << A.Height() << " x " << A.Width() << 
             endl << "  B ~ " << B.Height() << " x " << B.Width() <<
             endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
@@ -256,13 +265,13 @@ Elemental::BLAS::Internal::GemmNN_B
 // Normal Normal Gemm that avoids communicating the matrix C.
 template<typename T>
 void 
-Elemental::BLAS::Internal::GemmNN_C
+Elemental::BLAS::Internal::GemmNNC
 ( const T alpha, const DistMatrix<T,MC,MR>& A,
                  const DistMatrix<T,MC,MR>& B,
   const T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemmNN_C");
+    PushCallStack("BLAS::Internal::GemmNNC");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
     {
         if( A.GetGrid().VCRank() == 0 )
@@ -276,7 +285,7 @@ Elemental::BLAS::Internal::GemmNN_C
     {
         if( A.GetGrid().VCRank() == 0 )
         {
-            cerr << "Nonconformal GemmNN_C: " <<
+            cerr << "Nonconformal GemmNNC: " <<
             endl << "  A ~ " << A.Height() << " x " << A.Width() << 
             endl << "  B ~ " << B.Height() << " x " << B.Width() <<
             endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
@@ -342,22 +351,234 @@ Elemental::BLAS::Internal::GemmNN_C
 #endif
 }
 
+// Normal Normal Gemm for panel-panel dot products. 
+template<typename T>
+void 
+Elemental::BLAS::Internal::GemmNNDot
+( const T alpha, const DistMatrix<T,MC,MR>& A,
+                 const DistMatrix<T,MC,MR>& B,
+  const T beta,        DistMatrix<T,MC,MR>& C )
+{
+#ifndef RELEASE
+    PushCallStack("BLAS::Internal::GemmNNDot");
+    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    {
+        if( A.GetGrid().VCRank() == 0 )
+            cerr << "{A,B,C} must be distributed over the same grid." << endl;
+        DumpCallStack();
+        throw exception();
+    }
+    if( A.Height() != C.Height() ||
+        B.Width()  != C.Width()  ||
+        A.Width()  != B.Height()   )
+    {
+        if( A.GetGrid().VCRank() == 0 )
+        {
+            cerr << "Nonconformal GemmNNDot: " <<
+            endl << "  A ~ " << A.Height() << " x " << A.Width() << 
+            endl << "  B ~ " << B.Height() << " x " << B.Width() <<
+            endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        }
+        DumpCallStack();
+        throw exception();
+    }
+#endif
+    const Grid& grid = A.GetGrid();
+
+    if( A.Height() > B.Width() )
+    {
+        // Matrix views
+        DistMatrix<T,MC,MR> AT(grid), AB(grid),
+                            A0(grid), A1(grid), A2(grid);         
+
+        DistMatrix<T,MC,MR> BL(grid),  B0(grid),
+                            BR(grid),  B1(grid),
+                                       B2(grid);
+
+        DistMatrix<T,MC,MR> CT(grid), C0(grid), C1L(grid), C1R(grid),
+                            CB(grid), C1(grid), C10(grid), C11(grid), C12(grid),
+                                      C2(grid);
+
+        // Temporary distributions
+        DistMatrix<T,Star,VC> A1_Star_VC(grid);
+        DistMatrix<T,VC,Star> B1_VC_Star(grid);
+        DistMatrix<T,Star,Star> C11_Star_Star(grid);
+
+        // Star the algorithm
+        BLAS::Scal( beta, C );
+        LockedPartitionDown( A, AT,
+                                AB );
+        PartitionDown( C, CT,
+                          CB );
+        while( AB.Height() > 0 )
+        {
+            LockedRepartitionDown( AT,  A0,
+                                  /**/ /**/
+                                        A1,
+                                   AB,  A2 );
+
+            RepartitionDown( CT,  C0,
+                            /**/ /**/
+                                  C1,
+                             CB,  C2 );
+
+            A1_Star_VC.AlignWith( B1 );
+            //----------------------------------------------------------------//
+            A1_Star_VC = A1; 
+            //----------------------------------------------------------------//
+
+            LockedPartitionRight( B, BL, BR );
+            PartitionRight( C1, C1L, C1R );
+            while( BR.Width() > 0 )
+            {
+                LockedRepartitionRight( BL, /**/ BR,
+                                        B0, /**/ B1, B2 );
+
+                RepartitionRight( C1L, /**/ C1R,
+                                  C10, /**/ C11, C12 );
+
+                B1_VC_Star.ConformWith( A1_Star_VC );
+                C11_Star_Star.ResizeTo( C11.Height(), C11.Width() );
+                //------------------------------------------------------------//
+                B1_VC_Star = B1;
+                BLAS::Gemm( Normal, Normal,
+                            alpha, A1_Star_VC.LockedLocalMatrix(),
+                                   B1_VC_Star.LockedLocalMatrix(),
+                            (T)0,  C11_Star_Star.LocalMatrix()    );
+                C11.ReduceScatterUpdate( (T)1, C11_Star_Star );
+                //------------------------------------------------------------//
+                B1_VC_Star.FreeConstraints();
+
+                SlideLockedPartitionRight( BL,     /**/ BR,
+                                           B0, B1, /**/ B2 );
+
+                SlidePartitionRight( C1L,      /**/ C1R,
+                                     C10, C11, /**/ C12 );
+            }
+            A1_Star_VC.FreeConstraints();
+
+            SlideLockedPartitionDown( AT,  A0,
+                                           A1,
+                                     /**/ /**/
+                                      AB,  A2 );
+
+            SlidePartitionDown( CT,  C0,
+                                     C1,
+                               /**/ /**/
+                                CB,  C2 );
+        }
+    }
+    else
+    {
+        // Matrix views
+        DistMatrix<T,MC,MR> AT(grid), AB(grid),
+                            A0(grid), A1(grid), A2(grid);         
+
+        DistMatrix<T,MC,MR> BL(grid),  B0(grid),
+                            BR(grid),  B1(grid),
+                                       B2(grid);
+
+        DistMatrix<T,MC,MR> 
+            CL(grid), CR(grid),            C1T(grid),  C01(grid),
+            C0(grid), C1(grid), C2(grid),  C1B(grid),  C11(grid),
+                                                       C21(grid);
+
+        // Temporary distributions
+        DistMatrix<T,Star,VR> A1_Star_VR(grid);
+        DistMatrix<T,VR,Star> B1_VR_Star(grid);
+        DistMatrix<T,Star,Star> C11_Star_Star(grid);
+
+        // Star the algorithm
+        BLAS::Scal( beta, C );
+        LockedPartitionRight( B, BL, BR );
+        PartitionRight( C, CL, CR );
+        while( BR.Width() > 0 )
+        {
+            LockedRepartitionRight( BL, /**/ BR,
+                                    B0, /**/ B1, B2 );
+
+            RepartitionRight( CL, /**/ CR,
+                              C0, /**/ C1, C2 );
+
+            B1_VR_Star.AlignWith( A1 );
+            //----------------------------------------------------------------//
+            B1_VR_Star = B1;
+            //----------------------------------------------------------------//
+
+            LockedPartitionDown( A, AT,
+                                    AB );
+            PartitionDown( C1, C1T,
+                               C1B );
+            while( AB.Height() > 0 )
+            {
+                LockedRepartitionDown( AT,  A0,
+                                      /**/ /**/
+                                            A1,
+                                       AB,  A2 );
+
+                RepartitionDown( C1T,  C01,
+                                /***/ /***/
+                                       C11,
+                                 C1B,  C21 );
+
+                A1_Star_VR.ConformWith( B1_VR_Star );
+                C11_Star_Star.ResizeTo( C11.Height(), C11.Width() );
+                //------------------------------------------------------------//
+                A1_Star_VR = A1;
+                BLAS::Gemm( Normal, Normal,
+                            alpha, A1_Star_VR.LockedLocalMatrix(),
+                                   B1_VR_Star.LockedLocalMatrix(),
+                            (T)0,  C11_Star_Star.LocalMatrix()    );
+                C11.ReduceScatterUpdate( (T)1, C11_Star_Star );
+                //------------------------------------------------------------//
+                A1_Star_VR.FreeConstraints();
+
+                SlideLockedPartitionDown( AT,  A0,
+                                               A1,
+                                         /**/ /**/
+                                          AB,  A2 );
+
+                SlidePartitionDown( C1T,  C01,
+                                          C11,
+                                   /***/ /***/
+                                    C1B,  C21 );
+            }
+            B1_VR_Star.FreeConstraints();
+
+            SlideLockedPartitionRight( BL,     /**/ BR,
+                                       B0, B1, /**/ B2 ); 
+
+            SlidePartitionRight( CL,     /**/ CR,
+                                 C0, C1, /**/ C2 );
+        }
+    }
+
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template void Elemental::BLAS::Internal::GemmNN
 ( const float alpha, const DistMatrix<float,MC,MR>& A,     
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_A
+template void Elemental::BLAS::Internal::GemmNNA
 ( const float alpha, const DistMatrix<float,MC,MR>& A,     
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_B
+template void Elemental::BLAS::Internal::GemmNNB
 ( const float alpha, const DistMatrix<float,MC,MR>& A,
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_C
+template void Elemental::BLAS::Internal::GemmNNC
+( const float alpha, const DistMatrix<float,MC,MR>& A,
+                     const DistMatrix<float,MC,MR>& B,
+  const float beta,        DistMatrix<float,MC,MR>& C );
+
+template void Elemental::BLAS::Internal::GemmNNDot
 ( const float alpha, const DistMatrix<float,MC,MR>& A,
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
@@ -367,17 +588,22 @@ template void Elemental::BLAS::Internal::GemmNN
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_A
+template void Elemental::BLAS::Internal::GemmNNA
 ( const double alpha, const DistMatrix<double,MC,MR>& A,         
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_B
+template void Elemental::BLAS::Internal::GemmNNB
 ( const double alpha, const DistMatrix<double,MC,MR>& A,
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_C
+template void Elemental::BLAS::Internal::GemmNNC
+( const double alpha, const DistMatrix<double,MC,MR>& A,
+                      const DistMatrix<double,MC,MR>& B,
+  const double beta,        DistMatrix<double,MC,MR>& C );
+
+template void Elemental::BLAS::Internal::GemmNNDot
 ( const double alpha, const DistMatrix<double,MC,MR>& A,
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
@@ -388,17 +614,22 @@ template void Elemental::BLAS::Internal::GemmNN
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_A
+template void Elemental::BLAS::Internal::GemmNNA
 ( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_B
+template void Elemental::BLAS::Internal::GemmNNB
 ( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_C
+template void Elemental::BLAS::Internal::GemmNNC
+( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
+                        const DistMatrix<scomplex,MC,MR>& B,
+  const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+
+template void Elemental::BLAS::Internal::GemmNNDot
 ( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
@@ -408,18 +639,24 @@ template void Elemental::BLAS::Internal::GemmNN
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_A
+template void Elemental::BLAS::Internal::GemmNNA
 ( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_B
+template void Elemental::BLAS::Internal::GemmNNB
 ( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmNN_C
+template void Elemental::BLAS::Internal::GemmNNC
+( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
+                        const DistMatrix<dcomplex,MC,MR>& B,
+  const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void Elemental::BLAS::Internal::GemmNNDot
 ( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 #endif
+
