@@ -138,7 +138,7 @@ Elemental::BLAS::Internal::HerkLNUpdate
         throw exception();
     }
 #endif
-    if( C.Height() < 2*Blocksize() )
+    if( C.Height() < 2*grid.Width()*Blocksize() )
     {
         BLAS::Internal::HerkLNUpdateKernel
         ( alpha, A_MC_Star, A_MR_Star, beta, C );
