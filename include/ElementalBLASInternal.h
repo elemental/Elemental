@@ -854,6 +854,14 @@ namespace Elemental
                              const DistMatrix<T,MR,Star>& A_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C         );
 
+            // Upper, Normal Herk Update Kernel
+            template<typename T>
+            void
+            HerkUNUpdateKernel
+            ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
+                             const DistMatrix<T,MR,Star>& A_MR_Star,
+              const T beta,        DistMatrix<T,MC,MR  >& C         );
+
             // Upper, ConjugateTranspose Herk
             template<typename T>
             void
@@ -865,6 +873,14 @@ namespace Elemental
             template<typename T>
             void
             HerkUCUpdate
+            ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
+                             const DistMatrix<T,Star,MR>& A_Star_MR,
+              const T beta,        DistMatrix<T,MC,  MR>& C         );
+
+            // Upper, ConjugateTranspose Herk Update Kernel
+            template<typename T>
+            void
+            HerkUCUpdateKernel
             ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
                              const DistMatrix<T,Star,MR>& A_Star_MR,
               const T beta,        DistMatrix<T,MC,  MR>& C         );
@@ -1029,6 +1045,14 @@ namespace Elemental
                              const DistMatrix<T,MR,Star>& A_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C         );
 
+            // Lower, Normal Syrk Update Kernel
+            template<typename T>
+            void
+            SyrkLNUpdateKernel
+            ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
+                             const DistMatrix<T,MR,Star>& A_MR_Star,
+              const T beta,        DistMatrix<T,MC,MR  >& C         );
+
             // Lower, Transpose Syrk
             template<typename T>
             void
@@ -1040,6 +1064,14 @@ namespace Elemental
             template<typename T>
             void
             SyrkLTUpdate
+            ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
+                             const DistMatrix<T,Star,MR>& A_Star_MR,
+              const T beta,        DistMatrix<T,MC,  MR>& C         );
+
+            // Lower, Transpose Syrk Update Kernel
+            template<typename T>
+            void
+            SyrkLTUpdateKernel
             ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
                              const DistMatrix<T,Star,MR>& A_Star_MR,
               const T beta,        DistMatrix<T,MC,  MR>& C         );
@@ -1059,6 +1091,14 @@ namespace Elemental
                              const DistMatrix<T,MR,Star>& A_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C         );
 
+            // Upper, Normal Syrk Update Kernel
+            template<typename T>
+            void
+            SyrkUNUpdateKernel
+            ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
+                             const DistMatrix<T,MR,Star>& A_MR_Star,
+              const T beta,        DistMatrix<T,MC,MR  >& C         );
+
             // Upper, Transpose Syrk
             template<typename T>
             void
@@ -1070,6 +1110,14 @@ namespace Elemental
             template<typename T>
             void
             SyrkUTUpdate
+            ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
+                             const DistMatrix<T,Star,MR>& A_Star_MR,
+              const T beta,        DistMatrix<T,MC,  MR>& C         );
+
+            // Upper, Transpose Syrk Update Kernel
+            template<typename T>
+            void
+            SyrkUTUpdateKernel
             ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
                              const DistMatrix<T,Star,MR>& A_Star_MR,
               const T beta,        DistMatrix<T,MC,  MR>& C         );

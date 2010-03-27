@@ -160,17 +160,7 @@ template void Elemental::BLAS::Internal::HemmLL
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::HemmLLC
-( const float alpha, const DistMatrix<float,MC,MR>& A,
-                     const DistMatrix<float,MC,MR>& B,
-  const float beta,        DistMatrix<float,MC,MR>& C );
-
 template void Elemental::BLAS::Internal::HemmLL
-( const double alpha, const DistMatrix<double,MC,MR>& A,
-                      const DistMatrix<double,MC,MR>& B,
-  const double beta,        DistMatrix<double,MC,MR>& C );
-
-template void Elemental::BLAS::Internal::HemmLLC
 ( const double alpha, const DistMatrix<double,MC,MR>& A,
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
@@ -181,17 +171,7 @@ template void Elemental::BLAS::Internal::HemmLL
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::HemmLLC
-( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
-                        const DistMatrix<scomplex,MC,MR>& B,
-  const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
-
 template void Elemental::BLAS::Internal::HemmLL
-( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
-                        const DistMatrix<dcomplex,MC,MR>& B,
-  const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
-
-template void Elemental::BLAS::Internal::HemmLLC
 ( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );

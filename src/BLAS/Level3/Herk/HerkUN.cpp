@@ -98,6 +98,106 @@ Elemental::BLAS::Internal::HerkUNUpdate
 #endif
     const Grid& grid = C.GetGrid();
 #ifndef RELEASE
+    if( A_MC_Star.GetGrid() != A_MR_Star.GetGrid() ||
+        A_MR_Star.GetGrid() != C.GetGrid()            )
+    {
+        if( grid.VCRank() == 0 )
+            cerr << "A and C must be distributed over the same grid." << endl;
+        DumpCallStack();
+        throw exception();
+    }
+    if( A_MC_Star.Height() != C.Height() ||
+        A_MR_Star.Height() != C.Width()  ||
+        A_MC_Star.Height() != A_MR_Star.Height() ||
+        A_MC_Star.Width()  != A_MR_Star.Width()    )
+    {
+        if( grid.VCRank() == 0 )
+        {
+            cerr << "Nonconformal HerkUNUpdate: " <<
+            endl << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
+                                    << A_MC_Star.Width()  <<
+            endl << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
+                                    << A_MR_Star.Width()  <<
+            endl << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
+        }
+        DumpCallStack();
+        throw exception();
+    }
+    if( A_MC_Star.ColAlignment() != C.ColAlignment() ||
+        A_MR_Star.ColAlignment() != C.RowAlignment()   )
+    {
+        if( grid.VCRank() == 0 )
+        {
+            cerr << "Misaligned HerkUNUpdate: " <<
+            endl << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() <<
+            endl << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() <<
+            endl << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
+                                       C.RowAlignment() << endl;
+        }
+        DumpCallStack();
+        throw exception();
+    }
+#endif
+    if( C.Height() < 2*grid.Width()*Blocksize() )
+    {
+        BLAS::Internal::HerkUNUpdateKernel
+        ( alpha, A_MC_Star, A_MR_Star, beta, C );
+    }
+    else
+    {
+        // Split C in four roughly equal pieces, perform a large gemm on CTR
+        // and recurse on CTL and CBR.
+
+        DistMatrix<T,MC,Star> AT_MC_Star(grid),
+                              AB_MC_Star(grid);
+
+        DistMatrix<T,MR,Star> AT_MR_Star(grid),
+                              AB_MR_Star(grid);
+
+        DistMatrix<T,MC,MR> CTL(grid), CTR(grid),
+                            CBL(grid), CBR(grid);
+
+        const unsigned half = C.Height() / 2;
+
+        LockedPartitionDown( A_MC_Star, AT_MC_Star,
+                                        AB_MC_Star, half );
+
+        LockedPartitionDown( A_MR_Star, AT_MR_Star,
+                                        AB_MR_Star, half );
+
+        PartitionDownDiagonal( C, CTL, CTR,
+                                  CBL, CBR, half );
+
+        BLAS::Gemm
+        ( Normal, ConjugateTranspose,
+          alpha, AT_MC_Star.LockedLocalMatrix(),
+                 AB_MR_Star.LockedLocalMatrix(),
+          beta,  CTR.LocalMatrix()              );
+
+        // Recurse
+        BLAS::Internal::HerkUNUpdate
+        ( alpha, AT_MC_Star, AT_MR_Star, beta, CTL );
+
+        BLAS::Internal::HerkUNUpdate
+        ( alpha, AB_MC_Star, AB_MR_Star, beta, CBR );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+Elemental::BLAS::Internal::HerkUNUpdateKernel
+( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
+                 const DistMatrix<T,MR,Star>& A_MR_Star,
+  const T beta,        DistMatrix<T,MC,MR  >& C         )
+{
+#ifndef RELEASE
+    PushCallStack("BLAS::Internal::HerkUNUpdateKernel");
+#endif
+    const Grid& grid = C.GetGrid();
+#ifndef RELEASE
     if( A_MC_Star.GetGrid() != A_MR_Star.GetGrid() || 
         A_MR_Star.GetGrid() != C.GetGrid()            )
     {
@@ -138,82 +238,55 @@ Elemental::BLAS::Internal::HerkUNUpdate
         throw exception();
     }
 #endif
-    // Matrix views
-    DistMatrix<T,MC,Star> AT_MC_Star(grid),  A0_MC_Star(grid),
-                          AB_MC_Star(grid),  A1_MC_Star(grid),
-                                             A2_MC_Star(grid);
-    DistMatrix<T,MR,Star> AT_MR_Star(grid),  A0_MR_Star(grid),
-                          AB_MR_Star(grid),  A1_MR_Star(grid),
-                                             A2_MR_Star(grid);
-    DistMatrix<T,MC,MR> 
-        CTL(grid), CTR(grid),  C00(grid), C01(grid), C02(grid),
-        CBL(grid), CBR(grid),  C10(grid), C11(grid), C12(grid),
-                               C20(grid), C21(grid), C22(grid);
+    DistMatrix<T,MC,Star> AT_MC_Star(grid),
+                          AB_MC_Star(grid);
 
-    DistMatrix<T,MC,MR> D11(grid);
+    DistMatrix<T,MR,Star> AT_MR_Star(grid),
+                          AB_MR_Star(grid);
 
-    // We want our local gemms to be of width blocksize, and so we will 
-    // temporarily change to c times the current blocksize
-    PushBlocksizeStack( grid.Width()*Blocksize() );
+    DistMatrix<T,MC,MR>
+        CTL(grid), CTR(grid),
+        CBL(grid), CBR(grid);
 
-    // Start the algorithm
+    DistMatrix<T,MC,MR> DTL(grid), DBR(grid);
+
+    const unsigned half = C.Height()/2;
+
     BLAS::Scal( beta, C );
-    LockedPartitionUp( A_MC_Star, AT_MC_Star,
-                                  AB_MC_Star );
-    LockedPartitionUp( A_MR_Star, AT_MR_Star,
-                                  AB_MR_Star );
-    PartitionUpDiagonal( C, CTL, CTR,
-                            CBL, CBR );
-    while( AT_MC_Star.Height() > 0 )
-    {
-        LockedRepartitionUp( AT_MC_Star,  A0_MC_Star,
-                                          A1_MC_Star,
-                            /**********/ /**********/
-                             AB_MC_Star,  A2_MC_Star );
 
-        LockedRepartitionUp( AT_MR_Star,  A0_MR_Star,
-                                          A1_MR_Star,
-                            /**********/ /**********/
-                             AB_MR_Star,  A2_MR_Star );
+    LockedPartitionDown( A_MC_Star, AT_MC_Star,
+                                    AB_MC_Star, half );
 
-        RepartitionUpDiagonal( CTL, /**/ CTR,  C00, C01, /**/ C02,
-                                    /**/       C10, C11, /**/ C12,
-                              /*************/ /******************/
-                               CBL, /**/ CBR,  C20, C21, /**/ C22 );
+    LockedPartitionDown( A_MR_Star, AT_MR_Star,
+                                    AB_MR_Star, half );
 
-        D11.AlignWith( C11 );
-        D11.ResizeTo( C11.Height(), C11.Width() );
-        //--------------------------------------------------------------------//
-        BLAS::Gemm( Normal, ConjugateTranspose, 
-                    alpha, A0_MC_Star.LockedLocalMatrix(),
-                           A1_MR_Star.LockedLocalMatrix(),
-                    (T)1,  C01.LocalMatrix()              );
-        BLAS::Gemm( Normal, ConjugateTranspose,
-                    alpha, A1_MC_Star.LockedLocalMatrix(),
-                           A1_MR_Star.LockedLocalMatrix(),
-                    (T)0,  D11.LocalMatrix()              );
-        D11.MakeTrapezoidal( Left, Upper );
-        BLAS::Axpy( (T)1, D11, C11 );
-        //--------------------------------------------------------------------//
-        D11.FreeConstraints();
-        
-        SlideLockedPartitionUp( AT_MC_Star,  A0_MC_Star,
-                               /**********/ /**********/
-                                             A1_MC_Star,
-                                AB_MC_Star,  A2_MC_Star );
+    PartitionDownDiagonal( C, CTL, CTR,
+                              CBL, CBR, half );
 
-        SlideLockedPartitionUp( AT_MR_Star,  A0_MR_Star,
-                               /**********/ /**********/
-                                             A1_MR_Star,
-                                AB_MR_Star,  A2_MR_Star );
+    DTL.AlignWith( CTL );
+    DBR.AlignWith( CBR );
+    DTL.ResizeTo( CTL.Height(), CTL.Width() );
+    DBR.ResizeTo( CBR.Height(), CBR.Width() );
+    //------------------------------------------------------------------------//
+    BLAS::Gemm( Normal, ConjugateTranspose,
+                alpha, AT_MC_Star.LockedLocalMatrix(),
+                       AB_MR_Star.LockedLocalMatrix(),
+                (T)1,  CTR.LocalMatrix()              );
 
-        SlidePartitionUpDiagonal( CTL, /**/ CTR,  C00, /**/ C01, C02,
-                                 /*************/ /******************/
-                                       /**/       C10, /**/ C11, C12,
-                                  CBL, /**/ CBR,  C20, /**/ C21, C22 );
-    }
+    BLAS::Gemm( Normal, ConjugateTranspose,
+                alpha, AT_MC_Star.LockedLocalMatrix(),
+                       AT_MR_Star.LockedLocalMatrix(),
+                (T)0,  DTL.LocalMatrix()              );
+    DTL.MakeTrapezoidal( Left, Upper );
+    BLAS::Axpy( (T)1, DTL, CTL );
 
-    PopBlocksizeStack();
+    BLAS::Gemm( Normal, ConjugateTranspose,
+                alpha, AB_MC_Star.LockedLocalMatrix(),
+                       AB_MR_Star.LockedLocalMatrix(),
+                (T)0,  DBR.LocalMatrix()              );
+    DBR.MakeTrapezoidal( Left, Upper );
+    BLAS::Axpy( (T)1, DBR, CBR );
+    //------------------------------------------------------------------------//
 
 #ifndef RELEASE
     PopCallStack();
@@ -224,41 +297,17 @@ template void Elemental::BLAS::Internal::HerkUN
 ( const float alpha, const DistMatrix<float,MC,MR>& A,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::HerkUNUpdate
-( const float alpha, const DistMatrix<float,MC,Star>& A_MC_Star,
-                     const DistMatrix<float,MR,Star>& A_MR_Star,
-  const float beta,        DistMatrix<float,MC,MR  >& C         );
-
 template void Elemental::BLAS::Internal::HerkUN
 ( const double alpha, const DistMatrix<double,MC,MR>& A,
   const double beta,        DistMatrix<double,MC,MR>& C );
-
-template void Elemental::BLAS::Internal::HerkUNUpdate
-( const double alpha, const DistMatrix<double,MC,Star>& A_MC_Star,
-                      const DistMatrix<double,MR,Star>& A_MR_Star,
-  const double beta,        DistMatrix<double,MC,MR  >& C         );
 
 #ifndef WITHOUT_COMPLEX
 template void Elemental::BLAS::Internal::HerkUN
 ( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::HerkUNUpdate
-( const scomplex alpha, 
-  const DistMatrix<scomplex,MC,Star>& A_MC_Star,
-  const DistMatrix<scomplex,MR,Star>& A_MR_Star,
-  const scomplex beta,   
-        DistMatrix<scomplex,MC,MR  >& C         );
-
 template void Elemental::BLAS::Internal::HerkUN
 ( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
-
-template void Elemental::BLAS::Internal::HerkUNUpdate
-( const dcomplex alpha, 
-  const DistMatrix<dcomplex,MC,Star>& A_MC_Star,
-  const DistMatrix<dcomplex,MR,Star>& A_MR_Star,
-  const dcomplex beta,   
-        DistMatrix<dcomplex,MC,MR  >& C         );
 #endif
 

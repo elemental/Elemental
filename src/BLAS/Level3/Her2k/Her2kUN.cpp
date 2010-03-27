@@ -305,24 +305,10 @@ template void Elemental::BLAS::Internal::Her2kUN
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Her2kUNUpdate
-( const float alpha, const DistMatrix<float,MC,Star>& A_MC_Star,
-                     const DistMatrix<float,MR,Star>& A_MR_Star,
-                     const DistMatrix<float,MC,Star>& B_MC_Star,
-                     const DistMatrix<float,MR,Star>& B_MR_Star,
-  const float beta,        DistMatrix<float,MC,MR  >& C         );
-
 template void Elemental::BLAS::Internal::Her2kUN
 ( const double alpha, const DistMatrix<double,MC,MR>& A,
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
-
-template void Elemental::BLAS::Internal::Her2kUNUpdate
-( const double alpha, const DistMatrix<double,MC,Star>& A_MC_Star,
-                      const DistMatrix<double,MR,Star>& A_MR_Star,
-                      const DistMatrix<double,MC,Star>& B_MC_Star,
-                      const DistMatrix<double,MR,Star>& B_MR_Star,
-  const double beta,        DistMatrix<double,MC,MR  >& C         );
 
 #ifndef WITHOUT_COMPLEX
 template void Elemental::BLAS::Internal::Her2kUN
@@ -330,27 +316,9 @@ template void Elemental::BLAS::Internal::Her2kUN
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Her2kUNUpdate
-( const scomplex alpha, 
-  const DistMatrix<scomplex,MC,Star>& A_MC_Star,
-  const DistMatrix<scomplex,MR,Star>& A_MR_Star,
-  const DistMatrix<scomplex,MC,Star>& B_MC_Star,
-  const DistMatrix<scomplex,MR,Star>& B_MR_Star,
-  const scomplex beta,       
-        DistMatrix<scomplex,MC,MR  >& C         );
-
 template void Elemental::BLAS::Internal::Her2kUN
 ( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
-
-template void Elemental::BLAS::Internal::Her2kUNUpdate
-( const dcomplex alpha, 
-  const DistMatrix<dcomplex,MC,Star>& A_MC_Star,
-  const DistMatrix<dcomplex,MR,Star>& A_MR_Star,
-  const DistMatrix<dcomplex,MC,Star>& B_MC_Star,
-  const DistMatrix<dcomplex,MR,Star>& B_MR_Star,
-  const dcomplex beta,       
-        DistMatrix<dcomplex,MC,MR  >& C         );
 #endif
 

@@ -303,24 +303,10 @@ template void Elemental::BLAS::Internal::Syr2kUT
                      const DistMatrix<float,MC,MR>& B,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Syr2kUTUpdate
-( const float alpha, const DistMatrix<float,Star,MC>& A_Star_MC,
-                     const DistMatrix<float,Star,MR>& A_Star_MR,
-                     const DistMatrix<float,Star,MC>& B_Star_MC,
-                     const DistMatrix<float,Star,MR>& B_Star_MR,
-  const float beta,        DistMatrix<float,MC,  MR>& C         );
-
 template void Elemental::BLAS::Internal::Syr2kUT
 ( const double alpha, const DistMatrix<double,MC,MR>& A,
                       const DistMatrix<double,MC,MR>& B,
   const double beta,        DistMatrix<double,MC,MR>& C );
-
-template void Elemental::BLAS::Internal::Syr2kUTUpdate
-( const double alpha, const DistMatrix<double,Star,MC>& A_Star_MC,
-                      const DistMatrix<double,Star,MR>& A_Star_MR,
-                      const DistMatrix<double,Star,MC>& B_Star_MC,
-                      const DistMatrix<double,Star,MR>& B_Star_MR,
-  const double beta,        DistMatrix<double,MC,  MR>& C         );
 
 #ifndef WITHOUT_COMPLEX
 template void Elemental::BLAS::Internal::Syr2kUT
@@ -328,27 +314,9 @@ template void Elemental::BLAS::Internal::Syr2kUT
                         const DistMatrix<scomplex,MC,MR>& B,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Syr2kUTUpdate
-( const scomplex alpha, 
-  const DistMatrix<scomplex,Star,MC>& A_Star_MC,
-  const DistMatrix<scomplex,Star,MR>& A_Star_MR,
-  const DistMatrix<scomplex,Star,MC>& B_Star_MC,
-  const DistMatrix<scomplex,Star,MR>& B_Star_MR,
-  const scomplex beta,
-        DistMatrix<scomplex,MC,  MR>& C         );
-
 template void Elemental::BLAS::Internal::Syr2kUT
 ( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                         const DistMatrix<dcomplex,MC,MR>& B,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
-
-template void Elemental::BLAS::Internal::Syr2kUTUpdate
-( const dcomplex alpha, 
-  const DistMatrix<dcomplex,Star,MC>& A_Star_MC,
-  const DistMatrix<dcomplex,Star,MR>& A_Star_MR,
-  const DistMatrix<dcomplex,Star,MC>& B_Star_MC,
-  const DistMatrix<dcomplex,Star,MR>& B_Star_MR,
-  const dcomplex beta,
-        DistMatrix<dcomplex,MC  ,MR>& C         );
 #endif
 

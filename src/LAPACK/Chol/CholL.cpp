@@ -206,7 +206,6 @@ Elemental::LAPACK::Internal::CholLVar3
     // Temporary matrix distributions
     DistMatrix<T,Star,Star> A11_Star_Star(grid);
     DistMatrix<T,VC,  Star> A21_VC_Star(grid);
-    DistMatrix<T,VR,  Star> A21_VR_Star(grid);
     DistMatrix<T,MC,  Star> A21_MC_Star(grid);
     DistMatrix<T,MR,  Star> A21_MR_Star(grid);
 
@@ -223,7 +222,6 @@ Elemental::LAPACK::Internal::CholLVar3
         A21_MC_Star.AlignWith( A22 );
         A21_MR_Star.AlignWith( A22 );
         A21_VC_Star.AlignWith( A22 );
-        A21_VR_Star.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_Star_Star = A11;
         LAPACK::Chol( Lower, A11_Star_Star.LocalMatrix() );
@@ -234,9 +232,8 @@ Elemental::LAPACK::Internal::CholLVar3
                     (T)1, A11_Star_Star.LockedLocalMatrix(), 
                           A21_VC_Star.LocalMatrix()           );
 
-        A21_VR_Star = A21_VC_Star;
         A21_MC_Star = A21_VC_Star;
-        A21_MR_Star = A21_VR_Star;
+        A21_MR_Star = A21_VC_Star;
         BLAS::Internal::HerkLNUpdate
         ( (T)-1, A21_MC_Star, A21_MR_Star,(T)1, A22 );
         A21 = A21_MC_Star;
@@ -244,7 +241,6 @@ Elemental::LAPACK::Internal::CholLVar3
         A21_MC_Star.FreeConstraints();
         A21_MR_Star.FreeConstraints();
         A21_VC_Star.FreeConstraints();
-        A21_VR_Star.FreeConstraints();
 
         SlidePartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
                                          /**/       A10, A11, /**/ A12,
