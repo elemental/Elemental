@@ -808,6 +808,14 @@ namespace Elemental
                              const DistMatrix<T,MR,Star>& A_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C         );
 
+            // Lower, Normal Herk Update Kernel
+            template<typename T>
+            void
+            HerkLNUpdateKernel
+            ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
+                             const DistMatrix<T,MR,Star>& A_MR_Star,
+              const T beta,        DistMatrix<T,MC,MR  >& C         );
+
             // Lower, ConjugateTranspose Herk
             template<typename T>
             void

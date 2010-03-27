@@ -138,84 +138,155 @@ Elemental::BLAS::Internal::HerkLNUpdate
         throw exception();
     }
 #endif
-    // Matrix views
-    DistMatrix<T,MC,Star> AT_MC_Star(grid),  A0_MC_Star(grid),
-                          AB_MC_Star(grid),  A1_MC_Star(grid),
-                                             A2_MC_Star(grid);
+    if( C.Height() < 2*Blocksize() )
+    {
+        BLAS::Internal::HerkLNUpdateKernel
+        ( alpha, A_MC_Star, A_MR_Star, beta, C );
+    }
+    else
+    {
+        // Split C in four roughly equal pieces, perform a large gemm on CBL
+        // and recurse on CTL and CBR.
 
-    DistMatrix<T,MR,Star> AT_MR_Star(grid),  A0_MR_Star(grid),
-                          AB_MR_Star(grid),  A1_MR_Star(grid),
-                                             A2_MR_Star(grid);
+        DistMatrix<T,MC,Star> AT_MC_Star(grid),
+                              AB_MC_Star(grid);
+
+        DistMatrix<T,MR,Star> AT_MR_Star(grid),
+                              AB_MR_Star(grid);
+
+        DistMatrix<T,MC,MR> CTL(grid), CTR(grid), 
+                            CBL(grid), CBR(grid);
+
+        const unsigned half = C.Height() / 2;
+
+        LockedPartitionDown( A_MC_Star, AT_MC_Star,
+                                        AB_MC_Star, half );
+
+        LockedPartitionDown( A_MR_Star, AT_MR_Star,
+                                        AB_MR_Star, half );
+
+        PartitionDownDiagonal( C, CTL, CTR,
+                                  CBL, CBR, half );
+
+        BLAS::Gemm
+        ( Normal, ConjugateTranspose,
+          alpha, AB_MC_Star.LockedLocalMatrix(),
+                 AT_MR_Star.LockedLocalMatrix(),
+          beta,  CBL.LocalMatrix()              );
+
+        // Recurse
+        BLAS::Internal::HerkLNUpdate
+        ( alpha, AT_MC_Star, AT_MR_Star, beta, CTL );
+
+        BLAS::Internal::HerkLNUpdate
+        ( alpha, AB_MC_Star, AB_MR_Star, beta, CBR );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+Elemental::BLAS::Internal::HerkLNUpdateKernel
+( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
+                 const DistMatrix<T,MR,Star>& A_MR_Star,
+  const T beta,        DistMatrix<T,MC,MR  >& C         )
+{
+#ifndef RELEASE
+    PushCallStack("BLAS::Internal::HerkLNUpdateKernel");
+#endif
+    const Grid& grid = C.GetGrid();
+#ifndef RELEASE
+    if( A_MC_Star.GetGrid() != A_MR_Star.GetGrid() || 
+        A_MR_Star.GetGrid() != C.GetGrid()            )
+    {
+        if( grid.VCRank() == 0 )
+            cerr << "A and C must be distributed over the same grid." << endl;
+        DumpCallStack();
+        throw exception();
+    }
+    if( A_MC_Star.Height() != C.Height() ||
+        A_MR_Star.Height() != C.Width()  ||
+        A_MC_Star.Height() != A_MR_Star.Height() ||
+        A_MC_Star.Width()  != A_MR_Star.Width()    )
+    {
+        if( grid.VCRank() == 0 )
+        {
+            cerr << "Nonconformal HerkLNUpdateKernel: " <<
+            endl << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
+                                    << A_MC_Star.Width()  <<
+            endl << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
+                                    << A_MR_Star.Width()  <<
+            endl << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
+        }
+        DumpCallStack();
+        throw exception();
+    }
+    if( A_MC_Star.ColAlignment() != C.ColAlignment() ||
+        A_MR_Star.ColAlignment() != C.RowAlignment()   )
+    {
+        if( grid.VCRank() == 0 )
+        {
+            cerr << "Misaligned HerkLNUpdateKernel: " <<
+            endl << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() <<
+            endl << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() <<
+            endl << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
+                                       C.RowAlignment() << endl;
+        }
+        DumpCallStack();
+        throw exception();
+    }
+#endif
+    DistMatrix<T,MC,Star> AT_MC_Star(grid),  
+                          AB_MC_Star(grid);
+
+    DistMatrix<T,MR,Star> AT_MR_Star(grid), 
+                          AB_MR_Star(grid);
 
     DistMatrix<T,MC,MR> 
-        CTL(grid), CTR(grid),  C00(grid), C01(grid), C02(grid),
-        CBL(grid), CBR(grid),  C10(grid), C11(grid), C12(grid),
-                               C20(grid), C21(grid), C22(grid);
+        CTL(grid), CTR(grid),  
+        CBL(grid), CBR(grid);
 
-    DistMatrix<T,MC,MR> D11(grid);
+    DistMatrix<T,MC,MR> DTL(grid), DBR(grid);
+    
+    const unsigned half = C.Height()/2;
 
-    // We want our local gemms to be of width blocksize, and so we will 
-    // temporarily change to c times the current blocksize
-    PushBlocksizeStack( grid.Width()*Blocksize() );
-
-    // Start the algorithm
     BLAS::Scal( beta, C );
+
     LockedPartitionDown( A_MC_Star, AT_MC_Star,
-                                    AB_MC_Star );
+                                    AB_MC_Star, half );
+
     LockedPartitionDown( A_MR_Star, AT_MR_Star,
-                                    AB_MR_Star );
+                                    AB_MR_Star, half );
+
     PartitionDownDiagonal( C, CTL, CTR,
-                              CBL, CBR );
-    while( AB_MC_Star.Height() > 0 )
-    {
-        LockedRepartitionDown( AT_MC_Star,  A0_MC_Star,
-                              /**********/ /**********/
-                                            A1_MC_Star,
-                               AB_MC_Star,  A2_MC_Star );
+                              CBL, CBR, half );
 
-        LockedRepartitionDown( AT_MR_Star,  A0_MR_Star,
-                              /**********/ /**********/
-                                            A1_MR_Star,
-                               AB_MR_Star,  A2_MR_Star );
+    DTL.AlignWith( CTL );
+    DBR.AlignWith( CBR );
+    DTL.ResizeTo( CTL.Height(), CTL.Width() );
+    DBR.ResizeTo( CBR.Height(), CBR.Width() );
+    //------------------------------------------------------------------------//
+    BLAS::Gemm( Normal, ConjugateTranspose,
+                alpha, AB_MC_Star.LockedLocalMatrix(),
+                       AT_MR_Star.LockedLocalMatrix(),
+                (T)1,  CBL.LocalMatrix()              );
 
-        RepartitionDownDiagonal( CTL, /**/ CTR,  C00, /**/ C01, C02,
-                                /*************/ /******************/
-                                      /**/       C10, /**/ C11, C12,
-                                 CBL, /**/ CBR,  C20, /**/ C21, C22 );
+    BLAS::Gemm( Normal, ConjugateTranspose,
+                alpha, AT_MC_Star.LockedLocalMatrix(),
+                       AT_MR_Star.LockedLocalMatrix(),
+                (T)0,  DTL.LocalMatrix()              );
+    DTL.MakeTrapezoidal( Left, Lower );
+    BLAS::Axpy( (T)1, DTL, CTL );
 
-        D11.AlignWith( C11 );
-        D11.ResizeTo( C11.Height(), C11.Width() );
-        //--------------------------------------------------------------------//
-        BLAS::Gemm( Normal, ConjugateTranspose,
-                    alpha, A2_MC_Star.LockedLocalMatrix(),
-                           A1_MR_Star.LockedLocalMatrix(),
-                    (T)1,  C21.LocalMatrix()              );
-        BLAS::Gemm( Normal, ConjugateTranspose,
-                    alpha, A1_MC_Star.LockedLocalMatrix(),
-                           A1_MR_Star.LockedLocalMatrix(),
-                    (T)0,  D11.LocalMatrix()              );
-        D11.MakeTrapezoidal( Left, Lower );
-        BLAS::Axpy( (T)1, D11, C11 );
-        //--------------------------------------------------------------------//
-        D11.FreeConstraints();
-        
-        SlideLockedPartitionDown( AT_MC_Star,  A0_MC_Star,
-                                               A1_MC_Star,
-                                 /**********/ /**********/
-                                  AB_MC_Star,  A2_MC_Star );
-
-        SlideLockedPartitionDown( AT_MR_Star,  A0_MR_Star,
-                                               A1_MR_Star,
-                                 /**********/ /**********/
-                                  AB_MR_Star,  A2_MR_Star );
-
-        SlidePartitionDownDiagonal( CTL, /**/ CTR,  C00, C01, /**/ C02,
-                                         /**/       C10, C11, /**/ C12,
-                                   /*************/ /******************/
-                                    CBL, /**/ CBR,  C20, C21, /**/ C22 );
-    }
-
-    PopBlocksizeStack();
+    BLAS::Gemm( Normal, ConjugateTranspose,
+                alpha, AB_MC_Star.LockedLocalMatrix(),
+                       AB_MR_Star.LockedLocalMatrix(),
+                (T)0,  DBR.LocalMatrix()              );
+    DBR.MakeTrapezoidal( Left, Lower );
+    BLAS::Axpy( (T)1, DBR, CBR );
+    //------------------------------------------------------------------------//
 
 #ifndef RELEASE
     PopCallStack();

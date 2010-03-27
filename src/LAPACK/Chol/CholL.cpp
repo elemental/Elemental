@@ -21,7 +21,7 @@
 using namespace std;
 using namespace Elemental;
 
-// The mainline Cholesky wraps the variant 2 algorithm
+// The mainline Cholesky wraps the variant 3 algorithm
 template<typename T>
 void
 Elemental::LAPACK::Internal::CholL
@@ -30,7 +30,7 @@ Elemental::LAPACK::Internal::CholL
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::CholL");
 #endif
-    LAPACK::Internal::CholLVar2( A );
+    LAPACK::Internal::CholLVar3( A );
 #ifndef RELEASE
     PopCallStack();
 #endif

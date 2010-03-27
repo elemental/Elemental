@@ -1,7 +1,8 @@
 Relatively trivial but important 
 ================================
 - Extend Tridiag to complex datatypes.
-_ Finish adding dot product gemm algorithms for NT, TN, and TT options
+- Finish adding dot product gemm algorithms for NT, TN, and TT options
+- Finish converting syrk/syr2k/herk/her2k local updates to recursive approach
 
 Relatively trivial but not important
 ====================================
