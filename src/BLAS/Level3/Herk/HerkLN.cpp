@@ -297,41 +297,17 @@ template void Elemental::BLAS::Internal::HerkLN
 ( const float alpha, const DistMatrix<float,MC,MR>& A,
   const float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::HerkLNUpdate
-( const float alpha, const DistMatrix<float,MC,Star>& A_MC_Star,
-                     const DistMatrix<float,MR,Star>& A_MR_Star,
-  const float beta,        DistMatrix<float,MC,MR  >& C         );
-
 template void Elemental::BLAS::Internal::HerkLN
 ( const double alpha, const DistMatrix<double,MC,MR>& A,
   const double beta,        DistMatrix<double,MC,MR>& C );
-
-template void Elemental::BLAS::Internal::HerkLNUpdate
-( const double alpha, const DistMatrix<double,MC,Star>& A_MC_Star,
-                      const DistMatrix<double,MR,Star>& A_MR_Star,
-  const double beta,        DistMatrix<double,MC,MR  >& C         );
 
 #ifndef WITHOUT_COMPLEX
 template void Elemental::BLAS::Internal::HerkLN
 ( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
   const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::HerkLNUpdate
-( const scomplex alpha, 
-  const DistMatrix<scomplex,MC,Star>& A_MC_Star,
-  const DistMatrix<scomplex,MR,Star>& A_MR_Star,
-  const scomplex beta,        
-        DistMatrix<scomplex,MC,MR  >& C         );
-
 template void Elemental::BLAS::Internal::HerkLN
 ( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
   const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
-
-template void Elemental::BLAS::Internal::HerkLNUpdate
-( const dcomplex alpha, 
-  const DistMatrix<dcomplex,MC,Star>& A_MC_Star,
-  const DistMatrix<dcomplex,MR,Star>& A_MR_Star,
-  const dcomplex beta,        
-        DistMatrix<dcomplex,MC,MR  >& C         );
 #endif
 

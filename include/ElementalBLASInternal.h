@@ -831,6 +831,14 @@ namespace Elemental
                              const DistMatrix<T,Star,MR>& A_Star_MR,
               const T beta,        DistMatrix<T,MC,  MR>& C         );
 
+            // Lower, ConjugateTranspose Herk Update Kernel
+            template<typename T>
+            void
+            HerkLCUpdateKernel
+            ( const T alpha, const DistMatrix<T,Star,MC>& A_Star_MC,
+                             const DistMatrix<T,Star,MR>& A_Star_MR,
+              const T beta,        DistMatrix<T,MC,  MR>& C         );
+
             // Upper, Normal Herk
             template<typename T>
             void
