@@ -738,6 +738,16 @@ namespace Elemental
                              const DistMatrix<T,MR,Star>& B_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C       );
 
+            // Lower, Normal Her2k Update Kernel
+            template<typename T>
+            void
+            Her2kLNUpdateKernel
+            ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
+                             const DistMatrix<T,MR,Star>& A_MR_Star,
+                             const DistMatrix<T,MC,Star>& B_MC_Star,
+                             const DistMatrix<T,MR,Star>& B_MR_Star,
+              const T beta,        DistMatrix<T,MC,MR  >& C       );
+
             // Lower, ConjugateTranspose Her2k
             template<typename T>
             void
@@ -750,6 +760,16 @@ namespace Elemental
             template<typename T>
             void
             Her2kLCUpdate
+            ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
+                             const DistMatrix<T,Star,MR>& A_MR_Star,
+                             const DistMatrix<T,Star,MC>& B_MC_Star,
+                             const DistMatrix<T,Star,MR>& B_MR_Star,
+              const T beta,        DistMatrix<T,MC,  MR>& C         );
+
+            // Lower, ConjugateTranspose Her2k Update Kernel
+            template<typename T>
+            void
+            Her2kLCUpdateKernel
             ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
                              const DistMatrix<T,Star,MR>& A_MR_Star,
                              const DistMatrix<T,Star,MC>& B_MC_Star,
@@ -774,6 +794,16 @@ namespace Elemental
                              const DistMatrix<T,MR,Star>& B_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C       );
 
+            // Upper, Normal Her2k Update Kernel
+            template<typename T>
+            void
+            Her2kUNUpdateKernel
+            ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
+                             const DistMatrix<T,MR,Star>& A_MR_Star,
+                             const DistMatrix<T,MC,Star>& B_MC_Star,
+                             const DistMatrix<T,MR,Star>& B_MR_Star,
+              const T beta,        DistMatrix<T,MC,MR  >& C       );
+
             // Upper, ConjugateTranspose Her2k
             template<typename T>
             void
@@ -792,6 +822,15 @@ namespace Elemental
                              const DistMatrix<T,Star,MR>& B_MR_Star,
               const T beta,        DistMatrix<T,MC,  MR>& C         );
 
+            // Upper, ConjugateTranspose Her2k Update Kernel
+            template<typename T>
+            void
+            Her2kUCUpdateKernel
+            ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
+                             const DistMatrix<T,Star,MR>& A_MR_Star,
+                             const DistMatrix<T,Star,MC>& B_MC_Star,
+                             const DistMatrix<T,Star,MR>& B_MR_Star,
+              const T beta,        DistMatrix<T,MC,  MR>& C         );
 
             // Lower, Normal Herk
             template<typename T>
@@ -976,6 +1015,16 @@ namespace Elemental
                              const DistMatrix<T,MR,Star>& B_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C         );
 
+            // Lower, Normal Syr2k Update Kernel
+            template<typename T>
+            void
+            Syr2kLNUpdateKernel
+            ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
+                             const DistMatrix<T,MR,Star>& A_MR_Star,
+                             const DistMatrix<T,MC,Star>& B_MC_Star,
+                             const DistMatrix<T,MR,Star>& B_MR_Star,
+              const T beta,        DistMatrix<T,MC,MR  >& C         );
+
             // Lower, Transpose Syr2k
             template<typename T>
             void
@@ -988,6 +1037,16 @@ namespace Elemental
             template<typename T>
             void
             Syr2kLTUpdate
+            ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
+                             const DistMatrix<T,Star,MR>& A_MR_Star,
+                             const DistMatrix<T,Star,MC>& B_MC_Star,
+                             const DistMatrix<T,Star,MR>& B_MR_Star,
+              const T beta,        DistMatrix<T,MC,  MR>& C         );
+
+            // Lower, Transpose Syr2k Update Kernel
+            template<typename T>
+            void
+            Syr2kLTUpdateKernel
             ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
                              const DistMatrix<T,Star,MR>& A_MR_Star,
                              const DistMatrix<T,Star,MC>& B_MC_Star,
@@ -1012,6 +1071,16 @@ namespace Elemental
                              const DistMatrix<T,MR,Star>& B_MR_Star,
               const T beta,        DistMatrix<T,MC,MR  >& C         );
 
+            // Upper, Normal Syr2k Update Kernel
+            template<typename T>
+            void
+            Syr2kUNUpdateKernel
+            ( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
+                             const DistMatrix<T,MR,Star>& A_MR_Star,
+                             const DistMatrix<T,MC,Star>& B_MC_Star,
+                             const DistMatrix<T,MR,Star>& B_MR_Star,
+              const T beta,        DistMatrix<T,MC,MR  >& C         );
+
             // Upper, Transpose Syr2k
             template<typename T>
             void
@@ -1024,6 +1093,16 @@ namespace Elemental
             template<typename T>
             void
             Syr2kUTUpdate
+            ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
+                             const DistMatrix<T,Star,MR>& A_MR_Star,
+                             const DistMatrix<T,Star,MC>& B_MC_Star,
+                             const DistMatrix<T,Star,MR>& B_MR_Star,
+              const T beta,        DistMatrix<T,MC,  MR>& C         );
+
+            // Upper, Transpose Syr2k Update Kernel
+            template<typename T>
+            void
+            Syr2kUTUpdateKernel
             ( const T alpha, const DistMatrix<T,Star,MC>& A_MC_Star,
                              const DistMatrix<T,Star,MR>& A_MR_Star,
                              const DistMatrix<T,Star,MC>& B_MC_Star,
