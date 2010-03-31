@@ -265,7 +265,6 @@ Elemental::DistMatrix<T,Star,MC>::FreeConstraints()
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MC]::FreeConstraints");
-    CHECK_IF_NONEXISTANT_CONSTRAINTS;
 #endif
     _constrainedRowDist = false;
 #ifndef RELEASE

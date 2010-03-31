@@ -126,16 +126,6 @@
     } \
 }
 
-#define CHECK_IF_NONEXISTANT_CONSTRAINTS \
-{ \
-    if( !ConstrainedColDist() && !ConstrainedRowDist() ) \
-    { \
-        std::cerr << "Tried to free nonexistant constraints." << std::endl; \
-        DumpCallStack(); \
-        throw std::exception(); \
-    } \
-}
-
 #define CHECK_IF_OUT_OF_BOUNDS( A, i, j, height, width ) \
 { \
     if( i < 0 || j < 0 ) \

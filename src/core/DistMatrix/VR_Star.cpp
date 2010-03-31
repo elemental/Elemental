@@ -272,7 +272,6 @@ Elemental::DistMatrix<T,VR,Star>::FreeConstraints()
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::FreeConstraints");
-    CHECK_IF_NONEXISTANT_CONSTRAINTS;
 #endif
     _constrainedColDist = false;
 #ifndef RELEASE
