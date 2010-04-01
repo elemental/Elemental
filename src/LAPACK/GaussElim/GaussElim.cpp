@@ -29,26 +29,11 @@ Elemental::LAPACK::GaussElim
 #ifndef RELEASE
     PushCallStack("LAPACK::GaussElim");
     if( A.GetGrid() != B.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "A and B must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A and B must be distributed over the same grid.";
     if( A.Height() != A.Width() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "A must be square." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A must be square.";
     if( A.Height() != B.Height() )
-    {
-        if( A.GetGrid().VCRank() == 0 ) 
-            cerr << "A and B must be the same height." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A and B must be the same height.";
 #endif
     LAPACK::Internal::ReduceToRowEchelon( A, B );
     if( B.Width() == 1 )

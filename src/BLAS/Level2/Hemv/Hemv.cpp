@@ -30,46 +30,29 @@ Elemental::BLAS::Hemv
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Hemv");
-#endif
-    const Grid& grid = A.GetGrid();
-#ifndef RELEASE
     if( A.GetGrid() != x.GetGrid() || x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "{A,x,y} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,x,y} must be distributed over the same grid.";
     if( A.Height() != A.Width() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "A must be square." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A must be square.";
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
         ( y.Width() != 1 && y.Height() != 1 )   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y are assumed to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "x and y are assumed to be vectors.";
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal Hemv: " <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            endl << "  x ~ " << x.Height() << " x " << x.Width() <<
-            endl << "  y ~ " << y.Height() << " x " << y.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal Hemv: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  x ~ " << x.Height() << " x " << x.Width() << endl
+            << "  y ~ " << y.Height() << " x " << y.Width() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = A.GetGrid();
+
     if( x.Width() == 1 && y.Width() == 1 )
     {
         // Temporary distributions

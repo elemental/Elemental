@@ -99,10 +99,10 @@ void TestCorrectness( const Shape shape, const Diagonal diagonal,
 
                 if( ! OKRelativeError( truth, computed ) )
                 {
-                    cout << "FAILED on process " << grid.VCRank() 
-                         << " at index (" << i << "," << j << "): truth=" 
-                         << truth << ", computed=" << computed << endl;
-                    throw exception();
+                    ostringstream msg;
+                    msg << "FAILED at index (" << i << "," << j << "): truth=" 
+                         << truth << ", computed=" << computed;
+                    throw msg.str();
                 }
             }
         }
@@ -118,10 +118,10 @@ void TestCorrectness( const Shape shape, const Diagonal diagonal,
 
                 if( ! OKRelativeError( truth, computed ) )
                 {
-                    cout << "FAILED on process " << grid.VCRank() 
-                         << " at index (" << i << "," << j << "): truth=" 
-                         << truth << ", computed=" << computed << endl;
-                    throw exception();
+                    ostringstream msg;
+                    msg << "FAILED at index (" << i << "," << j << "): truth=" 
+                         << truth << ", computed=" << computed;
+                    throw msg.str();
                 }
             }
         }
@@ -294,10 +294,14 @@ int main( int argc, char* argv[] )
             cout << endl;
 #endif
     }
-    catch( exception e )
+    catch( string errorMsg )
     {
-        cerr << "Caught exception on process " << rank << endl;
-    }
+#ifndef RELEASE
+        DumpCallStack();
+#endif
+        cerr << "Process " << rank << " caught error message:" << endl 
+             << errorMsg << endl;
+    }   
     Elemental::Finalize();
     return 0;
 }

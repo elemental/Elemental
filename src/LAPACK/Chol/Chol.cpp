@@ -43,13 +43,9 @@ Elemental::LAPACK::Internal::CholVar2
     PushCallStack("LAPACK::Internal::CholVar2");
 #endif
     if( shape == Lower )
-    {
         LAPACK::Internal::CholLVar2( A );
-    }
     else
-    {
         LAPACK::Internal::CholUVar2( A );
-    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -64,13 +60,9 @@ Elemental::LAPACK::Internal::CholVar3
     PushCallStack("LAPACK::Internal::CholVar3");
 #endif
     if( shape == Lower )
-    {
         LAPACK::Internal::CholLVar3( A );
-    }
     else
-    {
         LAPACK::Internal::CholUVar3( A );
-    }
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -33,26 +33,11 @@ Elemental::LAPACK::Internal::PanelLU
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::PanelLU");
     if( A.GetGrid() != p.GetGrid() || p.GetGrid() != B.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "Matrices must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Matrices must be distributed over the same grid.";
     if( A.Width() != B.Width() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "A and B must be the same width." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A and B must be the same width.";
     if( A.Height() != p.Height() || p.Width() != 1 )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "p must be a vectors that conforms with A" << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "p must be a vector that conforms with A.";
 #endif
     const Grid& grid = A.GetGrid();
     const int colShift = B.ColShift();

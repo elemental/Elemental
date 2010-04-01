@@ -35,35 +35,21 @@ BLAS::Internal::TrmmRUT
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::TrmmRUT");
-#endif
-    const Grid& grid = U.GetGrid();
-#ifndef RELEASE
     if( U.GetGrid() != X.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "U and X must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "U and X must be distributed over the same grid.";
     if( orientation == Normal )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "TrmmRUT expects a (Conjugate)Transpose option." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "TrmmRUT expects a (Conjugate)Transpose option.";
     if( U.Height() != U.Width() || X.Width() != U.Height() )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal TrmmRUT: " <<
-            endl << "  U ~ " << U.Height() << " x " << U.Width() <<
-            endl << "  X ~ " << X.Height() << " x " << X.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal TrmmRUT: " << endl
+            << "  U ~ " << U.Height() << " x " << U.Width() << endl
+            << "  X ~ " << X.Height() << " x " << X.Width() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = U.GetGrid();
+
     // Matrix views
     DistMatrix<T,MC,MR> 
         UTL(grid), UTR(grid),  U00(grid), U01(grid), U02(grid),

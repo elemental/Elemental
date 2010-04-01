@@ -96,11 +96,7 @@ Elemental::LAPACK::Chol
 #ifndef RELEASE
     PushCallStack("LAPACK::Chol");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A must be square.";
 #endif
     const char uplo = ShapeToChar( shape );
     Elemental::wrappers::LAPACK::Chol( uplo, A.Height(), A.Buffer(), A.LDim() );
@@ -117,11 +113,7 @@ Elemental::LAPACK::LU
 #ifndef RELEASE
     PushCallStack("LAPACK::LU");
     if( p.Height() != A.Height() )
-    {
-        std::cerr << "A and p must be the same height." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A and p must be the same height.";
 #endif
     Elemental::wrappers::LAPACK::LU
     ( A.Height(), A.Width(), A.Buffer(), A.LDim(), p.Buffer() );
@@ -139,29 +131,13 @@ Elemental::LAPACK::Tridiag
 #ifndef RELEASE
     PushCallStack("LAPACK::Tridiag");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A must be square.";
     if( d.Height() != A.Height() || d.Width() != 1 )
-    {
-        std::cerr << "d must be a column vector of length n." << std::endl;
-        DumpCallStack(); 
-        throw std::exception();
-    }
+        throw "d must be a column vector of length n.";
     if( e.Height() != A.Height()-1 || e.Width() != 1 )
-    {
-        std::cerr << "e must be a column vector of length n-1." << std::endl;
-        DumpCallStack(); 
-        throw std::exception();
-    }
+        throw "e must be a column vector of length n-1.";
     if( t.Height() != A.Height()-1 || t.Width() != 1 )
-    {
-        std::cerr << "t must be a column vector of length n-1." << std::endl;
-        DumpCallStack(); 
-        throw std::exception();
-    }
+        throw "t must be a column vector of length n-1.";
 #endif
     const char uplo = ShapeToChar( shape );
     Elemental::wrappers::LAPACK::Tridiag
@@ -180,11 +156,7 @@ Elemental::LAPACK::Trinv
 #ifndef RELEASE
     PushCallStack("LAPACK::Trinv");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A must be square.";
 #endif
     const char uplo = ShapeToChar( shape );
     const char diag = DiagonalToChar( diagonal );

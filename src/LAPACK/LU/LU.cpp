@@ -30,19 +30,9 @@ Elemental::LAPACK::LU
 #ifndef RELEASE
     PushCallStack("LAPACK::LU");
     if( A.GetGrid() != p.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "A and p must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A and p must be distributed over the same grid.";
     if( A.Height() != p.Height() ) 
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "A and p must be the same height." << endl; 
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A and p must be the same height.";
 #endif
     const Grid& grid = A.GetGrid();
 

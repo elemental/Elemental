@@ -31,26 +31,17 @@ Elemental::BLAS::Internal::HemvColAccumulateL
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::HemvColAccumulateL");
-#endif
-    const Grid& grid = A.GetGrid();
-#ifndef RELEASE
     if( A.GetGrid() != x_MC_Star.GetGrid() || 
         x_MC_Star.GetGrid() != x_MR_Star.GetGrid() ||
         x_MR_Star.GetGrid() != z_MC_Star.GetGrid() ||
         z_MC_Star.GetGrid() != z_MR_Star.GetGrid()   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "{A,x,z} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "{A,x,z} must be distributed over the same grid.";
     }
     if( x_MC_Star.Width() != 1 || x_MR_Star.Width() != 1 ||
         z_MC_Star.Width() != 1 || z_MR_Star.Width() != 1   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Expected x and z to be column vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Expected x and z to be column vectors.";
     }
     if( A.Height() != A.Width() || 
         A.Height() != x_MC_Star.Height() ||
@@ -58,33 +49,29 @@ Elemental::BLAS::Internal::HemvColAccumulateL
         A.Height() != z_MC_Star.Height() ||
         A.Height() != z_MR_Star.Height()   )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal HemvColAccumulateL: " <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            endl << "  x[MC,* ] ~ " << x_MC_Star.Height() << " x " 
-                                    << x_MC_Star.Width() << 
-            endl << "  x[MR,* ] ~ " << x_MR_Star.Height() << " x " 
-                                    << x_MR_Star.Width() << 
-            endl << "  z[MC,* ] ~ " << z_MC_Star.Height() << " x " 
-                                    << z_MC_Star.Width() << 
-            endl << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
-                                    << z_MR_Star.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal HemvColAccumulateL: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  x[MC,* ] ~ " << x_MC_Star.Height() << " x " 
+                               << x_MC_Star.Width() << endl
+            << "  x[MR,* ] ~ " << x_MR_Star.Height() << " x " 
+                               << x_MR_Star.Width() << endl
+            << "  z[MC,* ] ~ " << z_MC_Star.Height() << " x " 
+                               << z_MC_Star.Width() << endl
+            << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
+                               << z_MR_Star.Width() << endl;
+        throw msg.str();
     }
     if( x_MC_Star.ColAlignment() != A.ColAlignment() ||
         x_MR_Star.ColAlignment() != A.RowAlignment() ||
         z_MC_Star.ColAlignment() != A.ColAlignment() ||
         z_MR_Star.ColAlignment() != A.RowAlignment()   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Partial matrix distributions are misaligned." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Partial matrix distributions are misaligned.";
     }
 #endif
+    const Grid& grid = A.GetGrid();
+
     // Matrix views
     DistMatrix<T,MC,MR> 
         ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),
@@ -224,29 +211,17 @@ Elemental::BLAS::Internal::HemvRowAccumulateL
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::HemvRowAccumulateL");
-#endif
-    const Grid& grid = A.GetGrid();
-#ifndef RELEASE
     if( A.GetGrid() != x_Star_MC.GetGrid() ||
         x_Star_MC.GetGrid() != x_Star_MR.GetGrid() ||
         x_Star_MR.GetGrid() != z_MC_Star.GetGrid() ||
         z_MC_Star.GetGrid() != z_MR_Star.GetGrid()   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "{A,x,z} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "{A,x,z} must be distributed over the same grid.";
     }
     if( x_Star_MC.Height() != 1 || x_Star_MR.Height() != 1 ||
         z_MC_Star.Width() != 1 || z_MR_Star.Width() != 1   )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Expected x to be a row vector, z to be a column vector." 
-                 << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        throw "Expected x to be a row vector and z to be a column vector.";
     }
     if( A.Height() != A.Width() || 
         A.Height() != x_Star_MC.Width() ||
@@ -254,33 +229,29 @@ Elemental::BLAS::Internal::HemvRowAccumulateL
         A.Height() != z_MC_Star.Height() ||
         A.Height() != z_MR_Star.Height()   )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal HemvRowAccumulateL: " <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            endl << "  x[* ,MC] ~ " << x_Star_MC.Height() << " x " 
-                                    << x_Star_MC.Width() << 
-            endl << "  x[* ,MR] ~ " << x_Star_MR.Height() << " x " 
-                                    << x_Star_MR.Width() << 
-            endl << "  z[MC,* ] ~ " << z_MC_Star.Height() << " x " 
-                                    << z_MC_Star.Width() << 
-            endl << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
-                                    << z_MR_Star.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal HemvRowAccumulateL: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  x[* ,MC] ~ " << x_Star_MC.Height() << " x " 
+                               << x_Star_MC.Width() << endl
+            << "  x[* ,MR] ~ " << x_Star_MR.Height() << " x " 
+                               << x_Star_MR.Width() << endl
+            << "  z[MC,* ] ~ " << z_MC_Star.Height() << " x " 
+                               << z_MC_Star.Width() << endl
+            << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
+                               << z_MR_Star.Width() << endl;
+        throw msg.str();
     }
     if( x_Star_MC.RowAlignment() != A.ColAlignment() ||
         x_Star_MR.RowAlignment() != A.RowAlignment() ||
         z_MC_Star.ColAlignment() != A.ColAlignment() ||
         z_MR_Star.ColAlignment() != A.RowAlignment()   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Partial matrix distributions are misaligned." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Partial matrix distributions are misaligned.";
     }
 #endif
+    const Grid& grid = A.GetGrid();
+
     // Matrix views
     DistMatrix<T,MC,MR> 
         ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),

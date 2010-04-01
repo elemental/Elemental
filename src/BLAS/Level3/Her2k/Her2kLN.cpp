@@ -29,31 +29,22 @@ Elemental::BLAS::Internal::Her2kLN
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Her2kLN");
-#endif
-    const Grid& grid = A.GetGrid();
-#ifndef RELEASE
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
     if( A.Height() != C.Height() || A.Height() != C.Width() ||
         B.Height() != C.Height() || B.Height() != C.Width() ||
         A.Width() != B.Width()                                 )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal Her2kLN:" <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            endl << "  B ~ " << B.Height() << " x " << B.Width() << 
-            endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal Her2kLN:" << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  B ~ " << B.Height() << " x " << B.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = A.GetGrid();
+
     // Matrix views 
     DistMatrix<T,MC,MR> AL(grid), AR(grid),
                         A0(grid), A1(grid), A2(grid);
@@ -119,18 +110,12 @@ Elemental::BLAS::Internal::Her2kLNUpdate
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Her2kLNUpdate");
-#endif
-    const Grid& grid = C.GetGrid();
-#ifndef RELEASE
     if( A_MC_Star.GetGrid() != A_MR_Star.GetGrid() || 
         A_MR_Star.GetGrid() != B_MC_Star.GetGrid() ||
         B_MC_Star.GetGrid() != B_MR_Star.GetGrid() ||
         B_MR_Star.GetGrid() != C.GetGrid()           )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "{A,B,C} must be distributed over the same grid.";
     }
     if( A_MC_Star.Height() != C.Height() ||
         A_MR_Star.Height() != C.Width()  ||
@@ -139,41 +124,37 @@ Elemental::BLAS::Internal::Her2kLNUpdate
         A_MC_Star.Width()  != B_MR_Star.Width() ||
         B_MC_Star.Width()  != B_MR_Star.Width()    )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal Her2kLNUpdate: " <<
-            endl << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
-                                    << A_MC_Star.Width()  <<
-            endl << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
-                                    << A_MR_Star.Width()  <<
-            endl << "  B[MC,* ] ~ " << B_MC_Star.Height() << " x " 
-                                    << B_MC_Star.Width()  <<
-            endl << "  B[MR,* ] ~ " << B_MR_Star.Height() << " x "
-                                    << B_MR_Star.Width()  << 
-            endl << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal Her2kLNUpdate: " << endl
+            << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
+                               << A_MC_Star.Width()  << endl
+            << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
+                               << A_MR_Star.Width()  << endl
+            << "  B[MC,* ] ~ " << B_MC_Star.Height() << " x " 
+                               << B_MC_Star.Width()  << endl
+            << "  B[MR,* ] ~ " << B_MR_Star.Height() << " x "
+                               << B_MR_Star.Width()  << endl
+            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
     if( A_MC_Star.ColAlignment() != C.ColAlignment() ||
         A_MR_Star.ColAlignment() != C.RowAlignment() ||
         B_MC_Star.ColAlignment() != C.ColAlignment() ||
         B_MR_Star.ColAlignment() != C.RowAlignment()    )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Misaligned Her2kLNUpdate: " << 
-            endl << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() <<
-            endl << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() <<
-            endl << "  B[MC,* ] ~ " << B_MC_Star.ColAlignment() <<
-            endl << "  B[MR,* ] ~ " << B_MR_Star.ColAlignment() << 
-            endl << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                       C.RowAlignment() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Misaligned Her2kLNUpdate: " << endl
+            << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() << endl
+            << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() << endl
+            << "  B[MC,* ] ~ " << B_MC_Star.ColAlignment() << endl
+            << "  B[MR,* ] ~ " << B_MR_Star.ColAlignment() << endl
+            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
+                                  C.RowAlignment() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = A_MC_Star.GetGrid();
+
     // Matrix views 
     DistMatrix<T,MC,Star> AT_MC_Star(grid),  A0_MC_Star(grid),
                           AB_MC_Star(grid),  A1_MC_Star(grid),

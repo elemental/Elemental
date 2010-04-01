@@ -63,32 +63,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -167,32 +155,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -255,32 +231,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -343,32 +307,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -447,32 +399,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -535,32 +475,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -623,32 +551,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -711,32 +627,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -799,32 +703,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VRRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VRRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -887,32 +779,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VRRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VRRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -975,32 +855,20 @@ Elemental::BLAS::Internal::Dotu
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Dotu");
-#endif
-    const Grid& grid = x.GetGrid();
-#ifndef RELEASE
     if( x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x and y must be distributed over the same grid." << endl;
-    }
+        throw "x and y must be distributed over the same grid.";
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        if( grid.VRRank() == 0 )
-            cerr << "Dotu requires x and y to be vectors." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "Dotu requires x and y to be vectors.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
-        if( grid.VRRank() == 0 )
-            cerr << "Dotu requires x and y to be the same length." << endl;
-        DumpCallStack();
-        throw exception();    
-    }
+        throw "Dotu requires x and y to be the same length.";
 #endif
+    const Grid& grid = x.GetGrid();
+
     DistMatrix<T,Star,Star> xRedist(grid);
     xRedist = x;
 

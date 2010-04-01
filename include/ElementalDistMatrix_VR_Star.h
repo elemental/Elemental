@@ -296,12 +296,7 @@ Elemental::DistMatrix<T,Elemental::VR,Elemental::Star>::DistMatrix
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::DistMatrix(height,width)");
     if( height < 0 || width < 0 )
-    {
-        if( grid.VCRank() == 0 )
-            std::cerr << "Height and width must be non-negative." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Height and width must be non-negative.";
 #endif
     _localMatrix.ResizeTo
     ( utilities::LocalLength( height, grid.VCRank(), grid.Size() ), 
@@ -323,15 +318,7 @@ Elemental::DistMatrix<T,Elemental::VR,Elemental::Star>::DistMatrix
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::DistMatrix(colAlign)");
     if( colAlignment < 0 || colAlignment >= grid.Size() )
-    {
-        if( grid.VCRank() == 0 )
-        {
-            std::cerr << "colAlignment for [VR,* ] must be in [0,p-1], p=rxc."
-                      << std::endl;
-        }
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "colAlignment for [VR,*] must be in [0,p-1] (rxc grid,p=r*c).";
 #endif
     _colShift = utilities::Shift( grid.VRRank(), colAlignment, grid.Size() );
 #ifndef RELEASE
@@ -352,22 +339,9 @@ Elemental::DistMatrix<T,Elemental::VR,Elemental::Star>::DistMatrix
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::DistMatrix(m,n,colAlign)");
     if( height < 0 || width < 0 )
-    {
-        if( grid.VCRank() == 0 )
-            std::cerr << "Height and width must be non-negative." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Height and width must be non-negative.";
     if( colAlignment < 0 || colAlignment >= grid.Size() )
-    {
-        if( grid.VCRank() == 0 )
-        {
-            std::cerr << "colAlignment for [VR,* ] must be in [0,p-1], p=rxc."
-                      << std::endl;
-        }
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "colAlignment for [VR,*] must be in [0,p-1] (rxc grid,p=r*c).";
 #endif
     _colShift = utilities::Shift( grid.VRRank(), _colAlignment, grid.Size() );
     _localMatrix.ResizeTo
@@ -387,21 +361,13 @@ Elemental::DistMatrix<T,Elemental::VR,Elemental::Star>::DistMatrix
   _grid( &( A.GetGrid() ) )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[VR,* ]::DistMatrix( const DistMatrix[VR,* ]& )");
+    PushCallStack
+    ("DistMatrix[VR,* ]::DistMatrix( const DistMatrix[VR,* ]& )");
 #endif
     if( &A != this )
-    {
         *this = A;
-    }
     else
-    {
-        std::cerr << "You just tried to construct a DistMatrix[VR,* ] with"
-                  << " itself!" << std::endl;
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-        throw std::exception();
-    }
+        throw "You just tried to construct a [VR,*] with itself!";
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -440,17 +406,9 @@ Elemental::DistMatrix<T,Elemental::VR,Elemental::Star>::LocalEntry
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::LocalEntry(i,j)");
     if( i < 0 || j < 0 )
-    {
-        std::cerr << "Indices must be non-negative." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Indices must be non-negative.";
     if( _viewing && _lockedView )
-    {
-        std::cerr << "Cannot alter data with locked view." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Cannot alter data with locked view.";
 #endif
     T& value = _localMatrix(i,j);
 #ifndef RELEASE
@@ -467,11 +425,7 @@ Elemental::DistMatrix<T,Elemental::VR,Elemental::Star>::LocalEntry
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::LocalEntry(i,j)");
     if( i < 0 || j < 0 )
-    {
-        std::cerr << "Indices must be non-nevative." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Indices must be non-negative.";
 #endif
     T value = _localMatrix(i,j);
 #ifndef RELEASE
@@ -487,11 +441,7 @@ Elemental::DistMatrix<T,Elemental::VR,Elemental::Star>::LocalMatrix()
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::LocalMatrix");
     if( _viewing && _lockedView )
-    {
-        std::cerr << "Cannot alter data with locked view." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Cannot alter data with locked view.";
     PopCallStack();
 #endif
     return _localMatrix;

@@ -450,12 +450,7 @@ Elemental::DistMatrix<T,MC,Star>::View1x2
     CHECK_IF_VIEWING_DIFF_GRID( AR );
     CHECK_IF_CONFORMING_1x2( AL, AR );
     if( AL.ColAlignment() != AR.ColAlignment() )
-    {
-        if( _grid->VCRank() == 0 )
-            cerr << "1x2 is misaligned, cannot horizontally combine." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "1x2 is misaligned, cannot horizontally combine.";
 #endif
     _height = AL.Height();
     _width  = AL.Width() + AR.Width();
@@ -483,12 +478,7 @@ Elemental::DistMatrix<T,MC,Star>::LockedView1x2
     CHECK_IF_VIEWING_DIFF_GRID( AR );
     CHECK_IF_CONFORMING_1x2( AL, AR );
     if( AL.ColAlignment() != AR.ColAlignment() )
-    {
-        if( _grid->VCRank() == 0 )
-            cerr << "1x2 is misaligned, cannot horizontally combine." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "1x2 is misaligned, cannot horizontally combine.";
 #endif
     _height = AL.Height();
     _width  = AL.Width() + AR.Width();
@@ -577,10 +567,7 @@ Elemental::DistMatrix<T,MC,Star>::View2x2
     if( ATL.ColAlignment() != ATR.ColAlignment() ||
         ABL.ColAlignment() != ABR.ColAlignment()   )
     {
-        if( _grid->VCRank() == 0 )
-            cerr << "2x2 must align to combine." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "2x2 must align to combine.";
     }
 #endif
     _height = ATL.Height() + ABL.Height();
@@ -616,10 +603,7 @@ Elemental::DistMatrix<T,MC,Star>::LockedView2x2
     if( ATL.ColAlignment() != ATR.ColAlignment() ||
         ABL.ColAlignment() != ABR.ColAlignment()   )
     {
-        if( _grid->VCRank() == 0 )
-            cerr << "2x2 must align to combine." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "2x2 must align to combine.";
     }
 #endif
     _height = ATL.Height() + ABL.Height();
@@ -645,12 +629,7 @@ Elemental::DistMatrix<T,MC,Star>::ResizeTo
     PushCallStack("DistMatrix[MC,* ]::ResizeTo");
     CHECK_IF_LOCKED_VIEW;
     if( height < 0 || width < 0 )
-    {
-        if( _grid->VCRank() == 0 )
-            cerr << "Height and width must be non-negative." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Height and width must be non-negative.";
 #endif
     _height = height;
     _width  = width;
@@ -669,13 +648,10 @@ Elemental::DistMatrix<T,MC,Star>::Get
     PushCallStack("DistMatrix<MC,* >::Get");
     if( i < 0 || i >= Height() || j < 0 || j >= Width() )
     {
-        if( _grid->VCRank() == 0 )
-        {
-            cerr << "Entry (" << i << "," << j << ") is out of bounds of "
-                 << Height() << " x " << Width() << " matrix." << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Entry (" << i << "," << j << ") is out of bounds of "
+            << Height() << " x " << Width() << " matrix." << endl;
+        throw msg.str();
     }
 #endif
     // We will determine the owner row of entry (i,j) and broadcast from that 
@@ -705,13 +681,10 @@ Elemental::DistMatrix<T,MC,Star>::Set
     PushCallStack("DistMatrix[MC,* ]::Set");
     if( i < 0 || i >= Height() || j < 0 || j >=Width() )
     {
-        if( _grid->VCRank() == 0 )
-        {
-            cerr << "Entry (" << i << "," << j << ") is out of bounds of "
-                 << Height() << " x " << Width() << " matrix." << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Entry (" << i << "," << j << ") is out of bounds of "
+            << Height() << " x " << Width() << " matrix." << endl;
+        throw msg.str();
     }
 #endif
     const int ownerRow = (i + ColAlignment()) % _grid->Height();

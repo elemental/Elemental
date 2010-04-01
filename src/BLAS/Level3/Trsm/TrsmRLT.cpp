@@ -36,35 +36,21 @@ BLAS::Internal::TrsmRLT
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::TrsmRLT");
-#endif
-    const Grid& grid = L.GetGrid();
-#ifndef RELEASE
     if( L.GetGrid() != X.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "L and X must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "L and X must be distributed over the same grid.";
     if( orientation == Normal )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "TrsmRLT expects a (Conjugate)Transpose option." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "TrsmRLT expects a (Conjugate)Transpose option.";
     if( L.Height() != L.Width() || X.Width() != L.Height() )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal TrsmRLT: " <<
-            endl << "  L ~ " << L.Height() << " x " << L.Width() <<
-            endl << "  X ~ " << X.Height() << " x " << X.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal TrsmRLT: " << endl
+            << "  L ~ " << L.Height() << " x " << L.Width() << endl
+            << "  X ~ " << X.Height() << " x " << X.Width() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = L.GetGrid();
+
     // Matrix views
     DistMatrix<T,MC,MR> 
         LTL(grid), LTR(grid),  L00(grid), L01(grid), L02(grid),

@@ -73,11 +73,7 @@ Elemental::LAPACK::Internal::CreatePivotOp<float>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::CreatePivotOp<float>");
     if( ::createdPivotOpFloat )
-    {
-        cerr << "Already created pivot op." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Already created pivot op.";
 #endif
     MPI_Op_create
     ( (MPI_User_function*)PivotFunc<float>, 1, &::pivotOpFloat );
@@ -94,11 +90,7 @@ Elemental::LAPACK::Internal::CreatePivotOp<double>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::CreatePivotOp<double>");
     if( ::createdPivotOpDouble )
-    {
-        cerr << "Already created pivot op." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Already created pivot op.";
 #endif
     MPI_Op_create
     ( (MPI_User_function*)PivotFunc<double>, 1, &::pivotOpDouble );
@@ -116,11 +108,7 @@ Elemental::LAPACK::Internal::CreatePivotOp<scomplex>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::CreatePivotOp<scomplex>");
     if( ::createdPivotOpScomplex )
-    {
-        cerr << "Already created pivot op." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Alread created pivot op.";
 #endif
     MPI_Op_create
     ( (MPI_User_function*)PivotFunc<scomplex>, 1, &::pivotOpScomplex );
@@ -137,11 +125,7 @@ Elemental::LAPACK::Internal::CreatePivotOp<dcomplex>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::CreatePivotOp<dcomplex>");
     if( ::createdPivotOpDcomplex )
-    {
-        cerr << "Already created pivot op." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Already created pivot op.";
 #endif
     MPI_Op_create
     ( (MPI_User_function*)PivotFunc<dcomplex>, 1, &::pivotOpDcomplex );
@@ -159,11 +143,7 @@ Elemental::LAPACK::Internal::DestroyPivotOp<float>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::DestroyPivotOp<float>");
     if( ! ::createdPivotOpFloat )
-    {
-        cerr << "Have not created a pivot op." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Have not created this pivot op.";
 #endif
     MPI_Op_free( &::pivotOpFloat );
 #ifndef RELEASE
@@ -179,11 +159,7 @@ Elemental::LAPACK::Internal::DestroyPivotOp<double>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::DestroyPivotOp<double>");
     if( ! ::createdPivotOpDouble )
-    {
-        cerr << "Have not created a pivot op." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Have not created ths pivot op.";
 #endif
     MPI_Op_free( &::pivotOpDouble );
 #ifndef RELEASE
@@ -200,11 +176,7 @@ Elemental::LAPACK::Internal::DestroyPivotOp<scomplex>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::DestroyPivotOp<scomplex>");
     if( ! ::createdPivotOpScomplex )
-    {
-        cerr << "Have not created a pivot op." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Have not created this pivot op.";
 #endif
     MPI_Op_free( &::pivotOpScomplex );
 #ifndef RELEASE
@@ -220,11 +192,7 @@ Elemental::LAPACK::Internal::DestroyPivotOp<dcomplex>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::DestroyPivotOp<dcomplex>");
     if( ! ::createdPivotOpDcomplex )
-    {
-        cerr << "Have not created a pivot op." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Have not created this pivot op.";
 #endif
     MPI_Op_free( &::pivotOpDcomplex );
 #ifndef RELEASE
@@ -241,11 +209,7 @@ Elemental::LAPACK::Internal::PivotOp<float>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::PivotOp<float>");
     if( ! ::createdPivotOpFloat )
-    {
-        cerr << "Tried to return uncreated pivotOp." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Tried to return uncreated pivot op.";
     PopCallStack();
 #endif
     return ::pivotOpFloat; 
@@ -258,11 +222,7 @@ Elemental::LAPACK::Internal::PivotOp<double>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::PivotOp<double>");
     if( ! ::createdPivotOpDouble )
-    {
-        cerr << "Tried to return uncreated pivotOp." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Tried to return uncreated pivot op.";
     PopCallStack();
 #endif
     return ::pivotOpDouble; 
@@ -276,11 +236,7 @@ Elemental::LAPACK::Internal::PivotOp<scomplex>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::PivotOp<scomplex>");
     if( ! ::createdPivotOpScomplex )
-    {
-        cerr << "Tried to return uncreated pivotOp." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Tried to return uncreated pivot op.";
     PopCallStack();
 #endif
     return ::pivotOpScomplex; 
@@ -293,11 +249,7 @@ Elemental::LAPACK::Internal::PivotOp<dcomplex>()
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::PivotOp<dcomplex>");
     if( ! ::createdPivotOpDcomplex )
-    {
-        cerr << "Tried to return uncreated pivotOp." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Tried to return uncreated pivot op.";
     PopCallStack();
 #endif
     return ::pivotOpDcomplex; 

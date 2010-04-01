@@ -30,17 +30,9 @@ Elemental::LAPACK::Internal::ReduceToRowEchelon
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::ReduceToRowEchelon");
     if( A.GetGrid() != B.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "A and B must be distributed over the same grid." << endl;
-    }
+        throw "A and B must be distributed over the same grid.";
     if( A.Height() != B.Height() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "A and B must be the same height." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A and B must be the same height.";
 #endif
     const Grid& grid = A.GetGrid();
 

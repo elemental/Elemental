@@ -73,15 +73,7 @@ Elemental::LAPACK::Internal::CholUVar2
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::CholUVar2");
     if( A.Height() != A.Width() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "Can only compute Cholesky factor of square matrices."
-                 << endl;
-        }
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Can only compute Cholesky factor of square matrices.";
 #endif
     const Grid& grid = A.GetGrid();
 
@@ -184,15 +176,7 @@ LAPACK::Internal::CholUVar3
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::CholUVar3");
     if( A.Height() != A.Width() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "Can only compute Cholesky factor of square matrices."
-                 << endl;
-        }
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Can only compute Cholesky factor of square matrices.";
 #endif
     const Grid& grid = A.GetGrid();
 

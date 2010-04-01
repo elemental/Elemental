@@ -58,9 +58,7 @@ namespace Elemental
             case 'N': diagonal = NonUnit; break;
             case 'U': diagonal = Unit;    break;
             default:
-                std::cerr << "CharToDiagonal expects char in {N,U}." 
-                          << std::endl;
-                throw std::exception();     
+                throw "CharToDiagonal expects char in {N,U}."; 
         }
         return diagonal;
     }
@@ -107,11 +105,8 @@ namespace Elemental
             distribution = Star;
         else
         {
-            std::cerr 
-                << "StringToDist expects string in "
-                << "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}."
-                << std::endl;
-            throw std::exception();     
+            throw "StringToDist expects string in "
+                  "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}.";
         }
         return distribution;
     }
@@ -144,9 +139,7 @@ namespace Elemental
             case 'T': orientation = Transpose;          break;
             case 'C': orientation = ConjugateTranspose; break;
             default:
-                std::cerr << "CharToOrientation expects char in {N,T,C}." 
-                          << std::endl;
-                throw std::exception();     
+                throw "CharToOrientation expects char in {N,T,C}.";
         }
         return orientation;
     }
@@ -176,9 +169,7 @@ namespace Elemental
             case 'L': shape = Lower; break;
             case 'U': shape = Upper; break;
             default:
-                std::cerr << "CharToShape expects char in {L,U}." 
-                          << std::endl;
-                throw std::exception();     
+                throw "CharToShape expects char in {L,U}.";
         }
         return shape;
     }
@@ -208,9 +199,7 @@ namespace Elemental
             case 'L': side = Left;  break;
             case 'R': side = Right; break;
             default:
-                std::cerr << "CharToSide expects char in {L,R}." 
-                          << std::endl;
-                throw std::exception();     
+                throw "CharToSide expects char in {L,R}.";
         }
         return side;
     }

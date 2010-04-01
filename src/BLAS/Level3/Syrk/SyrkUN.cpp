@@ -28,28 +28,19 @@ Elemental::BLAS::Internal::SyrkUN
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::SyrkUN");
-#endif
-    const Grid& grid = A.GetGrid();
-#ifndef RELEASE
     if( A.GetGrid() != C.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "A and C must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A and C must be distributed over the same grid.";
     if( A.Height() != C.Height() || A.Height() != C.Width() )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal SyrkUN:" <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal SyrkUN:" << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = A.GetGrid();
+
     // Matrix views
     DistMatrix<T,MC,MR> AL(grid), AR(grid),
                         A0(grid), A1(grid), A2(grid);
@@ -95,49 +86,39 @@ Elemental::BLAS::Internal::SyrkUNUpdate
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::SyrkUNUpdate");
-#endif
-    const Grid& grid = C.GetGrid();
-#ifndef RELEASE
     if( A_MC_Star.GetGrid() != A_MR_Star.GetGrid() || 
         A_MR_Star.GetGrid() != C.GetGrid()           )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "A and C must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "A and C must be distributed over the same grid.";
     }
     if( A_MC_Star.Height() != C.Height() ||
         A_MR_Star.Height() != C.Width()  ||
         A_MC_Star.Height() != A_MR_Star.Height() ||
         A_MC_Star.Width()  != A_MR_Star.Width()    )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal SyrkUNUpdate: " <<
-            endl << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
-                                    << A_MC_Star.Width()  <<
-            endl << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
-                                    << A_MR_Star.Width()  <<
-            endl << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal SyrkUNUpdate: " << endl
+            << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
+                               << A_MC_Star.Width()  << endl
+            << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
+                               << A_MR_Star.Width()  << endl
+            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
     if( A_MC_Star.ColAlignment() != C.ColAlignment() ||
         A_MR_Star.ColAlignment() != C.RowAlignment()   )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Misaligned SyrkUNUpdate: " <<
-            endl << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() <<
-            endl << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() <<
-            endl << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                       C.RowAlignment() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Misaligned SyrkUNUpdate: " << endl
+            << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() << endl
+            << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() << endl
+            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
+                                  C.RowAlignment() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = C.GetGrid();
+
     if( C.Height() < 2*grid.Width()*Blocksize() )
     {
         BLAS::Internal::SyrkUNUpdateKernel
@@ -201,41 +182,32 @@ Elemental::BLAS::Internal::SyrkUNUpdateKernel
     if( A_MC_Star.GetGrid() != A_MR_Star.GetGrid() || 
         A_MR_Star.GetGrid() != C.GetGrid()           )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "A and C must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "A and C must be distributed over the same grid.";
     }
     if( A_MC_Star.Height() != C.Height() ||
         A_MR_Star.Height() != C.Width()  ||
         A_MC_Star.Height() != A_MR_Star.Height() ||
         A_MC_Star.Width()  != A_MR_Star.Width()    )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal SyrkUNUpdateKernel: " <<
-            endl << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
-                                    << A_MC_Star.Width()  <<
-            endl << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
-                                    << A_MR_Star.Width()  <<
-            endl << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal SyrkUNUpdateKernel: " << endl
+            << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
+                               << A_MC_Star.Width()  << endl
+            << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
+                               << A_MR_Star.Width()  << endl
+            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
     if( A_MC_Star.ColAlignment() != C.ColAlignment() ||
         A_MR_Star.ColAlignment() != C.RowAlignment()   )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Misaligned SyrkUNUpdateKernel: " <<
-            endl << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() <<
-            endl << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() <<
-            endl << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                       C.RowAlignment() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Misaligned SyrkUNUpdateKernel: " << endl
+            << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() << endl
+            << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() << endl
+            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
+                                  C.RowAlignment() << endl;
+        throw msg.str();
     }
 #endif
     DistMatrix<T,MC,Star> AT_MC_Star(grid),

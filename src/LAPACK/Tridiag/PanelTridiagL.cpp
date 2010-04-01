@@ -32,80 +32,37 @@ Elemental::LAPACK::Internal::PanelTridiagL
 {
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::PanelTridiagL");
-#endif
-    const Grid& grid = A.GetGrid();
-#ifndef RELEASE
     if( A.GetGrid() != W.GetGrid() ||
         W.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid()   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "A, d, e, and t must be distributed over the same grid."
-                 << endl;
-        DumpCallStack();
-        throw exception();
+        throw "A, d, e, and t must be distributed over the same grid.";
     }
     if( A.Height() != A.Width() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "A must be square." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A must be square.";
     if( A.Height() != W.Height() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "A and W must be the same height." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A and W must be the same height.";
     if( W.Height() <= W.Width() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "W must be a column panel." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "W must be a column panel.";
     if( W.ColAlignment() != A.ColAlignment() || 
         W.RowAlignment() != A.RowAlignment()   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "W and A must be aligned." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "W and A must be aligned.";
     }
     if( e.Height() != W.Width() || e.Width() != 1 )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "e must be a column vector of the same length as W's width."
-                 << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "e must be a column vector of the same length as W's width.";
     if( t.Height() != W.Width() || t.Width() != 1 )
+        throw "t must be a column vector of the same length as W's width.";
+    if( e.ColAlignment() != ((A.ColAlignment()+1) % e.GetGrid().Height())
+                            + A.RowAlignment() * e.GetGrid().Height()    )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "t must be a column vector of the same length as W's width."
-                 << endl;
-        DumpCallStack();
-        throw exception();
+        throw "e is not aligned with A.";
     }
-    if( e.ColAlignment() != ((A.ColAlignment()+1) % grid.Height())
-                            + A.RowAlignment() * grid.Height()    )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "e is not aligned with A." << endl;
-        DumpCallStack();
-        throw exception();
-    }
-    if( t.ColAlignment() != (A.ColAlignment()+A.RowAlignment()*grid.Height()) )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "t is not aligned with A." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+    if( t.ColAlignment() != (A.ColAlignment()+
+                             A.RowAlignment()*t.GetGrid().Height()) )
+        throw "t is not aligned with A.";
 #endif
+    const Grid& grid = A.GetGrid();
     const int myCol  = grid.MRRank();
     const int myRank = grid.VCRank();
 

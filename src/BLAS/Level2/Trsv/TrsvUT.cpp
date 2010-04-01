@@ -30,48 +30,20 @@ Elemental::BLAS::Internal::TrsvUT
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::TrsvUT");
+    if( U.GetGrid() != x.GetGrid() )
+        throw "U and x must be distributed over the same grid.";
+    if( orientation == Normal )
+        throw "TrsvUT expects a (conjugate-)transpose option.";
+    if( U.Height() != U.Width() )
+        throw "U must be square.";
+    if( x.Width() != 1 && x.Height() != 1 )
+        throw "x must be a vector.";
+    const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+    if( U.Width() != xLength )
+        throw "Nonconformal TrsvUT.";
 #endif
     const Grid& grid = U.GetGrid();
-#ifndef RELEASE
-    if( U.GetGrid() != x.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "U and x must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
-    if( orientation == Normal )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "TrsvUT expects a (conjugate-)transpose option." << endl;
-        DumpCallStack();
-        throw exception();
-    }
-    if( U.Height() != U.Width() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "U must be square." << endl;
-        DumpCallStack();
-        throw exception();
-    }
-    if( x.Width() != 1 && x.Height() != 1 )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x must be a vector." << endl;
-        DumpCallStack();
-        throw exception();
-    }
-    {
-        const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( U.Width() != xLength )
-        {
-            if( grid.VCRank() == 0 )
-                cerr << "Nonconformal TrsvUT." << endl;
-            DumpCallStack();
-            throw exception();
-        }
-    }
-#endif
+
     if( x.Width() == 1 )
     {
         // Matrix views 

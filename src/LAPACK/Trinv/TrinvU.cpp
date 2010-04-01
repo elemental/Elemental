@@ -42,12 +42,7 @@ Elemental::LAPACK::Internal::TrinvUVar3
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::TrinvUVar3");
     if( U.Height() != U.Width() )
-    {
-        if( U.GetGrid().VCRank() == 0 )
-            cerr << "Nonsquare matrices cannot be triangular." << endl;
-        DumpCallStack();              
-        throw exception();
-    }
+        throw "Nonsquare matrices cannot be triangular.";
 #endif
     const Grid& grid = U.GetGrid();
 

@@ -29,7 +29,7 @@ Elemental::Init
 ( int* argc, char** argv[] )
 {
 #ifndef RELEASE
-    PushCallStack("Init");
+    PushCallStack("init");
 #endif
     int initialized;
     MPI_Initialized( &initialized );
@@ -122,8 +122,8 @@ Elemental::PopBlocksizeStack()
 static stack<string> callStack;
 
 void
-Elemental::PushCallStack( string name )
-{ ::callStack.push( name ); }
+Elemental::PushCallStack( string s )
+{ ::callStack.push(s); }
 
 void
 Elemental::PopCallStack()

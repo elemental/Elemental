@@ -51,11 +51,7 @@ Elemental::utilities::GCD
 {
 #ifndef RELEASE
     if( a < 0 || b < 0 )
-    {
-        std::cerr << "GCD called with negative argument." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "GCD called with negative argument.";
 #endif
     if( b == 0 )
         return a;
@@ -70,25 +66,16 @@ Elemental::utilities::LocalLength
 #ifndef RELEASE
     PushCallStack("utilities::LocalLength");
     if( n < 0 )
-    {
-        std::cerr << "n must be non-negative." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "n must be non-negative.";
     if( shift < 0 || shift >= modulus )
     {
-        std::cerr << "Invalid shift: "
-                  << "shift=" << shift << ", modulus=" << modulus
-                  << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "Invalid shift: "
+            << "shift=" << shift << ", modulus=" << modulus << std::endl;
+        throw msg.str();
     }
     if( modulus <= 0 )
-    {
-        std::cerr << "Modulus must be positive." << std::endl; 
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Modulus must be positive.";
     PopCallStack();
 #endif
     return ( n > shift ? (n - shift - 1)/modulus + 1 : 0 );
@@ -101,17 +88,9 @@ Elemental::utilities::MaxLocalLength
 #ifndef RELEASE
     PushCallStack("utilities::MaxLocalLength");
     if( n < 0 )
-    {
-        std::cerr << "n must be non-negative." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "n must be non-negative.";
     if( modulus <= 0 )
-    {
-        std::cerr << "modulus must be positive." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Modulus must be positive.";
     PopCallStack();
 #endif
     return ( n > 0 ? (n - 1)/modulus + 1 : 0 );
@@ -128,26 +107,20 @@ Elemental::utilities::Shift
     PushCallStack("utilities::Shift");
     if( index < 0 || index >= modulus )
     {
-        std::cerr << "Invalid index: "
-                  << "index=" << index << ", modulus=" << modulus
-                  << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "Invalid index: "
+            << "index=" << index << ", modulus=" << modulus << std::endl;
+        throw msg.str();
     }
     if( align < 0 || align >= modulus )
     {
-        std::cerr << "Invalid alignment: "
-                  << "align=" << align << ", modulus=" << modulus
-                  << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "Invalid alignment: "
+            << "align=" << align << ", modulus=" << modulus << std::endl;
+        throw msg.str();
     }
     if( modulus <= 0 )
-    {
-        std::cerr << "Modulus must be positive." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Modulus must be positive.";
     PopCallStack();
 #endif
     return (index + modulus - align) % modulus;

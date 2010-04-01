@@ -31,12 +31,7 @@ Elemental::BLAS::Syrk
 #ifndef RELEASE
     PushCallStack("BLAS::Syrk");
     if( orientation == ConjugateTranspose )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "Syrk accepts Normal and Transpose options." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Syrk accepts Normal and Transpose options.";
 #endif
     if( shape == Lower && orientation == Normal )
     {

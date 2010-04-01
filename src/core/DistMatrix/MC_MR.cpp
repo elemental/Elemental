@@ -739,12 +739,7 @@ Elemental::DistMatrix<T,MC,MR>::View1x2
     CHECK_IF_VIEWING_DIFF_GRID( AR );
     CHECK_IF_CONFORMING_1x2( AL, AR );
     if( AL.ColAlignment() != AR.ColAlignment() )
-    {
-        if( _grid->VCRank() == 0 )
-            cerr << "1x2 is misaligned, cannot combine." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "1x2 is misaligned, cannot combine.";
 #endif
     _height = AL.Height();
     _width  = AL.Width() + AR.Width();
@@ -775,12 +770,7 @@ Elemental::DistMatrix<T,MC,MR>::LockedView1x2
     CHECK_IF_VIEWING_DIFF_GRID( AR );
     CHECK_IF_CONFORMING_1x2( AL, AR );
     if( AL.ColAlignment() != AR.ColAlignment() )
-    {
-        if( _grid->VCRank() == 0 )
-            cerr << "1x2 is misaligned, cannot combine." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "1x2 is misaligned, cannot combine.";
 #endif
     _height = AL.Height();
     _width  = AL.Width() + AR.Width();
@@ -812,12 +802,7 @@ Elemental::DistMatrix<T,MC,MR>::View2x1
     CHECK_IF_VIEWING_DIFF_GRID( AB );
     CHECK_IF_CONFORMING_2x1( AT, AB );
     if( AT.RowAlignment() != AB.RowAlignment() )
-    {
-        if( _grid->VCRank() == 0 )
-            cerr << "2x1 is misaligned, cannot combine." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "2x1 is misaligned, cannot combine.";
 #endif
     _height = AT.Height() + AB.Height();
     _width  = AT.Width();
@@ -849,12 +834,7 @@ Elemental::DistMatrix<T,MC,MR>::LockedView2x1
     CHECK_IF_VIEWING_DIFF_GRID( AB );
     CHECK_IF_CONFORMING_2x1( AT, AB );
     if( AT.RowAlignment() != AB.RowAlignment() )
-    {
-        if( _grid->VCRank() == 0 )
-            cerr << "2x1 is misaligned, cannot combine." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "2x1 is misaligned, cannot combine.";
 #endif
     _height = AT.Height() + AB.Height();
     _width  = AT.Width();
@@ -894,10 +874,7 @@ Elemental::DistMatrix<T,MC,MR>::View2x2
         ATL.RowAlignment() != ABL.RowAlignment() ||
         ATR.RowAlignment() != ABR.RowAlignment()   )
     {
-        if( _grid->VCRank() == 0 )
-            cerr << "2x2 set of matrices must align to combine." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "2x2 set of matrices must aligned to combine.";
     }
 #endif
     _height = ATL.Height() + ABL.Height();
@@ -938,10 +915,7 @@ Elemental::DistMatrix<T,MC,MR>::LockedView2x2
         ATL.RowAlignment() != ABL.RowAlignment() ||
         ATR.RowAlignment() != ABR.RowAlignment()   )
     {
-        if( _grid->VCRank() == 0 )
-            cerr << "2x2 set of matrices must align to combine." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "2x2 set of matrices must align to combine.";
     }
 #endif
     _height = ATL.Height() + ABL.Height();
@@ -987,13 +961,10 @@ Elemental::DistMatrix<T,MC,MR>::Get
     PushCallStack("DistMatrix[MC,MR]::Get");
     if( i<0 || i >= Height() || j < 0 || j >= Width() )
     {
-        if( _grid->VCRank() == 0 )
-        {
-            cerr << "Entry (" << i << "," << j << ") is out of bounds of "
-                 << Height() << " x " << Width() << " matrix." << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Entry (" << i << "," << j << ") is out of bounds of "
+            << Height() << " x " << Width() << " matrix." << endl;
+        throw msg.str();
     }
 #endif
     // We will determine the owner of the (i,j) entry and have him Broadcast
@@ -1026,13 +997,10 @@ Elemental::DistMatrix<T,MC,MR>::Set
     PushCallStack("DistMatrix[MC,MR]::Set");
     if( i < 0 || i >= Height() || j < 0 || j >=Width() )
     {
-        if( _grid->VCRank() == 0 )
-        {
-            cerr << "Entry (" << i << "," << j << ") is out of bounds of "
-                 << Height() << " x " << Width() << " matrix." << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Entry (" << i << "," << j << ") is out of bounds of "
+            << Height() << " x " << Width() << " matrix." << endl;
+        throw msg.str();
     }
 #endif
     const int ownerRow = (i + ColAlignment()) % _grid->Height();
@@ -1074,12 +1042,7 @@ Elemental::DistMatrix<T,MC,MR>::GetDiagonal
     }
 #ifndef RELEASE
     if( d.Viewing()  && length != d.Height() )
-    {
-        if( _grid->VCRank() == 0 )
-            cerr << "d is not of the correct length." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "d is not of the correct length.";
 #endif
 
     if( ! d.Viewing() )
@@ -1149,12 +1112,7 @@ Elemental::DistMatrix<T,MC,MR>::GetDiagonal
     }
 #ifndef RELEASE
     if( d.Viewing()  && length != d.Width() )
-    {
-        if( _grid->VCRank() == 0 )
-            cerr << "d is not of the correct length." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "d is not of the correct length.";
 #endif
 
     if( ! d.Viewing() )
@@ -1208,12 +1166,7 @@ Elemental::DistMatrix<T,MC,MR>::SetDiagonal
 #ifndef RELEASE
     PushCallStack("DistMatrix[MC,MR]::SetDiagonal");
     if( d.Width() != 1 )
-    {
-        if( _grid->VCRank() == 0 ) 
-            cerr << "d must be a column vector." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "d must be a column vector.";
     {
         int height = Height();
         int width = Width();
@@ -1230,15 +1183,12 @@ Elemental::DistMatrix<T,MC,MR>::SetDiagonal
         }
         if( length != d.Height() )
         {
-            if( _grid->VCRank() == 0 )
-            {
-                cerr << "d is not of the same length as the diagonal:" << 
-                endl << "  A ~ " << Height() << " x " << Width() << 
-                endl << "  d ~ " << d.Height() << " x " << d.Width() <<
-                endl << "  A diag length: " << length << endl;
-            }
-            DumpCallStack();
-            throw exception();
+            ostringstream msg;
+            msg << "d is not of the same length as the diagonal:" << endl
+                << "  A ~ " << Height() << " x " << Width() << endl
+                << "  d ~ " << d.Height() << " x " << d.Width() << endl
+                << "  A diag length: " << length << endl;
+            throw msg.str();
         }
     }
 #endif
@@ -1284,12 +1234,7 @@ Elemental::DistMatrix<T,MC,MR>::SetDiagonal
 #ifndef RELEASE
     PushCallStack("DistMatrix[MC,MR]::SetDiagonal");
     if( d.Height() != 1 )
-    {
-        if( _grid->VCRank() == 0 ) 
-            cerr << "d must be a row vector." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "d must be a row vector.";
     {
         int height = Height();
         int width = Width();
@@ -1306,15 +1251,12 @@ Elemental::DistMatrix<T,MC,MR>::SetDiagonal
         }
         if( length != d.Width() )
         {
-            if( _grid->VCRank() == 0 )
-            {
-                cerr << "d is not of the same length as the diagonal:" << 
-                endl << "  A ~ " << Height() << " x " << Width() << 
-                endl << "  d ~ " << d.Height() << " x " << d.Width() <<
-                endl << "  A diag length: " << length << endl;
-            }
-            DumpCallStack();
-            throw exception();
+            ostringstream msg;
+            msg << "d is not of the same length as the diagonal:" << endl
+                << "  A ~ " << Height() << " x " << Width() << endl
+                << "  d ~ " << d.Height() << " x " << d.Width() << endl
+                << "  A diag length: " << length << endl;
+            throw msg.str();
         }
     }
 #endif

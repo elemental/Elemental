@@ -32,13 +32,7 @@ Elemental::BLAS::Her2k
 #ifndef RELEASE
     PushCallStack("BLAS::Her2k");
     if( orientation == Transpose )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "Her2k accepts Normal and ConjugateTranspose options." 
-                 << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Her2k accepts Normal and ConjugateTranspose options.";
 #endif
     if( shape == Lower && orientation == Normal )
     {

@@ -37,64 +37,27 @@ Elemental::LAPACK::Internal::TridiagU
         d.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid()   )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "A, d, e, and t must be distributed over the same grid."
-                 << endl;
-        DumpCallStack();
-        throw exception();
+        throw "A, d, e, and t must be distributed over the same grid.";
     }
     if( A.Height() != A.Width() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "A must be square." << endl;
-        DumpCallStack();
-    }
+        throw "A must be square.";
     if( d.Height() != A.Height() || d.Width() != 1 )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "d must be a column vector of the same length as A's width."
-                 << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "d must be a column vector of the same length as A's width.";
     if( e.Height() != A.Height()-1 || e.Width() != 1 )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "e must be a column vector of length one less than the "
-                 << "width of A." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "e must be a column vector of length one less than the "
+              "width of A.";
     if( t.Height() != A.Height()-1 || t.Width() != 1 )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "t must be a column vector of length one less than the "
-                 << "width of A." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "t must be a column vector of length one less than the "
+              "width of A.";
     if( d.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "d is not aligned with A." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "d is not aligned with A.";
     if( e.ColAlignment() != A.ColAlignment() +
                             ((A.RowAlignment()+1)%grid.Width())*grid.Height() )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "e is not aligned with A." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "e is not aligned with A.";
     }
     if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "t is not aligned with A." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "t is not aligned with A.";
 #endif
 
     // Matrix views 

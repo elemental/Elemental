@@ -29,34 +29,24 @@ Elemental::BLAS::Internal::Her2kUC
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Her2kUC");
-#endif
-    const Grid& grid = A.GetGrid();
-#ifndef RELEASE
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
     if( A.Width() != C.Height() || 
         A.Width() != C.Width()  ||
         B.Width() != C.Height() ||
         B.Width() != C.Width()  ||
         A.Height() != B.Height()  )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal Her2kUC:" <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            endl << "  B ~ " << B.Height() << " x " << B.Width() <<
-            endl << "  C ~ " << C.Height() << " x " << C.Width() << 
-            endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal Her2kUC:" << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  B ~ " << B.Height() << " x " << B.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = A.GetGrid();
+
     // Matrix views
     DistMatrix<T,MC,MR> AT(grid),  A0(grid),
                         AB(grid),  A1(grid),
@@ -135,18 +125,12 @@ Elemental::BLAS::Internal::Her2kUCUpdate
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::Her2kUCUpdate");
-#endif
-    const Grid& grid = C.GetGrid();
-#ifndef RELEASE
     if( A_Star_MC.GetGrid() != A_Star_MR.GetGrid() ||
         A_Star_MR.GetGrid() != B_Star_MC.GetGrid() ||
         B_Star_MC.GetGrid() != B_Star_MR.GetGrid() ||
         B_Star_MR.GetGrid() != C.GetGrid()           )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "{A,B,C} must be distributed over the same grid.";
     }
     if( A_Star_MC.Width() != C.Height() ||
         A_Star_MR.Width() != C.Width()  ||
@@ -157,41 +141,37 @@ Elemental::BLAS::Internal::Her2kUCUpdate
         B_Star_MC.Height() != B_Star_MR.Height() ||
         B_Star_MC.Width()  != B_Star_MR.Width()     )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal Her2kUCUpdate: " <<
-            endl << "  A[* ,MC] ~ " << A_Star_MC.Height() << " x "
-                                    << A_Star_MC.Width()  <<
-            endl << "  A[* ,MR] ~ " << A_Star_MR.Height() << " x "
-                                    << A_Star_MR.Width()  <<
-            endl << "  B[* ,MC] ~ " << B_Star_MC.Height() << " x "
-                                    << B_Star_MC.Width()  <<
-            endl << "  B[* ,MR] ~ " << B_Star_MR.Height() << " x "
-                                    << B_Star_MR.Width()  <<
-            endl << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal Her2kUCUpdate: " << endl
+            << "  A[* ,MC] ~ " << A_Star_MC.Height() << " x "
+                               << A_Star_MC.Width()  << endl
+            << "  A[* ,MR] ~ " << A_Star_MR.Height() << " x "
+                               << A_Star_MR.Width()  << endl
+            << "  B[* ,MC] ~ " << B_Star_MC.Height() << " x "
+                               << B_Star_MC.Width()  << endl
+            << "  B[* ,MR] ~ " << B_Star_MR.Height() << " x "
+                               << B_Star_MR.Width()  << endl
+            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
     if( A_Star_MC.RowAlignment() != C.ColAlignment() ||
         A_Star_MR.RowAlignment() != C.RowAlignment() ||  
         B_Star_MC.RowAlignment() != C.ColAlignment() ||
         B_Star_MR.RowAlignment() != C.RowAlignment()    )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Misaligned Her2kUCUpdate: " <<
-            endl << "  A[* ,MC] ~ " << A_Star_MC.RowAlignment() <<
-            endl << "  A[* ,MR] ~ " << A_Star_MR.RowAlignment() <<
-            endl << "  B[* ,MC] ~ " << B_Star_MC.RowAlignment() <<
-            endl << "  B[* ,MR] ~ " << B_Star_MR.RowAlignment() <<
-            endl << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                       C.RowAlignment() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Misaligned Her2kUCUpdate: " << endl
+            << "  A[* ,MC] ~ " << A_Star_MC.RowAlignment() << endl
+            << "  A[* ,MR] ~ " << A_Star_MR.RowAlignment() << endl
+            << "  B[* ,MC] ~ " << B_Star_MC.RowAlignment() << endl
+            << "  B[* ,MR] ~ " << B_Star_MR.RowAlignment() << endl
+            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " << 
+                                  C.RowAlignment() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = A_Star_MC.GetGrid();
+
     // Matrix views
     DistMatrix<T,Star,MC> 
         AL_Star_MC(grid), AR_Star_MC(grid),

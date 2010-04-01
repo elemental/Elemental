@@ -28,12 +28,7 @@ Elemental::LAPACK::Internal::Reflector
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::Reflector");
     if( x.Height() != 1 && x.Width() != 1 )
-    {
-        if( x.GetGrid().VCRank() == 0 )
-            cerr << "x must be a vector." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "x must be a vector.";
 #endif
     if( max( x.Height(), x.Width() ) <= 1 )
         return (R)0;

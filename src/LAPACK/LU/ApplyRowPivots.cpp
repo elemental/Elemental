@@ -33,22 +33,10 @@ Elemental::LAPACK::Internal::ApplyRowPivots
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::ApplyRowPivots");
     if( A.Height() < (int)image.size() || image.size() != preimage.size() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "image and preimage must be vectors of equal length that"
-                 << " are not taller than A." << endl;
-        }
-        DumpCallStack();
-        throw exception();
-    }
+        throw "image and preimage must be vectors of equal length "
+              "that are not taller than A.";
     if( pivotOffset < 0 )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "The pivot offset must be non-negative." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "pivot offset must be non-negative.";
 #endif
     if( A.Width() == 0 )
         return;
@@ -124,10 +112,10 @@ Elemental::LAPACK::Internal::ApplyRowPivots
 #ifndef RELEASE
     if( totalSendCount != totalRecvCount )
     {
-        cerr << "Send and recv counts do not match: (send,recv)=" 
+        ostringstream msg;
+        msg << "Send and recv counts do not match: (send,recv)=" 
              << totalSendCount << "," << totalRecvCount << endl;
-        DumpCallStack();
-        throw exception();
+        throw msg.str();
     }
 #endif
 
@@ -211,7 +199,6 @@ Elemental::LAPACK::Internal::ApplyRowPivots
             }
         }
     }
-
 #ifndef RELEASE
     PopCallStack();
 #endif

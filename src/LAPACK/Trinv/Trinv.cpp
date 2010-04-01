@@ -46,13 +46,9 @@ Elemental::LAPACK::Internal::TrinvVar3
     PushCallStack("LAPACK::Internal::TrinvVar3");
 #endif
     if( shape == Lower )
-    {
         LAPACK::Internal::TrinvLVar3( diagonal, A );
-    }
     else
-    {
         LAPACK::Internal::TrinvUVar3( diagonal, A );
-    }
 #ifndef RELEASE
     PopCallStack();
 #endif

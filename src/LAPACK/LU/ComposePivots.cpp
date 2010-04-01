@@ -32,19 +32,9 @@ Elemental::LAPACK::Internal::ComposePivots
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::ComposePivots");
     if( p.Width() != 1 )
-    {
-        if( p.GetGrid().VCRank() == 0 )
-            cerr << "p must be a column vector." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "p must be a column vector.";
     if( pivotOffset < 0 )
-    {
-        if( p.GetGrid().VCRank() == 0 )
-            cerr << "pivotOffset must be non-negative." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "pivotOffset must be non-negative.";
 #endif
     const int b = p.Height();
     image.resize( b );

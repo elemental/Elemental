@@ -74,23 +74,14 @@ Elemental::Grid::Init
 #ifndef RELEASE
     PushCallStack("Grid::Init(r,c)");
     if( r <= 0 || c <= 0 )
-    {
-        cerr << "r and c must be positive." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "r and c must be positive.";
 #endif
     if( _p != r*c )
     {
-        if( _rank == 0 )
-        {
-            cerr << "Number of processes must match grid size:" << endl;
-            cerr << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
-        }
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-        throw exception();
+        ostringstream msg;
+        msg << "Number of processes must match grid size:" << endl
+            << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
+        throw msg.str();
     }
     _r = r;
     _c = c;

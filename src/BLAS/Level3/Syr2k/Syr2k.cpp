@@ -32,12 +32,7 @@ Elemental::BLAS::Syr2k
 #ifndef RELEASE
     PushCallStack("BLAS::Syr2k");
     if( orientation == ConjugateTranspose )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "Syr2k accepts Normal and Transpose options." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Syr2k accepts Normal and Transpose options.";
 #endif
     if( shape == Lower && orientation == Normal )
     {

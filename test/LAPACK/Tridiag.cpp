@@ -116,10 +116,11 @@ void TestCorrectness
 
                 if( ! OKRelativeError( truth, computed ) )
                 {
-                    cout << "FAILED on process " << grid.VCRank()
-                         << " at index (" << i << "," << j << ") of A: truth="
-                         << truth << ", computed=" << computed << endl;
-                    throw exception();
+                    ostringstream msg;
+                    msg << "FAILED at index (" << i << "," << j 
+                         << ") of A: truth=" << truth << ", computed=" 
+                         << computed;
+                    throw msg.str();
                 }
             }
         }
@@ -135,10 +136,11 @@ void TestCorrectness
 
                 if( ! OKRelativeError( truth, computed ) )
                 {
-                    cout << "FAILED on process " << grid.VCRank()
-                         << " at index (" << i << "," << j << ") of A: truth="
-                         << truth << ", computed=" << computed << endl;
-                    throw exception();
+                    ostringstream msg;
+                    msg << "FAILED at index (" << i << "," << j 
+                         << ") of A: truth=" << truth << ", computed="
+                         << computed;
+                    throw msg.str();
                 }
             }
         }
@@ -150,10 +152,10 @@ void TestCorrectness
 
         if( ! OKRelativeError( truth, computed ) )
         {
-            cout << "FAILED on process " << grid.VCRank() 
-                 << " at index " << j << " of d: truth=" << truth
-                 << ", computed=" << computed << endl;
-            throw exception();
+            ostringstream msg;
+            msg << "FAILED at index " << j << " of d: truth=" << truth
+                 << ", computed=" << computed;
+            throw msg.str();
         }
     }
     for( int j=0; j<m-1; ++j )
@@ -163,10 +165,10 @@ void TestCorrectness
 
         if( ! OKRelativeError( truth, computed ) )
         {
-            cout << "FAILED on process " << grid.VCRank() 
-                 << " at index " << j << " of e: truth=" << truth
-                 << ", computed=" << computed << endl;
-            throw exception();
+            ostringstream msg;
+            msg << "FAILED at index " << j << " of e: truth=" << truth
+                 << ", computed=" << computed;
+            throw msg.str();
         }
     }
     for( int j=0; j<m-1; ++j )
@@ -176,10 +178,10 @@ void TestCorrectness
 
         if( ! OKRelativeError( truth, computed ) )
         {
-            cout << "FAILED on process " << grid.VCRank() 
-                 << " at index " << j << " of t: truth=" << truth
-                 << ", computed=" << computed << endl;
-            throw exception();
+            ostringstream msg;
+            msg << "FAILED at index " << j << " of t: truth=" << truth
+                 << ", computed=" << computed;
+            throw msg.str();
         }
     }
 
@@ -303,10 +305,14 @@ int main( int argc, char* argv[] )
         if( rank == 0 )
             cout << endl;
     }
-    catch( exception e )
+    catch( string errorMsg )
     {
-        cerr << "Caught exception on process " << rank << endl;
-    }
+#ifndef RELEASE
+        DumpCallStack();
+#endif
+        cerr << "Process " << rank << " caught error message:" << endl 
+             << errorMsg << endl;
+    }   
     Elemental::Finalize();
     return 0;
 }

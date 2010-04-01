@@ -30,12 +30,7 @@ Elemental::BLAS::Internal::GemmNN
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::GemmNN");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
 #endif
     const int m = C.Height();
     const int n = C.Width();
@@ -91,25 +86,17 @@ Elemental::BLAS::Internal::GemmNNA
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::GemmNNA");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height()   )
     {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "Nonconformal GemmNNA: " <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() << 
-            endl << "  B ~ " << B.Height() << " x " << B.Width() <<
-            endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal GemmNNA: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  B ~ " << B.Height() << " x " << B.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -176,25 +163,17 @@ Elemental::BLAS::Internal::GemmNNB
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::GemmNNB");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height()   )
     {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "Nonconformal GemmNNB: " <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() << 
-            endl << "  B ~ " << B.Height() << " x " << B.Width() <<
-            endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal GemmNNB: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  B ~ " << B.Height() << " x " << B.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -273,25 +252,17 @@ Elemental::BLAS::Internal::GemmNNC
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::GemmNNC");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height()   )
     {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "Nonconformal GemmNNC: " <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() << 
-            endl << "  B ~ " << B.Height() << " x " << B.Width() <<
-            endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal GemmNNC: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  B ~ " << B.Height() << " x " << B.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -362,25 +333,17 @@ Elemental::BLAS::Internal::GemmNNDot
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::GemmNNDot");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height()   )
     {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "Nonconformal GemmNNDot: " <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() << 
-            endl << "  B ~ " << B.Height() << " x " << B.Width() <<
-            endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal GemmNNDot: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  B ~ " << B.Height() << " x " << B.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
     const Grid& grid = A.GetGrid();

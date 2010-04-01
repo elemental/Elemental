@@ -332,9 +332,13 @@ int main( int argc, char* argv[] )
         }
 #endif
     }
-    catch( exception e )
+    catch( string errorMsg )
     {
-        cerr << "Caught exception on process " << rank << endl;
+#ifndef RELEASE
+        DumpCallStack();
+#endif
+        cerr << "Process " << rank << " caught error message: " << endl 
+             << errorMsg << endl;
     }
     Elemental::Finalize();
     return 0;

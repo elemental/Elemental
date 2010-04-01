@@ -308,12 +308,7 @@ Elemental::DistMatrix<T,Star,Star>::ResizeTo
     PushCallStack("DistMatrix[* ,* ]::ResizeTo");
     CHECK_IF_LOCKED_VIEW;
     if( height < 0 || width < 0 )
-    {
-        if( _grid->VCRank() == 0 )
-            cerr << "Height and width must be non-negative." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Height and width must be non-negative.";
 #endif
     _height = height;
     _width  = width;
@@ -332,13 +327,10 @@ Elemental::DistMatrix<T,Star,Star>::Get
     PushCallStack("DistMatrix[* ,* ]::Get");
     if( i < 0 || i >= Height() || j < 0 || j >= Width() )
     {
-        if( _grid->VCRank() == 0 )
-        {
-            cerr << "Entry (" << i << "," << j << ") is out of bounds of "
-                 << Height() << " x " << Width() << " matrix." << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Entry (" << i << "," << j << ") is out of bounds of "
+            << Height() << " x " << Width() << " matrix." << endl;
+        throw msg.str();
     }
 #endif
     T u = _localMatrix(i,j);
@@ -357,13 +349,10 @@ Elemental::DistMatrix<T,Star,Star>::Set
     PushCallStack("DistMatrix[* ,* ]::Set");
     if( i < 0 || i >= Height() || j < 0 || j >= Width() )
     {
-        if( _grid->VCRank() == 0 )
-        {
-            cerr << "Entry (" << i << "," << j << ") is out of bounds of "
-                 << Height() << " x " << Width() << " matrix." << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Entry (" << i << "," << j << ") is out of bounds of "
+            << Height() << " x " << Width() << " matrix." << endl;
+        throw msg.str();
     }
 #endif
     _localMatrix(i,j) = u;

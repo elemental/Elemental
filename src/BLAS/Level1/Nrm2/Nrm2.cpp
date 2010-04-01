@@ -29,12 +29,7 @@ Elemental::BLAS::Nrm2
 #ifndef RELEASE
     PushCallStack("BLAS::Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
-    {
-        if( x.GetGrid().VCRank() == 0 )
-            cerr << "x must be a vector." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "x must be a vector.";
 #endif
     R norm;
     const Grid& grid = x.GetGrid();
@@ -84,12 +79,7 @@ Elemental::BLAS::Nrm2
 #ifndef RELEASE
     PushCallStack("BLAS::Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
-    {
-        if( x.GetGrid().VCRank() == 0 )
-            cerr << "x must be a vector." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "x must be a vector.";
 #endif
     R norm;
     const Grid& grid = x.GetGrid();

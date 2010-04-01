@@ -29,19 +29,9 @@ Elemental::LAPACK::Internal::LocalColReflector
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::LocalColReflector");
     if( x.Width() != 1 )
-    {
-        if( x.GetGrid().MCRank() == 0 )
-            cerr << "x must be a column vector." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "x must be a column vector.";
     if( x.GetGrid().MRRank() != x.RowAlignment() )
-    {
-        if( x.GetGrid().MCRank() == 0 )
-            cerr << "x is not aligned correctly." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "x is not aligned correctly.";
 #endif
     if( x.Height() <= 1 )
         return (R)0;

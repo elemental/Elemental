@@ -31,38 +31,24 @@ BLAS::Her2
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Her2");
-#endif
-    const Grid& grid = A.GetGrid();
-#ifndef RELEASE
     if( A.GetGrid() != x.GetGrid() || x.GetGrid() != y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "{A,x,y} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,x,y} must be distributed over the same grid.";
+    if( A.Height() != A.Width() )
+        throw "A must be square.";
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-    if( A.Height() != A.Width() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "A must be square." << endl;
-        DumpCallStack();
-        throw exception();
-    }
     if( A.Height() != xLength || A.Height() != yLength )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "A must conform with x: " << 
-            endl << "  A ~ " << A.Height() << " x " << A.Width() << 
-            endl << "  x ~ " << x.Height() << " x " << x.Width() << 
-            endl << "  y ~ " << y.Height() << " x " << y.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "A must conform with x: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  x ~ " << x.Height() << " x " << x.Width() << endl
+            << "  y ~ " << y.Height() << " x " << y.Width() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = A.GetGrid();
+
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     const int r = grid.Height();

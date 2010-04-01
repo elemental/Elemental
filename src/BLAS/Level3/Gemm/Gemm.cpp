@@ -169,18 +169,9 @@ Elemental::BLAS::Internal::GemmDot
     PushCallStack("BLAS::Internal::GemmDot");
 #endif
     if( orientationOfA == Normal && orientationOfB == Normal )
-    {
         BLAS::Internal::GemmNNDot( alpha, A, B, beta, C );
-    }
     else
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "GemmDot currently only implemented for NN case." << endl;
-#ifndef RELEASE 
-        DumpCallStack();
-#endif
-        throw exception();
-    }
+        throw "GemmDot currently only implemented for NN case.";
     // This code will be enabled when the routines are implemented
     /*
     else if( orientationOfA == Normal )

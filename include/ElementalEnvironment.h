@@ -22,18 +22,19 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <stack>
 #include <vector>
 #include "mpi.h"
 
+#ifndef RELEASE
 namespace Elemental
 {
-#ifndef RELEASE
-    void PushCallStack( std::string );
+    void PushCallStack( std::string s );
     void PopCallStack();
     void DumpCallStack();
-#endif
 }
+#endif
 
 #include "ElementalMemory.h"
 #include "ElementalGrid.h"
@@ -46,6 +47,7 @@ namespace Elemental
     void Init( int* argc, char** argv[] );
     void Finalize();
 
+    // Naive blocksize set and get
     int Blocksize();
     void SetBlocksize( int blocksize );
 

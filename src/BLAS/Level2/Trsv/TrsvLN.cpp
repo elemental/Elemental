@@ -29,41 +29,18 @@ Elemental::BLAS::Internal::TrsvLN
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::TrsvLN");
+    if( L.GetGrid() != x.GetGrid() )
+        throw "L and x must be distributed over the same grid.";
+    if( L.Height() != L.Width() )
+        throw "L must be square.";
+    if( x.Width() != 1 && x.Height() != 1 )
+        throw "x must be a vector.";
+    const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+    if( L.Width() != xLength )
+        throw "Nonconformal TrsvLN.";
 #endif
     const Grid& grid = L.GetGrid();
-#ifndef RELEASE
-    if( L.GetGrid() != x.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "L and x must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
-    if( L.Height() != L.Width() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "L must be square." << endl;
-        DumpCallStack();
-        throw exception();
-    }
-    if( x.Width() != 1 && x.Height() != 1 )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "x must be a vector." << endl;
-        DumpCallStack();
-        throw exception();
-    }
-    {
-        const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( L.Width() != xLength )
-        {
-            if( grid.VCRank() == 0 )
-                cerr << "Nonconformal TrsvLN." << endl;
-            DumpCallStack();
-            throw exception();
-        }
-    }
-#endif
+
     if( x.Width() == 1 )
     {
         // Matrix views 

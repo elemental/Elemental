@@ -104,10 +104,10 @@ void TestCorrectness
 
             if( ! OKRelativeError( truth, computed ) )
             {
-                cout << "FAILED on process " << grid.VCRank() 
-                     << " at index (" << i << "," << j << "): truth=" 
-                     << truth << ", computed=" << computed << endl;
-                throw exception();
+                ostringstream msg;
+                msg << "FAILED at index (" << i << "," << j << "): truth=" 
+                     << truth << ", computed=" << computed;
+                throw msg.str();
             }
         }
     }
@@ -117,10 +117,10 @@ void TestCorrectness
         int computed = p_copy.LocalEntry(i,0);
         if( truth != computed+1 /* 0 vs. 1 indexing */ )
         {
-            cout << "Pivots off on process " << grid.VCRank() 
-                 << " at index " << i << ": truth=" << truth 
-                 << ", computed=" << computed << endl;
-            throw exception();
+            ostringstream msg;
+            msg << "Pivots off at index " << i << ": truth=" << truth 
+                 << ", computed=" << computed;
+            throw msg.str();
         }
     }
     Barrier( grid.VCComm() );
@@ -289,10 +289,14 @@ int main( int argc, char* argv[] )
             cout << endl;
 #endif
     }
-    catch( exception e )
+    catch( string errorMsg )
     {
-        cerr << "Caught exception on process " << rank << endl;
-    }
+#ifndef RELEASE
+        DumpCallStack();
+#endif
+        cerr << "Process " << rank << " caught error message:" << endl 
+             << errorMsg << endl;
+    }   
     Elemental::Finalize();
     return 0;
 }

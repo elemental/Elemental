@@ -45,17 +45,11 @@ Elemental::BLAS::Internal::HemmRUC
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::HemmRUC");
+    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+        throw "{A,B,C} must be distributed on the same grid.";
 #endif
     const Grid& grid = A.GetGrid();
-#ifndef RELEASE
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed on the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
-#endif
+
     // Matrix views
     DistMatrix<T,MC,MR> 
         ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),  AColPan(grid),

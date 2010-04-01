@@ -736,28 +736,61 @@ Elemental::BLAS::Axpy
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Axpy");
-    if( X.Height() != Y.Height() || X.Width() != Y.Width() )
-    {
-        std::cerr << "Nonconformal Axpy." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
 #endif
-    if( X.Width() <= X.Height() )
+    // If X and Y are vectors, we can allow one to be a column and the other
+    // to be a row. Otherwise we force X and Y to be the same dimension.
+    if( (X.Height()==1 || X.Width()==1) && (Y.Height()==1 || Y.Width()==1) )
     {
-        for( int j=0; j<X.Width(); ++j )
+        const unsigned XLength = min(X.Height(),X.Width());
+        const unsigned YLength = min(Y.Height(),Y.Width());
+#ifndef RELEASE
+        if( XLength != YLength )
+            throw "Nonconformal Axpy.";
+#endif
+        if( X.Width()==1 && Y.Width()==1 )
         {
             Elemental::wrappers::BLAS::Axpy
-            ( X.Height(), alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
+            ( XLength, alpha, X.LockedBuffer(0,0), 1, Y.Buffer(0,0), 1 );
+        }
+        else if( X.Width()==1 )
+        {
+            Elemental::wrappers::BLAS::Axpy
+            ( XLength, alpha, X.LockedBuffer(0,0), 1, Y.Buffer(0,0), Y.LDim() );
+        }
+        else if( Y.Width()==1 )
+        {
+            Elemental::wrappers::BLAS::Axpy
+            ( XLength, alpha, X.LockedBuffer(0,0), X.LDim(), Y.Buffer(0,0), 1 );
+        }
+        else
+        {
+            Elemental::wrappers::BLAS::Axpy
+            ( XLength, alpha, 
+              X.LockedBuffer(0,0), X.LDim(), Y.Buffer(0,0), Y.LDim() );
         }
     }
-    else
+    else 
     {
-        for( int i=0; i<X.Height(); ++i )
+#ifndef RELEASE
+        if( X.Height() != Y.Height() || X.Width() != Y.Width() )
+            throw "Nonconformal Axpy.";
+#endif
+        if( X.Width() <= X.Height() )
         {
-            Elemental::wrappers::BLAS::Axpy
-            ( X.Width(), alpha, X.LockedBuffer(i,0), X.LDim(),
-                                Y.Buffer(i,0),       Y.LDim() );
+            for( int j=0; j<X.Width(); ++j )
+            {
+                Elemental::wrappers::BLAS::Axpy
+                ( X.Height(), alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
+            }
+        }
+        else
+        {
+            for( int i=0; i<X.Height(); ++i )
+            {
+                Elemental::wrappers::BLAS::Axpy
+                ( X.Width(), alpha, X.LockedBuffer(i,0), X.LDim(),
+                                    Y.Buffer(i,0),       Y.LDim() );
+            }
         }
     }
 #ifndef RELEASE
@@ -789,17 +822,13 @@ Elemental::BLAS::Dot
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        std::cerr << "Expected vector inputs." << std::endl;        
-        DumpCallStack();
-        throw std::exception();
+        throw "Expected vector inputs.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
     {
-        std::cerr << "x and y must be the same length." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be the same length.";
     }
 #endif
     T dotProduct;
@@ -843,17 +872,13 @@ Elemental::BLAS::Dotc
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        std::cerr << "Expected vector inputs." << std::endl;        
-        DumpCallStack();
-        throw std::exception();
+        throw "Expected vector inputs.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
     {
-        std::cerr << "x and y must be the same length." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be the same length.";
     }
 #endif
     T dotProduct;
@@ -897,17 +922,13 @@ Elemental::BLAS::Dotu
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1)   )
     {
-        std::cerr << "Expected vector inputs." << std::endl;        
-        DumpCallStack();
-        throw std::exception();
+        throw "Expected vector inputs.";
     }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
     {
-        std::cerr << "x and y must be the same length." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be the same length.";
     }
 #endif
     T dotProduct;
@@ -949,11 +970,7 @@ Elemental::BLAS::Nrm2
 #ifndef RELEASE
     PushCallStack("BLAS::Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
-    {
-        std::cerr << "Expected vector input." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Expected vector input.";
 #endif
     R norm;
     if( x.Width() == 1 )
@@ -981,11 +998,7 @@ Elemental::BLAS::Nrm2
 #ifndef RELEASE
     PushCallStack("BLAS::Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
-    {
-        std::cerr << "Expected vector input." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Expected vector input.";
 #endif
     R norm;
     if( x.Width() == 1 )
@@ -1142,9 +1155,7 @@ Elemental::BLAS::Gemv
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 )   )
     {
-        std::cerr << "x and y must be vectors." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be vector.";
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
@@ -1152,26 +1163,24 @@ Elemental::BLAS::Gemv
     {
         if( A.Height() != yLength || A.Width() != xLength )
         {
-            std::cerr << "A must conform with x and y:" << 
-            std::endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            std::endl << "  x ~ " << x.Height() << " x " << x.Width() <<
-            std::endl << "  y ~ " << y.Height() << " x " << y.Width() << 
-            std::endl;
-            DumpCallStack();
-            throw std::exception();
+            std::ostringstream msg;
+            msg << "A must conform with x and y:" << std::endl
+                << "  A ~ " << A.Height() << " x " << A.Width() << std::endl
+                << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
+                << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
+            throw msg.str();
         }
     }
     else
     {
         if( A.Width() != yLength || A.Height() != xLength )
         {
-            std::cerr << "A must conform with x and y:" << 
-            std::endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            std::endl << "  x ~ " << x.Height() << " x " << x.Width() <<
-            std::endl << "  y ~ " << y.Height() << " x " << y.Width() << 
-            std::endl;
-            DumpCallStack();
-            throw std::exception();
+            std::ostringstream msg;
+            msg << "A must conform with x and y:" << std::endl
+                << "  A ~ " << A.Height() << " x " << A.Width() << std::endl
+                << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
+                << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
+            throw msg.str();
         }
     }
 #endif
@@ -1207,20 +1216,18 @@ Elemental::BLAS::Ger
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 )   )
     {
-        std::cerr << "x and y must be vectors." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be vectors.";
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Width() )
     {
-        std::cerr << "Nonconformal Ger: " << std::endl;
-        std::cerr << "  x ~ " << x.Height() << " x " << x.Width() << std::endl;
-        std::cerr << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
-        std::cerr << "  A ~ " << A.Height() << " x " << A.Width() << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "Nonconformal Ger: " << std::endl
+            << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
+            << "  y ~ " << y.Height() << " x " << y.Width() << std::endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << std::endl;
+        throw msg.str();
     }
 #endif
     const int m = A.Height(); 
@@ -1245,17 +1252,13 @@ Elemental::BLAS::Gerc
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 )   )
     {
-        std::cerr << "x and y must be vectors." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be vectors.";
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Width() )
     {
-        std::cerr << "Nonconformal Gerc." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "Nonconformal Gerc.";
     }
 #endif
     const int m = A.Height(); 
@@ -1280,17 +1283,13 @@ Elemental::BLAS::Geru
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 )   )
     {
-        std::cerr << "x and y must be vectors." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be vectors.";
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Width() )
     {
-        std::cerr << "Nonconformal Geru." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "Nonconformal Geru.";
     }
 #endif
     const int m = A.Height(); 
@@ -1315,25 +1314,17 @@ Elemental::BLAS::Hemv
 #ifndef RELEASE
     PushCallStack("BLAS::Hemv");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A must be square.";
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 )   )
     {
-        std::cerr << "x and y must be vectors." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be vectors.";
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
     {
-        std::cerr << "A must conform with x and y." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "A must conform with x and y.";
     }
 #endif
     const char uploChar = ShapeToChar( shape );
@@ -1358,24 +1349,12 @@ Elemental::BLAS::Her
 #ifndef RELEASE
     PushCallStack("BLAS::Her");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A must be square.";
     if( x.Width() != 1 && x.Height() != 1 )
-    {
-        std::cerr << "x must be a vector." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "x must be a vector.";
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     if( xLength != A.Height() )
-    {
-        std::cerr << "x must conform with A." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "x must conform with A.";
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1397,26 +1376,16 @@ Elemental::BLAS::Her2
 #ifndef RELEASE
     PushCallStack("BLAS::Her2");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A must be square.";
     if( (x.Width() != 1 && x.Height() != 1) || 
         (y.Width() != 1 && y.Height() != 1)   )
     {
-        std::cerr << "x and y must be vectors." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be vectors.";
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Height() )
-    {
-        std::cerr << "x and y must conform with A." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "x and y must conform with A.";
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1441,26 +1410,16 @@ Elemental::BLAS::Symv
 #ifndef RELEASE
     PushCallStack("BLAS::Symv");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A must be square.";
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 )   )
     {
-        std::cerr << "x and y must be vectors." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be vectors.";
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
-    {
-        std::cerr << "A must conform with x and y." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A must conform with x and y.";
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1484,24 +1443,12 @@ Elemental::BLAS::Syr
 #ifndef RELEASE
     PushCallStack("BLAS::Syr");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A must be square.";
     if( x.Width() != 1 && x.Height() != 1 )
-    {
-        std::cerr << "x must be a vector." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "x must be a vector.";
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     if( xLength != A.Height() )
-    {
-        std::cerr << "x must conform with A." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "x must conform with A.";
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1523,26 +1470,16 @@ Elemental::BLAS::Syr2
 #ifndef RELEASE
     PushCallStack("BLAS::Syr2");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "A must be square.";
     if( (x.Width() != 1 && x.Height() != 1) || 
         (y.Width() != 1 && y.Height() != 1)   )
     {
-        std::cerr << "x and y must be vectors." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "x and y must be vectors.";
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Height() )
-    {
-        std::cerr << "x and y must conform with A." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "x and y must conform with A.";
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1566,24 +1503,12 @@ Elemental::BLAS::Trmv
 #ifndef RELEASE
     PushCallStack("BLAS::Trmv");
     if( x.Height() != 1 && x.Width() != 1 )
-    {
-        std::cerr << "x must be a vector." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "x must be a vector.";
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack(); 
-        throw std::exception();
-    }
+        throw "A must be square.";
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     if( xLength != A.Height() )
-    {
-        std::cerr << "x must conform with A." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "x must conform with A.";
 #endif
     const char uploChar = ShapeToChar( shape );
     const char transChar = OrientationToChar( orientation );
@@ -1607,24 +1532,12 @@ Elemental::BLAS::Trsv
 #ifndef RELEASE
     PushCallStack("BLAS::Trsv");
     if( x.Height() != 1 && x.Width() != 1 )
-    {
-        std::cerr << "x must be a vector." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "x must be a vector.";
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "A must be square." << std::endl;
-        DumpCallStack(); 
-        throw std::exception();
-    }
+        throw "A must be square.";
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     if( xLength != A.Height() )
-    {
-        std::cerr << "x must conform with A." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "x must conform with A.";
 #endif
     const char uploChar = ShapeToChar( shape );
     const char transChar = OrientationToChar( orientation );
@@ -1658,9 +1571,7 @@ Elemental::BLAS::Gemm
             B.Width()  != C.Width()  ||
             A.Width()  != B.Height()    )
         {
-            std::cerr << "Nonconformal GemmNN." << std::endl;
-            DumpCallStack();
-            throw std::exception();
+            throw "Nonconformal GemmNN.";
         }
     }
     else if( orientationOfA == Normal )
@@ -1669,9 +1580,7 @@ Elemental::BLAS::Gemm
             B.Height() != C.Width()  ||
             A.Width()  != B.Width()     )
         {
-            std::cerr << "Nonconformal GemmN(T/C)." << std::endl;
-            DumpCallStack();
-            throw std::exception();
+            throw "Nonconformal GemmN(T/C).";
         }
     }
     else if( orientationOfB == Normal )
@@ -1680,9 +1589,7 @@ Elemental::BLAS::Gemm
             B.Width()  != C.Width()  ||
             A.Height() != B.Height()    )
         {
-            std::cerr << "Nonconformal Gemm(T/C)N." << std::endl;
-            DumpCallStack();
-            throw std::exception();
+            throw "Nonconformal Gemm(T/C)N.";
         }
     }
     else
@@ -1691,9 +1598,7 @@ Elemental::BLAS::Gemm
             B.Height() != C.Width()  ||
             A.Height() != B.Width()     )
         {
-            std::cerr << "Nonconformal Gemm(T/C)(T/C)." << std::endl;
-            DumpCallStack();
-            throw std::exception();
+            throw "Nonconformal Gemm(T/C)(T/C).";
         }
     }
 #endif
@@ -1753,9 +1658,7 @@ Elemental::BLAS::Her2k
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
             B.Height() != C.Height() ||B.Height() != C.Width()    )
         {
-            std::cerr << "Nonconformal Her2k." << std::endl;
-            DumpCallStack();
-            throw std::exception();
+            throw "Nonconformal Her2k.";
         }
     }
     else if( orientation == ConjugateTranspose )
@@ -1763,17 +1666,12 @@ Elemental::BLAS::Her2k
         if( A.Width() != C.Height() || A.Width() != C.Width() ||
             B.Width() != C.Height() || B.Width() != C.Width()   )
         {
-            std::cerr << "Nonconformal Her2k." << std::endl;
-            DumpCallStack();
-            throw std::exception();
+            throw "Nonconformal Her2k.";
         }
     }
     else
     {
-        std::cerr << "Her2k only accepts Normal and ConjugateTranpose options." 
-                  << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "Her2k only accepts Normal and ConjugateTranspose options.";
     }
 #endif
     const char uplo = ShapeToChar( shape );
@@ -1799,27 +1697,16 @@ Elemental::BLAS::Herk
     if( orientation == Normal )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() )
-        {
-            std::cerr << "Nonconformal Herk." << std::endl;
-            DumpCallStack();
-            throw std::exception();
-        }
+            throw "Nonconformal Herk.";
     }
     else if( orientation == ConjugateTranspose )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() )
-        {
-            std::cerr << "Nonconformal Herk." << std::endl;
-            DumpCallStack();
-            throw std::exception();
-        }
+            throw "Nonconformal Herk.";
     }
     else
     {
-        std::cerr << "Herk only accepts Normal and ConjugateTranpose options." 
-                  << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "Herk only accepts Normal and ConjugateTranpose options.";
     }
 #endif
     const char uplo = ShapeToChar( shape );
@@ -1868,9 +1755,7 @@ Elemental::BLAS::Syr2k
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
             B.Height() != C.Height() ||B.Height() != C.Width()    )
         {
-            std::cerr << "Nonconformal Syr2k." << std::endl;
-            DumpCallStack();
-            throw std::exception();
+            throw "Nonconformal Syr2k.";
         }
     }
     else if( orientation == Transpose )
@@ -1878,17 +1763,12 @@ Elemental::BLAS::Syr2k
         if( A.Width() != C.Height() || A.Width() != C.Width() ||
             B.Width() != C.Height() || B.Width() != C.Width()   )
         {
-            std::cerr << "Nonconformal Syr2k." << std::endl;
-            DumpCallStack();
-            throw std::exception();
+            throw "Nonconformal Syr2k.";
         }
     }
     else
     {
-        std::cerr << "Syr2k only accepts Normal and Tranpose options." 
-                  << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "Syr2k only accepts Normal and Tranpose options.";
     }
 #endif
     const char uplo = ShapeToChar( shape );
@@ -1914,27 +1794,16 @@ Elemental::BLAS::Syrk
     if( orientation == Normal )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() )
-        {
-            std::cerr << "Nonconformal Syrk." << std::endl;
-            DumpCallStack();
-            throw std::exception();
-        }
+            throw "Nonconformal Syrk.";
     }
     else if( orientation == Transpose )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() )
-        {
-            std::cerr << "Nonconformal Syrk." << std::endl;
-            DumpCallStack();
-            throw std::exception();
-        }
+            throw "Nonconformal Syrk.";
     }
     else
     {
-        std::cerr << "Syrk only accepts Normal and Tranpose options." 
-                  << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "Syrk only accepts Normal and Tranpose options.";
     }
 #endif
     const char uplo = ShapeToChar( shape );
@@ -1960,28 +1829,16 @@ Elemental::BLAS::Trmm
 #ifndef RELEASE
     PushCallStack("BLAS::Trmm");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "Triangular matrix must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Triangular matrix must be square.";
     if( side == Left )
     {
         if( A.Height() != B.Height() )
-        {
-            std::cerr << "Nonconformal Trmm." << std::endl;
-            DumpCallStack();
-            throw std::exception();
-        }
+            throw "Nonconformal Trmm.";
     }
     else
     {
         if( A.Height() != B.Width() )
-        {
-            std::cerr << "Nonconformal Trmm." << std::endl;
-            DumpCallStack();
-            throw std::exception();
-        }
+            throw "Nonconformal Trmm.";
     }
 #endif
     const char sideChar = SideToChar( side );
@@ -2008,28 +1865,16 @@ Elemental::BLAS::Trsm
 #ifndef RELEASE
     PushCallStack("BLAS::Trsm");
     if( A.Height() != A.Width() )
-    {
-        std::cerr << "Triangular matrix must be square." << std::endl;
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "Triangular matrix must be square.";
     if( side == Left )
     {
         if( A.Height() != B.Height() )
-        {
-            std::cerr << "Nonconformal Trsm." << std::endl;
-            DumpCallStack();
-            throw std::exception();
-        }
+            throw "Nonconformal Trsm.";
     }
     else
     {
         if( A.Height() != B.Width() )
-        {
-            std::cerr << "Nonconformal Trsm." << std::endl;
-            DumpCallStack();
-            throw std::exception();
-        }
+            throw "Nonconformal Trsm.";
     }
 #endif
     const char sideChar = SideToChar( side );
@@ -2055,24 +1900,12 @@ Elemental::BLAS::Axpy
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Axpy");
-    const Grid& grid = X.GetGrid();
     if( X.GetGrid() != Y.GetGrid() )
-    {
-        if( grid.VCRank() == 0 ) 
-        {
-            std::cerr << "X and Y must be distributed over the same grid."
-                      << std::endl;
-        }
-        DumpCallStack();
-        throw std::exception();
-    }
+        throw "X and Y must be distributed over the same grid.";
     if( X.ColAlignment() != Y.ColAlignment() ||
         X.RowAlignment() != Y.RowAlignment()   )
     {
-        if( grid.VCRank() == 0 )
-            std::cerr << "Axpy requires X and Y be aligned." << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        throw "Axpy requires X and Y be aligned.";
     }
 #endif
     BLAS::Axpy( alpha, X.LockedLocalMatrix(), Y.LocalMatrix() );

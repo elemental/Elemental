@@ -28,29 +28,19 @@ Elemental::BLAS::Internal::HerkUC
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::HerkUC");
-#endif
-    const Grid& grid = A.GetGrid();
-#ifndef RELEASE
     if( A.GetGrid() != C.GetGrid() )
-    {
-        if( grid.VCRank() == 0 )
-            cerr << "A and C must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A and C must be distributed over the same grid.";
     if( A.Width() != C.Height() || A.Width() != C.Width() )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal HerkUT:" <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            endl << "  C ~ " << C.Height() << " x " << C.Width() << 
-            endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal HerkUT:" << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = A.GetGrid();
+
     // Matrix views
     DistMatrix<T,MC,MR> AT(grid),  A0(grid),
                         AB(grid),  A1(grid),
@@ -102,49 +92,39 @@ Elemental::BLAS::Internal::HerkUCUpdate
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::HerkUCUpdate");
-#endif
-    const Grid& grid = C.GetGrid();
-#ifndef RELEASE
     if( A_Star_MC.GetGrid() != A_Star_MR.GetGrid() || 
         A_Star_MR.GetGrid() != C.GetGrid()            )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "A and C must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "A and C must be distributed over the same grid.";
     }
     if( A_Star_MC.Width() != C.Height() ||
         A_Star_MR.Width() != C.Width()  ||
         A_Star_MC.Height() != A_Star_MR.Height() ||
         A_Star_MC.Width()  != A_Star_MR.Width()    )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal HerkUCUpdate: " <<
-            endl << "  A[* ,MC] ~ " << A_Star_MC.Height() << " x "
-                                    << A_Star_MC.Width()  <<
-            endl << "  A[* ,MR] ~ " << A_Star_MR.Height() << " x "
-                                    << A_Star_MR.Width()  <<
-            endl << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal HerkUCUpdate: " << endl
+            << "  A[* ,MC] ~ " << A_Star_MC.Height() << " x "
+                               << A_Star_MC.Width()  << endl
+            << "  A[* ,MR] ~ " << A_Star_MR.Height() << " x "
+                               << A_Star_MR.Width()  << endl
+            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
     if( A_Star_MC.RowAlignment() != C.ColAlignment() ||
         A_Star_MR.RowAlignment() != C.RowAlignment()   )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Misaligned HerkUCUpdate: " <<
-            endl << "  A[* ,MC] ~ " << A_Star_MC.RowAlignment() <<
-            endl << "  A[* ,MR] ~ " << A_Star_MR.RowAlignment() <<
-            endl << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                       C.RowAlignment() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Misaligned HerkUCUpdate: " << endl
+            << "  A[* ,MC] ~ " << A_Star_MC.RowAlignment() << endl
+            << "  A[* ,MR] ~ " << A_Star_MR.RowAlignment() << endl
+            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
+                                  C.RowAlignment() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = A_Star_MC.GetGrid();
+
     if( C.Height() < 2*grid.Width()*Blocksize() ) 
     {
         BLAS::Internal::HerkUCUpdateKernel
@@ -194,49 +174,39 @@ Elemental::BLAS::Internal::HerkUCUpdateKernel
 {
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::HerkUCUpdateKernel");
-#endif
-    const Grid& grid = C.GetGrid();
-#ifndef RELEASE
     if( A_Star_MC.GetGrid() != A_Star_MR.GetGrid() || 
         A_Star_MR.GetGrid() != C.GetGrid()            )
     {
-        if( grid.VCRank() == 0 )
-            cerr << "A and C must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
+        throw "A and C must be distributed over the same grid.";
     }
     if( A_Star_MC.Width() != C.Height() ||
         A_Star_MR.Width() != C.Width()  ||
         A_Star_MC.Height() != A_Star_MR.Height() ||
         A_Star_MC.Width()  != A_Star_MR.Width()    )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Nonconformal HerkUCUpdateKernel: " <<
-            endl << "  A[* ,MC] ~ " << A_Star_MC.Height() << " x "
-                                    << A_Star_MC.Width()  <<
-            endl << "  A[* ,MR] ~ " << A_Star_MR.Height() << " x "
-                                    << A_Star_MR.Width()  <<
-            endl << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal HerkUCUpdateKernel: " << endl
+            << "  A[* ,MC] ~ " << A_Star_MC.Height() << " x "
+                               << A_Star_MC.Width()  << endl
+            << "  A[* ,MR] ~ " << A_Star_MR.Height() << " x "
+                               << A_Star_MR.Width()  << endl 
+            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
     if( A_Star_MC.RowAlignment() != C.ColAlignment() ||
         A_Star_MR.RowAlignment() != C.RowAlignment()   )
     {
-        if( grid.VCRank() == 0 )
-        {
-            cerr << "Misaligned HerkUCUpdateKernel: " <<
-            endl << "  A[* ,MC] ~ " << A_Star_MC.RowAlignment() <<
-            endl << "  A[* ,MR] ~ " << A_Star_MR.RowAlignment() <<
-            endl << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                       C.RowAlignment() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Misaligned HerkUCUpdateKernel: " << endl
+            << "  A[* ,MC] ~ " << A_Star_MC.RowAlignment() << endl
+            << "  A[* ,MR] ~ " << A_Star_MR.RowAlignment() << endl
+            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " << 
+                                  C.RowAlignment() << endl;
+        throw msg.str();
     }
 #endif
+    const Grid& grid = A_Star_MC.GetGrid();
+
     DistMatrix<T,Star,MC> AL_Star_MC(grid), AR_Star_MC(grid);
     DistMatrix<T,Star,MR> AL_Star_MR(grid), AR_Star_MR(grid);
 

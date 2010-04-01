@@ -32,19 +32,9 @@ Elemental::BLAS::Internal::GemmTT
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::GemmTT");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
     if( orientationOfA == Normal || orientationOfB == Normal )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "GemmTT expects A and B to be transposed." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "GemmTT expects A and B to be transposed.";
 #endif
     const int m = C.Height();
     const int n = C.Width();
@@ -96,35 +86,19 @@ Elemental::BLAS::Internal::GemmTTA
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::GemmTTA");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
     if( orientationOfA == Normal || orientationOfB == Normal )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "GemmTTA expects A and B to be (Conjugate)Transposed." 
-                 << endl;
-        }
-        DumpCallStack();
-        throw exception();
-    }
+        throw "GemmTTA expects A and B to be (Conjugate)Transposed.";
     if( A.Width()  != C.Height() ||
         B.Height() != C.Width()  ||
         A.Height() != B.Width()    )
     {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "Nonconformal GemmTTA: " <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            endl << "  B ~ " << B.Height() << " x " << B.Width() <<
-            endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal GemmTTA: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  B ~ " << B.Height() << " x " << B.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -207,36 +181,19 @@ Elemental::BLAS::Internal::GemmTTB
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::GemmTTB");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
     if( orientationOfA == Normal || orientationOfB == Normal )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "GemmTTB expects A and B to be (Conjugate)Transposed." 
-                 << endl;
-        }
-        DumpCallStack();
-        throw exception();
-    }
+        throw "GemmTTB expects A and B to be (Conjugate)Transposed.";
     if( A.Width()  != C.Height() ||
         B.Height() != C.Width()  ||
         A.Height() != B.Width()    )
     {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "Nonconformal GemmTTB: " <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            endl << "  B ~ " << B.Height() << " x " << B.Width() <<
-            endl << "  C ~ " << C.Height() << " x " << C.Width() <<
-            endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal GemmTTB: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  B ~ " << B.Height() << " x " << B.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -319,35 +276,19 @@ Elemental::BLAS::Internal::GemmTTC
 #ifndef RELEASE
     PushCallStack("BLAS::Internal::GemmTTC");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "{A,B,C} must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "{A,B,C} must be distributed over the same grid.";
     if( orientationOfA == Normal || orientationOfB == Normal )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "GemmTTC expects A and B to be (Conjugate)Transposed." 
-                 << endl;
-        }
-        DumpCallStack();
-        throw exception();
-    }
+        throw "GemmTTC expects A and B to be (Conjugate)Transposed.";
     if( A.Width()  != C.Height() ||
         B.Height() != C.Width()  ||
         A.Height() != B.Width()    )
     {
-        if( A.GetGrid().VCRank() == 0 )
-        {
-            cerr << "Nonconformal GemmTTC: " <<
-            endl << "  A ~ " << A.Height() << " x " << A.Width() <<
-            endl << "  B ~ " << B.Height() << " x " << B.Width() <<
-            endl << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        }
-        DumpCallStack();
-        throw exception();
+        ostringstream msg;
+        msg << "Nonconformal GemmTTC: " << endl
+            << "  A ~ " << A.Height() << " x " << A.Width() << endl
+            << "  B ~ " << B.Height() << " x " << B.Width() << endl
+            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+        throw msg.str();
     }
 #endif
     const Grid& grid = A.GetGrid();

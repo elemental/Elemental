@@ -216,9 +216,9 @@ Elemental::wrappers::LAPACK::Chol
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "spotrf returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "spotrf returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -236,9 +236,9 @@ Elemental::wrappers::LAPACK::Chol
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "dpotrf returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "dpotrf returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -257,9 +257,9 @@ Elemental::wrappers::LAPACK::Chol
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "cpotrf returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "cpotrf returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -277,9 +277,9 @@ Elemental::wrappers::LAPACK::Chol
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "zpotrf returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "zpotrf returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -298,9 +298,9 @@ Elemental::wrappers::LAPACK::LU
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "sgetrf returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "sgetrf returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -318,9 +318,9 @@ Elemental::wrappers::LAPACK::LU
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "dgetrf returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "dgetrf returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -339,9 +339,9 @@ Elemental::wrappers::LAPACK::LU
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "cgetrf returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "cgetrf returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -359,9 +359,9 @@ Elemental::wrappers::LAPACK::LU
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "zgetrf returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "zgetrf returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -437,9 +437,9 @@ Elemental::wrappers::LAPACK::Tridiag
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "ssytd2 returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "ssytd2 returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -458,9 +458,9 @@ Elemental::wrappers::LAPACK::Tridiag
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "dsytd2 returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "dsytd2 returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -478,9 +478,9 @@ Elemental::wrappers::LAPACK::Trinv
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "strtri returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "strtri returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -499,9 +499,9 @@ Elemental::wrappers::LAPACK::Trinv
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "dtrtri returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "dtrtri returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -521,9 +521,9 @@ Elemental::wrappers::LAPACK::Trinv
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "ctrtri returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "ctrtri returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif
@@ -542,9 +542,9 @@ Elemental::wrappers::LAPACK::Trinv
 #ifndef RELEASE
     if( info != 0 )
     {
-        std::cerr << "ztrtri returned with info = " << info << std::endl;
-        DumpCallStack();
-        throw std::exception();
+        std::ostringstream msg;
+        msg << "ztrtri returned with info = " << info;
+        throw msg.str();
     }
     PopCallStack();
 #endif

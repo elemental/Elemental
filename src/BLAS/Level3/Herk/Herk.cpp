@@ -31,20 +31,9 @@ Elemental::BLAS::Herk
 #ifndef RELEASE
     PushCallStack("BLAS::Herk");
     if( A.GetGrid() != C.GetGrid() )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "A and C must be distributed over the same grid." << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "A and C must be distributed over the same grid.";
     if( orientation == Transpose )
-    {
-        if( A.GetGrid().VCRank() == 0 )
-            cerr << "Herk accepts Normal and ConjugateTranspose options." 
-                 << endl;
-        DumpCallStack();
-        throw exception();
-    }
+        throw "Herk accepts Normal and ConjugateTranspose options.";
 #endif
     if( shape == Lower && orientation == Normal )
     {
