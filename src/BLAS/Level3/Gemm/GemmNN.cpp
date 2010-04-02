@@ -342,7 +342,7 @@ Elemental::BLAS::Internal::GemmNNDot
         msg << "Nonconformal GemmNNDot: " << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
-            << "  C ~ " << C.Height() << " x " << C.Width() << endl;
+            << "  C ~ " << C.Height() << " x " << C.Width();
         throw msg.str();
     }
 #endif

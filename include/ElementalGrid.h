@@ -43,11 +43,6 @@ namespace Elemental
         MPI_Comm   _matrixRowComm;
         MPI_Comm   _vectorColComm;
         MPI_Comm   _vectorRowComm;
-        MPI_Group  _group;
-        MPI_Group  _matrixColGroup;
-        MPI_Group  _matrixRowGroup;
-        MPI_Group  _vectorColGroup;
-        MPI_Group  _vectorRowGroup;
 
         void Init( int r, int c );
 
@@ -91,12 +86,6 @@ Elemental::Grid::~Grid()
     MPI_Comm_free( &_vectorColComm );
     MPI_Comm_free( &_vectorRowComm );
     MPI_Comm_free( &_comm );
-
-    MPI_Group_free( &_matrixColGroup );
-    MPI_Group_free( &_matrixRowGroup );
-    MPI_Group_free( &_vectorColGroup );
-    MPI_Group_free( &_vectorRowGroup );
-    MPI_Group_free( &_group );
 
     delete _diagPathsAndRanks;
 }

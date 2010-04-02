@@ -27,17 +27,22 @@ Elemental::Grid::Grid
 #ifndef RELEASE
     PushCallStack("Grid::Grid(comm)");
 #endif
-    // Pull in data from comm
-    MPI_Comm_dup  (  comm, &_comm  );
-    MPI_Comm_group( _comm, &_group );
-    MPI_Comm_size ( _comm, &_p     );
-    MPI_Comm_rank ( _comm, &_rank  );
+
+    // Extract the total number of processes
+    MPI_Comm_size( comm, &_p );
 
     // Factor p
     int r = static_cast<int>(sqrt(static_cast<double>(_p)));
     while( _p % r != 0 )
         ++r;
     int c = _p / r;
+
+    // Create cartesian communicator
+    int dimensions[2] = { r,    c    };
+    int periods[2]    = { true, true };
+    int reorder       = false;
+    MPI_Cart_create( comm, 2, dimensions, periods, reorder, &_comm );
+    MPI_Comm_rank( _comm, &_rank  );
 
     Init( r, c );
 
@@ -53,13 +58,17 @@ Elemental::Grid::Grid
 #ifndef RELEASE
     PushCallStack("Grid::Grid( comm, r, c )");
 #endif
-    
-    // Pull in data from comm
-    MPI_Comm_dup  (  comm, &_comm  );
-    MPI_Comm_group( _comm, &_group );
-    MPI_Comm_size ( _comm, &_p     );
-    MPI_Comm_rank ( _comm, &_rank  );
 
+    // Extract the total number of processes
+    MPI_Comm_size( comm, &_p );
+
+    // Create a cartesian communicator
+    int dimensions[2] = { r,   c     };
+    int periods[2]    = { true, true };
+    int reorder       = false;
+    MPI_Cart_create( comm, 2, dimensions, periods, reorder, &_comm );
+    MPI_Comm_rank( _comm, &_rank );
+    
     Init( r, c );
 
 #ifndef RELEASE
@@ -98,42 +107,28 @@ Elemental::Grid::Init
     }
 #endif
 
-    // Set up the MatrixCol communicator
-    int* matrixColRanks = new int[r];
-    for( int i=0; i<r; ++i )
-        matrixColRanks[i] = (_rank / r)*r + i;
-    MPI_Group_incl( _group, r, matrixColRanks, &_matrixColGroup );
-    MPI_Comm_create( _comm, _matrixColGroup, &_matrixColComm );
+    // Set up the MatrixCol and MatrixRow communicators
+    int remainingDimensions[2];
+    remainingDimensions[0] = true;
+    remainingDimensions[1] = false;
+    MPI_Cart_sub( _comm, remainingDimensions, &_matrixColComm );
+    remainingDimensions[0] = false;
+    remainingDimensions[1] = true;
+    MPI_Cart_sub( _comm, remainingDimensions, &_matrixRowComm );
     MPI_Comm_rank( _matrixColComm, &_matrixColRank );
-    delete[] matrixColRanks;
-
-    // Set up the MatrixRow communicator
-    int* matrixRowRanks = new int[c];
-    for( int j=0; j<c; ++j )
-        matrixRowRanks[j] = (_rank % r) + j*r;
-    MPI_Group_incl( _group, c, matrixRowRanks, &_matrixRowGroup );
-    MPI_Comm_create( _comm, _matrixRowGroup, &_matrixRowComm );
     MPI_Comm_rank( _matrixRowComm, &_matrixRowRank );
-    delete[] matrixRowRanks;
 
-    // Set up the VectorCol communicator
-    int* vectorColRanks = new int[_p];
-    for( int i=0; i<_p; ++i )
-        vectorColRanks[i] = i;
-    MPI_Group_incl( _group, _p, vectorColRanks, &_vectorColGroup );
-    MPI_Comm_create( _comm, _vectorColGroup, &_vectorColComm );
+    // Set up the VectorCol and VectorRow communicators
+    int dimensions[2];
+    int periods[2];
+    int coordinates[2];
+    MPI_Cart_get( _comm, 2, dimensions, periods, coordinates );
+    int colMajorRank = coordinates[0] + dimensions[0]*coordinates[1];
+    int rowMajorRank = coordinates[1] + dimensions[1]*coordinates[0];
+    MPI_Comm_split( _comm, 0, colMajorRank, &_vectorColComm );
+    MPI_Comm_split( _comm, 0, rowMajorRank, &_vectorRowComm );
     MPI_Comm_rank( _vectorColComm, &_vectorColRank );
-    delete[] vectorColRanks;
-
-    // Set up the VectorRow communicator
-    int* vectorRowRanks = new int[_p];
-    for( int i=0; i<r; ++i )
-        for( int j=0; j<c; ++j )
-            vectorRowRanks[j+i*c] = i+j*r;
-    MPI_Group_incl( _group, _p, vectorRowRanks, &_vectorRowGroup );
-    MPI_Comm_create( _comm, _vectorRowGroup, &_vectorRowComm );
     MPI_Comm_rank( _vectorRowComm, &_vectorRowRank );
-    delete[] vectorRowRanks;
 
     // Compute which diagonal 'path' we're in, and what our rank is, then
     // perform AllGather world to store everyone's info
