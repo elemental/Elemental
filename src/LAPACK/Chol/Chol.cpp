@@ -16,7 +16,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalLAPACKInternal.h"
+#include "Elemental/LAPACKInternal.hpp"
 using namespace Elemental;
 
 // The mainline Cholesky wraps the variant 2 algorithm

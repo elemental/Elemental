@@ -19,8 +19,8 @@
 #include <cmath>
 #include <ctime>
 #include <sstream>
-#include "Elemental.h"
-#include "ElementalBLASInternal.h"
+#include "Elemental.hpp"
+#include "Elemental/BLASInternal.hpp"
 using namespace std;
 using namespace Elemental;
 using namespace Elemental::wrappers::MPI;
@@ -322,7 +322,7 @@ int main( int argc, char* argv[] )
             cout << endl;
 #endif
     }
-    catch( string errorMsg )
+    catch( const char* errorMsg )
     {
 #ifndef RELEASE
         DumpCallStack();

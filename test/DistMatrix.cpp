@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <ctime>
-#include "Elemental.h"
+#include "Elemental.hpp"
 using namespace std;
 using namespace Elemental;
 using namespace Elemental::wrappers::MPI;
@@ -332,7 +332,7 @@ int main( int argc, char* argv[] )
         }
 #endif
     }
-    catch( string errorMsg )
+    catch( const char* errorMsg )
     {
 #ifndef RELEASE
         DumpCallStack();
@@ -343,3 +343,4 @@ int main( int argc, char* argv[] )
     Elemental::Finalize();
     return 0;
 }
+

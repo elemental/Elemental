@@ -16,8 +16,8 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalEnvironment.h"
-#include "ElementalLAPACKInternal.h"
+#include "Elemental/Environment.hpp"
+#include "Elemental/LAPACKInternal.hpp"
 using namespace std;
 using namespace Elemental;
 

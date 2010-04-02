@@ -1,8 +1,8 @@
 #include <cmath>
 #include <ctime>
 #include <sstream>
-#include "Elemental.h"
-#include "ElementalLAPACKInternal.h"
+#include "Elemental.hpp"
+#include "Elemental/LAPACKInternal.hpp"
 using namespace std;
 using namespace Elemental;
 using namespace Elemental::wrappers::MPI;
@@ -305,7 +305,7 @@ int main( int argc, char* argv[] )
         if( rank == 0 )
             cout << endl;
     }
-    catch( string errorMsg )
+    catch( const char* errorMsg )
     {
 #ifndef RELEASE
         DumpCallStack();

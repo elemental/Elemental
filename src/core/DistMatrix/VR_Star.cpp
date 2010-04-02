@@ -16,8 +16,8 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ElementalDistMatrix.h"
-#include "./DistMatrixMacros.h"
+#include "Elemental/DistMatrix.hpp"
+#include "./DistMatrixMacros.hpp"
 using namespace std;
 using namespace Elemental;
 using namespace Elemental::utilities;

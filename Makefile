@@ -155,37 +155,37 @@ lapacksrc = $(addprefix $(lapackdir)/,$(lapackfiles))
 # The entire list of source files relative to $(srcdir)
 src = $(coresrc) $(blassrc) $(lapacksrc)
 
-includefiles = Elemental.h \
-               ElementalBLAS.h \
-               ElementalBLASInternal.h \
-               ElementalDistMatrix.h \
-               ElementalDistMatrix_MC_MR.h \
-               ElementalDistMatrix_MC_Star.h \
-               ElementalDistMatrix_MD_Star.h \
-               ElementalDistMatrix_MR_MC.h \
-               ElementalDistMatrix_MR_Star.h \
-               ElementalDistMatrix_Star_MC.h \
-               ElementalDistMatrix_Star_MD.h \
-               ElementalDistMatrix_Star_MR.h \
-               ElementalDistMatrix_Star_Star.h \
-               ElementalDistMatrix_Star_VC.h \
-               ElementalDistMatrix_Star_VR.h \
-               ElementalDistMatrix_VC_Star.h \
-               ElementalDistMatrix_VR_Star.h \
-               ElementalEnvironment.h \
-               ElementalGrid.h \
-               ElementalLAPACK.h \
-               ElementalLAPACKInternal.h \
-               ElementalMemory.h \
-               ElementalMatrix.h \
-               ElementalPartitioning.h \
-               ElementalRandom.h \
-               ElementalTypes.h \
-               wrappers/BLAS.h \
-               wrappers/LAPACK.h \
-               wrappers/MPI.h
+includefiles = Elemental.hpp \
+               Elemental/BLAS.hpp \
+               Elemental/BLASInternal.hpp \
+               Elemental/DistMatrix.hpp \
+               Elemental/DistMatrix/MC_MR.hpp \
+               Elemental/DistMatrix/MC_Star.hpp \
+               Elemental/DistMatrix/MD_Star.hpp \
+               Elemental/DistMatrix/MR_MC.hpp \
+               Elemental/DistMatrix/MR_Star.hpp \
+               Elemental/DistMatrix/Star_MC.hpp \
+               Elemental/DistMatrix/Star_MD.hpp \
+               Elemental/DistMatrix/Star_MR.hpp \
+               Elemental/DistMatrix/Star_Star.hpp \
+               Elemental/DistMatrix/Star_VC.hpp \
+               Elemental/DistMatrix/Star_VR.hpp \
+               Elemental/DistMatrix/VC_Star.hpp \
+               Elemental/DistMatrix/VR_Star.hpp \
+               Elemental/Environment.hpp \
+               Elemental/Grid.hpp \
+               Elemental/LAPACK.hpp \
+               Elemental/LAPACKInternal.hpp \
+               Elemental/Memory.hpp \
+               Elemental/Matrix.hpp \
+               Elemental/Partitioning.hpp \
+               Elemental/Random.hpp \
+               Elemental/Types.hpp \
+               Elemental/wrappers/BLAS.hpp \
+               Elemental/wrappers/LAPACK.hpp \
+               Elemental/wrappers/MPI.hpp
 includes = $(addprefix $(incdir)/,$(includefiles)) \
-           $(srcdir)/$(coredir)/DistMatrix/DistMatrixMacros.h
+           $(srcdir)/$(coredir)/DistMatrix/DistMatrixMacros.hpp
 
 ################################################################################
 # make                                                                         #
