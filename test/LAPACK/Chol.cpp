@@ -140,30 +140,11 @@ void TestChol
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(grid);
-    DistMatrix<T,MC,MR> B(grid);
     DistMatrix<T,Star,Star> A_ref(grid);
 
     A.ResizeTo( m, m );
-    B.ResizeTo( m, m );
 
-    // Make B diagonally dominant and triangular. If we are performing a lower
-    // Cholesky factorization, make B lower, then form A := B B^T. Otherwise,
-    // make B upper and form A := B^T B.
-    B.SetToRandomDiagDominant();
-    B.MakeTrapezoidal( Left, shape );
-    if( printMatrices )
-        B.Print("Triangular matrix for generating SPD matrix:");
-    if( grid.VCRank() == 0 )
-    {
-        cout << "  Generating SPD matrix...";
-        cout.flush();
-    }
-    if( shape == Lower )
-        BLAS::Gemm( Normal, Transpose, (T)1, B, B, (T)0, A );
-    else
-        BLAS::Gemm( Transpose, Normal, (T)1, B, B, (T)0, A );
-    if( grid.VCRank() == 0 )
-        cout << "DONE" << endl;
+    A.SetToRandomDiagDominant();
     if( testCorrectness )
     {
         if( grid.VCRank() == 0 )
