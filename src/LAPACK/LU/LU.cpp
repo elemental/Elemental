@@ -38,7 +38,7 @@ Elemental::LAPACK::LU
 
     // Matrix views
     DistMatrix<T,MC,MR>
-        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),  APan(grid),
+        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),  AB(grid),
         ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),  
                                A20(grid), A21(grid), A22(grid);
 
@@ -76,24 +76,23 @@ Elemental::LAPACK::LU
                               p1,
                          pB,  p2 );
 
-        APan.View2x1( A12,
-                      A22 );
+        AB.View1x2( ABL, ABR );
 
-        A11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
+        int pivotOffset = A01.Height();
         A12_Star_VR.AlignWith( A12 );
         A12_Star_MR.AlignWith( A12 );
         A21_VC_Star.AlignWith( A21 );
         A21_MC_Star.AlignWith( A21 );
+        A11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
         p1_Star_Star.ResizeTo( p1.Height(), 1 );
         //--------------------------------------------------------------------//
         A21_VC_Star = A21;
         A11_Star_Star = A11;
 
         PanelLU( A11_Star_Star, 
-                 A21_VC_Star, p1_Star_Star, A00.Height() );
-        ComposePivots( p1_Star_Star, image, preimage, A00.Height() );
-        ApplyRowPivots( ABL, image, preimage, A00.Height() );
-        ApplyRowPivots( APan, image, preimage, A00.Height() );
+                 A21_VC_Star, p1_Star_Star, pivotOffset );
+        ComposePivots( p1_Star_Star, image, preimage, pivotOffset );
+        ApplyRowPivots( AB, image, preimage, pivotOffset );
 
         A12_Star_VR = A12;
         Trsm( Left, Lower, Normal, Unit,

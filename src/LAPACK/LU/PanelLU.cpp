@@ -40,7 +40,9 @@ Elemental::LAPACK::Internal::PanelLU
         throw "p must be a vector that conforms with A.";
 #endif
     const Grid& grid = A.GetGrid();
+    const int np = grid.Size();
     const int colShift = B.ColShift();
+    const int colAlignment = B.ColAlignment();
 
     // Matrix views
     DistMatrix<T,Star,Star> 
@@ -56,8 +58,6 @@ Elemental::LAPACK::Internal::PanelLU
         pT(grid),  p0(grid),
         pB(grid),  psi1(grid),
                    p2(grid);
-
-    Matrix<T> pivotCol, pivotRow, a1;
 
     const int width = A.Width();
     const int numBytes = (width+1)*sizeof(T)+sizeof(int);
@@ -112,7 +112,7 @@ Elemental::LAPACK::Internal::PanelLU
             if( FastAbs(value) > FastAbs(pivotValue) )
             {
                 pivotValue = value;
-                pivotIndex = A.Height() + colShift + i*grid.Size();
+                pivotIndex = A.Height() + colShift + i*np;
             }
         }
 
@@ -120,22 +120,16 @@ Elemental::LAPACK::Internal::PanelLU
         // [ pivotValue | pivotRow | pivotIndex ]
         if( pivotIndex < A.Height() )
         {
-            pivotCol.View( A.LocalMatrix(), 0, A00.Width(), A.Height(), 1 );
-            pivotRow.View( A.LocalMatrix(), pivotIndex, 0, 1, A.Width() );
-            ((T*)sendBuf)[0] = pivotCol(pivotIndex,0); 
+            ((T*)sendBuf)[0] = A.LocalEntry(pivotIndex,a10.Width());
             for( int j=0; j<width; ++j )
-                ((T*)sendBuf)[j+1] = pivotRow(0,j);
+                ((T*)sendBuf)[j+1] = A.LocalEntry(pivotIndex,j);
         }
         else
         {
-            const int localIndex = 
-                ((pivotIndex-A.Height())-colShift)/grid.Size();
-
-            pivotCol.View( b1.LocalMatrix() );
-            pivotRow.View( B.LocalMatrix(), localIndex, 0, 1, width );
-            ((T*)sendBuf)[0] = pivotCol(localIndex,0);
+            const int localIndex = ((pivotIndex-A.Height())-colShift)/np;
+            ((T*)sendBuf)[0] = b1.LocalEntry(localIndex,0);
             for( int j=0; j<width; ++j )
-                ((T*)sendBuf)[j+1] = pivotRow(0,j);
+                ((T*)sendBuf)[j+1] = B.LocalEntry(localIndex,j);
         }
         ((int*)(((T*)sendBuf)+width+1))[0] = pivotIndex;
 
@@ -147,31 +141,26 @@ Elemental::LAPACK::Internal::PanelLU
         const int maxIndex = ((int*)(((T*)recvBuf)+width+1))[0];
         p.LocalEntry(a01.Height(),0) = maxIndex + pivotOffset;
 
-        // Copy a1 into the pivot row
-        a1.View( A.LocalMatrix(), A00.Height(), 0, 1, width );
+        // Copy the current row into the pivot row
         if( maxIndex < A.Height() )
         {
-            pivotRow.View( A.LocalMatrix(), maxIndex, 0, 1, width );
             for( int j=0; j<width; ++j )
-                pivotRow(0,j) = a1(0,j);
+                A.LocalEntry(maxIndex,j) = A.LocalEntry(A00.Height(),j);
         }
         else
         {
-            const int ownerRank = 
-                (B.ColAlignment()+(maxIndex-A.Height())) % grid.Size();
+            const int ownerRank = (colAlignment+(maxIndex-A.Height())) % np;
             if( grid.VCRank() == ownerRank )
             {
-                const int localIndex = 
-                    ((maxIndex-A.Height())-colShift) / grid.Size();
-                pivotRow.View( B.LocalMatrix(), localIndex, 0, 1, width );
+                const int localIndex = ((maxIndex-A.Height())-colShift) / np;
                 for( int j=0; j<width; ++j )
-                    pivotRow(0,j) = a1(0,j);
+                    B.LocalEntry(localIndex,j) = A.LocalEntry(A00.Height(),j);
             }
         }
 
-        // Copy the pivot row into a1
+        // Copy the pivot row into the current row
         for( int j=0; j<width; ++j )
-            a1(0,j) = ((T*)recvBuf)[j+1];
+            A.LocalEntry(A00.Height(),j) = ((T*)recvBuf)[j+1];
 
         // Now we can perform the update
         T alpha11Inv = ((T)1) / alpha11.LocalEntry(0,0);
