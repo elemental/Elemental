@@ -741,9 +741,9 @@ Elemental::BLAS::Axpy
     // to be a row. Otherwise we force X and Y to be the same dimension.
     if( (X.Height()==1 || X.Width()==1) && (Y.Height()==1 || Y.Width()==1) )
     {
-        const unsigned XLength = min(X.Height(),X.Width());
+        const unsigned XLength = max(X.Height(),X.Width());
 #ifndef RELEASE
-        const unsigned YLength = min(Y.Height(),Y.Width());
+        const unsigned YLength = max(Y.Height(),Y.Width());
         if( XLength != YLength )
             throw "Nonconformal Axpy.";
 #endif
