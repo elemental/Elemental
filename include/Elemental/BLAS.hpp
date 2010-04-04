@@ -741,9 +741,9 @@ Elemental::BLAS::Axpy
     // to be a row. Otherwise we force X and Y to be the same dimension.
     if( (X.Height()==1 || X.Width()==1) && (Y.Height()==1 || Y.Width()==1) )
     {
-        const unsigned XLength = max(X.Height(),X.Width());
+        const unsigned XLength = ( X.Width()==1 ? X.Height() : X.Width() );
+        const unsigned YLength = ( Y.Width()==1 ? Y.Height() : Y.Width() );
 #ifndef RELEASE
-        const unsigned YLength = max(Y.Height(),Y.Width());
         if( XLength != YLength )
             throw "Nonconformal Axpy.";
 #endif
@@ -827,9 +827,7 @@ Elemental::BLAS::Dot
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
         throw "x and y must be the same length.";
-    }
 #endif
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
