@@ -60,7 +60,8 @@ Elemental::BLAS::Internal::HemvColAccumulateU
                                << z_MC_Star.Width() << endl
             << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
                                << z_MR_Star.Width() << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
     if( x_MC_Star.ColAlignment() != A.ColAlignment() ||
         x_MR_Star.ColAlignment() != A.RowAlignment() ||
@@ -240,7 +241,8 @@ Elemental::BLAS::Internal::HemvRowAccumulateU
                                << z_MC_Star.Width() << endl
             << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
                                << z_MR_Star.Width() << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
     if( x_Star_MC.RowAlignment() != A.ColAlignment() ||
         x_Star_MR.RowAlignment() != A.RowAlignment() ||

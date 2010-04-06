@@ -40,7 +40,8 @@ Elemental::BLAS::Internal::Her2kLN
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -53,10 +54,12 @@ Elemental::BLAS::Internal::Her2kLN
                         B0(grid), B1(grid), B2(grid);
 
     // Temporary distributions
-    DistMatrix<T,MC,Star> A1_MC_Star(grid);
-    DistMatrix<T,MR,Star> A1_MR_Star(grid);
-    DistMatrix<T,MC,Star> B1_MC_Star(grid);
-    DistMatrix<T,MR,Star> B1_MR_Star(grid);
+    DistMatrix<T,MC,  Star> A1_MC_Star(grid);
+    DistMatrix<T,MC,  Star> B1_MC_Star(grid);
+    DistMatrix<T,VR,  Star> A1_VR_Star(grid);
+    DistMatrix<T,VR,  Star> B1_VR_Star(grid);
+    DistMatrix<T,Star,MR  > A1Herm_Star_MR(grid);
+    DistMatrix<T,Star,MR  > B1Herm_Star_MR(grid);
 
     // Start the algorithm
     BLAS::Scal( beta, C );
@@ -71,22 +74,28 @@ Elemental::BLAS::Internal::Her2kLN
                                 B0, /**/ B1, B2 );
 
         A1_MC_Star.AlignWith( C );
-        A1_MR_Star.AlignWith( C );
         B1_MC_Star.AlignWith( C );
-        B1_MR_Star.AlignWith( C );
+        A1_VR_Star.AlignWith( C );
+        B1_VR_Star.AlignWith( C );
+        A1Herm_Star_MR.AlignWith( C );
+        B1Herm_Star_MR.AlignWith( C );
         //--------------------------------------------------------------------//
-        A1_MC_Star = A1;
-        A1_MR_Star = A1_MC_Star;
-        B1_MC_Star = B1;
-        B1_MR_Star = B1_MC_Star;
+        A1_VR_Star = A1_MC_Star = A1;
+        A1Herm_Star_MR.ConjugateTransposeFrom( A1_VR_Star );
 
-        BLAS::Internal::Her2kLNUpdate
-        ( alpha, A1_MC_Star, A1_MR_Star, B1_MC_Star, B1_MR_Star, (T)1, C );
+        B1_VR_Star = B1_MC_Star = B1;
+        B1Herm_Star_MR.ConjugateTransposeFrom( B1_VR_Star );
+
+        BLAS::Internal::TriangularRank2K
+        ( Lower, alpha,
+          A1_MC_Star, B1_MC_Star, A1Herm_Star_MR, B1Herm_Star_MR, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_Star.FreeConstraints();
-        A1_MR_Star.FreeConstraints();
         B1_MC_Star.FreeConstraints();
-        B1_MR_Star.FreeConstraints();
+        A1_VR_Star.FreeConstraints();
+        B1_VR_Star.FreeConstraints();
+        A1Herm_Star_MR.FreeConstraints();
+        B1Herm_Star_MR.FreeConstraints();
 
         SlideLockedPartitionRight( AL,     /**/ AR,
                                    A0, A1, /**/ A2 );
@@ -94,185 +103,6 @@ Elemental::BLAS::Internal::Her2kLN
         SlideLockedPartitionRight( BL,     /**/ BR,
                                    B0, B1, /**/ B2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-Elemental::BLAS::Internal::Her2kLNUpdate
-( const T alpha, const DistMatrix<T,MC,Star>& A_MC_Star,
-                 const DistMatrix<T,MR,Star>& A_MR_Star,
-                 const DistMatrix<T,MC,Star>& B_MC_Star,
-                 const DistMatrix<T,MR,Star>& B_MR_Star,
-  const T beta,        DistMatrix<T,MC,MR  >& C         )
-{
-#ifndef RELEASE
-    PushCallStack("BLAS::Internal::Her2kLNUpdate");
-    if( A_MC_Star.GetGrid() != A_MR_Star.GetGrid() || 
-        A_MR_Star.GetGrid() != B_MC_Star.GetGrid() ||
-        B_MC_Star.GetGrid() != B_MR_Star.GetGrid() ||
-        B_MR_Star.GetGrid() != C.GetGrid()           )
-    {
-        throw "{A,B,C} must be distributed over the same grid.";
-    }
-    if( A_MC_Star.Height() != C.Height() ||
-        A_MR_Star.Height() != C.Width()  ||
-        B_MC_Star.Height() != C.Height() ||
-        B_MR_Star.Height() != C.Width()  ||
-        A_MC_Star.Width()  != B_MR_Star.Width() ||
-        B_MC_Star.Width()  != B_MR_Star.Width()    )
-    {
-        ostringstream msg;
-        msg << "Nonconformal Her2kLNUpdate: " << endl
-            << "  A[MC,* ] ~ " << A_MC_Star.Height() << " x "
-                               << A_MC_Star.Width()  << endl
-            << "  A[MR,* ] ~ " << A_MR_Star.Height() << " x "
-                               << A_MR_Star.Width()  << endl
-            << "  B[MC,* ] ~ " << B_MC_Star.Height() << " x " 
-                               << B_MC_Star.Width()  << endl
-            << "  B[MR,* ] ~ " << B_MR_Star.Height() << " x "
-                               << B_MR_Star.Width()  << endl
-            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        throw msg.str();
-    }
-    if( A_MC_Star.ColAlignment() != C.ColAlignment() ||
-        A_MR_Star.ColAlignment() != C.RowAlignment() ||
-        B_MC_Star.ColAlignment() != C.ColAlignment() ||
-        B_MR_Star.ColAlignment() != C.RowAlignment()    )
-    {
-        ostringstream msg;
-        msg << "Misaligned Her2kLNUpdate: " << endl
-            << "  A[MC,* ] ~ " << A_MC_Star.ColAlignment() << endl
-            << "  A[MR,* ] ~ " << A_MR_Star.ColAlignment() << endl
-            << "  B[MC,* ] ~ " << B_MC_Star.ColAlignment() << endl
-            << "  B[MR,* ] ~ " << B_MR_Star.ColAlignment() << endl
-            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                  C.RowAlignment() << endl;
-        throw msg.str();
-    }
-#endif
-    const Grid& grid = A_MC_Star.GetGrid();
-
-    // Matrix views 
-    DistMatrix<T,MC,Star> AT_MC_Star(grid),  A0_MC_Star(grid),
-                          AB_MC_Star(grid),  A1_MC_Star(grid),
-                                             A2_MC_Star(grid);
-
-    DistMatrix<T,MR,Star> AT_MR_Star(grid),  A0_MR_Star(grid),
-                          AB_MR_Star(grid),  A1_MR_Star(grid),
-                                             A2_MR_Star(grid);
-    DistMatrix<T,MC,Star> BT_MC_Star(grid),  B0_MC_Star(grid),
-                          BB_MC_Star(grid),  B1_MC_Star(grid),
-                                             B2_MC_Star(grid);
-    DistMatrix<T,MR,Star> BT_MR_Star(grid),  B0_MR_Star(grid),
-                          BB_MR_Star(grid),  B1_MR_Star(grid),
-                                             B2_MR_Star(grid);
-    DistMatrix<T,MC,MR>
-        CTL(grid), CTR(grid),  C00(grid), C01(grid), C02(grid),
-        CBL(grid), CBR(grid),  C10(grid), C11(grid), C12(grid),
-                               C20(grid), C21(grid), C22(grid);
-
-    DistMatrix<T,MC,MR> D11(grid);
-
-    // We want our local gemms to be of width blocksize, and so we will 
-    // temporarily change to c times the current blocksize
-    PushBlocksizeStack( grid.Width()*Blocksize() );
-
-    // Start the algorithm
-    BLAS::Scal( beta, C );
-    LockedPartitionDown( A_MC_Star, AT_MC_Star,
-                                    AB_MC_Star );
-    LockedPartitionDown( A_MR_Star, AT_MR_Star,
-                                    AB_MR_Star );
-    LockedPartitionDown( B_MC_Star, BT_MC_Star,
-                                    BB_MC_Star );
-    LockedPartitionDown( B_MR_Star, BT_MR_Star,
-                                    BB_MR_Star );
-    PartitionDownDiagonal( C, CTL, CTR,
-                              CBL, CBR );
-    while( AB_MC_Star.Height() > 0 )
-    {
-        LockedRepartitionDown( AT_MC_Star,  A0_MC_Star,
-                              /**********/ /**********/
-                                            A1_MC_Star,
-                               AB_MC_Star,  A2_MC_Star );
-
-        LockedRepartitionDown( AT_MR_Star,  A0_MR_Star,
-                              /**********/ /**********/
-                                            A1_MR_Star,
-                               AB_MR_Star,  A2_MR_Star );
-
-        LockedRepartitionDown( BT_MC_Star,  B0_MC_Star,
-                              /**********/ /**********/
-                                            B1_MC_Star,
-                               BB_MC_Star,  B2_MC_Star );
-
-        LockedRepartitionDown( BT_MR_Star,  B0_MR_Star,
-                              /**********/ /**********/
-                                            B1_MR_Star,
-                               BB_MR_Star,  B2_MR_Star );
-
-        RepartitionDownDiagonal( CTL, /**/ CTR,  C00, /**/ C01, C02,
-                                /*************/ /******************/
-                                      /**/       C10, /**/ C11, C12,
-                                 CBL, /**/ CBR,  C20, /**/ C21, C22 );
-
-        D11.AlignWith( C11 );
-        D11.ResizeTo( C11.Height(), C11.Width() );
-        //--------------------------------------------------------------------//
-        BLAS::Gemm( Normal, ConjugateTranspose,
-                    alpha, A1_MC_Star.LockedLocalMatrix(),
-                           B1_MR_Star.LockedLocalMatrix(),
-                    (T)0,  D11.LocalMatrix()              );
-        BLAS::Gemm( Normal, ConjugateTranspose,
-                    alpha, A2_MC_Star.LockedLocalMatrix(),
-                           B1_MR_Star.LockedLocalMatrix(),
-                    (T)1,  C21.LocalMatrix()              );
-
-        BLAS::Gemm( Normal, ConjugateTranspose,
-                    alpha, B2_MC_Star.LockedLocalMatrix(),
-                           A1_MR_Star.LockedLocalMatrix(),
-                    (T)1,  C21.LocalMatrix()              );
-        BLAS::Gemm( Normal, ConjugateTranspose,
-                    alpha, B1_MC_Star.LockedLocalMatrix(),
-                           A1_MR_Star.LockedLocalMatrix(),
-                    (T)1,  D11.LocalMatrix()              );
-        
-        D11.MakeTrapezoidal( Left, Lower );
-        BLAS::Axpy( (T)1, D11, C11 );
-        //--------------------------------------------------------------------//
-        D11.FreeConstraints();
-
-        SlideLockedPartitionDown( AT_MC_Star,  A0_MC_Star,
-                                               A1_MC_Star,
-                                 /**********/ /**********/
-                                  AB_MC_Star,  A2_MC_Star );
-
-        SlideLockedPartitionDown( AT_MR_Star,  A0_MR_Star,
-                                               A1_MR_Star,
-                                 /**********/ /**********/
-                                  AB_MR_Star,  A2_MR_Star );
-
-        SlideLockedPartitionDown( BT_MC_Star,  B0_MC_Star,
-                                               B1_MC_Star,
-                                 /**********/ /**********/
-                                  BB_MC_Star,  B2_MC_Star );
-
-        SlideLockedPartitionDown( BT_MR_Star,  B0_MR_Star,
-                                               B1_MR_Star,
-                                 /**********/ /**********/
-                                  BB_MR_Star,  B2_MR_Star );
-
-        SlidePartitionDownDiagonal( CTL, /**/ CTR,  C00, C01, /**/ C02,
-                                         /**/       C10, C11, /**/ C12,
-                                   /*************/ /******************/
-                                    CBL, /**/ CBR,  C20, C21, /**/ C22 );
-    }
-
-    PopBlocksizeStack();
-
 #ifndef RELEASE
     PopCallStack();
 #endif

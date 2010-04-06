@@ -53,11 +53,12 @@ Elemental::LAPACK::Internal::TrinvUVar3
                                U20(grid), U21(grid), U22(grid);
 
     // Temporary distributions
-    DistMatrix<T,MC,  Star> U01_MC_Star(grid);
+
     DistMatrix<T,VC,  Star> U01_VC_Star(grid);
     DistMatrix<T,Star,Star> U11_Star_Star(grid);
-    DistMatrix<T,Star,MR  > U12_Star_MR(grid);
     DistMatrix<T,Star,VR  > U12_Star_VR(grid);
+    DistMatrix<T,Star,MC  > U01Trans_Star_MC(grid);
+    DistMatrix<T,MR,  Star> U12Trans_MR_Star(grid);
 
     // Start the algorithm
     PartitionUpDiagonal( U, UTL, UTR,
@@ -69,34 +70,40 @@ Elemental::LAPACK::Internal::TrinvUVar3
                               /*************/ /******************/
                                UBL, /**/ UBR,  U20, U21, /**/ U22 );
 
-        U01_MC_Star.AlignWith( U02 );
-        U12_Star_MR.AlignWith( U02 );
+        U01Trans_Star_MC.AlignWith( U02 );
+        U12Trans_MR_Star.AlignWith( U02 );
         //--------------------------------------------------------------------//
         U11_Star_Star = U11;
         LAPACK::Trinv( Upper, diagonal, U11_Star_Star.LocalMatrix() );
         U11 = U11_Star_Star;
 
         U01_VC_Star = U01;
-        BLAS::Trmm( Right, Upper, Normal, diagonal,
-                    (T)-1, U11_Star_Star.LockedLocalMatrix(),
-                           U01_VC_Star.LocalMatrix()         );
+        BLAS::Trmm
+        ( Right, Upper, Normal, diagonal,
+          (T)-1, U11_Star_Star.LockedLocalMatrix(),
+                 U01_VC_Star.LocalMatrix()         );
 
-        U12_Star_MR = U12;
-        U01_MC_Star = U01_VC_Star;
-        BLAS::Gemm( Normal, Normal,
-                    (T)1, U01_MC_Star.LockedLocalMatrix(),
-                          U12_Star_MR.LockedLocalMatrix(),
-                    (T)1, U02.LocalMatrix()               );
-        U01 = U01_MC_Star;
+        // We transpose before the communication to avoid cache-thrashing
+        // in the unpacking stage.
+        U12Trans_MR_Star.TransposeFrom( U12 );
+        U01Trans_Star_MC.TransposeFrom( U01_VC_Star );
 
-        U12_Star_VR = U12_Star_MR;
-        BLAS::Trmm( Left, Upper, Normal, diagonal,
-                    (T)1, U11_Star_Star.LockedLocalMatrix(),
-                          U12_Star_VR.LocalMatrix()         );
+        BLAS::Gemm
+        ( Transpose, Transpose,
+          (T)1, U01Trans_Star_MC.LockedLocalMatrix(),
+                U12Trans_MR_Star.LockedLocalMatrix(),
+          (T)1, U02.LocalMatrix()                    );
+        U01.TransposeFrom( U01Trans_Star_MC );
+
+        U12_Star_VR.TransposeFrom( U12Trans_MR_Star );
+        BLAS::Trmm
+        ( Left, Upper, Normal, diagonal,
+          (T)1, U11_Star_Star.LockedLocalMatrix(),
+                U12_Star_VR.LocalMatrix()         );
         U12 = U12_Star_VR;
         //--------------------------------------------------------------------//
-        U01_MC_Star.FreeConstraints();
-        U12_Star_MR.FreeConstraints();
+        U01Trans_Star_MC.FreeConstraints();
+        U12Trans_MR_Star.FreeConstraints();
 
         SlidePartitionUpDiagonal( UTL, /**/ UTR,  U00, /**/ U01, U02,
                                  /*************/ /******************/

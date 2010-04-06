@@ -46,7 +46,8 @@ Elemental::BLAS::Internal::GemvT
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x ~ " << x.Height() << " x " << x.Width() << endl
             << "  y ~ " << y.Height() << " x " << y.Width() << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     const Grid& grid = A.GetGrid();

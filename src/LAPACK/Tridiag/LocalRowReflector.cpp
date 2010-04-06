@@ -64,7 +64,7 @@ Elemental::LAPACK::Internal::LocalRowReflector
 
     R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
     int count = 0;
-    if( BLAS::Abs( beta ) < safeMin )
+    if( Abs( beta ) < safeMin )
     {
         R invOfSafeMin = static_cast<R>(1) / safeMin;
         do
@@ -73,7 +73,7 @@ Elemental::LAPACK::Internal::LocalRowReflector
             BLAS::Scal( invOfSafeMin, x2 );
             alpha *= invOfSafeMin;
             beta *= invOfSafeMin;
-        } while( BLAS::Abs( beta ) < safeMin );
+        } while( Abs( beta ) < safeMin );
 
         localNorm = BLAS::Nrm2( x2.LockedLocalMatrix() );
         AllGather( &localNorm, 1, localNorms, 1, grid.MRComm() );

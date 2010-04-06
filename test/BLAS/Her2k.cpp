@@ -127,7 +127,8 @@ void TestCorrectness( const Shape shape, const Orientation orientation,
                     ostringstream msg;
                     msg << "FAILED at index (" << i << "," << j << "): truth="
                         << truth << ", computed=" << computed;
-                    throw msg.str();
+                    const string s = msg.str();
+                    throw s.c_str();
                 }
             }
         }
@@ -146,7 +147,8 @@ void TestCorrectness( const Shape shape, const Orientation orientation,
                     ostringstream msg;
                     msg << "FAILED at index (" << i << "," << j << "): truth="
                         << truth << ", computed=" << computed;
-                    throw msg.str();
+                    const string s = msg.str();
+                    throw s.c_str();
                 }
             }
         }

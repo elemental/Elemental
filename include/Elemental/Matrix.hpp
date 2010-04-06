@@ -164,7 +164,8 @@ Elemental::Matrix<T>::Matrix
         std::ostringstream msg;
         msg << "Initialized with ldim(" << ldim << ") < "
             << "height(" << height << ")." << std::endl;
-        throw msg.str();
+        const std::string s = msg.str();
+        throw s.c_str();
     }
     if( ldim == 0 )
         throw "Leading dimensions cannot be zero (for BLAS compat.).";
@@ -214,7 +215,8 @@ Elemental::Matrix<T>::operator()
         msg << "Out of bounds: "
             << "(" << i << "," << j << ") of " << Height() 
             << " x " << Width() << " Matrix." << std::endl;
-        throw msg.str();
+        const std::string s = msg.str();
+        throw s.c_str();
     }
     PopCallStack();
 #endif
@@ -236,7 +238,8 @@ Elemental::Matrix<T>::operator()
         msg << "Out of bounds: "
             << "(" << i << "," << j << ") of " << Height()
             << " x " << Width() << " Matrix." << std::endl;
-        throw msg.str();
+        const std::string s = msg.str();
+        throw s.c_str();
     }
     PopCallStack();
 #endif

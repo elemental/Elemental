@@ -59,7 +59,7 @@ Elemental::LAPACK::Internal::Reflector
 
     R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
     int count = 0;
-    if( BLAS::Abs( beta ) < safeMin )
+    if( Abs( beta ) < safeMin )
     {
         R invOfSafeMin = static_cast<R>(1) / safeMin;
         do
@@ -68,7 +68,7 @@ Elemental::LAPACK::Internal::Reflector
             BLAS::Scal( invOfSafeMin, x2 );
             alpha *= invOfSafeMin;
             beta *= invOfSafeMin;
-        } while( BLAS::Abs( beta ) < safeMin );
+        } while( Abs( beta ) < safeMin );
 
         x2_Norm = BLAS::Nrm2( x2 );
         if( alpha <= 0 )

@@ -44,7 +44,8 @@ BLAS::Her2
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x ~ " << x.Height() << " x " << x.Width() << endl
             << "  y ~ " << y.Height() << " x " << y.Width() << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -84,9 +85,9 @@ BLAS::Her2
                 {
                     A.LocalEntry(iLoc,jLoc) += alpha *
                         (             x_MC_Star.LocalEntry(iLoc,0)   *
-                          BLAS::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
+                          Elemental::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
                                       y_MC_Star.LocalEntry(iLoc,0)   *
-                          BLAS::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
+                          Elemental::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
                 }
             }
         }
@@ -100,9 +101,9 @@ BLAS::Her2
                 {
                     A.LocalEntry(iLoc,jLoc) += alpha *
                         ( x_MC_Star.LocalEntry(iLoc,0) *
-                          BLAS::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
+                          Elemental::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
                           y_MC_Star.LocalEntry(iLoc,0) *
-                          BLAS::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
+                          Elemental::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
                 }
             }
         }
@@ -140,9 +141,9 @@ BLAS::Her2
                 {
                     A.LocalEntry(iLoc,jLoc) += alpha *
                         (             x_MC_Star.LocalEntry(iLoc,0)   *
-                          BLAS::Conj( y_Star_MR.LocalEntry(0,jLoc) ) +
+                          Elemental::Conj( y_Star_MR.LocalEntry(0,jLoc) ) +
                                       y_Star_MC.LocalEntry(0,iLoc)   *
-                          BLAS::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
+                          Elemental::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
                 }
             }
         }
@@ -156,9 +157,9 @@ BLAS::Her2
                 {
                     A.LocalEntry(iLoc,jLoc) += alpha *
                         (             x_MC_Star.LocalEntry(iLoc,0)   *
-                          BLAS::Conj( y_Star_MR.LocalEntry(0,jLoc) ) +
+                          Elemental::Conj( y_Star_MR.LocalEntry(0,jLoc) ) +
                                       y_Star_MC.LocalEntry(0,iLoc)   *
-                          BLAS::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
+                          Elemental::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
                 }
             }
         }
@@ -197,9 +198,9 @@ BLAS::Her2
                 {
                     A.LocalEntry(iLoc,jLoc) += alpha *
                         (             x_Star_MC.LocalEntry(0,iLoc)   *
-                          BLAS::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
+                          Elemental::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
                                       y_MC_Star.LocalEntry(iLoc,0)   *
-                          BLAS::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
+                          Elemental::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
                 }
             }
         }
@@ -213,9 +214,9 @@ BLAS::Her2
                 {
                     A.LocalEntry(iLoc,jLoc) += alpha *
                         (             x_Star_MC.LocalEntry(0,iLoc)   *
-                          BLAS::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
+                          Elemental::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
                                       y_MC_Star.LocalEntry(iLoc,0)   *
-                          BLAS::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
+                          Elemental::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
                 }
             }
         }
@@ -253,9 +254,9 @@ BLAS::Her2
                 {
                     A.LocalEntry(iLoc,jLoc) += alpha *
                         (             x_Star_MC.LocalEntry(0,iLoc)   *
-                          BLAS::Conj( y_Star_MR.LocalEntry(0,jLoc) ) + 
+                          Elemental::Conj( y_Star_MR.LocalEntry(0,jLoc) ) + 
                                       y_Star_MC.LocalEntry(0,iLoc)   *
-                          BLAS::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
+                          Elemental::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
                 }
             }
         }
@@ -269,9 +270,9 @@ BLAS::Her2
                 {
                     A.LocalEntry(iLoc,jLoc) += alpha *
                         (             x_Star_MC.LocalEntry(0,iLoc)   *
-                          BLAS::Conj( y_Star_MR.LocalEntry(0,jLoc) ) +
+                          Elemental::Conj( y_Star_MR.LocalEntry(0,jLoc) ) +
                                       y_Star_MC.LocalEntry(0,iLoc)   *
-                          BLAS::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
+                          Elemental::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
                 }
             }
         }

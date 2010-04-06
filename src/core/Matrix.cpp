@@ -88,7 +88,8 @@ Elemental::Matrix<T>::ResizeTo
         ostringstream msg;
         msg << "Tried to set ldim(" << ldim << ") < height (" << height << ")"
             << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     _height = height;
@@ -162,7 +163,8 @@ Elemental::Matrix<T>::View
         msg << "Trying to view outside of a Matrix: " 
             << "up to (" << i+height-1 << "," << j+width-1 << ") "
             << "of " << A.Height() << " x " << A.Width() << " Matrix." << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     _height     = height;
@@ -196,7 +198,8 @@ Elemental::Matrix<T>::LockedView
         msg << "Trying to view outside of a Matrix: " 
             << "up to (" << i+height-1 << "," << j+width-1 << ") "
             << "of " << A.Height() << " x " << A.Width() << " Matrix." << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     _height     = height;

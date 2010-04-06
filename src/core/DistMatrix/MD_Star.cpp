@@ -673,7 +673,8 @@ Elemental::DistMatrix<T,MD,Star>::Get
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     // We will determine the owner of entry (i,j) and broadcast from it
@@ -715,7 +716,8 @@ Elemental::DistMatrix<T,MD,Star>::Set
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     int ownerRank;

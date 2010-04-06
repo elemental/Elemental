@@ -29,60 +29,6 @@ namespace Elemental
     namespace BLAS 
     {
         //--------------------------------------------------------------------//
-        // Local BLAS: Level 0 (extensions)                                   //
-        //--------------------------------------------------------------------//
-
-        template<typename R>
-        R
-        Abs( const R& alpha );
-
-#ifndef WITHOUT_COMPLEX
-        template<typename R>
-        R 
-        Abs( const std::complex<R>& alpha );
-#endif
-
-        template<typename R>
-        R
-        FastAbs( const R& alpha );
-
-#ifndef WITHOUT_COMPLEX
-        template<typename R>
-        R
-        FastAbs( const std::complex<R>& alpha );
-#endif
-        
-        template<typename R>
-        R 
-        Conj( const R& alpha );
-
-#ifndef WITHOUT_COMPLEX
-        template<typename R>
-        std::complex<R>
-        Conj( const std::complex<R>& alpha );
-#endif
-
-        template<typename R>
-        R
-        Imag( const R& alpha );
-
-#ifndef WITHOUT_COMPLEX
-        template<typename R>
-        R
-        Imag( const std::complex<R>& alpha );
-#endif
-
-        template<typename R>
-        R
-        Real( const R& alpha );
-
-#ifndef WITHOUT_COMPLEX
-        template<typename R>
-        R
-        Real( const std::complex<R>& alpha );
-#endif
-
-        //--------------------------------------------------------------------//
         // Local BLAS: Level 1                                                //
         //--------------------------------------------------------------------//
 
@@ -652,80 +598,6 @@ namespace Elemental
 /*----------------------------------------------------------------------------*/
 
 //----------------------------------------------------------------------------//
-// Local BLAS: Level 0 (extensions)                                           //
-//----------------------------------------------------------------------------//
-
-template<typename R>
-inline R
-Elemental::BLAS::Abs
-( const R& alpha )
-{ return fabs(alpha); }
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-inline R
-Elemental::BLAS::Abs
-( const std::complex<R>& alpha )
-{ return std::abs( alpha ); }
-#endif
-
-template<typename R>
-inline R
-Elemental::BLAS::FastAbs
-( const R& alpha )
-{ return fabs(alpha); }
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-inline R
-Elemental::BLAS::FastAbs
-( const std::complex<R>& alpha )
-{ return fabs( std::real(alpha) ) + fabs( std::imag(alpha) ); }
-#endif
-
-template<typename R>
-inline R
-Elemental::BLAS::Conj
-( const R& alpha )
-{ return alpha; }
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-inline std::complex<R>
-Elemental::BLAS::Conj
-( const std::complex<R>& alpha )
-{ return std::conj( alpha ); }
-#endif
-
-template<typename R>
-inline R
-Elemental::BLAS::Imag
-( const R& alpha )
-{ return 0; }
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-inline R
-Elemental::BLAS::Imag
-( const std::complex<R>& alpha )
-{ return std::imag( alpha ); }
-#endif
-
-template<typename R>
-inline R
-Elemental::BLAS::Real
-( const R& alpha )
-{ return alpha; }
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-inline R
-Elemental::BLAS::Real
-( const std::complex<R>& alpha )
-{ return std::real( alpha ); }
-#endif
-
-//----------------------------------------------------------------------------//
 // Local BLAS: Level 1                                                        //
 //----------------------------------------------------------------------------//
 
@@ -1073,7 +945,7 @@ Elemental::BLAS::Conj
     const int n = A.Width();
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            A(i,j) = BLAS::Conj( A(i,j) );
+            A(i,j) = Conj( A(i,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1093,7 +965,7 @@ Elemental::BLAS::Conj
     B.ResizeTo( m, n );
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            B(i,j) = BLAS::Conj( A(i,j) );
+            B(i,j) = Conj( A(i,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1112,7 +984,7 @@ Elemental::BLAS::ConjTrans
     B.ResizeTo( n, m );
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            B(j,i) = BLAS::Conj( A(i,j) );
+            B(j,i) = Conj( A(i,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1166,7 +1038,8 @@ Elemental::BLAS::Gemv
                 << "  A ~ " << A.Height() << " x " << A.Width() << std::endl
                 << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
                 << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
-            throw msg.str();
+            const std::string s = msg.str();
+            throw s.c_str();
         }
     }
     else
@@ -1178,7 +1051,8 @@ Elemental::BLAS::Gemv
                 << "  A ~ " << A.Height() << " x " << A.Width() << std::endl
                 << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
                 << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
-            throw msg.str();
+            const std::string s = msg.str();
+            throw s.c_str();
         }
     }
 #endif
@@ -1225,7 +1099,8 @@ Elemental::BLAS::Ger
             << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
             << "  y ~ " << y.Height() << " x " << y.Width() << std::endl
             << "  A ~ " << A.Height() << " x " << A.Width() << std::endl;
-        throw msg.str();
+        const std::string s = msg.str();
+        throw s.c_str();
     }
 #endif
     const int m = A.Height(); 

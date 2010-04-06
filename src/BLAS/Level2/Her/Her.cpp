@@ -41,7 +41,8 @@ BLAS::Her
         msg << "A must conform with x: " << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x ~ " << x.Height() << " x " << x.Width() << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -74,8 +75,8 @@ BLAS::Her
                 for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                 {
                     A.LocalEntry(iLoc,jLoc) += 
-                        alpha * Conj(x_MC_Star.LocalEntry(iLoc,0))
-                              * x_MR_Star.LocalEntry(jLoc,0);
+                        alpha * Elemental::Conj( x_MC_Star.LocalEntry(iLoc,0) )
+                              *                  x_MR_Star.LocalEntry(jLoc,0);
                 }
             }
         }
@@ -88,8 +89,8 @@ BLAS::Her
                 for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
                 {
                     A.LocalEntry(iLoc,jLoc) += 
-                        alpha * Conj(x_MC_Star.LocalEntry(iLoc,0))
-                              * x_MR_Star.LocalEntry(jLoc,0);
+                        alpha * Elemental::Conj(x_MC_Star.LocalEntry(iLoc,0))
+                              *                 x_MR_Star.LocalEntry(jLoc,0);
                 }
             }
         }
@@ -118,8 +119,8 @@ BLAS::Her
                 for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                 {
                     A.LocalEntry(iLoc,jLoc) += 
-                        alpha * Conj(x_Star_MC.LocalEntry(0,iLoc))
-                              * x_Star_MR.LocalEntry(0,jLoc);
+                        alpha * Elemental::Conj(x_Star_MC.LocalEntry(0,iLoc))
+                              *                 x_Star_MR.LocalEntry(0,jLoc);
                 }
             }
         }
@@ -132,8 +133,8 @@ BLAS::Her
                 for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
                 {
                     A.LocalEntry(iLoc,jLoc) += 
-                        alpha * Conj(x_Star_MC.LocalEntry(0,iLoc))
-                              * x_Star_MR.LocalEntry(0,jLoc);
+                        alpha * Elemental::Conj(x_Star_MC.LocalEntry(0,iLoc))
+                              *                 x_Star_MR.LocalEntry(0,jLoc);
                 }
             }
         }

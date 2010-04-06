@@ -233,6 +233,11 @@ namespace Elemental
         void LockedView2x2
         ( const DistMatrix<T,Star,VR>& ATL, const DistMatrix<T,Star,VR>& ATR,
           const DistMatrix<T,Star,VR>& ABL, const DistMatrix<T,Star,VR>& ABR );
+
+        // Auxiliary routines needed to implement algorithms that avoid using
+        // inefficient unpackings of partial matrix distributions
+        void ConjugateTransposeFrom( const DistMatrix<T,MR,Star>& A );
+        void TransposeFrom( const DistMatrix<T,MR,Star>& A );
  
         // Bury communication behind '=' operator
         const DistMatrix<T,Star,VR>&

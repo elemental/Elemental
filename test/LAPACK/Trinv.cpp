@@ -102,7 +102,8 @@ void TestCorrectness( const Shape shape, const Diagonal diagonal,
                     ostringstream msg;
                     msg << "FAILED at index (" << i << "," << j << "): truth=" 
                          << truth << ", computed=" << computed;
-                    throw msg.str();
+                    const string s = msg.str();
+                    throw s.c_str();
                 }
             }
         }
@@ -121,7 +122,8 @@ void TestCorrectness( const Shape shape, const Diagonal diagonal,
                     ostringstream msg;
                     msg << "FAILED at index (" << i << "," << j << "): truth=" 
                          << truth << ", computed=" << computed;
-                    throw msg.str();
+                    const string s = msg.str();
+                    throw s.c_str();
                 }
             }
         }

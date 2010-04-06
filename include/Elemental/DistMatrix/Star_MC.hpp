@@ -241,6 +241,11 @@ namespace Elemental
         // AllReduce over process row
         void AllReduce();
 
+        // Routines needed to implement algorithms that avoid using
+        // inefficient unpackings of partial matrix distributions
+        void ConjugateTransposeFrom( const DistMatrix<T,VC,Star>& A );
+        void TransposeFrom( const DistMatrix<T,VC,Star>& A );
+
         // Bury communication behind '=' operator
         const DistMatrix<T,Star,MC>&
         operator=( const DistMatrix<T,MC,MR>& A );

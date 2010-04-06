@@ -102,31 +102,34 @@ Elemental::LAPACK::Internal::CholUVar2
 
         A01_MC_Star.ConformWith( A01 );
         X11_Star_MR.AlignWith( A01 );
-        X11_Star_MR.ResizeTo( A11.Height(), A11.Width() );
         X12_Star_MR.AlignWith( A02 );
+        X11_Star_MR.ResizeTo( A11.Height(), A11.Width() );
         X12_Star_MR.ResizeTo( A12.Height(), A12.Width() );
         //--------------------------------------------------------------------//
         A01_MC_Star = A01;
-        BLAS::Gemm( ConjugateTranspose, Normal, 
-                    (T)1, A01_MC_Star.LockedLocalMatrix(),
-                          A01.LockedLocalMatrix(),
-                    (T)0, X11_Star_MR.LocalMatrix()       );
+        BLAS::Gemm
+        ( ConjugateTranspose, Normal, 
+          (T)1, A01_MC_Star.LockedLocalMatrix(),
+                A01.LockedLocalMatrix(),
+          (T)0, X11_Star_MR.LocalMatrix()       );
         A11.ReduceScatterUpdate( (T)-1, X11_Star_MR );
 
         A11_Star_Star = A11;
         LAPACK::Chol( Upper, A11_Star_Star.LocalMatrix() );
         A11 = A11_Star_Star;
 
-        BLAS::Gemm( ConjugateTranspose, Normal, 
-                    (T)1, A01_MC_Star.LockedLocalMatrix(), 
-                          A02.LockedLocalMatrix(), 
-                    (T)0, X12_Star_MR.LocalMatrix()       );
+        BLAS::Gemm
+        ( ConjugateTranspose, Normal, 
+          (T)1, A01_MC_Star.LockedLocalMatrix(), 
+                A02.LockedLocalMatrix(), 
+          (T)0, X12_Star_MR.LocalMatrix()       );
         A12.ReduceScatterUpdate( (T)-1, X12_Star_MR );
 
         A12_Star_VR = A12;
-        BLAS::Trsm( Left, Upper, ConjugateTranspose, NonUnit,
-                    (T)1, A11_Star_Star.LockedLocalMatrix(), 
-                          A12_Star_VR.LocalMatrix()         );
+        BLAS::Trsm
+        ( Left, Upper, ConjugateTranspose, NonUnit,
+          (T)1, A11_Star_Star.LockedLocalMatrix(), 
+                A12_Star_VR.LocalMatrix()          );
         A12 = A12_Star_VR;
         //--------------------------------------------------------------------//
         A01_MC_Star.FreeConstraints();
@@ -188,7 +191,6 @@ LAPACK::Internal::CholUVar3
 
     // Temporary matrix distributions
     DistMatrix<T,Star,Star> A11_Star_Star(grid);
-    DistMatrix<T,Star,VC  > A12_Star_VC(grid);
     DistMatrix<T,Star,VR  > A12_Star_VR(grid);
     DistMatrix<T,Star,MC  > A12_Star_MC(grid);
     DistMatrix<T,Star,MR  > A12_Star_MR(grid);
@@ -218,8 +220,8 @@ LAPACK::Internal::CholUVar3
 
         A12_Star_MC = A12_Star_VR;
         A12_Star_MR = A12_Star_VR;
-        BLAS::Internal::HerkUCUpdate
-        ( (T)-1, A12_Star_MC, A12_Star_MR, (T)1, A22 );
+        BLAS::Internal::TriangularRankK
+        ( Upper, (T)-1, A12_Star_MC, A12_Star_MR, (T)1, A22 );
         A12 = A12_Star_MR;
         //--------------------------------------------------------------------//
         A12_Star_MC.FreeConstraints();

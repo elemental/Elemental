@@ -77,22 +77,25 @@ Elemental::LAPACK::Internal::TrinvLVar3
         L11 = L11_Star_Star;
 
         L10_Star_VR = L10;
-        BLAS::Trmm( Left, Lower, Normal, diagonal,
-                    (T)-1, L11_Star_Star.LockedLocalMatrix(),
-                           L10_Star_VR.LocalMatrix()         );
+        BLAS::Trmm
+        ( Left, Lower, Normal, diagonal,
+          (T)-1, L11_Star_Star.LockedLocalMatrix(),
+                 L10_Star_VR.LocalMatrix()         );
 
         L21_MC_Star = L21;
         L10_Star_MR = L10_Star_VR;
-        BLAS::Gemm( Normal, Normal,
-                    (T)1, L21_MC_Star.LockedLocalMatrix(),
-                          L10_Star_MR.LockedLocalMatrix(),
-                    (T)1, L20.LocalMatrix()               );
+        BLAS::Gemm
+        ( Normal, Normal,
+          (T)1, L21_MC_Star.LockedLocalMatrix(),
+                L10_Star_MR.LockedLocalMatrix(),
+          (T)1, L20.LocalMatrix()               );
         L10 = L10_Star_MR;
 
         L21_VC_Star = L21_MC_Star;
-        BLAS::Trmm( Right, Lower, Normal, diagonal,
-                    (T)1, L11_Star_Star.LockedLocalMatrix(),
-                          L21_VC_Star.LocalMatrix()         );
+        BLAS::Trmm
+        ( Right, Lower, Normal, diagonal,
+          (T)1, L11_Star_Star.LockedLocalMatrix(),
+                L21_VC_Star.LocalMatrix()         );
         L21 = L21_VC_Star;
         //--------------------------------------------------------------------//
         L10_Star_MR.FreeConstraints();

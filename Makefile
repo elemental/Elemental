@@ -103,11 +103,13 @@ blasfiles = Level1/Dot/Dot.cpp \
             Level3/Syr2k/Syr2kLT.cpp \
             Level3/Syr2k/Syr2kUN.cpp \
             Level3/Syr2k/Syr2kUT.cpp \
+            Level3/Syr2k/TriangularRank2K.cpp \
             Level3/Syrk/Syrk.cpp \
             Level3/Syrk/SyrkLN.cpp \
             Level3/Syrk/SyrkLT.cpp \
             Level3/Syrk/SyrkUN.cpp \
             Level3/Syrk/SyrkUT.cpp \
+            Level3/Syrk/TriangularRankK.cpp \
             Level3/Trmm/Trmm.cpp \
             Level3/Trmm/TrmmLLN.cpp \
             Level3/Trmm/TrmmLLT.cpp \

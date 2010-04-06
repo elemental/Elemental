@@ -609,7 +609,8 @@ Elemental::DistMatrix<T,Star,VR>::Get
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
@@ -642,7 +643,8 @@ Elemental::DistMatrix<T,Star,VR>::Set
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     const int ownerRank = (j + RowAlignment()) % _grid->Size();
@@ -788,6 +790,201 @@ Elemental::DistMatrix<T,Star,VR>::SetToZero()
     CHECK_IF_LOCKED_VIEW;
 #endif
     _localMatrix.SetToZero();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+Elemental::DistMatrix<T,Star,VR>::ConjugateTransposeFrom
+( const DistMatrix<T,MR,Star>& A )
+{ 
+#ifndef RELEASE
+    PushCallStack("DistMatrix[*, VR]::ConjugateTransposeFrom");
+    CHECK_IF_LOCKED_VIEW;
+    CHECK_IF_REDIST_DIFF_GRID( A );
+    if( _viewing && ( Height() != A.Width() || Width() != A.Height() ) )
+        throw "Cannot resize views.";
+#endif
+    if( !_viewing )
+    {
+        if( ! ConstrainedRowDist() )
+        {
+            _rowAlignment = A.ColAlignment();
+            _rowShift = Shift
+                        ( _grid->VRRank(), _rowAlignment, _grid->Size() );
+        }
+        ResizeTo( A.Width(), A.Height() );
+    }
+
+    if( RowAlignment() % _grid->Width() == A.ColAlignment() )
+    {
+        const int r = _grid->Height();
+        const int c = _grid->Width();
+        const int rowShift = RowShift();
+        const int colShiftOfA = A.ColShift();
+        const int rowOffset = (rowShift-colShiftOfA) / c;
+
+        const int height = Height();
+        const int localWidth = LocalWidth();
+
+        for( int j=0; j<localWidth; ++j )
+            for( int i=0; i<height; ++i )
+                _localMatrix(i,j) = Conj( A.LocalEntry(rowOffset+j*r,i ) );
+    }
+    else
+    {
+#ifndef RELEASE
+        if( _grid->VCRank() == 0 )
+            cout << "Unaligned [* ,VR]::ConjugateTransposeFrom" << endl;
+#endif
+        const int r = _grid->Height();
+        const int c = _grid->Width();
+        const int p = _grid->Size();
+        const int row = _grid->MCRank();
+        const int col = _grid->MRRank();
+        const int colShiftOfA = A.ColShift();
+        const int rowAlignment = RowAlignment();
+        const int colAlignmentOfA = A.ColAlignment();
+
+        // We will SendRecv A[*,VR] within our process row to fix alignments.
+        const int sendCol = (col+c+(rowAlignment%c)-colAlignmentOfA) % c;
+        const int recvCol = (col+c+colAlignmentOfA-(rowAlignment%c)) % c;
+        const int sendRank = sendCol + c*row;
+
+        const int sendRowShift = Shift( sendRank, rowAlignment, p );
+        const int sendRowOffset = (sendRowShift-colShiftOfA) / c;
+
+        const int height = Height();
+        const int width = Width();
+        const int localWidth = LocalWidth();
+        const int localWidthOfSend = LocalLength(width,sendRowShift,p);
+
+        const int sendSize = height * localWidthOfSend;
+        const int recvSize = height * localWidth;
+
+        _auxMemory.Require( sendSize + recvSize );
+
+        T* buffer = _auxMemory.Buffer();
+        T* sendBuffer = &buffer[0];
+        T* recvBuffer = &buffer[sendSize];
+
+        // Pack
+        for( int j=0; j<localWidthOfSend; ++j )
+            for( int i=0; i<height; ++i )
+                sendBuffer[i+j*height] = 
+                    Conj( A.LocalEntry(sendRowOffset+j*r,i) );
+
+        // Communicate
+        SendRecv
+        ( sendBuffer, sendSize, sendCol, 0,
+          recvBuffer, recvSize, recvCol, MPI_ANY_TAG, _grid->MRComm() );
+
+        // Unpack
+        for( int j=0; j<localWidth; ++j )
+            for( int i=0; i<height; ++i )
+                _localMatrix(i,j) = recvBuffer[i+j*height];
+
+        _auxMemory.Release();
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+Elemental::DistMatrix<T,Star,VR>::TransposeFrom
+( const DistMatrix<T,MR,Star>& A )
+{ 
+#ifndef RELEASE
+    PushCallStack("DistMatrix[* ,VR]::TransposeFrom");
+    CHECK_IF_LOCKED_VIEW;
+    CHECK_IF_REDIST_DIFF_GRID( A );
+    if( _viewing && ( Height() != A.Width() || Width() != A.Height() ) )
+        throw "Cannot resize views.";
+#endif
+    if( !_viewing )
+    {
+        if( ! ConstrainedRowDist() )
+        {
+            _rowAlignment = A.ColAlignment();
+            _rowShift = Shift
+                        ( _grid->VRRank(), _rowAlignment, _grid->Size() );
+        }
+        ResizeTo( A.Width(), A.Height() );
+    }
+
+    if( RowAlignment() % _grid->Width() == A.ColAlignment() )
+    {
+        const int r = _grid->Height();
+        const int c = _grid->Width();
+        const int rowShift = RowShift();
+        const int colShiftOfA = A.ColShift();
+        const int rowOffset = (rowShift-colShiftOfA) / c;
+
+        const int height = Height();
+        const int localWidth = LocalWidth();
+
+        for( int j=0; j<localWidth; ++j )
+            for( int i=0; i<height; ++i )
+                _localMatrix(i,j) = A.LocalEntry(rowOffset+j*r,i);
+    }
+    else
+    {
+#ifndef RELEASE
+        if( _grid->VCRank() == 0 )
+            cout << "Unaligned [* ,VR]::TransposeFrom" << endl;
+#endif
+        const int r = _grid->Height();
+        const int c = _grid->Width();
+        const int p = _grid->Size();
+        const int row = _grid->MCRank();
+        const int col = _grid->MRRank();
+        const int colShiftOfA = A.ColShift();
+        const int rowAlignment = RowAlignment();
+        const int colAlignmentOfA = A.ColAlignment();
+
+        // We will SendRecv A[*,VR] within our process row to fix alignments.
+        const int sendCol = (col+c+(rowAlignment%c)-colAlignmentOfA) % c;
+        const int recvCol = (col+c+colAlignmentOfA-(rowAlignment%c)) % c;
+        const int sendRank = sendCol + c*row;
+
+        const int sendRowShift = Shift( sendRank, rowAlignment, p );
+        const int sendRowOffset = (sendRowShift-colShiftOfA) / c;
+
+        const int height = Height();
+        const int width = Width();
+        const int localWidth = LocalWidth();
+        const int localWidthOfSend = LocalLength(width,sendRowShift,p);
+
+        const int sendSize = height * localWidthOfSend;
+        const int recvSize = height * localWidth;
+
+        _auxMemory.Require( sendSize + recvSize );
+
+        T* buffer = _auxMemory.Buffer();
+        T* sendBuffer = &buffer[0];
+        T* recvBuffer = &buffer[sendSize];
+
+        // Pack
+        for( int j=0; j<localWidthOfSend; ++j )
+            for( int i=0; i<height; ++i )
+                sendBuffer[i+j*height] = A.LocalEntry(sendRowOffset+j*r,i);
+
+        // Communicate
+        SendRecv
+        ( sendBuffer, sendSize, sendCol, 0,
+          recvBuffer, recvSize, recvCol, MPI_ANY_TAG, _grid->MRComm() );
+
+        // Unpack
+        for( int j=0; j<localWidth; ++j )
+            for( int i=0; i<height; ++i )
+                _localMatrix(i,j) = recvBuffer[i+j*height];
+
+        _auxMemory.Release();
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -53,7 +53,129 @@ namespace Elemental
 
     void PushBlocksizeStack( int blocksize );
     void PopBlocksizeStack();
+
+    template<typename R>
+    R
+    Abs( const R& alpha );
+
+#ifndef WITHOUT_COMPLEX
+    template<typename R>
+    R
+    Abs( const std::complex<R>& alpha );
+#endif
+
+    template<typename R>
+    R
+    FastAbs( const R& alpha );
+
+#ifndef WITHOUT_COMPLEX
+    template<typename R>
+    R
+    FastAbs( const std::complex<R>& alpha );
+#endif
+
+    template<typename R>
+    R
+    Conj( const R& alpha );
+
+#ifndef WITHOUT_COMPLEX
+    template<typename R>
+    std::complex<R>
+    Conj( const std::complex<R>& alpha );
+#endif
+
+    template<typename R>
+    R
+    Imag( const R& alpha );
+
+#ifndef WITHOUT_COMPLEX
+    template<typename R>
+    R
+    Imag( const std::complex<R>& alpha );
+#endif
+
+    template<typename R>
+    R
+    Real( const R& alpha );
+
+#ifndef WITHOUT_COMPLEX
+    template<typename R>
+    R
+    Real( const std::complex<R>& alpha );
+#endif
 }
+
+/*----------------------------------------------------------------------------*/
+
+template<typename R>
+inline R
+Elemental::Abs
+( const R& alpha )
+{ return fabs(alpha); }
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline R
+Elemental::Abs
+( const std::complex<R>& alpha )
+{ return std::abs( alpha ); }
+#endif
+
+template<typename R>
+inline R
+Elemental::FastAbs
+( const R& alpha )
+{ return fabs(alpha); }
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline R
+Elemental::FastAbs
+( const std::complex<R>& alpha )
+{ return fabs( std::real(alpha) ) + fabs( std::imag(alpha) ); }
+#endif
+
+template<typename R>
+inline R
+Elemental::Conj
+( const R& alpha )
+{ return alpha; }
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline std::complex<R>
+Elemental::Conj
+( const std::complex<R>& alpha )
+{ return std::conj( alpha ); }
+#endif
+
+template<typename R>
+inline R
+Elemental::Imag
+( const R& alpha )
+{ return 0; }
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline R
+Elemental::Imag
+( const std::complex<R>& alpha )
+{ return std::imag( alpha ); }
+#endif
+
+template<typename R>
+inline R
+Elemental::Real
+( const R& alpha )
+{ return alpha; }
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline R
+Elemental::Real
+( const std::complex<R>& alpha )
+{ return std::real( alpha ); }
+#endif
 
 #endif /* ELEMENTAL_ENVIRONMENT_HPP */
 

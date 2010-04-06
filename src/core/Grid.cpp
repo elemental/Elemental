@@ -90,7 +90,8 @@ Elemental::Grid::Init
         ostringstream msg;
         msg << "Number of processes must match grid size:" << endl
             << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
     _r = r;
     _c = c;

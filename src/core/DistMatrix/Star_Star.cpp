@@ -330,7 +330,8 @@ Elemental::DistMatrix<T,Star,Star>::Get
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     T u = _localMatrix(i,j);
@@ -352,7 +353,8 @@ Elemental::DistMatrix<T,Star,Star>::Set
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     _localMatrix(i,j) = u;

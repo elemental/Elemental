@@ -126,7 +126,8 @@ void TestCorrectness( const Side side,               const Shape shape,
                 ostringstream msg;
                 msg << "FAILED at index (" << i << "," << j << "): truth="
                      << truth << ", computed=" << computed;
-                throw msg.str();
+                const string s = msg.str();
+                throw s.c_str();
             }
         }
     }

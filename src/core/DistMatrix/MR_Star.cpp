@@ -651,7 +651,8 @@ Elemental::DistMatrix<T,MR,Star>::Get
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
@@ -684,7 +685,8 @@ Elemental::DistMatrix<T,MR,Star>::Set
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     const int ownerCol = (i + ColAlignment()) % _grid->Width();
@@ -887,6 +889,276 @@ Elemental::DistMatrix<T,MR,Star>::AllReduce()
 
     _auxMemory.Release();
 
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+Elemental::DistMatrix<T,MR,Star>::ConjugateTransposeFrom
+( const DistMatrix<T,MC,MR>& A )
+{ 
+#ifndef RELEASE
+    PushCallStack("DistMatrix[MR,* ]::ConjugateTransposeFrom");
+    CHECK_IF_LOCKED_VIEW;
+    CHECK_IF_REDIST_DIFF_GRID( A );
+    if( _viewing && ( Height() != A.Width() || Width() != A.Height() ) )
+        throw "Cannot resize views.";
+#endif
+    if( !_viewing )
+    {
+        if( ! ConstrainedColDist() )
+        {
+            _colAlignment = A.RowAlignment();
+            _colShift = Shift
+                        ( _grid->MRRank(), _colAlignment, _grid->Width() );
+        }
+        ResizeTo( A.Width(), A.Height() );
+    }
+
+    if( ColAlignment() == A.RowAlignment() )
+    {
+        const int r = _grid->Height();
+
+        const int width = Width();
+        const int localHeight = LocalHeight();
+        const int localHeightOfA = A.LocalHeight();
+        const int maxLocalWidth = MaxLocalLength(width,r);
+
+        const int portionSize = 
+            max(localHeight*maxLocalWidth,MinCollectContrib);
+
+        _auxMemory.Require( (r+1)*portionSize );
+
+        T* buffer = _auxMemory.Buffer();
+        T* originalData = &buffer[0];
+        T* gatheredData = &buffer[portionSize];
+
+        // Pack 
+        for( int j=0; j<localHeightOfA; ++j )
+            for( int i=0; i<localHeight; ++i )
+                originalData[i+j*localHeight] = Conj( A.LocalEntry(j,i) );
+
+        // Communicate
+        AllGather
+        ( originalData, portionSize,
+          gatheredData, portionSize, _grid->MCComm() );
+
+        // Unpack
+        const int colAlignmentOfA = A.ColAlignment();
+        for( int k=0; k<r; ++k )
+        {
+            const T* data = &gatheredData[k*portionSize];
+
+            const int rowShift = Shift( k, colAlignmentOfA, r );
+            const int localWidth = LocalLength( width, rowShift, r );
+
+            for( int j=0; j<localWidth; ++j )
+                for( int i=0; i<localHeight; ++i )
+                    _localMatrix(i,rowShift+j*r) = data[i+j*localHeight];
+        }
+
+        _auxMemory.Release();
+    }
+    else
+    {
+#ifndef RELEASE
+        if( _grid->VCRank() == 0 )
+            cout << "Unaligned [MR,* ]::ConjugateTransposeFrom" << endl;
+#endif
+        const int r = _grid->Height();
+        const int c = _grid->Width();
+        const int col = _grid->MRRank();
+
+        const int colAlignment = ColAlignment();
+        const int rowAlignmentOfA = A.RowAlignment();
+        const int sendCol = (col+c+colAlignment-rowAlignmentOfA) % c;
+        const int recvCol = (col+c+rowAlignmentOfA-colAlignment) % c;
+
+        const int height = Height();
+        const int width = Width();
+        const int localHeight = LocalHeight();
+        const int localHeightOfA = A.LocalHeight();
+        const int localWidthOfA = A.LocalWidth();
+        const int maxLocalHeight = MaxLocalLength(height,c);
+        const int maxLocalWidth = MaxLocalLength(width,r);
+
+        const int portionSize = 
+            max(maxLocalHeight*maxLocalWidth,MinCollectContrib);
+
+        _auxMemory.Require( (r+1)*portionSize );
+
+        T* buffer = _auxMemory.Buffer();
+        T* firstBuffer = &buffer[0];
+        T* secondBuffer = &buffer[portionSize];
+
+        // Pack the currently owned local data of A into the second buffer
+        for( int j=0; j<localHeightOfA; ++j )
+            for( int i=0; i<localWidthOfA; ++i )
+                secondBuffer[i+j*localWidthOfA] = Conj( A.LocalEntry(j,i) );
+
+        // Perform the SendRecv: puts the new data into the first buffer
+        SendRecv
+        ( secondBuffer, portionSize, sendCol, 0,
+          firstBuffer,  portionSize, recvCol, MPI_ANY_TAG, 
+          _grid->MRComm() );
+
+        // Use the output of the SendRecv as input to the AllGather
+        AllGather
+        ( firstBuffer,  portionSize,
+          secondBuffer, portionSize, _grid->MCComm() );
+
+        // Unpack the contents of each member of the process col
+        const int colAlignmentOfA = A.ColAlignment();
+        for( int k=0; k<r; ++k )
+        {
+            const T* data = &secondBuffer[k*portionSize];
+
+            const int rowShift = Shift( k, colAlignmentOfA, r );
+            const int localWidth = LocalLength( width, rowShift, r );
+            for( int j=0; j<localWidth; ++j )
+                for( int i=0; i<localHeight; ++i )
+                    _localMatrix(i,rowShift+j*r) = data[i+j*localHeight];
+        }
+
+        _auxMemory.Release();
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+Elemental::DistMatrix<T,MR,Star>::TransposeFrom
+( const DistMatrix<T,MC,MR>& A )
+{ 
+#ifndef RELEASE
+    PushCallStack("DistMatrix[MR,* ]::TransposeFrom");
+    CHECK_IF_LOCKED_VIEW;
+    CHECK_IF_REDIST_DIFF_GRID( A );
+    if( _viewing && ( Height() != A.Width() || Width() != A.Height() ) )
+        throw "Cannot resize views.";
+#endif
+    if( !_viewing )
+    {
+        if( ! ConstrainedColDist() )
+        {
+            _colAlignment = A.RowAlignment();
+            _colShift = Shift
+                        ( _grid->MRRank(), _colAlignment, _grid->Width() );
+        }
+        ResizeTo( A.Width(), A.Height() );
+    }
+
+    if( ColAlignment() == A.RowAlignment() )
+    {
+        const int r = _grid->Height();
+
+        const int width = Width();
+        const int localHeight = LocalHeight();
+        const int localHeightOfA = A.LocalHeight();
+        const int maxLocalWidth = MaxLocalLength(width,r);
+
+        const int portionSize = 
+            max(localHeight*maxLocalWidth,MinCollectContrib);
+
+        _auxMemory.Require( (r+1)*portionSize );
+
+        T* buffer = _auxMemory.Buffer();
+        T* originalData = &buffer[0];
+        T* gatheredData = &buffer[portionSize];
+
+        // Pack 
+        for( int j=0; j<localHeightOfA; ++j )
+            for( int i=0; i<localHeight; ++i )
+                originalData[i+j*localHeight] = A.LocalEntry(j,i);
+
+        // Communicate
+        AllGather
+        ( originalData, portionSize,
+          gatheredData, portionSize, _grid->MCComm() );
+
+        // Unpack
+        const int colAlignmentOfA = A.ColAlignment();
+        for( int k=0; k<r; ++k )
+        {
+            const T* data = &gatheredData[k*portionSize];
+
+            const int rowShift = Shift( k, colAlignmentOfA, r );
+            const int localWidth = LocalLength( width, rowShift, r );
+
+            for( int j=0; j<localWidth; ++j )
+                for( int i=0; i<localHeight; ++i )
+                    _localMatrix(i,rowShift+j*r) = data[i+j*localHeight];
+        }
+
+        _auxMemory.Release();
+    }
+    else
+    {
+#ifndef RELEASE
+        if( _grid->VCRank() == 0 )
+            cout << "Unaligned [MR,* ]::TransposeFrom" << endl;
+#endif
+        const int r = _grid->Height();
+        const int c = _grid->Width();
+        const int col = _grid->MRRank();
+
+        const int colAlignment = ColAlignment();
+        const int rowAlignmentOfA = A.RowAlignment();
+        const int sendCol = (col+c+colAlignment-rowAlignmentOfA) % c;
+        const int recvCol = (col+c+rowAlignmentOfA-colAlignment) % c;
+
+        const int height = Height();
+        const int width = Width();
+        const int localHeight = LocalHeight();
+        const int localHeightOfA = A.LocalHeight();
+        const int localWidthOfA = A.LocalWidth();
+        const int maxLocalHeight = MaxLocalLength(height,c);
+        const int maxLocalWidth = MaxLocalLength(width,r);
+
+        const int portionSize = 
+            max(maxLocalHeight*maxLocalWidth,MinCollectContrib);
+
+        _auxMemory.Require( (r+1)*portionSize );
+
+        T* buffer = _auxMemory.Buffer();
+        T* firstBuffer = &buffer[0];
+        T* secondBuffer = &buffer[portionSize];
+
+        // Pack the currently owned local data of A into the second buffer
+        for( int j=0; j<localHeightOfA; ++j )
+            for( int i=0; i<localWidthOfA; ++i )
+                secondBuffer[i+j*localWidthOfA] = A.LocalEntry(j,i);
+
+        // Perform the SendRecv: puts the new data into the first buffer
+        SendRecv
+        ( secondBuffer, portionSize, sendCol, 0,
+          firstBuffer,  portionSize, recvCol, MPI_ANY_TAG, 
+          _grid->MRComm() );
+
+        // Use the output of the SendRecv as input to the AllGather
+        AllGather
+        ( firstBuffer,  portionSize,
+          secondBuffer, portionSize, _grid->MCComm() );
+
+        // Unpack the contents of each member of the process col
+        const int colAlignmentOfA = A.ColAlignment();
+        for( int k=0; k<r; ++k )
+        {
+            const T* data = &secondBuffer[k*portionSize];
+
+            const int rowShift = Shift( k, colAlignmentOfA, r );
+            const int localWidth = LocalLength( width, rowShift, r );
+            for( int j=0; j<localWidth; ++j )
+                for( int i=0; i<localHeight; ++i )
+                    _localMatrix(i,rowShift+j*r) = data[i+j*localHeight];
+        }
+
+        _auxMemory.Release();
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -585,7 +585,8 @@ Elemental::DistMatrix<T,Elemental::MD,Elemental::Star>::ColShift() const
     {
         std::ostringstream msg;
         msg << "Process " << _grid->VCRank() << " not in diagonal.";
-        throw msg.str();
+        const std::string s = msg.str();
+        throw s.c_str();
     }
 #endif
     return _colShift;

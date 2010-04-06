@@ -46,7 +46,8 @@ BLAS::Internal::TrsmRLT
         msg << "Nonconformal TrsmRLT: " << endl
             << "  L ~ " << L.Height() << " x " << L.Width() << endl
             << "  X ~ " << X.Height() << " x " << X.Width() << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     const Grid& grid = L.GetGrid();

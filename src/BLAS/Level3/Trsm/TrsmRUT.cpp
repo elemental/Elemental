@@ -46,7 +46,8 @@ BLAS::Internal::TrsmRUT
         msg << "Nonconformal TrsmRUT: " << endl
             << "  U ~ " << U.Height() << " x " << U.Width() << endl
             << "  X ~ " << X.Height() << " x " << X.Width() << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
     const Grid& grid = U.GetGrid();

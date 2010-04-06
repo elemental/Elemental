@@ -115,7 +115,8 @@ Elemental::LAPACK::Internal::ApplyRowPivots
         ostringstream msg;
         msg << "Send and recv counts do not match: (send,recv)=" 
              << totalSendCount << "," << totalRecvCount << endl;
-        throw msg.str();
+        const string s = msg.str();
+        throw s.c_str();
     }
 #endif
 

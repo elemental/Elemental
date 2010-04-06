@@ -108,7 +108,7 @@ void ManualGemm
             for( int j=0; j<n; ++j )
                 for( int i=0; i<m; ++i )
                     for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * A(i,l) * BLAS::Conj(B(j,l));
+                        C(i,j) += alpha * A(i,l) * Conj(B(j,l));
         }
     }
     else if( orientationOfB == Normal )
@@ -126,7 +126,7 @@ void ManualGemm
             for( int j=0; j<n; ++j )
                 for( int i=0; i<m; ++i )
                     for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * BLAS::Conj(A(l,i)) * B(l,j);
+                        C(i,j) += alpha * Conj(A(l,i)) * B(l,j);
         }
     }
     else
@@ -144,22 +144,21 @@ void ManualGemm
             for( int j=0; j<n; ++j )
                 for( int i=0; i<m; ++i )
                     for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * A(l,i) * BLAS::Conj(B(j,l));
+                        C(i,j) += alpha * A(l,i) * Conj(B(j,l));
         }
         else if( orientationOfB == Transpose )
         {
             for( int j=0; j<n; ++j )
                 for( int i=0; i<m; ++i )
                     for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * BLAS::Conj(A(l,i)) * B(j,l);
+                        C(i,j) += alpha * Conj(A(l,i)) * B(j,l);
         }
         else
         {
             for( int j=0; j<n; ++j )
                 for( int i=0; i<m; ++i )
                     for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * BLAS::Conj(A(l,i)) 
-                                        * BLAS::Conj(B(j,l));
+                        C(i,j) += alpha * Conj(A(l,i)) * Conj(B(j,l));
         }
     }
 }
@@ -206,7 +205,8 @@ void TestSerialCorrectness
                 ostringstream msg;
                 msg << "FAILED at index (" << i << "," << j << "): truth="
                     << truth << ", computed=" << computed;
-                throw msg.str();
+                const string s = msg.str();
+                throw s.c_str();
             }
         }
     }
@@ -267,7 +267,8 @@ void TestParallelCorrectness
                 ostringstream msg;
                 msg << "FAILED at index (" << i << "," << j << "): truth="
                     << truth << ", computed=" << computed;
-                throw msg.str();
+                const string s = msg.str();
+                throw s.c_str();
             }
         }
     }

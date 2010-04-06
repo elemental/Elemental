@@ -48,7 +48,8 @@
         msg << "1x2 not conformant. Left is " << AL.Height() \
             << " x " << AL.Width() << ", right is " \
             << AR.Height() << " x " << AR.Width() << std::endl; \
-        throw msg.str(); \
+        const std::string s = msg.str(); \
+        throw s.c_str(); \
     } \
 }
 #define CHECK_IF_CONFORMING_2x1( AT, AB ) \
@@ -59,7 +60,8 @@
         msg << "2x1 is not conformant. Top is " << AT.Height() \
             << " x " << AT.Width() << ", bottom is " \
             << AB.Height() << " x " << AB.Width() << std::endl; \
-        throw msg.str(); \
+        const std::string s = msg.str(); \
+        throw s.c_str(); \
     } \
 }
 #define CHECK_IF_CONFORMING_2x2( ATL, ATR, ABL, ABR ) \
@@ -105,11 +107,12 @@
         throw "Height and width must be non-negative."; \
     if( (i+height) > A.Height() || (j+width) > A.Width() ) \
     { \
-        ostringstream msg; \
+        std::ostringstream msg; \
         msg << "Out of bounds of distributed matrix: up to (" \
             << i+height-1 << "," << j+width-1 << ") of " \
             << A.Height() << "x" << A.Width() << " matrix." << std::endl;\
-        throw msg.str(); \
+        const std::string s = msg.str(); \
+        throw s.c_str(); \
     } \
 }
 

@@ -72,7 +72,8 @@ Elemental::utilities::LocalLength
         std::ostringstream msg;
         msg << "Invalid shift: "
             << "shift=" << shift << ", modulus=" << modulus << std::endl;
-        throw msg.str();
+        const std::string s = msg.str();
+        throw s.c_str();
     }
     if( modulus <= 0 )
         throw "Modulus must be positive.";
@@ -110,14 +111,16 @@ Elemental::utilities::Shift
         std::ostringstream msg;
         msg << "Invalid index: "
             << "index=" << index << ", modulus=" << modulus << std::endl;
-        throw msg.str();
+        const std::string s = msg.str();
+        throw s.c_str();
     }
     if( align < 0 || align >= modulus )
     {
         std::ostringstream msg;
         msg << "Invalid alignment: "
             << "align=" << align << ", modulus=" << modulus << std::endl;
-        throw msg.str();
+        const std::string s = msg.str();
+        throw s.c_str();
     }
     if( modulus <= 0 )
         throw "Modulus must be positive.";

@@ -273,6 +273,11 @@ namespace Elemental
         void ReduceScatterUpdate
         ( const T alpha, const DistMatrix<T,Star,Star>& A );
 
+        // Auxiliary routines needed to implement algorithms that avoid 
+        // inefficient unpackings of partial matrix distributions
+        void ConjugateTransposeFrom( const DistMatrix<T,Star,MC>& A );
+        void TransposeFrom( const DistMatrix<T,Star,MC>& A );
+
         // Bury communication behind the '=' operator
         const DistMatrix<T,MC,MR>& 
         operator=( const DistMatrix<T,MC,MR>& A );

@@ -107,26 +107,29 @@ Elemental::LAPACK::Internal::CholLVar2
         X21_MC_Star.ResizeTo( A21.Height(), A21.Width() );
         //--------------------------------------------------------------------//
         A10_Star_MR = A10;
-        BLAS::Gemm( Normal, ConjugateTranspose, 
-                    (T)1, A10.LockedLocalMatrix(),
-                          A10_Star_MR.LockedLocalMatrix(),
-                    (T)0, X11_MC_Star.LocalMatrix()       );
+        BLAS::Gemm
+        ( Normal, ConjugateTranspose, 
+          (T)1, A10.LockedLocalMatrix(),
+                A10_Star_MR.LockedLocalMatrix(),
+          (T)0, X11_MC_Star.LocalMatrix()       );
         A11.ReduceScatterUpdate( (T)-1, X11_MC_Star );
 
         A11_Star_Star = A11;
         LAPACK::Chol( Lower, A11_Star_Star.LocalMatrix() );
         A11 = A11_Star_Star;
 
-        BLAS::Gemm( Normal, ConjugateTranspose, 
-                    (T)1, A20.LockedLocalMatrix(), 
-                          A10_Star_MR.LockedLocalMatrix(),
-                    (T)0, X21_MC_Star.LocalMatrix()       );
+        BLAS::Gemm
+        ( Normal, ConjugateTranspose, 
+          (T)1, A20.LockedLocalMatrix(), 
+                A10_Star_MR.LockedLocalMatrix(),
+          (T)0, X21_MC_Star.LocalMatrix()       );
         A21.ReduceScatterUpdate( (T)-1, X21_MC_Star );
 
         A21_VC_Star = A21;
-        BLAS::Trsm( Right, Lower, ConjugateTranspose, NonUnit,
-                    (T)1, A11_Star_Star.LockedLocalMatrix(),
-                          A21_VC_Star.LocalMatrix()           );
+        BLAS::Trsm
+        ( Right, Lower, ConjugateTranspose, NonUnit,
+          (T)1, A11_Star_Star.LockedLocalMatrix(),
+                A21_VC_Star.LocalMatrix()           );
         A21 = A21_VC_Star;
         //--------------------------------------------------------------------//
         A10_Star_MR.FreeConstraints();
@@ -187,11 +190,13 @@ Elemental::LAPACK::Internal::CholLVar3
         ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
                                A20(grid), A21(grid), A22(grid);
 
-    // Temporary matrix distributions
+    // Temporary matrices
     DistMatrix<T,Star,Star> A11_Star_Star(grid);
     DistMatrix<T,VC,  Star> A21_VC_Star(grid);
-    DistMatrix<T,MC,  Star> A21_MC_Star(grid);
-    DistMatrix<T,MR,  Star> A21_MR_Star(grid);
+    DistMatrix<T,VR,  Star> A21_VR_Star(grid);
+    DistMatrix<T,Star,MC  > A21Trans_Star_MC(grid);
+    DistMatrix<T,Star,MR  > A21Herm_Star_MR(grid);
+    DistMatrix<T,MR,  MC  > A21Trans(grid);
 
     // Start the algorithm
     PartitionDownDiagonal( A, ATL, ATR,
@@ -203,28 +208,34 @@ Elemental::LAPACK::Internal::CholLVar3
                                       /**/       A10, /**/ A11, A12,
                                  ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A21_MC_Star.AlignWith( A22 );
-        A21_MR_Star.AlignWith( A22 );
+        A21_VR_Star.AlignWith( A22 );
         A21_VC_Star.AlignWith( A22 );
+        A21Trans_Star_MC.AlignWith( A22 );
+        A21Herm_Star_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_Star_Star = A11;
         LAPACK::Chol( Lower, A11_Star_Star.LocalMatrix() );
         A11 = A11_Star_Star;
 
         A21_VC_Star = A21;
-        BLAS::Trsm( Right, Lower, ConjugateTranspose, NonUnit, 
-                    (T)1, A11_Star_Star.LockedLocalMatrix(), 
-                          A21_VC_Star.LocalMatrix()           );
+        BLAS::Trsm
+        ( Right, Lower, ConjugateTranspose, NonUnit, 
+          (T)1, A11_Star_Star.LockedLocalMatrix(), 
+                A21_VC_Star.LocalMatrix()           );
 
-        A21_MC_Star = A21_VC_Star;
-        A21_MR_Star = A21_VC_Star;
-        BLAS::Internal::HerkLNUpdate
-        ( (T)-1, A21_MC_Star, A21_MR_Star,(T)1, A22 );
-        A21 = A21_MC_Star;
+        A21_VR_Star = A21_VC_Star;
+        A21Trans_Star_MC.TransposeFrom( A21_VC_Star );
+        A21Herm_Star_MR.ConjugateTransposeFrom( A21_VR_Star );
+
+        BLAS::Internal::TriangularRankK
+        ( Lower, (T)-1, A21Trans_Star_MC, A21Herm_Star_MR, (T)1, A22 );
+
+        A21.TransposeFrom( A21Trans_Star_MC );
         //--------------------------------------------------------------------//
-        A21_MC_Star.FreeConstraints();
-        A21_MR_Star.FreeConstraints();
+        A21_VR_Star.FreeConstraints();
         A21_VC_Star.FreeConstraints();
+        A21Trans_Star_MC.FreeConstraints();
+        A21Herm_Star_MR.FreeConstraints();
 
         SlidePartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
                                          /**/       A10, A11, /**/ A12,

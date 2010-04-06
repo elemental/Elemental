@@ -120,7 +120,8 @@ void TestCorrectness
                     msg << "FAILED at index (" << i << "," << j 
                          << ") of A: truth=" << truth << ", computed=" 
                          << computed;
-                    throw msg.str();
+                    const string s = msg.str();
+                    throw s.c_str();
                 }
             }
         }
@@ -140,7 +141,8 @@ void TestCorrectness
                     msg << "FAILED at index (" << i << "," << j 
                          << ") of A: truth=" << truth << ", computed="
                          << computed;
-                    throw msg.str();
+                    const string s = msg.str();
+                    throw s.c_str();
                 }
             }
         }
@@ -155,7 +157,8 @@ void TestCorrectness
             ostringstream msg;
             msg << "FAILED at index " << j << " of d: truth=" << truth
                  << ", computed=" << computed;
-            throw msg.str();
+            const string s = msg.str();
+            throw s.c_str();
         }
     }
     for( int j=0; j<m-1; ++j )
@@ -168,7 +171,8 @@ void TestCorrectness
             ostringstream msg;
             msg << "FAILED at index " << j << " of e: truth=" << truth
                  << ", computed=" << computed;
-            throw msg.str();
+            const string s = msg.str();
+            throw s.c_str();
         }
     }
     for( int j=0; j<m-1; ++j )
@@ -181,7 +185,8 @@ void TestCorrectness
             ostringstream msg;
             msg << "FAILED at index " << j << " of t: truth=" << truth
                  << ", computed=" << computed;
-            throw msg.str();
+            const string s = msg.str();
+            throw s.c_str();
         }
     }
 

@@ -52,7 +52,7 @@ Elemental::LAPACK::LU
     DistMatrix<T,Star,VR  > A12_Star_VR(grid);
     DistMatrix<T,Star,MR  > A12_Star_MR(grid);
     DistMatrix<T,VC,  Star> A21_VC_Star(grid);
-    DistMatrix<T,MC,  Star> A21_MC_Star(grid);
+    DistMatrix<T,Star,MC  > A21Trans_Star_MC(grid);
     DistMatrix<int,Star,Star> p1_Star_Star(grid);
 
     // Pivot composition
@@ -79,10 +79,10 @@ Elemental::LAPACK::LU
         AB.View1x2( ABL, ABR );
 
         int pivotOffset = A01.Height();
-        A12_Star_VR.AlignWith( A12 );
-        A12_Star_MR.AlignWith( A12 );
-        A21_VC_Star.AlignWith( A21 );
-        A21_MC_Star.AlignWith( A21 );
+        A12_Star_VR.AlignWith( A22 );
+        A12_Star_MR.AlignWith( A22 );
+        A21_VC_Star.AlignWith( A22 );
+        A21Trans_Star_MC.AlignWith( A22 );
         A11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
         p1_Star_Star.ResizeTo( p1.Height(), 1 );
         //--------------------------------------------------------------------//
@@ -99,22 +99,22 @@ Elemental::LAPACK::LU
               (T)1, A11_Star_Star.LockedLocalMatrix(),
                     A12_Star_VR.LocalMatrix()         );
 
-        A21_MC_Star = A21_VC_Star;
+        A21Trans_Star_MC.TransposeFrom( A21_VC_Star );
         A12_Star_MR = A12_Star_VR;
-        Gemm( Normal, Normal, 
-              (T)-1, A21_MC_Star.LockedLocalMatrix(),
+        Gemm( Transpose, Normal, 
+              (T)-1, A21Trans_Star_MC.LockedLocalMatrix(),
                      A12_Star_MR.LockedLocalMatrix(),
-              (T) 1, A22.LocalMatrix()               );
+              (T) 1, A22.LocalMatrix()                    );
 
         A11 = A11_Star_Star;
         A12 = A12_Star_MR;
-        A21 = A21_MC_Star;
+        A21.TransposeFrom( A21Trans_Star_MC );
         p1 = p1_Star_Star;
         //--------------------------------------------------------------------//
         A12_Star_VR.FreeConstraints();
         A12_Star_MR.FreeConstraints();
         A21_VC_Star.FreeConstraints();
-        A21_MC_Star.FreeConstraints();
+        A21Trans_Star_MC.FreeConstraints();
 
         SlidePartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
                                          /**/       A10, A11, /**/ A12,
