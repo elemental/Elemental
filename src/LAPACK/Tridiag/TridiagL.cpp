@@ -123,7 +123,6 @@ Elemental::LAPACK::Internal::TridiagL
             A11_expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
             WPan.AlignWith( ABR );
             WPan.ResizeTo( ABR.Height(), A11.Width() );
-            WPan.SetToZero();
             PartitionDown( WPan, W11,
                                  W21, A11.Height() );
             //----------------------------------------------------------------//

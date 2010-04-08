@@ -185,7 +185,7 @@ Elemental::LAPACK::Internal::PanelTridiagU
                             z01_MC_Star.LockedLocalMatrix(),
                      (R)+1, z12_Star_MR.LocalMatrix()       );
 
-        w12.ReduceScatterUpdate( (R)1, z12_Star_MR );
+        w12.ReduceScatterFrom( z12_Star_MR );
         z12_MR_MC.ReduceScatterFrom( z12_Star_MC );
         z12 = z12_MR_MC;
 
