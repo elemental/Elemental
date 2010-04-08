@@ -194,10 +194,12 @@ namespace Elemental
             template<typename T>
             void
             PanelTridiagL
-            ( DistMatrix<T,MC,MR  >& A,
-              DistMatrix<T,MC,MR  >& W,
-              DistMatrix<T,MD,Star>& e,
-              DistMatrix<T,MD,Star>& t );
+            ( DistMatrix<T,MC,  MR  >& A,
+              DistMatrix<T,MC,  MR  >& W,
+              DistMatrix<T,MD,  Star>& e,
+              DistMatrix<T,MD,  Star>& t,
+              DistMatrix<T,MC,  Star>& A_MC_Star,
+              DistMatrix<T,Star,MR  >& ATrans_Star_MR );
  
             template<typename T>
             void

@@ -316,6 +316,17 @@ namespace Elemental
                     DistMatrix<T,MR,Star>& z_MR_Star
             );
 
+            template<typename T>
+            void
+            SymvColAccumulateL
+            ( const T alpha,
+              const DistMatrix<T,MC,  MR  >& A,
+              const DistMatrix<T,MC,  Star>& x_MC_Star,
+              const DistMatrix<T,Star,MR  >& xTrans_Star_MR,
+                    DistMatrix<T,MC,  Star>& z_MC_Star,
+                    DistMatrix<T,MR,  Star>& z_MR_Star
+            );
+
             // This is for the case where x is a column vector and A is upper.
             //
             // Returns the unreduced components z[MC,* ] and z[MR,* ]:

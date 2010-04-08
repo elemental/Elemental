@@ -16,6 +16,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
+#include "Elemental/BLASInternal.hpp"
 #include "Elemental/LAPACKInternal.hpp"
 using namespace std;
 using namespace Elemental;
@@ -87,6 +88,13 @@ Elemental::LAPACK::Internal::TridiagL
     DistMatrix<R,Star,Star> t1_Star_Star(grid);
     DistMatrix<R,MC,  MR  > W11(grid),  WPan(grid),
                             W21(grid);
+    DistMatrix<R,MC,  Star> A11_MC_Star(grid),  APan_MC_Star(grid),
+                            A21_MC_Star(grid);
+    DistMatrix<R,Star,MR  > A11Trans_Star_MR(grid),  APanTrans_Star_MR(grid),
+                            A21Trans_Star_MR(grid);
+    DistMatrix<R,MC,  Star> W21_MC_Star(grid);
+    DistMatrix<R,VR,  Star> W21_VR_Star(grid);
+    DistMatrix<R,Star,MR  > W21Trans_Star_MR(grid);
 
     PartitionDownDiagonal( A, ATL, ATR,
                               ABL, ABR );
@@ -121,18 +129,44 @@ Elemental::LAPACK::Internal::TridiagL
         if( A22.Height() > 0 )
         {
             A11_expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
+
             WPan.AlignWith( ABR );
+            APan_MC_Star.AlignWith( ABR );
+            APanTrans_Star_MR.AlignWith( ABR );
+            W21_MC_Star.AlignWith( A22 );
+            W21_VR_Star.AlignWith( A22 );
+            W21Trans_Star_MR.AlignWith( A22 );
+
             WPan.ResizeTo( ABR.Height(), A11.Width() );
+            APan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
+            APanTrans_Star_MR.ResizeTo( A11.Width(), ABR.Height() );
+
             PartitionDown( WPan, W11,
                                  W21, A11.Height() );
+            PartitionDown( APan_MC_Star, A11_MC_Star,
+                                         A21_MC_Star, A11.Height() );
+            PartitionRight( APanTrans_Star_MR, 
+                            A11Trans_Star_MR, A21Trans_Star_MR, A11.Height() );
             //----------------------------------------------------------------//
-            LAPACK::Internal::PanelTridiagL( ABR, WPan, e1, t1 );
-            BLAS::Syr2k( Lower, Normal, 
-                         (R)-1, A21, W21, (R)1, A22 );
+            LAPACK::Internal::PanelTridiagL
+            ( ABR, WPan, e1, t1, APan_MC_Star, APanTrans_Star_MR );
+
+            W21_VR_Star = W21_MC_Star = W21;
+            W21Trans_Star_MR.TransposeFrom( W21_VR_Star );
+            BLAS::Internal::TriangularRank2K
+            ( Lower, (R)-1,
+              A21_MC_Star, W21_MC_Star, 
+              A21Trans_Star_MR, W21Trans_Star_MR, (R)1, A22 );
+
             A11_expanded.SetDiagonal( e1, -1 );
             A11.GetDiagonal( d1 );
             //----------------------------------------------------------------//
             WPan.FreeConstraints();
+            APan_MC_Star.FreeConstraints();
+            APanTrans_Star_MR.FreeConstraints();
+            W21_MC_Star.FreeConstraints();
+            W21_VR_Star.FreeConstraints();
+            W21Trans_Star_MR.FreeConstraints();
         }
         else
         {
