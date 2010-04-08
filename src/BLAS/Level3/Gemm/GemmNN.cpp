@@ -109,7 +109,8 @@ Elemental::BLAS::Internal::GemmNNA
                         C0(grid), C1(grid), C2(grid);
 
     // Temporary distributions
-    DistMatrix<T,MR,Star> B1_MR_Star(grid);
+    DistMatrix<T,VR,Star> B1_VR_Star(grid);
+    DistMatrix<T,Star,MR> B1Trans_Star_MR(grid);
     DistMatrix<T,MC,Star> D1_MC_Star(grid);
 
     // Start the algorithm
@@ -124,22 +125,26 @@ Elemental::BLAS::Internal::GemmNNA
         RepartitionRight( CL, /**/     CR,
                           C0, /**/ C1, C2 );
 
-        B1_MR_Star.ConformWith( A );
+        B1_VR_Star.AlignWith( A );
+        B1Trans_Star_MR.ConformWith( A );
         D1_MC_Star.AlignWith( A );
         D1_MC_Star.ResizeTo( C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
-        B1_MR_Star = B1; // B1[MR,*] <- B1[MC,MR]
+        B1_VR_Star = B1;
+        B1Trans_Star_MR.TransposeFrom( B1_VR_Star );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
-        BLAS::Gemm( Normal, Normal, 
-                    alpha, A.LockedLocalMatrix(),
-                           B1_MR_Star.LockedLocalMatrix(),
-                    (T)0,  D1_MC_Star.LocalMatrix()       );
+        BLAS::Gemm
+        ( Normal, Transpose, 
+          alpha, A.LockedLocalMatrix(),
+                 B1Trans_Star_MR.LockedLocalMatrix(),
+          (T)0,  D1_MC_Star.LocalMatrix()            );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.ReduceScatterUpdate( (T)1, D1_MC_Star );
         //--------------------------------------------------------------------//
-        B1_MR_Star.FreeConstraints();
+        B1_VR_Star.FreeConstraints();
+        B1Trans_Star_MR.FreeConstraints();
         D1_MC_Star.FreeConstraints();
 
         SlideLockedPartitionRight( BL,     /**/ BR,
@@ -217,10 +222,11 @@ Elemental::BLAS::Internal::GemmNNB
         A1_Star_MC = A1; // A1[*,MC] <- A1[MC,MR]
 
         // D1[*,MR] := alpha A1[*,MC] B[MC,MR]
-        BLAS::Gemm( Normal, Normal, 
-                    alpha, A1_Star_MC.LockedLocalMatrix(),
-                           B.LockedLocalMatrix(),
-                    (T)0,  D1_Star_MR.LocalMatrix()       );
+        BLAS::Gemm
+        ( Normal, Normal, 
+          alpha, A1_Star_MC.LockedLocalMatrix(),
+                 B.LockedLocalMatrix(),
+          (T)0,  D1_Star_MR.LocalMatrix()       );
 
         // C1[MC,MR] += scattered result of D1[*,MR] summed over grid cols
         C1.ReduceScatterUpdate( (T)1, D1_Star_MR );
@@ -280,7 +286,7 @@ Elemental::BLAS::Internal::GemmNNC
 
     // Temporary distributions
     DistMatrix<T,MC,Star> A1_MC_Star(grid);
-    DistMatrix<T,Star,MR> B1_Star_MR(grid); 
+    DistMatrix<T,MR,Star> B1Trans_MR_Star(grid); 
 
     // Start the algorithm
     BLAS::Scal( beta, C );
@@ -298,19 +304,21 @@ Elemental::BLAS::Internal::GemmNNC
                                BB,  B2 );
 
         A1_MC_Star.AlignWith( C );
-        B1_Star_MR.AlignWith( C );
+        B1Trans_MR_Star.AlignWith( C );
         //--------------------------------------------------------------------//
-        A1_MC_Star = A1; // A1[MC,*] <- A1[MC,MR]
-        B1_Star_MR = B1; // B1[*,MR] <- B1[MC,MR]
+        A1_MC_Star = A1; 
+        B1Trans_MR_Star.TransposeFrom( B1 );
 
-        // C[MC,MR] += alpha A1[MC,*] B1[*,MR]
-        BLAS::Gemm( Normal, Normal, 
-                    alpha, A1_MC_Star.LockedLocalMatrix(),
-                           B1_Star_MR.LockedLocalMatrix(),
-                    (T)1,  C.LocalMatrix()                );
+        // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
+        //           = alpha A1[MC,*] B1[*,MR]
+        BLAS::Gemm
+        ( Normal, Transpose, 
+          alpha, A1_MC_Star.LockedLocalMatrix(),
+                 B1Trans_MR_Star.LockedLocalMatrix(),
+          (T)1,  C.LocalMatrix()                     );
         //--------------------------------------------------------------------//
         A1_MC_Star.FreeConstraints();
-        B1_Star_MR.FreeConstraints();
+        B1Trans_MR_Star.FreeConstraints();
 
         SlideLockedPartitionRight( AL,     /**/ AR,
                                    A0, A1, /**/ A2 );
@@ -408,10 +416,11 @@ Elemental::BLAS::Internal::GemmNNDot
                 C11_Star_Star.ResizeTo( C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 B1_VC_Star = B1;
-                BLAS::Gemm( Normal, Normal,
-                            alpha, A1_Star_VC.LockedLocalMatrix(),
-                                   B1_VC_Star.LockedLocalMatrix(),
-                            (T)0,  C11_Star_Star.LocalMatrix()    );
+                BLAS::Gemm
+                ( Normal, Normal,
+                  alpha, A1_Star_VC.LockedLocalMatrix(),
+                         B1_VC_Star.LockedLocalMatrix(),
+                  (T)0,  C11_Star_Star.LocalMatrix()    );
                 C11.ReduceScatterUpdate( (T)1, C11_Star_Star );
                 //------------------------------------------------------------//
                 B1_VC_Star.FreeConstraints();
@@ -492,10 +501,11 @@ Elemental::BLAS::Internal::GemmNNDot
                 C11_Star_Star.ResizeTo( C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 A1_Star_VR = A1;
-                BLAS::Gemm( Normal, Normal,
-                            alpha, A1_Star_VR.LockedLocalMatrix(),
-                                   B1_VR_Star.LockedLocalMatrix(),
-                            (T)0,  C11_Star_Star.LocalMatrix()    );
+                BLAS::Gemm
+                ( Normal, Normal,
+                  alpha, A1_Star_VR.LockedLocalMatrix(),
+                         B1_VR_Star.LockedLocalMatrix(),
+                  (T)0,  C11_Star_Star.LocalMatrix()    );
                 C11.ReduceScatterUpdate( (T)1, C11_Star_Star );
                 //------------------------------------------------------------//
                 A1_Star_VR.FreeConstraints();

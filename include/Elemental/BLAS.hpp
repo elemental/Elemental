@@ -614,8 +614,8 @@ Elemental::BLAS::Axpy
     if( (X.Height()==1 || X.Width()==1) && (Y.Height()==1 || Y.Width()==1) )
     {
         const unsigned XLength = ( X.Width()==1 ? X.Height() : X.Width() );
-        const unsigned YLength = ( Y.Width()==1 ? Y.Height() : Y.Width() );
 #ifndef RELEASE
+        const unsigned YLength = ( Y.Width()==1 ? Y.Height() : Y.Width() );
         if( XLength != YLength )
             throw "Nonconformal Axpy.";
 #endif
