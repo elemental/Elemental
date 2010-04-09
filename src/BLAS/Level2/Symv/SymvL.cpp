@@ -203,189 +203,6 @@ Elemental::BLAS::Internal::SymvColAccumulateL
 
 template<typename T>
 void
-Elemental::BLAS::Internal::SymvColAccumulateL
-( const T alpha, 
-  const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,MC,  Star>& x_MC_Star,
-  const DistMatrix<T,Star,MR  >& xTrans_Star_MR,
-        DistMatrix<T,MC,  Star>& z_MC_Star,
-        DistMatrix<T,MR,  Star>& z_MR_Star      )
-{
-#ifndef RELEASE
-    PushCallStack("BLAS::Internal::SymvColAccumulateL");
-    if( A.GetGrid() != x_MC_Star.GetGrid() ||
-        x_MC_Star.GetGrid() != xTrans_Star_MR.GetGrid() ||
-        xTrans_Star_MR.GetGrid() != z_MC_Star.GetGrid() ||
-        z_MC_Star.GetGrid() != z_MR_Star.GetGrid()         )
-    {
-        throw "{A,x,z} must be distributed over the same grid.";
-    }
-    if( x_MC_Star.Width() != 1 || xTrans_Star_MR.Height() != 1 ||
-        z_MC_Star.Width() != 1 || z_MR_Star.Width() != 1         )
-    {
-        throw "Expected x and z to be column vectors.";
-    }
-    if( A.Height() != A.Width() || 
-        A.Height() != x_MC_Star.Height() ||
-        A.Height() != xTrans_Star_MR.Width() ||
-        A.Height() != z_MC_Star.Height() ||
-        A.Height() != z_MR_Star.Height()       )
-    {
-        ostringstream msg;
-        msg << "Nonconformal SymvColAccumulateL: " << endl
-            << "   A ~ " << A.Height() << " x " << A.Width() << endl
-            << "   x[MC,* ] ~ " << x_MC_Star.Height() << " x " 
-                                << x_MC_Star.Width() << endl
-            << "  xT[* ,MR] ~ " << xTrans_Star_MR.Height() << " x " 
-                                << xTrans_Star_MR.Width() << endl
-            << "   z[MC,* ] ~ " << z_MC_Star.Height() << " x " 
-                                << z_MC_Star.Width() << endl
-            << "   z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
-                                << z_MR_Star.Width() << endl;
-        const string s = msg.str();
-        throw s.c_str();
-    }
-    if( x_MC_Star.ColAlignment() != A.ColAlignment() ||
-        xTrans_Star_MR.RowAlignment() != A.RowAlignment() ||
-        z_MC_Star.ColAlignment() != A.ColAlignment() ||
-        z_MR_Star.ColAlignment() != A.RowAlignment()   )
-    {
-        throw "Partial matrix distributions are misaligned.";
-    }
-#endif
-    const Grid& grid = A.GetGrid();
-
-    // Matrix views
-    DistMatrix<T,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),
-        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
-                               A20(grid), A21(grid), A22(grid);
-
-    DistMatrix<T,MC,MR> D11(grid);
-
-    DistMatrix<T,MC,Star> 
-        xT_MC_Star(grid),  x0_MC_Star(grid),
-        xB_MC_Star(grid),  x1_MC_Star(grid),
-                           x2_MC_Star(grid);
-
-    DistMatrix<T,Star,MR> 
-        xTransL_Star_MR(grid),  xTransR_Star_MR(grid),
-        xTrans0_Star_MR(grid),  xTrans1_Star_MR(grid), xTrans2_Star_MR(grid);
-
-    DistMatrix<T,MC,Star> 
-        zT_MC_Star(grid),  z0_MC_Star(grid),
-        zB_MC_Star(grid),  z1_MC_Star(grid),
-                           z2_MC_Star(grid);
-
-    DistMatrix<T,MR,Star> 
-        zT_MR_Star(grid),  z0_MR_Star(grid),
-        zB_MR_Star(grid),  z1_MR_Star(grid),
-                           z2_MR_Star(grid);
-
-    // We want our local gemvs to be of width blocksize, so we will 
-    // temporarily change to max(r,c) times the current blocksize
-    const int ratio = max( grid.Height(), grid.Width() );
-    PushBlocksizeStack( ratio*Blocksize() );
-                 
-    LockedPartitionDownDiagonal( A, ATL, ATR,
-                                    ABL, ABR );
-    LockedPartitionDown( x_MC_Star, xT_MC_Star,
-                                    xB_MC_Star );
-    LockedPartitionRight( xTrans_Star_MR, 
-                          xTransL_Star_MR, xTransR_Star_MR );
-    PartitionDown( z_MC_Star, zT_MC_Star,
-                              zB_MC_Star );
-    PartitionDown( z_MR_Star, zT_MR_Star,
-                              zB_MR_Star );
-    while( ATL.Height() < A.Height() )
-    {
-        LockedRepartitionDownDiagonal( ATL, /**/ ATR,  A00, /**/ A01, A02,
-                                      /*************/ /******************/
-                                            /**/       A10, /**/ A11, A12,
-                                       ABL, /**/ ABR,  A20, /**/ A21, A22 );
-
-        LockedRepartitionDown( xT_MC_Star,  x0_MC_Star,
-                              /**********/ /**********/
-                                            x1_MC_Star,
-                               xB_MC_Star,  x2_MC_Star );
-
-        LockedRepartitionRight
-        ( xTransL_Star_MR, /**/ xTransR_Star_MR,
-          xTrans0_Star_MR, /**/ xTrans1_Star_MR, xTrans2_Star_MR );
-
-        RepartitionDown( zT_MC_Star,  z0_MC_Star,
-                        /**********/ /**********/
-                                      z1_MC_Star,
-                         zB_MC_Star,  z2_MC_Star );
-
-        RepartitionDown( zT_MR_Star,  z0_MR_Star,
-                        /**********/ /**********/
-                                      z1_MR_Star,
-                         zB_MR_Star,  z2_MR_Star );
-
-        D11.AlignWith( A11 );
-        //--------------------------------------------------------------------//
-        D11 = A11;
-        D11.MakeTrapezoidal( Left, Lower );
-        BLAS::Gemv
-        ( Normal, 
-          alpha, D11.LockedLocalMatrix(), 
-                 xTrans1_Star_MR.LockedLocalMatrix(),
-          (T)1,  z1_MC_Star.LocalMatrix()            );
-        D11.MakeTrapezoidal( Left, Lower, -1 );
-        BLAS::Gemv
-        ( Transpose,
-          alpha, D11.LockedLocalMatrix(),
-                 x1_MC_Star.LockedLocalMatrix(),
-          (T)1,  z1_MR_Star.LocalMatrix()       );
-
-        BLAS::Gemv
-        ( Normal,
-          alpha, A21.LockedLocalMatrix(),
-                 xTrans1_Star_MR.LockedLocalMatrix(),
-          (T)1,  z2_MC_Star.LocalMatrix()            );
-        BLAS::Gemv
-        ( Transpose,
-          alpha, A21.LockedLocalMatrix(),
-                 x2_MC_Star.LockedLocalMatrix(),
-          (T)1,  z1_MR_Star.LocalMatrix()       );
-        //--------------------------------------------------------------------//
-        D11.FreeConstraints();
-
-        SlideLockedPartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
-                                               /**/       A10, A11, /**/ A12,
-                                         /*************/ /******************/
-                                          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlideLockedPartitionDown( xT_MC_Star,  x0_MC_Star,
-                                               x1_MC_Star,
-                                 /**********/ /**********/
-                                  xB_MC_Star,  x2_MC_Star );
-
-        SlideLockedPartitionRight
-        ( xTransL_Star_MR,                  /**/ xTransR_Star_MR,
-          xTrans0_Star_MR, xTrans1_Star_MR, /**/ xTrans2_Star_MR );
-
-        SlidePartitionDown( zT_MC_Star,  z0_MC_Star,
-                                         z1_MC_Star,
-                           /**********/ /**********/
-                            zB_MC_Star,  z2_MC_Star );
-
-        SlidePartitionDown( zT_MR_Star,  z0_MR_Star,
-                                         z1_MR_Star,
-                           /**********/ /**********/
-                            zB_MR_Star,  z2_MR_Star );
-    }
-
-    PopBlocksizeStack();
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
 Elemental::BLAS::Internal::SymvRowAccumulateL
 ( const T alpha, const DistMatrix<T,MC,  MR>& A,
                  const DistMatrix<T,Star,MC>& x_Star_MC,
@@ -549,14 +366,6 @@ template void Elemental::BLAS::Internal::SymvColAccumulateL
         DistMatrix<float,MC,Star>& z_MC_Star,
         DistMatrix<float,MR,Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::SymvColAccumulateL
-( const float alpha, 
-  const DistMatrix<float,MC,  MR  >& A,
-  const DistMatrix<float,MC,  Star>& x_MC_Star,
-  const DistMatrix<float,Star,MR  >& xTrans_Star_MR,
-        DistMatrix<float,MC,  Star>& z_MC_Star,
-        DistMatrix<float,MR,  Star>& z_MR_Star      );
-
 template void Elemental::BLAS::Internal::SymvRowAccumulateL
 ( const float alpha, 
   const DistMatrix<float,MC,  MR>& A,
@@ -572,14 +381,6 @@ template void Elemental::BLAS::Internal::SymvColAccumulateL
   const DistMatrix<double,MR,Star>& x_MR_Star,
         DistMatrix<double,MC,Star>& z_MC_Star,
         DistMatrix<double,MR,Star>& z_MR_Star );
-
-template void Elemental::BLAS::Internal::SymvColAccumulateL
-( const double alpha, 
-  const DistMatrix<double,MC,  MR  >& A,
-  const DistMatrix<double,MC,  Star>& x_MC_Star,
-  const DistMatrix<double,Star,MR  >& xTrans_Star_MR,
-        DistMatrix<double,MC,  Star>& z_MC_Star,
-        DistMatrix<double,MR,  Star>& z_MR_Star      );
 
 template void Elemental::BLAS::Internal::SymvRowAccumulateL
 ( const double alpha, 
@@ -598,14 +399,6 @@ template void Elemental::BLAS::Internal::SymvColAccumulateL
         DistMatrix<scomplex,MC,Star>& z_MC_Star,
         DistMatrix<scomplex,MR,Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::SymvColAccumulateL
-( const scomplex alpha,
-  const DistMatrix<scomplex,MC,  MR  >& A,
-  const DistMatrix<scomplex,MC,  Star>& x_MC_Star,
-  const DistMatrix<scomplex,Star,MR  >& xTrans_Star_MR,
-        DistMatrix<scomplex,MC,  Star>& z_MC_Star,
-        DistMatrix<scomplex,MR,  Star>& z_MR_Star      );
-
 template void Elemental::BLAS::Internal::SymvRowAccumulateL
 ( const scomplex alpha,
   const DistMatrix<scomplex,MC,  MR>& A,
@@ -621,14 +414,6 @@ template void Elemental::BLAS::Internal::SymvColAccumulateL
   const DistMatrix<dcomplex,MR,Star>& x_MR_Star,
         DistMatrix<dcomplex,MC,Star>& z_MC_Star,
         DistMatrix<dcomplex,MR,Star>& z_MR_Star );
-
-template void Elemental::BLAS::Internal::SymvColAccumulateL
-( const dcomplex alpha,
-  const DistMatrix<dcomplex,MC,  MR  >& A,
-  const DistMatrix<dcomplex,MC,  Star>& x_MC_Star,
-  const DistMatrix<dcomplex,Star,MR  >& xTrans_Star_MR,
-        DistMatrix<dcomplex,MC,  Star>& z_MC_Star,
-        DistMatrix<dcomplex,MR,  Star>& z_MR_Star      );
 
 template void Elemental::BLAS::Internal::SymvRowAccumulateL
 ( const dcomplex alpha,

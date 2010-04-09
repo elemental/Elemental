@@ -25,12 +25,12 @@ using namespace Elemental::wrappers::MPI;
 template<typename R>
 void
 Elemental::LAPACK::Internal::PanelTridiagL
-( DistMatrix<R,MC,  MR  >& A,
-  DistMatrix<R,MC,  MR  >& W,
-  DistMatrix<R,MD,  Star>& e,
-  DistMatrix<R,MD,  Star>& t,
-  DistMatrix<R,MC,  Star>& A_MC_Star,
-  DistMatrix<R,Star,MR  >& ATrans_Star_MR )
+( DistMatrix<R,MC,MR  >& A,
+  DistMatrix<R,MC,MR  >& W,
+  DistMatrix<R,MD,Star>& e,
+  DistMatrix<R,MD,Star>& t,
+  DistMatrix<R,MC,Star>& A_MC_Star,
+  DistMatrix<R,MR,Star>& A_MR_Star )
 {
 #ifndef RELEASE
     PushCallStack("LAPACK::Internal::PanelTridiagL");
@@ -86,8 +86,7 @@ Elemental::LAPACK::Internal::PanelTridiagL
 
     // Temporary distributions
     DistMatrix<R,MC,  Star> a21_MC_Star(grid);
-    DistMatrix<R,VR,  Star> a21_VR_Star(grid);
-    DistMatrix<R,Star,MR  > a21Trans_Star_MR(grid);
+    DistMatrix<R,MR,  Star> a21_MR_Star(grid);
     DistMatrix<R,Star,MR  > z10_Star_MR(grid);
     DistMatrix<R,MC,  MR  > z21(grid);
     DistMatrix<R,MC,  Star> z21_MC_Star(grid);
@@ -134,12 +133,9 @@ Elemental::LAPACK::Internal::PanelTridiagL
                       w21     );
 
         const int offset = A00.Height();
-        a21_MC_Star.View
-        ( A_MC_Star, offset+1, offset, a21.Height(), 1 );
-        a21Trans_Star_MR.View
-        ( ATrans_Star_MR, offset, offset+1, 1, a21.Height() );
+        a21_MC_Star.View( A_MC_Star, offset+1, offset, a21.Height(), 1 );
+        a21_MR_Star.View( A_MR_Star, offset+1, offset, a21.Height(), 1 );
 
-        a21_VR_Star.AlignWith( A22 );
         z10_Star_MR.AlignWith( W20 );
         z21.AlignWith( w21 );
         z21_MC_Star.AlignWith( A22 );
@@ -167,13 +163,12 @@ Elemental::LAPACK::Internal::PanelTridiagL
         a21.Set( 0, 0, (R)1 ); 
 
         // Set up for the W updates
-        a21_VR_Star = a21_MC_Star = a21;
-        a21Trans_Star_MR.TransposeFrom( a21_VR_Star );
+        a21_MR_Star = a21_MC_Star = a21;
 
         PopBlocksizeStack();
         BLAS::Internal::SymvColAccumulateL
-        ( (R)1, A22, a21_MC_Star, a21Trans_Star_MR, 
-                     z21_MC_Star, z21_MR_Star      );
+        ( (R)1, A22, a21_MC_Star, a21_MR_Star, 
+                     z21_MC_Star, z21_MR_Star  );
         PushBlocksizeStack( 1 );
 
         BLAS::Gemv
@@ -212,7 +207,6 @@ Elemental::LAPACK::Internal::PanelTridiagL
             BLAS::Axpy( alpha, a21, w21 );
         }
         //--------------------------------------------------------------------//
-        a21_VR_Star.FreeConstraints();
         z10_Star_MR.FreeConstraints();
         z21.FreeConstraints();
         z21_MC_Star.FreeConstraints();
@@ -248,18 +242,18 @@ Elemental::LAPACK::Internal::PanelTridiagL
 }
 
 template void Elemental::LAPACK::Internal::PanelTridiagL
-( DistMatrix<float,MC,  MR  >& A,
-  DistMatrix<float,MC,  MR  >& W,
-  DistMatrix<float,MD,  Star>& e,
-  DistMatrix<float,MD,  Star>& t,
-  DistMatrix<float,MC,  Star>& A_MC_Star,
-  DistMatrix<float,Star,MR  >& ATrans_Star_MR );
+( DistMatrix<float,MC,MR  >& A,
+  DistMatrix<float,MC,MR  >& W,
+  DistMatrix<float,MD,Star>& e,
+  DistMatrix<float,MD,Star>& t,
+  DistMatrix<float,MC,Star>& A_MC_Star,
+  DistMatrix<float,MR,Star>& A_MR_Star );
 
 template void Elemental::LAPACK::Internal::PanelTridiagL
-( DistMatrix<double,MC,  MR  >& A,
-  DistMatrix<double,MC,  MR  >& W,
-  DistMatrix<double,MD,  Star>& e,
-  DistMatrix<double,MD,  Star>& t, 
-  DistMatrix<double,MC,  Star>& A_MC_Star,
-  DistMatrix<double,Star,MR  >& ATrans_Star_MR );
+( DistMatrix<double,MC,MR  >& A,
+  DistMatrix<double,MC,MR  >& W,
+  DistMatrix<double,MD,Star>& e,
+  DistMatrix<double,MD,Star>& t, 
+  DistMatrix<double,MC,Star>& A_MC_Star,
+  DistMatrix<double,MR,Star>& A_MR_Star );
 

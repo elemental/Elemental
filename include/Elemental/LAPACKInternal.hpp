@@ -179,51 +179,51 @@ namespace Elemental
             //----------------------------------------------------------------//
             // Tridiag                                                        //
             //----------------------------------------------------------------//
-            template<typename T>
-            T
-            Reflector( DistMatrix<T,MC,MR>& x );
+            template<typename R>
+            R 
+            Reflector( DistMatrix<R,MC,MR>& x );
 
-            template<typename T>
-            T
-            LocalColReflector( DistMatrix<T,MC,MR>& x );
+            template<typename R>
+            R 
+            LocalColReflector( DistMatrix<R,MC,MR>& x );
 
-            template<typename T>
-            T
-            LocalRowReflector( DistMatrix<T,MC,MR>& x );
+            template<typename R>
+            R
+            LocalRowReflector( DistMatrix<R,MC,MR>& x );
 
-            template<typename T>
+            template<typename R>
             void
             PanelTridiagL
-            ( DistMatrix<T,MC,  MR  >& A,
-              DistMatrix<T,MC,  MR  >& W,
-              DistMatrix<T,MD,  Star>& e,
-              DistMatrix<T,MD,  Star>& t,
-              DistMatrix<T,MC,  Star>& A_MC_Star,
-              DistMatrix<T,Star,MR  >& ATrans_Star_MR );
+            ( DistMatrix<R,MC,MR  >& A,
+              DistMatrix<R,MC,MR  >& W,
+              DistMatrix<R,MD,Star>& e,
+              DistMatrix<R,MD,Star>& t,
+              DistMatrix<R,MC,Star>& A_MC_Star,
+              DistMatrix<R,MR,Star>& A_MR_Star );
  
-            template<typename T>
+            template<typename R>
             void
             PanelTridiagU
-            ( DistMatrix<T,MC,MR  >& A,
-              DistMatrix<T,MC,MR  >& W,
-              DistMatrix<T,MD,Star>& e,
-              DistMatrix<T,MD,Star>& t );
+            ( DistMatrix<R,MC,MR  >& A,
+              DistMatrix<R,MC,MR  >& W,
+              DistMatrix<R,MD,Star>& e,
+              DistMatrix<R,MD,Star>& t );
 
-            template<typename T>
+            template<typename R>
             void
             TridiagL
-            ( DistMatrix<T,MC,MR  >& A,
-              DistMatrix<T,MD,Star>& d,
-              DistMatrix<T,MD,Star>& e,
-              DistMatrix<T,MD,Star>& t );
+            ( DistMatrix<R,MC,MR  >& A,
+              DistMatrix<R,MD,Star>& d,
+              DistMatrix<R,MD,Star>& e,
+              DistMatrix<R,MD,Star>& t );
            
-            template<typename T>
+            template<typename R>
             void
             TridiagU
-            ( DistMatrix<T,MC,MR  >& A,
-              DistMatrix<T,MD,Star>& d,
-              DistMatrix<T,MD,Star>& e,
-              DistMatrix<T,MD,Star>& t );
+            ( DistMatrix<R,MC,MR  >& A,
+              DistMatrix<R,MD,Star>& d,
+              DistMatrix<R,MD,Star>& e,
+              DistMatrix<R,MD,Star>& t );
 
             //----------------------------------------------------------------//
             // Trinv                                                          //

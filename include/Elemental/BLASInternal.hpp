@@ -316,17 +316,6 @@ namespace Elemental
                     DistMatrix<T,MR,Star>& z_MR_Star
             );
 
-            template<typename T>
-            void
-            SymvColAccumulateL
-            ( const T alpha,
-              const DistMatrix<T,MC,  MR  >& A,
-              const DistMatrix<T,MC,  Star>& x_MC_Star,
-              const DistMatrix<T,Star,MR  >& xTrans_Star_MR,
-                    DistMatrix<T,MC,  Star>& z_MC_Star,
-                    DistMatrix<T,MR,  Star>& z_MR_Star
-            );
-
             // This is for the case where x is a column vector and A is upper.
             //
             // Returns the unreduced components z[MC,* ] and z[MR,* ]:
@@ -961,6 +950,20 @@ namespace Elemental
               const T beta,        DistMatrix<T,MC,  MR  >& C );
 
             // Triangular Rank-2K Update:
+            // tril(C) := alpha tril( A1*B1^T + A2*B2 ) + beta tril(C)
+            //   or
+            // triu(C) := alpha triu( A1*B1^T + A2*B2 ) + beta triu(C)
+            template<typename T>
+            void
+            TriangularRank2K
+            ( const Shape shape,
+              const T alpha, const DistMatrix<T,MC,  Star>& A1,
+                             const DistMatrix<T,MC,  Star>& A2, 
+                             const DistMatrix<T,MR,  Star >& B1,
+                             const DistMatrix<T,Star,MR  >& B2,
+              const T beta,        DistMatrix<T,MC,  MR  >& C   );
+
+            // Triangular Rank-2K Update:
             // tril(C) := alpha tril( A1*B1 + A2*B2 ) + beta tril(C)
             //   or
             // triu(C) := alpha triu( A1*B1 + A2*B2 ) + beta triu(C)
@@ -973,6 +976,7 @@ namespace Elemental
                              const DistMatrix<T,Star,MR  >& B1,
                              const DistMatrix<T,Star,MR  >& B2,
               const T beta,        DistMatrix<T,MC,  MR  >& C   );
+
 
             // Triangular Rank-2K Update:
             // tril(C) := alpha tril( A1^T*B1 + A2^T*B2 ) + beta tril(C)
