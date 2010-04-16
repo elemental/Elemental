@@ -51,16 +51,14 @@ namespace Elemental
     inline float
     Random<float>()
     {
-        return ( 2.f*static_cast<float>(rand()) ) / 
-               static_cast<float>(RAND_MAX)-2.f;
+        return ( 2*static_cast<float>(rand())/RAND_MAX-1 );
     }
     
     template<>
     inline double
     Random<double>()
     {
-        return ( 2.*static_cast<double>(rand()) ) / 
-               static_cast<double>(RAND_MAX) - 2.;
+        return ( 2*static_cast<double>(rand())/RAND_MAX-1 );
     }
 
 #ifndef WITHOUT_COMPLEX
