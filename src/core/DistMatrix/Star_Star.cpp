@@ -1278,11 +1278,11 @@ Elemental::DistMatrix<T,Star,Star>::operator=
     return *this;
 }
 
-template class DistMatrix<int,     Star,Star>;
-template class DistMatrix<float,   Star,Star>;
-template class DistMatrix<double,  Star,Star>;
+template class Elemental::DistMatrix<int,     Star,Star>;
+template class Elemental::DistMatrix<float,   Star,Star>;
+template class Elemental::DistMatrix<double,  Star,Star>;
 #ifndef WITHOUT_COMPLEX
-template class DistMatrix<scomplex,Star,Star>;
-template class DistMatrix<dcomplex,Star,Star>;
+template class Elemental::DistMatrix<scomplex,Star,Star>;
+template class Elemental::DistMatrix<dcomplex,Star,Star>;
 #endif
 
