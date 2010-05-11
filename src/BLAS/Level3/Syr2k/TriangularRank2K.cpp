@@ -20,9 +20,11 @@
 using namespace std;
 using namespace Elemental;
 
+namespace {
+
 #ifndef RELEASE
 template<typename T>
-static void 
+void 
 CheckInput
 ( const DistMatrix<T,MC,  Star>& A1, 
   const DistMatrix<T,MC,  Star>& A2,
@@ -71,7 +73,7 @@ CheckInput
 }
 
 template<typename T>
-static void 
+void 
 CheckInput
 ( const DistMatrix<T,MC,  Star>& A1, 
   const DistMatrix<T,MC,  Star>& A2,
@@ -120,7 +122,7 @@ CheckInput
 }
 
 template<typename T>
-static void 
+void 
 CheckInput
 ( const DistMatrix<T,Star,MC>& A1, 
   const DistMatrix<T,Star,MC>& A2,
@@ -169,7 +171,7 @@ CheckInput
 }
 
 template<typename T>
-static void 
+void 
 CheckInput
 ( const DistMatrix<T,Star,MC  >& A1, 
   const DistMatrix<T,Star,MC  >& A2,
@@ -219,7 +221,7 @@ CheckInput
 #endif
 
 template<typename T>
-static void
+void
 TriangularRank2KKernel
 ( const Shape shape,
   const T alpha, const DistMatrix<T,MC,  Star>& A1,
@@ -324,7 +326,7 @@ TriangularRank2KKernel
 }
 
 template<typename T>
-static void
+void
 TriangularRank2KKernel
 ( const Shape shape,
   const T alpha, const DistMatrix<T,MC,  Star>& A1,
@@ -432,7 +434,7 @@ TriangularRank2KKernel
 }
 
 template<typename T>
-static void
+void
 TriangularRank2KKernel
 ( const Shape shape,
   const T alpha, const DistMatrix<T,Star,MC>& A1,
@@ -535,7 +537,7 @@ TriangularRank2KKernel
 }
 
 template<typename T>
-static void
+void
 TriangularRank2KKernel
 ( const Shape shape,
   const T alpha, const DistMatrix<T,Star,MC  >& A1,
@@ -639,6 +641,8 @@ TriangularRank2KKernel
     PopCallStack();
 #endif
 }
+
+} // anonymous namespace
 
 template<typename T>
 void

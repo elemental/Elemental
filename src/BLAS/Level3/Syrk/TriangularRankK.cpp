@@ -20,9 +20,11 @@
 using namespace std;
 using namespace Elemental;
 
+namespace {
+
 #ifndef RELEASE
 template<typename T>
-static void 
+void 
 CheckInput
 ( const DistMatrix<T,MC,  Star>& A, 
   const DistMatrix<T,Star,MR  >& B,
@@ -58,7 +60,7 @@ CheckInput
 }
 
 template<typename T>
-static void
+void
 CheckInput
 ( const DistMatrix<T,Star,MC  >& A,
   const DistMatrix<T,Star,MR  >& B,
@@ -94,7 +96,7 @@ CheckInput
 }
 
 template<typename T>
-static void
+void
 CheckInput
 ( const DistMatrix<T,Star,MC  >& A,
   const DistMatrix<T,MR,  Star>& B,
@@ -131,7 +133,7 @@ CheckInput
 #endif
 
 template<typename T>
-static void
+void
 TriangularRankKKernel
 ( const Shape shape,
   const T alpha, const DistMatrix<T,MC,  Star>& A,
@@ -210,7 +212,7 @@ TriangularRankKKernel
 }
 
 template<typename T>
-static void
+void
 TriangularRankKKernel
 ( const Shape shape,
   const T alpha, const DistMatrix<T,Star,MC  >& A,
@@ -287,7 +289,7 @@ TriangularRankKKernel
 }
 
 template<typename T>
-static void
+void
 TriangularRankKKernel
 ( const Shape shape,
   const T alpha, const DistMatrix<T,Star,MC  >& A,
@@ -364,6 +366,8 @@ TriangularRankKKernel
     PopCallStack();
 #endif
 }
+
+} // anonymous namespace
 
 template<typename T>
 void
