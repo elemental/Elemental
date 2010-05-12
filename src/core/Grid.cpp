@@ -37,6 +37,15 @@ Elemental::Grid::Grid
         ++r;
     int c = _p / r;
 
+    if( _p != r*c )
+    {
+        ostringstream msg;
+        msg << "Number of processes must match grid size:" << endl
+            << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
+        const string s = msg.str();
+        throw s.c_str();
+    }
+
     // Create cartesian communicator
     int dimensions[2] = { r,    c    };
     int periods[2]    = { true, true };
@@ -62,6 +71,15 @@ Elemental::Grid::Grid
     // Extract the total number of processes
     MPI_Comm_size( comm, &_p );
 
+    if( _p != r*c )
+    {
+        ostringstream msg;
+        msg << "Number of processes must match grid size:" << endl
+            << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
+        const string s = msg.str();
+        throw s.c_str();
+    }
+
     // Create a cartesian communicator
     int dimensions[2] = { r,   c     };
     int periods[2]    = { true, true };
@@ -85,14 +103,6 @@ Elemental::Grid::Init
     if( r <= 0 || c <= 0 )
         throw "r and c must be positive.";
 #endif
-    if( _p != r*c )
-    {
-        ostringstream msg;
-        msg << "Number of processes must match grid size:" << endl
-            << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
-        const string s = msg.str();
-        throw s.c_str();
-    }
     _r = r;
     _c = c;
 
