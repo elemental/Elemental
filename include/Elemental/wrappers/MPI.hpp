@@ -21,285 +21,325 @@
 
 #include "Elemental/Environment.hpp"
 
-namespace Elemental 
-{ 
-    namespace wrappers 
-    { 
-        namespace MPI 
-        {
+namespace Elemental {
+namespace wrappers {
+namespace MPI {
 
-            // Minimum number of elements that each process must contribute
-            // in collective communications
-            const int MinCollectContrib = 1;
+// Minimum number of elements that each process must contribute
+// in collective communications
+const int MinCollectContrib = 1;
 
-            double 
-            Time();
+double 
+Time();
 
-            void 
-            Barrier( MPI_Comm comm );
+void 
+Barrier( MPI_Comm comm );
 
-            void
-            Send
-            ( int* buf, int count, int to, int tag, MPI_Comm comm );
-            void
-            Send
-            ( float* buf, int count, int to, int tag, MPI_Comm comm );
-            void
-            Send
-            ( double* buf, int count, int to, int tag, MPI_Comm comm );
+void
+Send
+( int* buf, int count, int to, int tag, MPI_Comm comm );
+
+void
+Send
+( float* buf, int count, int to, int tag, MPI_Comm comm );
+
+void
+Send
+( double* buf, int count, int to, int tag, MPI_Comm comm );
+
 #ifndef WITHOUT_COMPLEX
-            void
-            Send
-            ( scomplex* buf, int count, int to, int tag, MPI_Comm comm );
-            void
-            Send
-            ( dcomplex* buf, int count, int to, int tag, MPI_Comm comm );
+void
+Send
+( scomplex* buf, int count, int to, int tag, MPI_Comm comm );
+
+void
+Send
+( dcomplex* buf, int count, int to, int tag, MPI_Comm comm );
 #endif
         
-            void
-            Recv
-            ( int* buf, int count, int from, int tag, MPI_Comm comm );
-            void
-            Recv
-            ( float* buf, int count, int from, int tag, MPI_Comm comm );
-            void
-            Recv
-            ( double* buf, int count, int from, int tag, MPI_Comm comm );
+void
+Recv
+( int* buf, int count, int from, int tag, MPI_Comm comm );
+
+void
+Recv
+( float* buf, int count, int from, int tag, MPI_Comm comm );
+
+void
+Recv
+( double* buf, int count, int from, int tag, MPI_Comm comm );
+
 #ifndef WITHOUT_COMPLEX
-            void
-            Recv
-            ( scomplex* buf, int count, int from, int tag, MPI_Comm comm );
-            void
-            Recv
-            ( dcomplex* buf, int count, int from, int tag, MPI_Comm comm );
+void
+Recv
+( scomplex* buf, int count, int from, int tag, MPI_Comm comm );
+
+void
+Recv
+( dcomplex* buf, int count, int from, int tag, MPI_Comm comm );
 #endif
 
-            void
-            SendRecv
-            ( int* sbuf, int sc, int to,   int stag,
-              int* rbuf, int rc, int from, int rtag, MPI_Comm comm );
-            void
-            SendRecv
-            ( float* sbuf, int sc, int to,   int stag,
-              float* rbuf, int rc, int from, int rtag, MPI_Comm comm );
-            void
-            SendRecv
-            ( double* sbuf, int sc, int to,   int stag,
-              double* rbuf, int rc, int from, int rtag, MPI_Comm comm );
+void
+SendRecv
+( int* sbuf, int sc, int to,   int stag,
+  int* rbuf, int rc, int from, int rtag, MPI_Comm comm );
+
+void
+SendRecv
+( float* sbuf, int sc, int to,   int stag,
+  float* rbuf, int rc, int from, int rtag, MPI_Comm comm );
+
+void
+SendRecv
+( double* sbuf, int sc, int to,   int stag,
+  double* rbuf, int rc, int from, int rtag, MPI_Comm comm );
+
 #ifndef WITHOUT_COMPLEX
-            void
-            SendRecv
-            ( scomplex* sbuf, int sc, int to,   int stag,
-              scomplex* rbuf, int rc, int from, int rtag, MPI_Comm comm );
-            void
-            SendRecv
-            ( dcomplex* sbuf, int sc, int to,   int stag,
-              dcomplex* rbuf, int rc, int from, int rtag, MPI_Comm comm );
+void
+SendRecv
+( scomplex* sbuf, int sc, int to,   int stag,
+  scomplex* rbuf, int rc, int from, int rtag, MPI_Comm comm );
+
+void
+SendRecv
+( dcomplex* sbuf, int sc, int to,   int stag,
+  dcomplex* rbuf, int rc, int from, int rtag, MPI_Comm comm );
 #endif
 
-            void
-            Broadcast( int* buf, int count, int root, MPI_Comm comm );
-            void
-            Broadcast( float* buf, int count, int root, MPI_Comm comm );
-            void
-            Broadcast( double* buf, int count, int root, MPI_Comm comm );
+void
+Broadcast( int* buf, int count, int root, MPI_Comm comm );
+
+void
+Broadcast( float* buf, int count, int root, MPI_Comm comm );
+
+void
+Broadcast( double* buf, int count, int root, MPI_Comm comm );
+
 #ifndef WITHOUT_COMPLEX
-            void
-            Broadcast
-            ( scomplex* buf, int count, int root, MPI_Comm comm );
-            void
-            Broadcast
-            ( dcomplex* buf, int count, int root, MPI_Comm comm );
+void
+Broadcast
+( scomplex* buf, int count, int root, MPI_Comm comm );
+
+void
+Broadcast
+( dcomplex* buf, int count, int root, MPI_Comm comm );
 #endif
 
-            void
-            Gather
-            ( int* sbuf, int sc,
-              int* rbuf, int rc, int root, MPI_Comm comm );
-            void
-            Gather
-            ( float* sbuf, int sc,
-              float* rbuf, int rc, int root, MPI_Comm comm );
-            void
-            Gather
-            ( double* sbuf, int sc,
-              double* rbuf, int rc, int root, MPI_Comm comm );
-#ifndef WITHOUT_COMPLEX
-            void 
-            Gather
-            ( scomplex* sbuf, int sc,
-              scomplex* rbuf, int rc, int root, MPI_Comm comm );
-            void
-            Gather
-            ( dcomplex* sbuf, int sc,
-              dcomplex* rbuf, int rc, int root, MPI_Comm comm );
-#endif
-    
-            void
-            AllGather
-            ( int* sbuf, int sc,
-              int* rbuf, int rc, MPI_Comm comm );
-            void
-            AllGather
-            ( float* sbuf, int sc,
-              float* rbuf, int rc, MPI_Comm comm );
-            void
-            AllGather
-            ( double* sbuf, int sc,
-              double* rbuf, int rc, MPI_Comm comm );
-#ifndef WITHOUT_COMPLEX
-            void
-            AllGather
-            ( scomplex* sbuf, int sc,
-              scomplex* rbuf, int rc, MPI_Comm comm );
-            void
-            AllGather
-            ( dcomplex* sbuf, int sc,
-              dcomplex* rbuf, int rc, MPI_Comm comm );
-#endif
+void
+Gather
+( int* sbuf, int sc,
+  int* rbuf, int rc, int root, MPI_Comm comm );
 
-            void
-            Scatter
-            ( int* sbuf, int sc,
-              int* rbuf, int rc, int root, MPI_Comm comm );
-            void
-            Scatter
-            ( float* sbuf, int sc,
-              float* rbuf, int rc, int root, MPI_Comm comm );
-            void
-            Scatter
-            ( double* sbuf, int sc,
-              double* rbuf, int rc, int root, MPI_Comm comm );
+void
+Gather
+( float* sbuf, int sc,
+  float* rbuf, int rc, int root, MPI_Comm comm );
+
+void
+Gather
+( double* sbuf, int sc,
+  double* rbuf, int rc, int root, MPI_Comm comm );
+
 #ifndef WITHOUT_COMPLEX
-            void
-            Scatter
-            ( scomplex* sbuf, int sc,
-              scomplex* rbuf, int rc, int root, MPI_Comm comm );
-            void
-            Scatter
-            ( dcomplex* sbuf, int sc,
-              dcomplex* rbuf, int rc, int root, MPI_Comm comm );
+void 
+Gather
+( scomplex* sbuf, int sc,
+  scomplex* rbuf, int rc, int root, MPI_Comm comm );
+
+void
+Gather
+( dcomplex* sbuf, int sc,
+  dcomplex* rbuf, int rc, int root, MPI_Comm comm );
 #endif
     
-            void
-            AllToAll
-            ( int* sbuf, int sc,
-              int* rbuf, int rc, MPI_Comm comm );
-            void
-            AllToAll
-            ( float* sbuf, int sc,
-              float* rbuf, int rc, MPI_Comm comm );
-            void
-            AllToAll
-            ( double* sbuf, int sc,
-              double* rbuf, int rc, MPI_Comm comm );
+void
+AllGather
+( int* sbuf, int sc,
+  int* rbuf, int rc, MPI_Comm comm );
+
+void
+AllGather
+( float* sbuf, int sc,
+  float* rbuf, int rc, MPI_Comm comm );
+
+void
+AllGather
+( double* sbuf, int sc,
+  double* rbuf, int rc, MPI_Comm comm );
+
 #ifndef WITHOUT_COMPLEX
-            void
-            AllToAll
-            ( scomplex* sbuf, int sc,
-              scomplex* rbuf, int rc, MPI_Comm comm );
-            void
-            AllToAll
-            ( dcomplex* sbuf, int sc,
-              dcomplex* rbuf, int rc, MPI_Comm comm );
+void
+AllGather
+( scomplex* sbuf, int sc,
+  scomplex* rbuf, int rc, MPI_Comm comm );
+
+void
+AllGather
+( dcomplex* sbuf, int sc,
+  dcomplex* rbuf, int rc, MPI_Comm comm );
 #endif
 
-            void
-            AllToAll
-            ( int* sbuf, int* scs, int* sds,
-              int* rbuf, int* rcs, int* rds, MPI_Comm comm );
+void
+Scatter
+( int* sbuf, int sc,
+  int* rbuf, int rc, int root, MPI_Comm comm );
 
-            void
-            AllToAll
-            ( float* sbuf, int* scs, int* sds,
-              float* rbuf, int* rcs, int* rds, MPI_Comm comm );
+void
+Scatter
+( float* sbuf, int sc,
+  float* rbuf, int rc, int root, MPI_Comm comm );
 
-            void
-            AllToAll
-            ( double* sbuf, int* scs, int* sds,
-              double* rbuf, int* rcs, int* rds, MPI_Comm comm );
+void
+Scatter
+( double* sbuf, int sc,
+  double* rbuf, int rc, int root, MPI_Comm comm );
+
 #ifndef WITHOUT_COMPLEX
-            void
-            AllToAll
-            ( scomplex* sbuf, int* scs, int* sds,
-              scomplex* rbuf, int* rcs, int* rds, MPI_Comm comm );
+void
+Scatter
+( scomplex* sbuf, int sc,
+  scomplex* rbuf, int rc, int root, MPI_Comm comm );
 
-            void
-            AllToAll
-            ( dcomplex* sbuf, int* scs, int* sds,
-              dcomplex* rbuf, int* rcs, int* rds, MPI_Comm comm );
-#endif
-
-            void
-            Reduce
-            ( int* sbuf, int* rbuf, int count, MPI_Op op, int root, 
-              MPI_Comm comm );
-            void
-            Reduce
-            ( float* sbuf, float* rbuf, int count, MPI_Op op, int root,
-              MPI_Comm comm );
-            void
-            Reduce
-            ( double* sbuf, double* rbuf, int count, MPI_Op op, int root,
-              MPI_Comm comm );
-#ifndef WITHOUT_COMPLEX
-            void
-            Reduce
-            ( scomplex* sbuf, scomplex* rbuf, int count, MPI_Op op, int root, 
-              MPI_Comm comm );
-            void
-            Reduce
-            ( dcomplex* sbuf, dcomplex* rbuf, int count, MPI_Op op, int root, 
-              MPI_Comm comm );
+void
+Scatter
+( dcomplex* sbuf, int sc,
+  dcomplex* rbuf, int rc, int root, MPI_Comm comm );
 #endif
     
-            void
-            AllReduce
-            ( char* sbuf, char* rbuf, int count, MPI_Op op, MPI_Comm comm );
-            void
-            AllReduce
-            ( int* sbuf, int* rbuf, int count, MPI_Op op, MPI_Comm comm );
-            void
-            AllReduce
-            ( float* sbuf, float* rbuf, int count, MPI_Op op, MPI_Comm comm );
-            void
-            AllReduce
-            ( double* sbuf, double* rbuf, int count, MPI_Op op, MPI_Comm comm );
+void
+AllToAll
+( int* sbuf, int sc,
+  int* rbuf, int rc, MPI_Comm comm );
+
+void
+AllToAll
+( float* sbuf, int sc,
+  float* rbuf, int rc, MPI_Comm comm );
+
+void
+AllToAll
+( double* sbuf, int sc,
+  double* rbuf, int rc, MPI_Comm comm );
+
 #ifndef WITHOUT_COMPLEX
-            void
-            AllReduce
-            ( scomplex* sbuf, scomplex* rbuf, int count, MPI_Op op, 
-              MPI_Comm comm );
-            void
-            AllReduce
-            ( dcomplex* sbuf, dcomplex* rbuf, int count, MPI_Op op, 
-              MPI_Comm comm );
+void
+AllToAll
+( scomplex* sbuf, int sc,
+  scomplex* rbuf, int rc, MPI_Comm comm );
+
+void
+AllToAll
+( dcomplex* sbuf, int sc,
+  dcomplex* rbuf, int rc, MPI_Comm comm );
+#endif
+
+void
+AllToAll
+( int* sbuf, int* scs, int* sds,
+  int* rbuf, int* rcs, int* rds, MPI_Comm comm );
+
+void
+AllToAll
+( float* sbuf, int* scs, int* sds,
+  float* rbuf, int* rcs, int* rds, MPI_Comm comm );
+
+void
+AllToAll
+( double* sbuf, int* scs, int* sds,
+  double* rbuf, int* rcs, int* rds, MPI_Comm comm );
+
+#ifndef WITHOUT_COMPLEX
+void
+AllToAll
+( scomplex* sbuf, int* scs, int* sds,
+  scomplex* rbuf, int* rcs, int* rds, MPI_Comm comm );
+
+void
+AllToAll
+( dcomplex* sbuf, int* scs, int* sds,
+  dcomplex* rbuf, int* rcs, int* rds, MPI_Comm comm );
+#endif
+
+void
+Reduce
+( int* sbuf, int* rbuf, int count, MPI_Op op, int root, 
+  MPI_Comm comm );
+
+void
+Reduce
+( float* sbuf, float* rbuf, int count, MPI_Op op, int root,
+  MPI_Comm comm );
+
+void
+Reduce
+( double* sbuf, double* rbuf, int count, MPI_Op op, int root,
+  MPI_Comm comm );
+
+#ifndef WITHOUT_COMPLEX
+void
+Reduce
+( scomplex* sbuf, scomplex* rbuf, int count, MPI_Op op, int root, 
+  MPI_Comm comm );
+
+void
+Reduce
+( dcomplex* sbuf, dcomplex* rbuf, int count, MPI_Op op, int root, 
+  MPI_Comm comm );
+#endif
+    
+void
+AllReduce
+( char* sbuf, char* rbuf, int count, MPI_Op op, MPI_Comm comm );
+
+void
+AllReduce
+( int* sbuf, int* rbuf, int count, MPI_Op op, MPI_Comm comm );
+
+void
+AllReduce
+( float* sbuf, float* rbuf, int count, MPI_Op op, MPI_Comm comm );
+
+void
+AllReduce
+( double* sbuf, double* rbuf, int count, MPI_Op op, MPI_Comm comm );
+#ifndef WITHOUT_COMPLEX
+void
+AllReduce
+( scomplex* sbuf, scomplex* rbuf, int count, MPI_Op op, MPI_Comm comm );
+
+void
+AllReduce
+( dcomplex* sbuf, dcomplex* rbuf, int count, MPI_Op op, MPI_Comm comm );
 #endif
         
-            void
-            ReduceScatter
-            ( int* sbuf, int* rbuf, int* rcs, MPI_Op op, MPI_Comm comm );
-            void
-            ReduceScatter
-            ( float* sbuf, float* rbuf, int* rcs, MPI_Op op, MPI_Comm comm );
-            void
-            ReduceScatter
-            ( double* sbuf, double* rbuf, int* rcs, MPI_Op op, MPI_Comm comm );
-#ifndef WITHOUT_COMPLEX
-            void
-            ReduceScatter
-            ( scomplex* sbuf, scomplex* rbuf, int* rcs, MPI_Op op, 
-              MPI_Comm comm );
-            void
-            ReduceScatter
-            ( dcomplex* sbuf, dcomplex* rbuf, int* rcs, MPI_Op op,
-              MPI_Comm comm );
-#endif
-        }
-    } 
-} 
+void
+ReduceScatter
+( int* sbuf, int* rbuf, int* rcs, MPI_Op op, MPI_Comm comm );
 
-/*----------------------------------------------------------------------------*/
+void
+ReduceScatter
+( float* sbuf, float* rbuf, int* rcs, MPI_Op op, MPI_Comm comm );
+
+void
+ReduceScatter
+( double* sbuf, double* rbuf, int* rcs, MPI_Op op, MPI_Comm comm );
+#ifndef WITHOUT_COMPLEX
+void
+ReduceScatter
+( scomplex* sbuf, scomplex* rbuf, int* rcs, MPI_Op op, MPI_Comm com );
+
+void
+ReduceScatter
+( dcomplex* sbuf, dcomplex* rbuf, int* rcs, MPI_Op op, MPI_Comm comm );
+#endif
+
+} // MPI
+} // wrapppers
+} // Elemental
+
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
 
 #ifndef RELEASE
 #define SAFE_MPI( routine ) \
@@ -322,9 +362,7 @@ namespace Elemental
 
 inline double
 Elemental::wrappers::MPI::Time()
-{
-    return MPI_Wtime();
-}
+{ return MPI_Wtime(); }
 
 inline void
 Elemental::wrappers::MPI::Barrier( MPI_Comm comm )

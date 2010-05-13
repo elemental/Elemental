@@ -22,61 +22,64 @@
 #include <iostream>
 #include "mpi.h"
 
-namespace Elemental 
-{
-    class Grid
-    {
-        int        _p;
-        int        _c;
-        int        _r;
-        int        _gcd;
-        int        _col;
-        int        _row;
-        int        _rank; 
-        int        _matrixColRank;
-        int        _matrixRowRank;
-        int        _vectorColRank;
-        int        _vectorRowRank;
-        int*       _diagPathsAndRanks; // we AllGather this array, so use ints
-        MPI_Comm   _comm;
-        MPI_Comm   _matrixColComm;
-        MPI_Comm   _matrixRowComm;
-        MPI_Comm   _vectorColComm;
-        MPI_Comm   _vectorRowComm;
+namespace Elemental {
 
-        void Init( int r, int c );
+class Grid
+{
+    int        _p;
+    int        _c;
+    int        _r;
+    int        _gcd;
+    int        _col;
+    int        _row;
+    int        _rank; 
+    int        _matrixColRank;
+    int        _matrixRowRank;
+    int        _vectorColRank;
+    int        _vectorRowRank;
+    int*       _diagPathsAndRanks; 
+    MPI_Comm   _comm;
+    MPI_Comm   _matrixColComm;
+    MPI_Comm   _matrixRowComm;
+    MPI_Comm   _vectorColComm;
+    MPI_Comm   _vectorRowComm;
+
+    void Init( int r, int c );
 
     public:
 
-        Grid( MPI_Comm comm );
-        Grid( MPI_Comm comm, int r, int c );
+    Grid( MPI_Comm comm );
+    Grid( MPI_Comm comm, int r, int c );
 
-        ~Grid();
+    ~Grid();
         
-        int Size() const;
-        int Height() const;
-        int Width() const;
-        int GCD() const;
-        int LCM() const;
-        int DiagPath() const;
-        int DiagPath( const int vectorColRank ) const;
-        int DiagPathRank() const;
-        int DiagPathRank( const int vectorColRank ) const;
-        int MCRank() const;
-        int MRRank() const;
-        int VCRank() const;
-        int VRRank() const;
-        MPI_Comm MCComm() const;
-        MPI_Comm MRComm() const;
-        MPI_Comm VCComm() const;
-        MPI_Comm VRComm() const;
-    };
+    int Size() const;
+    int Height() const;
+    int Width() const;
+    int GCD() const;
+    int LCM() const;
+    int DiagPath() const;
+    int DiagPath( const int vectorColRank ) const;
+    int DiagPathRank() const;
+    int DiagPathRank( const int vectorColRank ) const;
+    int MCRank() const;
+    int MRRank() const;
+    int VCRank() const;
+    int VRRank() const;
+    MPI_Comm MCComm() const;
+    MPI_Comm MRComm() const;
+    MPI_Comm VCComm() const;
+    MPI_Comm VRComm() const;
+};
 
-    bool operator== ( const Grid& A, const Grid& B );
-    bool operator!= ( const Grid& A, const Grid& B );
-}
+bool operator== ( const Grid& A, const Grid& B );
+bool operator!= ( const Grid& A, const Grid& B );
 
-/*----------------------------------------------------------------------------*/
+} // Elemental
+
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
 
 inline
 Elemental::Grid::~Grid()
@@ -160,15 +163,11 @@ Elemental::Grid::VRComm() const
 
 inline bool 
 Elemental::operator== ( const Grid& A, const Grid& B )
-{
-    return &A == &B;
-}
+{ return &A == &B; }
 
 inline bool 
 Elemental::operator!= ( const Grid& A, const Grid& B )
-{
-    return &A != &B; 
-}
+{ return &A != &B; }
 
 #endif /* ELEMENTAL_PROCESSGRID_HPP */
 

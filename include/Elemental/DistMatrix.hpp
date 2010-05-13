@@ -22,11 +22,12 @@
 #include "Elemental/Matrix.hpp"
 #include "Elemental/wrappers/MPI.hpp"
 
-namespace Elemental
-{
-    // We will partially specialize for each valid distribution 
-    template<typename T, Distribution ColDist, Distribution RowDist> 
-    class DistMatrix;
+namespace Elemental {
+
+// We will partially specialize for each valid distribution 
+template<typename T, Distribution ColDist, Distribution RowDist> 
+class DistMatrix;
+
 }
 
 #include "Elemental/DistMatrix/MC_MR.hpp"

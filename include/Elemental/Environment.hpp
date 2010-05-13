@@ -28,11 +28,12 @@
 #include "mpi.h"
 
 #ifndef RELEASE
-namespace Elemental
-{
-    void PushCallStack( std::string s );
-    void PopCallStack();
-    void DumpCallStack();
+namespace Elemental {
+
+void PushCallStack( std::string s );
+void PopCallStack();
+void DumpCallStack();
+
 }
 #endif
 
@@ -42,70 +43,73 @@ namespace Elemental
 #include "Elemental/Types.hpp"
 #include "Elemental/Utilities.hpp"
 
-namespace Elemental
-{
-    void Init( int* argc, char** argv[] );
-    void Finalize();
+namespace Elemental {
 
-    // Naive blocksize set and get
-    int Blocksize();
-    void SetBlocksize( int blocksize );
+void Init( int* argc, char** argv[] );
+void Finalize();
 
-    void PushBlocksizeStack( int blocksize );
-    void PopBlocksizeStack();
+// Naive blocksize set and get
+int Blocksize();
+void SetBlocksize( int blocksize );
 
-    template<typename R>
-    R
-    Abs( const R& alpha );
+void PushBlocksizeStack( int blocksize );
+void PopBlocksizeStack();
 
-#ifndef WITHOUT_COMPLEX
-    template<typename R>
-    R
-    Abs( const std::complex<R>& alpha );
-#endif
-
-    template<typename R>
-    R
-    FastAbs( const R& alpha );
+template<typename R>
+R
+Abs( const R& alpha );
 
 #ifndef WITHOUT_COMPLEX
-    template<typename R>
-    R
-    FastAbs( const std::complex<R>& alpha );
+template<typename R>
+R
+Abs( const std::complex<R>& alpha );
 #endif
 
-    template<typename R>
-    R
-    Conj( const R& alpha );
+template<typename R>
+R
+FastAbs( const R& alpha );
 
 #ifndef WITHOUT_COMPLEX
-    template<typename R>
-    std::complex<R>
-    Conj( const std::complex<R>& alpha );
+template<typename R>
+R
+FastAbs( const std::complex<R>& alpha );
 #endif
 
-    template<typename R>
-    R
-    Imag( const R& alpha );
+template<typename R>
+R
+Conj( const R& alpha );
 
 #ifndef WITHOUT_COMPLEX
-    template<typename R>
-    R
-    Imag( const std::complex<R>& alpha );
+template<typename R>
+std::complex<R>
+Conj( const std::complex<R>& alpha );
 #endif
 
-    template<typename R>
-    R
-    Real( const R& alpha );
+template<typename R>
+R
+Imag( const R& alpha );
 
 #ifndef WITHOUT_COMPLEX
-    template<typename R>
-    R
-    Real( const std::complex<R>& alpha );
+template<typename R>
+R
+Imag( const std::complex<R>& alpha );
 #endif
-}
 
-/*----------------------------------------------------------------------------*/
+template<typename R>
+R
+Real( const R& alpha );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+R
+Real( const std::complex<R>& alpha );
+#endif
+
+} // Elemental
+
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
 
 template<typename R>
 inline R

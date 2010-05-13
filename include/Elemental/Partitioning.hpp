@@ -25,394 +25,397 @@
 #define M  Matrix<T>
 #define DM DistMatrix<T,U,V>
 
-namespace Elemental 
-{
-    template<typename T>
-    void PartitionUp
-    ( M& A, M& AT,
-            M& AB, const int heightAB=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void PartitionUp
-    ( DM& A, DM& AT,
-             DM& AB, const int heightAB=0 );
-
-    template<typename T>
-    void PartitionDown
-    ( M& A, M& AT,
-            M& AB, const int heightAT=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void PartitionDown
-    ( DM& A, DM& AT,
-             DM& AB, const int heightAT=0 );
-
-    template<typename T>
-    void PartitionLeft
-    ( M& A, M& AL, M& AR, const int widthAR=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void PartitionLeft
-    ( DM& A, DM& AL, DM& AR, const int widthAR=0 );
-
-    template<typename T>
-    void PartitionRight
-    ( M& A, M& AL, M& AR, const int widthAL=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void PartitionRight
-    ( DM& A, DM& AL, DM& AR, const int widthAL=0 );
-
-    template<typename T>
-    void PartitionUpDiagonal
-    ( M& A, M& ATL, M& ATR,
-            M& ABL, M& ABR, const int diagABR=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void PartitionUpDiagonal
-    ( DM& A, DM& ATL, DM& ATR,
-             DM& ABL, DM& ABR, const int diagABR=0 );
-
-    template<typename T>
-    void PartitionDownDiagonal
-    ( M& A, M& ATL, M& ATR,
-            M& ABL, M& ABR, const int diagATL=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void PartitionDownDiagonal
-    ( DM& A, DM& ATL, DM& ATR,
-             DM& ABL, DM& ABR, const int diagATL=0 );
-
-    template<typename T>
-    void LockedPartitionUp
-    ( const M& A, M& AT,
-                  M& AB, const int heightAB=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedPartitionUp
-    ( const DM& A, DM& AT,
-                   DM& AB, const int heightAB=0 );
-
-    template<typename T>
-    void LockedPartitionDown
-    ( const M& A, M& AT,
-                  M& AB, const int heightAT=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedPartitionDown
-    ( const DM& A, DM& AT,
-                   DM& AB, const int heightAT=0 );
-
-    template<typename T>
-    void LockedPartitionLeft
-    ( const M& A, M& AL, M& AR, const int widthAR=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedPartitionLeft
-    ( const DM& A, DM& AL, DM& AR, const int widthAR=0 );
-
-    template<typename T>
-    void LockedPartitionRight
-    ( const M& A, M& AL, M& AR, const int widthAL=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedPartitionRight
-    ( const DM& A, DM& AL, DM& AR, const int widthAL=0 );
-
-    template<typename T>
-    void LockedPartitionUpDiagonal
-    ( const M& A, M& ATL, M& ATR,
-                  M& ABL, M& ABR, const int diagABR=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedPartitionUpDiagonal
-    ( const DM& A, DM& ATL, DM& ATR,
-                   DM& ABL, DM& ABR, const int diagABR=0 );
-
-    template<typename T>
-    void LockedPartitionDownDiagonal
-    ( const M& A, M& ATL, M& ATR,
-                  M& ABL, M& ABR, const int diagATL=0 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedPartitionDownDiagonal
-    ( const DM& A, DM& ATL, DM& ATR,
-                   DM& ABL, DM& ABR, const int diagATL=0 );
-
-    template<typename T>
-    void RepartitionUp
-    ( M& AT, M& A0,
-             M& A1,
-      M& AB, M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void RepartitionUp
-    ( DM& AT, DM& A0,
-              DM& A1,
-      DM& AB, DM& A2 );
-
-    template<typename T>
-    void RepartitionDown
-    ( M& AT, M& A0,
-             M& A1,
-      M& AB, M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void RepartitionDown
-    ( DM& AT, DM& A0,
-              DM& A1,
-      DM& AB, DM& A2 );
-
-    template<typename T>
-    void RepartitionLeft
-    ( M& AL, M& AR,
-      M& A0, M& A1, M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void RepartitionLeft
-    ( DM& AL, DM& AR,
-      DM& A0, DM& A1, DM& A2 );
-
-    template<typename T>
-    void RepartitionRight
-    ( M& AL, M& AR,
-      M& A0, M& A1, M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void RepartitionRight
-    ( DM& AL, DM& AR,
-      DM& A0, DM& A1, DM& A2 );
-
-    template<typename T>
-    void RepartitionUpDiagonal
-    ( M& ATL, M& ATR, M& A00, M& A01, M& A02,
-                      M& A10, M& A11, M& A12,
-      M& ABL, M& ABR, M& A20, M& A21, M& A22 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void RepartitionUpDiagonal
-    ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
-                        DM& A10, DM& A11, DM& A12,
-      DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
-
-    template<typename T>
-    void RepartitionDownDiagonal
-    ( M& ATL, M& ATR, M& A00, M& A01, M& A02,
-                      M& A10, M& A11, M& A12,
-      M& ABL, M& ABR, M& A20, M& A21, M& A22 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void RepartitionDownDiagonal
-    ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
-                        DM& A10, DM& A11, DM& A12,
-      DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
- 
-    template<typename T>
-    void LockedRepartitionUp
-    ( const M& AT, M& A0,
-                   M& A1,
-      const M& AB, M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedRepartitionUp
-    ( const DM& AT, DM& A0,
-                    DM& A1,
-      const DM& AB, DM& A2 );
-
-    template<typename T>
-    void LockedRepartitionDown
-    ( const M& AT, M& A0,
-                   M& A1,
-      const M& AB, M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedRepartitionDown
-    ( const DM& AT, DM& A0,
-                    DM& A1,
-      const DM& AB, DM& A2 );
-
-    template<typename T>
-    void LockedRepartitionLeft
-    ( const M& AL, const M& AR,
-      M& A0, M& A1, M& A2      );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedRepartitionLeft
-    ( const DM& AL, const DM& AR,
-      DM& A0, DM& A1, DM& A2     );
-
-    template<typename T>
-    void LockedRepartitionRight
-    ( const M& AL, const M& AR,
-      M& A0, M& A1, M& A2      );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedRepartitionRight
-    ( const DM& AL, const DM& AR,
-      DM& A0, DM& A1, DM& A2     );
-
-    template<typename T>
-    void LockedRepartitionUpDiagonal
-    ( const M& ATL, const M& ATR, M& A00, M& A01, M& A02,
-                                  M& A10, M& A11, M& A12,
-      const M& ABL, const M& ABR, M& A20, M& A21, M& A22 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedRepartitionUpDiagonal
-    ( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
-                                    DM& A10, DM& A11, DM& A12,
-      const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22 );
-
-    template<typename T>
-    void LockedRepartitionDownDiagonal
-    ( const M& ATL, const M& ATR, M& A00, M& A01, M& A02,
-                                  M& A10, M& A11, M& A12,
-      const M& ABL, const M& ABR, M& A20, M& A21, M& A22 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void LockedRepartitionDownDiagonal
-    ( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
-                                    DM& A10, DM& A11, DM& A12,
-      const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22 );
-
-    template<typename T>
-    void SlidePartitionUp
-    ( M& AT, M& A0,
-             M& A1,
-      M& AB, M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlidePartitionUp
-    ( DM& AT, DM& A0,
-              DM& A1,
-      DM& AB, DM& A2 );
-
-    template<typename T>
-    void SlidePartitionDown
-    ( M& AT, M& A0,
-             M& A1,
-      M& AB, M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlidePartitionDown
-    ( DM& AT, DM& A0,
-              DM& A1,
-      DM& AB, DM& A2 );
-
-    template<typename T>
-    void SlidePartitionLeft
-    ( M& AL, M& AR,
-      M& A0, M& A1, M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlidePartitionLeft
-    ( DM& AL, DM& AR,
-      DM& A0, DM& A1, DM& A2 );
-
-    template<typename T>
-    void SlidePartitionRight
-    ( M& AL, M& AR,
-      M& A0, M& A1, M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlidePartitionRight
-    ( DM& AL, DM& AR,
-      DM& A0, DM& A1, DM& A2 );
-
-    template<typename T>
-    void SlidePartitionUpDiagonal
-    ( M& ATL, M& ATR, M& A00, M& A01, M& A02,
-                      M& A10, M& A11, M& A12,
-      M& ABL, M& ABR, M& A20, M& A21, M& A22 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlidePartitionUpDiagonal
-    ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
-                        DM& A10, DM& A11, DM& A12,
-      DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
-
-    template<typename T>
-    void SlidePartitionDownDiagonal
-    ( M& ATL, M& ATR, M& A00, M& A01, M& A02,
-                      M& A10, M& A11, M& A12,
-      M& ABL, M& ABR, M& A20, M& A21, M& A22 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlidePartitionDownDiagonal
-    ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
-                        DM& A10, DM& A11, DM& A12,
-      DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
-
-    template<typename T>
-    void SlideLockedPartitionUp
-    ( M& AT, const M& A0,
-             const M& A1,
-      M& AB, const M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlideLockedPartitionUp
-    ( DM& AT, const DM& A0,
-              const DM& A1,
-      DM& AB, const DM& A2 );
-
-    template<typename T>
-    void SlideLockedPartitionDown
-    ( M& AT, const M& A0,
-             const M& A1,
-      M& AB, const M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlideLockedPartitionDown
-    ( DM& AT, const DM& A0,
-              const DM& A1,
-      DM& AB, const DM& A2 );
-
-    template<typename T>
-    void SlideLockedPartitionLeft
-    ( M& AL, M& AR,
-      const M& A0, const M& A1, const M& A2 ); 
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlideLockedPartitionLeft
-    ( DM& AL, DM& AR,
-      const DM& A0, const DM& A1, const DM& A2 );
-
-    template<typename T>
-    void SlideLockedPartitionRight
-    ( M& AL, M& AR,
-      const M& A0, const M& A1, const M& A2 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlideLockedPartitionRight
-    ( DM& AL, DM& AR,
-      const DM& A0, const DM& A1, const DM& A2 );
-
-    template<typename T>
-    void SlideLockedPartitionUpDiagonal
-    ( M& ATL, M& ATR, const M& A00, const M& A01, const M& A02,
-                      const M& A10, const M& A11, const M& A12,
-      M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlideLockedPartitionUpDiagonal
-    ( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
-                        const DM& A10, const DM& A11, const DM& A12,
-      DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 );
-
-    template<typename T>
-    void SlideLockedPartitionDownDiagonal
-    ( M& ATL, M& ATR, const M& A00, const M& A01, const M& A02,
-                      const M& A10, const M& A11, const M& A12,
-      M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 );
-
-    template<typename T, Elemental::Distribution U, Elemental::Distribution V>
-    void SlideLockedPartitionDownDiagonal
-    ( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
-                        const DM& A10, const DM& A11, const DM& A12,
-      DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 );
+namespace Elemental {
+
+template<typename T>
+void PartitionUp
+( M& A, M& AT,
+        M& AB, const int heightAB=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void PartitionUp
+( DM& A, DM& AT,
+         DM& AB, const int heightAB=0 );
+
+template<typename T>
+void PartitionDown
+( M& A, M& AT,
+        M& AB, const int heightAT=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void PartitionDown
+( DM& A, DM& AT,
+         DM& AB, const int heightAT=0 );
+
+template<typename T>
+void PartitionLeft
+( M& A, M& AL, M& AR, const int widthAR=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void PartitionLeft
+( DM& A, DM& AL, DM& AR, const int widthAR=0 );
+
+template<typename T>
+void PartitionRight
+( M& A, M& AL, M& AR, const int widthAL=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void PartitionRight
+( DM& A, DM& AL, DM& AR, const int widthAL=0 );
+
+template<typename T>
+void PartitionUpDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR, const int diagABR=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void PartitionUpDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR, const int diagABR=0 );
+
+template<typename T>
+void PartitionDownDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR, const int diagATL=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void PartitionDownDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR, const int diagATL=0 );
+
+template<typename T>
+void LockedPartitionUp
+( const M& A, M& AT,
+              M& AB, const int heightAB=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedPartitionUp
+( const DM& A, DM& AT,
+               DM& AB, const int heightAB=0 );
+
+template<typename T>
+void LockedPartitionDown
+( const M& A, M& AT,
+              M& AB, const int heightAT=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedPartitionDown
+( const DM& A, DM& AT,
+               DM& AB, const int heightAT=0 );
+
+template<typename T>
+void LockedPartitionLeft
+( const M& A, M& AL, M& AR, const int widthAR=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedPartitionLeft
+( const DM& A, DM& AL, DM& AR, const int widthAR=0 );
+
+template<typename T>
+void LockedPartitionRight
+( const M& A, M& AL, M& AR, const int widthAL=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedPartitionRight
+( const DM& A, DM& AL, DM& AR, const int widthAL=0 );
+
+template<typename T>
+void LockedPartitionUpDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR, const int diagABR=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedPartitionUpDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR, const int diagABR=0 );
+
+template<typename T>
+void LockedPartitionDownDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR, const int diagATL=0 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedPartitionDownDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR, const int diagATL=0 );
+
+template<typename T>
+void RepartitionUp
+( M& AT, M& A0,
+         M& A1,
+  M& AB, M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void RepartitionUp
+( DM& AT, DM& A0,
+          DM& A1,
+  DM& AB, DM& A2 );
+
+template<typename T>
+void RepartitionDown
+( M& AT, M& A0,
+         M& A1,
+  M& AB, M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void RepartitionDown
+( DM& AT, DM& A0,
+          DM& A1,
+  DM& AB, DM& A2 );
+
+template<typename T>
+void RepartitionLeft
+( M& AL, M& AR,
+  M& A0, M& A1, M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void RepartitionLeft
+( DM& AL, DM& AR,
+  DM& A0, DM& A1, DM& A2 );
+
+template<typename T>
+void RepartitionRight
+( M& AL, M& AR,
+  M& A0, M& A1, M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void RepartitionRight
+( DM& AL, DM& AR,
+  DM& A0, DM& A1, DM& A2 );
+
+template<typename T>
+void RepartitionUpDiagonal
+( M& ATL, M& ATR, M& A00, M& A01, M& A02,
+                  M& A10, M& A11, M& A12,
+  M& ABL, M& ABR, M& A20, M& A21, M& A22 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void RepartitionUpDiagonal
+( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
+                    DM& A10, DM& A11, DM& A12,
+  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
+
+template<typename T>
+void RepartitionDownDiagonal
+( M& ATL, M& ATR, M& A00, M& A01, M& A02,
+                  M& A10, M& A11, M& A12,
+  M& ABL, M& ABR, M& A20, M& A21, M& A22 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void RepartitionDownDiagonal
+( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
+                    DM& A10, DM& A11, DM& A12,
+  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
+
+template<typename T>
+void LockedRepartitionUp
+( const M& AT, M& A0,
+               M& A1,
+  const M& AB, M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedRepartitionUp
+( const DM& AT, DM& A0,
+                DM& A1,
+  const DM& AB, DM& A2 );
+
+template<typename T>
+void LockedRepartitionDown
+( const M& AT, M& A0,
+               M& A1,
+  const M& AB, M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedRepartitionDown
+( const DM& AT, DM& A0,
+                DM& A1,
+  const DM& AB, DM& A2 );
+
+template<typename T>
+void LockedRepartitionLeft
+( const M& AL, const M& AR,
+  M& A0, M& A1, M& A2      );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedRepartitionLeft
+( const DM& AL, const DM& AR,
+  DM& A0, DM& A1, DM& A2     );
+
+template<typename T>
+void LockedRepartitionRight
+( const M& AL, const M& AR,
+  M& A0, M& A1, M& A2      );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedRepartitionRight
+( const DM& AL, const DM& AR,
+  DM& A0, DM& A1, DM& A2     );
+
+template<typename T>
+void LockedRepartitionUpDiagonal
+( const M& ATL, const M& ATR, M& A00, M& A01, M& A02,
+                              M& A10, M& A11, M& A12,
+  const M& ABL, const M& ABR, M& A20, M& A21, M& A22 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedRepartitionUpDiagonal
+( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
+                                DM& A10, DM& A11, DM& A12,
+  const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22 );
+
+template<typename T>
+void LockedRepartitionDownDiagonal
+( const M& ATL, const M& ATR, M& A00, M& A01, M& A02,
+                              M& A10, M& A11, M& A12,
+  const M& ABL, const M& ABR, M& A20, M& A21, M& A22 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void LockedRepartitionDownDiagonal
+( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
+                                DM& A10, DM& A11, DM& A12,
+  const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22 );
+
+template<typename T>
+void SlidePartitionUp
+( M& AT, M& A0,
+         M& A1,
+  M& AB, M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlidePartitionUp
+( DM& AT, DM& A0,
+          DM& A1,
+  DM& AB, DM& A2 );
+
+template<typename T>
+void SlidePartitionDown
+( M& AT, M& A0,
+         M& A1,
+  M& AB, M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlidePartitionDown
+( DM& AT, DM& A0,
+          DM& A1,
+  DM& AB, DM& A2 );
+
+template<typename T>
+void SlidePartitionLeft
+( M& AL, M& AR,
+  M& A0, M& A1, M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlidePartitionLeft
+( DM& AL, DM& AR,
+  DM& A0, DM& A1, DM& A2 );
+
+template<typename T>
+void SlidePartitionRight
+( M& AL, M& AR,
+  M& A0, M& A1, M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlidePartitionRight
+( DM& AL, DM& AR,
+  DM& A0, DM& A1, DM& A2 );
+
+template<typename T>
+void SlidePartitionUpDiagonal
+( M& ATL, M& ATR, M& A00, M& A01, M& A02,
+                  M& A10, M& A11, M& A12,
+  M& ABL, M& ABR, M& A20, M& A21, M& A22 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlidePartitionUpDiagonal
+( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
+                    DM& A10, DM& A11, DM& A12,
+  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
+
+template<typename T>
+void SlidePartitionDownDiagonal
+( M& ATL, M& ATR, M& A00, M& A01, M& A02,
+                  M& A10, M& A11, M& A12,
+  M& ABL, M& ABR, M& A20, M& A21, M& A22 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlidePartitionDownDiagonal
+( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
+                    DM& A10, DM& A11, DM& A12,
+  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
+
+template<typename T>
+void SlideLockedPartitionUp
+( M& AT, const M& A0,
+         const M& A1,
+  M& AB, const M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlideLockedPartitionUp
+( DM& AT, const DM& A0,
+          const DM& A1,
+  DM& AB, const DM& A2 );
+
+template<typename T>
+void SlideLockedPartitionDown
+( M& AT, const M& A0,
+         const M& A1,
+  M& AB, const M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlideLockedPartitionDown
+( DM& AT, const DM& A0,
+          const DM& A1,
+  DM& AB, const DM& A2 );
+
+template<typename T>
+void SlideLockedPartitionLeft
+( M& AL, M& AR,
+  const M& A0, const M& A1, const M& A2 ); 
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlideLockedPartitionLeft
+( DM& AL, DM& AR,
+  const DM& A0, const DM& A1, const DM& A2 );
+
+template<typename T>
+void SlideLockedPartitionRight
+( M& AL, M& AR,
+  const M& A0, const M& A1, const M& A2 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlideLockedPartitionRight
+( DM& AL, DM& AR,
+  const DM& A0, const DM& A1, const DM& A2 );
+
+template<typename T>
+void SlideLockedPartitionUpDiagonal
+( M& ATL, M& ATR, const M& A00, const M& A01, const M& A02,
+                  const M& A10, const M& A11, const M& A12,
+  M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlideLockedPartitionUpDiagonal
+( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
+                    const DM& A10, const DM& A11, const DM& A12,
+  DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 );
+
+template<typename T>
+void SlideLockedPartitionDownDiagonal
+( M& ATL, M& ATR, const M& A00, const M& A01, const M& A02,
+                  const M& A10, const M& A11, const M& A12,
+  M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 );
+
+template<typename T, Elemental::Distribution U, Elemental::Distribution V>
+void SlideLockedPartitionDownDiagonal
+( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
+                    const DM& A10, const DM& A11, const DM& A12,
+  DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 );
+
 }
 
-/*----------------------------------------------------------------------------*/
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
 
 template<typename T>
 inline void

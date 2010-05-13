@@ -21,378 +21,376 @@
 
 #include "Elemental/LAPACK.hpp"
 
-namespace Elemental
-{
-    namespace LAPACK
-    {
-        namespace Internal
-        {
-            //----------------------------------------------------------------//
-            // Chol                                                           //
-            //----------------------------------------------------------------//
-            template<typename T>
-            void
-            CholVar2
-            ( const Shape shape, DistMatrix<T,MC,MR>& A );
+namespace Elemental {
+namespace LAPACK {
+namespace Internal {
 
-            template<typename T>
-            void
-            CholVar3
-            ( const Shape shape, DistMatrix<T,MC,MR>& A );
+//----------------------------------------------------------------------------//
+// Chol                                                                       //
+//----------------------------------------------------------------------------//
+template<typename T>
+void
+CholVar2
+( const Shape shape, DistMatrix<T,MC,MR>& A );
 
-            template<typename T>
-            void
-            CholL( DistMatrix<T,MC,MR>& A );
+template<typename T>
+void
+CholVar3
+( const Shape shape, DistMatrix<T,MC,MR>& A );
 
-            template<typename T>
-            void
-            CholU( DistMatrix<T,MC,MR>& A );
+template<typename T>
+void
+CholL( DistMatrix<T,MC,MR>& A );
 
-            template<typename T>
-            void
-            CholLVar2( DistMatrix<T,MC,MR>& A );
+template<typename T>
+void
+CholU( DistMatrix<T,MC,MR>& A );
 
-            template<typename T>
-            void
-            CholLVar3( DistMatrix<T,MC,MR>& A );
+template<typename T>
+void
+CholLVar2( DistMatrix<T,MC,MR>& A );
 
-            template<typename T>
-            void
-            CholUVar2( DistMatrix<T,MC,MR>& A );
+template<typename T>
+void
+CholLVar3( DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+CholUVar2( DistMatrix<T,MC,MR>& A );
  
-            template<typename T>
-            void
-            CholUVar3( DistMatrix<T,MC,MR>& A );
+template<typename T>
+void
+CholUVar3( DistMatrix<T,MC,MR>& A );
             
-            //----------------------------------------------------------------//
-            // GaussElim                                                      //
-            //----------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+// GaussElim                                                                  //
+//----------------------------------------------------------------------------//
             
-            template<typename T>
-            void
-            ReduceToRowEchelon
-            ( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
+template<typename T>
+void
+ReduceToRowEchelon
+( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
 
-            //----------------------------------------------------------------//
-            // LU                                                             //
-            //----------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+// LU                                                                         //
+//----------------------------------------------------------------------------//
 
-            template<typename T>
-            void
-            ApplyRowPivots
-            (       DistMatrix<T,MC,MR>& A, 
-              const std::vector<int>& image,
-              const std::vector<int>& preimage,
-              const int pivotOffset=0           );
+template<typename T>
+void
+ApplyRowPivots
+(       DistMatrix<T,MC,MR>& A, 
+  const std::vector<int>& image,
+  const std::vector<int>& preimage,
+  const int pivotOffset=0 );
 
-            void
-            ComposePivots
-            ( const DistMatrix<int,Star,Star>& p,
-                    std::vector<int>& image,
-                    std::vector<int>& preimage,
-              const int pivotOffset = 0          );
+void
+ComposePivots
+( const DistMatrix<int,Star,Star>& p,
+        std::vector<int>& image,
+        std::vector<int>& preimage,
+  const int pivotOffset = 0 );
 
-            template<typename T>
-            void
-            CreatePivotOp();
+template<typename T>
+void
+CreatePivotOp();
 
-            template<>
-            void
-            CreatePivotOp<float>();
+template<>
+void
+CreatePivotOp<float>();
 
-            template<>
-            void
-            CreatePivotOp<double>();
+template<>
+void
+CreatePivotOp<double>();
 
 #ifndef WITHOUT_COMPLEX
-            template<>
-            void
-            CreatePivotOp<scomplex>();
+template<>
+void
+CreatePivotOp<scomplex>();
 
-            template<>
-            void
-            CreatePivotOp<dcomplex>();
+template<>
+void
+CreatePivotOp<dcomplex>();
 #endif
 
-            template<typename T>
-            void
-            DestroyPivotOp();
+template<typename T>
+void
+DestroyPivotOp();
 
-            template<>
-            void
-            DestroyPivotOp<float>();
+template<>
+void
+DestroyPivotOp<float>();
 
-            template<>
-            void
-            DestroyPivotOp<double>();
+template<>
+void
+DestroyPivotOp<double>();
 
 #ifndef WITHOUT_COMPLEX
-            template<>
-            void
-            DestroyPivotOp<scomplex>();
+template<>
+void
+DestroyPivotOp<scomplex>();
 
-            template<>
-            void
-            DestroyPivotOp<dcomplex>();
+template<>
+void
+DestroyPivotOp<dcomplex>();
 #endif
 
-            template<typename T>
-            void
-            LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,Star,Star>& p );
+template<typename T>
+void
+LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,Star,Star>& p );
 
-            template<typename T>
-            void
-            PanelLU
-            ( DistMatrix<T,Star,Star>& A, 
-              DistMatrix<T,VC,  Star>& B, 
-              DistMatrix<int,Star,Star>& p, 
-              const int pivotOffset=0      );
+template<typename T>
+void
+PanelLU
+( DistMatrix<T,Star,Star>& A, 
+  DistMatrix<T,VC,  Star>& B, 
+  DistMatrix<int,Star,Star>& p, 
+  const int pivotOffset=0 );
 
-            template<typename T>
-            MPI_Op
-            PivotOp();
+template<typename T>
+MPI_Op
+PivotOp();
 
-            template<>
-            MPI_Op
-            PivotOp<float>();
+template<>
+MPI_Op
+PivotOp<float>();
 
-            template<>
-            MPI_Op
-            PivotOp<double>();
+template<>
+MPI_Op
+PivotOp<double>();
 
 #ifndef WITHOUT_COMPLEX
-            template<>
-            MPI_Op
-            PivotOp<scomplex>();
+template<>
+MPI_Op
+PivotOp<scomplex>();
 
-            template<>
-            MPI_Op
-            PivotOp<dcomplex>();
+template<>
+MPI_Op
+PivotOp<dcomplex>();
 #endif
             
-            template<typename T>
-            void
-            PivotFunc
-            ( void* inData, void* outData, 
-              int* length, MPI_Datatype* datatype );
+template<typename T>
+void
+PivotFunc
+( void* inData, void* outData, 
+  int* length, MPI_Datatype* datatype );
 
-            //----------------------------------------------------------------//
-            // Tridiag                                                        //
-            //----------------------------------------------------------------//
-            template<typename R>
-            R 
-            Reflector( DistMatrix<R,MC,MR>& x );
+//----------------------------------------------------------------------------//
+// Tridiag                                                                    //
+//----------------------------------------------------------------------------//
+template<typename R>
+R 
+Reflector( DistMatrix<R,MC,MR>& x );
 
-            template<typename R>
-            R 
-            LocalColReflector( DistMatrix<R,MC,MR>& x );
+template<typename R>
+R 
+LocalColReflector( DistMatrix<R,MC,MR>& x );
 
-            template<typename R>
-            R
-            LocalRowReflector( DistMatrix<R,MC,MR>& x );
+template<typename R>
+R
+LocalRowReflector( DistMatrix<R,MC,MR>& x );
 
-            template<typename R>
-            void
-            PanelTridiagL
-            ( DistMatrix<R,MC,MR  >& A,
-              DistMatrix<R,MC,MR  >& W,
-              DistMatrix<R,MD,Star>& e,
-              DistMatrix<R,MD,Star>& t,
-              DistMatrix<R,MC,Star>& A_MC_Star,
-              DistMatrix<R,MR,Star>& A_MR_Star );
+template<typename R>
+void
+PanelTridiagL
+( DistMatrix<R,MC,MR  >& A,
+  DistMatrix<R,MC,MR  >& W,
+  DistMatrix<R,MD,Star>& e,
+  DistMatrix<R,MD,Star>& t,
+  DistMatrix<R,MC,Star>& A_MC_Star,
+  DistMatrix<R,MR,Star>& A_MR_Star );
  
-            template<typename R>
-            void
-            PanelTridiagU
-            ( DistMatrix<R,MC,MR  >& A,
-              DistMatrix<R,MC,MR  >& W,
-              DistMatrix<R,MD,Star>& e,
-              DistMatrix<R,MD,Star>& t );
+template<typename R>
+void
+PanelTridiagU
+( DistMatrix<R,MC,MR  >& A,
+  DistMatrix<R,MC,MR  >& W,
+  DistMatrix<R,MD,Star>& e,
+  DistMatrix<R,MD,Star>& t );
 
-            template<typename R>
-            void
-            TridiagL
-            ( DistMatrix<R,MC,MR  >& A,
-              DistMatrix<R,MD,Star>& d,
-              DistMatrix<R,MD,Star>& e,
-              DistMatrix<R,MD,Star>& t );
-           
-            template<typename R>
-            void
-            TridiagU
-            ( DistMatrix<R,MC,MR  >& A,
-              DistMatrix<R,MD,Star>& d,
-              DistMatrix<R,MD,Star>& e,
-              DistMatrix<R,MD,Star>& t );
+template<typename R>
+void
+TridiagL
+( DistMatrix<R,MC,MR  >& A,
+  DistMatrix<R,MD,Star>& d,
+  DistMatrix<R,MD,Star>& e,
+  DistMatrix<R,MD,Star>& t );
 
-            //----------------------------------------------------------------//
-            // Trinv                                                          //
-            //----------------------------------------------------------------//
-            template<typename T>
-            void
-            TrinvVar3
-            ( const Shape shape, 
-              const Diagonal diagonal,
-              DistMatrix<T,MC,MR>& A  );
+template<typename R>
+void
+TridiagU
+( DistMatrix<R,MC,MR  >& A,
+  DistMatrix<R,MD,Star>& d,
+  DistMatrix<R,MD,Star>& e,
+  DistMatrix<R,MD,Star>& t );
 
-            template<typename T>
-            void
-            TrinvL
-            ( const Diagonal diagonal, DistMatrix<T,MC,MR>& L );
+//----------------------------------------------------------------------------//
+// Trinv                                                                      //
+//----------------------------------------------------------------------------//
+template<typename T>
+void
+TrinvVar3
+( const Shape shape, 
+  const Diagonal diagonal,
+  DistMatrix<T,MC,MR>& A  );
 
-            template<typename T>
-            void
-            TrinvU
-            ( const Diagonal diagonal, DistMatrix<T,MC,MR>& U );
+template<typename T>
+void
+TrinvL
+( const Diagonal diagonal, DistMatrix<T,MC,MR>& L );
 
-            template<typename T>
-            void
-            TrinvLVar3
-            ( const Diagonal diagonal, DistMatrix<T,MC,MR>& L );
+template<typename T>
+void
+TrinvU
+( const Diagonal diagonal, DistMatrix<T,MC,MR>& U );
 
-            template<typename T>
-            void
-            TrinvUVar3
-            ( const Diagonal diagonal, DistMatrix<T,MC,MR>& U );
+template<typename T>
+void
+TrinvLVar3
+( const Diagonal diagonal, DistMatrix<T,MC,MR>& L );
 
-            //----------------------------------------------------------------//
-            // LAPACK Utility Functions                                       //
-            //----------------------------------------------------------------//
-            template<typename T>
-            double
-            CholGFlops( const int m, const double seconds );
+template<typename T>
+void
+TrinvUVar3
+( const Diagonal diagonal, DistMatrix<T,MC,MR>& U );
 
-            template<typename T>
-            double
-            LUGFlops( const int m, const double seconds );
+//----------------------------------------------------------------------------//
+// LAPACK Utility Functions                                                   //
+//----------------------------------------------------------------------------//
+template<typename T>
+double
+CholGFlops( const int m, const double seconds );
 
-            template<typename T>
-            double
-            TridiagGFlops( const int m, const double seconds );
+template<typename T>
+double
+LUGFlops( const int m, const double seconds );
 
-            template<typename T>
-            double
-            TrinvGFlops( const int m, const double seconds );
-        }
-    }
-}
+template<typename T>
+double
+TridiagGFlops( const int m, const double seconds );
 
-/*----------------------------------------------------------------------------*/
+template<typename T>
+double
+TrinvGFlops( const int m, const double seconds );
 
-namespace Elemental
-{
-    namespace LAPACK
-    {
-        namespace Internal
-        {
+} // Internal
+} // LAPACK
+} // Elemental
 
-            template<>
-            inline double
-            CholGFlops<float>
-            ( const int m, const double seconds )
-            { return (1./3.*m*m*m)/(1.e9*seconds); }
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
+
+namespace Elemental {
+namespace LAPACK {
+namespace Internal {
+
+template<>
+inline double
+CholGFlops<float>
+( const int m, const double seconds )
+{ return (1./3.*m*m*m)/(1.e9*seconds); }
             
-            template<>
-            inline double
-            CholGFlops<double>
-            ( const int m, const double seconds )
-            { return CholGFlops<float>(m,seconds); }
-            
-#ifndef WITHOUT_COMPLEX
-            template<>
-            inline double
-            CholGFlops<scomplex>
-            ( const int m, const double seconds )
-            { return 4.*CholGFlops<float>(m,seconds); }
-            
-            template<>
-            inline double
-            CholGFlops<dcomplex>
-            ( const int m, const double seconds )
-            { return 4.*CholGFlops<float>(m,seconds); }
-#endif
-
-            template<>
-            inline double
-            LUGFlops<float>
-            ( const int m, const double seconds )
-            { return (2./3.*m*m*m)/(1.e9*seconds); }
-
-            template<>
-            inline double
-            LUGFlops<double>
-            ( const int m, const double seconds )
-            { return LUGFlops<float>(m,seconds); }
-
-#ifndef WITHOUT_COMPLEX
-            template<>
-            inline double
-            LUGFlops<scomplex>
-            ( const int m, const double seconds )
-            { return 4.*LUGFlops<float>(m,seconds); }
-
-            template<>
-            inline double
-            LUGFlops<dcomplex>
-            ( const int m, const double seconds )
-            { return 4.*LUGFlops<float>(m,seconds); }
-#endif
-
-            template<>
-            inline double
-            TridiagGFlops<float>
-            ( const int m, const double seconds )
-            { return (4./3.*m*m*m)/(1.e9*seconds); }
-
-            template<>
-            inline double
-            TridiagGFlops<double>
-            ( const int m, const double seconds )
-            { return TridiagGFlops<float>(m,seconds); }
-
-#ifndef WITHOUT_COMPLEX
-            template<>
-            inline double
-            TridiagGFlops<scomplex>
-            ( const int m, const double seconds )
-            { return 4.*TridiagGFlops<float>(m,seconds); }
-
-            template<>
-            inline double
-            TridiagGFlops<dcomplex>
-            ( const int m, const double seconds )
-            { return 4.*TridiagGFlops<float>(m,seconds); }
-#endif
-
-            template<>
-            inline double
-            TrinvGFlops<float>
-            ( const int m, const double seconds )
-            { return (1./3.*m*m*m)/(1.e9*seconds); }
-            
-            template<>
-            inline double
-            TrinvGFlops<double>
-            ( const int m, const double seconds )
-            { return TrinvGFlops<float>(m,seconds); }
+template<>
+inline double
+CholGFlops<double>
+( const int m, const double seconds )
+{ return CholGFlops<float>(m,seconds); }
             
 #ifndef WITHOUT_COMPLEX
-            template<>
-            inline double
-            TrinvGFlops<scomplex>
-            ( const int m, const double seconds )
-            { return 4.*TrinvGFlops<float>(m,seconds); }
+template<>
+inline double
+CholGFlops<scomplex>
+( const int m, const double seconds )
+{ return 4.*CholGFlops<float>(m,seconds); }
             
-            template<>
-            inline double
-            TrinvGFlops<dcomplex>
-            ( const int m, const double seconds )
-            { return 4.*TrinvGFlops<float>(m,seconds); }
+template<>
+inline double
+CholGFlops<dcomplex>
+( const int m, const double seconds )
+{ return 4.*CholGFlops<float>(m,seconds); }
 #endif
 
-        }
-    }
-}
+template<>
+inline double
+LUGFlops<float>
+( const int m, const double seconds )
+{ return (2./3.*m*m*m)/(1.e9*seconds); }
+
+template<>
+inline double
+LUGFlops<double>
+( const int m, const double seconds )
+{ return LUGFlops<float>(m,seconds); }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+inline double
+LUGFlops<scomplex>
+( const int m, const double seconds )
+{ return 4.*LUGFlops<float>(m,seconds); }
+
+template<>
+inline double
+LUGFlops<dcomplex>
+( const int m, const double seconds )
+{ return 4.*LUGFlops<float>(m,seconds); }
+#endif
+
+template<>
+inline double
+TridiagGFlops<float>
+( const int m, const double seconds )
+{ return (4./3.*m*m*m)/(1.e9*seconds); }
+
+template<>
+inline double
+TridiagGFlops<double>
+( const int m, const double seconds )
+{ return TridiagGFlops<float>(m,seconds); }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+inline double
+TridiagGFlops<scomplex>
+( const int m, const double seconds )
+{ return 4.*TridiagGFlops<float>(m,seconds); }
+
+template<>
+inline double
+TridiagGFlops<dcomplex>
+( const int m, const double seconds )
+{ return 4.*TridiagGFlops<float>(m,seconds); }
+#endif
+
+template<>
+inline double
+TrinvGFlops<float>
+( const int m, const double seconds )
+{ return (1./3.*m*m*m)/(1.e9*seconds); }
+
+template<>
+inline double
+TrinvGFlops<double>
+( const int m, const double seconds )
+{ return TrinvGFlops<float>(m,seconds); }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+inline double
+TrinvGFlops<scomplex>
+( const int m, const double seconds )
+{ return 4.*TrinvGFlops<float>(m,seconds); }
+
+template<>
+inline double
+TrinvGFlops<dcomplex>
+( const int m, const double seconds )
+{ return 4.*TrinvGFlops<float>(m,seconds); }
+#endif
+
+} // Internal
+} // LAPACK
+} // Elemental
 
 #endif /* ELEMENTAL_LAPACK_INTERNAL_HPP */
 

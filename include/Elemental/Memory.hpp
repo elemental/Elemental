@@ -19,27 +19,30 @@
 #ifndef ELEMENTAL_MEMORY_HPP
 #define ELEMENTAL_MEMORY_HPP 1
 
-namespace Elemental
+namespace Elemental {
+
+template<typename T>
+class Memory
 {
-    template<typename T>
-    class Memory
-    {
-        size_t _size;
-        T*     _buffer;
-    public:
-        Memory();
-        Memory( size_t size );
-        ~Memory();
+    size_t _size;
+    T*     _buffer;
+public:
+    Memory();
+    Memory( size_t size );
+    ~Memory();
 
-        T*     Buffer() const;
-        size_t Size()   const;
+    T*     Buffer() const;
+    size_t Size()   const;
 
-        void   Require( size_t size );
-        void   Release();
-    };
-}
+    void   Require( size_t size );
+    void   Release();
+};
 
-/*----------------------------------------------------------------------------*/
+} // Elemental
+
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
 
 template<typename T>
 inline
@@ -56,23 +59,17 @@ Elemental::Memory<T>::Memory( size_t size )
 template<typename T>
 inline
 Elemental::Memory<T>::~Memory()
-{
-    delete[] _buffer;
-}
+{ delete[] _buffer; }
 
 template<typename T>
 inline T*
 Elemental::Memory<T>::Buffer() const
-{
-    return _buffer;
-}
+{ return _buffer; }
 
 template<typename T>
 inline size_t
 Elemental::Memory<T>::Size() const
-{
-    return _size;
-}
+{ return _size; }
 
 template<typename T>
 inline void

@@ -27,182 +27,181 @@
 #define C2F(name) name
 #endif
 
-namespace Elemental
-{
-    namespace wrappers 
-    { 
-        namespace LAPACK 
-        {
-        
-            void
-            Chol
-            ( const char uplo, const int n, const float* A, const int lda );
+namespace Elemental {
+namespace wrappers {
+namespace LAPACK {
 
-            void
-            Chol
-            ( const char uplo, const int n, const double* A, const int lda );
+void
+Chol
+( const char uplo, const int n, const float* A, const int lda );
+
+void
+Chol
+( const char uplo, const int n, const double* A, const int lda );
  
 #ifndef WITHOUT_COMPLEX
-            void
-            Chol
-            ( const char uplo, const int n, const scomplex* A, const int lda );
+void
+Chol
+( const char uplo, const int n, const scomplex* A, const int lda );
 
-            void
-            Chol
-            ( const char uplo, const int n, const dcomplex* A, const int lda );
+void
+Chol
+( const char uplo, const int n, const dcomplex* A, const int lda );
 #endif
 
-            void
-            LU
-            ( const int m, const int n, float* A, const int lda, int* p );
+void
+LU
+( const int m, const int n, float* A, const int lda, int* p );
 
-            void
-            LU
-            ( const int m, const int n, double* A, const int lda, int* p );
+void
+LU
+( const int m, const int n, double* A, const int lda, int* p );
 
 #ifndef WITHOUT_COMPLEX
-            void
-            LU
-            ( const int m, const int n, scomplex* A, const int lda, int* p );
+void
+LU
+( const int m, const int n, scomplex* A, const int lda, int* p );
 
-            void
-            LU
-            ( const int m, const int n, dcomplex* A, const int lda, int* p );
+void
+LU
+( const int m, const int n, dcomplex* A, const int lda, int* p );
 #endif
 
-            float
-            SafeNorm
-            ( const float alpha, const float beta );
+float
+SafeNorm
+( const float alpha, const float beta );
 
-            double
-            SafeNorm
-            ( const double alpha, const double beta );
+double
+SafeNorm
+( const double alpha, const double beta );
 
-            float
-            SafeNorm
-            ( const float alpha, const float beta, const float gamma );
+float
+SafeNorm
+( const float alpha, const float beta, const float gamma );
 
-            double
-            SafeNorm
-            ( const double alpha, const double beta, const double gamma );
+double
+SafeNorm
+( const double alpha, const double beta, const double gamma );
 
-            void
-            Tridiag
-            ( const char uplo,
-              const int n, float* A, const int lda, 
-              float* d, float* e, float* tau       );
+void
+Tridiag
+( const char uplo,
+  const int n, float* A, const int lda, 
+  float* d, float* e, float* tau );
 
-            void
-            Tridiag
-            ( const char uplo,
-              const int n, double* A, const int lda,
-              double* d, double* e, double* tau     );
+void
+Tridiag
+( const char uplo,
+  const int n, double* A, const int lda,
+  double* d, double* e, double* tau );
 
-            void
-            Trinv
-            ( const char uplo, const char diag,
-              const int n, const float* A, const int lda );
+void
+Trinv
+( const char uplo, const char diag,
+  const int n, const float* A, const int lda );
 
-            void
-            Trinv
-            ( const char uplo, const char diag,
-              const int n, const double* A, const int lda );
+void
+Trinv
+( const char uplo, const char diag,
+  const int n, const double* A, const int lda );
 
 #ifndef WITHOUT_COMPLEX
-            void
-            Trinv
-            ( const char uplo, const char diag,
-              const int n, const scomplex* A, const int lda );
+void
+Trinv
+( const char uplo, const char diag,
+  const int n, const scomplex* A, const int lda );
 
-            void
-            Trinv
-            ( const char uplo, const char diag,
-              const int n, const dcomplex* A, const int lda );
+void
+Trinv
+( const char uplo, const char diag,
+  const int n, const dcomplex* A, const int lda );
 #endif
-        } 
-    }
-}
 
-extern "C"
-{
-    void C2F(sgetrf)
-    ( const int* m, const int* n, 
-      float* A, const int* lda, int* p, int* info );
+} // LAPACK 
+} // wrappers
+} // Elemental
 
-    void C2F(dgetrf)
-    ( const int* m, const int* n, 
-      double* A, const int* lda, int* p, int* info );
+extern "C" {
+
+void C2F(sgetrf)
+( const int* m, const int* n, 
+  float* A, const int* lda, int* p, int* info );
+
+void C2F(dgetrf)
+( const int* m, const int* n, 
+  double* A, const int* lda, int* p, int* info );
 
 #ifndef WITHOUT_COMPLEX
-    void C2F(cgetrf)
-    ( const int* m, const int* n, 
-      Elemental::scomplex* A, const int* lda, int* p, int* info );
+void C2F(cgetrf)
+( const int* m, const int* n, 
+  Elemental::scomplex* A, const int* lda, int* p, int* info );
 
-    void C2F(zgetrf)
-    ( const int* m, const int* n, 
-      Elemental::dcomplex* A, const int* lda, int* p, int* info );
+void C2F(zgetrf)
+( const int* m, const int* n, 
+  Elemental::dcomplex* A, const int* lda, int* p, int* info );
 #endif
 
-    float C2F(slapy2)
-    ( const float* alpha, const float* beta );
+float C2F(slapy2)
+( const float* alpha, const float* beta );
 
-    double C2F(dlapy2)
-    ( const double* alpha, const double* beta );
+double C2F(dlapy2)
+( const double* alpha, const double* beta );
 
-    float C2F(slapy3)
-    ( const float* alpha, const float* beta, const float* gamma );
+float C2F(slapy3)
+( const float* alpha, const float* beta, const float* gamma );
 
-    double C2F(dlapy3)
-    ( const double* alpha, const double* beta, const double* gamma );
+double C2F(dlapy3)
+( const double* alpha, const double* beta, const double* gamma );
 
-    void C2F(spotrf)
-    ( const char* uplo, const int* n, const float* A, const int* lda,
-      int* info );
+void C2F(spotrf)
+( const char* uplo, const int* n, const float* A, const int* lda,
+  int* info );
 
-    void C2F(dpotrf)
-    ( const char* uplo, const int* n, const double* A, const int* lda,
-      int* info );
+void C2F(dpotrf)
+( const char* uplo, const int* n, const double* A, const int* lda,
+  int* info );
     
 #ifndef WITHOUT_COMPLEX
-    void C2F(cpotrf)
-    ( const char* uplo, const int* n, const Elemental::scomplex* A, 
-      const int* lda, int* info );
+void C2F(cpotrf)
+( const char* uplo, const int* n, const Elemental::scomplex* A, 
+  const int* lda, int* info );
     
-    void C2F(zpotrf)
-    ( const char* uplo, const int* n, const Elemental::dcomplex* A, 
-      const int* lda, int* info );
+void C2F(zpotrf)
+( const char* uplo, const int* n, const Elemental::dcomplex* A, 
+  const int* lda, int* info );
 #endif
     
-    void C2F(strtri)
-    ( const char* uplo, const char* diag, 
-      const int* n, const float* A, const int* lda, int* info );
+void C2F(strtri)
+( const char* uplo, const char* diag, 
+  const int* n, const float* A, const int* lda, int* info );
 
-    void C2F(dtrtri)
-    ( const char* uplo, const char* diag, 
-      const int* n, const double* A, const int* lda, int* info );
+void C2F(dtrtri)
+( const char* uplo, const char* diag, 
+  const int* n, const double* A, const int* lda, int* info );
     
 #ifndef WITHOUT_COMPLEX
-    void C2F(ctrtri)
-    ( const char* uplo, const char* diag,
-      const int* n, const Elemental::scomplex* A, const int* lda, int* info );
+void C2F(ctrtri)
+( const char* uplo, const char* diag,
+  const int* n, const Elemental::scomplex* A, const int* lda, int* info );
     
-    void C2F(ztrtri)
-    ( const char* uplo, const char* diag,
-      const int* n, const Elemental::dcomplex* A, const int* lda, int* info );
+void C2F(ztrtri)
+( const char* uplo, const char* diag,
+  const int* n, const Elemental::dcomplex* A, const int* lda, int* info );
 #endif
 
-    void C2F(ssytd2)
-    ( const char* uplo,
-      const int* n, float* A, const int* lda,
-      float* d, float* e, float* tau, int* info );
+void C2F(ssytd2)
+( const char* uplo,
+  const int* n, float* A, const int* lda,
+  float* d, float* e, float* tau, int* info );
 
-    void C2F(dsytd2)
-    ( const char* uplo,
-      const int* n, double* A, const int* lda, 
-      double* d, double* e, double* tau, int* info );
-}
+void C2F(dsytd2)
+( const char* uplo,
+  const int* n, double* A, const int* lda, 
+  double* d, double* e, double* tau, int* info );
 
-/*----------------------------------------------------------------------------*/
+} // extern "C"
+
+// Implementations begin here
 
 inline void
 Elemental::wrappers::LAPACK::Chol

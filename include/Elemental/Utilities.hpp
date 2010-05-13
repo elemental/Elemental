@@ -19,31 +19,31 @@
 #ifndef ELEMENTAL_UTILITIES_HPP
 #define ELEMENTAL_UTILITIES_HPP 1
 
-namespace Elemental
-{
-    namespace utilities
-    {
-        int
-        GCD
-        ( const int a, const int b ); 
+namespace Elemental {
+namespace utilities {
 
-        int
-        LocalLength
-        ( const int n, const int shift, const int modulus );
+int
+GCD
+( const int a, const int b ); 
 
-        int
-        MaxLocalLength
-        ( const int n, const int modulus );
+int
+LocalLength
+( const int n, const int shift, const int modulus );
 
-        int
-        Shift
-        ( const int index, const int align, const int modulus );
-    }
-}
+int
+MaxLocalLength
+( const int n, const int modulus );
 
-/*------------------------------------------------------------------------------
- * Utility function inlines                                
- *----------------------------------------------------------------------------*/
+int
+Shift
+( const int index, const int align, const int modulus );
+
+} // utilities
+} // Elemental
+
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
 
 inline int
 Elemental::utilities::GCD

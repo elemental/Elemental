@@ -21,105 +21,108 @@
 
 #include "Elemental/Environment.hpp"
 
-namespace Elemental
+namespace Elemental {
+
+template<typename T>
+class Matrix
 {
-    template<typename T>
-    class Matrix
-    {
-        bool      _viewing;
-        bool      _lockedView;
-        int       _height;
-        int       _width;
-        int       _ldim;
-        T*        _data;
-        const T*  _lockedData;
-        Memory<T> _memory;
+    bool      _viewing;
+    bool      _lockedView;
+    int       _height;
+    int       _width;
+    int       _ldim;
+    T*        _data;
+    const T*  _lockedData;
+    Memory<T> _memory;
 
-    public:    
+public:    
 
-        Matrix();                
+    Matrix();                
 
-        Matrix( const int height, const int width );
+    Matrix( const int height, const int width );
 
-        Matrix( const int height, const int width, const int ldim );
+    Matrix( const int height, const int width, const int ldim );
 
-        Matrix( const Matrix<T>& A );
+    Matrix( const Matrix<T>& A );
 
-        ~Matrix();
+    ~Matrix();
+    
+    void Print() const;
+    void Print(std::string msg) const;
+
+    void SetToRandom();
+
+    T& operator() ( const int i, const int j );
+    T  operator() ( const int i, const int j ) const;
+    
+    int Height() const;
+    int Width() const;
+    int LDim() const;
+    int MemorySize() const;
+
+    T* Buffer();
+    T* Buffer
+    ( const int i, const int j );
+    T* Buffer
+    ( const int i, const int j, const int height, const int width );
+
+    T* Pointer();
+    T* Pointer( const int i, const int j );
+
+    const T* LockedBuffer() const;
+    const T* LockedBuffer
+    ( const int i, const int j ) const;
+    const T* LockedBuffer
+    ( const int i, const int j, const int height, const int width ) const;
+
+    const T* LockedPointer() const;
+    const T* LockedPointer( const int i, const int j ) const;
+
+    // Resize the matrix
+    void ResizeTo( const int height, const int width );
+    void ResizeTo( const int height, const int width, const int ldim );
+
+    void View
+    ( Matrix<T>& A);
+
+    void View
+    ( Matrix<T>& A, 
+      const int i, const int j, const int height, const int width );
+
+    void View1x2( Matrix<T>& AL, Matrix<T>& AR );
+
+    void View2x1( Matrix<T>& AT, 
+                  Matrix<T>& AB );
+
+    void View2x2( Matrix<T>& ATL, Matrix<T>& ATR,
+                  Matrix<T>& ABL, Matrix<T>& ABR );
         
-        void Print() const;
-        void Print(std::string msg) const;
+    void LockedView( const Matrix<T>& A );
 
-        void SetToRandom();
+    void LockedView
+    ( const Matrix<T>& A, 
+      const int i, const int j, const int height, const int width );
 
-        T& operator() ( const int i, const int j );
-        T  operator() ( const int i, const int j ) const;
-        
-        int Height() const;
-        int Width() const;
-        int LDim() const;
-        int MemorySize() const;
+    void LockedView1x2( const Matrix<T>& AL, const Matrix<T>& AR );
 
-        T* Buffer();
-        T* Buffer
-        ( const int i, const int j );
-        T* Buffer
-        ( const int i, const int j, const int height, const int width );
+    void LockedView2x1( const Matrix<T>& AT, 
+                        const Matrix<T>& AB );
 
-        T* Pointer();
-        T* Pointer( const int i, const int j );
+    void LockedView2x2( const Matrix<T>& ATL, const Matrix<T>& ATR,
+                        const Matrix<T>& ABL, const Matrix<T>& ABR );
 
-        const T* LockedBuffer() const;
-        const T* LockedBuffer
-        ( const int i, const int j ) const;
-        const T* LockedBuffer
-        ( const int i, const int j, const int height, const int width ) const;
+    void SetToIdentity();
 
-        const T* LockedPointer() const;
-        const T* LockedPointer( const int i, const int j ) const;
+    void SetToZero();
 
-        // Resize the matrix
-        void ResizeTo( const int height, const int width );
-        void ResizeTo( const int height, const int width, const int ldim );
+    const Matrix<T>& operator=( const Matrix<T>& A );
+};
 
-        void View
-        ( Matrix<T>& A);
+} // Elemental
 
-        void View
-        ( Matrix<T>& A, 
-          const int i, const int j, const int height, const int width );
-
-        void View1x2( Matrix<T>& AL, Matrix<T>& AR );
-
-        void View2x1( Matrix<T>& AT, 
-                      Matrix<T>& AB );
-
-        void View2x2( Matrix<T>& ATL, Matrix<T>& ATR,
-                      Matrix<T>& ABL, Matrix<T>& ABR );
-        
-        void LockedView( const Matrix<T>& A );
-
-        void LockedView
-        ( const Matrix<T>& A, 
-          const int i, const int j, const int height, const int width );
-
-        void LockedView1x2( const Matrix<T>& AL, const Matrix<T>& AR );
-
-        void LockedView2x1( const Matrix<T>& AT, 
-                            const Matrix<T>& AB );
-
-        void LockedView2x2( const Matrix<T>& ATL, const Matrix<T>& ATR,
-                            const Matrix<T>& ABL, const Matrix<T>& ABR );
-
-        void SetToIdentity();
-
-        void SetToZero();
-
-        const Matrix<T>& operator=( const Matrix<T>& A );
-    };
-}
-
-/*----------------------------------------------------------------------------*/
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
 
 template<typename T>
 inline
