@@ -44,38 +44,23 @@ template<typename T>
 bool OKRelativeError( T truth, T computed );
 
 template<>
-bool OKRelativeError( float truth, float computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(float)1)  <= 1e-5 );
-}
-
-template<>
 bool OKRelativeError( double truth, double computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(double)1)  <= 1e-13 );
-}
+{ return ( fabs(truth-computed) / max(fabs(truth),(double)1)  <= 1e-12 ); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
-bool OKRelativeError( scomplex truth, scomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(float)1) <= 1e-5 );
-}
-
-template<>
 bool OKRelativeError( dcomplex truth, dcomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-13 );
-}
+{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-12 ); }
 #endif
 
 template<typename T>
 void TestCorrectness
-( const Shape shape,
-  const T alpha, const DistMatrix<T,Star,Star>& A_ref,
-                 const DistMatrix<T,Star,Star>& x_ref,
-  const T beta,        DistMatrix<T,Star,Star>& y_ref,
-  const DistMatrix<T,MC,MR>& y, const bool printMatrices )
+( bool printMatrices,
+  const DistMatrix<T,MC,MR>& y,
+  Shape shape,
+  T alpha, const DistMatrix<T,Star,Star>& ARef,
+           const DistMatrix<T,Star,Star>& xRef,
+  T beta,        DistMatrix<T,Star,Star>& yRef )
 {
     const Grid& grid = y.GetGrid();
     DistMatrix<T,Star,Star> y_copy(grid);
@@ -95,14 +80,14 @@ void TestCorrectness
         cout.flush();
     }
     BLAS::Symv( shape,
-                alpha, A_ref.LockedLocalMatrix(),
-                       x_ref.LockedLocalMatrix(),
-                beta,  y_ref.LocalMatrix()       );
+                alpha, ARef.LockedLocalMatrix(),
+                       xRef.LockedLocalMatrix(),
+                beta,  yRef.LocalMatrix()       );
     if( grid.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
-        y_ref.Print("Truth");
+        yRef.Print("Truth");
 
     if( grid.VCRank() == 0 )
     {
@@ -113,7 +98,7 @@ void TestCorrectness
     {
         for( int i=0; i<y.Height(); ++i )
         {
-            T truth = y_ref.LocalEntry(i,j);
+            T truth = yRef.LocalEntry(i,j);
             T computed = y_copy.LocalEntry(i,j);
 
             if( ! OKRelativeError( truth, computed ) )
@@ -141,9 +126,9 @@ void TestSymv
     DistMatrix<T,MC,MR> A(grid);
     DistMatrix<T,MC,MR> x(grid);
     DistMatrix<T,MC,MR> y(grid);
-    DistMatrix<T,Star,Star> A_ref(grid);
-    DistMatrix<T,Star,Star> x_ref(grid);
-    DistMatrix<T,Star,Star> y_ref(grid);
+    DistMatrix<T,Star,Star> ARef(grid);
+    DistMatrix<T,Star,Star> xRef(grid);
+    DistMatrix<T,Star,Star> yRef(grid);
 
     A.ResizeTo( m, m );
     x.ResizeTo( m, 1 );
@@ -162,9 +147,9 @@ void TestSymv
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
-        A_ref = A;
-        x_ref = x;
-        y_ref = y;
+        ARef = A;
+        xRef = x;
+        yRef = y;
         if( grid.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -198,7 +183,7 @@ void TestSymv
     if( testCorrectness )
     {
         TestCorrectness
-        ( shape, alpha, A_ref, x_ref, beta, y_ref, y, printMatrices );
+        ( printMatrices, y, shape, alpha, ARef, xRef, beta, yRef );
     }
 }
 
@@ -235,20 +220,7 @@ int main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         if( rank == 0 )
-        {
             cout << "Will test Symv" << ShapeToChar(shape) << endl;
-        }
-
-        if( rank == 0 )
-        {
-            cout << "--------------------" << endl;
-            cout << "Testing with floats:" << endl;
-            cout << "--------------------" << endl;
-        }
-        TestSymv<float>
-        ( shape, m, (float)3, (float)4, testCorrectness, printMatrices, grid );
-        if( rank == 0 )
-            cout << endl;
 
         if( rank == 0 )
         {
@@ -263,18 +235,6 @@ int main( int argc, char* argv[] )
             cout << endl;
 
 #ifndef WITHOUT_COMPLEX
-        if( rank == 0 )
-        {
-            cout << "--------------------------------------" << endl;
-            cout << "Testing with single-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
-        }
-        TestSymv<scomplex>
-        ( shape, m, (scomplex)3, (scomplex)4, testCorrectness, printMatrices,
-          grid );
-        if( rank == 0 )
-            cout << endl;
-
         if( rank == 0 )
         {
             cout << "--------------------------------------" << endl;

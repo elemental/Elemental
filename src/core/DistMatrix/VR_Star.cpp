@@ -25,7 +25,7 @@ using namespace Elemental::wrappers::MPI;
 
 template<typename T>
 void
-Elemental::DistMatrix<T,VR,Star>::Print( const string msg ) const
+Elemental::DistMatrix<T,VR,Star>::Print( const string& msg ) const
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::Print");
@@ -329,7 +329,7 @@ template<typename T>
 void
 Elemental::DistMatrix<T,VR,Star>::View
 ( DistMatrix<T,VR,Star>& A,
-  const int i, const int j, const int height, const int width )
+  int i, int j, int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::View(A,i,j,height,width)");
@@ -364,7 +364,7 @@ template<typename T>
 void
 Elemental::DistMatrix<T,VR,Star>::LockedView
 ( const DistMatrix<T,VR,Star>& A,
-  const int i, const int j, const int height, const int width )
+  int i, int j, int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::LockedView(A,i,j,height,width)");
@@ -581,7 +581,7 @@ Elemental::DistMatrix<T,VR,Star>::LockedView2x2
 template<typename T>
 void
 Elemental::DistMatrix<T,VR,Star>::ResizeTo
-( const int height, const int width )
+( int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::ResizeTo");
@@ -600,7 +600,7 @@ Elemental::DistMatrix<T,VR,Star>::ResizeTo
 template<typename T>
 T
 Elemental::DistMatrix<T,VR,Star>::Get
-( const int i, const int j )
+( int i, int j )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::Get");
@@ -609,7 +609,7 @@ Elemental::DistMatrix<T,VR,Star>::Get
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -634,7 +634,7 @@ Elemental::DistMatrix<T,VR,Star>::Get
 template<typename T>
 void
 Elemental::DistMatrix<T,VR,Star>::Set
-( const int i, const int j, const T u )
+( int i, int j, T u )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::Set");
@@ -643,7 +643,7 @@ Elemental::DistMatrix<T,VR,Star>::Set
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -666,7 +666,7 @@ Elemental::DistMatrix<T,VR,Star>::Set
 template<typename T>
 void
 Elemental::DistMatrix<T,VR,Star>::MakeTrapezoidal
-( const Side side, const Shape shape, const int offset )
+( Side side, Shape shape, int offset )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::MakeTrapezoidal");

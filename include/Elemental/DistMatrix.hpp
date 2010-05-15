@@ -28,7 +28,7 @@ namespace Elemental {
 template<typename T, Distribution ColDist, Distribution RowDist> 
 class DistMatrix;
 
-}
+} // Elemental
 
 #include "Elemental/DistMatrix/MC_MR.hpp"
 #include "Elemental/DistMatrix/MC_Star.hpp"

@@ -25,7 +25,7 @@ using namespace Elemental::wrappers::MPI;
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::Print( const string msg ) const
+Elemental::DistMatrix<T,MR,MC>::Print( const string& msg ) const
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::Print");
@@ -637,7 +637,7 @@ template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::View
 ( DistMatrix<T,MR,MC>& A,
-  const int i, const int j, const int height, const int width )
+  int i, int j, int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::View(A,i,j,height,width)");
@@ -682,7 +682,7 @@ template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::LockedView
 ( const DistMatrix<T,MR,MC>& A,
-  const int i, const int j, const int height, const int width )
+  int i, int j, int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::LockedView(A,i,j,height,width)");
@@ -956,7 +956,7 @@ Elemental::DistMatrix<T,MR,MC>::ResizeTo
 template<typename T>
 T
 Elemental::DistMatrix<T,MR,MC>::Get
-( const int i, const int j )
+( int i, int j )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::Get");
@@ -965,7 +965,7 @@ Elemental::DistMatrix<T,MR,MC>::Get
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -993,7 +993,7 @@ Elemental::DistMatrix<T,MR,MC>::Get
 template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::Set
-( const int i, const int j, const T u )
+( int i, int j, T u )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::Set");
@@ -1002,7 +1002,7 @@ Elemental::DistMatrix<T,MR,MC>::Set
         ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix." << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -1024,7 +1024,7 @@ Elemental::DistMatrix<T,MR,MC>::Set
 template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::GetDiagonal
-( DistMatrix<T,MD,Star>& d, const int offset )
+( DistMatrix<T,MD,Star>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::GetDiagonal");
@@ -1093,7 +1093,7 @@ Elemental::DistMatrix<T,MR,MC>::GetDiagonal
 template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::GetDiagonal
-( DistMatrix<T,Star,MD>& d, const int offset )
+( DistMatrix<T,Star,MD>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::GetDiagonal");
@@ -1163,7 +1163,7 @@ Elemental::DistMatrix<T,MR,MC>::GetDiagonal
 template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::SetDiagonal
-( const DistMatrix<T,MD,Star>& d, const int offset )
+( const DistMatrix<T,MD,Star>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::SetDiagonal");
@@ -1190,7 +1190,7 @@ Elemental::DistMatrix<T,MR,MC>::SetDiagonal
                 << "  A ~ " << Height() << " x " << Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
                 << "  A diag length: " << length << endl;
-            const string s = msg.str();
+            const string& s = msg.str();
             throw s.c_str();
         }
     }
@@ -1232,7 +1232,7 @@ Elemental::DistMatrix<T,MR,MC>::SetDiagonal
 template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::SetDiagonal
-( const DistMatrix<T,Star,MD>& d, const int offset )
+( const DistMatrix<T,Star,MD>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::SetDiagonal");
@@ -1259,7 +1259,7 @@ Elemental::DistMatrix<T,MR,MC>::SetDiagonal
                 << "  A ~ " << Height() << " x " << Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
                 << "  A diag length: " << length << endl;
-            const string s = msg.str();
+            const string& s = msg.str();
             throw s.c_str();
         }
     }
@@ -1305,7 +1305,7 @@ Elemental::DistMatrix<T,MR,MC>::SetDiagonal
 template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::MakeTrapezoidal
-( const Side side, const Shape shape, const int offset )
+( Side side, Shape shape, int offset )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::MakeTrapezoidal");
@@ -2870,7 +2870,7 @@ Elemental::DistMatrix<T,MR,MC>::ReduceScatterFrom
 template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
-( const T alpha, const DistMatrix<T,MR,Star>& A )
+( T alpha, const DistMatrix<T,MR,Star>& A )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::ReduceScatterUpdate([MR,* ])");
@@ -3087,7 +3087,7 @@ Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
 template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
-( const T alpha, const DistMatrix<T,Star,MC>& A )
+( T alpha, const DistMatrix<T,Star,MC>& A )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::ReduceScatterUpdate([* ,MC])");
@@ -3217,7 +3217,7 @@ Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
 template<typename T>
 void
 Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
-( const T alpha, const DistMatrix<T,Star,Star>& A )
+( T alpha, const DistMatrix<T,Star,Star>& A )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::ReduceScatterUpdate([* ,* ])");

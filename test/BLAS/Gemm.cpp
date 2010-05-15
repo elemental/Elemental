@@ -51,36 +51,20 @@ template<typename T>
 bool OKRelativeError( T truth, T computed );
 
 template<>
-bool OKRelativeError( float truth, float computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(float)1)  <= 1e-5 );
-}
-
-template<>
 bool OKRelativeError( double truth, double computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(double)1)  <= 1e-13 );
-}
+{ return ( fabs(truth-computed) / max(fabs(truth),(double)1)  <= 1e-12 ); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
-bool OKRelativeError( scomplex truth, scomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(float)1) <= 1e-5 );
-}
-
-template<>
 bool OKRelativeError( dcomplex truth, dcomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-13 );
-}
+{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-12 ); }
 #endif
 
 template<typename T>
 void ManualGemm
-( const Orientation orientationOfA, const Orientation orientationOfB,
-  const T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  const T beta,        Matrix<T>& C                                  )
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta, Matrix<T>& C )
 {
     const int m = C.Height();
     const int n = C.Width();
@@ -165,11 +149,12 @@ void ManualGemm
 
 template<typename T>
 void TestSerialCorrectness
-( const Orientation orientationOfA, const Orientation orientationOfB,
-  const T alpha, const DistMatrix<T,Star,Star>& A_ref,
-                 const DistMatrix<T,Star,Star>& B_ref,
-  const T beta,        DistMatrix<T,Star,Star>& C_ref,
-  const DistMatrix<T,Star,Star>& C, const bool printMatrices )
+( bool printMatrices,
+  const DistMatrix<T,Star,Star>& C,
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T,Star,Star>& ARef,
+           const DistMatrix<T,Star,Star>& BRef,
+  T beta,        DistMatrix<T,Star,Star>& CRef )
 {
     const Grid& grid = C.GetGrid();
 
@@ -179,14 +164,14 @@ void TestSerialCorrectness
         cout.flush();
     }
     ManualGemm( orientationOfA, orientationOfB,
-                alpha, A_ref.LockedLocalMatrix(),
-                       B_ref.LockedLocalMatrix(),
-                beta,  C_ref.LocalMatrix()       );
+                alpha, ARef.LockedLocalMatrix(),
+                       BRef.LockedLocalMatrix(),
+                beta,  CRef.LocalMatrix()       );
     if( grid.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
-        C_ref.Print("Truth");
+        CRef.Print("Truth");
 
     if( grid.VCRank() == 0 )
     {
@@ -197,14 +182,15 @@ void TestSerialCorrectness
     {
         for( int i=0; i<C.Height(); ++i )
         {
-            T truth = C_ref.LocalEntry(i,j);
+            T truth = CRef.LocalEntry(i,j);
             T computed = C.LocalEntry(i,j);
 
             if( ! OKRelativeError( truth, computed ) )
             {
                 ostringstream msg;
                 msg << "FAILED at index (" << i << "," << j << "): truth="
-                    << truth << ", computed=" << computed;
+                    << truth << ", computed=" << computed << ", error=" 
+                    << Abs(truth-computed) << endl;
                 const string s = msg.str();
                 throw s.c_str();
             }
@@ -217,11 +203,12 @@ void TestSerialCorrectness
 
 template<typename T>
 void TestParallelCorrectness
-( const Orientation orientationOfA, const Orientation orientationOfB,
-  const T alpha, const DistMatrix<T,Star,Star>& A_ref,
-                 const DistMatrix<T,Star,Star>& B_ref,
-  const T beta,        DistMatrix<T,Star,Star>& C_ref,
-  const DistMatrix<T,MC,MR>& C, const bool printMatrices )
+( bool printMatrices,
+  const DistMatrix<T,MC,MR>& C,
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T,Star,Star>& ARef,
+           const DistMatrix<T,Star,Star>& BRef,
+  T beta,        DistMatrix<T,Star,Star>& CRef )
 {
     const Grid& grid = C.GetGrid();
     DistMatrix<T,Star,Star> C_copy(grid);
@@ -241,14 +228,14 @@ void TestParallelCorrectness
         cout.flush();
     }
     BLAS::Gemm( orientationOfA, orientationOfB,
-                alpha, A_ref.LockedLocalMatrix(),
-                       B_ref.LockedLocalMatrix(),
-                beta,  C_ref.LocalMatrix()       );
+                alpha, ARef.LockedLocalMatrix(),
+                       BRef.LockedLocalMatrix(),
+                beta,  CRef.LocalMatrix()       );
     if( grid.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
-        C_ref.Print("Truth");
+        CRef.Print("Truth");
 
     if( grid.VCRank() == 0 )
     {
@@ -259,14 +246,15 @@ void TestParallelCorrectness
     {
         for( int i=0; i<C.Height(); ++i )
         {
-            T truth = C_ref.LocalEntry(i,j);
+            T truth = CRef.LocalEntry(i,j);
             T computed = C_copy.LocalEntry(i,j);
 
             if( ! OKRelativeError( truth, computed ) )
             {
                 ostringstream msg;
                 msg << "FAILED at index (" << i << "," << j << "): truth="
-                    << truth << ", computed=" << computed;
+                    << truth << ", computed=" << computed << ", error="
+                    << Abs(truth-computed) << endl;
                 const string s = msg.str();
                 throw s.c_str();
             }
@@ -279,17 +267,17 @@ void TestParallelCorrectness
 
 template<typename T>
 void TestSerialGemm
-( const Orientation orientationOfA, const Orientation orientationOfB,
-  const int m, const int n, const int k, const T alpha, const T beta,
-  const bool testCorrectness, const bool printMatrices, const Grid& grid )
+( bool testCorrectness, bool printMatrices,
+  Orientation orientationOfA, Orientation orientationOfB,
+  int m, int n, int k, T alpha, T beta, const Grid& grid )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,Star,Star> A(grid);
     DistMatrix<T,Star,Star> B(grid);
     DistMatrix<T,Star,Star> C(grid);
-    DistMatrix<T,Star,Star> A_ref(grid);
-    DistMatrix<T,Star,Star> B_ref(grid);
-    DistMatrix<T,Star,Star> C_ref(grid);
+    DistMatrix<T,Star,Star> ARef(grid);
+    DistMatrix<T,Star,Star> BRef(grid);
+    DistMatrix<T,Star,Star> CRef(grid);
 
     if( orientationOfA == Normal )
         A.ResizeTo( m, k );
@@ -315,9 +303,9 @@ void TestSerialGemm
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
-        A_ref = A;
-        B_ref = B;
-        C_ref = C;
+        ARef = A;
+        BRef = B;
+        CRef = C;
         if( grid.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -353,28 +341,25 @@ void TestSerialGemm
     if( testCorrectness )
     {
         TestSerialCorrectness
-        ( orientationOfA, orientationOfB, 
-          alpha, A_ref, B_ref, beta, C_ref, C, printMatrices );
+        ( printMatrices, C,
+          orientationOfA, orientationOfB, 
+          alpha, ARef, BRef, beta, CRef );
     }
 }
 
 template<typename T>
 void TestParallelGemm
-( const Orientation orientationOfA, 
-  const Orientation orientationOfB,
-  const int m, const int n, const int k, 
-  const T alpha, const T beta, 
-  const bool testCorrectness, 
-  const bool printMatrices, 
-  const Grid& grid                      )
+( bool testCorrectness, bool printMatrices,
+  Orientation orientationOfA, Orientation orientationOfB,
+  int m, int n, int k, T alpha, T beta, const Grid& grid )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,  MR  > A(grid);
     DistMatrix<T,MC,  MR  > B(grid);
     DistMatrix<T,MC,  MR  > C(grid);
-    DistMatrix<T,Star,Star> A_ref(grid);
-    DistMatrix<T,Star,Star> B_ref(grid);
-    DistMatrix<T,Star,Star> C_ref(grid);
+    DistMatrix<T,Star,Star> ARef(grid);
+    DistMatrix<T,Star,Star> BRef(grid);
+    DistMatrix<T,Star,Star> CRef(grid);
 
     if( orientationOfA == Normal )
         A.ResizeTo( m, k );
@@ -401,9 +386,9 @@ void TestParallelGemm
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
-        A_ref = A;
-        B_ref = B;
-        C_ref = C;
+        ARef = A;
+        BRef = B;
+        CRef = C;
         if( grid.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -437,8 +422,9 @@ void TestParallelGemm
     if( testCorrectness )
     {
         TestParallelCorrectness
-        ( orientationOfA, orientationOfB, 
-          alpha, A_ref, B_ref, beta, C_ref, C, printMatrices );
+        ( printMatrices, C,
+          orientationOfA, orientationOfB, 
+          alpha, ARef, BRef, beta, CRef );
     }
 
     // Test the variant of Gemm that keeps B stationary
@@ -454,9 +440,9 @@ void TestParallelGemm
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
-        A_ref = A;
-        B_ref = B;
-        C_ref = C;
+        ARef = A;
+        BRef = B;
+        CRef = C;
         if( grid.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -490,8 +476,9 @@ void TestParallelGemm
     if( testCorrectness )
     {
         TestParallelCorrectness
-        ( orientationOfA, orientationOfB,
-          alpha, A_ref, B_ref, beta, C_ref, C, printMatrices );
+        ( printMatrices, C,
+          orientationOfA, orientationOfB,
+          alpha, ARef, BRef, beta, CRef );
     }
 
     // Test the variant of Gemm that keeps C stationary
@@ -507,9 +494,9 @@ void TestParallelGemm
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
-        A_ref = A;
-        B_ref = B;
-        C_ref = C;
+        ARef = A;
+        BRef = B;
+        CRef = C;
         if( grid.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -543,8 +530,9 @@ void TestParallelGemm
     if( testCorrectness )
     {
         TestParallelCorrectness
-        ( orientationOfA, orientationOfB,
-          alpha, A_ref, B_ref, beta, C_ref, C, printMatrices );
+        ( printMatrices, C, 
+          orientationOfA, orientationOfB,
+          alpha, ARef, BRef, beta, CRef );
     }
     
     if( orientationOfA == Normal && orientationOfB == Normal )
@@ -562,9 +550,9 @@ void TestParallelGemm
                 cout << "  Making copies of original matrices...";
                 cout.flush();
             }
-            A_ref = A;
-            B_ref = B;
-            C_ref = C;
+            ARef = A;
+            BRef = B;
+            CRef = C;
             if( grid.VCRank() == 0 )
                 cout << "DONE" << endl;
         }
@@ -598,8 +586,9 @@ void TestParallelGemm
         if( testCorrectness )
         {
             TestParallelCorrectness
-            ( orientationOfA, orientationOfB,
-              alpha, A_ref, B_ref, beta, C_ref, C, printMatrices );
+            ( printMatrices, C,
+              orientationOfA, orientationOfB,
+              alpha, ARef, BRef, beta, CRef );
         }
     }
 }
@@ -659,29 +648,6 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "--------------------" << endl;
-            cout << "Testing with floats:" << endl;
-            cout << "--------------------" << endl;
-        }
-        if( testSerial )
-        {
-            TestSerialGemm<float>
-            ( orientationOfA, orientationOfB,
-              m, n, k, (float)3, (float)4, 
-              testCorrectness, printMatrices, grid );
-        }
-        if( testParallel )
-        {
-            TestParallelGemm<float>
-            ( orientationOfA, orientationOfB,
-              m, n, k, (float)3, (float)4,
-              testCorrectness, printMatrices, grid );
-        }
-        if( rank == 0 )
-            cout << endl;
-
-        if( rank == 0 )
-        {
             cout << "---------------------" << endl;
             cout << "Testing with doubles:" << endl;
             cout << "---------------------" << endl;
@@ -689,44 +655,21 @@ int main( int argc, char* argv[] )
         if( testSerial )
         {
             TestSerialGemm<double>
-            ( orientationOfA, orientationOfB,
-              m, n, k, (double)3, (double)4,
-              testCorrectness, printMatrices, grid );
+            ( testCorrectness, printMatrices, 
+              orientationOfA, orientationOfB,
+              m, n, k, (double)3, (double)4, grid );
         }
         if( testParallel )
         {
             TestParallelGemm<double>
-            ( orientationOfA, orientationOfB,
-              m, n, k, (double)3, (double)4,
-              testCorrectness, printMatrices, grid );
+            ( testCorrectness, printMatrices,
+              orientationOfA, orientationOfB,
+              m, n, k, (double)3, (double)4, grid );
         }
         if( rank == 0 )
             cout << endl;
 
 #ifndef WITHOUT_COMPLEX
-        if( rank == 0 )
-        {
-            cout << "--------------------------------------" << endl;
-            cout << "Testing with single-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
-        }
-        if( testSerial )
-        {
-            TestSerialGemm<scomplex>
-            ( orientationOfA, orientationOfB,
-              m, n, k, (scomplex)3, (scomplex)4,
-              testCorrectness, printMatrices, grid );
-        }
-        if( testParallel )
-        {
-            TestParallelGemm<scomplex>
-            ( orientationOfA, orientationOfB,
-              m, n, k, (scomplex)3, (scomplex)4,
-              testCorrectness, printMatrices, grid );
-        }
-        if( rank == 0 )
-            cout << endl;
-
         if( rank == 0 )
         {
             cout << "--------------------------------------" << endl;
@@ -736,16 +679,16 @@ int main( int argc, char* argv[] )
         if( testSerial )
         {
             TestSerialGemm<dcomplex>
-            ( orientationOfA, orientationOfB,
-              m, n, k, (dcomplex)3, (dcomplex)4,
-              testCorrectness, printMatrices, grid );
+            ( testCorrectness, printMatrices,
+              orientationOfA, orientationOfB,
+              m, n, k, (dcomplex)3, (dcomplex)4, grid );
         }
         if( testParallel )
         {
             TestParallelGemm<dcomplex>
-            ( orientationOfA, orientationOfB,
-              m, n, k, (dcomplex)3, (dcomplex)4,
-              testCorrectness, printMatrices, grid );
+            ( testCorrectness, printMatrices,
+              orientationOfA, orientationOfB,
+              m, n, k, (dcomplex)3, (dcomplex)4, grid );
         }
         if( rank == 0 )
             cout << endl;

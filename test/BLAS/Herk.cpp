@@ -46,39 +46,22 @@ template<typename T>
 bool OKRelativeError( T truth, T computed );
 
 template<>
-bool OKRelativeError( float truth, float computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(float)1) <= 1e-5 );
-}
-
-template<>
 bool OKRelativeError( double truth, double computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-13 );
-}
+{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-12 ); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
-bool OKRelativeError( scomplex truth, scomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(float)1) <= 1e-5 );
-}
-
-template<>
 bool OKRelativeError( dcomplex truth, dcomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-13 );
-}
+{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-12 ); }
 #endif
 
 template<typename T>
-void TestCorrectness( const Shape shape, const Orientation orientation,
-                      const T alpha, 
-                      const DistMatrix<T,Star,Star>& A_ref,
-                      const T beta,        
-                            DistMatrix<T,Star,Star>& C_ref,
-                      const DistMatrix<T,MC,MR>& C,
-                      const bool printMatrices                          )
+void TestCorrectness
+( bool printMatrices,
+  const DistMatrix<T,MC,MR>& C,
+  Shape shape, Orientation orientation,
+  T alpha, const DistMatrix<T,Star,Star>& ARef,
+  T beta,        DistMatrix<T,Star,Star>& CRef )
 {
     const Grid& grid = C.GetGrid();
     DistMatrix<T,Star,Star> C_copy(grid);
@@ -98,13 +81,13 @@ void TestCorrectness( const Shape shape, const Orientation orientation,
         cout.flush();
     }
     BLAS::Herk( shape, orientation,
-                alpha, A_ref.LockedLocalMatrix(),
-                beta,  C_ref.LocalMatrix()       );
+                alpha, ARef.LockedLocalMatrix(),
+                beta,  CRef.LocalMatrix()       );
     if( grid.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
-        C_ref.Print("Truth:");
+        CRef.Print("Truth:");
 
     if( grid.VCRank() == 0 )
     {
@@ -117,7 +100,7 @@ void TestCorrectness( const Shape shape, const Orientation orientation,
         {
             for( int i=j; i<C.Height(); ++i )
             {
-                T truth = C_ref.LocalEntry(i,j);
+                T truth = CRef.LocalEntry(i,j);
                 T computed = C_copy.LocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
@@ -137,7 +120,7 @@ void TestCorrectness( const Shape shape, const Orientation orientation,
         {
             for( int i=0; i<=j; ++i )
             {
-                T truth = C_ref.LocalEntry(i,j);
+                T truth = CRef.LocalEntry(i,j);
                 T computed = C_copy.LocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
@@ -158,15 +141,15 @@ void TestCorrectness( const Shape shape, const Orientation orientation,
 
 template<typename T>
 void TestHerk
-( const Shape shape, const Orientation orientation,
-  const int m, const int k, const T alpha, const T beta,
-  const bool testCorrectness, const bool printMatrices, const Grid& grid  )
+( bool testCorrectness, bool printMatrices,
+  Shape shape, Orientation orientation,
+  int m, int k, T alpha, T beta, const Grid& grid )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(grid);
     DistMatrix<T,MC,MR> C(grid);
-    DistMatrix<T,Star,Star> A_ref(grid);
-    DistMatrix<T,Star,Star> C_ref(grid);
+    DistMatrix<T,Star,Star> ARef(grid);
+    DistMatrix<T,Star,Star> CRef(grid);
 
     if( orientation == Normal )
         A.ResizeTo( m, k );
@@ -191,8 +174,8 @@ void TestHerk
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
-        A_ref = A;
-        C_ref = C;
+        ARef = A;
+        CRef = C;
         if( grid.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -227,7 +210,8 @@ void TestHerk
     if( testCorrectness )
     {
         TestCorrectness
-        ( shape, orientation, alpha, A_ref, beta, C_ref, C, printMatrices );
+        ( printMatrices, C,
+          shape, orientation, alpha, ARef, beta, CRef );
     }
 }
 
@@ -275,22 +259,12 @@ int main( int argc, char* argv[] )
         if( rank == 0 )
         {
             cout << "--------------------------------------" << endl;
-            cout << "Testing with single-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
-        }
-        TestHerk<scomplex>( shape, orientation, m, k, (float)3, (float)4,
-                            testCorrectness, printMatrices, grid         );
-        if( rank == 0 )
-            cout << endl;
-
-        if( rank == 0 )
-        {
-            cout << "--------------------------------------" << endl;
             cout << "Testing with double-precision complex:" << endl;
             cout << "--------------------------------------" << endl;
         }
-        TestHerk<dcomplex>( shape, orientation, m, k, (double)3, (double)4,
-                            testCorrectness, printMatrices, grid           );
+        TestHerk<dcomplex>
+        ( testCorrectness, printMatrices,
+          shape, orientation, m, k, (double)3, (double)4, grid );
         if( rank == 0 )
             cout << endl;
 #endif

@@ -266,10 +266,10 @@ int main( int argc, char* argv[] )
         Elemental::Finalize();
         return 0;
     }
-    int r = atoi(argv[1]);
-    int c = atoi(argv[2]);
-    int m = atoi(argv[3]);
-    int n = atoi(argv[4]);
+    const int r = atoi(argv[1]);
+    const int c = atoi(argv[2]);
+    const int m = atoi(argv[3]);
+    const int n = atoi(argv[4]);
 #ifndef RELEASE
     if( rank == 0 )
     {

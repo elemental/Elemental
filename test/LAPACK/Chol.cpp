@@ -28,40 +28,23 @@ template<typename T>
 bool OKRelativeError( T truth, T computed );
 
 template<>
-bool OKRelativeError( float truth, float computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(float)1) <= 1e-3 );
-}
-
-template<>
 bool OKRelativeError( double truth, double computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-10 );
-}
+{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-10 ); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
-bool OKRelativeError( scomplex truth, scomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(float)1) <= 1e-3 );
-}
-
-template<>
 bool OKRelativeError( dcomplex truth, dcomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-10 );
-}
+{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-10 ); }
 #endif
 
 template<typename T>
 void TestCorrectness
-( const Shape shape,
-        DistMatrix<T,Star,Star>& A_ref,
+( bool printMatrices,
   const DistMatrix<T,MC,MR>& A,
-  const bool printMatrices                       )
+  Shape shape, DistMatrix<T,Star,Star>& ARef )
 {
     const Grid& grid = A.GetGrid();
-    const int m = A_ref.Height();
+    const int m = ARef.Height();
     DistMatrix<T,Star,Star> A_copy(grid);
 
     if( grid.VCRank() == 0 )
@@ -78,12 +61,12 @@ void TestCorrectness
         cout << "  Computing 'truth'...";
         cout.flush();
     }
-    LAPACK::Chol( shape, A_ref.LocalMatrix() );
+    LAPACK::Chol( shape, ARef.LocalMatrix() );
     if( grid.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
-        A_ref.Print("Truth");
+        ARef.Print("Truth");
 
     if( grid.VCRank() == 0 )
     {
@@ -96,7 +79,7 @@ void TestCorrectness
         {
             for( int i=j; i<m; ++i )
             {
-                T truth = A_ref.LocalEntry(i,j);
+                T truth = ARef.LocalEntry(i,j);
                 T computed = A_copy.LocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
@@ -116,7 +99,7 @@ void TestCorrectness
         {
             for( int i=0; i<=j; ++i )
             {
-                T truth = A_ref.LocalEntry(i,j);
+                T truth = ARef.LocalEntry(i,j);
                 T computed = A_copy.LocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
@@ -137,12 +120,13 @@ void TestCorrectness
 
 template<typename T>
 void TestChol
-( const Shape shape, const bool var3, const int m, 
-  const bool testCorrectness, const bool printMatrices, const Grid& grid )
+( bool var3, 
+  bool testCorrectness, bool printMatrices, 
+  Shape shape, int m, const Grid& grid )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(grid);
-    DistMatrix<T,Star,Star> A_ref(grid);
+    DistMatrix<T,Star,Star> ARef(grid);
 
     A.ResizeTo( m, m );
 
@@ -154,7 +138,7 @@ void TestChol
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
-        A_ref = A;
+        ARef = A;
         if( grid.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -186,7 +170,7 @@ void TestChol
     }
     if( testCorrectness )
     {
-        TestCorrectness( shape, A_ref, A, printMatrices );
+        TestCorrectness( printMatrices, A, shape, ARef );
     }
 }
 
@@ -227,30 +211,6 @@ int main( int argc, char* argv[] )
             cout << "Will test Chol" << ShapeToChar(shape) << ", Var"
                  << ( var3 ? "3" : "2" ) << endl;
 
-        if( m<=200 )
-        {
-            if( rank == 0 )
-            {
-                cout << "--------------------" << endl;
-                cout << "Testing with floats:" << endl;
-                cout << "--------------------" << endl;
-            }
-            TestChol<float>
-            ( shape, var3, m, testCorrectness, printMatrices, grid );
-            if( rank == 0 )
-                cout << endl;
-        }
-        else
-        {
-            if( rank == 0 )
-            {
-                cout << "--------------------------------" << endl;
-                cout << "Floats unsuitable for this test." << endl;
-                cout << "--------------------------------" << endl;
-                cout << endl;
-            }
-        }
-
         if( rank == 0 )
         {
             cout << "---------------------" << endl;
@@ -258,35 +218,11 @@ int main( int argc, char* argv[] )
             cout << "---------------------" << endl;
         }
         TestChol<double>
-        ( shape, var3, m, testCorrectness, printMatrices, grid );
+        ( var3, testCorrectness, printMatrices, shape, m, grid );
         if( rank == 0 )
             cout << endl;
 
 #ifndef WITHOUT_COMPLEX
-        if( m <= 200 )
-        {
-            if( rank == 0 )
-            {
-                cout << "--------------------------------------" << endl;
-                cout << "Testing with single-precision complex:" << endl;
-                cout << "--------------------------------------" << endl;
-            }
-            TestChol<scomplex>
-            ( shape, var3, m, testCorrectness, printMatrices, grid );
-            if( rank == 0 )
-                cout << endl;
-        }
-        else
-        {
-            if( rank == 0 )
-            {
-                cout << "----------------------------------------" << endl;
-                cout << "Complex floats unsuitable for this test." << endl;
-                cout << "----------------------------------------" << endl;
-                cout << endl;
-            }
-        }
-
         if( rank == 0 )
         {
             cout << "--------------------------------------" << endl;
@@ -294,7 +230,7 @@ int main( int argc, char* argv[] )
             cout << "--------------------------------------" << endl;
         }
         TestChol<dcomplex>
-        ( shape, var3, m, testCorrectness, printMatrices, grid );
+        ( var3, testCorrectness, printMatrices, shape, m, grid );
         if( rank == 0 )
             cout << endl;
 #endif

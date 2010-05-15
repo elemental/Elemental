@@ -46,38 +46,23 @@ template<typename T>
 bool OKRelativeError( T truth, T computed );
 
 template<>
-bool OKRelativeError( float truth, float computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(float)1)  <= 1e-5 );
-}
-
-template<>
 bool OKRelativeError( double truth, double computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(double)1)  <= 1e-13 );
-}
+{ return ( fabs(truth-computed) / max(fabs(truth),(double)1)  <= 1e-12 ); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
-bool OKRelativeError( scomplex truth, scomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(float)1) <= 1e-5 );
-}
-
-template<>
 bool OKRelativeError( dcomplex truth, dcomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-13 );
-}
+{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-12 ); }
 #endif
 
 template<typename T>
 void TestCorrectness
-( const Side side, const Shape shape,
-  const T alpha, const DistMatrix<T,Star,Star>& A_ref,
-                 const DistMatrix<T,Star,Star>& B_ref,
-  const T beta,        DistMatrix<T,Star,Star>& C_ref,
-  const DistMatrix<T,MC,MR>& C, const bool printMatrices )
+( bool printMatrices, 
+  const DistMatrix<T,MC,MR>& C,
+  Side side, Shape shape,
+  T alpha, const DistMatrix<T,Star,Star>& A_ref,
+           const DistMatrix<T,Star,Star>& B_ref,
+  T beta,        DistMatrix<T,Star,Star>& C_ref )
 {
     const Grid& grid = C.GetGrid();
     DistMatrix<T,Star,Star> C_copy(grid);
@@ -96,10 +81,11 @@ void TestCorrectness
         cout << "  Computing 'truth'...";
         cout.flush();
     }
-    BLAS::Hemm( side, shape,
-                alpha, A_ref.LockedLocalMatrix(),
-                       B_ref.LockedLocalMatrix(),
-                beta,  C_ref.LocalMatrix()       );
+    BLAS::Hemm
+    ( side, shape,
+      alpha, A_ref.LockedLocalMatrix(),
+             B_ref.LockedLocalMatrix(),
+      beta,  C_ref.LocalMatrix() );
     if( grid.VCRank() == 0 )
         cout << "DONE" << endl;
 
@@ -135,9 +121,9 @@ void TestCorrectness
 
 template<typename T>
 void TestHemm
-( const Side side, const Shape shape,
-  const int m, const int n, const T alpha, const T beta,
-  const bool testCorrectness, const bool printMatrices, const Grid& grid  )
+( bool testCorrectness, bool printMatrices,
+  Side side, Shape shape,
+  int m, int n, T alpha, T beta, const Grid& grid )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,  MR  > A(grid);
@@ -215,8 +201,8 @@ void TestHemm
     if( testCorrectness )
     {
         TestCorrectness
-        ( side, shape,
-          alpha, A_ref, B_ref, beta, C_ref, C, printMatrices );
+        ( printMatrices, C,
+          side, shape, alpha, A_ref, B_ref, beta, C_ref );
     }
 }
 
@@ -264,24 +250,12 @@ int main( int argc, char* argv[] )
         if( rank == 0 )
         {
             cout << "--------------------------------------" << endl;
-            cout << "Testing with single-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
-        }
-        TestHemm<scomplex>
-        ( side, shape, m, n, (scomplex)3, (scomplex)4, 
-          testCorrectness, printMatrices, grid        ); 
-        if( rank == 0 )
-            cout << endl;
-
-        if( rank == 0 )
-        {
-            cout << "--------------------------------------" << endl;
             cout << "Testing with double-precision complex:" << endl;
             cout << "--------------------------------------" << endl;
         }
         TestHemm<dcomplex>
-        ( side, shape, m, n, (dcomplex)3, (dcomplex)4, 
-          testCorrectness, printMatrices, grid        ); 
+        ( testCorrectness, printMatrices,
+          side, shape, m, n, (dcomplex)3, (dcomplex)4, grid );
         if( rank == 0 )
             cout << endl;
 #endif

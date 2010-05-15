@@ -27,29 +27,27 @@ bool OKRelativeError( T truth, T computed );
 
 template<>
 bool OKRelativeError( double truth, double computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-9 );
-}
+{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-9 ); }
 
 template<typename T>
 void TestCorrectness
-( const Shape shape, 
-        DistMatrix<T,Star,Star>& A_ref,
+( bool printMatrices,
+  Shape shape, 
   const DistMatrix<T,MC,MR>& A, 
   const DistMatrix<T,MD,Star>& d,
   const DistMatrix<T,MD,Star>& e,
   const DistMatrix<T,MD,Star>& t,
-  const bool printMatrices                       )
+        DistMatrix<T,Star,Star>& ARef )
 {
     const Grid& grid = A.GetGrid();
-    const int m = A_ref.Height();
+    const int m = ARef.Height();
     DistMatrix<T,Star,Star> A_copy(grid);
     DistMatrix<T,Star,Star> d_copy(grid);
     DistMatrix<T,Star,Star> e_copy(grid);
     DistMatrix<T,Star,Star> t_copy(grid);
-    DistMatrix<T,Star,Star> d_ref(m,1,grid);
-    DistMatrix<T,Star,Star> e_ref(m-1,1,grid);
-    DistMatrix<T,Star,Star> t_ref(m-1,1,grid);
+    DistMatrix<T,Star,Star> dRef(m,1,grid);
+    DistMatrix<T,Star,Star> eRef(m-1,1,grid);
+    DistMatrix<T,Star,Star> tRef(m-1,1,grid);
 
     if( grid.VCRank() == 0 )
     {
@@ -71,21 +69,21 @@ void TestCorrectness
     double startTime = Time();
     if( shape == Lower )
     {
-        LAPACK::Tridiag( Lower, A_ref.LocalMatrix(), 
-                                d_ref.LocalMatrix(),
-                                e_ref.LocalMatrix(),
-                                t_ref.LocalMatrix() );
+        LAPACK::Tridiag( Lower, ARef.LocalMatrix(), 
+                                dRef.LocalMatrix(),
+                                eRef.LocalMatrix(),
+                                tRef.LocalMatrix() );
     }
     else
     {
-        Matrix<T> ATrans_ref;
+        Matrix<T> ATransRef;
 
-        BLAS::Trans( A_ref.LockedLocalMatrix(), ATrans_ref );
-        LAPACK::Tridiag( Lower, ATrans_ref,
-                                d_ref.LocalMatrix(),
-                                e_ref.LocalMatrix(),
-                                t_ref.LocalMatrix() );
-        BLAS::Trans( ATrans_ref, A_ref.LocalMatrix() );
+        BLAS::Trans( ARef.LockedLocalMatrix(), ATransRef );
+        LAPACK::Tridiag( Lower, ATransRef,
+                                dRef.LocalMatrix(),
+                                eRef.LocalMatrix(),
+                                tRef.LocalMatrix() );
+        BLAS::Trans( ATransRef, ARef.LocalMatrix() );
     }
     double stopTime = Time();
     double gFlops = LAPACK::Internal::TridiagGFlops<T>(m,stopTime-startTime);
@@ -94,10 +92,10 @@ void TestCorrectness
 
     if( printMatrices )
     {
-        A_ref.Print("True A:");
-        d_ref.Print("True d:");
-        e_ref.Print("True e:");
-        t_ref.Print("True t:");
+        ARef.Print("True A:");
+        dRef.Print("True d:");
+        eRef.Print("True e:");
+        tRef.Print("True t:");
     }
 
     if( grid.VCRank() == 0 )
@@ -111,7 +109,7 @@ void TestCorrectness
         {
             for( int i=j; i<m; ++i )
             {
-                T truth = A_ref.LocalEntry(i,j);
+                T truth = ARef.LocalEntry(i,j);
                 T computed = A_copy.LocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
@@ -132,7 +130,7 @@ void TestCorrectness
         {
             for( int i=0; i<=j; ++i )
             {
-                T truth = A_ref.LocalEntry(i,j);
+                T truth = ARef.LocalEntry(i,j);
                 T computed = A_copy.LocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
@@ -149,7 +147,7 @@ void TestCorrectness
     }
     for( int j=0; j<m; ++j )
     {
-        T truth = d_ref.LocalEntry(j,0);
+        T truth = dRef.LocalEntry(j,0);
         T computed = d_copy.LocalEntry(j,0);
 
         if( ! OKRelativeError( truth, computed ) )
@@ -163,7 +161,7 @@ void TestCorrectness
     }
     for( int j=0; j<m-1; ++j )
     {
-        T truth = e_ref.LocalEntry(j,0);
+        T truth = eRef.LocalEntry(j,0);
         T computed = e_copy.LocalEntry(j,0);
 
         if( ! OKRelativeError( truth, computed ) )
@@ -177,7 +175,7 @@ void TestCorrectness
     }
     for( int j=0; j<m-1; ++j )
     {
-        T truth = t_ref.LocalEntry(j,0);
+        T truth = tRef.LocalEntry(j,0);
         T computed = t_copy.LocalEntry(j,0);
 
         if( ! OKRelativeError( truth, computed ) )
@@ -197,15 +195,15 @@ void TestCorrectness
 
 template<typename T>
 void TestTridiag
-( const Shape shape, const int m, 
-  const bool testCorrectness, const bool printMatrices, const Grid& grid )
+( bool testCorrectness, bool printMatrices,
+  Shape shape, int m, const Grid& grid )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(grid);
     DistMatrix<T,MD,Star> d(grid);
     DistMatrix<T,MD,Star> e(grid);
     DistMatrix<T,MD,Star> t(grid);
-    DistMatrix<T,Star,Star> A_ref(grid);
+    DistMatrix<T,Star,Star> ARef(grid);
 
     A.ResizeTo( m, m );
 
@@ -229,7 +227,7 @@ void TestTridiag
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
-        A_ref = A;
+        ARef = A;
         if( grid.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -261,7 +259,7 @@ void TestTridiag
     }
     if( testCorrectness )
     {
-        TestCorrectness( shape, A_ref, A, d, e, t, printMatrices );
+        TestCorrectness( printMatrices, shape, A, d, e, t, ARef );
     }
 }
 
@@ -306,7 +304,7 @@ int main( int argc, char* argv[] )
             cout << "Testing with doubles:" << endl;
             cout << "---------------------" << endl;
         }
-        TestTridiag<double>( shape, m, testCorrectness, printMatrices, grid );
+        TestTridiag<double>( testCorrectness, printMatrices, shape, m, grid );
         if( rank == 0 )
             cout << endl;
     }

@@ -31,17 +31,17 @@ void Usage()
     cout << "  Trmm <r> <c> <side> <shape> <orientation> <unit diag?>" << endl
          << "       <m> <n> <nb> <test correctness?> <print matrices?>" << endl;
     cout << endl;
-    cout << "  r: number of process rows                  " << endl;
-    cout << "  c: number of process cols                  " << endl;
-    cout << "  side: {L,R}                                " << endl;
-    cout << "  shape: {L,U}                               " << endl;
-    cout << "  orientation: {N,T,C}                       " << endl;
-    cout << "  diag?: {N,U}                               " << endl;
-    cout << "  m: height of right-hand sides              " << endl;
-    cout << "  n: number of right-hand sides              " << endl;
-    cout << "  nb: algorithmic blocksize                  " << endl;
-    cout << "  test correctness?: false iff 0             " << endl;
-    cout << "  print matrices?: false iff 0               " << endl;
+    cout << "  r: number of process rows      " << endl;
+    cout << "  c: number of process cols      " << endl;
+    cout << "  side: {L,R}                    " << endl;
+    cout << "  shape: {L,U}                   " << endl;
+    cout << "  orientation: {N,T,C}           " << endl;
+    cout << "  diag?: {N,U}                   " << endl;
+    cout << "  m: height of right-hand sides  " << endl;
+    cout << "  n: number of right-hand sides  " << endl;
+    cout << "  nb: algorithmic blocksize      " << endl;
+    cout << "  test correctness?: false iff 0 " << endl;
+    cout << "  print matrices?: false iff 0   " << endl;
     cout << endl;
 }
 
@@ -49,39 +49,23 @@ template<typename T>
 bool OKRelativeError( T truth, T computed );
 
 template<>
-bool OKRelativeError( float truth, float computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(float)1) <= 1e-3 );
-}
-
-template<>
 bool OKRelativeError( double truth, double computed )
-{
-    return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-13 );
-}
+{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-12 ); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
-bool OKRelativeError( scomplex truth, scomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(float)1) <= 1e-3 );
-}
-
-template<>
 bool OKRelativeError( dcomplex truth, dcomplex computed )
-{
-    return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-13 );
-}
+{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-12 ); }
 #endif
 
 template<typename T>
-void TestCorrectness( const Side side,               const Shape shape,
-                      const Orientation orientation, const Diagonal diagonal,
-                      const T alpha, 
-                      const DistMatrix<T,Star,Star>& A_ref,
-                            DistMatrix<T,Star,Star>& X_ref,
-                      const DistMatrix<T,MC,MR>& X,
-                      const bool printMatrices                               )
+void TestCorrectness
+( bool printMatrices,
+  const DistMatrix<T,MC,MR>& X,
+  Side side, Shape shape, 
+  Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,Star,Star>& ARef,
+                 DistMatrix<T,Star,Star>& XRef )
 {
     const Grid& grid = X.GetGrid();
     DistMatrix<T,Star,Star> X_copy(grid);
@@ -101,13 +85,13 @@ void TestCorrectness( const Side side,               const Shape shape,
         cout.flush();
     }
     BLAS::Trmm( side, shape, orientation, diagonal,
-                alpha, A_ref.LockedLocalMatrix(),
-                       X_ref.LocalMatrix()         );
+                alpha, ARef.LockedLocalMatrix(),
+                       XRef.LocalMatrix()         );
     if( grid.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
-        X_ref.Print("Truth");
+        XRef.Print("Truth");
 
     if( grid.VCRank() == 0 )
     {
@@ -118,7 +102,7 @@ void TestCorrectness( const Side side,               const Shape shape,
     {
         for( int i=0; i<X.Height(); ++i )
         {
-            T truth = X_ref.LocalEntry(i,j);
+            T truth = XRef.LocalEntry(i,j);
             T computed = X_copy.LocalEntry(i,j);
 
             if( ! OKRelativeError( truth, computed ) )
@@ -138,16 +122,16 @@ void TestCorrectness( const Side side,               const Shape shape,
 
 template<typename T>
 void TestTrmm
-( const Side side,               const Shape shape,
-  const Orientation orientation, const Diagonal diagonal,
-  const int m, const int n, const T alpha,
-  const bool testCorrectness, const bool printMatrices, const Grid& grid   )
+( bool testCorrectness, bool printMatrices,
+  Side side, Shape shape,
+  Orientation orientation, Diagonal diagonal,
+  int m, int n, T alpha, const Grid& grid )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(grid);
     DistMatrix<T,MC,MR> X(grid);
-    DistMatrix<T,Star,Star> A_ref(grid);
-    DistMatrix<T,Star,Star> X_ref(grid);
+    DistMatrix<T,Star,Star> ARef(grid);
+    DistMatrix<T,Star,Star> XRef(grid);
 
     if( side == Left )
         A.ResizeTo( m, m );
@@ -164,8 +148,8 @@ void TestTrmm
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
-        A_ref = A;
-        X_ref = X;
+        ARef = A;
+        XRef = X;
         if( grid.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -192,8 +176,9 @@ void TestTrmm
         X.Print("X after solve");
     if( testCorrectness )
     {
-        TestCorrectness( side, shape, orientation, diagonal, 
-                         alpha, A_ref, X_ref, X, printMatrices );
+        TestCorrectness
+        ( printMatrices, X,
+          side, shape, orientation, diagonal, alpha, ARef, XRef );
     }
 }
 
@@ -241,31 +226,6 @@ int main( int argc, char* argv[] )
                                      << DiagonalToChar(diagonal) << endl;
         }
 
-        if( (diagonal == NonUnit && m<=2000) || (diagonal == Unit && m <= 100) )
-        {
-            if( rank == 0 )
-            {
-                cout << "--------------------" << endl;
-                cout << "Testing with floats:" << endl;
-                cout << "--------------------" << endl;
-            }
-            TestTrmm<float>
-            ( side, shape, orientation, diagonal,
-              m, n, (float)3, testCorrectness, printMatrices, grid );
-            if( rank == 0 )
-                cout << endl;
-        }
-        else
-        {
-            if( rank == 0 )
-            {
-                cout << "--------------------------------" << endl;
-                cout << "Floats unsuitable for this test." << endl;
-                cout << "--------------------------------" << endl;
-                cout << endl;
-            }
-        }
-
         if( rank == 0 )
         {
             cout << "---------------------" << endl;
@@ -273,8 +233,8 @@ int main( int argc, char* argv[] )
             cout << "---------------------" << endl;
         }
         TestTrmm<double>
-        ( side, shape, orientation, diagonal,
-          m, n, (double)3, testCorrectness, printMatrices, grid );
+        ( testCorrectness, printMatrices,
+          side, shape, orientation, diagonal, m, n, (double)3, grid );
         if( rank == 0 )
             cout << endl;
 
@@ -282,24 +242,12 @@ int main( int argc, char* argv[] )
         if( rank == 0 )
         {
             cout << "--------------------------------------" << endl;
-            cout << "Testing with single-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
-        }
-        TestTrmm<scomplex>
-        ( side, shape, orientation, diagonal,
-          m, n, (scomplex)3, testCorrectness, printMatrices, grid );
-        if( rank == 0 )
-            cout << endl;
-
-        if( rank == 0 )
-        {
-            cout << "--------------------------------------" << endl;
             cout << "Testing with double-precision complex:" << endl;
             cout << "--------------------------------------" << endl;
         }
         TestTrmm<dcomplex>
-        ( side, shape, orientation, diagonal,
-          m, n, (dcomplex)3, testCorrectness, printMatrices, grid );
+        ( testCorrectness, printMatrices,
+          side, shape, orientation, diagonal, m, n, (dcomplex)3, grid );
         if( rank == 0 )
             cout << endl;
 #endif
