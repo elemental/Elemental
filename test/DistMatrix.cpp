@@ -1,9 +1,9 @@
 #include <cstdlib>
 #include <ctime>
-#include "Elemental.hpp"
+#include "elemental.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
@@ -257,13 +257,13 @@ DistMatrixTest( int m, int n, const Grid& grid )
 int main( int argc, char* argv[] )
 {
     int rank;
-    Elemental::Init( &argc, &argv );
+    elemental::Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     if( argc != 5 )
     {
         if( rank == 0 )
             Usage();
-        Elemental::Finalize();
+        elemental::Finalize();
         return 0;
     }
     const int r = atoi(argv[1]);
@@ -340,7 +340,7 @@ int main( int argc, char* argv[] )
         cerr << "Process " << rank << " caught error message: " << endl 
              << errorMsg << endl;
     }
-    Elemental::Finalize();
+    elemental::Finalize();
     return 0;
 }
 

@@ -1,11 +1,29 @@
+/*
+   Copyright 2009-2010 Jack Poulson
+
+   This file is part of Elemental.
+
+   Elemental is free software: you can redistribute it and/or modify it under
+   the terms of the GNU Lesser General Public License as published by the
+   Free Software Foundation; either version 3 of the License, or 
+   (at your option) any later version.
+
+   Elemental is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <cmath>
 #include <ctime>
 #include <sstream>
-#include "Elemental.hpp"
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
@@ -61,7 +79,7 @@ void TestCorrectness
         cout << "  Computing 'truth'...";
         cout.flush();
     }
-    LAPACK::Trinv( shape, diagonal, ARef.LocalMatrix() );
+    lapack::Trinv( shape, diagonal, ARef.LocalMatrix() );
     if( grid.VCRank() == 0 )
         cout << "DONE" << endl;
 
@@ -87,7 +105,7 @@ void TestCorrectness
                     ostringstream msg;
                     msg << "FAILED at index (" << i << "," << j << "): truth=" 
                          << truth << ", computed=" << computed;
-                    const string s = msg.str();
+                    const string& s = msg.str();
                     throw s.c_str();
                 }
             }
@@ -107,7 +125,7 @@ void TestCorrectness
                     ostringstream msg;
                     msg << "FAILED at index (" << i << "," << j << "): truth=" 
                          << truth << ", computed=" << computed;
-                    const string s = msg.str();
+                    const string& s = msg.str();
                     throw s.c_str();
                 }
             }
@@ -155,11 +173,11 @@ void TestTrinv
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    LAPACK::Trinv( shape, diagonal, A );
+    lapack::Trinv( shape, diagonal, A );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = LAPACK::Internal::TrinvGFlops<T>( m, runTime );
+    gFlops = lapack::internal::TrinvGFlops<T>( m, runTime );
     if( grid.VCRank() == 0 )
         cout << "DONE. GFlops = " << gFlops << endl;
     if( printMatrices )
@@ -175,13 +193,13 @@ void TestTrinv
 int main( int argc, char* argv[] )
 {
     int rank;
-    Elemental::Init( &argc, &argv );
+    elemental::Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     if( argc != 9 )
     {
         if( rank == 0 )
             Usage();
-        Elemental::Finalize();
+        elemental::Finalize();
         return 0;
     }
     try
@@ -241,7 +259,7 @@ int main( int argc, char* argv[] )
         cerr << "Process " << rank << " caught error message:" << endl 
              << errorMsg << endl;
     }   
-    Elemental::Finalize();
+    elemental::Finalize();
     return 0;
 }
 

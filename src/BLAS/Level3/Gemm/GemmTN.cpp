@@ -16,20 +16,20 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Internal::GemmTN
-( const Orientation orientationOfA,
-  const T alpha, const DistMatrix<T,MC,MR>& A,
-                 const DistMatrix<T,MC,MR>& B,
-  const T beta,        DistMatrix<T,MC,MR>& C )
+elemental::blas::internal::GemmTN
+( Orientation orientationOfA,
+  T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemmTN");
+    PushCallStack("blas::internal::GemmTN");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
         throw "{A,B,C} must be distributed over the same grid.";
     if( orientationOfA == Normal )
@@ -46,7 +46,7 @@ Elemental::BLAS::Internal::GemmTN
         if( A.GetGrid().VCRank() == 0 )
             cout << "  GemmTN routing to GemmTNB." << endl;
 #endif
-        BLAS::Internal::GemmTNB( orientationOfA, alpha, A, B, beta, C );
+        blas::internal::GemmTNB( orientationOfA, alpha, A, B, beta, C );
     }
     else if( n <= m && weightTowardsC*n <= k )
     {
@@ -54,7 +54,7 @@ Elemental::BLAS::Internal::GemmTN
         if( A.GetGrid().VCRank() == 0 )
             cout << "  GemmTN routing to GemmTNA." << endl;
 #endif
-        BLAS::Internal::GemmTNA( orientationOfA, alpha, A, B, beta, C );
+        blas::internal::GemmTNA( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
@@ -62,7 +62,7 @@ Elemental::BLAS::Internal::GemmTN
         if( A.GetGrid().VCRank() == 0 )
             cout << "  GemmTN routing to GemmTNC." << endl;
 #endif
-        BLAS::Internal::GemmTNC( orientationOfA, alpha, A, B, beta, C );
+        blas::internal::GemmTNC( orientationOfA, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -72,14 +72,14 @@ Elemental::BLAS::Internal::GemmTN
 // Transpose Normal Gemm that avoids communicating the matrix A.
 template<typename T> 
 void
-Elemental::BLAS::Internal::GemmTNA
-( const Orientation orientationOfA,
-  const T alpha, const DistMatrix<T,MC,MR>& A,
-                 const DistMatrix<T,MC,MR>& B,
-  const T beta,        DistMatrix<T,MC,MR>& C )
+elemental::blas::internal::GemmTNA
+( Orientation orientationOfA,
+  T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemmTNA");    
+    PushCallStack("blas::internal::GemmTNA");    
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
         throw "{A,B,C} must be distributed over the same grid.";
     if( orientationOfA == Normal )
@@ -93,7 +93,7 @@ Elemental::BLAS::Internal::GemmTNA
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -113,7 +113,7 @@ Elemental::BLAS::Internal::GemmTNA
     DistMatrix<T,MC,MR  > D1(grid);
 
     // Start the algorithm
-    BLAS::Scal( beta, C );
+    blas::Scal( beta, C );
     LockedPartitionRight( B, BL, BR );
     PartitionRight( C, CL, CR );
     while( BR.Width() > 0 )
@@ -133,7 +133,7 @@ Elemental::BLAS::Internal::GemmTNA
 
         // D1[MR,*] := alpha (A1[MC,MR])^T B1[MC,*]
         //           = alpha (A1^T)[MR,MC] B1[MC,*]
-        BLAS::Gemm( orientationOfA, Normal, 
+        blas::Gemm( orientationOfA, Normal, 
                     alpha, A.LockedLocalMatrix(),
                            B1_MC_Star.LockedLocalMatrix(),
                     (T)0,  D1_MR_Star.LocalMatrix()       );
@@ -141,7 +141,7 @@ Elemental::BLAS::Internal::GemmTNA
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
         D1_MR_MC.ReduceScatterFrom( D1_MR_Star );
         D1 = D1_MR_MC; 
-        BLAS::Axpy( (T)1, D1, C1 );
+        blas::Axpy( (T)1, D1, C1 );
         //--------------------------------------------------------------------//
         B1_MC_Star.FreeConstraints();
         D1_MR_Star.FreeConstraints();
@@ -161,14 +161,14 @@ Elemental::BLAS::Internal::GemmTNA
 // Transpose Normal Gemm that avoids communicating the matrix B.
 template<typename T> 
 void
-Elemental::BLAS::Internal::GemmTNB
-( const Orientation orientationOfA,
-  const T alpha, const DistMatrix<T,MC,MR>& A,
-                 const DistMatrix<T,MC,MR>& B,
-  const T beta,        DistMatrix<T,MC,MR>& C )
+elemental::blas::internal::GemmTNB
+( Orientation orientationOfA,
+  T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemmTNB");
+    PushCallStack("blas::internal::GemmTNB");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
         throw "{A,B,C} must be distributed over the same grid.";
     if( orientationOfA == Normal )
@@ -182,7 +182,7 @@ Elemental::BLAS::Internal::GemmTNB
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -201,7 +201,7 @@ Elemental::BLAS::Internal::GemmTNB
     DistMatrix<T,Star,MR> D1_Star_MR(grid);
 
     // Start the algorithm
-    BLAS::Scal( beta, C );
+    blas::Scal( beta, C );
     LockedPartitionRight( A, AL, AR );
     PartitionDown( C, CT,
                       CB );
@@ -223,7 +223,7 @@ Elemental::BLAS::Internal::GemmTNB
 
         // D1[*,MR] := alpha (A1[MC,*])^T B[MC,MR]
         //           = alpha (A1^T)[*,MC] B[MC,MR]
-        BLAS::Gemm( orientationOfA, Normal, 
+        blas::Gemm( orientationOfA, Normal, 
                     alpha, A1_MC_Star.LockedLocalMatrix(),
                            B.LockedLocalMatrix(),
                     (T)0,  D1_Star_MR.LocalMatrix()       );
@@ -250,14 +250,14 @@ Elemental::BLAS::Internal::GemmTNB
 // Transpose Normal Gemm that avoids communicating the matrix C.
 template<typename T> 
 void
-Elemental::BLAS::Internal::GemmTNC
-( const Orientation orientationOfA,
-  const T alpha, const DistMatrix<T,MC,MR>& A,
-                 const DistMatrix<T,MC,MR>& B,
-  const T beta,        DistMatrix<T,MC,MR>& C )
+elemental::blas::internal::GemmTNC
+( Orientation orientationOfA,
+  T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemmTNC");
+    PushCallStack("blas::internal::GemmTNC");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
         throw "{A,B,C} must be distributed over the same grid.";
     if( orientationOfA == Normal )
@@ -271,7 +271,7 @@ Elemental::BLAS::Internal::GemmTNC
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -291,7 +291,7 @@ Elemental::BLAS::Internal::GemmTNC
     DistMatrix<T,Star,MR> B1_Star_MR(grid);
 
     // Start the algorithm
-    BLAS::Scal( beta, C );
+    blas::Scal( beta, C );
     LockedPartitionDown( A, AT,
                             AB );
     LockedPartitionDown( B, BT,
@@ -316,7 +316,7 @@ Elemental::BLAS::Internal::GemmTNC
 
         // C[MC,MR] += alpha (A1[*,MC])^T B1[*,MR]
         //           = alpha (A1^T)[MC,*] B1[*,MR]
-        BLAS::Gemm( orientationOfA, Normal, 
+        blas::Gemm( orientationOfA, Normal, 
                     alpha, A1_Star_MC.LockedLocalMatrix(),
                            B1_Star_MR.LockedLocalMatrix(),
                     (T)1,  C.LocalMatrix()                );
@@ -339,28 +339,28 @@ Elemental::BLAS::Internal::GemmTNC
 #endif
 }
 
-template void Elemental::BLAS::Internal::GemmTN
-( const Orientation orientationOfA,
-  const float alpha, const DistMatrix<float,MC,MR>& A,      
-                     const DistMatrix<float,MC,MR>& B,
-  const float beta,        DistMatrix<float,MC,MR>& C );
+template void elemental::blas::internal::GemmTN
+( Orientation orientationOfA,
+  float alpha, const DistMatrix<float,MC,MR>& A,      
+               const DistMatrix<float,MC,MR>& B,
+  float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN
-( const Orientation orientationOfA,
-  const double alpha, const DistMatrix<double,MC,MR>& A,         
-                      const DistMatrix<double,MC,MR>& B,
-  const double beta,        DistMatrix<double,MC,MR>& C );
+template void elemental::blas::internal::GemmTN
+( Orientation orientationOfA,
+  double alpha, const DistMatrix<double,MC,MR>& A,         
+                const DistMatrix<double,MC,MR>& B,
+  double beta,        DistMatrix<double,MC,MR>& C );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Internal::GemmTN
-( const Orientation orientationOfA,
-  const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
-                        const DistMatrix<scomplex,MC,MR>& B,
-  const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+template void elemental::blas::internal::GemmTN
+( Orientation orientationOfA,
+  scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
+                  const DistMatrix<scomplex,MC,MR>& B,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::GemmTN
-( const Orientation orientationOfA,
-  const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
-                        const DistMatrix<dcomplex,MC,MR>& B,
-  const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+template void elemental::blas::internal::GemmTN
+( Orientation orientationOfA,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
+                  const DistMatrix<dcomplex,MC,MR>& B,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 #endif

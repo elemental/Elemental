@@ -16,22 +16,22 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::BLAS;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::blas;
+using namespace elemental::wrappers::mpi;
 
 template<typename T>
 void
-Elemental::LAPACK::Internal::PanelLU
+elemental::lapack::internal::PanelLU
 ( DistMatrix<T,Star,Star>& A, 
   DistMatrix<T,VC,  Star>& B, 
   DistMatrix<int,Star,Star>& p, 
-  const int pivotOffset        )
+  int pivotOffset )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::PanelLU");
+    PushCallStack("lapack::internal::PanelLU");
     if( A.GetGrid() != p.GetGrid() || p.GetGrid() != B.GetGrid() )
         throw "Matrices must be distributed over the same grid.";
     if( A.Width() != B.Width() )
@@ -192,32 +192,32 @@ Elemental::LAPACK::Internal::PanelLU
 }
 
 template void
-Elemental::LAPACK::Internal::PanelLU
+elemental::lapack::internal::PanelLU
 ( DistMatrix<float,Star,Star>& A, 
   DistMatrix<float,VC,  Star>& B, 
   DistMatrix<int,  Star,Star>& p,
-  const int pivotOffset          );
+  int pivotOffset );
 
 template void
-Elemental::LAPACK::Internal::PanelLU
+elemental::lapack::internal::PanelLU
 ( DistMatrix<double,Star,Star>& A, 
   DistMatrix<double,VC,  Star>& B, 
   DistMatrix<int,   Star,Star>& p,
-  const int pivotOffset           );
+  int pivotOffset );
 
 #ifndef WITHOUT_COMPLEX
 template void
-Elemental::LAPACK::Internal::PanelLU
+elemental::lapack::internal::PanelLU
 ( DistMatrix<scomplex,Star,Star>& A,
   DistMatrix<scomplex,VC,  Star>& B,
   DistMatrix<int,     Star,Star>& p,
-  const int pivotOffset             );
+  int pivotOffset );
 
 template void
-Elemental::LAPACK::Internal::PanelLU
+elemental::lapack::internal::PanelLU
 ( DistMatrix<dcomplex,Star,Star>& A,
   DistMatrix<dcomplex,VC,  Star>& B,
   DistMatrix<int,     Star,Star>& p,
-  const int pivotOffset             );
+  int pivotOffset );
 #endif
 

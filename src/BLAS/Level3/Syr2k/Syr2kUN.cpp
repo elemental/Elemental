@@ -16,19 +16,19 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Internal::Syr2kUN
-( const T alpha, const DistMatrix<T,MC,MR>& A,
-                 const DistMatrix<T,MC,MR>& B,
-  const T beta,        DistMatrix<T,MC,MR>& C )
+elemental::blas::internal::Syr2kUN
+( T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::Syr2kUN");
+    PushCallStack("blas::internal::Syr2kUN");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
         throw "{A,B,C} must be distributed over the same grid.";
     if( A.Height() != C.Height() || A.Height() != C.Width() ||
@@ -40,7 +40,7 @@ Elemental::BLAS::Internal::Syr2kUN
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -62,7 +62,7 @@ Elemental::BLAS::Internal::Syr2kUN
     DistMatrix<T,Star,MR  > B1Trans_Star_MR(grid);
 
     // Start the algorithm
-    BLAS::Scal( beta, C );
+    blas::Scal( beta, C );
     LockedPartitionRight( A, AL, AR );
     LockedPartitionRight( B, BL, BR );
     while( AR.Width() > 0 )
@@ -86,7 +86,7 @@ Elemental::BLAS::Internal::Syr2kUN
         B1_VR_Star = B1_MC_Star = B1;
         B1Trans_Star_MR.TransposeFrom( B1_VR_Star );
 
-        BLAS::Internal::TriangularRank2K
+        blas::internal::TriangularRank2K
         ( Upper, alpha,
           A1_MC_Star, B1_MC_Star, A1Trans_Star_MR, B1Trans_Star_MR, (T)1, C );
         //--------------------------------------------------------------------//
@@ -108,25 +108,25 @@ Elemental::BLAS::Internal::Syr2kUN
 #endif
 }
 
-template void Elemental::BLAS::Internal::Syr2kUN
-( const float alpha, const DistMatrix<float,MC,MR>& A,
-                     const DistMatrix<float,MC,MR>& B,
-  const float beta,        DistMatrix<float,MC,MR>& C );
+template void elemental::blas::internal::Syr2kUN
+( float alpha, const DistMatrix<float,MC,MR>& A,
+               const DistMatrix<float,MC,MR>& B,
+  float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Syr2kUN
-( const double alpha, const DistMatrix<double,MC,MR>& A,
-                      const DistMatrix<double,MC,MR>& B,
-  const double beta,        DistMatrix<double,MC,MR>& C );
+template void elemental::blas::internal::Syr2kUN
+( double alpha, const DistMatrix<double,MC,MR>& A,
+                const DistMatrix<double,MC,MR>& B,
+  double beta,        DistMatrix<double,MC,MR>& C );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Internal::Syr2kUN
-( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
-                        const DistMatrix<scomplex,MC,MR>& B,
-  const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+template void elemental::blas::internal::Syr2kUN
+( scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
+                  const DistMatrix<scomplex,MC,MR>& B,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::Syr2kUN
-( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
-                        const DistMatrix<dcomplex,MC,MR>& B,
-  const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+template void elemental::blas::internal::Syr2kUN
+( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
+                  const DistMatrix<dcomplex,MC,MR>& B,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 #endif
 

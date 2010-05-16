@@ -16,22 +16,22 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::utilities;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::utilities;
+using namespace elemental::wrappers::mpi;
 
 template<typename T>
 void
-Elemental::LAPACK::Internal::ApplyRowPivots
+elemental::lapack::internal::ApplyRowPivots
 (       DistMatrix<T,MC,MR>& A, 
   const vector<int>& image,
   const vector<int>& preimage,
-  const int pivotOffset         )
+  int pivotOffset )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::ApplyRowPivots");
+    PushCallStack("lapack::internal::ApplyRowPivots");
     if( A.Height() < (int)image.size() || image.size() != preimage.size() )
         throw "image and preimage must be vectors of equal length "
               "that are not taller than A.";
@@ -115,7 +115,7 @@ Elemental::LAPACK::Internal::ApplyRowPivots
         ostringstream msg;
         msg << "Send and recv counts do not match: (send,recv)=" 
              << totalSendCount << "," << totalRecvCount << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -206,32 +206,32 @@ Elemental::LAPACK::Internal::ApplyRowPivots
 }
 
 template void
-Elemental::LAPACK::Internal::ApplyRowPivots
+elemental::lapack::internal::ApplyRowPivots
 (       DistMatrix<float,MC,MR>& A, 
   const vector<int>& image,
   const vector<int>& preimage,
-  const int pivotOffset             );
+        int pivotOffset );
 
 template void
-Elemental::LAPACK::Internal::ApplyRowPivots
+elemental::lapack::internal::ApplyRowPivots
 (       DistMatrix<double,MC,MR>& A, 
   const vector<int>& image,
   const vector<int>& preimage,
-  const int pivotOffset              );
+        int pivotOffset );
 
 #ifndef WITHOUT_COMPLEX
 template void
-Elemental::LAPACK::Internal::ApplyRowPivots
+elemental::lapack::internal::ApplyRowPivots
 (       DistMatrix<scomplex,MC,MR>& A, 
   const vector<int>& image,
   const vector<int>& preimage,
-  const int pivotOffset                );
+        int pivotOffset );
 
 template void
-Elemental::LAPACK::Internal::ApplyRowPivots
+elemental::lapack::internal::ApplyRowPivots
 (       DistMatrix<dcomplex,MC,MR>& A, 
   const vector<int>& image,
   const vector<int>& preimage,
-  const int pivotOffset                );
+        int pivotOffset );
 #endif
 

@@ -16,18 +16,18 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::wrappers::mpi;
 
 template<typename R>
 R
-Elemental::BLAS::Nrm2
+elemental::blas::Nrm2
 ( const DistMatrix<R,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Nrm2");
+    PushCallStack("blas::Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
         throw "x must be a vector.";
 #endif
@@ -45,7 +45,7 @@ Elemental::BLAS::Nrm2
             vector<R> localNorms(r);
             R* localNormsPtr = &localNorms[0];
             AllGather( &localNorm, 1, localNormsPtr, 1, grid.MCComm() );
-            norm = wrappers::BLAS::Nrm2( r, localNormsPtr, 1 );
+            norm = wrappers::blas::Nrm2( r, localNormsPtr, 1 );
         }
         Broadcast( &norm, 1, ownerCol, grid.MRComm() );
     }
@@ -60,7 +60,7 @@ Elemental::BLAS::Nrm2
             vector<R> localNorms(c);
             R* localNormsPtr = &localNorms[0];
             AllGather( &localNorm, 1, localNormsPtr, 1, grid.MRComm() );
-            norm = wrappers::BLAS::Nrm2( c, localNormsPtr, 1 );
+            norm = wrappers::blas::Nrm2( c, localNormsPtr, 1 );
         }
         Broadcast( &norm, 1, ownerRow, grid.MCComm() );
     }
@@ -73,11 +73,11 @@ Elemental::BLAS::Nrm2
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 R
-Elemental::BLAS::Nrm2
+elemental::blas::Nrm2
 ( const DistMatrix< complex<R>, MC, MR >& x )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Nrm2");
+    PushCallStack("blas::Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
         throw "x must be a vector.";
 #endif
@@ -95,7 +95,7 @@ Elemental::BLAS::Nrm2
             vector<R> localNorms(r);
             R* localNormsPtr = &localNorms[0];
             AllGather( &localNorm, 1, localNormsPtr, 1, grid.MCComm() );
-            norm = wrappers::BLAS::Nrm2( r, localNormsPtr, 1 );
+            norm = wrappers::blas::Nrm2( r, localNormsPtr, 1 );
         }
         Broadcast( &norm, 1, ownerCol, grid.MRComm() );
     }
@@ -110,7 +110,7 @@ Elemental::BLAS::Nrm2
             vector<R> localNorms(c);
             R* localNormsPtr = &localNorms[0];
             AllGather( &localNorm, 1, localNormsPtr, 1, grid.MRComm() );
-            norm = wrappers::BLAS::Nrm2( c, localNormsPtr, 1 );
+            norm = wrappers::blas::Nrm2( c, localNormsPtr, 1 );
         }
         Broadcast( &norm, 1, ownerRow, grid.MCComm() );
     }
@@ -121,17 +121,17 @@ Elemental::BLAS::Nrm2
 }
 #endif
 
-template float Elemental::BLAS::Nrm2
+template float elemental::blas::Nrm2
 ( const DistMatrix<float,MC,MR>& x );
 
-template double Elemental::BLAS::Nrm2
+template double elemental::blas::Nrm2
 ( const DistMatrix<double,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
-template float Elemental::BLAS::Nrm2
+template float elemental::blas::Nrm2
 ( const DistMatrix< complex<float>, MC, MR >& x );
 
-template double Elemental::BLAS::Nrm2
+template double elemental::blas::Nrm2
 ( const DistMatrix< complex<double>, MC, MR >& x );
 #endif
 

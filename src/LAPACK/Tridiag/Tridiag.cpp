@@ -16,12 +16,12 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/LAPACKInternal.hpp"
-using namespace Elemental;
+#include "elemental/lapack_internal.hpp"
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::LAPACK::Tridiag
+elemental::lapack::Tridiag
 ( const Shape shape,
   DistMatrix<T,MC,MR  >& A,
   DistMatrix<T,MD,Star>& d,
@@ -29,25 +29,25 @@ Elemental::LAPACK::Tridiag
   DistMatrix<T,MD,Star>& t )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Tridiag");
+    PushCallStack("lapack::Tridiag");
 #endif
     if( shape == Lower )
-        LAPACK::Internal::TridiagL( A, d, e, t );
+        lapack::internal::TridiagL( A, d, e, t );
     else
-        LAPACK::Internal::TridiagU( A, d, e, t );
+        lapack::internal::TridiagU( A, d, e, t );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template void Elemental::LAPACK::Tridiag
+template void elemental::lapack::Tridiag
 ( const Shape shape, 
   DistMatrix<float,MC,MR  >& A,
   DistMatrix<float,MD,Star>& d,
   DistMatrix<float,MD,Star>& e,
   DistMatrix<float,MD,Star>& t );
 
-template void Elemental::LAPACK::Tridiag
+template void elemental::lapack::Tridiag
 ( const Shape shape, 
   DistMatrix<double,MC,MR  >& A,
   DistMatrix<double,MD,Star>& d,

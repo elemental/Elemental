@@ -16,21 +16,21 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Internal::SymvColAccumulateL
-( const T alpha, const DistMatrix<T,MC,MR  >& A,
-                 const DistMatrix<T,MC,Star>& x_MC_Star,
-                 const DistMatrix<T,MR,Star>& x_MR_Star,
-                       DistMatrix<T,MC,Star>& z_MC_Star,
-                       DistMatrix<T,MR,Star>& z_MR_Star )
+elemental::blas::internal::SymvColAccumulateL
+( T alpha, const DistMatrix<T,MC,MR  >& A,
+           const DistMatrix<T,MC,Star>& x_MC_Star,
+           const DistMatrix<T,MR,Star>& x_MR_Star,
+                 DistMatrix<T,MC,Star>& z_MC_Star,
+                 DistMatrix<T,MR,Star>& z_MR_Star )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::SymvColAccumulateL");
+    PushCallStack("blas::internal::SymvColAccumulateL");
     if( A.GetGrid() != x_MC_Star.GetGrid() ||
         x_MC_Star.GetGrid() != x_MR_Star.GetGrid() ||
         x_MR_Star.GetGrid() != z_MC_Star.GetGrid() ||
@@ -60,7 +60,7 @@ Elemental::BLAS::Internal::SymvColAccumulateL
                                << z_MC_Star.Width() << endl
             << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
                                << z_MR_Star.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
     if( x_MC_Star.ColAlignment() != A.ColAlignment() ||
@@ -147,21 +147,21 @@ Elemental::BLAS::Internal::SymvColAccumulateL
         //--------------------------------------------------------------------//
         D11 = A11;
         D11.MakeTrapezoidal( Left, Lower );
-        BLAS::Gemv( Normal, 
+        blas::Gemv( Normal, 
                     alpha, D11.LockedLocalMatrix(), 
                            x1_MR_Star.LockedLocalMatrix(),
                     (T)1,  z1_MC_Star.LocalMatrix()       );
         D11.MakeTrapezoidal( Left, Lower, -1 );
-        BLAS::Gemv( Transpose,
+        blas::Gemv( Transpose,
                     alpha, D11.LockedLocalMatrix(),
                            x1_MC_Star.LockedLocalMatrix(),
                     (T)1,  z1_MR_Star.LocalMatrix()       );
 
-        BLAS::Gemv( Normal,
+        blas::Gemv( Normal,
                     alpha, A21.LockedLocalMatrix(),
                            x1_MR_Star.LockedLocalMatrix(),
                     (T)1,  z2_MC_Star.LocalMatrix() );
-        BLAS::Gemv( Transpose,
+        blas::Gemv( Transpose,
                     alpha, A21.LockedLocalMatrix(),
                            x2_MC_Star.LockedLocalMatrix(),
                     (T)1,  z1_MR_Star.LocalMatrix()       );
@@ -203,15 +203,15 @@ Elemental::BLAS::Internal::SymvColAccumulateL
 
 template<typename T>
 void
-Elemental::BLAS::Internal::SymvRowAccumulateL
-( const T alpha, const DistMatrix<T,MC,  MR>& A,
-                 const DistMatrix<T,Star,MC>& x_Star_MC,
-                 const DistMatrix<T,Star,MR>& x_Star_MR,
-                       DistMatrix<T,Star,MC>& z_Star_MC,
-                       DistMatrix<T,Star,MR>& z_Star_MR )
+elemental::blas::internal::SymvRowAccumulateL
+( T alpha, const DistMatrix<T,MC,  MR>& A,
+           const DistMatrix<T,Star,MC>& x_Star_MC,
+           const DistMatrix<T,Star,MR>& x_Star_MR,
+                 DistMatrix<T,Star,MC>& z_Star_MC,
+                 DistMatrix<T,Star,MR>& z_Star_MR )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::SymvRowAccumulateL");
+    PushCallStack("blas::internal::SymvRowAccumulateL");
     if( A.GetGrid() != x_Star_MC.GetGrid() ||
         x_Star_MC.GetGrid() != x_Star_MR.GetGrid() ||
         x_Star_MR.GetGrid() != z_Star_MC.GetGrid() ||
@@ -241,7 +241,7 @@ Elemental::BLAS::Internal::SymvRowAccumulateL
                                << z_Star_MC.Width() << endl
             << "  z[* ,MR] ~ " << z_Star_MR.Height() << " x " 
                                << z_Star_MR.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
     if( x_Star_MC.RowAlignment() != A.ColAlignment() ||
@@ -312,21 +312,21 @@ Elemental::BLAS::Internal::SymvRowAccumulateL
         //--------------------------------------------------------------------//
         D11 = A11;
         D11.MakeTrapezoidal( Left, Lower );
-        BLAS::Gemv( Normal, 
+        blas::Gemv( Normal, 
                     alpha, D11.LockedLocalMatrix(), 
                            x1_Star_MR.LockedLocalMatrix(),
                     (T)1,  z1_Star_MC.LocalMatrix()       );
         D11.MakeTrapezoidal( Left, Lower, -1 );
-        BLAS::Gemv( Transpose,
+        blas::Gemv( Transpose,
                     alpha, D11.LockedLocalMatrix(),
                            x1_Star_MC.LockedLocalMatrix(),
                     (T)1,  z1_Star_MR.LocalMatrix()       );
 
-        BLAS::Gemv( Normal,
+        blas::Gemv( Normal,
                     alpha, A21.LockedLocalMatrix(),
                            x1_Star_MR.LockedLocalMatrix(),
                     (T)1,  z2_Star_MC.LocalMatrix() );
-        BLAS::Gemv( Transpose,
+        blas::Gemv( Transpose,
                     alpha, A21.LockedLocalMatrix(),
                            x2_Star_MC.LockedLocalMatrix(),
                     (T)1,  z1_Star_MR.LocalMatrix()       );
@@ -358,32 +358,32 @@ Elemental::BLAS::Internal::SymvRowAccumulateL
 #endif
 }
 
-template void Elemental::BLAS::Internal::SymvColAccumulateL
-( const float alpha, 
+template void elemental::blas::internal::SymvColAccumulateL
+( float alpha, 
   const DistMatrix<float,MC,MR  >& A,
   const DistMatrix<float,MC,Star>& x_MC_Star,
   const DistMatrix<float,MR,Star>& x_MR_Star,
         DistMatrix<float,MC,Star>& z_MC_Star,
         DistMatrix<float,MR,Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::SymvRowAccumulateL
-( const float alpha, 
+template void elemental::blas::internal::SymvRowAccumulateL
+( float alpha, 
   const DistMatrix<float,MC,  MR>& A,
   const DistMatrix<float,Star,MC>& x_Star_MC,
   const DistMatrix<float,Star,MR>& x_Star_MR,
         DistMatrix<float,Star,MC>& z_Star_MC,
         DistMatrix<float,Star,MR>& z_Star_MR );
 
-template void Elemental::BLAS::Internal::SymvColAccumulateL
-( const double alpha, 
+template void elemental::blas::internal::SymvColAccumulateL
+( double alpha, 
   const DistMatrix<double,MC,MR  >& A,
   const DistMatrix<double,MC,Star>& x_MC_Star,
   const DistMatrix<double,MR,Star>& x_MR_Star,
         DistMatrix<double,MC,Star>& z_MC_Star,
         DistMatrix<double,MR,Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::SymvRowAccumulateL
-( const double alpha, 
+template void elemental::blas::internal::SymvRowAccumulateL
+( double alpha, 
   const DistMatrix<double,MC,  MR>& A,
   const DistMatrix<double,Star,MC>& x_Star_MC,
   const DistMatrix<double,Star,MR>& x_Star_MR,
@@ -391,35 +391,36 @@ template void Elemental::BLAS::Internal::SymvRowAccumulateL
         DistMatrix<double,Star,MR>& z_Star_MR );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Internal::SymvColAccumulateL
-( const scomplex alpha,
+template void elemental::blas::internal::SymvColAccumulateL
+( scomplex alpha,
   const DistMatrix<scomplex,MC,MR  >& A,
   const DistMatrix<scomplex,MC,Star>& x_MC_Star,
   const DistMatrix<scomplex,MR,Star>& x_MR_Star,
         DistMatrix<scomplex,MC,Star>& z_MC_Star,
         DistMatrix<scomplex,MR,Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::SymvRowAccumulateL
-( const scomplex alpha,
+template void elemental::blas::internal::SymvRowAccumulateL
+( scomplex alpha,
   const DistMatrix<scomplex,MC,  MR>& A,
   const DistMatrix<scomplex,Star,MC>& x_Star_MC,
   const DistMatrix<scomplex,Star,MR>& x_Star_MR,
         DistMatrix<scomplex,Star,MC>& z_Star_MC,
         DistMatrix<scomplex,Star,MR>& z_Star_MR );
 
-template void Elemental::BLAS::Internal::SymvColAccumulateL
-( const dcomplex alpha,
+template void elemental::blas::internal::SymvColAccumulateL
+( dcomplex alpha,
   const DistMatrix<dcomplex,MC,MR  >& A,
   const DistMatrix<dcomplex,MC,Star>& x_MC_Star,
   const DistMatrix<dcomplex,MR,Star>& x_MR_Star,
         DistMatrix<dcomplex,MC,Star>& z_MC_Star,
         DistMatrix<dcomplex,MR,Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::SymvRowAccumulateL
-( const dcomplex alpha,
+template void elemental::blas::internal::SymvRowAccumulateL
+( dcomplex alpha,
   const DistMatrix<dcomplex,MC,  MR>& A,
   const DistMatrix<dcomplex,Star,MC>& x_Star_MC,
   const DistMatrix<dcomplex,Star,MR>& x_Star_MR,
         DistMatrix<dcomplex,Star,MC>& z_Star_MC,
         DistMatrix<dcomplex,Star,MR>& z_Star_MR );
 #endif
+

@@ -16,17 +16,17 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::LAPACK::Internal::TrinvL
-( const Diagonal diagonal, DistMatrix<T,MC,MR>& L )
+elemental::lapack::internal::TrinvL
+( Diagonal diagonal, DistMatrix<T,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::TrinvL");
+    PushCallStack("lapack::internal::TrinvL");
 #endif
     TrinvLVar3( diagonal, L );
 #ifndef RELEASE
@@ -36,11 +36,11 @@ Elemental::LAPACK::Internal::TrinvL
 
 template<typename T>
 void
-Elemental::LAPACK::Internal::TrinvLVar3
-( const Diagonal diagonal, DistMatrix<T,MC,MR>& L )
+elemental::lapack::internal::TrinvLVar3
+( Diagonal diagonal, DistMatrix<T,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::TrinvLVar3");
+    PushCallStack("lapack::internal::TrinvLVar3");
     if( L.Height() != L.Width() )
         throw "Nonsquare matrices cannot be triangular.";
 #endif
@@ -73,18 +73,18 @@ Elemental::LAPACK::Internal::TrinvLVar3
         L21_MC_Star.AlignWith( L20 );
         //--------------------------------------------------------------------//
         L11_Star_Star = L11;
-        LAPACK::Trinv( Lower, diagonal, L11_Star_Star.LocalMatrix() );
+        lapack::Trinv( Lower, diagonal, L11_Star_Star.LocalMatrix() );
         L11 = L11_Star_Star;
 
         L10_Star_VR = L10;
-        BLAS::Trmm
+        blas::Trmm
         ( Left, Lower, Normal, diagonal,
           (T)-1, L11_Star_Star.LockedLocalMatrix(),
                  L10_Star_VR.LocalMatrix()         );
 
         L21_MC_Star = L21;
         L10_Star_MR = L10_Star_VR;
-        BLAS::Gemm
+        blas::Gemm
         ( Normal, Normal,
           (T)1, L21_MC_Star.LockedLocalMatrix(),
                 L10_Star_MR.LockedLocalMatrix(),
@@ -92,7 +92,7 @@ Elemental::LAPACK::Internal::TrinvLVar3
         L10 = L10_Star_MR;
 
         L21_VC_Star = L21_MC_Star;
-        BLAS::Trmm
+        blas::Trmm
         ( Right, Lower, Normal, diagonal,
           (T)1, L11_Star_Star.LockedLocalMatrix(),
                 L21_VC_Star.LocalMatrix()         );
@@ -111,29 +111,29 @@ Elemental::LAPACK::Internal::TrinvLVar3
 #endif
 }
 
-template void Elemental::LAPACK::Internal::TrinvL
-( const Diagonal diagonal, DistMatrix<float,MC,MR>& L );
+template void elemental::lapack::internal::TrinvL
+( Diagonal diagonal, DistMatrix<float,MC,MR>& L );
 
-template void Elemental::LAPACK::Internal::TrinvLVar3
-( const Diagonal diagonal, DistMatrix<float,MC,MR>& L );
+template void elemental::lapack::internal::TrinvLVar3
+( Diagonal diagonal, DistMatrix<float,MC,MR>& L );
 
-template void Elemental::LAPACK::Internal::TrinvL
-( const Diagonal diagonal, DistMatrix<double,MC,MR>& L );
+template void elemental::lapack::internal::TrinvL
+( Diagonal diagonal, DistMatrix<double,MC,MR>& L );
 
-template void Elemental::LAPACK::Internal::TrinvLVar3
-( const Diagonal diagonal, DistMatrix<double,MC,MR>& L );
+template void elemental::lapack::internal::TrinvLVar3
+( Diagonal diagonal, DistMatrix<double,MC,MR>& L );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::LAPACK::Internal::TrinvL
-( const Diagonal diagonal, DistMatrix<scomplex,MC,MR>& L );
+template void elemental::lapack::internal::TrinvL
+( Diagonal diagonal, DistMatrix<scomplex,MC,MR>& L );
 
-template void Elemental::LAPACK::Internal::TrinvLVar3
-( const Diagonal diagonal, DistMatrix<scomplex,MC,MR>& L );
+template void elemental::lapack::internal::TrinvLVar3
+( Diagonal diagonal, DistMatrix<scomplex,MC,MR>& L );
 
-template void Elemental::LAPACK::Internal::TrinvL
-( const Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& L );
+template void elemental::lapack::internal::TrinvL
+( Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& L );
 
-template void Elemental::LAPACK::Internal::TrinvLVar3
-( const Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& L );
+template void elemental::lapack::internal::TrinvLVar3
+( Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& L );
 #endif
 

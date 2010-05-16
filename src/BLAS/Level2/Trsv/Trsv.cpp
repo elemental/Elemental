@@ -16,35 +16,35 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Trsv
-( const Shape shape,
-  const Orientation orientation,
-  const Diagonal diagonal,
+elemental::blas::Trsv
+( Shape shape,
+  Orientation orientation,
+  Diagonal diagonal,
   const DistMatrix<T,MC,MR>& A,
         DistMatrix<T,MC,MR>& x   )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Trsv");
+    PushCallStack("blas::Trsv");
 #endif
     if( shape == Lower )
     {
         if( orientation == Normal )
-            BLAS::Internal::TrsvLN( diagonal, A, x );
+            blas::internal::TrsvLN( diagonal, A, x );
         else
-            BLAS::Internal::TrsvLT( orientation, diagonal, A, x );
+            blas::internal::TrsvLT( orientation, diagonal, A, x );
     }
     else
     {
         if( orientation == Normal )
-            BLAS::Internal::TrsvUN( diagonal, A, x );
+            blas::internal::TrsvUN( diagonal, A, x );
         else
-            BLAS::Internal::TrsvUT( orientation, diagonal, A, x );
+            blas::internal::TrsvUT( orientation, diagonal, A, x );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -52,35 +52,35 @@ Elemental::BLAS::Trsv
 }
 
 template void
-Elemental::BLAS::Trsv
-( const Shape shape, 
-  const Orientation orientation,
-  const Diagonal diagonal,
+elemental::blas::Trsv
+( Shape shape, 
+  Orientation orientation,
+  Diagonal diagonal,
   const DistMatrix<float,MC,MR>& A,
         DistMatrix<float,MC,MR>& x );
 
 template void
-Elemental::BLAS::Trsv
-( const Shape shape,
-  const Orientation orientation,
-  const Diagonal diagonal,
+elemental::blas::Trsv
+( Shape shape,
+  Orientation orientation,
+  Diagonal diagonal,
   const DistMatrix<double,MC,MR>& A,
         DistMatrix<double,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
 template void
-Elemental::BLAS::Trsv
-( const Shape shape,
-  const Orientation orientation,
-  const Diagonal diagonal,
+elemental::blas::Trsv
+( Shape shape,
+  Orientation orientation,
+  Diagonal diagonal,
   const DistMatrix<scomplex,MC,MR>& A,
         DistMatrix<scomplex,MC,MR>& x );
 
 template void
-Elemental::BLAS::Trsv
-( const Shape shape,
-  const Orientation orientation,
-  const Diagonal diagonal,
+elemental::blas::Trsv
+( Shape shape,
+  Orientation orientation,
+  Diagonal diagonal,
   const DistMatrix<dcomplex,MC,MR>& A,
         DistMatrix<dcomplex,MC,MR>& x );
 #endif

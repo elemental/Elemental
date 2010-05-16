@@ -16,18 +16,18 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::wrappers::mpi;
 
 template<typename R>
 R
-Elemental::LAPACK::Internal::LocalColReflector
+elemental::lapack::internal::LocalColReflector
 ( DistMatrix<R,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::LocalColReflector");
+    PushCallStack("lapack::internal::LocalColReflector");
     if( x.Width() != 1 )
         throw "x must be a column vector.";
     if( x.GetGrid().MRRank() != x.RowAlignment() )
@@ -48,10 +48,10 @@ Elemental::LAPACK::Internal::LocalColReflector
                        x2,   1 );
 
 
-    R localNorm = BLAS::Nrm2( x2.LockedLocalMatrix() ); 
+    R localNorm = blas::Nrm2( x2.LockedLocalMatrix() ); 
     R* localNorms = new R[r];
     AllGather( &localNorm, 1, localNorms, 1, grid.MCComm() );
-    R norm = wrappers::BLAS::Nrm2( r, localNorms, 1 );
+    R norm = wrappers::blas::Nrm2( r, localNorms, 1 );
 
     R alpha;
     if( myRow == chi1.ColAlignment() )
@@ -60,9 +60,9 @@ Elemental::LAPACK::Internal::LocalColReflector
 
     R beta;
     if( alpha <= 0 )
-        beta = wrappers::LAPACK::SafeNorm( alpha, norm );
+        beta = wrappers::lapack::SafeNorm( alpha, norm );
     else
-        beta = -wrappers::LAPACK::SafeNorm( alpha, norm );
+        beta = -wrappers::lapack::SafeNorm( alpha, norm );
 
     R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
     int count = 0;
@@ -76,23 +76,23 @@ Elemental::LAPACK::Internal::LocalColReflector
         do
         {
             ++count;
-            BLAS::Scal( invOfSafeMin, x2 );
+            blas::Scal( invOfSafeMin, x2 );
             alpha *= invOfSafeMin;
             beta *= invOfSafeMin;
         } while( Abs( beta ) < safeMin );
 
-        localNorm = BLAS::Nrm2( x2.LockedLocalMatrix() );
+        localNorm = blas::Nrm2( x2.LockedLocalMatrix() );
         AllGather( &localNorm, 1, localNorms, 1, grid.MCComm() );
-        norm = wrappers::BLAS::Nrm2( r, localNorms, 1 );
+        norm = wrappers::blas::Nrm2( r, localNorms, 1 );
         if( alpha <= 0 )
-            beta = wrappers::LAPACK::SafeNorm( alpha, norm );
+            beta = wrappers::lapack::SafeNorm( alpha, norm );
         else
-            beta = -wrappers::LAPACK::SafeNorm( alpha, norm );
+            beta = -wrappers::lapack::SafeNorm( alpha, norm );
     }
     delete localNorms;
 
     R tau = ( beta-alpha ) / beta;
-    BLAS::Scal( static_cast<R>(1)/(alpha-beta), x2 );
+    blas::Scal( static_cast<R>(1)/(alpha-beta), x2 );
 
     for( int j=0; j<count; ++j )
         beta *= safeMin;
@@ -105,9 +105,9 @@ Elemental::LAPACK::Internal::LocalColReflector
     return tau;
 }
 
-template float Elemental::LAPACK::Internal::LocalColReflector
+template float elemental::lapack::internal::LocalColReflector
 ( DistMatrix<float,MC,MR>& x );
 
-template double Elemental::LAPACK::Internal::LocalColReflector
+template double elemental::lapack::internal::LocalColReflector
 ( DistMatrix<double,MC,MR>& x );
 

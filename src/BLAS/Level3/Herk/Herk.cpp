@@ -16,20 +16,20 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Herk
-( const Shape shape, 
-  const Orientation orientation,
-  const T alpha, const DistMatrix<T,MC,MR>& A,
-  const T beta,        DistMatrix<T,MC,MR>& C )
+elemental::blas::Herk
+( Shape shape, 
+  Orientation orientation,
+  T alpha, const DistMatrix<T,MC,MR>& A,
+  T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Herk");
+    PushCallStack("blas::Herk");
     if( A.GetGrid() != C.GetGrid() )
         throw "A and C must be distributed over the same grid.";
     if( orientation == Transpose )
@@ -37,44 +37,44 @@ Elemental::BLAS::Herk
 #endif
     if( shape == Lower && orientation == Normal )
     {
-        BLAS::Internal::HerkLN( alpha, A, beta, C );
+        blas::internal::HerkLN( alpha, A, beta, C );
     }
     else if( shape == Lower )
     {
-        BLAS::Internal::HerkLC( alpha, A, beta, C );
+        blas::internal::HerkLC( alpha, A, beta, C );
     }
     else if( shape == Upper && orientation == Normal )
     {
-        BLAS::Internal::HerkUN( alpha, A, beta, C );
+        blas::internal::HerkUN( alpha, A, beta, C );
     }
     else
     {
-        BLAS::Internal::HerkUC( alpha, A, beta, C );
+        blas::internal::HerkUC( alpha, A, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template void Elemental::BLAS::Herk
-( const Shape shape, const Orientation orientation,
-  const float alpha, const DistMatrix<float,MC,MR>& A,
-  const float beta,        DistMatrix<float,MC,MR>& C );
+template void elemental::blas::Herk
+( Shape shape, Orientation orientation,
+  float alpha, const DistMatrix<float,MC,MR>& A,
+  float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Herk
-( const Shape shape, const Orientation orientation,
-  const double alpha, const DistMatrix<double,MC,MR>& A,
-  const double beta,        DistMatrix<double,MC,MR>& C );
+template void elemental::blas::Herk
+( Shape shape, Orientation orientation,
+  double alpha, const DistMatrix<double,MC,MR>& A,
+  double beta,        DistMatrix<double,MC,MR>& C );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Herk
-( const Shape shape, const Orientation orientation,
-  const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
-  const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+template void elemental::blas::Herk
+( Shape shape, Orientation orientation,
+  scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Herk
-( const Shape shape, const Orientation orientation,
-  const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
-  const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+template void elemental::blas::Herk
+( Shape shape, Orientation orientation,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 #endif
 

@@ -19,11 +19,11 @@
 #include <cmath>
 #include <ctime>
 #include <sstream>
-#include "Elemental.hpp"
-#include "Elemental/BLASInternal.hpp"
+#include "elemental.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
@@ -68,7 +68,7 @@ void ManualGemm
 {
     const int m = C.Height();
     const int n = C.Width();
-    BLAS::Scal( beta, C );
+    blas::Scal( beta, C );
     if( orientationOfA == Normal && orientationOfB == Normal )
     {
         const int k = A.Width();
@@ -191,7 +191,7 @@ void TestSerialCorrectness
                 msg << "FAILED at index (" << i << "," << j << "): truth="
                     << truth << ", computed=" << computed << ", error=" 
                     << Abs(truth-computed) << endl;
-                const string s = msg.str();
+                const string& s = msg.str();
                 throw s.c_str();
             }
         }
@@ -227,7 +227,7 @@ void TestParallelCorrectness
         cout << "  Computing 'truth'...";
         cout.flush();
     }
-    BLAS::Gemm( orientationOfA, orientationOfB,
+    blas::Gemm( orientationOfA, orientationOfB,
                 alpha, ARef.LockedLocalMatrix(),
                        BRef.LockedLocalMatrix(),
                 beta,  CRef.LocalMatrix()       );
@@ -255,7 +255,7 @@ void TestParallelCorrectness
                 msg << "FAILED at index (" << i << "," << j << "): truth="
                     << truth << ", computed=" << computed << ", error="
                     << Abs(truth-computed) << endl;
-                const string s = msg.str();
+                const string& s = msg.str();
                 throw s.c_str();
             }
         }
@@ -322,14 +322,14 @@ void TestSerialGemm
     }
     Barrier( grid.VCComm() );
     startTime = Time();
-    BLAS::Gemm
+    blas::Gemm
     ( orientationOfA, orientationOfB, 
       alpha, A.LockedLocalMatrix(), B.LockedLocalMatrix(), 
       beta,  C.LocalMatrix()                              );
     Barrier( grid.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = BLAS::Internal::GemmGFlops<T>(m,n,k,runTime);
+    gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
     if( grid.VCRank() == 0 )
         cout << "DONE. GFlops = " << gFlops << endl;
     if( printMatrices )
@@ -405,12 +405,12 @@ void TestParallelGemm
     }
     Barrier( grid.VCComm() );
     startTime = Time();
-    BLAS::Internal::GemmA
+    blas::internal::GemmA
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     Barrier( grid.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = BLAS::Internal::GemmGFlops<T>(m,n,k,runTime);
+    gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
     if( grid.VCRank() == 0 )
         cout << "DONE. GFlops = " << gFlops << endl;
     if( printMatrices )
@@ -459,12 +459,12 @@ void TestParallelGemm
     }
     Barrier( grid.VCComm() );
     startTime = Time();
-    BLAS::Internal::GemmB
+    blas::internal::GemmB
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     Barrier( grid.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = BLAS::Internal::GemmGFlops<T>(m,n,k,runTime);
+    gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
     if( grid.VCRank() == 0 )
         cout << "DONE. GFlops = " << gFlops << endl;
     if( printMatrices )
@@ -513,12 +513,12 @@ void TestParallelGemm
     }
     Barrier( grid.VCComm() );
     startTime = Time();
-    BLAS::Internal::GemmC
+    blas::internal::GemmC
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     Barrier( grid.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = BLAS::Internal::GemmGFlops<T>(m,n,k,runTime);
+    gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
     if( grid.VCRank() == 0 )
         cout << "DONE. GFlops = " << gFlops << endl;
     if( printMatrices )
@@ -569,12 +569,12 @@ void TestParallelGemm
         }
         Barrier( grid.VCComm() );
         startTime = Time();
-        BLAS::Internal::GemmDot
+        blas::internal::GemmDot
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
         Barrier( grid.VCComm() );
         endTime = Time();
         runTime = endTime - startTime;
-        gFlops = BLAS::Internal::GemmGFlops<T>(m,n,k,runTime);
+        gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
         if( grid.VCRank() == 0 )
             cout << "DONE. GFlops = " << gFlops << endl;
         if( printMatrices )
@@ -596,13 +596,13 @@ void TestParallelGemm
 int main( int argc, char* argv[] )
 {
     int rank;
-    Elemental::Init( &argc, &argv );
+    elemental::Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     if( argc != 13 )
     {
         if( rank == 0 )
             Usage();
-        Elemental::Finalize();
+        elemental::Finalize();
         return 0;
     }
     try
@@ -702,7 +702,7 @@ int main( int argc, char* argv[] )
         cerr << "Process " << rank << " caught error message:" << endl 
              << errorMsg << endl;
     }
-    Elemental::Finalize();
+    elemental::Finalize();
     return 0;
 }
 

@@ -16,9 +16,9 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 // Right Lower (Conjugate)Transpose (Non)Unit Trmm
 //   X := X tril(L)^T,
@@ -27,14 +27,14 @@ using namespace Elemental;
 //   X := X trilu(L)^H
 template<typename T>
 void
-BLAS::Internal::TrmmRLT
-( const Orientation orientation, 
-  const Diagonal diagonal,
-  const T alpha, const DistMatrix<T,MC,MR>& L,
-                       DistMatrix<T,MC,MR>& X )
+elemental::blas::internal::TrmmRLT
+( Orientation orientation, 
+  Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& L,
+                 DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::TrmmRLT");
+    PushCallStack("blas::internal::TrmmRLT");
     if( L.GetGrid() != X.GetGrid() )
         throw "L and X must be distributed over the same grid.";
     if( orientation == Normal )
@@ -45,7 +45,7 @@ BLAS::Internal::TrmmRLT
         msg << "Nonconformal TrmmRLT: " << endl
             << "  L ~ " << L.Height() << " x " << L.Width() << endl
             << "  X ~ " << X.Height() << " x " << X.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -67,7 +67,7 @@ BLAS::Internal::TrmmRLT
     DistMatrix<T,MC,  Star> D1_MC_Star(grid);
 
     // Start the algorithm
-    BLAS::Scal( alpha, X );
+    blas::Scal( alpha, X );
     LockedPartitionUpDiagonal( L, LTL, LTR,
                                   LBL, LBR );
     PartitionLeft( X, XL, XR );
@@ -87,13 +87,13 @@ BLAS::Internal::TrmmRLT
         //--------------------------------------------------------------------//
         X1_VC_Star = X1;
         L11_Star_Star = L11;
-        BLAS::Trmm( Right, Lower, orientation, diagonal,
+        blas::Trmm( Right, Lower, orientation, diagonal,
                     (T)1, L11_Star_Star.LockedLocalMatrix(),
                           X1_VC_Star.LocalMatrix()          );
         X1 = X1_VC_Star;
  
         L10_Star_MR = L10;
-        BLAS::Gemm( Normal, orientation, 
+        blas::Gemm( Normal, orientation, 
                     (T)1, X0.LockedLocalMatrix(),
                           L10_Star_MR.LockedLocalMatrix(),
                     (T)0, D1_MC_Star.LocalMatrix()        );
@@ -115,32 +115,32 @@ BLAS::Internal::TrmmRLT
 #endif
 }
 
-template void Elemental::BLAS::Internal::TrmmRLT
-( const Orientation orientation, 
-  const Diagonal diagonal,
-  const float alpha, 
+template void elemental::blas::internal::TrmmRLT
+( Orientation orientation, 
+  Diagonal diagonal,
+  float alpha, 
   const DistMatrix<float,MC,MR>& L,
         DistMatrix<float,MC,MR>& X );
 
-template void Elemental::BLAS::Internal::TrmmRLT
-( const Orientation orientation, 
-  const Diagonal diagonal,
-  const double alpha, 
+template void elemental::blas::internal::TrmmRLT
+( Orientation orientation, 
+  Diagonal diagonal,
+  double alpha, 
   const DistMatrix<double,MC,MR>& L,
         DistMatrix<double,MC,MR>& X );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Internal::TrmmRLT
-( const Orientation orientation, 
-  const Diagonal diagonal,
-  const scomplex alpha, 
+template void elemental::blas::internal::TrmmRLT
+( Orientation orientation, 
+  Diagonal diagonal,
+  scomplex alpha, 
   const DistMatrix<scomplex,MC,MR>& L,
         DistMatrix<scomplex,MC,MR>& X );
 
-template void Elemental::BLAS::Internal::TrmmRLT
-( const Orientation orientation, 
-  const Diagonal diagonal,
-  const dcomplex alpha, 
+template void elemental::blas::internal::TrmmRLT
+( Orientation orientation, 
+  Diagonal diagonal,
+  dcomplex alpha, 
   const DistMatrix<dcomplex,MC,MR>& L,
         DistMatrix<dcomplex,MC,MR>& X );
 #endif

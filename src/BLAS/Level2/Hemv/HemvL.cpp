@@ -16,21 +16,21 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Internal::HemvColAccumulateL
-( const T alpha, const DistMatrix<T,MC,MR  >& A,
-                 const DistMatrix<T,MC,Star>& x_MC_Star,
-                 const DistMatrix<T,MR,Star>& x_MR_Star,
-                       DistMatrix<T,MC,Star>& z_MC_Star,
-                       DistMatrix<T,MR,Star>& z_MR_Star )
+elemental::blas::internal::HemvColAccumulateL
+( T alpha, const DistMatrix<T,MC,MR  >& A,
+           const DistMatrix<T,MC,Star>& x_MC_Star,
+           const DistMatrix<T,MR,Star>& x_MR_Star,
+                 DistMatrix<T,MC,Star>& z_MC_Star,
+                 DistMatrix<T,MR,Star>& z_MR_Star )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::HemvColAccumulateL");
+    PushCallStack("blas::internal::HemvColAccumulateL");
     if( A.GetGrid() != x_MC_Star.GetGrid() || 
         x_MC_Star.GetGrid() != x_MR_Star.GetGrid() ||
         x_MR_Star.GetGrid() != z_MC_Star.GetGrid() ||
@@ -60,7 +60,7 @@ Elemental::BLAS::Internal::HemvColAccumulateL
                                << z_MC_Star.Width() << endl
             << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
                                << z_MR_Star.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
     if( x_MC_Star.ColAlignment() != A.ColAlignment() ||
@@ -147,21 +147,21 @@ Elemental::BLAS::Internal::HemvColAccumulateL
         //--------------------------------------------------------------------//
         D11 = A11;
         D11.MakeTrapezoidal( Left, Lower );
-        BLAS::Gemv( Normal, 
+        blas::Gemv( Normal, 
                     alpha, D11.LockedLocalMatrix(), 
                            x1_MR_Star.LockedLocalMatrix(),
                     (T)1,  z1_MC_Star.LocalMatrix()       );
         D11.MakeTrapezoidal( Left, Lower, -1 );
-        BLAS::Gemv( ConjugateTranspose,
+        blas::Gemv( ConjugateTranspose,
                     alpha, D11.LockedLocalMatrix(),
                            x1_MC_Star.LockedLocalMatrix(),
                     (T)1,  z1_MR_Star.LocalMatrix()       );
 
-        BLAS::Gemv( ConjugateTranspose,
+        blas::Gemv( ConjugateTranspose,
                     alpha, A21.LockedLocalMatrix(),
                            x2_MC_Star.LockedLocalMatrix(),
                     (T)1,  z1_MR_Star.LocalMatrix()       );
-        BLAS::Gemv( Normal, 
+        blas::Gemv( Normal, 
                     alpha,  A21.LockedLocalMatrix(),
                             x1_MR_Star.LockedLocalMatrix(),
                     (T)1,   z2_MC_Star.LocalMatrix()       );
@@ -203,15 +203,15 @@ Elemental::BLAS::Internal::HemvColAccumulateL
 
 template<typename T>
 void
-Elemental::BLAS::Internal::HemvRowAccumulateL
-( const T alpha, const DistMatrix<T,MC,  MR  >& A,
-                 const DistMatrix<T,Star,MC  >& x_Star_MC,
-                 const DistMatrix<T,Star,MR  >& x_Star_MR,
-                       DistMatrix<T,MC,  Star>& z_MC_Star,
-                       DistMatrix<T,MR,  Star>& z_MR_Star )
+elemental::blas::internal::HemvRowAccumulateL
+( T alpha, const DistMatrix<T,MC,  MR  >& A,
+           const DistMatrix<T,Star,MC  >& x_Star_MC,
+           const DistMatrix<T,Star,MR  >& x_Star_MR,
+                 DistMatrix<T,MC,  Star>& z_MC_Star,
+                 DistMatrix<T,MR,  Star>& z_MR_Star )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::HemvRowAccumulateL");
+    PushCallStack("blas::internal::HemvRowAccumulateL");
     if( A.GetGrid() != x_Star_MC.GetGrid() ||
         x_Star_MC.GetGrid() != x_Star_MR.GetGrid() ||
         x_Star_MR.GetGrid() != z_MC_Star.GetGrid() ||
@@ -241,7 +241,7 @@ Elemental::BLAS::Internal::HemvRowAccumulateL
                                << z_MC_Star.Width() << endl
             << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
                                << z_MR_Star.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
     if( x_Star_MC.RowAlignment() != A.ColAlignment() ||
@@ -320,21 +320,21 @@ Elemental::BLAS::Internal::HemvRowAccumulateL
         //--------------------------------------------------------------------//
         D11 = A11;
         D11.MakeTrapezoidal( Left, Lower );
-        BLAS::Gemv( Normal, 
+        blas::Gemv( Normal, 
                     alpha, D11.LockedLocalMatrix(), 
                            x1_Star_MR.LockedLocalMatrix(),
                     (T)1,  z1_MC_Star.LocalMatrix()       );
         D11.MakeTrapezoidal( Left, Lower, -1 );
-        BLAS::Gemv( ConjugateTranspose,
+        blas::Gemv( ConjugateTranspose,
                     alpha, D11.LockedLocalMatrix(),
                            x1_Star_MC.LockedLocalMatrix(),
                     (T)1,  z1_MR_Star.LocalMatrix()       );
 
-        BLAS::Gemv( ConjugateTranspose,
+        blas::Gemv( ConjugateTranspose,
                     alpha, A21.LockedLocalMatrix(),
                            x2_Star_MC.LockedLocalMatrix(),
                     (T)1,  z1_MR_Star.LocalMatrix()       );
-        BLAS::Gemv( Normal,
+        blas::Gemv( Normal,
                     alpha, A21.LockedLocalMatrix(),
                            x1_Star_MR.LockedLocalMatrix(),
                     (T)1,  z2_MC_Star.LocalMatrix()       );
@@ -370,64 +370,65 @@ Elemental::BLAS::Internal::HemvRowAccumulateL
 #endif
 }
 
-template void Elemental::BLAS::Internal::HemvColAccumulateL
-( const float alpha, const DistMatrix<float,MC,MR  >& A,
-                     const DistMatrix<float,MC,Star>& x_MC_Star,
-                     const DistMatrix<float,MR,Star>& x_MR_Star,
-                           DistMatrix<float,MC,Star>& z_MC_Star,
-                           DistMatrix<float,MR,Star>& z_MR_Star );
+template void elemental::blas::internal::HemvColAccumulateL
+( float alpha, const DistMatrix<float,MC,MR  >& A,
+               const DistMatrix<float,MC,Star>& x_MC_Star,
+               const DistMatrix<float,MR,Star>& x_MR_Star,
+                     DistMatrix<float,MC,Star>& z_MC_Star,
+                     DistMatrix<float,MR,Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::HemvRowAccumulateL
-( const float alpha, const DistMatrix<float,MC,  MR  >& A,
-                     const DistMatrix<float,Star,MC  >& x_Star_MC,
-                     const DistMatrix<float,Star,MR  >& x_Star_MR,
-                           DistMatrix<float,MC,  Star>& z_MC_Star,
-                           DistMatrix<float,MR,  Star>& z_MR_Star );
+template void elemental::blas::internal::HemvRowAccumulateL
+( float alpha, const DistMatrix<float,MC,  MR  >& A,
+               const DistMatrix<float,Star,MC  >& x_Star_MC,
+               const DistMatrix<float,Star,MR  >& x_Star_MR,
+                     DistMatrix<float,MC,  Star>& z_MC_Star,
+                     DistMatrix<float,MR,  Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::HemvColAccumulateL
-( const double alpha, const DistMatrix<double,MC,MR  >& A,
-                      const DistMatrix<double,MC,Star>& x_MC_Star,
-                      const DistMatrix<double,MR,Star>& x_MR_Star,
-                            DistMatrix<double,MC,Star>& z_MC_Star,
-                            DistMatrix<double,MR,Star>& z_MR_Star );
+template void elemental::blas::internal::HemvColAccumulateL
+( double alpha, const DistMatrix<double,MC,MR  >& A,
+                const DistMatrix<double,MC,Star>& x_MC_Star,
+                const DistMatrix<double,MR,Star>& x_MR_Star,
+                      DistMatrix<double,MC,Star>& z_MC_Star,
+                      DistMatrix<double,MR,Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::HemvRowAccumulateL
-( const double alpha, const DistMatrix<double,MC,  MR  >& A,
-                      const DistMatrix<double,Star,MC  >& x_Star_MC,
-                      const DistMatrix<double,Star,MR  >& x_Star_MR,
-                            DistMatrix<double,MC,  Star>& z_MC_Star,
-                            DistMatrix<double,MR,  Star>& z_MR_Star );
+template void elemental::blas::internal::HemvRowAccumulateL
+( double alpha, const DistMatrix<double,MC,  MR  >& A,
+                const DistMatrix<double,Star,MC  >& x_Star_MC,
+                const DistMatrix<double,Star,MR  >& x_Star_MR,
+                      DistMatrix<double,MC,  Star>& z_MC_Star,
+                      DistMatrix<double,MR,  Star>& z_MR_Star );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Internal::HemvColAccumulateL
-( const scomplex alpha, 
+template void elemental::blas::internal::HemvColAccumulateL
+( scomplex alpha, 
   const DistMatrix<scomplex,MC,MR  >& A,
   const DistMatrix<scomplex,MC,Star>& x_MC_Star,
   const DistMatrix<scomplex,MR,Star>& x_MR_Star,
         DistMatrix<scomplex,MC,Star>& z_MC_Star,
         DistMatrix<scomplex,MR,Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::HemvRowAccumulateL
-( const scomplex alpha, 
+template void elemental::blas::internal::HemvRowAccumulateL
+( scomplex alpha, 
   const DistMatrix<scomplex,MC,  MR  >& A,
   const DistMatrix<scomplex,Star,MC  >& x_Star_MC,
   const DistMatrix<scomplex,Star,MR  >& x_Star_MR,
         DistMatrix<scomplex,MC,  Star>& z_MC_Star,
         DistMatrix<scomplex,MR,  Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::HemvColAccumulateL
-( const dcomplex alpha, 
+template void elemental::blas::internal::HemvColAccumulateL
+( dcomplex alpha, 
   const DistMatrix<dcomplex,MC,MR  >& A,
   const DistMatrix<dcomplex,MC,Star>& x_MC_Star,
   const DistMatrix<dcomplex,MR,Star>& x_MR_Star,
         DistMatrix<dcomplex,MC,Star>& z_MC_Star,
         DistMatrix<dcomplex,MR,Star>& z_MR_Star );
 
-template void Elemental::BLAS::Internal::HemvRowAccumulateL
-( const dcomplex alpha, 
+template void elemental::blas::internal::HemvRowAccumulateL
+( dcomplex alpha, 
   const DistMatrix<dcomplex,MC,  MR  >& A,
   const DistMatrix<dcomplex,Star,MC  >& x_Star_MC,
   const DistMatrix<dcomplex,Star,MR  >& x_Star_MR,
         DistMatrix<dcomplex,MC,  Star>& z_MC_Star,
         DistMatrix<dcomplex,MR,  Star>& z_MR_Star );
 #endif
+

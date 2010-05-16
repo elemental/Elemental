@@ -16,19 +16,19 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/LAPACKInternal.hpp"
-using namespace Elemental;
+#include "elemental/lapack_internal.hpp"
+using namespace elemental;
 
 // The mainline Cholesky wraps the variant 2 algorithm
 template<typename T>
 void
-Elemental::LAPACK::Chol
-( const Shape shape, DistMatrix<T,MC,MR>& A )
+elemental::lapack::Chol
+( Shape shape, DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Chol");
+    PushCallStack("lapack::Chol");
 #endif
-    LAPACK::Internal::CholVar2( shape, A );
+    lapack::internal::CholVar2( shape, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -36,16 +36,16 @@ Elemental::LAPACK::Chol
 
 template<typename T>
 void
-Elemental::LAPACK::Internal::CholVar2
-( const Shape shape, DistMatrix<T,MC,MR>& A )
+elemental::lapack::internal::CholVar2
+( Shape shape, DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::CholVar2");
+    PushCallStack("lapack::internal::CholVar2");
 #endif
     if( shape == Lower )
-        LAPACK::Internal::CholLVar2( A );
+        lapack::internal::CholLVar2( A );
     else
-        LAPACK::Internal::CholUVar2( A );
+        lapack::internal::CholUVar2( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -53,56 +53,56 @@ Elemental::LAPACK::Internal::CholVar2
 
 template<typename T>
 void
-Elemental::LAPACK::Internal::CholVar3
-( const Shape shape, DistMatrix<T,MC,MR>& A )
+elemental::lapack::internal::CholVar3
+( Shape shape, DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::CholVar3");
+    PushCallStack("lapack::internal::CholVar3");
 #endif
     if( shape == Lower )
-        LAPACK::Internal::CholLVar3( A );
+        lapack::internal::CholLVar3( A );
     else
-        LAPACK::Internal::CholUVar3( A );
+        lapack::internal::CholUVar3( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template void Elemental::LAPACK::Chol
-( const Shape shape, DistMatrix<float,MC,MR>& A );
+template void elemental::lapack::Chol
+( Shape shape, DistMatrix<float,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholVar2
-( const Shape shape, DistMatrix<float,MC,MR>& A );
+template void elemental::lapack::internal::CholVar2
+( Shape shape, DistMatrix<float,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholVar3
-( const Shape shape, DistMatrix<float,MC,MR>& A );
+template void elemental::lapack::internal::CholVar3
+( Shape shape, DistMatrix<float,MC,MR>& A );
 
-template void Elemental::LAPACK::Chol
-( const Shape shape, DistMatrix<double,MC,MR>& A );
+template void elemental::lapack::Chol
+( Shape shape, DistMatrix<double,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholVar2
-( const Shape shape, DistMatrix<double,MC,MR>& A );
+template void elemental::lapack::internal::CholVar2
+( Shape shape, DistMatrix<double,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholVar3
-( const Shape shape, DistMatrix<double,MC,MR>& A );
+template void elemental::lapack::internal::CholVar3
+( Shape shape, DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::LAPACK::Chol
-( const Shape shape, DistMatrix<scomplex,MC,MR>& A );
+template void elemental::lapack::Chol
+( Shape shape, DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholVar2
-( const Shape shape, DistMatrix<scomplex,MC,MR>& A );
+template void elemental::lapack::internal::CholVar2
+( Shape shape, DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholVar3
-( const Shape shape, DistMatrix<scomplex,MC,MR>& A );
+template void elemental::lapack::internal::CholVar3
+( Shape shape, DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Chol
-( const Shape shape, DistMatrix<dcomplex,MC,MR>& A );
+template void elemental::lapack::Chol
+( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholVar2
-( const Shape shape, DistMatrix<dcomplex,MC,MR>& A );
+template void elemental::lapack::internal::CholVar2
+( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholVar3
-( const Shape shape, DistMatrix<dcomplex,MC,MR>& A );
+template void elemental::lapack::internal::CholVar3
+( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
 #endif
 

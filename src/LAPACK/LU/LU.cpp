@@ -16,19 +16,19 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::BLAS;
-using namespace Elemental::LAPACK::Internal;
+using namespace elemental;
+using namespace elemental::blas;
+using namespace elemental::lapack::internal;
 
 template<typename T>
 void
-Elemental::LAPACK::LU
+elemental::lapack::LU
 ( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::LU");
+    PushCallStack("lapack::LU");
     if( A.GetGrid() != p.GetGrid() )
         throw "A and p must be distributed over the same grid.";
     if( A.Height() != p.Height() ) 
@@ -132,20 +132,20 @@ Elemental::LAPACK::LU
 }
 
 template void
-Elemental::LAPACK::LU
+elemental::lapack::LU
 ( DistMatrix<float,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 
 template void
-Elemental::LAPACK::LU
+elemental::lapack::LU
 ( DistMatrix<double,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 
 #ifndef WITHOUT_COMPLEX
 template void
-Elemental::LAPACK::LU
+elemental::lapack::LU
 ( DistMatrix<scomplex,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 
 template void
-Elemental::LAPACK::LU
+elemental::lapack::LU
 ( DistMatrix<dcomplex,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 #endif
 

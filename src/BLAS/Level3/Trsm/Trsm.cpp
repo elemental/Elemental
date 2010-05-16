@@ -16,90 +16,90 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
-using namespace Elemental;
+#include "elemental/blas_internal.hpp"
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Trsm
-( const Side side, 
-  const Shape shape, 
-  const Orientation orientation, 
-  const Diagonal diagonal,
-  const T alpha, 
+elemental::blas::Trsm
+( Side side, 
+  Shape shape, 
+  Orientation orientation, 
+  Diagonal diagonal,
+  T alpha, 
   const DistMatrix<T,MC,MR>& A,
         DistMatrix<T,MC,MR>& X   )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Trsm");
+    PushCallStack("blas::Trsm");
 #endif
     if( side == Left && shape == Lower )
     {
         if( orientation == Normal )
-            BLAS::Internal::TrsmLLN( diagonal, alpha, A, X );
+            blas::internal::TrsmLLN( diagonal, alpha, A, X );
         else
-            BLAS::Internal::TrsmLLT( orientation, diagonal, alpha, A, X );
+            blas::internal::TrsmLLT( orientation, diagonal, alpha, A, X );
     }
     else if( side == Left && shape == Upper )
     {
         if( orientation == Normal )
-            BLAS::Internal::TrsmLUN( diagonal, alpha, A, X );
+            blas::internal::TrsmLUN( diagonal, alpha, A, X );
         else
-            BLAS::Internal::TrsmLUT( orientation, diagonal, alpha, A, X );
+            blas::internal::TrsmLUT( orientation, diagonal, alpha, A, X );
     }
     else if( side == Right && shape == Lower )
     {
         if( orientation == Normal )
-            BLAS::Internal::TrsmRLN( diagonal, alpha, A, X );
+            blas::internal::TrsmRLN( diagonal, alpha, A, X );
         else
-            BLAS::Internal::TrsmRLT( orientation, diagonal, alpha, A, X );
+            blas::internal::TrsmRLT( orientation, diagonal, alpha, A, X );
     }
     else if( side == Right && shape == Upper )
     {
         if( orientation == Normal )
-            BLAS::Internal::TrsmRUN( diagonal, alpha, A, X );
+            blas::internal::TrsmRUN( diagonal, alpha, A, X );
         else
-            BLAS::Internal::TrsmRUT( orientation, diagonal, alpha, A, X );
+            blas::internal::TrsmRUT( orientation, diagonal, alpha, A, X );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template void Elemental::BLAS::Trsm
-( const Side side, 
-  const Shape shape, 
-  const Orientation orientation, 
-  const Diagonal diagonal,
-  const float alpha, 
+template void elemental::blas::Trsm
+( Side side, 
+  Shape shape, 
+  Orientation orientation, 
+  Diagonal diagonal,
+  float alpha, 
   const DistMatrix<float,MC,MR>& A,
         DistMatrix<float,MC,MR>& X );
 
-template void Elemental::BLAS::Trsm
-( const Side side, 
-  const Shape shape, 
-  const Orientation orientation, 
-  const Diagonal diagonal,
-  const double alpha, 
+template void elemental::blas::Trsm
+( Side side, 
+  Shape shape, 
+  Orientation orientation, 
+  Diagonal diagonal,
+  double alpha, 
   const DistMatrix<double,MC,MR>& A,
         DistMatrix<double,MC,MR>& X );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Trsm
-( const Side side, 
-  const Shape shape, 
-  const Orientation orientation, 
-  const Diagonal diagonal,
-  const scomplex alpha, 
+template void elemental::blas::Trsm
+( Side side, 
+  Shape shape, 
+  Orientation orientation, 
+  Diagonal diagonal,
+  scomplex alpha, 
   const DistMatrix<scomplex,MC,MR>& A,
         DistMatrix<scomplex,MC,MR>& X );
 
-template void Elemental::BLAS::Trsm
-( const Side side, 
-  const Shape shape, 
-  const Orientation orientation, 
-  const Diagonal diagonal,
-  const dcomplex alpha, 
+template void elemental::blas::Trsm
+( Side side, 
+  Shape shape, 
+  Orientation orientation, 
+  Diagonal diagonal,
+  dcomplex alpha, 
   const DistMatrix<dcomplex,MC,MR>& A,
         DistMatrix<dcomplex,MC,MR>& X );
 #endif

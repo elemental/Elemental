@@ -16,19 +16,19 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Internal::GemvN
-( const T alpha, const DistMatrix<T,MC,MR>& A,
-                 const DistMatrix<T,MC,MR>& x,
-  const T beta,        DistMatrix<T,MC,MR>& y )
+elemental::blas::internal::GemvN
+( T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& x,
+  T beta,        DistMatrix<T,MC,MR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::GemvN");
+    PushCallStack("blas::internal::GemvN");
     if( A.GetGrid() != x.GetGrid() || x.GetGrid() != y.GetGrid() )
         throw "{A,x,y} must be distributed over the same grid.";
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
@@ -45,7 +45,7 @@ Elemental::BLAS::Internal::GemvN
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x ~ " << x.Height() << " x " << x.Width() << endl 
             << "  y ~ " << y.Height() << " x " << y.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -57,13 +57,13 @@ Elemental::BLAS::Internal::GemvN
         DistMatrix<T,MC,Star> z_MC_Star(grid);
 
         // Start the algorithm
-        BLAS::Scal( beta, y );
+        blas::Scal( beta, y );
         x_MR_Star.ConformWith( A );
         z_MC_Star.AlignWith( A );
         z_MC_Star.ResizeTo( A.Height(), 1 );
         //--------------------------------------------------------------------//
         x_MR_Star = x;
-        BLAS::Gemv( Normal,
+        blas::Gemv( Normal,
                     alpha, A.LockedLocalMatrix(), 
                            x_MR_Star.LockedLocalMatrix(),
                     (T)0,  z_MC_Star.LocalMatrix()       );
@@ -81,7 +81,7 @@ Elemental::BLAS::Internal::GemvN
         DistMatrix<T,MC,MR  > zTrans(grid);
 
         // Start the algorithm
-        BLAS::Scal( beta, y );
+        blas::Scal( beta, y );
         x_MR_Star.ConformWith( A );
         z_MC_Star.AlignWith( A );
         z_MC_Star.ResizeTo( A.Height(), 1 );
@@ -89,13 +89,13 @@ Elemental::BLAS::Internal::GemvN
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
         x_MR_Star = x;
-        BLAS::Gemv( Normal,
+        blas::Gemv( Normal,
                     alpha, A.LockedLocalMatrix(),
                            x_MR_Star.LockedLocalMatrix(),
                     (T)0,  z_MC_Star.LocalMatrix()       );
         z.ReduceScatterFrom( z_MC_Star );
-        BLAS::Trans( z, zTrans );
-        BLAS::Axpy( (T)1, zTrans, y );
+        blas::Trans( z, zTrans );
+        blas::Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
         x_MR_Star.FreeConstraints();
         z_MC_Star.FreeConstraints();
@@ -109,13 +109,13 @@ Elemental::BLAS::Internal::GemvN
         DistMatrix<T,MC,  Star> z_MC_Star(grid);
 
         // Start the algorithm
-        BLAS::Scal( beta, y );
+        blas::Scal( beta, y );
         x_Star_MR.ConformWith( A );
         z_MC_Star.AlignWith( A );
         z_MC_Star.ResizeTo( A.Height(), 1 );
         //--------------------------------------------------------------------//
         x_Star_MR = x;
-        BLAS::Gemv( Normal,
+        blas::Gemv( Normal,
                     alpha, A.LockedLocalMatrix(), 
                            x_Star_MR.LockedLocalMatrix(),
                     (T)0,  z_MC_Star.LocalMatrix()       );
@@ -133,7 +133,7 @@ Elemental::BLAS::Internal::GemvN
         DistMatrix<T,MC,  MR  > zTrans(grid);
 
         // Start the algorithm
-        BLAS::Scal( beta, y );
+        blas::Scal( beta, y );
         x_Star_MR.ConformWith( A );
         z_MC_Star.AlignWith( A );
         z_MC_Star.ResizeTo( A.Height(), 1 );
@@ -141,13 +141,13 @@ Elemental::BLAS::Internal::GemvN
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
         x_Star_MR = x;
-        BLAS::Gemv( Normal,
+        blas::Gemv( Normal,
                     alpha, A.LockedLocalMatrix(),
                            x_Star_MR.LockedLocalMatrix(),
                     (T)0,  z_MC_Star.LocalMatrix()       );
         z.ReduceScatterFrom( z_MC_Star );
-        BLAS::Trans( z, zTrans );
-        BLAS::Axpy( (T)1, zTrans, y );
+        blas::Trans( z, zTrans );
+        blas::Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
         x_Star_MR.FreeConstraints();
         z_MC_Star.FreeConstraints();
@@ -159,24 +159,25 @@ Elemental::BLAS::Internal::GemvN
 #endif
 }
 
-template void Elemental::BLAS::Internal::GemvN
-( const float alpha, const DistMatrix<float,MC,MR>& A,
-                     const DistMatrix<float,MC,MR>& x,
-  const float beta,        DistMatrix<float,MC,MR>& y );
+template void elemental::blas::internal::GemvN
+( float alpha, const DistMatrix<float,MC,MR>& A,
+               const DistMatrix<float,MC,MR>& x,
+  float beta,        DistMatrix<float,MC,MR>& y );
 
-template void Elemental::BLAS::Internal::GemvN
-( const double alpha, const DistMatrix<double,MC,MR>& A,
-                      const DistMatrix<double,MC,MR>& x,
-  const double beta,        DistMatrix<double,MC,MR>& y );
+template void elemental::blas::internal::GemvN
+( double alpha, const DistMatrix<double,MC,MR>& A,
+                const DistMatrix<double,MC,MR>& x,
+  double beta,        DistMatrix<double,MC,MR>& y );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Internal::GemvN
-( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
-                        const DistMatrix<scomplex,MC,MR>& x,
-  const scomplex beta,        DistMatrix<scomplex,MC,MR>& y );
+template void elemental::blas::internal::GemvN
+( scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
+                  const DistMatrix<scomplex,MC,MR>& x,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& y );
 
-template void Elemental::BLAS::Internal::GemvN
-( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
-                        const DistMatrix<dcomplex,MC,MR>& x,
-  const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& y );
+template void elemental::blas::internal::GemvN
+( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
+                  const DistMatrix<dcomplex,MC,MR>& x,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& y );
 #endif
+

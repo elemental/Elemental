@@ -16,20 +16,20 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLAS.hpp"
+#include "elemental/blas.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::utilities;
+using namespace elemental;
+using namespace elemental::utilities;
 
 template<typename T>
 void
-BLAS::Her
-( const Shape shape,
-  const T alpha, const DistMatrix<T,MC,MR>& x,
-                       DistMatrix<T,MC,MR>& A )
+elemental::blas::Her
+( Shape shape,
+  T alpha, const DistMatrix<T,MC,MR>& x,
+                 DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Her");
+    PushCallStack("blas::Her");
     if( A.GetGrid() != x.GetGrid() )
         throw "A and x must be distributed over the same grid.";
     if( A.Height() != A.Width() )
@@ -41,7 +41,7 @@ BLAS::Her
         msg << "A must conform with x: " << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x ~ " << x.Height() << " x " << x.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -75,7 +75,7 @@ BLAS::Her
                 for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                 {
                     A.LocalEntry(iLoc,jLoc) += 
-                        alpha * Elemental::Conj( x_MC_Star.LocalEntry(iLoc,0) )
+                        alpha * elemental::Conj( x_MC_Star.LocalEntry(iLoc,0) )
                               *                  x_MR_Star.LocalEntry(jLoc,0);
                 }
             }
@@ -89,7 +89,7 @@ BLAS::Her
                 for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
                 {
                     A.LocalEntry(iLoc,jLoc) += 
-                        alpha * Elemental::Conj(x_MC_Star.LocalEntry(iLoc,0))
+                        alpha * elemental::Conj(x_MC_Star.LocalEntry(iLoc,0))
                               *                 x_MR_Star.LocalEntry(jLoc,0);
                 }
             }
@@ -119,7 +119,7 @@ BLAS::Her
                 for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                 {
                     A.LocalEntry(iLoc,jLoc) += 
-                        alpha * Elemental::Conj(x_Star_MC.LocalEntry(0,iLoc))
+                        alpha * elemental::Conj(x_Star_MC.LocalEntry(0,iLoc))
                               *                 x_Star_MR.LocalEntry(0,jLoc);
                 }
             }
@@ -133,7 +133,7 @@ BLAS::Her
                 for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
                 {
                     A.LocalEntry(iLoc,jLoc) += 
-                        alpha * Elemental::Conj(x_Star_MC.LocalEntry(0,iLoc))
+                        alpha * elemental::Conj(x_Star_MC.LocalEntry(0,iLoc))
                               *                 x_Star_MR.LocalEntry(0,jLoc);
                 }
             }
@@ -147,24 +147,25 @@ BLAS::Her
 #endif
 }
 
-template void Elemental::BLAS::Her
-( const Shape shape, 
-  const float alpha, const DistMatrix<float,MC,MR>& x,
-                           DistMatrix<float,MC,MR>& A );
+template void elemental::blas::Her
+( Shape shape, 
+  float alpha, const DistMatrix<float,MC,MR>& x,
+                     DistMatrix<float,MC,MR>& A );
 
-template void Elemental::BLAS::Her
-( const Shape shape,
-  const double alpha, const DistMatrix<double,MC,MR>& x,
-                            DistMatrix<double,MC,MR>& A );
+template void elemental::blas::Her
+( Shape shape,
+  double alpha, const DistMatrix<double,MC,MR>& x,
+                      DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Her
-( const Shape shape,
-  const scomplex alpha, const DistMatrix<scomplex,MC,MR>& x,
-                              DistMatrix<scomplex,MC,MR>& A );
+template void elemental::blas::Her
+( Shape shape,
+  scomplex alpha, const DistMatrix<scomplex,MC,MR>& x,
+                        DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::BLAS::Her
-( const Shape shape,
-  const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& x,
-                              DistMatrix<dcomplex,MC,MR>& A );
+template void elemental::blas::Her
+( Shape shape,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& x,
+                        DistMatrix<dcomplex,MC,MR>& A );
 #endif
+

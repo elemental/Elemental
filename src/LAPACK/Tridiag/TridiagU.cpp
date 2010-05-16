@@ -16,20 +16,20 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename R>
 void
-Elemental::LAPACK::Internal::TridiagU
+elemental::lapack::internal::TridiagU
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MD,Star>& d,
   DistMatrix<R,MD,Star>& e,
   DistMatrix<R,MD,Star>& t )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::TridiagU");
+    PushCallStack("lapack::internal::TridiagU");
 #endif
     const Grid& grid = A.GetGrid();
 #ifndef RELEASE
@@ -121,8 +121,8 @@ Elemental::LAPACK::Internal::TridiagU
             WPan.ResizeTo( A11.Height(), ABR.Width() );
             PartitionRight( WPan, W11, W12, A11.Width() );
             //----------------------------------------------------------------//
-            LAPACK::Internal::PanelTridiagU( ABR, WPan, e1, t1 );
-            BLAS::Syr2k( Upper, Transpose, 
+            lapack::internal::PanelTridiagU( ABR, WPan, e1, t1 );
+            blas::Syr2k( Upper, Transpose, 
                          (R)-1, A12, W12, (R)1, A22 );
             A11_expanded.SetDiagonal( e1, 1 );
             A11.GetDiagonal( d1 );
@@ -138,14 +138,14 @@ Elemental::LAPACK::Internal::TridiagU
 
             // LAPACK traverses up the diagonal in upper Tridiag, but we 
             // traverse down, so transpose to and from to call the lower Tridiag
-            BLAS::Trans( A11_Star_Star.LockedLocalMatrix(), A11_Trans );
+            blas::Trans( A11_Star_Star.LockedLocalMatrix(), A11_Trans );
 
-            LAPACK::Tridiag( Lower, A11_Trans,         
+            lapack::Tridiag( Lower, A11_Trans,         
                              d1_Star_Star.LocalMatrix(),
                              e1_Star_Star.LocalMatrix(),
                              t1_Star_Star.LocalMatrix() );
             
-            BLAS::Trans( A11_Trans, A11_Star_Star.LocalMatrix() );
+            blas::Trans( A11_Trans, A11_Star_Star.LocalMatrix() );
 
             A11 = A11_Star_Star;
             d1 = d1_Star_Star;
@@ -179,13 +179,13 @@ Elemental::LAPACK::Internal::TridiagU
 #endif
 }
 
-template void Elemental::LAPACK::Internal::TridiagU
+template void elemental::lapack::internal::TridiagU
 ( DistMatrix<float,MC,MR  >& A,
   DistMatrix<float,MD,Star>& d,
   DistMatrix<float,MD,Star>& e,
   DistMatrix<float,MD,Star>& t );
 
-template void Elemental::LAPACK::Internal::TridiagU
+template void elemental::lapack::internal::TridiagU
 ( DistMatrix<double,MC,MR  >& A,
   DistMatrix<double,MD,Star>& d,
   DistMatrix<double,MD,Star>& e,

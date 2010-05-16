@@ -19,11 +19,11 @@
 #include <cmath>
 #include <ctime>
 #include <sstream>
-#include "Elemental.hpp"
-#include "Elemental/BLASInternal.hpp"
+#include "elemental.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
@@ -80,7 +80,7 @@ void TestCorrectness
         cout << "  Computing 'truth'...";
         cout.flush();
     }
-    BLAS::Herk( shape, orientation,
+    blas::Herk( shape, orientation,
                 alpha, ARef.LockedLocalMatrix(),
                 beta,  CRef.LocalMatrix()       );
     if( grid.VCRank() == 0 )
@@ -108,7 +108,7 @@ void TestCorrectness
                     ostringstream msg;
                     msg << "FAILED at index (" << i << "," << j << "): truth="
                          << truth << ", computed=" << computed;
-                    const string s = msg.str();
+                    const string& s = msg.str();
                     throw s.c_str();
                 }
             }
@@ -128,7 +128,7 @@ void TestCorrectness
                     ostringstream msg;
                     msg << "FAILED at index (" << i << "," << j << "): truth="
                          << truth << ", computed=" << computed;
-                    const string s = msg.str();
+                    const string& s = msg.str();
                     throw s.c_str();
                 }
             }
@@ -191,11 +191,11 @@ void TestHerk
     }
     Barrier( grid.VCComm() );
     startTime = Time();
-    BLAS::Herk( shape, orientation, alpha, A, beta, C );
+    blas::Herk( shape, orientation, alpha, A, beta, C );
     Barrier( grid.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = BLAS::Internal::HerkGFlops<T>(m,k,runTime);
+    gFlops = blas::internal::HerkGFlops<T>(m,k,runTime);
     if( grid.VCRank() == 0 )
         cout << "DONE. GFlops = " << gFlops << endl;
     if( printMatrices )
@@ -218,13 +218,13 @@ void TestHerk
 int main( int argc, char* argv[] )
 {
     int rank;
-    Elemental::Init( &argc, &argv );
+    elemental::Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     if( argc != 10 )
     {
         if( rank == 0 )
             Usage();
-        Elemental::Finalize();
+        elemental::Finalize();
         return 0;
     }
     try
@@ -277,7 +277,7 @@ int main( int argc, char* argv[] )
         cerr << "Process " << rank << " caught error message:" << endl 
              << errorMsg << endl;
     }
-    Elemental::Finalize();
+    elemental::Finalize();
     return 0;
 }
 

@@ -16,21 +16,21 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/blas_internal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 // The mainline Cholesky wraps the variant 2 algorithm
 template<typename T>
 void
-Elemental::LAPACK::Internal::CholU
+elemental::lapack::internal::CholU
 ( DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::CholU");
+    PushCallStack("lapack::internal::CholU");
 #endif
-    LAPACK::Internal::CholUVar2( A );
+    lapack::internal::CholUVar2( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -67,11 +67,11 @@ Elemental::LAPACK::Internal::CholU
 */
 template<typename T>
 void
-Elemental::LAPACK::Internal::CholUVar2
+elemental::lapack::internal::CholUVar2
 ( DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::CholUVar2");
+    PushCallStack("lapack::internal::CholUVar2");
     if( A.Height() != A.Width() )
         throw "Can only compute Cholesky factor of square matrices.";
 #endif
@@ -107,7 +107,7 @@ Elemental::LAPACK::Internal::CholUVar2
         X12_Star_MR.ResizeTo( A12.Height(), A12.Width() );
         //--------------------------------------------------------------------//
         A01_MC_Star = A01;
-        BLAS::Gemm
+        blas::Gemm
         ( ConjugateTranspose, Normal, 
           (T)1, A01_MC_Star.LockedLocalMatrix(),
                 A01.LockedLocalMatrix(),
@@ -115,10 +115,10 @@ Elemental::LAPACK::Internal::CholUVar2
         A11.ReduceScatterUpdate( (T)-1, X11_Star_MR );
 
         A11_Star_Star = A11;
-        LAPACK::Chol( Upper, A11_Star_Star.LocalMatrix() );
+        lapack::Chol( Upper, A11_Star_Star.LocalMatrix() );
         A11 = A11_Star_Star;
 
-        BLAS::Gemm
+        blas::Gemm
         ( ConjugateTranspose, Normal, 
           (T)1, A01_MC_Star.LockedLocalMatrix(), 
                 A02.LockedLocalMatrix(), 
@@ -126,7 +126,7 @@ Elemental::LAPACK::Internal::CholUVar2
         A12.ReduceScatterUpdate( (T)-1, X12_Star_MR );
 
         A12_Star_VR = A12;
-        BLAS::Trsm
+        blas::Trsm
         ( Left, Upper, ConjugateTranspose, NonUnit,
           (T)1, A11_Star_Star.LockedLocalMatrix(), 
                 A12_Star_VR.LocalMatrix()          );
@@ -173,11 +173,11 @@ Elemental::LAPACK::Internal::CholUVar2
 */
 template<typename T>
 void
-LAPACK::Internal::CholUVar3
+lapack::internal::CholUVar3
 ( DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::CholUVar3");
+    PushCallStack("lapack::internal::CholUVar3");
     if( A.Height() != A.Width() )
         throw "Can only compute Cholesky factor of square matrices.";
 #endif
@@ -210,17 +210,17 @@ LAPACK::Internal::CholUVar3
         A12_Star_VR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_Star_Star = A11;
-        LAPACK::Chol( Upper, A11_Star_Star.LocalMatrix() );
+        lapack::Chol( Upper, A11_Star_Star.LocalMatrix() );
         A11 = A11_Star_Star;
 
         A12_Star_VR = A12;
-        BLAS::Trsm( Left, Upper, ConjugateTranspose, NonUnit,
+        blas::Trsm( Left, Upper, ConjugateTranspose, NonUnit,
                     (T)1, A11_Star_Star.LockedLocalMatrix(), 
                           A12_Star_VR.LocalMatrix()          );
 
         A12_Star_MC = A12_Star_VR;
         A12_Star_MR = A12_Star_VR;
-        BLAS::Internal::TriangularRankK
+        blas::internal::TriangularRankK
         ( Upper, (T)-1, A12_Star_MC, A12_Star_MR, (T)1, A22 );
         A12 = A12_Star_MR;
         //--------------------------------------------------------------------//
@@ -238,41 +238,41 @@ LAPACK::Internal::CholUVar3
 #endif
 }
 
-template void Elemental::LAPACK::Internal::CholU
+template void elemental::lapack::internal::CholU
 ( DistMatrix<float,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholUVar2
+template void elemental::lapack::internal::CholUVar2
 ( DistMatrix<float,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholUVar3
+template void elemental::lapack::internal::CholUVar3
 ( DistMatrix<float,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholU
+template void elemental::lapack::internal::CholU
 ( DistMatrix<double,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholUVar2
+template void elemental::lapack::internal::CholUVar2
 ( DistMatrix<double,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholUVar3
+template void elemental::lapack::internal::CholUVar3
 ( DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::LAPACK::Internal::CholU
+template void elemental::lapack::internal::CholU
 ( DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholUVar2
+template void elemental::lapack::internal::CholUVar2
 ( DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholUVar3
+template void elemental::lapack::internal::CholUVar3
 ( DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholU
+template void elemental::lapack::internal::CholU
 ( DistMatrix<dcomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholUVar2
+template void elemental::lapack::internal::CholUVar2
 ( DistMatrix<dcomplex,MC,MR>& A );
 
-template void Elemental::LAPACK::Internal::CholUVar3
+template void elemental::lapack::internal::CholUVar3
 ( DistMatrix<dcomplex,MC,MR>& A );
 #endif
 

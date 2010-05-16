@@ -16,18 +16,18 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Internal::HerkLN
-( const T alpha, const DistMatrix<T,MC,MR>& A,
-  const T beta,        DistMatrix<T,MC,MR>& C )
+elemental::blas::internal::HerkLN
+( T alpha, const DistMatrix<T,MC,MR>& A,
+  T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::HerkLN");
+    PushCallStack("blas::internal::HerkLN");
     if( A.GetGrid() != C.GetGrid() )
         throw "A and C must be distributed over the same grid.";
     if( A.Height() != C.Height() || A.Height() != C.Width() )
@@ -36,7 +36,7 @@ Elemental::BLAS::Internal::HerkLN
         msg << "Nonconformal HerkLN:" << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -52,7 +52,7 @@ Elemental::BLAS::Internal::HerkLN
     DistMatrix<T,Star,MR  > A1Herm_Star_MR(grid);
 
     // Start the algorithm
-    BLAS::Scal( beta, C );
+    blas::Scal( beta, C );
     LockedPartitionRight( A, AL, AR );
     while( AR.Width() > 0 )
     {
@@ -66,7 +66,7 @@ Elemental::BLAS::Internal::HerkLN
         A1_VR_Star = A1_MC_Star = A1;
         A1Herm_Star_MR.ConjugateTransposeFrom( A1_VR_Star );
 
-        BLAS::Internal::TriangularRankK
+        blas::internal::TriangularRankK
         ( Lower, alpha, A1_MC_Star, A1Herm_Star_MR, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_Star.FreeConstraints();
@@ -81,21 +81,21 @@ Elemental::BLAS::Internal::HerkLN
 #endif
 }
 
-template void Elemental::BLAS::Internal::HerkLN
-( const float alpha, const DistMatrix<float,MC,MR>& A,
-  const float beta,        DistMatrix<float,MC,MR>& C );
+template void elemental::blas::internal::HerkLN
+( float alpha, const DistMatrix<float,MC,MR>& A,
+  float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::HerkLN
-( const double alpha, const DistMatrix<double,MC,MR>& A,
-  const double beta,        DistMatrix<double,MC,MR>& C );
+template void elemental::blas::internal::HerkLN
+( double alpha, const DistMatrix<double,MC,MR>& A,
+  double beta,        DistMatrix<double,MC,MR>& C );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Internal::HerkLN
-( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
-  const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+template void elemental::blas::internal::HerkLN
+( scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::HerkLN
-( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
-  const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+template void elemental::blas::internal::HerkLN
+( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 #endif
 

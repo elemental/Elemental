@@ -16,19 +16,19 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Internal::TrsvUN
-( const Diagonal diagonal, 
+elemental::blas::internal::TrsvUN
+( Diagonal diagonal, 
   const DistMatrix<T,MC,MR>& U, 
         DistMatrix<T,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::TrsvUN");
+    PushCallStack("blas::internal::TrsvUN");
     if( U.GetGrid() != x.GetGrid() )
         throw "U and x must be distributed over the same grid.";
     if( U.Height() != U.Width() )
@@ -83,13 +83,13 @@ Elemental::BLAS::Internal::TrsvUN
             //----------------------------------------------------------------//
             x1_Star_Star = x1;
             U11_Star_Star = U11;
-            BLAS::Trsv( Upper, Normal, diagonal,
+            blas::Trsv( Upper, Normal, diagonal,
                         U11_Star_Star.LockedLocalMatrix(),
                         x1_Star_Star.LocalMatrix()        );
             x1 = x1_Star_Star;
 
             x1_MR_Star = x1_Star_Star;
-            BLAS::Gemv( Normal, (T)-1, 
+            blas::Gemv( Normal, (T)-1, 
                         U01.LockedLocalMatrix(), 
                         x1_MR_Star.LockedLocalMatrix(),
                         (T)0, z0_MC_Star.LocalMatrix() );
@@ -151,19 +151,19 @@ Elemental::BLAS::Internal::TrsvUN
             //----------------------------------------------------------------//
             x1_Star_Star = x1;
             U11_Star_Star = U11;
-            BLAS::Trsv( Upper, Normal, diagonal,
+            blas::Trsv( Upper, Normal, diagonal,
                         U11_Star_Star.LockedLocalMatrix(),
                         x1_Star_Star.LocalMatrix()        );
             x1 = x1_Star_Star;
 
             x1_Star_MR = x1_Star_Star;
-            BLAS::Gemv( Normal, (T)-1, 
+            blas::Gemv( Normal, (T)-1, 
                         U01.LockedLocalMatrix(), 
                         x1_Star_MR.LockedLocalMatrix(),
                         (T)0, z0_Star_MC.LocalMatrix() );
             z0_MR_MC.ReduceScatterFrom( z0_Star_MC );
             z0 = z0_MR_MC;
-            BLAS::Axpy( (T)1, z0, x0 );
+            blas::Axpy( (T)1, z0, x0 );
             //----------------------------------------------------------------//
             x1_Star_MR.FreeConstraints();
             z0_Star_MC.FreeConstraints();
@@ -184,24 +184,24 @@ Elemental::BLAS::Internal::TrsvUN
 #endif
 }
 
-template void Elemental::BLAS::Internal::TrsvUN
-( const Diagonal diagonal,
+template void elemental::blas::internal::TrsvUN
+( Diagonal diagonal,
   const DistMatrix<float,MC,MR>& U,
         DistMatrix<float,MC,MR>& x );
 
-template void Elemental::BLAS::Internal::TrsvUN
-( const Diagonal diagonal,
+template void elemental::blas::internal::TrsvUN
+( Diagonal diagonal,
   const DistMatrix<double,MC,MR>& U,
         DistMatrix<double,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Internal::TrsvUN
-( const Diagonal diagonal,
+template void elemental::blas::internal::TrsvUN
+( Diagonal diagonal,
   const DistMatrix<scomplex,MC,MR>& U,
         DistMatrix<scomplex,MC,MR>& x );
 
-template void Elemental::BLAS::Internal::TrsvUN
-( const Diagonal diagonal,
+template void elemental::blas::internal::TrsvUN
+( Diagonal diagonal,
   const DistMatrix<dcomplex,MC,MR>& U,
         DistMatrix<dcomplex,MC,MR>& x );
 #endif

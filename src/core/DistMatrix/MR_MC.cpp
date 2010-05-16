@@ -16,16 +16,16 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/DistMatrix.hpp"
-#include "./DistMatrixMacros.hpp"
+#include "elemental/dist_matrix.hpp"
+#include "./dist_matrix_macros.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::utilities;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::utilities;
+using namespace elemental::wrappers::mpi;
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::Print( const string& msg ) const
+elemental::DistMatrix<T,MR,MC>::Print( const string& msg ) const
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::Print");
@@ -93,7 +93,7 @@ Elemental::DistMatrix<T,MR,MC>::Print( const string& msg ) const
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignWith
+elemental::DistMatrix<T,MR,MC>::AlignWith
 ( const DistMatrix<T,MR,MC>& A )
 {
 #ifndef RELEASE
@@ -115,7 +115,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignWith
+elemental::DistMatrix<T,MR,MC>::AlignWith
 ( const DistMatrix<T,MR,Star>& A )
 {
 #ifndef RELEASE
@@ -133,7 +133,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignWith
+elemental::DistMatrix<T,MR,MC>::AlignWith
 ( const DistMatrix<T,Star,MC>& A )
 {
 #ifndef RELEASE
@@ -151,7 +151,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignWith
+elemental::DistMatrix<T,MR,MC>::AlignWith
 ( const DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -173,7 +173,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignWith
+elemental::DistMatrix<T,MR,MC>::AlignWith
 ( const DistMatrix<T,MC,Star>& A )
 {
 #ifndef RELEASE
@@ -191,7 +191,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignWith
+elemental::DistMatrix<T,MR,MC>::AlignWith
 ( const DistMatrix<T,Star,MR>& A )
 {
 #ifndef RELEASE
@@ -209,7 +209,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignWith
+elemental::DistMatrix<T,MR,MC>::AlignWith
 ( const DistMatrix<T,VC,Star>& A )
 {
 #ifndef RELEASE
@@ -227,7 +227,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignWith
+elemental::DistMatrix<T,MR,MC>::AlignWith
 ( const DistMatrix<T,Star,VC>& A )
 {
 #ifndef RELEASE
@@ -245,7 +245,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignWith
+elemental::DistMatrix<T,MR,MC>::AlignWith
 ( const DistMatrix<T,VR,Star>& A )
 {
 #ifndef RELEASE
@@ -263,7 +263,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignWith
+elemental::DistMatrix<T,MR,MC>::AlignWith
 ( const DistMatrix<T,Star,VR>& A )
 {
 #ifndef RELEASE
@@ -281,7 +281,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignColsWith
+elemental::DistMatrix<T,MR,MC>::AlignColsWith
 ( const DistMatrix<T,MR,MC>& A )
 {
 #ifndef RELEASE
@@ -299,7 +299,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignColsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignColsWith
+elemental::DistMatrix<T,MR,MC>::AlignColsWith
 ( const DistMatrix<T,MR,Star>& A )
 {
 #ifndef RELEASE
@@ -317,7 +317,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignColsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignColsWith
+elemental::DistMatrix<T,MR,MC>::AlignColsWith
 ( const DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -335,7 +335,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignColsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignColsWith
+elemental::DistMatrix<T,MR,MC>::AlignColsWith
 ( const DistMatrix<T,Star,MR>& A )
 {
 #ifndef RELEASE
@@ -353,7 +353,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignColsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignColsWith
+elemental::DistMatrix<T,MR,MC>::AlignColsWith
 ( const DistMatrix<T,VR,Star>& A )
 {
 #ifndef RELEASE
@@ -371,7 +371,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignColsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignColsWith
+elemental::DistMatrix<T,MR,MC>::AlignColsWith
 ( const DistMatrix<T,Star,VR>& A )
 {
 #ifndef RELEASE
@@ -389,7 +389,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignColsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
+elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 ( const DistMatrix<T,MR,MC>& A )
 {
 #ifndef RELEASE
@@ -407,7 +407,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
+elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 ( const DistMatrix<T,Star,MC>& A )
 {
 #ifndef RELEASE
@@ -425,7 +425,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
+elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 ( const DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -443,7 +443,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
+elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 ( const DistMatrix<T,MC,Star>& A )
 {
 #ifndef RELEASE
@@ -461,7 +461,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
+elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 ( const DistMatrix<T,VC,Star>& A )
 {
 #ifndef RELEASE
@@ -479,7 +479,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
+elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 ( const DistMatrix<T,Star,VC>& A )
 {
 #ifndef RELEASE
@@ -497,7 +497,7 @@ Elemental::DistMatrix<T,MR,MC>::AlignRowsWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ConformWith
+elemental::DistMatrix<T,MR,MC>::ConformWith
 ( const DistMatrix<T,MC,Star>& A )
 {
 #ifndef RELEASE
@@ -515,7 +515,7 @@ Elemental::DistMatrix<T,MR,MC>::ConformWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ConformWith
+elemental::DistMatrix<T,MR,MC>::ConformWith
 ( const DistMatrix<T,Star,MC>& A )
 {
 #ifndef RELEASE
@@ -533,7 +533,7 @@ Elemental::DistMatrix<T,MR,MC>::ConformWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ConformWith
+elemental::DistMatrix<T,MR,MC>::ConformWith
 ( const DistMatrix<T,MR,Star>& A )
 {
 #ifndef RELEASE
@@ -551,7 +551,7 @@ Elemental::DistMatrix<T,MR,MC>::ConformWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ConformWith
+elemental::DistMatrix<T,MR,MC>::ConformWith
 ( const DistMatrix<T,Star,MR>& A )
 {
 #ifndef RELEASE
@@ -569,7 +569,7 @@ Elemental::DistMatrix<T,MR,MC>::ConformWith
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::FreeConstraints()
+elemental::DistMatrix<T,MR,MC>::FreeConstraints()
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::FreeConstraints");
@@ -583,7 +583,7 @@ Elemental::DistMatrix<T,MR,MC>::FreeConstraints()
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::View
+elemental::DistMatrix<T,MR,MC>::View
 ( DistMatrix<T,MR,MC>& A )
 {
 #ifndef RELEASE
@@ -609,7 +609,7 @@ Elemental::DistMatrix<T,MR,MC>::View
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::LockedView
+elemental::DistMatrix<T,MR,MC>::LockedView
 ( const DistMatrix<T,MR,MC>& A )
 {
 #ifndef RELEASE
@@ -635,7 +635,7 @@ Elemental::DistMatrix<T,MR,MC>::LockedView
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::View
+elemental::DistMatrix<T,MR,MC>::View
 ( DistMatrix<T,MR,MC>& A,
   int i, int j, int height, int width )
 {
@@ -680,7 +680,7 @@ Elemental::DistMatrix<T,MR,MC>::View
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::LockedView
+elemental::DistMatrix<T,MR,MC>::LockedView
 ( const DistMatrix<T,MR,MC>& A,
   int i, int j, int height, int width )
 {
@@ -725,7 +725,7 @@ Elemental::DistMatrix<T,MR,MC>::LockedView
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::View1x2
+elemental::DistMatrix<T,MR,MC>::View1x2
 ( DistMatrix<T,MR,MC>& AL,
   DistMatrix<T,MR,MC>& AR )
 {
@@ -756,7 +756,7 @@ Elemental::DistMatrix<T,MR,MC>::View1x2
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::LockedView1x2
+elemental::DistMatrix<T,MR,MC>::LockedView1x2
 ( const DistMatrix<T,MR,MC>& AL,
   const DistMatrix<T,MR,MC>& AR )
 {
@@ -788,7 +788,7 @@ Elemental::DistMatrix<T,MR,MC>::LockedView1x2
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::View2x1
+elemental::DistMatrix<T,MR,MC>::View2x1
 ( DistMatrix<T,MR,MC>& AT,
   DistMatrix<T,MR,MC>& AB )
 {
@@ -820,7 +820,7 @@ Elemental::DistMatrix<T,MR,MC>::View2x1
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::LockedView2x1
+elemental::DistMatrix<T,MR,MC>::LockedView2x1
 ( const DistMatrix<T,MR,MC>& AT,
   const DistMatrix<T,MR,MC>& AB )
 {
@@ -852,7 +852,7 @@ Elemental::DistMatrix<T,MR,MC>::LockedView2x1
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::View2x2
+elemental::DistMatrix<T,MR,MC>::View2x2
 ( DistMatrix<T,MR,MC>& ATL,
   DistMatrix<T,MR,MC>& ATR,
   DistMatrix<T,MR,MC>& ABL,
@@ -893,7 +893,7 @@ Elemental::DistMatrix<T,MR,MC>::View2x2
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::LockedView2x2
+elemental::DistMatrix<T,MR,MC>::LockedView2x2
 ( const DistMatrix<T,MR,MC>& ATL,
   const DistMatrix<T,MR,MC>& ATR,
   const DistMatrix<T,MR,MC>& ABL,
@@ -935,7 +935,7 @@ Elemental::DistMatrix<T,MR,MC>::LockedView2x2
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ResizeTo
+elemental::DistMatrix<T,MR,MC>::ResizeTo
 ( int height, int width )
 {
 #ifndef RELEASE
@@ -955,7 +955,7 @@ Elemental::DistMatrix<T,MR,MC>::ResizeTo
 
 template<typename T>
 T
-Elemental::DistMatrix<T,MR,MC>::Get
+elemental::DistMatrix<T,MR,MC>::Get
 ( int i, int j )
 {
 #ifndef RELEASE
@@ -992,7 +992,7 @@ Elemental::DistMatrix<T,MR,MC>::Get
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::Set
+elemental::DistMatrix<T,MR,MC>::Set
 ( int i, int j, T u )
 {
 #ifndef RELEASE
@@ -1023,7 +1023,7 @@ Elemental::DistMatrix<T,MR,MC>::Set
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::GetDiagonal
+elemental::DistMatrix<T,MR,MC>::GetDiagonal
 ( DistMatrix<T,MD,Star>& d, int offset )
 {
 #ifndef RELEASE
@@ -1092,7 +1092,7 @@ Elemental::DistMatrix<T,MR,MC>::GetDiagonal
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::GetDiagonal
+elemental::DistMatrix<T,MR,MC>::GetDiagonal
 ( DistMatrix<T,Star,MD>& d, int offset )
 {
 #ifndef RELEASE
@@ -1162,7 +1162,7 @@ Elemental::DistMatrix<T,MR,MC>::GetDiagonal
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::SetDiagonal
+elemental::DistMatrix<T,MR,MC>::SetDiagonal
 ( const DistMatrix<T,MD,Star>& d, int offset )
 {
 #ifndef RELEASE
@@ -1231,7 +1231,7 @@ Elemental::DistMatrix<T,MR,MC>::SetDiagonal
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::SetDiagonal
+elemental::DistMatrix<T,MR,MC>::SetDiagonal
 ( const DistMatrix<T,Star,MD>& d, int offset )
 {
 #ifndef RELEASE
@@ -1304,7 +1304,7 @@ Elemental::DistMatrix<T,MR,MC>::SetDiagonal
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::MakeTrapezoidal
+elemental::DistMatrix<T,MR,MC>::MakeTrapezoidal
 ( Side side, Shape shape, int offset )
 {
 #ifndef RELEASE
@@ -1361,7 +1361,7 @@ Elemental::DistMatrix<T,MR,MC>::MakeTrapezoidal
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::SetToIdentity()
+elemental::DistMatrix<T,MR,MC>::SetToIdentity()
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::SetToIdentity");
@@ -1392,7 +1392,7 @@ Elemental::DistMatrix<T,MR,MC>::SetToIdentity()
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::SetToRandom()
+elemental::DistMatrix<T,MR,MC>::SetToRandom()
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::SetToRandom");
@@ -1410,7 +1410,7 @@ Elemental::DistMatrix<T,MR,MC>::SetToRandom()
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::SetToRandomDiagDominant()
+elemental::DistMatrix<T,MR,MC>::SetToRandomDiagDominant()
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::SetToRandomDiagDominant");
@@ -1441,7 +1441,7 @@ Elemental::DistMatrix<T,MR,MC>::SetToRandomDiagDominant()
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::SetToZero()
+elemental::DistMatrix<T,MR,MC>::SetToZero()
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::SetToZero");
@@ -1455,7 +1455,7 @@ Elemental::DistMatrix<T,MR,MC>::SetToZero()
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,MC,MR>& A )
 { 
 #ifndef RELEASE
@@ -1666,7 +1666,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,MC,Star>& A )
 { 
 #ifndef RELEASE
@@ -1693,7 +1693,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,Star,MR>& A )
 { 
 #ifndef RELEASE
@@ -1720,7 +1720,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,MD,Star>& A )
 {
 #ifndef RELEASE
@@ -1738,7 +1738,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,Star,MD>& A )
 { 
 #ifndef RELEASE
@@ -1756,7 +1756,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,MR,MC>& A )
 { 
 #ifndef RELEASE
@@ -1847,7 +1847,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,MR,Star>& A )
 { 
 #ifndef RELEASE
@@ -1933,7 +1933,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,Star,MC>& A )
 { 
 #ifndef RELEASE
@@ -2019,7 +2019,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,VC,Star>& A )
 { 
 #ifndef RELEASE
@@ -2040,7 +2040,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,Star,VC>& A )
 { 
 #ifndef RELEASE
@@ -2205,7 +2205,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,VR,Star>& A )
 { 
 #ifndef RELEASE
@@ -2371,7 +2371,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,Star,VR>& A )
 { 
 #ifndef RELEASE
@@ -2392,7 +2392,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 const DistMatrix<T,MR,MC>&
-Elemental::DistMatrix<T,MR,MC>::operator=
+elemental::DistMatrix<T,MR,MC>::operator=
 ( const DistMatrix<T,Star,Star>& A )
 { 
 #ifndef RELEASE
@@ -2422,7 +2422,7 @@ Elemental::DistMatrix<T,MR,MC>::operator=
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ReduceScatterFrom
+elemental::DistMatrix<T,MR,MC>::ReduceScatterFrom
 ( const DistMatrix<T,MR,Star>& A )
 {
 #ifndef RELEASE
@@ -2652,7 +2652,7 @@ Elemental::DistMatrix<T,MR,MC>::ReduceScatterFrom
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ReduceScatterFrom
+elemental::DistMatrix<T,MR,MC>::ReduceScatterFrom
 ( const DistMatrix<T,Star,MC>& A )
 {
 #ifndef RELEASE
@@ -2793,7 +2793,7 @@ Elemental::DistMatrix<T,MR,MC>::ReduceScatterFrom
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ReduceScatterFrom
+elemental::DistMatrix<T,MR,MC>::ReduceScatterFrom
 ( const DistMatrix<T,Star,Star>& A )
 {
 #ifndef RELEASE
@@ -2869,7 +2869,7 @@ Elemental::DistMatrix<T,MR,MC>::ReduceScatterFrom
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
+elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
 ( T alpha, const DistMatrix<T,MR,Star>& A )
 {
 #ifndef RELEASE
@@ -3086,7 +3086,7 @@ Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
+elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
 ( T alpha, const DistMatrix<T,Star,MC>& A )
 {
 #ifndef RELEASE
@@ -3216,7 +3216,7 @@ Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
 
 template<typename T>
 void
-Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
+elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
 ( T alpha, const DistMatrix<T,Star,Star>& A )
 {
 #ifndef RELEASE
@@ -3290,11 +3290,11 @@ Elemental::DistMatrix<T,MR,MC>::ReduceScatterUpdate
 #endif
 }
 
-template class Elemental::DistMatrix<int,    MR,MC>;
-template class Elemental::DistMatrix<float,  MR,MC>;
-template class Elemental::DistMatrix<double, MR,MC>;
+template class elemental::DistMatrix<int,    MR,MC>;
+template class elemental::DistMatrix<float,  MR,MC>;
+template class elemental::DistMatrix<double, MR,MC>;
 #ifndef WITHOUT_COMPLEX
-template class Elemental::DistMatrix<scomplex,MR,MC>;
-template class Elemental::DistMatrix<dcomplex,MR,MC>;
+template class elemental::DistMatrix<scomplex,MR,MC>;
+template class elemental::DistMatrix<dcomplex,MR,MC>;
 #endif
 

@@ -16,21 +16,21 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/blas_internal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename R>
 void
-Elemental::LAPACK::Internal::TridiagL
+elemental::lapack::internal::TridiagL
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MD,Star>& d,
   DistMatrix<R,MD,Star>& e,
   DistMatrix<R,MD,Star>& t )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::TridiagL");
+    PushCallStack("lapack::internal::TridiagL");
 #endif
     const Grid& grid = A.GetGrid();
 #ifndef RELEASE
@@ -148,12 +148,12 @@ Elemental::LAPACK::Internal::TridiagL
             PartitionDown( APan_MR_Star, A11_MR_Star,
                                          A21_MR_Star, A11.Height() );
             //----------------------------------------------------------------//
-            LAPACK::Internal::PanelTridiagL
+            lapack::internal::PanelTridiagL
             ( ABR, WPan, e1, t1, APan_MC_Star, APan_MR_Star );
 
             W21_VR_Star = W21_MC_Star = W21;
             W21Trans_Star_MR.TransposeFrom( W21_VR_Star );
-            BLAS::Internal::TriangularRank2K
+            blas::internal::TriangularRank2K
             ( Lower, (R)-1,
               A21_MC_Star, W21_MC_Star, 
               A21_MR_Star, W21Trans_Star_MR, (R)1, A22 );
@@ -174,7 +174,7 @@ Elemental::LAPACK::Internal::TridiagL
             d1_Star_Star = d1;
             e1_Star_Star = e1;
             t1_Star_Star = t1;
-            LAPACK::Tridiag( Lower, A11_Star_Star.LocalMatrix(),
+            lapack::Tridiag( Lower, A11_Star_Star.LocalMatrix(),
                              d1_Star_Star.LocalMatrix(), 
                              e1_Star_Star.LocalMatrix(),
                              t1_Star_Star.LocalMatrix()         );
@@ -210,13 +210,13 @@ Elemental::LAPACK::Internal::TridiagL
 #endif
 }
 
-template void Elemental::LAPACK::Internal::TridiagL
+template void elemental::lapack::internal::TridiagL
 ( DistMatrix<float,MC,MR  >& A,
   DistMatrix<float,MD,Star>& d,
   DistMatrix<float,MD,Star>& e,
   DistMatrix<float,MD,Star>& t );
 
-template void Elemental::LAPACK::Internal::TridiagL
+template void elemental::lapack::internal::TridiagL
 ( DistMatrix<double,MC,MR  >& A,
   DistMatrix<double,MD,Star>& d,
   DistMatrix<double,MD,Star>& e,

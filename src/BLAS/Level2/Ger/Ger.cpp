@@ -16,19 +16,19 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Ger
-( const T alpha, const DistMatrix<T,MC,MR>& x,
-                 const DistMatrix<T,MC,MR>& y,
-                       DistMatrix<T,MC,MR>& A )
+elemental::blas::Ger
+( T alpha, const DistMatrix<T,MC,MR>& x,
+           const DistMatrix<T,MC,MR>& y,
+                 DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::Ger");
+    PushCallStack("blas::Internal::Ger");
     if( A.GetGrid() != x.GetGrid() || x.GetGrid() != y.GetGrid() )
         throw "{A,x,y} must be distributed over the same grid.";
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
@@ -45,7 +45,7 @@ Elemental::BLAS::Ger
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x ~ " << x.Height() << " x " << x.Width() << endl
             << "  y ~ " << y.Height() << " x " << y.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -62,7 +62,7 @@ Elemental::BLAS::Ger
         //--------------------------------------------------------------------//
         x_MC_Star = x;
         y_MR_Star = y;
-        BLAS::Ger( alpha, x_MC_Star.LockedLocalMatrix(),
+        blas::Ger( alpha, x_MC_Star.LockedLocalMatrix(),
                           y_MR_Star.LockedLocalMatrix(),
                           A.LocalMatrix()               );
         //--------------------------------------------------------------------//
@@ -81,7 +81,7 @@ Elemental::BLAS::Ger
         //--------------------------------------------------------------------//
         x_MC_Star = x;
         y_Star_MR = y;
-        BLAS::Ger( alpha, x_MC_Star.LockedLocalMatrix(),
+        blas::Ger( alpha, x_MC_Star.LockedLocalMatrix(),
                           y_Star_MR.LockedLocalMatrix(),
                           A.LocalMatrix()               );
         //--------------------------------------------------------------------//
@@ -100,7 +100,7 @@ Elemental::BLAS::Ger
         //--------------------------------------------------------------------//
         x_Star_MC = x;
         y_MR_Star = y;
-        BLAS::Ger( alpha, x_Star_MC.LockedLocalMatrix(),
+        blas::Ger( alpha, x_Star_MC.LockedLocalMatrix(),
                           y_MR_Star.LockedLocalMatrix(),
                           A.LocalMatrix()               );
         //--------------------------------------------------------------------//
@@ -119,7 +119,7 @@ Elemental::BLAS::Ger
         //--------------------------------------------------------------------//
         x_Star_MC = x;
         y_Star_MR = y;
-        BLAS::Ger( alpha, x_Star_MC.LockedLocalMatrix(),
+        blas::Ger( alpha, x_Star_MC.LockedLocalMatrix(),
                           y_Star_MR.LockedLocalMatrix(),
                           A.LocalMatrix()               );
         //--------------------------------------------------------------------//
@@ -131,24 +131,25 @@ Elemental::BLAS::Ger
 #endif
 }
 
-template void Elemental::BLAS::Ger
-( const float alpha, const DistMatrix<float,MC,MR>& x,
-                     const DistMatrix<float,MC,MR>& y,
-                           DistMatrix<float,MC,MR>& A );
+template void elemental::blas::Ger
+( float alpha, const DistMatrix<float,MC,MR>& x,
+               const DistMatrix<float,MC,MR>& y,
+                     DistMatrix<float,MC,MR>& A );
 
-template void Elemental::BLAS::Ger
-( const double alpha, const DistMatrix<double,MC,MR>& x,
-                      const DistMatrix<double,MC,MR>& y,
-                            DistMatrix<double,MC,MR>& A );
+template void elemental::blas::Ger
+( double alpha, const DistMatrix<double,MC,MR>& x,
+                const DistMatrix<double,MC,MR>& y,
+                      DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Ger
-( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& x,
-                        const DistMatrix<scomplex,MC,MR>& y,
-                              DistMatrix<scomplex,MC,MR>& A );
+template void elemental::blas::Ger
+( scomplex alpha, const DistMatrix<scomplex,MC,MR>& x,
+                  const DistMatrix<scomplex,MC,MR>& y,
+                        DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::BLAS::Ger
-( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& x,
-                        const DistMatrix<dcomplex,MC,MR>& y,
-                              DistMatrix<dcomplex,MC,MR>& A );
+template void elemental::blas::Ger
+( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& x,
+                  const DistMatrix<dcomplex,MC,MR>& y,
+                        DistMatrix<dcomplex,MC,MR>& A );
 #endif
+

@@ -16,15 +16,15 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/blas_internal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::wrappers::mpi;
 
 template<typename R>
 void
-Elemental::LAPACK::Internal::PanelTridiagL
+elemental::lapack::internal::PanelTridiagL
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MD,Star>& e,
@@ -33,7 +33,7 @@ Elemental::LAPACK::Internal::PanelTridiagL
   DistMatrix<R,MR,Star>& A_MR_Star )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::PanelTridiagL");
+    PushCallStack("lapack::internal::PanelTridiagL");
     if( A.GetGrid() != W.GetGrid() ||
         W.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid()   )
@@ -147,14 +147,14 @@ Elemental::LAPACK::Internal::PanelTridiagL
         z21_MC_Star.SetToZero();
         z21_MR_Star.SetToZero();
         //--------------------------------------------------------------------//
-        BLAS::Gemv( Normal, (R)-1, ABL, w10, (R)1, ACol );
-        BLAS::Gemv( Normal, (R)-1, WBL, a10, (R)1, ACol );
+        blas::Gemv( Normal, (R)-1, ABL, w10, (R)1, ACol );
+        blas::Gemv( Normal, (R)-1, WBL, a10, (R)1, ACol );
 
         R tau = 0; // Initializing avoids false compiler warnings
         const bool thisIsMyColumn = ( myCol == a21.RowAlignment() );
         if( thisIsMyColumn )
         {
-            tau = LAPACK::Internal::LocalColReflector( a21 );
+            tau = lapack::internal::LocalColReflector( a21 );
             if( myRank == tau1.ColAlignment() )
                 tau1.LocalEntry(0,0) = tau;
         }
@@ -166,26 +166,26 @@ Elemental::LAPACK::Internal::PanelTridiagL
         a21_MR_Star = a21_MC_Star = a21;
 
         PopBlocksizeStack();
-        BLAS::Internal::SymvColAccumulateL
+        blas::internal::SymvColAccumulateL
         ( (R)1, A22, a21_MC_Star, a21_MR_Star, 
                      z21_MC_Star, z21_MR_Star  );
         PushBlocksizeStack( 1 );
 
-        BLAS::Gemv
+        blas::Gemv
         ( Transpose, (R)1, W20.LockedLocalMatrix(),
                            a21_MC_Star.LockedLocalMatrix(),
                      (R)0, z10_Star_MR.LocalMatrix()       );
         z10_Star_MR.AllReduce();
-        BLAS::Gemv
+        blas::Gemv
         ( Normal, (R)-1, A20.LockedLocalMatrix(),
                          z10_Star_MR.LockedLocalMatrix(),
                   (R)+1, z21_MC_Star.LocalMatrix()       );
-        BLAS::Gemv
+        blas::Gemv
         ( Transpose, (R)1, A20.LockedLocalMatrix(),
                            a21_MC_Star.LockedLocalMatrix(),
                      (R)0, z10_Star_MR.LocalMatrix()       );
         z10_Star_MR.AllReduce();
-        BLAS::Gemv
+        blas::Gemv
         ( Normal, (R)-1, W20.LockedLocalMatrix(),
                          z10_Star_MR.LockedLocalMatrix(),
                   (R)+1, z21_MC_Star.LocalMatrix()       );
@@ -196,15 +196,15 @@ Elemental::LAPACK::Internal::PanelTridiagL
 
         if( thisIsMyColumn )
         {
-            BLAS::Axpy( (R)1, z21, w21 );
-            BLAS::Scal( tau, w21 );
+            blas::Axpy( (R)1, z21, w21 );
+            blas::Scal( tau, w21 );
 
             R alpha;
             R myAlpha = -static_cast<R>(0.5)*tau*
-                        BLAS::Dot( w21.LockedLocalMatrix(), 
+                        blas::Dot( w21.LockedLocalMatrix(), 
                                    a21.LockedLocalMatrix() );            
             AllReduce( &myAlpha, &alpha, 1, MPI_SUM, grid.MCComm() );
-            BLAS::Axpy( alpha, a21, w21 );
+            blas::Axpy( alpha, a21, w21 );
         }
         //--------------------------------------------------------------------//
         z10_Star_MR.FreeConstraints();
@@ -241,7 +241,7 @@ Elemental::LAPACK::Internal::PanelTridiagL
 #endif
 }
 
-template void Elemental::LAPACK::Internal::PanelTridiagL
+template void elemental::lapack::internal::PanelTridiagL
 ( DistMatrix<float,MC,MR  >& A,
   DistMatrix<float,MC,MR  >& W,
   DistMatrix<float,MD,Star>& e,
@@ -249,7 +249,7 @@ template void Elemental::LAPACK::Internal::PanelTridiagL
   DistMatrix<float,MC,Star>& A_MC_Star,
   DistMatrix<float,MR,Star>& A_MR_Star );
 
-template void Elemental::LAPACK::Internal::PanelTridiagL
+template void elemental::lapack::internal::PanelTridiagL
 ( DistMatrix<double,MC,MR  >& A,
   DistMatrix<double,MC,MR  >& W,
   DistMatrix<double,MD,Star>& e,

@@ -16,17 +16,17 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename R>
 R
-Elemental::LAPACK::Internal::Reflector
+elemental::lapack::internal::Reflector
 ( DistMatrix<R,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::Reflector");
+    PushCallStack("lapack::internal::Reflector");
     if( x.Height() != 1 && x.Width() != 1 )
         throw "x must be a vector.";
 #endif
@@ -49,13 +49,13 @@ Elemental::LAPACK::Internal::Reflector
         PartitionRight( x,  chi1, x2, 1 );
     }
 
-    R x2_Norm = BLAS::Nrm2( x2 );
+    R x2_Norm = blas::Nrm2( x2 );
     R alpha = chi1.Get(0,0);
     R beta;
     if( alpha <= 0 )
-        beta = wrappers::LAPACK::SafeNorm( alpha, x2_Norm );
+        beta = wrappers::lapack::SafeNorm( alpha, x2_Norm );
     else
-        beta = -wrappers::LAPACK::SafeNorm( alpha, x2_Norm );
+        beta = -wrappers::lapack::SafeNorm( alpha, x2_Norm );
 
     R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
     int count = 0;
@@ -65,19 +65,19 @@ Elemental::LAPACK::Internal::Reflector
         do
         {
             ++count;
-            BLAS::Scal( invOfSafeMin, x2 );
+            blas::Scal( invOfSafeMin, x2 );
             alpha *= invOfSafeMin;
             beta *= invOfSafeMin;
         } while( Abs( beta ) < safeMin );
 
-        x2_Norm = BLAS::Nrm2( x2 );
+        x2_Norm = blas::Nrm2( x2 );
         if( alpha <= 0 )
-            beta = wrappers::LAPACK::SafeNorm( alpha, x2_Norm );
+            beta = wrappers::lapack::SafeNorm( alpha, x2_Norm );
         else
-            beta = -wrappers::LAPACK::SafeNorm( alpha, x2_Norm );
+            beta = -wrappers::lapack::SafeNorm( alpha, x2_Norm );
     }
     R tau = ( beta-alpha ) / beta;
-    BLAS::Scal( static_cast<R>(1)/(alpha-beta), x2 );
+    blas::Scal( static_cast<R>(1)/(alpha-beta), x2 );
 
     for( int j=0; j<count; ++j )
         beta *= safeMin;
@@ -89,9 +89,9 @@ Elemental::LAPACK::Internal::Reflector
     return tau;
 }
 
-template float Elemental::LAPACK::Internal::Reflector
+template float elemental::lapack::internal::Reflector
 ( DistMatrix<float,MC,MR>& x );
 
-template double Elemental::LAPACK::Internal::Reflector
+template double elemental::lapack::internal::Reflector
 ( DistMatrix<double,MC,MR>& x );
 

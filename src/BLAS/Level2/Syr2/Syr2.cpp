@@ -16,21 +16,21 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLAS.hpp"
+#include "elemental/blas.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::utilities;
+using namespace elemental;
+using namespace elemental::utilities;
 
 template<typename T>
 void
-BLAS::Syr2
-( const Shape shape,
-  const T alpha, const DistMatrix<T,MC,MR>& x,
-                 const DistMatrix<T,MC,MR>& y,
-                       DistMatrix<T,MC,MR>& A )
+elemental::blas::Syr2
+( Shape shape,
+  T alpha, const DistMatrix<T,MC,MR>& x,
+           const DistMatrix<T,MC,MR>& y,
+                 DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Syr2");
+    PushCallStack("blas::Syr2");
     if( A.GetGrid() != x.GetGrid() || x.GetGrid() != y.GetGrid() )
         throw "{A,x,y} must be distributed over the same grid.";
     if( A.Height() != A.Width() )
@@ -44,7 +44,7 @@ BLAS::Syr2
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x ~ " << x.Height() << " x " << x.Width() << endl
             << "  y ~ " << y.Height() << " x " << y.Width() << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -288,28 +288,29 @@ BLAS::Syr2
 #endif
 }
 
-template void Elemental::BLAS::Syr2
-( const Shape shape, 
-  const float alpha, const DistMatrix<float,MC,MR>& x,
-                     const DistMatrix<float,MC,MR>& y,
-                           DistMatrix<float,MC,MR>& A );
+template void elemental::blas::Syr2
+( Shape shape, 
+  float alpha, const DistMatrix<float,MC,MR>& x,
+               const DistMatrix<float,MC,MR>& y,
+                     DistMatrix<float,MC,MR>& A );
 
-template void Elemental::BLAS::Syr2
-( const Shape shape,
-  const double alpha, const DistMatrix<double,MC,MR>& x,
-                      const DistMatrix<double,MC,MR>& y,
-                            DistMatrix<double,MC,MR>& A );
+template void elemental::blas::Syr2
+( Shape shape,
+  double alpha, const DistMatrix<double,MC,MR>& x,
+                const DistMatrix<double,MC,MR>& y,
+                      DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Syr2
-( const Shape shape,
-  const scomplex alpha, const DistMatrix<scomplex,MC,MR>& x,
-                        const DistMatrix<scomplex,MC,MR>& y,
-                              DistMatrix<scomplex,MC,MR>& A );
+template void elemental::blas::Syr2
+( Shape shape,
+  scomplex alpha, const DistMatrix<scomplex,MC,MR>& x,
+                  const DistMatrix<scomplex,MC,MR>& y,
+                        DistMatrix<scomplex,MC,MR>& A );
 
-template void Elemental::BLAS::Syr2
-( const Shape shape,
-  const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& x,
-                        const DistMatrix<dcomplex,MC,MR>& y,
-                              DistMatrix<dcomplex,MC,MR>& A );
+template void elemental::blas::Syr2
+( Shape shape,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& x,
+                  const DistMatrix<dcomplex,MC,MR>& y,
+                        DistMatrix<dcomplex,MC,MR>& A );
 #endif
+

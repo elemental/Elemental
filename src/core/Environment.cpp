@@ -16,16 +16,16 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/Environment.hpp"
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/environment.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 static bool elementalInitializedMPI;
 static stack<int> blocksizeStack;
 
 void
-Elemental::Init
+elemental::Init
 ( int* argc, char** argv[] )
 {
 #ifndef RELEASE
@@ -52,11 +52,11 @@ Elemental::Init
     {
         ::elementalInitializedMPI = false;
     }
-    LAPACK::Internal::CreatePivotOp<float>();
-    LAPACK::Internal::CreatePivotOp<double>();
+    lapack::internal::CreatePivotOp<float>();
+    lapack::internal::CreatePivotOp<double>();
 #ifndef WITHOUT_COMPLEX
-    LAPACK::Internal::CreatePivotOp<scomplex>();
-    LAPACK::Internal::CreatePivotOp<dcomplex>();
+    lapack::internal::CreatePivotOp<scomplex>();
+    lapack::internal::CreatePivotOp<dcomplex>();
 #endif
 
     // Seed the random number generator with out rank
@@ -69,7 +69,7 @@ Elemental::Init
 }
 
 void
-Elemental::Finalize()
+elemental::Finalize()
 {
 #ifndef RELEASE
     PushCallStack("Finalize");
@@ -79,11 +79,11 @@ Elemental::Finalize()
     if( finalized != 0 )
         cerr << "Warning: MPI was finalized before Elemental." << endl;
 
-    LAPACK::Internal::DestroyPivotOp<float>();
-    LAPACK::Internal::DestroyPivotOp<double>();
+    lapack::internal::DestroyPivotOp<float>();
+    lapack::internal::DestroyPivotOp<double>();
 #ifndef WITHOUT_COMPLEX
-    LAPACK::Internal::DestroyPivotOp<scomplex>();
-    LAPACK::Internal::DestroyPivotOp<dcomplex>();
+    lapack::internal::DestroyPivotOp<scomplex>();
+    lapack::internal::DestroyPivotOp<dcomplex>();
 #endif
     if( ::elementalInitializedMPI && finalized == 0 )
         MPI_Finalize();
@@ -93,7 +93,7 @@ Elemental::Finalize()
 }
 
 int 
-Elemental::Blocksize()
+elemental::Blocksize()
 { 
     if( ::blocksizeStack.size() == 0 )
         ::blocksizeStack.push( 192 );
@@ -101,7 +101,7 @@ Elemental::Blocksize()
 }
 
 void
-Elemental::SetBlocksize( int blocksize )
+elemental::SetBlocksize( int blocksize )
 { 
     if( ::blocksizeStack.size() == 0 )
         ::blocksizeStack.push( blocksize );
@@ -110,11 +110,11 @@ Elemental::SetBlocksize( int blocksize )
 }
 
 void
-Elemental::PushBlocksizeStack( int blocksize )
+elemental::PushBlocksizeStack( int blocksize )
 { ::blocksizeStack.push( blocksize ); }
 
 void
-Elemental::PopBlocksizeStack()
+elemental::PopBlocksizeStack()
 { ::blocksizeStack.pop(); }
 
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
@@ -122,15 +122,15 @@ Elemental::PopBlocksizeStack()
 static stack<string> callStack;
 
 void
-Elemental::PushCallStack( string s )
+elemental::PushCallStack( string s )
 { ::callStack.push(s); }
 
 void
-Elemental::PopCallStack()
+elemental::PopCallStack()
 { ::callStack.pop(); }
 
 void
-Elemental::DumpCallStack()
+elemental::DumpCallStack()
 {
     while( ! ::callStack.empty() )
     {

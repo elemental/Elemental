@@ -16,21 +16,21 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/LAPACKInternal.hpp"
+#include "elemental/lapack_internal.hpp"
 using namespace std;
-using namespace Elemental;
-using namespace Elemental::utilities;
-using namespace Elemental::wrappers::MPI;
+using namespace elemental;
+using namespace elemental::utilities;
+using namespace elemental::wrappers::mpi;
 
 void
-Elemental::LAPACK::Internal::ComposePivots
+elemental::lapack::internal::ComposePivots
 ( const DistMatrix<int,Star,Star>& p, 
         vector<int>& image,
         vector<int>& preimage,
-  const int pivotOffset              )
+        int pivotOffset )
 {
 #ifndef RELEASE
-    PushCallStack("LAPACK::Internal::ComposePivots");
+    PushCallStack("lapack::internal::ComposePivots");
     if( p.Width() != 1 )
         throw "p must be a column vector.";
     if( pivotOffset < 0 )

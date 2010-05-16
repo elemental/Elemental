@@ -16,14 +16,14 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/Environment.hpp"
-#include "Elemental/Matrix.hpp"
+#include "elemental/environment.hpp"
+#include "elemental/matrix.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::Matrix<T>::Print( const string msg ) const
+elemental::Matrix<T>::Print( string msg ) const
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Print");
@@ -50,8 +50,8 @@ Elemental::Matrix<T>::Print( const string msg ) const
 
 template<typename T>
 void
-Elemental::Matrix<T>::ResizeTo
-( const int height, const int width )
+elemental::Matrix<T>::ResizeTo
+( int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::ResizeTo(height,width)");
@@ -74,8 +74,8 @@ Elemental::Matrix<T>::ResizeTo
 
 template<typename T>
 void
-Elemental::Matrix<T>::ResizeTo
-( const int height, const int width, const int ldim )
+elemental::Matrix<T>::ResizeTo
+( int height, int width, int ldim )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::ResizeTo(height,width,ldim)");
@@ -88,7 +88,7 @@ Elemental::Matrix<T>::ResizeTo
         ostringstream msg;
         msg << "Tried to set ldim(" << ldim << ") < height (" << height << ")"
             << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -105,7 +105,7 @@ Elemental::Matrix<T>::ResizeTo
 
 template<typename T>
 void
-Elemental::Matrix<T>::View( Matrix<T>& A )
+elemental::Matrix<T>::View( Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View(A)");
@@ -125,7 +125,7 @@ Elemental::Matrix<T>::View( Matrix<T>& A )
 
 template<typename T>
 void
-Elemental::Matrix<T>::LockedView( const Matrix<T>& A )
+elemental::Matrix<T>::LockedView( const Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView(A)");
@@ -145,9 +145,9 @@ Elemental::Matrix<T>::LockedView( const Matrix<T>& A )
 
 template<typename T>
 void
-Elemental::Matrix<T>::View
+elemental::Matrix<T>::View
 ( Matrix<T>& A, 
-  const int i, const int j, const int height, const int width )
+  int i, int j, int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View(A,i,j,height,width)");
@@ -163,7 +163,7 @@ Elemental::Matrix<T>::View
         msg << "Trying to view outside of a Matrix: " 
             << "up to (" << i+height-1 << "," << j+width-1 << ") "
             << "of " << A.Height() << " x " << A.Width() << " Matrix." << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -180,9 +180,9 @@ Elemental::Matrix<T>::View
 
 template<typename T>
 void
-Elemental::Matrix<T>::LockedView
+elemental::Matrix<T>::LockedView
 ( const Matrix<T>& A, 
-  const int i, const int j, const int height, const int width )
+  int i, int j, int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView(A,i,j,height,width)");
@@ -198,7 +198,7 @@ Elemental::Matrix<T>::LockedView
         msg << "Trying to view outside of a Matrix: " 
             << "up to (" << i+height-1 << "," << j+width-1 << ") "
             << "of " << A.Height() << " x " << A.Width() << " Matrix." << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 #endif
@@ -215,7 +215,7 @@ Elemental::Matrix<T>::LockedView
 
 template<typename T>
 void
-Elemental::Matrix<T>::View1x2
+elemental::Matrix<T>::View1x2
 ( Matrix<T>& AL, Matrix<T>& AR )
 {
 #ifndef RELEASE
@@ -242,7 +242,7 @@ Elemental::Matrix<T>::View1x2
 
 template<typename T>
 void
-Elemental::Matrix<T>::LockedView1x2
+elemental::Matrix<T>::LockedView1x2
 ( const Matrix<T>& AL, const Matrix<T>& AR )
 {
 #ifndef RELEASE
@@ -269,7 +269,7 @@ Elemental::Matrix<T>::LockedView1x2
 
 template<typename T>
 void
-Elemental::Matrix<T>::View2x1( Matrix<T>& AT, 
+elemental::Matrix<T>::View2x1( Matrix<T>& AT, 
                            Matrix<T>& AB )
 {
 #ifndef RELEASE
@@ -296,8 +296,9 @@ Elemental::Matrix<T>::View2x1( Matrix<T>& AT,
 
 template<typename T>
 void
-Elemental::Matrix<T>::LockedView2x1( const Matrix<T>& AT, 
-                                 const Matrix<T>& AB )
+elemental::Matrix<T>::LockedView2x1
+( const Matrix<T>& AT, 
+  const Matrix<T>& AB )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView2x1");
@@ -323,7 +324,7 @@ Elemental::Matrix<T>::LockedView2x1( const Matrix<T>& AT,
 
 template<typename T>
 void
-Elemental::Matrix<T>::View2x2( Matrix<T>& ATL, Matrix<T>& ATR,
+elemental::Matrix<T>::View2x2( Matrix<T>& ATL, Matrix<T>& ATR,
                            Matrix<T>& ABL, Matrix<T>& ABR )
 {
 #ifndef RELEASE
@@ -363,7 +364,7 @@ Elemental::Matrix<T>::View2x2( Matrix<T>& ATL, Matrix<T>& ATR,
 
 template<typename T>
 void
-Elemental::Matrix<T>::LockedView2x2
+elemental::Matrix<T>::LockedView2x2
 ( const Matrix<T>& ATL, const Matrix<T>& ATR,
   const Matrix<T>& ABL, const Matrix<T>& ABR )
 {
@@ -404,7 +405,7 @@ Elemental::Matrix<T>::LockedView2x2
 
 template<typename T>
 void
-Elemental::Matrix<T>::SetToIdentity()
+elemental::Matrix<T>::SetToIdentity()
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetToIdentity");
@@ -424,7 +425,7 @@ Elemental::Matrix<T>::SetToIdentity()
 
 template<typename T>
 void
-Elemental::Matrix<T>::SetToZero()
+elemental::Matrix<T>::SetToZero()
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetToZero");
@@ -443,7 +444,7 @@ Elemental::Matrix<T>::SetToZero()
 
 template<typename T>
 void
-Elemental::Matrix<T>::SetToRandom()
+elemental::Matrix<T>::SetToRandom()
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetToRandom");
@@ -462,7 +463,7 @@ Elemental::Matrix<T>::SetToRandom()
 
 template<typename T>
 const Matrix<T>&
-Elemental::Matrix<T>::operator=
+elemental::Matrix<T>::operator=
 ( const Matrix<T>& A )
 {
 #ifndef RELEASE
@@ -489,11 +490,11 @@ Elemental::Matrix<T>::operator=
     return *this;
 }
 
-template class Elemental::Matrix<int>;
-template class Elemental::Matrix<float>;
-template class Elemental::Matrix<double>;
+template class elemental::Matrix<int>;
+template class elemental::Matrix<float>;
+template class elemental::Matrix<double>;
 #ifndef WITHOUT_COMPLEX
-template class Elemental::Matrix<scomplex>;
-template class Elemental::Matrix<dcomplex>;
+template class elemental::Matrix<scomplex>;
+template class elemental::Matrix<dcomplex>;
 #endif
 

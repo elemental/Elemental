@@ -16,20 +16,20 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Internal::TrsvLT
-( const Orientation orientation,
-  const Diagonal diagonal, 
+elemental::blas::internal::TrsvLT
+( Orientation orientation,
+  Diagonal diagonal, 
   const DistMatrix<T,MC,MR>& L, 
         DistMatrix<T,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::TrsvLT");
+    PushCallStack("blas::internal::TrsvLT");
     if( L.GetGrid() != x.GetGrid() )
         throw "L and x must be distributed over the same grid.";
     if( orientation == Normal )
@@ -89,19 +89,19 @@ Elemental::BLAS::Internal::TrsvLT
             //----------------------------------------------------------------//
             x1_Star_Star = x1;
             L11_Star_Star = L11;
-            BLAS::Trsv( Lower, orientation, diagonal,
+            blas::Trsv( Lower, orientation, diagonal,
                         L11_Star_Star.LockedLocalMatrix(),
                         x1_Star_Star.LocalMatrix()        );
             x1 = x1_Star_Star;
 
             x1_MC_Star = x1_Star_Star;
-            BLAS::Gemv( orientation, (T)-1, 
+            blas::Gemv( orientation, (T)-1, 
                         L10.LockedLocalMatrix(), 
                         x1_MC_Star.LockedLocalMatrix(),
                         (T)0, z0_MR_Star.LocalMatrix() );
             z0_MR_MC.ReduceScatterFrom( z0_MR_Star );
             z0 = z0_MR_MC;
-            BLAS::Axpy( (T)1, z0, x0 );
+            blas::Axpy( (T)1, z0, x0 );
             //----------------------------------------------------------------//
             x1_MC_Star.FreeConstraints();
             z0_MR_Star.FreeConstraints();
@@ -156,13 +156,13 @@ Elemental::BLAS::Internal::TrsvLT
             //----------------------------------------------------------------//
             x1_Star_Star = x1;
             L11_Star_Star = L11;
-            BLAS::Trsv( Lower, orientation, diagonal,
+            blas::Trsv( Lower, orientation, diagonal,
                         L11_Star_Star.LockedLocalMatrix(),
                         x1_Star_Star.LocalMatrix()        );
             x1 = x1_Star_Star;
 
             x1_Star_MC = x1_Star_Star;
-            BLAS::Gemv( orientation, (T)-1, 
+            blas::Gemv( orientation, (T)-1, 
                         L10.LockedLocalMatrix(), 
                         x1_Star_MC.LockedLocalMatrix(),
                         (T)0, z0_Star_MR.LocalMatrix() );
@@ -186,27 +186,27 @@ Elemental::BLAS::Internal::TrsvLT
 #endif
 }
 
-template void Elemental::BLAS::Internal::TrsvLT
-( const Orientation orientation,
+template void elemental::blas::internal::TrsvLT
+( Orientation orientation,
   const Diagonal diagonal,
   const DistMatrix<float,MC,MR>& L,
         DistMatrix<float,MC,MR>& x );
 
-template void Elemental::BLAS::Internal::TrsvLT
-( const Orientation orientation,
+template void elemental::blas::internal::TrsvLT
+( Orientation orientation,
   const Diagonal diagonal,
   const DistMatrix<double,MC,MR>& L,
         DistMatrix<double,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Internal::TrsvLT
-( const Orientation orientation,
+template void elemental::blas::internal::TrsvLT
+( Orientation orientation,
   const Diagonal diagonal,
   const DistMatrix<scomplex,MC,MR>& L,
         DistMatrix<scomplex,MC,MR>& x );
 
-template void Elemental::BLAS::Internal::TrsvLT
-( const Orientation orientation,
+template void elemental::blas::internal::TrsvLT
+( Orientation orientation,
   const Diagonal diagonal,
   const DistMatrix<dcomplex,MC,MR>& L,
         DistMatrix<dcomplex,MC,MR>& x );

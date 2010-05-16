@@ -16,12 +16,12 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/Environment.hpp"
-#include "Elemental/wrappers/MPI.hpp"
-using namespace Elemental;
+#include "elemental/environment.hpp"
+#include "elemental/wrappers/mpi.hpp"
+using namespace elemental;
 using namespace std;
 
-Elemental::Grid::Grid
+elemental::Grid::Grid
 ( MPI_Comm comm )
 {
 #ifndef RELEASE
@@ -42,7 +42,7 @@ Elemental::Grid::Grid
         ostringstream msg;
         msg << "Number of processes must match grid size:" << endl
             << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 
@@ -61,7 +61,7 @@ Elemental::Grid::Grid
 }
 
 // Currently forces a columnMajor absolute rank on the grid
-Elemental::Grid::Grid
+elemental::Grid::Grid
 ( MPI_Comm comm, int r, int c )
 {
 #ifndef RELEASE
@@ -76,7 +76,7 @@ Elemental::Grid::Grid
         ostringstream msg;
         msg << "Number of processes must match grid size:" << endl
             << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
-        const string s = msg.str();
+        const string& s = msg.str();
         throw s.c_str();
     }
 
@@ -95,7 +95,7 @@ Elemental::Grid::Grid
 }
 
 void
-Elemental::Grid::Init
+elemental::Grid::Init
 ( int r, int c )
 {
 #ifndef RELEASE
@@ -163,7 +163,7 @@ Elemental::Grid::Init
             ++diagPathRank;
         }
     }
-    wrappers::MPI::AllGather
+    wrappers::mpi::AllGather
     ( myDiagPathAndRank, 2, _diagPathsAndRanks, 2, _vectorColComm );
     delete myDiagPathAndRank;
 

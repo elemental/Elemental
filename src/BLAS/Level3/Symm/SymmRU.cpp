@@ -16,21 +16,21 @@
    You should have received a copy of the GNU Lesser General Public License
    along with Elemental. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Elemental/BLASInternal.hpp"
+#include "elemental/blas_internal.hpp"
 using namespace std;
-using namespace Elemental;
+using namespace elemental;
 
 template<typename T>
 void
-Elemental::BLAS::Internal::SymmRU
-( const T alpha, const DistMatrix<T,MC,MR>& A,
-                 const DistMatrix<T,MC,MR>& B,
-  const T beta,        DistMatrix<T,MC,MR>& C )
+elemental::blas::internal::SymmRU
+( T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::SymmRU");
+    PushCallStack("blas::internal::SymmRU");
 #endif
-    BLAS::Internal::SymmRUC( alpha, A, B, beta, C );
+    blas::internal::SymmRUC( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -38,13 +38,13 @@ Elemental::BLAS::Internal::SymmRU
 
 template<typename T>
 void
-Elemental::BLAS::Internal::SymmRUC
-( const T alpha, const DistMatrix<T,MC,MR>& A,
-                 const DistMatrix<T,MC,MR>& B,
-  const T beta,        DistMatrix<T,MC,MR>& C )
+elemental::blas::internal::SymmRUC
+( T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("BLAS::Internal::SymmRUC");
+    PushCallStack("blas::internal::SymmRUC");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
         throw "{A,B,C} must be distributed over the same grid.";
 #endif
@@ -69,7 +69,7 @@ Elemental::BLAS::Internal::SymmRUC
     DistMatrix<T,Star,MR> ARowPan_Star_MR(grid);
 
     // Start the algorithm
-    BLAS::Scal( beta, C );
+    blas::Scal( beta, C );
     LockedPartitionDownDiagonal( A, ATL, ATR,
                                     ABL, ABR );
     LockedPartitionRight( B, BL, BR );
@@ -107,11 +107,11 @@ Elemental::BLAS::Internal::SymmRUC
         ARowPan_Star_MR.MakeTrapezoidal( Left, Upper );
         AColPan_MR_Star.MakeTrapezoidal( Right, Upper, 1 );
 
-        BLAS::Gemm( Normal, Normal,
+        blas::Gemm( Normal, Normal,
                     alpha, B1_MC_Star.LockedLocalMatrix(),
                            ARowPan_Star_MR.LockedLocalMatrix(),
                     (T)1,  CRight.LocalMatrix()                );
-        BLAS::Gemm( Normal, Transpose,
+        blas::Gemm( Normal, Transpose,
                     alpha, B1_MC_Star.LockedLocalMatrix(),
                            AColPan_MR_Star.LockedLocalMatrix(),
                     (T)1,  CLeft.LocalMatrix()                 );
@@ -136,25 +136,25 @@ Elemental::BLAS::Internal::SymmRUC
 #endif
 }
 
-template void Elemental::BLAS::Internal::SymmRU
-( const float alpha, const DistMatrix<float,MC,MR>& A,
-                     const DistMatrix<float,MC,MR>& B,
-  const float beta,        DistMatrix<float,MC,MR>& C );
+template void elemental::blas::internal::SymmRU
+( float alpha, const DistMatrix<float,MC,MR>& A,
+               const DistMatrix<float,MC,MR>& B,
+  float beta,        DistMatrix<float,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::SymmRU
-( const double alpha, const DistMatrix<double,MC,MR>& A,
-                      const DistMatrix<double,MC,MR>& B,
-  const double beta,        DistMatrix<double,MC,MR>& C );
+template void elemental::blas::internal::SymmRU
+( double alpha, const DistMatrix<double,MC,MR>& A,
+                const DistMatrix<double,MC,MR>& B,
+  double beta,        DistMatrix<double,MC,MR>& C );
 
 #ifndef WITHOUT_COMPLEX
-template void Elemental::BLAS::Internal::SymmRU
-( const scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
-                        const DistMatrix<scomplex,MC,MR>& B,
-  const scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+template void elemental::blas::internal::SymmRU
+( scomplex alpha, const DistMatrix<scomplex,MC,MR>& A,
+                  const DistMatrix<scomplex,MC,MR>& B,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
-template void Elemental::BLAS::Internal::SymmRU
-( const dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
-                        const DistMatrix<dcomplex,MC,MR>& B,
-  const dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+template void elemental::blas::internal::SymmRU
+( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
+                  const DistMatrix<dcomplex,MC,MR>& B,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 #endif
 
