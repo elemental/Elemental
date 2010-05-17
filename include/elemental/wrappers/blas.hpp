@@ -21,10 +21,16 @@
 
 #include "elemental/environment.hpp"
 
-#ifdef FUNDERSCORE
-#define C2F(name) name ## _
+#ifdef BLAS_UNDERSCORE
+#define BLAS(name) name ## _
 #else
-#define C2F(name) name
+#define BLAS(name) name
+#endif
+
+#ifdef LAPACK_UNDERSCORE
+#define LAPACK(name) name ## _
+#else
+#define LAPACK(name) name
 #endif
 
 namespace elemental {
@@ -674,80 +680,80 @@ extern "C" {
 //------------------------------------------------------------------------//
 // Level 1 BLAS                                                           //
 //------------------------------------------------------------------------//
-void C2F(saxpy)
+void BLAS(saxpy)
 ( const int* n, const float* alpha, const float* x, const int* incx,
                                           float* y, const int* incy );
 
-void C2F(daxpy)
+void BLAS(daxpy)
 ( const int* n, const double* alpha, const double* x, const int* incx,
                                            double* y, const int* incy );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(caxpy)
+void BLAS(caxpy)
 ( const int* n, 
   const elemental::scomplex* alpha, 
   const elemental::scomplex* x, const int* incx,
         elemental::scomplex* y, const int* incy );
     
-void C2F(zaxpy)
+void BLAS(zaxpy)
 ( const int* n, 
   const elemental::dcomplex* alpha, 
   const elemental::dcomplex* x, const int* incx,
         elemental::dcomplex* y, const int* incy );
 #endif
 
-float C2F(sdot)
+float BLAS(sdot)
 ( const int* n, const float* x, const int* incx,
                 const float* y, const int* incy );
 
-double C2F(ddot)
+double BLAS(ddot)
 ( const int* n, const double* x, const int* incx,
                 const double* y, const int* incy );
 
 #ifndef WITHOUT_COMPLEX
-elemental::scomplex C2F(cdotu)
+elemental::scomplex BLAS(cdotu)
 ( const int* n, const elemental::scomplex* x, const int* incx,
                 const elemental::scomplex* y, const int* incy );
 
-elemental::dcomplex C2F(zdotu)
+elemental::dcomplex BLAS(zdotu)
 ( const int* n, const elemental::dcomplex* x, const int* incx,
                 const elemental::dcomplex* y, const int* incy );
 
-elemental::scomplex C2F(cdotc)
+elemental::scomplex BLAS(cdotc)
 ( const int* n, const elemental::scomplex* x, const int* incx,
                 const elemental::scomplex* y, const int* incy );
 
-elemental::dcomplex C2F(zdotc)
+elemental::dcomplex BLAS(zdotc)
 ( const int* n, const elemental::dcomplex* x, const int* incx,
                 const elemental::dcomplex* y, const int* incy );
 #endif
 
-float C2F(snrm2)
+float BLAS(snrm2)
 ( const int* n, const float* x, const int* incx );
 
-double C2F(dnrm2)
+double BLAS(dnrm2)
 ( const int* n, const double* x, const int* incx );
 
 #ifndef WITHOUT_COMPLEX
-float C2F(scnrm2)
+float BLAS(scnrm2)
 ( const int* n, const elemental::scomplex* x, const int* incx );
 
-double C2F(dznrm2)
+double BLAS(dznrm2)
 ( const int* n, const elemental::dcomplex* x, const int* incx );
 #endif
 
-void C2F(sscal)
+void BLAS(sscal)
 ( const int* n, const float* alpha, float* x, const int* incx );
 
-void C2F(dscal)
+void BLAS(dscal)
 ( const int* n, const double* alpha, double* x, const int* incx );
     
 #ifndef WITHOUT_COMPLEX
-void C2F(cscal)
+void BLAS(cscal)
 ( const int* n, const elemental::scomplex* alpha, elemental::scomplex* x, 
   const int* incx );
     
-void C2F(zscal)
+void BLAS(zscal)
 ( const int* n, const elemental::dcomplex* alpha, elemental::dcomplex* x, 
   const int* incx );
 #endif
@@ -755,20 +761,20 @@ void C2F(zscal)
 //------------------------------------------------------------------------//
 // Level 2 BLAS                                                           //
 //------------------------------------------------------------------------//
-void C2F(sgemv)
+void BLAS(sgemv)
 ( const char* trans, const int* m, const int* n,
   const float* alpha, const float* A, const int* lda,
                       const float* x, const int* incx,
   const float* beta,        float* y, const int* incy );
 
-void C2F(dgemv)
+void BLAS(dgemv)
 ( const char* trans, const int* m, const int* n,
   const double* alpha, const double* A, const int* lda,
                        const double* x, const int* incx,
   const double* beta,        double* y, const int* incy );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(cgemv)
+void BLAS(cgemv)
 ( const char* trans, const int* m, const int* n,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* A, const int* lda,
@@ -776,7 +782,7 @@ void C2F(cgemv)
   const elemental::scomplex* beta,        
         elemental::scomplex* y, const int* incy );
 
-void C2F(zgemv)
+void BLAS(zgemv)
 ( const char* trans, const int* m, const int* n,
   const elemental::dcomplex* alpha, 
   const elemental::dcomplex* A, const int* lda,
@@ -785,48 +791,48 @@ void C2F(zgemv)
         elemental::dcomplex* y, const int* incy );
 #endif
 
-void C2F(sger)
+void BLAS(sger)
 ( const int* m, const int* n,
   const float* alpha, const float* x, const int* incx,
                       const float* y, const int* incy,
                             float* A, const int* lda  );
 
-void C2F(dger)
+void BLAS(dger)
 ( const int* m, const int* n,
   const double* alpha, const double* x, const int* incx,
                        const double* y, const int* incy,
                              double* A, const int* lda  );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(cgerc)
+void BLAS(cgerc)
 ( const int* m, const int* n,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* x, const int* incx,
   const elemental::scomplex* y, const int* incy,
         elemental::scomplex* A, const int* lda  );
 
-void C2F(zgerc)
+void BLAS(zgerc)
 ( const int* m, const int* n,
   const elemental::dcomplex* alpha, 
   const elemental::dcomplex* x, const int* incx,
   const elemental::dcomplex* y, const int* incy,
         elemental::dcomplex* A, const int* lda  );
 
-void C2F(cgeru)
+void BLAS(cgeru)
 ( const int* m, const int* n,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* x, const int* incx,
   const elemental::scomplex* y, const int* incy,
         elemental::scomplex* A, const int* lda  );
 
-void C2F(zgeru)
+void BLAS(zgeru)
 ( const int* m, const int* n,
   const elemental::dcomplex* alpha, 
   const elemental::dcomplex* x, const int* incx,
   const elemental::dcomplex* y, const int* incy,
         elemental::dcomplex* A, const int* lda  );
 
-void C2F(chemv)
+void BLAS(chemv)
 ( const char* uplo, const int* m,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* A, const int* lda,
@@ -834,7 +840,7 @@ void C2F(chemv)
   const elemental::scomplex* beta,        
         elemental::scomplex* y, const int* incy );
 
-void C2F(zhemv)
+void BLAS(zhemv)
 ( const char* uplo, const int* m,
   const elemental::dcomplex* alpha, 
   const elemental::dcomplex* A, const int* lda,
@@ -842,26 +848,26 @@ void C2F(zhemv)
   const elemental::dcomplex* beta,        
         elemental::dcomplex* y, const int* incy );
 
-void C2F(cher)
+void BLAS(cher)
 ( const char* uplo, const int* m,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* x, const int* incx,
         elemental::scomplex* A, const int* lda  );
 
-void C2F(zher)
+void BLAS(zher)
 ( const char* uplo, const int* m,
   const elemental::dcomplex* alpha, 
   const elemental::dcomplex* x, const int* incx,
         elemental::dcomplex* A, const int* lda  );
 
-void C2F(cher2)
+void BLAS(cher2)
 ( const char* uplo, const int* m,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* x, const int* incx,
   const elemental::scomplex* y, const int* incy,
         elemental::scomplex* A, const int* lda  );
 
-void C2F(zher2)
+void BLAS(zher2)
 ( const char* uplo, const int* m,
   const elemental::dcomplex* alpha, 
   const elemental::dcomplex* x, const int* incx,
@@ -869,13 +875,13 @@ void C2F(zher2)
         elemental::dcomplex* A, const int* lda  );
 #endif
 
-void C2F(ssymv)
+void BLAS(ssymv)
 ( const char* uplo, const int* m,
   const float* alpha, const float* A, const int* lda,
                       const float* x, const int* incx,
   const float* beta,        float* y, const int* incy );
 
-void C2F(dsymv)
+void BLAS(dsymv)
 ( const char* uplo, const int* m,
   const double* alpha, const double* A, const int* lda,
                        const double* x, const int* incx,
@@ -883,7 +889,7 @@ void C2F(dsymv)
 
 #ifndef WITHOUT_COMPLEX
 // Recall that 'csymv' is an auxiliary LAPACK routine
-void C2F(csymv)
+void LAPACK(csymv)
 ( const char* uplo, const int* m,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* A, const int* lda,
@@ -892,7 +898,7 @@ void C2F(csymv)
         elemental::scomplex* y, const int* incy );
 
 // Recall that 'zsymv' is an auxiliary LAPACK routine
-void C2F(zsymv)
+void LAPACK(zsymv)
 ( const char* uplo, const int* m,
   const elemental::dcomplex* alpha, 
   const elemental::dcomplex* A, const int* lda,
@@ -901,79 +907,79 @@ void C2F(zsymv)
         elemental::dcomplex* y, const int* incy );
 #endif
 
-void C2F(ssyr)
+void BLAS(ssyr)
 ( const char* uplo, const int* m,
   const float* alpha, const float* x, const int* incx,
                             float* A, const int* lda  );
 
-void C2F(dsyr)
+void BLAS(dsyr)
 ( const char* uplo, const int* m,
   const double* alpha, const double* x, const int* incx,
                              double* A, const int* lda  );
 
 #ifndef WITHOUT_COMPLEX
 // Recall that 'csyr' is an auxiliary LAPACK routine
-void C2F(csyr)
+void LAPACK(csyr)
 ( const char* uplo, const int* m,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* x, const int* incx,
         elemental::scomplex* A, const int* lda  );
 
 // Recall that 'zsyr' is an auxiliary LAPACK routine
-void C2F(zsyr)
+void LAPACK(zsyr)
 ( const char* uplo, const int* m,
   const elemental::dcomplex* alpha, 
   const elemental::dcomplex* x, const int* incx,
         elemental::dcomplex* A, const int* lda  );
 #endif
 
-void C2F(ssyr2)
+void BLAS(ssyr2)
 ( const char* uplo, const int* m,
   const float* alpha, const float* x, const int* incx,
                       const float* y, const int* incy,
                             float* A, const int* lda  );
 
-void C2F(dsyr2)
+void BLAS(dsyr2)
 ( const char* uplo, const int* m,
   const double* alpha, const double* x, const int* incx,
                        const double* y, const int* incy,
                              double* A, const int* lda  );
 
-void C2F(strmv)
+void BLAS(strmv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
   const float* A, const int* lda, float* x, const int* incx );
 
-void C2F(dtrmv)
+void BLAS(dtrmv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
   const double* A, const int* lda, double* x, const int* incx );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(ctrmv)
+void BLAS(ctrmv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
   const elemental::scomplex* A, const int* lda, 
         elemental::scomplex* x, const int* incx );
 
-void C2F(ztrmv)
+void BLAS(ztrmv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
   const elemental::dcomplex* A, const int* lda, 
         elemental::dcomplex* x, const int* incx );
 #endif
 
-void C2F(strsv)
+void BLAS(strsv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
   const float* A, const int* lda, float* x, const int* incx );
 
-void C2F(dtrsv)
+void BLAS(dtrsv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
   const double* A, const int* lda, double* x, const int* incx );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(ctrsv)
+void BLAS(ctrsv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
   const elemental::scomplex* A, const int* lda, 
         elemental::scomplex* x, const int* incx );
 
-void C2F(ztrsv)
+void BLAS(ztrsv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
   const elemental::dcomplex* A, const int* lda, 
         elemental::dcomplex* x, const int* incx );
@@ -982,14 +988,14 @@ void C2F(ztrsv)
 //------------------------------------------------------------------------//
 // Level 3 BLAS                                                           //
 //------------------------------------------------------------------------//
-void C2F(sgemm)
+void BLAS(sgemm)
 ( const char* transA, const char* transB,
   const int* m, const int* n, const int* k,
   const float* alpha, const float* A, const int* lda,
                       const float* B, const int* ldb,
   const float* beta,        float* C, const int* ldc );
     
-void C2F(dgemm)
+void BLAS(dgemm)
 ( const char* transA, const char* transB,
   const int* m, const int* n, const int* k,
   const double* alpha, const double* A, const int* lda,
@@ -997,7 +1003,7 @@ void C2F(dgemm)
   const double* beta,        double* C, const int* ldc );
     
 #ifndef WITHOUT_COMPLEX
-void C2F(cgemm)
+void BLAS(cgemm)
 ( const char* transA, const char* transB,
   const int* m, const int* n, const int* k,
   const elemental::scomplex* alpha, 
@@ -1006,7 +1012,7 @@ void C2F(cgemm)
   const elemental::scomplex* beta,        
         elemental::scomplex* C, const int* ldc );
 
-void C2F(zgemm)
+void BLAS(zgemm)
 ( const char* transA, const char* transB,
   const int* m, const int* n, const int* k,
   const elemental::dcomplex* alpha, 
@@ -1015,7 +1021,7 @@ void C2F(zgemm)
   const elemental::dcomplex* beta,        
         elemental::dcomplex* C, const int* ldc );
 
-void C2F(chemm)
+void BLAS(chemm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
   const elemental::scomplex* alpha, 
@@ -1024,7 +1030,7 @@ void C2F(chemm)
   const elemental::scomplex* beta,        
         elemental::scomplex* C, const int* ldc );
 
-void C2F(zhemm)
+void BLAS(zhemm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
   const elemental::dcomplex* alpha, 
@@ -1033,7 +1039,7 @@ void C2F(zhemm)
   const elemental::dcomplex* beta,        
         elemental::dcomplex* C, const int* ldc );
 
-void C2F(cher2k)
+void BLAS(cher2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const elemental::scomplex* alpha, 
@@ -1042,7 +1048,7 @@ void C2F(cher2k)
   const elemental::scomplex* beta,        
         elemental::scomplex* C, const int* ldc );
 
-void C2F(zher2k)
+void BLAS(zher2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const elemental::dcomplex* alpha, 
@@ -1051,7 +1057,7 @@ void C2F(zher2k)
   const elemental::dcomplex* beta,        
         elemental::dcomplex* C, const int* ldc );
 
-void C2F(cherk)
+void BLAS(cherk)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const elemental::scomplex* alpha, 
@@ -1059,7 +1065,7 @@ void C2F(cherk)
   const elemental::scomplex* beta,        
         elemental::scomplex* C, const int* ldc );
 
-void C2F(zherk)
+void BLAS(zherk)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const elemental::dcomplex* alpha, 
@@ -1068,14 +1074,14 @@ void C2F(zherk)
         elemental::dcomplex* C, const int* ldc );
 #endif
 
-void C2F(ssymm)
+void BLAS(ssymm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
   const float* alpha, const float* A, const int* lda,
                       const float* B, const int* ldb,
   const float* beta,        float* C, const int* ldc );
 
-void C2F(dsymm)
+void BLAS(dsymm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
   const double* alpha, const double* A, const int* lda,
@@ -1083,7 +1089,7 @@ void C2F(dsymm)
   const double* beta,        double* C, const int* ldc );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(csymm)
+void BLAS(csymm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
   const elemental::scomplex* alpha, 
@@ -1092,7 +1098,7 @@ void C2F(csymm)
   const elemental::scomplex* beta,        
         elemental::scomplex* C, const int* ldc );
 
-void C2F(zsymm)
+void BLAS(zsymm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
   const elemental::dcomplex* alpha, 
@@ -1102,14 +1108,14 @@ void C2F(zsymm)
         elemental::dcomplex* C, const int* ldc );
 #endif
 
-void C2F(ssyr2k)
+void BLAS(ssyr2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const float* alpha, const float* A, const int* lda,
                       const float* B, const int* ldb,
   const float* beta,        float* C, const int* ldc );
 
-void C2F(dsyr2k)
+void BLAS(dsyr2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const double* alpha, const double* A, const int* lda,
@@ -1117,7 +1123,7 @@ void C2F(dsyr2k)
   const double* beta,        double* C, const int* ldc );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(csyr2k)
+void BLAS(csyr2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const elemental::scomplex* alpha, 
@@ -1126,7 +1132,7 @@ void C2F(csyr2k)
   const elemental::scomplex* beta,        
         elemental::scomplex* C, const int* ldc );
 
-void C2F(zsyr2k)
+void BLAS(zsyr2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const elemental::dcomplex* alpha, 
@@ -1136,20 +1142,20 @@ void C2F(zsyr2k)
         elemental::dcomplex* C, const int* ldc );
 #endif
 
-void C2F(ssyrk)
+void BLAS(ssyrk)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const float* alpha, const float* A, const int* lda,
   const float* beta,        float* C, const int* ldc );
 
-void C2F(dsyrk)
+void BLAS(dsyrk)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const double* alpha, const double* A, const int* lda,
   const double* beta,        double* C, const int* ldc );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(csyrk)
+void BLAS(csyrk)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const elemental::scomplex* alpha, 
@@ -1157,7 +1163,7 @@ void C2F(csyrk)
   const elemental::scomplex* beta,        
         elemental::scomplex* C, const int* ldc );
 
-void C2F(zsyrk)
+void BLAS(zsyrk)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
   const elemental::dcomplex* alpha, 
@@ -1166,27 +1172,27 @@ void C2F(zsyrk)
         elemental::dcomplex* C, const int* ldc );
 #endif
 
-void C2F(strmm)
+void BLAS(strmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n, 
   const float* alpha, const float* A, const int* lda,
                             float* B, const int* ldb );
 
-void C2F(dtrmm)
+void BLAS(dtrmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n,
   const double* alpha, const double* A, const int* lda,
                              double* B, const int* ldb );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(ctrmm)
+void BLAS(ctrmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* A, const int* lda,
         elemental::scomplex* B, const int* ldb );
 
-void C2F(ztrmm)
+void BLAS(ztrmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n,
   const elemental::dcomplex* alpha, 
@@ -1194,27 +1200,27 @@ void C2F(ztrmm)
         elemental::dcomplex* B, const int* ldb );
 #endif
 
-void C2F(strsm)
+void BLAS(strsm)
 ( const char* side, const char* uplo, const char* transA, const char* diag,
   const int* m, const int* n, 
   const float* alpha, const float* A, const int* lda,
                             float* B, const int* ldb );
 
-void C2F(dtrsm)
+void BLAS(dtrsm)
 ( const char* side, const char* uplo, const char* transA, const char* diag,
   const int* m, const int* n,
   const double* alpha, const double* A, const int* lda,
                              double* B, const int* ldb );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(ctrsm)
+void BLAS(ctrsm)
 ( const char* side, const char* uplo, const char* transA, const char* diag,
   const int* m, const int* n,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* A, const int* lda,
         elemental::scomplex* B, const int* ldb );
 
-void C2F(ztrsm)
+void BLAS(ztrsm)
 ( const char* side, const char* uplo, const char* transA, const char* diag,
   const int* m, const int* n,
   const elemental::dcomplex* alpha, 
@@ -1233,139 +1239,139 @@ void C2F(ztrsm)
 inline void
 elemental::wrappers::blas::Axpy
 ( int n, float alpha, const float* x, int incx, float* y, int incy )
-{ C2F(saxpy)( &n, &alpha, x, &incx, y, &incy ); }
+{ BLAS(saxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
 inline void
 elemental::wrappers::blas::Axpy
 ( int n, double alpha, const double* x, int incx, double* y, int incy )
-{ C2F(daxpy)( &n, &alpha, x, &incx, y, &incy ); }
+{ BLAS(daxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
 elemental::wrappers::blas::Axpy
 ( int n, scomplex alpha, const scomplex* x, int incx, scomplex* y, int incy )
-{ C2F(caxpy)( &n, &alpha, x, &incx, y, &incy ); }
+{ BLAS(caxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
 inline void
 elemental::wrappers::blas::Axpy
 ( int n, dcomplex alpha, const dcomplex* x, int incx, dcomplex* y, int incy )
-{ C2F(zaxpy)( &n, &alpha, x, &incx, y, &incy ); }
+{ BLAS(zaxpy)( &n, &alpha, x, &incx, y, &incy ); }
 #endif
 
 inline float
 elemental::wrappers::blas::Dot
 ( int n, const float* x, int incx, const float* y, int incy )
-{ return C2F(sdot)( &n, x, &incx, y, &incy ); }
+{ return BLAS(sdot)( &n, x, &incx, y, &incy ); }
 
 inline double
 elemental::wrappers::blas::Dot
 ( int n, const double* x, int incx, const double* y, int incy )
-{ return C2F(ddot)( &n, x, &incx, y, &incy ); }
+{ return BLAS(ddot)( &n, x, &incx, y, &incy ); }
 
 #ifndef WITHOUT_COMPLEX
 inline elemental::scomplex
 elemental::wrappers::blas::Dot
 ( int n, const elemental::scomplex* x, int incx,
          const elemental::scomplex* y, int incy )
-{ return C2F(cdotc)( &n, x, &incx, y, &incy ); }
+{ return BLAS(cdotc)( &n, x, &incx, y, &incy ); }
 
 inline elemental::dcomplex
 elemental::wrappers::blas::Dot
 ( int n, const elemental::dcomplex* x, int incx,
          const elemental::dcomplex* y, int incy )
-{ return C2F(zdotc)( &n, x, &incx, y, &incy ); }
+{ return BLAS(zdotc)( &n, x, &incx, y, &incy ); }
 #endif
 
 inline float
 elemental::wrappers::blas::Dotc
 ( int n, const float* x, int incx, const float* y, int incy )
-{ return C2F(sdot)( &n, x, &incx, y, &incy ); }
+{ return BLAS(sdot)( &n, x, &incx, y, &incy ); }
 
 inline double
 elemental::wrappers::blas::Dotc
 ( int n, const double* x, int incx, const double* y, int incy )
-{ return C2F(ddot)( &n, x, &incx, y, &incy ); }
+{ return BLAS(ddot)( &n, x, &incx, y, &incy ); }
 
 #ifndef WITHOUT_COMPLEX
 inline elemental::scomplex
 elemental::wrappers::blas::Dotc
 ( int n, const elemental::scomplex* x, int incx,
          const elemental::scomplex* y, int incy )
-{ return C2F(cdotc)( &n, x, &incx, y, &incy ); }
+{ return BLAS(cdotc)( &n, x, &incx, y, &incy ); }
 
 inline elemental::dcomplex
 elemental::wrappers::blas::Dotc
 ( int n, const elemental::dcomplex* x, int incx,
          const elemental::dcomplex* y, int incy )
-{ return C2F(zdotc)( &n, x, &incx, y, &incy ); }
+{ return BLAS(zdotc)( &n, x, &incx, y, &incy ); }
 #endif
 
 inline float
 elemental::wrappers::blas::Dotu
 ( int n, const float* x, int incx, const float* y, int incy )
-{ return C2F(sdot)( &n, x, &incx, y, &incy ); }
+{ return BLAS(sdot)( &n, x, &incx, y, &incy ); }
 
 inline double
 elemental::wrappers::blas::Dotu
 ( int n, const double* x, int incx, const double* y, int incy )
-{ return C2F(ddot)( &n, x, &incx, y, &incy ); }
+{ return BLAS(ddot)( &n, x, &incx, y, &incy ); }
 
 #ifndef WITHOUT_COMPLEX
 inline elemental::scomplex
 elemental::wrappers::blas::Dotu
 ( int n, const elemental::scomplex* x, int incx,
          const elemental::scomplex* y, int incy )
-{ return C2F(cdotu)( &n, x, &incx, y, &incy ); }
+{ return BLAS(cdotu)( &n, x, &incx, y, &incy ); }
 
 inline elemental::dcomplex
 elemental::wrappers::blas::Dotu
 ( int n, const elemental::dcomplex* x, int incx,
          const elemental::dcomplex* y, int incy )
-{ return C2F(zdotu)( &n, x, &incx, y, &incy ); }
+{ return BLAS(zdotu)( &n, x, &incx, y, &incy ); }
 #endif
 
 inline float
 elemental::wrappers::blas::Nrm2
 ( int n, const float* x, int incx )
-{ return C2F(snrm2)( &n, x, &incx ); }
+{ return BLAS(snrm2)( &n, x, &incx ); }
 
 inline double
 elemental::wrappers::blas::Nrm2
 ( int n, const double* x, int incx )
-{ return C2F(dnrm2)( &n, x, &incx ); }
+{ return BLAS(dnrm2)( &n, x, &incx ); }
 
 #ifndef WITHOUT_COMPLEX
 inline float
 elemental::wrappers::blas::Nrm2
 ( int n, const scomplex* x, int incx )
-{ return C2F(scnrm2)( &n, x, &incx ); }
+{ return BLAS(scnrm2)( &n, x, &incx ); }
 
 inline double
 elemental::wrappers::blas::Nrm2
 ( int n, const dcomplex* x, int incx )
-{ return C2F(dznrm2)( &n, x, &incx ); }
+{ return BLAS(dznrm2)( &n, x, &incx ); }
 #endif
 
 inline void
 elemental::wrappers::blas::Scal
 ( int n, float alpha, float* x, int incx )
-{ C2F(sscal)( &n, &alpha, x, &incx ); }
+{ BLAS(sscal)( &n, &alpha, x, &incx ); }
 
 inline void
 elemental::wrappers::blas::Scal
 ( int n, double alpha, double* x, int incx )
-{ C2F(dscal)( &n, &alpha, x, &incx ); }
+{ BLAS(dscal)( &n, &alpha, x, &incx ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
 elemental::wrappers::blas::Scal
 ( int n, scomplex alpha, scomplex* x, int incx )
-{ C2F(cscal)( &n, &alpha, x, &incx ); }
+{ BLAS(cscal)( &n, &alpha, x, &incx ); }
 
 inline void
 elemental::wrappers::blas::Scal
 ( int n, dcomplex alpha, dcomplex* x, int incx )
-{ C2F(zscal)( &n, &alpha, x, &incx ); }
+{ BLAS(zscal)( &n, &alpha, x, &incx ); }
 #endif
 
 //----------------------------------------------------------------------------//
@@ -1378,7 +1384,7 @@ elemental::wrappers::blas::Gemv
   float beta,        float* y, int incy )
 {
     const char fixedTrans = ( trans == 'C' ? 'T' : trans );
-    C2F(sgemv)
+    BLAS(sgemv)
     ( &fixedTrans, &m, &n, &alpha, A, &lda, x, &incx, &beta, y, &incy );
 }
 
@@ -1389,7 +1395,7 @@ elemental::wrappers::blas::Gemv
   double beta,        double* y, int incy )
 {
     const char fixedTrans = ( trans == 'C' ? 'T' : trans );
-    C2F(dgemv)
+    BLAS(dgemv)
     ( &fixedTrans, &m, &n, &alpha, A, &lda, x, &incx, &beta, y, &incy );
 }
 
@@ -1399,14 +1405,14 @@ elemental::wrappers::blas::Gemv
 ( char trans, int m, int n,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy )
-{ C2F(cgemv)( &trans, &m, &n, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
+{ BLAS(cgemv)( &trans, &m, &n, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 inline void
 elemental::wrappers::blas::Gemv
 ( char trans, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy )
-{ C2F(zgemv)( &trans, &m, &n, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
+{ BLAS(zgemv)( &trans, &m, &n, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 #endif
 
 inline void
@@ -1414,14 +1420,14 @@ elemental::wrappers::blas::Ger
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
-{ C2F(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Ger
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda  )
-{ C2F(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
@@ -1429,14 +1435,14 @@ elemental::wrappers::blas::Ger
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
-{ C2F(cgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(cgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Ger
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
-{ C2F(zgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(zgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 #endif
 
 inline void
@@ -1444,14 +1450,14 @@ elemental::wrappers::blas::Gerc
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
-{ C2F(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Gerc
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
-{ C2F(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
@@ -1459,14 +1465,14 @@ elemental::wrappers::blas::Gerc
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
-{ C2F(cgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(cgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Gerc
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
-{ C2F(zgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(zgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 #endif
 
 inline void
@@ -1474,14 +1480,14 @@ elemental::wrappers::blas::Geru
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
-{ C2F(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Geru
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
-{ C2F(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
@@ -1489,14 +1495,14 @@ elemental::wrappers::blas::Geru
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
-{ C2F(cgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(cgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Geru
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
-{ C2F(zgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(zgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 #endif
 
 inline void
@@ -1504,14 +1510,14 @@ elemental::wrappers::blas::Hemv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy )
-{ C2F(ssymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
+{ BLAS(ssymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 inline void
 elemental::wrappers::blas::Hemv
 ( char uplo, int m,
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy )
-{ C2F(dsymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
+{ BLAS(dsymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
@@ -1519,40 +1525,40 @@ elemental::wrappers::blas::Hemv
 ( char uplo, int m,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy )
-{ C2F(chemv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
+{ BLAS(chemv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 inline void
 elemental::wrappers::blas::Hemv
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy )
-{ C2F(zhemv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
+{ BLAS(zhemv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 #endif
 
 inline void
 elemental::wrappers::blas::Her
 ( char uplo, int m,
   float alpha, const float* x, int incx, float* A, int lda )
-{ C2F(ssyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
+{ BLAS(ssyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Her
 ( char uplo, int m,
   double alpha, const double* x, int incx, double* A, int lda )
-{ C2F(dsyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
+{ BLAS(dsyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
 elemental::wrappers::blas::Her
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda )
-{ C2F(cher)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
+{ BLAS(cher)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Her
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda )
-{ C2F(zher)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
+{ BLAS(zher)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 #endif
 
 inline void
@@ -1560,14 +1566,14 @@ elemental::wrappers::blas::Her2
 ( char uplo, int m,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
-{ C2F(ssyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(ssyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Her2
 ( char uplo, int m,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
-{ C2F(dsyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(dsyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
@@ -1575,14 +1581,14 @@ elemental::wrappers::blas::Her2
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
-{ C2F(cher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(cher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Her2
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
-{ C2F(zher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(zher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 #endif
 
 inline void
@@ -1590,14 +1596,14 @@ elemental::wrappers::blas::Symv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy )
-{ C2F(ssymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
+{ BLAS(ssymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 inline void
 elemental::wrappers::blas::Symv
 ( char uplo, int m,
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy )
-{ C2F(dsymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
+{ BLAS(dsymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
@@ -1607,7 +1613,7 @@ elemental::wrappers::blas::Symv
   scomplex beta,        scomplex* y, int incy )
 {
     // Recall that 'csymv' is an LAPACK auxiliary routine
-    C2F(csymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy );
+    LAPACK(csymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy );
 }
 
 inline void
@@ -1617,7 +1623,7 @@ elemental::wrappers::blas::Symv
   dcomplex beta,        dcomplex* y, int incy )
 {
     // Recall that 'zsymv' is an LAPACK auxiliary routine
-    C2F(zsymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy );
+    LAPACK(zsymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy );
 }
 #endif
 
@@ -1625,13 +1631,13 @@ inline void
 elemental::wrappers::blas::Syr
 ( char uplo, int m,
   float alpha, const float* x, int incx, float* A, int lda  )
-{ C2F(ssyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
+{ BLAS(ssyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Syr
 ( char uplo, int m,
   double alpha, const double* x, int incx, double* A, int lda )
-{ C2F(dsyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
+{ BLAS(dsyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
@@ -1640,7 +1646,7 @@ elemental::wrappers::blas::Syr
   scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda )
 {
     // Recall that 'csyr' is an LAPACK auxiliary routine
-    C2F(csyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); 
+    LAPACK(csyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); 
 }
 
 inline void
@@ -1649,7 +1655,7 @@ elemental::wrappers::blas::Syr
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda )
 {
     // Recall that 'zsyr' is an LAPACK auxiliary routine
-    C2F(zsyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); 
+    LAPACK(zsyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); 
 }
 #endif
 
@@ -1658,14 +1664,14 @@ elemental::wrappers::blas::Syr2
 ( char uplo, int m,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
-{ C2F(ssyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(ssyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 inline void
 elemental::wrappers::blas::Syr2
 ( char uplo, int m,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
-{ C2F(dsyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
+{ BLAS(dsyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
@@ -1681,7 +1687,7 @@ elemental::wrappers::blas::Syr2
     const char trans = 'T';
     const int k = 1;
     const scomplex beta = 1.;
-    C2F(csyr2k)
+    BLAS(csyr2k)
     ( &uplo, &trans, &m, &k, &alpha, x, &incx, y, &incy, &beta, A, &lda );
 }
 
@@ -1698,7 +1704,7 @@ elemental::wrappers::blas::Syr2
     const char trans = 'T';
     const int k = 1;
     const dcomplex beta = 1.;
-    C2F(zsyr2k)
+    BLAS(zsyr2k)
     ( &uplo, &trans, &m, &k, &alpha, x, &incx, y, &incy, &beta, A, &lda );
 }
 #endif
@@ -1707,52 +1713,52 @@ inline void
 elemental::wrappers::blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const float* A, int lda, float* x, int incx )
-{ C2F(strmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
+{ BLAS(strmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 inline void
 elemental::wrappers::blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const double* A, int lda, double* x, int incx )
-{ C2F(dtrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
+{ BLAS(dtrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
 elemental::wrappers::blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const scomplex* A, int lda, scomplex* x, int incx )
-{ C2F(ctrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
+{ BLAS(ctrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 inline void
 elemental::wrappers::blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx )
-{ C2F(ztrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
+{ BLAS(ztrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 #endif
 
 inline void
 elemental::wrappers::blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const float* A, int lda, float* x, int incx )
-{ C2F(strsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
+{ BLAS(strsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 inline void
 elemental::wrappers::blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const double* A, int lda, double* x, int incx )
-{ C2F(dtrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
+{ BLAS(dtrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
 elemental::wrappers::blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const scomplex* A, int lda, scomplex* x, int incx )
-{ C2F(ctrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
+{ BLAS(ctrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 inline void
 elemental::wrappers::blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx )
-{ C2F(ztrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
+{ BLAS(ztrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 #endif
 
 //----------------------------------------------------------------------------//
@@ -1766,8 +1772,8 @@ elemental::wrappers::blas::Gemm
 {
     const char fixedTransA = ( transA == 'C' ? 'T' : transA );
     const char fixedTransB = ( transB == 'C' ? 'T' : transB );
-    C2F(sgemm)( &fixedTransA, &fixedTransB, &m, &n, &k,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(sgemm)( &fixedTransA, &fixedTransB, &m, &n, &k,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
 inline void
@@ -1779,8 +1785,8 @@ elemental::wrappers::blas::Gemm
 {
     const char fixedTransA = ( transA == 'C' ? 'T' : transA );
     const char fixedTransB = ( transB == 'C' ? 'T' : transB );
-    C2F(dgemm)( &fixedTransA, &fixedTransB, &m, &n, &k,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(dgemm)( &fixedTransA, &fixedTransB, &m, &n, &k,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -1790,8 +1796,8 @@ elemental::wrappers::blas::Gemm
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
 {
-    C2F(cgemm)( &transA, &transB, &m, &n, &k,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(cgemm)( &transA, &transB, &m, &n, &k,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
 inline void
@@ -1800,8 +1806,8 @@ elemental::wrappers::blas::Gemm
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
 {
-    C2F(zgemm)( &transA, &transB, &m, &n, &k,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(zgemm)( &transA, &transB, &m, &n, &k,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 #endif
 
@@ -1811,8 +1817,8 @@ elemental::wrappers::blas::Hemm
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
 {
-    C2F(ssymm)( &side, &uplo, &m, &n,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(ssymm)( &side, &uplo, &m, &n,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
 inline void
@@ -1821,8 +1827,8 @@ elemental::wrappers::blas::Hemm
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
 {
-    C2F(dsymm)( &side, &uplo, &m, &n,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(dsymm)( &side, &uplo, &m, &n,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -1832,8 +1838,8 @@ elemental::wrappers::blas::Hemm
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
 {
-    C2F(chemm)( &side, &uplo, &m, &n,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(chemm)( &side, &uplo, &m, &n,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
 inline void
@@ -1842,8 +1848,8 @@ elemental::wrappers::blas::Hemm
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
 {
-    C2F(zhemm)( &side, &uplo, &m, &n,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(zhemm)( &side, &uplo, &m, &n,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 #endif
 
@@ -1854,7 +1860,7 @@ elemental::wrappers::blas::Her2k
   float beta,        float* C, int ldc )
 {
     const char transFixed = ( trans == 'C' ? 'T' : trans );
-    C2F(ssyr2k)
+    BLAS(ssyr2k)
     ( &uplo, &transFixed, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
@@ -1865,7 +1871,7 @@ elemental::wrappers::blas::Her2k
   double beta,        double* C, int ldc )
 {
     const char transFixed = ( trans == 'C' ? 'T' : trans );
-    C2F(dsyr2k)
+    BLAS(dsyr2k)
     ( &uplo, &transFixed, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
@@ -1876,7 +1882,7 @@ elemental::wrappers::blas::Her2k
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
 {
-    C2F(cher2k)
+    BLAS(cher2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
@@ -1886,7 +1892,7 @@ elemental::wrappers::blas::Her2k
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
 {
-    C2F(zher2k)
+    BLAS(zher2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 #endif
@@ -1898,7 +1904,7 @@ elemental::wrappers::blas::Herk
   float beta,        float* C, int ldc )
 {
     const char transFixed = ( trans == 'C' ? 'T' : trans );
-    C2F(ssyrk)( &uplo, &transFixed, &n, &k, &alpha, A, &lda, &beta, C, &ldc );
+    BLAS(ssyrk)( &uplo, &transFixed, &n, &k, &alpha, A, &lda, &beta, C, &ldc );
 }
 
 inline void
@@ -1908,7 +1914,7 @@ elemental::wrappers::blas::Herk
   double beta,        double* C, int ldc )
 {
     const char transFixed = ( trans == 'C' ? 'T' : trans );
-    C2F(dsyrk)( &uplo, &transFixed, &n, &k, &alpha, A, &lda, &beta, C, &ldc );
+    BLAS(dsyrk)( &uplo, &transFixed, &n, &k, &alpha, A, &lda, &beta, C, &ldc );
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -1917,14 +1923,14 @@ elemental::wrappers::blas::Herk
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda,
   scomplex beta,        scomplex* C, int ldc )
-{ C2F(cherk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
+{ BLAS(cherk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 inline void
 elemental::wrappers::blas::Herk
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc )
-{ C2F(zherk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
+{ BLAS(zherk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 #endif
 
 inline void
@@ -1933,8 +1939,8 @@ elemental::wrappers::blas::Symm
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
 {
-    C2F(ssymm)( &side, &uplo, &m, &n,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(ssymm)( &side, &uplo, &m, &n,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
 inline void
@@ -1943,8 +1949,8 @@ elemental::wrappers::blas::Symm
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
 {
-    C2F(dsymm)( &side, &uplo, &m, &n,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(dsymm)( &side, &uplo, &m, &n,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -1954,8 +1960,8 @@ elemental::wrappers::blas::Symm
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
 {
-    C2F(csymm)( &side, &uplo, &m, &n,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(csymm)( &side, &uplo, &m, &n,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
 inline void
@@ -1964,8 +1970,8 @@ elemental::wrappers::blas::Symm
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
 {
-    C2F(zsymm)( &side, &uplo, &m, &n,
-                &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
+    BLAS(zsymm)( &side, &uplo, &m, &n,
+                 &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 #endif
 
@@ -1975,7 +1981,7 @@ elemental::wrappers::blas::Syr2k
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
 {
-    C2F(ssyr2k)
+    BLAS(ssyr2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
@@ -1985,7 +1991,7 @@ elemental::wrappers::blas::Syr2k
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
 {
-    C2F(dsyr2k)
+    BLAS(dsyr2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
@@ -1996,7 +2002,7 @@ elemental::wrappers::blas::Syr2k
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
 {
-    C2F(csyr2k)
+    BLAS(csyr2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
@@ -2006,7 +2012,7 @@ elemental::wrappers::blas::Syr2k
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
 {
-    C2F(zsyr2k)
+    BLAS(zsyr2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 #endif
@@ -2016,14 +2022,14 @@ elemental::wrappers::blas::Syrk
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda,
   float beta,        float* C, int ldc )
-{ C2F(ssyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
+{ BLAS(ssyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 inline void
 elemental::wrappers::blas::Syrk
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda,
   double beta,        double* C, int ldc )
-{ C2F(dsyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
+{ BLAS(dsyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 #ifndef WITHOUT_COMPLEX
 inline void
@@ -2031,14 +2037,14 @@ elemental::wrappers::blas::Syrk
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda,
   scomplex beta,        scomplex* C, int ldc )
-{ C2F(csyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
+{ BLAS(csyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 inline void
 elemental::wrappers::blas::Syrk
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc )
-{ C2F(zsyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
+{ BLAS(zsyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 #endif
 
 inline void
@@ -2047,8 +2053,8 @@ elemental::wrappers::blas::Trmm
   float alpha, const float* A, int lda, float* B, int ldb )
 {
     const char fixedTrans = ( trans == 'C' ? 'T' : trans );    
-    C2F(strmm)( &side, &uplo, &fixedTrans, &unit, &m, &n,
-                &alpha, A, &lda, B, &ldb );
+    BLAS(strmm)( &side, &uplo, &fixedTrans, &unit, &m, &n,
+                 &alpha, A, &lda, B, &ldb );
 }
 
 inline void
@@ -2057,8 +2063,8 @@ elemental::wrappers::blas::Trmm
   double alpha, const double* A, int lda, double* B, int ldb )
 {
     const char fixedTrans = ( trans == 'C' ? 'T' : trans );    
-    C2F(dtrmm)( &side, &uplo, &fixedTrans, &unit, &m, &n,
-                &alpha, A, &lda, B, &ldb );
+    BLAS(dtrmm)( &side, &uplo, &fixedTrans, &unit, &m, &n,
+                 &alpha, A, &lda, B, &ldb );
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -2067,8 +2073,8 @@ elemental::wrappers::blas::Trmm
 ( char side, char uplo, char trans, char unit, int m, int n,
   scomplex alpha, const scomplex* A, int lda, scomplex* B, int ldb )
 {
-    C2F(ctrmm)( &side, &uplo, &trans, &unit, &m, &n,
-                &alpha, A, &lda, B, &ldb );
+    BLAS(ctrmm)( &side, &uplo, &trans, &unit, &m, &n,
+                 &alpha, A, &lda, B, &ldb );
 }
 
 inline void
@@ -2076,8 +2082,8 @@ elemental::wrappers::blas::Trmm
 ( char side, char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb )
 {
-    C2F(ztrmm)( &side, &uplo, &trans, &unit, &m, &n,
-                &alpha, A, &lda, B, &ldb );
+    BLAS(ztrmm)( &side, &uplo, &trans, &unit, &m, &n,
+                 &alpha, A, &lda, B, &ldb );
 }
 #endif
 
@@ -2087,8 +2093,8 @@ elemental::wrappers::blas::Trsm
   float alpha, const float* A, int lda, float* B, int ldb )
 {
     const char fixedTrans = ( trans == 'C' ? 'T' : trans );
-    C2F(strsm)( &side, &uplo, &fixedTrans, &unit, &m, &n,
-                &alpha, A, &lda, B, &ldb );
+    BLAS(strsm)( &side, &uplo, &fixedTrans, &unit, &m, &n,
+                 &alpha, A, &lda, B, &ldb );
 } 
 
 inline void
@@ -2097,8 +2103,8 @@ elemental::wrappers::blas::Trsm
   double alpha, const double* A, int lda, double* B, int ldb )
 {
     const char fixedTrans = ( trans == 'C' ? 'T' : trans );
-    C2F(dtrsm)( &side, &uplo, &fixedTrans, &unit, &m, &n,
-                &alpha, A, &lda, B, &ldb );
+    BLAS(dtrsm)( &side, &uplo, &fixedTrans, &unit, &m, &n,
+                 &alpha, A, &lda, B, &ldb );
 } 
 
 #ifndef WITHOUT_COMPLEX
@@ -2107,8 +2113,8 @@ elemental::wrappers::blas::Trsm
 ( char side, char uplo, char trans, char unit, int m, int n,
   scomplex alpha, const scomplex* A, int lda, scomplex* B, int ldb )
 {
-    C2F(ctrsm)( &side, &uplo, &trans, &unit, &m, &n,
-                &alpha, A, &lda, B, &ldb );
+    BLAS(ctrsm)( &side, &uplo, &trans, &unit, &m, &n,
+                 &alpha, A, &lda, B, &ldb );
 } 
 
 inline void
@@ -2116,8 +2122,8 @@ elemental::wrappers::blas::Trsm
 ( char side, char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb )
 {
-    C2F(ztrsm)( &side, &uplo, &trans, &unit, &m, &n,
-                &alpha, A, &lda, B, &ldb );
+    BLAS(ztrsm)( &side, &uplo, &trans, &unit, &m, &n,
+                 &alpha, A, &lda, B, &ldb );
 } 
 #endif
 

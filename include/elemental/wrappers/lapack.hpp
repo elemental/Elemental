@@ -21,10 +21,10 @@
 
 #include "elemental/environment.hpp"
 
-#ifdef FUNDERSCORE
-#define C2F(name) name ## _
+#ifdef LAPACK_UNDERSCORE
+#define LAPACK(name) name ## _
 #else
-#define C2F(name) name
+#define LAPACK(name) name
 #endif
 
 namespace elemental {
@@ -115,78 +115,78 @@ Trinv
 
 extern "C" {
 
-void C2F(sgetrf)
+void LAPACK(sgetrf)
 ( const int* m, const int* n, 
   float* A, const int* lda, int* p, int* info );
 
-void C2F(dgetrf)
+void LAPACK(dgetrf)
 ( const int* m, const int* n, 
   double* A, const int* lda, int* p, int* info );
 
 #ifndef WITHOUT_COMPLEX
-void C2F(cgetrf)
+void LAPACK(cgetrf)
 ( const int* m, const int* n, 
   elemental::scomplex* A, const int* lda, int* p, int* info );
 
-void C2F(zgetrf)
+void LAPACK(zgetrf)
 ( const int* m, const int* n, 
   elemental::dcomplex* A, const int* lda, int* p, int* info );
 #endif
 
-float C2F(slapy2)
+float LAPACK(slapy2)
 ( const float* alpha, const float* beta );
 
-double C2F(dlapy2)
+double LAPACK(dlapy2)
 ( const double* alpha, const double* beta );
 
-float C2F(slapy3)
+float LAPACK(slapy3)
 ( const float* alpha, const float* beta, const float* gamma );
 
-double C2F(dlapy3)
+double LAPACK(dlapy3)
 ( const double* alpha, const double* beta, const double* gamma );
 
-void C2F(spotrf)
+void LAPACK(spotrf)
 ( const char* uplo, const int* n, const float* A, const int* lda,
   int* info );
 
-void C2F(dpotrf)
+void LAPACK(dpotrf)
 ( const char* uplo, const int* n, const double* A, const int* lda,
   int* info );
     
 #ifndef WITHOUT_COMPLEX
-void C2F(cpotrf)
+void LAPACK(cpotrf)
 ( const char* uplo, const int* n, const elemental::scomplex* A, 
   const int* lda, int* info );
     
-void C2F(zpotrf)
+void LAPACK(zpotrf)
 ( const char* uplo, const int* n, const elemental::dcomplex* A, 
   const int* lda, int* info );
 #endif
     
-void C2F(strtri)
+void LAPACK(strtri)
 ( const char* uplo, const char* diag, 
   const int* n, const float* A, const int* lda, int* info );
 
-void C2F(dtrtri)
+void LAPACK(dtrtri)
 ( const char* uplo, const char* diag, 
   const int* n, const double* A, const int* lda, int* info );
     
 #ifndef WITHOUT_COMPLEX
-void C2F(ctrtri)
+void LAPACK(ctrtri)
 ( const char* uplo, const char* diag,
   const int* n, const elemental::scomplex* A, const int* lda, int* info );
     
-void C2F(ztrtri)
+void LAPACK(ztrtri)
 ( const char* uplo, const char* diag,
   const int* n, const elemental::dcomplex* A, const int* lda, int* info );
 #endif
 
-void C2F(ssytd2)
+void LAPACK(ssytd2)
 ( const char* uplo,
   const int* n, float* A, const int* lda,
   float* d, float* e, float* tau, int* info );
 
-void C2F(dsytd2)
+void LAPACK(dsytd2)
 ( const char* uplo,
   const int* n, double* A, const int* lda, 
   double* d, double* e, double* tau, int* info );
@@ -205,7 +205,7 @@ elemental::wrappers::lapack::Chol
     PushCallStack("wrappers::lapack::Chol");
 #endif
     int info;
-    C2F(spotrf)( &uplo, &n, A, &lda, &info );
+    LAPACK(spotrf)( &uplo, &n, A, &lda, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -226,7 +226,7 @@ elemental::wrappers::lapack::Chol
     PushCallStack("wrappers::lapack::Chol");
 #endif
     int info;
-    C2F(dpotrf)( &uplo, &n, A, &lda, &info );
+    LAPACK(dpotrf)( &uplo, &n, A, &lda, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -248,7 +248,7 @@ elemental::wrappers::lapack::Chol
     PushCallStack("wrappers::lapack::Chol");
 #endif
     int info;
-    C2F(cpotrf)( &uplo, &n, A, &lda, &info );
+    LAPACK(cpotrf)( &uplo, &n, A, &lda, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -269,7 +269,7 @@ elemental::wrappers::lapack::Chol
     PushCallStack("wrappers::lapack::Chol");
 #endif
     int info;
-    C2F(zpotrf)( &uplo, &n, A, &lda, &info );
+    LAPACK(zpotrf)( &uplo, &n, A, &lda, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -291,7 +291,7 @@ elemental::wrappers::lapack::LU
     PushCallStack("wrappers::lapack::LU");
 #endif
     int info;
-    C2F(sgetrf)( &m, &n, A, &lda, p, &info );
+    LAPACK(sgetrf)( &m, &n, A, &lda, p, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -312,7 +312,7 @@ elemental::wrappers::lapack::LU
     PushCallStack("wrappers::lapack::LU");
 #endif
     int info;
-    C2F(dgetrf)( &m, &n, A, &lda, p, &info );
+    LAPACK(dgetrf)( &m, &n, A, &lda, p, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -334,7 +334,7 @@ elemental::wrappers::lapack::LU
     PushCallStack("wrappers::lapack::LU");
 #endif
     int info;
-    C2F(cgetrf)( &m, &n, A, &lda, p, &info );
+    LAPACK(cgetrf)( &m, &n, A, &lda, p, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -355,7 +355,7 @@ elemental::wrappers::lapack::LU
     PushCallStack("wrappers::lapack::LU");
 #endif
     int info;
-    C2F(zgetrf)( &m, &n, A, &lda, p, &info );
+    LAPACK(zgetrf)( &m, &n, A, &lda, p, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -376,7 +376,7 @@ elemental::wrappers::lapack::SafeNorm
 #ifndef RELEASE
     PushCallStack("wrappers::lapack::SafeNorm");
 #endif
-    float gamma = C2F(slapy2)( &alpha, &beta );
+    float gamma = LAPACK(slapy2)( &alpha, &beta );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -390,7 +390,7 @@ elemental::wrappers::lapack::SafeNorm
 #ifndef RELEASE
     PushCallStack("wrappers::lapack::SafeNorm");
 #endif
-    double gamma = C2F(dlapy2)( &alpha, &beta );
+    double gamma = LAPACK(dlapy2)( &alpha, &beta );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -404,7 +404,7 @@ elemental::wrappers::lapack::SafeNorm
 #ifndef RELEASE
     PushCallStack("wrappers::lapack::SafeNorm");
 #endif
-    float delta = C2F(slapy3)( &alpha, &beta, &gamma );
+    float delta = LAPACK(slapy3)( &alpha, &beta, &gamma );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -418,7 +418,7 @@ elemental::wrappers::lapack::SafeNorm
 #ifndef RELEASE
     PushCallStack("wrappers::lapack::SafeNorm");
 #endif
-    double delta = C2F(dlapy3)( &alpha, &beta, &gamma );
+    double delta = LAPACK(dlapy3)( &alpha, &beta, &gamma );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -433,7 +433,7 @@ elemental::wrappers::lapack::Tridiag
     PushCallStack("wrappers::lapack::Tridiag");
 #endif
     int info;
-    C2F(ssytd2)( &uplo, &n, A, &lda, d, e, tau, &info );
+    LAPACK(ssytd2)( &uplo, &n, A, &lda, d, e, tau, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -454,7 +454,7 @@ elemental::wrappers::lapack::Tridiag
     PushCallStack("wrappers::lapack::Tridiag");
 #endif
     int info;
-    C2F(dsytd2)( &uplo, &n, A, &lda, d, e, tau, &info );
+    LAPACK(dsytd2)( &uplo, &n, A, &lda, d, e, tau, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -475,7 +475,7 @@ elemental::wrappers::lapack::Trinv
     PushCallStack("wrappers::lapack::Trinv");
 #endif
     int info;
-    C2F(strtri)( &uplo, &diag, &n, A, &lda, &info );
+    LAPACK(strtri)( &uplo, &diag, &n, A, &lda, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -496,7 +496,7 @@ elemental::wrappers::lapack::Trinv
     PushCallStack("wrappers::lapack::Trinv");
 #endif
     int info;
-    C2F(dtrtri)( &uplo, &diag, &n, A, &lda, &info );
+    LAPACK(dtrtri)( &uplo, &diag, &n, A, &lda, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -518,7 +518,7 @@ elemental::wrappers::lapack::Trinv
     PushCallStack("wrappers::lapack::Trinv");
 #endif
     int info;
-    C2F(ctrtri)( &uplo, &diag, &n, A, &lda, &info );
+    LAPACK(ctrtri)( &uplo, &diag, &n, A, &lda, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -539,7 +539,7 @@ elemental::wrappers::lapack::Trinv
     PushCallStack("wrappers::lapack::Trinv");
 #endif
     int info;
-    C2F(ztrtri)( &uplo, &diag, &n, A, &lda, &info );
+    LAPACK(ztrtri)( &uplo, &diag, &n, A, &lda, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
