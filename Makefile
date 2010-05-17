@@ -14,7 +14,7 @@ library = libelemental.a
 
 # Compile flags:
 #   WITHOUT_COMPLEX: if defined, no complex datatypes are implemented
-#   FUNDERSCORE: if defined, all BLAS/LAPACK wrappers assume underscores
+#   FUNDERSCORE: if defined, all blas/lapack wrappers assume underscores
 #   POOL_MEMORY: if defined, Memory class only accumulates until destruction
 #   RELEASE: if defined, callstack is not maintained and debug checks are off
 CXX = mpicxx
@@ -49,88 +49,88 @@ corefiles = Environment.cpp \
             DistMatrix/VR_Star.cpp 
 coresrc = $(addprefix $(coredir)/,$(corefiles))
 
-blasdir = BLAS
-blasfiles = Level1/Dot/Dot.cpp \
-            Level1/Dot/Dotu.cpp \
-            Level1/Nrm2/Nrm2.cpp \
-            Level2/Gemv/Gemv.cpp \
-            Level2/Gemv/GemvN.cpp \
-            Level2/Gemv/GemvT.cpp \
-            Level2/Ger/Ger.cpp \
-            Level2/Ger/Geru.cpp \
-            Level2/Hemv/Hemv.cpp \
-            Level2/Hemv/HemvL.cpp \
-            Level2/Hemv/HemvU.cpp \
-            Level2/Her/Her.cpp \
-            Level2/Her2/Her2.cpp \
-            Level2/Symv/Symv.cpp \
-            Level2/Symv/SymvL.cpp \
-            Level2/Symv/SymvU.cpp \
-            Level2/Syr/Syr.cpp \
-            Level2/Syr2/Syr2.cpp \
-            Level2/Trsv/Trsv.cpp \
-            Level2/Trsv/TrsvLN.cpp \
-            Level2/Trsv/TrsvLT.cpp \
-            Level2/Trsv/TrsvUN.cpp \
-            Level2/Trsv/TrsvUT.cpp \
-            Level3/Gemm/Gemm.cpp \
-            Level3/Gemm/GemmNN.cpp \
-            Level3/Gemm/GemmNT.cpp \
-            Level3/Gemm/GemmTN.cpp \
-            Level3/Gemm/GemmTT.cpp \
-            Level3/Hemm/Hemm.cpp \
-            Level3/Hemm/HemmLL.cpp \
-            Level3/Hemm/HemmLU.cpp \
-            Level3/Hemm/HemmRL.cpp \
-            Level3/Hemm/HemmRU.cpp \
-            Level3/Her2k/Her2k.cpp \
-            Level3/Her2k/Her2kLN.cpp \
-            Level3/Her2k/Her2kLC.cpp \
-            Level3/Her2k/Her2kUN.cpp \
-            Level3/Her2k/Her2kUC.cpp \
-            Level3/Herk/Herk.cpp \
-            Level3/Herk/HerkLN.cpp \
-            Level3/Herk/HerkLC.cpp \
-            Level3/Herk/HerkUN.cpp \
-            Level3/Herk/HerkUC.cpp \
-            Level3/Symm/Symm.cpp \
-            Level3/Symm/SymmLL.cpp \
-            Level3/Symm/SymmLU.cpp \
-            Level3/Symm/SymmRL.cpp \
-            Level3/Symm/SymmRU.cpp \
-            Level3/Syr2k/Syr2k.cpp \
-            Level3/Syr2k/Syr2kLN.cpp \
-            Level3/Syr2k/Syr2kLT.cpp \
-            Level3/Syr2k/Syr2kUN.cpp \
-            Level3/Syr2k/Syr2kUT.cpp \
-            Level3/Syr2k/TriangularRank2K.cpp \
-            Level3/Syrk/Syrk.cpp \
-            Level3/Syrk/SyrkLN.cpp \
-            Level3/Syrk/SyrkLT.cpp \
-            Level3/Syrk/SyrkUN.cpp \
-            Level3/Syrk/SyrkUT.cpp \
-            Level3/Syrk/TriangularRankK.cpp \
-            Level3/Trmm/Trmm.cpp \
-            Level3/Trmm/TrmmLLN.cpp \
-            Level3/Trmm/TrmmLLT.cpp \
-            Level3/Trmm/TrmmLUN.cpp \
-            Level3/Trmm/TrmmLUT.cpp \
-            Level3/Trmm/TrmmRLN.cpp \
-            Level3/Trmm/TrmmRLT.cpp \
-            Level3/Trmm/TrmmRUN.cpp \
-            Level3/Trmm/TrmmRUT.cpp \
-            Level3/Trsm/Trsm.cpp \
-            Level3/Trsm/TrsmLLN.cpp \
-            Level3/Trsm/TrsmLLT.cpp \
-            Level3/Trsm/TrsmLUN.cpp \
-            Level3/Trsm/TrsmLUT.cpp \
-            Level3/Trsm/TrsmRLN.cpp \
-            Level3/Trsm/TrsmRLT.cpp \
-            Level3/Trsm/TrsmRUN.cpp \
-            Level3/Trsm/TrsmRUT.cpp 
+blasdir = blas
+blasfiles = level1/Dot/Dot.cpp \
+            level1/Dot/Dotu.cpp \
+            level1/Nrm2/Nrm2.cpp \
+            level2/Gemv/Gemv.cpp \
+            level2/Gemv/GemvN.cpp \
+            level2/Gemv/GemvT.cpp \
+            level2/Ger/Ger.cpp \
+            level2/Ger/Geru.cpp \
+            level2/Hemv/Hemv.cpp \
+            level2/Hemv/HemvL.cpp \
+            level2/Hemv/HemvU.cpp \
+            level2/Her/Her.cpp \
+            level2/Her2/Her2.cpp \
+            level2/Symv/Symv.cpp \
+            level2/Symv/SymvL.cpp \
+            level2/Symv/SymvU.cpp \
+            level2/Syr/Syr.cpp \
+            level2/Syr2/Syr2.cpp \
+            level2/Trsv/Trsv.cpp \
+            level2/Trsv/TrsvLN.cpp \
+            level2/Trsv/TrsvLT.cpp \
+            level2/Trsv/TrsvUN.cpp \
+            level2/Trsv/TrsvUT.cpp \
+            level3/Gemm/Gemm.cpp \
+            level3/Gemm/GemmNN.cpp \
+            level3/Gemm/GemmNT.cpp \
+            level3/Gemm/GemmTN.cpp \
+            level3/Gemm/GemmTT.cpp \
+            level3/Hemm/Hemm.cpp \
+            level3/Hemm/HemmLL.cpp \
+            level3/Hemm/HemmLU.cpp \
+            level3/Hemm/HemmRL.cpp \
+            level3/Hemm/HemmRU.cpp \
+            level3/Her2k/Her2k.cpp \
+            level3/Her2k/Her2kLN.cpp \
+            level3/Her2k/Her2kLC.cpp \
+            level3/Her2k/Her2kUN.cpp \
+            level3/Her2k/Her2kUC.cpp \
+            level3/Herk/Herk.cpp \
+            level3/Herk/HerkLN.cpp \
+            level3/Herk/HerkLC.cpp \
+            level3/Herk/HerkUN.cpp \
+            level3/Herk/HerkUC.cpp \
+            level3/Symm/Symm.cpp \
+            level3/Symm/SymmLL.cpp \
+            level3/Symm/SymmLU.cpp \
+            level3/Symm/SymmRL.cpp \
+            level3/Symm/SymmRU.cpp \
+            level3/Syr2k/Syr2k.cpp \
+            level3/Syr2k/Syr2kLN.cpp \
+            level3/Syr2k/Syr2kLT.cpp \
+            level3/Syr2k/Syr2kUN.cpp \
+            level3/Syr2k/Syr2kUT.cpp \
+            level3/Syr2k/TriangularRank2K.cpp \
+            level3/Syrk/Syrk.cpp \
+            level3/Syrk/SyrkLN.cpp \
+            level3/Syrk/SyrkLT.cpp \
+            level3/Syrk/SyrkUN.cpp \
+            level3/Syrk/SyrkUT.cpp \
+            level3/Syrk/TriangularRankK.cpp \
+            level3/Trmm/Trmm.cpp \
+            level3/Trmm/TrmmLLN.cpp \
+            level3/Trmm/TrmmLLT.cpp \
+            level3/Trmm/TrmmLUN.cpp \
+            level3/Trmm/TrmmLUT.cpp \
+            level3/Trmm/TrmmRLN.cpp \
+            level3/Trmm/TrmmRLT.cpp \
+            level3/Trmm/TrmmRUN.cpp \
+            level3/Trmm/TrmmRUT.cpp \
+            level3/Trsm/Trsm.cpp \
+            level3/Trsm/TrsmLLN.cpp \
+            level3/Trsm/TrsmLLT.cpp \
+            level3/Trsm/TrsmLUN.cpp \
+            level3/Trsm/TrsmLUT.cpp \
+            level3/Trsm/TrsmRLN.cpp \
+            level3/Trsm/TrsmRLT.cpp \
+            level3/Trsm/TrsmRUN.cpp \
+            level3/Trsm/TrsmRUT.cpp 
 blassrc = $(addprefix $(blasdir)/,$(blasfiles))
 
-lapackdir = LAPACK
+lapackdir = lapack
 lapackfiles = Chol/Chol.cpp \
               Chol/CholL.cpp \
               Chol/CholU.cpp \
@@ -235,20 +235,20 @@ bindir_debug = $(bindir)/debug
 bindir_release = $(bindir)/release
 
 tests = DistMatrix \
-        BLAS/Gemm \
-        BLAS/Hemm \
-        BLAS/Her2k \
-        BLAS/Herk \
-        BLAS/Symm \
-        BLAS/Symv \
-        BLAS/Syr2k \
-        BLAS/Syrk \
-        BLAS/Trmm \
-        BLAS/Trsm \
-        LAPACK/Chol \
-        LAPACK/LU \
-        LAPACK/Tridiag \
-        LAPACK/Trinv 
+        blas/Gemm \
+        blas/Hemm \
+        blas/Her2k \
+        blas/Herk \
+        blas/Symm \
+        blas/Symv \
+        blas/Syr2k \
+        blas/Syrk \
+        blas/Trmm \
+        blas/Trsm \
+        lapack/Chol \
+        lapack/LU \
+        lapack/Tridiag \
+        lapack/Trinv 
 testobjs = $(addsuffix .o, $(tests))
 
 tests_debug = $(addprefix $(bindir_debug)/, $(tests))
