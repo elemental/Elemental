@@ -331,7 +331,11 @@ void TestSerialGemm
     runTime = endTime - startTime;
     gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
     if( grid.VCRank() == 0 )
-        cout << "DONE. GFlops = " << gFlops << endl;
+    {
+        cout << "DONE. " << endl 
+             << "  Time = " << runTime << " seconds. GFlops = " 
+             << gFlops << endl;
+    }
     if( printMatrices )
     {
         ostringstream msg;
@@ -412,7 +416,11 @@ void TestParallelGemm
     runTime = endTime - startTime;
     gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
     if( grid.VCRank() == 0 )
-        cout << "DONE. GFlops = " << gFlops << endl;
+    {
+        cout << "DONE. " << endl
+             << "  Time = " << runTime << " seconds. GFlops = " 
+             << gFlops << endl;
+    }
     if( printMatrices )
     {
         ostringstream msg;
@@ -466,7 +474,11 @@ void TestParallelGemm
     runTime = endTime - startTime;
     gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
     if( grid.VCRank() == 0 )
-        cout << "DONE. GFlops = " << gFlops << endl;
+    {
+        cout << "DONE. " << endl 
+             << "  Time = " << runTime << " seconds. GFlops = " 
+             << gFlops << endl;
+    }
     if( printMatrices )
     {
         ostringstream msg;
@@ -520,7 +532,11 @@ void TestParallelGemm
     runTime = endTime - startTime;
     gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
     if( grid.VCRank() == 0 )
-        cout << "DONE. GFlops = " << gFlops << endl;
+    {
+        cout << "DONE. " << endl
+             << "  Time = " << runTime << " seconds. GFlops = " 
+             << gFlops << endl;
+    }
     if( printMatrices )
     {
         ostringstream msg;
@@ -576,7 +592,11 @@ void TestParallelGemm
         runTime = endTime - startTime;
         gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
         if( grid.VCRank() == 0 )
-            cout << "DONE. GFlops = " << gFlops << endl;
+        {
+            cout << "DONE. " << endl
+                 << "  Time = " << runTime << " seconds. GFlops = " 
+                 << gFlops << endl;
+        }
         if( printMatrices )
         {
             ostringstream msg;

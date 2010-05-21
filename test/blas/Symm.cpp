@@ -178,7 +178,11 @@ void TestSymm
     runTime = endTime - startTime;
     gFlops = blas::internal::SymmGFlops<T>(side,m,n,runTime);
     if( grid.VCRank() == 0 )
-        cout << "DONE. GFlops = " << gFlops << endl;
+    {
+        cout << "DONE. " << endl
+             << "  Time = " << runTime << " seconds. GFlops = " 
+             << gFlops << endl;
+    }
     if( printMatrices )
     {
         ostringstream msg;

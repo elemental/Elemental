@@ -18,17 +18,11 @@ library = libelemental.a
 #   LAPACK_UNDERSCORE: if defined, all lapack wrappers assume underscore postfix
 #   POOL_MEMORY: if defined, Memory class only accumulates until destruction
 #   RELEASE: if defined, callstack is not maintained and debug checks are off
-CXX = mpixlcxx_r
-CXXFLAGS = -DBLAS_UNDERSCORE -I$(incdir) \
-  -qpath=ILbc:/soft/apps/xlC-interim-fix-APAR_LI75501-template/exe/
-CXXFLAGS_DEBUG = -g $(CXXFLAGS)
-CXXFLAGS_RELEASE = -O3 -DRELEASE $(CXXFLAGS)
-LDFLAGS = -L/soft/apps/ESSL-4.3.1-1/include \
-          -L/soft/apps/ESSL-4.3.1-1/lib \
-	  -L/soft/apps/ibmcmp-jan2010/xlf/bg/11.1/bglib \
-	  -L/soft/apps/ibmcmp-jan2010/xlsmp/bg/1.7/bglib \
-	  -L/soft/apps/LAPACK -llapack_bgp -lesslbg -lxlfmath -lxlf90_r \
-	  -lxlomp_ser
+CXX = mpicxx
+CXXFLAGS = -DBLAS_UNDERSCORE -I$(incdir) 
+CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)
+CXXFLAGS_RELEASE = -O3 -Wall -DRELEASE $(CXXFLAGS)
+LDFLAGS = -L/usr/lib -llapack -lblas
 AR = ar
 ARFLAGS = rc
 

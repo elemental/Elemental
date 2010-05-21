@@ -171,7 +171,11 @@ void TestTrsm
     runTime = endTime - startTime;
     gFlops = blas::internal::TrsmGFlops<T>(side,m,n,runTime);
     if( grid.VCRank() == 0 )
-        cout << "DONE. GFlops =  " << gFlops << endl;
+    {
+        cout << "DONE. " << endl
+             << "  Time = " << runTime << " seconds. GFlops = " 
+             << gFlops << endl;
+    }
     if( printMatrices )
         X.Print("X after solve");
     if( testCorrectness )

@@ -175,7 +175,11 @@ void TestLU
     runTime = endTime - startTime;
     gFlops = lapack::internal::LUGFlops<T>( m, runTime );
     if( grid.VCRank() == 0 )
-        cout << "DONE. GFlops = " << gFlops << endl;
+    {
+        cout << "DONE. " << endl
+             << "  Time = " << runTime << " seconds. GFlops = " 
+             << gFlops << endl;
+    }
     if( printMatrices )
     {
         A.Print("A after factorization");

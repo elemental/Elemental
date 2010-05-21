@@ -181,7 +181,11 @@ void TestChol
     runTime = endTime - startTime;
     gFlops = lapack::internal::CholGFlops<T>( m, runTime );
     if( grid.VCRank() == 0 )
-        cout << "DONE. GFlops = " << gFlops << endl;
+    {
+        cout << "DONE. " << endl
+             << "  Time = " << runTime << " seconds. GFlops = " 
+             << gFlops << endl;
+    }
     if( printMatrices )
     {
         A.Print("A after factorization");

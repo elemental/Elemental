@@ -205,7 +205,11 @@ void TestSyr2k
     runTime = endTime - startTime;
     gFlops = blas::internal::Syr2kGFlops<T>(m,k,runTime);
     if( grid.VCRank() == 0 )
-        cout << "DONE. GFlops = " << gFlops << endl;
+    {
+        cout << "DONE. " << endl
+             << "  Time = " << runTime << " seconds. GFlops = " 
+             << gFlops << endl;
+    }
     if( printMatrices )
     {
         ostringstream msg;
