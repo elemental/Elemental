@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #ifndef ELEMENTAL_WRAPPERS_LAPACK_HPP
 #define ELEMENTAL_WRAPPERS_LAPACK_HPP 1
@@ -85,11 +76,21 @@ SafeNorm
 
 void
 Tridiag
-( char uplo, int n, float* A, int lda, float* d, float* e, float* tau );
+( char uplo, int n, float* A, int lda, float* d, float* e, float* t );
 
 void
 Tridiag
-( char uplo, int n, double* A, int lda, double* d, double* e, double* tau );
+( char uplo, int n, double* A, int lda, double* d, double* e, double* t );
+
+#ifndef WITHOUT_COMPLEX
+void
+Tridiag
+( char uplo, int n, scomplex* A, int lda, float* d, float* e, scomplex* t );
+
+void
+Tridiag
+( char uplo, int n, dcomplex* A, int lda, double* d, double* e, dcomplex* t );
+#endif
 
 void
 Trinv
@@ -190,6 +191,18 @@ void LAPACK(dsytd2)
 ( const char* uplo,
   const int* n, double* A, const int* lda, 
   double* d, double* e, double* tau, int* info );
+
+#ifndef WITHOUT_COMPLEX
+void LAPACK(chetd2)
+( const char* uplo,
+  const int* n, elemental::scomplex* A, const int* lda,
+  float* d, float* e, elemental::scomplex* tau, int* info );
+
+void LAPACK(zhetd2)
+( const char* uplo,
+  const int* n, elemental::dcomplex* A, const int* lda,
+  double* d, double* e, elemental::dcomplex* tau, int* info );
+#endif
 
 } // extern "C"
 
@@ -466,6 +479,50 @@ elemental::wrappers::lapack::Tridiag
     PopCallStack();
 #endif
 }
+
+#ifndef WITHOUT_COMPLEX
+inline void
+elemental::wrappers::lapack::Tridiag
+( char uplo, int n, scomplex* A, int lda, float* d, float* e, scomplex* tau )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::lapack::Tridiag");
+#endif
+    int info;
+    LAPACK(chetd2)( &uplo, &n, A, &lda, d, e, tau, &info );
+#ifndef RELEASE
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "chetd2 returned with info = " << info;
+        const std::string& s = msg.str();
+        throw s.c_str();
+    }
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::wrappers::lapack::Tridiag
+( char uplo, int n, dcomplex* A, int lda, double* d, double* e, dcomplex* tau )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::lapack::Tridiag");
+#endif
+    int info;
+    LAPACK(zhetd2)( &uplo, &n, A, &lda, d, e, tau, &info );
+#ifndef RELEASE
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "zhetd2 returned with info = " << info;
+        const std::string& s = msg.str();
+        throw s.c_str();
+    }
+    PopCallStack();
+#endif
+}
+#endif
 
 inline void
 elemental::wrappers::lapack::Trinv

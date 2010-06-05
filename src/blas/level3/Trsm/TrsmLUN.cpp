@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -64,21 +55,25 @@ blas::internal::TrsmLUN
 
     // Start the algorithm
     blas::Scal( alpha, X );
-    LockedPartitionUpDiagonal( U, UTL, UTR,
-                                  UBL, UBR );
-    PartitionUp( X, XT,
-                    XB );
+    LockedPartitionUpDiagonal
+    ( U, UTL, UTR,
+         UBL, UBR );
+    PartitionUp
+    ( X, XT,
+         XB );
     while( XT.Height() > 0 )
     {
-        LockedRepartitionUpDiagonal( UTL, /**/ UTR,   U00, U01, /**/ U02,
-                                          /**/        U10, U11, /**/ U12,
-                                    /*************/  /******************/
-                                     UBL, /**/ UBR,   U20, U21, /**/ U22 );
+        LockedRepartitionUpDiagonal
+        ( UTL, /**/ UTR,   U00, U01, /**/ U02,
+               /**/        U10, U11, /**/ U12,
+         /*************/  /******************/
+          UBL, /**/ UBR,   U20, U21, /**/ U22 );
 
-        RepartitionUp( XT,  X0,
-                            X1,
-                      /**/ /**/
-                       XB,  X2 );
+        RepartitionUp
+        ( XT,  X0,
+               X1,
+         /**/ /**/
+          XB,  X2 );
 
         U01_MC_Star.AlignWith( X0 );
         X1_Star_MR.AlignWith( X0 );
@@ -87,32 +82,36 @@ blas::internal::TrsmLUN
         X1_Star_VR    = X1;  // X1[*,VR] <- X1[MC,MR]
         
         // X1[*,VR] := (U11[*,*])^-1 X1[*,VR]
-        blas::Trsm( Left, Upper, Normal, diagonal,
-                    (T)1, U11_Star_Star.LockedLocalMatrix(),
-                          X1_Star_VR.LocalMatrix()          );
+        blas::Trsm
+        ( Left, Upper, Normal, diagonal,
+          (T)1, U11_Star_Star.LockedLocalMatrix(),
+                X1_Star_VR.LocalMatrix() );
 
         X1_Star_MR  = X1_Star_VR; // X1[*,MR]  <- X1[*,VR]
         X1          = X1_Star_MR; // X1[MC,MR] <- X1[*,MR]
         U01_MC_Star = U01;        // U01[MC,*] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,*] X1[*,MR]
-        blas::Gemm( Normal, Normal, 
-                    (T)-1, U01_MC_Star.LockedLocalMatrix(),
-                           X1_Star_MR.LockedLocalMatrix(),
-                    (T) 1, X0.LocalMatrix()                );
+        blas::Gemm
+        ( Normal, Normal, 
+          (T)-1, U01_MC_Star.LockedLocalMatrix(),
+                 X1_Star_MR.LockedLocalMatrix(),
+          (T) 1, X0.LocalMatrix() );
         //--------------------------------------------------------------------//
-        U01_MC_Star.FreeConstraints();
-        X1_Star_MR.FreeConstraints();
+        U01_MC_Star.FreeAlignments();
+        X1_Star_MR.FreeAlignments();
 
-        SlideLockedPartitionUpDiagonal( UTL, /**/ UTR,  U00, /**/ U01, U02,
-                                       /*************/ /******************/
-                                             /**/       U10, /**/ U11, U12,
-                                        UBL, /**/ UBR,  U20, /**/ U21, U22 );
+        SlideLockedPartitionUpDiagonal
+        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
+         /*************/ /******************/
+               /**/       U10, /**/ U11, U12,
+          UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
-        SlidePartitionUp( XT,  X0,
-                         /**/ /**/
-                               X1,
-                          XB,  X2 );
+        SlidePartitionUp
+        ( XT,  X0,
+         /**/ /**/
+               X1,
+          XB,  X2 );
     }
 #ifndef RELEASE
     PopCallStack();

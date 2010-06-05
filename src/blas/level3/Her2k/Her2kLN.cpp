@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -33,7 +24,7 @@ elemental::blas::internal::Her2kLN
         throw "{A,B,C} must be distributed over the same grid.";
     if( A.Height() != C.Height() || A.Height() != C.Width() ||
         B.Height() != C.Height() || B.Height() != C.Width() ||
-        A.Width() != B.Width()                                 )
+        A.Width() != B.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal Her2kLN:" << endl
@@ -67,11 +58,13 @@ elemental::blas::internal::Her2kLN
     LockedPartitionRight( B, BL, BR );
     while( AR.Width() > 0 )
     {
-        LockedRepartitionRight( AL, /**/ AR,
-                                A0, /**/ A1, A2 );
+        LockedRepartitionRight
+        ( AL, /**/ AR,
+          A0, /**/ A1, A2 );
 
-        LockedRepartitionRight( BL, /**/ BR,
-                                B0, /**/ B1, B2 );
+        LockedRepartitionRight
+        ( BL, /**/ BR,
+          B0, /**/ B1, B2 );
 
         A1_MC_Star.AlignWith( C );
         B1_MC_Star.AlignWith( C );
@@ -90,18 +83,20 @@ elemental::blas::internal::Her2kLN
         ( Lower, alpha,
           A1_MC_Star, B1_MC_Star, A1Herm_Star_MR, B1Herm_Star_MR, (T)1, C );
         //--------------------------------------------------------------------//
-        A1_MC_Star.FreeConstraints();
-        B1_MC_Star.FreeConstraints();
-        A1_VR_Star.FreeConstraints();
-        B1_VR_Star.FreeConstraints();
-        A1Herm_Star_MR.FreeConstraints();
-        B1Herm_Star_MR.FreeConstraints();
+        A1_MC_Star.FreeAlignments();
+        B1_MC_Star.FreeAlignments();
+        A1_VR_Star.FreeAlignments();
+        B1_VR_Star.FreeAlignments();
+        A1Herm_Star_MR.FreeAlignments();
+        B1Herm_Star_MR.FreeAlignments();
 
-        SlideLockedPartitionRight( AL,     /**/ AR,
-                                   A0, A1, /**/ A2 );
+        SlideLockedPartitionRight
+        ( AL,     /**/ AR,
+          A0, A1, /**/ A2 );
 
-        SlideLockedPartitionRight( BL,     /**/ BR,
-                                   B0, B1, /**/ B2 );
+        SlideLockedPartitionRight
+        ( BL,     /**/ BR,
+          B0, B1, /**/ B2 );
     }
 #ifndef RELEASE
     PopCallStack();

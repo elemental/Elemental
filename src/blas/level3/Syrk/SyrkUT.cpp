@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -58,10 +49,11 @@ elemental::blas::internal::SyrkUT
                           AB );
     while( AT.Height() > 0 )
     {
-        LockedRepartitionUp( AT,  A0,
-                                  A1,
-                            /**/ /**/
-                             AB,  A2 );
+        LockedRepartitionUp
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
 
         A1Trans_MR_Star.AlignWith( C );
         A1_Star_MC.AlignWith( C );
@@ -71,15 +63,17 @@ elemental::blas::internal::SyrkUT
         A1_Star_MC = A1_Star_VR;
 
         blas::internal::TriangularRankK
-        ( Upper, alpha, A1_Star_MC, A1Trans_MR_Star, (T)1, C );
+        ( Upper, Transpose, Transpose, 
+          alpha, A1_Star_MC, A1Trans_MR_Star, (T)1, C );
         //--------------------------------------------------------------------//
-        A1Trans_MR_Star.FreeConstraints();
-        A1_Star_MC.FreeConstraints();
+        A1Trans_MR_Star.FreeAlignments();
+        A1_Star_MC.FreeAlignments();
 
-        SlideLockedPartitionUp( AT,  A0,
-                               /**/ /**/
-                                     A1,
-                                AB,  A2 );
+        SlideLockedPartitionUp
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
     }
 #ifndef RELEASE
     PopCallStack();

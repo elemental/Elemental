@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -34,9 +25,7 @@ elemental::blas::internal::GemvT
         throw "{A,x,y} must be distributed over the same grid.";
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
         ( y.Width() != 1 && y.Height() != 1 )   )
-    {
         throw "GemvT expects x and y to be vectors.";
-    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Width() != yLength )
@@ -61,25 +50,26 @@ elemental::blas::internal::GemvT
 
         // Start the algorithm
         blas::Scal( beta, y );
-        x_MC_Star.ConformWith( A );
+        x_MC_Star.AlignWith( A );
         z_MR_Star.AlignWith( A );
         z_MR_Star.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         z.AlignWith( y );
         //--------------------------------------------------------------------//
         x_MC_Star = x;
-        blas::Gemv( orientation,
-                    alpha, A.LockedLocalMatrix(), 
-                           x_MC_Star.LockedLocalMatrix(),
-                    (T)0,  z_MR_Star.LocalMatrix()       );
-        z_MR_MC.ReduceScatterFrom( z_MR_Star );
+        blas::Gemv
+        ( orientation,
+          alpha, A.LockedLocalMatrix(), 
+                 x_MC_Star.LockedLocalMatrix(),
+          (T)0,  z_MR_Star.LocalMatrix() );
+        z_MR_MC.SumScatterFrom( z_MR_Star );
         z = z_MR_MC;
         blas::Axpy( (T)1, z, y );
         //--------------------------------------------------------------------//
-        x_MC_Star.FreeConstraints();
-        z_MR_Star.FreeConstraints();
-        z_MR_MC.FreeConstraints();
-        z.FreeConstraints();
+        x_MC_Star.FreeAlignments();
+        z_MR_Star.FreeAlignments();
+        z_MR_MC.FreeAlignments();
+        z.FreeAlignments();
     }
     else if( x.Width() == 1 )
     {
@@ -91,25 +81,26 @@ elemental::blas::internal::GemvT
 
         // Start the algorithm
         blas::Scal( beta, y );
-        x_MC_Star.ConformWith( A );
+        x_MC_Star.AlignWith( A );
         z_MR_Star.AlignWith( A );
         z_MR_Star.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
         x_MC_Star = x;
-        blas::Gemv( orientation,
-                    alpha, A.LockedLocalMatrix(),
-                           x_MC_Star.LockedLocalMatrix(),
-                    (T)0,  z_MR_Star.LocalMatrix()       );
-        z_MR_MC.ReduceScatterFrom( z_MR_Star );
+        blas::Gemv
+        ( orientation,
+          alpha, A.LockedLocalMatrix(),
+                 x_MC_Star.LockedLocalMatrix(),
+          (T)0,  z_MR_Star.LocalMatrix() );
+        z_MR_MC.SumScatterFrom( z_MR_Star );
         blas::Trans( z_MR_MC, zTrans );
         blas::Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
-        x_MC_Star.FreeConstraints();
-        z_MR_Star.FreeConstraints();
-        z_MR_MC.FreeConstraints();
-        zTrans.FreeConstraints();
+        x_MC_Star.FreeAlignments();
+        z_MR_Star.FreeAlignments();
+        z_MR_MC.FreeAlignments();
+        zTrans.FreeAlignments();
     }
     else if( y.Width() == 1 )
     {
@@ -121,25 +112,26 @@ elemental::blas::internal::GemvT
 
         // Start the algorithm
         blas::Scal( beta, y );
-        x_Star_MC.ConformWith( A );
+        x_Star_MC.AlignWith( A );
         z_MR_Star.AlignWith( A );
         z_MR_Star.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         z.AlignWith( y );
         //--------------------------------------------------------------------//
         x_Star_MC = x;
-        blas::Gemv( orientation,
-                    alpha, A.LockedLocalMatrix(), 
-                           x_Star_MC.LockedLocalMatrix(),
-                    (T)0,  z_MR_Star.LocalMatrix()       );
-        z_MR_MC.ReduceScatterFrom( z_MR_Star );
+        blas::Gemv
+        ( orientation,
+          alpha, A.LockedLocalMatrix(), 
+                 x_Star_MC.LockedLocalMatrix(),
+          (T)0,  z_MR_Star.LocalMatrix() );
+        z_MR_MC.SumScatterFrom( z_MR_Star );
         z = z_MR_MC;
         blas::Axpy( (T)1, z, y );
         //--------------------------------------------------------------------//
-        x_Star_MC.FreeConstraints();
-        z_MR_Star.FreeConstraints();
-        z_MR_MC.FreeConstraints();
-        z.FreeConstraints();
+        x_Star_MC.FreeAlignments();
+        z_MR_Star.FreeAlignments();
+        z_MR_MC.FreeAlignments();
+        z.FreeAlignments();
     }
     else
     {
@@ -151,25 +143,26 @@ elemental::blas::internal::GemvT
 
         // Start the algorithm
         blas::Scal( beta, y );
-        x_Star_MC.ConformWith( A );
+        x_Star_MC.AlignWith( A );
         z_MR_Star.AlignWith( A );
         z_MR_Star.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
         x_Star_MC = x;
-        blas::Gemv( orientation,
-                    alpha, A.LockedLocalMatrix(),
-                           x_Star_MC.LockedLocalMatrix(),
-                    (T)0,  z_MR_Star.LocalMatrix()       );
-        z_MR_MC.ReduceScatterFrom( z_MR_Star );
+        blas::Gemv
+        ( orientation,
+          alpha, A.LockedLocalMatrix(),
+                 x_Star_MC.LockedLocalMatrix(),
+          (T)0,  z_MR_Star.LocalMatrix() );
+        z_MR_MC.SumScatterFrom( z_MR_Star );
         blas::Trans( z_MR_MC, zTrans );
         blas::Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
-        x_Star_MC.FreeConstraints();
-        z_MR_Star.FreeConstraints();
-        z_MR_MC.FreeConstraints();
-        zTrans.FreeConstraints();
+        x_Star_MC.FreeAlignments();
+        z_MR_Star.FreeAlignments();
+        z_MR_MC.FreeAlignments();
+        zTrans.FreeAlignments();
     }
 #ifndef RELEASE
     PopCallStack();

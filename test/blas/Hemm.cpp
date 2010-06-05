@@ -1,24 +1,13 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
-#include <cmath>
 #include <ctime>
-#include <sstream>
 #include "elemental.hpp"
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -143,17 +132,9 @@ void TestHemm
     // Test Hemm
     if( grid.VCRank() == 0 )
         cout << "Hemm:" << endl;
-    A.SetToRandom();
+    A.SetToRandomHPD();
     B.SetToRandom();
     C.SetToRandom();
-
-    // The diagonal of A must be real-valued to treat it as Hermitian
-    for( int j=0; j<A.Height(); ++j )
-    {
-        T u = A.Get(j,j);
-        u = u.real();
-        A.Set(j,j,u);
-    }
 
     if( testCorrectness )
     {
@@ -249,6 +230,18 @@ int main( int argc, char* argv[] )
             cout << "Will test Hemm" << SideToChar(side) 
                                      << ShapeToChar(shape) << endl;
         }
+
+        if( rank == 0 )
+        {
+            cout << "--------------------------------------" << endl;
+            cout << "Testing with doubles:                 " << endl;
+            cout << "--------------------------------------" << endl;
+        }
+        TestHemm<double>
+        ( testCorrectness, printMatrices,
+          side, shape, m, n, (double)3, (double)4, grid );
+        if( rank == 0 )
+            cout << endl;
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )

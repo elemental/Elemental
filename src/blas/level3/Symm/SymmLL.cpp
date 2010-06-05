@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -71,39 +62,48 @@ elemental::blas::internal::SymmLLC
 
     // Start the algorithm
     blas::Scal( beta, C );
-    LockedPartitionDownDiagonal( A, ATL, ATR,
-                                    ABL, ABR );
-    LockedPartitionDown( B, BT,
-                            BB );
-    PartitionDown( C, CT,
-                      CB );
+    LockedPartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR );
+    LockedPartitionDown
+    ( B, BT,
+         BB );
+    PartitionDown
+    ( C, CT,
+         CB );
     while( CB.Height() > 0 )
     {
-        LockedRepartitionDownDiagonal( ATL, /**/ ATR,  A00, /**/ A01, A02,
-                                      /*************/ /******************/
-                                            /**/       A10, /**/ A11, A12,
-                                       ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        LockedRepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        LockedRepartitionDown( BT,  B0,
-                              /**/ /**/
-                                    B1,
-                               BB,  B2 );
+        LockedRepartitionDown
+        ( BT,  B0,
+         /**/ /**/
+               B1,
+          BB,  B2 );
 
-        RepartitionDown( CT,  C0,
-                        /**/ /**/
-                              C1,
-                         CB,  C2 );
+        RepartitionDown
+        ( CT,  C0,
+         /**/ /**/
+               C1,
+          CB,  C2 );
 
         ARowPan.LockedView1x2( A10, A11 );
 
-        AColPan.LockedView2x1( A11,
-                               A21 );
+        AColPan.LockedView2x1
+        ( A11,
+          A21 );
 
-        CAbove.View2x1( C0,
-                        C1 );
+        CAbove.View2x1
+        ( C0,
+          C1 );
 
-        CBelow.View2x1( C1,
-                        C2 );
+        CBelow.View2x1
+        ( C1,
+          C2 );
 
         AColPan_MC_Star.AlignWith( CBelow );
         ARowPan_Star_MC.AlignWith( CAbove );
@@ -116,33 +116,39 @@ elemental::blas::internal::SymmLLC
 
         B1_Star_MR = B1;
 
-        blas::Gemm( Normal, Normal,
-                    alpha, AColPan_MC_Star.LockedLocalMatrix(),
-                           B1_Star_MR.LockedLocalMatrix(),
-                    (T)1,  CBelow.LocalMatrix()                );
-        blas::Gemm( Transpose, Normal,
-                    alpha, ARowPan_Star_MC.LockedLocalMatrix(),
-                           B1_Star_MR.LockedLocalMatrix(),
-                    (T)1,  CAbove.LocalMatrix()                );
+        blas::Gemm
+        ( Normal, Normal,
+          alpha, AColPan_MC_Star.LockedLocalMatrix(),
+                 B1_Star_MR.LockedLocalMatrix(),
+          (T)1,  CBelow.LocalMatrix() );
+
+        blas::Gemm
+        ( Transpose, Normal,
+          alpha, ARowPan_Star_MC.LockedLocalMatrix(),
+                 B1_Star_MR.LockedLocalMatrix(),
+          (T)1,  CAbove.LocalMatrix() );
         //--------------------------------------------------------------------//
-        AColPan_MC_Star.FreeConstraints();
-        ARowPan_Star_MC.FreeConstraints();
-        B1_Star_MR.FreeConstraints();
+        AColPan_MC_Star.FreeAlignments();
+        ARowPan_Star_MC.FreeAlignments();
+        B1_Star_MR.FreeAlignments();
 
-        SlideLockedPartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
-                                               /**/       A10, A11, /**/ A12,
-                                         /*************/ /******************/
-                                          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        SlideLockedPartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
-        SlideLockedPartitionDown( BT,  B0,
-                                       B1,
-                                 /**/ /**/
-                                  BB,  B2 );
+        SlideLockedPartitionDown
+        ( BT,  B0,
+               B1,
+         /**/ /**/
+          BB,  B2 );
 
-        SlidePartitionDown( CT,  C0,
-                                 C1,
-                           /**/ /**/
-                            CB,  C2 );
+        SlidePartitionDown
+        ( CT,  C0,
+               C1,
+         /**/ /**/
+          CB,  C2 );
     }
 #ifndef RELEASE
     PopCallStack();

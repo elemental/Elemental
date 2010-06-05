@@ -19,7 +19,7 @@ library = libelemental.a
 #   POOL_MEMORY: if defined, Memory class only accumulates until destruction
 #   RELEASE: if defined, callstack is not maintained and debug checks are off
 CXX = mpicxx
-CXXFLAGS = -DBLAS_UNDERSCORE -I$(incdir) 
+CXXFLAGS = -DBLAS_UNDERSCORE -DLAPACK_UNDERSCORE -I$(incdir) 
 CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)
 CXXFLAGS_RELEASE = -O3 -Wall -DRELEASE $(CXXFLAGS)
 LDFLAGS = -L/usr/lib -llapack -lblas
@@ -162,6 +162,7 @@ includefiles = elemental.hpp \
                elemental/blas.hpp \
                elemental/blas_internal.hpp \
                elemental/dist_matrix.hpp \
+               elemental/dist_matrix/abstract.hpp \
                elemental/dist_matrix/mc_mr.hpp \
                elemental/dist_matrix/mc_star.hpp \
                elemental/dist_matrix/md_star.hpp \
@@ -187,8 +188,7 @@ includefiles = elemental.hpp \
                elemental/wrappers/blas.hpp \
                elemental/wrappers/lapack.hpp \
                elemental/wrappers/mpi.hpp
-includes = $(addprefix $(incdir)/,$(includefiles)) \
-           $(srcdir)/$(coredir)/DistMatrix/dist_matrix_macros.hpp
+includes = $(addprefix $(incdir)/,$(includefiles)) 
 
 ################################################################################
 # make                                                                         #

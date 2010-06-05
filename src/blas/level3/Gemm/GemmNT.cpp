@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -113,20 +104,23 @@ elemental::blas::internal::GemmNTA
 
     // Start the algorithm
     blas::Scal( beta, C );
-    LockedPartitionDown( B, BT,
-                            BB );
+    LockedPartitionDown
+    ( B, BT,
+         BB );
     PartitionRight( C, CL, CR );
     while( BB.Height() > 0 )
     {
-        LockedRepartitionDown( BT,  B0,
-                              /**/ /**/
-                                    B1,
-                               BB,  B2 );
+        LockedRepartitionDown
+        ( BT,  B0,
+         /**/ /**/
+               B1,
+          BB,  B2 );
 
-        RepartitionRight( CL, /**/     CR,
-                          C0, /**/ C1, C2 );
+        RepartitionRight
+        ( CL, /**/     CR,
+          C0, /**/ C1, C2 );
 
-        B1_Star_MR.ConformWith( A );
+        B1_Star_MR.AlignWith( A );
         D1_MC_Star.AlignWith( A );
         D1_MC_Star.ResizeTo( C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
@@ -134,24 +128,27 @@ elemental::blas::internal::GemmNTA
 
         // C1[MC,*] := alpha A[MC,MR] (B1[*,MR])^T
         //           = alpha A[MC,MR] (B1^T)[MR,*]
-        blas::Gemm( Normal, orientationOfB, 
-                    alpha, A.LockedLocalMatrix(),
-                           B1_Star_MR.LockedLocalMatrix(),
-                    (T)0,  D1_MC_Star.LocalMatrix()       );
+        blas::Gemm
+        ( Normal, orientationOfB, 
+          alpha, A.LockedLocalMatrix(),
+                 B1_Star_MR.LockedLocalMatrix(),
+          (T)0,  D1_MC_Star.LocalMatrix() );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
-        C1.ReduceScatterUpdate( (T)1, D1_MC_Star );
+        C1.SumScatterUpdate( (T)1, D1_MC_Star );
         //--------------------------------------------------------------------//
-        B1_Star_MR.FreeConstraints();
-        D1_MC_Star.FreeConstraints();
+        B1_Star_MR.FreeAlignments();
+        D1_MC_Star.FreeAlignments();
 
-        SlideLockedPartitionDown( BT,  B0,
-                                       B1,
-                                 /**/ /**/
-                                  BB,  B2 );
+        SlideLockedPartitionDown
+        ( BT,  B0,
+               B1,
+         /**/ /**/
+          BB,  B2 );
 
-        SlidePartitionRight( CL,     /**/ CR,
-                             C0, C1, /**/ C2 );
+        SlidePartitionRight
+        ( CL,     /**/ CR,
+          C0, C1, /**/ C2 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -175,7 +172,7 @@ elemental::blas::internal::GemmNTB
         throw "GemmNTB requires that B be (Conjugate)Transposed.";
     if( A.Height() != C.Height() ||
         B.Height() != C.Width()  ||
-        A.Width()  != B.Width()    )
+        A.Width()  != B.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal GemmNTB: " << endl
@@ -205,23 +202,27 @@ elemental::blas::internal::GemmNTB
 
     // Start the algorithm
     blas::Scal( beta, C );
-    LockedPartitionDown( A, AT,
-                            AB );
-    PartitionDown( C, CT,
-                      CB );
+    LockedPartitionDown
+    ( A, AT,
+         AB );
+    PartitionDown
+    ( C, CT,
+         CB );
     while( AB.Height() > 0 )
     {
-        LockedRepartitionDown( AT,  A0,
-                              /**/ /**/
-                                    A1,
-                               AB,  A2 );
+        LockedRepartitionDown
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
 
-        RepartitionDown( CT,  C0,
-                        /**/ /**/
-                              C1,
-                         CB,  C2 );
+        RepartitionDown
+        ( CT,  C0,
+         /**/ /**/
+               C1,
+          CB,  C2 );
 
-        A1_Star_MR.ConformWith( B );
+        A1_Star_MR.AlignWith( B );
         D1_Star_MC.AlignWith( B );
         D1_Star_MC.ResizeTo( C1.Height(), C1.Width() );
         D1.AlignWith( C1 );
@@ -230,29 +231,32 @@ elemental::blas::internal::GemmNTB
 
         // D1[*,MC] := alpha A1[*,MR] (B[MC,MR])^T
         //           = alpha A1[*,MR] (B^T)[MR,MC]
-        blas::Gemm( Normal, orientationOfB, 
-                    alpha, A1_Star_MR.LockedLocalMatrix(),
-                           B.LockedLocalMatrix(),
-                    (T)0,  D1_Star_MC.LocalMatrix()       );
+        blas::Gemm
+        ( Normal, orientationOfB, 
+          alpha, A1_Star_MR.LockedLocalMatrix(),
+                 B.LockedLocalMatrix(),
+          (T)0,  D1_Star_MC.LocalMatrix() );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
-        D1_MR_MC.ReduceScatterFrom( D1_Star_MC );
+        D1_MR_MC.SumScatterFrom( D1_Star_MC );
         D1 = D1_MR_MC; 
         blas::Axpy( (T)1, D1, C1 );
         //--------------------------------------------------------------------//
-        A1_Star_MR.FreeConstraints();
-        D1_Star_MC.FreeConstraints();
-        D1.FreeConstraints();
+        A1_Star_MR.FreeAlignments();
+        D1_Star_MC.FreeAlignments();
+        D1.FreeAlignments();
 
-        SlideLockedPartitionDown( AT,  A0,
-                                       A1,
-                                 /**/ /**/
-                                  AB,  A2 );
+        SlideLockedPartitionDown
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
     
-        SlidePartitionDown( CT,  C0,
-                                 C1,
-                           /**/ /**/
-                            CB,  C2 );
+        SlidePartitionDown
+        ( CT,  C0,
+               C1,
+         /**/ /**/
+          CB,  C2 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -306,11 +310,13 @@ elemental::blas::internal::GemmNTC
     LockedPartitionRight( B, BL, BR );
     while( AR.Width() > 0 )
     {
-        LockedRepartitionRight( AL, /**/ AR,
-                                A0, /**/ A1, A2 );    
+        LockedRepartitionRight
+        ( AL, /**/ AR,
+          A0, /**/ A1, A2 );    
 
-        LockedRepartitionRight( BL, /**/ BR,
-                                B0, /**/ B1, B2 );
+        LockedRepartitionRight
+        ( BL, /**/ BR,
+          B0, /**/ B1, B2 );
 
         A1_MC_Star.AlignWith( C );
         B1_MR_Star.AlignWith( C );
@@ -320,19 +326,22 @@ elemental::blas::internal::GemmNTC
 
         // C[MC,MR] += alpha A1[MC,*] (B1[MR,*])^T
         //           = alpha A1[MC,*] (B1^T)[*,MR]
-        blas::Gemm( Normal, orientationOfB, 
-                    alpha, A1_MC_Star.LockedLocalMatrix(),
-                           B1_MR_Star.LockedLocalMatrix(),
-                    (T)1,  C.LocalMatrix()                );
+        blas::Gemm
+        ( Normal, orientationOfB, 
+          alpha, A1_MC_Star.LockedLocalMatrix(),
+                 B1_MR_Star.LockedLocalMatrix(),
+          (T)1,  C.LocalMatrix() );
         //--------------------------------------------------------------------//
-        A1_MC_Star.FreeConstraints();
-        B1_MR_Star.FreeConstraints();
+        A1_MC_Star.FreeAlignments();
+        B1_MR_Star.FreeAlignments();
  
-        SlideLockedPartitionRight( AL,     /**/ AR,
-                                   A0, A1, /**/ A2 );
+        SlideLockedPartitionRight
+        ( AL,     /**/ AR,
+          A0, A1, /**/ A2 );
 
-        SlideLockedPartitionRight( BL,     /**/ BR,
-                                   B0, B1, /**/ B2 );
+        SlideLockedPartitionRight
+        ( BL,     /**/ BR,
+          B0, B1, /**/ B2 );
     }
 #ifndef RELEASE
     PopCallStack();

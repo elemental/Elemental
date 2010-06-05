@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -33,12 +24,12 @@ CheckInput
   const DistMatrix<T,MC,  MR  >& C  )
 {
     if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid()     )
+        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
         throw "A, B, and C must be distributed over the same grid.";
     if( A1.Height() != C.Height() || B1.Width() != C.Width() ||
         A1.Height() != A2.Height() || A1.Width() != A2.Width() ||
         B1.Height() != B2.Height() || B1.Width() != B2.Width() ||
-        A1.Width() != B1.Height()                                 )
+        A1.Width() != B1.Height() )
     {
         ostringstream msg;
         msg << "Nonconformal TriangularRank2K: " << endl
@@ -57,7 +48,7 @@ CheckInput
     if( A1.ColAlignment() != C.ColAlignment() ||
         B1.RowAlignment() != C.RowAlignment() ||
         A1.ColAlignment() != A2.ColAlignment() ||
-        B1.RowAlignment() != B2.RowAlignment()    )
+        B1.RowAlignment() != B2.RowAlignment() )
     {
         ostringstream msg;
         msg << "Misaligned TriangularRank2K: " << endl
@@ -75,19 +66,22 @@ CheckInput
 template<typename T>
 void 
 CheckInput
-( const DistMatrix<T,MC,  Star>& A1, 
+( Orientation orientationOfB1,
+  const DistMatrix<T,MC,  Star>& A1, 
   const DistMatrix<T,MC,  Star>& A2,
   const DistMatrix<T,MR,  Star>& B1,
   const DistMatrix<T,Star,MR  >& B2,
-  const DistMatrix<T,MC,  MR  >& C  )
+  const DistMatrix<T,MC,  MR  >& C )
 {
+    if( orientationOfB1 == Normal )
+        throw "B1[MR,* ] must be (Conjugate)Transpose'd.";
     if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid()     )
+        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
         throw "A, B, and C must be distributed over the same grid.";
     if( A1.Height() != C.Height() || B1.Height() != C.Width() ||
         A1.Height() != A2.Height() || A1.Width() != A2.Width() ||
         B1.Width() != B2.Height() || B1.Height() != B2.Width() ||
-        A1.Width() != B1.Width()                                 )
+        A1.Width() != B1.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal TriangularRank2K: " << endl
@@ -106,7 +100,7 @@ CheckInput
     if( A1.ColAlignment() != C.ColAlignment() ||
         B1.ColAlignment() != C.RowAlignment() ||
         A1.ColAlignment() != A2.ColAlignment() ||
-        B1.ColAlignment() != B2.RowAlignment()    )
+        B1.ColAlignment() != B2.RowAlignment() )
     {
         ostringstream msg;
         msg << "Misaligned TriangularRank2K: " << endl
@@ -124,19 +118,25 @@ CheckInput
 template<typename T>
 void 
 CheckInput
-( const DistMatrix<T,Star,MC>& A1, 
+( Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  const DistMatrix<T,Star,MC>& A1, 
   const DistMatrix<T,Star,MC>& A2,
   const DistMatrix<T,Star,MR>& B1,
   const DistMatrix<T,Star,MR>& B2,
-  const DistMatrix<T,MC,  MR>& C  )
+  const DistMatrix<T,MC,  MR>& C )
 {
+    if( orientationOfA1 == Normal )
+        throw "A1[* ,MC] must be (Conjugate)Transpose'd.";
+    if( orientationOfA2 == Normal )
+        throw "A2[* ,MC] must be (Conjugate)Transpose'd.";
     if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid()     )
+        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
         throw "A, B, and C must be distributed over the same grid.";
     if( A1.Width() != C.Height() || B1.Width() != C.Width() ||
         A1.Height() != A2.Height() || A1.Width() != A2.Width() ||
         B1.Height() != B2.Height() || B1.Width() != B2.Width() ||
-        A1.Height() != B1.Height()                                )
+        A1.Height() != B1.Height() )
     {
         ostringstream msg;
         msg << "Nonconformal TriangularRank2K: " << endl
@@ -155,7 +155,7 @@ CheckInput
     if( A1.RowAlignment() != C.ColAlignment() ||
         B1.RowAlignment() != C.RowAlignment() ||
         A1.RowAlignment() != A2.RowAlignment() ||
-        B1.RowAlignment() != B2.RowAlignment()    )
+        B1.RowAlignment() != B2.RowAlignment() )
     {
         ostringstream msg;
         msg << "Misaligned TriangularRank2K: " << endl
@@ -173,19 +173,31 @@ CheckInput
 template<typename T>
 void 
 CheckInput
-( const DistMatrix<T,Star,MC  >& A1, 
+( Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
+  const DistMatrix<T,Star,MC  >& A1, 
   const DistMatrix<T,Star,MC  >& A2,
   const DistMatrix<T,MR,  Star>& B1,
   const DistMatrix<T,MR,  Star>& B2,
-  const DistMatrix<T,MC,  MR  >& C  )
+  const DistMatrix<T,MC,  MR  >& C )
 {
+    if( orientationOfA1 == Normal )
+        throw "A1[* ,MC] must be (Conjugate)Transpose'd.";
+    if( orientationOfA2 == Normal )
+        throw "A2[* ,MC] must be (Conjugate)Transpose'd.";
+    if( orientationOfB1 == Normal )
+        throw "B1[MR,* ] must be (Conjugate)Transpose'd.";
+    if( orientationOfB2 == Normal )
+        throw "B2[MR,* ] must be (Conjugate)Transpose'd.";
     if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid()     )
+        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
         throw "A, B, and C must be distributed over the same grid.";
     if( A1.Width() != C.Height() || B1.Height() != C.Width() ||
         A1.Height() != A2.Height() || A1.Width() != A2.Width() ||
         B1.Height() != B2.Height() || B1.Width() != B2.Width() ||
-        A1.Height() != B1.Width()                                 )
+        A1.Height() != B1.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal TriangularRank2K: " << endl
@@ -204,7 +216,7 @@ CheckInput
     if( A1.RowAlignment() != C.ColAlignment() ||
         B1.ColAlignment() != C.RowAlignment() ||
         A1.RowAlignment() != A2.RowAlignment() ||
-        B1.ColAlignment() != B2.ColAlignment()    )
+        B1.ColAlignment() != B2.ColAlignment() )
     {
         ostringstream msg;
         msg << "Misaligned TriangularRank2K: " << endl
@@ -251,16 +263,19 @@ TriangularRank2KKernel
 
     blas::Scal( beta, C );
 
-    LockedPartitionDown( A1, A1T,
-                             A1B, half );
-    LockedPartitionDown( A2, A2T,
-                             A2B, half );
+    LockedPartitionDown
+    ( A1, A1T,
+          A1B, half );
+    LockedPartitionDown
+    ( A2, A2T,
+          A2B, half );
 
     LockedPartitionRight( B1, B1L, B1R, half );
     LockedPartitionRight( B2, B2L, B2R, half );
 
-    PartitionDownDiagonal( C, CTL, CTR,
-                              CBL, CBR, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
 
     DTL.AlignWith( CTL );
     DBR.AlignWith( CBR );
@@ -273,12 +288,12 @@ TriangularRank2KKernel
         ( Normal, Normal,
           alpha, A1B.LockedLocalMatrix(),
                  B2L.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()       );
+          (T)1,  CBL.LocalMatrix() );
         blas::Gemm
         ( Normal, Normal,
           alpha, A2B.LockedLocalMatrix(),
                  B1L.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()       );
+          (T)1,  CBL.LocalMatrix() );
     }
     else
     {
@@ -286,24 +301,24 @@ TriangularRank2KKernel
         ( Normal, Normal,
           alpha, A1T.LockedLocalMatrix(),
                  B2R.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()       );
+          (T)1,  CTR.LocalMatrix() );
         blas::Gemm
         ( Normal, Normal,
           alpha, A2T.LockedLocalMatrix(),
                  B1R.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()       );
+          (T)1,  CTR.LocalMatrix() );
     }
 
     blas::Gemm
     ( Normal, Normal,
       alpha, A1T.LockedLocalMatrix(),
              B2L.LockedLocalMatrix(),
-      (T)0,  DTL.LocalMatrix()      );
+      (T)0,  DTL.LocalMatrix() );
     blas::Gemm
     ( Normal, Normal,
       alpha, A2T.LockedLocalMatrix(),
              B1L.LockedLocalMatrix(),
-      (T)1,  DTL.LocalMatrix()      );
+      (T)1,  DTL.LocalMatrix() );
     DTL.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DTL, CTL );
 
@@ -311,12 +326,12 @@ TriangularRank2KKernel
     ( Normal, Normal,
       alpha, A1B.LockedLocalMatrix(),
              B2R.LockedLocalMatrix(),
-      (T)0,  DBR.LocalMatrix()       );
+      (T)0,  DBR.LocalMatrix() );
     blas::Gemm
     ( Normal, Normal,
       alpha, A2B.LockedLocalMatrix(),
              B1R.LockedLocalMatrix(),
-      (T)1,  DBR.LocalMatrix()       );
+      (T)1,  DBR.LocalMatrix() );
     DBR.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
@@ -329,6 +344,7 @@ template<typename T>
 void
 TriangularRank2KKernel
 ( Shape shape,
+  Orientation orientationOfB1,
   T alpha, const DistMatrix<T,MC,  Star>& A1,
            const DistMatrix<T,MC,  Star>& A2,
            const DistMatrix<T,MR,  Star>& B1,
@@ -337,7 +353,7 @@ TriangularRank2KKernel
 {
 #ifndef RELEASE
     PushCallStack("TriangularRank2KKernel");
-    CheckInput( A1, A2, B1, B2, C );
+    CheckInput( orientationOfB1, A1, A2, B1, B2, C );
 #endif
     const Grid& grid = C.GetGrid();
 
@@ -358,17 +374,22 @@ TriangularRank2KKernel
 
     blas::Scal( beta, C );
 
-    LockedPartitionDown( A1, A1T,
-                             A1B, half );
-    LockedPartitionDown( A2, A2T,
-                             A2B, half );
+    LockedPartitionDown
+    ( A1, A1T,
+          A1B, half );
+    LockedPartitionDown
+    ( A2, A2T,
+          A2B, half );
 
-    LockedPartitionDown( B1, B1T,
-                             B1B, half );
+    LockedPartitionDown
+    ( B1, B1T,
+          B1B, half );
+
     LockedPartitionRight( B2, B2L, B2R, half );
 
-    PartitionDownDiagonal( C, CTL, CTR,
-                              CBL, CBR, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
 
     DTL.AlignWith( CTL );
     DBR.AlignWith( CBR );
@@ -381,12 +402,12 @@ TriangularRank2KKernel
         ( Normal, Normal,
           alpha, A1B.LockedLocalMatrix(),
                  B2L.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()       );
+          (T)1,  CBL.LocalMatrix() );
         blas::Gemm
-        ( Normal, Transpose,
+        ( Normal, orientationOfB1,
           alpha, A2B.LockedLocalMatrix(),
                  B1T.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()       );
+          (T)1,  CBL.LocalMatrix() );
     }
     else
     {
@@ -394,24 +415,24 @@ TriangularRank2KKernel
         ( Normal, Normal,
           alpha, A1T.LockedLocalMatrix(),
                  B2R.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()       );
+          (T)1,  CTR.LocalMatrix() );
         blas::Gemm
-        ( Normal, Transpose,
+        ( Normal, orientationOfB1,
           alpha, A2T.LockedLocalMatrix(),
                  B1B.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()       );
+          (T)1,  CTR.LocalMatrix() );
     }
 
     blas::Gemm
     ( Normal, Normal,
       alpha, A1T.LockedLocalMatrix(),
              B2L.LockedLocalMatrix(),
-      (T)0,  DTL.LocalMatrix()      );
+      (T)0,  DTL.LocalMatrix() );
     blas::Gemm
-    ( Normal, Transpose,
+    ( Normal, orientationOfB1,
       alpha, A2T.LockedLocalMatrix(),
              B1T.LockedLocalMatrix(),
-      (T)1,  DTL.LocalMatrix()      );
+      (T)1,  DTL.LocalMatrix() );
     DTL.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DTL, CTL );
 
@@ -419,12 +440,12 @@ TriangularRank2KKernel
     ( Normal, Normal,
       alpha, A1B.LockedLocalMatrix(),
              B2R.LockedLocalMatrix(),
-      (T)0,  DBR.LocalMatrix()       );
+      (T)0,  DBR.LocalMatrix() );
     blas::Gemm
-    ( Normal, Transpose,
+    ( Normal, orientationOfB1,
       alpha, A2B.LockedLocalMatrix(),
              B1B.LockedLocalMatrix(),
-      (T)1,  DBR.LocalMatrix()       );
+      (T)1,  DBR.LocalMatrix() );
     DBR.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
@@ -437,6 +458,8 @@ template<typename T>
 void
 TriangularRank2KKernel
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
   T alpha, const DistMatrix<T,Star,MC>& A1,
            const DistMatrix<T,Star,MC>& A2,
            const DistMatrix<T,Star,MR>& B1,
@@ -445,7 +468,7 @@ TriangularRank2KKernel
 {
 #ifndef RELEASE
     PushCallStack("TriangularRank2KKernel");
-    CheckInput( A1, A2, B1, B2, C );
+    CheckInput( orientationOfA1, orientationOfA2, A1, A2, B1, B2, C );
 #endif
     const Grid& grid = C.GetGrid();
 
@@ -470,8 +493,9 @@ TriangularRank2KKernel
     LockedPartitionRight( B1, B1L, B1R, half );
     LockedPartitionRight( B2, B2L, B2R, half );
 
-    PartitionDownDiagonal( C, CTL, CTR,
-                              CBL, CBR, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
 
     DTL.AlignWith( CTL );
     DBR.AlignWith( CBR );
@@ -481,53 +505,53 @@ TriangularRank2KKernel
     if( shape == Lower )
     {
         blas::Gemm
-        ( Transpose, Normal,
+        ( orientationOfA1, Normal,
           alpha, A1R.LockedLocalMatrix(),
                  B2L.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()       );
+          (T)1,  CBL.LocalMatrix() );
         blas::Gemm
-        ( Transpose, Normal,
+        ( orientationOfA2, Normal,
           alpha, A2R.LockedLocalMatrix(),
                  B1L.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()       );
+          (T)1,  CBL.LocalMatrix() );
     }
     else
     {
         blas::Gemm
-        ( Transpose, Normal,
+        ( orientationOfA1, Normal,
           alpha, A1L.LockedLocalMatrix(),
                  B2R.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()       );
+          (T)1,  CTR.LocalMatrix() );
         blas::Gemm
-        ( Transpose, Normal,
+        ( orientationOfA2, Normal,
           alpha, A2L.LockedLocalMatrix(),
                  B1R.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()       );
+          (T)1,  CTR.LocalMatrix() );
     }
 
     blas::Gemm
-    ( Transpose, Normal,
+    ( orientationOfA1, Normal,
       alpha, A1L.LockedLocalMatrix(),
              B2L.LockedLocalMatrix(),
-      (T)0,  DTL.LocalMatrix()      );
+      (T)0,  DTL.LocalMatrix() );
     blas::Gemm
-    ( Transpose, Normal,
+    ( orientationOfA2, Normal,
       alpha, A2L.LockedLocalMatrix(),
              B1L.LockedLocalMatrix(),
-      (T)1,  DTL.LocalMatrix()      );
+      (T)1,  DTL.LocalMatrix() );
     DTL.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DTL, CTL );
 
     blas::Gemm
-    ( Transpose, Normal,
+    ( orientationOfA1, Normal,
       alpha, A1R.LockedLocalMatrix(),
              B2R.LockedLocalMatrix(),
-      (T)0,  DBR.LocalMatrix()       );
+      (T)0,  DBR.LocalMatrix() );
     blas::Gemm
-    ( Transpose, Normal,
+    ( orientationOfA2, Normal,
       alpha, A2R.LockedLocalMatrix(),
              B1R.LockedLocalMatrix(),
-      (T)1,  DBR.LocalMatrix()       );
+      (T)1,  DBR.LocalMatrix() );
     DBR.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
@@ -540,6 +564,10 @@ template<typename T>
 void
 TriangularRank2KKernel
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
   T alpha, const DistMatrix<T,Star,MC  >& A1,
            const DistMatrix<T,Star,MC  >& A2,
            const DistMatrix<T,MR,  Star>& B1,
@@ -548,7 +576,9 @@ TriangularRank2KKernel
 {
 #ifndef RELEASE
     PushCallStack("TriangularRank2KKernel");
-    CheckInput( A1, A2, B1, B2, C );
+    CheckInput
+    ( orientationOfA1, orientationOfA2, orientationOfB1, orientationOfB2, 
+      A1, A2, B1, B2, C );
 #endif
     const Grid& grid = C.GetGrid();
 
@@ -570,14 +600,17 @@ TriangularRank2KKernel
     LockedPartitionRight( A1, A1L, A1R, half );
     LockedPartitionRight( A2, A2L, A2R, half );
 
-    LockedPartitionDown( B1, B1T,
-                             B1B, half );
+    LockedPartitionDown
+    ( B1, B1T,
+          B1B, half );
 
-    LockedPartitionDown( B2, B2T,
-                             B2B, half );
+    LockedPartitionDown
+    ( B2, B2T,
+          B2B, half );
 
-    PartitionDownDiagonal( C, CTL, CTR,
-                              CBL, CBR, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
 
     DTL.AlignWith( CTL );
     DBR.AlignWith( CBR );
@@ -587,53 +620,53 @@ TriangularRank2KKernel
     if( shape == Lower )
     {
         blas::Gemm
-        ( Transpose, Transpose,
+        ( orientationOfA1, orientationOfB2,
           alpha, A1R.LockedLocalMatrix(),
                  B2T.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()       );
+          (T)1,  CBL.LocalMatrix() );
         blas::Gemm
-        ( Transpose, Transpose,
+        ( orientationOfA2, orientationOfB1,
           alpha, A2R.LockedLocalMatrix(),
                  B1T.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()       );
+          (T)1,  CBL.LocalMatrix() );
     }
     else
     {
         blas::Gemm
-        ( Transpose, Transpose,
+        ( orientationOfA1, orientationOfB2,
           alpha, A1L.LockedLocalMatrix(),
                  B2B.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()       );
+          (T)1,  CTR.LocalMatrix() );
         blas::Gemm
-        ( Transpose, Transpose,
+        ( orientationOfA2, orientationOfB1,
           alpha, A2L.LockedLocalMatrix(),
                  B1B.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()       );
+          (T)1,  CTR.LocalMatrix() );
     }
 
     blas::Gemm
-    ( Transpose, Transpose,
+    ( orientationOfA1, orientationOfB2,
       alpha, A1L.LockedLocalMatrix(),
              B2T.LockedLocalMatrix(),
-      (T)0,  DTL.LocalMatrix()      );
+      (T)0,  DTL.LocalMatrix() );
     blas::Gemm
-    ( Transpose, Transpose,
+    ( orientationOfA2, orientationOfB1,
       alpha, A2L.LockedLocalMatrix(),
              B1T.LockedLocalMatrix(),
-      (T)1,  DTL.LocalMatrix()      );
+      (T)1,  DTL.LocalMatrix() );
     DTL.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DTL, CTL );
 
     blas::Gemm
-    ( Transpose, Transpose,
+    ( orientationOfA1, orientationOfB2,
       alpha, A1R.LockedLocalMatrix(),
              B2B.LockedLocalMatrix(),
-      (T)0,  DBR.LocalMatrix()       );
+      (T)0,  DBR.LocalMatrix() );
     blas::Gemm
-    ( Transpose, Transpose,
+    ( orientationOfA2, orientationOfB1,
       alpha, A2R.LockedLocalMatrix(),
              B1B.LockedLocalMatrix(),
-      (T)1,  DBR.LocalMatrix()       );
+      (T)1,  DBR.LocalMatrix() );
     DBR.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
@@ -652,7 +685,7 @@ elemental::blas::internal::TriangularRank2K
            const DistMatrix<T,MC,  Star>& A2,
            const DistMatrix<T,Star,MR  >& B1,
            const DistMatrix<T,Star,MR  >& B2,
-  T beta,        DistMatrix<T,MC,  MR  >& C  )
+  T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TriangularRank2K");
@@ -681,16 +714,19 @@ elemental::blas::internal::TriangularRank2K
 
         const unsigned half = C.Height() / 2;
 
-        LockedPartitionDown( A1, A1T,
-                                 A1B, half );
-        LockedPartitionDown( A2, A2T,
-                                 A2B, half );
+        LockedPartitionDown
+        ( A1, A1T,
+              A1B, half );
+        LockedPartitionDown
+        ( A2, A2T,
+              A2B, half );
 
         LockedPartitionRight( B1, B1L, B1R, half );
         LockedPartitionRight( B2, B2L, B2R, half );
 
-        PartitionDownDiagonal( C, CTL, CTR,
-                                  CBL, CBR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
 
         if( shape == Lower )
         { 
@@ -698,12 +734,12 @@ elemental::blas::internal::TriangularRank2K
             ( Normal, Normal, 
               alpha, A1B.LockedLocalMatrix(),
                      B2L.LockedLocalMatrix(),
-              beta,  CBL.LocalMatrix()       );
+              beta,  CBL.LocalMatrix() );
             blas::Gemm
             ( Normal, Normal, 
               alpha, A2B.LockedLocalMatrix(),
                      B1L.LockedLocalMatrix(),
-              (T)1,  CBL.LocalMatrix()       );
+              (T)1,  CBL.LocalMatrix() );
         }
         else
         {
@@ -711,12 +747,12 @@ elemental::blas::internal::TriangularRank2K
             ( Normal, Normal,
               alpha, A1T.LockedLocalMatrix(),
                      B2R.LockedLocalMatrix(),
-              beta,  CTR.LocalMatrix()       );
+              beta,  CTR.LocalMatrix() );
             blas::Gemm
             ( Normal, Normal,
               alpha, A2T.LockedLocalMatrix(),
                      B1R.LockedLocalMatrix(),
-              (T)1,  CTR.LocalMatrix()       );
+              (T)1,  CTR.LocalMatrix() );
         }
 
         // Recurse
@@ -735,6 +771,7 @@ template<typename T>
 void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfB1,
   T alpha, const DistMatrix<T,MC,  Star>& A1,
            const DistMatrix<T,MC,  Star>& A2,
            const DistMatrix<T,MR,  Star>& B1,
@@ -743,14 +780,14 @@ elemental::blas::internal::TriangularRank2K
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TriangularRank2K");
-    CheckInput( A1, A2, B1, B2, C );
+    CheckInput( orientationOfB1, A1, A2, B1, B2, C );
 #endif
     const Grid& grid = C.GetGrid();
 
     if( C.Height() < 2*grid.Width()*Blocksize() )
     {
         TriangularRank2KKernel
-        ( shape, alpha, A1, A2, B1, B2, beta, C );
+        ( shape, orientationOfB1, alpha, A1, A2, B1, B2, beta, C );
     }
     else
     {
@@ -770,17 +807,21 @@ elemental::blas::internal::TriangularRank2K
 
         const unsigned half = C.Height() / 2;
 
-        LockedPartitionDown( A1, A1T,
-                                 A1B, half );
-        LockedPartitionDown( A2, A2T,
-                                 A2B, half );
+        LockedPartitionDown
+        ( A1, A1T,
+              A1B, half );
+        LockedPartitionDown
+        ( A2, A2T,
+              A2B, half );
 
-        LockedPartitionDown( B1, B1T,
-                                 B1B, half );
+        LockedPartitionDown
+        ( B1, B1T,
+              B1B, half );
         LockedPartitionRight( B2, B2L, B2R, half );
 
-        PartitionDownDiagonal( C, CTL, CTR,
-                                  CBL, CBR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
 
         if( shape == Lower )
         { 
@@ -788,12 +829,12 @@ elemental::blas::internal::TriangularRank2K
             ( Normal, Normal, 
               alpha, A1B.LockedLocalMatrix(),
                      B2L.LockedLocalMatrix(),
-              beta,  CBL.LocalMatrix()       );
+              beta,  CBL.LocalMatrix() );
             blas::Gemm
-            ( Normal, Transpose, 
+            ( Normal, orientationOfB1, 
               alpha, A2B.LockedLocalMatrix(),
                      B1T.LockedLocalMatrix(),
-              (T)1,  CBL.LocalMatrix()       );
+              (T)1,  CBL.LocalMatrix() );
         }
         else
         {
@@ -801,20 +842,20 @@ elemental::blas::internal::TriangularRank2K
             ( Normal, Normal,
               alpha, A1T.LockedLocalMatrix(),
                      B2R.LockedLocalMatrix(),
-              beta,  CTR.LocalMatrix()       );
+              beta,  CTR.LocalMatrix() );
             blas::Gemm
-            ( Normal, Transpose,
+            ( Normal, orientationOfB1,
               alpha, A2T.LockedLocalMatrix(),
                      B1B.LockedLocalMatrix(),
-              (T)1,  CTR.LocalMatrix()       );
+              (T)1,  CTR.LocalMatrix() );
         }
 
         // Recurse
         blas::internal::TriangularRank2K
-        ( shape, alpha, A1T, A2T, B1T, B2L, beta, CTL );
+        ( shape, orientationOfB1, alpha, A1T, A2T, B1T, B2L, beta, CTL );
 
         blas::internal::TriangularRank2K
-        ( shape, alpha, A1B, A2B, B1B, B2R, beta, CBR );
+        ( shape, orientationOfB1, alpha, A1B, A2B, B1B, B2R, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -825,6 +866,8 @@ template<typename T>
 void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
   T alpha, const DistMatrix<T,Star,MC>& A1,
            const DistMatrix<T,Star,MC>& A2,
            const DistMatrix<T,Star,MR>& B1,
@@ -833,14 +876,16 @@ elemental::blas::internal::TriangularRank2K
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TriangularRank2K");
-    CheckInput( A1, A2, B1, B2, C );
+    CheckInput
+    ( orientationOfA1, orientationOfA2, A1, A2, B1, B2, C );
 #endif
     const Grid& grid = C.GetGrid();
 
     if( C.Height() < 2*grid.Width()*Blocksize() )
     {
         TriangularRank2KKernel
-        ( shape, alpha, A1, A2, B1, B2, beta, C );
+        ( shape, orientationOfA1, orientationOfA2, 
+          alpha, A1, A2, B1, B2, beta, C );
     }
     else
     {
@@ -864,42 +909,45 @@ elemental::blas::internal::TriangularRank2K
         LockedPartitionRight( B1, B1L, B1R, half );
         LockedPartitionRight( B2, B2L, B2R, half );
 
-        PartitionDownDiagonal( C, CTL, CTR,
-                                  CBL, CBR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
 
         if( shape == Lower )
         { 
             blas::Gemm
-            ( Transpose, Normal, 
+            ( orientationOfA1, Normal, 
               alpha, A1R.LockedLocalMatrix(),
                      B2L.LockedLocalMatrix(),
-              beta,  CBL.LocalMatrix()       );
+              beta,  CBL.LocalMatrix() );
             blas::Gemm
-            ( Transpose, Normal, 
+            ( orientationOfA2, Normal, 
               alpha, A2R.LockedLocalMatrix(),
                      B1L.LockedLocalMatrix(),
-              (T)1,  CBL.LocalMatrix()       );
+              (T)1,  CBL.LocalMatrix() );
         }
         else
         {
             blas::Gemm
-            ( Transpose, Normal,
+            ( orientationOfA1, Normal,
               alpha, A1L.LockedLocalMatrix(),
                      B2R.LockedLocalMatrix(),
-              beta,  CTR.LocalMatrix()       );
+              beta,  CTR.LocalMatrix() );
             blas::Gemm
-            ( Transpose, Normal,
-              alpha, A1L.LockedLocalMatrix(),
-                     B2R.LockedLocalMatrix(),
-              (T)1,  CTR.LocalMatrix()       );
+            ( orientationOfA2, Normal,
+              alpha, A2L.LockedLocalMatrix(),
+                     B1R.LockedLocalMatrix(),
+              (T)1,  CTR.LocalMatrix() );
         }
 
         // Recurse
         blas::internal::TriangularRank2K
-        ( shape, alpha, A1L, A2L, B1L, B2L, beta, CTL );
+        ( shape, orientationOfA1, orientationOfA2,
+          alpha, A1L, A2L, B1L, B2L, beta, CTL );
 
         blas::internal::TriangularRank2K
-        ( shape, alpha, A1R, A2R, B1R, B2R, beta, CBR );
+        ( shape, orientationOfA1, orientationOfA2, 
+          alpha, A1R, A2R, B1R, B2R, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -910,6 +958,10 @@ template<typename T>
 void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
   T alpha, const DistMatrix<T,Star,MC  >& A1,
            const DistMatrix<T,Star,MC  >& A2,
            const DistMatrix<T,MR,  Star>& B1,
@@ -918,14 +970,19 @@ elemental::blas::internal::TriangularRank2K
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TriangularRank2K");
-    CheckInput( A1, A2, B1, B2, C );
+    CheckInput
+    ( orientationOfA1, orientationOfA2, orientationOfB1, orientationOfB2, 
+      A1, A2, B1, B2, C );
 #endif
     const Grid& grid = C.GetGrid();
 
     if( C.Height() < 2*grid.Width()*Blocksize() )
     {
         TriangularRank2KKernel
-        ( shape, alpha, A1, A2, B1, B2, beta, C );
+        ( shape, 
+          orientationOfA1, orientationOfA2, 
+          orientationOfB1, orientationOfB2, 
+          alpha, A1, A2, B1, B2, beta, C );
     }
     else
     {
@@ -946,48 +1003,56 @@ elemental::blas::internal::TriangularRank2K
         LockedPartitionRight( A1, A1L, A1R, half );
         LockedPartitionRight( A2, A2L, A2R, half );
 
-        LockedPartitionDown( B1, B1T,
-                                 B1B, half );
+        LockedPartitionDown
+        ( B1, B1T,
+              B1B, half );
+        LockedPartitionDown
+        ( B2, B2T,
+              B2B, half );
 
-        LockedPartitionDown( B2, B2T,
-                                 B2B, half );
-
-        PartitionDownDiagonal( C, CTL, CTR,
-                                  CBL, CBR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
 
         if( shape == Lower )
         { 
             blas::Gemm
-            ( Transpose, Transpose, 
+            ( orientationOfA1, orientationOfB2, 
               alpha, A1R.LockedLocalMatrix(),
                      B2T.LockedLocalMatrix(),
-              beta,  CBL.LocalMatrix()       );
+              beta,  CBL.LocalMatrix() );
             blas::Gemm
-            ( Transpose, Transpose, 
+            ( orientationOfA2, orientationOfB1, 
               alpha, A2R.LockedLocalMatrix(),
                      B1T.LockedLocalMatrix(),
-              (T)1,  CBL.LocalMatrix()       );
+              (T)1,  CBL.LocalMatrix() );
         }
         else
         {
             blas::Gemm
-            ( Transpose, Transpose,
+            ( orientationOfA1, orientationOfB2,
               alpha, A1L.LockedLocalMatrix(),
                      B2B.LockedLocalMatrix(),
-              beta,  CTR.LocalMatrix()       );
+              beta,  CTR.LocalMatrix() );
             blas::Gemm
-            ( Transpose, Transpose,
+            ( orientationOfA2, orientationOfB1,
               alpha, A2L.LockedLocalMatrix(),
                      B1B.LockedLocalMatrix(),
-              (T)1,  CTR.LocalMatrix()       );
+              (T)1,  CTR.LocalMatrix() );
         }
 
         // Recurse
         blas::internal::TriangularRank2K
-        ( shape, alpha, A1L, A2L, B1T, B2T, beta, CTL );
+        ( shape, 
+          orientationOfA1, orientationOfA2, 
+          orientationOfB1, orientationOfB2, 
+          alpha, A1L, A2L, B1T, B2T, beta, CTL );
 
         blas::internal::TriangularRank2K
-        ( shape, alpha, A1R, A2R, B1B, B2B, beta, CBR );
+        ( shape, 
+          orientationOfA1, orientationOfA2,
+          orientationOfB1, orientationOfB2,
+          alpha, A1R, A2R, B1B, B2B, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1006,6 +1071,7 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape, 
+  Orientation orientationOfB1,
   float alpha, const DistMatrix<float,MC,  Star>& A1,
                const DistMatrix<float,MC,  Star>& A2,
                const DistMatrix<float,MR,  Star>& B1,
@@ -1016,6 +1082,8 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
   float alpha, const DistMatrix<float,Star,MC>& A1,
                const DistMatrix<float,Star,MC>& A2,
                const DistMatrix<float,Star,MR>& B1,
@@ -1025,6 +1093,10 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
   float alpha, const DistMatrix<float,Star,MC  >& A1,
                const DistMatrix<float,Star,MC  >& A2,
                const DistMatrix<float,MR,  Star>& B1,
@@ -1043,6 +1115,7 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfB1,
   double alpha, const DistMatrix<double,MC,  Star>& A1,
                 const DistMatrix<double,MC,  Star>& A2,
                 const DistMatrix<double,MR,  Star>& B1,
@@ -1052,6 +1125,8 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
   double alpha, const DistMatrix<double,Star,MC>& A1,
                 const DistMatrix<double,Star,MC>& A2,
                 const DistMatrix<double,Star,MR>& B1,
@@ -1061,6 +1136,10 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
   double alpha, const DistMatrix<double,Star,MC  >& A1,
                 const DistMatrix<double,Star,MC  >& A2,
                 const DistMatrix<double,MR,  Star>& B1,
@@ -1080,6 +1159,7 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfB1,
   scomplex alpha, const DistMatrix<scomplex,MC,  Star>& A1,
                   const DistMatrix<scomplex,MC,  Star>& A2,
                   const DistMatrix<scomplex,MR,  Star>& B1,
@@ -1089,6 +1169,8 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
   scomplex alpha, const DistMatrix<scomplex,Star,MC>& A1,
                   const DistMatrix<scomplex,Star,MC>& A2,
                   const DistMatrix<scomplex,Star,MR>& B1,
@@ -1098,6 +1180,10 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
   scomplex alpha, const DistMatrix<scomplex,Star,MC  >& A1,
                   const DistMatrix<scomplex,Star,MC  >& A2,
                   const DistMatrix<scomplex,MR,  Star>& B1,
@@ -1116,6 +1202,7 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfB1,
   dcomplex alpha, const DistMatrix<dcomplex,MC,  Star>& A1,
                   const DistMatrix<dcomplex,MC,  Star>& A2,
                   const DistMatrix<dcomplex,MR,  Star>& B1,
@@ -1125,6 +1212,8 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
   dcomplex alpha, const DistMatrix<dcomplex,Star,MC>& A1,
                   const DistMatrix<dcomplex,Star,MC>& A2,
                   const DistMatrix<dcomplex,Star,MR>& B1,
@@ -1134,6 +1223,10 @@ elemental::blas::internal::TriangularRank2K
 template void
 elemental::blas::internal::TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
   dcomplex alpha, const DistMatrix<dcomplex,Star,MC  >& A1,
                   const DistMatrix<dcomplex,Star,MC  >& A2,
                   const DistMatrix<dcomplex,MR,  Star>& B1,

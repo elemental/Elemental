@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -35,7 +26,7 @@ elemental::blas::internal::Her2kUC
         A.Width() != C.Width()  ||
         B.Width() != C.Height() ||
         B.Width() != C.Width()  ||
-        A.Height() != B.Height()  )
+        A.Height() != B.Height() )
     {
         ostringstream msg;
         msg << "Nonconformal Her2kUC:" << endl
@@ -58,62 +49,69 @@ elemental::blas::internal::Her2kUC
                                    B2(grid);
 
     // Temporary distributions
-    DistMatrix<T,MR,  Star> A1_MR_Star(grid);
-    DistMatrix<T,MR,  Star> B1_MR_Star(grid);
-    DistMatrix<T,Star,VR  > A1Conj_Star_VR(grid);
-    DistMatrix<T,Star,VR  > B1Conj_Star_VR(grid);
-    DistMatrix<T,Star,MC  > A1Conj_Star_MC(grid);
-    DistMatrix<T,Star,MC  > B1Conj_Star_MC(grid);
+    DistMatrix<T,MR,  Star> A1Trans_MR_Star(grid);
+    DistMatrix<T,MR,  Star> B1Trans_MR_Star(grid);
+    DistMatrix<T,Star,VR  > A1_Star_VR(grid);
+    DistMatrix<T,Star,VR  > B1_Star_VR(grid);
+    DistMatrix<T,Star,MC  > A1_Star_MC(grid);
+    DistMatrix<T,Star,MC  > B1_Star_MC(grid);
 
     // Start the algorithm
     blas::Scal( beta, C );
-    LockedPartitionDown( A, AT,
-                            AB );
-    LockedPartitionDown( B, BT,
-                            BB );
+    LockedPartitionDown
+    ( A, AT,
+         AB );
+    LockedPartitionDown
+    ( B, BT,
+         BB );
     while( AB.Height() > 0 )
     {
-        LockedRepartitionDown( AT,  A0,
-                              /**/ /**/
-                                    A1,
-                               AB,  A2 );
+        LockedRepartitionDown
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
 
-        LockedRepartitionDown( BT,  B0,
-                              /**/ /**/
-                                    B1,
-                               BB,  B2 );
+        LockedRepartitionDown
+        ( BT,  B0,
+         /**/ /**/
+               B1,
+          BB,  B2 );
 
-        A1_MR_Star.AlignWith( C );
-        B1_MR_Star.AlignWith( C );
-        A1Conj_Star_MC.AlignWith( C );
-        B1Conj_Star_MC.AlignWith( C );
+        A1Trans_MR_Star.AlignWith( C );
+        B1Trans_MR_Star.AlignWith( C );
+        A1_Star_MC.AlignWith( C );
+        B1_Star_MC.AlignWith( C );
         //--------------------------------------------------------------------//
-        A1_MR_Star.TransposeFrom( A1 );
-        A1Conj_Star_VR.ConjugateTransposeFrom( A1_MR_Star );
-        A1Conj_Star_MC = A1Conj_Star_VR;
+        A1Trans_MR_Star.TransposeFrom( A1 );
+        A1_Star_VR.TransposeFrom( A1Trans_MR_Star );
+        A1_Star_MC = A1_Star_VR;
 
-        B1_MR_Star.TransposeFrom( B1 );
-        B1Conj_Star_VR.ConjugateTransposeFrom( B1_MR_Star );
-        B1Conj_Star_MC = B1Conj_Star_VR;
+        B1Trans_MR_Star.TransposeFrom( B1 );
+        B1_Star_VR.TransposeFrom( B1Trans_MR_Star );
+        B1_Star_MC = B1_Star_VR;
 
         blas::internal::TriangularRank2K
-        ( Upper, alpha,
-          A1Conj_Star_MC, B1Conj_Star_MC, A1_MR_Star, B1_MR_Star, (T)1, C );
+        ( Upper, ConjugateTranspose, ConjugateTranspose, Transpose, Transpose,
+          alpha, A1_Star_MC, B1_Star_MC, A1Trans_MR_Star, B1Trans_MR_Star, 
+          (T)1, C );
         //--------------------------------------------------------------------//
-        A1_MR_Star.FreeConstraints();
-        B1_MR_Star.FreeConstraints();
-        A1Conj_Star_MC.FreeConstraints();
-        B1Conj_Star_MC.FreeConstraints();
+        A1Trans_MR_Star.FreeAlignments();
+        B1Trans_MR_Star.FreeAlignments();
+        A1_Star_MC.FreeAlignments();
+        B1_Star_MC.FreeAlignments();
 
-        SlideLockedPartitionDown( AT,  A0,
-                                       A1,
-                                 /**/ /**/
-                                  AB,  A2 );
+        SlideLockedPartitionDown
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
 
-        SlideLockedPartitionDown( BT,  B0,
-                                       B1,
-                                 /**/ /**/
-                                  BB,  B2 );
+        SlideLockedPartitionDown
+        ( BT,  B0,
+               B1,
+         /**/ /**/
+          BB,  B2 );
     }
 #ifndef RELEASE
     PopCallStack();

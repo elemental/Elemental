@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #ifndef ELEMENTAL_BLAS_INTERNAL_HPP
 #define ELEMENTAL_BLAS_INTERNAL_HPP 1
@@ -214,52 +205,51 @@ HemvColAccumulateU
 // This is for the case where x is a row vector.
 //
 // Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha tril(A)[MC,MR] (x[* ,MR])^T
-//     z[MR,* ] := alpha (trils(A)[MC,MR])^H (x[* ,MC])^T
+//     z[MC,* ] := alpha tril(A)[MC,MR] (x[* ,MR])^H
+//     z[MR,* ] := alpha (trils(A)[MC,MR])^H (x[* ,MC])^H
 template<typename T>
 void
 HemvRowAccumulate
 ( Shape shape,
   T alpha, 
-  const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,Star,MC  >& x_Star_MC,
-  const DistMatrix<T,Star,MR  >& x_Star_MR,
-        DistMatrix<T,MC,  Star>& z_MC_Star,
-        DistMatrix<T,MR,  Star>& z_MR_Star
+  const DistMatrix<T,MC,  MR>& A,
+  const DistMatrix<T,Star,MC>& x_Star_MC,
+  const DistMatrix<T,Star,MR>& x_Star_MR,
+        DistMatrix<T,Star,MC>& z_Star_MC,
+        DistMatrix<T,Star,MR>& z_Star_MR
 );
 
 // This is for the case where x is a row vector and A is lower.
 //
 // Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha tril(A)[MC,MR] (x[* ,MR])^T
-//     z[MR,* ] := alpha (trils(A)[MC,MR])^H (x[* ,MC])^T
+//     z[MC,* ] := alpha tril(A)[MC,MR] (x[* ,MR])^H
+//     z[MR,* ] := alpha (trils(A)[MC,MR])^H (x[* ,MC])^H
 template<typename T>
 void
 HemvRowAccumulateL
 ( T alpha, 
-  const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,Star,MC  >& x_Star_MC,
-  const DistMatrix<T,Star,MR  >& x_Star_MR,
-        DistMatrix<T,MC,  Star>& z_MC_Star,
-        DistMatrix<T,MR,  Star>& z_MR_Star
+  const DistMatrix<T,MC,  MR>& A,
+  const DistMatrix<T,Star,MC>& x_Star_MC,
+  const DistMatrix<T,Star,MR>& x_Star_MR,
+        DistMatrix<T,Star,MC>& z_Star_MC,
+        DistMatrix<T,Star,MR>& z_Star_MR
 );
 
 // This is for the case where x is a row vector and A is upper.
 //
 // Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha triu(A)[MC,MR] (x[* ,MR])^T
-//     z[MR,* ] := alpha (trius(A)[MC,MR])^H (x[* ,MC])^T
+//     z[MC,* ] := alpha triu(A)[MC,MR] (x[* ,MR])^H
+//     z[MR,* ] := alpha (trius(A)[MC,MR])^H (x[* ,MC])^H
 template<typename T>
 void
 HemvRowAccumulateU
 ( T alpha, 
-  const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,Star,MC  >& x_Star_MC,
-  const DistMatrix<T,Star,MR  >& x_Star_MR,
-        DistMatrix<T,MC,  Star>& z_MC_Star,
-        DistMatrix<T,MR,  Star>& z_MR_Star
+  const DistMatrix<T,MC,  MR>& A,
+  const DistMatrix<T,Star,MC>& x_Star_MC,
+  const DistMatrix<T,Star,MR>& x_Star_MR,
+        DistMatrix<T,Star,MC>& z_Star_MC,
+        DistMatrix<T,Star,MR>& z_Star_MR
 );
-
 
 // This is for the case where x is a column vector.
 //
@@ -820,35 +810,39 @@ TriangularRankK
   T beta,        DistMatrix<T,MC,MR  >& C );
 
 // Triangular Rank-K Update:
-// tril(C) := alpha tril( A^T*B ) + beta tril(C)
+// tril(C) := alpha tril( A^(T/H)*B ) + beta tril(C)
 //   or 
-// triu(C) := alpha triu( A^T*B ) + beta triu(C)
+// triu(C) := alpha triu( A^(T/H)*B ) + beta triu(C)
 template<typename T>
 void
 TriangularRankK
 ( Shape shape,
+  Orientation orientationOfA,
   T alpha, const DistMatrix<T,Star,MC>& A, const DistMatrix<T,Star,MR>& B,
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-K Update:
-// tril(C) := alpha tril( A^T*B^T ) + beta tril(C)
+// tril(C) := alpha tril( A^(T/H)*B^(T/H) ) + beta tril(C)
 //   or 
-// triu(C) := alpha triu( A^T*B^T ) + beta triu(C)
+// triu(C) := alpha triu( A^(T/H)*B^(T/H) ) + beta triu(C)
 template<typename T>
 void
 TriangularRankK
 ( Shape shape,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
   T alpha, const DistMatrix<T,Star,MC>& A, const DistMatrix<T,MR,Star>& B,
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1*B1^T + A2*B2 ) + beta tril(C)
+// tril(C) := alpha tril( A1*B1^(T/H) + A2*B2 ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1*B1^T + A2*B2 ) + beta triu(C)
+// triu(C) := alpha triu( A1*B1^(T/H) + A2*B2 ) + beta triu(C)
 template<typename T>
 void
 TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfB1,
   T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,MC,Star>& A2, 
            const DistMatrix<T,MR,Star>& B1, const DistMatrix<T,Star,MR>& B2,
   T beta,        DistMatrix<T,MC,MR  >& C );
@@ -866,25 +860,31 @@ TriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^T*B1 + A2^T*B2 ) + beta tril(C)
+// tril(C) := alpha tril( A1^(T/H)*B1 + A2^(T/H)*B2 ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1^T*B1 + A2^T*B2 ) + beta triu(C)
+// triu(C) := alpha triu( A1^(T/H)*B1 + A2^(T/H)*B2 ) + beta triu(C)
 template<typename T>
 void
 TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
   T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,Star,MC>& A2, 
            const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,Star,MR>& B2,
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^T*B1^T + A2^T*B2^T ) + beta tril(C)
+// tril(C) := alpha tril( A1^(T/H)*B1^(T/H) + A2^(T/H)*B2^(T/H) ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1^T*B1^T + A2^T*B2^T ) + beta triu(C)
+// triu(C) := alpha triu( A1^(T/H)*B1^(T/H) + A2^(T/H)*B2^(T/H) ) + beta triu(C)
 template<typename T>
 void
 TriangularRank2K
 ( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
   T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,Star,MC>& A2, 
            const DistMatrix<T,MR,Star>& B1, const DistMatrix<T,MR,Star>& B2,
   T beta,        DistMatrix<T,MC,  MR>& C );

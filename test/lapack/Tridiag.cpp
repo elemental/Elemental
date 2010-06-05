@@ -1,24 +1,13 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
-#include <cmath>
 #include <ctime>
-#include <sstream>
 #include "elemental.hpp"
 #include "elemental/lapack_internal.hpp"
 using namespace std;
@@ -45,27 +34,33 @@ bool OKRelativeError( T truth, T computed );
 
 template<>
 bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-9 ); }
+{ return ( Abs(truth-computed) / max(Abs(truth),(double)1) <= 1e-9 ); }
 
-template<typename T>
+#ifndef WITHOUT_COMPLEX
+template<>
+bool OKRelativeError( dcomplex truth, dcomplex computed )
+{ return ( Abs(truth-computed) / max(Abs(truth),(double)1) <= 1e-9 ); }
+#endif
+
+template<typename R>
 void TestCorrectness
 ( bool printMatrices,
   Shape shape, 
-  const DistMatrix<T,MC,MR>& A, 
-  const DistMatrix<T,MD,Star>& d,
-  const DistMatrix<T,MD,Star>& e,
-  const DistMatrix<T,MD,Star>& t,
-        DistMatrix<T,Star,Star>& ARef )
+  const DistMatrix<R,MC,MR>& A, 
+  const DistMatrix<R,MD,Star>& d,
+  const DistMatrix<R,MD,Star>& e,
+  const DistMatrix<R,MD,Star>& t,
+        DistMatrix<R,Star,Star>& ARef )
 {
     const Grid& grid = A.GetGrid();
     const int m = ARef.Height();
-    DistMatrix<T,Star,Star> A_copy(grid);
-    DistMatrix<T,Star,Star> d_copy(grid);
-    DistMatrix<T,Star,Star> e_copy(grid);
-    DistMatrix<T,Star,Star> t_copy(grid);
-    DistMatrix<T,Star,Star> dRef(m,1,grid);
-    DistMatrix<T,Star,Star> eRef(m-1,1,grid);
-    DistMatrix<T,Star,Star> tRef(m-1,1,grid);
+    DistMatrix<R,Star,Star> A_copy(grid);
+    DistMatrix<R,Star,Star> d_copy(grid);
+    DistMatrix<R,Star,Star> e_copy(grid);
+    DistMatrix<R,Star,Star> t_copy(grid);
+    DistMatrix<R,Star,Star> dRef(m,1,grid);
+    DistMatrix<R,Star,Star> eRef(m-1,1,grid);
+    DistMatrix<R,Star,Star> tRef(m-1,1,grid);
 
     if( grid.VCRank() == 0 )
     {
@@ -94,17 +89,19 @@ void TestCorrectness
     }
     else
     {
-        Matrix<T> ATransRef;
+        Matrix<R> ATransRef;
 
         blas::Trans( ARef.LockedLocalMatrix(), ATransRef );
-        lapack::Tridiag( Lower, ATransRef,
-                                dRef.LocalMatrix(),
-                                eRef.LocalMatrix(),
-                                tRef.LocalMatrix() );
+        lapack::Tridiag
+        ( Lower, 
+          ATransRef,
+          dRef.LocalMatrix(),
+          eRef.LocalMatrix(),
+          tRef.LocalMatrix() );
         blas::Trans( ATransRef, ARef.LocalMatrix() );
     }
     double stopTime = Time();
-    double gFlops = lapack::internal::TridiagGFlops<T>(m,stopTime-startTime);
+    double gFlops = lapack::internal::TridiagGFlops<R>(m,stopTime-startTime);
     if( grid.VCRank() == 0 )
         cout << "DONE. GFlops = " << gFlops << endl;
 
@@ -127,8 +124,8 @@ void TestCorrectness
         {
             for( int i=j; i<m; ++i )
             {
-                T truth = ARef.LocalEntry(i,j);
-                T computed = A_copy.LocalEntry(i,j);
+                R truth = ARef.LocalEntry(i,j);
+                R computed = A_copy.LocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
                 {
@@ -148,8 +145,8 @@ void TestCorrectness
         {
             for( int i=0; i<=j; ++i )
             {
-                T truth = ARef.LocalEntry(i,j);
-                T computed = A_copy.LocalEntry(i,j);
+                R truth = ARef.LocalEntry(i,j);
+                R computed = A_copy.LocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
                 {
@@ -165,8 +162,8 @@ void TestCorrectness
     }
     for( int j=0; j<m; ++j )
     {
-        T truth = dRef.LocalEntry(j,0);
-        T computed = d_copy.LocalEntry(j,0);
+        R truth = dRef.LocalEntry(j,0);
+        R computed = d_copy.LocalEntry(j,0);
 
         if( ! OKRelativeError( truth, computed ) )
         {
@@ -179,8 +176,8 @@ void TestCorrectness
     }
     for( int j=0; j<m-1; ++j )
     {
-        T truth = eRef.LocalEntry(j,0);
-        T computed = e_copy.LocalEntry(j,0);
+        R truth = eRef.LocalEntry(j,0);
+        R computed = e_copy.LocalEntry(j,0);
 
         if( ! OKRelativeError( truth, computed ) )
         {
@@ -193,8 +190,8 @@ void TestCorrectness
     }
     for( int j=0; j<m-1; ++j )
     {
-        T truth = tRef.LocalEntry(j,0);
-        T computed = t_copy.LocalEntry(j,0);
+        R truth = tRef.LocalEntry(j,0);
+        R computed = t_copy.LocalEntry(j,0);
 
         if( ! OKRelativeError( truth, computed ) )
         {
@@ -211,17 +208,267 @@ void TestCorrectness
         cout << "PASSED" << endl;
 }
 
-template<typename T>
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void TestCorrectness
+( bool printMatrices,
+  Shape shape, 
+  const DistMatrix<complex<R>,MC,  MR  >& A, 
+  const DistMatrix<R,         MD,  Star>& d,
+  const DistMatrix<R,         MD,  Star>& e,
+  const DistMatrix<complex<R>,MD,  Star>& t,
+        DistMatrix<complex<R>,Star,Star>& ARef )
+{
+    typedef complex<R> C;
+
+    const Grid& grid = A.GetGrid();
+    const int m = ARef.Height();
+    DistMatrix<C,Star,Star> A_copy(grid);
+    DistMatrix<R,Star,Star> d_copy(grid);
+    DistMatrix<R,Star,Star> e_copy(grid);
+    DistMatrix<C,Star,Star> t_copy(grid);
+    DistMatrix<R,Star,Star> dRef(m,1,grid);
+    DistMatrix<R,Star,Star> eRef(m-1,1,grid);
+    DistMatrix<C,Star,Star> tRef(m-1,1,grid);
+
+    if( grid.VCRank() == 0 )
+    {
+        cout << "  Gathering computed result...";
+        cout.flush();
+    }
+    A_copy = A;
+    d_copy = d;
+    e_copy = e;
+    t_copy = t;
+    if( grid.VCRank() == 0 )
+        cout << "DONE" << endl;
+
+    if( grid.VCRank() == 0 )
+    {
+        cout << "  Computing 'truth'...";
+        cout.flush();
+    }
+    double startTime = Time();
+    if( shape == Lower )
+    {
+        lapack::Tridiag( Lower, ARef.LocalMatrix(), 
+                                dRef.LocalMatrix(),
+                                eRef.LocalMatrix(),
+                                tRef.LocalMatrix() );
+    }
+    else
+    {
+        Matrix<C> ATransRef;
+
+        blas::Trans( ARef.LockedLocalMatrix(), ATransRef );
+        lapack::Tridiag
+        ( Lower, 
+          ATransRef,
+          dRef.LocalMatrix(),
+          eRef.LocalMatrix(),
+          tRef.LocalMatrix() );
+        blas::Trans( ATransRef, ARef.LocalMatrix() );
+    }
+    double stopTime = Time();
+    double gFlops = lapack::internal::TridiagGFlops<C>(m,stopTime-startTime);
+    if( grid.VCRank() == 0 )
+        cout << "DONE. GFlops = " << gFlops << endl;
+
+    if( printMatrices )
+    {
+        ARef.Print("True A:");
+        dRef.Print("True d:");
+        eRef.Print("True e:");
+        tRef.Print("True t:");
+    }
+
+    if( grid.VCRank() == 0 )
+    {
+        cout << "  Testing correctness...";
+        cout.flush();
+    }
+    if( shape == Lower )
+    {
+        for( int j=0; j<m; ++j )
+        {
+            for( int i=j; i<m; ++i )
+            {
+                C truth = ARef.LocalEntry(i,j);
+                C computed = A_copy.LocalEntry(i,j);
+
+                if( ! OKRelativeError( truth, computed ) )
+                {
+                    ostringstream msg;
+                    msg << "FAILED at index (" << i << "," << j 
+                         << ") of A: truth=" << truth << ", computed=" 
+                         << computed;
+                    const string& s = msg.str();
+                    throw s.c_str();
+                }
+            }
+        }
+    }
+    else
+    {
+        for( int j=0; j<m; ++j )
+        {
+            for( int i=0; i<=j; ++i )
+            {
+                C truth = ARef.LocalEntry(i,j);
+                C computed = A_copy.LocalEntry(i,j);
+
+                if( ! OKRelativeError( truth, computed ) )
+                {
+                    ostringstream msg;
+                    msg << "FAILED at index (" << i << "," << j 
+                         << ") of A: truth=" << truth << ", computed="
+                         << computed;
+                    const string& s = msg.str();
+                    throw s.c_str();
+                }
+            }
+        }
+    }
+    for( int j=0; j<m; ++j )
+    {
+        C truth = dRef.LocalEntry(j,0);
+        C computed = d_copy.LocalEntry(j,0);
+
+        if( ! OKRelativeError( truth, computed ) )
+        {
+            ostringstream msg;
+            msg << "FAILED at index " << j << " of d: truth=" << truth
+                 << ", computed=" << computed;
+            const string& s = msg.str();
+            throw s.c_str();
+        }
+    }
+    for( int j=0; j<m-1; ++j )
+    {
+        C truth = eRef.LocalEntry(j,0);
+        C computed = e_copy.LocalEntry(j,0);
+
+        if( ! OKRelativeError( truth, computed ) )
+        {
+            ostringstream msg;
+            msg << "FAILED at index " << j << " of e: truth=" << truth
+                 << ", computed=" << computed;
+            const string& s = msg.str();
+            throw s.c_str();
+        }
+    }
+    for( int j=0; j<m-1; ++j )
+    {
+        C truth = tRef.LocalEntry(j,0);
+        C computed = t_copy.LocalEntry(j,0);
+
+        if( ! OKRelativeError( truth, computed ) )
+        {
+            ostringstream msg;
+            msg << "FAILED at index " << j << " of t: truth=" << truth
+                 << ", computed=" << computed;
+            const string& s = msg.str();
+            throw s.c_str();
+        }
+    }
+
+    Barrier( grid.VCComm() );
+    if( grid.VCRank() == 0 )
+        cout << "PASSED" << endl;
+}
+#endif // WITHOUT_COMPLEX
+
+template<typename R>
 void TestTridiag
+( bool testCorrectness, bool printMatrices,
+  Shape shape, int m, const Grid& grid );
+
+template<>
+void TestTridiag<double>
 ( bool testCorrectness, bool printMatrices,
   Shape shape, int m, const Grid& grid )
 {
+    typedef double R;
+
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(grid);
-    DistMatrix<T,MD,Star> d(grid);
-    DistMatrix<T,MD,Star> e(grid);
-    DistMatrix<T,MD,Star> t(grid);
-    DistMatrix<T,Star,Star> ARef(grid);
+    DistMatrix<R,MC,MR> A(grid);
+    DistMatrix<R,MD,Star> d(grid);
+    DistMatrix<R,MD,Star> e(grid);
+    DistMatrix<R,MD,Star> t(grid);
+    DistMatrix<R,Star,Star> ARef(grid);
+
+    A.ResizeTo( m, m );
+
+    d.AlignWithDiag( A );
+    if( shape == Lower )
+        e.AlignWithDiag( A, -1 );
+    else
+        e.AlignWithDiag( A, +1 );
+    t.AlignWithDiag( A );
+
+    d.ResizeTo( m,   1 );
+    e.ResizeTo( m-1, 1 );
+    t.ResizeTo( m-1, 1 );
+
+    A.SetToRandomHPD();
+    if( testCorrectness )
+    {
+        if( grid.VCRank() == 0 )
+        {
+            cout << "  Making copy of original matrix...";
+            cout.flush();
+        }
+        ARef = A;
+        if( grid.VCRank() == 0 )
+            cout << "DONE" << endl;
+    }
+    if( printMatrices )
+        A.Print("A");
+
+    if( grid.VCRank() == 0 )
+    {
+        cout << "  Starting tridiagonalization...";
+        cout.flush();
+    }
+    Barrier( MPI_COMM_WORLD );
+    startTime = Time();
+    lapack::Tridiag( shape, A, d, e, t );
+    Barrier( MPI_COMM_WORLD );
+    endTime = Time();
+    runTime = endTime - startTime;
+    gFlops = lapack::internal::TridiagGFlops<R>( m, runTime );
+    if( grid.VCRank() == 0 )
+    {
+        cout << "DONE. " << endl
+             << "  Time = " << runTime << " seconds. GFlops = " 
+             << gFlops << endl;
+    }
+    if( printMatrices )
+    {
+        A.Print("A after Tridiag");
+        d.Print("d after Tridiag");
+        e.Print("e after Tridiag");
+        t.Print("t after Tridiag");
+    }
+    if( testCorrectness )
+        TestCorrectness( printMatrices, shape, A, d, e, t, ARef );
+}
+
+#ifndef WITHOUT_COMPLEX
+template<>
+void TestTridiag< complex<double> >
+( bool testCorrectness, bool printMatrices,
+  Shape shape, int m, const Grid& grid )
+{
+    typedef double R;
+    typedef complex<R> C;
+
+    double startTime, endTime, runTime, gFlops;
+    DistMatrix<C,MC,MR> A(grid);
+    DistMatrix<R,MD,Star> d(grid);
+    DistMatrix<R,MD,Star> e(grid);
+    DistMatrix<C,MD,Star> t(grid);
+    DistMatrix<C,Star,Star> ARef(grid);
 
     A.ResizeTo( m, m );
 
@@ -237,7 +484,7 @@ void TestTridiag
     t.ResizeTo( m-1, 1 );
 
     // Make A diagonally dominant
-    A.SetToRandomDiagDominant();
+    A.SetToRandomHPD();
     if( testCorrectness )
     {
         if( grid.VCRank() == 0 )
@@ -250,9 +497,7 @@ void TestTridiag
             cout << "DONE" << endl;
     }
     if( printMatrices )
-    {
         A.Print("A");
-    }
 
     if( grid.VCRank() == 0 )
     {
@@ -265,7 +510,7 @@ void TestTridiag
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = lapack::internal::TridiagGFlops<T>( m, runTime );
+    gFlops = lapack::internal::TridiagGFlops< complex<R> >( m, runTime );
     if( grid.VCRank() == 0 )
     {
         cout << "DONE. " << endl
@@ -280,10 +525,9 @@ void TestTridiag
         t.Print("t after Tridiag");
     }
     if( testCorrectness )
-    {
         TestCorrectness( printMatrices, shape, A, d, e, t, ARef );
-    }
 }
+#endif // WITHOUT_COMPLEX
 
 int main( int argc, char* argv[] )
 {
@@ -329,6 +573,18 @@ int main( int argc, char* argv[] )
         TestTridiag<double>( testCorrectness, printMatrices, shape, m, grid );
         if( rank == 0 )
             cout << endl;
+
+#ifndef WITHOUT_COMPLEX
+        if( rank == 0 )
+        {
+            cout << "----------------------------" << endl;
+            cout << "Testing with double-complex:" << endl;
+            cout << "----------------------------" << endl;
+        }
+        TestTridiag<dcomplex>( testCorrectness, printMatrices, shape, m, grid );
+        if( rank == 0 )
+            cout << endl;
+#endif
     }
     catch( const char* errorMsg )
     {

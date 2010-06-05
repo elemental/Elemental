@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -118,13 +109,15 @@ elemental::blas::internal::GemmTNA
     PartitionRight( C, CL, CR );
     while( BR.Width() > 0 )
     {
-        LockedRepartitionRight( BL, /**/     BR,
-                                B0, /**/ B1, B2 );
+        LockedRepartitionRight
+        ( BL, /**/     BR,
+          B0, /**/ B1, B2 );
  
-        RepartitionRight( CL, /**/     CR,
-                          C0, /**/ C1, C2 );
+        RepartitionRight
+        ( CL, /**/     CR,
+          C0, /**/ C1, C2 );
 
-        B1_MC_Star.ConformWith( A );
+        B1_MC_Star.AlignWith( A );
         D1_MR_Star.AlignWith( A );
         D1_MR_Star.ResizeTo( C1.Height(), C1.Width() );
         D1.AlignWith( C1 );
@@ -133,25 +126,28 @@ elemental::blas::internal::GemmTNA
 
         // D1[MR,*] := alpha (A1[MC,MR])^T B1[MC,*]
         //           = alpha (A1^T)[MR,MC] B1[MC,*]
-        blas::Gemm( orientationOfA, Normal, 
-                    alpha, A.LockedLocalMatrix(),
-                           B1_MC_Star.LockedLocalMatrix(),
-                    (T)0,  D1_MR_Star.LocalMatrix()       );
+        blas::Gemm
+        ( orientationOfA, Normal, 
+          alpha, A.LockedLocalMatrix(),
+                 B1_MC_Star.LockedLocalMatrix(),
+          (T)0,  D1_MR_Star.LocalMatrix() );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
-        D1_MR_MC.ReduceScatterFrom( D1_MR_Star );
+        D1_MR_MC.SumScatterFrom( D1_MR_Star );
         D1 = D1_MR_MC; 
         blas::Axpy( (T)1, D1, C1 );
         //--------------------------------------------------------------------//
-        B1_MC_Star.FreeConstraints();
-        D1_MR_Star.FreeConstraints();
-        D1.FreeConstraints();
+        B1_MC_Star.FreeAlignments();
+        D1_MR_Star.FreeAlignments();
+        D1.FreeAlignments();
 
-        SlideLockedPartitionRight( BL,     /**/ BR,
-                                   B0, B1, /**/ B2 );
+        SlideLockedPartitionRight
+        ( BL,     /**/ BR,
+          B0, B1, /**/ B2 );
 
-        SlidePartitionRight( CL,     /**/ CR,
-                             C0, C1, /**/ C2 );
+        SlidePartitionRight
+        ( CL,     /**/ CR,
+          C0, C1, /**/ C2 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -203,19 +199,22 @@ elemental::blas::internal::GemmTNB
     // Start the algorithm
     blas::Scal( beta, C );
     LockedPartitionRight( A, AL, AR );
-    PartitionDown( C, CT,
-                      CB );
+    PartitionDown
+    ( C, CT,
+         CB );
     while( AR.Width() > 0 )
     {
-        LockedRepartitionRight( AL, /**/     AR,
-                                A0, /**/ A1, A2 );
+        LockedRepartitionRight
+        ( AL, /**/     AR,
+          A0, /**/ A1, A2 );
 
-        RepartitionDown( CT,  C0,
-                        /**/ /**/
-                              C1,
-                         CB,  C2 );
+        RepartitionDown
+        ( CT,  C0,
+         /**/ /**/
+               C1,
+          CB,  C2 );
 
-        A1_MC_Star.ConformWith( B );
+        A1_MC_Star.AlignWith( B );
         D1_Star_MR.AlignWith( B );
         D1_Star_MR.ResizeTo( C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
@@ -223,24 +222,27 @@ elemental::blas::internal::GemmTNB
 
         // D1[*,MR] := alpha (A1[MC,*])^T B[MC,MR]
         //           = alpha (A1^T)[*,MC] B[MC,MR]
-        blas::Gemm( orientationOfA, Normal, 
-                    alpha, A1_MC_Star.LockedLocalMatrix(),
-                           B.LockedLocalMatrix(),
-                    (T)0,  D1_Star_MR.LocalMatrix()       );
+        blas::Gemm
+        ( orientationOfA, Normal, 
+          alpha, A1_MC_Star.LockedLocalMatrix(),
+                 B.LockedLocalMatrix(),
+          (T)0,  D1_Star_MR.LocalMatrix() );
 
         // C1[MC,MR] += scattered result of D1[*,MR] summed over grid cols
-        C1.ReduceScatterUpdate( (T)1, D1_Star_MR );
+        C1.SumScatterUpdate( (T)1, D1_Star_MR );
         //--------------------------------------------------------------------//
-        A1_MC_Star.FreeConstraints();
-        D1_Star_MR.FreeConstraints();
+        A1_MC_Star.FreeAlignments();
+        D1_Star_MR.FreeAlignments();
 
-        SlideLockedPartitionRight( AL,     /**/ AR,
-                                   A0, A1, /**/ A2 );
+        SlideLockedPartitionRight
+        ( AL,     /**/ AR,
+          A0, A1, /**/ A2 );
 
-        SlidePartitionDown( CT,  C0,
-                                 C1,
-                           /**/ /**/
-                            CB,  C2 );
+        SlidePartitionDown
+        ( CT,  C0,
+               C1,
+         /**/ /**/
+          CB,  C2 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -292,21 +294,25 @@ elemental::blas::internal::GemmTNC
 
     // Start the algorithm
     blas::Scal( beta, C );
-    LockedPartitionDown( A, AT,
-                            AB );
-    LockedPartitionDown( B, BT,
-                            BB );
+    LockedPartitionDown
+    ( A, AT,
+         AB );
+    LockedPartitionDown
+    ( B, BT,
+         BB );
     while( AB.Height() > 0 )
     {
-        LockedRepartitionDown( AT,  A0,
-                              /**/ /**/
-                                    A1,
-                               AB,  A2 );
+        LockedRepartitionDown
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
 
-        LockedRepartitionDown( BT,  B0,
-                              /**/ /**/
-                                    B1,
-                               BB,  B2 );
+        LockedRepartitionDown
+        ( BT,  B0,
+         /**/ /**/
+               B1,
+          BB,  B2 );
 
         A1_Star_MC.AlignWith( C );
         B1_Star_MR.AlignWith( C );
@@ -316,23 +322,26 @@ elemental::blas::internal::GemmTNC
 
         // C[MC,MR] += alpha (A1[*,MC])^T B1[*,MR]
         //           = alpha (A1^T)[MC,*] B1[*,MR]
-        blas::Gemm( orientationOfA, Normal, 
-                    alpha, A1_Star_MC.LockedLocalMatrix(),
-                           B1_Star_MR.LockedLocalMatrix(),
-                    (T)1,  C.LocalMatrix()                );
+        blas::Gemm
+        ( orientationOfA, Normal, 
+          alpha, A1_Star_MC.LockedLocalMatrix(),
+                 B1_Star_MR.LockedLocalMatrix(),
+          (T)1,  C.LocalMatrix() );
         //--------------------------------------------------------------------//
-        A1_Star_MC.FreeConstraints();
-        B1_Star_MR.FreeConstraints();
+        A1_Star_MC.FreeAlignments();
+        B1_Star_MR.FreeAlignments();
 
-        SlideLockedPartitionDown( AT,  A0,
-                                       A1,
-                                 /**/ /**/
-                                  AB,  A2 );
+        SlideLockedPartitionDown
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
 
-        SlideLockedPartitionDown( BT,  B0,
-                                       B1,
-                                 /**/ /**/
-                                  BB,  B2 );
+        SlideLockedPartitionDown
+        ( BT,  B0,
+               B1,
+         /**/ /**/
+          BB,  B2 );
     }
 #ifndef RELEASE
     PopCallStack();

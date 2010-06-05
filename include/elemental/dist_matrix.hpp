@@ -1,35 +1,35 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
-#ifndef ELEMENTAL_DISTMATRIX_HPP
-#define ELEMENTAL_DISTMATRIX_HPP 1
+#ifndef ELEMENTAL_DIST_MATRIX_HPP
+#define ELEMENTAL_DIST_MATRIX_HPP 1
 
 #include "elemental/matrix.hpp"
 #include "elemental/wrappers/mpi.hpp"
 
 namespace elemental {
 
-// We will partially specialize for each valid distribution 
+template<typename T>
+class AbstractDistMatrixBase;
+
+template<typename T>
+class AbstractDistMatrix;
+
+template<typename T, Distribution ColDist, Distribution RowDist>
+class DistMatrixBase;
+
 template<typename T, Distribution ColDist, Distribution RowDist> 
 class DistMatrix;
 
 } // elemental
 
+#include "elemental/dist_matrix/abstract.hpp"
 #include "elemental/dist_matrix/mc_mr.hpp"
 #include "elemental/dist_matrix/mc_star.hpp"
 #include "elemental/dist_matrix/md_star.hpp"
@@ -44,4 +44,5 @@ class DistMatrix;
 #include "elemental/dist_matrix/vc_star.hpp"
 #include "elemental/dist_matrix/vr_star.hpp"
 
-#endif /* ELEMENTAL_DISTMATRIX_HPP */
+#endif /* ELEMENTAL_DIST_MATRIX_HPP */
+

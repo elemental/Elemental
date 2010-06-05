@@ -1,10 +1,11 @@
 Relatively trivial but important 
 ================================
-- Extend Tridiag to complex datatypes.
+- Unit tests for unaligned DistMatrix redistributions and summations
 - Finish adding dot product gemm algorithms for NT, TN, and TT options
 
 Relatively trivial but not important
 ====================================
+- Add routines like 'LocalGemm' to avoid repetetive '.LockedLocalMatrix()' calls
 - Add shortcuts for square process grids and diagonally-aligned matrices
 
 Substantial effort and important

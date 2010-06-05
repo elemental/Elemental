@@ -1,24 +1,13 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
-#include <cmath>
 #include <ctime>
-#include <sstream>
 #include "elemental.hpp"
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -171,14 +160,7 @@ void TestHer2k
 
     A.SetToRandom();
     B.SetToRandom();
-    C.SetToRandom();
-    C.MakeTrapezoidal( Left, shape );
-    for( int j=0; j<m; ++j )
-    {
-        T u = C.Get(j,j);
-        u = u.real();
-        C.Set(j,j,u);
-    }
+    C.SetToRandomHPD();
     if( testCorrectness )
     {
         if( grid.VCRank() == 0 )
@@ -273,6 +255,18 @@ int main( int argc, char* argv[] )
                                       << OrientationToChar(orientation) << endl;
         }
 
+        if( rank == 0 )
+        {
+            cout << "--------------------------------------" << endl;
+            cout << "Testing with doubles:                 " << endl;
+            cout << "--------------------------------------" << endl;
+        }
+        TestHer2k<double>
+        ( testCorrectness, printMatrices,
+          shape, orientation, m, k, (double)3, (double)4, grid );
+        if( rank == 0 )
+            cout << endl;
+
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
@@ -282,7 +276,7 @@ int main( int argc, char* argv[] )
         }
         TestHer2k<dcomplex>
         ( testCorrectness, printMatrices,
-          shape, orientation, m, k, (double)3, (double)4, grid );
+          shape, orientation, m, k, (dcomplex)3, (dcomplex)4, grid );
         if( rank == 0 )
             cout << endl;
 #endif

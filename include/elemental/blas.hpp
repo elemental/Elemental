@@ -1,25 +1,15 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #ifndef ELEMENTAL_BLAS_HPP
 #define ELEMENTAL_BLAS_HPP 1
 
-#include <cmath>
 #include "elemental/dist_matrix.hpp"
 #include "elemental/partitioning.hpp"
 #include "elemental/wrappers/blas.hpp"
@@ -633,10 +623,8 @@ elemental::blas::Dot
 #ifndef RELEASE
     PushCallStack("blas::Dot");
     if( (x.Height() != 1 && x.Width() != 1) ||
-        (y.Height() != 1 && y.Width() != 1)   )
-    {
+        (y.Height() != 1 && y.Width() != 1) )
         throw "Expected vector inputs.";
-    }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
@@ -681,16 +669,12 @@ elemental::blas::Dotc
 #ifndef RELEASE
     PushCallStack("blas::Dotc");
     if( (x.Height() != 1 && x.Width() != 1) ||
-        (y.Height() != 1 && y.Width() != 1)   )
-    {
+        (y.Height() != 1 && y.Width() != 1) )
         throw "Expected vector inputs.";
-    }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
         throw "x and y must be the same length.";
-    }
 #endif
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -731,16 +715,12 @@ elemental::blas::Dotu
 #ifndef RELEASE
     PushCallStack("blas::Dotu");
     if( (x.Height() != 1 && x.Width() != 1) ||
-        (y.Height() != 1 && y.Width() != 1)   )
-    {
+        (y.Height() != 1 && y.Width() != 1) )
         throw "Expected vector inputs.";
-    }
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-    {
         throw "x and y must be the same length.";
-    }
 #endif
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -839,20 +819,18 @@ elemental::blas::Scal
 #endif
     if( alpha != (T)1 )
     {
-        if( X.Width() <= X.Height() )
+        if( alpha == (T)0 )
+        {
+            for( int j=0; j<X.Width(); ++j )
+                for( int i=0; i<X.Height(); ++i )
+                    X(i,j) = 0;
+        }
+        else
         {
             for( int j=0; j<X.Width(); ++j )
             {
                 wrappers::blas::Scal
                 ( X.Height(), alpha, X.Buffer(0,j), 1 );
-            }
-        }
-        else
-        {
-            for( int i=0; i<X.Height(); ++i )
-            {
-                wrappers::blas::Scal
-                ( X.Width(), alpha, X.Buffer(i,0), X.LDim() );
             }
         }
     }
@@ -963,10 +941,8 @@ elemental::blas::Gemv
 #ifndef RELEASE
     PushCallStack("blas::Gemv");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
-        ( y.Height() != 1 && y.Width() != 1 )   )
-    {
+        ( y.Height() != 1 && y.Width() != 1 ) )
         throw "x and y must be vector.";
-    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( orientation == Normal )
@@ -978,7 +954,7 @@ elemental::blas::Gemv
                 << "  A ~ " << A.Height() << " x " << A.Width() << std::endl
                 << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
                 << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
-            const std::string s = msg.str();
+            const std::string& s = msg.str();
             throw s.c_str();
         }
     }
@@ -991,7 +967,7 @@ elemental::blas::Gemv
                 << "  A ~ " << A.Height() << " x " << A.Width() << std::endl
                 << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
                 << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
-            const std::string s = msg.str();
+            const std::string& s = msg.str();
             throw s.c_str();
         }
     }
@@ -1026,10 +1002,8 @@ elemental::blas::Ger
 #ifndef RELEASE
     PushCallStack("blas::Ger");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
-        ( y.Height() != 1 && y.Width() != 1 )   )
-    {
+        ( y.Height() != 1 && y.Width() != 1 ) )
         throw "x and y must be vectors.";
-    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Width() )
@@ -1063,16 +1037,12 @@ elemental::blas::Gerc
 #ifndef RELEASE
     PushCallStack("blas::Gerc");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
-        ( y.Height() != 1 && y.Width() != 1 )   )
-    {
+        ( y.Height() != 1 && y.Width() != 1 ) )
         throw "x and y must be vectors.";
-    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Width() )
-    {
         throw "Nonconformal Gerc.";
-    }
 #endif
     const int m = A.Height(); 
     const int n = A.Width();
@@ -1094,16 +1064,12 @@ elemental::blas::Geru
 #ifndef RELEASE
     PushCallStack("blas::Geru");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
-        ( y.Height() != 1 && y.Width() != 1 )   )
-    {
+        ( y.Height() != 1 && y.Width() != 1 ) )
         throw "x and y must be vectors.";
-    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Width() )
-    {
         throw "Nonconformal Geru.";
-    }
 #endif
     const int m = A.Height(); 
     const int n = A.Width();
@@ -1128,16 +1094,12 @@ elemental::blas::Hemv
     if( A.Height() != A.Width() )
         throw "A must be square.";
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
-        ( y.Height() != 1 && y.Width() != 1 )   )
-    {
+        ( y.Height() != 1 && y.Width() != 1 ) )
         throw "x and y must be vectors.";
-    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
-    {
         throw "A must conform with x and y.";
-    }
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1189,10 +1151,8 @@ elemental::blas::Her2
     if( A.Height() != A.Width() )
         throw "A must be square.";
     if( (x.Width() != 1 && x.Height() != 1) || 
-        (y.Width() != 1 && y.Height() != 1)   )
-    {
+        (y.Width() != 1 && y.Height() != 1) )
         throw "x and y must be vectors.";
-    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Height() )
@@ -1222,10 +1182,8 @@ elemental::blas::Symv
     if( A.Height() != A.Width() )
         throw "A must be square.";
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
-        ( y.Height() != 1 && y.Width() != 1 )   )
-    {
+        ( y.Height() != 1 && y.Width() != 1 ) )
         throw "x and y must be vectors.";
-    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
@@ -1280,10 +1238,8 @@ elemental::blas::Syr2
     if( A.Height() != A.Width() )
         throw "A must be square.";
     if( (x.Width() != 1 && x.Height() != 1) || 
-        (y.Width() != 1 && y.Height() != 1)   )
-    {
+        (y.Width() != 1 && y.Height() != 1) )
         throw "x and y must be vectors.";
-    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Height() )
@@ -1376,37 +1332,29 @@ elemental::blas::Gemm
     {
         if( A.Height() != C.Height() ||
             B.Width()  != C.Width()  ||
-            A.Width()  != B.Height()    )
-        {
+            A.Width()  != B.Height() )
             throw "Nonconformal GemmNN.";
-        }
     }
     else if( orientationOfA == Normal )
     {
         if( A.Height() != C.Height() ||
             B.Height() != C.Width()  ||
-            A.Width()  != B.Width()     )
-        {
+            A.Width()  != B.Width() )
             throw "Nonconformal GemmN(T/C).";
-        }
     }
     else if( orientationOfB == Normal )
     {
         if( A.Width()  != C.Height() ||
             B.Width()  != C.Width()  ||
-            A.Height() != B.Height()    )
-        {
+            A.Height() != B.Height() )
             throw "Nonconformal Gemm(T/C)N.";
-        }
     }
     else
     {
         if( A.Width()  != C.Height() ||
             B.Height() != C.Width()  ||
-            A.Height() != B.Width()     )
-        {
+            A.Height() != B.Width() )
             throw "Nonconformal Gemm(T/C)(T/C).";
-        }
     }
 #endif
     const char transA = OrientationToChar( orientationOfA );
@@ -1462,23 +1410,17 @@ elemental::blas::Her2k
     if( orientation == Normal )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
-            B.Height() != C.Height() ||B.Height() != C.Width()    )
-        {
+            B.Height() != C.Height() ||B.Height() != C.Width() )
             throw "Nonconformal Her2k.";
-        }
     }
     else if( orientation == ConjugateTranspose )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() ||
-            B.Width() != C.Height() || B.Width() != C.Width()   )
-        {
+            B.Width() != C.Height() || B.Width() != C.Width() )
             throw "Nonconformal Her2k.";
-        }
     }
     else
-    {
         throw "Her2k only accepts Normal and ConjugateTranspose options.";
-    }
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
@@ -1512,9 +1454,7 @@ elemental::blas::Herk
             throw "Nonconformal Herk.";
     }
     else
-    {
         throw "Herk only accepts Normal and ConjugateTranpose options.";
-    }
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
@@ -1561,22 +1501,16 @@ elemental::blas::Syr2k
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
             B.Height() != C.Height() ||B.Height() != C.Width()    )
-        {
             throw "Nonconformal Syr2k.";
-        }
     }
     else if( orientation == Transpose )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() ||
             B.Width() != C.Height() || B.Width() != C.Width()   )
-        {
             throw "Nonconformal Syr2k.";
-        }
     }
     else
-    {
         throw "Syr2k only accepts Normal and Tranpose options.";
-    }
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
@@ -1610,9 +1544,7 @@ elemental::blas::Syrk
             throw "Nonconformal Syrk.";
     }
     else
-    {
         throw "Syrk only accepts Normal and Tranpose options.";
-    }
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
@@ -1708,10 +1640,8 @@ elemental::blas::Axpy
     if( X.GetGrid() != Y.GetGrid() )
         throw "X and Y must be distributed over the same grid.";
     if( X.ColAlignment() != Y.ColAlignment() ||
-        X.RowAlignment() != Y.RowAlignment()   )
-    {
+        X.RowAlignment() != Y.RowAlignment() )
         throw "Axpy requires X and Y be aligned.";
-    }
 #endif
     blas::Axpy( alpha, X.LockedLocalMatrix(), Y.LocalMatrix() );
 #ifndef RELEASE
@@ -1810,16 +1740,16 @@ elemental::blas::ConjTrans
     PushCallStack("blas::ConjTrans");
 #endif
     DistMatrix<T,Z,W> C( B.GetGrid() );
-    if( B.ConstrainedColDist() )
+    if( B.ConstrainedColAlignment() )
         C.AlignRowsWith( B );
-    if( B.ConstrainedRowDist() )
+    if( B.ConstrainedRowAlignment() )
         C.AlignColsWith( B );
 
     C = A;
 
-    if( !B.ConstrainedColDist() )
+    if( !B.ConstrainedColAlignment() )
         B.AlignColsWith( C );
-    if( !B.ConstrainedRowDist() )
+    if( !B.ConstrainedRowAlignment() )
         B.AlignRowsWith( C );
 
     B.ResizeTo( A.Width(), A.Height() );
@@ -1839,16 +1769,16 @@ elemental::blas::Trans
     PushCallStack("blas::Trans");
 #endif
     DistMatrix<T,Z,W> C( B.GetGrid() );
-    if( B.ConstrainedColDist() )
+    if( B.ConstrainedColAlignment() )
         C.AlignRowsWith( B );
-    if( B.ConstrainedRowDist() )
+    if( B.ConstrainedRowAlignment() )
         C.AlignColsWith( B );
 
     C = A;
 
-    if( !B.ConstrainedColDist() )
+    if( !B.ConstrainedColAlignment() )
         B.AlignColsWith( C );
-    if( !B.ConstrainedRowDist() )
+    if( !B.ConstrainedRowAlignment() )
         B.AlignRowsWith( C );
 
     B.ResizeTo( A.Width(), A.Height() );

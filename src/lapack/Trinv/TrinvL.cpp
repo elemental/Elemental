@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/lapack_internal.hpp"
 using namespace std;
@@ -64,10 +55,11 @@ elemental::lapack::internal::TrinvLVar3
                               LBL, LBR );
     while( LTL.Height() < L.Height() )
     {
-        RepartitionDownDiagonal( LTL, /**/ LTR,  L00, /**/ L01, L02,
-                                /*************/ /******************/
-                                      /**/       L10, /**/ L11, L12,
-                                 LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        RepartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
+         /*************/ /******************/
+               /**/       L10, /**/ L11, L12,
+          LBL, /**/ LBR,  L20, /**/ L21, L22 );
 
         L10_Star_MR.AlignWith( L20 );
         L21_MC_Star.AlignWith( L20 );
@@ -98,13 +90,14 @@ elemental::lapack::internal::TrinvLVar3
                 L21_VC_Star.LocalMatrix()         );
         L21 = L21_VC_Star;
         //--------------------------------------------------------------------//
-        L10_Star_MR.FreeConstraints();
-        L21_MC_Star.FreeConstraints();
+        L10_Star_MR.FreeAlignments();
+        L21_MC_Star.FreeAlignments();
 
-        SlidePartitionDownDiagonal( LTL, /**/ LTR,  L00, L01, /**/ L02,
-                                         /**/       L10, L11, /**/ L12,
-                                   /*************/ /******************/
-                                    LBL, /**/ LBR,  L20, L21, /**/ L22 );
+        SlidePartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
+               /**/       L10, L11, /**/ L12,
+         /*************/ /******************/
+          LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
 #ifndef RELEASE
     PopCallStack();

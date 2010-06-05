@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/lapack_internal.hpp"
 using namespace std;
@@ -70,25 +61,30 @@ elemental::lapack::internal::PanelLU
 
     // Start the algorithm
     PushBlocksizeStack( 1 );
-    PartitionDownDiagonal( A, ATL, ATR,
-                              ABL, ABR );
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR );
     PartitionRight( B, BL, BR );
-    PartitionDown( p, pT,
-                      pB );
+    PartitionDown
+    ( p, pT,
+         pB );
     while( ATL.Height() < A.Height() )
     {
-        RepartitionDownDiagonal( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-                                /*************/ /**********************/
-                                      /**/       a10, /**/ alpha11, a12,
-                                 ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
+         /*************/ /**********************/
+               /**/       a10, /**/ alpha11, a12,
+          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        RepartitionRight( BL, /**/ BR,  
-                          B0, /**/ b1, B2 );
+        RepartitionRight
+        ( BL, /**/ BR,  
+          B0, /**/ b1, B2 );
 
-        RepartitionDown( pT,  p0,
-                        /**/ /****/
-                              psi1,
-                         pB,  p2   );
+        RepartitionDown
+        ( pT,  p0,
+         /**/ /****/
+               psi1,
+          pB,  p2 );
 
         //--------------------------------------------------------------------//
         
@@ -171,18 +167,21 @@ elemental::lapack::internal::PanelLU
 
         //--------------------------------------------------------------------//
 
-        SlidePartitionDownDiagonal( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-                                         /**/       a10, alpha11, /**/ a12,
-                                   /*************/ /**********************/
-                                    ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
+               /**/       a10, alpha11, /**/ a12,
+         /*************/ /**********************/
+          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
 
-        SlidePartitionRight( BL,     /**/ BR,  
-                             B0, b1, /**/ B2 );
+        SlidePartitionRight
+        ( BL,     /**/ BR,  
+          B0, b1, /**/ B2 );
 
-        SlidePartitionDown( pT,  p0,
-                                 psi1,
-                           /**/ /****/
-                            pB,  p2   );
+        SlidePartitionDown
+        ( pT,  p0,
+               psi1,
+         /**/ /****/
+          pB,  p2 );
     }
     PopBlocksizeStack();
 

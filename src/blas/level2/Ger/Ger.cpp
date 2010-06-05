@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -33,9 +24,7 @@ elemental::blas::Ger
         throw "{A,x,y} must be distributed over the same grid.";
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
         ( y.Width() != 1 && y.Height() != 1 )   )
-    {
         throw "x and y are assumed to be vectors.";
-    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Width() != yLength )
@@ -62,12 +51,13 @@ elemental::blas::Ger
         //--------------------------------------------------------------------//
         x_MC_Star = x;
         y_MR_Star = y;
-        blas::Ger( alpha, x_MC_Star.LockedLocalMatrix(),
-                          y_MR_Star.LockedLocalMatrix(),
-                          A.LocalMatrix()               );
+        blas::Ger
+        ( alpha, x_MC_Star.LockedLocalMatrix(),
+                 y_MR_Star.LockedLocalMatrix(),
+                 A.LocalMatrix() );
         //--------------------------------------------------------------------//
-        x_MC_Star.FreeConstraints();
-        y_MR_Star.FreeConstraints();
+        x_MC_Star.FreeAlignments();
+        y_MR_Star.FreeAlignments();
     }
     else if( x.Width() == 1 )
     {
@@ -81,12 +71,13 @@ elemental::blas::Ger
         //--------------------------------------------------------------------//
         x_MC_Star = x;
         y_Star_MR = y;
-        blas::Ger( alpha, x_MC_Star.LockedLocalMatrix(),
-                          y_Star_MR.LockedLocalMatrix(),
-                          A.LocalMatrix()               );
+        blas::Ger
+        ( alpha, x_MC_Star.LockedLocalMatrix(),
+                 y_Star_MR.LockedLocalMatrix(),
+                 A.LocalMatrix() );
         //--------------------------------------------------------------------//
-        x_MC_Star.FreeConstraints();
-        y_Star_MR.FreeConstraints();
+        x_MC_Star.FreeAlignments();
+        y_Star_MR.FreeAlignments();
     }
     else if( y.Width() == 1 )
     {
@@ -100,12 +91,13 @@ elemental::blas::Ger
         //--------------------------------------------------------------------//
         x_Star_MC = x;
         y_MR_Star = y;
-        blas::Ger( alpha, x_Star_MC.LockedLocalMatrix(),
-                          y_MR_Star.LockedLocalMatrix(),
-                          A.LocalMatrix()               );
+        blas::Ger
+        ( alpha, x_Star_MC.LockedLocalMatrix(),
+                 y_MR_Star.LockedLocalMatrix(),
+                 A.LocalMatrix() );
         //--------------------------------------------------------------------//
-        x_Star_MC.FreeConstraints();
-        y_MR_Star.FreeConstraints();
+        x_Star_MC.FreeAlignments();
+        y_MR_Star.FreeAlignments();
     }
     else
     {
@@ -119,12 +111,13 @@ elemental::blas::Ger
         //--------------------------------------------------------------------//
         x_Star_MC = x;
         y_Star_MR = y;
-        blas::Ger( alpha, x_Star_MC.LockedLocalMatrix(),
-                          y_Star_MR.LockedLocalMatrix(),
-                          A.LocalMatrix()               );
+        blas::Ger
+        ( alpha, x_Star_MC.LockedLocalMatrix(),
+                 y_Star_MR.LockedLocalMatrix(),
+                 A.LocalMatrix() );
         //--------------------------------------------------------------------//
-        x_Star_MC.FreeConstraints();
-        y_Star_MR.FreeConstraints();
+        x_Star_MC.FreeAlignments();
+        y_Star_MR.FreeAlignments();
     }
 #ifndef RELEASE
     PopCallStack();

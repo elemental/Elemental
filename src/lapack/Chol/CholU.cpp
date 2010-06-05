@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 #include "elemental/lapack_internal.hpp"
@@ -91,16 +82,18 @@ elemental::lapack::internal::CholUVar2
     DistMatrix<T,Star,MR  > X12_Star_MR(grid);
 
     // Start the algorithm
-    PartitionDownDiagonal( A, ATL, ATR,
-                              ABL, ABR );
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR );
     while( ATL.Height() < A.Height() )
     {
-        RepartitionDownDiagonal( ATL, /**/ ATR,  A00, /**/ A01, A02,
-                                /*************/ /******************/
-                                      /**/       A10, /**/ A11, A12,
-                                 ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A01_MC_Star.ConformWith( A01 );
+        A01_MC_Star.AlignWith( A01 );
         X11_Star_MR.AlignWith( A01 );
         X12_Star_MR.AlignWith( A02 );
         X11_Star_MR.ResizeTo( A11.Height(), A11.Width() );
@@ -111,8 +104,8 @@ elemental::lapack::internal::CholUVar2
         ( ConjugateTranspose, Normal, 
           (T)1, A01_MC_Star.LockedLocalMatrix(),
                 A01.LockedLocalMatrix(),
-          (T)0, X11_Star_MR.LocalMatrix()       );
-        A11.ReduceScatterUpdate( (T)-1, X11_Star_MR );
+          (T)0, X11_Star_MR.LocalMatrix() );
+        A11.SumScatterUpdate( (T)-1, X11_Star_MR );
 
         A11_Star_Star = A11;
         lapack::Chol( Upper, A11_Star_Star.LocalMatrix() );
@@ -122,24 +115,25 @@ elemental::lapack::internal::CholUVar2
         ( ConjugateTranspose, Normal, 
           (T)1, A01_MC_Star.LockedLocalMatrix(), 
                 A02.LockedLocalMatrix(), 
-          (T)0, X12_Star_MR.LocalMatrix()       );
-        A12.ReduceScatterUpdate( (T)-1, X12_Star_MR );
+          (T)0, X12_Star_MR.LocalMatrix() );
+        A12.SumScatterUpdate( (T)-1, X12_Star_MR );
 
         A12_Star_VR = A12;
         blas::Trsm
         ( Left, Upper, ConjugateTranspose, NonUnit,
           (T)1, A11_Star_Star.LockedLocalMatrix(), 
-                A12_Star_VR.LocalMatrix()          );
+                A12_Star_VR.LocalMatrix() );
         A12 = A12_Star_VR;
         //--------------------------------------------------------------------//
-        A01_MC_Star.FreeConstraints();
-        X11_Star_MR.FreeConstraints();
-        X12_Star_MR.FreeConstraints();
+        A01_MC_Star.FreeAlignments();
+        X11_Star_MR.FreeAlignments();
+        X12_Star_MR.FreeAlignments();
 
-        SlidePartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
-                                         /**/       A10, A11, /**/ A12,
-                                   /*************/ /******************/
-                                    ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -196,14 +190,16 @@ lapack::internal::CholUVar3
     DistMatrix<T,Star,MR  > A12_Star_MR(grid);
 
     // Start the algorithm
-    PartitionDownDiagonal( A, ATL, ATR,
-                              ABL, ABR );
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR ); 
     while( ABR.Height() > 0 )
     {
-        RepartitionDownDiagonal( ATL, /**/ ATR,  A00, /**/ A01, A02,
-                                /*************/ /******************/
-                                      /**/       A10, /**/ A11, A12,
-                                 ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
         A12_Star_MC.AlignWith( A22 );
         A12_Star_MR.AlignWith( A22 );
@@ -214,24 +210,27 @@ lapack::internal::CholUVar3
         A11 = A11_Star_Star;
 
         A12_Star_VR = A12;
-        blas::Trsm( Left, Upper, ConjugateTranspose, NonUnit,
-                    (T)1, A11_Star_Star.LockedLocalMatrix(), 
-                          A12_Star_VR.LocalMatrix()          );
+        blas::Trsm
+        ( Left, Upper, ConjugateTranspose, NonUnit,
+          (T)1, A11_Star_Star.LockedLocalMatrix(), 
+                A12_Star_VR.LocalMatrix() );
 
         A12_Star_MC = A12_Star_VR;
         A12_Star_MR = A12_Star_VR;
         blas::internal::TriangularRankK
-        ( Upper, (T)-1, A12_Star_MC, A12_Star_MR, (T)1, A22 );
+        ( Upper, ConjugateTranspose,
+          (T)-1, A12_Star_MC, A12_Star_MR, (T)1, A22 );
         A12 = A12_Star_MR;
         //--------------------------------------------------------------------//
-        A12_Star_MC.FreeConstraints();
-        A12_Star_MR.FreeConstraints();
-        A12_Star_VR.FreeConstraints();
+        A12_Star_MC.FreeAlignments();
+        A12_Star_MR.FreeAlignments();
+        A12_Star_VR.FreeAlignments();
 
-        SlidePartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
-                                         /**/       A10, A11, /**/ A12,
-                                   /*************/ /******************/
-                                    ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 #ifndef RELEASE
     PopCallStack();

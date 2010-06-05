@@ -1,43 +1,38 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/dist_matrix.hpp"
-#include "./dist_matrix_macros.hpp"
 using namespace std;
 using namespace elemental;
 using namespace elemental::utilities;
 using namespace elemental::wrappers::mpi;
 
+//----------------------------------------------------------------------------//
+// DistMatrixBase                                                             //
+//----------------------------------------------------------------------------//
+
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::Print( const string& msg ) const
+elemental::DistMatrixBase<T,MC,Star>::Print( const string& s ) const
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::Print");
+    PushCallStack("[MC,* ]::Print");
 #endif
-    if( _grid->VCRank() == 0 && msg != "" )
-        cout << msg << endl;
+    const Grid& grid = this->GetGrid();
+    if( grid.VCRank() == 0 && s != "" )
+        cout << s << endl;
         
-    const int height      = Height();
-    const int width       = Width();
-    const int localHeight = LocalHeight();
-    const int r           = _grid->Height();
-    const int colShift    = ColShift();
+    const int height      = this->Height();
+    const int width       = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int r           = grid.Height();
+    const int colShift    = this->ColShift();
 
     if( height == 0 || width == 0 )
     {
@@ -48,18 +43,18 @@ elemental::DistMatrix<T,MC,Star>::Print( const string& msg ) const
     }
 
     // Only one process column needs to participate
-    if( _grid->MRRank() == 0 )
+    if( grid.MRRank() == 0 )
     {
         T* sendBuf = new T[height*width];
         for( int i=0; i<height*width; ++i )
             sendBuf[i] = (T)0;
         for( int i=0; i<localHeight; ++i )
             for( int j=0; j<width; ++j )
-                sendBuf[colShift+i*r+j*height] = _localMatrix(i,j);
+                sendBuf[colShift+i*r+j*height] = this->LocalEntry(i,j);
 
         // If we are the root, fill the receive buffer
         T* recvBuf = 0;
-        if( _grid->MCRank() == 0 )
+        if( grid.MCRank() == 0 )
         {
             recvBuf = new T[height*width];     
             for( int i=0; i<height*width; ++i )
@@ -68,10 +63,10 @@ elemental::DistMatrix<T,MC,Star>::Print( const string& msg ) const
 
         // Sum the contributions and send to the root
         Reduce
-        ( sendBuf, recvBuf, height*width, MPI_SUM, 0, _grid->MCComm() );
+        ( sendBuf, recvBuf, height*width, MPI_SUM, 0, grid.MCComm() );
         delete[] sendBuf;
 
-        if( _grid->MCRank() == 0 )
+        if( grid.MCRank() == 0 )
         {
             // Print the data
             for( int i=0; i<height; ++i )
@@ -84,7 +79,7 @@ elemental::DistMatrix<T,MC,Star>::Print( const string& msg ) const
             delete[] recvBuf;
         }
     }
-    Barrier( _grid->VCComm() );
+    Barrier( grid.VCComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -93,17 +88,17 @@ elemental::DistMatrix<T,MC,Star>::Print( const string& msg ) const
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignWith
-( const DistMatrix<T,MC,MR>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignWith
+( const DistMatrixBase<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::AlignWith(DistMatrix[MC,MR])");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_ALIGNING_DIFF_GRID( A );
+    PushCallStack("[MC,* ]::AlignWith([MC,MR])");
+    this->AssertFreeColAlignment();
+    this->AssertSameGrid( A );
 #endif
-    _colAlignment = A.ColAlignment();
-    _colShift     = A.ColShift();
-    _constrainedColDist = true;
+    this->_colAlignment = A.ColAlignment();
+    this->_colShift = A.ColShift();
+    this->_constrainedColAlignment = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -111,17 +106,17 @@ elemental::DistMatrix<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignWith
-( const DistMatrix<T,MC,Star>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignWith
+( const DistMatrixBase<T,MC,Star>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::AlignWith(DistMatrix[MC,* ])");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_ALIGNING_DIFF_GRID( A );
+    PushCallStack("[MC,* ]::AlignWith([MC,* ])");
+    this->AssertFreeColAlignment();
+    this->AssertSameGrid( A );
 #endif
-    _colAlignment = A.ColAlignment();
-    _colShift     = A.ColShift();
-    _constrainedColDist = true;
+    this->_colAlignment = A.ColAlignment();
+    this->_colShift = A.ColShift();
+    this->_constrainedColAlignment = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -129,17 +124,17 @@ elemental::DistMatrix<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignWith
-( const DistMatrix<T,MR,MC>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignWith
+( const DistMatrixBase<T,MR,MC>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::AlignWith(DistMatrix[MR,MC])");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_ALIGNING_DIFF_GRID( A );
+    PushCallStack("[MC,* ]::AlignWith([MR,MC])");
+    this->AssertFreeColAlignment();
+    this->AssertSameGrid( A );
 #endif
-    _colAlignment = A.RowAlignment();
-    _colShift     = A.RowShift();
-    _constrainedColDist = true;
+    this->_colAlignment = A.RowAlignment();
+    this->_colShift = A.RowShift();
+    this->_constrainedColAlignment = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -147,17 +142,17 @@ elemental::DistMatrix<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignWith
-( const DistMatrix<T,Star,MC>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignWith
+( const DistMatrixBase<T,Star,MC>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::AlignWith(DistMatrix[* ,MC])");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_ALIGNING_DIFF_GRID( A );
+    PushCallStack("[MC,* ]::AlignWith([* ,MC])");
+    this->AssertFreeColAlignment();
+    this->AssertSameGrid( A );
 #endif
-    _colAlignment = A.RowAlignment();
-    _colShift     = A.RowShift();
-    _constrainedColDist = true;
+    this->_colAlignment = A.RowAlignment();
+    this->_colShift = A.RowShift();
+    this->_constrainedColAlignment = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -165,17 +160,19 @@ elemental::DistMatrix<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignWith
-( const DistMatrix<T,VC,Star>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignWith
+( const DistMatrixBase<T,VC,Star>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::AlignWith(DistMatrix[VC,* ])");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_ALIGNING_DIFF_GRID( A );
+    PushCallStack("[MC,* ]::AlignWith([VC,* ])");
+    this->AssertFreeColAlignment();
+    this->AssertSameGrid( A );
 #endif
-    _colAlignment = A.ColAlignment() % _grid->Height();
-    _colShift     = Shift( _grid->MCRank(), _colAlignment, _grid->Height() );
-    _constrainedColDist = true;
+    const Grid& grid = this->GetGrid();
+    this->_colAlignment = A.ColAlignment() % grid.Height();
+    this->_colShift = 
+        Shift( grid.MCRank(), this->ColAlignment(), grid.Height() );
+    this->_constrainedColAlignment = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -183,17 +180,19 @@ elemental::DistMatrix<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignWith
-( const DistMatrix<T,Star,VC>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignWith
+( const DistMatrixBase<T,Star,VC>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::AlignWith(DistMatrix[* ,VC])");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_ALIGNING_DIFF_GRID( A );
+    PushCallStack("[MC,* ]::AlignWith([* ,VC])");
+    this->AssertFreeColAlignment();
+    this->AssertSameGrid( A );
 #endif
-    _colAlignment = A.RowAlignment() % _grid->Height();
-    _colShift     = Shift( _grid->MCRank(), _colAlignment, _grid->Height() );
-    _constrainedColDist = true;
+    const Grid& grid = this->GetGrid();
+    this->_colAlignment = A.RowAlignment() % grid.Height();
+    this->_colShift = 
+        Shift( grid.MCRank(), this->ColAlignment(), grid.Height() );
+    this->_constrainedColAlignment = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -201,53 +200,58 @@ elemental::DistMatrix<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignColsWith
-( const DistMatrix<T,MC,MR>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
+( const DistMatrixBase<T,MC,MR>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignColsWith
-( const DistMatrix<T,MC,Star>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
+( const DistMatrixBase<T,MC,Star>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignColsWith
-( const DistMatrix<T,MR,MC>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
+( const DistMatrixBase<T,MR,MC>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignColsWith
-( const DistMatrix<T,Star,MC>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
+( const DistMatrixBase<T,Star,MC>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignColsWith
-( const DistMatrix<T,VC,Star>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
+( const DistMatrixBase<T,VC,Star>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::AlignColsWith
-( const DistMatrix<T,Star,VC>& A )
+elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
+( const DistMatrixBase<T,Star,VC>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::ConformWith
-( const DistMatrix<T,MC,MR>& A )
+elemental::DistMatrixBase<T,MC,Star>::View
+( DistMatrixBase<T,MC,Star>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::ConformWith(DistMatrix[MC,MR])");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_CONFORMING_DIFF_GRID( A );
+    PushCallStack("[MC,* ]::View");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+    this->AssertSameGrid( A );
 #endif
-    _colAlignment = A.ColAlignment();
-    _colShift     = A.ColShift();
-    _constrainedColDist = true;
+    this->_height = A.Height();
+    this->_width = A.Width();
+    this->_colAlignment = A.ColAlignment();
+    this->_colShift = A.ColShift();
+    this->_localMatrix.View( A.LocalMatrix() );
+    this->_viewing = true;
+    this->_lockedView = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -255,17 +259,22 @@ elemental::DistMatrix<T,MC,Star>::ConformWith
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::ConformWith
-( const DistMatrix<T,MC,Star>& A )
+elemental::DistMatrixBase<T,MC,Star>::LockedView
+( const DistMatrixBase<T,MC,Star>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::ConformWith(DistMatrix[MC,* ])");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_CONFORMING_DIFF_GRID( A );
+    PushCallStack("[MC,* ]::LockedView");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+    this->AssertSameGrid( A );
 #endif
-    _colAlignment = A.ColAlignment();
-    _colShift     = A.ColShift();
-    _constrainedColDist = true;
+    this->_height = A.Height();
+    this->_width = A.Width();
+    this->_colAlignment = A.ColAlignment();
+    this->_colShift = A.ColShift();
+    this->_localMatrix.LockedView( A.LockedLocalMatrix() );
+    this->_viewing = true;
+    this->_lockedView = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -273,129 +282,34 @@ elemental::DistMatrix<T,MC,Star>::ConformWith
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::ConformWith
-( const DistMatrix<T,MR,MC>& A )
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::ConformWith(DistMatrix[MR,MC])");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_CONFORMING_DIFF_GRID( A );
-#endif
-    _colAlignment = A.RowAlignment();
-    _colShift     = A.RowShift();
-    _constrainedColDist = true;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-elemental::DistMatrix<T,MC,Star>::ConformWith
-( const DistMatrix<T,Star,MC>& A )
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::ConformWith(DistMatrix[* ,MC])");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_CONFORMING_DIFF_GRID( A );
-#endif
-    _colAlignment = A.RowAlignment();
-    _colShift     = A.RowShift();
-    _constrainedColDist = true;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-elemental::DistMatrix<T,MC,Star>::FreeConstraints()
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::FreeConstraints");
-#endif
-    _constrainedColDist = false;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-elemental::DistMatrix<T,MC,Star>::View
-( DistMatrix<T,MC,Star>& A )
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::View(A)");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_VIEWING_AND_STORING;
-    CHECK_IF_VIEWING_DIFF_GRID( A );
-#endif
-    _height = A.Height();
-    _width  = A.Width();
-    _colAlignment = A.ColAlignment();
-    _colShift     = A.ColShift();
-    _localMatrix.View( A.LocalMatrix() );
-    _viewing = true;
-    _lockedView = false;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-elemental::DistMatrix<T,MC,Star>::LockedView
-( const DistMatrix<T,MC,Star>& A )
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::LockedView(A)");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_VIEWING_AND_STORING;
-    CHECK_IF_VIEWING_DIFF_GRID( A );
-#endif
-    _height = A.Height();
-    _width  = A.Width();
-    _colAlignment = A.ColAlignment();
-    _colShift     = A.ColShift();
-    _localMatrix.LockedView( A.LockedLocalMatrix() );
-    _viewing = true;
-    _lockedView = true;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-elemental::DistMatrix<T,MC,Star>::View
-( DistMatrix<T,MC,Star>& A,
+elemental::DistMatrixBase<T,MC,Star>::View
+( DistMatrixBase<T,MC,Star>& A,
   int i, int j, int height, int width )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::View(A,i,j,height,width)");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_VIEWING_AND_STORING;
-    CHECK_IF_VIEWING_DIFF_GRID( A );
-    CHECK_IF_OUT_OF_BOUNDS( A, i, j, height, width );
+    PushCallStack("[MC,* ]::View");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+    this->AssertSameGrid( A );
+    this->AssertValidSubmatrix( A, i, j, height, width );
 #endif
-    _height = height;
-    _width  = width;
+    this->_height = height;
+    this->_width = width;
     {
-        const int r   = _grid->Height();
-        const int row = _grid->MCRank();
+        const int r   = this->GetGrid().Height();
+        const int row = this->GetGrid().MCRank();
 
-        _colAlignment = (A.ColAlignment()+i) % r;
-        _colShift = Shift( row, _colAlignment, r );
+        this->_colAlignment = (A.ColAlignment()+i) % r;
+        this->_colShift = Shift( row, this->ColAlignment(), r );
 
         const int localHeightBefore = LocalLength( i, A.ColShift(), r );
-        const int localHeight = LocalLength( height, _colShift, r );
+        const int localHeight = LocalLength( height, this->ColShift(), r );
 
-        _localMatrix.View
+        this->_localMatrix.View
         ( A.LocalMatrix(), localHeightBefore, j, localHeight, width );
     }
-    _viewing = true;
-    _lockedView = false;
+    this->_viewing = true;
+    this->_lockedView = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -403,34 +317,34 @@ elemental::DistMatrix<T,MC,Star>::View
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::LockedView
-( const DistMatrix<T,MC,Star>& A,
+elemental::DistMatrixBase<T,MC,Star>::LockedView
+( const DistMatrixBase<T,MC,Star>& A,
   int i, int j, int height, int width )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::LockedView(A,i,j,height,width)");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_VIEWING_AND_STORING;
-    CHECK_IF_VIEWING_DIFF_GRID( A );
-    CHECK_IF_OUT_OF_BOUNDS( A, i, j, height, width );
+    PushCallStack("[MC,* ]::LockedView");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+    this->AssertSameGrid( A );
+    this->AssertValidSubmatrix( A, i, j, height, width );
 #endif
-    _height = height;
-    _width  = width;
+    this->_height = height;
+    this->_width = width;
     {
-        const int r   = _grid->Height();
-        const int row = _grid->MCRank();
+        const int r   = this->GetGrid().Height();
+        const int row = this->GetGrid().MCRank();
 
-        _colAlignment = (A.ColAlignment()+i) % r;
-        _colShift = Shift( row, _colAlignment, r );
+        this->_colAlignment = (A.ColAlignment()+i) % r;
+        this->_colShift = Shift( row, this->ColAlignment(), r );
 
         const int localHeightBefore = LocalLength( i, A.ColShift(), r );
-        const int localHeight = LocalLength( height, _colShift, r);
+        const int localHeight = LocalLength( height, this->ColShift(), r );
 
-        _localMatrix.LockedView
+        this->_localMatrix.LockedView
         ( A.LockedLocalMatrix(), localHeightBefore, j, localHeight, width );
     }
-    _viewing = true;
-    _lockedView = true;
+    this->_viewing = true;
+    this->_lockedView = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -438,27 +352,25 @@ elemental::DistMatrix<T,MC,Star>::LockedView
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::View1x2
-( DistMatrix<T,MC,Star>& AL,
-  DistMatrix<T,MC,Star>& AR )
+elemental::DistMatrixBase<T,MC,Star>::View1x2
+( DistMatrixBase<T,MC,Star>& AL,
+  DistMatrixBase<T,MC,Star>& AR )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::View1x2");    
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_VIEWING_AND_STORING;
-    CHECK_IF_VIEWING_DIFF_GRID( AL );
-    CHECK_IF_VIEWING_DIFF_GRID( AR );
-    CHECK_IF_CONFORMING_1x2( AL, AR );
-    if( AL.ColAlignment() != AR.ColAlignment() )
-        throw "1x2 is misaligned, cannot horizontally combine.";
+    PushCallStack("[MC,* ]::View1x2");    
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+    this->AssertSameGrid( AL );
+    this->AssertSameGrid( AR );
+    this->AssertConforming1x2( AL, AR );
 #endif
-    _height = AL.Height();
-    _width  = AL.Width() + AR.Width();
-    _colAlignment = AL.ColAlignment();
-    _colShift     = AL.ColShift();
-    _localMatrix.View1x2( AL.LocalMatrix(), AR.LocalMatrix() );
-    _viewing = true;
-    _lockedView = false;
+    this->_height = AL.Height();
+    this->_width = AL.Width() + AR.Width();
+    this->_colAlignment = AL.ColAlignment();
+    this->_colShift = AL.ColShift();
+    this->_localMatrix.View1x2( AL.LocalMatrix(), AR.LocalMatrix() );
+    this->_viewing = true;
+    this->_lockedView = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -466,28 +378,26 @@ elemental::DistMatrix<T,MC,Star>::View1x2
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::LockedView1x2
-( const DistMatrix<T,MC,Star>& AL,
-  const DistMatrix<T,MC,Star>& AR )
+elemental::DistMatrixBase<T,MC,Star>::LockedView1x2
+( const DistMatrixBase<T,MC,Star>& AL,
+  const DistMatrixBase<T,MC,Star>& AR )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::LockedView1x2");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_VIEWING_AND_STORING;
-    CHECK_IF_VIEWING_DIFF_GRID( AL );
-    CHECK_IF_VIEWING_DIFF_GRID( AR );
-    CHECK_IF_CONFORMING_1x2( AL, AR );
-    if( AL.ColAlignment() != AR.ColAlignment() )
-        throw "1x2 is misaligned, cannot horizontally combine.";
+    PushCallStack("[MC,* ]::LockedView1x2");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+    this->AssertSameGrid( AL );
+    this->AssertSameGrid( AR );
+    this->AssertConforming1x2( AL, AR );
 #endif
-    _height = AL.Height();
-    _width  = AL.Width() + AR.Width();
-    _colAlignment = AL.ColAlignment();
-    _colShift     = AL.ColShift();
-    _localMatrix.LockedView1x2( AL.LockedLocalMatrix(), 
-                                AR.LockedLocalMatrix() );
-    _viewing = true;
-    _lockedView = true;
+    this->_height = AL.Height();
+    this->_width = AL.Width() + AR.Width();
+    this->_colAlignment = AL.ColAlignment();
+    this->_colShift = AL.ColShift();
+    this->_localMatrix.LockedView1x2
+    ( AL.LockedLocalMatrix(), AR.LockedLocalMatrix() );
+    this->_viewing = true;
+    this->_lockedView = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -495,26 +405,27 @@ elemental::DistMatrix<T,MC,Star>::LockedView1x2
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::View2x1
-( DistMatrix<T,MC,Star>& AT,
-  DistMatrix<T,MC,Star>& AB )
+elemental::DistMatrixBase<T,MC,Star>::View2x1
+( DistMatrixBase<T,MC,Star>& AT,
+  DistMatrixBase<T,MC,Star>& AB )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::View2x1");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_VIEWING_AND_STORING;
-    CHECK_IF_VIEWING_DIFF_GRID( AT );
-    CHECK_IF_VIEWING_DIFF_GRID( AB );
-    CHECK_IF_CONFORMING_2x1( AT, AB );
+    PushCallStack("[MC,* ]::View2x1");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+    this->AssertSameGrid( AT );
+    this->AssertSameGrid( AB );
+    this->AssertConforming2x1( AT, AB );
 #endif
-    _height = AT.Height() + AB.Height();
-    _width  = AT.Width();
-    _colAlignment = AT.ColAlignment();
-    _colShift     = AT.ColShift();
-    _localMatrix.View2x1( AT.LocalMatrix(),
-                          AB.LocalMatrix() );
-    _viewing = true;
-    _lockedView = false;
+    this->_height = AT.Height() + AB.Height();
+    this->_width = AT.Width();
+    this->_colAlignment = AT.ColAlignment();
+    this->_colShift = AT.ColShift();
+    this->_localMatrix.View2x1
+    ( AT.LocalMatrix(),
+      AB.LocalMatrix() );
+    this->_viewing = true;
+    this->_lockedView = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -522,26 +433,27 @@ elemental::DistMatrix<T,MC,Star>::View2x1
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::LockedView2x1
-( const DistMatrix<T,MC,Star>& AT,
-  const DistMatrix<T,MC,Star>& AB )
+elemental::DistMatrixBase<T,MC,Star>::LockedView2x1
+( const DistMatrixBase<T,MC,Star>& AT,
+  const DistMatrixBase<T,MC,Star>& AB )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::LockedView2x1");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_VIEWING_AND_STORING;
-    CHECK_IF_VIEWING_DIFF_GRID( AT );
-    CHECK_IF_VIEWING_DIFF_GRID( AB );
-    CHECK_IF_CONFORMING_2x1( AT, AB );
+    PushCallStack("[MC,* ]::LockedView2x1");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+    this->AssertSameGrid( AT );
+    this->AssertSameGrid( AB );
+    this->AssertConforming2x1( AT, AB );
 #endif
-    _height = AT.Height() + AB.Height();
-    _width  = AT.Width();
-    _colAlignment = AT.ColAlignment();
-    _colShift     = AT.ColShift();
-    _localMatrix.LockedView2x1( AT.LockedLocalMatrix(),
-                                AB.LockedLocalMatrix() );
-    _viewing = true;
-    _lockedView = true;
+    this->_height = AT.Height() + AB.Height();
+    this->_width = AT.Width();
+    this->_colAlignment = AT.ColAlignment();
+    this->_colShift = AT.ColShift();
+    this->_localMatrix.LockedView2x1
+    ( AT.LockedLocalMatrix(),
+      AB.LockedLocalMatrix() );
+    this->_viewing = true;
+    this->_lockedView = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -549,35 +461,31 @@ elemental::DistMatrix<T,MC,Star>::LockedView2x1
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::View2x2
-( DistMatrix<T,MC,Star>& ATL,
-  DistMatrix<T,MC,Star>& ATR,
-  DistMatrix<T,MC,Star>& ABL,
-  DistMatrix<T,MC,Star>& ABR )
+elemental::DistMatrixBase<T,MC,Star>::View2x2
+( DistMatrixBase<T,MC,Star>& ATL,
+  DistMatrixBase<T,MC,Star>& ATR,
+  DistMatrixBase<T,MC,Star>& ABL,
+  DistMatrixBase<T,MC,Star>& ABR )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::View2x2");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_VIEWING_AND_STORING;
-    CHECK_IF_VIEWING_DIFF_GRID( ATL );
-    CHECK_IF_VIEWING_DIFF_GRID( ATR );
-    CHECK_IF_VIEWING_DIFF_GRID( ABL );
-    CHECK_IF_VIEWING_DIFF_GRID( ABR );
-    CHECK_IF_CONFORMING_2x2( ATL, ATR, ABL, ABR );
-    if( ATL.ColAlignment() != ATR.ColAlignment() ||
-        ABL.ColAlignment() != ABR.ColAlignment()   )
-    {
-        throw "2x2 must align to combine.";
-    }
+    PushCallStack("[MC,* ]::View2x2");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+    this->AssertSameGrid( ATL );
+    this->AssertSameGrid( ATR );
+    this->AssertSameGrid( ABL );
+    this->AssertSameGrid( ABR );
+    this->AssertConforming2x2( ATL, ATR, ABL, ABR );
 #endif
-    _height = ATL.Height() + ABL.Height();
-    _width  = ATL.Width() + ATR.Width();
-    _colAlignment = ATL.ColAlignment();
-    _colShift     = ATL.ColShift();
-    _localMatrix.View2x2( ATL.LocalMatrix(), ATR.LocalMatrix(),
-                          ABL.LocalMatrix(), ABR.LocalMatrix() );
-    _viewing = true;
-    _lockedView = false;
+    this->_height = ATL.Height() + ABL.Height();
+    this->_width = ATL.Width() + ATR.Width();
+    this->_colAlignment = ATL.ColAlignment();
+    this->_colShift = ATL.ColShift();
+    this->_localMatrix.View2x2
+    ( ATL.LocalMatrix(), ATR.LocalMatrix(),
+      ABL.LocalMatrix(), ABR.LocalMatrix() );
+    this->_viewing = true;
+    this->_lockedView = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -585,36 +493,31 @@ elemental::DistMatrix<T,MC,Star>::View2x2
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::LockedView2x2
-( const DistMatrix<T,MC,Star>& ATL,
-  const DistMatrix<T,MC,Star>& ATR,
-  const DistMatrix<T,MC,Star>& ABL,
-  const DistMatrix<T,MC,Star>& ABR )
+elemental::DistMatrixBase<T,MC,Star>::LockedView2x2
+( const DistMatrixBase<T,MC,Star>& ATL,
+  const DistMatrixBase<T,MC,Star>& ATR,
+  const DistMatrixBase<T,MC,Star>& ABL,
+  const DistMatrixBase<T,MC,Star>& ABR )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::LockedView2x2");
-    CHECK_IF_UNFREED_COL_CONSTRAINT;
-    CHECK_IF_VIEWING_AND_STORING;
-    CHECK_IF_VIEWING_DIFF_GRID( ATL );
-    CHECK_IF_VIEWING_DIFF_GRID( ATR );
-    CHECK_IF_VIEWING_DIFF_GRID( ABL );
-    CHECK_IF_VIEWING_DIFF_GRID( ABR );
-    CHECK_IF_CONFORMING_2x2( ATL, ATR, ABL, ABR );
-    if( ATL.ColAlignment() != ATR.ColAlignment() ||
-        ABL.ColAlignment() != ABR.ColAlignment()   )
-    {
-        throw "2x2 must align to combine.";
-    }
+    PushCallStack("[MC,* ]::LockedView2x2");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+    this->AssertSameGrid( ATL );
+    this->AssertSameGrid( ATR );
+    this->AssertSameGrid( ABL );
+    this->AssertSameGrid( ABR );
+    this->AssertConforming2x2( ATL, ATR, ABL, ABR );
 #endif
-    _height = ATL.Height() + ABL.Height();
-    _width  = ATL.Width() + ATR.Width();
-    _colAlignment = ATL.ColAlignment();
-    _colShift     = ATL.ColShift();
-    _localMatrix.LockedView2x2
+    this->_height = ATL.Height() + ABL.Height();
+    this->_width = ATL.Width() + ATR.Width();
+    this->_colAlignment = ATL.ColAlignment();
+    this->_colShift = ATL.ColShift();
+    this->_localMatrix.LockedView2x2
     ( ATL.LockedLocalMatrix(), ATR.LockedLocalMatrix(),
       ABL.LockedLocalMatrix(), ABR.LockedLocalMatrix() );
-    _viewing = true;
-    _lockedView = true;
+    this->_viewing = true;
+    this->_lockedView = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -622,18 +525,19 @@ elemental::DistMatrix<T,MC,Star>::LockedView2x2
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::ResizeTo
+elemental::DistMatrixBase<T,MC,Star>::ResizeTo
 ( int height, int width )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::ResizeTo");
-    CHECK_IF_LOCKED_VIEW;
+    PushCallStack("[MC,* ]::ResizeTo");
+    this->AssertNotLockedView();
     if( height < 0 || width < 0 )
         throw "Height and width must be non-negative.";
 #endif
-    _height = height;
-    _width  = width;
-    _localMatrix.ResizeTo( LocalLength(height,_colShift,_grid->Height()), width );
+    this->_height = height;
+    this->_width = width;
+    this->_localMatrix.ResizeTo
+    ( LocalLength(height,this->ColShift(),this->GetGrid().Height()), width );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -641,31 +545,25 @@ elemental::DistMatrix<T,MC,Star>::ResizeTo
 
 template<typename T>
 T
-elemental::DistMatrix<T,MC,Star>::Get
-( int i, int j )
+elemental::DistMatrixBase<T,MC,Star>::Get
+( int i, int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix<MC,* >::Get");
-    if( i < 0 || i >= Height() || j < 0 || j >= Width() )
-    {
-        ostringstream msg;
-        msg << "Entry (" << i << "," << j << ") is out of bounds of "
-            << Height() << " x " << Width() << " matrix." << endl;
-        const string& s = msg.str();
-        throw s.c_str();
-    }
+    PushCallStack("[MC,* ]::Get");
+    this->AssertValidEntry( i, j );
 #endif
     // We will determine the owner row of entry (i,j) and broadcast from that 
     // row within each process column
-    const int ownerRow = (i + ColAlignment()) % _grid->Height();
+    const Grid& grid = this->GetGrid();
+    const int ownerRow = (i + this->ColAlignment()) % grid.Height();
 
     T u;
-    if( _grid->MCRank() == ownerRow )
+    if( grid.MCRank() == ownerRow )
     {
-        const int iLoc = (i-ColShift()) / _grid->Height();
-        u = _localMatrix(iLoc,j);
+        const int iLoc = (i-this->ColShift()) / grid.Height();
+        u = this->LocalEntry(iLoc,j);
     }
-    Broadcast( &u, 1, ownerRow, _grid->MCComm() );
+    Broadcast( &u, 1, ownerRow, grid.MCComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -675,51 +573,45 @@ elemental::DistMatrix<T,MC,Star>::Get
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::Set
+elemental::DistMatrixBase<T,MC,Star>::Set
 ( int i, int j, T u )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ]::Set");
-    if( i < 0 || i >= Height() || j < 0 || j >=Width() )
-    {
-        ostringstream msg;
-        msg << "Entry (" << i << "," << j << ") is out of bounds of "
-            << Height() << " x " << Width() << " matrix." << endl;
-        const string& s = msg.str();
-        throw s.c_str();
-    }
+    PushCallStack("[MC,* ]::Set");
+    this->AssertValidEntry( i, j );
 #endif
-    const int ownerRow = (i + ColAlignment()) % _grid->Height();
+    const Grid& grid = this->GetGrid();
+    const int ownerRow = (i + this->ColAlignment()) % grid.Height();
 
-    if( _grid->MCRank() == ownerRow )
+    if( grid.MCRank() == ownerRow )
     {
-        const int iLoc = (i-ColShift()) / _grid->Height();
-        _localMatrix(iLoc,j) = u;
+        const int iLoc = (i-this->ColShift()) / grid.Height();
+        this->LocalEntry(iLoc,j) = u;
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-//----------------------------------------------------------------------------//
+//
 // Utility functions, e.g., SetToIdentity and MakeTrapezoidal
-//----------------------------------------------------------------------------//
+//
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::MakeTrapezoidal
+elemental::DistMatrixBase<T,MC,Star>::MakeTrapezoidal
 ( Side side, Shape shape, int offset )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix<MC,* >::MakeTrapezoidal");
-    CHECK_IF_LOCKED_VIEW;
+    PushCallStack("[MC,* ]::MakeTrapezoidal");
+    this->AssertNotLockedView();
 #endif
 
-    const int height = Height();
-    const int width = Width();
-    const int localHeight = LocalHeight();
-    const int r = _grid->Height();
-    const int colShift = ColShift();
+    const int height = this->Height();
+    const int width = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int r = this->GetGrid().Height();
+    const int colShift = this->ColShift();
 
     if( shape == Lower )
     {
@@ -735,7 +627,7 @@ elemental::DistMatrix<T,MC,Star>::MakeTrapezoidal
                 const int boundary = min( lastZero_i+1, height );
                 const int numZeros = LocalLength( boundary, colShift, r );
                 for( int iLoc=0; iLoc<numZeros; ++iLoc )
-                    _localMatrix(iLoc,j) = (T)0;
+                    this->LocalEntry(iLoc,j) = (T)0;
             }
         }
     }
@@ -750,7 +642,7 @@ elemental::DistMatrix<T,MC,Star>::MakeTrapezoidal
                 firstZero_i = max(j-offset+height-width+1,0);
             const int nonzeroLength = LocalLength(firstZero_i,colShift,r);
             for( int iLoc=nonzeroLength; iLoc<localHeight; ++iLoc )
-                _localMatrix(iLoc,j) = (T)0;
+                this->LocalEntry(iLoc,j) = (T)0;
         }
     }
 #ifndef RELEASE
@@ -760,24 +652,24 @@ elemental::DistMatrix<T,MC,Star>::MakeTrapezoidal
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::SetToIdentity()
+elemental::DistMatrixBase<T,MC,Star>::SetToIdentity()
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix<MC,* >::SetToIdentity");
-    CHECK_IF_LOCKED_VIEW;
+    PushCallStack("[MC,* ]::SetToIdentity");
+    this->AssertNotLockedView();
 #endif
 
-    const int width = Width();
-    const int localHeight = LocalHeight();
-    const int r = _grid->Height();
-    const int colShift = ColShift();
+    const int width = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int r = this->GetGrid().Height();
+    const int colShift = this->ColShift();
 
-    _localMatrix.SetToZero();
+    this->_localMatrix.SetToZero();
     for( int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const int i = colShift + iLoc*r;
         if( i < width )
-            _localMatrix(iLoc,i) = (T)1;
+            this->LocalEntry(iLoc,i) = (T)1;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -786,75 +678,35 @@ elemental::DistMatrix<T,MC,Star>::SetToIdentity()
 
 template<typename T>
 void
-elemental::DistMatrix<T,MC,Star>::SetToRandom()
+elemental::DistMatrixBase<T,MC,Star>::SetToRandom()
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix<MC,* >::SetToRandom");
-    CHECK_IF_LOCKED_VIEW;
+    PushCallStack("[MC,* ]::SetToRandom");
+    this->AssertNotLockedView();
 #endif
 
-    const int width       = Width();
-    const int localHeight = LocalHeight();
-    const int bufSize     = localHeight*width;
+    const int width = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int bufSize = localHeight*width;
 
-    _auxMemory.Require( bufSize );
+    this->_auxMemory.Require( bufSize );
 
     // Create random matrix on process column 0, then broadcast
-    T* buffer = _auxMemory.Buffer();
-    if( _grid->MRRank() == 0 )
+    T* buffer = this->_auxMemory.Buffer();
+    if( this->_grid->MRRank() == 0 )
     {
         for( int j=0; j<width; ++j )
             for( int i=0; i<localHeight; ++i )
                 buffer[i+j*localHeight] = Random<T>();
     }
-    Broadcast( buffer, bufSize, 0, _grid->MRComm() );
+    Broadcast( buffer, bufSize, 0, this->GetGrid().MRComm() );
 
     // Unpack
     for( int j=0; j<width; ++j )
         for( int i=0; i<localHeight; ++i )
-            _localMatrix(i,j) = buffer[i+j*localHeight];
+            this->LocalEntry(i,j) = buffer[i+j*localHeight];
 
-    _auxMemory.Release();
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-elemental::DistMatrix<T,MC,Star>::SetToRandomDiagDominant()
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix<MC,* >::SetToRandomDiagDominant");
-    CHECK_IF_LOCKED_VIEW;
-#endif
-
-    const int width = Width();
-    const int localHeight = LocalHeight();
-    const int r = _grid->Height();
-    const int colShift = ColShift();
-
-    SetToRandom();
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
-    {
-        const int i = colShift + iLoc*r;
-        if( i < width )
-            _localMatrix(iLoc,i) += (T)max(Height(),Width());
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-elemental::DistMatrix<T,MC,Star>::SetToZero()
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix<MC,* >::SetToZero");
-#endif
-    _localMatrix.SetToZero();
+    this->_auxMemory.Release();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -862,92 +714,93 @@ elemental::DistMatrix<T,MC,Star>::SetToZero()
 
 template<typename T>
 void 
-elemental::DistMatrix<T,MC,Star>::AllReduce()
+elemental::DistMatrixBase<T,MC,Star>::SumOverRow()
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix<MC,* >::AllReduce");
-    CHECK_IF_LOCKED_VIEW;
+    PushCallStack("[MC,* ]::SumOverRow");
+    this->AssertNotLockedView();
 #endif
 
-    const int localHeight = LocalHeight(); 
-    const int localWidth = LocalWidth();
+    const int localHeight = this->LocalHeight(); 
+    const int localWidth = this->LocalWidth();
     const int localSize = max( localHeight*localWidth, MinCollectContrib );
 
-    _auxMemory.Require( 2*localSize );
-    T* buffer = _auxMemory.Buffer();
+    this->_auxMemory.Require( 2*localSize );
+    T* buffer = this->_auxMemory.Buffer();
     T* sendBuf = &buffer[0];
     T* recvBuf = &buffer[localSize];
 
     // Pack
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
-            sendBuf[i+j*localHeight] = _localMatrix(i,j);
+            sendBuf[i+j*localHeight] = this->LocalEntry(i,j);
 
     // AllReduce sum
-    wrappers::mpi::AllReduce
-    ( sendBuf, recvBuf, localSize, MPI_SUM, _grid->MRComm() );
+    AllReduce
+    ( sendBuf, recvBuf, localSize, MPI_SUM, this->GetGrid().MRComm() );
 
     // Unpack
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
-            _localMatrix(i,j) = recvBuf[i+j*localHeight];
+            this->LocalEntry(i,j) = recvBuf[i+j*localHeight];
 
-    _auxMemory.Release();
-
+    this->_auxMemory.Release();
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,MC,MR>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix<MC,* > = DistMatrix<MC,MR>");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [MC,MR]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
-    if( !_viewing )
+    const Grid& grid = this->GetGrid();
+    if( !this->Viewing() )
     {
-        if( ! ConstrainedColDist() )
+        if( !this->ConstrainedColAlignment() )
         {
-            _colAlignment = A.ColAlignment();
-            _colShift = Shift
-                        ( _grid->MCRank(), _colAlignment, _grid->Height() );
+            this->_colAlignment = A.ColAlignment();
+            this->_colShift = 
+                Shift( grid.MCRank(), this->ColAlignment(), grid.Height() );
         }
-        ResizeTo( A.Height(), A.Width() );
+        this->ResizeTo( A.Height(), A.Width() );
     }
 
-    if( ColAlignment() == A.ColAlignment() )
+    if( this->ColAlignment() == A.ColAlignment() )
     {
         if( A.Width() == 1 )
         {
-            if( _grid->MRRank() == A.RowAlignment() )
-                _localMatrix = A.LockedLocalMatrix();
+            if( grid.MRRank() == A.RowAlignment() )
+                this->_localMatrix = A.LockedLocalMatrix();
 
             // Communicate
             Broadcast
-            ( _localMatrix.Buffer(), LocalHeight(),
-              A.RowAlignment(), _grid->MRComm() );
+            ( this->_localMatrix.Buffer(), this->LocalHeight(),
+              A.RowAlignment(), grid.MRComm() );
         }
         else
         {
-            const int c = _grid->Width();
+            const int c = grid.Width();
 
-            const int width = Width();
-            const int localHeight = LocalHeight();
+            const int width = this->Width();
+            const int localHeight = this->LocalHeight();
             const int localWidthOfA = A.LocalWidth();
             const int maxLocalWidth = MaxLocalLength(width,c);
 
             const int portionSize = 
                 max(localHeight*maxLocalWidth,MinCollectContrib);
 
-            _auxMemory.Require( (c+1)*portionSize );
+            this->_auxMemory.Require( (c+1)*portionSize );
 
-            T* buffer = _auxMemory.Buffer();
+            T* buffer = this->_auxMemory.Buffer();
             T* originalData = &buffer[0];
             T* gatheredData = &buffer[portionSize];
 
@@ -959,7 +812,7 @@ elemental::DistMatrix<T,MC,Star>::operator=
             // Communicate
             AllGather
             ( originalData, portionSize,
-              gatheredData, portionSize, _grid->MRComm() );
+              gatheredData, portionSize, grid.MRComm() );
 
             // Unpack
             const int rowAlignmentOfA = A.RowAlignment();
@@ -972,37 +825,38 @@ elemental::DistMatrix<T,MC,Star>::operator=
 
                 for( int j=0; j<localWidth; ++j )
                     for( int i=0; i<localHeight; ++i )
-                        _localMatrix(i,rowShift+j*c) = data[i+j*localHeight];
+                        this->LocalEntry(i,rowShift+j*c) = 
+                            data[i+j*localHeight];
             }
 
-            _auxMemory.Release();
+            this->_auxMemory.Release();
         }
     }
     else
     {
 #ifndef RELEASE
-        if( _grid->VCRank() == 0 )
+        if( grid.VCRank() == 0 )
             cout << "Unaligned [MC,* ] <- [MC,MR]." << endl;
 #endif
-        const int r = _grid->Height();
-        const int c = _grid->Width();
-        const int row = _grid->MCRank();
+        const int r = grid.Height();
+        const int c = grid.Width();
+        const int row = grid.MCRank();
 
-        const int colAlignment = ColAlignment();
+        const int colAlignment = this->ColAlignment();
         const int colAlignmentOfA = A.ColAlignment();
         const int sendRow = (row+r+colAlignment-colAlignmentOfA) % r;
         const int recvRow = (row+r+colAlignmentOfA-colAlignment) % r;
 
         if( A.Width()==1 )
         {
-            const int localHeight = LocalHeight();
+            const int localHeight = this->LocalHeight();
 
-            if( _grid->MRRank() == A.RowAlignment() )
+            if( this->_grid->MRRank() == A.RowAlignment() )
             {
                 const int localHeightOfA = A.LocalHeight();
 
-                _auxMemory.Require( localHeightOfA );
-                T* buffer = _auxMemory.Buffer();
+                this->_auxMemory.Require( localHeightOfA );
+                T* buffer = this->_auxMemory.Buffer();
 
                 // Pack
                 for( int i=0; i<localHeightOfA; ++i )
@@ -1011,22 +865,22 @@ elemental::DistMatrix<T,MC,Star>::operator=
                 // Communicate
                 SendRecv
                 ( buffer, localHeightOfA, sendRow, 0,
-                  _localMatrix.Buffer(), localHeight, recvRow, MPI_ANY_TAG, 
-                  _grid->MCComm()                                     );
+                  this->_localMatrix.Buffer(), localHeight, recvRow, 
+                  MPI_ANY_TAG, grid.MCComm() );
 
-                _auxMemory.Release();
+                this->_auxMemory.Release();
             }
 
             // Communicate
             Broadcast
-            ( _localMatrix.Buffer(), localHeight, 
-              A.RowAlignment(), _grid->MRComm() );
+            ( this->_localMatrix.Buffer(), localHeight, A.RowAlignment(),
+              grid.MRComm() );
         }
         else
         {
-            const int height = Height();
-            const int width = Width();
-            const int localHeight = LocalHeight();
+            const int height = this->Height();
+            const int width = this->Width();
+            const int localHeight = this->LocalHeight();
             const int localHeightOfA = A.LocalHeight();
             const int localWidthOfA  = A.LocalWidth();
             const int maxLocalHeight = MaxLocalLength(height,r);
@@ -1035,9 +889,9 @@ elemental::DistMatrix<T,MC,Star>::operator=
             const int portionSize = 
                 max(maxLocalHeight*maxLocalWidth,MinCollectContrib);
 
-            _auxMemory.Require( (c+1)*portionSize );
+            this->_auxMemory.Require( (c+1)*portionSize );
 
-            T* buffer = _auxMemory.Buffer();
+            T* buffer = this->_auxMemory.Buffer();
             T* firstBuffer = &buffer[0];
             T* secondBuffer = &buffer[portionSize];
 
@@ -1050,12 +904,12 @@ elemental::DistMatrix<T,MC,Star>::operator=
             SendRecv
             ( secondBuffer, portionSize, sendRow, 0,
               firstBuffer,  portionSize, recvRow, MPI_ANY_TAG, 
-              _grid->MCComm()                            );
+              grid.MCComm() );
 
             // Use the output of the SendRecv as the input to the AllGather
             AllGather
             ( firstBuffer,  portionSize, 
-              secondBuffer, portionSize, _grid->MRComm() );
+              secondBuffer, portionSize, grid.MRComm() );
 
             // Unpack the contents of each member of the process row
             const int rowAlignmentOfA = A.RowAlignment();
@@ -1067,10 +921,11 @@ elemental::DistMatrix<T,MC,Star>::operator=
                 const int localWidth = LocalLength( width, rowShift, c );
                 for( int j=0; j<localWidth; ++j )
                     for( int i=0; i<localHeight; ++i )
-                        _localMatrix(i,rowShift+j*c) = data[i+j*localHeight];
+                        this->LocalEntry(i,rowShift+j*c) = 
+                            data[i+j*localHeight];
             }
 
-            _auxMemory.Release();
+            this->_auxMemory.Release();
         }
     }
 #ifndef RELEASE
@@ -1080,55 +935,57 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,MC,Star>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,MC,Star>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[MC,* ]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [MC,* ]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
-    if( !_viewing )
+    const Grid& grid = this->GetGrid();
+    if( !this->Viewing() )
     {
-        if( ! ConstrainedColDist() )
+        if( !this->ConstrainedColAlignment() )
         {
-            _colAlignment = A.ColAlignment();
-            _colShift = A.ColShift();
+            this->_colAlignment = A.ColAlignment();
+            this->_colShift = A.ColShift();
         }
-        ResizeTo( A.Height(), A.Width() );
+        this->ResizeTo( A.Height(), A.Width() );
     }
 
-    if( ColAlignment() == A.ColAlignment() )
+    if( this->ColAlignment() == A.ColAlignment() )
     {
-        _localMatrix = A.LockedLocalMatrix();
+        this->_localMatrix = A.LockedLocalMatrix();
     }
     else
     {
 #ifndef RELEASE
-        if( _grid->VCRank() == 0 )
+        if( grid.VCRank() == 0 )
             cout << "Unaligned [MC,* ] <- [MC,* ]." << endl;
 #endif
-        const int rank = _grid->MCRank();
-        const int r = _grid->Height();
+        const int rank = grid.MCRank();
+        const int r = grid.Height();
 
-        const int colAlignment = ColAlignment();
+        const int colAlignment = this->ColAlignment();
         const int colAlignmentOfA = A.ColAlignment();
 
         const int sendRank = (rank+r+colAlignment-colAlignmentOfA) % r;
         const int recvRank = (rank+r+colAlignmentOfA-colAlignment) % r;
 
-        const int width = Width();
-        const int localHeight = LocalHeight();
+        const int width = this->Width();
+        const int localHeight = this->LocalHeight();
         const int localHeightOfA = A.LocalHeight();
 
         const int sendSize = localHeightOfA * width;
         const int recvSize = localHeight * width;
 
-        _auxMemory.Require( sendSize + recvSize );
+        this->_auxMemory.Require( sendSize + recvSize );
 
-        T* buffer = _auxMemory.Buffer();
+        T* buffer = this->_auxMemory.Buffer();
         T* sendBuffer = &buffer[0];
         T* recvBuffer = &buffer[sendSize];
 
@@ -1140,14 +997,14 @@ elemental::DistMatrix<T,MC,Star>::operator=
         // Communicate
         SendRecv
         ( sendBuffer, sendSize, sendRank, 0,
-          recvBuffer, recvSize, recvRank, MPI_ANY_TAG, _grid->MCComm() );
+          recvBuffer, recvSize, recvRank, MPI_ANY_TAG, grid.MCComm() );
 
         // Unpack
         for( int j=0; j<width; ++j )
             for( int i=0; i<localHeight; ++i )
-                _localMatrix(i,j) = recvBuffer[i+j*localHeight];
+                this->LocalEntry(i,j) = recvBuffer[i+j*localHeight];
 
-        _auxMemory.Release();
+        this->_auxMemory.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1156,18 +1013,19 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,Star,MR>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,Star,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[* ,MR]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [* ,MR]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
-    DistMatrix<T,MC,MR> 
-        A_MC_MR(true,ColAlignment(),false,0,*_grid);
+    const Grid& grid = this->GetGrid();
+    DistMatrix<T,MC,MR> A_MC_MR(true,false,this->ColAlignment(),0,grid);
 
     A_MC_MR = A;
     *this   = A_MC_MR;
@@ -1178,17 +1036,18 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,MD,Star>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,MD,Star>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[MD,* ]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [MD,* ]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
-    REPORT_UNIMPLEMENTED_FEATURE;
+    throw "[MC,* ] = [MD,* ] not yet implemented.";
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1196,17 +1055,18 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,Star,MD>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,Star,MD>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[* ,MD]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [* ,MD]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
-    REPORT_UNIMPLEMENTED_FEATURE;
+    throw "[MC,* ] = [* ,MD] not yet implemented.";
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1214,22 +1074,24 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,MR,MC>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,MR,MC>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[MR,MC]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [MR,MC]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
+    const Grid& grid = this->GetGrid();
     auto_ptr< DistMatrix<T,VR,Star> > A_VR_Star
-        ( new DistMatrix<T,VR,Star>(*_grid) );
+    ( new DistMatrix<T,VR,Star>(grid) );
     *A_VR_Star = A;
 
     auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
-        ( new DistMatrix<T,VC,Star>(true,ColAlignment(),*_grid) );
+    ( new DistMatrix<T,VC,Star>(true,this->ColAlignment(),grid) );
     *A_VC_Star = *A_VR_Star;
     delete A_VR_Star.release(); // lowers memory highwater
 
@@ -1241,22 +1103,24 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,MR,Star>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,MR,Star>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[MR,* ]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [MR,* ]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
+    const Grid& grid = this->GetGrid();
     auto_ptr< DistMatrix<T,VR,Star> > A_VR_Star
-        ( new DistMatrix<T,VR,Star>(*_grid) );
+    ( new DistMatrix<T,VR,Star>(grid) );
     *A_VR_Star = A;
 
     auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
-        ( new DistMatrix<T,VC,Star>(true,ColAlignment(),*_grid) );
+    ( new DistMatrix<T,VC,Star>(true,this->ColAlignment(),grid) );
     *A_VC_Star = *A_VR_Star;
     delete A_VR_Star.release(); // lowers memory highwater
 
@@ -1268,27 +1132,28 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,Star,MC>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,Star,MC>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[* ,MC]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [* ,MC]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
-    auto_ptr< DistMatrix<T,MR,MC> > A_MR_MC
-        ( new DistMatrix<T,MR,MC>(*_grid) );
+    const Grid& grid = this->GetGrid();
+    auto_ptr< DistMatrix<T,MR,MC> > A_MR_MC( new DistMatrix<T,MR,MC>(grid) );
     *A_MR_MC = A;
 
     auto_ptr< DistMatrix<T,VR,Star> > A_VR_Star
-        ( new DistMatrix<T,VR,Star>(*_grid) );
+    ( new DistMatrix<T,VR,Star>(grid) );
     *A_VR_Star = *A_MR_MC;
     delete A_MR_MC.release(); // lowers memory highwater
 
     auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
-        ( new DistMatrix<T,VC,Star>(true,ColAlignment(),*_grid) );
+    ( new DistMatrix<T,VC,Star>(true,this->ColAlignment(),grid) );
     *A_VC_Star = *A_VR_Star;
     delete A_VR_Star.release(); // lowers memory highwater
 
@@ -1300,44 +1165,46 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,VC,Star>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,VC,Star>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[VC,* ]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [VC,* ]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
-    if( !_viewing )
+    const Grid& grid = this->GetGrid();
+    if( !this->Viewing() )
     {
-        if( ! ConstrainedColDist() )
+        if( !this->ConstrainedColAlignment() )
         {
-            _colAlignment = A.ColAlignment() % _grid->Height();
-            _colShift = Shift
-                        ( _grid->MCRank(), _colAlignment, _grid->Height() );
+            this->_colAlignment = A.ColAlignment() % grid.Height();
+            this->_colShift = 
+                Shift( grid.MCRank(), this->ColAlignment(), grid.Height() );
         }
-        ResizeTo( A.Height(), A.Width() );
+        this->ResizeTo( A.Height(), A.Width() );
     }
 
-    if( ColAlignment() == A.ColAlignment() % _grid->Height() )
+    if( this->ColAlignment() == A.ColAlignment() % grid.Height() )
     {
-        const int r = _grid->Height();
-        const int c = _grid->Width();
+        const int r = grid.Height();
+        const int c = grid.Width();
         const int p = r * c;
-        const int row = _grid->MCRank();
+        const int row = grid.MCRank();
 
-        const int height = Height();
-        const int width = Width();
+        const int height = this->Height();
+        const int width = this->Width();
         const int localHeightOfA = A.LocalHeight();
         const int maxLocalHeightOfA = MaxLocalLength(height,p);
 
         const int portionSize = max(maxLocalHeightOfA*width,MinCollectContrib);
 
-        _auxMemory.Require( (c+1)*portionSize );
+        this->_auxMemory.Require( (c+1)*portionSize );
 
-        T* buffer = _auxMemory.Buffer();
+        T* buffer = this->_auxMemory.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -1349,10 +1216,10 @@ elemental::DistMatrix<T,MC,Star>::operator=
         // Communicate 
         AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, _grid->MRComm() );
+          gatheredData, portionSize, grid.MRComm() );
 
         // Unpack
-        const int colShift = ColShift();
+        const int colShift = this->ColShift();
         const int colAlignmentOfA = A.ColAlignment();
         for( int k=0; k<c; ++k )
         {
@@ -1364,41 +1231,41 @@ elemental::DistMatrix<T,MC,Star>::operator=
 
             for( int j=0; j<width; ++j )
                 for( int i=0; i<localHeight; ++i )
-                    _localMatrix(colOffset+i*c,j) = data[i+j*localHeight];
+                    this->LocalEntry(colOffset+i*c,j) = data[i+j*localHeight];
         }
 
-        _auxMemory.Release();
+        this->_auxMemory.Release();
     }
     else
     {
 #ifndef RELEASE
-        if( _grid->VCRank() == 0 )
+        if( grid.VCRank() == 0 )
             cout << "Unaligned [MC,* ] <- [VC,* ]." << endl;
 #endif
-        const int r = _grid->Height();
-        const int c = _grid->Width();
+        const int r = grid.Height();
+        const int c = grid.Width();
         const int p = r * c;
-        const int row = _grid->MCRank();
-        const int rank = _grid->VCRank();
+        const int row = grid.MCRank();
+        const int rank = grid.VCRank();
 
         // Perform the SendRecv to make A have the same colAlignment
-        const int colAlignment = ColAlignment();
+        const int colAlignment = this->ColAlignment();
         const int colAlignmentOfA = A.ColAlignment();
-        const int colShift = ColShift();
+        const int colShift = this->ColShift();
 
         const int sendRank = (rank+p+colAlignment-colAlignmentOfA) % p;
         const int recvRank = (rank+p+colAlignmentOfA-colAlignment) % p;
 
-        const int height = Height();
-        const int width = Width();
+        const int height = this->Height();
+        const int width = this->Width();
         const int localHeightOfA = A.LocalHeight();
         const int maxLocalHeightOfA = MaxLocalLength(height,p);
 
         const int portionSize = max(maxLocalHeightOfA*width,MinCollectContrib);
 
-        _auxMemory.Require( (c+1)*portionSize );
+        this->_auxMemory.Require( (c+1)*portionSize );
 
-        T* buffer = _auxMemory.Buffer();
+        T* buffer = this->_auxMemory.Buffer();
         T* firstBuffer = &buffer[0];
         T* secondBuffer = &buffer[portionSize];
 
@@ -1410,13 +1277,12 @@ elemental::DistMatrix<T,MC,Star>::operator=
         // Perform the SendRecv: puts the new data into the first buffer
         SendRecv
         ( secondBuffer, portionSize, sendRank, 0,
-          firstBuffer,  portionSize, recvRank, MPI_ANY_TAG, 
-          _grid->VCComm() );
+          firstBuffer,  portionSize, recvRank, MPI_ANY_TAG, grid.VCComm() );
 
         // Use the SendRecv as input to the AllGather
         AllGather
         ( firstBuffer,  portionSize,
-          secondBuffer, portionSize, _grid->MRComm() );
+          secondBuffer, portionSize, grid.MRComm() );
 
         // Unpack
         for( int k=0; k<c; ++k )
@@ -1429,10 +1295,10 @@ elemental::DistMatrix<T,MC,Star>::operator=
 
             for( int j=0; j<width; ++j )
                 for( int i=0; i<localHeight; ++i )
-                    _localMatrix(colOffset+i*c,j) = data[i+j*localHeight];
+                    this->LocalEntry(colOffset+i*c,j) = data[i+j*localHeight];
         }
 
-        _auxMemory.Release();
+        this->_auxMemory.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1441,22 +1307,24 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,Star,VC>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,Star,VC>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[* ,VC]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [* ,VC]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
+    const Grid& grid = this->GetGrid();
     auto_ptr< DistMatrix<T,Star,VR> > A_Star_VR
-        ( new DistMatrix<T,Star,VR>(*_grid) );
+    ( new DistMatrix<T,Star,VR>(grid) );
     *A_Star_VR = A;
 
     auto_ptr< DistMatrix<T,MC,MR> > A_MC_MR
-        ( new DistMatrix<T,MC,MR>(true,ColAlignment(),false,0,*_grid) );
+    ( new DistMatrix<T,MC,MR>(true,false,this->ColAlignment(),0,grid) );
     *A_MC_MR = *A_Star_VR;
     delete A_Star_VR.release(); // lowers memory highwater
 
@@ -1468,20 +1336,22 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,VR,Star>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,VR,Star>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[VR,* ]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [VR,* ]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
-    DistMatrix<T,VC,Star> A_VC_Star(true,ColAlignment(),*_grid);
+    const Grid& grid = this->GetGrid();
+    DistMatrix<T,VC,Star> A_VC_Star(true,this->ColAlignment(),grid);
 
     A_VC_Star = A;
-    *this     = A_VC_Star;
+    *this = A_VC_Star;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1489,20 +1359,22 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,Star,VR>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,Star,VR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[* ,VR]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [* ,VR]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
-    DistMatrix<T,MC,MR> A_MC_MR(true,ColAlignment(),false,0,*_grid);
+    const Grid& grid = this->GetGrid();
+    DistMatrix<T,MC,MR> A_MC_MR(true,false,this->ColAlignment(),0,grid);
 
     A_MC_MR = A;
-    *this   = A_MC_MR;
+    *this = A_MC_MR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1510,32 +1382,203 @@ elemental::DistMatrix<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrix<T,MC,Star>&
-elemental::DistMatrix<T,MC,Star>::operator=
-( const DistMatrix<T,Star,Star>& A )
+const DistMatrixBase<T,MC,Star>&
+elemental::DistMatrixBase<T,MC,Star>::operator=
+( const DistMatrixBase<T,Star,Star>& A )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[MC,* ] = DistMatrix[* ,* ]");
-    CHECK_IF_LOCKED_VIEW;
-    CHECK_IF_REDIST_DIFF_GRID( A );
-    CHECK_IF_VIEWING_DIFF_SIZE( A );
+    PushCallStack("[MC,* ] = [* ,* ]");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
 #endif
-    if( !_viewing )
-        ResizeTo( A.Height(), A.Width() );
+    if( !this->Viewing() )
+        this->ResizeTo( A.Height(), A.Width() );
 
-    const int r = _grid->Height(); 
-    const int colShift = ColShift();
+    const int r = this->GetGrid().Height(); 
+    const int colShift = this->ColShift();
 
-    const int localHeight = LocalHeight();
-    const int localWidth = LocalWidth();
+    const int localHeight = this->LocalHeight();
+    const int localWidth = this->LocalWidth();
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
-            _localMatrix(i,j) = A.LocalEntry(colShift+i*r,j);
+            this->LocalEntry(i,j) = A.LocalEntry(colShift+i*r,j);
 #ifndef RELEASE
     PopCallStack();
 #endif
     return *this;
 }
+
+//----------------------------------------------------------------------------//
+// DistMatrix                                                                 //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+void
+elemental::DistMatrix<R,MC,Star>::SetToRandomHPD()
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetToRandomHPD");
+    this->AssertNotLockedView();
+    if( this->Height() != this->Width() )
+        throw "Positive-definite matrices must be square.";
+#endif
+    const int width = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int r = this->GetGrid().Height();
+    const int colShift = this->ColShift();
+
+    this->SetToRandom();
+    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const int i = colShift + iLoc*r;
+        if( i < width )
+            this->LocalEntry(iLoc,i) += (R)this->Width();
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+elemental::DistMatrix<complex<R>,MC,Star>::SetToRandomHPD()
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetToRandomHPD");
+    this->AssertNotLockedView();
+    if( this->Height() != this->Width() )
+        throw "Positive-definite matrices must be square.";
+#endif
+    const int width = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int r = this->GetGrid().Height();
+    const int colShift = this->ColShift();
+
+    this->SetToRandom();
+    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const int i = colShift + iLoc*r;
+        if( i < width )
+            this->LocalEntry(iLoc,i) = 
+                real(this->LocalEntry(iLoc,i)) + (R)this->Width();
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+R
+elemental::DistMatrix<complex<R>,MC,Star>::GetReal
+( int i, int j ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetReal");
+    this->AssertValidEntry( i, j );
+#endif
+    // We will determine the owner row of entry (i,j) and broadcast from that 
+    // row within each process column
+    const Grid& grid = this->GetGrid();
+    const int ownerRow = (i + this->ColAlignment()) % grid.Height();
+
+    R u;
+    if( grid.MCRank() == ownerRow )
+    {
+        const int iLoc = (i-this->ColShift()) / grid.Height();
+        u = real(this->LocalEntry(iLoc,j));
+    }
+    Broadcast( &u, 1, ownerRow, grid.MCComm() );
+
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return u;
+}
+
+template<typename R>
+R
+elemental::DistMatrix<complex<R>,MC,Star>::GetImag
+( int i, int j ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetImag");
+    this->AssertValidEntry( i, j );
+#endif
+    // We will determine the owner row of entry (i,j) and broadcast from that 
+    // row within each process column
+    const Grid& grid = this->GetGrid();
+    const int ownerRow = (i + this->ColAlignment()) % grid.Height();
+
+    R u;
+    if( grid.MCRank() == ownerRow )
+    {
+        const int iLoc = (i-this->ColShift()) / grid.Height();
+        u = imag(this->LocalEntry(iLoc,j));
+    }
+    Broadcast( &u, 1, ownerRow, grid.MCComm() );
+
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return u;
+}
+
+
+template<typename R>
+void
+elemental::DistMatrix<complex<R>,MC,Star>::SetReal
+( int i, int j, R u )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetReal");
+    this->AssertValidEntry( i, j );
+#endif
+    const Grid& grid = this->GetGrid();
+    const int ownerRow = (i + this->ColAlignment()) % grid.Height();
+
+    if( grid.MCRank() == ownerRow )
+    {
+        const int iLoc = (i-this->ColShift()) / grid.Height();
+        real(this->LocalEntry(iLoc,j)) = u;
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+void
+elemental::DistMatrix<complex<R>,MC,Star>::SetImag
+( int i, int j, R u )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetImag");
+    this->AssertValidEntry( i, j );
+#endif
+    const Grid& grid = this->GetGrid();
+    const int ownerRow = (i + this->ColAlignment()) % grid.Height();
+
+    if( grid.MCRank() == ownerRow )
+    {
+        const int iLoc = (i-this->ColShift()) / grid.Height();
+        imag(this->LocalEntry(iLoc,j)) = u;
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // WITHOUT_COMPLEX
+
+template class elemental::DistMatrixBase<int,   MC,Star>;
+template class elemental::DistMatrixBase<float, MC,Star>;
+template class elemental::DistMatrixBase<double,MC,Star>;
+#ifndef WITHOUT_COMPLEX
+template class elemental::DistMatrixBase<scomplex,MC,Star>;
+template class elemental::DistMatrixBase<dcomplex,MC,Star>;
+#endif
 
 template class elemental::DistMatrix<int,     MC,Star>;
 template class elemental::DistMatrix<float,   MC,Star>;

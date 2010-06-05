@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -69,18 +60,21 @@ elemental::blas::internal::TrsmRLT
 
     // Start the algorithm
     blas::Scal( alpha, X );
-    LockedPartitionDownDiagonal( L, LTL, LTR,
-                                    LBL, LBR );
+    LockedPartitionDownDiagonal
+    ( L, LTL, LTR,
+         LBL, LBR );
     PartitionRight( X, XL, XR );
     while( XR.Width() > 0 )
     {
-        LockedRepartitionDownDiagonal( LTL, /**/ LTR,  L00, /**/ L01, L02,
-                                      /*************/ /******************/
-                                            /**/       L10, /**/ L11, L12,
-                                       LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        LockedRepartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
+         /*************/ /******************/
+               /**/       L10, /**/ L11, L12,
+          LBL, /**/ LBR,  L20, /**/ L21, L22 );
 
-        RepartitionRight( XL, /**/     XR,
-                          X0, /**/ X1, X2 );
+        RepartitionRight
+        ( XL, /**/     XR,
+          X0, /**/ X1, X2 );
 
         X1_MC_Star.AlignWith( X2 );
         L21_MR_Star.AlignWith( X2 );
@@ -89,9 +83,10 @@ elemental::blas::internal::TrsmRLT
         X1_VC_Star    = X1;  // X1[VC,*] <- X1[MC,MR]
         
         // X1[VC,*] := X1[VC,*] (L11[*,*])^-(T/H)
-        blas::Trsm( Right, Lower, orientation, diagonal,
-                    (T)1, L11_Star_Star.LockedLocalMatrix(),
-                          X1_VC_Star.LocalMatrix()          );
+        blas::Trsm
+        ( Right, Lower, orientation, diagonal,
+          (T)1, L11_Star_Star.LockedLocalMatrix(),
+                X1_VC_Star.LocalMatrix() );
 
         X1_MC_Star  = X1_VC_Star; // X1[MC,*]  <- X1[VC,*]
         X1          = X1_MC_Star; // X1[MC,MR] <- X1[MC,*]
@@ -99,21 +94,24 @@ elemental::blas::internal::TrsmRLT
 
         // X2[MC,MR] -= X1[MC,*] (L21[MR,*])^(T/H)
         //            = X1[MC,*] (L21^(T/H))[*,MR]
-        blas::Gemm( Normal, orientation, 
-                    (T)-1, X1_MC_Star.LockedLocalMatrix(),
-                           L21_MR_Star.LockedLocalMatrix(),
-                    (T) 1, X2.LocalMatrix()                );
+        blas::Gemm
+        ( Normal, orientation, 
+          (T)-1, X1_MC_Star.LockedLocalMatrix(),
+                 L21_MR_Star.LockedLocalMatrix(),
+          (T) 1, X2.LocalMatrix() );
         //--------------------------------------------------------------------//
-        X1_MC_Star.FreeConstraints();
-        L21_MR_Star.FreeConstraints();
+        X1_MC_Star.FreeAlignments();
+        L21_MR_Star.FreeAlignments();
 
-        SlideLockedPartitionDownDiagonal( LTL, /**/ LTR,  L00, L01, /**/ L02,
-                                               /**/       L10, L11, /**/ L12,
-                                         /*************/ /******************/
-                                          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+        SlideLockedPartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
+               /**/       L10, L11, /**/ L12,
+         /*************/ /******************/
+          LBL, /**/ LBR,  L20, L21, /**/ L22 );
 
-        SlidePartitionRight( XL,     /**/ XR,
-                             X0, X1, /**/ X2 );
+        SlidePartitionRight
+        ( XL,     /**/ XR,
+          X0, X1, /**/ X2 );
     }
 #ifndef RELEASE
     PopCallStack();

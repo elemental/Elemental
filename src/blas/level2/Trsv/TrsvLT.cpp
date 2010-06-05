@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -65,10 +56,12 @@ elemental::blas::internal::TrsvLT
         DistMatrix<T,MC,  MR  > z0(grid);
 
         // Start the algorithm
-        LockedPartitionUpDiagonal( L, LTL, LTR,
-                                      LBL, LBR );
-        PartitionUp( x, xT,
-                        xB );
+        LockedPartitionUpDiagonal
+        ( L, LTL, LTR,
+             LBL, LBR );
+        PartitionUp
+        ( x, xT,
+             xB );
         while( xT.Height() > 0 )
         {
             LockedRepartitionUpDiagonal
@@ -77,35 +70,38 @@ elemental::blas::internal::TrsvLT
              /*************/ /******************/
               LBL, /**/ LBR,  L20, L21, /**/ L22 );
 
-            RepartitionUp( xT,  x0,
-                                x1,
-                          /**/ /**/
-                           xB,  x2 );
+            RepartitionUp
+            ( xT,  x0,
+                   x1,
+             /**/ /**/
+              xB,  x2 );
 
-            x1_MC_Star.ConformWith( L10 );
+            x1_MC_Star.AlignWith( L10 );
             z0_MR_Star.AlignWith( L10 );
             z0_MR_Star.ResizeTo( x0.Height(), 1 );
             z0.AlignWith( x0 );
             //----------------------------------------------------------------//
             x1_Star_Star = x1;
             L11_Star_Star = L11;
-            blas::Trsv( Lower, orientation, diagonal,
-                        L11_Star_Star.LockedLocalMatrix(),
-                        x1_Star_Star.LocalMatrix()        );
+            blas::Trsv
+            ( Lower, orientation, diagonal,
+              L11_Star_Star.LockedLocalMatrix(),
+              x1_Star_Star.LocalMatrix() );
             x1 = x1_Star_Star;
 
             x1_MC_Star = x1_Star_Star;
-            blas::Gemv( orientation, (T)-1, 
-                        L10.LockedLocalMatrix(), 
-                        x1_MC_Star.LockedLocalMatrix(),
-                        (T)0, z0_MR_Star.LocalMatrix() );
-            z0_MR_MC.ReduceScatterFrom( z0_MR_Star );
+            blas::Gemv
+            ( orientation, (T)-1, 
+              L10.LockedLocalMatrix(), 
+              x1_MC_Star.LockedLocalMatrix(),
+              (T)0, z0_MR_Star.LocalMatrix() );
+            z0_MR_MC.SumScatterFrom( z0_MR_Star );
             z0 = z0_MR_MC;
             blas::Axpy( (T)1, z0, x0 );
             //----------------------------------------------------------------//
-            x1_MC_Star.FreeConstraints();
-            z0_MR_Star.FreeConstraints();
-            z0.FreeConstraints();
+            x1_MC_Star.FreeAlignments();
+            z0_MR_Star.FreeAlignments();
+            z0.FreeAlignments();
 
             SlideLockedPartitionUpDiagonal
             ( LTL, /**/ LTR,  L00, /**/ L01, L02,
@@ -113,10 +109,11 @@ elemental::blas::internal::TrsvLT
                    /**/       L10, /**/ L11, L12,
               LBL, /**/ LBR,  L20, /**/ L21, L22 );
 
-            SlidePartitionUp( xT,  x0,
-                             /**/ /**/
-                                   x1,
-                              xB,  x2 );
+            SlidePartitionUp
+            ( xT,  x0,
+             /**/ /**/
+                   x1,
+              xB,  x2 );
         }
     }
     else
@@ -137,8 +134,9 @@ elemental::blas::internal::TrsvLT
         DistMatrix<T,Star,MR  > z0_Star_MR(grid);
 
         // Start the algorithm
-        LockedPartitionUpDiagonal( L, LTL, LTR,
-                                      LBL, LBR );
+        LockedPartitionUpDiagonal
+        ( L, LTL, LTR,
+             LBL, LBR );
         PartitionLeft( x,  xL, xR );
         while( xL.Width() > 0 )
         {
@@ -148,28 +146,31 @@ elemental::blas::internal::TrsvLT
              /*************/ /******************/
               LBL, /**/ LBR,  L20, L21, /**/ L22 );
 
-            RepartitionLeft( xL,     /**/ xR,
-                             x0, x1, /**/ x2 );
+            RepartitionLeft
+            ( xL,     /**/ xR,
+              x0, x1, /**/ x2 );
 
-            x1_Star_MC.ConformWith( L10 );
+            x1_Star_MC.AlignWith( L10 );
             z0_Star_MR.AlignWith( L10 );
             //----------------------------------------------------------------//
             x1_Star_Star = x1;
             L11_Star_Star = L11;
-            blas::Trsv( Lower, orientation, diagonal,
-                        L11_Star_Star.LockedLocalMatrix(),
-                        x1_Star_Star.LocalMatrix()        );
+            blas::Trsv
+            ( Lower, orientation, diagonal,
+              L11_Star_Star.LockedLocalMatrix(),
+              x1_Star_Star.LocalMatrix() );
             x1 = x1_Star_Star;
 
             x1_Star_MC = x1_Star_Star;
-            blas::Gemv( orientation, (T)-1, 
-                        L10.LockedLocalMatrix(), 
-                        x1_Star_MC.LockedLocalMatrix(),
-                        (T)0, z0_Star_MR.LocalMatrix() );
-            x0.ReduceScatterUpdate( (T)1, z0_Star_MR );
+            blas::Gemv
+            ( orientation, (T)-1, 
+              L10.LockedLocalMatrix(), 
+              x1_Star_MC.LockedLocalMatrix(),
+              (T)0, z0_Star_MR.LocalMatrix() );
+            x0.SumScatterUpdate( (T)1, z0_Star_MR );
             //----------------------------------------------------------------//
-            x1_Star_MC.FreeConstraints();
-            z0_Star_MR.FreeConstraints();
+            x1_Star_MC.FreeAlignments();
+            z0_Star_MR.FreeAlignments();
 
             SlideLockedPartitionUpDiagonal
             ( LTL, /**/ LTR,  L00, /**/ L01, L02,
@@ -177,8 +178,9 @@ elemental::blas::internal::TrsvLT
                    /**/       L10, /**/ L11, L12,
               LBL, /**/ LBR,  L20, /**/ L21, L22 );
 
-            SlidePartitionLeft( xL, /**/ xR,
-                                x0, /**/ x1, x2 );
+            SlidePartitionLeft
+            ( xL, /**/ xR,
+              x0, /**/ x1, x2 );
         }
     }
 #ifndef RELEASE

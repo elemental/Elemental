@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;
@@ -33,7 +24,7 @@ CheckInput
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
         throw "A, B, and C must be distributed over the same grid.";
     if( A.Height() != C.Height() || B.Width() != C.Width() ||
-        A.Width() != B.Height()  || A.Height() != B.Width()   )
+        A.Width() != B.Height()  || A.Height() != B.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal TriangularRankK: " << endl
@@ -46,7 +37,7 @@ CheckInput
         throw s.c_str();
     }
     if( A.ColAlignment() != C.ColAlignment() ||
-        B.RowAlignment() != C.RowAlignment()    )
+        B.RowAlignment() != C.RowAlignment() )
     {
         ostringstream msg;
         msg << "Misaligned TriangularRankK: " << endl
@@ -62,14 +53,17 @@ CheckInput
 template<typename T>
 void
 CheckInput
-( const DistMatrix<T,Star,MC  >& A,
-  const DistMatrix<T,Star,MR  >& B,
-  const DistMatrix<T,MC,  MR  >& C      )
+( Orientation orientationOfA,
+  const DistMatrix<T,Star,MC>& A,
+  const DistMatrix<T,Star,MR>& B,
+  const DistMatrix<T,MC,  MR>& C )
 {
+    if( orientationOfA == Normal )
+        throw "A[* ,MC] must be (Conjugate)Transpose'd.";
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
         throw "A, B, and C must be distributed over the same grid.";
     if( A.Width() != C.Height() || B.Width() != C.Width() ||
-        A.Height() != B.Height() || A.Width() != B.Width()   )
+        A.Height() != B.Height() || A.Width() != B.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal TriangularRankK: " << endl
@@ -82,7 +76,7 @@ CheckInput
         throw s.c_str();
     }
     if( A.RowAlignment() != C.ColAlignment() ||
-        B.RowAlignment() != C.RowAlignment()    )
+        B.RowAlignment() != C.RowAlignment() )
     {
         ostringstream msg;
         msg << "Misaligned TriangularRankK: " << endl
@@ -98,14 +92,20 @@ CheckInput
 template<typename T>
 void
 CheckInput
-( const DistMatrix<T,Star,MC  >& A,
+( Orientation orientationOfA,
+  Orientation orientationOfB,
+  const DistMatrix<T,Star,MC  >& A,
   const DistMatrix<T,MR,  Star>& B,
-  const DistMatrix<T,MC,  MR  >& C      )
+  const DistMatrix<T,MC,  MR  >& C )
 {
+    if( orientationOfA == Normal )
+        throw "A[* ,MC] must be (Conjugate)Transpose'd.";
+    if( orientationOfB == Normal )
+        throw "B[MR,* ] must be (Conjugate)Transpose'd.";
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
         throw "A, B, and C must be distributed over the same grid.";
     if( A.Width() != C.Height() || B.Height() != C.Width() ||
-        A.Height() != B.Width() || A.Width() != B.Height()   )
+        A.Height() != B.Width() || A.Width() != B.Height() )
     {
         ostringstream msg;
         msg << "Nonconformal TriangularRankK: " << endl
@@ -118,7 +118,7 @@ CheckInput
         throw s.c_str();
     }
     if( A.RowAlignment() != C.ColAlignment() ||
-        B.ColAlignment() != C.RowAlignment()    )
+        B.ColAlignment() != C.RowAlignment() )
     {
         ostringstream msg;
         msg << "Misaligned TriangularRankK: " << endl
@@ -135,7 +135,7 @@ CheckInput
 template<typename T>
 void
 TriangularRankKKernel
-( Shape shape,
+( Shape shape, 
   T alpha, const DistMatrix<T,MC,  Star>& A,
            const DistMatrix<T,Star,MR  >& B,
   T beta,        DistMatrix<T,MC,  MR  >& C )
@@ -160,13 +160,15 @@ TriangularRankKKernel
 
     blas::Scal( beta, C );
 
-    LockedPartitionDown( A, AT,
-                            AB, half );
+    LockedPartitionDown
+    ( A, AT,
+         AB, half );
 
     LockedPartitionRight( B, BL, BR, half );
 
-    PartitionDownDiagonal( C, CTL, CTR,
-                              CBL, CBR, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
 
     DTL.AlignWith( CTL );
     DBR.AlignWith( CBR );
@@ -179,7 +181,7 @@ TriangularRankKKernel
         ( Normal, Normal,
           alpha, AB.LockedLocalMatrix(),
                  BL.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()      );
+          (T)1,  CBL.LocalMatrix() );
     }
     else
     {
@@ -187,14 +189,14 @@ TriangularRankKKernel
         ( Normal, Normal,
           alpha, AT.LockedLocalMatrix(),
                  BR.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()      );
+          (T)1,  CTR.LocalMatrix() );
     }
 
     blas::Gemm
     ( Normal, Normal,
       alpha, AT.LockedLocalMatrix(),
              BL.LockedLocalMatrix(),
-      (T)0,  DTL.LocalMatrix()      );
+      (T)0,  DTL.LocalMatrix() );
     DTL.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DTL, CTL );
 
@@ -202,7 +204,7 @@ TriangularRankKKernel
     ( Normal, Normal,
       alpha, AB.LockedLocalMatrix(),
              BR.LockedLocalMatrix(),
-      (T)0,  DBR.LocalMatrix()      );
+      (T)0,  DBR.LocalMatrix() );
     DBR.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
@@ -215,13 +217,14 @@ template<typename T>
 void
 TriangularRankKKernel
 ( Shape shape,
-  T alpha, const DistMatrix<T,Star,MC  >& A,
-           const DistMatrix<T,Star,MR  >& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C )
+  Orientation orientationOfA,
+  T alpha, const DistMatrix<T,Star,MC>& A,
+           const DistMatrix<T,Star,MR>& B,
+  T beta,        DistMatrix<T,MC,  MR>& C )
 {
 #ifndef RELEASE
     PushCallStack("TriangularRankKKernel");
-    CheckInput( A, B, C );
+    CheckInput( orientationOfA, A, B, C );
 #endif
     const Grid& grid = C.GetGrid();
 
@@ -239,11 +242,11 @@ TriangularRankKKernel
     blas::Scal( beta, C );
 
     LockedPartitionRight( A, AL, AR, half );
-
     LockedPartitionRight( B, BL, BR, half );
 
-    PartitionDownDiagonal( C, CTL, CTR,
-                              CBL, CBR, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
 
     DTL.AlignWith( CTL );
     DBR.AlignWith( CBR );
@@ -253,33 +256,33 @@ TriangularRankKKernel
     if( shape == Lower )
     {
         blas::Gemm
-        ( Transpose, Normal,
+        ( orientationOfA, Normal,
           alpha, AR.LockedLocalMatrix(),
                  BL.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()      );
+          (T)1,  CBL.LocalMatrix() );
     }
     else
     {
         blas::Gemm
-        ( Transpose, Normal,
+        ( orientationOfA, Normal,
           alpha, AL.LockedLocalMatrix(),
                  BR.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()      );
+          (T)1,  CTR.LocalMatrix() );
     }
 
     blas::Gemm
-    ( Transpose, Normal,
+    ( orientationOfA, Normal,
       alpha, AL.LockedLocalMatrix(),
              BL.LockedLocalMatrix(),
-      (T)0,  DTL.LocalMatrix()      );
+      (T)0,  DTL.LocalMatrix() );
     DTL.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DTL, CTL );
 
     blas::Gemm
-    ( Transpose, Normal,
+    ( orientationOfA, Normal,
       alpha, AR.LockedLocalMatrix(),
              BR.LockedLocalMatrix(),
-      (T)0,  DBR.LocalMatrix()      );
+      (T)0,  DBR.LocalMatrix() );
     DBR.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
@@ -292,13 +295,15 @@ template<typename T>
 void
 TriangularRankKKernel
 ( Shape shape,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
   T alpha, const DistMatrix<T,Star,MC  >& A,
            const DistMatrix<T,MR,  Star>& B,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
     PushCallStack("TriangularRankKKernel");
-    CheckInput( A, B, C );
+    CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
     const Grid& grid = C.GetGrid();
 
@@ -318,11 +323,13 @@ TriangularRankKKernel
 
     LockedPartitionRight( A, AL, AR, half );
 
-    LockedPartitionDown( B, BT, 
-                            BB, half );
+    LockedPartitionDown
+    ( B, BT, 
+         BB, half );
 
-    PartitionDownDiagonal( C, CTL, CTR,
-                              CBL, CBR, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
 
     DTL.AlignWith( CTL );
     DBR.AlignWith( CBR );
@@ -332,33 +339,33 @@ TriangularRankKKernel
     if( shape == Lower )
     {
         blas::Gemm
-        ( Transpose, Transpose,
+        ( orientationOfA, orientationOfB,
           alpha, AR.LockedLocalMatrix(),
                  BT.LockedLocalMatrix(),
-          (T)1,  CBL.LocalMatrix()      );
+          (T)1,  CBL.LocalMatrix() );
     }
     else
     {
         blas::Gemm
-        ( Transpose, Transpose,
+        ( orientationOfA, orientationOfB,
           alpha, AL.LockedLocalMatrix(),
                  BB.LockedLocalMatrix(),
-          (T)1,  CTR.LocalMatrix()      );
+          (T)1,  CTR.LocalMatrix() );
     }
 
     blas::Gemm
-    ( Transpose, Transpose,
+    ( orientationOfA, orientationOfB,
       alpha, AL.LockedLocalMatrix(),
              BT.LockedLocalMatrix(),
-      (T)0,  DTL.LocalMatrix()      );
+      (T)0,  DTL.LocalMatrix() );
     DTL.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DTL, CTL );
 
     blas::Gemm
-    ( Transpose, Transpose,
+    ( orientationOfA, orientationOfB,
       alpha, AR.LockedLocalMatrix(),
              BB.LockedLocalMatrix(),
-      (T)0,  DBR.LocalMatrix()      );
+      (T)0,  DBR.LocalMatrix() );
     DBR.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
@@ -395,19 +402,23 @@ elemental::blas::internal::TriangularRankK
 
         DistMatrix<T,MC,Star> AT(grid),
                               AB(grid);
+
         DistMatrix<T,Star,MR> BL(grid), BR(grid);
+
         DistMatrix<T,MC,MR> CTL(grid), CTR(grid),
                             CBL(grid), CBR(grid);
 
         const unsigned half = C.Height() / 2;
 
-        LockedPartitionDown( A, AT,
-                                AB, half );
+        LockedPartitionDown
+        ( A, AT,
+             AB, half );
 
         LockedPartitionRight( B, BL, BR, half );
 
-        PartitionDownDiagonal( C, CTL, CTR,
-                                  CBL, CBR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
 
         if( shape == Lower )
         { 
@@ -415,7 +426,7 @@ elemental::blas::internal::TriangularRankK
             ( Normal, Normal, 
               alpha, AB.LockedLocalMatrix(),
                      BL.LockedLocalMatrix(),
-              beta,  CBL.LocalMatrix()      );
+              beta,  CBL.LocalMatrix() );
         }
         else
         {
@@ -423,7 +434,7 @@ elemental::blas::internal::TriangularRankK
             ( Normal, Normal,
               alpha, AT.LockedLocalMatrix(),
                      BR.LockedLocalMatrix(),
-              beta,  CTR.LocalMatrix()      );
+              beta,  CTR.LocalMatrix() );
         }
 
         // Recurse
@@ -442,20 +453,21 @@ template<typename T>
 void
 elemental::blas::internal::TriangularRankK
 ( Shape shape,
+  Orientation orientationOfA,
   T alpha, const DistMatrix<T,Star,MC>& A,
            const DistMatrix<T,Star,MR>& B,
   T beta,        DistMatrix<T,MC,  MR>& C )
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TriangularRankK");
-    CheckInput( A, B, C );
+    CheckInput( orientationOfA, A, B, C );
 #endif
     const Grid& grid = C.GetGrid();
 
     if( C.Height() < 2*grid.Width()*Blocksize() )
     {
         TriangularRankKKernel
-        ( shape, alpha, A, B, beta, C );
+        ( shape, orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
@@ -463,7 +475,9 @@ elemental::blas::internal::TriangularRankK
         // and recurse on CTL and CBR.
 
         DistMatrix<T,Star,MC> AL(grid), AR(grid);
+
         DistMatrix<T,Star,MR> BL(grid), BR(grid);
+
         DistMatrix<T,MC,MR> CTL(grid), CTR(grid),
                             CBL(grid), CBR(grid);
 
@@ -473,32 +487,33 @@ elemental::blas::internal::TriangularRankK
 
         LockedPartitionRight( B, BL, BR, half );
 
-        PartitionDownDiagonal( C, CTL, CTR,
-                                  CBL, CBR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
 
         if( shape == Lower )
         { 
             blas::Gemm
-            ( Transpose, Normal, 
+            ( orientationOfA, Normal, 
               alpha, AR.LockedLocalMatrix(),
                      BL.LockedLocalMatrix(),
-              beta,  CBL.LocalMatrix()      );
+              beta,  CBL.LocalMatrix() );
         }
         else
         {
             blas::Gemm
-            ( Transpose, Normal,
+            ( orientationOfA, Normal,
               alpha, AL.LockedLocalMatrix(),
                      BR.LockedLocalMatrix(),
-              beta,  CTR.LocalMatrix()      );
+              beta,  CTR.LocalMatrix() );
         }
 
         // Recurse
         blas::internal::TriangularRankK
-        ( shape, alpha, AL, BL, beta, CTL );
+        ( shape, orientationOfA, alpha, AL, BL, beta, CTL );
 
         blas::internal::TriangularRankK
-        ( shape, alpha, AR, BR, beta, CBR );
+        ( shape, orientationOfA, alpha, AR, BR, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -509,20 +524,22 @@ template<typename T>
 void
 elemental::blas::internal::TriangularRankK
 ( Shape shape,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
   T alpha, const DistMatrix<T,Star,MC  >& A,
            const DistMatrix<T,MR,  Star>& B,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TriangularRankK");
-    CheckInput( A, B, C );
+    CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
     const Grid& grid = C.GetGrid();
 
     if( C.Height() < 2*grid.Width()*Blocksize() )
     {
         TriangularRankKKernel
-        ( shape, alpha, A, B, beta, C );
+        ( shape, orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else
     {
@@ -530,8 +547,10 @@ elemental::blas::internal::TriangularRankK
         // and recurse on CTL and CBR.
 
         DistMatrix<T,Star,MC> AL(grid), AR(grid);
+
         DistMatrix<T,MR,Star> BT(grid), 
                               BB(grid);
+
         DistMatrix<T,MC,MR> CTL(grid), CTR(grid),
                             CBL(grid), CBR(grid);
 
@@ -539,35 +558,37 @@ elemental::blas::internal::TriangularRankK
 
         LockedPartitionRight( A, AL, AR, half );
 
-        LockedPartitionDown( B, BT, 
-                                BB, half );
+        LockedPartitionDown
+        ( B, BT, 
+             BB, half );
 
-        PartitionDownDiagonal( C, CTL, CTR,
-                                  CBL, CBR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
 
         if( shape == Lower )
         { 
             blas::Gemm
-            ( Transpose, Transpose, 
+            ( orientationOfA, orientationOfB, 
               alpha, AR.LockedLocalMatrix(),
                      BT.LockedLocalMatrix(),
-              beta,  CBL.LocalMatrix()      );
+              beta,  CBL.LocalMatrix() );
         }
         else
         {
             blas::Gemm
-            ( Transpose, Transpose,
+            ( orientationOfA, orientationOfB,
               alpha, AL.LockedLocalMatrix(),
                      BB.LockedLocalMatrix(),
-              beta,  CTR.LocalMatrix()      );
+              beta,  CTR.LocalMatrix() );
         }
 
         // Recurse
         blas::internal::TriangularRankK
-        ( shape, alpha, AL, BT, beta, CTL );
+        ( shape, orientationOfA, orientationOfB, alpha, AL, BT, beta, CTL );
 
         blas::internal::TriangularRankK
-        ( shape, alpha, AR, BB, beta, CBR );
+        ( shape, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -584,6 +605,7 @@ elemental::blas::internal::TriangularRankK
 template void
 elemental::blas::internal::TriangularRankK
 ( Shape shape, 
+  Orientation orientationOfA,
   float alpha, const DistMatrix<float,Star,MC>& A,
                const DistMatrix<float,Star,MR>& B,
   float beta,        DistMatrix<float,MC,  MR>& C );
@@ -591,6 +613,8 @@ elemental::blas::internal::TriangularRankK
 template void
 elemental::blas::internal::TriangularRankK
 ( Shape shape, 
+  Orientation orientationOfA,
+  Orientation orientationOfB,
   float alpha, const DistMatrix<float,Star,MC  >& A,
                const DistMatrix<float,MR,  Star>& B,
   float beta,        DistMatrix<float,MC,  MR  >& C );
@@ -605,6 +629,7 @@ elemental::blas::internal::TriangularRankK
 template void
 elemental::blas::internal::TriangularRankK
 ( Shape shape,
+  Orientation orientationOfA,
   double alpha, const DistMatrix<double,Star,MC>& A,
                 const DistMatrix<double,Star,MR>& B,
   double beta,        DistMatrix<double,MC,  MR>& C );
@@ -612,6 +637,8 @@ elemental::blas::internal::TriangularRankK
 template void
 elemental::blas::internal::TriangularRankK
 ( Shape shape,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
   double alpha, const DistMatrix<double,Star,MC  >& A,
                 const DistMatrix<double,MR,  Star>& B,
   double beta,        DistMatrix<double,MC,  MR  >& C );
@@ -627,6 +654,7 @@ elemental::blas::internal::TriangularRankK
 template void
 elemental::blas::internal::TriangularRankK
 ( Shape shape,
+  Orientation orientationOfA,
   scomplex alpha, const DistMatrix<scomplex,Star,MC>& A,
                   const DistMatrix<scomplex,Star,MR>& B,
   scomplex beta,        DistMatrix<scomplex,MC,  MR>& C );
@@ -634,6 +662,8 @@ elemental::blas::internal::TriangularRankK
 template void
 elemental::blas::internal::TriangularRankK
 ( Shape shape,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
   scomplex alpha, const DistMatrix<scomplex,Star,MC  >& A,
                   const DistMatrix<scomplex,MR,  Star>& B,
   scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
@@ -648,6 +678,7 @@ elemental::blas::internal::TriangularRankK
 template void
 elemental::blas::internal::TriangularRankK
 ( Shape shape,
+  Orientation orientationOfA,
   dcomplex alpha, const DistMatrix<dcomplex,Star,MC>& A,
                   const DistMatrix<dcomplex,Star,MR>& B,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR>& C );
@@ -655,6 +686,8 @@ elemental::blas::internal::TriangularRankK
 template void
 elemental::blas::internal::TriangularRankK
 ( Shape shape,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
   dcomplex alpha, const DistMatrix<dcomplex,Star,MC  >& A,
                   const DistMatrix<dcomplex,MR,  Star>& B,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );

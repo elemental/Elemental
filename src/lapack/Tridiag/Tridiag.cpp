@@ -1,32 +1,24 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/lapack_internal.hpp"
 using namespace elemental;
+using namespace std;
 
-template<typename T>
+template<typename R>
 void
 elemental::lapack::Tridiag
 ( const Shape shape,
-  DistMatrix<T,MC,MR  >& A,
-  DistMatrix<T,MD,Star>& d,
-  DistMatrix<T,MD,Star>& e,
-  DistMatrix<T,MD,Star>& t )
+  DistMatrix<R,MC,MR  >& A,
+  DistMatrix<R,MD,Star>& d,
+  DistMatrix<R,MD,Star>& e,
+  DistMatrix<R,MD,Star>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
@@ -39,6 +31,29 @@ elemental::lapack::Tridiag
     PopCallStack();
 #endif
 }
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+elemental::lapack::Tridiag
+( const Shape shape,
+  DistMatrix<complex<R>,MC,MR  >& A,
+  DistMatrix<R,         MD,Star>& d,
+  DistMatrix<R,         MD,Star>& e,
+  DistMatrix<complex<R>,MD,Star>& t )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::Tridiag");
+#endif
+    if( shape == Lower )
+        lapack::internal::TridiagL( A, d, e, t );
+    else
+        lapack::internal::TridiagU( A, d, e, t );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // WITHOUT_COMPLEX
 
 template void elemental::lapack::Tridiag
 ( const Shape shape, 
@@ -54,3 +69,18 @@ template void elemental::lapack::Tridiag
   DistMatrix<double,MD,Star>& e,
   DistMatrix<double,MD,Star>& t );
 
+#ifndef WITHOUT_COMPLEX
+template void elemental::lapack::Tridiag
+( const Shape shape,
+  DistMatrix<scomplex,MC,MR  >& A,
+  DistMatrix<float,   MD,Star>& d,
+  DistMatrix<float,   MD,Star>& e,
+  DistMatrix<scomplex,MD,Star>& t );
+
+template void elemental::lapack::Tridiag
+( const Shape shape,
+  DistMatrix<dcomplex,MC,MR  >& A,
+  DistMatrix<double,  MD,Star>& d,
+  DistMatrix<double,  MD,Star>& e,
+  DistMatrix<dcomplex,MD,Star>& t );
+#endif

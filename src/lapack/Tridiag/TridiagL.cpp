@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/blas_internal.hpp"
 #include "elemental/lapack_internal.hpp"
@@ -36,10 +27,8 @@ elemental::lapack::internal::TridiagL
 #ifndef RELEASE
     if( A.GetGrid() != d.GetGrid() ||
         d.GetGrid() != e.GetGrid() ||
-        e.GetGrid() != t.GetGrid()   )
-    {
+        e.GetGrid() != t.GetGrid() )
         throw "A, d, e, and t must be distributed over the same grid.";
-    }
     if( A.Height() != A.Width() )
         throw "A must be square.";
     if( d.Height() != A.Height() || d.Width() != 1 )
@@ -52,14 +41,10 @@ elemental::lapack::internal::TridiagL
               "width of A.";
     if( d.ColAlignment() != A.ColAlignment() + 
                             A.RowAlignment() * grid.Height() )
-    {
         throw "d is not aligned with A.";
-    }
     if( e.ColAlignment() != ((A.ColAlignment()+1) % grid.Height())
                             + A.RowAlignment() * grid.Height()    )
-    {
         throw "e ist not aligned with A.";
-    }
     if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
         throw "t ist not aligned with A.";
 #endif
@@ -70,7 +55,6 @@ elemental::lapack::internal::TridiagL
         ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
                                A20(grid), A21(grid), A22(grid),
         A11_expanded(grid);
-
     DistMatrix<R,MD,Star> dT(grid),  d0(grid), 
                           dB(grid),  d1(grid),
                                      d2(grid);
@@ -88,85 +72,60 @@ elemental::lapack::internal::TridiagL
     DistMatrix<R,Star,Star> t1_Star_Star(grid);
     DistMatrix<R,MC,  MR  > W11(grid),  WPan(grid),
                             W21(grid);
-    DistMatrix<R,MC,  Star> A11_MC_Star(grid),  APan_MC_Star(grid),
-                            A21_MC_Star(grid);
-    DistMatrix<R,MR,  Star> A11_MR_Star(grid),  APan_MR_Star(grid),
-                            A21_MR_Star(grid);
-    DistMatrix<R,MC,  Star> W21_MC_Star(grid);
-    DistMatrix<R,VR,  Star> W21_VR_Star(grid);
-    DistMatrix<R,Star,MR  > W21Trans_Star_MR(grid);
 
-    PartitionDownDiagonal( A, ATL, ATR,
-                              ABL, ABR );
-    PartitionDown( d, dT,
-                      dB );
-    PartitionDown( e, eT,
-                      eB );
-    PartitionDown( t, tT,
-                      tB );
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR );
+    PartitionDown
+    ( d, dT,
+         dB );
+    PartitionDown
+    ( e, eT,
+         eB );
+    PartitionDown
+    ( t, tT,
+         tB );
     while( ATL.Height() < A.Height() )
     {
-        RepartitionDownDiagonal( ATL, /**/ ATR,  A00, /**/ A01, A02,
-                                /*************/ /******************/
-                                      /**/       A10, /**/ A11, A12,
-                                 ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        RepartitionDown( dT,  d0,
-                        /**/ /**/
-                              d1,
-                         dB,  d2 );
+        RepartitionDown
+        ( dT,  d0,
+         /**/ /**/
+               d1,
+          dB,  d2 );
 
-        RepartitionDown( eT,  e0,
-                        /**/ /**/
-                              e1,
-                         eB,  e2 );
+        RepartitionDown
+        ( eT,  e0,
+         /**/ /**/
+               e1,
+          eB,  e2 );
 
-        RepartitionDown( tT,  t0,
-                        /**/ /**/
-                              t1,
-                         tB,  t2 );
+        RepartitionDown
+        ( tT,  t0,
+         /**/ /**/
+               t1,
+          tB,  t2 );
 
         if( A22.Height() > 0 )
         {
             A11_expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
-
             WPan.AlignWith( ABR );
-            APan_MC_Star.AlignWith( ABR );
-            APan_MR_Star.AlignWith( ABR );
-            W21_MC_Star.AlignWith( A22 );
-            W21_VR_Star.AlignWith( A22 );
-            W21Trans_Star_MR.AlignWith( A22 );
-
             WPan.ResizeTo( ABR.Height(), A11.Width() );
-            APan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
-            APan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
-
-            PartitionDown( WPan, W11,
-                                 W21, A11.Height() );
-            PartitionDown( APan_MC_Star, A11_MC_Star,
-                                         A21_MC_Star, A11.Height() );
-            PartitionDown( APan_MR_Star, A11_MR_Star,
-                                         A21_MR_Star, A11.Height() );
+            PartitionDown
+            ( WPan, W11,
+                    W21, A11.Height() );
             //----------------------------------------------------------------//
-            lapack::internal::PanelTridiagL
-            ( ABR, WPan, e1, t1, APan_MC_Star, APan_MR_Star );
-
-            W21_VR_Star = W21_MC_Star = W21;
-            W21Trans_Star_MR.TransposeFrom( W21_VR_Star );
-            blas::internal::TriangularRank2K
-            ( Lower, (R)-1,
-              A21_MC_Star, W21_MC_Star, 
-              A21_MR_Star, W21Trans_Star_MR, (R)1, A22 );
-
+            lapack::internal::PanelTridiagL( ABR, WPan, e1, t1 );
+            blas::Her2k( Lower, Normal, (R)-1, A21, W21, (R)1, A22 );
             A11_expanded.SetDiagonal( e1, -1 );
             A11.GetDiagonal( d1 );
             //----------------------------------------------------------------//
-            WPan.FreeConstraints();
-            APan_MC_Star.FreeConstraints();
-            APan_MR_Star.FreeConstraints();
-            W21_MC_Star.FreeConstraints();
-            W21_VR_Star.FreeConstraints();
-            W21Trans_Star_MR.FreeConstraints();
+            WPan.FreeAlignments();
         }
         else
         {
@@ -174,41 +133,217 @@ elemental::lapack::internal::TridiagL
             d1_Star_Star = d1;
             e1_Star_Star = e1;
             t1_Star_Star = t1;
-            lapack::Tridiag( Lower, A11_Star_Star.LocalMatrix(),
-                             d1_Star_Star.LocalMatrix(), 
-                             e1_Star_Star.LocalMatrix(),
-                             t1_Star_Star.LocalMatrix()         );
+
+            lapack::Tridiag
+            ( Lower, 
+              A11_Star_Star.LocalMatrix(),
+              d1_Star_Star.LocalMatrix(), 
+              e1_Star_Star.LocalMatrix(),
+              t1_Star_Star.LocalMatrix() );
+
             A11 = A11_Star_Star;
             d1 = d1_Star_Star;
             e1 = e1_Star_Star;
             t1 = t1_Star_Star;
         }
 
-        SlidePartitionDownDiagonal( ATL, /**/ ATR,  A00, A01, /**/ A02,
-                                         /**/       A10, A11, /**/ A12,
-                                   /*************/ /******************/
-                                    ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
-        SlidePartitionDown( dT,  d0,
-                                 d1,
-                           /**/ /**/
-                            dB,  d2 );
+        SlidePartitionDown
+        ( dT,  d0,
+               d1,
+         /**/ /**/
+          dB,  d2 );
 
-        SlidePartitionDown( eT,  e0,
-                                 e1,
-                           /**/ /**/
-                            eB,  e2 );
+        SlidePartitionDown
+        ( eT,  e0,
+               e1,
+         /**/ /**/
+          eB,  e2 );
 
-        SlidePartitionDown( tT,  t0,
-                                 t1,
-                           /**/ /**/
-                            tB,  t2 );
+        SlidePartitionDown
+        ( tT,  t0,
+               t1,
+         /**/ /**/
+          tB,  t2 );
     }
         
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+elemental::lapack::internal::TridiagL
+( DistMatrix<complex<R>,MC,MR  >& A,
+  DistMatrix<R,MD,Star>& d,
+  DistMatrix<R,MD,Star>& e,
+  DistMatrix<complex<R>,MD,Star>& t )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::internal::TridiagL");
+#endif
+    const Grid& grid = A.GetGrid();
+#ifndef RELEASE
+    if( A.GetGrid() != d.GetGrid() ||
+        d.GetGrid() != e.GetGrid() ||
+        e.GetGrid() != t.GetGrid() )
+        throw "A, d, e, and t must be distributed over the same grid.";
+    if( A.Height() != A.Width() )
+        throw "A must be square.";
+    if( d.Height() != A.Height() || d.Width() != 1 )
+        throw "d must be a column vector of the same length as A's width.";
+    if( e.Height() != A.Height()-1 || e.Width() != 1 )
+        throw "e must be a column vector of length one less than the "
+              "width of A.";
+    if( t.Height() != A.Height()-1 || t.Width() != 1 )
+        throw "t must be a column vector of length one less than the "
+              "width of A.";
+    if( d.ColAlignment() != A.ColAlignment() + 
+                            A.RowAlignment() * grid.Height() )
+        throw "d is not aligned with A.";
+    if( e.ColAlignment() != ((A.ColAlignment()+1) % grid.Height())
+                            + A.RowAlignment() * grid.Height()    )
+        throw "e ist not aligned with A.";
+    if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
+        throw "t ist not aligned with A.";
+#endif
+    typedef complex<R> C;
+
+    // Matrix views 
+    DistMatrix<C,MC,MR> 
+        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid), 
+        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
+                               A20(grid), A21(grid), A22(grid),
+        A11_expanded(grid);
+    DistMatrix<R,MD,Star> dT(grid),  d0(grid), 
+                          dB(grid),  d1(grid),
+                                     d2(grid);
+    DistMatrix<R,MD,Star> eT(grid),  e0(grid), 
+                          eB(grid),  e1(grid), 
+                                     e2(grid);
+    DistMatrix<C,MD,Star> tT(grid),  t0(grid),
+                          tB(grid),  t1(grid),
+                                     t2(grid);
+
+    // Temporary distributions
+    DistMatrix<C,Star,Star> A11_Star_Star(grid);
+    DistMatrix<R,Star,Star> d1_Star_Star(grid);
+    DistMatrix<R,Star,Star> e1_Star_Star(grid);
+    DistMatrix<C,Star,Star> t1_Star_Star(grid);
+    DistMatrix<C,MC,  MR  > W11(grid),  WPan(grid),
+                            W21(grid);
+
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR );
+    PartitionDown
+    ( d, dT,
+         dB );
+    PartitionDown
+    ( e, eT,
+         eB );
+    PartitionDown
+    ( t, tT,
+         tB );
+    while( ATL.Height() < A.Height() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        RepartitionDown
+        ( dT,  d0,
+         /**/ /**/
+               d1,
+          dB,  d2 );
+
+        RepartitionDown
+        ( eT,  e0,
+         /**/ /**/
+               e1,
+          eB,  e2 );
+
+        RepartitionDown
+        ( tT,  t0,
+         /**/ /**/
+               t1,
+          tB,  t2 );
+
+        if( A22.Height() > 0 )
+        {
+            A11_expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
+            WPan.AlignWith( ABR );
+            WPan.ResizeTo( ABR.Height(), A11.Width() );
+            PartitionDown
+            ( WPan, W11,
+                    W21, A11.Height() );
+            //----------------------------------------------------------------//
+            lapack::internal::PanelTridiagL( ABR, WPan, e1, t1 );
+            blas::Her2k( Lower, Normal, (C)-1, A21, W21, (C)1, A22 );
+            A11_expanded.SetDiagonal( e1, -1 );
+            A11.GetRealDiagonal( d1 );
+            //----------------------------------------------------------------//
+            WPan.FreeAlignments();
+        }
+        else
+        {
+            A11_Star_Star = A11;
+            d1_Star_Star = d1;
+            e1_Star_Star = e1;
+            t1_Star_Star = t1;
+
+            lapack::Tridiag
+            ( Lower, 
+              A11_Star_Star.LocalMatrix(),
+              d1_Star_Star.LocalMatrix(), 
+              e1_Star_Star.LocalMatrix(),
+              t1_Star_Star.LocalMatrix() );
+
+            A11 = A11_Star_Star;
+            d1 = d1_Star_Star;
+            e1 = e1_Star_Star;
+            t1 = t1_Star_Star;
+        }
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+
+        SlidePartitionDown
+        ( dT,  d0,
+               d1,
+         /**/ /**/
+          dB,  d2 );
+
+        SlidePartitionDown
+        ( eT,  e0,
+               e1,
+         /**/ /**/
+          eB,  e2 );
+
+        SlidePartitionDown
+        ( tT,  t0,
+               t1,
+         /**/ /**/
+          tB,  t2 );
+    }
+        
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // WITHOUT_COMPLEX
 
 template void elemental::lapack::internal::TridiagL
 ( DistMatrix<float,MC,MR  >& A,
@@ -221,4 +356,18 @@ template void elemental::lapack::internal::TridiagL
   DistMatrix<double,MD,Star>& d,
   DistMatrix<double,MD,Star>& e,
   DistMatrix<double,MD,Star>& t );
+
+#ifndef WITHOUT_COMPLEX
+template void elemental::lapack::internal::TridiagL
+( DistMatrix<scomplex,MC,MR  >& A,
+  DistMatrix<float,   MD,Star>& d,
+  DistMatrix<float,   MD,Star>& e,
+  DistMatrix<scomplex,MD,Star>& t );
+
+template void elemental::lapack::internal::TridiagL
+( DistMatrix<dcomplex,MC,MR  >& A,
+  DistMatrix<double,  MD,Star>& d,
+  DistMatrix<double,  MD,Star>& e,
+  DistMatrix<dcomplex,MD,Star>& t );
+#endif
 

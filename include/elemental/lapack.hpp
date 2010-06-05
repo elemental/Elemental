@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #ifndef ELEMENTAL_LAPACK_HPP
 #define ELEMENTAL_LAPACK_HPP 1
@@ -38,10 +29,21 @@ void
 LU
 ( Matrix<T>& A, Matrix<int>& p );
 
-template<typename T>
+template<typename R>
 void
 Tridiag
-( Shape shape, Matrix<T>& A, Matrix<T>& d, Matrix<T>& e, Matrix<T>& tau );
+( Shape shape, Matrix<R>& A, Matrix<R>& d, Matrix<R>& e, Matrix<R>& t );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+Tridiag
+( Shape shape, 
+  Matrix< std::complex<R> >& A,
+  Matrix< R               >& d,
+  Matrix< R               >& e,
+  Matrix< std::complex<R> >& t );
+#endif
 
 template<typename T>
 void
@@ -66,14 +68,25 @@ void
 LU
 ( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 
-template<typename T>
+template<typename R>
 void
 Tridiag
 ( Shape shape, 
-  DistMatrix<T,MC,MR  >& A,
-  DistMatrix<T,MD,Star>& d,
-  DistMatrix<T,MD,Star>& e,
-  DistMatrix<T,MD,Star>& t );
+  DistMatrix<R,MC,MR  >& A,
+  DistMatrix<R,MD,Star>& d,
+  DistMatrix<R,MD,Star>& e,
+  DistMatrix<R,MD,Star>& t );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+Tridiag
+( Shape shape,
+  DistMatrix<std::complex<R>,MC,MR  >& A,
+  DistMatrix<R,              MD,Star>& d,
+  DistMatrix<R,              MD,Star>& e,
+  DistMatrix<std::complex<R>,MD,Star>& t );
+#endif
 
 template<typename T>
 void
@@ -121,10 +134,10 @@ elemental::lapack::LU
 #endif
 }
 
-template<typename T>
+template<typename R>
 inline void
 elemental::lapack::Tridiag
-( Shape shape, Matrix<T>& A, Matrix<T>& d, Matrix<T>& e, Matrix<T>& t )
+( Shape shape, Matrix<R>& A, Matrix<R>& d, Matrix<R>& e, Matrix<R>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
@@ -145,6 +158,37 @@ elemental::lapack::Tridiag
     PopCallStack();
 #endif
 }
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline void
+elemental::lapack::Tridiag
+( Shape shape, 
+  Matrix< std::complex<R> >& A, 
+  Matrix< R               >& d, 
+  Matrix< R               >& e, 
+  Matrix< std::complex<R> >& t )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::Tridiag");
+    if( A.Height() != A.Width() )
+        throw "A must be square.";
+    if( d.Height() != A.Height() || d.Width() != 1 )
+        throw "d must be a column vector of length n.";
+    if( e.Height() != A.Height()-1 || e.Width() != 1 )
+        throw "e must be a column vector of length n-1.";
+    if( t.Height() != A.Height()-1 || t.Width() != 1 )
+        throw "t must be a column vector of length n-1.";
+#endif
+    const char uplo = ShapeToChar( shape );
+    wrappers::lapack::Tridiag
+    ( uplo, A.Height(), A.Buffer(), A.LDim(),
+      d.Buffer(), e.Buffer(), t.Buffer() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // WITHOUT_COMPLEX
 
 template<typename T>
 inline void

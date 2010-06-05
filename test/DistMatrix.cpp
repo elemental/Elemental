@@ -1,3 +1,12 @@
+/*
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
+
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
+
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
+*/
 #include <cstdlib>
 #include <ctime>
 #include "elemental.hpp"
@@ -23,6 +32,9 @@ void
 Check( DistMatrix<T,AColDist,ARowDist>& A, 
        DistMatrix<T,BColDist,BRowDist>& B )
 {
+#ifndef RELEASE
+    PushCallStack("Check");
+#endif
     const Grid& grid = A.GetGrid();
 
     int p = grid.Size();
@@ -81,12 +93,18 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
         else
             cout << "FAILED" << endl;
     }
+#ifndef RELEASE
+    PopCallStack();
+#endif
 }
 
 template<typename T>
 void
 DistMatrixTest( int m, int n, const Grid& grid )
 {
+#ifndef RELEASE
+    PushCallStack("DistMatrixTest");
+#endif
     DistMatrix<T,MC,  MR  > A_MC_MR(grid);
     DistMatrix<T,MC,  Star> A_MC_Star(grid);
     DistMatrix<T,Star,MR  > A_Star_MR(grid);
@@ -252,6 +270,9 @@ DistMatrixTest( int m, int n, const Grid& grid )
     Check( A_Star_VC, A_Star_Star );
     Check( A_VR_Star, A_Star_Star );
     Check( A_Star_VR, A_Star_Star );
+#ifndef RELEASE
+    PopCallStack();
+#endif
 }
 
 int main( int argc, char* argv[] )

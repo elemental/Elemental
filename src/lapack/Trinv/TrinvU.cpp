@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #include "elemental/lapack_internal.hpp"
 using namespace std;
@@ -61,14 +52,16 @@ elemental::lapack::internal::TrinvUVar3
     DistMatrix<T,MR,  Star> U12Trans_MR_Star(grid);
 
     // Start the algorithm
-    PartitionUpDiagonal( U, UTL, UTR,
-                            UBL, UBR );
+    PartitionUpDiagonal
+    ( U, UTL, UTR,
+         UBL, UBR );
     while( UBR.Height() < U.Height() )
     {
-        RepartitionUpDiagonal( UTL, /**/ UTR,  U00, U01, /**/ U02,
-                                    /**/       U10, U11, /**/ U12,
-                              /*************/ /******************/
-                               UBL, /**/ UBR,  U20, U21, /**/ U22 );
+        RepartitionUpDiagonal
+        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
+               /**/       U10, U11, /**/ U12,
+         /*************/ /******************/
+          UBL, /**/ UBR,  U20, U21, /**/ U22 );
 
         U01Trans_Star_MC.AlignWith( U02 );
         U12Trans_MR_Star.AlignWith( U02 );
@@ -102,13 +95,14 @@ elemental::lapack::internal::TrinvUVar3
                 U12_Star_VR.LocalMatrix()         );
         U12 = U12_Star_VR;
         //--------------------------------------------------------------------//
-        U01Trans_Star_MC.FreeConstraints();
-        U12Trans_MR_Star.FreeConstraints();
+        U01Trans_Star_MC.FreeAlignments();
+        U12Trans_MR_Star.FreeAlignments();
 
-        SlidePartitionUpDiagonal( UTL, /**/ UTR,  U00, /**/ U01, U02,
-                                 /*************/ /******************/
-                                       /**/       U10, /**/ U11, U12,
-                                  UBL, /**/ UBR,  U20, /**/ U21, U22 );
+        SlidePartitionUpDiagonal
+        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
+         /*************/ /******************/
+               /**/       U10, /**/ U11, U12,
+          UBL, /**/ UBR,  U20, /**/ U21, U22 );
     }
 #ifndef RELEASE
     PopCallStack();

@@ -1,23 +1,14 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
-#ifndef ELEMENTAL_DISTMATRIX_STAR_MR_HPP
-#define ELEMENTAL_DISTMATRIX_STAR_MR_HPP 1
+#ifndef ELEMENTAL_DIST_MATRIX_STAR_MR_HPP
+#define ELEMENTAL_DIST_MATRIX_STAR_MR_HPP 1
 
 #include "elemental/dist_matrix.hpp"
 
@@ -28,23 +19,203 @@ namespace elemental {
 // The columns of these distributed matrices will be replicated on all 
 // processes (*), and the rows will be distributed like "Matrix Rows" (MR).
 // Thus the rows will be distributed among rows of the process grid.
-template<typename T>
-class DistMatrix<T,Star,MR>
-{
-    bool      _viewing;
-    bool      _lockedView;
-    int       _height;
-    int       _width;
-    Memory<T> _auxMemory;
-    Matrix<T> _localMatrix;
 
-    bool _constrainedRowDist;
-    int  _rowAlignment;
-    int  _rowShift;
-    const Grid* _grid;
+template<typename T>
+class DistMatrixBase<T,Star,MR> : public AbstractDistMatrix<T>
+{
+protected:
+    typedef AbstractDistMatrix<T> ADM;
+
+    DistMatrixBase
+    ( int height,
+      int width,
+      bool constrainedRowAlignment,
+      int rowAlignment,
+      int rowShift,
+      const Grid& grid );
+
+    ~DistMatrixBase();
 
 public:
+    //------------------------------------------------------------------------//
+    // Fulfillments of abstract virtual func's from AbstractDistMatrixBase    //
+    //------------------------------------------------------------------------//
 
+    //
+    // Non-collective routines
+    //
+
+    // (empty)
+
+    //
+    // Collective routines
+    //
+
+    T Get( int i, int j ) const;
+    void Set( int i, int j, T alpha );
+
+    void MakeTrapezoidal
+    ( Side side, Shape shape, int offset = 0 );
+
+    void Print( const std::string& s ) const;
+    void ResizeTo( int height, int width );
+    void SetToIdentity();
+    void SetToRandom();
+
+    //------------------------------------------------------------------------//
+    // Routines specific to [* ,MR] distribution                              //
+    //------------------------------------------------------------------------//
+
+    //
+    // Non-collective routines
+    //
+
+    // (empty)
+
+    // 
+    // Collective routines
+    //
+
+    // Aligns all of our DistMatrix's distributions that match a distribution
+    // of the argument DistMatrix.
+    void AlignWith( const DistMatrixBase<T,MC,  MR  >& A );
+    void AlignWith( const DistMatrixBase<T,Star,MR  >& A );
+    void AlignWith( const DistMatrixBase<T,MR,  MC  >& A );
+    void AlignWith( const DistMatrixBase<T,MR,  Star>& A );
+    void AlignWith( const DistMatrixBase<T,VR,  Star>& A );
+    void AlignWith( const DistMatrixBase<T,Star,VR  >& A );
+    void AlignWith( const DistMatrixBase<T,Star,MC  >& A ) {}
+    void AlignWith( const DistMatrixBase<T,Star,MD  >& A ) {}
+    void AlignWith( const DistMatrixBase<T,Star,VC  >& A ) {}
+    void AlignWith( const DistMatrixBase<T,Star,Star>& A ) {}
+    void AlignWith( const DistMatrixBase<T,MC,  Star>& A ) {}
+    void AlignWith( const DistMatrixBase<T,MD,  Star>& A ) {}
+    void AlignWith( const DistMatrixBase<T,VC,  Star>& A ) {}
+
+    // Aligns our column distribution (i.e., Star) with the matching 
+    // distribution of the argument. These are all no-ops and exist solely to 
+    // allow for templating over distribution parameters.
+    void AlignColsWith( const DistMatrixBase<T,Star,MC  >& A ) {}
+    void AlignColsWith( const DistMatrixBase<T,Star,MD  >& A ) {}
+    void AlignColsWith( const DistMatrixBase<T,Star,MR  >& A ) {}
+    void AlignColsWith( const DistMatrixBase<T,Star,VC  >& A ) {}
+    void AlignColsWith( const DistMatrixBase<T,Star,VR  >& A ) {}
+    void AlignColsWith( const DistMatrixBase<T,Star,Star>& A ) {}
+    void AlignColsWith( const DistMatrixBase<T,MC,  Star>& A ) {}
+    void AlignColsWith( const DistMatrixBase<T,MD,  Star>& A ) {}
+    void AlignColsWith( const DistMatrixBase<T,MR,  Star>& A ) {}
+    void AlignColsWith( const DistMatrixBase<T,VC,  Star>& A ) {}
+    void AlignColsWith( const DistMatrixBase<T,VR,  Star>& A ) {}
+
+    // Aligns our row distribution (i.e., MR) with the matching distribution
+    // of the argument. We recognize that a VR distribution can be a subset 
+    // of an MR distribution.
+    void AlignRowsWith( const DistMatrixBase<T,MC,  MR  >& A );
+    void AlignRowsWith( const DistMatrixBase<T,Star,MR  >& A );
+    void AlignRowsWith( const DistMatrixBase<T,MR,  MC  >& A );
+    void AlignRowsWith( const DistMatrixBase<T,MR,  Star>& A );
+    void AlignRowsWith( const DistMatrixBase<T,VR,  Star>& A );
+    void AlignRowsWith( const DistMatrixBase<T,Star,VR  >& A );
+
+    // (Immutable) view of a distributed matrix
+    void View( DistMatrixBase<T,Star,MR>& A );
+    void LockedView( const DistMatrixBase<T,Star,MR>& A );
+
+    // (Immutable) view of a portion of a distributed matrix
+    void View
+    ( DistMatrixBase<T,Star,MR>& A,
+      int i, int j, int height, int width );
+
+    void LockedView
+    ( const DistMatrixBase<T,Star,MR>& A,
+      int i, int j, int height, int width );
+
+    // (Immutable) view of two horizontally contiguous partitions of a
+    // distributed matrix
+    void View1x2
+    ( DistMatrixBase<T,Star,MR>& AL, DistMatrixBase<T,Star,MR>& AR );
+
+    void LockedView1x2
+    ( const DistMatrixBase<T,Star,MR>& AL, 
+      const DistMatrixBase<T,Star,MR>& AR );
+
+    // (Immutable) view of two vertically contiguous partitions of a
+    // distributed matrix
+    void View2x1
+    ( DistMatrixBase<T,Star,MR>& AT,
+      DistMatrixBase<T,Star,MR>& AB );
+
+    void LockedView2x1
+    ( const DistMatrixBase<T,Star,MR>& AT,
+      const DistMatrixBase<T,Star,MR>& AB );
+
+    // (Immutable) view of a contiguous 2x2 set of partitions of a
+    // distributed matrix
+    void View2x2
+    ( DistMatrixBase<T,Star,MR>& ATL, DistMatrixBase<T,Star,MR>& ATR,
+      DistMatrixBase<T,Star,MR>& ABL, DistMatrixBase<T,Star,MR>& ABR );
+
+    void LockedView2x2
+    ( const DistMatrixBase<T,Star,MR>& ATL, 
+      const DistMatrixBase<T,Star,MR>& ATR,
+      const DistMatrixBase<T,Star,MR>& ABL, 
+      const DistMatrixBase<T,Star,MR>& ABR );
+
+    // AllReduce sum over process column
+    void SumOverCol();
+
+    // Auxiliary routines needed to implement algorithms that avoid
+    // inefficient unpackings of partial matrix distributions
+    void ConjugateTransposeFrom( const DistMatrixBase<T,VR,Star>& A );
+    void TransposeFrom( const DistMatrixBase<T,VR,Star>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,MC,MR>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,MC,Star>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,Star,MR>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,MD,Star>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,Star,MD>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,MR,MC>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,MR,Star>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,Star,MC>& A );
+    
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,VC,Star>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,Star,VC>& A );
+    
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,VR,Star>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,Star,VR>& A );
+
+    const DistMatrixBase<T,Star,MR>&
+    operator=( const DistMatrixBase<T,Star,Star>& A );
+};
+
+template<typename R>
+class DistMatrix<R,Star,MR> : public DistMatrixBase<R,Star,MR>
+{
+protected:
+    typedef DistMatrixBase<R,Star,MR> DMB;
+
+public:
     DistMatrix
     ( const Grid& grid );
 
@@ -52,467 +223,513 @@ public:
     ( int height, int width, const Grid& grid );
 
     DistMatrix
-    ( bool constrainedRowDist, int rowAlignment, const Grid& grid );
+    ( bool constrainedRowAlignment, int rowAlignment, const Grid& grid );
 
     DistMatrix
     ( int height, int width,
-      bool constrainedRowDist, int rowAlignment, const Grid& grid );
+      bool constrainedRowAlignment, int rowAlignment, const Grid& grid );
 
     DistMatrix
-    ( const DistMatrix<T,Star,MR>& A );
+    ( const DistMatrix<R,Star,MR>& A );
 
     ~DistMatrix();
-
-    //--------------------------------------------------------------------//
-    // Operations that can be performed by individual processes           //
-    //--------------------------------------------------------------------//
-
-    const Grid& GetGrid() const;
-
-    bool Viewing() const;
-
-    // Matrix dimensions
-    int Height() const;
-    int Width() const;
-    int LocalHeight() const;
-    int LocalWidth() const;
-    int LocalLDim() const;
-
-    // Retrieve (a reference to) an entry from the local matrix
-    T& LocalEntry( int i, int j );
-    T  LocalEntry( int i, int j ) const;
-
-    // Return an (immutable) reference to the local matrix
-          Matrix<T>& LocalMatrix(); 
-    const Matrix<T>& LockedLocalMatrix() const;
     
-    // Generic distribution parameters
-    bool ConstrainedColDist() const;
-    bool ConstrainedRowDist() const;
-    int  ColAlignment() const;
-    int  RowAlignment() const;
-    int  ColShift() const;
-    int  RowShift() const;
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,MC,MR>& A );
 
-    //--------------------------------------------------------------------//
-    // Operations that must be collectively performed                     //
-    //--------------------------------------------------------------------//
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,MC,Star>& A );
 
-    // Get/Set an entry from the distributed matrix
-    T    Get( int i, int j );
-    void Set( int i, int j, T u );
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,Star,MR>& A );
 
-    // Zero out necessary entries to make distributed matrix trapezoidal:
-    //
-    //   If side equals 'Left', then the diagonal is chosen to pass through 
-    //   the upper-left corner of the matrix.
-    //
-    //   If side equals 'Right', then the diagonal is chosen to pass through
-    //   the lower-right corner of the matrix.
-    //
-    // Upper trapezoidal with offset = 0:
-    //
-    //    |x x x x x x x| <-- side = Left      |0 0 x x x x x|
-    //    |0 x x x x x x|                      |0 0 0 x x x x|
-    //    |0 0 x x x x x|     side = Right --> |0 0 0 0 x x x|
-    //    |0 0 0 x x x x|                      |0 0 0 0 0 x x|
-    //    |0 0 0 0 x x x|                      |0 0 0 0 0 0 x|
-    //
-    // Upper trapezoidal with offset = 1:
-    //   
-    //    |0 x x x x x x| <-- side = Left      |0 0 0 x x x x|
-    //    |0 0 x x x x x|                      |0 0 0 0 x x x|
-    //    |0 0 0 x x x x|     side = Right --> |0 0 0 0 0 x x|
-    //    |0 0 0 0 x x x|                      |0 0 0 0 0 0 x|
-    //    |0 0 0 0 0 x x|                      |0 0 0 0 0 0 0|
-    //
-    // Lower trapezoidal with offset = 1:
-    //    
-    //    |x x 0 0 0 0 0| <-- side = Left      |x x x x 0 0 0|
-    //    |x x x 0 0 0 0|                      |x x x x x 0 0|
-    //    |x x x x 0 0 0|     side = Right --> |x x x x x x 0|
-    //    |x x x x x 0 0|                      |x x x x x x x|
-    //    |x x x x x x 0|                      |x x x x x x x|
-    //
-    void MakeTrapezoidal
-    ( Side side, Shape shape, int offset = 0 );
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,MD,Star>& A );
 
-    void Print( const std::string& msg ) const;
-    void ResizeTo( int height, int width );
-    void SetToIdentity();
-    void SetToRandom();
-    void SetToRandomDiagDominant();
-    void SetToZero();
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,Star,MD>& A );
+
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,MR,MC>& A );
+
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,MR,Star>& A );
+
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,Star,MC>& A );
     
-    // For aligning the row and/or column distributions with another matrix.
-    // Often useful when two distributed matrices are added together.
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,VC,Star>& A );
+
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,Star,VC>& A );
+    
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,VR,Star>& A );
+
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,Star,VR>& A );
+
+    const DistMatrix<R,Star,MR>&
+    operator=( const DistMatrixBase<R,Star,Star>& A );
+
+    //------------------------------------------------------------------------//
+    // Fulfillments of abstract virtual func's from AbstractDistMatrixBase    //
+    //------------------------------------------------------------------------//
+
     //
-    // The top part of this list contains the (valid) distributions that
-    // contain 'MR'.
-    void AlignWith( const DistMatrix<T,MC,  MR  >& A );
-    void AlignWith( const DistMatrix<T,Star,MR  >& A );
-    void AlignWith( const DistMatrix<T,MR,  MC  >& A );
-    void AlignWith( const DistMatrix<T,MR,  Star>& A );
-    void AlignWith( const DistMatrix<T,VR,  Star>& A );
-    void AlignWith( const DistMatrix<T,Star,VR  >& A );
-    void AlignRowsWith( const DistMatrix<T,MC,  MR  >& A );
-    void AlignRowsWith( const DistMatrix<T,Star,MR  >& A );
-    void AlignRowsWith( const DistMatrix<T,MR,  MC  >& A );
-    void AlignRowsWith( const DistMatrix<T,MR,  Star>& A );
-    void AlignRowsWith( const DistMatrix<T,VR,  Star>& A );
-    void AlignRowsWith( const DistMatrix<T,Star,VR  >& A );
-    // These are no-ops, but they exist for template flexibility
-    void AlignWith( const DistMatrix<T,Star,MC  >& A ) {}
-    void AlignWith( const DistMatrix<T,Star,MD  >& A ) {}
-    void AlignWith( const DistMatrix<T,Star,VC  >& A ) {}
-    void AlignWith( const DistMatrix<T,Star,Star>& A ) {}
-    void AlignWith( const DistMatrix<T,MC,  Star>& A ) {}
-    void AlignWith( const DistMatrix<T,MD,  Star>& A ) {}
-    void AlignWith( const DistMatrix<T,VC,  Star>& A ) {}
-    void AlignColsWith( const DistMatrix<T,Star,MC  >& A ) {}
-    void AlignColsWith( const DistMatrix<T,Star,MD  >& A ) {}
-    void AlignColsWith( const DistMatrix<T,Star,MR  >& A ) {}
-    void AlignColsWith( const DistMatrix<T,Star,VC  >& A ) {}
-    void AlignColsWith( const DistMatrix<T,Star,VR  >& A ) {}
-    void AlignColsWith( const DistMatrix<T,Star,Star>& A ) {}
-    void AlignColsWith( const DistMatrix<T,MC,  Star>& A ) {}
-    void AlignColsWith( const DistMatrix<T,MD,  Star>& A ) {}
-    void AlignColsWith( const DistMatrix<T,MR,  Star>& A ) {}
-    void AlignColsWith( const DistMatrix<T,VC,  Star>& A ) {}
-    void AlignColsWith( const DistMatrix<T,VR,  Star>& A ) {}
+    // Non-collective routines
+    //
 
-    // So that matrix-multiplication will make sense, we force alignment
-    // with a single distribution type that can be inferred.
-    void ConformWith( const DistMatrix<T,MC,  MR  >& A );
-    void ConformWith( const DistMatrix<T,Star,MR  >& A );
-    void ConformWith( const DistMatrix<T,MR,  MC  >& A );
-    void ConformWith( const DistMatrix<T,MR,  Star>& A );
-    // These are no-ops, but they exist for template flexibility
-    void ConformWith( const DistMatrix<T,MC,  Star>& A );
-    void ConformWith( const DistMatrix<T,Star,Star>& A );
+    // (empty)
 
-    // Clear the alignment constraints
-    void FreeConstraints();
+    //
+    // Collective routines
+    //
 
-    // (Immutable) view of a distributed matrix
-    void View( DistMatrix<T,Star,MR>& A );
-    void LockedView( const DistMatrix<T,Star,MR>& A );
-
-    // (Immutable) view of a portion of a distributed matrix
-    void View
-    ( DistMatrix<T,Star,MR>& A,
-      int i, int j, int height, int width );
-
-    void LockedView
-    ( const DistMatrix<T,Star,MR>& A,
-      int i, int j, int height, int width );
-
-    // (Immutable) view of two horizontally contiguous partitions of a
-    // distributed matrix
-    void View1x2
-    ( DistMatrix<T,Star,MR>& AL, DistMatrix<T,Star,MR>& AR );
-
-    void LockedView1x2
-    ( const DistMatrix<T,Star,MR>& AL, const DistMatrix<T,Star,MR>& AR );
-
-    // (Immutable) view of two vertically contiguous partitions of a
-    // distributed matrix
-    void View2x1
-    ( DistMatrix<T,Star,MR>& AT,
-      DistMatrix<T,Star,MR>& AB );
-
-    void LockedView2x1
-    ( const DistMatrix<T,Star,MR>& AT,
-      const DistMatrix<T,Star,MR>& AB );
-
-    // (Immutable) view of a contiguous 2x2 set of partitions of a
-    // distributed matrix
-    void View2x2
-    ( DistMatrix<T,Star,MR>& ATL, DistMatrix<T,Star,MR>& ATR,
-      DistMatrix<T,Star,MR>& ABL, DistMatrix<T,Star,MR>& ABR );
-
-    void LockedView2x2
-    ( const DistMatrix<T,Star,MR>& ATL, const DistMatrix<T,Star,MR>& ATR,
-      const DistMatrix<T,Star,MR>& ABL, const DistMatrix<T,Star,MR>& ABR );
-
-    // AllReduce sum over process column
-    void AllReduce();
-
-    // Auxiliary routines needed to implement algorithms that avoid
-    // inefficient unpackings of partial matrix distributions
-    void ConjugateTransposeFrom( const DistMatrix<T,VR,Star>& A );
-    void TransposeFrom( const DistMatrix<T,VR,Star>& A );
-
-    // Bury communication behind '=' operator
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,MC,MR>& A );
-
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,MC,Star>& A );
-
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,Star,MR>& A );
-
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,MD,Star>& A );
-
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,Star,MD>& A );
-
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,MR,MC>& A );
-
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,MR,Star>& A );
-
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,Star,MC>& A );
-    
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,VC,Star>& A );
-
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,Star,VC>& A );
-    
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,VR,Star>& A );
-
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,Star,VR>& A );
-
-    const DistMatrix<T,Star,MR>&
-    operator=( const DistMatrix<T,Star,Star>& A );
+    void SetToRandomHPD();
 };
 
-} // elemental
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+class DistMatrix<std::complex<R>,Star,MR> 
+: public DistMatrixBase<std::complex<R>,Star,MR>
+{
+protected:
+    typedef std::complex<R> C;
+    typedef DistMatrixBase<C,Star,MR> DMB;
+
+public:
+    DistMatrix
+    ( const Grid& grid );
+
+    DistMatrix
+    ( int height, int width, const Grid& grid );
+
+    DistMatrix
+    ( bool constrainedRowAlignment, int rowAlignment, const Grid& grid );
+
+    DistMatrix
+    ( int height, int width,
+      bool constrainedRowAlignment, int rowAlignment, const Grid& grid );
+
+    DistMatrix
+    ( const DistMatrix<C,Star,MR>& A );
+
+    ~DistMatrix();
+    
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,MC,MR>& A );
+
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,MC,Star>& A );
+
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,Star,MR>& A );
+
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,MD,Star>& A );
+
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,Star,MD>& A );
+
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,MR,MC>& A );
+
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,MR,Star>& A );
+
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,Star,MC>& A );
+    
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,VC,Star>& A );
+
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,Star,VC>& A );
+    
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,VR,Star>& A );
+
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,Star,VR>& A );
+
+    const DistMatrix<C,Star,MR>&
+    operator=( const DistMatrixBase<C,Star,Star>& A );
+
+    //------------------------------------------------------------------------//
+    // Fulfillments of abstract virtual func's from AbstractDistMatrixBase    //
+    //------------------------------------------------------------------------//
+
+    //
+    // Non-collective routines
+    //
+
+    // (empty)
+
+    //
+    // Collective routines
+    //
+
+    void SetToRandomHPD();
+
+    //------------------------------------------------------------------------//
+    // Fulfillments of abstract virtual func's from AbstractDistMatrix        //
+    //------------------------------------------------------------------------//
+
+    //
+    // Non-collective routines
+    //
+
+    // (empty)
+
+    //
+    // Collective routines
+    //
+
+    R GetReal( int i, int j ) const;
+    R GetImag( int i, int j ) const;
+    void SetReal( int i, int j, R u );
+    void SetImag( int i, int j, R u );
+};
+#endif
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
+//
+// DistMatrixBase[* ,MR]
+//
+
 template<typename T>
 inline
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::DistMatrix
-( const Grid& grid )
-: _viewing(false), _lockedView(false),
-  _height(0), _width(0), _auxMemory(), _localMatrix(),
-  _constrainedRowDist(false), _rowAlignment(0), _rowShift(grid.MRRank()),
-  _grid(&grid)
+DistMatrixBase<T,Star,MR>::DistMatrixBase
+( int height,
+  int width,
+  bool constrainedRowAlignment,
+  int rowAlignment,
+  int rowShift,
+  const Grid& grid )
+: ADM(height,width,false,constrainedRowAlignment,0,rowAlignment,0,rowShift,grid)
 { }
 
 template<typename T>
 inline
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::DistMatrix
+DistMatrixBase<T,Star,MR>::~DistMatrixBase()
+{ }
+
+//
+// Real DistMatrix[* ,MR]
+//
+
+template<typename R>
+inline
+DistMatrix<R,Star,MR>::DistMatrix
+( const Grid& grid )
+: DMB(0,0,false,0,grid.MRRank(),grid)
+{ }
+
+template<typename R>
+inline
+DistMatrix<R,Star,MR>::DistMatrix
 ( int height, int width, const Grid& grid )
-: _viewing(false), _lockedView(false),
-  _height(height), _width(width), _auxMemory(),
-  _constrainedRowDist(true), _rowAlignment(0), _rowShift(grid.MRRank()),
-  _grid(&grid)
-{ 
+: DMB(height,width,false,0,grid.MRRank(),grid)
+{
 #ifndef RELEASE
-    PushCallStack("DistMatrix[* ,MR]::DistMatrix(height,width)");
-    if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+    PushCallStack("DistMatrix[* ,MR]::DistMatrix");
 #endif
-    _localMatrix.ResizeTo
+    DMB::LocalMatrix().ResizeTo
     ( height, utilities::LocalLength( width, grid.MRRank(), grid.Width() ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T>
+template<typename R>
 inline
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::DistMatrix
-( bool constrainedRowDist, int rowAlignment, const Grid& grid )
-: _viewing(false), _lockedView(false),
-  _height(0), _width(0), _auxMemory(), _localMatrix(),
-  _constrainedRowDist(constrainedRowDist),
-  _rowAlignment(rowAlignment), _grid(&grid)
-{ 
-#ifndef RELEASE
-    PushCallStack("DistMatrix[* ,MR]::DistMatrix(rowAlign)");
-    if( rowAlignment < 0 || rowAlignment >= grid.Width() )
-        throw "rowAlignment for [*,MR] must be in [0,c-1] (rxc grid).";
-#endif
-    _rowShift = utilities::Shift( grid.MRRank(), rowAlignment, grid.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+DistMatrix<R,Star,MR>::DistMatrix
+( bool constrainedRowAlignment, int rowAlignment, const Grid& grid )
+: DMB(0,0,constrainedRowAlignment,rowAlignment,
+      utilities::Shift( grid.MRRank(), rowAlignment, grid.Width() ),grid)
+{ }
 
-template<typename T>
+template<typename R>
 inline
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::DistMatrix
+DistMatrix<R,Star,MR>::DistMatrix
 ( int height, int width,
-  bool constrainedRowDist, int rowAlignment, const Grid& grid )
-: _viewing(false), _lockedView(false),
-  _height(height), _width(width), _auxMemory(),
-  _constrainedRowDist(constrainedRowDist),
-  _rowAlignment(rowAlignment), _grid(&grid)
+  bool constrainedRowAlignment, int rowAlignment, const Grid& grid )
+: DMB(height,width,constrainedRowAlignment,rowAlignment,
+      utilities::Shift( grid.MRRank(), rowAlignment, grid.Width() ),grid)
 { 
 #ifndef RELEASE
-    PushCallStack("DistMatrix[* ,MR]::DistMatrix(m,n,rowAlign)");
-    if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
-    if( rowAlignment < 0 || rowAlignment >= grid.Width() )
-        throw "rowAlignment for [*,MR] must be in [0,c-1] (rxc grid).";
+    PushCallStack("DistMatrix[* ,MR]::DistMatrix");
 #endif
-    _rowShift = utilities::Shift( grid.MRRank(), _rowAlignment, grid.Width() );
-    _localMatrix.ResizeTo
-    ( height, utilities::LocalLength(width,_rowShift,grid.Width()) );
+    DMB::LocalMatrix().ResizeTo
+    ( height, utilities::LocalLength( width, DMB::RowShift(), grid.Width() ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T>
+template<typename R>
 inline
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::DistMatrix
-( const DistMatrix<T,elemental::Star,elemental::MR>& A )
-: _viewing(false), _lockedView(false),
-  _constrainedRowDist(A.ConstrainedRowDist()),
-  _rowAlignment(A.RowAlignment()), _rowShift(A.RowShift()),
-  _grid( &( A.GetGrid() ) )
+DistMatrix<R,Star,MR>::DistMatrix
+( const DistMatrix<R,Star,MR>& A )
+: DMB(0,0,false,0,0,A.GetGrid())
 {
 #ifndef RELEASE
-    PushCallStack
-    ("DistMatrix[* ,MR]::DistMatrix( const DistMatrix[* ,MR]& )");
+    PushCallStack("DistMatrix[* ,MR]::DistMatrix");
 #endif
     if( &A != this )
         *this = A;
     else
-        throw "You just tried to construct a [*,MR] with itself!";
+        throw "Attempted to construct a [* ,MR] with itself.";
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T>
+template<typename R>
 inline
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::~DistMatrix()
+DistMatrix<R,Star,MR>::~DistMatrix()
 { }
 
-template<typename T>
-inline const elemental::Grid& 
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::GetGrid() const
-{ return *_grid; }
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,MC,MR>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline bool
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::Viewing() const
-{ return _viewing; }
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,MC,Star>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline int
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::Height() const
-{ return _height; }
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,Star,MR>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline int
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::Width() const
-{ return _width; }
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,MD,Star>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline T&
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::LocalEntry
-( int i, int j )
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,Star,MD>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,MR,MC>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,MR,Star>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,Star,MC>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,VC,Star>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,Star,VC>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,VR,Star>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,Star,VR>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<R,Star,MR>&
+DistMatrix<R,Star,MR>::operator=
+( const DistMatrixBase<R,Star,Star>& A )
+{ DMB::operator=( A ); return *this; }
+
+//
+// Complex DistMatrix[* ,MR]
+//
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline
+DistMatrix<std::complex<R>,Star,MR>::DistMatrix
+( const Grid& grid )
+: DMB(0,0,false,0,grid.MRRank(),grid)
+{ }
+
+template<typename R>
+inline
+DistMatrix<std::complex<R>,Star,MR>::DistMatrix
+( int height, int width, const Grid& grid )
+: DMB(height,width,false,0,grid.MRRank(),grid)
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[* ,MR]::LocalEntry(i,j)");
-    if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
-    if( _viewing && _lockedView )
-        throw "Cannot alter data with locked view.";
+    PushCallStack("DistMatrix[* ,MR]::DistMatrix");
 #endif
-    T& value = _localMatrix(i,j);
+    DMB::LocalMatrix().ResizeTo
+    ( height, utilities::LocalLength( width, grid.MRRank(), grid.Width() ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return value;
 }
 
-template<typename T>
-inline T
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::LocalEntry
-( int i, int j ) const
-{
+template<typename R>
+inline
+DistMatrix<std::complex<R>,Star,MR>::DistMatrix
+( bool constrainedRowAlignment, int rowAlignment, const Grid& grid )
+: DMB(0,0,constrainedRowAlignment,rowAlignment,
+      utilities::Shift( grid.MRRank(), rowAlignment, grid.Width() ),grid)
+{ }
+
+template<typename R>
+inline
+DistMatrix<std::complex<R>,Star,MR>::DistMatrix
+( int height, int width,
+  bool constrainedRowAlignment, int rowAlignment, const Grid& grid )
+: DMB(height,width,constrainedRowAlignment,rowAlignment,
+      utilities::Shift( grid.MRRank(), rowAlignment, grid.Width() ),grid)
+{ 
 #ifndef RELEASE
-    PushCallStack("DistMatrix[* ,MR]::LocalEntry(i,j)");
-    if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
+    PushCallStack("DistMatrix[* ,MR]::DistMatrix");
 #endif
-    T value = _localMatrix(i,j);
+    DMB::LocalMatrix().ResizeTo
+    ( height, utilities::LocalLength( width, DMB::RowShift(), grid.Width() ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return value;
 }
 
-template<typename T>
-inline elemental::Matrix<T>&
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::LocalMatrix()
+template<typename R>
+inline
+DistMatrix<std::complex<R>,Star,MR>::DistMatrix
+( const DistMatrix<std::complex<R>,Star,MR>& A )
+: DMB(0,0,false,0,0,A.GetGrid())
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrix[* ,MR]::LocalMatrix");
-    if( _viewing && _lockedView )
-        throw "Cannot alter data with locked view.";
+    PushCallStack("DistMatrix[* ,MR]::DistMatrix");
+#endif
+    if( &A != this )
+        *this = A;
+    else
+        throw "Attempted to construct a [* ,MR] with itself.";
+#ifndef RELEASE
     PopCallStack();
 #endif
-    return _localMatrix;
 }
 
-template<typename T>
-inline const elemental::Matrix<T>&
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::LockedLocalMatrix() 
-const
-{ return _localMatrix; }
+template<typename R>
+inline
+DistMatrix<std::complex<R>,Star,MR>::~DistMatrix()
+{ }
 
-template<typename T>
-inline int
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::LocalHeight() const
-{ return _localMatrix.Height(); }
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,MC,MR>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline int
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::LocalWidth() const
-{ return _localMatrix.Width(); }
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,MC,Star>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline int
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::LocalLDim() const
-{ return _localMatrix.LDim(); }
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,Star,MR>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline bool
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::ConstrainedColDist() 
-const
-{ return false; }
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,MD,Star>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline bool
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::ConstrainedRowDist() 
-const
-{ return _constrainedRowDist; }
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,Star,MD>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline int
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::ColAlignment() const
-{ return 0; }
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,MR,MC>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline int
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::RowAlignment() const
-{ return _rowAlignment; }
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,MR,Star>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline int
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::ColShift() const
-{ return 0; }
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,Star,MC>& A )
+{ DMB::operator=( A ); return *this; }
 
-template<typename T>
-inline int
-elemental::DistMatrix<T,elemental::Star,elemental::MR>::RowShift() const
-{ return _rowShift; }
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,VC,Star>& A )
+{ DMB::operator=( A ); return *this; }
 
-#endif /* ELEMENTAL_DISTMATRIX_STAR_MR_HPP */
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,Star,VC>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,VR,Star>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,Star,VR>& A )
+{ DMB::operator=( A ); return *this; }
+
+template<typename R>
+inline const DistMatrix<std::complex<R>,Star,MR>&
+DistMatrix<std::complex<R>,Star,MR>::operator=
+( const DistMatrixBase<std::complex<R>,Star,Star>& A )
+{ DMB::operator=( A ); return *this; }
+#endif // WITHOUT_COMPLEX
+
+} // elemental
+
+#endif /* ELEMENTAL_DIST_MATRIX_STAR_MR_HPP */
+

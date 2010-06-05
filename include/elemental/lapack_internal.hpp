@@ -1,20 +1,11 @@
 /*
-   Copyright 2009-2010 Jack Poulson
+   This file is part of elemental, a library for distributed-memory dense 
+   linear algebra.
 
-   This file is part of Elemental.
+   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   Elemental is free software: you can redistribute it and/or modify it under
-   the terms of the GNU Lesser General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or 
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful, but 
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Elemental. If not, see <http://www.gnu.org/licenses/>.
+   This program is released under the terms of the license contained in the 
+   file LICENSE.
 */
 #ifndef ELEMENTAL_LAPACK_INTERNAL_HPP
 #define ELEMENTAL_LAPACK_INTERNAL_HPP 1
@@ -181,13 +172,31 @@ template<typename R>
 R 
 Reflector( DistMatrix<R,MC,MR>& x );
 
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+std::complex<R>
+Reflector( DistMatrix<std::complex<R>,MC,MR>& x );
+#endif
+
 template<typename R>
 R 
 LocalColReflector( DistMatrix<R,MC,MR>& x );
 
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+std::complex<R>
+LocalColReflector( DistMatrix<std::complex<R>,MC,MR>& x );
+#endif
+
 template<typename R>
 R
 LocalRowReflector( DistMatrix<R,MC,MR>& x );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+std::complex<R>
+LocalRowReflector( DistMatrix<std::complex<R>,MC,MR>& x );
+#endif
 
 template<typename R>
 void
@@ -195,17 +204,35 @@ PanelTridiagL
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MD,Star>& e,
-  DistMatrix<R,MD,Star>& t,
-  DistMatrix<R,MC,Star>& A_MC_Star,
-  DistMatrix<R,MR,Star>& A_MR_Star );
+  DistMatrix<R,MD,Star>& t );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+PanelTridiagL
+( DistMatrix<std::complex<R>,MC,MR  >& A,
+  DistMatrix<std::complex<R>,MC,MR  >& W,
+  DistMatrix<R,              MD,Star>& e,
+  DistMatrix<std::complex<R>,MD,Star>& t );
+#endif
  
 template<typename R>
 void
 PanelTridiagU
-( DistMatrix<R,MC,MR  >& A,
-  DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MD,Star>& e,
-  DistMatrix<R,MD,Star>& t );
+( DistMatrix<R,MC,  MR  >& A,
+  DistMatrix<R,MC,  MR  >& W,
+  DistMatrix<R,MD,  Star>& e,
+  DistMatrix<R,MD,  Star>& t );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+PanelTridiagU
+( DistMatrix<std::complex<R>,MC,  MR  >& A,
+  DistMatrix<std::complex<R>,MC,  MR  >& W,
+  DistMatrix<R,              MD,  Star>& e,
+  DistMatrix<std::complex<R>,MD,  Star>& t );
+#endif
 
 template<typename R>
 void
@@ -215,6 +242,16 @@ TridiagL
   DistMatrix<R,MD,Star>& e,
   DistMatrix<R,MD,Star>& t );
 
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+TridiagL
+( DistMatrix<std::complex<R>,MC,MR  >& A,
+  DistMatrix<R,              MD,Star>& d,
+  DistMatrix<R,              MD,Star>& e,
+  DistMatrix<std::complex<R>,MD,Star>& t );
+#endif
+
 template<typename R>
 void
 TridiagU
@@ -222,6 +259,16 @@ TridiagU
   DistMatrix<R,MD,Star>& d,
   DistMatrix<R,MD,Star>& e,
   DistMatrix<R,MD,Star>& t );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+TridiagU
+( DistMatrix<std::complex<R>,MC,MR  >& A,
+  DistMatrix<R,              MD,Star>& d,
+  DistMatrix<R,              MD,Star>& e,
+  DistMatrix<std::complex<R>,MD,Star>& t );
+#endif
 
 //----------------------------------------------------------------------------//
 // Trinv                                                                      //
