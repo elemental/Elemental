@@ -99,11 +99,8 @@ elemental::blas::internal::TrsmLLT
 
         // X0[MC,MR] -= (L10[*,MC])^(T/H) X1[*,MR]
         //            = (L10^(T/H))[MC,*] X1[*,MR]
-        blas::Gemm
-        ( orientation, Normal, 
-          (T)-1, L10_Star_MC.LockedLocalMatrix(),
-                 X1_Star_MR.LockedLocalMatrix(),
-          (T) 1, X0.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( orientation, Normal, (T)-1, L10_Star_MC, X1_Star_MR, (T)1, X0 );
         //--------------------------------------------------------------------//
         L10_Star_MC.FreeAlignments();
         X1_Star_MR.FreeAlignments();

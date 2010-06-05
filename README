@@ -15,11 +15,11 @@ New BSD License
 
 Current Status
 ==============
-- All options of Level 3 BLAS (Gemm, Hemm, Her2k, Herk, Symm, Syr2k, Syrk, Trmm,
-- The Level 3 BLAS is fully functional, as well as Cholesky and LU 
-  factorizations, Gaussian elimination, triangular inversion, and Householder 
-  tridiagonalization. Performance is equivalent or superior to ScaLAPACK for 
-  all tested routines.
+- The Level 3 BLAS is fully functional, as well as Cholesky, LU, and 
+  triangular inversion. Gaussian elimination has been implemented for both 
+  real and complex datatypes, but has not yet been tested. Householder 
+  tridiagonalization functions for real datatypes, but the complex version is 
+  not yet finished. Performance is generally superior to PLAPACK and ScaLAPACK.
 
 Build
 =====

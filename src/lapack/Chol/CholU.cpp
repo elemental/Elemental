@@ -100,22 +100,18 @@ elemental::lapack::internal::CholUVar2
         X12_Star_MR.ResizeTo( A12.Height(), A12.Width() );
         //--------------------------------------------------------------------//
         A01_MC_Star = A01;
-        blas::Gemm
+        blas::internal::LocalGemm
         ( ConjugateTranspose, Normal, 
-          (T)1, A01_MC_Star.LockedLocalMatrix(),
-                A01.LockedLocalMatrix(),
-          (T)0, X11_Star_MR.LocalMatrix() );
+          (T)1, A01_MC_Star, A01, (T)0, X11_Star_MR );
         A11.SumScatterUpdate( (T)-1, X11_Star_MR );
 
         A11_Star_Star = A11;
         lapack::Chol( Upper, A11_Star_Star.LocalMatrix() );
         A11 = A11_Star_Star;
 
-        blas::Gemm
+        blas::internal::LocalGemm
         ( ConjugateTranspose, Normal, 
-          (T)1, A01_MC_Star.LockedLocalMatrix(), 
-                A02.LockedLocalMatrix(), 
-          (T)0, X12_Star_MR.LocalMatrix() );
+          (T)1, A01_MC_Star, A02, (T)0, X12_Star_MR );
         A12.SumScatterUpdate( (T)-1, X12_Star_MR );
 
         A12_Star_VR = A12;

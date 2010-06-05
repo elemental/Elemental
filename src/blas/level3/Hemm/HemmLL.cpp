@@ -116,17 +116,12 @@ elemental::blas::internal::HemmLLC
 
         B1_Star_MR = B1;
 
-        blas::Gemm
-        ( Normal, Normal,
-          alpha, AColPan_MC_Star.LockedLocalMatrix(),
-                 B1_Star_MR.LockedLocalMatrix(),
-          (T)1,  CBelow.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( Normal, Normal, alpha, AColPan_MC_Star, B1_Star_MR, (T)1, CBelow );
 
-        blas::Gemm
-        ( ConjugateTranspose, Normal,
-          alpha, ARowPan_Star_MC.LockedLocalMatrix(),
-                 B1_Star_MR.LockedLocalMatrix(),
-          (T)1,  CAbove.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( ConjugateTranspose, Normal, 
+          alpha, ARowPan_Star_MC, B1_Star_MR, (T)1, CAbove );
         //--------------------------------------------------------------------//
         AColPan_MC_Star.FreeAlignments();
         ARowPan_Star_MC.FreeAlignments();

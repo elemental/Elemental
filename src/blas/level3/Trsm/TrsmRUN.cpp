@@ -88,11 +88,8 @@ elemental::blas::internal::TrsmRUN
         U12_Star_MR = U12;        // U12[*,MR] <- U12[MC,MR]
 
         // X2[MC,MR] -= X1[MC,*] U12[*,MR]
-        blas::Gemm
-        ( Normal, Normal, 
-          (T)-1, X1_MC_Star.LockedLocalMatrix(),
-                 U12_Star_MR.LockedLocalMatrix(),
-          (T) 1, X2.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( Normal, Normal, (T)-1, X1_MC_Star, U12_Star_MR, (T)1, X2 );
         //--------------------------------------------------------------------//
         X1_MC_Star.FreeAlignments();
         U12_Star_MR.FreeAlignments();

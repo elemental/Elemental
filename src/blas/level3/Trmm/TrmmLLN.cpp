@@ -88,11 +88,8 @@ elemental::blas::internal::TrmmLLN
         X1 = X1_Star_VR;
 
         L10_Star_MC = L10;
-        blas::Gemm
-        ( Normal, Normal,
-          (T)1, L10_Star_MC.LockedLocalMatrix(),
-                X0.LockedLocalMatrix(),
-          (T)0, D1_Star_MR.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( Normal, Normal, (T)1, L10_Star_MC, X0, (T)0, D1_Star_MR );
         X1.SumScatterUpdate( (T)1, D1_Star_MR );
         //--------------------------------------------------------------------//
         L10_Star_MC.FreeAlignments();

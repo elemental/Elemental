@@ -103,17 +103,12 @@ elemental::blas::internal::HemmRUC
         ARowPan_Star_MR.MakeTrapezoidal( Left, Upper );
         AColPan_MR_Star.MakeTrapezoidal( Right, Upper, 1 );
 
-        blas::Gemm
-        ( Normal, Normal,
-          alpha, B1_MC_Star.LockedLocalMatrix(),
-                 ARowPan_Star_MR.LockedLocalMatrix(),
-          (T)1,  CRight.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( Normal, Normal, alpha, B1_MC_Star, ARowPan_Star_MR, (T)1, CRight );
 
-        blas::Gemm
+        blas::internal::LocalGemm
         ( Normal, ConjugateTranspose,
-          alpha, B1_MC_Star.LockedLocalMatrix(),
-                 AColPan_MR_Star.LockedLocalMatrix(),
-          (T)1,  CLeft.LocalMatrix() );
+          alpha, B1_MC_Star, AColPan_MR_Star, (T)1, CLeft );
         //--------------------------------------------------------------------//
         B1_MC_Star.FreeAlignments();
         AColPan_MR_Star.FreeAlignments();

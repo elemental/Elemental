@@ -92,11 +92,8 @@ blas::internal::TrsmLUN
         U01_MC_Star = U01;        // U01[MC,*] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,*] X1[*,MR]
-        blas::Gemm
-        ( Normal, Normal, 
-          (T)-1, U01_MC_Star.LockedLocalMatrix(),
-                 X1_Star_MR.LockedLocalMatrix(),
-          (T) 1, X0.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( Normal, Normal, (T)-1, U01_MC_Star, X1_Star_MR, (T)1, X0 );
         //--------------------------------------------------------------------//
         U01_MC_Star.FreeAlignments();
         X1_Star_MR.FreeAlignments();

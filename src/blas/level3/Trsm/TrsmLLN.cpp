@@ -92,11 +92,8 @@ elemental::blas::internal::TrsmLLN
         L21_MC_Star = L21;        // L21[MC,*] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,*] X1[*,MR]
-        blas::Gemm
-        ( Normal, Normal, 
-          (T)-1, L21_MC_Star.LockedLocalMatrix(),
-                 X1_Star_MR.LockedLocalMatrix(),
-          (T) 1, X2.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( Normal, Normal, (T)-1, L21_MC_Star, X1_Star_MR, (T)1, X2 );
         //--------------------------------------------------------------------//
         L21_MC_Star.FreeAlignments();
         X1_Star_MR.FreeAlignments();

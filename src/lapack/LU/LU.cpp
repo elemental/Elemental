@@ -7,11 +7,10 @@
    This program is released under the terms of the license contained in the 
    file LICENSE.
 */
+#include "elemental/blas_internal.hpp"
 #include "elemental/lapack_internal.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::blas;
-using namespace elemental::lapack::internal;
 
 template<typename T>
 void
@@ -84,25 +83,23 @@ elemental::lapack::LU
         A21_VC_Star = A21;
         A11_Star_Star = A11;
 
-        PanelLU
+        lapack::internal::PanelLU
         ( A11_Star_Star, 
           A21_VC_Star, p1_Star_Star, pivotOffset );
-        ComposePivots( p1_Star_Star, image, preimage, pivotOffset );
-        ApplyRowPivots( AB, image, preimage, pivotOffset );
+        lapack::internal::ComposePivots
+        ( p1_Star_Star, image, preimage, pivotOffset );
+        lapack::internal::ApplyRowPivots( AB, image, preimage, pivotOffset );
 
         A12_Star_VR = A12;
-        Trsm
+        blas::Trsm
         ( Left, Lower, Normal, Unit,
           (T)1, A11_Star_Star.LockedLocalMatrix(),
                 A12_Star_VR.LocalMatrix() );
 
         A21Trans_Star_MC.TransposeFrom( A21_VC_Star );
         A12_Star_MR = A12_Star_VR;
-        Gemm
-        ( Transpose, Normal, 
-          (T)-1, A21Trans_Star_MC.LockedLocalMatrix(),
-                 A12_Star_MR.LockedLocalMatrix(),
-          (T) 1, A22.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( Transpose, Normal, (T)-1, A21Trans_Star_MC, A12_Star_MR, (T)1, A22 );
 
         A11 = A11_Star_Star;
         A12 = A12_Star_MR;

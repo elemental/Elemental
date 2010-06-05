@@ -127,11 +127,8 @@ elemental::blas::internal::GemmNNA
         B1Trans_Star_MR.TransposeFrom( B1_VR_Star );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
-        blas::Gemm
-        ( Normal, Transpose, 
-          alpha, A.LockedLocalMatrix(),
-                 B1Trans_Star_MR.LockedLocalMatrix(),
-          (T)0,  D1_MC_Star.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( Normal, Transpose, alpha, A, B1Trans_Star_MR, (T)0, D1_MC_Star );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.SumScatterUpdate( (T)1, D1_MC_Star );
@@ -221,11 +218,8 @@ elemental::blas::internal::GemmNNB
         A1_Star_MC = A1; // A1[*,MC] <- A1[MC,MR]
 
         // D1[*,MR] := alpha A1[*,MC] B[MC,MR]
-        blas::Gemm
-        ( Normal, Normal, 
-          alpha, A1_Star_MC.LockedLocalMatrix(),
-                 B.LockedLocalMatrix(),
-          (T)0,  D1_Star_MR.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( Normal, Normal, alpha, A1_Star_MC, B, (T)0, D1_Star_MR );
 
         // C1[MC,MR] += scattered result of D1[*,MR] summed over grid cols
         C1.SumScatterUpdate( (T)1, D1_Star_MR );
@@ -313,11 +307,8 @@ elemental::blas::internal::GemmNNC
 
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
-        blas::Gemm
-        ( Normal, Transpose, 
-          alpha, A1_MC_Star.LockedLocalMatrix(),
-                 B1Trans_MR_Star.LockedLocalMatrix(),
-          (T)1,  C.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( Normal, Transpose, alpha, A1_MC_Star, B1Trans_MR_Star, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_Star.FreeAlignments();
         B1Trans_MR_Star.FreeAlignments();
@@ -424,11 +415,9 @@ elemental::blas::internal::GemmNNDot
                 C11_Star_Star.ResizeTo( C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 B1_VC_Star = B1;
-                blas::Gemm
-                ( Normal, Normal,
-                  alpha, A1_Star_VC.LockedLocalMatrix(),
-                         B1_VC_Star.LockedLocalMatrix(),
-                  (T)0,  C11_Star_Star.LocalMatrix() );
+                blas::internal::LocalGemm
+                ( Normal, Normal, 
+                  alpha, A1_Star_VC, B1_VC_Star, (T)0, C11_Star_Star );
                 C11.SumScatterUpdate( (T)1, C11_Star_Star );
                 //------------------------------------------------------------//
                 B1_VC_Star.FreeAlignments();
@@ -519,11 +508,9 @@ elemental::blas::internal::GemmNNDot
                 C11_Star_Star.ResizeTo( C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 A1_Star_VR = A1;
-                blas::Gemm
+                blas::internal::LocalGemm
                 ( Normal, Normal,
-                  alpha, A1_Star_VR.LockedLocalMatrix(),
-                         B1_VR_Star.LockedLocalMatrix(),
-                  (T)0,  C11_Star_Star.LocalMatrix() );
+                  alpha, A1_Star_VR, B1_VR_Star, (T)0, C11_Star_Star );
                 C11.SumScatterUpdate( (T)1, C11_Star_Star );
                 //------------------------------------------------------------//
                 A1_Star_VR.FreeAlignments();

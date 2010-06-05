@@ -16,9 +16,89 @@ namespace elemental {
 namespace blas {
 namespace internal {
 
-//----------------------------------------------------------------//
-// Distributed BLAS: Level 1                                      //
-//----------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+// Local BLAS helpers: Level 3                                                //
+//----------------------------------------------------------------------------//
+
+template<typename T, Distribution AColDist, Distribution ARowDist,
+                     Distribution BColDist, Distribution BRowDist,
+                     Distribution CColDist, Distribution CRowDist>
+void 
+LocalGemm
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T,AColDist,ARowDist>& A, 
+           const DistMatrix<T,BColDist,BRowDist>& B,
+  T beta,        DistMatrix<T,CColDist,CRowDist>& C )
+{
+#ifndef RELEASE
+    PushCallStack("blas::internal::LocalGemm");
+    if( orientationOfA == Normal && orientationOfB == Normal )
+    {
+        if( AColDist != CColDist || 
+            ARowDist != BColDist || 
+            BRowDist != CRowDist )
+            throw "C[X,Y] = A[X,Z] B[Z,Y].";
+        if( A.ColAlignment() != C.ColAlignment() )
+            throw "A's cols must align with C's rows.";
+        if( A.RowAlignment() != B.ColAlignment() )
+            throw "A's rows must align with B's cols.";
+        if( B.RowAlignment() != C.RowAlignment() )
+            throw "B's rows must align with C's rows.";
+    }
+    else if( orientationOfA == Normal )
+    {
+        if( AColDist != CColDist ||
+            ARowDist != BRowDist ||
+            BColDist != CRowDist )
+            throw "C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)";
+        if( A.ColAlignment() != C.ColAlignment() )
+            throw "A's cols must align with C's rows.";
+        if( A.RowAlignment() != B.RowAlignment() )
+            throw "A's rows must align with B's rows.";
+        if( B.ColAlignment() != C.RowAlignment() )
+            throw "B's cols must align with C's rows.";
+    }
+    else if( orientationOfB == Normal )
+    {
+        if( ARowDist != CColDist ||
+            AColDist != BColDist ||
+            BRowDist != CRowDist )
+            throw "C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]";
+        if( A.RowAlignment() != C.ColAlignment() )
+            throw "A's rows must align with C's cols.";
+        if( A.ColAlignment() != B.ColAlignment() )
+            throw "A's cols must align with B's cols.";
+        if( B.RowAlignment() != C.RowAlignment() )
+            throw "B's rows must align with C's rows.";
+    }
+    else
+    {
+        if( ARowDist != CColDist ||
+            AColDist != BRowDist ||
+            BColDist != CRowDist )
+            throw "C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)";
+        if( A.RowAlignment() != C.ColAlignment() )
+            throw "A's rows must align with C's cols.";
+        if( A.ColAlignment() != B.RowAlignment() )
+            throw "A's cols must align with B's rows.";
+        if( B.ColAlignment() != C.RowAlignment() )
+            throw "B's cols must align with C's rows.";
+    }
+#endif
+    blas::Gemm
+    ( orientationOfA , orientationOfB, 
+      alpha, A.LockedLocalMatrix(), B.LockedLocalMatrix(),
+      beta, C.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// TODO: Finish adding wrappers for Local BLAS
+
+//----------------------------------------------------------------------------//
+// Distributed BLAS helpers: Level 1                                          //
+//----------------------------------------------------------------------------//
             
 // Pseudo-partial-specializations of BLAS::Dot
 template<typename T, Distribution U, Distribution V>
@@ -26,6 +106,7 @@ T
 Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 
+#ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template<typename T, Distribution U, Distribution V>
 T
 Dot
@@ -75,6 +156,7 @@ template<typename T, Distribution U, Distribution V>
 T
 Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,Star>& y );
+#endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 // Pseudo-partial-specializations of BLAS::Dotu
 template<typename T, Distribution U, Distribution V>
@@ -82,6 +164,7 @@ T
 Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 
+#ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template<typename T, Distribution U, Distribution V>
 T
 Dotu
@@ -131,9 +214,10 @@ template<typename T, Distribution U, Distribution V>
 T
 Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,Star>& y );
+#endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 //----------------------------------------------------------------------------//
-// Distributed BLAS: Level 2                                                  //
+// Distributed BLAS helpers: Level 2                                          //
 //----------------------------------------------------------------------------//
             
 // Gemv where A is not transposed
@@ -372,7 +456,7 @@ TrsvUT
   const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& x );
 
 //----------------------------------------------------------------------------//
-// Distributed BLAS: Level 3                                                  //
+// Distributed BLAS helpers: Level 3                                          //
 //----------------------------------------------------------------------------//
 
 // Gemm where we avoid redistributing A.

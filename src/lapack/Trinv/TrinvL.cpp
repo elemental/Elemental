@@ -7,6 +7,7 @@
    This program is released under the terms of the license contained in the 
    file LICENSE.
 */
+#include "elemental/blas_internal.hpp"
 #include "elemental/lapack_internal.hpp"
 using namespace std;
 using namespace elemental;
@@ -76,11 +77,8 @@ elemental::lapack::internal::TrinvLVar3
 
         L21_MC_Star = L21;
         L10_Star_MR = L10_Star_VR;
-        blas::Gemm
-        ( Normal, Normal,
-          (T)1, L21_MC_Star.LockedLocalMatrix(),
-                L10_Star_MR.LockedLocalMatrix(),
-          (T)1, L20.LocalMatrix()               );
+        blas::internal::LocalGemm
+        ( Normal, Normal, (T)1, L21_MC_Star, L10_Star_MR, (T)1, L20 );
         L10 = L10_Star_MR;
 
         L21_VC_Star = L21_MC_Star;

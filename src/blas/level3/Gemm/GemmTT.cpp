@@ -38,8 +38,8 @@ elemental::blas::internal::GemmTT
         if( A.GetGrid().VCRank() == 0 )
             cout << "  GemmTT routing to GemmTTB." << endl;
 #endif
-        blas::internal::GemmTTB( orientationOfA, orientationOfB, 
-                                  alpha, A, B, beta, C );
+        blas::internal::GemmTTB
+        ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else if( n <= m && weightTowardsC*n <= k )
     {
@@ -47,8 +47,8 @@ elemental::blas::internal::GemmTT
         if( A.GetGrid().VCRank() == 0 )
             cout << "  GemmTT routing to GemmTTA." << endl;
 #endif
-        blas::internal::GemmTTA( orientationOfA, orientationOfB,
-                                  alpha, A, B, beta, C );
+        blas::internal::GemmTTA
+        ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else
     {
@@ -56,8 +56,8 @@ elemental::blas::internal::GemmTT
         if( A.GetGrid().VCRank() == 0 )
             cout << "  GemmTT routing to GemmTTC." << endl;
 #endif
-        blas::internal::GemmTTC( orientationOfA, orientationOfB,
-                                  alpha, A, B, beta, C );
+        blas::internal::GemmTTC
+        ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -136,11 +136,9 @@ elemental::blas::internal::GemmTTA
 
         // D1[MR,*] := alpha (A[MC,MR])^T (B1[*,MC])^T
         //           = alpha (A^T)[MR,MC] (B1^T)[MC,*]
-        blas::Gemm
-        ( orientationOfA, orientationOfB,
-          alpha, A.LockedLocalMatrix(),
-                 B1_Star_MC.LockedLocalMatrix(),
-          (T)0,  D1_MR_Star.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( orientationOfA, orientationOfB, 
+          alpha, A, B1_Star_MC, (T)0, D1_MR_Star );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
         D1_MR_MC.SumScatterFrom( D1_MR_Star );
@@ -238,11 +236,9 @@ elemental::blas::internal::GemmTTB
  
         // D1[*,MC] := alpha (A1[MR,*])^T (B[MC,MR])^T
         //           = alpha (A1^T)[*,MR] (B^T)[MR,MC]
-        blas::Gemm
-        ( orientationOfA, orientationOfB,
-          alpha, A1_MR_Star.LockedLocalMatrix(),
-                 B.LockedLocalMatrix(),
-          (T)0,  D1_Star_MC.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( orientationOfA, orientationOfB, 
+          alpha, A1_MR_Star, B, (T)0, D1_Star_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
         D1_MR_MC.SumScatterFrom( D1_Star_MC );
@@ -337,11 +333,9 @@ elemental::blas::internal::GemmTTC
 
         // C[MC,MR] += alpha (A1[*,MC])^T (B1[MR,*])^T
         //           = alpha (A1^T)[MC,*] (B1^T)[*,MR]
-        blas::Gemm
+        blas::internal::LocalGemm
         ( orientationOfA, orientationOfB, 
-          alpha, A1_Star_MC.LockedLocalMatrix(),
-                 B1_MR_Star.LockedLocalMatrix(),
-          (T)1,  C.LocalMatrix() );
+          alpha, A1_Star_MC, B1_MR_Star, (T)1, C );
         //--------------------------------------------------------------------//
         A1_Star_MC.FreeAlignments();
         B1_MR_Star.FreeAlignments();

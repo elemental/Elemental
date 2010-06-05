@@ -126,11 +126,8 @@ elemental::blas::internal::GemmTNA
 
         // D1[MR,*] := alpha (A1[MC,MR])^T B1[MC,*]
         //           = alpha (A1^T)[MR,MC] B1[MC,*]
-        blas::Gemm
-        ( orientationOfA, Normal, 
-          alpha, A.LockedLocalMatrix(),
-                 B1_MC_Star.LockedLocalMatrix(),
-          (T)0,  D1_MR_Star.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( orientationOfA, Normal, alpha, A, B1_MC_Star, (T)0, D1_MR_Star );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
         D1_MR_MC.SumScatterFrom( D1_MR_Star );
@@ -222,11 +219,8 @@ elemental::blas::internal::GemmTNB
 
         // D1[*,MR] := alpha (A1[MC,*])^T B[MC,MR]
         //           = alpha (A1^T)[*,MC] B[MC,MR]
-        blas::Gemm
-        ( orientationOfA, Normal, 
-          alpha, A1_MC_Star.LockedLocalMatrix(),
-                 B.LockedLocalMatrix(),
-          (T)0,  D1_Star_MR.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( orientationOfA, Normal, alpha, A1_MC_Star, B, (T)0, D1_Star_MR );
 
         // C1[MC,MR] += scattered result of D1[*,MR] summed over grid cols
         C1.SumScatterUpdate( (T)1, D1_Star_MR );
@@ -322,11 +316,8 @@ elemental::blas::internal::GemmTNC
 
         // C[MC,MR] += alpha (A1[*,MC])^T B1[*,MR]
         //           = alpha (A1^T)[MC,*] B1[*,MR]
-        blas::Gemm
-        ( orientationOfA, Normal, 
-          alpha, A1_Star_MC.LockedLocalMatrix(),
-                 B1_Star_MR.LockedLocalMatrix(),
-          (T)1,  C.LocalMatrix() );
+        blas::internal::LocalGemm
+        ( orientationOfA, Normal, alpha, A1_Star_MC, B1_Star_MR, (T)1, C );
         //--------------------------------------------------------------------//
         A1_Star_MC.FreeAlignments();
         B1_Star_MR.FreeAlignments();

@@ -2983,14 +2983,8 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
             const int localWidth = this->LocalWidth();
             const int maxLocalWidth = MaxLocalLength(width,c);
 
-            cout << "localHeight: " << localHeight << endl;
-            cout << "localWidth,maxLocalWidth: " << localWidth << "," 
-                 << maxLocalWidth << endl;
-
             const int portionSize = 
                 max(localHeight*maxLocalWidth,MinCollectContrib);
-
-            cout << "portionSize: " << portionSize << endl;
 
             this->_auxMemory.Require( (c+1)*portionSize );
 

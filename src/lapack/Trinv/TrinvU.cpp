@@ -7,6 +7,7 @@
    This program is released under the terms of the license contained in the 
    file LICENSE.
 */
+#include "elemental/blas_internal.hpp"
 #include "elemental/lapack_internal.hpp"
 using namespace std;
 using namespace elemental;
@@ -81,11 +82,9 @@ elemental::lapack::internal::TrinvUVar3
         U12Trans_MR_Star.TransposeFrom( U12 );
         U01Trans_Star_MC.TransposeFrom( U01_VC_Star );
 
-        blas::Gemm
-        ( Transpose, Transpose,
-          (T)1, U01Trans_Star_MC.LockedLocalMatrix(),
-                U12Trans_MR_Star.LockedLocalMatrix(),
-          (T)1, U02.LocalMatrix()                    );
+        blas::internal::LocalGemm
+        ( Transpose, Transpose, 
+          (T)1, U01Trans_Star_MC, U12Trans_MR_Star, (T)1, U02 );
         U01.TransposeFrom( U01Trans_Star_MC );
 
         U12_Star_VR.TransposeFrom( U12Trans_MR_Star );
