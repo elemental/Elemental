@@ -70,10 +70,8 @@ elemental::lapack::internal::TrinvLVar3
         L11 = L11_Star_Star;
 
         L10_Star_VR = L10;
-        blas::Trmm
-        ( Left, Lower, Normal, diagonal,
-          (T)-1, L11_Star_Star.LockedLocalMatrix(),
-                 L10_Star_VR.LocalMatrix()         );
+        blas::internal::LocalTrmm
+        ( Left, Lower, Normal, diagonal, (T)-1, L11_Star_Star, L10_Star_VR );
 
         L21_MC_Star = L21;
         L10_Star_MR = L10_Star_VR;
@@ -82,10 +80,8 @@ elemental::lapack::internal::TrinvLVar3
         L10 = L10_Star_MR;
 
         L21_VC_Star = L21_MC_Star;
-        blas::Trmm
-        ( Right, Lower, Normal, diagonal,
-          (T)1, L11_Star_Star.LockedLocalMatrix(),
-                L21_VC_Star.LocalMatrix()         );
+        blas::internal::LocalTrmm
+        ( Right, Lower, Normal, diagonal, (T)1, L11_Star_Star, L21_VC_Star );
         L21 = L21_VC_Star;
         //--------------------------------------------------------------------//
         L10_Star_MR.FreeAlignments();

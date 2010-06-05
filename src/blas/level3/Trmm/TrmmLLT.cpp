@@ -87,10 +87,8 @@ elemental::blas::internal::TrmmLLT
         //--------------------------------------------------------------------//
         X1_Star_VR = X1;
         L11_Star_Star = L11;
-        blas::Trmm
-        ( Left, Lower, orientation, diagonal,
-          (T)1, L11_Star_Star.LockedLocalMatrix(),
-                X1_Star_VR.LocalMatrix() );
+        blas::internal::LocalTrmm
+        ( Left, Lower, orientation, diagonal, (T)1, L11_Star_Star, X1_Star_VR );
         X1 = X1_Star_VR;
  
         L21_MC_Star = L21;

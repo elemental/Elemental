@@ -28,71 +28,21 @@ LocalGemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,AColDist,ARowDist>& A, 
            const DistMatrix<T,BColDist,BRowDist>& B,
-  T beta,        DistMatrix<T,CColDist,CRowDist>& C )
-{
-#ifndef RELEASE
-    PushCallStack("blas::internal::LocalGemm");
-    if( orientationOfA == Normal && orientationOfB == Normal )
-    {
-        if( AColDist != CColDist || 
-            ARowDist != BColDist || 
-            BRowDist != CRowDist )
-            throw "C[X,Y] = A[X,Z] B[Z,Y].";
-        if( A.ColAlignment() != C.ColAlignment() )
-            throw "A's cols must align with C's rows.";
-        if( A.RowAlignment() != B.ColAlignment() )
-            throw "A's rows must align with B's cols.";
-        if( B.RowAlignment() != C.RowAlignment() )
-            throw "B's rows must align with C's rows.";
-    }
-    else if( orientationOfA == Normal )
-    {
-        if( AColDist != CColDist ||
-            ARowDist != BRowDist ||
-            BColDist != CRowDist )
-            throw "C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)";
-        if( A.ColAlignment() != C.ColAlignment() )
-            throw "A's cols must align with C's rows.";
-        if( A.RowAlignment() != B.RowAlignment() )
-            throw "A's rows must align with B's rows.";
-        if( B.ColAlignment() != C.RowAlignment() )
-            throw "B's cols must align with C's rows.";
-    }
-    else if( orientationOfB == Normal )
-    {
-        if( ARowDist != CColDist ||
-            AColDist != BColDist ||
-            BRowDist != CRowDist )
-            throw "C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]";
-        if( A.RowAlignment() != C.ColAlignment() )
-            throw "A's rows must align with C's cols.";
-        if( A.ColAlignment() != B.ColAlignment() )
-            throw "A's cols must align with B's cols.";
-        if( B.RowAlignment() != C.RowAlignment() )
-            throw "B's rows must align with C's rows.";
-    }
-    else
-    {
-        if( ARowDist != CColDist ||
-            AColDist != BRowDist ||
-            BColDist != CRowDist )
-            throw "C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)";
-        if( A.RowAlignment() != C.ColAlignment() )
-            throw "A's rows must align with C's cols.";
-        if( A.ColAlignment() != B.RowAlignment() )
-            throw "A's cols must align with B's rows.";
-        if( B.ColAlignment() != C.RowAlignment() )
-            throw "B's cols must align with C's rows.";
-    }
-#endif
-    blas::Gemm
-    ( orientationOfA , orientationOfB, 
-      alpha, A.LockedLocalMatrix(), B.LockedLocalMatrix(),
-      beta, C.LocalMatrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+  T beta,        DistMatrix<T,CColDist,CRowDist>& C );
+
+template<typename T, Distribution BColDist, Distribution BRowDist>
+void
+LocalTrmm
+( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,Star,Star>& A,
+                 DistMatrix<T,BColDist,BRowDist>& B );
+
+template<typename T, Distribution XColDist, Distribution XRowDist>
+void
+LocalTrsm
+( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,Star,Star>& A, 
+                 DistMatrix<T,XColDist,XRowDist>& X );
 
 // TODO: Finish adding wrappers for Local BLAS
 
@@ -1153,7 +1103,130 @@ namespace elemental {
 namespace blas {
 namespace internal {
 
+//
+// Level 3 Local BLAS helpers
+//
+
+template<typename T, Distribution AColDist, Distribution ARowDist,
+                     Distribution BColDist, Distribution BRowDist,
+                     Distribution CColDist, Distribution CRowDist>
+void 
+LocalGemm
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T,AColDist,ARowDist>& A, 
+           const DistMatrix<T,BColDist,BRowDist>& B,
+  T beta,        DistMatrix<T,CColDist,CRowDist>& C )
+{
+#ifndef RELEASE
+    PushCallStack("blas::internal::LocalGemm");
+    if( orientationOfA == Normal && orientationOfB == Normal )
+    {
+        if( AColDist != CColDist || 
+            ARowDist != BColDist || 
+            BRowDist != CRowDist )
+            throw "C[X,Y] = A[X,Z] B[Z,Y].";
+        if( A.ColAlignment() != C.ColAlignment() )
+            throw "A's cols must align with C's rows.";
+        if( A.RowAlignment() != B.ColAlignment() )
+            throw "A's rows must align with B's cols.";
+        if( B.RowAlignment() != C.RowAlignment() )
+            throw "B's rows must align with C's rows.";
+    }
+    else if( orientationOfA == Normal )
+    {
+        if( AColDist != CColDist ||
+            ARowDist != BRowDist ||
+            BColDist != CRowDist )
+            throw "C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)";
+        if( A.ColAlignment() != C.ColAlignment() )
+            throw "A's cols must align with C's rows.";
+        if( A.RowAlignment() != B.RowAlignment() )
+            throw "A's rows must align with B's rows.";
+        if( B.ColAlignment() != C.RowAlignment() )
+            throw "B's cols must align with C's rows.";
+    }
+    else if( orientationOfB == Normal )
+    {
+        if( ARowDist != CColDist ||
+            AColDist != BColDist ||
+            BRowDist != CRowDist )
+            throw "C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]";
+        if( A.RowAlignment() != C.ColAlignment() )
+            throw "A's rows must align with C's cols.";
+        if( A.ColAlignment() != B.ColAlignment() )
+            throw "A's cols must align with B's cols.";
+        if( B.RowAlignment() != C.RowAlignment() )
+            throw "B's rows must align with C's rows.";
+    }
+    else
+    {
+        if( ARowDist != CColDist ||
+            AColDist != BRowDist ||
+            BColDist != CRowDist )
+            throw "C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)";
+        if( A.RowAlignment() != C.ColAlignment() )
+            throw "A's rows must align with C's cols.";
+        if( A.ColAlignment() != B.RowAlignment() )
+            throw "A's cols must align with B's rows.";
+        if( B.ColAlignment() != C.RowAlignment() )
+            throw "B's cols must align with C's rows.";
+    }
+#endif
+    blas::Gemm
+    ( orientationOfA , orientationOfB, 
+      alpha, A.LockedLocalMatrix(), B.LockedLocalMatrix(),
+      beta, C.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T, Distribution BColDist, Distribution BRowDist>
+void
+LocalTrmm
+( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,Star,Star>& A,
+                 DistMatrix<T,BColDist,BRowDist>& B )
+{
+#ifndef RELEASE
+    PushCallStack("blas::internal::LocalTrmm");
+    if( (side == Left && BColDist != Star) || 
+        (side == Right && BRowDist != Star) )
+        throw "Distribution of RHS must conform with that of triangle.";
+#endif
+    blas::Trmm
+    ( side, shape, orientation, diagonal, 
+      alpha, A.LockedLocalMatrix(), B.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T, Distribution XColDist, Distribution XRowDist>
+void
+LocalTrsm
+( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,Star,Star>& A, 
+                 DistMatrix<T,XColDist,XRowDist>& X )
+{
+#ifndef RELEASE
+    PushCallStack("blas::internal::LocalTrsm");
+    if( (side == Left && XColDist != Star) || 
+        (side == Right && XRowDist != Star) )
+        throw "Distribution of RHS must conform with that of triangle.";
+#endif
+    blas::Trsm
+    ( side, shape, orientation, diagonal,
+      alpha, A.LockedLocalMatrix(), X.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//
 // Level 2 Utility functions
+//
+
 template<>
 inline double
 SymvGFlops<float>
@@ -1180,7 +1253,10 @@ SymvGFlops<dcomplex>
 { return 4.*SymvGFlops<float>(m,seconds); }
 #endif
 
+//
 // Level 3 Utility functions
+//
+
 template<>
 inline double
 GemmGFlops<float>

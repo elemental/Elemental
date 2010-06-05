@@ -115,10 +115,9 @@ elemental::lapack::internal::CholUVar2
         A12.SumScatterUpdate( (T)-1, X12_Star_MR );
 
         A12_Star_VR = A12;
-        blas::Trsm
+        blas::internal::LocalTrsm
         ( Left, Upper, ConjugateTranspose, NonUnit,
-          (T)1, A11_Star_Star.LockedLocalMatrix(), 
-                A12_Star_VR.LocalMatrix() );
+          (T)1, A11_Star_Star, A12_Star_VR );
         A12 = A12_Star_VR;
         //--------------------------------------------------------------------//
         A01_MC_Star.FreeAlignments();
@@ -206,10 +205,9 @@ lapack::internal::CholUVar3
         A11 = A11_Star_Star;
 
         A12_Star_VR = A12;
-        blas::Trsm
+        blas::internal::LocalTrsm
         ( Left, Upper, ConjugateTranspose, NonUnit,
-          (T)1, A11_Star_Star.LockedLocalMatrix(), 
-                A12_Star_VR.LocalMatrix() );
+          (T)1, A11_Star_Star, A12_Star_VR );
 
         A12_Star_MC = A12_Star_VR;
         A12_Star_MR = A12_Star_VR;

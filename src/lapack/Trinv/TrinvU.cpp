@@ -72,10 +72,8 @@ elemental::lapack::internal::TrinvUVar3
         U11 = U11_Star_Star;
 
         U01_VC_Star = U01;
-        blas::Trmm
-        ( Right, Upper, Normal, diagonal,
-          (T)-1, U11_Star_Star.LockedLocalMatrix(),
-                 U01_VC_Star.LocalMatrix()         );
+        blas::internal::LocalTrmm
+        ( Right, Upper, Normal, diagonal, (T)-1, U11_Star_Star, U01_VC_Star );
 
         // We transpose before the communication to avoid cache-thrashing
         // in the unpacking stage.
@@ -88,10 +86,8 @@ elemental::lapack::internal::TrinvUVar3
         U01.TransposeFrom( U01Trans_Star_MC );
 
         U12_Star_VR.TransposeFrom( U12Trans_MR_Star );
-        blas::Trmm
-        ( Left, Upper, Normal, diagonal,
-          (T)1, U11_Star_Star.LockedLocalMatrix(),
-                U12_Star_VR.LocalMatrix()         );
+        blas::internal::LocalTrmm
+        ( Left, Upper, Normal, diagonal, (T)1, U11_Star_Star, U12_Star_VR );
         U12 = U12_Star_VR;
         //--------------------------------------------------------------------//
         U01Trans_Star_MC.FreeAlignments();

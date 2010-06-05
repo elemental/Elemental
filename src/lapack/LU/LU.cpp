@@ -91,10 +91,8 @@ elemental::lapack::LU
         lapack::internal::ApplyRowPivots( AB, image, preimage, pivotOffset );
 
         A12_Star_VR = A12;
-        blas::Trsm
-        ( Left, Lower, Normal, Unit,
-          (T)1, A11_Star_Star.LockedLocalMatrix(),
-                A12_Star_VR.LocalMatrix() );
+        blas::internal::LocalTrsm
+        ( Left, Lower, Normal, Unit, (T)1, A11_Star_Star, A12_Star_VR );
 
         A21Trans_Star_MC.TransposeFrom( A21_VC_Star );
         A12_Star_MR = A12_Star_VR;

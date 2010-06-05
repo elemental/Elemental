@@ -76,10 +76,8 @@ elemental::blas::internal::TrmmRUN
         //--------------------------------------------------------------------//
         X1_VC_Star = X1;
         U11_Star_Star = U11;
-        blas::Trmm
-        ( Right, Upper, Normal, diagonal,
-          (T)1, U11_Star_Star.LockedLocalMatrix(),
-                X1_VC_Star.LocalMatrix() );
+        blas::internal::LocalTrmm
+        ( Right, Upper, Normal, diagonal, (T)1, U11_Star_Star, X1_VC_Star );
         X1 = X1_VC_Star;
  
         U01_MR_Star = U01;

@@ -83,10 +83,9 @@ elemental::blas::internal::TrsmRUT
         X1_VC_Star    = X1;  // X1[VC,*] <- X1[MC,MR]
 
         // X1[VC,*] := X1[VC,*] (U11[*,*])^-(T/H)
-        blas::Trsm
-        ( Right, Upper, orientation, diagonal,
-          (T)1, U11_Star_Star.LockedLocalMatrix(),
-                X1_VC_Star.LocalMatrix() );
+        blas::internal::LocalTrsm
+        ( Right, Upper, orientation, diagonal, 
+          (T)1, U11_Star_Star, X1_VC_Star );
 
         X1_MC_Star  = X1_VC_Star; // X1[MC,*]  <- X1[VC,*]
         X1          = X1_MC_Star; // X1[MC,MR] <- X1[MC,*]

@@ -88,10 +88,8 @@ elemental::blas::internal::TrsmLUT
         X1_Star_VR    = X1;  // X1[*,VR] <- X1[MC,MR]
         
         // X1[*,VR] := (U11[*,*])^-(T/H) X1[*,VR]
-        blas::Trsm
-        ( Left, Upper, orientation, diagonal,
-          (T)1, U11_Star_Star.LockedLocalMatrix(),
-                X1_Star_VR.LocalMatrix() );
+        blas::internal::LocalTrsm
+        ( Left, Upper, orientation, diagonal, (T)1, U11_Star_Star, X1_Star_VR );
 
         X1_Star_MR  = X1_Star_VR; // X1[*,MR]  <- X1[*,VR]
         X1          = X1_Star_MR; // X1[MC,MR] <- X1[*,MR]
