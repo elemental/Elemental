@@ -137,6 +137,7 @@ elemental::blas::internal::Dotu
     return globalDotu;
 }
 
+#ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template<typename T, Distribution U, Distribution V>
 inline T
 elemental::blas::internal::Dotu
@@ -848,12 +849,14 @@ elemental::blas::internal::Dotu
 #endif
     return globalDotu;
 }
+#endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 // We only need to explicitly instantiate the wrapper, since the underlying 
 // routines in blas::Internal will be immediately called 
 template float elemental::blas::Dotu
 ( const DistMatrix<float,MC,MR>& x,
   const DistMatrix<float,MC,MR>& y );
+#ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template float elemental::blas::Dotu
 ( const DistMatrix<float,MC,MR>& x,
   const DistMatrix<float,MC,Star>& y );
@@ -1224,11 +1227,12 @@ template float elemental::blas::Dotu
 template float elemental::blas::Dotu
 ( const DistMatrix<float,Star,Star>& x,
   const DistMatrix<float,Star,Star>& y );
-
+#endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 template double elemental::blas::Dotu
 ( const DistMatrix<double,MC,MR>& x,
   const DistMatrix<double,MC,MR>& y );
+#ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template double elemental::blas::Dotu
 ( const DistMatrix<double,MC,MR>& x,
   const DistMatrix<double,MC,Star>& y );
@@ -1599,11 +1603,13 @@ template double elemental::blas::Dotu
 template double elemental::blas::Dotu
 ( const DistMatrix<double,Star,Star>& x,
   const DistMatrix<double,Star,Star>& y );
+#endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 #ifndef WITHOUT_COMPLEX
 template scomplex elemental::blas::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
   const DistMatrix<scomplex,MC,MR>& y );
+#ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template scomplex elemental::blas::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
   const DistMatrix<scomplex,MC,Star>& y );
@@ -1974,10 +1980,12 @@ template scomplex elemental::blas::Dotu
 template scomplex elemental::blas::Dotu
 ( const DistMatrix<scomplex,Star,Star>& x,
   const DistMatrix<scomplex,Star,Star>& y );
+#endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 template dcomplex elemental::blas::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
+#ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template dcomplex elemental::blas::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
   const DistMatrix<dcomplex,MC,Star>& y );
@@ -2348,4 +2356,5 @@ template dcomplex elemental::blas::Dotu
 template dcomplex elemental::blas::Dotu
 ( const DistMatrix<dcomplex,Star,Star>& x,
   const DistMatrix<dcomplex,Star,Star>& y );
-#endif
+#endif // ENABLE_ALL_DISTRIBUTED_DOT
+#endif // WITHOUT_COMPLEX

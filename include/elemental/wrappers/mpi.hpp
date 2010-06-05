@@ -512,7 +512,7 @@ elemental::wrappers::mpi::Recv
 #endif
     MPI_Status status;
     SafeMpi( 
-        MPI_Recv( buf, count, MPI_DOUBLE_COMPLEX, from, tag, comm, &status );
+        MPI_Recv( buf, count, MPI_DOUBLE_COMPLEX, from, tag, comm, &status )
     );
 #ifndef RELEASE
     PopCallStack();

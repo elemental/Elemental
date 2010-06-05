@@ -1,5 +1,5 @@
 #
-# Elemental: A framework for distributed memory dense linear algebra.
+# Elemental: A framework for distributed-memory dense linear algebra.
 #
 # Copyright 2009-2010 Jack Poulson
 #
@@ -12,12 +12,15 @@ bindir = bin
 
 library = libelemental.a
 
-# Compile flags:
-#   WITHOUT_COMPLEX: if defined, no complex datatypes are implemented
+# Common compile flags:
+#   RELEASE: if defined, callstack is not maintained and debug checks are off
 #   BLAS_UNDERSCORE: if defined, all blas wrappers assume underscore postfix
 #   LAPACK_UNDERSCORE: if defined, all lapack wrappers assume underscore postfix
+#
+# Auxilliary compile flags:
+#   WITHOUT_COMPLEX: if defined, no complex datatypes are implemented
 #   POOL_MEMORY: if defined, Memory class only accumulates until destruction
-#   RELEASE: if defined, callstack is not maintained and debug checks are off
+#   ENABLE_ALL_DISTRIBUTED_DOT: if defined, build all distributed dot products
 CXX = mpicxx
 CXXFLAGS = -DBLAS_UNDERSCORE -DLAPACK_UNDERSCORE -I$(incdir) 
 CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)
