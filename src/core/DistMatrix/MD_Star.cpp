@@ -586,7 +586,7 @@ elemental::DistMatrixBase<T,MD,Star>::ResizeTo
     PushCallStack("[MD,* ]::ResizeTo");
     this->AssertNotLockedView();
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw logic_error( "Height and width must be non-negative." );
 #endif
     this->_height = height;
     this->_width = width;
@@ -790,7 +790,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MD,* ] = [MC,MR] not yet implemented.";
+    throw logic_error( "[MD,* ] = [MC,MR] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -809,7 +809,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MD,* ] = [MC,* ] not yet implemented.";
+    throw logic_error( "[MD,* ] = [MC,* ] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -828,7 +828,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MD,* ] = [* ,MR] not yet implemented.";
+    throw logic_error( "[MD,* ] = [* ,MR] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -869,7 +869,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
         if( this->GetGrid().VCRank() == 0 )
             cout << "Unaligned [MD,* ] <- [MD,* ]." << endl;
 #endif
-        throw "Unaligned [MD,* ] = [MD,* ] not yet implemented.";
+        throw logic_error( "Unaligned [MD,* ] = [MD,* ] not yet implemented." );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -889,7 +889,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MD,* ] = [* ,MD] not yet implemented.";
+    throw logic_error( "[MD,* ] = [* ,MD] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -908,7 +908,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A ); 
 #endif
-    throw "[MD,* ] = [MR,MC] not yet implemented.";
+    throw logic_error( "[MD,* ] = [MR,MC] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -927,7 +927,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MD,* ] = [MR,* ] not yet implemented.";
+    throw logic_error( "[MD,* ] = [MR,* ] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -946,7 +946,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MD,* ] = [* ,MC] not yet implemented.";
+    throw logic_error( "[MD,* ] = [* ,MC] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -965,7 +965,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MD,* ] = [VC,* ] not yet implemented.";
+    throw logic_error( "[MD,* ] = [VC,* ] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -984,7 +984,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MD,* ] = [* ,VC] not yet implemented.";
+    throw logic_error( "[MD,* ] = [* ,VC] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1003,7 +1003,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MD,* ] = [VR,* ] not yet implemented.";
+    throw logic_error( "[MD,* ] = [VR,* ] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1022,7 +1022,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MD,* ] = [* ,VR] not yet implemented.";
+    throw logic_error( "[MD,* ] = [* ,VR] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1085,7 +1085,7 @@ elemental::DistMatrix<R,MD,Star>::SetToRandomHPD()
     PushCallStack("[MD,* ]::SetToRandomHPD");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
-        throw "Positive-definite matrices must be square.";
+        throw logic_error( "Positive-definite matrices must be square." );
 #endif
     this->SetToRandom();
 
@@ -1117,7 +1117,7 @@ elemental::DistMatrix<complex<R>,MD,Star>::SetToRandomHPD()
     PushCallStack("[MD,* ]::SetToRandomHPD");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
-        throw "Positive-definite matrices must be square.";
+        throw logic_error( "Positive-definite matrices must be square." );
 #endif
     this->SetToRandom();
 

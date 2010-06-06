@@ -1124,52 +1124,52 @@ LocalGemm
         if( AColDist != CColDist || 
             ARowDist != BColDist || 
             BRowDist != CRowDist )
-            throw "C[X,Y] = A[X,Z] B[Z,Y].";
+            throw std::logic_error( "C[X,Y] = A[X,Z] B[Z,Y]." );
         if( A.ColAlignment() != C.ColAlignment() )
-            throw "A's cols must align with C's rows.";
+            throw std::logic_error( "A's cols must align with C's rows." );
         if( A.RowAlignment() != B.ColAlignment() )
-            throw "A's rows must align with B's cols.";
+            throw std::logic_error( "A's rows must align with B's cols." );
         if( B.RowAlignment() != C.RowAlignment() )
-            throw "B's rows must align with C's rows.";
+            throw std::logic_error( "B's rows must align with C's rows." );
     }
     else if( orientationOfA == Normal )
     {
         if( AColDist != CColDist ||
             ARowDist != BRowDist ||
             BColDist != CRowDist )
-            throw "C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)";
+            throw std::logic_error( "C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)" );
         if( A.ColAlignment() != C.ColAlignment() )
-            throw "A's cols must align with C's rows.";
+            throw std::logic_error( "A's cols must align with C's rows." );
         if( A.RowAlignment() != B.RowAlignment() )
-            throw "A's rows must align with B's rows.";
+            throw std::logic_error( "A's rows must align with B's rows." );
         if( B.ColAlignment() != C.RowAlignment() )
-            throw "B's cols must align with C's rows.";
+            throw std::logic_error( "B's cols must align with C's rows." );
     }
     else if( orientationOfB == Normal )
     {
         if( ARowDist != CColDist ||
             AColDist != BColDist ||
             BRowDist != CRowDist )
-            throw "C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]";
+            throw std::logic_error( "C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]" );
         if( A.RowAlignment() != C.ColAlignment() )
-            throw "A's rows must align with C's cols.";
+            throw std::logic_error( "A's rows must align with C's cols." );
         if( A.ColAlignment() != B.ColAlignment() )
-            throw "A's cols must align with B's cols.";
+            throw std::logic_error( "A's cols must align with B's cols." );
         if( B.RowAlignment() != C.RowAlignment() )
-            throw "B's rows must align with C's rows.";
+            throw std::logic_error( "B's rows must align with C's rows." );
     }
     else
     {
         if( ARowDist != CColDist ||
             AColDist != BRowDist ||
             BColDist != CRowDist )
-            throw "C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)";
+            throw std::logic_error( "C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)" );
         if( A.RowAlignment() != C.ColAlignment() )
-            throw "A's rows must align with C's cols.";
+            throw std::logic_error( "A's rows must align with C's cols." );
         if( A.ColAlignment() != B.RowAlignment() )
-            throw "A's cols must align with B's rows.";
+            throw std::logic_error( "A's cols must align with B's rows." );
         if( B.ColAlignment() != C.RowAlignment() )
-            throw "B's cols must align with C's rows.";
+            throw std::logic_error( "B's cols must align with C's rows." );
     }
 #endif
     blas::Gemm
@@ -1192,7 +1192,8 @@ LocalTrmm
     PushCallStack("blas::internal::LocalTrmm");
     if( (side == Left && BColDist != Star) || 
         (side == Right && BRowDist != Star) )
-        throw "Distribution of RHS must conform with that of triangle.";
+        throw std::logic_error
+        ( "Distribution of RHS must conform with that of triangle." );
 #endif
     blas::Trmm
     ( side, shape, orientation, diagonal, 
@@ -1213,7 +1214,8 @@ LocalTrsm
     PushCallStack("blas::internal::LocalTrsm");
     if( (side == Left && XColDist != Star) || 
         (side == Right && XRowDist != Star) )
-        throw "Distribution of RHS must conform with that of triangle.";
+        throw std::logic_error
+        ( "Distribution of RHS must conform with that of triangle." );
 #endif
     blas::Trsm
     ( side, shape, orientation, diagonal,

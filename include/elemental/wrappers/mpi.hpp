@@ -344,7 +344,7 @@ SafeMpi( int mpiError )
         char errorString[200];
         int lengthOfErrorString;
         MPI_Error_string( mpiError, errorString, &lengthOfErrorString );
-        throw errorString;
+        throw std::logic_error( errorString );
     }
 #endif
 }

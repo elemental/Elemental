@@ -16,6 +16,7 @@
 #include <memory>
 #include <sstream>
 #include <stack>
+#include <stdexcept>
 #include <vector>
 #include "mpi.h"
 

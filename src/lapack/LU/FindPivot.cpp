@@ -64,7 +64,7 @@ elemental::lapack::internal::CreatePivotOp<float>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::CreatePivotOp<float>");
     if( ::createdPivotOpFloat )
-        throw "Already created pivot op.";
+        throw logic_error( "Already created pivot op." );
 #endif
     MPI_Op_create
     ( (MPI_User_function*)PivotFunc<float>, 1, &::pivotOpFloat );
@@ -81,7 +81,7 @@ elemental::lapack::internal::CreatePivotOp<double>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::CreatePivotOp<double>");
     if( ::createdPivotOpDouble )
-        throw "Already created pivot op.";
+        throw logic_error( "Already created pivot op." );
 #endif
     MPI_Op_create
     ( (MPI_User_function*)PivotFunc<double>, 1, &::pivotOpDouble );
@@ -99,7 +99,7 @@ elemental::lapack::internal::CreatePivotOp<scomplex>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::CreatePivotOp<scomplex>");
     if( ::createdPivotOpScomplex )
-        throw "Alread created pivot op.";
+        throw logic_error( "Alread created pivot op." );
 #endif
     MPI_Op_create
     ( (MPI_User_function*)PivotFunc<scomplex>, 1, &::pivotOpScomplex );
@@ -116,7 +116,7 @@ elemental::lapack::internal::CreatePivotOp<dcomplex>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::CreatePivotOp<dcomplex>");
     if( ::createdPivotOpDcomplex )
-        throw "Already created pivot op.";
+        throw logic_error( "Already created pivot op." );
 #endif
     MPI_Op_create
     ( (MPI_User_function*)PivotFunc<dcomplex>, 1, &::pivotOpDcomplex );
@@ -134,7 +134,7 @@ elemental::lapack::internal::DestroyPivotOp<float>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::DestroyPivotOp<float>");
     if( ! ::createdPivotOpFloat )
-        throw "Have not created this pivot op.";
+        throw logic_error( "Have not created this pivot op." );
 #endif
     MPI_Op_free( &::pivotOpFloat );
 #ifndef RELEASE
@@ -150,7 +150,7 @@ elemental::lapack::internal::DestroyPivotOp<double>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::DestroyPivotOp<double>");
     if( ! ::createdPivotOpDouble )
-        throw "Have not created ths pivot op.";
+        throw logic_error( "Have not created ths pivot op." );
 #endif
     MPI_Op_free( &::pivotOpDouble );
 #ifndef RELEASE
@@ -167,7 +167,7 @@ elemental::lapack::internal::DestroyPivotOp<scomplex>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::DestroyPivotOp<scomplex>");
     if( ! ::createdPivotOpScomplex )
-        throw "Have not created this pivot op.";
+        throw logic_error( "Have not created this pivot op." );
 #endif
     MPI_Op_free( &::pivotOpScomplex );
 #ifndef RELEASE
@@ -183,7 +183,7 @@ elemental::lapack::internal::DestroyPivotOp<dcomplex>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::DestroyPivotOp<dcomplex>");
     if( ! ::createdPivotOpDcomplex )
-        throw "Have not created this pivot op.";
+        throw logic_error( "Have not created this pivot op." );
 #endif
     MPI_Op_free( &::pivotOpDcomplex );
 #ifndef RELEASE
@@ -200,7 +200,7 @@ elemental::lapack::internal::PivotOp<float>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::PivotOp<float>");
     if( ! ::createdPivotOpFloat )
-        throw "Tried to return uncreated pivot op.";
+        throw logic_error( "Tried to return uncreated pivot op." );
     PopCallStack();
 #endif
     return ::pivotOpFloat; 
@@ -213,7 +213,7 @@ elemental::lapack::internal::PivotOp<double>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::PivotOp<double>");
     if( ! ::createdPivotOpDouble )
-        throw "Tried to return uncreated pivot op.";
+        throw logic_error( "Tried to return uncreated pivot op." );
     PopCallStack();
 #endif
     return ::pivotOpDouble; 
@@ -227,7 +227,7 @@ elemental::lapack::internal::PivotOp<scomplex>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::PivotOp<scomplex>");
     if( ! ::createdPivotOpScomplex )
-        throw "Tried to return uncreated pivot op.";
+        throw logic_error( "Tried to return uncreated pivot op." );
     PopCallStack();
 #endif
     return ::pivotOpScomplex; 
@@ -240,7 +240,7 @@ elemental::lapack::internal::PivotOp<dcomplex>()
 #ifndef RELEASE
     PushCallStack("lapack::internal::PivotOp<dcomplex>");
     if( ! ::createdPivotOpDcomplex )
-        throw "Tried to return uncreated pivot op.";
+        throw logic_error( "Tried to return uncreated pivot op." );
     PopCallStack();
 #endif
     return ::pivotOpDcomplex; 

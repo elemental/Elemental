@@ -565,7 +565,8 @@ DistMatrix<R,MC,MR>::DistMatrix
     if( &A != this )
         *this = A;
     else
-        throw "Attempted to construct a [MC,MR] with itself.";
+        throw std::logic_error
+        ( "Attempted to construct a [MC,MR] with itself." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -728,7 +729,8 @@ DistMatrix<std::complex<R>,MC,MR>::DistMatrix
     if( &A != this )
         *this = A;
     else
-        throw "Attempted to construct a [MC,MR] with itself.";
+        throw std::logic_error
+        ( "Attempted to construct a [MC,MR] with itself." );
 #ifndef RELEASE
     PopCallStack();
 #endif

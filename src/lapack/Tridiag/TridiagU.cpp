@@ -28,24 +28,27 @@ elemental::lapack::internal::TridiagU
     if( A.GetGrid() != d.GetGrid() ||
         d.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid() )
-        throw "A, d, e, and t must be distributed over the same grid.";
+        throw logic_error
+        ( "A, d, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw logic_error( "A must be square." );
     if( d.Height() != A.Height() || d.Width() != 1 )
-        throw "d must be a column vector of the same length as A's width.";
+        throw logic_error
+        ( "d must be a column vector of the same length as A's width." );
     if( e.Height() != A.Height()-1 || e.Width() != 1 )
-        throw "e must be a column vector of length one less than the "
-              "width of A.";
+        throw logic_error
+        ( "e must be a column vector of length one less than the width of A." );
     if( t.Height() != A.Height()-1 || t.Width() != 1 )
-        throw "t must be a column vector of length one less than the "
-              "width of A.";
+        throw logic_error
+        ( "t must be a column vector of length one less than the width of A." );
     if( d.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
-        throw "d is not aligned with A.";
+        throw logic_error( "d is not aligned with A." );
     if( e.ColAlignment() != A.ColAlignment() +
                             ((A.RowAlignment()+1)%grid.Width())*grid.Height() )
-        throw "e is not aligned with A.";
-    if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
-        throw "t is not aligned with A.";
+        throw logic_error( "e is not aligned with A." );
+    if( t.ColAlignment() != ((A.ColAlignment()+1)%grid.Height()) + 
+                            ((A.RowAlignment()+1)%grid.Width())*grid.Height() )
+        throw logic_error( "t is not aligned with A." );
 #endif
 
     // Matrix views 
@@ -53,7 +56,7 @@ elemental::lapack::internal::TridiagU
         ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),  
         ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
                                A20(grid), A21(grid), A22(grid),
-        A11_expanded(grid);
+        A11Expanded(grid);
     DistMatrix<R,MD,Star> dT(grid),  d0(grid), 
                           dB(grid),  d1(grid),
                                      d2(grid);
@@ -65,61 +68,64 @@ elemental::lapack::internal::TridiagU
                                      t2(grid);
 
     // Temporary distributions
-    Matrix<R> A11_Trans;
     DistMatrix<R,Star,Star> A11_Star_Star(grid);
     DistMatrix<R,Star,Star> d1_Star_Star(grid);
     DistMatrix<R,Star,Star> e1_Star_Star(grid);
     DistMatrix<R,Star,Star> t1_Star_Star(grid);
-    DistMatrix<R,MC,  MR  > W11(grid), W12(grid),  WPan(grid);
+    DistMatrix<R,MC,  MR  > W01(grid), W11(grid),  WPan(grid);
 
-    PartitionDownDiagonal
+    PartitionUpDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
-    PartitionDown
+         ABL, ABR, 0 );
+    PartitionUp
     ( d, dT,
-         dB );
-    PartitionDown
+         dB, 0 );
+    PartitionUp
     ( e, eT,
-         eB );
-    PartitionDown
+         eB, 0 );
+    PartitionUp
     ( t, tT,
-         tB );
-    while( ATL.Height() < A.Height() )
+         tB, 0 );
+    while( ABR.Height() < A.Height() )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+        RepartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
          /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
-        RepartitionDown
+        RepartitionUp
         ( dT,  d0,
-         /**/ /**/
                d1,
+         /**/ /**/
           dB,  d2 );
 
-        RepartitionDown
+        RepartitionUp
         ( eT,  e0,
-         /**/ /**/
                e1,
+         /**/ /**/
           eB,  e2 );
 
-        RepartitionDown
+        RepartitionUp
         ( tT,  t0,
-         /**/ /**/
                t1,
+         /**/ /**/
           tB,  t2 );
 
-        if( A22.Height() > 0 )
+        if( A00.Height() > 0 )
         {
-            A11_expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
-            WPan.AlignWith( ABR );
-            WPan.ResizeTo( A11.Height(), ABR.Width() );
-            PartitionRight( WPan, W11, W12, A11.Width() );
+            A11Expanded.View
+            ( ATL, 
+              A00.Height()-1, A00.Width()-1, A11.Height()+1, A11.Width()+1 );
+            WPan.AlignWith( A01 );
+            WPan.ResizeTo( ATL.Height(), A11.Width() );
+            PartitionUp
+            ( WPan, W01,
+                    W11, A11.Height() );
             //----------------------------------------------------------------//
-            lapack::internal::PanelTridiagU( ABR, WPan, e1, t1 );
-            blas::Syr2k( Upper, Transpose, (R)-1, A12, W12, (R)1, A22 );
-            A11_expanded.SetDiagonal( e1, 1 );
+            lapack::internal::PanelTridiagU( ATL, WPan, e1, t1 );
+            blas::Syr2k( Upper, Normal, (R)-1, A01, W01, (R)1, A00 );
+            A11Expanded.SetDiagonal( e1, 1 );
             A11.GetDiagonal( d1 );
             //----------------------------------------------------------------//
             WPan.FreeAlignments();
@@ -131,47 +137,41 @@ elemental::lapack::internal::TridiagU
             e1_Star_Star = e1;
             t1_Star_Star = t1;
 
-            // LAPACK traverses up the diagonal in upper Tridiag, but we 
-            // traverse down, so transpose to and from to call the lower Tridiag
-            blas::Trans( A11_Star_Star.LockedLocalMatrix(), A11_Trans );
-
             lapack::Tridiag
-            ( Lower, 
-              A11_Trans,         
+            ( Upper, 
+              A11_Star_Star.LocalMatrix(),         
               d1_Star_Star.LocalMatrix(),
               e1_Star_Star.LocalMatrix(),
               t1_Star_Star.LocalMatrix() );
             
-            blas::Trans( A11_Trans, A11_Star_Star.LocalMatrix() );
-
             A11 = A11_Star_Star;
             d1 = d1_Star_Star;
             e1 = e1_Star_Star;
             t1 = t1_Star_Star;
         }
 
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
+        SlidePartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
          /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        SlidePartitionDown
+        SlidePartitionUp
         ( dT,  d0,
-               d1,
          /**/ /**/
+               d1,
           dB,  d2 );
 
-        SlidePartitionDown
+        SlidePartitionUp
         ( eT,  e0,
-               e1,
          /**/ /**/
+               e1,
           eB,  e2 );
 
-        SlidePartitionDown
+        SlidePartitionUp
         ( tT,  t0,
-               t1,
          /**/ /**/
+               t1,
           tB,  t2 );
     }
         
@@ -197,24 +197,27 @@ elemental::lapack::internal::TridiagU
     if( A.GetGrid() != d.GetGrid() ||
         d.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid() )
-        throw "A, d, e, and t must be distributed over the same grid.";
+        throw logic_error
+        ( "A, d, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw logic_error( "A must be square." );
     if( d.Height() != A.Height() || d.Width() != 1 )
-        throw "d must be a column vector of the same length as A's width.";
+        throw logic_error
+        ( "d must be a column vector of the same length as A's width." );
     if( e.Height() != A.Height()-1 || e.Width() != 1 )
-        throw "e must be a column vector of length one less than the "
-              "width of A.";
+        throw logic_error
+        ( "e must be a column vector of length one less than the width of A." );
     if( t.Height() != A.Height()-1 || t.Width() != 1 )
-        throw "t must be a column vector of length one less than the "
-              "width of A.";
+        throw logic_error
+        ( "t must be a column vector of length one less than the width of A." );
     if( d.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
-        throw "d is not aligned with A.";
+        throw logic_error( "d is not aligned with A." );
     if( e.ColAlignment() != A.ColAlignment() +
                             ((A.RowAlignment()+1)%grid.Width())*grid.Height() )
-        throw "e is not aligned with A.";
-    if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
-        throw "t is not aligned with A.";
+        throw logic_error( "e is not aligned with A." );
+    if( t.ColAlignment() != ((A.ColAlignment()+1)%grid.Height()) + 
+                            ((A.RowAlignment()+1)%grid.Width())*grid.Height() )
+        throw logic_error( "t is not aligned with A." );
 #endif
     typedef complex<R> C;
 
@@ -223,7 +226,7 @@ elemental::lapack::internal::TridiagU
         ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),  
         ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
                                A20(grid), A21(grid), A22(grid),
-        A11_expanded(grid);
+        A11Expanded(grid);
     DistMatrix<R,MD,Star> dT(grid),  d0(grid), 
                           dB(grid),  d1(grid),
                                      d2(grid);
@@ -240,57 +243,61 @@ elemental::lapack::internal::TridiagU
     DistMatrix<R,Star,Star> d1_Star_Star(grid);
     DistMatrix<R,Star,Star> e1_Star_Star(grid);
     DistMatrix<C,Star,Star> t1_Star_Star(grid);
-    DistMatrix<C,MC,  MR  > W11(grid), W12(grid),  WPan(grid);
+    DistMatrix<C,MC,  MR  > W01(grid), W11(grid),  WPan(grid);
 
-    PartitionDownDiagonal
+    PartitionUpDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
-    PartitionDown
+         ABL, ABR, 0 );
+    PartitionUp
     ( d, dT,
-         dB );
-    PartitionDown
+         dB, 0 );
+    PartitionUp
     ( e, eT,
-         eB );
-    PartitionDown
+         eB, 0 );
+    PartitionUp
     ( t, tT,
-         tB );
-    while( ATL.Height() < A.Height() )
+         tB, 0 );
+    while( ABR.Height() < A.Height() )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+        RepartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
          /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
-        RepartitionDown
+        RepartitionUp
         ( dT,  d0,
-         /**/ /**/
                d1,
+         /**/ /**/
           dB,  d2 );
 
-        RepartitionDown
+        RepartitionUp
         ( eT,  e0,
-         /**/ /**/
                e1,
+         /**/ /**/
           eB,  e2 );
 
-        RepartitionDown
+        RepartitionUp
         ( tT,  t0,
-         /**/ /**/
                t1,
+         /**/ /**/
           tB,  t2 );
 
-        if( A22.Height() > 0 )
+        if( A00.Height() > 0 )
         {
-            A11_expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
-            WPan.AlignWith( ABR );
-            WPan.ResizeTo( A11.Height(), ABR.Width() );
-            PartitionRight( WPan, W11, W12, A11.Width() );
+            // HERE
+            A11Expanded.View
+            ( ATL, 
+              A00.Height()-1, A00.Width()-1, A11.Height()+1, A11.Width()+1 );
+            WPan.AlignWith( A01 );
+            WPan.ResizeTo( ATL.Height(), A11.Width() );
+            PartitionUp
+            ( WPan, W01,
+                    W11, A11.Height() );
             //----------------------------------------------------------------//
-            lapack::internal::PanelTridiagU( ABR, WPan, e1, t1 );
-            blas::Her2k
-            ( Upper, ConjugateTranspose, (C)-1, A12, W12, (C)1, A22 );
-            A11_expanded.SetDiagonal( e1, 1 );
+            lapack::internal::PanelTridiagU( ATL, WPan, e1, t1 );
+            blas::Her2k( Upper, Normal, (C)-1, A01, W01, (C)1, A00 );
+            A11Expanded.SetDiagonal( e1, 1 );
             A11.GetRealDiagonal( d1 );
             //----------------------------------------------------------------//
             WPan.FreeAlignments();
@@ -302,47 +309,41 @@ elemental::lapack::internal::TridiagU
             e1_Star_Star = e1;
             t1_Star_Star = t1;
 
-            // LAPACK traverses up the diagonal in upper Tridiag, but we 
-            // traverse down, so transpose to and from to call the lower Tridiag
-            blas::ConjTrans( A11_Star_Star.LockedLocalMatrix(), A11_Herm );
-
             lapack::Tridiag
-            ( Lower, 
-              A11_Herm,         
+            ( Upper, 
+              A11_Star_Star.LocalMatrix(),        
               d1_Star_Star.LocalMatrix(),
               e1_Star_Star.LocalMatrix(),
               t1_Star_Star.LocalMatrix() );
             
-            blas::ConjTrans( A11_Herm, A11_Star_Star.LocalMatrix() );
-
             A11 = A11_Star_Star;
             d1 = d1_Star_Star;
             e1 = e1_Star_Star;
             t1 = t1_Star_Star;
         }
 
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
+        SlidePartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
          /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        SlidePartitionDown
+        SlidePartitionUp
         ( dT,  d0,
-               d1,
          /**/ /**/
+               d1,
           dB,  d2 );
 
-        SlidePartitionDown
+        SlidePartitionUp
         ( eT,  e0,
-               e1,
          /**/ /**/
+               e1,
           eB,  e2 );
 
-        SlidePartitionDown
+        SlidePartitionUp
         ( tT,  t0,
-               t1,
          /**/ /**/
+               t1,
           tB,  t2 );
     }
         

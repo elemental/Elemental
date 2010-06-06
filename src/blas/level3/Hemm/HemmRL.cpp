@@ -37,7 +37,7 @@ elemental::blas::internal::HemmRLC
 #ifndef RELEASE
     PushCallStack("blas::internal::HemmRLC");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
 #endif
     const Grid& grid = A.GetGrid();
 
@@ -63,9 +63,9 @@ elemental::blas::internal::HemmRLC
     blas::Scal( beta, C );
     LockedPartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
-    LockedPartitionRight( B, BL, BR );
-    PartitionRight( C, CL, CR );
+         ABL, ABR, 0 );
+    LockedPartitionRight( B, BL, BR, 0 );
+    PartitionRight( C, CL, CR, 0 );
     while( CR.Width() > 0 )
     {
         LockedRepartitionDownDiagonal

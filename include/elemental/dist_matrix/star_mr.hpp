@@ -484,7 +484,8 @@ DistMatrix<R,Star,MR>::DistMatrix
     if( &A != this )
         *this = A;
     else
-        throw "Attempted to construct a [* ,MR] with itself.";
+        throw std::logic_error
+        ( "Attempted to construct a [* ,MR] with itself." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -639,7 +640,8 @@ DistMatrix<std::complex<R>,Star,MR>::DistMatrix
     if( &A != this )
         *this = A;
     else
-        throw "Attempted to construct a [* ,MR] with itself.";
+        throw std::logic_error
+        ( "Attempted to construct a [* ,MR] with itself." );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -34,7 +34,7 @@ elemental::lapack::internal::TrinvLVar3
 #ifndef RELEASE
     PushCallStack("lapack::internal::TrinvLVar3");
     if( L.Height() != L.Width() )
-        throw "Nonsquare matrices cannot be triangular.";
+        throw logic_error( "Nonsquare matrices cannot be triangular." );
 #endif
     const Grid& grid = L.GetGrid();
 
@@ -52,8 +52,9 @@ elemental::lapack::internal::TrinvLVar3
     DistMatrix<T,VC,  Star> L21_VC_Star(grid);
 
     // Start the algorithm
-    PartitionDownDiagonal( L, LTL, LTR,
-                              LBL, LBR );
+    PartitionDownDiagonal
+    ( L, LTL, LTR,
+         LBL, LBR, 0 );
     while( LTL.Height() < L.Height() )
     {
         RepartitionDownDiagonal

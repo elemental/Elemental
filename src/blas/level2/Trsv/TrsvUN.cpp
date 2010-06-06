@@ -21,14 +21,14 @@ elemental::blas::internal::TrsvUN
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsvUN");
     if( U.GetGrid() != x.GetGrid() )
-        throw "U and x must be distributed over the same grid.";
+        throw logic_error( "U and x must be distributed over the same grid." );
     if( U.Height() != U.Width() )
-        throw "U must be square.";
+        throw logic_error( "U must be square." );
     if( x.Width() != 1 && x.Height() != 1 )
-        throw "x must be a vector.";
+        throw logic_error( "x must be a vector." );
     const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     if( U.Width() != xLength )
-        throw "Nonconformal TrsvUN.";
+        throw logic_error( "Nonconformal TrsvUN." );
 #endif
     const Grid& grid = U.GetGrid();
 
@@ -53,10 +53,10 @@ elemental::blas::internal::TrsvUN
         // Start the algorithm
         LockedPartitionUpDiagonal
         ( U, UTL, UTR,
-             UBL, UBR );
+             UBL, UBR, 0 );
         PartitionUp
         ( x, xT,
-             xB );
+             xB, 0 );
         while( xT.Height() > 0 )
         {
             LockedRepartitionUpDiagonal
@@ -129,8 +129,8 @@ elemental::blas::internal::TrsvUN
         // Start the algorithm
         LockedPartitionUpDiagonal
         ( U, UTL, UTR,
-             UBL, UBR );
-        PartitionLeft( x,  xL, xR );
+             UBL, UBR, 0 );
+        PartitionLeft( x,  xL, xR, 0 );
         while( xL.Width() > 0 )
         {
             LockedRepartitionUpDiagonal

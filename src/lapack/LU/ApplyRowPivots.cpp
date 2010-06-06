@@ -24,10 +24,11 @@ elemental::lapack::internal::ApplyRowPivots
 #ifndef RELEASE
     PushCallStack("lapack::internal::ApplyRowPivots");
     if( A.Height() < (int)image.size() || image.size() != preimage.size() )
-        throw "image and preimage must be vectors of equal length "
-              "that are not taller than A.";
+        throw logic_error
+        ( "image and preimage must be vectors of equal length that are not "
+          "taller than A." );
     if( pivotOffset < 0 )
-        throw "pivot offset must be non-negative.";
+        throw logic_error( "pivot offset must be non-negative." );
 #endif
     if( A.Width() == 0 )
         return;
@@ -106,8 +107,7 @@ elemental::lapack::internal::ApplyRowPivots
         ostringstream msg;
         msg << "Send and recv counts do not match: (send,recv)=" 
              << totalSendCount << "," << totalRecvCount << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
 

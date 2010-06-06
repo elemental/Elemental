@@ -64,7 +64,8 @@ elemental::lapack::internal::CholUVar2
 #ifndef RELEASE
     PushCallStack("lapack::internal::CholUVar2");
     if( A.Height() != A.Width() )
-        throw "Can only compute Cholesky factor of square matrices.";
+        throw logic_error
+        ( "Can only compute Cholesky factor of square matrices." );
 #endif
     const Grid& grid = A.GetGrid();
 
@@ -84,7 +85,7 @@ elemental::lapack::internal::CholUVar2
     // Start the algorithm
     PartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
+         ABL, ABR, 0 );
     while( ATL.Height() < A.Height() )
     {
         RepartitionDownDiagonal
@@ -168,7 +169,8 @@ lapack::internal::CholUVar3
 #ifndef RELEASE
     PushCallStack("lapack::internal::CholUVar3");
     if( A.Height() != A.Width() )
-        throw "Can only compute Cholesky factor of square matrices.";
+        throw logic_error
+        ( "Can only compute Cholesky factor of square matrices." );
 #endif
     const Grid& grid = A.GetGrid();
 
@@ -187,7 +189,7 @@ lapack::internal::CholUVar3
     // Start the algorithm
     PartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR ); 
+         ABL, ABR, 0 ); 
     while( ABR.Height() > 0 )
     {
         RepartitionDownDiagonal

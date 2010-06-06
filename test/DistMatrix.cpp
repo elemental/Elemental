@@ -91,7 +91,9 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
         if( everyonePassed )
             cout << "PASSED" << endl;
         else
-            cout << "FAILED" << endl;
+        {
+            throw logic_error( "Redistribution failed.");
+        }
     }
 #ifndef RELEASE
     PopCallStack();
@@ -353,13 +355,13 @@ int main( int argc, char* argv[] )
         }
 #endif
     }
-    catch( const char* errorMsg )
+    catch( exception& e )
     {
 #ifndef RELEASE
         DumpCallStack();
 #endif
         cerr << "Process " << rank << " caught error message: " << endl 
-             << errorMsg << endl;
+             << e.what() << endl;
     }
     elemental::Finalize();
     return 0;

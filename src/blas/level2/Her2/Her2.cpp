@@ -23,9 +23,9 @@ elemental::blas::Her2
 #ifndef RELEASE
     PushCallStack("blas::Her2");
     if( A.GetGrid() != x.GetGrid() || x.GetGrid() != y.GetGrid() )
-        throw "{A,x,y} must be distributed over the same grid.";
+        throw logic_error( "{A,x,y} must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw logic_error( "A must be square." );
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
@@ -35,8 +35,7 @@ elemental::blas::Her2
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x ~ " << x.Height() << " x " << x.Width() << endl
             << "  y ~ " << y.Height() << " x " << y.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();

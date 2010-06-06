@@ -20,15 +20,14 @@ elemental::blas::internal::SyrkLT
 #ifndef RELEASE
     PushCallStack("blas::internal::SyrkLT");
     if( A.GetGrid() != C.GetGrid() )
-        throw "A and C must be distributed over the same grid.";
+        throw logic_error( "A and C must be distributed over the same grid." );
     if( A.Width() != C.Height() || A.Width() != C.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal SyrkLT:" << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -47,7 +46,7 @@ elemental::blas::internal::SyrkLT
     blas::Scal( beta, C );
     LockedPartitionDown
     ( A, AT, 
-         AB );
+         AB, 0 );
     while( AB.Height() > 0 )
     {
         LockedRepartitionDown

@@ -473,7 +473,7 @@ DistMatrix<R,MD,Star>::DistMatrix
 #ifndef RELEASE
     PushCallStack("DistMatrix[MD,* ]::DistMatrix");
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw std::logic_error( "Height and width must be non-negative." );
 #endif
     const int lcm = grid.LCM();
     const int myDiagPath = grid.DiagPath();
@@ -507,7 +507,8 @@ DistMatrix<R,MD,Star>::DistMatrix
 #ifndef RELEASE
     PushCallStack("DistMatrix[MD,* ]::DistMatrix");
     if( colAlignment < 0 || colAlignment >= grid.Size() )
-        throw "alignment for [MD,*] must be in [0,p-1] (rxc grid,p=r*c).";
+        throw std::logic_error
+        ( "alignment for [MD,*] must be in [0,p-1] (rxc grid,p=r*c)." );
 #endif
     const int lcm = grid.LCM();
     const int myDiagPath = grid.DiagPath();
@@ -540,7 +541,8 @@ DistMatrix<R,MD,Star>::DistMatrix
 #ifndef RELEASE
     PushCallStack("DistMatrix[MD,* ]::DistMatrix");
     if( colAlignment < 0 || colAlignment >= grid.Size() )
-        throw "Alignment for [MD,*] must be in [0,p-1] (rxc grid,p=r*c).";
+        throw std::logic_error
+        ( "Alignment for [MD,*] must be in [0,p-1] (rxc grid,p=r*c)." );
 #endif
     const int lcm = grid.LCM();
     const int myDiagPath = grid.DiagPath();
@@ -581,7 +583,8 @@ DistMatrix<R,MD,Star>::DistMatrix
     if( &A != this )
         *this = A;
     else
-        throw "Attempted to construct a [MD,* ] with itself.";
+        throw std::logic_error
+        ( "Attempted to construct a [MD,* ] with itself." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -714,7 +717,7 @@ DistMatrix<std::complex<R>,MD,Star>::DistMatrix
 #ifndef RELEASE
     PushCallStack("DistMatrix[MD,* ]::DistMatrix");
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw std::logic_error( "Height and width must be non-negative." );
 #endif
     const int lcm = grid.LCM();
     const int myDiagPath = grid.DiagPath();
@@ -748,7 +751,8 @@ DistMatrix<std::complex<R>,MD,Star>::DistMatrix
 #ifndef RELEASE
     PushCallStack("DistMatrix[MD,* ]::DistMatrix");
     if( colAlignment < 0 || colAlignment >= grid.Size() )
-        throw "alignment for [MD,*] must be in [0,p-1] (rxc grid,p=r*c).";
+        throw std::logic_error
+        ( "alignment for [MD,*] must be in [0,p-1] (rxc grid,p=r*c)." );
 #endif
     const int lcm = grid.LCM();
     const int myDiagPath = grid.DiagPath();
@@ -781,7 +785,8 @@ DistMatrix<std::complex<R>,MD,Star>::DistMatrix
 #ifndef RELEASE
     PushCallStack("DistMatrix[MD,* ]::DistMatrix");
     if( colAlignment < 0 || colAlignment >= grid.Size() )
-        throw "Alignment for [MD,*] must be in [0,p-1] (rxc grid,p=r*c).";
+        throw std::logic_error
+        ( "Alignment for [MD,*] must be in [0,p-1] (rxc grid,p=r*c)." );
 #endif
     const int lcm = grid.LCM();
     const int myDiagPath = grid.DiagPath();
@@ -822,7 +827,8 @@ DistMatrix<std::complex<R>,MD,Star>::DistMatrix
     if( &A != this )
         *this = A;
     else
-        throw "Attempted to construct a [MD,* ] with itself.";
+        throw std::logic_error
+        ( "Attempted to construct a [MD,* ] with itself." );
 #ifndef RELEASE
     PopCallStack();
 #endif

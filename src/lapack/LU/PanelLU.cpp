@@ -24,11 +24,11 @@ elemental::lapack::internal::PanelLU
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelLU");
     if( A.GetGrid() != p.GetGrid() || p.GetGrid() != B.GetGrid() )
-        throw "Matrices must be distributed over the same grid.";
+        throw logic_error( "Matrices must be distributed over the same grid." );
     if( A.Width() != B.Width() )
-        throw "A and B must be the same width.";
+        throw logic_error( "A and B must be the same width." );
     if( A.Height() != p.Height() || p.Width() != 1 )
-        throw "p must be a vector that conforms with A.";
+        throw logic_error( "p must be a vector that conforms with A." );
 #endif
     const Grid& grid = A.GetGrid();
     const int np = grid.Size();
@@ -63,11 +63,11 @@ elemental::lapack::internal::PanelLU
     PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
-    PartitionRight( B, BL, BR );
+         ABL, ABR, 0 );
+    PartitionRight( B, BL, BR, 0 );
     PartitionDown
     ( p, pT,
-         pB );
+         pB, 0 );
     while( ATL.Height() < A.Height() )
     {
         RepartitionDownDiagonal

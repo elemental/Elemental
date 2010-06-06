@@ -476,7 +476,8 @@ DistMatrix<R,Star,VC>::DistMatrix
     if( &A != this )
         *this = A;
     else
-        throw "Attempted to construct a [* ,VC] with itself.";
+        throw std::logic_error
+        ( "Attempted to construct a [* ,VC] with itself." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -631,7 +632,8 @@ DistMatrix<std::complex<R>,Star,VC>::DistMatrix
     if( &A != this )
         *this = A;
     else
-        throw "Attempted to construct a [* ,VC] with itself.";
+        throw std::logic_error
+        ( "Attempted to construct a [* ,VC] with itself." );
 #ifndef RELEASE
     PopCallStack();
 #endif

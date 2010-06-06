@@ -125,7 +125,7 @@ elemental::Matrix<T>::Matrix( int height, int width )
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix(height,width)");
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw std::logic_error( "Height and width must be non-negative." );
 #endif
     _memory.Require( _ldim*width );
     _data = _memory.Buffer();
@@ -144,17 +144,17 @@ elemental::Matrix<T>::Matrix
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix(height,width,ldim)");
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw std::logic_error( "Height and width must be non-negative." );
     if( ldim < height )
     {
         std::ostringstream msg;
         msg << "Initialized with ldim(" << ldim << ") < "
             << "height(" << height << ")." << std::endl;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     if( ldim == 0 )
-        throw "Leading dimensions cannot be zero (for BLAS compat.).";
+        throw std::logic_error
+        ( "Leading dimensions cannot be zero (for BLAS compat.)." );
 #endif
     _memory.Require( ldim*width );
     _data = _memory.Buffer();
@@ -175,7 +175,8 @@ elemental::Matrix<T>::Matrix
     if( &A != this )
         *this = A;
     else
-        throw "You just tried to construct a Matrix with itself!";
+        throw std::logic_error
+        ( "You just tried to construct a Matrix with itself!" );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -194,15 +195,14 @@ elemental::Matrix<T>::operator()
 #ifndef RELEASE
     PushCallStack("Matrix::operator");
     if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
+        throw std::logic_error( "Indices must be non-negative." );
     if( i > Height() || j > Width() )
     {
         std::ostringstream msg;
         msg << "Out of bounds: "
             << "(" << i << "," << j << ") of " << Height() 
             << " x " << Width() << " Matrix." << std::endl;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -217,15 +217,14 @@ elemental::Matrix<T>::operator()
 #ifndef RELEASE
     PushCallStack("Matrix::operator");
     if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
+        throw std::logic_error( "Indices must be non-negative." );
     if( i > Height() || j > Width() )
     {
         std::ostringstream msg;
         msg << "Out of bounds: "
             << "(" << i << "," << j << ") of " << Height()
             << " x " << Width() << " Matrix." << std::endl;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -262,7 +261,8 @@ elemental::Matrix<T>::Buffer()
 #ifndef RELEASE
     PushCallStack("Matrix::Buffer");
     if( _lockedView )
-        throw "Cannot return non-const buffer of locked Matrix.";
+        throw std::logic_error
+        ( "Cannot return non-const buffer of locked Matrix." );
     PopCallStack();
 #endif
     return _data;
@@ -286,13 +286,14 @@ elemental::Matrix<T>::Buffer
 #ifndef RELEASE
     PushCallStack("Matrix::Buffer");
     if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
+        throw std::logic_error( "Indices must be non-negative." );
     if( _lockedView )
-        throw "Cannot return non-const buffer of locked Matrix.";
+        throw std::logic_error
+        ( "Cannot return non-const buffer of locked Matrix." );
     // The height or width of the buffer could be zero, so we 
     // use strict inequalities for flexibility. Pointer() does not.
     if( i>_height || j>_width )
-        throw "Requested out-of-bounds buffer of Matrix.";
+        throw std::logic_error( "Requested out-of-bounds buffer of Matrix." );
     PopCallStack();
 #endif
     return &_data[i+j*_ldim];
@@ -306,11 +307,11 @@ elemental::Matrix<T>::LockedBuffer
 #ifndef RELEASE
     PushCallStack("Matrix::LockedBuffer");
     if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
+        throw std::logic_error( "Indices must be non-negative." );
     // The height or width of the buffer could be zero, so we 
     // use strict inequalities for flexibility. LockedPointer() does not.
     if( i>_height || j>_width )
-        throw "Requested out-of-bounds buffer of Matrix.";
+        throw std::logic_error( "Requested out-of-bounds buffer of Matrix." );
     PopCallStack();
 #endif
     if( _lockedView )
@@ -327,11 +328,12 @@ elemental::Matrix<T>::Buffer
 #ifndef RELEASE
     PushCallStack("Matrix::Buffer");
     if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
+        throw std::logic_error( "Indices must be non-negative." );
     if( _lockedView )
-        throw "Cannot return non-const buffer of locked Matrix.";
+        throw std::logic_error
+        ( "Cannot return non-const buffer of locked Matrix." );
     if( (i+height)>_height || (j+width)>_width )
-        throw "Requested out-of-bounds buffer of Matrix.";
+        throw std::logic_error( "Requested out-of-bounds buffer of Matrix." );
     PopCallStack();
 #endif
     return &_data[i+j*_ldim];
@@ -345,11 +347,11 @@ elemental::Matrix<T>::LockedBuffer
 #ifndef RELEASE
     PushCallStack("Matrix::LockedBuffer");
     if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
+        throw std::logic_error( "Indices must be non-negative." );
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw std::logic_error( "Height and width must be non-negative." );
     if( (i+height)>_height || (j+width)>_width )
-        throw "Requested out-of-bounds buffer of Matrix.";
+        throw std::logic_error( "Requested out-of-bounds buffer of Matrix." );
     PopCallStack();
 #endif
     if( _lockedView )
@@ -365,9 +367,10 @@ elemental::Matrix<T>::Pointer()
 #ifndef RELEASE
     PushCallStack("Matrix::Pointer");
     if( _lockedView )
-        throw "Cannot return non-const pointer to locked Matrix.";
+        throw std::logic_error
+        ( "Cannot return non-const pointer to locked Matrix." );
     if( _height == 0 || _width == 0 )
-        throw "Requested pointer to empty Matrix.";
+        throw std::logic_error( "Requested pointer to empty Matrix." );
     PopCallStack();
 #endif
     return _data;
@@ -380,7 +383,7 @@ elemental::Matrix<T>::LockedPointer() const
 #ifndef RELEASE
     PushCallStack("Matrix::LockedPointer");
     if( _height == 0 || _width == 0 )
-        throw "Requested locked pointer to empty Matrix.";
+        throw std::logic_error( "Requested locked pointer to empty Matrix." );
     PopCallStack();
 #endif
     if( _lockedView )
@@ -397,11 +400,12 @@ elemental::Matrix<T>::Pointer
 #ifndef RELEASE
     PushCallStack("Matrix::Pointer");
     if( i < 0 || j < 0 )
-        throw "indices must be non-negative.";
+        throw std::logic_error( "indices must be non-negative." );
     if( _lockedView )
-        throw "Cannot return non-const pointer to locked Matrix.";
+        throw std::logic_error
+        ( "Cannot return non-const pointer to locked Matrix." );
     if( i >= _height || j >= _width )
-        throw "Requested out-of-bounds pointer to Matrix.";
+        throw std::logic_error( "Requested out-of-bounds pointer to Matrix." );
     PopCallStack();
 #endif
     return &_data[i+j*_ldim];
@@ -415,9 +419,10 @@ elemental::Matrix<T>::LockedPointer
 #ifndef RELEASE
     PushCallStack("Matrix::LockedPointer");
     if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
+        throw std::logic_error( "Indices must be non-negative." );
     if( i >= _height || j >= _width )
-        throw "Requested out-of-bounds locked pointer to Matrix.";
+        throw std::logic_error
+        ( "Requested out-of-bounds locked pointer to Matrix." );
     PopCallStack();
 #endif
     if( _lockedView )

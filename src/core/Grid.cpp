@@ -33,8 +33,7 @@ elemental::Grid::Grid
         ostringstream msg;
         msg << "Number of processes must match grid size:" << endl
             << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 
     // Create cartesian communicator
@@ -67,8 +66,7 @@ elemental::Grid::Grid
         ostringstream msg;
         msg << "Number of processes must match grid size:" << endl
             << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 
     // Create a cartesian communicator
@@ -92,7 +90,7 @@ elemental::Grid::Init
 #ifndef RELEASE
     PushCallStack("Grid::Init(r,c)");
     if( r <= 0 || c <= 0 )
-        throw "r and c must be positive.";
+        throw logic_error( "r and c must be positive." );
 #endif
     _r = r;
     _c = c;

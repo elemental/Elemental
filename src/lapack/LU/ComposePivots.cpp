@@ -23,9 +23,9 @@ elemental::lapack::internal::ComposePivots
 #ifndef RELEASE
     PushCallStack("lapack::internal::ComposePivots");
     if( p.Width() != 1 )
-        throw "p must be a column vector.";
+        throw logic_error( "p must be a column vector." );
     if( pivotOffset < 0 )
-        throw "pivotOffset must be non-negative.";
+        throw logic_error( "pivotOffset must be non-negative." );
 #endif
     const int b = p.Height();
     image.resize( b );

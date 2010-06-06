@@ -20,11 +20,11 @@ elemental::lapack::GaussElim
 #ifndef RELEASE
     PushCallStack("lapack::GaussElim");
     if( A.GetGrid() != B.GetGrid() )
-        throw "A and B must be distributed over the same grid.";
+        throw logic_error( "A and B must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw logic_error( "A must be square." );
     if( A.Height() != B.Height() )
-        throw "A and B must be the same height.";
+        throw logic_error( "A and B must be the same height." );
 #endif
     lapack::internal::ReduceToRowEchelon( A, B );
     if( B.Width() == 1 )

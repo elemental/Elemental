@@ -37,7 +37,7 @@ elemental::blas::internal::SymmLLC
 #ifndef RELEASE
     PushCallStack("blas::internal::SymmLLC");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
 #endif
     const Grid& grid = A.GetGrid();
 
@@ -64,13 +64,13 @@ elemental::blas::internal::SymmLLC
     blas::Scal( beta, C );
     LockedPartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
+         ABL, ABR, 0 );
     LockedPartitionDown
     ( B, BT,
-         BB );
+         BB, 0 );
     PartitionDown
     ( C, CT,
-         CB );
+         CB, 0 );
     while( CB.Height() > 0 )
     {
         LockedRepartitionDownDiagonal

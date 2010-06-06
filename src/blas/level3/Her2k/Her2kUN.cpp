@@ -21,7 +21,7 @@ elemental::blas::internal::Her2kUN
 #ifndef RELEASE
     PushCallStack("blas::internal::Her2kUN");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != C.Height() || A.Height() != C.Width() ||
         B.Height() != C.Height() || B.Height() != C.Width() ||
         A.Width() != B.Width()                                 )
@@ -31,8 +31,7 @@ elemental::blas::internal::Her2kUN
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -56,8 +55,8 @@ elemental::blas::internal::Her2kUN
 
     // Start the algorithm
     blas::Scal( beta, C );
-    LockedPartitionRight( A, AL, AR );
-    LockedPartitionRight( B, BL, BR );
+    LockedPartitionRight( A, AL, AR, 0 );
+    LockedPartitionRight( B, BL, BR, 0 );
     while( AR.Width() > 0 )
     {
         LockedRepartitionRight

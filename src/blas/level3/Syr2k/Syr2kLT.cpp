@@ -21,7 +21,7 @@ elemental::blas::internal::Syr2kLT
 #ifndef RELEASE
     PushCallStack("blas::internal::Syr2kLT");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Width() != C.Height() || 
         A.Width() != C.Width()  ||
         B.Width() != C.Height() ||
@@ -33,8 +33,7 @@ elemental::blas::internal::Syr2kLT
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -60,10 +59,10 @@ elemental::blas::internal::Syr2kLT
     blas::Scal( beta, C );
     LockedPartitionDown
     ( A, AT, 
-         AB );
+         AB, 0 );
     LockedPartitionDown
     ( B, BT,
-         BB );
+         BB, 0 );
     while( AB.Height() > 0 )
     {
         LockedRepartitionDown

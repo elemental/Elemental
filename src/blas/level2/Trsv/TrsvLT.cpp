@@ -22,16 +22,16 @@ elemental::blas::internal::TrsvLT
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsvLT");
     if( L.GetGrid() != x.GetGrid() )
-        throw "L and x must be distributed over the same grid.";
+        throw logic_error( "L and x must be distributed over the same grid." );
     if( orientation == Normal )
-        throw "TrsvLT expects a (conjugate-)transpose option.";
+        throw logic_error( "TrsvLT expects a (conjugate-)transpose option." );
     if( L.Height() != L.Width() )
-        throw "L must be square.";
+        throw logic_error( "L must be square." );
     if( x.Width() != 1 && x.Height() != 1 )
-        throw "x must be a vector.";
+        throw logic_error( "x must be a vector." );
     const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     if( L.Width() != xLength )
-        throw "Nonconformal TrsvLT.";
+        throw logic_error( "Nonconformal TrsvLT." );
 #endif
     const Grid& grid = L.GetGrid();
 
@@ -58,10 +58,10 @@ elemental::blas::internal::TrsvLT
         // Start the algorithm
         LockedPartitionUpDiagonal
         ( L, LTL, LTR,
-             LBL, LBR );
+             LBL, LBR, 0 );
         PartitionUp
         ( x, xT,
-             xB );
+             xB, 0 );
         while( xT.Height() > 0 )
         {
             LockedRepartitionUpDiagonal
@@ -136,8 +136,8 @@ elemental::blas::internal::TrsvLT
         // Start the algorithm
         LockedPartitionUpDiagonal
         ( L, LTL, LTR,
-             LBL, LBR );
-        PartitionLeft( x,  xL, xR );
+             LBL, LBR, 0 );
+        PartitionLeft( x,  xL, xR, 0 );
         while( xL.Width() > 0 )
         {
             LockedRepartitionUpDiagonal

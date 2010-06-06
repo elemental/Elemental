@@ -28,17 +28,16 @@ elemental::blas::internal::TrsmRLT
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsmRLT");
     if( L.GetGrid() != X.GetGrid() )
-        throw "L and X must be distributed over the same grid.";
+        throw logic_error( "L and X must be distributed over the same grid." );
     if( orientation == Normal )
-        throw "TrsmRLT expects a (Conjugate)Transpose option.";
+        throw logic_error( "TrsmRLT expects a (Conjugate)Transpose option." );
     if( L.Height() != L.Width() || X.Width() != L.Height() )
     {
         ostringstream msg;
         msg << "Nonconformal TrsmRLT: " << endl
             << "  L ~ " << L.Height() << " x " << L.Width() << endl
             << "  X ~ " << X.Height() << " x " << X.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = L.GetGrid();
@@ -62,8 +61,8 @@ elemental::blas::internal::TrsmRLT
     blas::Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
-         LBL, LBR );
-    PartitionRight( X, XL, XR );
+         LBL, LBR, 0 );
+    PartitionRight( X, XL, XR, 0 );
     while( XR.Width() > 0 )
     {
         LockedRepartitionDownDiagonal

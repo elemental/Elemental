@@ -28,25 +28,27 @@ elemental::lapack::internal::TridiagL
     if( A.GetGrid() != d.GetGrid() ||
         d.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid() )
-        throw "A, d, e, and t must be distributed over the same grid.";
+        throw logic_error
+        ( "A, d, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw logic_error( "A must be square." );
     if( d.Height() != A.Height() || d.Width() != 1 )
-        throw "d must be a column vector of the same length as A's width.";
+        throw logic_error
+        ( "d must be a column vector of the same length as A's width." );
     if( e.Height() != A.Height()-1 || e.Width() != 1 )
-        throw "e must be a column vector of length one less than the "
-              "width of A.";
+        throw logic_error
+        ( "e must be a column vector of length one less than the width of A." );
     if( t.Height() != A.Height()-1 || t.Width() != 1 )
-        throw "t must be a column vector of length one less than the "
-              "width of A.";
+        throw logic_error
+        ( "t must be a column vector of length one less than the width of A." );
     if( d.ColAlignment() != A.ColAlignment() + 
                             A.RowAlignment() * grid.Height() )
-        throw "d is not aligned with A.";
+        throw logic_error( "d is not aligned with A." );
     if( e.ColAlignment() != ((A.ColAlignment()+1) % grid.Height())
                             + A.RowAlignment() * grid.Height()    )
-        throw "e ist not aligned with A.";
+        throw logic_error( "e ist not aligned with A." );
     if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
-        throw "t ist not aligned with A.";
+        throw logic_error( "t ist not aligned with A." );
 #endif
 
     // Matrix views 
@@ -54,7 +56,7 @@ elemental::lapack::internal::TridiagL
         ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid), 
         ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
                                A20(grid), A21(grid), A22(grid),
-        A11_expanded(grid);
+        A11Expanded(grid);
     DistMatrix<R,MD,Star> dT(grid),  d0(grid), 
                           dB(grid),  d1(grid),
                                      d2(grid);
@@ -75,16 +77,16 @@ elemental::lapack::internal::TridiagL
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
+         ABL, ABR, 0 );
     PartitionDown
     ( d, dT,
-         dB );
+         dB, 0 );
     PartitionDown
     ( e, eT,
-         eB );
+         eB, 0 );
     PartitionDown
     ( t, tT,
-         tB );
+         tB, 0 );
     while( ATL.Height() < A.Height() )
     {
         RepartitionDownDiagonal
@@ -113,8 +115,8 @@ elemental::lapack::internal::TridiagL
 
         if( A22.Height() > 0 )
         {
-            A11_expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
-            WPan.AlignWith( ABR );
+            A11Expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
+            WPan.AlignWith( A11 );
             WPan.ResizeTo( ABR.Height(), A11.Width() );
             PartitionDown
             ( WPan, W11,
@@ -122,7 +124,7 @@ elemental::lapack::internal::TridiagL
             //----------------------------------------------------------------//
             lapack::internal::PanelTridiagL( ABR, WPan, e1, t1 );
             blas::Syr2k( Lower, Normal, (R)-1, A21, W21, (R)1, A22 );
-            A11_expanded.SetDiagonal( e1, -1 );
+            A11Expanded.SetDiagonal( e1, -1 );
             A11.GetDiagonal( d1 );
             //----------------------------------------------------------------//
             WPan.FreeAlignments();
@@ -194,25 +196,27 @@ elemental::lapack::internal::TridiagL
     if( A.GetGrid() != d.GetGrid() ||
         d.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid() )
-        throw "A, d, e, and t must be distributed over the same grid.";
+        throw logic_error
+        ( "A, d, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw logic_error( "A must be square." );
     if( d.Height() != A.Height() || d.Width() != 1 )
-        throw "d must be a column vector of the same length as A's width.";
+        throw logic_error
+        ( "d must be a column vector of the same length as A's width." );
     if( e.Height() != A.Height()-1 || e.Width() != 1 )
-        throw "e must be a column vector of length one less than the "
-              "width of A.";
+        throw logic_error
+        ( "e must be a column vector of length one less than the width of A." );
     if( t.Height() != A.Height()-1 || t.Width() != 1 )
-        throw "t must be a column vector of length one less than the "
-              "width of A.";
+        throw logic_error
+        ( "t must be a column vector of length one less than the width of A." );
     if( d.ColAlignment() != A.ColAlignment() + 
                             A.RowAlignment() * grid.Height() )
-        throw "d is not aligned with A.";
+        throw logic_error( "d is not aligned with A." );
     if( e.ColAlignment() != ((A.ColAlignment()+1) % grid.Height())
                             + A.RowAlignment() * grid.Height()    )
-        throw "e ist not aligned with A.";
+        throw logic_error( "e ist not aligned with A." );
     if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
-        throw "t ist not aligned with A.";
+        throw logic_error( "t ist not aligned with A." );
 #endif
     typedef complex<R> C;
 
@@ -221,7 +225,7 @@ elemental::lapack::internal::TridiagL
         ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid), 
         ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
                                A20(grid), A21(grid), A22(grid),
-        A11_expanded(grid);
+        A11Expanded(grid);
     DistMatrix<R,MD,Star> dT(grid),  d0(grid), 
                           dB(grid),  d1(grid),
                                      d2(grid);
@@ -242,16 +246,16 @@ elemental::lapack::internal::TridiagL
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
+         ABL, ABR, 0 );
     PartitionDown
     ( d, dT,
-         dB );
+         dB, 0 );
     PartitionDown
     ( e, eT,
-         eB );
+         eB, 0 );
     PartitionDown
     ( t, tT,
-         tB );
+         tB, 0 );
     while( ATL.Height() < A.Height() )
     {
         RepartitionDownDiagonal
@@ -280,8 +284,8 @@ elemental::lapack::internal::TridiagL
 
         if( A22.Height() > 0 )
         {
-            A11_expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
-            WPan.AlignWith( ABR );
+            A11Expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
+            WPan.AlignWith( A11 );
             WPan.ResizeTo( ABR.Height(), A11.Width() );
             PartitionDown
             ( WPan, W11,
@@ -289,7 +293,7 @@ elemental::lapack::internal::TridiagL
             //----------------------------------------------------------------//
             lapack::internal::PanelTridiagL( ABR, WPan, e1, t1 );
             blas::Her2k( Lower, Normal, (C)-1, A21, W21, (C)1, A22 );
-            A11_expanded.SetDiagonal( e1, -1 );
+            A11Expanded.SetDiagonal( e1, -1 );
             A11.GetRealDiagonal( d1 );
             //----------------------------------------------------------------//
             WPan.FreeAlignments();

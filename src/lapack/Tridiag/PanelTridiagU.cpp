@@ -16,46 +16,53 @@ using namespace elemental::wrappers::mpi;
 template<typename R>
 void
 elemental::lapack::internal::PanelTridiagU
-( DistMatrix<R,MC,  MR  >& A,
-  DistMatrix<R,MC,  MR  >& W,
-  DistMatrix<R,MD,  Star>& e,
-  DistMatrix<R,MD,  Star>& t )
+( DistMatrix<R,MC,MR  >& A,
+  DistMatrix<R,MC,MR  >& W,
+  DistMatrix<R,MD,Star>& e,
+  DistMatrix<R,MD,Star>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagU");
     if( A.GetGrid() != W.GetGrid() ||
         W.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid() )
-        throw "A, W, e, and t must be distributed over the same grid.";
+        throw logic_error
+        ( "A, W, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
-    if( A.Width() != W.Width() )
-        throw "A and W must be the same width.";
-    if( W.Height() >= W.Width() )
-        throw "W must be a row panel.";
+        throw logic_error( "A must be square." );
+    if( A.Height() != W.Height() )
+        throw logic_error( "A and W must be the same height." );
+    if( W.Width() > W.Height() )
+        throw logic_error( "W must be a column panel." );
     if( W.ColAlignment() != A.ColAlignment() || 
-        W.RowAlignment() != A.RowAlignment()   )
-        throw "W and A must be aligned.";
-    if( e.Height() != W.Height() || e.Width() != 1 )
-        throw "e must be a column vector of the same length as W's height.";
-    if( t.Height() != W.Height() || t.Width() != 1 )
-        throw "t must be a column vector of the same length as W's height.";
-    if( e.ColAlignment() != A.ColAlignment() + 
-        ((A.RowAlignment()+1) % e.GetGrid().Width())*e.GetGrid().Height() )
-        throw "e ist not aligned with A.";
-    if( t.ColAlignment() != (A.ColAlignment()+
-                             A.RowAlignment()*t.GetGrid().Height()) )
-        throw "t is not aligned with A.";
+        W.RowAlignment() != 
+          ((A.RowAlignment()+A.Width()-W.Width())%A.GetGrid().Width()) )
+        throw logic_error( "W and A must be aligned." );
+    if( e.Height() != W.Width() || e.Width() != 1 )
+        throw logic_error
+        ( "e must be a column vector of the same length as W's width." );
+    if( t.Height() != W.Width() || t.Width() != 1 )
+        throw logic_error
+        ( "t must be a column vector of the same length as W's width." );
+    if( e.ColAlignment() != 
+        ((A.ColAlignment()+(A.Height()-W.Width()-1)) % e.GetGrid().Height()) + 
+        W.RowAlignment()*e.GetGrid().Height() )
+        throw logic_error( "e is not aligned with A." );
+    if( t.ColAlignment() != W.RowAlignment()*t.GetGrid().Height() + 
+          ((A.ColAlignment()+A.Height()-W.Width()) % t.GetGrid().Height()) )
+        throw logic_error( "t is not aligned with A." );
 #endif
     const Grid& grid = A.GetGrid();
 
     // Matrix views 
     DistMatrix<R,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), a01(grid),     A02(grid),  ARow(grid),
+        ATL(grid), ATR(grid),  A00(grid), a01(grid),     A02(grid),  ACol(grid),
         ABL(grid), ABR(grid),  a10(grid), alpha11(grid), a12(grid),
-                               A20(grid), a21(grid),     A22(grid);
+                               A20(grid), a21(grid),     A22(grid),
+        a01T(grid),
+        alpha01B(grid);
     DistMatrix<R,MC,MR> 
-        WTL(grid), WTR(grid),  W00(grid), w01(grid),     W02(grid),  WRow(grid),
+        WTL(grid), WTR(grid),  W00(grid), w01(grid),     W02(grid),  WCol(grid),
         WBL(grid), WBR(grid),  w10(grid), omega11(grid), w12(grid),
                                W20(grid), w21(grid),     W22(grid);
     DistMatrix<R,MD,Star> eT(grid),  e0(grid),
@@ -66,168 +73,174 @@ elemental::lapack::internal::PanelTridiagU
                                      t2(grid);
 
     // Temporary distributions
-    DistMatrix<R,Star,MC  > a12_Star_MC(grid);
-    DistMatrix<R,Star,MR  > a12_Star_MR(grid);
-    DistMatrix<R,MC,  Star> z01_MC_Star(grid);
-    DistMatrix<R,MC,  MR  > z12(grid);
-    DistMatrix<R,Star,MC  > z12_Star_MC(grid);
+    DistMatrix<R,MC,  Star> a01_MC_Star(grid);
+    DistMatrix<R,MR,  Star> a01_MR_Star(grid);
     DistMatrix<R,Star,MR  > z12_Star_MR(grid);
-    DistMatrix<R,MR,  MC  > z12_MR_MC(grid);
+    DistMatrix<R,MC,  MR  > z01(grid);
+    DistMatrix<R,MC,  Star> z01_MC_Star(grid);
+    DistMatrix<R,MR,  Star> z01_MR_Star(grid);
+    DistMatrix<R,MR,  MC  > z01_MR_MC(grid);
 
     // Push to the blocksize of 1, then pop at the end of the routine
     PushBlocksizeStack( 1 );
 
-    PartitionDownDiagonal
+    PartitionUpDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
-    PartitionDownDiagonal
+         ABL, ABR, 0 );
+    PartitionUpDiagonal
     ( W, WTL, WTR,
-         WBL, WBR );
-    PartitionDown
+         WBL, WBR, 0 );
+    PartitionUp
     ( e, eT,
-         eB );
-    PartitionDown
+         eB, 0 );
+    PartitionUp
     ( t, tT,
-         tB );
-    while( WTL.Height() < W.Height() )
+         tB, 0 );
+    while( WBR.Width() < W.Width() )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12, 
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
-        
-        RepartitionDownDiagonal
-        ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
-         /*************/ /**********************/
-               /**/       w10, /**/ omega11, w12,
-          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
-
-        RepartitionDown
-        ( eT,  e0,
-         /**/ /********/
-               epsilon1,
-          eB,  e2 );
-
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /****/
-               tau1,
-          tB,  t2 );
-
-        ARow.View1x2( alpha11, a12 );
-
-        WRow.View1x2( omega11, w12 );
-
-        a12_Star_MC.AlignWith( A22 );
-        a12_Star_MR.AlignWith( A22 );
-        z01_MC_Star.AlignWith( W02 );
-        z12.AlignWith( w12 );
-        z12_Star_MC.AlignWith( A22 );
-        z12_Star_MR.AlignWith( A22 );
-        z12_MR_MC.AlignRowsWith( A22 );
-        z12_Star_MC.ResizeTo( 1, w12.Width() );
-        z12_Star_MR.ResizeTo( 1, w12.Width() );
-        z01_MC_Star.ResizeTo( w01.Height(), 1 );
-        z12_Star_MC.SetToZero();
-        z12_Star_MR.SetToZero();
-        //--------------------------------------------------------------------//
-        blas::Gemv( Transpose, (R)-1, ATR, w01, (R)1, ARow );
-        blas::Gemv( Transpose, (R)-1, WTR, a01, (R)1, ARow );
-
-        R tau = 0; // Initializing avoids false compiler warnings
-        const bool thisIsMyRow = ( grid.MCRank() == a12.ColAlignment() );
-        if( thisIsMyRow )
-        {
-            tau = lapack::internal::LocalRowReflector( a12 );
-            tau1.Set( 0, 0, tau );
-        }
-            
-        a12.GetDiagonal( epsilon1 );
-        a12.Set( 0, 0, (R)1 ); 
-
-        a12_Star_MC = a12_Star_MR = a12;
-
-        PopBlocksizeStack();
-        blas::internal::SymvRowAccumulate
-        ( Upper, (R)1, A22, a12_Star_MC, a12_Star_MR, 
-                            z12_Star_MC, z12_Star_MR );
-        PushBlocksizeStack( 1 );
-
-        blas::Gemv
-        ( Normal, 
-          (R)1, W02.LockedLocalMatrix(),
-                a12_Star_MR.LockedLocalMatrix(),
-          (R)0, z01_MC_Star.LocalMatrix() );
-        z01_MC_Star.SumOverRow();
-
-        blas::Gemv
-        ( Transpose, 
-          (R)-1, A02.LockedLocalMatrix(),
-                 z01_MC_Star.LockedLocalMatrix(),
-          (R)+1, z12_Star_MR.LocalMatrix() );
-
-        blas::Gemv
-        ( Normal, 
-          (R)1, A02.LockedLocalMatrix(),
-                a12_Star_MR.LockedLocalMatrix(),
-          (R)0, z01_MC_Star.LocalMatrix() );
-        z01_MC_Star.SumOverRow();
-
-        blas::Gemv
-        ( Transpose, 
-          (R)-1, W02.LockedLocalMatrix(),
-                 z01_MC_Star.LockedLocalMatrix(),
-          (R)+1, z12_Star_MR.LocalMatrix() );
-
-        w12.SumScatterFrom( z12_Star_MR );
-        z12_MR_MC.SumScatterFrom( z12_Star_MC );
-        z12 = z12_MR_MC;
-
-        if( thisIsMyRow )
-        {
-            blas::Axpy( (R)1, z12, w12 );
-            blas::Scal( tau, w12 );
-
-            R alpha;
-            R myAlpha = -static_cast<R>(0.5)*tau*
-                        blas::Dot( w12.LockedLocalMatrix(),
-                                   a12.LockedLocalMatrix() );
-            AllReduce( &myAlpha, &alpha, 1, MPI_SUM, grid.MRComm() );
-            blas::Axpy( alpha, a12, w12 );
-        }
-        //--------------------------------------------------------------------//
-        a12_Star_MC.FreeAlignments();
-        a12_Star_MR.FreeAlignments();
-        z01_MC_Star.FreeAlignments();
-        z12.FreeAlignments();
-        z12_Star_MC.FreeAlignments();
-        z12_Star_MR.FreeAlignments();
-        z12_MR_MC.FreeAlignments();
-
-        SlidePartitionDown
-        ( eT,  e0,
-               epsilon1,
-         /**/ /********/
-          eB,  e2 );
-
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
-
-        SlidePartitionDownDiagonal
+        RepartitionUpDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
+               /**/       a10, alpha11, /**/ a12, 
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
-
-        SlidePartitionDownDiagonal
+        
+        RepartitionUpDiagonal
         ( WTL, /**/ WTR,  W00, w01,     /**/ W02,
                /**/       w10, omega11, /**/ w12,
          /*************/ /**********************/
           WBL, /**/ WBR,  W20, w21,     /**/ W22 );
+
+        RepartitionUp
+        ( eT,  e0,
+               epsilon1,
+         /**/ /********/
+          eB,  e2 );
+
+        RepartitionUp
+        ( tT,  t0,
+               tau1,
+         /**/ /****/
+          tB,  t2 );
+
+        ACol.View2x1( a01,
+                      alpha11 );
+
+        WCol.View2x1( w01,
+                      omega11 );
+        
+        PartitionUp
+        ( a01, a01T,
+               alpha01B, 1 );
+
+        a01_MC_Star.AlignWith( A00 );
+        a01_MR_Star.AlignWith( A00 );
+        z12_Star_MR.AlignWith( W02 );
+        z01.AlignWith( w01 );
+        z01_MC_Star.AlignWith( A00 );
+        z01_MR_Star.AlignWith( A00 );
+        z01_MR_MC.AlignColsWith( A00 );
+        z01_MC_Star.ResizeTo( w01.Height(), 1 );
+        z01_MR_Star.ResizeTo( w01.Height(), 1 );
+        z12_Star_MR.ResizeTo( 1, w12.Width() );
+        z01_MC_Star.SetToZero();
+        z01_MR_Star.SetToZero();
+        //--------------------------------------------------------------------//
+        blas::Gemv( Normal, (R)-1, ATR, w12, (R)1, ACol );
+        blas::Gemv( Normal, (R)-1, WTR, a12, (R)1, ACol );
+
+        R tau = 0; // Initializing avoids false compiler warnings
+        const bool thisIsMyColumn = ( grid.MRRank() == a01.RowAlignment() );
+        if( thisIsMyColumn )
+        {
+            tau = lapack::internal::LocalColReflector( alpha01B, a01T );
+            tau1.Set( 0, 0, tau );
+        }
+            
+        alpha01B.GetDiagonal( epsilon1 );
+        alpha01B.Set( 0, 0, (R)1 );
+
+        a01_MR_Star = a01_MC_Star = a01;
+
+        PopBlocksizeStack();
+        blas::internal::SymvColAccumulate
+        ( Upper, (R)1, A00, a01_MC_Star, a01_MR_Star,
+                            z01_MC_Star, z01_MR_Star );
+        PushBlocksizeStack( 1 );
+
+        blas::Gemv
+        ( Transpose, 
+          (R)1, W02.LockedLocalMatrix(),
+                a01_MC_Star.LockedLocalMatrix(),
+          (R)0, z12_Star_MR.LocalMatrix() );
+        z12_Star_MR.SumOverCol();
+
+        blas::Gemv
+        ( Normal,
+          (R)-1, A02.LockedLocalMatrix(),
+                 z12_Star_MR.LockedLocalMatrix(),
+          (R)+1, z01_MC_Star.LocalMatrix() );
+
+        blas::Gemv
+        ( Transpose,
+          (R)1, A02.LockedLocalMatrix(),
+                a01_MC_Star.LockedLocalMatrix(),
+          (R)0, z12_Star_MR.LocalMatrix() );
+        z12_Star_MR.SumOverCol();
+
+        blas::Gemv
+        ( Normal,
+          (R)-1, W02.LockedLocalMatrix(),
+                 z12_Star_MR.LockedLocalMatrix(),
+          (R)+1, z01_MC_Star.LocalMatrix() );
+
+        w01.SumScatterFrom( z01_MC_Star );
+        z01_MR_MC.SumScatterFrom( z01_MR_Star );
+        z01 = z01_MR_MC;
+
+        if( thisIsMyColumn )
+        {
+            blas::Axpy( (R)1, z01, w01 );
+            blas::Scal( tau, w01 );
+
+            R alpha;
+            R myAlpha = -static_cast<R>(0.5)*tau*
+                        blas::Dot( w01.LockedLocalMatrix(),
+                                   a01.LockedLocalMatrix() );
+            AllReduce( &myAlpha, &alpha, 1, MPI_SUM, grid.MCComm() );
+            blas::Axpy( alpha, a01, w01 );
+        }
+        //--------------------------------------------------------------------//
+        a01_MC_Star.FreeAlignments();
+        a01_MR_Star.FreeAlignments();
+        z12_Star_MR.FreeAlignments();
+        z01.FreeAlignments();
+        z01_MC_Star.FreeAlignments();
+        z01_MR_Star.FreeAlignments();
+        z01_MR_MC.FreeAlignments();
+
+        SlidePartitionUp
+        ( eT,  e0,
+         /**/ /********/
+               epsilon1,
+          eB,  e2 );
+
+        SlidePartitionUp
+        ( tT,  t0,
+         /**/ /****/
+               tau1,
+          tB,  t2 );
+
+        SlidePartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
+         /*************/ /**********************/
+               /**/       a10, /**/ alpha11, a12,
+          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+
+        SlidePartitionUpDiagonal
+        ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
+         /*************/ /**********************/
+               /**/       w10, /**/ omega11, w12,
+          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
     }
 
     PopBlocksizeStack();
@@ -251,26 +264,31 @@ elemental::lapack::internal::PanelTridiagU
     if( A.GetGrid() != W.GetGrid() ||
         W.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid() )
-        throw "A, W, e, and t must be distributed over the same grid.";
+        throw logic_error
+        ( "A, W, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
-    if( A.Width() != W.Width() )
-        throw "A and W must be the same width.";
-    if( W.Height() >= W.Width() )
-        throw "W must be a row panel.";
+        throw logic_error( "A must be square." );
+    if( A.Height() != W.Height() )
+        throw logic_error( "A and W must be the same height." );
+    if( W.Width() > W.Height() )
+        throw logic_error( "W must be a column panel." );
     if( W.ColAlignment() != A.ColAlignment() || 
-        W.RowAlignment() != A.RowAlignment()   )
-        throw "W and A must be aligned.";
-    if( e.Height() != W.Height() || e.Width() != 1 )
-        throw "e must be a column vector of the same length as W's height.";
-    if( t.Height() != W.Height() || t.Width() != 1 )
-        throw "t must be a column vector of the same length as W's height.";
-    if( e.ColAlignment() != A.ColAlignment() + 
-        ((A.RowAlignment()+1) % e.GetGrid().Width())*e.GetGrid().Height() )
-        throw "e ist not aligned with A.";
-    if( t.ColAlignment() != (A.ColAlignment()+
-                             A.RowAlignment()*t.GetGrid().Height()) )
-        throw "t is not aligned with A.";
+        W.RowAlignment() != 
+          ((A.RowAlignment()+A.Width()-W.Width())%A.GetGrid().Width()) )
+        throw logic_error( "W and A must be aligned." );
+    if( e.Height() != W.Width() || e.Width() != 1 )
+        throw logic_error
+        ( "e must be a column vector of the same length as W's width." );
+    if( t.Height() != W.Width() || t.Width() != 1 )
+        throw logic_error
+        ( "t must be a column vector of the same length as W's width." );
+    if( e.ColAlignment() != 
+        ((A.ColAlignment()+(A.Height()-W.Width()-1)) % e.GetGrid().Height()) + 
+        W.RowAlignment()*e.GetGrid().Height() )
+        throw logic_error( "e is not aligned with A." );
+    if( t.ColAlignment() != W.RowAlignment()*t.GetGrid().Height() + 
+          ((A.ColAlignment()+A.Height()-W.Width())%t.GetGrid().Height()) )
+        throw logic_error( "t is not aligned with A." );
 #endif
     typedef complex<R> C;
 
@@ -278,11 +296,13 @@ elemental::lapack::internal::PanelTridiagU
 
     // Matrix views 
     DistMatrix<C,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), a01(grid),     A02(grid),  ARow(grid),
+        ATL(grid), ATR(grid),  A00(grid), a01(grid),     A02(grid),  ACol(grid),
         ABL(grid), ABR(grid),  a10(grid), alpha11(grid), a12(grid),
-                               A20(grid), a21(grid),     A22(grid);
+                               A20(grid), a21(grid),     A22(grid),
+        a01T(grid),
+        alpha01B(grid);
     DistMatrix<C,MC,MR> 
-        WTL(grid), WTR(grid),  W00(grid), w01(grid),     W02(grid),  WRow(grid),
+        WTL(grid), WTR(grid),  W00(grid), w01(grid),     W02(grid),  WCol(grid),
         WBL(grid), WBR(grid),  w10(grid), omega11(grid), w12(grid),
                                W20(grid), w21(grid),     W22(grid);
     DistMatrix<R,MD,Star> eT(grid),  e0(grid),
@@ -293,172 +313,179 @@ elemental::lapack::internal::PanelTridiagU
                                      t2(grid);
 
     // Temporary distributions
-    DistMatrix<C,MC,  MR  > a01Conj(grid);
-    DistMatrix<C,MC,  MR  > w01Conj(grid);
-    DistMatrix<C,Star,MC  > a12_Star_MC(grid);
-    DistMatrix<C,Star,MR  > a12_Star_MR(grid);
-    DistMatrix<C,MC,  Star> z01_MC_Star(grid);
-    DistMatrix<C,MC,  MR  > z12(grid);
-    DistMatrix<C,Star,MC  > z12_Star_MC(grid);
+    DistMatrix<C,MC,  MR  > a12Conj(grid);
+    DistMatrix<C,MC,  MR  > w12Conj(grid);
+    DistMatrix<C,MC,  Star> a01_MC_Star(grid);
+    DistMatrix<C,MR,  Star> a01_MR_Star(grid);
     DistMatrix<C,Star,MR  > z12_Star_MR(grid);
-    DistMatrix<C,MR,  MC  > z12_MR_MC(grid);
+    DistMatrix<C,MC,  MR  > z01(grid);
+    DistMatrix<C,MC,  Star> z01_MC_Star(grid);
+    DistMatrix<C,MR,  Star> z01_MR_Star(grid);
+    DistMatrix<C,MR,  MC  > z01_MR_MC(grid);
 
     // Push to the blocksize of 1, then pop at the end of the routine
     PushBlocksizeStack( 1 );
 
-    PartitionDownDiagonal
+    PartitionUpDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
-    PartitionDownDiagonal
+         ABL, ABR, 0 );
+    PartitionUpDiagonal
     ( W, WTL, WTR,
-         WBL, WBR );
-    PartitionDown
+         WBL, WBR, 0 );
+    PartitionUp
     ( e, eT,
-         eB );
-    PartitionDown
+         eB, 0 );
+    PartitionUp
     ( t, tT,
-         tB );
-    while( WTL.Height() < W.Height() )
+         tB, 0 );
+    while( WBR.Width() < W.Width() )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12, 
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
-        
-        RepartitionDownDiagonal
-        ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
-         /*************/ /**********************/
-               /**/       w10, /**/ omega11, w12,
-          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
-
-        RepartitionDown
-        ( eT,  e0,
-         /**/ /********/
-               epsilon1,
-          eB,  e2 );
-
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /****/
-               tau1,
-          tB,  t2 );
-
-        ARow.View1x2( alpha11, a12 );
-
-        WRow.View1x2( omega11, w12 );
-
-        a12_Star_MC.AlignWith( A22 );
-        a12_Star_MR.AlignWith( A22 );
-        z01_MC_Star.AlignWith( W02 );
-        z12.AlignWith( w12 );
-        z12_Star_MC.AlignWith( A22 );
-        z12_Star_MR.AlignWith( A22 );
-        z12_MR_MC.AlignRowsWith( A22 );
-        z12_Star_MC.ResizeTo( 1, w12.Width() );
-        z12_Star_MR.ResizeTo( 1, w12.Width() );
-        z01_MC_Star.ResizeTo( w01.Height(), 1 );
-        z12_Star_MC.SetToZero();
-        z12_Star_MR.SetToZero();
-        //--------------------------------------------------------------------//
-        alpha11.SetImag( 0, 0, (R)0 );
-        blas::Gemv( ConjugateTranspose, (C)-1, ATR, w01, (C)1, ARow );
-        blas::Gemv( ConjugateTranspose, (C)-1, WTR, a01, (C)1, ARow );
-        alpha11.SetImag( 0, 0, (R)0 );
-
-        C tau = 0; // Initializing avoids false compiler warnings
-        const bool thisIsMyRow = ( grid.MCRank() == a12.ColAlignment() );
-        if( thisIsMyRow )
-        {
-            tau = lapack::internal::LocalRowReflector( a12 );
-            tau1.Set( 0, 0, tau );
-        }
-            
-        a12.GetRealDiagonal( epsilon1 );
-        a12.Set( 0, 0, (C)1 ); 
-
-        a12_Star_MC = a12_Star_MR = a12;
-
-        PopBlocksizeStack();
-        blas::internal::HemvRowAccumulate
-        ( Upper, (C)1, A22, a12_Star_MC, a12_Star_MR, 
-                            z12_Star_MC, z12_Star_MR );
-        PushBlocksizeStack( 1 );
-
-        blas::Gemv
-        ( Normal, 
-          (C)1, W02.LockedLocalMatrix(),
-                a12_Star_MR.LockedLocalMatrix(),
-          (C)0, z01_MC_Star.LocalMatrix() );
-        z01_MC_Star.SumOverRow();
-
-        blas::Gemv
-        ( ConjugateTranspose, 
-          (C)-1, A02.LockedLocalMatrix(),
-                 z01_MC_Star.LockedLocalMatrix(),
-          (C)+1, z12_Star_MR.LocalMatrix() );
-
-        blas::Gemv
-        ( Normal, 
-          (C)1, A02.LockedLocalMatrix(),
-                a12_Star_MR.LockedLocalMatrix(),
-          (C)0, z01_MC_Star.LocalMatrix() );
-        z01_MC_Star.SumOverRow();
-
-        blas::Gemv
-        ( ConjugateTranspose, 
-          (C)-1, W02.LockedLocalMatrix(),
-                 z01_MC_Star.LockedLocalMatrix(),
-          (C)+1, z12_Star_MR.LocalMatrix() );
-
-        w12.SumScatterFrom( z12_Star_MR );
-        z12_MR_MC.SumScatterFrom( z12_Star_MC );
-        z12 = z12_MR_MC;
-
-        if( thisIsMyRow )
-        {
-            blas::Axpy( (C)1, z12, w12 );
-            blas::Scal( tau, w12 );
-
-            C alpha;
-            C myAlpha = -static_cast<C>(0.5)*tau*
-                        blas::Dot( w12.LockedLocalMatrix(),
-                                   a12.LockedLocalMatrix() );
-            AllReduce( &myAlpha, &alpha, 1, MPI_SUM, grid.MRComm() );
-            blas::Axpy( alpha, a12, w12 );
-        }
-        //--------------------------------------------------------------------//
-        a12_Star_MC.FreeAlignments();
-        a12_Star_MR.FreeAlignments();
-        z01_MC_Star.FreeAlignments();
-        z12.FreeAlignments();
-        z12_Star_MC.FreeAlignments();
-        z12_Star_MR.FreeAlignments();
-        z12_MR_MC.FreeAlignments();
-
-        SlidePartitionDown
-        ( eT,  e0,
-               epsilon1,
-         /**/ /********/
-          eB,  e2 );
-
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
-
-        SlidePartitionDownDiagonal
+        RepartitionUpDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
+               /**/       a10, alpha11, /**/ a12, 
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
-
-        SlidePartitionDownDiagonal
+        
+        RepartitionUpDiagonal
         ( WTL, /**/ WTR,  W00, w01,     /**/ W02,
                /**/       w10, omega11, /**/ w12,
          /*************/ /**********************/
           WBL, /**/ WBR,  W20, w21,     /**/ W22 );
+
+        RepartitionUp
+        ( eT,  e0,
+               epsilon1,
+         /**/ /********/
+          eB,  e2 );
+
+        RepartitionUp
+        ( tT,  t0,
+               tau1,
+         /**/ /****/
+          tB,  t2 );
+
+        ACol.View2x1( a01,
+                      alpha11 );
+
+        WCol.View2x1( w01,
+                      omega11 );
+
+        PartitionUp
+        ( a01, a01T,
+               alpha01B, 1 );
+
+        a01_MC_Star.AlignWith( A00 );
+        a01_MR_Star.AlignWith( A00 );
+        z12_Star_MR.AlignWith( W02 );
+        z01.AlignWith( w01 );
+        z01_MC_Star.AlignWith( A00 );
+        z01_MR_Star.AlignWith( A00 );
+        z01_MR_MC.AlignColsWith( A00 );
+        z01_MC_Star.ResizeTo( w01.Height(), 1 );
+        z01_MR_Star.ResizeTo( w01.Height(), 1 );
+        z12_Star_MR.ResizeTo( 1, w12.Width() );
+        z01_MC_Star.SetToZero();
+        z01_MR_Star.SetToZero();
+        //--------------------------------------------------------------------//
+        alpha11.SetImag( 0, 0, (R)0 );
+        blas::Conj( w12, w12Conj );
+        blas::Gemv( Normal, (C)-1, ATR, w12Conj, (C)1, ACol );
+        blas::Conj( a12, a12Conj );
+        blas::Gemv( Normal, (C)-1, WTR, a12Conj, (C)1, ACol );
+
+        C tau = 0; // Initializing avoids false compiler warnings
+        const bool thisIsMyColumn = ( grid.MRRank() == a01.RowAlignment() );
+        if( thisIsMyColumn )
+        {
+            tau = lapack::internal::LocalColReflector( alpha01B, a01T );
+            tau1.Set( 0, 0, tau );
+        }
+            
+        alpha01B.GetRealDiagonal( epsilon1 );
+        alpha01B.Set( 0, 0, (C)1 );
+
+        a01_MR_Star = a01_MC_Star = a01;
+
+        PopBlocksizeStack();
+        blas::internal::HemvColAccumulate
+        ( Upper, (C)1, A00, a01_MC_Star, a01_MR_Star,
+                            z01_MC_Star, z01_MR_Star );
+        PushBlocksizeStack( 1 );
+
+        blas::Gemv
+        ( ConjugateTranspose, 
+          (C)1, W02.LockedLocalMatrix(),
+                a01_MC_Star.LockedLocalMatrix(),
+          (C)0, z12_Star_MR.LocalMatrix() );
+        z12_Star_MR.SumOverCol();
+
+        blas::Gemv
+        ( Normal,
+          (C)-1, A02.LockedLocalMatrix(),
+                 z12_Star_MR.LockedLocalMatrix(),
+          (C)+1, z01_MC_Star.LocalMatrix() );
+
+        blas::Gemv
+        ( ConjugateTranspose,
+          (C)1, A02.LockedLocalMatrix(),
+                a01_MC_Star.LockedLocalMatrix(),
+          (C)0, z12_Star_MR.LocalMatrix() );
+        z12_Star_MR.SumOverCol();
+
+        blas::Gemv
+        ( Normal,
+          (C)-1, W02.LockedLocalMatrix(),
+                 z12_Star_MR.LockedLocalMatrix(),
+          (C)+1, z01_MC_Star.LocalMatrix() );
+
+        w01.SumScatterFrom( z01_MC_Star );
+        z01_MR_MC.SumScatterFrom( z01_MR_Star );
+        z01 = z01_MR_MC;
+
+        if( thisIsMyColumn )
+        {
+            blas::Axpy( (C)1, z01, w01 );
+            blas::Scal( tau, w01 );
+
+            C alpha;
+            C myAlpha = -static_cast<R>(0.5)*tau*
+                        blas::Dot( w01.LockedLocalMatrix(),
+                                   a01.LockedLocalMatrix() );
+            AllReduce( &myAlpha, &alpha, 1, MPI_SUM, grid.MCComm() );
+            blas::Axpy( alpha, a01, w01 );
+        }
+        //--------------------------------------------------------------------//
+        a01_MC_Star.FreeAlignments();
+        a01_MR_Star.FreeAlignments();
+        z12_Star_MR.FreeAlignments();
+        z01.FreeAlignments();
+        z01_MC_Star.FreeAlignments();
+        z01_MR_Star.FreeAlignments();
+        z01_MR_MC.FreeAlignments();
+
+        SlidePartitionUp
+        ( eT,  e0,
+         /**/ /********/
+               epsilon1,
+          eB,  e2 );
+
+        SlidePartitionUp
+        ( tT,  t0,
+         /**/ /****/
+               tau1,
+          tB,  t2 );
+
+        SlidePartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
+         /*************/ /**********************/
+               /**/       a10, /**/ alpha11, a12,
+          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+
+        SlidePartitionUpDiagonal
+        ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
+         /*************/ /**********************/
+               /**/       w10, /**/ omega11, w12,
+          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
     }
 
     PopBlocksizeStack();

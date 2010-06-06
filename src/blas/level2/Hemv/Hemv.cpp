@@ -22,12 +22,12 @@ elemental::blas::Hemv
 #ifndef RELEASE
     PushCallStack("blas::Hemv");
     if( A.GetGrid() != x.GetGrid() || x.GetGrid() != y.GetGrid() )
-        throw "{A,x,y} must be distributed over the same grid.";
+        throw logic_error( "{A,x,y} must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw logic_error( "A must be square." );
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
         ( y.Width() != 1 && y.Height() != 1 ) )
-        throw "x and y are assumed to be vectors.";
+        throw logic_error( "x and y are assumed to be vectors." );
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
@@ -37,8 +37,7 @@ elemental::blas::Hemv
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x ~ " << x.Height() << " x " << x.Width() << endl
             << "  y ~ " << y.Height() << " x " << y.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();

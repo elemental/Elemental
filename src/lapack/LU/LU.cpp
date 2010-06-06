@@ -20,9 +20,9 @@ elemental::lapack::LU
 #ifndef RELEASE
     PushCallStack("lapack::LU");
     if( A.GetGrid() != p.GetGrid() )
-        throw "A and p must be distributed over the same grid.";
+        throw logic_error( "A and p must be distributed over the same grid." );
     if( A.Height() != p.Height() ) 
-        throw "A and p must be the same height.";
+        throw logic_error( "A and p must be the same height." );
 #endif
     const Grid& grid = A.GetGrid();
 
@@ -52,10 +52,10 @@ elemental::lapack::LU
     // Start the algorithm
     PartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
+         ABL, ABR, 0 );
     PartitionDown
     ( p, pT,
-         pB );
+         pB, 0 );
     while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
     {
         RepartitionDownDiagonal

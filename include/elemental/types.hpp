@@ -49,7 +49,7 @@ inline Diagonal CharToDiagonal( char c )
         case 'N': diagonal = NonUnit; break;
         case 'U': diagonal = Unit;    break;
         default:
-            throw "CharToDiagonal expects char in {N,U}."; 
+            throw std::logic_error( "CharToDiagonal expects char in {N,U}." );
     }
     return diagonal;
 }
@@ -96,8 +96,8 @@ inline Distribution StringToDist( std::string s )
         distribution = Star;
     else
     {
-        throw "StringToDist expects string in "
-              "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}.";
+        throw std::logic_error( "StringToDist expects string in "
+              "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}." );
     }
     return distribution;
 }
@@ -130,7 +130,8 @@ inline Orientation CharToOrientation( char c )
         case 'T': orientation = Transpose;          break;
         case 'C': orientation = ConjugateTranspose; break;
         default:
-            throw "CharToOrientation expects char in {N,T,C}.";
+            throw std::logic_error
+            ( "CharToOrientation expects char in {N,T,C}." );
     }
     return orientation;
 }
@@ -160,7 +161,7 @@ inline Shape CharToShape( char c )
         case 'L': shape = Lower; break;
         case 'U': shape = Upper; break;
         default:
-            throw "CharToShape expects char in {L,U}.";
+            throw std::logic_error( "CharToShape expects char in {L,U}." );
     }
     return shape;
 }
@@ -190,7 +191,7 @@ inline Side CharToSide( char c )
         case 'L': side = Left;  break;
         case 'R': side = Right; break;
         default:
-            throw "CharToSide expects char in {L,R}.";
+            throw std::logic_error( "CharToSide expects char in {L,R}." );
     }
     return side;
 }

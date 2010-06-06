@@ -850,7 +850,7 @@ elemental::DistMatrixBase<T,MR,MC>::ResizeTo
     PushCallStack("[MR,MC]::ResizeTo");
     this->AssertNotLockedView();
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw logic_error( "Height and width must be non-negative." );
 #endif
     const Grid& grid = this->GetGrid();
     this->_height = height;
@@ -943,7 +943,7 @@ elemental::DistMatrixBase<T,MR,MC>::GetDiagonal
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Height() )
-        throw "d is not of the correct length.";
+        throw logic_error( "d is not of the correct length." );
 #endif
     if( !d.Viewing() )
     {
@@ -1013,7 +1013,7 @@ elemental::DistMatrixBase<T,MR,MC>::GetDiagonal
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Width() )
-        throw "d is not of the correct length.";
+        throw logic_error( "d is not of the correct length." );
 #endif
 
     if( !d.Viewing() )
@@ -1068,7 +1068,7 @@ elemental::DistMatrixBase<T,MR,MC>::SetDiagonal
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetDiagonal([MD,* ])");
     if( d.Width() != 1 )
-        throw "d must be a column vector.";
+        throw logic_error( "d must be a column vector." );
     {
         int height = this->Height();
         int width = this->Width();
@@ -1090,8 +1090,7 @@ elemental::DistMatrixBase<T,MR,MC>::SetDiagonal
                 << "  A ~ " << this->Height() << " x " << this->Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
                 << "  A diag length: " << length << endl;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
 #endif
@@ -1138,7 +1137,7 @@ elemental::DistMatrixBase<T,MR,MC>::SetDiagonal
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetDiagonal([* ,MD])");
     if( d.Height() != 1 )
-        throw "d must be a row vector.";
+        throw logic_error( "d must be a row vector." );
     {
         int height = this->Height();
         int width = this->Width();
@@ -1160,8 +1159,7 @@ elemental::DistMatrixBase<T,MR,MC>::SetDiagonal
                 << "  A ~ " << this->Height() << " x " << this->Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
                 << "  A diag length: " << length << endl;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
 #endif
@@ -1594,7 +1592,7 @@ elemental::DistMatrixBase<T,MR,MC>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MR,MC] = [MD,* ] not yet implemented.";
+    throw logic_error( "[MR,MC] = [MD,* ] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1613,7 +1611,7 @@ elemental::DistMatrixBase<T,MR,MC>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[MR,MC] = [* ,MD] not yet implemented.";
+    throw logic_error( "[MR,MC] = [* ,MD] not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -3189,7 +3187,7 @@ elemental::DistMatrix<R,MR,MC>::SetToRandomHPD()
     PushCallStack("[MR,MC]::SetToRandomHPD");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
-        throw "Positive-definite matrices must be square.";
+        throw logic_error( "Positive-definite matrices must be square." );
 #endif
     const Grid& grid = this->GetGrid();
     const int localHeight = this->LocalHeight();
@@ -3224,7 +3222,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetToRandomHPD()
     PushCallStack("[MR,MC]::SetToRandomHPD");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
-        throw "Positive-definite matrices must be square.";
+        throw logic_error( "Positive-definite matrices must be square." );
 #endif
     const Grid& grid = this->GetGrid();
     const int localHeight = this->LocalHeight();
@@ -3387,7 +3385,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::GetRealDiagonal
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Height() )
-        throw "d is not of the correct length.";
+        throw logic_error( "d is not of the correct length." );
 #endif
     if( !d.Viewing() )
     {
@@ -3457,7 +3455,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::GetImagDiagonal
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Height() )
-        throw "d is not of the correct length.";
+        throw logic_error( "d is not of the correct length." );
 #endif
     if( !d.Viewing() )
     {
@@ -3527,7 +3525,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::GetRealDiagonal
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Width() )
-        throw "d is not of the correct length.";
+        throw logic_error( "d is not of the correct length." );
 #endif
 
     if( !d.Viewing() )
@@ -3598,7 +3596,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::GetImagDiagonal
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Width() )
-        throw "d is not of the correct length.";
+        throw logic_error( "d is not of the correct length." );
 #endif
 
     if( !d.Viewing() )
@@ -3653,7 +3651,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetDiagonal
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetDiagonal([MD,* ])");
     if( d.Width() != 1 )
-        throw "d must be a column vector.";
+        throw logic_error( "d must be a column vector." );
     {
         int height = this->Height();
         int width = this->Width();
@@ -3675,8 +3673,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetDiagonal
                 << "  A ~ " << this->Height() << " x " << this->Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
                 << "  A diag length: " << length << endl;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
 #endif
@@ -3723,7 +3720,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetRealDiagonal
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetRealDiagonal([MD,* ])");
     if( d.Width() != 1 )
-        throw "d must be a column vector.";
+        throw logic_error( "d must be a column vector." );
     {
         int height = this->Height();
         int width = this->Width();
@@ -3745,8 +3742,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetRealDiagonal
                 << "  A ~ " << this->Height() << " x " << this->Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
                 << "  A diag length: " << length << endl;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
 #endif
@@ -3793,7 +3789,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetImagDiagonal
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetImagDiagonal([MD,* ])");
     if( d.Width() != 1 )
-        throw "d must be a column vector.";
+        throw logic_error( "d must be a column vector." );
     {
         int height = this->Height();
         int width = this->Width();
@@ -3815,8 +3811,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetImagDiagonal
                 << "  A ~ " << this->Height() << " x " << this->Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
                 << "  A diag length: " << length << endl;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
 #endif
@@ -3863,7 +3858,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetDiagonal
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetDiagonal([* ,MD])");
     if( d.Height() != 1 )
-        throw "d must be a row vector.";
+        throw logic_error( "d must be a row vector." );
     {
         int height = this->Height();
         int width = this->Width();
@@ -3885,8 +3880,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetDiagonal
                 << "  A ~ " << this->Height() << " x " << this->Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
                 << "  A diag length: " << length << endl;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
 #endif
@@ -3933,7 +3927,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetRealDiagonal
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetRealDiagonal([* ,MD])");
     if( d.Height() != 1 )
-        throw "d must be a row vector.";
+        throw logic_error( "d must be a row vector." );
     {
         int height = this->Height();
         int width = this->Width();
@@ -3955,8 +3949,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetRealDiagonal
                 << "  A ~ " << this->Height() << " x " << this->Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
                 << "  A diag length: " << length << endl;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
 #endif
@@ -4003,7 +3996,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetImagDiagonal
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetImagDiagonal([* ,MD])");
     if( d.Height() != 1 )
-        throw "d must be a row vector.";
+        throw logic_error( "d must be a row vector." );
     {
         int height = this->Height();
         int width = this->Width();
@@ -4025,8 +4018,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetImagDiagonal
                 << "  A ~ " << this->Height() << " x " << this->Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
                 << "  A diag length: " << length << endl;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
 #endif

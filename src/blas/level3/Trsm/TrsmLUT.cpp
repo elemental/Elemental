@@ -28,17 +28,16 @@ elemental::blas::internal::TrsmLUT
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsmLUT");
     if( U.GetGrid() != X.GetGrid() )
-        throw "U and X must be distributed over the same grid.";
+        throw logic_error( "U and X must be distributed over the same grid." );
     if( orientation == Normal )
-        throw "TrsmLUT expects a (Conjugate)Transpose option.";
+        throw logic_error( "TrsmLUT expects a (Conjugate)Transpose option." );
     if( U.Height() != U.Width() || U.Height() != X.Height() )
     {
         ostringstream msg;
         msg << "Nonconformal TrsmLUT: " << endl
             << "  U ~ " << U.Height() << " x " << U.Width() << endl
             << "  X ~ " << X.Height() << " x " << X.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = U.GetGrid();
@@ -63,10 +62,10 @@ elemental::blas::internal::TrsmLUT
     blas::Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
-         UBL, UBR );
+         UBL, UBR, 0 );
     PartitionDown
     ( X, XT,
-         XB );
+         XB, 0 );
     while( XB.Height() > 0 )
     {
         LockedRepartitionDownDiagonal

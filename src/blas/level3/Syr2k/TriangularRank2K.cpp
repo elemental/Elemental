@@ -25,7 +25,8 @@ CheckInput
 {
     if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
         B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
-        throw "A, B, and C must be distributed over the same grid.";
+        throw logic_error
+        ( "A, B, and C must be distributed over the same grid." );
     if( A1.Height() != C.Height() || B1.Width() != C.Width() ||
         A1.Height() != A2.Height() || A1.Width() != A2.Width() ||
         B1.Height() != B2.Height() || B1.Width() != B2.Width() ||
@@ -42,8 +43,7 @@ CheckInput
             << "  B2[* ,MR] ~ " << B2.Height() << " x "
                                 << B2.Width()  << endl
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
     if( A1.ColAlignment() != C.ColAlignment() ||
         B1.RowAlignment() != C.RowAlignment() ||
@@ -58,8 +58,7 @@ CheckInput
             << "  B2[* ,MR] ~ " << B2.RowAlignment() << endl
             << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
                                   C.RowAlignment() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 }
 
@@ -74,10 +73,11 @@ CheckInput
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfB1 == Normal )
-        throw "B1[MR,* ] must be (Conjugate)Transpose'd.";
+        throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
         B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
-        throw "A, B, and C must be distributed over the same grid.";
+        throw logic_error
+        ( "A, B, and C must be distributed over the same grid." );
     if( A1.Height() != C.Height() || B1.Height() != C.Width() ||
         A1.Height() != A2.Height() || A1.Width() != A2.Width() ||
         B1.Width() != B2.Height() || B1.Height() != B2.Width() ||
@@ -94,8 +94,7 @@ CheckInput
             << "  B2[* ,MR] ~ " << B2.Height() << " x "
                                 << B2.Width()  << endl
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
     if( A1.ColAlignment() != C.ColAlignment() ||
         B1.ColAlignment() != C.RowAlignment() ||
@@ -110,8 +109,7 @@ CheckInput
             << "  B2[* ,MR] ~ " << B2.RowAlignment() << endl
             << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
                                   C.RowAlignment() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 }
 
@@ -127,12 +125,13 @@ CheckInput
   const DistMatrix<T,MC,  MR>& C )
 {
     if( orientationOfA1 == Normal )
-        throw "A1[* ,MC] must be (Conjugate)Transpose'd.";
+        throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfA2 == Normal )
-        throw "A2[* ,MC] must be (Conjugate)Transpose'd.";
+        throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
     if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
         B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
-        throw "A, B, and C must be distributed over the same grid.";
+        throw logic_error
+        ( "A, B, and C must be distributed over the same grid." );
     if( A1.Width() != C.Height() || B1.Width() != C.Width() ||
         A1.Height() != A2.Height() || A1.Width() != A2.Width() ||
         B1.Height() != B2.Height() || B1.Width() != B2.Width() ||
@@ -149,8 +148,7 @@ CheckInput
             << "  B2[* ,MR] ~ " << B2.Height() << " x "
                                 << B2.Width()  << endl
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
     if( A1.RowAlignment() != C.ColAlignment() ||
         B1.RowAlignment() != C.RowAlignment() ||
@@ -165,8 +163,7 @@ CheckInput
             << "  B2[* ,MR] ~ " << B2.RowAlignment() << endl
             << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
                                   C.RowAlignment() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 }
 
@@ -184,16 +181,17 @@ CheckInput
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA1 == Normal )
-        throw "A1[* ,MC] must be (Conjugate)Transpose'd.";
+        throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfA2 == Normal )
-        throw "A2[* ,MC] must be (Conjugate)Transpose'd.";
+        throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfB1 == Normal )
-        throw "B1[MR,* ] must be (Conjugate)Transpose'd.";
+        throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
     if( orientationOfB2 == Normal )
-        throw "B2[MR,* ] must be (Conjugate)Transpose'd.";
+        throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
         B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
-        throw "A, B, and C must be distributed over the same grid.";
+        throw logic_error
+        ( "A, B, and C must be distributed over the same grid." );
     if( A1.Width() != C.Height() || B1.Height() != C.Width() ||
         A1.Height() != A2.Height() || A1.Width() != A2.Width() ||
         B1.Height() != B2.Height() || B1.Width() != B2.Width() ||
@@ -210,8 +208,7 @@ CheckInput
             << "  B2[MR,* ] ~ " << B2.Height() << " x "
                                 << B2.Width()  << endl
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
     if( A1.RowAlignment() != C.ColAlignment() ||
         B1.ColAlignment() != C.RowAlignment() ||
@@ -226,8 +223,7 @@ CheckInput
             << "  B2[MR,* ] ~ " << B2.ColAlignment() << endl
             << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
                                   C.RowAlignment() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 }
 #endif

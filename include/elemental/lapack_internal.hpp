@@ -170,32 +170,38 @@ PivotFunc
 //----------------------------------------------------------------------------//
 template<typename R>
 R 
-Reflector( DistMatrix<R,MC,MR>& x );
+Reflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 std::complex<R>
-Reflector( DistMatrix<std::complex<R>,MC,MR>& x );
+Reflector
+( DistMatrix<std::complex<R>,MC,MR>& chi, 
+  DistMatrix<std::complex<R>,MC,MR>& x );
 #endif
 
 template<typename R>
 R 
-LocalColReflector( DistMatrix<R,MC,MR>& x );
+LocalColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 std::complex<R>
-LocalColReflector( DistMatrix<std::complex<R>,MC,MR>& x );
+LocalColReflector
+( DistMatrix<std::complex<R>,MC,MR>& chi, 
+  DistMatrix<std::complex<R>,MC,MR>& x );
 #endif
 
 template<typename R>
 R
-LocalRowReflector( DistMatrix<R,MC,MR>& x );
+LocalRowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 std::complex<R>
-LocalRowReflector( DistMatrix<std::complex<R>,MC,MR>& x );
+LocalRowReflector
+( DistMatrix<std::complex<R>,MC,MR>& chi,
+  DistMatrix<std::complex<R>,MC,MR>& x );
 #endif
 
 template<typename R>

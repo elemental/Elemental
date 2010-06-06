@@ -42,7 +42,7 @@ elemental::utilities::GCD
 {
 #ifndef RELEASE
     if( a < 0 || b < 0 )
-        throw "GCD called with negative argument.";
+        throw std::logic_error( "GCD called with negative argument." );
 #endif
     if( b == 0 )
         return a;
@@ -57,17 +57,16 @@ elemental::utilities::LocalLength
 #ifndef RELEASE
     PushCallStack("utilities::LocalLength");
     if( n < 0 )
-        throw "n must be non-negative.";
+        throw std::logic_error( "n must be non-negative." );
     if( shift < 0 || shift >= modulus )
     {
         std::ostringstream msg;
         msg << "Invalid shift: "
             << "shift=" << shift << ", modulus=" << modulus << std::endl;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     if( modulus <= 0 )
-        throw "Modulus must be positive.";
+        throw std::logic_error( "Modulus must be positive." );
     PopCallStack();
 #endif
     return ( n > shift ? (n - shift - 1)/modulus + 1 : 0 );
@@ -80,9 +79,9 @@ elemental::utilities::MaxLocalLength
 #ifndef RELEASE
     PushCallStack("utilities::MaxLocalLength");
     if( n < 0 )
-        throw "n must be non-negative.";
+        throw std::logic_error( "n must be non-negative." );
     if( modulus <= 0 )
-        throw "Modulus must be positive.";
+        throw std::logic_error( "Modulus must be positive." );
     PopCallStack();
 #endif
     return ( n > 0 ? (n - 1)/modulus + 1 : 0 );
@@ -102,19 +101,17 @@ elemental::utilities::Shift
         std::ostringstream msg;
         msg << "Invalid index: "
             << "index=" << index << ", modulus=" << modulus << std::endl;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     if( align < 0 || align >= modulus )
     {
         std::ostringstream msg;
         msg << "Invalid alignment: "
             << "align=" << align << ", modulus=" << modulus << std::endl;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     if( modulus <= 0 )
-        throw "Modulus must be positive.";
+        throw std::logic_error( "Modulus must be positive." );
     PopCallStack();
 #endif
     return (index + modulus - align) % modulus;

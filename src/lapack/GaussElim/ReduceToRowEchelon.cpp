@@ -20,9 +20,9 @@ elemental::lapack::internal::ReduceToRowEchelon
 #ifndef RELEASE
     PushCallStack("lapack::internal::ReduceToRowEchelon");
     if( A.GetGrid() != B.GetGrid() )
-        throw "A and B must be distributed over the same grid.";
+        throw logic_error( "A and B must be distributed over the same grid." );
     if( A.Height() != B.Height() )
-        throw "A and B must be the same height.";
+        throw logic_error( "A and B must be the same height." );
 #endif
     const Grid& grid = A.GetGrid();
 
@@ -58,10 +58,10 @@ elemental::lapack::internal::ReduceToRowEchelon
     // Start the algorithm
     PartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
+         ABL, ABR, 0 );
     PartitionDown
     ( B, BT,
-         BB );
+         BB, 0 );
     while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
     {
         RepartitionDownDiagonal

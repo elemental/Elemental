@@ -20,15 +20,14 @@ elemental::blas::internal::HerkUC
 #ifndef RELEASE
     PushCallStack("blas::internal::HerkUC");
     if( A.GetGrid() != C.GetGrid() )
-        throw "A and C must be distributed over the same grid.";
+        throw logic_error( "A and C must be distributed over the same grid." );
     if( A.Width() != C.Height() || A.Width() != C.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal HerkUT:" << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -47,7 +46,7 @@ elemental::blas::internal::HerkUC
     blas::Scal( beta, C );
     LockedPartitionUp
     ( A, AT, 
-         AB );
+         AB, 0 );
     while( AT.Height() > 0 )
     {
         LockedRepartitionUp

@@ -21,7 +21,7 @@ elemental::blas::internal::GemmNN
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNN");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
 #endif
     const int m = C.Height();
     const int n = C.Width();
@@ -77,7 +77,7 @@ elemental::blas::internal::GemmNNA
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNNA");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height() )
@@ -87,8 +87,7 @@ elemental::blas::internal::GemmNNA
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -106,8 +105,8 @@ elemental::blas::internal::GemmNNA
 
     // Start the algorithm
     blas::Scal( beta, C );
-    LockedPartitionRight( B, BL, BR );
-    PartitionRight( C, CL, CR );
+    LockedPartitionRight( B, BL, BR, 0 );
+    PartitionRight( C, CL, CR, 0 );
     while( BR.Width() > 0 )
     {
         LockedRepartitionRight
@@ -161,7 +160,7 @@ elemental::blas::internal::GemmNNB
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNNB");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height()   )
@@ -171,8 +170,7 @@ elemental::blas::internal::GemmNNB
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -193,10 +191,10 @@ elemental::blas::internal::GemmNNB
     blas::Scal( beta, C );
     LockedPartitionDown
     ( A, AT,
-         AB );
+         AB, 0 );
     PartitionDown
     ( C, CT,
-         CB );
+         CB, 0 );
     while( AB.Height() > 0 )
     {
         LockedRepartitionDown
@@ -255,7 +253,7 @@ elemental::blas::internal::GemmNNC
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNNC");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height()   )
@@ -265,8 +263,7 @@ elemental::blas::internal::GemmNNC
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -285,10 +282,10 @@ elemental::blas::internal::GemmNNC
 
     // Start the algorithm
     blas::Scal( beta, C );
-    LockedPartitionRight( A, AL, AR ); 
+    LockedPartitionRight( A, AL, AR, 0 ); 
     LockedPartitionDown
     ( B, BT, 
-         BB ); 
+         BB, 0 ); 
     while( AR.Width() > 0 )
     {
         LockedRepartitionRight( AL, /**/ AR,
@@ -337,7 +334,7 @@ elemental::blas::internal::GemmNNDot
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNNDot");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height()   )
@@ -347,8 +344,7 @@ elemental::blas::internal::GemmNNDot
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width();
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -376,10 +372,10 @@ elemental::blas::internal::GemmNNDot
         blas::Scal( beta, C );
         LockedPartitionDown
         ( A, AT,
-             AB );
+             AB, 0 );
         PartitionDown
         ( C, CT,
-             CB );
+             CB, 0 );
         while( AB.Height() > 0 )
         {
             LockedRepartitionDown
@@ -399,8 +395,8 @@ elemental::blas::internal::GemmNNDot
             A1_Star_VC = A1; 
             //----------------------------------------------------------------//
 
-            LockedPartitionRight( B, BL, BR );
-            PartitionRight( C1, C1L, C1R );
+            LockedPartitionRight( B, BL, BR, 0 );
+            PartitionRight( C1, C1L, C1R, 0 );
             while( BR.Width() > 0 )
             {
                 LockedRepartitionRight
@@ -467,8 +463,8 @@ elemental::blas::internal::GemmNNDot
 
         // Star the algorithm
         blas::Scal( beta, C );
-        LockedPartitionRight( B, BL, BR );
-        PartitionRight( C, CL, CR );
+        LockedPartitionRight( B, BL, BR, 0 );
+        PartitionRight( C, CL, CR, 0 );
         while( BR.Width() > 0 )
         {
             LockedRepartitionRight
@@ -486,10 +482,10 @@ elemental::blas::internal::GemmNNDot
 
             LockedPartitionDown
             ( A, AT,
-                 AB );
+                 AB, 0 );
             PartitionDown
             ( C1, C1T,
-                  C1B );
+                  C1B, 0 );
             while( AB.Height() > 0 )
             {
                 LockedRepartitionDown

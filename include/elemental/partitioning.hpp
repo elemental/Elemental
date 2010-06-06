@@ -21,114 +21,114 @@ namespace elemental {
 template<typename T>
 void PartitionUp
 ( M& A, M& AT,
-        M& AB, int heightAB=0 );
+        M& AB, int heightAB );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionUp
 ( DM& A, DM& AT,
-         DM& AB, int heightAB=0 );
+         DM& AB, int heightAB );
 
 template<typename T>
 void PartitionDown
 ( M& A, M& AT,
-        M& AB, int heightAT=0 );
+        M& AB, int heightAT );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionDown
 ( DM& A, DM& AT,
-         DM& AB, int heightAT=0 );
+         DM& AB, int heightAT );
 
 template<typename T>
 void PartitionLeft
-( M& A, M& AL, M& AR, int widthAR=0 );
+( M& A, M& AL, M& AR, int widthAR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionLeft
-( DM& A, DM& AL, DM& AR, int widthAR=0 );
+( DM& A, DM& AL, DM& AR, int widthAR );
 
 template<typename T>
 void PartitionRight
-( M& A, M& AL, M& AR, int widthAL=0 );
+( M& A, M& AL, M& AR, int widthAL );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionRight
-( DM& A, DM& AL, DM& AR, int widthAL=0 );
+( DM& A, DM& AL, DM& AR, int widthAL );
 
 template<typename T>
 void PartitionUpDiagonal
 ( M& A, M& ATL, M& ATR,
-        M& ABL, M& ABR, int diagABR=0 );
+        M& ABL, M& ABR, int diagABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionUpDiagonal
 ( DM& A, DM& ATL, DM& ATR,
-         DM& ABL, DM& ABR, int diagABR=0 );
+         DM& ABL, DM& ABR, int diagABR );
 
 template<typename T>
 void PartitionDownDiagonal
 ( M& A, M& ATL, M& ATR,
-        M& ABL, M& ABR, int diagATL=0 );
+        M& ABL, M& ABR, int diagATL );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionDownDiagonal
 ( DM& A, DM& ATL, DM& ATR,
-         DM& ABL, DM& ABR, int diagATL=0 );
+         DM& ABL, DM& ABR, int diagATL );
 
 template<typename T>
 void LockedPartitionUp
 ( const M& A, M& AT,
-              M& AB, int heightAB=0 );
+              M& AB, int heightAB );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionUp
 ( const DM& A, DM& AT,
-               DM& AB, int heightAB=0 );
+               DM& AB, int heightAB );
 
 template<typename T>
 void LockedPartitionDown
 ( const M& A, M& AT,
-              M& AB, int heightAT=0 );
+              M& AB, int heightAT );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionDown
 ( const DM& A, DM& AT,
-               DM& AB, int heightAT=0 );
+               DM& AB, int heightAT );
 
 template<typename T>
 void LockedPartitionLeft
-( const M& A, M& AL, M& AR, int widthAR=0 );
+( const M& A, M& AL, M& AR, int widthAR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionLeft
-( const DM& A, DM& AL, DM& AR, int widthAR=0 );
+( const DM& A, DM& AL, DM& AR, int widthAR );
 
 template<typename T>
 void LockedPartitionRight
-( const M& A, M& AL, M& AR, int widthAL=0 );
+( const M& A, M& AL, M& AR, int widthAL );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionRight
-( const DM& A, DM& AL, DM& AR, int widthAL=0 );
+( const DM& A, DM& AL, DM& AR, int widthAL );
 
 template<typename T>
 void LockedPartitionUpDiagonal
 ( const M& A, M& ATL, M& ATR,
-              M& ABL, M& ABR, int diagABR=0 );
+              M& ABL, M& ABR, int diagABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionUpDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
-               DM& ABL, DM& ABR, int diagABR=0 );
+               DM& ABL, DM& ABR, int diagABR );
 
 template<typename T>
 void LockedPartitionDownDiagonal
 ( const M& A, M& ATL, M& ATR,
-              M& ABL, M& ABR, int diagATL=0 );
+              M& ABL, M& ABR, int diagATL );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionDownDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
-               DM& ABL, DM& ABR, int diagATL=0 );
+               DM& ABL, DM& ABR, int diagATL );
 
 template<typename T>
 void RepartitionUp
@@ -417,9 +417,10 @@ elemental::PartitionUp
 #ifndef RELEASE
     PushCallStack("PartitionUp [Matrix]");
     if( heightAB < 0 )
-        throw "Height of bottom partition must be non-negative.";
+        throw std::logic_error
+        ( "Height of bottom partition must be non-negative." );
     if( heightAB > A.Height() )
-        throw "Height of bottom partition is too large.";
+        throw std::logic_error( "Height of bottom partition is too large." );
 #endif
     const int heightAT = A.Height()-heightAB;
     AT.View( A, 0,        0, heightAT, A.Width() );
@@ -438,9 +439,10 @@ elemental::PartitionUp
 #ifndef RELEASE
     PushCallStack("PartitionUp [DistMatrix]");
     if( heightAB < 0 )
-        throw "Height of bottom partition must be non-negative.";
+        throw std::logic_error
+        ( "Height of bottom partition must be non-negative." );
     if( heightAB > A.Height() )
-        throw "Height of bottom partition is too large.";
+        throw std::logic_error( "Height of bottom partition is too large." );
 #endif
     const int heightAT = A.Height()-heightAB;
     AT.View( A, 0,        0, heightAT, A.Width() );
@@ -459,9 +461,10 @@ elemental::PartitionDown
 #ifndef RELEASE
     PushCallStack("PartitionDown [Matrix]");
     if( heightAT < 0 )
-        throw "Height of top partition must be non-negative.";
+        throw std::logic_error
+        ( "Height of top partition must be non-negative." );
     if( heightAT > A.Height() )
-        throw "Height of top partition is too large.";
+        throw std::logic_error( "Height of top partition is too large." );
 #endif
     const int heightAB = A.Height()-heightAT;
     AT.View( A, 0,        0, heightAT, A.Width() );
@@ -480,9 +483,10 @@ elemental::PartitionDown
 #ifndef RELEASE
     PushCallStack("PartitionDown [DistMatrix]");
     if( heightAT < 0 )
-        throw "Height of top partition must be non-negative.";
+        throw std::logic_error
+        ( "Height of top partition must be non-negative." );
     if( heightAT > A.Height() )
-        throw "Height of top partition is too large.";
+        throw std::logic_error( "Height of top partition is too large." );
 #endif
     const int heightAB = A.Height()-heightAT;
     AT.View( A, 0,        0, heightAT, A.Width() );
@@ -500,9 +504,10 @@ elemental::PartitionLeft
 #ifndef RELEASE
     PushCallStack("PartitionLeft [Matrix]");
     if( widthAR < 0 )
-        throw "Width of right partition must be non-negative.";
+        throw std::logic_error
+        ( "Width of right partition must be non-negative." );
     if( widthAR > A.Width() )
-        throw "Width of right partition is too large.";
+        throw std::logic_error( "Width of right partition is too large." );
 #endif
     const int widthAL = A.Width()-widthAR;
     AL.View( A, 0, 0,       A.Height(), widthAL );
@@ -520,9 +525,10 @@ elemental::PartitionLeft
 #ifndef RELEASE
     PushCallStack("PartitionLeft [DistMatrix]");
     if( widthAR < 0 )
-        throw "Width of right partition must be non-negative.";
+        throw std::logic_error
+        ( "Width of right partition must be non-negative." );
     if( widthAR > A.Width() )
-        throw "Width of right partition is too large.";
+        throw std::logic_error( "Width of right partition is too large." );
 #endif
     const int widthAL = A.Width()-widthAR;
     AL.View( A, 0, 0,       A.Height(), widthAL );
@@ -540,9 +546,10 @@ elemental::PartitionRight
 #ifndef RELEASE
     PushCallStack("PartitionRight [Matrix]");
     if( widthAL < 0 )
-        throw "Width of left partition must be non-negative.";
+        throw std::logic_error
+        ( "Width of left partition must be non-negative." );
     if( widthAL > A.Width() )
-        throw "Width of left partition is too large.";
+        throw std::logic_error( "Width of left partition is too large." );
 #endif
     const int widthAR = A.Width()-widthAL;
     AL.View( A, 0, 0,       A.Height(), widthAL );
@@ -560,9 +567,10 @@ elemental::PartitionRight
 #ifndef RELEASE
     PushCallStack("PartitionRight [DistMatrix]");
     if( widthAL < 0 )
-        throw "Width of left partition must be non-negative.";
+        throw std::logic_error
+        ( "Width of left partition must be non-negative." );
     if( widthAL > A.Width() )
-        throw "Width of left partition is too large.";
+        throw std::logic_error( "Width of left partition is too large." );
 #endif
     const int widthAR = A.Width()-widthAL;
     AL.View( A, 0, 0,       A.Height(), widthAL );
@@ -581,9 +589,9 @@ elemental::PartitionUpDiagonal
 #ifndef RELEASE
     PushCallStack("PartitionUpDiagonal [Matrix]");
     if( diagABR < 0 )
-        throw "Bottom-right size must be non-negative.";
+        throw std::logic_error( "Bottom-right size must be non-negative." );
     if( diagABR > A.Height() || diagABR > A.Width() )
-        throw "Bottom-right size is too large.";
+        throw std::logic_error( "Bottom-right size is too large." );
 #endif
     const int heightATL = A.Height()-diagABR;
     const int widthATL = A.Width()-diagABR;
@@ -605,9 +613,9 @@ elemental::PartitionUpDiagonal
 #ifndef RELEASE
     PushCallStack("PartitionUpDiagonal [DistMatrix]");
     if( diagABR < 0 )
-        throw "Bottom-right size must be non-negative.";
+        throw std::logic_error( "Bottom-right size must be non-negative." );
     if( diagABR > A.Height() || diagABR > A.Width() )
-        throw "Bottom-right size is too large.";
+        throw std::logic_error( "Bottom-right size is too large." );
 #endif
     const int heightATL = A.Height()-diagABR;
     const int widthATL = A.Width()-diagABR;
@@ -629,9 +637,9 @@ elemental::PartitionDownDiagonal
 #ifndef RELEASE
     PushCallStack("PartitionDownDiagonal [Matrix]");
     if( diagATL < 0 )
-        throw "Top-left size must be non-negative.";
+        throw std::logic_error( "Top-left size must be non-negative." );
     if( diagATL > A.Height() || diagATL > A.Width() )
-        throw "Top-left size is too large.";
+        throw std::logic_error( "Top-left size is too large." );
 #endif
     const int heightABR = A.Height()-diagATL;
     const int widthABR = A.Width()-diagATL;
@@ -653,9 +661,9 @@ elemental::PartitionDownDiagonal
 #ifndef RELEASE
     PushCallStack("PartitionDownDiagonal [DistMatrix]");
     if( diagATL < 0 )
-        throw "Top-left size must be non-negative.";
+        throw std::logic_error( "Top-left size must be non-negative." );
     if( diagATL > A.Height() || diagATL > A.Width() )
-        throw "Top-left size is too large.";
+        throw std::logic_error( "Top-left size is too large." );
 #endif
     const int heightABR = A.Height()-diagATL;
     const int widthABR = A.Width()-diagATL;
@@ -677,9 +685,10 @@ elemental::LockedPartitionUp
 #ifndef RELEASE
     PushCallStack("LockedPartitionUp [Matrix]");
     if( heightAB < 0 )
-        throw "Height of bottom partition must be non-negative.";
+        throw std::logic_error
+        ( "Height of bottom partition must be non-negative." );
     if( heightAB > A.Height() )
-        throw "Height of bottom partition is too large.";
+        throw std::logic_error( "Height of bottom partition is too large." );
 #endif
     const int heightAT = A.Height()-heightAB;
     AT.LockedView( A, 0,        0, heightAT, A.Width() );
@@ -698,9 +707,10 @@ elemental::LockedPartitionUp
 #ifndef RELEASE
     PushCallStack("LockedPartitionUp [DistMatrix]");
     if( heightAB < 0 )
-        throw "Height of bottom partition must be non-negative.";
+        throw std::logic_error
+        ( "Height of bottom partition must be non-negative." );
     if( heightAB > A.Height() )
-        throw "height of bottom partition is too large.";
+        throw std::logic_error( "height of bottom partition is too large." );
 #endif
     const int heightAT = A.Height()-heightAB;
     AT.LockedView( A, 0,        0, heightAT, A.Width() );
@@ -719,9 +729,10 @@ elemental::LockedPartitionDown
 #ifndef RELEASE
     PushCallStack("LockedPartitionDown [Matrix]");
     if( heightAT < 0 )
-        throw "Height of top partition must be non-negative.";
+        throw std::logic_error
+        ( "Height of top partition must be non-negative." );
     if( heightAT > A.Height() )
-        throw "Height of bottom partition is too large.";
+        throw std::logic_error( "Height of bottom partition is too large." );
 #endif
     const int heightAB = A.Height()-heightAT;
     AT.LockedView( A, 0,        0, heightAT, A.Width() );
@@ -740,9 +751,10 @@ elemental::LockedPartitionDown
 #ifndef RELEASE
     PushCallStack("LockedPartitionDown [DistMatrix]");
     if( heightAT < 0 )
-        throw "Height of top partition must be non-negative.";
+        throw std::logic_error
+        ( "Height of top partition must be non-negative." );
     if( heightAT > A.Height() )
-        throw "Height of top partition is too large.";
+        throw std::logic_error( "Height of top partition is too large." );
 #endif
     const int heightAB = A.Height()-heightAT;
     AT.LockedView( A, 0,        0, heightAT, A.Width() );
@@ -760,9 +772,10 @@ elemental::LockedPartitionLeft
 #ifndef RELEASE
     PushCallStack("LockedPartitionLeft [Matrix]");
     if( widthAR < 0 )
-        throw "Width of right partition must be non-negative.";
+        throw std::logic_error
+        ( "Width of right partition must be non-negative." );
     if( widthAR > A.Width() )
-        throw "Width of right partition is too large.";
+        throw std::logic_error( "Width of right partition is too large." );
 #endif
     const int widthAL = A.Width()-widthAR;
     AL.LockedView( A, 0, 0,       A.Height(), widthAL );
@@ -780,9 +793,10 @@ elemental::LockedPartitionLeft
 #ifndef RELEASE
     PushCallStack("LockedPartitionLeft [DistMatrix]");
     if( widthAR < 0 )
-        throw "Width of right partition must be non-negative.";
+        throw std::logic_error
+        ( "Width of right partition must be non-negative." );
     if( widthAR > A.Width() )
-        throw "Width of right partition is too large.";
+        throw std::logic_error( "Width of right partition is too large." );
 #endif
     const int widthAL = A.Width()-widthAR;
     AL.LockedView( A, 0, 0,       A.Height(), widthAL );
@@ -800,9 +814,10 @@ elemental::LockedPartitionRight
 #ifndef RELEASE
     PushCallStack("LockedPartitionRight [Matrix]");
     if( widthAL < 0 )
-        throw "Width of left partition must be non-negative.";
+        throw std::logic_error
+        ( "Width of left partition must be non-negative." );
     if( widthAL > A.Width() )
-        throw "Width of left partition is too large.";
+        throw std::logic_error( "Width of left partition is too large." );
 #endif
     const int widthAR = A.Width()-widthAL;
     AL.LockedView( A, 0, 0,       A.Height(), widthAL );
@@ -820,9 +835,10 @@ elemental::LockedPartitionRight
 #ifndef RELEASE
     PushCallStack("LockedPartitionRight [DistMatrix]");
     if( widthAL < 0 )
-        throw "Width of left partition must be non-negative.";
+        throw std::logic_error
+        ( "Width of left partition must be non-negative." );
     if( widthAL > A.Width() )
-        throw "Width of left partition is too large.";
+        throw std::logic_error( "Width of left partition is too large." );
 #endif
     const int widthAR = A.Width()-widthAL;
     AL.LockedView( A, 0, 0,       A.Height(), widthAL );
@@ -841,9 +857,9 @@ elemental::LockedPartitionUpDiagonal
 #ifndef RELEASE
     PushCallStack("LockedPartitionUpDiagonal [Matrix]");
     if( diagABR < 0 )
-        throw "Bottom-right size must be non-negative.";
+        throw std::logic_error( "Bottom-right size must be non-negative." );
     if( diagABR > A.Height() || diagABR > A.Width() )
-        throw "Bottom-right size is too large.";
+        throw std::logic_error( "Bottom-right size is too large." );
 #endif
     const int heightATL = A.Height()-diagABR;
     const int widthATL = A.Width()-diagABR;
@@ -865,9 +881,9 @@ elemental::LockedPartitionUpDiagonal
 #ifndef RELEASE
     PushCallStack("LockedPartitionUpDiagonal [DistMatrix]");
     if( diagABR < 0 )
-        throw "Bottom-right size must be non-negative.";
+        throw std::logic_error( "Bottom-right size must be non-negative." );
     if( diagABR > A.Height() || diagABR > A.Width() )
-        throw "Bottom-right size is too large.";
+        throw std::logic_error( "Bottom-right size is too large." );
 #endif
     const int heightATL = A.Height()-diagABR;
     const int widthATL = A.Width()-diagABR;
@@ -889,9 +905,9 @@ elemental::LockedPartitionDownDiagonal
 #ifndef RELEASE
     PushCallStack("LockedPartitionDownDiagonal [Matrix]");
     if( diagATL < 0 )
-        throw "Top-left size must be non-negative.";
+        throw std::logic_error( "Top-left size must be non-negative." );
     if( diagATL > A.Height() || diagATL > A.Width() )
-        throw "Top-left size is too large.";
+        throw std::logic_error( "Top-left size is too large." );
 #endif
     const int heightABR = A.Height()-diagATL;
     const int widthABR = A.Width()-diagATL;
@@ -913,9 +929,9 @@ elemental::LockedPartitionDownDiagonal
 #ifndef RELEASE
     PushCallStack("LockedPartitionDownDiagonal [DistMatrix]");
     if( diagATL < 0 )
-        throw "Top-left size must be non-negative.";
+        throw std::logic_error( "Top-left size must be non-negative." );
     if( diagATL > A.Height() || diagATL > A.Width() )
-        throw "Top-left size is too large.";
+        throw std::logic_error( "Top-left size is too large." );
 #endif
     const int heightABR = A.Height()-diagATL;
     const int widthABR = A.Width()-diagATL;
@@ -938,7 +954,7 @@ elemental::RepartitionUp
 #ifndef RELEASE
     PushCallStack("RepartitionUp [Matrix]");
     if( (AT.Buffer() + AT.Height()) != AB.Buffer() )
-        throw "Noncontiguous 2x1 array of matrices.";
+        throw std::logic_error( "Noncontiguous 2x1 array of matrices." );
 #endif
     int bsize = std::min( AT.Height(), Blocksize() );
     int offset = AT.Height()-bsize; 
@@ -962,7 +978,8 @@ elemental::RepartitionUp
     if( (AT.LocalMatrix().Buffer() + AT.LocalHeight()) != 
          AB.LocalMatrix().Buffer()                        )
     {
-        throw "Noncontiguous 2x1 array of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 2x1 array of distributed matrices." );
     }
 #endif
     int bsize = std::min( AT.Height(), Blocksize() );
@@ -985,7 +1002,7 @@ elemental::RepartitionDown
 #ifndef RELEASE
     PushCallStack("RepartitionDown [Matrix]");
     if( (AT.Buffer() + AT.Height()) != AB.Buffer() )
-        throw "Noncontiguous 2x1 array of matrices.";
+        throw std::logic_error( "Noncontiguous 2x1 array of matrices." );
 #endif
     int bsize = std::min( AB.Height(), Blocksize() );
     int offset = AB.Height()-bsize; 
@@ -1009,7 +1026,8 @@ elemental::RepartitionDown
     if( (AT.LocalMatrix().Buffer() + AT.LocalHeight()) != 
          AB.LocalMatrix().Buffer() )
     {
-        throw "Noncontiguous 2x1 array of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 2x1 array of distributed matrices." );
     }
 #endif
     int bsize = std::min( AB.Height(), Blocksize() );
@@ -1032,7 +1050,7 @@ elemental::RepartitionLeft
     PushCallStack("RepartitionLeft [Matrix]");
     if( (AL.Buffer() + AL.Width()*AL.LDim()) != AR.Buffer() )
     {
-        throw "Noncontiguous 1x2 array of matrices.";
+        throw std::logic_error( "Noncontiguous 1x2 array of matrices." );
     }
 #endif
     int bsize = std::min( AL.Width(), Blocksize() );
@@ -1056,7 +1074,8 @@ elemental::RepartitionLeft
     if( (AL.LocalMatrix().Buffer() + AL.LocalWidth()*AL.LocalLDim())
          != AR.LocalMatrix().Buffer() )
     {
-        throw "Noncontiguous 1x2 array of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 1x2 array of distributed matrices." );
     }
 #endif
     int bsize = std::min( AL.Width(), Blocksize() );
@@ -1079,7 +1098,7 @@ elemental::RepartitionRight
     PushCallStack("RepartitionRight [Matrix]");
     if( (AL.Buffer() + AL.Width()*AL.LDim()) != AR.Buffer() )
     {
-        throw "Noncontiguous 1x2 array of matrices.";
+        throw std::logic_error( "Noncontiguous 1x2 array of matrices." );
     }
 #endif
     int bsize = std::min( AR.Width(), Blocksize() );
@@ -1103,7 +1122,8 @@ elemental::RepartitionRight
     if( (AL.LocalMatrix().Buffer() + AL.LocalWidth()*AL.LocalLDim()) 
          != AR.LocalMatrix().Buffer() )
     {
-        throw "Noncontiguous 1x2 array of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 1x2 array of distributed matrices." );
     }
 #endif
     int bsize = std::min( AR.Width(), Blocksize() );
@@ -1130,7 +1150,7 @@ elemental::RepartitionUpDiagonal
         (ATL.Buffer() + ATL.Width()*ATL.LDim()) != ATR.Buffer() ||
         (ABL.Buffer() + ABL.Width()*ABL.LDim()) != ABR.Buffer()    )
     {
-        throw "Noncontiguous 2x2 grid of matrices.";
+        throw std::logic_error( "Noncontiguous 2x2 grid of matrices." );
     }
 #endif
     int bsize = std::min( Blocksize(), std::min( ATL.Height(),
@@ -1169,7 +1189,8 @@ elemental::RepartitionUpDiagonal
         (ABL.LocalMatrix().Buffer() + ABL.LocalWidth()*ABL.LocalLDim())
          != ABR.LocalMatrix().Buffer() )
     {
-        throw "Noncontiguous 2x2 grid of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 2x2 grid of distributed matrices." );
     }
 #endif
     int bsize = std::min( Blocksize(), std::min( ATL.Height(),
@@ -1204,7 +1225,7 @@ elemental::RepartitionDownDiagonal
         (ATL.Buffer() + ATL.Width()*ATL.LDim()) != ATR.Buffer() ||
         (ABL.Buffer() + ABL.Width()*ABL.LDim()) != ABR.Buffer()    )
     {
-        throw "Noncontiguous 2x2 grid of matrices.";
+        throw std::logic_error( "Noncontiguous 2x2 grid of matrices." );
     }
 #endif
     int bsize = std::min( Blocksize(), std::min( ABR.Height(),
@@ -1243,7 +1264,8 @@ elemental::RepartitionDownDiagonal
         (ABL.LocalMatrix().Buffer() + ABL.LocalWidth()*ABL.LocalLDim()) != 
          ABR.LocalMatrix().Buffer() )
     {
-        throw "Noncontiguous 2x2 grid of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 2x2 grid of distributed matrices." );
     }
 #endif
     int bsize = std::min( Blocksize(), std::min( ABR.Height(),
@@ -1274,7 +1296,7 @@ elemental::LockedRepartitionUp
 #ifndef RELEASE
     PushCallStack("LockedRepartitionUp [Matrix]");
     if( (AT.LockedBuffer() + AT.Height()) != AB.LockedBuffer() )
-        throw "Noncontiguous 2x1 array of matrices.";
+        throw std::logic_error( "Noncontiguous 2x1 array of matrices." );
 #endif
     int bsize = std::min( AT.Height(), Blocksize() );
     int offset = AT.Height()-bsize;
@@ -1298,7 +1320,8 @@ elemental::LockedRepartitionUp
     if( (AT.LockedLocalMatrix().LockedBuffer() + AT.LocalHeight()) != 
          AB.LockedLocalMatrix().LockedBuffer() )
     {
-        throw "Noncontiguous 2x1 array of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 2x1 array of distributed matrices." );
     }
 #endif
     int bsize = std::min( AT.Height(), Blocksize() );
@@ -1321,7 +1344,7 @@ elemental::LockedRepartitionDown
 #ifndef RELEASE
     PushCallStack("LockedRepartitionDown [Matrix]");
     if( (AT.LockedBuffer() + AT.Height()) != AB.LockedBuffer() )
-        throw "Noncontiguous 2x1 array of matrices.";
+        throw std::logic_error( "Noncontiguous 2x1 array of matrices." );
 #endif
     int bsize = std::min( AB.Height(), Blocksize() );
     int offset = AB.Height()-bsize;
@@ -1345,7 +1368,8 @@ elemental::LockedRepartitionDown
     if( (AT.LockedLocalMatrix().LockedBuffer() + AT.LocalHeight()) != 
          AB.LockedLocalMatrix().LockedBuffer() )
     {
-        throw "Noncontiguous 2x1 array of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 2x1 array of distributed matrices." );
     }
 #endif
     int bsize = std::min( AB.Height(), Blocksize() );
@@ -1368,7 +1392,7 @@ elemental::LockedRepartitionLeft
     PushCallStack("LockedRepartitionLeft [Matrix]");
     if( (AL.LockedBuffer() + AL.Width()*AL.LDim()) != AR.LockedBuffer() )
     {
-        throw "Noncontiguous 1x2 array of matrices.";
+        throw std::logic_error( "Noncontiguous 1x2 array of matrices." );
     }
 #endif
     int bsize = std::min( AL.Width(), Blocksize() );
@@ -1392,7 +1416,8 @@ elemental::LockedRepartitionLeft
     if( (AL.LockedLocalMatrix().LockedBuffer() + AL.LocalWidth()*AL.LocalLDim())
          != AR.LockedLocalMatrix().LockedBuffer() )
     {
-        throw "Noncontiguous 1x1 array of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 1x1 array of distributed matrices." );
     }
 #endif
     int bsize = std::min( AL.Width(), Blocksize() );
@@ -1415,7 +1440,7 @@ elemental::LockedRepartitionRight
     PushCallStack("LockedRepartitionRight [Matrix]");
     if( (AL.LockedBuffer() + AL.Width()*AL.LDim()) != AR.LockedBuffer() )
     {
-        throw "Noncontiguous 1x2 array of matrices.";
+        throw std::logic_error( "Noncontiguous 1x2 array of matrices." );
     }
 #endif
     int bsize = std::min( AR.Width(), Blocksize() );
@@ -1439,7 +1464,8 @@ elemental::LockedRepartitionRight
     if( (AL.LockedLocalMatrix().LockedBuffer() + AL.LocalWidth()*AL.LocalLDim())
          != AR.LockedLocalMatrix().LockedBuffer() )
     {
-        throw "Noncontiguous 1x2 DistMatrices in LockedRepartitionRight.";
+        throw std::logic_error
+        ( "Noncontiguous 1x2 DistMatrices in LockedRepartitionRight." );
     }
 #endif
     int bsize = std::min( AR.Width(), Blocksize() );
@@ -1466,7 +1492,7 @@ elemental::LockedRepartitionUpDiagonal
         (ATL.LockedBuffer() + ATL.Width()*ATL.LDim()) != ATR.LockedBuffer() ||
         (ABL.LockedBuffer() + ABL.Width()*ABL.LDim()) != ABR.LockedBuffer()    )
     {
-        throw "Noncontiguous 2x2 grid of matrices.";
+        throw std::logic_error( "Noncontiguous 2x2 grid of matrices." );
     }
 #endif
     int bsize = std::min( Blocksize(), std::min( ATL.Height(),
@@ -1507,7 +1533,8 @@ elemental::LockedRepartitionUpDiagonal
          ABL.LocalWidth()*ABL.LocalLDim()) !=
          ABR.LockedLocalMatrix().LockedBuffer() )
     {
-        throw "Noncontiguous 2x2 grid of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 2x2 grid of distributed matrices." );
     }
 #endif
     int bsize = std::min( Blocksize(), std::min( ATL.Height(),
@@ -1542,7 +1569,7 @@ elemental::LockedRepartitionDownDiagonal
         (ATL.LockedBuffer() + ATL.Width()*ATL.LDim()) != ATR.LockedBuffer() ||
         (ABL.LockedBuffer() + ABL.Width()*ABL.LDim()) != ABR.LockedBuffer()    )
     {
-        throw "Noncontiguous 2x2 grid of matrices.";
+        throw std::logic_error( "Noncontiguous 2x2 grid of matrices." );
     }
 #endif
     int bsize = std::min( Blocksize(), std::min( ABR.Height(),
@@ -1583,7 +1610,8 @@ elemental::LockedRepartitionDownDiagonal
          ABL.LocalWidth()*ABL.LocalLDim()) !=
          ABR.LockedLocalMatrix().LockedBuffer() )
     {
-        throw "Noncontiguous 2x2 grid of distributed matrices.";
+        throw std::logic_error
+        ( "Noncontiguous 2x2 grid of distributed matrices." );
     }
 #endif
     int bsize = std::min( Blocksize(), std::min( ABR.Height(),

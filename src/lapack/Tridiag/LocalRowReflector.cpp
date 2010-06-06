@@ -15,37 +15,35 @@ using namespace elemental::wrappers::mpi;
 template<typename R>
 R
 elemental::lapack::internal::LocalRowReflector
-( DistMatrix<R,MC,MR>& x )
+( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::LocalRowReflector");
+    if( chi.Height() != 1 || chi.Width() != 1 )
+        throw logic_error( "chi must be a scalar." );
     if( x.Height() != 1 )
-        throw "x must be a row vector.";
+        throw logic_error( "x must be a row vector." );
+    if( chi.GetGrid().MCRank() != chi.ColAlignment() )
+        throw logic_error( "Reflecting with incorrect row of processes." );
     if( x.GetGrid().MCRank() != x.ColAlignment() )
-        throw "x is not aligned correctly.";
+        throw logic_error( "Reflecting with incorrect row of processes." );
 #endif
-    if( x.Width() <= 1 )
+    if( x.Width() == 0 )
         return (R)0;
 
     const Grid& grid = x.GetGrid();
     const int c = grid.Width();
     const int myCol = grid.MRRank();
 
-    // For partitioning x
-    DistMatrix<R,MC,MR> chi1(grid);
-    DistMatrix<R,MC,MR> x2(grid);
-
-    PartitionRight( x, chi1, x2, 1 );
-
     vector<R> localNorms(c);
-    R localNorm = blas::Nrm2( x2.LockedLocalMatrix() ); 
+    R localNorm = blas::Nrm2( x.LockedLocalMatrix() ); 
     AllGather( &localNorm, 1, &localNorms[0], 1, grid.MRComm() );
     R norm = wrappers::blas::Nrm2( c, &localNorms[0], 1 );
 
     R alpha;
-    if( myCol == chi1.RowAlignment() )
-        alpha = chi1.LocalEntry(0,0);
-    Broadcast( &alpha, 1, chi1.RowAlignment(), grid.MRComm() );
+    if( myCol == chi.RowAlignment() )
+        alpha = chi.LocalEntry(0,0);
+    Broadcast( &alpha, 1, chi.RowAlignment(), grid.MRComm() );
 
     R beta;
     if( alpha <= 0 )
@@ -61,12 +59,12 @@ elemental::lapack::internal::LocalRowReflector
         do
         {
             ++count;
-            blas::Scal( invOfSafeMin, x2 );
+            blas::Scal( invOfSafeMin, x );
             alpha *= invOfSafeMin;
             beta *= invOfSafeMin;
         } while( Abs( beta ) < safeMin );
 
-        localNorm = blas::Nrm2( x2.LockedLocalMatrix() );
+        localNorm = blas::Nrm2( x.LockedLocalMatrix() );
         AllGather( &localNorm, 1, &localNorms[0], 1, grid.MRComm() );
         norm = wrappers::blas::Nrm2( c, &localNorms[0], 1 );
         if( alpha <= 0 )
@@ -76,12 +74,12 @@ elemental::lapack::internal::LocalRowReflector
     }
 
     R tau = ( beta-alpha ) / beta;
-    blas::Scal( static_cast<R>(1)/(alpha-beta), x2 );
+    blas::Scal( static_cast<R>(1)/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
         beta *= safeMin;
-    if( myCol == chi1.RowAlignment() )
-        chi1.LocalEntry(0,0) = beta;
+    if( myCol == chi.RowAlignment() )
+        chi.LocalEntry(0,0) = beta;
         
 #ifndef RELEASE
     PopCallStack();
@@ -93,39 +91,37 @@ elemental::lapack::internal::LocalRowReflector
 template<typename R>
 complex<R>
 elemental::lapack::internal::LocalRowReflector
-( DistMatrix<complex<R>,MC,MR>& x )
+( DistMatrix<complex<R>,MC,MR>& chi, DistMatrix<complex<R>,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::LocalRowReflector");
+    PushCallStack("lapack::internal::LocalRowReflector");    
+    if( chi.Height() != 1 || chi.Width() != 1 )
+        throw logic_error( "chi must be a scalar." );
     if( x.Height() != 1 )
-        throw "x must be a row vector.";
+        throw logic_error( "x must be a row vector." );
+    if( chi.GetGrid().MCRank() != chi.ColAlignment() )
+        throw logic_error( "Reflecting with incorrect row of processes." );
     if( x.GetGrid().MCRank() != x.ColAlignment() )
-        throw "x is not aligned correctly.";
+        throw logic_error( "Reflecting with incorrect row of processes." );
 #endif
     typedef complex<R> C;
 
-    if( x.Width() <= 1 )
+    if( x.Width() == 0 )
         return (C)0;
 
     const Grid& grid = x.GetGrid();
     const int c = grid.Width();
     const int myCol = grid.MRRank();
 
-    // For partitioning x
-    DistMatrix<C,MC,MR> chi1(grid);
-    DistMatrix<C,MC,MR> x2(grid);
-
-    PartitionRight( x, chi1, x2, 1 );
-
     vector<R> localNorms(c);
-    R localNorm = blas::Nrm2( x2.LockedLocalMatrix() ); 
+    R localNorm = blas::Nrm2( x.LockedLocalMatrix() ); 
     AllGather( &localNorm, 1, &localNorms[0], 1, grid.MRComm() );
     R norm = wrappers::blas::Nrm2( c, &localNorms[0], 1 );
 
     C alpha;
-    if( myCol == chi1.RowAlignment() )
-        alpha = chi1.LocalEntry(0,0);
-    Broadcast( &alpha, 1, chi1.RowAlignment(), grid.MRComm() );
+    if( myCol == chi.RowAlignment() )
+        alpha = chi.LocalEntry(0,0);
+    Broadcast( &alpha, 1, chi.RowAlignment(), grid.MRComm() );
 
     if( norm == (R)0 && imag(alpha) == (R)0 )
         return (C)0;
@@ -144,12 +140,12 @@ elemental::lapack::internal::LocalRowReflector
         do
         {
             ++count;
-            blas::Scal( (C)invOfSafeMin, x2 );
+            blas::Scal( (C)invOfSafeMin, x );
             alpha *= invOfSafeMin;
             beta *= invOfSafeMin;
         } while( Abs( beta ) < safeMin );
 
-        localNorm = blas::Nrm2( x2.LockedLocalMatrix() );
+        localNorm = blas::Nrm2( x.LockedLocalMatrix() );
         AllGather( &localNorm, 1, &localNorms[0], 1, grid.MRComm() );
         norm = wrappers::blas::Nrm2( c, &localNorms[0], 1 );
         if( real(alpha) <= 0 )
@@ -165,12 +161,12 @@ elemental::lapack::internal::LocalRowReflector
     }
 
     C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );
-    blas::Scal( static_cast<C>(1)/(alpha-beta), x2 );
+    blas::Scal( static_cast<C>(1)/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
         beta *= safeMin;
-    if( myCol == chi1.RowAlignment() )
-        chi1.LocalEntry(0,0) = beta;
+    if( myCol == chi.RowAlignment() )
+        chi.LocalEntry(0,0) = beta;
         
 #ifndef RELEASE
     PopCallStack();
@@ -180,16 +176,16 @@ elemental::lapack::internal::LocalRowReflector
 #endif // WITHOUT_COMPLEX
 
 template float elemental::lapack::internal::LocalRowReflector
-( DistMatrix<float,MC,MR>& x );
+( DistMatrix<float,MC,MR>& chi, DistMatrix<float,MC,MR>& x );
 
 template double elemental::lapack::internal::LocalRowReflector
-( DistMatrix<double,MC,MR>& x );
+( DistMatrix<double,MC,MR>& chi, DistMatrix<double,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
 template scomplex elemental::lapack::internal::LocalRowReflector
-( DistMatrix<scomplex,MC,MR>& x );
+( DistMatrix<scomplex,MC,MR>& chi, DistMatrix<scomplex,MC,MR>& x );
 
 template dcomplex elemental::lapack::internal::LocalRowReflector
-( DistMatrix<dcomplex,MC,MR>& x );
+( DistMatrix<dcomplex,MC,MR>& chi, DistMatrix<dcomplex,MC,MR>& x );
 #endif
 

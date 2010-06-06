@@ -22,7 +22,7 @@ elemental::blas::Syrk
 #ifndef RELEASE
     PushCallStack("blas::Syrk");
     if( orientation == ConjugateTranspose )
-        throw "Syrk accepts Normal and Transpose options.";
+        throw logic_error( "Syrk accepts Normal and Transpose options." );
 #endif
     if( shape == Lower && orientation == Normal )
     {

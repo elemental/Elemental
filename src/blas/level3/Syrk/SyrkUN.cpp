@@ -20,15 +20,14 @@ elemental::blas::internal::SyrkUN
 #ifndef RELEASE
     PushCallStack("blas::internal::SyrkUN");
     if( A.GetGrid() != C.GetGrid() )
-        throw "A and C must be distributed over the same grid.";
+        throw logic_error( "A and C must be distributed over the same grid." );
     if( A.Height() != C.Height() || A.Height() != C.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal SyrkUN:" << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -44,7 +43,7 @@ elemental::blas::internal::SyrkUN
 
     // Start the algorithm
     blas::Scal( beta, C );
-    LockedPartitionRight( A, AL, AR );
+    LockedPartitionRight( A, AL, AR, 0 );
     while( AR.Width() > 0 )
     {
         LockedRepartitionRight

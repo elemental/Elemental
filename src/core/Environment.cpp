@@ -30,11 +30,8 @@ elemental::Init
         MPI_Finalized( &finalized );
         if( finalized != 0 )
         {
-            cerr << "Cannot initialize Elemental after MPI_Finalize." << endl;
-#ifndef RELEASE
-            DumpCallStack();
-#endif
-            throw exception();
+            throw logic_error
+            ( "Cannot initialize elemental after MPI_Finalize." );
         }
         MPI_Init( argc, argv );
         ::elementalInitializedMPI = true;

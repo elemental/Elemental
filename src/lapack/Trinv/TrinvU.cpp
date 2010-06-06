@@ -34,7 +34,7 @@ elemental::lapack::internal::TrinvUVar3
 #ifndef RELEASE
     PushCallStack("lapack::internal::TrinvUVar3");
     if( U.Height() != U.Width() )
-        throw "Nonsquare matrices cannot be triangular.";
+        throw logic_error( "Nonsquare matrices cannot be triangular." );
 #endif
     const Grid& grid = U.GetGrid();
 
@@ -55,7 +55,7 @@ elemental::lapack::internal::TrinvUVar3
     // Start the algorithm
     PartitionUpDiagonal
     ( U, UTL, UTR,
-         UBL, UBR );
+         UBL, UBR, 0 );
     while( UBR.Height() < U.Height() )
     {
         RepartitionUpDiagonal

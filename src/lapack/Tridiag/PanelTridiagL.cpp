@@ -26,26 +26,29 @@ elemental::lapack::internal::PanelTridiagL
     if( A.GetGrid() != W.GetGrid() ||
         W.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid() )
-        throw "A, d, e, and t must be distributed over the same grid.";
+        throw logic_error
+        ( "A, d, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw logic_error( "A must be square." );
     if( A.Height() != W.Height() )
-        throw "A and W must be the same height.";
-    if( W.Height() <= W.Width() )
-        throw "W must be a column panel.";
+        throw logic_error( "A and W must be the same height." );
+    if( W.Height() < W.Width() )
+        throw logic_error( "W must be a column panel." );
     if( W.ColAlignment() != A.ColAlignment() || 
         W.RowAlignment() != A.RowAlignment() )
-        throw "W and A must be aligned.";
+        throw logic_error( "W and A must be aligned." );
     if( e.Height() != W.Width() || e.Width() != 1 )
-        throw "e must be a column vector of the same length as W's width.";
+        throw logic_error
+        ( "e must be a column vector of the same length as W's width." );
     if( t.Height() != W.Width() || t.Width() != 1 )
-        throw "t must be a column vector of the same length as W's width.";
+        throw logic_error
+        ( "t must be a column vector of the same length as W's width." );
     if( e.ColAlignment() != ((A.ColAlignment()+1) % e.GetGrid().Height())
                             + A.RowAlignment() * e.GetGrid().Height() )
-        throw "e is not aligned with A.";
+        throw logic_error( "e is not aligned with A." );
     if( t.ColAlignment() != (A.ColAlignment()+
                              A.RowAlignment()*t.GetGrid().Height()) )
-        throw "t is not aligned with A.";
+        throw logic_error( "t is not aligned with A." );
 #endif
     const Grid& grid = A.GetGrid();
 
@@ -53,7 +56,9 @@ elemental::lapack::internal::PanelTridiagL
     DistMatrix<R,MC,MR> 
         ATL(grid), ATR(grid),  A00(grid), a01(grid),     A02(grid),  ACol(grid),
         ABL(grid), ABR(grid),  a10(grid), alpha11(grid), a12(grid),
-                               A20(grid), a21(grid),     A22(grid);
+                               A20(grid), a21(grid),     A22(grid),
+        alpha21T(grid),
+        a21B(grid);
     DistMatrix<R,MC,MR> 
         WTL(grid), WTR(grid),  W00(grid), w01(grid),     W02(grid),  WCol(grid),
         WBL(grid), WBR(grid),  w10(grid), omega11(grid), w12(grid),
@@ -81,16 +86,16 @@ elemental::lapack::internal::PanelTridiagL
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
+         ABL, ABR, 0 );
     PartitionDownDiagonal
     ( W, WTL, WTR,
-         WBL, WBR );
+         WBL, WBR, 0 );
     PartitionDown
     ( e,  eT,
-          eB );
+          eB, 0 );
     PartitionDown
     ( t,  tT,
-          tB );
+          tB, 0 );
     while( WTL.Width() < W.Width() )
     {
         RepartitionDownDiagonal
@@ -124,6 +129,10 @@ elemental::lapack::internal::PanelTridiagL
         WCol.View2x1
         ( omega11,
           w21 );
+            
+        PartitionDown
+        ( a21, alpha21T,
+               a21B,     1 );
 
         a21_MC_Star.AlignWith( A22 );
         a21_MR_Star.AlignWith( A22 );
@@ -145,12 +154,12 @@ elemental::lapack::internal::PanelTridiagL
         const bool thisIsMyColumn = ( grid.MRRank() == a21.RowAlignment() );
         if( thisIsMyColumn )
         {
-            tau = lapack::internal::LocalColReflector( a21 );
+            tau = lapack::internal::LocalColReflector( alpha21T, a21B );
             tau1.Set( 0, 0, tau );
         }
             
-        a21.GetDiagonal( epsilon1 );
-        a21.Set( 0, 0, (R)1 ); 
+        alpha21T.GetDiagonal( epsilon1 );
+        alpha21T.Set( 0, 0, (R)1 );
 
         a21_MR_Star = a21_MC_Star = a21;
 
@@ -193,7 +202,7 @@ elemental::lapack::internal::PanelTridiagL
         if( thisIsMyColumn )
         {
             blas::Axpy( (R)1, z21, w21 );
-            blas::Scal( (R)tau, w21 );
+            blas::Scal( tau, w21 );
 
             R alpha;
             R myAlpha = -static_cast<R>(0.5)*tau*
@@ -257,26 +266,29 @@ elemental::lapack::internal::PanelTridiagL
     if( A.GetGrid() != W.GetGrid() ||
         W.GetGrid() != e.GetGrid() ||
         e.GetGrid() != t.GetGrid() )
-        throw "A, d, e, and t must be distributed over the same grid.";
+        throw logic_error
+        ( "A, d, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw logic_error( "A must be square." );
     if( A.Height() != W.Height() )
-        throw "A and W must be the same height.";
-    if( W.Height() <= W.Width() )
-        throw "W must be a column panel.";
+        throw logic_error( "A and W must be the same height." );
+    if( W.Height() < W.Width() )
+        throw logic_error( "W must be a column panel." );
     if( W.ColAlignment() != A.ColAlignment() || 
         W.RowAlignment() != A.RowAlignment() )
-        throw "W and A must be aligned.";
+        throw logic_error( "W and A must be aligned." );
     if( e.Height() != W.Width() || e.Width() != 1 )
-        throw "e must be a column vector of the same length as W's width.";
+        throw logic_error
+        ( "e must be a column vector of the same length as W's width." );
     if( t.Height() != W.Width() || t.Width() != 1 )
-        throw "t must be a column vector of the same length as W's width.";
+        throw logic_error
+        ( "t must be a column vector of the same length as W's width." );
     if( e.ColAlignment() != ((A.ColAlignment()+1) % e.GetGrid().Height())
                             + A.RowAlignment() * e.GetGrid().Height() )
-        throw "e is not aligned with A.";
+        throw logic_error( "e is not aligned with A." );
     if( t.ColAlignment() != (A.ColAlignment()+
                              A.RowAlignment()*t.GetGrid().Height()) )
-        throw "t is not aligned with A.";
+        throw logic_error( "t is not aligned with A." );
 #endif
     typedef complex<R> C;
 
@@ -286,7 +298,9 @@ elemental::lapack::internal::PanelTridiagL
     DistMatrix<C,MC,MR> 
         ATL(grid), ATR(grid),  A00(grid), a01(grid),     A02(grid),  ACol(grid),
         ABL(grid), ABR(grid),  a10(grid), alpha11(grid), a12(grid),
-                               A20(grid), a21(grid),     A22(grid);
+                               A20(grid), a21(grid),     A22(grid),
+        alpha21T(grid),
+        a21B(grid);
     DistMatrix<C,MC,MR> 
         WTL(grid), WTR(grid),  W00(grid), w01(grid),     W02(grid),  WCol(grid),
         WBL(grid), WBR(grid),  w10(grid), omega11(grid), w12(grid),
@@ -316,16 +330,16 @@ elemental::lapack::internal::PanelTridiagL
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
+         ABL, ABR, 0 );
     PartitionDownDiagonal
     ( W, WTL, WTR,
-         WBL, WBR );
+         WBL, WBR, 0 );
     PartitionDown
     ( e,  eT,
-          eB );
+          eB, 0 );
     PartitionDown
     ( t,  tT,
-          tB );
+          tB, 0 );
     while( WTL.Width() < W.Width() )
     {
         RepartitionDownDiagonal
@@ -359,6 +373,10 @@ elemental::lapack::internal::PanelTridiagL
         WCol.View2x1
         ( omega11,
           w21 );
+        
+        PartitionDown
+        ( a21, alpha21T,
+               a21B,     1 );
 
         a21_MC_Star.AlignWith( A22 );
         a21_MR_Star.AlignWith( A22 );
@@ -384,12 +402,12 @@ elemental::lapack::internal::PanelTridiagL
         const bool thisIsMyColumn = ( grid.MRRank() == a21.RowAlignment() );
         if( thisIsMyColumn )
         {
-            tau = lapack::internal::LocalColReflector( a21 );
+            tau = lapack::internal::LocalColReflector( alpha21T, a21B );
             tau1.Set( 0, 0, tau );
         }
             
-        a21.GetRealDiagonal( epsilon1 );
-        a21.Set( 0, 0, (C)1 ); 
+        alpha21T.GetRealDiagonal( epsilon1 );
+        alpha21T.Set( 0, 0, (C)1 );
 
         a21_MR_Star = a21_MC_Star = a21;
 

@@ -282,7 +282,8 @@ inline void
 AbstractDistMatrixBase<T>::AssertNotLockedView() const
 {
     if( _viewing && _lockedView )
-        throw "Assertion that matrix not be a locked view failed.";
+        throw std::logic_error
+        ( "Assertion that matrix not be a locked view failed." );
 }
 
 template<typename T>
@@ -290,7 +291,8 @@ inline void
 AbstractDistMatrixBase<T>::AssertNotStoringData() const
 {
     if( _localMatrix.MemorySize() > 0 )
-        throw "Assertion that matrix not be storing data failed.";
+        throw std::logic_error
+        ( "Assertion that matrix not be storing data failed." );
 }
 
 template<typename T>
@@ -303,8 +305,7 @@ AbstractDistMatrixBase<T>::AssertValidEntry
         std::ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix.";
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
 }
 
@@ -315,17 +316,16 @@ AbstractDistMatrixBase<T>::AssertValidSubmatrix
   int i, int j, int height, int width ) const
 {
     if( i < 0 || j < 0 )
-        throw "Indices of submatrix were negative.";
+        throw std::logic_error( "Indices of submatrix were negative." );
     if( height < 0 || width < 0 )
-        throw "Dimensions of submatrix were negative.";
+        throw std::logic_error( "Dimensions of submatrix were negative." );
     if( (i+height) > A.Height() || (j+width) > A.Width() )
     {
         std::ostringstream msg;
         msg << "Submatrix is out of bounds: accessing up to (" << i+height-1
             << "," << j+width-1 << ") of " << A.Height() << " x "
             << A.Width() << " matrix.";
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
 }
 
@@ -334,7 +334,8 @@ inline void
 AbstractDistMatrixBase<T>::AssertFreeColAlignment() const
 {
     if( _constrainedColAlignment )
-        throw "Assertion that column alignment be free failed.";
+        throw std::logic_error
+        ( "Assertion that column alignment be free failed." );
 }
 
 template<typename T>
@@ -342,7 +343,8 @@ inline void
 AbstractDistMatrixBase<T>::AssertFreeRowAlignment() const
 {
     if( _constrainedRowAlignment )
-        throw "Assertion that row alignment be free failed.";
+        throw std::logic_error
+        ( "Assertion that row alignment be free failed." );
 }
 
 template<typename T> template<typename U>
@@ -351,7 +353,7 @@ AbstractDistMatrixBase<T>::AssertSameGrid
 ( const AbstractDistMatrixBase<U>& A ) const
 {
     if( GetGrid() != A.GetGrid() )
-        throw "Assertion that grids match failed.";
+        throw std::logic_error( "Assertion that grids match failed." );
 }
 
 template<typename T> template<typename U>
@@ -360,7 +362,8 @@ AbstractDistMatrixBase<T>::AssertSameSize
 ( const AbstractDistMatrixBase<U>& A ) const
 {
     if( Height() != A.Height() || Width() != A.Width() )
-        throw "Assertion that matrices be the same size failed.";
+        throw std::logic_error
+        ( "Assertion that matrices be the same size failed." );
 }
 
 template<typename T> template<typename U>
@@ -369,7 +372,8 @@ AbstractDistMatrixBase<T>::AssertSameSizeAsTranspose
 ( const AbstractDistMatrixBase<U>& A ) const
 {
     if( Height() != A.Width() || Width() != A.Height() )
-        throw "Assertion that matrices be the same size (after trans.) failed.";
+        throw std::logic_error
+        ( "Assertion that matrices be the same size (after trans.) failed." );
 }
 
 template<typename T> template<typename U>
@@ -384,11 +388,10 @@ AbstractDistMatrixBase<T>::AssertConforming1x2
         msg << "1x2 not conformant. Left is " << AL.Height() << " x " 
             << AL.Width() << ", right is " << AR.Height() << " x " 
             << AR.Width();
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     if( AL.ColAlignment() != AR.ColAlignment() )
-        throw "1x2 is misaligned.";
+        throw std::logic_error( "1x2 is misaligned." );
 }
 
 template<typename T> template<typename U>
@@ -403,11 +406,10 @@ AbstractDistMatrixBase<T>::AssertConforming2x1
         msg << "2x1 is not conformant. Top is " << AT.Height() << " x " 
             << AT.Width() << ", bottom is " << AB.Height() << " x " 
             << AB.Width();
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     if( AT.RowAlignment() != AB.RowAlignment() )
-        throw "2x1 is not aligned.";
+        throw std::logic_error( "2x1 is not aligned." );
 }
 
 template<typename T> template<typename U>
@@ -427,14 +429,14 @@ AbstractDistMatrixBase<T>::AssertConforming2x2
             << "  TR is " << ATR.Height() << " x " << ATR.Width() << std::endl
             << "  BL is " << ABL.Height() << " x " << ABL.Width() << std::endl
             << "  BR is " << ABR.Height() << " x " << ABR.Width();
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     if( ATL.ColAlignment() != ATR.ColAlignment() ||
         ABL.ColAlignment() != ABR.ColAlignment() ||
         ATL.RowAlignment() != ABL.RowAlignment() ||
         ATR.RowAlignment() != ABR.RowAlignment() )
-        throw "2x2 set of matrices must aligned to combine.";
+        throw std::logic_error
+        ( "2x2 set of matrices must aligned to combine." );
 }
 #endif // RELEASE
 

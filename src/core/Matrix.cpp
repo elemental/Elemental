@@ -47,9 +47,10 @@ elemental::Matrix<T>::ResizeTo
 #ifndef RELEASE
     PushCallStack("Matrix::ResizeTo(height,width)");
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw logic_error( "Height and width must be non-negative." );
     if( _viewing )
-        throw "Does not make sense to resize matrix when viewing other data.";
+        throw logic_error
+        ( "Does not make sense to resize matrix when viewing other data." );
 #endif
     const int minLDim = 1;
     _height = height;
@@ -71,16 +72,16 @@ elemental::Matrix<T>::ResizeTo
 #ifndef RELEASE
     PushCallStack("Matrix::ResizeTo(height,width,ldim)");
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw logic_error( "Height and width must be non-negative." );
     if( _viewing )
-        throw "Does not make sense to resize matrix when viewing other data.";
+        throw logic_error
+        ( "Does not make sense to resize matrix when viewing other data." );
     if( ldim < height )
     {
         ostringstream msg;
         msg << "Tried to set ldim(" << ldim << ") < height (" << height << ")"
             << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     _height = height;
@@ -101,7 +102,7 @@ elemental::Matrix<T>::View( Matrix<T>& A )
 #ifndef RELEASE
     PushCallStack("Matrix::View(A)");
     if( _memory.Size() > 0 )
-        throw "Viewing with Matrix after allocating memory.";
+        throw logic_error( "Viewing with Matrix after allocating memory." );
 #endif
     _height = A.Height();
     _width  = A.Width();
@@ -121,7 +122,7 @@ elemental::Matrix<T>::LockedView( const Matrix<T>& A )
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView(A)");
     if( _memory.Size() > 0 )
-        throw "Viewing with Matrix after allocating memory.";
+        throw logic_error( "Viewing with Matrix after allocating memory." );
 #endif
     _height     = A.Height();
     _width      = A.Width();
@@ -143,19 +144,18 @@ elemental::Matrix<T>::View
 #ifndef RELEASE
     PushCallStack("Matrix::View(A,i,j,height,width)");
     if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
+        throw logic_error( "Indices must be non-negative." );
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw logic_error( "Height and width must be non-negative." );
     if( _memory.Size() > 0 )
-        throw "Viewing with Matrix after allocating memory.";
+        throw logic_error( "Viewing with Matrix after allocating memory." );
     if( (i+height) > A.Height() || (j+width) > A.Width() )
     {
         ostringstream msg;
         msg << "Trying to view outside of a Matrix: " 
             << "up to (" << i+height-1 << "," << j+width-1 << ") "
             << "of " << A.Height() << " x " << A.Width() << " Matrix." << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     _height     = height;
@@ -178,19 +178,18 @@ elemental::Matrix<T>::LockedView
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView(A,i,j,height,width)");
     if( i < 0 || j < 0 )
-        throw "Indices must be non-negative.";
+        throw logic_error( "Indices must be non-negative." );
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw logic_error( "Height and width must be non-negative." );
     if( _memory.Size() > 0 )
-        throw "Viewing with Matrix after allocating memory.";
+        throw logic_error( "Viewing with Matrix after allocating memory." );
     if( (i+height) > A.Height() || (j+width) > A.Width() )
     {
         ostringstream msg;
         msg << "Trying to view outside of a Matrix: " 
             << "up to (" << i+height-1 << "," << j+width-1 << ") "
             << "of " << A.Height() << " x " << A.Width() << " Matrix." << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     _height     = height;
@@ -212,13 +211,13 @@ elemental::Matrix<T>::View1x2
 #ifndef RELEASE
     PushCallStack("Matrix::View1x2");
     if( _memory.Size() > 0 )
-        throw "Viewing with Matrix after allocating memory.";
+        throw logic_error( "Viewing with Matrix after allocating memory." );
     if( AL.Height() != AR.Height() )
-        throw "1x2 must have consistent height to combine.";
+        throw logic_error( "1x2 must have consistent height to combine." );
     if( AL.LDim() != AR.LDim() )
-        throw "1x2 must have consistent ldims to combine.";
+        throw logic_error( "1x2 must have consistent ldims to combine." );
     if( AR.Buffer() != (AL.Buffer()+AL.LDim()*AL.Width()) )
-        throw "1x2 must have contiguous memory.";
+        throw logic_error( "1x2 must have contiguous memory." );
 #endif
     _height = AL.Height();
     _width  = AL.Width() + AR.Width();
@@ -239,13 +238,13 @@ elemental::Matrix<T>::LockedView1x2
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView1x2");
     if( _memory.Size() > 0 )
-        throw "Viewing with Matrix after allocating memory.";
+        throw logic_error( "Viewing with Matrix after allocating memory." );
     if( AL.Height() != AR.Height() )
-        throw "1x2 must have consistent height to combine.";
+        throw logic_error( "1x2 must have consistent height to combine." );
     if( AL.LDim() != AR.LDim() )
-        throw "1x2 must have consistent ldims to combine.";
+        throw logic_error( "1x2 must have consistent ldims to combine." );
     if( AR.LockedBuffer() != (AL.LockedBuffer()+AL.LDim()*AL.Width()) )
-        throw "1x2 must have contiguous memory.";
+        throw logic_error( "1x2 must have contiguous memory." );
 #endif
     _height     = AL.Height();
     _width      = AL.Width() + AR.Width();
@@ -266,13 +265,13 @@ elemental::Matrix<T>::View2x1( Matrix<T>& AT,
 #ifndef RELEASE
     PushCallStack("Matrix::View2x1");
     if( _memory.Size() > 0 )
-        throw "Viewing with matrix after allocating memory.";
+        throw logic_error( "Viewing with matrix after allocating memory." );
     if( AT.Width() != AB.Width() )
-        throw "2x1 must have consistent width to combine.";
+        throw logic_error( "2x1 must have consistent width to combine." );
     if( AT.LDim() != AB.LDim() )
-        throw "2x1 must have consistent ldim to combine.";
+        throw logic_error( "2x1 must have consistent ldim to combine." );
     if( AB.Buffer() != (AT.Buffer() + AT.Height()) )
-        throw "2x1 must have contiguous memory.";
+        throw logic_error( "2x1 must have contiguous memory." );
 #endif
     _height = AT.Height() + AB.Height();
     _width  = AT.Width();
@@ -294,13 +293,13 @@ elemental::Matrix<T>::LockedView2x1
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView2x1");
     if( _memory.Size() > 0 )
-        throw "Viewing with matrix after allocating memory.";
+        throw logic_error( "Viewing with matrix after allocating memory." );
     if( AT.Width() != AB.Width() )
-        throw "2x1 must have consistent width to combine.";
+        throw logic_error( "2x1 must have consistent width to combine." );
     if( AT.LDim() != AB.LDim() )
-        throw "2x1 must have consistent ldim to combine.";
+        throw logic_error( "2x1 must have consistent ldim to combine." );
     if( AB.LockedBuffer() != (AT.LockedBuffer()+AT.Height()) )
-        throw "2x1 must have contiguous memory.";
+        throw logic_error( "2x1 must have contiguous memory." );
 #endif
     _height     = AT.Height() + AB.Height();
     _width      = AT.Width();
@@ -321,26 +320,20 @@ elemental::Matrix<T>::View2x2( Matrix<T>& ATL, Matrix<T>& ATR,
 #ifndef RELEASE
     PushCallStack("Matrix::View2x2");
     if( _memory.Size() > 0 )
-        throw "Viewing a matrix after allocating memory.";
+        throw logic_error( "Viewing a matrix after allocating memory." );
     if( ATL.Width() != ABL.Width()   ||
         ATR.Width() != ABR.Width()   ||
         ATL.Height() != ATR.Height() ||
         ABL.Height() != ABR.Height()   )
-    {
-        throw "2x2 must conform to combine.";
-    }
+        throw logic_error( "2x2 must conform to combine." );
     if( ATL.LDim() != ATR.LDim() ||
         ATR.LDim() != ABL.LDim() ||
         ABL.LDim() != ABR.LDim()   )
-    {
-        throw "2x2 must have consistent ldims to combine.";
-    }
+        throw logic_error( "2x2 must have consistent ldims to combine." );
     if( ABL.Buffer() != (ATL.Buffer() + ATL.Height()) ||
         ABR.Buffer() != (ATR.Buffer() + ATR.Height()) ||
         ATR.Buffer() != (ATL.Buffer() + ATL.LDim()*ATL.Width()) )
-    {
-        throw "2x2 must have contiguous memory.";
-    }
+        throw logic_error( "2x2 must have contiguous memory." );
 #endif
     _height = ATL.Height() + ABL.Height();
     _width  = ATL.Width() + ATR.Width();
@@ -362,26 +355,20 @@ elemental::Matrix<T>::LockedView2x2
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView2x2");
     if( _memory.Size() > 0 )
-        throw "Viewing a matrix after allocating memory.";
+        throw logic_error( "Viewing a matrix after allocating memory." );
     if( ATL.Width() != ABL.Width()   ||
         ATR.Width() != ABR.Width()   ||
         ATL.Height() != ATR.Height() ||
         ABL.Height() != ABR.Height()   )
-    {
-        throw "2x2 must conform to combine.";
-    }
+        throw logic_error( "2x2 must conform to combine." );
     if( ATL.LDim() != ATR.LDim() ||
         ATR.LDim() != ABL.LDim() ||
         ABL.LDim() != ABR.LDim()   )
-    {
-        throw "2x2 must have consistent ldims to combine.";
-    }
+        throw logic_error( "2x2 must have consistent ldims to combine." );
     if( ABL.LockedBuffer() != (ATL.LockedBuffer() + ATL.Height()) ||
         ABR.LockedBuffer() != (ATR.LockedBuffer() + ATR.Height()) ||
         ATR.LockedBuffer() != (ATL.LockedBuffer() + ATL.LDim()*ATL.Width()) )
-    {
-        throw "2x2 must have contiguous memory.";
-    }
+        throw logic_error( "2x2 must have contiguous memory." );
 #endif
     _height = ATL.Height() + ABL.Height();
     _width  = ATL.Width() + ATR.Width();
@@ -401,7 +388,7 @@ elemental::Matrix<T>::SetToIdentity()
 #ifndef RELEASE
     PushCallStack("Matrix::SetToIdentity");
     if( _lockedView )
-        throw "Cannot set a locked view to identity.";
+        throw logic_error( "Cannot set a locked view to identity." );
 #endif
     const int height = Height();
     const int width = Width();
@@ -421,7 +408,7 @@ elemental::Matrix<T>::SetToZero()
 #ifndef RELEASE
     PushCallStack("Matrix::SetToZero");
     if( _lockedView )
-        throw "Cannot set a locked view to zero.";
+        throw logic_error( "Cannot set a locked view to zero." );
 #endif
     const int height = Height();
     const int width = Width();
@@ -440,7 +427,7 @@ elemental::Matrix<T>::SetToRandom()
 #ifndef RELEASE
     PushCallStack("Matrix::SetToRandom");
     if( _lockedView )
-        throw "Cannot change the data of a locked view.";
+        throw logic_error( "Cannot change the data of a locked view." );
 #endif
     const int height = Height();
     const int width = Width();
@@ -460,9 +447,9 @@ elemental::Matrix<T>::operator=
 #ifndef RELEASE
     PushCallStack("Matrix::operator=");
     if( _lockedView )
-        throw "Cannot assign to a locked view.";
+        throw logic_error( "Cannot assign to a locked view." );
     if( _viewing && ( A.Height() != Height() || A.Width() != Width() ) )
-        throw "Cannot assign to a view of different dimensions.";
+        throw logic_error( "Cannot assign to a view of different dimensions." );
 #endif
     if( !_viewing )
         ResizeTo( A.Height(), A.Width() );

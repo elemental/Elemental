@@ -25,15 +25,14 @@ elemental::blas::internal::TrsmRUN
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsmRUN");
     if( U.GetGrid() != X.GetGrid() )
-        throw "U and X must be distributed over the same grid.";
+        throw logic_error( "U and X must be distributed over the same grid." );
     if( U.Height() != U.Width() || X.Width() != U.Height() )
     {
         ostringstream msg;
         msg << "Nonconformal TrsmRUN: " << endl
             << "  U ~ " << U.Height() << " x " << U.Width() << endl
             << "  X ~ " << X.Height() << " x " << X.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = U.GetGrid();
@@ -57,8 +56,8 @@ elemental::blas::internal::TrsmRUN
     blas::Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
-         UBL, UBR );
-    PartitionRight( X, XL, XR );
+         UBL, UBR, 0 );
+    PartitionRight( X, XL, XR, 0 );
     while( XR.Width() > 0 )
     {
         LockedRepartitionDownDiagonal

@@ -108,7 +108,7 @@ elemental::lapack::Chol
 #ifndef RELEASE
     PushCallStack("lapack::Chol");
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw std::logic_error( "A must be square." );
 #endif
     const char uplo = ShapeToChar( shape );
     wrappers::lapack::Chol( uplo, A.Height(), A.Buffer(), A.LDim() );
@@ -125,7 +125,7 @@ elemental::lapack::LU
 #ifndef RELEASE
     PushCallStack("lapack::LU");
     if( p.Height() != A.Height() )
-        throw "A and p must be the same height.";
+        throw std::logic_error( "A and p must be the same height." );
 #endif
     wrappers::lapack::LU
     ( A.Height(), A.Width(), A.Buffer(), A.LDim(), p.Buffer() );
@@ -142,13 +142,13 @@ elemental::lapack::Tridiag
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw std::logic_error( "A must be square." );
     if( d.Height() != A.Height() || d.Width() != 1 )
-        throw "d must be a column vector of length n.";
+        throw std::logic_error( "d must be a column vector of length n." );
     if( e.Height() != A.Height()-1 || e.Width() != 1 )
-        throw "e must be a column vector of length n-1.";
+        throw std::logic_error( "e must be a column vector of length n-1." );
     if( t.Height() != A.Height()-1 || t.Width() != 1 )
-        throw "t must be a column vector of length n-1.";
+        throw std::logic_error( "t must be a column vector of length n-1." );
 #endif
     const char uplo = ShapeToChar( shape );
     wrappers::lapack::Tridiag
@@ -172,13 +172,13 @@ elemental::lapack::Tridiag
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw std::logic_error( "A must be square." );
     if( d.Height() != A.Height() || d.Width() != 1 )
-        throw "d must be a column vector of length n.";
+        throw std::logic_error( "d must be a column vector of length n." );
     if( e.Height() != A.Height()-1 || e.Width() != 1 )
-        throw "e must be a column vector of length n-1.";
+        throw std::logic_error( "e must be a column vector of length n-1." );
     if( t.Height() != A.Height()-1 || t.Width() != 1 )
-        throw "t must be a column vector of length n-1.";
+        throw std::logic_error( "t must be a column vector of length n-1." );
 #endif
     const char uplo = ShapeToChar( shape );
     wrappers::lapack::Tridiag
@@ -198,7 +198,7 @@ elemental::lapack::Trinv
 #ifndef RELEASE
     PushCallStack("lapack::Trinv");
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw std::logic_error( "A must be square." );
 #endif
     const char uplo = ShapeToChar( shape );
     const char diag = DiagonalToChar( diagonal );

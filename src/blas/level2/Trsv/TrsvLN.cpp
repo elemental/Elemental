@@ -21,14 +21,14 @@ elemental::blas::internal::TrsvLN
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsvLN");
     if( L.GetGrid() != x.GetGrid() )
-        throw "L and x must be distributed over the same grid.";
+        throw logic_error( "L and x must be distributed over the same grid." );
     if( L.Height() != L.Width() )
-        throw "L must be square.";
+        throw logic_error( "L must be square." );
     if( x.Width() != 1 && x.Height() != 1 )
-        throw "x must be a vector.";
+        throw logic_error( "x must be a vector." );
     const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     if( L.Width() != xLength )
-        throw "Nonconformal TrsvLN.";
+        throw logic_error( "Nonconformal TrsvLN." );
 #endif
     const Grid& grid = L.GetGrid();
 
@@ -53,10 +53,10 @@ elemental::blas::internal::TrsvLN
         // Start the algorithm
         LockedPartitionDownDiagonal
         ( L, LTL, LTR,
-             LBL, LBR );
+             LBL, LBR, 0 );
         PartitionDown
         ( x, xT,
-             xB );
+             xB, 0 );
         while( xB.Height() > 0 )
         {
             LockedRepartitionDownDiagonal
@@ -129,8 +129,8 @@ elemental::blas::internal::TrsvLN
         // Start the algorithm
         LockedPartitionDownDiagonal
         ( L, LTL, LTR,
-             LBL, LBR );
-        PartitionRight( x,  xL, xR );
+             LBL, LBR, 0 );
+        PartitionRight( x,  xL, xR, 0 );
         while( xR.Width() > 0 )
         {
             LockedRepartitionDownDiagonal

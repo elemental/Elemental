@@ -22,9 +22,10 @@ elemental::blas::Herk
 #ifndef RELEASE
     PushCallStack("blas::Herk");
     if( A.GetGrid() != C.GetGrid() )
-        throw "A and C must be distributed over the same grid.";
+        throw logic_error( "A and C must be distributed over the same grid." );
     if( orientation == Transpose )
-        throw "Herk accepts Normal and ConjugateTranspose options.";
+        throw logic_error
+        ( "Herk accepts Normal and ConjugateTranspose options." );
 #endif
     if( shape == Lower && orientation == Normal )
     {

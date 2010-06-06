@@ -163,7 +163,7 @@ elemental::blas::internal::GemmDot
     if( orientationOfA == Normal && orientationOfB == Normal )
         blas::internal::GemmNNDot( alpha, A, B, beta, C );
     else
-        throw "GemmDot currently only implemented for NN case.";
+        throw logic_error( "GemmDot currently only implemented for NN case." );
     // This code will be enabled when the routines are implemented
     /*
     else if( orientationOfA == Normal )

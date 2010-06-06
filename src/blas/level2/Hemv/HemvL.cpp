@@ -27,10 +27,10 @@ elemental::blas::internal::HemvColAccumulateL
         x_MC_Star.GetGrid() != x_MR_Star.GetGrid() ||
         x_MR_Star.GetGrid() != z_MC_Star.GetGrid() ||
         z_MC_Star.GetGrid() != z_MR_Star.GetGrid() )
-        throw "{A,x,z} must be distributed over the same grid.";
+        throw logic_error( "{A,x,z} must be distributed over the same grid." );
     if( x_MC_Star.Width() != 1 || x_MR_Star.Width() != 1 ||
         z_MC_Star.Width() != 1 || z_MR_Star.Width() != 1  )
-        throw "Expected x and z to be column vectors.";
+        throw logic_error( "Expected x and z to be column vectors." );
     if( A.Height() != A.Width() || 
         A.Height() != x_MC_Star.Height() ||
         A.Height() != x_MR_Star.Height() ||
@@ -48,14 +48,13 @@ elemental::blas::internal::HemvColAccumulateL
                                << z_MC_Star.Width() << endl
             << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
                                << z_MR_Star.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
     if( x_MC_Star.ColAlignment() != A.ColAlignment() ||
         x_MR_Star.ColAlignment() != A.RowAlignment() ||
         z_MC_Star.ColAlignment() != A.ColAlignment() ||
         z_MR_Star.ColAlignment() != A.RowAlignment() )
-        throw "Partial matrix distributions are misaligned.";
+        throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
     const Grid& grid = A.GetGrid();
 
@@ -94,19 +93,19 @@ elemental::blas::internal::HemvColAccumulateL
                  
     LockedPartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
+         ABL, ABR, 0 );
     LockedPartitionDown
     ( x_MC_Star, xT_MC_Star,
-                 xB_MC_Star );
+                 xB_MC_Star, 0 );
     LockedPartitionDown
     ( x_MR_Star, xT_MR_Star,
-                 xB_MR_Star );
+                 xB_MR_Star, 0 );
     PartitionDown
     ( z_MC_Star, zT_MC_Star,
-                 zB_MC_Star );
+                 zB_MC_Star, 0 );
     PartitionDown
     ( z_MR_Star, zT_MR_Star,
-                 zB_MR_Star );
+                 zB_MR_Star, 0 );
     while( ATL.Height() < A.Height() )
     {
         LockedRepartitionDownDiagonal
@@ -224,10 +223,10 @@ elemental::blas::internal::HemvRowAccumulateL
         x_Star_MC.GetGrid() != x_Star_MR.GetGrid() ||
         x_Star_MR.GetGrid() != z_Star_MC.GetGrid() ||
         z_Star_MC.GetGrid() != z_Star_MR.GetGrid() )
-        throw "{A,x,z} must be distributed over the same grid.";
+        throw logic_error( "{A,x,z} must be distributed over the same grid." );
     if( x_Star_MC.Height() != 1 || x_Star_MR.Height() != 1 ||
         z_Star_MC.Height() != 1 || z_Star_MR.Height() != 1  )
-        throw "Expected x and z to be row vectors.";
+        throw logic_error( "Expected x and z to be row vectors." );
     if( A.Height() != A.Width() || 
         A.Height() != x_Star_MC.Width() ||
         A.Height() != x_Star_MR.Width() ||
@@ -245,14 +244,13 @@ elemental::blas::internal::HemvRowAccumulateL
                                << z_Star_MC.Width() << endl
             << "  z[* ,MR] ~ " << z_Star_MR.Height() << " x " 
                                << z_Star_MR.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
     if( x_Star_MC.RowAlignment() != A.ColAlignment() ||
         x_Star_MR.RowAlignment() != A.RowAlignment() ||
         z_Star_MC.RowAlignment() != A.ColAlignment() ||
         z_Star_MR.RowAlignment() != A.RowAlignment() )
-        throw "Partial matrix distributions are misaligned.";
+        throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
     const Grid& grid = A.GetGrid();
 
@@ -287,11 +285,11 @@ elemental::blas::internal::HemvRowAccumulateL
                  
     LockedPartitionDownDiagonal
     ( A, ATL, ATR,
-         ABL, ABR );
-    LockedPartitionRight( x_Star_MC, xL_Star_MC, xR_Star_MC );
-    LockedPartitionRight( x_Star_MR, xL_Star_MR, xR_Star_MR );
-    PartitionRight( z_Star_MC, zL_Star_MC, zR_Star_MC );
-    PartitionRight( z_Star_MR, zL_Star_MR, zR_Star_MR );
+         ABL, ABR, 0 );
+    LockedPartitionRight( x_Star_MC, xL_Star_MC, xR_Star_MC, 0 );
+    LockedPartitionRight( x_Star_MR, xL_Star_MR, xR_Star_MR, 0 );
+    PartitionRight( z_Star_MC, zL_Star_MC, zR_Star_MC, 0 );
+    PartitionRight( z_Star_MR, zL_Star_MR, zR_Star_MR, 0 );
     while( ATL.Height() < A.Height() )
     {
         LockedRepartitionDownDiagonal

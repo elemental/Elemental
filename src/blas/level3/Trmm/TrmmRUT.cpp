@@ -27,17 +27,16 @@ elemental::blas::internal::TrmmRUT
 #ifndef RELEASE
     PushCallStack("blas::internal::TrmmRUT");
     if( U.GetGrid() != X.GetGrid() )
-        throw "U and X must be distributed over the same grid.";
+        throw logic_error( "U and X must be distributed over the same grid." );
     if( orientation == Normal )
-        throw "TrmmRUT expects a (Conjugate)Transpose option.";
+        throw logic_error( "TrmmRUT expects a (Conjugate)Transpose option." );
     if( U.Height() != U.Width() || X.Width() != U.Height() )
     {
         ostringstream msg;
         msg << "Nonconformal TrmmRUT: " << endl
             << "  U ~ " << U.Height() << " x " << U.Width() << endl
             << "  X ~ " << X.Height() << " x " << X.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = U.GetGrid();
@@ -61,8 +60,8 @@ elemental::blas::internal::TrmmRUT
     blas::Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
-         UBL, UBR );
-    PartitionRight( X, XL, XR );
+         UBL, UBR, 0 );
+    PartitionRight( X, XL, XR, 0 );
     while( XR.Width() > 0 )
     {
         LockedRepartitionDownDiagonal

@@ -22,9 +22,9 @@ elemental::blas::Her
 #ifndef RELEASE
     PushCallStack("blas::Her");
     if( A.GetGrid() != x.GetGrid() )
-        throw "A and x must be distributed over the same grid.";
+        throw logic_error( "A and x must be distributed over the same grid." );
     if( A.Height() != A.Width() )
-        throw "A must be square.";
+        throw logic_error( "A must be square." );
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     if( A.Height() != xLength )
     {
@@ -32,8 +32,7 @@ elemental::blas::Her
         msg << "A must conform with x: " << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x ~ " << x.Height() << " x " << x.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();

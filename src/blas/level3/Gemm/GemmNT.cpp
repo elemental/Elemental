@@ -22,9 +22,9 @@ elemental::blas::internal::GemmNT
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNT");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfB == Normal )
-        throw "GemmNT requires that B be (Conjugate)Transposed.";
+        throw logic_error( "GemmNT requires that B be (Conjugate)Transposed." );
 #endif
     const int m = C.Height();
     const int n = C.Width();
@@ -72,9 +72,10 @@ elemental::blas::internal::GemmNTA
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNTA");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfB == Normal )
-        throw "GemmTNA requires that B be (Conjugate)Transposed.";
+        throw logic_error
+        ( "GemmTNA requires that B be (Conjugate)Transposed." );
     if( A.Height() != C.Height() ||
         B.Height() != C.Width()  ||
         A.Width()  != B.Width()    )
@@ -84,8 +85,7 @@ elemental::blas::internal::GemmNTA
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -106,8 +106,8 @@ elemental::blas::internal::GemmNTA
     blas::Scal( beta, C );
     LockedPartitionDown
     ( B, BT,
-         BB );
-    PartitionRight( C, CL, CR );
+         BB, 0 );
+    PartitionRight( C, CL, CR, 0 );
     while( BB.Height() > 0 )
     {
         LockedRepartitionDown
@@ -164,9 +164,10 @@ elemental::blas::internal::GemmNTB
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNTB");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfB == Normal )
-        throw "GemmNTB requires that B be (Conjugate)Transposed.";
+        throw logic_error
+        ( "GemmNTB requires that B be (Conjugate)Transposed." );
     if( A.Height() != C.Height() ||
         B.Height() != C.Width()  ||
         A.Width()  != B.Width() )
@@ -176,8 +177,7 @@ elemental::blas::internal::GemmNTB
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -201,10 +201,10 @@ elemental::blas::internal::GemmNTB
     blas::Scal( beta, C );
     LockedPartitionDown
     ( A, AT,
-         AB );
+         AB, 0 );
     PartitionDown
     ( C, CT,
-         CB );
+         CB, 0 );
     while( AB.Height() > 0 )
     {
         LockedRepartitionDown
@@ -269,9 +269,10 @@ elemental::blas::internal::GemmNTC
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNTC");
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
-        throw "{A,B,C} must be distributed over the same grid.";
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfB == Normal )
-        throw "GemmNTC requires that B be (Conjugate)Transposed.";
+        throw logic_error
+        ( "GemmNTC requires that B be (Conjugate)Transposed." );
     if( A.Height() != C.Height() ||
         B.Height() != C.Width()  ||
         A.Width()  != B.Width()    )
@@ -281,8 +282,7 @@ elemental::blas::internal::GemmNTC
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B ~ " << B.Height() << " x " << B.Width() << endl
             << "  C ~ " << C.Height() << " x " << C.Width() << endl;
-        const string& s = msg.str();
-        throw s.c_str();
+        throw logic_error( msg.str() );
     }
 #endif
     const Grid& grid = A.GetGrid();
@@ -300,8 +300,8 @@ elemental::blas::internal::GemmNTC
 
     // Start the algorithm
     blas::Scal( beta, C );
-    LockedPartitionRight( A, AL, AR );
-    LockedPartitionRight( B, BL, BR );
+    LockedPartitionRight( A, AL, AR, 0 );
+    LockedPartitionRight( B, BL, BR, 0 );
     while( AR.Width() > 0 )
     {
         LockedRepartitionRight

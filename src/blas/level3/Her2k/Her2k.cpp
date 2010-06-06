@@ -23,7 +23,8 @@ elemental::blas::Her2k
 #ifndef RELEASE
     PushCallStack("blas::Her2k");
     if( orientation == Transpose )
-        throw "Her2k accepts Normal and ConjugateTranspose options.";
+        throw logic_error
+        ( "Her2k accepts Normal and ConjugateTranspose options." );
 #endif
     if( shape == Lower && orientation == Normal )
     {

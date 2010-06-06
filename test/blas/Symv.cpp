@@ -95,8 +95,7 @@ void TestCorrectness
                 ostringstream msg;
                 msg << "FAILED at index (" << i << "," << j << "): truth="
                      << truth << ", computed=" << computed;
-                const string& s = msg.str();
-                throw s.c_str();
+                throw logic_error( msg.str() );
             }
         }
     }
@@ -241,13 +240,13 @@ int main( int argc, char* argv[] )
             cout << endl;
 #endif
     }
-    catch( const char* errorMsg )
+    catch( exception& e )
     {
 #ifndef RELEASE
         DumpCallStack();
 #endif
         cerr << "Process " << rank << " caught error message:" << endl 
-             << errorMsg << endl;
+             << e.what() << endl;
     }
     elemental::Finalize();
     return 0;

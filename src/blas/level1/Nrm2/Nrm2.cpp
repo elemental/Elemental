@@ -20,7 +20,7 @@ elemental::blas::Nrm2
 #ifndef RELEASE
     PushCallStack("blas::Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
-        throw "x must be a vector.";
+        throw logic_error( "x must be a vector." );
 #endif
     R norm;
     const Grid& grid = x.GetGrid();
@@ -70,7 +70,7 @@ elemental::blas::Nrm2
 #ifndef RELEASE
     PushCallStack("blas::Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
-        throw "x must be a vector.";
+        throw logic_error( "x must be a vector." );
 #endif
     R norm;
     const Grid& grid = x.GetGrid();

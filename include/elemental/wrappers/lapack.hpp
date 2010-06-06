@@ -224,8 +224,7 @@ elemental::wrappers::lapack::Chol
     {
         std::ostringstream msg;
         msg << "spotrf returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -245,8 +244,7 @@ elemental::wrappers::lapack::Chol
     {
         std::ostringstream msg;
         msg << "dpotrf returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -267,8 +265,7 @@ elemental::wrappers::lapack::Chol
     {
         std::ostringstream msg;
         msg << "cpotrf returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -288,8 +285,7 @@ elemental::wrappers::lapack::Chol
     {
         std::ostringstream msg;
         msg << "zpotrf returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -310,8 +306,7 @@ elemental::wrappers::lapack::LU
     {
         std::ostringstream msg;
         msg << "sgetrf returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -331,8 +326,7 @@ elemental::wrappers::lapack::LU
     {
         std::ostringstream msg;
         msg << "dgetrf returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -353,8 +347,7 @@ elemental::wrappers::lapack::LU
     {
         std::ostringstream msg;
         msg << "cgetrf returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -374,8 +367,7 @@ elemental::wrappers::lapack::LU
     {
         std::ostringstream msg;
         msg << "zgetrf returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -452,8 +444,7 @@ elemental::wrappers::lapack::Tridiag
     {
         std::ostringstream msg;
         msg << "ssytd2 returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -473,8 +464,7 @@ elemental::wrappers::lapack::Tridiag
     {
         std::ostringstream msg;
         msg << "dsytd2 returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -495,8 +485,7 @@ elemental::wrappers::lapack::Tridiag
     {
         std::ostringstream msg;
         msg << "chetd2 returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -516,8 +505,7 @@ elemental::wrappers::lapack::Tridiag
     {
         std::ostringstream msg;
         msg << "zhetd2 returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -538,8 +526,7 @@ elemental::wrappers::lapack::Trinv
     {
         std::ostringstream msg;
         msg << "strtri returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -559,8 +546,7 @@ elemental::wrappers::lapack::Trinv
     {
         std::ostringstream msg;
         msg << "dtrtri returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -581,8 +567,7 @@ elemental::wrappers::lapack::Trinv
     {
         std::ostringstream msg;
         msg << "ctrtri returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
@@ -602,8 +587,7 @@ elemental::wrappers::lapack::Trinv
     {
         std::ostringstream msg;
         msg << "ztrtri returned with info = " << info;
-        const std::string& s = msg.str();
-        throw s.c_str();
+        throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif

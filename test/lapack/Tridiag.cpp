@@ -80,26 +80,12 @@ void TestCorrectness
         cout.flush();
     }
     double startTime = Time();
-    if( shape == Lower )
-    {
-        lapack::Tridiag( Lower, ARef.LocalMatrix(), 
-                                dRef.LocalMatrix(),
-                                eRef.LocalMatrix(),
-                                tRef.LocalMatrix() );
-    }
-    else
-    {
-        Matrix<R> ATransRef;
-
-        blas::Trans( ARef.LockedLocalMatrix(), ATransRef );
-        lapack::Tridiag
-        ( Lower, 
-          ATransRef,
-          dRef.LocalMatrix(),
-          eRef.LocalMatrix(),
-          tRef.LocalMatrix() );
-        blas::Trans( ATransRef, ARef.LocalMatrix() );
-    }
+    lapack::Tridiag
+    ( shape, 
+      ARef.LocalMatrix(), 
+      dRef.LocalMatrix(), 
+      eRef.LocalMatrix(), 
+      tRef.LocalMatrix() );
     double stopTime = Time();
     double gFlops = lapack::internal::TridiagGFlops<R>(m,stopTime-startTime);
     if( grid.VCRank() == 0 )
@@ -133,8 +119,7 @@ void TestCorrectness
                     msg << "FAILED at index (" << i << "," << j 
                          << ") of A: truth=" << truth << ", computed=" 
                          << computed;
-                    const string& s = msg.str();
-                    throw s.c_str();
+                    throw logic_error( msg.str() );
                 }
             }
         }
@@ -154,8 +139,7 @@ void TestCorrectness
                     msg << "FAILED at index (" << i << "," << j 
                          << ") of A: truth=" << truth << ", computed="
                          << computed;
-                    const string& s = msg.str();
-                    throw s.c_str();
+                    throw logic_error( msg.str() );
                 }
             }
         }
@@ -170,8 +154,7 @@ void TestCorrectness
             ostringstream msg;
             msg << "FAILED at index " << j << " of d: truth=" << truth
                  << ", computed=" << computed;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
     for( int j=0; j<m-1; ++j )
@@ -184,8 +167,7 @@ void TestCorrectness
             ostringstream msg;
             msg << "FAILED at index " << j << " of e: truth=" << truth
                  << ", computed=" << computed;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
     for( int j=0; j<m-1; ++j )
@@ -198,8 +180,7 @@ void TestCorrectness
             ostringstream msg;
             msg << "FAILED at index " << j << " of t: truth=" << truth
                  << ", computed=" << computed;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
 
@@ -249,26 +230,12 @@ void TestCorrectness
         cout.flush();
     }
     double startTime = Time();
-    if( shape == Lower )
-    {
-        lapack::Tridiag( Lower, ARef.LocalMatrix(), 
-                                dRef.LocalMatrix(),
-                                eRef.LocalMatrix(),
-                                tRef.LocalMatrix() );
-    }
-    else
-    {
-        Matrix<C> AHermRef;
-
-        blas::ConjTrans( ARef.LockedLocalMatrix(), AHermRef );
-        lapack::Tridiag
-        ( Lower, 
-          AHermRef,
-          dRef.LocalMatrix(),
-          eRef.LocalMatrix(),
-          tRef.LocalMatrix() );
-        blas::ConjTrans( AHermRef, ARef.LocalMatrix() );
-    }
+    lapack::Tridiag
+    ( shape, 
+      ARef.LocalMatrix(), 
+      dRef.LocalMatrix(),
+      eRef.LocalMatrix(),
+      tRef.LocalMatrix() );
     double stopTime = Time();
     double gFlops = lapack::internal::TridiagGFlops<C>(m,stopTime-startTime);
     if( grid.VCRank() == 0 )
@@ -302,8 +269,7 @@ void TestCorrectness
                     msg << "FAILED at index (" << i << "," << j 
                          << ") of A: truth=" << truth << ", computed=" 
                          << computed;
-                    const string& s = msg.str();
-                    throw s.c_str();
+                    throw logic_error( msg.str() );
                 }
             }
         }
@@ -323,8 +289,7 @@ void TestCorrectness
                     msg << "FAILED at index (" << i << "," << j 
                          << ") of A: truth=" << truth << ", computed="
                          << computed;
-                    const string& s = msg.str();
-                    throw s.c_str();
+                    throw logic_error( msg.str() );
                 }
             }
         }
@@ -339,8 +304,7 @@ void TestCorrectness
             ostringstream msg;
             msg << "FAILED at index " << j << " of d: truth=" << truth
                  << ", computed=" << computed;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
     for( int j=0; j<m-1; ++j )
@@ -353,8 +317,7 @@ void TestCorrectness
             ostringstream msg;
             msg << "FAILED at index " << j << " of e: truth=" << truth
                  << ", computed=" << computed;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
     for( int j=0; j<m-1; ++j )
@@ -367,8 +330,7 @@ void TestCorrectness
             ostringstream msg;
             msg << "FAILED at index " << j << " of t: truth=" << truth
                  << ", computed=" << computed;
-            const string& s = msg.str();
-            throw s.c_str();
+            throw logic_error( msg.str() );
         }
     }
 
@@ -404,7 +366,21 @@ void TestTridiag<double>
         e.AlignWithDiag( A, -1 );
     else
         e.AlignWithDiag( A, +1 );
-    t.AlignWithDiag( A );
+
+    if( shape == Lower )
+    {
+        // Lower Tridiag traverses down the diagonal, so we must align t 
+        // with the top-left (m-1) x (m-1) submatrix of A.
+        t.AlignWithDiag( A );
+    }
+    else
+    {
+        // Upper Tridiag traverses up the diagonal, so we must align t 
+        // with the bottom-right (m-1) x (m-1) submatrix of A.
+        DistMatrix<R,MC,MR> ABR(grid);
+        ABR.View( A, 1, 1, m-1, m-1 );
+        t.AlignWithDiag( ABR );
+    }
 
     d.ResizeTo( m,   1 );
     e.ResizeTo( m-1, 1 );
@@ -477,7 +453,20 @@ void TestTridiag< complex<double> >
         e.AlignWithDiag( A, -1 );
     else
         e.AlignWithDiag( A, +1 );
-    t.AlignWithDiag( A );
+    if( shape == Lower )
+    {
+        // Lower Tridiag traverses down the diagonal, so we must align t 
+        // with the top-left (m-1) x (m-1) submatrix of A.
+        t.AlignWithDiag( A );
+    }
+    else
+    {
+        // Upper Tridiag traverses up the diagonal, so we must align t 
+        // with the bottom-right (m-1) x (m-1) submatrix of A.
+        DistMatrix<C,MC,MR> ABR(grid);
+        ABR.View( A, 1, 1, m-1, m-1 );
+        t.AlignWithDiag( ABR );
+    }
 
     d.ResizeTo( m,   1 );
     e.ResizeTo( m-1, 1 );
@@ -586,13 +575,13 @@ int main( int argc, char* argv[] )
             cout << endl;
 #endif
     }
-    catch( const char* errorMsg )
+    catch( exception& e )
     {
 #ifndef RELEASE
         DumpCallStack();
 #endif
         cerr << "Process " << rank << " caught error message:" << endl 
-             << errorMsg << endl;
+             << e.what() << endl;
     }   
     elemental::Finalize();
     return 0;

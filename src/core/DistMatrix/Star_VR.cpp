@@ -527,7 +527,7 @@ elemental::DistMatrixBase<T,Star,VR>::ResizeTo
     PushCallStack("[* ,VR]::ResizeTo");
     this->AssertNotLockedView();
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw logic_error( "Height and width must be non-negative." );
 #endif
     const Grid& grid = this->GetGrid();
     this->_height = height;
@@ -1186,7 +1186,7 @@ elemental::DistMatrixBase<T,Star,VR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[* ,VR] = [MD,* ] is not yet implemented.";
+    throw logic_error( "[* ,VR] = [MD,* ] is not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1205,7 +1205,7 @@ elemental::DistMatrixBase<T,Star,VR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw "[* ,VR] = [* ,MD] is not yet implemented.";
+    throw logic_error( "[* ,VR] = [* ,MD] is not yet implemented." );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1525,7 +1525,7 @@ elemental::DistMatrix<R,Star,VR>::SetToRandomHPD()
     PushCallStack("[* ,VR]::SetToRandomHPD");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
-        throw "Positive-definite matrices must be square.";
+        throw logic_error( "Positive-definite matrices must be square." );
 #endif
     const Grid& grid = this->GetGrid();
     const int height = this->Height();
@@ -1554,7 +1554,7 @@ elemental::DistMatrix<complex<R>,Star,VR>::SetToRandomHPD()
     PushCallStack("[* ,VR]::SetToRandomHPD");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
-        throw "Positive-definite matrices must be square.";
+        throw logic_error( "Positive-definite matrices must be square." );
 #endif
     const Grid& grid = this->GetGrid();
     const int height = this->Height();

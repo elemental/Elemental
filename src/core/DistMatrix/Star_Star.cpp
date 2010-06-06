@@ -305,7 +305,7 @@ elemental::DistMatrixBase<T,Star,Star>::ResizeTo
     PushCallStack("[* ,* ]::ResizeTo");
     this->AssertNotLockedView();
     if( height < 0 || width < 0 )
-        throw "Height and width must be non-negative.";
+        throw logic_error( "Height and width must be non-negative." );
 #endif
     this->_height = height;
     this->_width = width;
@@ -1266,7 +1266,7 @@ elemental::DistMatrix<R,Star,Star>::SetToRandomHPD()
     PushCallStack("[* ,* ]::SetToRandomHPD");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
-        throw "Positive-definite matrices must be square.";
+        throw logic_error( "Positive-definite matrices must be square." );
 #endif
     const int height = this->Height();
     const int width = this->Width();
@@ -1288,7 +1288,7 @@ elemental::DistMatrix<complex<R>,Star,Star>::SetToRandomHPD()
     PushCallStack("[* ,* ]::SetToRandomHPD");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
-        throw "Positive-definite matrices must be square.";
+        throw logic_error( "Positive-definite matrices must be square." );
 #endif
     const int height = this->Height();
     const int width = this->Width();
