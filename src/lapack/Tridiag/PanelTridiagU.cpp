@@ -48,8 +48,6 @@ elemental::lapack::internal::PanelTridiagU
         throw "t is not aligned with A.";
 #endif
     const Grid& grid = A.GetGrid();
-    const int myRow  = grid.MCRank();
-    const int myRank = grid.VCRank();
 
     // Matrix views 
     DistMatrix<R,MC,MR> 
@@ -134,16 +132,15 @@ elemental::lapack::internal::PanelTridiagU
         z12_Star_MC.SetToZero();
         z12_Star_MR.SetToZero();
         //--------------------------------------------------------------------//
-        blas::Gemv( ConjugateTranspose, (R)-1, ATR, w01, (R)1, ARow );
-        blas::Gemv( ConjugateTranspose, (R)-1, WTR, a01, (R)1, ARow );
+        blas::Gemv( Transpose, (R)-1, ATR, w01, (R)1, ARow );
+        blas::Gemv( Transpose, (R)-1, WTR, a01, (R)1, ARow );
 
         R tau = 0; // Initializing avoids false compiler warnings
-        const bool thisIsMyRow = ( myRow == a12.ColAlignment() );
+        const bool thisIsMyRow = ( grid.MCRank() == a12.ColAlignment() );
         if( thisIsMyRow )
         {
             tau = lapack::internal::LocalRowReflector( a12 );
-            if( myRank == tau1.ColAlignment() )
-                tau1.LocalEntry(0,0) = tau;
+            tau1.Set( 0, 0, tau );
         }
             
         a12.GetDiagonal( epsilon1 );
@@ -152,7 +149,7 @@ elemental::lapack::internal::PanelTridiagU
         a12_Star_MC = a12_Star_MR = a12;
 
         PopBlocksizeStack();
-        blas::internal::HemvRowAccumulate
+        blas::internal::SymvRowAccumulate
         ( Upper, (R)1, A22, a12_Star_MC, a12_Star_MR, 
                             z12_Star_MC, z12_Star_MR );
         PushBlocksizeStack( 1 );
@@ -165,7 +162,7 @@ elemental::lapack::internal::PanelTridiagU
         z01_MC_Star.SumOverRow();
 
         blas::Gemv
-        ( ConjugateTranspose, 
+        ( Transpose, 
           (R)-1, A02.LockedLocalMatrix(),
                  z01_MC_Star.LockedLocalMatrix(),
           (R)+1, z12_Star_MR.LocalMatrix() );
@@ -178,7 +175,7 @@ elemental::lapack::internal::PanelTridiagU
         z01_MC_Star.SumOverRow();
 
         blas::Gemv
-        ( ConjugateTranspose, 
+        ( Transpose, 
           (R)-1, W02.LockedLocalMatrix(),
                  z01_MC_Star.LockedLocalMatrix(),
           (R)+1, z12_Star_MR.LocalMatrix() );
@@ -278,8 +275,6 @@ elemental::lapack::internal::PanelTridiagU
     typedef complex<R> C;
 
     const Grid& grid = A.GetGrid();
-    const int myRow  = grid.MCRank();
-    const int myRank = grid.VCRank();
 
     // Matrix views 
     DistMatrix<C,MC,MR> 
@@ -298,6 +293,8 @@ elemental::lapack::internal::PanelTridiagU
                                      t2(grid);
 
     // Temporary distributions
+    DistMatrix<C,MC,  MR  > a01Conj(grid);
+    DistMatrix<C,MC,  MR  > w01Conj(grid);
     DistMatrix<C,Star,MC  > a12_Star_MC(grid);
     DistMatrix<C,Star,MR  > a12_Star_MR(grid);
     DistMatrix<C,MC,  Star> z01_MC_Star(grid);
@@ -364,16 +361,17 @@ elemental::lapack::internal::PanelTridiagU
         z12_Star_MC.SetToZero();
         z12_Star_MR.SetToZero();
         //--------------------------------------------------------------------//
+        alpha11.SetImag( 0, 0, (R)0 );
         blas::Gemv( ConjugateTranspose, (C)-1, ATR, w01, (C)1, ARow );
         blas::Gemv( ConjugateTranspose, (C)-1, WTR, a01, (C)1, ARow );
+        alpha11.SetImag( 0, 0, (R)0 );
 
         C tau = 0; // Initializing avoids false compiler warnings
-        const bool thisIsMyRow = ( myRow == a12.ColAlignment() );
+        const bool thisIsMyRow = ( grid.MCRank() == a12.ColAlignment() );
         if( thisIsMyRow )
         {
             tau = lapack::internal::LocalRowReflector( a12 );
-            if( myRank == tau1.ColAlignment() )
-                tau1.LocalEntry(0,0) = tau;
+            tau1.Set( 0, 0, tau );
         }
             
         a12.GetRealDiagonal( epsilon1 );

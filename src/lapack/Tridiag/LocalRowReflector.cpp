@@ -37,10 +37,10 @@ elemental::lapack::internal::LocalRowReflector
 
     PartitionRight( x, chi1, x2, 1 );
 
+    vector<R> localNorms(c);
     R localNorm = blas::Nrm2( x2.LockedLocalMatrix() ); 
-    R* localNorms = new R[c];
-    AllGather( &localNorm, 1, localNorms, 1, grid.MRComm() );
-    R norm = wrappers::blas::Nrm2( c, localNorms, 1 );
+    AllGather( &localNorm, 1, &localNorms[0], 1, grid.MRComm() );
+    R norm = wrappers::blas::Nrm2( c, &localNorms[0], 1 );
 
     R alpha;
     if( myCol == chi1.RowAlignment() )
@@ -67,14 +67,13 @@ elemental::lapack::internal::LocalRowReflector
         } while( Abs( beta ) < safeMin );
 
         localNorm = blas::Nrm2( x2.LockedLocalMatrix() );
-        AllGather( &localNorm, 1, localNorms, 1, grid.MRComm() );
-        norm = wrappers::blas::Nrm2( c, localNorms, 1 );
+        AllGather( &localNorm, 1, &localNorms[0], 1, grid.MRComm() );
+        norm = wrappers::blas::Nrm2( c, &localNorms[0], 1 );
         if( alpha <= 0 )
             beta = wrappers::lapack::SafeNorm( alpha, norm );
         else
             beta = -wrappers::lapack::SafeNorm( alpha, norm );
     }
-    delete localNorms;
 
     R tau = ( beta-alpha ) / beta;
     blas::Scal( static_cast<R>(1)/(alpha-beta), x2 );
@@ -118,15 +117,18 @@ elemental::lapack::internal::LocalRowReflector
 
     PartitionRight( x, chi1, x2, 1 );
 
+    vector<R> localNorms(c);
     R localNorm = blas::Nrm2( x2.LockedLocalMatrix() ); 
-    R* localNorms = new R[c];
-    AllGather( &localNorm, 1, localNorms, 1, grid.MRComm() );
-    R norm = wrappers::blas::Nrm2( c, localNorms, 1 );
+    AllGather( &localNorm, 1, &localNorms[0], 1, grid.MRComm() );
+    R norm = wrappers::blas::Nrm2( c, &localNorms[0], 1 );
 
     C alpha;
     if( myCol == chi1.RowAlignment() )
         alpha = chi1.LocalEntry(0,0);
     Broadcast( &alpha, 1, chi1.RowAlignment(), grid.MRComm() );
+
+    if( norm == (R)0 && imag(alpha) == (R)0 )
+        return (C)0;
 
     R beta;
     if( real(alpha) <= 0 )
@@ -148,8 +150,8 @@ elemental::lapack::internal::LocalRowReflector
         } while( Abs( beta ) < safeMin );
 
         localNorm = blas::Nrm2( x2.LockedLocalMatrix() );
-        AllGather( &localNorm, 1, localNorms, 1, grid.MRComm() );
-        norm = wrappers::blas::Nrm2( c, localNorms, 1 );
+        AllGather( &localNorm, 1, &localNorms[0], 1, grid.MRComm() );
+        norm = wrappers::blas::Nrm2( c, &localNorms[0], 1 );
         if( real(alpha) <= 0 )
         {
             beta = wrappers::lapack::SafeNorm
@@ -161,7 +163,6 @@ elemental::lapack::internal::LocalRowReflector
                     ( real(alpha), imag(alpha), norm );
         }
     }
-    delete localNorms;
 
     C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );
     blas::Scal( static_cast<C>(1)/(alpha-beta), x2 );

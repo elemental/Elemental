@@ -41,13 +41,13 @@ elemental::lapack::internal::Reflector
         PartitionRight( x, chi1, x2, 1 );
     }
 
-    R x2_Norm = blas::Nrm2( x2 );
+    R norm = blas::Nrm2( x2 );
     R alpha = chi1.Get(0,0);
     R beta;
     if( alpha <= 0 )
-        beta = wrappers::lapack::SafeNorm( alpha, x2_Norm );
+        beta = wrappers::lapack::SafeNorm( alpha, norm );
     else
-        beta = -wrappers::lapack::SafeNorm( alpha, x2_Norm );
+        beta = -wrappers::lapack::SafeNorm( alpha, norm );
 
     R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
     int count = 0;
@@ -62,11 +62,11 @@ elemental::lapack::internal::Reflector
             beta *= invOfSafeMin;
         } while( Abs( beta ) < safeMin );
 
-        x2_Norm = blas::Nrm2( x2 );
+        norm = blas::Nrm2( x2 );
         if( alpha <= 0 )
-            beta = wrappers::lapack::SafeNorm( alpha, x2_Norm );
+            beta = wrappers::lapack::SafeNorm( alpha, norm );
         else
-            beta = -wrappers::lapack::SafeNorm( alpha, x2_Norm );
+            beta = -wrappers::lapack::SafeNorm( alpha, norm );
     }
     R tau = ( beta-alpha ) / beta;
     blas::Scal( static_cast<R>(1)/(alpha-beta), x2 );
@@ -114,13 +114,17 @@ elemental::lapack::internal::Reflector
         PartitionRight( x, chi1, x2, 1 );
     }
 
-    R x2_Norm = blas::Nrm2( x2 );
+    R norm = blas::Nrm2( x2 );
     C alpha = chi1.Get(0,0);
+
+    if( norm == (R)0 && imag(alpha) == (R)0 )
+        return (C)0;
+
     R beta;
     if( real(alpha) <= 0 )
-        beta = wrappers::lapack::SafeNorm( real(alpha), imag(alpha), x2_Norm );
+        beta = wrappers::lapack::SafeNorm( real(alpha), imag(alpha), norm );
     else
-        beta = -wrappers::lapack::SafeNorm( real(alpha), imag(alpha), x2_Norm );
+        beta = -wrappers::lapack::SafeNorm( real(alpha), imag(alpha), norm );
 
     R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
     int count = 0;
@@ -135,16 +139,16 @@ elemental::lapack::internal::Reflector
             beta *= invOfSafeMin;
         } while( Abs( beta ) < safeMin );
 
-        x2_Norm = blas::Nrm2( x2 );
+        norm = blas::Nrm2( x2 );
         if( real(alpha) <= 0 )
         {
             beta = wrappers::lapack::SafeNorm
-                   ( real(alpha), imag(alpha), x2_Norm );
+                   ( real(alpha), imag(alpha), norm );
         }
         else
         {
             beta = -wrappers::lapack::SafeNorm
-                    ( real(alpha), imag(alpha), x2_Norm );
+                    ( real(alpha), imag(alpha), norm );
         }
     }
     C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );

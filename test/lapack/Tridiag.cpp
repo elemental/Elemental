@@ -258,16 +258,16 @@ void TestCorrectness
     }
     else
     {
-        Matrix<C> ATransRef;
+        Matrix<C> AHermRef;
 
-        blas::Trans( ARef.LockedLocalMatrix(), ATransRef );
+        blas::ConjTrans( ARef.LockedLocalMatrix(), AHermRef );
         lapack::Tridiag
         ( Lower, 
-          ATransRef,
+          AHermRef,
           dRef.LocalMatrix(),
           eRef.LocalMatrix(),
           tRef.LocalMatrix() );
-        blas::Trans( ATransRef, ARef.LocalMatrix() );
+        blas::ConjTrans( AHermRef, ARef.LocalMatrix() );
     }
     double stopTime = Time();
     double gFlops = lapack::internal::TridiagGFlops<C>(m,stopTime-startTime);

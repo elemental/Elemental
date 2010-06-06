@@ -121,7 +121,7 @@ elemental::lapack::internal::TridiagL
                     W21, A11.Height() );
             //----------------------------------------------------------------//
             lapack::internal::PanelTridiagL( ABR, WPan, e1, t1 );
-            blas::Her2k( Lower, Normal, (R)-1, A21, W21, (R)1, A22 );
+            blas::Syr2k( Lower, Normal, (R)-1, A21, W21, (R)1, A22 );
             A11_expanded.SetDiagonal( e1, -1 );
             A11.GetDiagonal( d1 );
             //----------------------------------------------------------------//

@@ -39,11 +39,10 @@ elemental::lapack::internal::LocalColReflector
     ( x, chi1,
          x2,  1 );
 
-
+    vector<R> localNorms(r);
     R localNorm = blas::Nrm2( x2.LockedLocalMatrix() ); 
-    R* localNorms = new R[r];
-    AllGather( &localNorm, 1, localNorms, 1, grid.MCComm() );
-    R norm = wrappers::blas::Nrm2( r, localNorms, 1 );
+    AllGather( &localNorm, 1, &localNorms[0], 1, grid.MCComm() );
+    R norm = wrappers::blas::Nrm2( r, &localNorms[0], 1 );
 
     R alpha;
     if( myRow == chi1.ColAlignment() )
@@ -60,10 +59,6 @@ elemental::lapack::internal::LocalColReflector
     int count = 0;
     if( Abs( beta ) < safeMin )
     {
-#ifndef RELEASE
-        if( grid.VCRank() == 0 )
-            cout << "Carefully creating reflector..." << endl;
-#endif
         R invOfSafeMin = static_cast<R>(1) / safeMin;
         do
         {
@@ -74,14 +69,13 @@ elemental::lapack::internal::LocalColReflector
         } while( Abs( beta ) < safeMin );
 
         localNorm = blas::Nrm2( x2.LockedLocalMatrix() );
-        AllGather( &localNorm, 1, localNorms, 1, grid.MCComm() );
-        norm = wrappers::blas::Nrm2( r, localNorms, 1 );
+        AllGather( &localNorm, 1, &localNorms[0], 1, grid.MCComm() );
+        norm = wrappers::blas::Nrm2( r, &localNorms[0], 1 );
         if( alpha <= 0 )
             beta = wrappers::lapack::SafeNorm( alpha, norm );
         else
             beta = -wrappers::lapack::SafeNorm( alpha, norm );
     }
-    delete localNorms;
 
     R tau = ( beta-alpha ) / beta;
     blas::Scal( static_cast<R>(1)/(alpha-beta), x2 );
@@ -127,15 +121,18 @@ elemental::lapack::internal::LocalColReflector
     ( x, chi1,
          x2,   1 );
 
+    vector<R> localNorms(r);
     R localNorm = blas::Nrm2( x2.LockedLocalMatrix() ); 
-    R* localNorms = new R[r];
-    AllGather( &localNorm, 1, localNorms, 1, grid.MCComm() );
-    R norm = wrappers::blas::Nrm2( r, localNorms, 1 );
+    AllGather( &localNorm, 1, &localNorms[0], 1, grid.MCComm() );
+    R norm = wrappers::blas::Nrm2( r, &localNorms[0], 1 );
 
     C alpha;
     if( myRow == chi1.ColAlignment() )
         alpha = chi1.LocalEntry(0,0);
     Broadcast( &alpha, 1, chi1.ColAlignment(), grid.MCComm() );
+
+    if( norm == (R)0 && imag(alpha) == (R)0 )
+        return (C)0;
 
     R beta;
     if( real(alpha) <= 0 )
@@ -147,10 +144,6 @@ elemental::lapack::internal::LocalColReflector
     int count = 0;
     if( Abs( beta ) < safeMin )
     {
-#ifndef RELEASE
-        if( grid.VCRank() == 0 )
-            cout << "Carefully creating reflector..." << endl;
-#endif
         R invOfSafeMin = static_cast<R>(1) / safeMin;
         do
         {
@@ -161,8 +154,8 @@ elemental::lapack::internal::LocalColReflector
         } while( Abs( beta ) < safeMin );
 
         localNorm = blas::Nrm2( x2.LockedLocalMatrix() );
-        AllGather( &localNorm, 1, localNorms, 1, grid.MCComm() );
-        norm = wrappers::blas::Nrm2( r, localNorms, 1 );
+        AllGather( &localNorm, 1, &localNorms[0], 1, grid.MCComm() );
+        norm = wrappers::blas::Nrm2( r, &localNorms[0], 1 );
         if( real(alpha) <= 0 )
         {
             beta = wrappers::lapack::SafeNorm
@@ -174,7 +167,6 @@ elemental::lapack::internal::LocalColReflector
                    ( real(alpha), imag(alpha), norm );
         }
     }
-    delete localNorms;
 
     C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );
     blas::Scal( static_cast<C>(1)/(alpha-beta), x2 );

@@ -118,8 +118,7 @@ elemental::lapack::internal::TridiagU
             PartitionRight( WPan, W11, W12, A11.Width() );
             //----------------------------------------------------------------//
             lapack::internal::PanelTridiagU( ABR, WPan, e1, t1 );
-            blas::Her2k
-            ( Upper, ConjugateTranspose, (R)-1, A12, W12, (R)1, A22 );
+            blas::Syr2k( Upper, Transpose, (R)-1, A12, W12, (R)1, A22 );
             A11_expanded.SetDiagonal( e1, 1 );
             A11.GetDiagonal( d1 );
             //----------------------------------------------------------------//
@@ -236,7 +235,7 @@ elemental::lapack::internal::TridiagU
                                      t2(grid);
 
     // Temporary distributions
-    Matrix<C> A11_Trans;
+    Matrix<C> A11_Herm;
     DistMatrix<C,Star,Star> A11_Star_Star(grid);
     DistMatrix<R,Star,Star> d1_Star_Star(grid);
     DistMatrix<R,Star,Star> e1_Star_Star(grid);
@@ -305,16 +304,16 @@ elemental::lapack::internal::TridiagU
 
             // LAPACK traverses up the diagonal in upper Tridiag, but we 
             // traverse down, so transpose to and from to call the lower Tridiag
-            blas::Trans( A11_Star_Star.LockedLocalMatrix(), A11_Trans );
+            blas::ConjTrans( A11_Star_Star.LockedLocalMatrix(), A11_Herm );
 
             lapack::Tridiag
             ( Lower, 
-              A11_Trans,         
+              A11_Herm,         
               d1_Star_Star.LocalMatrix(),
               e1_Star_Star.LocalMatrix(),
               t1_Star_Star.LocalMatrix() );
             
-            blas::Trans( A11_Trans, A11_Star_Star.LocalMatrix() );
+            blas::ConjTrans( A11_Herm, A11_Star_Star.LocalMatrix() );
 
             A11 = A11_Star_Star;
             d1 = d1_Star_Star;
