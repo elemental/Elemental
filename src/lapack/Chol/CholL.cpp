@@ -107,7 +107,7 @@ elemental::lapack::internal::CholLVar2
         A11.SumScatterUpdate( (T)-1, X11_MC_Star );
 
         A11_Star_Star = A11;
-        lapack::Chol( Lower, A11_Star_Star.LocalMatrix() );
+        lapack::internal::LocalChol( Lower, A11_Star_Star );
         A11 = A11_Star_Star;
 
         blas::internal::LocalGemm
@@ -207,7 +207,7 @@ elemental::lapack::internal::CholLVar3
         A21Herm_Star_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_Star_Star = A11;
-        lapack::Chol( Lower, A11_Star_Star.LocalMatrix() );
+        lapack::internal::LocalChol( Lower, A11_Star_Star );
         A11 = A11_Star_Star;
 
         A21_VC_Star = A21;
@@ -221,7 +221,7 @@ elemental::lapack::internal::CholLVar3
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
-        blas::internal::TriangularRankK
+        blas::internal::LocalTriangularRankK
         ( Lower, Transpose, 
           (T)-1, A21Trans_Star_MC, A21Herm_Star_MR, (T)1, A22 );
 

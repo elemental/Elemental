@@ -62,7 +62,7 @@ elemental::blas::internal::HerkLC
         A1_Star_VR.TransposeFrom( A1Trans_MR_Star );
         A1_Star_MC = A1_Star_VR;
 
-        blas::internal::TriangularRankK
+        blas::internal::LocalTriangularRankK
         ( Lower, ConjugateTranspose, Transpose,
           alpha, A1_Star_MC, A1Trans_MR_Star, (T)1, C );
         //--------------------------------------------------------------------//

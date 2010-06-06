@@ -68,7 +68,7 @@ elemental::lapack::internal::TrinvUVar3
         U12Trans_MR_Star.AlignWith( U02 );
         //--------------------------------------------------------------------//
         U11_Star_Star = U11;
-        lapack::Trinv( Upper, diagonal, U11_Star_Star.LocalMatrix() );
+        lapack::internal::LocalTrinv( Upper, diagonal, U11_Star_Star );
         U11 = U11_Star_Star;
 
         U01_VC_Star = U01;

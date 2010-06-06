@@ -80,7 +80,7 @@ elemental::blas::internal::Her2kUN
         B1_VR_Star = B1_MC_Star = B1;
         B1Herm_Star_MR.ConjugateTransposeFrom( B1_VR_Star );
 
-        blas::internal::TriangularRank2K
+        blas::internal::LocalTriangularRank2K
         ( Upper, alpha,
           A1_MC_Star, B1_MC_Star, A1Herm_Star_MR, B1Herm_Star_MR, (T)1, C );
         //--------------------------------------------------------------------//

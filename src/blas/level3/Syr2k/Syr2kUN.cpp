@@ -78,7 +78,7 @@ elemental::blas::internal::Syr2kUN
         B1_VR_Star = B1_MC_Star = B1;
         B1Trans_Star_MR.TransposeFrom( B1_VR_Star );
 
-        blas::internal::TriangularRank2K
+        blas::internal::LocalTriangularRank2K
         ( Upper, alpha,
           A1_MC_Star, B1_MC_Star, A1Trans_Star_MR, B1Trans_Star_MR, (T)1, C );
         //--------------------------------------------------------------------//

@@ -57,7 +57,7 @@ elemental::blas::internal::HerkUN
         A1_VR_Star = A1_MC_Star = A1;
         A1Herm_Star_MR.ConjugateTransposeFrom( A1_VR_Star );
 
-        blas::internal::TriangularRankK
+        blas::internal::LocalTriangularRankK
         ( Upper, alpha, A1_MC_Star, A1Herm_Star_MR, (T)1, C ); 
         //--------------------------------------------------------------------//
         A1_MC_Star.FreeAlignments();

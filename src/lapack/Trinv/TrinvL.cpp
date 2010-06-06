@@ -67,7 +67,7 @@ elemental::lapack::internal::TrinvLVar3
         L21_MC_Star.AlignWith( L20 );
         //--------------------------------------------------------------------//
         L11_Star_Star = L11;
-        lapack::Trinv( Lower, diagonal, L11_Star_Star.LocalMatrix() );
+        lapack::internal::LocalTrinv( Lower, diagonal, L11_Star_Star );
         L11 = L11_Star_Star;
 
         L10_Star_VR = L10;

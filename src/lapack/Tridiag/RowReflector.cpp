@@ -14,11 +14,11 @@ using namespace elemental::wrappers::mpi;
 
 template<typename R>
 R
-elemental::lapack::internal::LocalRowReflector
+elemental::lapack::internal::RowReflector
 ( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::LocalRowReflector");
+    PushCallStack("lapack::internal::RowReflector");
     if( chi.Height() != 1 || chi.Width() != 1 )
         throw logic_error( "chi must be a scalar." );
     if( x.Height() != 1 )
@@ -90,11 +90,11 @@ elemental::lapack::internal::LocalRowReflector
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 complex<R>
-elemental::lapack::internal::LocalRowReflector
+elemental::lapack::internal::RowReflector
 ( DistMatrix<complex<R>,MC,MR>& chi, DistMatrix<complex<R>,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::LocalRowReflector");    
+    PushCallStack("lapack::internal::RowReflector");    
     if( chi.Height() != 1 || chi.Width() != 1 )
         throw logic_error( "chi must be a scalar." );
     if( x.Height() != 1 )
@@ -175,17 +175,17 @@ elemental::lapack::internal::LocalRowReflector
 }
 #endif // WITHOUT_COMPLEX
 
-template float elemental::lapack::internal::LocalRowReflector
+template float elemental::lapack::internal::RowReflector
 ( DistMatrix<float,MC,MR>& chi, DistMatrix<float,MC,MR>& x );
 
-template double elemental::lapack::internal::LocalRowReflector
+template double elemental::lapack::internal::RowReflector
 ( DistMatrix<double,MC,MR>& chi, DistMatrix<double,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
-template scomplex elemental::lapack::internal::LocalRowReflector
+template scomplex elemental::lapack::internal::RowReflector
 ( DistMatrix<scomplex,MC,MR>& chi, DistMatrix<scomplex,MC,MR>& x );
 
-template dcomplex elemental::lapack::internal::LocalRowReflector
+template dcomplex elemental::lapack::internal::RowReflector
 ( DistMatrix<dcomplex,MC,MR>& chi, DistMatrix<dcomplex,MC,MR>& x );
 #endif
 

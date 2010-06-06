@@ -107,13 +107,13 @@ blasfiles = level1/Dot/Dot.cpp \
             level3/Syr2k/Syr2kLT.cpp \
             level3/Syr2k/Syr2kUN.cpp \
             level3/Syr2k/Syr2kUT.cpp \
-            level3/Syr2k/TriangularRank2K.cpp \
+            level3/Syr2k/LocalTriangularRank2K.cpp \
             level3/Syrk/Syrk.cpp \
             level3/Syrk/SyrkLN.cpp \
             level3/Syrk/SyrkLT.cpp \
             level3/Syrk/SyrkUN.cpp \
             level3/Syrk/SyrkUT.cpp \
-            level3/Syrk/TriangularRankK.cpp \
+            level3/Syrk/LocalTriangularRankK.cpp \
             level3/Trmm/Trmm.cpp \
             level3/Trmm/TrmmLLN.cpp \
             level3/Trmm/TrmmLLT.cpp \
@@ -145,11 +145,11 @@ lapackfiles = Chol/Chol.cpp \
               LU/FindPivot.cpp \
               LU/LU.cpp \
               LU/PanelLU.cpp \
-              Tridiag/LocalColReflector.cpp \
-              Tridiag/LocalRowReflector.cpp \
+              Tridiag/ColReflector.cpp \
               Tridiag/PanelTridiagL.cpp \
               Tridiag/PanelTridiagU.cpp \
               Tridiag/Reflector.cpp \
+              Tridiag/RowReflector.cpp \
               Tridiag/Tridiag.cpp \
               Tridiag/TridiagL.cpp \
               Tridiag/TridiagU.cpp \

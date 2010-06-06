@@ -17,7 +17,7 @@ namespace blas {
 namespace internal {
 
 //----------------------------------------------------------------------------//
-// Local BLAS helpers: Level 3                                                //
+// Local BLAS: Level 3                                                        //
 //----------------------------------------------------------------------------//
 
 template<typename T, Distribution AColDist, Distribution ARowDist,
@@ -838,7 +838,7 @@ SyrkUT
 // triu(C) := alpha triu( A*B ) + beta triu(C)
 template<typename T>
 void
-TriangularRankK
+LocalTriangularRankK
 ( Shape shape,
   T alpha, const DistMatrix<T,MC,Star>& A, const DistMatrix<T,Star,MR>& B,
   T beta,        DistMatrix<T,MC,MR  >& C );
@@ -849,7 +849,7 @@ TriangularRankK
 // triu(C) := alpha triu( A^(T/H)*B ) + beta triu(C)
 template<typename T>
 void
-TriangularRankK
+LocalTriangularRankK
 ( Shape shape,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,Star,MC>& A, const DistMatrix<T,Star,MR>& B,
@@ -861,7 +861,7 @@ TriangularRankK
 // triu(C) := alpha triu( A^(T/H)*B^(T/H) ) + beta triu(C)
 template<typename T>
 void
-TriangularRankK
+LocalTriangularRankK
 ( Shape shape,
   Orientation orientationOfA,
   Orientation orientationOfB,
@@ -874,7 +874,7 @@ TriangularRankK
 // triu(C) := alpha triu( A1*B1^(T/H) + A2*B2 ) + beta triu(C)
 template<typename T>
 void
-TriangularRank2K
+LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfB1,
   T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,MC,Star>& A2, 
@@ -887,7 +887,7 @@ TriangularRank2K
 // triu(C) := alpha triu( A1*B1 + A2*B2 ) + beta triu(C)
 template<typename T>
 void
-TriangularRank2K
+LocalTriangularRank2K
 ( Shape shape,
   T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,MC,Star>& A2, 
            const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,Star,MR>& B2,
@@ -899,7 +899,7 @@ TriangularRank2K
 // triu(C) := alpha triu( A1^(T/H)*B1 + A2^(T/H)*B2 ) + beta triu(C)
 template<typename T>
 void
-TriangularRank2K
+LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfA1,
   Orientation orientationOfA2,
@@ -913,7 +913,7 @@ TriangularRank2K
 // triu(C) := alpha triu( A1^(T/H)*B1^(T/H) + A2^(T/H)*B2^(T/H) ) + beta triu(C)
 template<typename T>
 void
-TriangularRank2K
+LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfA1,
   Orientation orientationOfA2,
@@ -1104,7 +1104,7 @@ namespace blas {
 namespace internal {
 
 //
-// Level 3 Local BLAS helpers
+// Level 3 Local BLAS 
 //
 
 template<typename T, Distribution AColDist, Distribution ARowDist,

@@ -57,7 +57,7 @@ elemental::blas::internal::SyrkLN
         A1_VR_Star = A1_MC_Star = A1;
         A1Trans_Star_MR.TransposeFrom( A1_VR_Star );
 
-        blas::internal::TriangularRankK
+        blas::internal::LocalTriangularRankK
         ( Lower, alpha, A1_MC_Star, A1Trans_Star_MR, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_Star.FreeAlignments();

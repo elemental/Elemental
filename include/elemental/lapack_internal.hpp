@@ -17,8 +17,23 @@ namespace lapack {
 namespace internal {
 
 //----------------------------------------------------------------------------//
-// Chol                                                                       //
+// Local LAPACK                                                               //
 //----------------------------------------------------------------------------//
+
+template<typename T>
+void
+LocalChol
+( Shape shape, DistMatrix<T,Star,Star>& A );
+
+template<typename T>
+void
+LocalTrinv
+( Shape shape, Diagonal diagonal, DistMatrix<T,Star,Star>& A );
+
+//----------------------------------------------------------------------------//
+// Chol helpers                                                               //
+//----------------------------------------------------------------------------//
+
 template<typename T>
 void
 CholVar2
@@ -182,24 +197,24 @@ Reflector
 
 template<typename R>
 R 
-LocalColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
+ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 std::complex<R>
-LocalColReflector
+ColReflector
 ( DistMatrix<std::complex<R>,MC,MR>& chi, 
   DistMatrix<std::complex<R>,MC,MR>& x );
 #endif
 
 template<typename R>
 R
-LocalRowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
+RowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 std::complex<R>
-LocalRowReflector
+RowReflector
 ( DistMatrix<std::complex<R>,MC,MR>& chi,
   DistMatrix<std::complex<R>,MC,MR>& x );
 #endif
@@ -279,6 +294,7 @@ TridiagU
 //----------------------------------------------------------------------------//
 // Trinv                                                                      //
 //----------------------------------------------------------------------------//
+
 template<typename T>
 void
 TrinvVar3
@@ -334,6 +350,42 @@ TrinvGFlops( int m, double seconds );
 namespace elemental {
 namespace lapack {
 namespace internal {
+
+//
+// Local LAPACK
+//
+
+template<typename T>
+inline void
+LocalChol
+( Shape shape, DistMatrix<T,Star,Star>& A )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::internal::LocalChol");
+#endif
+    Chol( shape, A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+LocalTrinv
+( Shape shape, Diagonal diagonal, DistMatrix<T,Star,Star>& A )
+{ 
+#ifndef RELEASE
+    PushCallStack("lapack::internal::LocalTrinv");
+#endif
+    Trinv( shape, diagonal, A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//
+// GFlop helpers
+//
 
 template<>
 inline double

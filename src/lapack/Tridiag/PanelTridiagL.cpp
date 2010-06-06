@@ -154,7 +154,7 @@ elemental::lapack::internal::PanelTridiagL
         const bool thisIsMyColumn = ( grid.MRRank() == a21.RowAlignment() );
         if( thisIsMyColumn )
         {
-            tau = lapack::internal::LocalColReflector( alpha21T, a21B );
+            tau = lapack::internal::ColReflector( alpha21T, a21B );
             tau1.Set( 0, 0, tau );
         }
             
@@ -402,7 +402,7 @@ elemental::lapack::internal::PanelTridiagL
         const bool thisIsMyColumn = ( grid.MRRank() == a21.RowAlignment() );
         if( thisIsMyColumn )
         {
-            tau = lapack::internal::LocalColReflector( alpha21T, a21B );
+            tau = lapack::internal::ColReflector( alpha21T, a21B );
             tau1.Set( 0, 0, tau );
         }
             
