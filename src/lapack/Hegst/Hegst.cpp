@@ -29,7 +29,7 @@ elemental::lapack::Hegst
         if( shape == Lower )
             lapack::internal::HegstFalseL( A, B );
         else
-            throw logic_error( "Upper A X = B X Lambda version not written." );
+            lapack::internal::HegstFalseU( A, B );
     }
 #ifndef RELEASE
     PopCallStack();

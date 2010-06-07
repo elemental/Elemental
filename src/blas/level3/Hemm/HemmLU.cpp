@@ -56,6 +56,7 @@ elemental::blas::internal::HemmLUA
     DistMatrix<T,MR,Star> Z1_MR_Star(g);
     DistMatrix<T,MR,MC  > Z1_MR_MC(g);
 
+    blas::Scal( beta, C );
     LockedPartitionRight
     ( B, BL, BR, 0 );
     PartitionRight
@@ -376,6 +377,12 @@ elemental::blas::internal::LocalHemmAccumulateLU
           alpha, A12, B1_MC_Star, (T)1, Z2_MR_Star );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
+
+        SlideLockedPartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
         SlideLockedPartitionDown
         ( BT_MC_Star,  B0_MC_Star,

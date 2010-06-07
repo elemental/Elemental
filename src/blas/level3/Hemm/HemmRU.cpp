@@ -58,6 +58,7 @@ elemental::blas::internal::HemmRUA
     DistMatrix<T,Star,MR> Z1_Star_MR(g);
     DistMatrix<T,MR,  MC> Z1_MR_MC(g);
 
+    blas::Scal( beta, C );
     LockedPartitionDown
     ( B, BT,
          BB, 0 );
@@ -266,6 +267,11 @@ elemental::blas::internal::LocalHemmAccumulateRU
                                << Z_Star_MR.Width() << endl;
         throw logic_error( msg.str() );
     }
+    if( B_Star_MC.RowAlignment() != A.ColAlignment() ||
+        B_Star_MR.RowAlignment() != A.RowAlignment() ||
+        Z_Star_MC.RowAlignment() != A.ColAlignment() ||
+        Z_Star_MR.RowAlignment() != A.RowAlignment() )
+        throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
     const Grid& g = A.GetGrid();
 

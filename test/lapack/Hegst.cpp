@@ -1,10 +1,10 @@
 /*
-   This file is part of elemental, a library for distributed-memory dense 
+   This file is part of elemental, a library for distributed-memory dense
    linear algebra.
 
    Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
 
-   This program is released under the terms of the license contained in the 
+   This program is released under the terms of the license contained in the
    file LICENSE.
 */
 #include <ctime>
@@ -16,18 +16,18 @@ using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
-    cout << "Generates SPD matrix then solves for its Cholesky factor."
-         << endl << endl;
-    cout << "  Chol <r> <c> <shape> <var2/3> <m> <nb> <test correctness?> "
-         << "<print matrices?>" << endl << endl;
-    cout << "  r: number of process rows      " << endl;
-    cout << "  c: number of process cols      " << endl;
-    cout << "  shape: {L,U}                   " << endl;
-    cout << "  var2/3: 2 iff 0                " << endl;
-    cout << "  m: height of matrix            " << endl;
-    cout << "  nb: algorithmic blocksize      " << endl;
-    cout << "  test correctness?: false iff 0 " << endl;
-    cout << "  print matrices?: false iff 0   " << endl;
+    cout << "Reduced a Hermitian GEneralized EVP to Hermitian STandard EVP" <<
+    endl << endl;
+    cout << "  Hegst <r> <c> <bothOnLeft> <shape> <m> <nb> <test correctness?>"
+         << " <print matrices?>" << endl << endl;
+    cout << "  r: number of process rows                   " << endl;
+    cout << "  c: number of process cols                   " << endl;
+    cout << "  bothOnLeft: we solve A X = B X Lambda iff 0 " << endl;
+    cout << "  shape: {L,U}                                " << endl;
+    cout << "  m: height of matrix                         " << endl;
+    cout << "  nb: algorithmic blocksize                   " << endl;
+    cout << "  test correctness?: false iff 0              " << endl;
+    cout << "  print matrices?: false iff 0                " << endl;
     cout << endl;
 }
 
@@ -48,7 +48,10 @@ template<typename T>
 void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<T,MC,MR>& A,
-  Shape shape, DistMatrix<T,Star,Star>& ARef )
+  bool bothOnLeft, 
+  Shape shape,  
+        DistMatrix<T,Star,Star>& ARef,
+  const DistMatrix<T,Star,Star>& BRef )
 {
     const Grid& g = A.GetGrid();
     const int m = ARef.Height();
@@ -68,7 +71,7 @@ void TestCorrectness
         cout << "  Computing 'truth'...";
         cout.flush();
     }
-    lapack::internal::LocalChol( shape, ARef );
+    lapack::internal::LocalHegst( bothOnLeft, shape, ARef, BRef );
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
@@ -77,7 +80,7 @@ void TestCorrectness
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Testing correctness...";
+        cout << "  Testing correctness..."; 
         cout.flush();
     }
     if( shape == Lower )
@@ -92,7 +95,7 @@ void TestCorrectness
                 if( ! OKRelativeError( truth, computed ) )
                 {
                     ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j << "): truth=" 
+                    msg << "FAILED at index (" << i << "," << j << "): truth="
                          << truth << ", computed=" << computed;
                     throw logic_error( msg.str() );
                 }
@@ -111,7 +114,7 @@ void TestCorrectness
                 if( ! OKRelativeError( truth, computed ) )
                 {
                     ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j << "): truth=" 
+                    msg << "FAILED at index (" << i << "," << j << "): truth="
                          << truth << ", computed=" << computed;
                     throw logic_error( msg.str() );
                 }
@@ -124,57 +127,63 @@ void TestCorrectness
 }
 
 template<typename T>
-void TestChol
-( bool var3, 
-  bool testCorrectness, bool printMatrices, 
-  Shape shape, int m, const Grid& g )
+void TestHegst
+( bool testCorrectness, bool printMatrices,
+  bool bothOnLeft, Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g);
+    DistMatrix<T,MC,MR> B(g);
     DistMatrix<T,Star,Star> ARef(g);
+    DistMatrix<T,Star,Star> BRef(g);
 
     A.ResizeTo( m, m );
+    B.ResizeTo( m, m );
 
     A.SetToRandomHPD();
+    B.SetToRandomHPD();
+    B.MakeTrapezoidal( Left, shape );
     if( testCorrectness )
     {
         if( g.VCRank() == 0 )
         {
-            cout << "  Making copy of original matrix...";
+            cout << "  Making copy of original matrices...";
             cout.flush();
         }
         ARef = A;
+        BRef = B;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
+    {
         A.Print("A");
+        B.Print("B");
+    }
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Starting Cholesky factorization...";
+        cout << "  Starting reduction to Hermitian standard EVP...";
         cout.flush();
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    if( var3 )
-        lapack::internal::CholVar3( shape, A );
-    else
-        lapack::internal::CholVar2( shape, A );
+    lapack::Hegst( bothOnLeft, shape, A, B );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = lapack::internal::CholGFlops<T>( m, runTime );
+    //gFlops = lapack::internal::HegstGFlops<T>( m, runTime );
+    gFlops = -1;
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
+             << "  Time = " << runTime << " seconds. GFlops = "
              << gFlops << endl;
     }
     if( printMatrices )
-        A.Print("A after factorization");
+        A.Print("A after reduction");
     if( testCorrectness )
-        TestCorrectness( printMatrices, A, shape, ARef );
+        TestCorrectness( printMatrices, A, bothOnLeft, shape, ARef, BRef );
 }
 
 int main( int argc, char* argv[] )
@@ -193,8 +202,8 @@ int main( int argc, char* argv[] )
     {
         const int   r = atoi( argv[1] );
         const int   c = atoi( argv[2] );
-        const Shape shape = CharToShape( *argv[3] );
-        const bool  var3 = ( atoi(argv[4]) != 0 );
+        const bool  bothOnLeft = ( atoi(argv[3]) != 0 );
+        const Shape shape = CharToShape( *argv[4] );
         const int   m = atoi( argv[5] );
         const int   nb = atoi( argv[6] );
         const bool  testCorrectness = ( atoi(argv[7]) != 0 );
@@ -212,8 +221,8 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "Will test Chol" << ShapeToChar(shape) << ", Var"
-                 << ( var3 ? "3" : "2" ) << endl;
+            cout << "Will test Hegst" << bothOnLeft << ShapeToChar(shape)
+                 << endl;
         }
 
         if( rank == 0 )
@@ -222,8 +231,8 @@ int main( int argc, char* argv[] )
             cout << "Testing with doubles:" << endl;
             cout << "---------------------" << endl;
         }
-        TestChol<double>
-        ( var3, testCorrectness, printMatrices, shape, m, g );
+        TestHegst<double>
+        ( testCorrectness, printMatrices, bothOnLeft, shape, m, g );
         if( rank == 0 )
             cout << endl;
 
@@ -234,8 +243,8 @@ int main( int argc, char* argv[] )
             cout << "Testing with double-precision complex:" << endl;
             cout << "--------------------------------------" << endl;
         }
-        TestChol<dcomplex>
-        ( var3, testCorrectness, printMatrices, shape, m, g );
+        TestHegst<dcomplex>
+        ( testCorrectness, printMatrices, bothOnLeft, shape, m, g );
         if( rank == 0 )
             cout << endl;
 #endif
@@ -245,9 +254,9 @@ int main( int argc, char* argv[] )
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:" << endl 
-             << e.what() << endl;
-    }   
+        cerr << "Process " << rank << " caught error message:" << endl
+             << e.what() << endl; 
+    }
     elemental::Finalize();
     return 0;
 }

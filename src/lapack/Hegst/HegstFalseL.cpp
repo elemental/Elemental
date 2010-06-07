@@ -88,6 +88,8 @@ elemental::lapack::internal::HegstFalseL
         F10_Star_MR.ResizeTo( A10.Height(), A10.Width() );
         G11_MC_Star.ResizeTo( A11.Height(), A11.Width() );
         H21_MC_Star.ResizeTo( A21.Height(), A21.Width() );
+        E10_Star_MC.SetToZero();
+        F10_Star_MR.SetToZero();
         //--------------------------------------------------------------------//
         L10_Star_MR = L10;
         L10_Star_MC = L10_Star_MR;

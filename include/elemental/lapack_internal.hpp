@@ -92,13 +92,10 @@ void
 HegstFalseL
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
 
-// Soon to come
-/*
 template<typename T>
 void
 HegstFalseU
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
-*/
 
 //----------------------------------------------------------------------------//
 // LU                                                                         //
@@ -352,6 +349,10 @@ CholGFlops( int m, double seconds );
 
 template<typename T>
 double
+HegstGFlops( int m, double seconds );
+
+template<typename T>
+double
 LUGFlops( int m, double seconds );
 
 template<typename T>
@@ -449,6 +450,32 @@ inline double
 CholGFlops<dcomplex>
 ( int m, double seconds )
 { return 4.*CholGFlops<float>(m,seconds); }
+#endif
+
+template<>
+inline double
+HegstGFlops<float>
+( int m, double seconds )
+{ return (1.*m*m*m)/(1.e9*seconds); }
+
+template<>
+inline double
+HegstGFlops<double>
+( int m, double seconds )
+{ return HegstGFlops<float>(m,seconds); }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+inline double
+HegstGFlops<scomplex>
+( int m, double seconds )
+{ return 4.*HegstGFlops<float>(m,seconds); }
+
+template<>
+inline double
+HegstGFlops<dcomplex>
+( int m, double seconds )
+{ return 4.*HegstGFlops<float>(m,seconds); }
 #endif
 
 template<>

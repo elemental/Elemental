@@ -56,6 +56,7 @@ elemental::blas::internal::HemmLLA
     DistMatrix<T,MR,Star> Z1_MR_Star(g);
     DistMatrix<T,MR,MC  > Z1_MR_MC(g);
 
+    blas::Scal( beta, C );
     LockedPartitionRight
     ( B, BL, BR, 0 );
     PartitionRight

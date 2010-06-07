@@ -161,8 +161,7 @@ void TestHemm
     }
     Barrier( g.VCComm() );
     startTime = Time();
-    blas::Hemm
-    ( side, shape, alpha, A, B, beta, C );
+    blas::Hemm( side, shape, alpha, A, B, beta, C );
     Barrier( g.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;

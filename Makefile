@@ -142,6 +142,7 @@ lapackfiles = Chol/Chol.cpp \
               GaussElim/ReduceToRowEchelon.cpp \
               Hegst/Hegst.cpp \
               Hegst/HegstFalseL.cpp \
+              Hegst/HegstFalseU.cpp \
               LU/ApplyRowPivots.cpp \
               LU/ComposePivots.cpp \
               LU/FindPivot.cpp \
@@ -252,6 +253,7 @@ tests = DistMatrix \
         blas/Trmm \
         blas/Trsm \
         lapack/Chol \
+        lapack/Hegst \
         lapack/LU \
         lapack/Tridiag \
         lapack/Trinv 
