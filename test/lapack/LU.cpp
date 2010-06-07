@@ -49,29 +49,29 @@ void TestCorrectness
   const DistMatrix<int,VC,Star>& p,
         DistMatrix<T,Star,Star>& ARef )
 {
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
     const int m = ARef.Height();
-    DistMatrix<T,Star,Star> A_copy(grid);
-    DistMatrix<int,Star,Star> p_copy(grid);
+    DistMatrix<T,Star,Star> A_copy(g);
+    DistMatrix<int,Star,Star> p_copy(g);
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed result...";
         cout.flush();
     }
     A_copy = A;
     p_copy = p;
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
     }
-    DistMatrix<int,Star,Star> pRef(m,1,grid);
+    DistMatrix<int,Star,Star> pRef(m,1,g);
     lapack::LU( ARef.LocalMatrix(), pRef.LocalMatrix() );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
@@ -80,7 +80,7 @@ void TestCorrectness
         pRef.Print("True p:");
     }
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -114,20 +114,20 @@ void TestCorrectness
             throw logic_error( msg.str() );
         }
     }
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 
 template<typename T>
 void TestLU
 ( bool testCorrectness, bool printMatrices,
-  int m, const Grid& grid )
+  int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(grid);
-    DistMatrix<T,Star,Star> ARef(grid);
-    DistMatrix<int,VC,Star> p(grid);
+    DistMatrix<T,MC,MR> A(g);
+    DistMatrix<T,Star,Star> ARef(g);
+    DistMatrix<int,VC,Star> p(g);
 
     A.ResizeTo( m, m );
     p.ResizeTo( m, 1 );
@@ -135,13 +135,13 @@ void TestLU
     A.SetToRandom();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         ARef = A;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -149,7 +149,7 @@ void TestLU
         A.Print("A");
     }
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting LU factorization...";
         cout.flush();
@@ -161,7 +161,7 @@ void TestLU
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = lapack::internal::LUGFlops<T>( m, runTime );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -206,7 +206,7 @@ int main( int argc, char* argv[] )
             cout << "==========================================" << endl;
         }
 #endif
-        Grid grid( MPI_COMM_WORLD, r, c );
+        Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )
@@ -219,7 +219,7 @@ int main( int argc, char* argv[] )
             cout << "---------------------" << endl;
         }
         TestLU<double>
-        ( testCorrectness, printMatrices, m, grid );
+        ( testCorrectness, printMatrices, m, g );
         if( rank == 0 )
             cout << endl;
 
@@ -231,7 +231,7 @@ int main( int argc, char* argv[] )
             cout << "--------------------------------------" << endl;
         }
         TestLU<dcomplex>
-        ( testCorrectness, printMatrices, m, grid );
+        ( testCorrectness, printMatrices, m, g );
         if( rank == 0 )
             cout << endl;
 #endif

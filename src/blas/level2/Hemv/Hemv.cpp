@@ -40,17 +40,17 @@ elemental::blas::Hemv
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     if( x.Width() == 1 && y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,Star> x_MC_Star(grid);
-        DistMatrix<T,MR,Star> x_MR_Star(grid);
-        DistMatrix<T,MC,Star> z_MC_Star(grid);
-        DistMatrix<T,MR,Star> z_MR_Star(grid);
-        DistMatrix<T,MR,MC  > z_MR_MC(grid);
-        DistMatrix<T,MC,MR  > z(grid);
+        DistMatrix<T,MC,Star> x_MC_Star(g);
+        DistMatrix<T,MR,Star> x_MR_Star(g);
+        DistMatrix<T,MC,Star> z_MC_Star(g);
+        DistMatrix<T,MR,Star> z_MR_Star(g);
+        DistMatrix<T,MR,MC  > z_MR_MC(g);
+        DistMatrix<T,MC,MR  > z(g);
 
         // Begin the algoritm
         blas::Scal( beta, y );
@@ -58,16 +58,24 @@ elemental::blas::Hemv
         x_MR_Star.AlignWith( A );
         z_MC_Star.AlignWith( A );
         z_MR_Star.AlignWith( A );
+        z.AlignWith( y );
         z_MC_Star.ResizeTo( y.Height(), 1 );
         z_MR_Star.ResizeTo( y.Height(), 1 );
         z_MC_Star.SetToZero();
         z_MR_Star.SetToZero();
-        z.AlignWith( y );
         //--------------------------------------------------------------------//
         x_MC_Star = x;
         x_MR_Star = x_MC_Star;
-        blas::internal::HemvColAccumulate
-        ( shape, alpha, A, x_MC_Star, x_MR_Star, z_MC_Star, z_MR_Star );
+        if( shape == Lower )
+        {
+            blas::internal::LocalHemvColAccumulateL
+            ( alpha, A, x_MC_Star, x_MR_Star, z_MC_Star, z_MR_Star );
+        }
+        else
+        {
+            blas::internal::LocalHemvColAccumulateU
+            ( alpha, A, x_MC_Star, x_MR_Star, z_MC_Star, z_MR_Star );
+        }
 
         z_MR_MC.SumScatterFrom( z_MR_Star );
         z = z_MR_MC;
@@ -83,13 +91,13 @@ elemental::blas::Hemv
     else if( x.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,Star> x_MC_Star(grid);
-        DistMatrix<T,MR,Star> x_MR_Star(grid);
-        DistMatrix<T,MC,Star> z_MC_Star(grid);
-        DistMatrix<T,MR,Star> z_MR_Star(grid);
-        DistMatrix<T,MC,MR  > z(grid);
-        DistMatrix<T,MR,MC  > z_MR_MC(grid);
-        DistMatrix<T,MC,MR  > zTrans(grid);
+        DistMatrix<T,MC,Star> x_MC_Star(g);
+        DistMatrix<T,MR,Star> x_MR_Star(g);
+        DistMatrix<T,MC,Star> z_MC_Star(g);
+        DistMatrix<T,MR,Star> z_MR_Star(g);
+        DistMatrix<T,MC,MR  > z(g);
+        DistMatrix<T,MR,MC  > z_MR_MC(g);
+        DistMatrix<T,MC,MR  > zTrans(g);
 
         // Begin the algoritm
         blas::Scal( beta, y );
@@ -97,17 +105,25 @@ elemental::blas::Hemv
         x_MR_Star.AlignWith( A );
         z_MC_Star.AlignWith( A );
         z_MR_Star.AlignWith( A );
+        z.AlignWith( y );
+        z_MR_MC.AlignWith( y );
         z_MC_Star.ResizeTo( y.Width(), 1 );
         z_MR_Star.ResizeTo( y.Width(), 1 );
         z_MC_Star.SetToZero();
         z_MR_Star.SetToZero();
-        z.AlignWith( y );
-        z_MR_MC.AlignWith( y );
         //--------------------------------------------------------------------//
         x_MC_Star = x;
         x_MR_Star = x_MC_Star;
-        blas::internal::HemvColAccumulate
-        ( shape, alpha, A, x_MC_Star, x_MR_Star, z_MC_Star, z_MR_Star );
+        if( shape == Lower )
+        {
+            blas::internal::LocalHemvColAccumulateL
+            ( alpha, A, x_MC_Star, x_MR_Star, z_MC_Star, z_MR_Star );
+        }
+        else
+        {
+            blas::internal::LocalHemvColAccumulateU
+            ( alpha, A, x_MC_Star, x_MR_Star, z_MC_Star, z_MR_Star );
+        }
 
         z.SumScatterFrom( z_MC_Star );
         z_MR_MC = z;
@@ -125,13 +141,13 @@ elemental::blas::Hemv
     else if( y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC> x_Star_MC(grid);
-        DistMatrix<T,Star,MR> x_Star_MR(grid);
-        DistMatrix<T,Star,MC> z_Star_MC(grid);
-        DistMatrix<T,Star,MR> z_Star_MR(grid);
-        DistMatrix<T,MC,  MR> z(grid);
-        DistMatrix<T,MC,  MR> zTrans(grid);
-        DistMatrix<T,MR,  MC> z_MR_MC(grid);
+        DistMatrix<T,Star,MC> x_Star_MC(g);
+        DistMatrix<T,Star,MR> x_Star_MR(g);
+        DistMatrix<T,Star,MC> z_Star_MC(g);
+        DistMatrix<T,Star,MR> z_Star_MR(g);
+        DistMatrix<T,MC,  MR> z(g);
+        DistMatrix<T,MC,  MR> zTrans(g);
+        DistMatrix<T,MR,  MC> z_MR_MC(g);
 
         // Begin the algoritm
         blas::Scal( beta, y );
@@ -139,17 +155,25 @@ elemental::blas::Hemv
         x_Star_MR.AlignWith( A );
         z_Star_MC.AlignWith( A );
         z_Star_MR.AlignWith( A );
+        z.AlignWith( y );
+        z_MR_MC.AlignWith( y );
         z_Star_MC.ResizeTo( 1, y.Height() );
         z_Star_MR.ResizeTo( 1, y.Height() );
         z_Star_MC.SetToZero();
         z_Star_MR.SetToZero();
-        z.AlignWith( y );
-        z_MR_MC.AlignWith( y );
         //--------------------------------------------------------------------//
         x_Star_MR = x;
         x_Star_MC = x_Star_MR;
-        blas::internal::HemvRowAccumulate
-        ( shape, alpha, A, x_Star_MC, x_Star_MR, z_Star_MC, z_Star_MR );
+        if( shape == Lower )
+        {
+            blas::internal::LocalHemvRowAccumulateL
+            ( alpha, A, x_Star_MC, x_Star_MR, z_Star_MC, z_Star_MR );
+        }
+        else
+        {
+            blas::internal::LocalHemvRowAccumulateU
+            ( alpha, A, x_Star_MC, x_Star_MR, z_Star_MC, z_Star_MR );
+        }
 
         z.SumScatterFrom( z_Star_MR );
         z_MR_MC = z;
@@ -167,12 +191,12 @@ elemental::blas::Hemv
     else
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC> x_Star_MC(grid);
-        DistMatrix<T,Star,MR> x_Star_MR(grid);
-        DistMatrix<T,Star,MC> z_Star_MC(grid);
-        DistMatrix<T,Star,MR> z_Star_MR(grid);
-        DistMatrix<T,MC,  MR> z(grid);
-        DistMatrix<T,MR,  MC> z_MR_MC(grid);
+        DistMatrix<T,Star,MC> x_Star_MC(g);
+        DistMatrix<T,Star,MR> x_Star_MR(g);
+        DistMatrix<T,Star,MC> z_Star_MC(g);
+        DistMatrix<T,Star,MR> z_Star_MR(g);
+        DistMatrix<T,MC,  MR> z(g);
+        DistMatrix<T,MR,  MC> z_MR_MC(g);
 
         // Begin the algoritm
         blas::Scal( beta, y );
@@ -180,17 +204,25 @@ elemental::blas::Hemv
         x_Star_MR.AlignWith( A );
         z_Star_MC.AlignWith( A );
         z_Star_MR.AlignWith( A );
+        z.AlignWith( y );
+        z_MR_MC.AlignWith( y );
         z_Star_MC.ResizeTo( 1, y.Width() );
         z_Star_MR.ResizeTo( 1, y.Width() );
         z_Star_MC.SetToZero();
         z_Star_MR.SetToZero();
-        z.AlignWith( y );
-        z_MR_MC.AlignWith( y );
         //--------------------------------------------------------------------//
         x_Star_MR = x;
         x_Star_MC = x_Star_MR;
-        blas::internal::HemvRowAccumulate
-        ( shape, alpha, A, x_Star_MC, x_Star_MR, z_Star_MC, z_Star_MR );
+        if( shape == Lower )
+        {
+            blas::internal::LocalHemvRowAccumulateL
+            ( alpha, A, x_Star_MC, x_Star_MR, z_Star_MC, z_Star_MR );
+        }
+        else
+        {
+            blas::internal::LocalHemvRowAccumulateU
+            ( alpha, A, x_Star_MC, x_Star_MR, z_Star_MC, z_Star_MR );
+        }
 
         z_MR_MC.SumScatterFrom( z_Star_MC );
         z = z_MR_MC;
@@ -209,111 +241,17 @@ elemental::blas::Hemv
 #endif
 }
 
-template<typename T>
-void
-elemental::blas::internal::HemvColAccumulate
-( Shape shape,
-  T alpha, 
-  const DistMatrix<T,MC,MR  >& A,
-  const DistMatrix<T,MC,Star>& x_MC_Star,
-  const DistMatrix<T,MR,Star>& x_MR_Star,
-        DistMatrix<T,MC,Star>& z_MC_Star,
-        DistMatrix<T,MR,Star>& z_MR_Star )
-{
-#ifndef RELEASE
-    PushCallStack("blas::internal::HemvColAccumulate");
-#endif
-    if( shape == Lower )
-    {
-        blas::internal::HemvColAccumulateL
-        ( alpha, A, x_MC_Star, x_MR_Star, z_MC_Star, z_MR_Star );
-    }
-    else
-    {
-        blas::internal::HemvColAccumulateU
-        ( alpha, A, x_MC_Star, x_MR_Star, z_MC_Star, z_MR_Star );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-elemental::blas::internal::HemvRowAccumulate
-( Shape shape,
-  T alpha, 
-  const DistMatrix<T,MC,  MR>& A,
-  const DistMatrix<T,Star,MC>& x_Star_MC,
-  const DistMatrix<T,Star,MR>& x_Star_MR,
-        DistMatrix<T,Star,MC>& z_Star_MC,
-        DistMatrix<T,Star,MR>& z_Star_MR )
-{
-#ifndef RELEASE
-    PushCallStack("blas::internal::HemvRowAccumulate");
-#endif
-    if( shape == Lower )
-    {
-        blas::internal::HemvRowAccumulateL
-        ( alpha, A, x_Star_MC, x_Star_MR, z_Star_MC, z_Star_MR );
-    }
-    else
-    {
-        blas::internal::HemvRowAccumulateU
-        ( alpha, A, x_Star_MC, x_Star_MR, z_Star_MC, z_Star_MR );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 template void elemental::blas::Hemv
 ( Shape shape,
   float alpha, const DistMatrix<float,MC,MR>& A,
                const DistMatrix<float,MC,MR>& x,
   float beta,        DistMatrix<float,MC,MR>& y );
 
-template void elemental::blas::internal::HemvColAccumulate
-( Shape shape,
-  float alpha, 
-  const DistMatrix<float,MC,MR  >& A,
-  const DistMatrix<float,MC,Star>& x_MC_Star,
-  const DistMatrix<float,MR,Star>& x_MR_Star,
-        DistMatrix<float,MC,Star>& z_MC_Star,
-        DistMatrix<float,MR,Star>& z_MR_Star );
-
-template void elemental::blas::internal::HemvRowAccumulate
-( Shape shape,
-  float alpha, 
-  const DistMatrix<float,MC,  MR>& A,
-  const DistMatrix<float,Star,MC>& x_Star_MC,
-  const DistMatrix<float,Star,MR>& x_Star_MR,
-        DistMatrix<float,Star,MC>& z_Star_MC,
-        DistMatrix<float,Star,MR>& z_Star_MR );
-
 template void elemental::blas::Hemv
 ( Shape shape,
   double alpha, const DistMatrix<double,MC,MR>& A,
                 const DistMatrix<double,MC,MR>& x,
   double beta,        DistMatrix<double,MC,MR>& y );
-
-template void elemental::blas::internal::HemvColAccumulate
-( Shape shape,
-  double alpha, 
-  const DistMatrix<double,MC,MR  >& A,
-  const DistMatrix<double,MC,Star>& x_MC_Star,
-  const DistMatrix<double,MR,Star>& x_MR_Star,
-        DistMatrix<double,MC,Star>& z_MC_Star,
-        DistMatrix<double,MR,Star>& z_MR_Star );
-
-template void elemental::blas::internal::HemvRowAccumulate
-( Shape shape,
-  double alpha, 
-  const DistMatrix<double,MC,  MR>& A,
-  const DistMatrix<double,Star,MC>& x_Star_MC,
-  const DistMatrix<double,Star,MR>& x_Star_MR,
-        DistMatrix<double,Star,MC>& z_Star_MC,
-        DistMatrix<double,Star,MR>& z_Star_MR );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::blas::Hemv
@@ -322,46 +260,10 @@ template void elemental::blas::Hemv
                   const DistMatrix<scomplex,MC,MR>& x,
   scomplex beta,        DistMatrix<scomplex,MC,MR>& y );
 
-template void elemental::blas::internal::HemvColAccumulate
-( Shape shape,
-  scomplex alpha, 
-  const DistMatrix<scomplex,MC,MR  >& A,
-  const DistMatrix<scomplex,MC,Star>& x_MC_Star,
-  const DistMatrix<scomplex,MR,Star>& x_MR_Star,
-        DistMatrix<scomplex,MC,Star>& z_MC_Star,
-        DistMatrix<scomplex,MR,Star>& z_MR_Star );
-
-template void elemental::blas::internal::HemvRowAccumulate
-( Shape shape,
-  scomplex alpha, 
-  const DistMatrix<scomplex,MC,  MR>& A,
-  const DistMatrix<scomplex,Star,MC>& x_Star_MC,
-  const DistMatrix<scomplex,Star,MR>& x_Star_MR,
-        DistMatrix<scomplex,Star,MC>& z_Star_MC,
-        DistMatrix<scomplex,Star,MR>& z_Star_MR );
-
 template void elemental::blas::Hemv
 ( Shape shape,
   dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                   const DistMatrix<dcomplex,MC,MR>& x,
   dcomplex beta,        DistMatrix<dcomplex,MC,MR>& y );
-
-template void elemental::blas::internal::HemvColAccumulate
-( Shape shape,
-  dcomplex alpha, 
-  const DistMatrix<dcomplex,MC,MR  >& A,
-  const DistMatrix<dcomplex,MC,Star>& x_MC_Star,
-  const DistMatrix<dcomplex,MR,Star>& x_MR_Star,
-        DistMatrix<dcomplex,MC,Star>& z_MC_Star,
-        DistMatrix<dcomplex,MR,Star>& z_MR_Star );
-
-template void elemental::blas::internal::HemvRowAccumulate
-( Shape shape,
-  dcomplex alpha, 
-  const DistMatrix<dcomplex,MC,  MR>& A,
-  const DistMatrix<dcomplex,Star,MC>& x_Star_MC,
-  const DistMatrix<dcomplex,Star,MR>& x_Star_MR,
-        DistMatrix<dcomplex,Star,MC>& z_Star_MC,
-        DistMatrix<dcomplex,Star,MR>& z_Star_MR );
 #endif
 

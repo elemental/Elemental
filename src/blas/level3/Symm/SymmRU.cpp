@@ -39,25 +39,25 @@ elemental::blas::internal::SymmRUC
     if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),  AColPan(grid),
-        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),  ARowPan(grid),
-                               A20(grid), A21(grid), A22(grid);
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AColPan(g),
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),  ARowPan(g),
+                         A20(g), A21(g), A22(g);
 
-    DistMatrix<T,MC,MR> BL(grid), BR(grid),
-                        B0(grid), B1(grid), B2(grid);
+    DistMatrix<T,MC,MR> BL(g), BR(g),
+                        B0(g), B1(g), B2(g);
 
-    DistMatrix<T,MC,MR> CL(grid), CR(grid),
-                        C0(grid), C1(grid), C2(grid),
-                        CLeft(grid), CRight(grid);
+    DistMatrix<T,MC,MR> CL(g), CR(g),
+                        C0(g), C1(g), C2(g),
+                        CLeft(g), CRight(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,Star> B1_MC_Star(grid);
-    DistMatrix<T,MR,Star> AColPan_MR_Star(grid);
-    DistMatrix<T,Star,MR> ARowPan_Star_MR(grid);
+    DistMatrix<T,MC,Star> B1_MC_Star(g);
+    DistMatrix<T,MR,Star> AColPan_MR_Star(g);
+    DistMatrix<T,Star,MR> ARowPan_Star_MR(g);
 
     // Start the algorithm
     blas::Scal( beta, C );

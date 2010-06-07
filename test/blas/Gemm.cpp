@@ -145,9 +145,9 @@ void TestSerialCorrectness
            const DistMatrix<T,Star,Star>& BRef,
   T beta,        DistMatrix<T,Star,Star>& CRef )
 {
-    const Grid& grid = C.GetGrid();
+    const Grid& g = C.GetGrid();
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
@@ -156,13 +156,13 @@ void TestSerialCorrectness
                 alpha, ARef.LockedLocalMatrix(),
                        BRef.LockedLocalMatrix(),
                 beta,  CRef.LocalMatrix()       );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
         CRef.Print("Truth");
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -184,8 +184,8 @@ void TestSerialCorrectness
             }
         }
     }
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 
@@ -198,34 +198,32 @@ void TestParallelCorrectness
            const DistMatrix<T,Star,Star>& BRef,
   T beta,        DistMatrix<T,Star,Star>& CRef )
 {
-    const Grid& grid = C.GetGrid();
-    DistMatrix<T,Star,Star> C_copy(grid);
+    const Grid& g = C.GetGrid();
+    DistMatrix<T,Star,Star> C_copy(g);
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed result...";
         cout.flush();
     }
     C_copy = C;
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
     }
-    blas::Gemm( orientationOfA, orientationOfB,
-                alpha, ARef.LockedLocalMatrix(),
-                       BRef.LockedLocalMatrix(),
-                beta,  CRef.LocalMatrix()       );
-    if( grid.VCRank() == 0 )
+    blas::internal::LocalGemm
+    ( orientationOfA, orientationOfB, alpha, ARef, BRef, beta, CRef );
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
         CRef.Print("Truth");
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -247,8 +245,8 @@ void TestParallelCorrectness
             }
         }
     }
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 
@@ -256,15 +254,15 @@ template<typename T>
 void TestSerialGemm
 ( bool testCorrectness, bool printMatrices,
   Orientation orientationOfA, Orientation orientationOfB,
-  int m, int n, int k, T alpha, T beta, const Grid& grid )
+  int m, int n, int k, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,Star,Star> A(grid);
-    DistMatrix<T,Star,Star> B(grid);
-    DistMatrix<T,Star,Star> C(grid);
-    DistMatrix<T,Star,Star> ARef(grid);
-    DistMatrix<T,Star,Star> BRef(grid);
-    DistMatrix<T,Star,Star> CRef(grid);
+    DistMatrix<T,Star,Star> A(g);
+    DistMatrix<T,Star,Star> B(g);
+    DistMatrix<T,Star,Star> C(g);
+    DistMatrix<T,Star,Star> ARef(g);
+    DistMatrix<T,Star,Star> BRef(g);
+    DistMatrix<T,Star,Star> CRef(g);
 
     if( orientationOfA == Normal )
         A.ResizeTo( m, k );
@@ -278,14 +276,14 @@ void TestSerialGemm
 
     C.ResizeTo( m, n );
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "Serial Gemm:" << endl;
     A.SetToRandom();
     B.SetToRandom();
     C.SetToRandom();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copies of original matrices...";
             cout.flush();
@@ -293,7 +291,7 @@ void TestSerialGemm
         ARef = A;
         BRef = B;
         CRef = C;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -302,22 +300,22 @@ void TestSerialGemm
         B.Print("B");
         C.Print("C");
     }
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting Gemm...";
         cout.flush();
     }
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     startTime = Time();
     blas::Gemm
     ( orientationOfA, orientationOfB, 
       alpha, A.LockedLocalMatrix(), B.LockedLocalMatrix(), 
       beta,  C.LocalMatrix()                              );
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl 
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -342,15 +340,15 @@ template<typename T>
 void TestParallelGemm
 ( bool testCorrectness, bool printMatrices,
   Orientation orientationOfA, Orientation orientationOfB,
-  int m, int n, int k, T alpha, T beta, const Grid& grid )
+  int m, int n, int k, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,  MR  > A(grid);
-    DistMatrix<T,MC,  MR  > B(grid);
-    DistMatrix<T,MC,  MR  > C(grid);
-    DistMatrix<T,Star,Star> ARef(grid);
-    DistMatrix<T,Star,Star> BRef(grid);
-    DistMatrix<T,Star,Star> CRef(grid);
+    DistMatrix<T,MC,  MR  > A(g);
+    DistMatrix<T,MC,  MR  > B(g);
+    DistMatrix<T,MC,  MR  > C(g);
+    DistMatrix<T,Star,Star> ARef(g);
+    DistMatrix<T,Star,Star> BRef(g);
+    DistMatrix<T,Star,Star> CRef(g);
 
     if( orientationOfA == Normal )
         A.ResizeTo( m, k );
@@ -365,14 +363,14 @@ void TestParallelGemm
     C.ResizeTo( m, n );
 
     // Test the variant of Gemm that keeps A stationary
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "Stationary A Algorithm:" << endl;
     A.SetToRandom();
     B.SetToRandom();
     C.SetToRandom();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copies of original matrices...";
             cout.flush();
@@ -380,7 +378,7 @@ void TestParallelGemm
         ARef = A;
         BRef = B;
         CRef = C;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -389,20 +387,20 @@ void TestParallelGemm
         B.Print("B");
         C.Print("C");
     }
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting Parallel Gemm...";
         cout.flush();
     }
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     startTime = Time();
     blas::internal::GemmA
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -423,14 +421,14 @@ void TestParallelGemm
     }
 
     // Test the variant of Gemm that keeps B stationary
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << endl << "Stationary B Algorithm:" << endl;
     A.SetToRandom();
     B.SetToRandom();
     C.SetToRandom();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copies of original matrices...";
             cout.flush();
@@ -438,7 +436,7 @@ void TestParallelGemm
         ARef = A;
         BRef = B;
         CRef = C;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -447,20 +445,20 @@ void TestParallelGemm
         B.Print("B");
         C.Print("C");
     }
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting Parallel Gemm...";
         cout.flush();
     }
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     startTime = Time();
     blas::internal::GemmB
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl 
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -481,14 +479,14 @@ void TestParallelGemm
     }
 
     // Test the variant of Gemm that keeps C stationary
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << endl << "Stationary C Algorithm:" << endl;
     A.SetToRandom();
     B.SetToRandom();
     C.SetToRandom();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copies of original matrices...";
             cout.flush();
@@ -496,7 +494,7 @@ void TestParallelGemm
         ARef = A;
         BRef = B;
         CRef = C;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -505,20 +503,20 @@ void TestParallelGemm
         B.Print("B");
         C.Print("C");
     }
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting Parallel Gemm...";
         cout.flush();
     }
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     startTime = Time();
     blas::internal::GemmC
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -541,14 +539,14 @@ void TestParallelGemm
     if( orientationOfA == Normal && orientationOfB == Normal )
     {
         // Test the variant of Gemm for panel-panel dot products
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << endl << "Dot Product Algorithm:" << endl;
         A.SetToRandom();
         B.SetToRandom();
         C.SetToRandom();
         if( testCorrectness )
         {
-            if( grid.VCRank() == 0 )
+            if( g.VCRank() == 0 )
             {
                 cout << "  Making copies of original matrices...";
                 cout.flush();
@@ -556,7 +554,7 @@ void TestParallelGemm
             ARef = A;
             BRef = B;
             CRef = C;
-            if( grid.VCRank() == 0 )
+            if( g.VCRank() == 0 )
                 cout << "DONE" << endl;
         }
         if( printMatrices )
@@ -565,20 +563,20 @@ void TestParallelGemm
             B.Print("B");
             C.Print("C");
         }
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Starting Parallel Gemm...";
             cout.flush();
         }
-        Barrier( grid.VCComm() );
+        Barrier( g.VCComm() );
         startTime = Time();
         blas::internal::GemmDot
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-        Barrier( grid.VCComm() );
+        Barrier( g.VCComm() );
         endTime = Time();
         runTime = endTime - startTime;
         gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "DONE. " << endl
                  << "  Time = " << runTime << " seconds. GFlops = " 
@@ -637,7 +635,7 @@ int main( int argc, char* argv[] )
         Barrier( MPI_COMM_WORLD );
         if( rank == 0 )
             cout << "Constructing grid..." << endl;
-        const Grid grid( MPI_COMM_WORLD, r, c );
+        const Grid g( MPI_COMM_WORLD, r, c );
         Barrier( MPI_COMM_WORLD );
         if( rank == 0 )
             cout << "Done building grid." << endl;
@@ -664,14 +662,14 @@ int main( int argc, char* argv[] )
             TestSerialGemm<double>
             ( testCorrectness, printMatrices, 
               orientationOfA, orientationOfB,
-              m, n, k, (double)3, (double)4, grid );
+              m, n, k, (double)3, (double)4, g );
         }
         if( testParallel )
         {
             TestParallelGemm<double>
             ( testCorrectness, printMatrices,
               orientationOfA, orientationOfB,
-              m, n, k, (double)3, (double)4, grid );
+              m, n, k, (double)3, (double)4, g );
         }
         if( rank == 0 )
             cout << endl;
@@ -688,14 +686,14 @@ int main( int argc, char* argv[] )
             TestSerialGemm<dcomplex>
             ( testCorrectness, printMatrices,
               orientationOfA, orientationOfB,
-              m, n, k, (dcomplex)3, (dcomplex)4, grid );
+              m, n, k, (dcomplex)3, (dcomplex)4, g );
         }
         if( testParallel )
         {
             TestParallelGemm<dcomplex>
             ( testCorrectness, printMatrices,
               orientationOfA, orientationOfB,
-              m, n, k, (dcomplex)3, (dcomplex)4, grid );
+              m, n, k, (dcomplex)3, (dcomplex)4, g );
         }
         if( rank == 0 )
             cout << endl;

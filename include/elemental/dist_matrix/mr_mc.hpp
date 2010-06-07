@@ -37,7 +37,7 @@ protected:
       int rowAlignment,
       int colShift,
       int rowShift,
-      const Grid& grid );
+      const Grid& g );
 
     ~DistMatrixBase();
 
@@ -184,7 +184,7 @@ public:
     ( T alpha, const DistMatrixBase<T,Star,MC>& A );
 
     // Equate/Update with the scattered summation of A[* ,* ] across 
-    // the entire grid
+    // the entire g
     void SumScatterFrom
     ( const DistMatrixBase<T,Star,Star>& A );
 
@@ -239,19 +239,19 @@ protected:
 
 public:
     DistMatrix
-    ( const Grid& grid );
+    ( const Grid& g );
 
     DistMatrix
-    ( int height, int width, const Grid& grid );
+    ( int height, int width, const Grid& g );
 
     DistMatrix
     ( bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, const Grid& grid );
+      int colAlignment, int rowAlignment, const Grid& g );
 
     DistMatrix
     ( int height, int width,
       bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, const Grid& grid );
+      int colAlignment, int rowAlignment, const Grid& g );
 
     DistMatrix
     ( const DistMatrix<R,MR,MC>& A );
@@ -325,19 +325,19 @@ protected:
 
 public:
     DistMatrix
-    ( const Grid& grid );
+    ( const Grid& g );
 
     DistMatrix
-    ( int height, int width, const Grid& grid );
+    ( int height, int width, const Grid& g );
 
     DistMatrix
     ( bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, const Grid& grid );
+      int colAlignment, int rowAlignment, const Grid& g );
 
     DistMatrix
     ( int height, int width,
       bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, const Grid& grid );
+      int colAlignment, int rowAlignment, const Grid& g );
 
     DistMatrix
     ( const DistMatrix<C,MR,MC>& A );
@@ -473,9 +473,9 @@ DistMatrixBase<T,MR,MC>::DistMatrixBase
   int rowAlignment,
   int colShift,
   int rowShift,
-  const Grid& grid )
+  const Grid& g )
 : ADM(height,width,constrainedColAlignment,constrainedRowAlignment,
-      colAlignment,rowAlignment,colShift,rowShift,grid)
+      colAlignment,rowAlignment,colShift,rowShift,g)
 { }
 
 template<typename T>
@@ -490,22 +490,22 @@ DistMatrixBase<T,MR,MC>::~DistMatrixBase()
 template<typename R>
 inline
 DistMatrix<R,MR,MC>::DistMatrix
-( const Grid& grid )
-: DMB(0,0,false,false,0,0,grid.MRRank(),grid.MCRank(),grid)
+( const Grid& g )
+: DMB(0,0,false,false,0,0,g.MRRank(),g.MCRank(),g)
 { }
 
 template<typename R>
 inline
 DistMatrix<R,MR,MC>::DistMatrix
-( int height, int width, const Grid& grid )
-: DMB(height,width,false,false,0,0,grid.MRRank(),grid.MCRank(),grid)
+( int height, int width, const Grid& g )
+: DMB(height,width,false,false,0,0,g.MRRank(),g.MCRank(),g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::DistMatrix");
 #endif
     DMB::LocalMatrix().ResizeTo
-    ( utilities::LocalLength( height, grid.MRRank(), grid.Width() ),
-      utilities::LocalLength( width,  grid.MCRank(), grid.Height() ) );
+    ( utilities::LocalLength( height, g.MRRank(), g.Width() ),
+      utilities::LocalLength( width,  g.MCRank(), g.Height() ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -515,11 +515,11 @@ template<typename R>
 inline
 DistMatrix<R,MR,MC>::DistMatrix
 ( bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, const Grid& grid )
+  int colAlignment, int rowAlignment, const Grid& g )
 : DMB(0,0,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,
-      utilities::Shift( grid.MRRank(), colAlignment, grid.Width() ),
-      utilities::Shift( grid.MCRank(), rowAlignment, grid.Height() ),grid)
+      utilities::Shift( g.MRRank(), colAlignment, g.Width() ),
+      utilities::Shift( g.MCRank(), rowAlignment, g.Height() ),g)
 { }
 
 template<typename R>
@@ -527,18 +527,18 @@ inline
 DistMatrix<R,MR,MC>::DistMatrix
 ( int height, int width,
   bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, const Grid& grid )
+  int colAlignment, int rowAlignment, const Grid& g )
 : DMB(height,width,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,
-      utilities::Shift( grid.MRRank(), colAlignment, grid.Width() ),
-      utilities::Shift( grid.MCRank(), rowAlignment, grid.Height() ),grid)
+      utilities::Shift( g.MRRank(), colAlignment, g.Width() ),
+      utilities::Shift( g.MCRank(), rowAlignment, g.Height() ),g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::DistMatrix");
 #endif
     DMB::LocalMatrix().ResizeTo
-    ( utilities::LocalLength( height, DMB::ColShift(), grid.Width() ),
-      utilities::LocalLength( width,  DMB::RowShift(), grid.Height() ) );
+    ( utilities::LocalLength( height, DMB::ColShift(), g.Width() ),
+      utilities::LocalLength( width,  DMB::RowShift(), g.Height() ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -654,22 +654,22 @@ DistMatrix<R,MR,MC>::operator=
 template<typename R>
 inline
 DistMatrix<std::complex<R>,MR,MC>::DistMatrix
-( const Grid& grid )
-: DMB(0,0,false,false,0,0,grid.MRRank(),grid.MCRank(),grid)
+( const Grid& g )
+: DMB(0,0,false,false,0,0,g.MRRank(),g.MCRank(),g)
 { }
 
 template<typename R>
 inline
 DistMatrix<std::complex<R>,MR,MC>::DistMatrix
-( int height, int width, const Grid& grid )
-: DMB(height,width,false,false,0,0,grid.MRRank(),grid.MCRank(),grid)
+( int height, int width, const Grid& g )
+: DMB(height,width,false,false,0,0,g.MRRank(),g.MCRank(),g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::DistMatrix");
 #endif
     DMB::LocalMatrix().ResizeTo
-    ( utilities::LocalLength( height, grid.MRRank(), grid.Width() ),
-      utilities::LocalLength( width,  grid.MCRank(), grid.Height() ) );
+    ( utilities::LocalLength( height, g.MRRank(), g.Width() ),
+      utilities::LocalLength( width,  g.MCRank(), g.Height() ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -679,11 +679,11 @@ template<typename R>
 inline
 DistMatrix<std::complex<R>,MR,MC>::DistMatrix
 ( bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, const Grid& grid )
+  int colAlignment, int rowAlignment, const Grid& g )
 : DMB(0,0,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,
-      utilities::Shift( grid.MRRank(), colAlignment, grid.Width() ),
-      utilities::Shift( grid.MCRank(), rowAlignment, grid.Height() ),grid)
+      utilities::Shift( g.MRRank(), colAlignment, g.Width() ),
+      utilities::Shift( g.MCRank(), rowAlignment, g.Height() ),g)
 { }
 
 template<typename R>
@@ -691,18 +691,18 @@ inline
 DistMatrix<std::complex<R>,MR,MC>::DistMatrix
 ( int height, int width,
   bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, const Grid& grid )
+  int colAlignment, int rowAlignment, const Grid& g )
 : DMB(height,width,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,
-      utilities::Shift( grid.MRRank(), colAlignment, grid.Width() ),
-      utilities::Shift( grid.MCRank(), rowAlignment, grid.Height() ),grid)
+      utilities::Shift( g.MRRank(), colAlignment, g.Width() ),
+      utilities::Shift( g.MCRank(), rowAlignment, g.Height() ),g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[MR,MC]::DistMatrix");
 #endif
     DMB::LocalMatrix().ResizeTo
-    ( utilities::LocalLength( height, DMB::ColShift(), grid.Width() ),
-      utilities::LocalLength( width,  DMB::RowShift(), grid.Height() ) );
+    ( utilities::LocalLength( height, DMB::ColShift(), g.Width() ),
+      utilities::LocalLength( width,  DMB::RowShift(), g.Height() ) );
 #ifndef RELEASE
     PopCallStack();
 #endif

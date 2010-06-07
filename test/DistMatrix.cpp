@@ -35,14 +35,14 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
 #ifndef RELEASE
     PushCallStack("Check");
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
-    int p = grid.Size();
-    int rank = grid.VCRank();
+    int p = g.Size();
+    int rank = g.VCRank();
     int height = B.Height();
     int width = B.Width();
-    DistMatrix<T,Star,Star> A_Star_Star(grid);
-    DistMatrix<T,Star,Star> B_Star_Star(grid);
+    DistMatrix<T,Star,Star> A_Star_Star(g);
+    DistMatrix<T,Star,Star> B_Star_Star(g);
 
     if( rank == 0 )
     {
@@ -75,7 +75,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     bool everyonePassed = true;
     int send = sameData;
     int* recvBuf = new int[p];
-    AllGather( &send, 1, recvBuf, 1, grid.VCComm() );
+    AllGather( &send, 1, recvBuf, 1, g.VCComm() );
     for( int i=0; i<p; ++i )
     {
         if( ! recvBuf[i] )
@@ -102,22 +102,22 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
 
 template<typename T>
 void
-DistMatrixTest( int m, int n, const Grid& grid )
+DistMatrixTest( int m, int n, const Grid& g )
 {
 #ifndef RELEASE
     PushCallStack("DistMatrixTest");
 #endif
-    DistMatrix<T,MC,  MR  > A_MC_MR(grid);
-    DistMatrix<T,MC,  Star> A_MC_Star(grid);
-    DistMatrix<T,Star,MR  > A_Star_MR(grid);
-    DistMatrix<T,MR,  MC  > A_MR_MC(grid);
-    DistMatrix<T,MR,  Star> A_MR_Star(grid);
-    DistMatrix<T,Star,MC  > A_Star_MC(grid);
-    DistMatrix<T,VC,  Star> A_VC_Star(grid);
-    DistMatrix<T,Star,VC  > A_Star_VC(grid);
-    DistMatrix<T,VR,  Star> A_VR_Star(grid);
-    DistMatrix<T,Star,VR  > A_Star_VR(grid);
-    DistMatrix<T,Star,Star> A_Star_Star(grid);
+    DistMatrix<T,MC,  MR  > A_MC_MR(g);
+    DistMatrix<T,MC,  Star> A_MC_Star(g);
+    DistMatrix<T,Star,MR  > A_Star_MR(g);
+    DistMatrix<T,MR,  MC  > A_MR_MC(g);
+    DistMatrix<T,MR,  Star> A_MR_Star(g);
+    DistMatrix<T,Star,MC  > A_Star_MC(g);
+    DistMatrix<T,VC,  Star> A_VC_Star(g);
+    DistMatrix<T,Star,VC  > A_Star_VC(g);
+    DistMatrix<T,VR,  Star> A_VR_Star(g);
+    DistMatrix<T,Star,VR  > A_Star_VR(g);
+    DistMatrix<T,Star,Star> A_Star_Star(g);
 
     // Communicate from A[MC,MR] 
     A_MC_MR.ResizeTo( m, n );
@@ -303,7 +303,7 @@ int main( int argc, char* argv[] )
 #endif
     try
     {
-        const Grid grid( MPI_COMM_WORLD, r, c );
+        const Grid g( MPI_COMM_WORLD, r, c );
 
         if( rank == 0 )
         {
@@ -311,7 +311,7 @@ int main( int argc, char* argv[] )
             cout << "Testing with floats:" << endl;
             cout << "--------------------" << endl;
         }
-        DistMatrixTest<float>( m, n, grid );
+        DistMatrixTest<float>( m, n, g );
         if( rank == 0 )
         {
             cout << endl;
@@ -323,7 +323,7 @@ int main( int argc, char* argv[] )
             cout << "Testing with doubles:" << endl;
             cout << "---------------------" << endl;
         }
-        DistMatrixTest<double>( m, n, grid );
+        DistMatrixTest<double>( m, n, g );
         if( rank == 0 )
         {
             cout << endl;
@@ -336,7 +336,7 @@ int main( int argc, char* argv[] )
             cout << "Testing with single-precision complex:" << endl;
             cout << "--------------------------------------" << endl;
         }
-        DistMatrixTest<scomplex>( m, n, grid );
+        DistMatrixTest<scomplex>( m, n, g );
         if( rank == 0 )
         {
             cout << endl;
@@ -348,7 +348,7 @@ int main( int argc, char* argv[] )
             cout << "Testing with double-precision complex:" << endl;
             cout << "--------------------------------------" << endl;
         }
-        DistMatrixTest<dcomplex>( m, n, grid );
+        DistMatrixTest<dcomplex>( m, n, g );
         if( rank == 0 )
         {
             cout << endl;

@@ -50,36 +50,34 @@ elemental::lapack::internal::PanelTridiagL
                              A.RowAlignment()*t.GetGrid().Height()) )
         throw logic_error( "t is not aligned with A." );
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views 
     DistMatrix<R,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), a01(grid),     A02(grid),  ACol(grid),
-        ABL(grid), ABR(grid),  a10(grid), alpha11(grid), a12(grid),
-                               A20(grid), a21(grid),     A22(grid),
-        alpha21T(grid),
-        a21B(grid);
+        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g),  alpha21T(g),
+        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),            a21B(g),
+                         A20(g), a21(g),     A22(g);
     DistMatrix<R,MC,MR> 
-        WTL(grid), WTR(grid),  W00(grid), w01(grid),     W02(grid),  WCol(grid),
-        WBL(grid), WBR(grid),  w10(grid), omega11(grid), w12(grid),
-                               W20(grid), w21(grid),     W22(grid);
+        WTL(g), WTR(g),  W00(g), w01(g),     W02(g),  WCol(g),
+        WBL(g), WBR(g),  w10(g), omega11(g), w12(g),
+                         W20(g), w21(g),     W22(g);
     DistMatrix<R,MD,Star> 
-        eT(grid),  e0(grid),
-        eB(grid),  epsilon1(grid),
-                   e2(grid);
+        eT(g),  e0(g),
+        eB(g),  epsilon1(g),
+                e2(g);
     DistMatrix<R,MD,Star> 
-        tT(grid),  t0(grid),
-        tB(grid),  tau1(grid),
-                   t2(grid);
+        tT(g),  t0(g),
+        tB(g),  tau1(g),
+                t2(g);
 
     // Temporary distributions
-    DistMatrix<R,MC,  Star> a21_MC_Star(grid);
-    DistMatrix<R,MR,  Star> a21_MR_Star(grid);
-    DistMatrix<R,Star,MR  > z10_Star_MR(grid);
-    DistMatrix<R,MC,  MR  > z21(grid);
-    DistMatrix<R,MC,  Star> z21_MC_Star(grid);
-    DistMatrix<R,MR,  Star> z21_MR_Star(grid);
-    DistMatrix<R,MR,  MC  > z21_MR_MC(grid);
+    DistMatrix<R,MC,  Star> a21_MC_Star(g);
+    DistMatrix<R,MR,  Star> a21_MR_Star(g);
+    DistMatrix<R,Star,MR  > z10_Star_MR(g);
+    DistMatrix<R,MC,  MR  > z21(g);
+    DistMatrix<R,MC,  Star> z21_MC_Star(g);
+    DistMatrix<R,MR,  Star> z21_MR_Star(g);
+    DistMatrix<R,MR,  MC  > z21_MR_MC(g);
 
     // Push to the blocksize of 1, then pop at the end of the routine
     PushBlocksizeStack( 1 );
@@ -151,7 +149,7 @@ elemental::lapack::internal::PanelTridiagL
         blas::Gemv( Normal, (R)-1, WBL, a10, (R)1, ACol );
 
         R tau = 0; // Initializing avoids false compiler warnings
-        const bool thisIsMyColumn = ( grid.MRRank() == a21.RowAlignment() );
+        const bool thisIsMyColumn = ( g.MRRank() == a21.RowAlignment() );
         if( thisIsMyColumn )
         {
             tau = lapack::internal::ColReflector( alpha21T, a21B );
@@ -164,9 +162,8 @@ elemental::lapack::internal::PanelTridiagL
         a21_MR_Star = a21_MC_Star = a21;
 
         PopBlocksizeStack();
-        blas::internal::SymvColAccumulate
-        ( Lower, (R)1, A22, a21_MC_Star, a21_MR_Star, 
-                            z21_MC_Star, z21_MR_Star );
+        blas::internal::LocalSymvColAccumulateL
+        ( (R)1, A22, a21_MC_Star, a21_MR_Star, z21_MC_Star, z21_MR_Star );
         PushBlocksizeStack( 1 );
 
         blas::Gemv
@@ -208,7 +205,7 @@ elemental::lapack::internal::PanelTridiagL
             R myAlpha = -static_cast<R>(0.5)*tau*
                         blas::Dot( w21.LockedLocalMatrix(), 
                                    a21.LockedLocalMatrix() );            
-            AllReduce( &myAlpha, &alpha, 1, MPI_SUM, grid.MCComm() );
+            AllReduce( &myAlpha, &alpha, 1, MPI_SUM, g.MCComm() );
             blas::Axpy( alpha, a21, w21 );
         }
         //--------------------------------------------------------------------//
@@ -292,38 +289,36 @@ elemental::lapack::internal::PanelTridiagL
 #endif
     typedef complex<R> C;
 
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views 
     DistMatrix<C,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), a01(grid),     A02(grid),  ACol(grid),
-        ABL(grid), ABR(grid),  a10(grid), alpha11(grid), a12(grid),
-                               A20(grid), a21(grid),     A22(grid),
-        alpha21T(grid),
-        a21B(grid);
+        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g),  alpha21T(g),
+        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),            a21B(g),
+                         A20(g), a21(g),     A22(g);
     DistMatrix<C,MC,MR> 
-        WTL(grid), WTR(grid),  W00(grid), w01(grid),     W02(grid),  WCol(grid),
-        WBL(grid), WBR(grid),  w10(grid), omega11(grid), w12(grid),
-                               W20(grid), w21(grid),     W22(grid);
+        WTL(g), WTR(g),  W00(g), w01(g),     W02(g),  WCol(g),
+        WBL(g), WBR(g),  w10(g), omega11(g), w12(g),
+                         W20(g), w21(g),     W22(g);
     DistMatrix<R,MD,Star> 
-        eT(grid),  e0(grid),
-        eB(grid),  epsilon1(grid),
-                   e2(grid);
+        eT(g),  e0(g),
+        eB(g),  epsilon1(g),
+                e2(g);
     DistMatrix<C,MD,Star> 
-        tT(grid),  t0(grid),
-        tB(grid),  tau1(grid),
-                   t2(grid);
+        tT(g),  t0(g),
+        tB(g),  tau1(g),
+                t2(g);
 
     // Temporary distributions
-    DistMatrix<C,MC,  MR  > a10Conj(grid);
-    DistMatrix<C,MC,  MR  > w10Conj(grid);
-    DistMatrix<C,MC,  Star> a21_MC_Star(grid);
-    DistMatrix<C,MR,  Star> a21_MR_Star(grid);
-    DistMatrix<C,Star,MR  > z10_Star_MR(grid);
-    DistMatrix<C,MC,  MR  > z21(grid);
-    DistMatrix<C,MC,  Star> z21_MC_Star(grid);
-    DistMatrix<C,MR,  Star> z21_MR_Star(grid);
-    DistMatrix<C,MR,  MC  > z21_MR_MC(grid);
+    DistMatrix<C,MC,  MR  > a10Conj(g);
+    DistMatrix<C,MC,  MR  > w10Conj(g);
+    DistMatrix<C,MC,  Star> a21_MC_Star(g);
+    DistMatrix<C,MR,  Star> a21_MR_Star(g);
+    DistMatrix<C,Star,MR  > z10_Star_MR(g);
+    DistMatrix<C,MC,  MR  > z21(g);
+    DistMatrix<C,MC,  Star> z21_MC_Star(g);
+    DistMatrix<C,MR,  Star> z21_MR_Star(g);
+    DistMatrix<C,MR,  MC  > z21_MR_MC(g);
 
     // Push to the blocksize of 1, then pop at the end of the routine
     PushBlocksizeStack( 1 );
@@ -399,7 +394,7 @@ elemental::lapack::internal::PanelTridiagL
         alpha11.SetImag( 0, 0, (R)0 );
 
         C tau = 0; // Initializing avoids false compiler warnings
-        const bool thisIsMyColumn = ( grid.MRRank() == a21.RowAlignment() );
+        const bool thisIsMyColumn = ( g.MRRank() == a21.RowAlignment() );
         if( thisIsMyColumn )
         {
             tau = lapack::internal::ColReflector( alpha21T, a21B );
@@ -412,9 +407,8 @@ elemental::lapack::internal::PanelTridiagL
         a21_MR_Star = a21_MC_Star = a21;
 
         PopBlocksizeStack();
-        blas::internal::HemvColAccumulate
-        ( Lower, (C)1, A22, a21_MC_Star, a21_MR_Star, 
-                            z21_MC_Star, z21_MR_Star );
+        blas::internal::LocalHemvColAccumulateL
+        ( (C)1, A22, a21_MC_Star, a21_MR_Star, z21_MC_Star, z21_MR_Star );
         PushBlocksizeStack( 1 );
 
         blas::Gemv
@@ -456,7 +450,7 @@ elemental::lapack::internal::PanelTridiagL
             C myAlpha = -static_cast<C>(0.5)*tau*
                         blas::Dot( w21.LockedLocalMatrix(), 
                                    a21.LockedLocalMatrix() );            
-            AllReduce( &myAlpha, &alpha, 1, MPI_SUM, grid.MCComm() );
+            AllReduce( &myAlpha, &alpha, 1, MPI_SUM, g.MCComm() );
             blas::Axpy( alpha, a21, w21 );
         }
         //--------------------------------------------------------------------//

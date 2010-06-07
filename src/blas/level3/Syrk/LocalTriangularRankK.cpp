@@ -141,17 +141,17 @@ LocalTriangularRankKKernel
     PushCallStack("LocalTriangularRankKKernel");
     CheckInput( A, B, C );
 #endif
-    const Grid& grid = C.GetGrid();
+    const Grid& g = C.GetGrid();
 
-    DistMatrix<T,MC,Star> AT(grid), 
-                          AB(grid);
+    DistMatrix<T,MC,Star> AT(g), 
+                          AB(g);
 
-    DistMatrix<T,Star,MR> BL(grid), BR(grid);
+    DistMatrix<T,Star,MR> BL(g), BR(g);
 
-    DistMatrix<T,MC,MR> CTL(grid), CTR(grid),
-                        CBL(grid), CBR(grid);
+    DistMatrix<T,MC,MR> CTL(g), CTR(g),
+                        CBL(g), CBR(g);
 
-    DistMatrix<T,MC,MR> DTL(grid), DBR(grid);
+    DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
 
@@ -213,16 +213,16 @@ LocalTriangularRankKKernel
     PushCallStack("LocalTriangularRankKKernel");
     CheckInput( orientationOfA, A, B, C );
 #endif
-    const Grid& grid = C.GetGrid();
+    const Grid& g = C.GetGrid();
 
-    DistMatrix<T,Star,MC> AL(grid), AR(grid);
+    DistMatrix<T,Star,MC> AL(g), AR(g);
 
-    DistMatrix<T,Star,MR> BL(grid), BR(grid);
+    DistMatrix<T,Star,MR> BL(g), BR(g);
 
-    DistMatrix<T,MC,MR> CTL(grid), CTR(grid),
-                        CBL(grid), CBR(grid);
+    DistMatrix<T,MC,MR> CTL(g), CTR(g),
+                        CBL(g), CBR(g);
 
-    DistMatrix<T,MC,MR> DTL(grid), DBR(grid);
+    DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
 
@@ -282,17 +282,17 @@ LocalTriangularRankKKernel
     PushCallStack("LocalTriangularRankKKernel");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
-    const Grid& grid = C.GetGrid();
+    const Grid& g = C.GetGrid();
 
-    DistMatrix<T,Star,MC> AL(grid), AR(grid);
+    DistMatrix<T,Star,MC> AL(g), AR(g);
 
-    DistMatrix<T,MR,Star> BT(grid), 
-                          BB(grid);
+    DistMatrix<T,MR,Star> BT(g), 
+                          BB(g);
 
-    DistMatrix<T,MC,MR> CTL(grid), CTR(grid),
-                        CBL(grid), CBR(grid);
+    DistMatrix<T,MC,MR> CTL(g), CTR(g),
+                        CBL(g), CBR(g);
 
-    DistMatrix<T,MC,MR> DTL(grid), DBR(grid);
+    DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
 
@@ -355,9 +355,9 @@ elemental::blas::internal::LocalTriangularRankK
     PushCallStack("blas::internal::LocalTriangularRankK");
     CheckInput( A, B, C );
 #endif
-    const Grid& grid = C.GetGrid();
+    const Grid& g = C.GetGrid();
 
-    if( C.Height() < 2*grid.Width()*Blocksize() )
+    if( C.Height() < 2*g.Width()*Blocksize() )
     {
         LocalTriangularRankKKernel
         ( shape, alpha, A, B, beta, C );
@@ -367,13 +367,13 @@ elemental::blas::internal::LocalTriangularRankK
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,MC,Star> AT(grid),
-                              AB(grid);
+        DistMatrix<T,MC,Star> AT(g),
+                              AB(g);
 
-        DistMatrix<T,Star,MR> BL(grid), BR(grid);
+        DistMatrix<T,Star,MR> BL(g), BR(g);
 
-        DistMatrix<T,MC,MR> CTL(grid), CTR(grid),
-                            CBL(grid), CBR(grid);
+        DistMatrix<T,MC,MR> CTL(g), CTR(g),
+                            CBL(g), CBR(g);
 
         const unsigned half = C.Height() / 2;
 
@@ -423,9 +423,9 @@ elemental::blas::internal::LocalTriangularRankK
     PushCallStack("blas::internal::LocalTriangularRankK");
     CheckInput( orientationOfA, A, B, C );
 #endif
-    const Grid& grid = C.GetGrid();
+    const Grid& g = C.GetGrid();
 
-    if( C.Height() < 2*grid.Width()*Blocksize() )
+    if( C.Height() < 2*g.Width()*Blocksize() )
     {
         LocalTriangularRankKKernel
         ( shape, orientationOfA, alpha, A, B, beta, C );
@@ -435,12 +435,12 @@ elemental::blas::internal::LocalTriangularRankK
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,Star,MC> AL(grid), AR(grid);
+        DistMatrix<T,Star,MC> AL(g), AR(g);
 
-        DistMatrix<T,Star,MR> BL(grid), BR(grid);
+        DistMatrix<T,Star,MR> BL(g), BR(g);
 
-        DistMatrix<T,MC,MR> CTL(grid), CTR(grid),
-                            CBL(grid), CBR(grid);
+        DistMatrix<T,MC,MR> CTL(g), CTR(g),
+                            CBL(g), CBR(g);
 
         const unsigned half = C.Height() / 2;
 
@@ -489,9 +489,9 @@ elemental::blas::internal::LocalTriangularRankK
     PushCallStack("blas::internal::LocalTriangularRankK");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
-    const Grid& grid = C.GetGrid();
+    const Grid& g = C.GetGrid();
 
-    if( C.Height() < 2*grid.Width()*Blocksize() )
+    if( C.Height() < 2*g.Width()*Blocksize() )
     {
         LocalTriangularRankKKernel
         ( shape, orientationOfA, orientationOfB, alpha, A, B, beta, C );
@@ -501,13 +501,13 @@ elemental::blas::internal::LocalTriangularRankK
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,Star,MC> AL(grid), AR(grid);
+        DistMatrix<T,Star,MC> AL(g), AR(g);
 
-        DistMatrix<T,MR,Star> BT(grid), 
-                              BB(grid);
+        DistMatrix<T,MR,Star> BT(g), 
+                              BB(g);
 
-        DistMatrix<T,MC,MR> CTL(grid), CTR(grid),
-                            CBL(grid), CBR(grid);
+        DistMatrix<T,MC,MR> CTL(g), CTR(g),
+                            CBL(g), CBR(g);
 
         const unsigned half = C.Height() / 2;
 

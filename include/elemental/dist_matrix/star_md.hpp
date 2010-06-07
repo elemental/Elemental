@@ -36,7 +36,7 @@ protected:
       bool constrainedRowAlignment,
       int rowAlignment,
       int rowShift,
-      const Grid& grid );
+      const Grid& g );
 
     ~DistMatrixBase();
 
@@ -204,17 +204,17 @@ protected:
 
 public:
     DistMatrix
-    ( const Grid& grid );
+    ( const Grid& g );
 
     DistMatrix
-    ( int height, int width, const Grid& grid );
+    ( int height, int width, const Grid& g );
 
     DistMatrix
-    ( bool constrainedRowAlignment, int rowAlignment, const Grid& grid );
+    ( bool constrainedRowAlignment, int rowAlignment, const Grid& g );
 
     DistMatrix
     ( int height, int width,
-      bool constrainedRowAlignment, int rowAlignment, const Grid& grid );
+      bool constrainedRowAlignment, int rowAlignment, const Grid& g );
 
     DistMatrix
     ( const DistMatrix<R,Star,MD>& A );
@@ -305,17 +305,17 @@ protected:
 
 public:
     DistMatrix
-    ( const Grid& grid );
+    ( const Grid& g );
 
     DistMatrix
-    ( int height, int width, const Grid& grid );
+    ( int height, int width, const Grid& g );
 
     DistMatrix
-    ( bool constrainedRowAlignment, int rowAlignment, const Grid& grid );
+    ( bool constrainedRowAlignment, int rowAlignment, const Grid& g );
 
     DistMatrix
     ( int height, int width,
-      bool constrainedRowAlignment, int rowAlignment, const Grid& grid );
+      bool constrainedRowAlignment, int rowAlignment, const Grid& g );
 
     DistMatrix
     ( const DistMatrix<C,Star,MD>& A );
@@ -414,8 +414,8 @@ DistMatrixBase<T,Star,MD>::DistMatrixBase
   bool constrainedRowAlignment,
   int rowAlignment,
   int rowShift,
-  const Grid& grid )
-: ADM(height,width,false,constrainedRowAlignment,0,rowAlignment,0,rowShift,grid)
+  const Grid& g )
+: ADM(height,width,false,constrainedRowAlignment,0,rowAlignment,0,rowShift,g)
 { }
 
 template<typename T>
@@ -435,22 +435,22 @@ DistMatrixBase<T,Star,MD>::InDiagonal() const
 template<typename R>
 inline
 DistMatrix<R,Star,MD>::DistMatrix
-( const Grid& grid )
-: DMB(0,0,false,0,0,grid)
+( const Grid& g )
+: DMB(0,0,false,0,0,g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");
 #endif
-    const int lcm = grid.LCM();
-    const int myDiagPath = grid.DiagPath();
-    const int ownerDiagPath = grid.DiagPath( 0 );
+    const int lcm = g.LCM();
+    const int myDiagPath = g.DiagPath();
+    const int ownerDiagPath = g.DiagPath( 0 );
 
     if( myDiagPath == ownerDiagPath )
     {
         DMB::_inDiagonal = true;
 
-        const int myDiagPathRank = grid.DiagPathRank();
-        const int ownerDiagPathRank = grid.DiagPathRank( 0 );
+        const int myDiagPathRank = g.DiagPathRank();
+        const int ownerDiagPathRank = g.DiagPathRank( 0 );
         DMB::_rowShift = (myDiagPathRank+lcm-ownerDiagPathRank) % lcm;
     }
     else
@@ -465,24 +465,24 @@ DistMatrix<R,Star,MD>::DistMatrix
 template<typename R>
 inline
 DistMatrix<R,Star,MD>::DistMatrix
-( int height, int width, const Grid& grid )
-: DMB(height,width,false,0,0,grid)
+( int height, int width, const Grid& g )
+: DMB(height,width,false,0,0,g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");
     if( height < 0 || width < 0 )
         throw std::logic_error( "Height and width must be non-negative." );
 #endif
-    const int lcm = grid.LCM();
-    const int myDiagPath = grid.DiagPath();
-    const int ownerDiagPath = grid.DiagPath( 0 );
+    const int lcm = g.LCM();
+    const int myDiagPath = g.DiagPath();
+    const int ownerDiagPath = g.DiagPath( 0 );
 
     if( myDiagPath == ownerDiagPath )
     {
         DMB::_inDiagonal = true;
 
-        const int myDiagPathRank = grid.DiagPathRank();
-        const int ownerDiagPathRank = grid.DiagPathRank( 0 );
+        const int myDiagPathRank = g.DiagPathRank();
+        const int ownerDiagPathRank = g.DiagPathRank( 0 );
         DMB::_rowShift = (myDiagPathRank+lcm-ownerDiagPathRank) % lcm;
         DMB::_localMatrix.ResizeTo
         ( height, utilities::LocalLength(width,DMB::_rowShift,lcm) );
@@ -499,25 +499,25 @@ DistMatrix<R,Star,MD>::DistMatrix
 template<typename R>
 inline
 DistMatrix<R,Star,MD>::DistMatrix
-( bool constrainedRowAlignment, int rowAlignment, const Grid& grid )
-: DMB(0,0,constrainedRowAlignment,rowAlignment,0,grid)
+( bool constrainedRowAlignment, int rowAlignment, const Grid& g )
+: DMB(0,0,constrainedRowAlignment,rowAlignment,0,g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");
-    if( rowAlignment < 0 || rowAlignment >= grid.Size() )
+    if( rowAlignment < 0 || rowAlignment >= g.Size() )
         throw std::logic_error
         ( "alignment for [* ,MD] must be in [0,p-1] (rxc grid,p=r*c)." );
 #endif
-    const int lcm = grid.LCM();
-    const int myDiagPath = grid.DiagPath();
-    const int ownerDiagPath = grid.DiagPath( rowAlignment );
+    const int lcm = g.LCM();
+    const int myDiagPath = g.DiagPath();
+    const int ownerDiagPath = g.DiagPath( rowAlignment );
 
     if( myDiagPath == ownerDiagPath )
     {
         DMB::_inDiagonal = true;
 
-        const int myDiagPathRank = grid.DiagPathRank();
-        const int ownerDiagPathRank = grid.DiagPathRank( rowAlignment );
+        const int myDiagPathRank = g.DiagPathRank();
+        const int ownerDiagPathRank = g.DiagPathRank( rowAlignment );
         DMB::_rowShift = (myDiagPathRank+lcm-ownerDiagPathRank) % lcm;
     }
     else
@@ -642,22 +642,22 @@ DistMatrix<R,Star,MD>::operator=
 template<typename R>
 inline
 DistMatrix<std::complex<R>,Star,MD>::DistMatrix
-( const Grid& grid )
-: DMB(0,0,false,0,0,grid)
+( const Grid& g )
+: DMB(0,0,false,0,0,g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");
 #endif
-    const int lcm = grid.LCM();
-    const int myDiagPath = grid.DiagPath();
-    const int ownerDiagPath = grid.DiagPath( 0 );
+    const int lcm = g.LCM();
+    const int myDiagPath = g.DiagPath();
+    const int ownerDiagPath = g.DiagPath( 0 );
 
     if( myDiagPath == ownerDiagPath )
     {
         DMB::_inDiagonal = true;
 
-        const int myDiagPathRank = grid.DiagPathRank();
-        const int ownerDiagPathRank = grid.DiagPathRank( 0 );
+        const int myDiagPathRank = g.DiagPathRank();
+        const int ownerDiagPathRank = g.DiagPathRank( 0 );
         DMB::_rowShift = (myDiagPathRank+lcm-ownerDiagPathRank) % lcm;
     }
     else
@@ -672,24 +672,24 @@ DistMatrix<std::complex<R>,Star,MD>::DistMatrix
 template<typename R>
 inline
 DistMatrix<std::complex<R>,Star,MD>::DistMatrix
-( int height, int width, const Grid& grid )
-: DMB(height,width,false,0,0,grid)
+( int height, int width, const Grid& g )
+: DMB(height,width,false,0,0,g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");
     if( height < 0 || width < 0 )
         throw std::logic_error( "Height and width must be non-negative." );
 #endif
-    const int lcm = grid.LCM();
-    const int myDiagPath = grid.DiagPath();
-    const int ownerDiagPath = grid.DiagPath( 0 );
+    const int lcm = g.LCM();
+    const int myDiagPath = g.DiagPath();
+    const int ownerDiagPath = g.DiagPath( 0 );
 
     if( myDiagPath == ownerDiagPath )
     {
         DMB::_inDiagonal = true;
 
-        const int myDiagPathRank = grid.DiagPathRank();
-        const int ownerDiagPathRank = grid.DiagPathRank( 0 );
+        const int myDiagPathRank = g.DiagPathRank();
+        const int ownerDiagPathRank = g.DiagPathRank( 0 );
         DMB::_rowShift = (myDiagPathRank+lcm-ownerDiagPathRank) % lcm;
         DMB::_localMatrix.ResizeTo
         ( height, utilities::LocalLength(width,DMB::_rowShift,lcm) );
@@ -706,25 +706,25 @@ DistMatrix<std::complex<R>,Star,MD>::DistMatrix
 template<typename R>
 inline
 DistMatrix<std::complex<R>,Star,MD>::DistMatrix
-( bool constrainedRowAlignment, int rowAlignment, const Grid& grid )
-: DMB(0,0,constrainedRowAlignment,rowAlignment,0,grid)
+( bool constrainedRowAlignment, int rowAlignment, const Grid& g )
+: DMB(0,0,constrainedRowAlignment,rowAlignment,0,g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");
-    if( rowAlignment < 0 || rowAlignment >= grid.Size() )
+    if( rowAlignment < 0 || rowAlignment >= g.Size() )
         throw std::logic_error
         ( "alignment for [* ,MD] must be in [0,p-1] (rxc grid,p=r*c)." );
 #endif
-    const int lcm = grid.LCM();
-    const int myDiagPath = grid.DiagPath();
-    const int ownerDiagPath = grid.DiagPath( rowAlignment );
+    const int lcm = g.LCM();
+    const int myDiagPath = g.DiagPath();
+    const int ownerDiagPath = g.DiagPath( rowAlignment );
 
     if( myDiagPath == ownerDiagPath )
     {
         DMB::_inDiagonal = true;
 
-        const int myDiagPathRank = grid.DiagPathRank();
-        const int ownerDiagPathRank = grid.DiagPathRank( rowAlignment );
+        const int myDiagPathRank = g.DiagPathRank();
+        const int ownerDiagPathRank = g.DiagPathRank( rowAlignment );
         DMB::_rowShift = (myDiagPathRank+lcm-ownerDiagPathRank) % lcm;
     }
     else

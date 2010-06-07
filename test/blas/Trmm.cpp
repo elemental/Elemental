@@ -56,19 +56,19 @@ void TestCorrectness
   T alpha, const DistMatrix<T,Star,Star>& ARef,
                  DistMatrix<T,Star,Star>& XRef )
 {
-    const Grid& grid = X.GetGrid();
-    DistMatrix<T,Star,Star> X_copy(grid);
+    const Grid& g = X.GetGrid();
+    DistMatrix<T,Star,Star> X_copy(g);
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Copying computed result...";
         cout.flush();
     }
     X_copy = X;
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
@@ -76,13 +76,13 @@ void TestCorrectness
     blas::Trmm( side, shape, orientation, diagonal,
                 alpha, ARef.LockedLocalMatrix(),
                        XRef.LocalMatrix()         );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
         XRef.Print("Truth");
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -103,8 +103,8 @@ void TestCorrectness
             }
         }
     }
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 
@@ -113,13 +113,13 @@ void TestTrmm
 ( bool testCorrectness, bool printMatrices,
   Side side, Shape shape,
   Orientation orientation, Diagonal diagonal,
-  int m, int n, T alpha, const Grid& grid )
+  int m, int n, T alpha, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(grid);
-    DistMatrix<T,MC,MR> X(grid);
-    DistMatrix<T,Star,Star> ARef(grid);
-    DistMatrix<T,Star,Star> XRef(grid);
+    DistMatrix<T,MC,MR> A(g);
+    DistMatrix<T,MC,MR> X(g);
+    DistMatrix<T,Star,Star> ARef(g);
+    DistMatrix<T,Star,Star> XRef(g);
 
     if( side == Left )
         A.ResizeTo( m, m );
@@ -131,14 +131,14 @@ void TestTrmm
     X.SetToRandom();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
         ARef = A;
         XRef = X;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -146,7 +146,7 @@ void TestTrmm
         A.Print("A");
         X.Print("X");
     }
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting Trmm...";
         cout.flush();
@@ -158,7 +158,7 @@ void TestTrmm
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = blas::internal::TrmmGFlops<T>(side,m,n,runTime);
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -207,7 +207,7 @@ int main( int argc, char* argv[] )
             cout << "==========================================" << endl;
         }
 #endif
-        Grid grid( MPI_COMM_WORLD, r, c );
+        Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )
@@ -226,7 +226,7 @@ int main( int argc, char* argv[] )
         }
         TestTrmm<double>
         ( testCorrectness, printMatrices,
-          side, shape, orientation, diagonal, m, n, (double)3, grid );
+          side, shape, orientation, diagonal, m, n, (double)3, g );
         if( rank == 0 )
             cout << endl;
 
@@ -239,7 +239,7 @@ int main( int argc, char* argv[] )
         }
         TestTrmm<dcomplex>
         ( testCorrectness, printMatrices,
-          side, shape, orientation, diagonal, m, n, (dcomplex)3, grid );
+          side, shape, orientation, diagonal, m, n, (dcomplex)3, g );
         if( rank == 0 )
             cout << endl;
 #endif

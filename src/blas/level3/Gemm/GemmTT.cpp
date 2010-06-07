@@ -93,21 +93,21 @@ elemental::blas::internal::GemmTTA
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> BT(grid),  B0(grid),
-                        BB(grid),  B1(grid),
-                                   B2(grid);
+    DistMatrix<T,MC,MR> BT(g),  B0(g),
+                        BB(g),  B1(g),
+                                B2(g);
 
-    DistMatrix<T,MC,MR> CL(grid), CR(grid),
-                        C0(grid), C1(grid), C2(grid);
+    DistMatrix<T,MC,MR> CL(g), CR(g),
+                        C0(g), C1(g), C2(g);
 
     // Temporary distributions
-    DistMatrix<T,Star,MC  > B1_Star_MC(grid);
-    DistMatrix<T,MR,  Star> D1_MR_Star(grid);
-    DistMatrix<T,MR,  MC  > D1_MR_MC(grid);
-    DistMatrix<T,MC,  MR  > D1(grid);
+    DistMatrix<T,Star,MC  > B1_Star_MC(g);
+    DistMatrix<T,MR,  Star> D1_MR_Star(g);
+    DistMatrix<T,MR,  MC  > D1_MR_MC(g);
+    DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm
     blas::Scal( beta, C );
@@ -193,21 +193,21 @@ elemental::blas::internal::GemmTTB
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> AL(grid), AR(grid),
-                        A0(grid), A1(grid), A2(grid);
+    DistMatrix<T,MC,MR> AL(g), AR(g),
+                        A0(g), A1(g), A2(g);
 
-    DistMatrix<T,MC,MR> CT(grid),  C0(grid),
-                        CB(grid),  C1(grid),
-                                   C2(grid);
+    DistMatrix<T,MC,MR> CT(g),  C0(g),
+                        CB(g),  C1(g),
+                                C2(g);
 
     // Temporary distributions
-    DistMatrix<T,MR,  Star> A1_MR_Star(grid);
-    DistMatrix<T,Star,MC  > D1_Star_MC(grid);
-    DistMatrix<T,MR,  MC  > D1_MR_MC(grid);
-    DistMatrix<T,MC,  MR  > D1(grid);
+    DistMatrix<T,MR,  Star> A1_MR_Star(g);
+    DistMatrix<T,Star,MC  > D1_Star_MC(g);
+    DistMatrix<T,MR,  MC  > D1_MR_MC(g);
+    DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm 
     blas::Scal( beta, C );
@@ -293,19 +293,19 @@ elemental::blas::internal::GemmTTC
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> AT(grid),  A0(grid),
-                        AB(grid),  A1(grid),
-                                   A2(grid);
+    DistMatrix<T,MC,MR> AT(g),  A0(g),
+                        AB(g),  A1(g),
+                                A2(g);
 
-    DistMatrix<T,MC,MR> BL(grid), BR(grid),
-                        B0(grid), B1(grid), B2(grid);
+    DistMatrix<T,MC,MR> BL(g), BR(g),
+                        B0(g), B1(g), B2(g);
 
     // Temporary distributions
-    DistMatrix<T,Star,MC> A1_Star_MC(grid);
-    DistMatrix<T,MR,Star> B1_MR_Star(grid);
+    DistMatrix<T,Star,MC> A1_Star_MC(g);
+    DistMatrix<T,MR,Star> B1_MR_Star(g);
     
     // Start the algorithm    
     blas::Scal( beta, C );

@@ -51,19 +51,19 @@ void TestCorrectness
            const DistMatrix<T,Star,Star>& xRef,
   T beta,        DistMatrix<T,Star,Star>& yRef )
 {
-    const Grid& grid = y.GetGrid();
-    DistMatrix<T,Star,Star> y_copy(grid);
+    const Grid& g = y.GetGrid();
+    DistMatrix<T,Star,Star> y_copy(g);
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed result...";
         cout.flush();
     }
     y_copy = y;
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
@@ -72,13 +72,13 @@ void TestCorrectness
                 alpha, ARef.LockedLocalMatrix(),
                        xRef.LockedLocalMatrix(),
                 beta,  yRef.LocalMatrix()       );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
         yRef.Print("Truth");
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -99,8 +99,8 @@ void TestCorrectness
             }
         }
     }
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 
@@ -108,29 +108,29 @@ template<typename T>
 void TestSymv
 ( const Shape shape,
   const int m, const T alpha, const T beta, 
-  const bool testCorrectness, const bool printMatrices, const Grid& grid )
+  const bool testCorrectness, const bool printMatrices, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(grid);
-    DistMatrix<T,MC,MR> x(grid);
-    DistMatrix<T,MC,MR> y(grid);
-    DistMatrix<T,Star,Star> ARef(grid);
-    DistMatrix<T,Star,Star> xRef(grid);
-    DistMatrix<T,Star,Star> yRef(grid);
+    DistMatrix<T,MC,MR> A(g);
+    DistMatrix<T,MC,MR> x(g);
+    DistMatrix<T,MC,MR> y(g);
+    DistMatrix<T,Star,Star> ARef(g);
+    DistMatrix<T,Star,Star> xRef(g);
+    DistMatrix<T,Star,Star> yRef(g);
 
     A.ResizeTo( m, m );
     x.ResizeTo( m, 1 );
     y.ResizeTo( m, 1 );
 
     // Test Symm
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "Symm:" << endl;
     A.SetToRandom();
     x.SetToRandom();
     y.SetToRandom();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copies of original matrices...";
             cout.flush();
@@ -138,7 +138,7 @@ void TestSymv
         ARef = A;
         xRef = x;
         yRef = y;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -147,20 +147,20 @@ void TestSymv
         x.Print("x");
         y.Print("y");
     }
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting Parallel Symv...";
         cout.flush();
     }
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     startTime = Time();
     blas::Symv
     ( shape, alpha, A, x, beta, y );
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = blas::internal::SymvGFlops<T>(m,runTime);
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -208,7 +208,7 @@ int main( int argc, char* argv[] )
             cout << "==========================================" << endl;
         }
 #endif
-        const Grid grid( MPI_COMM_WORLD, r, c );
+        const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )
@@ -221,8 +221,7 @@ int main( int argc, char* argv[] )
             cout << "---------------------" << endl;
         }
         TestSymv<double>
-        ( shape, m, (double)3, (double)4, testCorrectness, printMatrices, 
-          grid );
+        ( shape, m, (double)3, (double)4, testCorrectness, printMatrices, g );
         if( rank == 0 )
             cout << endl;
 
@@ -235,7 +234,7 @@ int main( int argc, char* argv[] )
         }
         TestSymv<dcomplex>
         ( shape, m, (dcomplex)3, (dcomplex)4, testCorrectness, printMatrices,
-          grid );
+          g );
         if( rank == 0 )
             cout << endl;
 #endif

@@ -35,20 +35,20 @@ elemental::blas::Her
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    const int r = grid.Height();
-    const int c = grid.Width();
+    const int r = g.Height();
+    const int c = g.Width();
     const int colShift = A.ColShift();
     const int rowShift = A.RowShift();
 
     if( x.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,Star> x_MC_Star(grid);
-        DistMatrix<T,MR,Star> x_MR_Star(grid);
+        DistMatrix<T,MC,Star> x_MC_Star(g);
+        DistMatrix<T,MR,Star> x_MR_Star(g);
 
         x_MC_Star.AlignWith( A );
         x_MR_Star.AlignWith( A );
@@ -91,8 +91,8 @@ elemental::blas::Her
     else
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC> x_Star_MC(grid);
-        DistMatrix<T,Star,MR> x_Star_MR(grid);
+        DistMatrix<T,Star,MC> x_Star_MC(g);
+        DistMatrix<T,Star,MR> x_Star_MR(g);
 
         x_Star_MC.AlignWith( A );
         x_Star_MR.AlignWith( A );

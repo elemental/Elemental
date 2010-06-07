@@ -67,20 +67,20 @@ elemental::lapack::internal::CholUVar2
         throw logic_error
         ( "Can only compute Cholesky factor of square matrices." );
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),
-        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
-                               A20(grid), A21(grid), A22(grid);
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,  Star> A01_MC_Star(grid);
-    DistMatrix<T,Star,Star> A11_Star_Star(grid);
-    DistMatrix<T,Star,VR  > A12_Star_VR(grid);
-    DistMatrix<T,Star,MR  > X11_Star_MR(grid);
-    DistMatrix<T,Star,MR  > X12_Star_MR(grid);
+    DistMatrix<T,MC,  Star> A01_MC_Star(g);
+    DistMatrix<T,Star,Star> A11_Star_Star(g);
+    DistMatrix<T,Star,VR  > A12_Star_VR(g);
+    DistMatrix<T,Star,MR  > X11_Star_MR(g);
+    DistMatrix<T,Star,MR  > X12_Star_MR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -172,19 +172,19 @@ lapack::internal::CholUVar3
         throw logic_error
         ( "Can only compute Cholesky factor of square matrices." );
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),
-        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
-                               A20(grid), A21(grid), A22(grid);
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g);
 
     // Temporary matrix distributions
-    DistMatrix<T,Star,Star> A11_Star_Star(grid);
-    DistMatrix<T,Star,VR  > A12_Star_VR(grid);
-    DistMatrix<T,Star,MC  > A12_Star_MC(grid);
-    DistMatrix<T,Star,MR  > A12_Star_MR(grid);
+    DistMatrix<T,Star,Star> A11_Star_Star(g);
+    DistMatrix<T,Star,VR  > A12_Star_VR(g);
+    DistMatrix<T,Star,MC  > A12_Star_MC(g);
+    DistMatrix<T,Star,MR  > A12_Star_MR(g);
 
     // Start the algorithm
     PartitionDownDiagonal

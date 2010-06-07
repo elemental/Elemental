@@ -23,7 +23,7 @@ elemental::lapack::internal::TridiagL
 #ifndef RELEASE
     PushCallStack("lapack::internal::TridiagL");
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 #ifndef RELEASE
     if( A.GetGrid() != d.GetGrid() ||
         d.GetGrid() != e.GetGrid() ||
@@ -42,38 +42,38 @@ elemental::lapack::internal::TridiagL
         throw logic_error
         ( "t must be a column vector of length one less than the width of A." );
     if( d.ColAlignment() != A.ColAlignment() + 
-                            A.RowAlignment() * grid.Height() )
+                            A.RowAlignment() * g.Height() )
         throw logic_error( "d is not aligned with A." );
-    if( e.ColAlignment() != ((A.ColAlignment()+1) % grid.Height())
-                            + A.RowAlignment() * grid.Height()    )
+    if( e.ColAlignment() != ((A.ColAlignment()+1) % g.Height())
+                            + A.RowAlignment() * g.Height()    )
         throw logic_error( "e ist not aligned with A." );
-    if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
+    if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*g.Height() )
         throw logic_error( "t ist not aligned with A." );
 #endif
 
     // Matrix views 
     DistMatrix<R,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid), 
-        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
-                               A20(grid), A21(grid), A22(grid),
-        A11Expanded(grid);
-    DistMatrix<R,MD,Star> dT(grid),  d0(grid), 
-                          dB(grid),  d1(grid),
-                                     d2(grid);
-    DistMatrix<R,MD,Star> eT(grid),  e0(grid), 
-                          eB(grid),  e1(grid), 
-                                     e2(grid);
-    DistMatrix<R,MD,Star> tT(grid),  t0(grid),
-                          tB(grid),  t1(grid),
-                                     t2(grid);
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g),
+        A11Expanded(g);
+    DistMatrix<R,MD,Star> dT(g),  d0(g), 
+                          dB(g),  d1(g),
+                                  d2(g);
+    DistMatrix<R,MD,Star> eT(g),  e0(g), 
+                          eB(g),  e1(g), 
+                                  e2(g);
+    DistMatrix<R,MD,Star> tT(g),  t0(g),
+                          tB(g),  t1(g),
+                                  t2(g);
 
     // Temporary distributions
-    DistMatrix<R,Star,Star> A11_Star_Star(grid);
-    DistMatrix<R,Star,Star> d1_Star_Star(grid);
-    DistMatrix<R,Star,Star> e1_Star_Star(grid);
-    DistMatrix<R,Star,Star> t1_Star_Star(grid);
-    DistMatrix<R,MC,  MR  > W11(grid),  WPan(grid),
-                            W21(grid);
+    DistMatrix<R,Star,Star> A11_Star_Star(g);
+    DistMatrix<R,Star,Star> d1_Star_Star(g);
+    DistMatrix<R,Star,Star> e1_Star_Star(g);
+    DistMatrix<R,Star,Star> t1_Star_Star(g);
+    DistMatrix<R,MC,  MR  > W11(g),  WPan(g),
+                            W21(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -191,7 +191,7 @@ elemental::lapack::internal::TridiagL
 #ifndef RELEASE
     PushCallStack("lapack::internal::TridiagL");
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 #ifndef RELEASE
     if( A.GetGrid() != d.GetGrid() ||
         d.GetGrid() != e.GetGrid() ||
@@ -210,39 +210,39 @@ elemental::lapack::internal::TridiagL
         throw logic_error
         ( "t must be a column vector of length one less than the width of A." );
     if( d.ColAlignment() != A.ColAlignment() + 
-                            A.RowAlignment() * grid.Height() )
+                            A.RowAlignment() * g.Height() )
         throw logic_error( "d is not aligned with A." );
-    if( e.ColAlignment() != ((A.ColAlignment()+1) % grid.Height())
-                            + A.RowAlignment() * grid.Height()    )
+    if( e.ColAlignment() != ((A.ColAlignment()+1) % g.Height())
+                            + A.RowAlignment() * g.Height()    )
         throw logic_error( "e ist not aligned with A." );
-    if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*grid.Height() )
+    if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*g.Height() )
         throw logic_error( "t ist not aligned with A." );
 #endif
     typedef complex<R> C;
 
     // Matrix views 
     DistMatrix<C,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid), 
-        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
-                               A20(grid), A21(grid), A22(grid),
-        A11Expanded(grid);
-    DistMatrix<R,MD,Star> dT(grid),  d0(grid), 
-                          dB(grid),  d1(grid),
-                                     d2(grid);
-    DistMatrix<R,MD,Star> eT(grid),  e0(grid), 
-                          eB(grid),  e1(grid), 
-                                     e2(grid);
-    DistMatrix<C,MD,Star> tT(grid),  t0(grid),
-                          tB(grid),  t1(grid),
-                                     t2(grid);
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g),
+        A11Expanded(g);
+    DistMatrix<R,MD,Star> dT(g),  d0(g), 
+                          dB(g),  d1(g),
+                                  d2(g);
+    DistMatrix<R,MD,Star> eT(g),  e0(g), 
+                          eB(g),  e1(g), 
+                                  e2(g);
+    DistMatrix<C,MD,Star> tT(g),  t0(g),
+                          tB(g),  t1(g),
+                                  t2(g);
 
     // Temporary distributions
-    DistMatrix<C,Star,Star> A11_Star_Star(grid);
-    DistMatrix<R,Star,Star> d1_Star_Star(grid);
-    DistMatrix<R,Star,Star> e1_Star_Star(grid);
-    DistMatrix<C,Star,Star> t1_Star_Star(grid);
-    DistMatrix<C,MC,  MR  > W11(grid),  WPan(grid),
-                            W21(grid);
+    DistMatrix<C,Star,Star> A11_Star_Star(g);
+    DistMatrix<R,Star,Star> d1_Star_Star(g);
+    DistMatrix<R,Star,Star> e1_Star_Star(g);
+    DistMatrix<C,Star,Star> t1_Star_Star(g);
+    DistMatrix<C,MC,  MR  > W11(g),  WPan(g),
+                            W21(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,

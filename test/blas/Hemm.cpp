@@ -53,19 +53,19 @@ void TestCorrectness
            const DistMatrix<T,Star,Star>& B_ref,
   T beta,        DistMatrix<T,Star,Star>& C_ref )
 {
-    const Grid& grid = C.GetGrid();
-    DistMatrix<T,Star,Star> C_copy(grid);
+    const Grid& g = C.GetGrid();
+    DistMatrix<T,Star,Star> C_copy(g);
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed result...";
         cout.flush();
     }
     C_copy = C;
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
@@ -75,13 +75,13 @@ void TestCorrectness
       alpha, A_ref.LockedLocalMatrix(),
              B_ref.LockedLocalMatrix(),
       beta,  C_ref.LocalMatrix() );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
         C_ref.Print("Truth");
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -102,8 +102,8 @@ void TestCorrectness
             }
         }
     }
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 
@@ -111,15 +111,15 @@ template<typename T>
 void TestHemm
 ( bool testCorrectness, bool printMatrices,
   Side side, Shape shape,
-  int m, int n, T alpha, T beta, const Grid& grid )
+  int m, int n, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,  MR  > A(grid);
-    DistMatrix<T,MC,  MR  > B(grid);
-    DistMatrix<T,MC,  MR  > C(grid);
-    DistMatrix<T,Star,Star> A_ref(grid);
-    DistMatrix<T,Star,Star> B_ref(grid);
-    DistMatrix<T,Star,Star> C_ref(grid);
+    DistMatrix<T,MC,  MR  > A(g);
+    DistMatrix<T,MC,  MR  > B(g);
+    DistMatrix<T,MC,  MR  > C(g);
+    DistMatrix<T,Star,Star> A_ref(g);
+    DistMatrix<T,Star,Star> B_ref(g);
+    DistMatrix<T,Star,Star> C_ref(g);
 
     if( side == Left )
         A.ResizeTo( m, m );
@@ -129,7 +129,7 @@ void TestHemm
     C.ResizeTo( m, n );
 
     // Test Hemm
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "Hemm:" << endl;
     A.SetToRandomHPD();
     B.SetToRandom();
@@ -137,7 +137,7 @@ void TestHemm
 
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copies of original matrices...";
             cout.flush();
@@ -145,7 +145,7 @@ void TestHemm
         A_ref = A;
         B_ref = B;
         C_ref = C;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -154,20 +154,20 @@ void TestHemm
         B.Print("B");
         C.Print("C");
     }
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting Parallel Hemm...";
         cout.flush();
     }
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     startTime = Time();
     blas::Hemm
     ( side, shape, alpha, A, B, beta, C );
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = blas::internal::HemmGFlops<T>(side,m,n,runTime);
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -221,7 +221,7 @@ int main( int argc, char* argv[] )
             cout << "==========================================" << endl;
         }
 #endif
-        const Grid grid( MPI_COMM_WORLD, r, c );
+        const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )
@@ -238,7 +238,7 @@ int main( int argc, char* argv[] )
         }
         TestHemm<double>
         ( testCorrectness, printMatrices,
-          side, shape, m, n, (double)3, (double)4, grid );
+          side, shape, m, n, (double)3, (double)4, g );
         if( rank == 0 )
             cout << endl;
 
@@ -251,7 +251,7 @@ int main( int argc, char* argv[] )
         }
         TestHemm<dcomplex>
         ( testCorrectness, printMatrices,
-          side, shape, m, n, (dcomplex)3, (dcomplex)4, grid );
+          side, shape, m, n, (dcomplex)3, (dcomplex)4, g );
         if( rank == 0 )
             cout << endl;
 #endif

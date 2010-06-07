@@ -50,32 +50,32 @@ void TestCorrectness
   const DistMatrix<T,MC,MR>& A,
         DistMatrix<T,Star,Star>& ARef )
 {
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
     const int m = ARef.Height();
-    DistMatrix<T,Star,Star> A_copy(grid);
+    DistMatrix<T,Star,Star> A_copy(g);
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed result...";
         cout.flush();
     }
     A_copy = A;
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
     }
     lapack::Trinv( shape, diagonal, ARef.LocalMatrix() );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
         ARef.Print("Truth");
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -118,19 +118,19 @@ void TestCorrectness
             }
         }
     }
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 
 template<typename T>
 void TestTrinv
 ( bool testCorrectness, bool printMatrices,
-  Shape shape, Diagonal diagonal, int m, const Grid& grid )
+  Shape shape, Diagonal diagonal, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(grid);
-    DistMatrix<T,Star,Star> ARef(grid);
+    DistMatrix<T,MC,MR> A(g);
+    DistMatrix<T,Star,Star> ARef(g);
 
     A.ResizeTo( m, m );
 
@@ -138,13 +138,13 @@ void TestTrinv
     A.MakeTrapezoidal( Left, shape );
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         ARef = A;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -152,7 +152,7 @@ void TestTrinv
         A.Print("A");
     }
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting triangular inversion...";
         cout.flush();
@@ -164,7 +164,7 @@ void TestTrinv
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = lapack::internal::TrinvGFlops<T>( m, runTime );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -210,7 +210,7 @@ int main( int argc, char* argv[] )
             cout << "==========================================" << endl;
         }
 #endif
-        Grid grid( MPI_COMM_WORLD, r, c );
+        Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )
@@ -224,7 +224,7 @@ int main( int argc, char* argv[] )
             cout << "---------------------" << endl;
         }
         TestTrinv<double>
-        ( testCorrectness, printMatrices, shape, diagonal, m, grid );
+        ( testCorrectness, printMatrices, shape, diagonal, m, g );
         if( rank == 0 )
             cout << endl;
 
@@ -236,7 +236,7 @@ int main( int argc, char* argv[] )
             cout << "--------------------------------------" << endl;
         }
         TestTrinv<dcomplex>
-        ( testCorrectness, printMatrices, shape, diagonal, m, grid );
+        ( testCorrectness, printMatrices, shape, diagonal, m, g );
         if( rank == 0 )
             cout << endl;
 #endif

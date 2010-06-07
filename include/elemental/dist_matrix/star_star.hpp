@@ -25,7 +25,7 @@ protected:
     typedef AbstractDistMatrix<T> ADM;
 
     DistMatrixBase
-    ( int height, int width, const Grid& grid );
+    ( int height, int width, const Grid& g );
 
     ~DistMatrixBase();
 
@@ -196,9 +196,9 @@ protected:
     typedef DistMatrixBase<R,Star,Star> DMB;
 
 public:
-    DistMatrix( const Grid& grid );
+    DistMatrix( const Grid& g );
 
-    DistMatrix( int height, int width, const Grid& grid );
+    DistMatrix( int height, int width, const Grid& g );
 
     DistMatrix( const DistMatrix<R,Star,Star>& A );
 
@@ -270,9 +270,9 @@ protected:
     typedef DistMatrixBase<C,Star,Star> DMB;
 
 public:
-    DistMatrix( const Grid& grid );
+    DistMatrix( const Grid& g );
 
-    DistMatrix( int height, int width, const Grid& grid );
+    DistMatrix( int height, int width, const Grid& g );
 
     DistMatrix( const DistMatrix<C,Star,Star>& A );
 
@@ -365,8 +365,8 @@ public:
 template<typename T>
 inline
 DistMatrixBase<T,Star,Star>::DistMatrixBase
-( int height, int width, const Grid& grid )
-: ADM(height,width,false,false,0,0,0,0,grid)
+( int height, int width, const Grid& g )
+: ADM(height,width,false,false,0,0,0,0,g)
 { }
 
 template<typename T>
@@ -381,15 +381,15 @@ DistMatrixBase<T,Star,Star>::~DistMatrixBase()
 template<typename R>
 inline
 DistMatrix<R,Star,Star>::DistMatrix
-( const Grid& grid )
-: DMB(0,0,grid)
+( const Grid& g )
+: DMB(0,0,g)
 { }
 
 template<typename R>
 inline
 DistMatrix<R,Star,Star>::DistMatrix
-( int height, int width, const Grid& grid ) 
-: DMB(height,width,grid)
+( int height, int width, const Grid& g ) 
+: DMB(height,width,g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");
@@ -510,15 +510,15 @@ DistMatrix<R,Star,Star>::operator=
 template<typename R>
 inline
 DistMatrix<std::complex<R>,Star,Star>::DistMatrix
-( const Grid& grid )
-: DMB(0,0,grid)
+( const Grid& g )
+: DMB(0,0,g)
 { }
 
 template<typename R>
 inline
 DistMatrix<std::complex<R>,Star,Star>::DistMatrix
-( int height, int width, const Grid& grid ) 
-: DMB(height,width,grid)
+( int height, int width, const Grid& g ) 
+: DMB(height,width,g)
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");

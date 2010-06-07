@@ -31,7 +31,7 @@ protected:
     int _rowAlignment;
     int _colShift;
     int _rowShift;
-    const Grid* _grid;
+    const Grid* _g;
 
     AbstractDistMatrixBase
     ( int height, 
@@ -42,7 +42,7 @@ protected:
       int rowAlignment,
       int colShift,
       int rowShift,
-      const Grid& grid );
+      const Grid& g );
 
     ~AbstractDistMatrixBase();
 
@@ -199,7 +199,7 @@ protected:
       int rowAlignment,
       int colShift,
       int rowShift,
-      const Grid& grid );
+      const Grid& g );
 
     ~AbstractDistMatrix();
 };
@@ -221,7 +221,7 @@ protected:
       int rowAlignment,
       int colShift,
       int rowShift,
-      const Grid& grid );
+      const Grid& g );
 
     ~AbstractDistMatrix();
 
@@ -255,7 +255,7 @@ AbstractDistMatrixBase<T>::AbstractDistMatrixBase
   int rowAlignment,
   int colShift, 
   int rowShift, 
-  const Grid& grid )
+  const Grid& g )
 : _viewing(false), 
   _lockedView(false), 
   _height(height), 
@@ -268,7 +268,7 @@ AbstractDistMatrixBase<T>::AbstractDistMatrixBase
   _rowAlignment(rowAlignment),
   _colShift(colShift),
   _rowShift(rowShift),
-  _grid(&grid)
+  _g(&g)
 { } 
 
 template<typename T>
@@ -501,7 +501,7 @@ AbstractDistMatrixBase<T>::RowShift() const
 template<typename T>
 inline const Grid&
 AbstractDistMatrixBase<T>::GetGrid() const
-{ return *_grid; }
+{ return *_g; }
 
 template<typename T>
 inline size_t
@@ -565,9 +565,9 @@ AbstractDistMatrix<R>::AbstractDistMatrix
   int rowAlignment,
   int colShift,
   int rowShift,
-  const Grid& grid )
+  const Grid& g )
 : ADMB(height,width,constrainedColAlignment,constrainedRowAlignment,
-       colAlignment,rowAlignment,colShift,rowShift,grid)
+       colAlignment,rowAlignment,colShift,rowShift,g)
 { }
 
 template<typename R>
@@ -591,9 +591,9 @@ AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
   int rowAlignment,
   int colShift,
   int rowShift,
-  const Grid& grid )
+  const Grid& g )
 : ADMB(height,width,constrainedColAlignment,constrainedRowAlignment,
-       colAlignment,rowAlignment,colShift,rowShift,grid)
+       colAlignment,rowAlignment,colShift,rowShift,g)
 { }
 
 template<typename R>

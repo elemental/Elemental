@@ -38,14 +38,14 @@ elemental::blas::internal::GemvT
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
     if( x.Width() == 1 && y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,Star> x_MC_Star(grid);
-        DistMatrix<T,MR,Star> z_MR_Star(grid);
-        DistMatrix<T,MR,MC  > z_MR_MC(grid);
-        DistMatrix<T,MC,MR  > z(grid);
+        DistMatrix<T,MC,Star> x_MC_Star(g);
+        DistMatrix<T,MR,Star> z_MR_Star(g);
+        DistMatrix<T,MR,MC  > z_MR_MC(g);
+        DistMatrix<T,MC,MR  > z(g);
 
         // Start the algorithm
         blas::Scal( beta, y );
@@ -73,10 +73,10 @@ elemental::blas::internal::GemvT
     else if( x.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,Star> x_MC_Star(grid);
-        DistMatrix<T,MR,Star> z_MR_Star(grid);
-        DistMatrix<T,MR,MC  > z_MR_MC(grid);
-        DistMatrix<T,MC,MR  > zTrans(grid);
+        DistMatrix<T,MC,Star> x_MC_Star(g);
+        DistMatrix<T,MR,Star> z_MR_Star(g);
+        DistMatrix<T,MR,MC  > z_MR_MC(g);
+        DistMatrix<T,MC,MR  > zTrans(g);
 
         // Start the algorithm
         blas::Scal( beta, y );
@@ -104,10 +104,10 @@ elemental::blas::internal::GemvT
     else if( y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC  > x_Star_MC(grid);
-        DistMatrix<T,MR,  Star> z_MR_Star(grid);
-        DistMatrix<T,MR,  MC  > z_MR_MC(grid);
-        DistMatrix<T,MC,  MR  > z(grid);
+        DistMatrix<T,Star,MC  > x_Star_MC(g);
+        DistMatrix<T,MR,  Star> z_MR_Star(g);
+        DistMatrix<T,MR,  MC  > z_MR_MC(g);
+        DistMatrix<T,MC,  MR  > z(g);
 
         // Start the algorithm
         blas::Scal( beta, y );
@@ -135,10 +135,10 @@ elemental::blas::internal::GemvT
     else
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC  > x_Star_MC(grid);
-        DistMatrix<T,MR,  Star> z_MR_Star(grid);
-        DistMatrix<T,MR,  MC  > z_MR_MC(grid);
-        DistMatrix<T,MC,  MR  > zTrans(grid);
+        DistMatrix<T,Star,MC  > x_Star_MC(g);
+        DistMatrix<T,MR,  Star> z_MR_Star(g);
+        DistMatrix<T,MR,  MC  > z_MR_MC(g);
+        DistMatrix<T,MC,  MR  > zTrans(g);
 
         // Start the algorithm
         blas::Scal( beta, y );

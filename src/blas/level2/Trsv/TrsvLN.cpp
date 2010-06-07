@@ -30,25 +30,26 @@ elemental::blas::internal::TrsvLN
     if( L.Width() != xLength )
         throw logic_error( "Nonconformal TrsvLN." );
 #endif
-    const Grid& grid = L.GetGrid();
+    const Grid& g = L.GetGrid();
 
     if( x.Width() == 1 )
     {
         // Matrix views 
         DistMatrix<T,MC,MR> 
-            LTL(grid), LTR(grid),  L00(grid), L01(grid), L02(grid),
-            LBL(grid), LBR(grid),  L10(grid), L11(grid), L12(grid),
-                                   L20(grid), L21(grid), L22(grid);
+            LTL(g), LTR(g),  L00(g), L01(g), L02(g),
+            LBL(g), LBR(g),  L10(g), L11(g), L12(g),
+                             L20(g), L21(g), L22(g);
 
-        DistMatrix<T,MC,MR> xT(grid),  x0(grid),
-                            xB(grid),  x1(grid),
-                                       x2(grid);
+        DistMatrix<T,MC,MR> 
+            xT(g),  x0(g),
+            xB(g),  x1(g),
+                    x2(g);
 
         // Temporary distributions
-        DistMatrix<T,Star,Star> L11_Star_Star(grid);
-        DistMatrix<T,Star,Star> x1_Star_Star(grid);
-        DistMatrix<T,MR,  Star> x1_MR_Star(grid);
-        DistMatrix<T,MC,  Star> z2_MC_Star(grid);
+        DistMatrix<T,Star,Star> L11_Star_Star(g);
+        DistMatrix<T,Star,Star> x1_Star_Star(g);
+        DistMatrix<T,MR,  Star> x1_MR_Star(g);
+        DistMatrix<T,MC,  Star> z2_MC_Star(g);
 
         // Start the algorithm
         LockedPartitionDownDiagonal
@@ -111,20 +112,21 @@ elemental::blas::internal::TrsvLN
     {
         // Matrix views 
         DistMatrix<T,MC,MR> 
-            LTL(grid), LTR(grid),  L00(grid), L01(grid), L02(grid),
-            LBL(grid), LBR(grid),  L10(grid), L11(grid), L12(grid),
-                                   L20(grid), L21(grid), L22(grid);
+            LTL(g), LTR(g),  L00(g), L01(g), L02(g),
+            LBL(g), LBR(g),  L10(g), L11(g), L12(g),
+                             L20(g), L21(g), L22(g);
 
-        DistMatrix<T,MC,MR> xL(grid), xR(grid),
-                            x0(grid), x1(grid), x2(grid);
+        DistMatrix<T,MC,MR> 
+            xL(g), xR(g),
+            x0(g), x1(g), x2(g);
 
         // Temporary distributions
-        DistMatrix<T,Star,Star> L11_Star_Star(grid);
-        DistMatrix<T,Star,Star> x1_Star_Star(grid);
-        DistMatrix<T,Star,MR  > x1_Star_MR(grid);
-        DistMatrix<T,Star,MC  > z2_Star_MC(grid);
-        DistMatrix<T,MR,  MC  > z2_MR_MC(grid);
-        DistMatrix<T,MC,  MR  > z2(grid);
+        DistMatrix<T,Star,Star> L11_Star_Star(g);
+        DistMatrix<T,Star,Star> x1_Star_Star(g);
+        DistMatrix<T,Star,MR  > x1_Star_MR(g);
+        DistMatrix<T,Star,MC  > z2_Star_MC(g);
+        DistMatrix<T,MR,  MC  > z2_MR_MC(g);
+        DistMatrix<T,MC,  MR  > z2(g);
 
         // Start the algorithm
         LockedPartitionDownDiagonal

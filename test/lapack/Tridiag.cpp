@@ -52,17 +52,17 @@ void TestCorrectness
   const DistMatrix<R,MD,Star>& t,
         DistMatrix<R,Star,Star>& ARef )
 {
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
     const int m = ARef.Height();
-    DistMatrix<R,Star,Star> A_copy(grid);
-    DistMatrix<R,Star,Star> d_copy(grid);
-    DistMatrix<R,Star,Star> e_copy(grid);
-    DistMatrix<R,Star,Star> t_copy(grid);
-    DistMatrix<R,Star,Star> dRef(m,1,grid);
-    DistMatrix<R,Star,Star> eRef(m-1,1,grid);
-    DistMatrix<R,Star,Star> tRef(m-1,1,grid);
+    DistMatrix<R,Star,Star> A_copy(g);
+    DistMatrix<R,Star,Star> d_copy(g);
+    DistMatrix<R,Star,Star> e_copy(g);
+    DistMatrix<R,Star,Star> t_copy(g);
+    DistMatrix<R,Star,Star> dRef(m,1,g);
+    DistMatrix<R,Star,Star> eRef(m-1,1,g);
+    DistMatrix<R,Star,Star> tRef(m-1,1,g);
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed result...";
         cout.flush();
@@ -71,10 +71,10 @@ void TestCorrectness
     d_copy = d;
     e_copy = e;
     t_copy = t;
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
@@ -88,7 +88,7 @@ void TestCorrectness
       tRef.LocalMatrix() );
     double stopTime = Time();
     double gFlops = lapack::internal::TridiagGFlops<R>(m,stopTime-startTime);
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE. GFlops = " << gFlops << endl;
 
     if( printMatrices )
@@ -99,7 +99,7 @@ void TestCorrectness
         tRef.Print("True t:");
     }
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -184,8 +184,8 @@ void TestCorrectness
         }
     }
 
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 
@@ -202,17 +202,17 @@ void TestCorrectness
 {
     typedef complex<R> C;
 
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
     const int m = ARef.Height();
-    DistMatrix<C,Star,Star> A_copy(grid);
-    DistMatrix<R,Star,Star> d_copy(grid);
-    DistMatrix<R,Star,Star> e_copy(grid);
-    DistMatrix<C,Star,Star> t_copy(grid);
-    DistMatrix<R,Star,Star> dRef(m,1,grid);
-    DistMatrix<R,Star,Star> eRef(m-1,1,grid);
-    DistMatrix<C,Star,Star> tRef(m-1,1,grid);
+    DistMatrix<C,Star,Star> A_copy(g);
+    DistMatrix<R,Star,Star> d_copy(g);
+    DistMatrix<R,Star,Star> e_copy(g);
+    DistMatrix<C,Star,Star> t_copy(g);
+    DistMatrix<R,Star,Star> dRef(m,1,g);
+    DistMatrix<R,Star,Star> eRef(m-1,1,g);
+    DistMatrix<C,Star,Star> tRef(m-1,1,g);
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed result...";
         cout.flush();
@@ -221,10 +221,10 @@ void TestCorrectness
     d_copy = d;
     e_copy = e;
     t_copy = t;
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
@@ -238,7 +238,7 @@ void TestCorrectness
       tRef.LocalMatrix() );
     double stopTime = Time();
     double gFlops = lapack::internal::TridiagGFlops<C>(m,stopTime-startTime);
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE. GFlops = " << gFlops << endl;
 
     if( printMatrices )
@@ -249,7 +249,7 @@ void TestCorrectness
         tRef.Print("True t:");
     }
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -334,8 +334,8 @@ void TestCorrectness
         }
     }
 
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 #endif // WITHOUT_COMPLEX
@@ -343,21 +343,21 @@ void TestCorrectness
 template<typename R>
 void TestTridiag
 ( bool testCorrectness, bool printMatrices,
-  Shape shape, int m, const Grid& grid );
+  Shape shape, int m, const Grid& g );
 
 template<>
 void TestTridiag<double>
 ( bool testCorrectness, bool printMatrices,
-  Shape shape, int m, const Grid& grid )
+  Shape shape, int m, const Grid& g )
 {
     typedef double R;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<R,MC,MR> A(grid);
-    DistMatrix<R,MD,Star> d(grid);
-    DistMatrix<R,MD,Star> e(grid);
-    DistMatrix<R,MD,Star> t(grid);
-    DistMatrix<R,Star,Star> ARef(grid);
+    DistMatrix<R,MC,MR> A(g);
+    DistMatrix<R,MD,Star> d(g);
+    DistMatrix<R,MD,Star> e(g);
+    DistMatrix<R,MD,Star> t(g);
+    DistMatrix<R,Star,Star> ARef(g);
 
     A.ResizeTo( m, m );
 
@@ -377,7 +377,7 @@ void TestTridiag<double>
     {
         // Upper Tridiag traverses up the diagonal, so we must align t 
         // with the bottom-right (m-1) x (m-1) submatrix of A.
-        DistMatrix<R,MC,MR> ABR(grid);
+        DistMatrix<R,MC,MR> ABR(g);
         ABR.View( A, 1, 1, m-1, m-1 );
         t.AlignWithDiag( ABR );
     }
@@ -389,19 +389,19 @@ void TestTridiag<double>
     A.SetToRandomHPD();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         ARef = A;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
         A.Print("A");
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting tridiagonalization...";
         cout.flush();
@@ -413,7 +413,7 @@ void TestTridiag<double>
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = lapack::internal::TridiagGFlops<R>( m, runTime );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -434,17 +434,17 @@ void TestTridiag<double>
 template<>
 void TestTridiag< complex<double> >
 ( bool testCorrectness, bool printMatrices,
-  Shape shape, int m, const Grid& grid )
+  Shape shape, int m, const Grid& g )
 {
     typedef double R;
     typedef complex<R> C;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<C,MC,MR> A(grid);
-    DistMatrix<R,MD,Star> d(grid);
-    DistMatrix<R,MD,Star> e(grid);
-    DistMatrix<C,MD,Star> t(grid);
-    DistMatrix<C,Star,Star> ARef(grid);
+    DistMatrix<C,MC,MR> A(g);
+    DistMatrix<R,MD,Star> d(g);
+    DistMatrix<R,MD,Star> e(g);
+    DistMatrix<C,MD,Star> t(g);
+    DistMatrix<C,Star,Star> ARef(g);
 
     A.ResizeTo( m, m );
 
@@ -463,7 +463,7 @@ void TestTridiag< complex<double> >
     {
         // Upper Tridiag traverses up the diagonal, so we must align t 
         // with the bottom-right (m-1) x (m-1) submatrix of A.
-        DistMatrix<C,MC,MR> ABR(grid);
+        DistMatrix<C,MC,MR> ABR(g);
         ABR.View( A, 1, 1, m-1, m-1 );
         t.AlignWithDiag( ABR );
     }
@@ -476,19 +476,19 @@ void TestTridiag< complex<double> >
     A.SetToRandomHPD();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         ARef = A;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
         A.Print("A");
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting tridiagonalization...";
         cout.flush();
@@ -500,7 +500,7 @@ void TestTridiag< complex<double> >
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = lapack::internal::TridiagGFlops< complex<R> >( m, runTime );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -547,7 +547,7 @@ int main( int argc, char* argv[] )
             cout << "==========================================" << endl;
         }
 #endif
-        Grid grid( MPI_COMM_WORLD, r, c );
+        Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )
@@ -559,7 +559,7 @@ int main( int argc, char* argv[] )
             cout << "Testing with doubles:" << endl;
             cout << "---------------------" << endl;
         }
-        TestTridiag<double>( testCorrectness, printMatrices, shape, m, grid );
+        TestTridiag<double>( testCorrectness, printMatrices, shape, m, g );
         if( rank == 0 )
             cout << endl;
 
@@ -570,7 +570,7 @@ int main( int argc, char* argv[] )
             cout << "Testing with double-complex:" << endl;
             cout << "----------------------------" << endl;
         }
-        TestTridiag<dcomplex>( testCorrectness, printMatrices, shape, m, grid );
+        TestTridiag<dcomplex>( testCorrectness, printMatrices, shape, m, g );
         if( rank == 0 )
             cout << endl;
 #endif

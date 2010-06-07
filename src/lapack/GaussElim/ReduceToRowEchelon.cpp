@@ -24,32 +24,32 @@ elemental::lapack::internal::ReduceToRowEchelon
     if( A.Height() != B.Height() )
         throw logic_error( "A and B must be the same height." );
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
     DistMatrix<T,MC,MR>
-        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),  APan(grid),
-        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
-                               A20(grid), A21(grid), A22(grid);
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  APan(g),
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g);
 
     DistMatrix<T,MC,MR>
-        BT(grid),  B0(grid),
-        BB(grid),  B1(grid),
-                   B2(grid);
+        BT(g),  B0(g),
+        BB(g),  B1(g),
+                B2(g);
 
     // Temporary distributions
-    DistMatrix<T,Star,Star> A11_Star_Star(grid);
-    DistMatrix<T,Star,VR  > A12_Star_VR(grid);
-    DistMatrix<T,Star,MR  > A12_Star_MR(grid);
-    DistMatrix<T,VC,  Star> A21_VC_Star(grid);
-    DistMatrix<T,Star,MC  > A21Trans_Star_MC(grid);
-    DistMatrix<T,Star,VR  > B1_Star_VR(grid);
-    DistMatrix<T,Star,MR  > B1_Star_MR(grid);
-    DistMatrix<int,Star,Star> p1_Star_Star(grid);
+    DistMatrix<T,Star,Star> A11_Star_Star(g);
+    DistMatrix<T,Star,VR  > A12_Star_VR(g);
+    DistMatrix<T,Star,MR  > A12_Star_MR(g);
+    DistMatrix<T,VC,  Star> A21_VC_Star(g);
+    DistMatrix<T,Star,MC  > A21Trans_Star_MC(g);
+    DistMatrix<T,Star,VR  > B1_Star_VR(g);
+    DistMatrix<T,Star,MR  > B1_Star_MR(g);
+    DistMatrix<int,Star,Star> p1_Star_Star(g);
 
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
-    DistMatrix<T,Star,MC> A21Trans_Star_MC_B(grid);
+    DistMatrix<T,Star,MC> A21Trans_Star_MC_B(g);
 
     // Pivot composition
     vector<int> image;

@@ -84,18 +84,18 @@ Elemental has a templated distributed matrix class, `DistMatrix`, that allows
 for the specification of these distributions. We can create an `m x n` matrix 
 in a matrix distribution over MPI_COMM_WORLD with:
 
-    Grid grid( MPI_COMM_WORLD );
-    DistMatrix<double,MC,MR> A(m,n,grid);
+    Grid g( MPI_COMM_WORLD );
+    DistMatrix<double,MC,MR> A(m,n,g);
 
 Similarly, we can create an `m x n` matrix in a transposed matrix distribution
 using
 
-    DistMatrix<double,MR,MC> A(m,n,grid);
+    DistMatrix<double,MR,MC> A(m,n,g);
 
 Redistribution is handled automatically via overloading the `=` operator:
 
-    DistMatrix<double,MR,MC  > A(m,n,grid);
-    DistMatrix<double,VC,Star> B(m,n,grid);
+    DistMatrix<double,MR,MC  > A(m,n,g);
+    DistMatrix<double,VC,Star> B(m,n,g);
     // Fill matrix A...
     B = A;
 

@@ -24,8 +24,8 @@ elemental::DistMatrixBase<T,Star,Star>::Print( const string& s ) const
 #ifndef RELEASE
     PushCallStack("[* ,* ]::Print");
 #endif
-    const Grid& grid = this->GetGrid();
-    if( grid.VCRank() == 0 && s != "" )
+    const Grid& g = this->GetGrid();
+    if( g.VCRank() == 0 && s != "" )
         cout << s << endl;
 
     const int height = this->Height();
@@ -39,7 +39,7 @@ elemental::DistMatrixBase<T,Star,Star>::Print( const string& s ) const
         return;
     }
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         for( int i=0; i<height; ++i )
         {
@@ -49,7 +49,7 @@ elemental::DistMatrixBase<T,Star,Star>::Print( const string& s ) const
         }
         cout << endl;
     }
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -423,7 +423,7 @@ elemental::DistMatrixBase<T,Star,Star>::SetToRandom()
     this->AssertNotLockedView();
 #endif
     // Create random matrix on process 0 and then broadcast
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     const int height = this->Height();
     const int width = this->Width();
     const int bufSize = height*width;
@@ -431,13 +431,13 @@ elemental::DistMatrixBase<T,Star,Star>::SetToRandom()
     this->_auxMemory.Require( bufSize );
 
     T* buffer = this->_auxMemory.Buffer();
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         for( int j=0; j<width; ++j )
             for( int i=0; i<height; ++i )
                 buffer[i+j*height] = Random<T>();
     }
-    Broadcast( buffer, bufSize, 0, grid.VCComm() );
+    Broadcast( buffer, bufSize, 0, g.VCComm() );
 
     // Unpack
     for( int j=0; j<width; ++j )
@@ -465,10 +465,10 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int r = grid.Height();
-    const int c = grid.Width(); 
-    const int p = grid.Size();
+    const Grid& g = this->GetGrid();
+    const int r = g.Height();
+    const int c = g.Width(); 
+    const int p = g.Size();
 
     const int height = this->Height();
     const int width = this->Width();
@@ -494,7 +494,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( originalData, portionSize,
-      gatheredData, portionSize, grid.VCComm() );
+      gatheredData, portionSize, g.VCComm() );
 
     // Unpack
     const int colAlignmentOfA = A.ColAlignment();
@@ -540,8 +540,8 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int r = grid.Height();
+    const Grid& g = this->GetGrid();
+    const int r = g.Height();
     const int height = this->Height();
     const int width = this->Width();
     const int localHeightOfA = A.LocalHeight();
@@ -563,7 +563,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( originalData, portionSize,
-      gatheredData, portionSize, grid.MCComm() );
+      gatheredData, portionSize, g.MCComm() );
 
     // Unpack
     const int colAlignmentOfA = A.ColAlignment();
@@ -601,8 +601,8 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int c = grid.Width();
+    const Grid& g = this->GetGrid();
+    const int c = g.Width();
     const int height = this->Height();
     const int width = this->Width();
     const int localWidthOfA = A.LocalWidth();
@@ -624,7 +624,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( originalData, portionSize,
-      gatheredData, portionSize, grid.MRComm() );
+      gatheredData, portionSize, g.MRComm() );
 
     // Unpack
     const int rowAlignmentOfA = A.RowAlignment();
@@ -662,11 +662,11 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int p = grid.Size();
-    const int lcm = grid.LCM();
-    const int ownerPath = grid.DiagPath( A.ColAlignment() );
-    const int ownerPathRank = grid.DiagPathRank( A.ColAlignment() );
+    const Grid& g = this->GetGrid();
+    const int p = g.Size();
+    const int lcm = g.LCM();
+    const int ownerPath = g.DiagPath( A.ColAlignment() );
+    const int ownerPathRank = g.DiagPathRank( A.ColAlignment() );
 
     const int height = this->Height();
     const int width = this->Width();
@@ -693,16 +693,16 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( sendBuf, portionSize,
-      recvBuf, portionSize, grid.VCComm() );
+      recvBuf, portionSize, g.VCComm() );
 
     // Unpack
     for( int k=0; k<p; ++k )
     {
-        if( grid.DiagPath( k ) == ownerPath )
+        if( g.DiagPath( k ) == ownerPath )
         {
             const T* data = &recvBuf[k*portionSize];
 
-            const int thisPathRank = grid.DiagPathRank( k );
+            const int thisPathRank = g.DiagPathRank( k );
             const int thisColShift = Shift( thisPathRank, ownerPathRank, lcm );
             const int thisLocalHeight = 
                 LocalLength( height, thisColShift, lcm );
@@ -736,11 +736,11 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int p = grid.Size();
-    const int lcm = grid.LCM();
-    const int ownerPath = grid.DiagPath( A.RowAlignment() );
-    const int ownerPathRank = grid.DiagPathRank( A.RowAlignment() );
+    const Grid& g = this->GetGrid();
+    const int p = g.Size();
+    const int lcm = g.LCM();
+    const int ownerPath = g.DiagPath( A.RowAlignment() );
+    const int ownerPathRank = g.DiagPathRank( A.RowAlignment() );
 
     const int height = this->Height();
     const int width = this->Width();
@@ -767,16 +767,16 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( sendBuf, portionSize,
-      recvBuf, portionSize, grid.VCComm() );
+      recvBuf, portionSize, g.VCComm() );
 
     // Unpack
     for( int k=0; k<p; ++k )
     {
-        if( grid.DiagPath( k ) == ownerPath )
+        if( g.DiagPath( k ) == ownerPath )
         {
             const T* data = &recvBuf[k*portionSize];
 
-            const int thisPathRank = grid.DiagPathRank( k );
+            const int thisPathRank = g.DiagPathRank( k );
             const int thisRowShift = Shift( thisPathRank, ownerPathRank, lcm );
             const int thisLocalWidth =  LocalLength( width, thisRowShift, lcm );
 
@@ -808,10 +808,10 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int r = grid.Height();
-    const int c = grid.Width();
-    const int p = grid.Size();
+    const Grid& g = this->GetGrid();
+    const int r = g.Height();
+    const int c = g.Width();
+    const int p = g.Size();
 
     const int height = this->Height();
     const int width = this->Width();
@@ -836,7 +836,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( originalData, portionSize,
-      gatheredData, portionSize, grid.VRComm() );
+      gatheredData, portionSize, g.VRComm() );
 
     // Unpack
     const int colAlignmentOfA = A.ColAlignment();
@@ -882,8 +882,8 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int c = grid.Width();
+    const Grid& g = this->GetGrid();
+    const int c = g.Width();
     const int height = this->Height();
     const int width = this->Width();
     const int localHeightOfA = A.LocalHeight();
@@ -905,7 +905,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( originalData, portionSize,
-      gatheredData, portionSize, grid.MRComm() );
+      gatheredData, portionSize, g.MRComm() );
 
     // Unpack
     const int colAlignmentOfA = A.ColAlignment();
@@ -943,8 +943,8 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int r = grid.Height();
+    const Grid& g = this->GetGrid();
+    const int r = g.Height();
     const int height = this->Height();
     const int width = this->Width();
     const int localWidthOfA = A.LocalWidth();
@@ -966,7 +966,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( originalData, portionSize,
-      gatheredData, portionSize, grid.MCComm() );
+      gatheredData, portionSize, g.MCComm() );
 
     // Unpack
     const int rowAlignmentOfA = A.RowAlignment();
@@ -1004,8 +1004,8 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int p = grid.Size();
+    const Grid& g = this->GetGrid();
+    const int p = g.Size();
     const int height = this->Height();
     const int width = this->Width();
     const int localHeightOfA = A.LocalHeight();
@@ -1027,7 +1027,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( originalData, portionSize,
-      gatheredData, portionSize, grid.VCComm() );
+      gatheredData, portionSize, g.VCComm() );
 
     // Unpack
     const int colAlignmentOfA = A.ColAlignment();
@@ -1065,8 +1065,8 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int p = grid.Size();
+    const Grid& g = this->GetGrid();
+    const int p = g.Size();
     const int height = this->Height();
     const int width = this->Width();
     const int localWidthOfA = A.LocalWidth();
@@ -1088,7 +1088,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( originalData, portionSize,
-      gatheredData, portionSize, grid.VCComm() );
+      gatheredData, portionSize, g.VCComm() );
 
     // Unpack
     const int rowAlignmentOfA = A.RowAlignment();
@@ -1126,8 +1126,8 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int p = grid.Size();
+    const Grid& g = this->GetGrid();
+    const int p = g.Size();
     const int height = this->Height();
     const int width = this->Width();
     const int localHeightOfA = A.LocalHeight();
@@ -1149,7 +1149,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( originalData, portionSize,
-      gatheredData, portionSize, grid.VRComm() );
+      gatheredData, portionSize, g.VRComm() );
 
     // Unpack
     const int colAlignmentOfA = A.ColAlignment();
@@ -1187,8 +1187,8 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& grid = this->GetGrid();
-    const int p = grid.Size();
+    const Grid& g = this->GetGrid();
+    const int p = g.Size();
     const int height = this->Height();
     const int width = this->Width();
     const int localWidthOfA = A.LocalWidth();
@@ -1210,7 +1210,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Communicate
     AllGather
     ( originalData, portionSize,
-      gatheredData, portionSize, grid.VRComm() );
+      gatheredData, portionSize, g.VRComm() );
 
     // Unpack
     const int rowAlignmentOfA = A.RowAlignment();
@@ -1372,9 +1372,9 @@ template class elemental::DistMatrixBase<scomplex,Star,Star>;
 template class elemental::DistMatrixBase<dcomplex,Star,Star>;
 #endif
 
-template class elemental::DistMatrix<int,     Star,Star>;
-template class elemental::DistMatrix<float,   Star,Star>;
-template class elemental::DistMatrix<double,  Star,Star>;
+template class elemental::DistMatrix<int,   Star,Star>;
+template class elemental::DistMatrix<float, Star,Star>;
+template class elemental::DistMatrix<double,Star,Star>;
 #ifndef WITHOUT_COMPLEX
 template class elemental::DistMatrix<scomplex,Star,Star>;
 template class elemental::DistMatrix<dcomplex,Star,Star>;

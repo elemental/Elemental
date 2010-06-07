@@ -53,19 +53,19 @@ void TestCorrectness
            const DistMatrix<T,Star,Star>& BRef,
   T beta,        DistMatrix<T,Star,Star>& CRef )
 {
-    const Grid& grid = C.GetGrid();
-    DistMatrix<T,Star,Star> C_copy(grid);
+    const Grid& g = C.GetGrid();
+    DistMatrix<T,Star,Star> C_copy(g);
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed result...";
         cout.flush();
     }
     C_copy = C;
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
@@ -75,13 +75,13 @@ void TestCorrectness
       alpha, ARef.LockedLocalMatrix(),
              BRef.LockedLocalMatrix(),
       beta,  CRef.LocalMatrix() );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
         CRef.Print("Truth:");
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -124,8 +124,8 @@ void TestCorrectness
             }
         }
     }
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 
@@ -133,15 +133,15 @@ template<typename T>
 void TestHer2k
 ( bool testCorrectness, bool printMatrices,
   Shape shape, Orientation orientation,
-  int m, int k, T alpha, T beta, const Grid& grid )
+  int m, int k, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(grid);
-    DistMatrix<T,MC,MR> B(grid);
-    DistMatrix<T,MC,MR> C(grid);
-    DistMatrix<T,Star,Star> ARef(grid);
-    DistMatrix<T,Star,Star> BRef(grid);
-    DistMatrix<T,Star,Star> CRef(grid);
+    DistMatrix<T,MC,MR> A(g);
+    DistMatrix<T,MC,MR> B(g);
+    DistMatrix<T,MC,MR> C(g);
+    DistMatrix<T,Star,Star> ARef(g);
+    DistMatrix<T,Star,Star> BRef(g);
+    DistMatrix<T,Star,Star> CRef(g);
 
     if( orientation == Normal )
     {
@@ -161,7 +161,7 @@ void TestHer2k
     C.SetToRandomHPD();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copies of original matrices...";
             cout.flush();
@@ -169,7 +169,7 @@ void TestHer2k
         ARef = A;
         BRef = B;
         CRef = C;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -178,19 +178,19 @@ void TestHer2k
         B.Print("B");
         C.Print("C");
     }
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting Her2k...";
         cout.flush();
     }
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     startTime = Time();
     blas::Her2k( shape, orientation, alpha, A, B, beta, C );
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = blas::internal::Her2kGFlops<T>(m,k,runTime);
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -244,7 +244,7 @@ int main( int argc, char* argv[] )
             cout << "==========================================" << endl;
         }
 #endif
-        const Grid grid( MPI_COMM_WORLD, r, c );
+        const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )
@@ -261,7 +261,7 @@ int main( int argc, char* argv[] )
         }
         TestHer2k<double>
         ( testCorrectness, printMatrices,
-          shape, orientation, m, k, (double)3, (double)4, grid );
+          shape, orientation, m, k, (double)3, (double)4, g );
         if( rank == 0 )
             cout << endl;
 
@@ -274,7 +274,7 @@ int main( int argc, char* argv[] )
         }
         TestHer2k<dcomplex>
         ( testCorrectness, printMatrices,
-          shape, orientation, m, k, (dcomplex)3, (dcomplex)4, grid );
+          shape, orientation, m, k, (dcomplex)3, (dcomplex)4, g );
         if( rank == 0 )
             cout << endl;
 #endif

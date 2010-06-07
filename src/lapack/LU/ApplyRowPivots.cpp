@@ -37,11 +37,11 @@ elemental::lapack::internal::ApplyRowPivots
     const int localWidth = A.LocalWidth();
     
     // Extract the relevant process grid information
-    const Grid& grid = A.GetGrid();
-    const int r = grid.Height();
+    const Grid& g = A.GetGrid();
+    const int r = g.Height();
     const int colAlignment = A.ColAlignment();
     const int colShift = A.ColShift();
-    const int myRank = grid.MCRank();
+    const int myRank = g.MCRank();
 
     // Extract the send and recv counts from the image and preimage.
     // This process's sends may be logically partitioned into two sets:
@@ -152,7 +152,7 @@ elemental::lapack::internal::ApplyRowPivots
         int* rcs = &recvCounts[0];
         int* rds = &recvDispls[0];
 
-        AllToAll( sbuf, scs, sds, rbuf, rcs, rds, grid.MCComm() );
+        AllToAll( sbuf, scs, sds, rbuf, rcs, rds, g.MCComm() );
     }
 
     // Unpack the recv data

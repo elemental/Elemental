@@ -23,37 +23,37 @@ elemental::blas::Nrm2
         throw logic_error( "x must be a vector." );
 #endif
     R norm;
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     if( x.Width() == 1 )
     {
         const int ownerCol = x.RowAlignment();
-        if( grid.MRRank() == ownerCol )
+        if( g.MRRank() == ownerCol )
         {
             R localNorm = Nrm2( x.LockedLocalMatrix() ); 
             
-            const int r = grid.Height();
+            const int r = g.Height();
             vector<R> localNorms(r);
             R* localNormsPtr = &localNorms[0];
-            AllGather( &localNorm, 1, localNormsPtr, 1, grid.MCComm() );
+            AllGather( &localNorm, 1, localNormsPtr, 1, g.MCComm() );
             norm = wrappers::blas::Nrm2( r, localNormsPtr, 1 );
         }
-        Broadcast( &norm, 1, ownerCol, grid.MRComm() );
+        Broadcast( &norm, 1, ownerCol, g.MRComm() );
     }
     else
     {
         const int ownerRow = x.ColAlignment();
-        if( grid.MCRank() == ownerRow )
+        if( g.MCRank() == ownerRow )
         {
             R localNorm = Nrm2( x.LockedLocalMatrix() );
 
-            const int c = grid.Width();
+            const int c = g.Width();
             vector<R> localNorms(c);
             R* localNormsPtr = &localNorms[0];
-            AllGather( &localNorm, 1, localNormsPtr, 1, grid.MRComm() );
+            AllGather( &localNorm, 1, localNormsPtr, 1, g.MRComm() );
             norm = wrappers::blas::Nrm2( c, localNormsPtr, 1 );
         }
-        Broadcast( &norm, 1, ownerRow, grid.MCComm() );
+        Broadcast( &norm, 1, ownerRow, g.MCComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -73,37 +73,37 @@ elemental::blas::Nrm2
         throw logic_error( "x must be a vector." );
 #endif
     R norm;
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     if( x.Width() == 1 )
     {
         const int ownerCol = x.RowAlignment();
-        if( grid.MRRank() == ownerCol )
+        if( g.MRRank() == ownerCol )
         {
             R localNorm = Nrm2( x.LockedLocalMatrix() ); 
             
-            const int r = grid.Height();
+            const int r = g.Height();
             vector<R> localNorms(r);
             R* localNormsPtr = &localNorms[0];
-            AllGather( &localNorm, 1, localNormsPtr, 1, grid.MCComm() );
+            AllGather( &localNorm, 1, localNormsPtr, 1, g.MCComm() );
             norm = wrappers::blas::Nrm2( r, localNormsPtr, 1 );
         }
-        Broadcast( &norm, 1, ownerCol, grid.MRComm() );
+        Broadcast( &norm, 1, ownerCol, g.MRComm() );
     }
     else
     {
         const int ownerRow = x.ColAlignment();
-        if( grid.MCRank() == ownerRow )
+        if( g.MCRank() == ownerRow )
         {
             R localNorm = Nrm2( x.LockedLocalMatrix() );
 
-            const int c = grid.Width();
+            const int c = g.Width();
             vector<R> localNorms(c);
             R* localNormsPtr = &localNorms[0];
-            AllGather( &localNorm, 1, localNormsPtr, 1, grid.MRComm() );
+            AllGather( &localNorm, 1, localNormsPtr, 1, g.MRComm() );
             norm = wrappers::blas::Nrm2( c, localNormsPtr, 1 );
         }
-        Broadcast( &norm, 1, ownerRow, grid.MCComm() );
+        Broadcast( &norm, 1, ownerRow, g.MCComm() );
     }
 #ifndef RELEASE
     PopCallStack();

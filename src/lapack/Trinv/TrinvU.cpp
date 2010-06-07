@@ -36,21 +36,21 @@ elemental::lapack::internal::TrinvUVar3
     if( U.Height() != U.Width() )
         throw logic_error( "Nonsquare matrices cannot be triangular." );
 #endif
-    const Grid& grid = U.GetGrid();
+    const Grid& g = U.GetGrid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
-        UTL(grid), UTR(grid),  U00(grid), U01(grid), U02(grid),
-        UBL(grid), UBR(grid),  U10(grid), U11(grid), U12(grid),
-                               U20(grid), U21(grid), U22(grid);
+        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
+        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
+                         U20(g), U21(g), U22(g);
 
     // Temporary distributions
 
-    DistMatrix<T,VC,  Star> U01_VC_Star(grid);
-    DistMatrix<T,Star,Star> U11_Star_Star(grid);
-    DistMatrix<T,Star,VR  > U12_Star_VR(grid);
-    DistMatrix<T,Star,MC  > U01Trans_Star_MC(grid);
-    DistMatrix<T,MR,  Star> U12Trans_MR_Star(grid);
+    DistMatrix<T,VC,  Star> U01_VC_Star(g);
+    DistMatrix<T,Star,Star> U11_Star_Star(g);
+    DistMatrix<T,Star,VR  > U12_Star_VR(g);
+    DistMatrix<T,Star,MC  > U01Trans_Star_MC(g);
+    DistMatrix<T,MR,  Star> U12Trans_MR_Star(g);
 
     // Start the algorithm
     PartitionUpDiagonal

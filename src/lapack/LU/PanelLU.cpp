@@ -30,25 +30,25 @@ elemental::lapack::internal::PanelLU
     if( A.Height() != p.Height() || p.Width() != 1 )
         throw logic_error( "p must be a vector that conforms with A." );
 #endif
-    const Grid& grid = A.GetGrid();
-    const int np = grid.Size();
+    const Grid& g = A.GetGrid();
+    const int np = g.Size();
     const int colShift = B.ColShift();
     const int colAlignment = B.ColAlignment();
 
     // Matrix views
     DistMatrix<T,Star,Star> 
-        ATL(grid), ATR(grid),  A00(grid), a01(grid),     A02(grid),  
-        ABL(grid), ABR(grid),  a10(grid), alpha11(grid), a12(grid),  
-                               A20(grid), a21(grid),     A22(grid);
+        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  
+        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),  
+                         A20(g), a21(g),     A22(g);
 
     DistMatrix<T,VC,Star>
-        BL(grid), BR(grid),
-        B0(grid), b1(grid), B2(grid);
+        BL(g), BR(g),
+        B0(g), b1(g), B2(g);
 
     DistMatrix<int,Star,Star>
-        pT(grid),  p0(grid),
-        pB(grid),  psi1(grid),
-                   p2(grid);
+        pT(g),  p0(g),
+        pB(g),  psi1(g),
+                p2(g);
 
     const int width = A.Width();
     const int numBytes = (width+1)*sizeof(T)+sizeof(int);
@@ -131,7 +131,7 @@ elemental::lapack::internal::PanelLU
 
         // Communicate to establish the pivot information
         AllReduce
-        ( sendBuf, recvBuf, numBytes, PivotOp<T>(), grid.VCComm() );
+        ( sendBuf, recvBuf, numBytes, PivotOp<T>(), g.VCComm() );
 
         // Update the pivot vector
         const int maxIndex = ((int*)(((T*)recvBuf)+width+1))[0];
@@ -146,7 +146,7 @@ elemental::lapack::internal::PanelLU
         else
         {
             const int ownerRank = (colAlignment+(maxIndex-A.Height())) % np;
-            if( grid.VCRank() == ownerRank )
+            if( g.VCRank() == ownerRank )
             {
                 const int localIndex = ((maxIndex-A.Height())-colShift) / np;
                 for( int j=0; j<width; ++j )

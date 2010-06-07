@@ -37,12 +37,12 @@ elemental::blas::internal::GemvN
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
     if( x.Width() == 1 && y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MR,Star> x_MR_Star(grid);
-        DistMatrix<T,MC,Star> z_MC_Star(grid);
+        DistMatrix<T,MR,Star> x_MR_Star(g);
+        DistMatrix<T,MC,Star> z_MC_Star(g);
 
         // Start the algorithm
         blas::Scal( beta, y );
@@ -64,10 +64,10 @@ elemental::blas::internal::GemvN
     else if( x.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MR,Star> x_MR_Star(grid);
-        DistMatrix<T,MC,Star> z_MC_Star(grid);
-        DistMatrix<T,MC,MR  > z(grid);
-        DistMatrix<T,MC,MR  > zTrans(grid);
+        DistMatrix<T,MR,Star> x_MR_Star(g);
+        DistMatrix<T,MC,Star> z_MC_Star(g);
+        DistMatrix<T,MC,MR  > z(g);
+        DistMatrix<T,MC,MR  > zTrans(g);
 
         // Start the algorithm
         blas::Scal( beta, y );
@@ -95,8 +95,8 @@ elemental::blas::internal::GemvN
     else if( y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,Star,MR  > x_Star_MR(grid);
-        DistMatrix<T,MC,  Star> z_MC_Star(grid);
+        DistMatrix<T,Star,MR  > x_Star_MR(g);
+        DistMatrix<T,MC,  Star> z_MC_Star(g);
 
         // Start the algorithm
         blas::Scal( beta, y );
@@ -118,10 +118,10 @@ elemental::blas::internal::GemvN
     else
     {
         // Temporary distributions
-        DistMatrix<T,Star,MR  > x_Star_MR(grid);
-        DistMatrix<T,MC,  Star> z_MC_Star(grid);
-        DistMatrix<T,MC,  MR  > z(grid);
-        DistMatrix<T,MC,  MR  > zTrans(grid);
+        DistMatrix<T,Star,MR  > x_Star_MR(g);
+        DistMatrix<T,MC,  Star> z_MC_Star(g);
+        DistMatrix<T,MC,  MR  > z(g);
+        DistMatrix<T,MC,  MR  > zTrans(g);
 
         // Start the algorithm
         blas::Scal( beta, y );

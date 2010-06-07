@@ -31,19 +31,19 @@ elemental::lapack::internal::ColReflector
     if( x.Height() == 0 )
         return (R)0;
 
-    const Grid& grid = x.GetGrid();
-    const int r = grid.Height();
-    const int myRow = grid.MCRank();
+    const Grid& g = x.GetGrid();
+    const int r = g.Height();
+    const int myRow = g.MCRank();
 
     vector<R> localNorms(r);
     R localNorm = blas::Nrm2( x.LockedLocalMatrix() ); 
-    AllGather( &localNorm, 1, &localNorms[0], 1, grid.MCComm() );
+    AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
     R norm = wrappers::blas::Nrm2( r, &localNorms[0], 1 );
 
     R alpha;
     if( myRow == chi.ColAlignment() )
         alpha = chi.LocalEntry(0,0);
-    Broadcast( &alpha, 1, chi.ColAlignment(), grid.MCComm() );
+    Broadcast( &alpha, 1, chi.ColAlignment(), g.MCComm() );
 
     R beta;
     if( alpha <= 0 )
@@ -65,7 +65,7 @@ elemental::lapack::internal::ColReflector
         } while( Abs( beta ) < safeMin );
 
         localNorm = blas::Nrm2( x.LockedLocalMatrix() );
-        AllGather( &localNorm, 1, &localNorms[0], 1, grid.MCComm() );
+        AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
         norm = wrappers::blas::Nrm2( r, &localNorms[0], 1 );
         if( alpha <= 0 )
             beta = wrappers::lapack::SafeNorm( alpha, norm );
@@ -109,19 +109,19 @@ elemental::lapack::internal::ColReflector
     if( x.Height() == 0 )
         return (C)0;
 
-    const Grid& grid = x.GetGrid();
-    const int r = grid.Height();
-    const int myRow = grid.MCRank();
+    const Grid& g = x.GetGrid();
+    const int r = g.Height();
+    const int myRow = g.MCRank();
 
     vector<R> localNorms(r);
     R localNorm = blas::Nrm2( x.LockedLocalMatrix() ); 
-    AllGather( &localNorm, 1, &localNorms[0], 1, grid.MCComm() );
+    AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
     R norm = wrappers::blas::Nrm2( r, &localNorms[0], 1 );
 
     C alpha;
     if( myRow == chi.ColAlignment() )
         alpha = chi.LocalEntry(0,0);
-    Broadcast( &alpha, 1, chi.ColAlignment(), grid.MCComm() );
+    Broadcast( &alpha, 1, chi.ColAlignment(), g.MCComm() );
 
     if( norm == (R)0 && imag(alpha) == (R)0 )
         return (C)0;
@@ -146,7 +146,7 @@ elemental::lapack::internal::ColReflector
         } while( Abs( beta ) < safeMin );
 
         localNorm = blas::Nrm2( x.LockedLocalMatrix() );
-        AllGather( &localNorm, 1, &localNorms[0], 1, grid.MCComm() );
+        AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
         norm = wrappers::blas::Nrm2( r, &localNorms[0], 1 );
         if( real(alpha) <= 0 )
         {

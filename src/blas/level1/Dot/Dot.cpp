@@ -64,72 +64,72 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,MC,MR> xRedist(grid);
+        DistMatrix<T,MC,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerCol = y.RowAlignment();
-        if( grid.MRRank() == ownerCol )
+        if( g.MRRank() == ownerCol )
         { 
             T localDot = blas::Dot
                          ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
             AllReduce
-            ( &localDot, &globalDot, 1, MPI_SUM, grid.MCComm() );
+            ( &localDot, &globalDot, 1, MPI_SUM, g.MCComm() );
         }
-        Broadcast( &globalDot, 1, ownerCol, grid.MRComm() );
+        Broadcast( &globalDot, 1, ownerCol, g.MRComm() );
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,MR,MC> xRedist(grid);
+        DistMatrix<T,MR,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerRow = y.ColAlignment();
-        if( grid.MCRank() == ownerRow )
+        if( g.MCRank() == ownerRow )
         {
             T localDot = blas::Dot
                          ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
             AllReduce
-            ( &localDot, &globalDot, 1, MPI_SUM, grid.MRComm() );
+            ( &localDot, &globalDot, 1, MPI_SUM, g.MRComm() );
         }
-        Broadcast( &globalDot, 1, ownerRow, grid.MCComm() );
+        Broadcast( &globalDot, 1, ownerRow, g.MCComm() );
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,MR,MC> xRedist(grid);
+        DistMatrix<T,MR,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerCol = y.RowAlignment();
-        if( grid.MRRank() == ownerCol )
+        if( g.MRRank() == ownerCol )
         {
             T localDot = blas::Dot
                          ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
             AllReduce
-            ( &localDot, &globalDot, 1, MPI_SUM, grid.MCComm() );
+            ( &localDot, &globalDot, 1, MPI_SUM, g.MCComm() );
         }
-        Broadcast( &globalDot, 1, ownerCol, grid.MRComm() );
+        Broadcast( &globalDot, 1, ownerCol, g.MRComm() );
     }
     else
     {
-        DistMatrix<T,MC,MR> xRedist(grid);
+        DistMatrix<T,MC,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerRow = y.ColAlignment();
-        if( grid.MCRank() == ownerRow )
+        if( g.MCRank() == ownerRow )
         {
             T localDot = blas::Dot
                          ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
             AllReduce
-            ( &localDot, &globalDot, 1, MPI_SUM, grid.MRComm() );
+            ( &localDot, &globalDot, 1, MPI_SUM, g.MRComm() );
         }
-        Broadcast( &globalDot, 1, ownerRow, grid.MCComm() );
+        Broadcast( &globalDot, 1, ownerRow, g.MCComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -155,56 +155,56 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,MC,Star> xRedist(grid);
+        DistMatrix<T,MC,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.MCComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.MCComm() );
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,Star,MC> xRedist(grid);
+        DistMatrix<T,Star,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerRow = y.ColAlignment();
-        if( grid.MCRank() == ownerRow )
+        if( g.MCRank() == ownerRow )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, ownerRow, grid.MCComm() );
+        Broadcast( &globalDot, 1, ownerRow, g.MCComm() );
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,Star,MC> xRedist(grid);
+        DistMatrix<T,Star,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.MCComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.MCComm() );
     }
     else
     {
-        DistMatrix<T,MC,Star> xRedist(grid);
+        DistMatrix<T,MC,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerRow = y.ColAlignment();
-        if( grid.MCRank() == ownerRow )
+        if( g.MCRank() == ownerRow )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, ownerRow, grid.MCComm() );
+        Broadcast( &globalDot, 1, ownerRow, g.MCComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -229,56 +229,56 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,Star,MR> xRedist(grid);
+        DistMatrix<T,Star,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerCol = y.RowAlignment();
-        if( grid.MRRank() == ownerCol )
+        if( g.MRRank() == ownerCol )
         { 
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, ownerCol, grid.MRComm() );
+        Broadcast( &globalDot, 1, ownerCol, g.MRComm() );
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,MR,Star> xRedist(grid);
+        DistMatrix<T,MR,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.MRComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.MRComm() );
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,MR,Star> xRedist(grid);
+        DistMatrix<T,MR,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerCol = y.RowAlignment();
-        if( grid.MRRank() == ownerCol )
+        if( g.MRRank() == ownerCol )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, ownerCol, grid.MRComm() );
+        Broadcast( &globalDot, 1, ownerCol, g.MRComm() );
     }
     else
     {
-        DistMatrix<T,Star,MR> xRedist(grid);
+        DistMatrix<T,Star,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.MRComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.MRComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -303,72 +303,72 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,MR,MC> xRedist(grid);
+        DistMatrix<T,MR,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerRow = y.RowAlignment();
-        if( grid.MCRank() == ownerRow )
+        if( g.MCRank() == ownerRow )
         { 
             T localDot = blas::Dot
                          ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
             AllReduce
-            ( &localDot, &globalDot, 1, MPI_SUM, grid.MRComm() );
+            ( &localDot, &globalDot, 1, MPI_SUM, g.MRComm() );
         }
-        Broadcast( &globalDot, 1, ownerRow, grid.MCComm() );
+        Broadcast( &globalDot, 1, ownerRow, g.MCComm() );
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,MC,MR> xRedist(grid);
+        DistMatrix<T,MC,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerCol = y.ColAlignment();
-        if( grid.MRRank() == ownerCol )
+        if( g.MRRank() == ownerCol )
         {
             T localDot = blas::Dot
                          ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
             AllReduce
-            ( &localDot, &globalDot, 1, MPI_SUM, grid.MCComm() );
+            ( &localDot, &globalDot, 1, MPI_SUM, g.MCComm() );
         }
-        Broadcast( &globalDot, 1, ownerCol, grid.MRComm() );
+        Broadcast( &globalDot, 1, ownerCol, g.MRComm() );
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,MC,MR> xRedist(grid);
+        DistMatrix<T,MC,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerRow = y.RowAlignment();
-        if( grid.MCRank() == ownerRow )
+        if( g.MCRank() == ownerRow )
         {
             T localDot = blas::Dot
                          ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
             AllReduce
-            ( &localDot, &globalDot, 1, MPI_SUM, grid.MRComm() );
+            ( &localDot, &globalDot, 1, MPI_SUM, g.MRComm() );
         }
-        Broadcast( &globalDot, 1, ownerRow, grid.MCComm() );
+        Broadcast( &globalDot, 1, ownerRow, g.MCComm() );
     }
     else
     {
-        DistMatrix<T,MR,MC> xRedist(grid);
+        DistMatrix<T,MR,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerCol = y.ColAlignment();
-        if( grid.MRRank() == ownerCol )
+        if( g.MRRank() == ownerCol )
         {
             T localDot = blas::Dot
                          ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
             AllReduce
-            ( &localDot, &globalDot, 1, MPI_SUM, grid.MCComm() );
+            ( &localDot, &globalDot, 1, MPI_SUM, g.MCComm() );
         }
-        Broadcast( &globalDot, 1, ownerCol, grid.MRComm() );
+        Broadcast( &globalDot, 1, ownerCol, g.MRComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -393,56 +393,56 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,MR,Star> xRedist(grid);
+        DistMatrix<T,MR,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.MRComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.MRComm() );
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,Star,MR> xRedist(grid);
+        DistMatrix<T,Star,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerCol = y.ColAlignment();
-        if( grid.MRRank() == ownerCol )
+        if( g.MRRank() == ownerCol )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, ownerCol, grid.MRComm() );
+        Broadcast( &globalDot, 1, ownerCol, g.MRComm() );
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,Star,MR> xRedist(grid);
+        DistMatrix<T,Star,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.MRComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.MRComm() );
     }
     else
     {
-        DistMatrix<T,MR,Star> xRedist(grid);
+        DistMatrix<T,MR,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerCol = y.ColAlignment();
-        if( grid.MRRank() == ownerCol )
+        if( g.MRRank() == ownerCol )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, ownerCol, grid.MRComm() );
+        Broadcast( &globalDot, 1, ownerCol, g.MRComm() );
     }
 #ifndef RELEASE 
     PopCallStack();
@@ -467,56 +467,56 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,Star,MC> xRedist(grid);
+        DistMatrix<T,Star,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerRow = y.RowAlignment();
-        if( grid.MCRank() == ownerRow )
+        if( g.MCRank() == ownerRow )
         { 
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, ownerRow, grid.MCComm() );
+        Broadcast( &globalDot, 1, ownerRow, g.MCComm() );
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,MC,Star> xRedist(grid);
+        DistMatrix<T,MC,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.MCComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.MCComm() );
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,MC,Star> xRedist(grid);
+        DistMatrix<T,MC,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int ownerRow = y.RowAlignment();
-        if( grid.MCRank() == ownerRow )
+        if( g.MCRank() == ownerRow )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, ownerRow, grid.MCComm() );
+        Broadcast( &globalDot, 1, ownerRow, g.MCComm() );
     }
     else
     {
-        DistMatrix<T,Star,MC> xRedist(grid);
+        DistMatrix<T,Star,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.MCComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.MCComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -541,56 +541,56 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,VC,Star> xRedist(grid);
+        DistMatrix<T,VC,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.VCComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.VCComm() );
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,Star,VC> xRedist(grid);
+        DistMatrix<T,Star,VC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int owner = y.ColAlignment();
-        if( grid.VCRank() == owner )
+        if( g.VCRank() == owner )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, owner, grid.VCComm() );
+        Broadcast( &globalDot, 1, owner, g.VCComm() );
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,Star,VC> xRedist(grid);
+        DistMatrix<T,Star,VC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.VCComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.VCComm() );
     }
     else
     {
-        DistMatrix<T,VC,Star> xRedist(grid);
+        DistMatrix<T,VC,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int owner = y.ColAlignment();
-        if( grid.VCRank() == owner )
+        if( g.VCRank() == owner )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, owner, grid.VCComm() );
+        Broadcast( &globalDot, 1, owner, g.VCComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -615,56 +615,56 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,Star,VC> xRedist(grid);
+        DistMatrix<T,Star,VC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int owner = y.RowAlignment();
-        if( grid.VCRank() == owner )
+        if( g.VCRank() == owner )
         { 
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, owner, grid.VCComm() );
+        Broadcast( &globalDot, 1, owner, g.VCComm() );
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,VC,Star> xRedist(grid);
+        DistMatrix<T,VC,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.VCComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.VCComm() );
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,VC,Star> xRedist(grid);
+        DistMatrix<T,VC,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int owner = y.RowAlignment();
-        if( grid.VCRank() == owner )
+        if( g.VCRank() == owner )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, owner, grid.VCComm() );
+        Broadcast( &globalDot, 1, owner, g.VCComm() );
     }
     else
     {
-        DistMatrix<T,Star,VC> xRedist(grid);
+        DistMatrix<T,Star,VC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.VCComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.VCComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -689,56 +689,56 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,VR,Star> xRedist(grid);
+        DistMatrix<T,VR,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.VRComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.VRComm() );
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,Star,VR> xRedist(grid);
+        DistMatrix<T,Star,VR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int owner = y.ColAlignment();
-        if( grid.VRRank() == owner )
+        if( g.VRRank() == owner )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, owner, grid.VRComm() );
+        Broadcast( &globalDot, 1, owner, g.VRComm() );
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,Star,VR> xRedist(grid);
+        DistMatrix<T,Star,VR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.VRComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.VRComm() );
     }
     else
     {
-        DistMatrix<T,VR,Star> xRedist(grid);
+        DistMatrix<T,VR,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int owner = y.ColAlignment();
-        if( grid.VRRank() == owner )
+        if( g.VRRank() == owner )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, owner, grid.VRComm() );
+        Broadcast( &globalDot, 1, owner, g.VRComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -763,56 +763,56 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,Star,VR> xRedist(grid);
+        DistMatrix<T,Star,VR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int owner = y.RowAlignment();
-        if( grid.VRRank() == owner )
+        if( g.VRRank() == owner )
         { 
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, owner, grid.VRComm() );
+        Broadcast( &globalDot, 1, owner, g.VRComm() );
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,VR,Star> xRedist(grid);
+        DistMatrix<T,VR,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.VRComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.VRComm() );
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,VR,Star> xRedist(grid);
+        DistMatrix<T,VR,Star> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         int owner = y.RowAlignment();
-        if( grid.VRRank() == owner )
+        if( g.VRRank() == owner )
         {
             globalDot = blas::Dot
                         ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        Broadcast( &globalDot, 1, owner, grid.VRComm() );
+        Broadcast( &globalDot, 1, owner, g.VRComm() );
     }
     else
     {
-        DistMatrix<T,Star,VR> xRedist(grid);
+        DistMatrix<T,Star,VR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
         T localDot = blas::Dot
                      ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        AllReduce( &localDot, &globalDot, 1, MPI_SUM, grid.VRComm() );
+        AllReduce( &localDot, &globalDot, 1, MPI_SUM, g.VRComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -837,9 +837,9 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& grid = x.GetGrid();
+    const Grid& g = x.GetGrid();
 
-    DistMatrix<T,Star,Star> xRedist(grid);
+    DistMatrix<T,Star,Star> xRedist(g);
     xRedist = x;
 
     T globalDot = blas::Dot

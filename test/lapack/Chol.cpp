@@ -50,32 +50,32 @@ void TestCorrectness
   const DistMatrix<T,MC,MR>& A,
   Shape shape, DistMatrix<T,Star,Star>& ARef )
 {
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
     const int m = ARef.Height();
-    DistMatrix<T,Star,Star> A_copy(grid);
+    DistMatrix<T,Star,Star> A_copy(g);
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed result...";
         cout.flush();
     }
     A_copy = A;
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Computing 'truth'...";
         cout.flush();
     }
     lapack::Chol( shape, ARef.LocalMatrix() );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
         ARef.Print("Truth");
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
@@ -118,8 +118,8 @@ void TestCorrectness
             }
         }
     }
-    Barrier( grid.VCComm() );
-    if( grid.VCRank() == 0 )
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
         cout << "PASSED" << endl;
 }
 
@@ -127,24 +127,24 @@ template<typename T>
 void TestChol
 ( bool var3, 
   bool testCorrectness, bool printMatrices, 
-  Shape shape, int m, const Grid& grid )
+  Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(grid);
-    DistMatrix<T,Star,Star> ARef(grid);
+    DistMatrix<T,MC,MR> A(g);
+    DistMatrix<T,Star,Star> ARef(g);
 
     A.ResizeTo( m, m );
 
     A.SetToRandomHPD();
     if( testCorrectness )
     {
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         ARef = A;
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -152,7 +152,7 @@ void TestChol
         A.Print("A");
     }
 
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "  Starting Cholesky factorization...";
         cout.flush();
@@ -167,7 +167,7 @@ void TestChol
     endTime = Time();
     runTime = endTime - startTime;
     gFlops = lapack::internal::CholGFlops<T>( m, runTime );
-    if( grid.VCRank() == 0 )
+    if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -213,7 +213,7 @@ int main( int argc, char* argv[] )
             cout << "==========================================" << endl;
         }
 #endif
-        Grid grid( MPI_COMM_WORLD, r, c );
+        Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )
@@ -227,7 +227,7 @@ int main( int argc, char* argv[] )
             cout << "---------------------" << endl;
         }
         TestChol<double>
-        ( var3, testCorrectness, printMatrices, shape, m, grid );
+        ( var3, testCorrectness, printMatrices, shape, m, g );
         if( rank == 0 )
             cout << endl;
 
@@ -239,7 +239,7 @@ int main( int argc, char* argv[] )
             cout << "--------------------------------------" << endl;
         }
         TestChol<dcomplex>
-        ( var3, testCorrectness, printMatrices, shape, m, grid );
+        ( var3, testCorrectness, printMatrices, shape, m, g );
         if( rank == 0 )
             cout << endl;
 #endif

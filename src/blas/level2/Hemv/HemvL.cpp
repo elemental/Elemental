@@ -13,7 +13,7 @@ using namespace elemental;
 
 template<typename T>
 void
-elemental::blas::internal::HemvColAccumulateL
+elemental::blas::internal::LocalHemvColAccumulateL
 ( T alpha, 
   const DistMatrix<T,MC,MR  >& A,
   const DistMatrix<T,MC,Star>& x_MC_Star,
@@ -22,7 +22,7 @@ elemental::blas::internal::HemvColAccumulateL
         DistMatrix<T,MR,Star>& z_MR_Star )
 {
 #ifndef RELEASE
-    PushCallStack("blas::internal::HemvColAccumulateL");
+    PushCallStack("blas::internal::LocalHemvColAccumulateL");
     if( A.GetGrid() != x_MC_Star.GetGrid() ||
         x_MC_Star.GetGrid() != x_MR_Star.GetGrid() ||
         x_MR_Star.GetGrid() != z_MC_Star.GetGrid() ||
@@ -38,7 +38,7 @@ elemental::blas::internal::HemvColAccumulateL
         A.Height() != z_MR_Star.Height() )
     {
         ostringstream msg;
-        msg << "Nonconformal HemvColAccumulateL: " << endl
+        msg << "Nonconformal LocalHemvColAccumulateL: " << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x[MC,* ] ~ " << x_MC_Star.Height() << " x " 
                                << x_MC_Star.Width() << endl
@@ -56,39 +56,39 @@ elemental::blas::internal::HemvColAccumulateL
         z_MR_Star.ColAlignment() != A.RowAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),
-        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
-                               A20(grid), A21(grid), A22(grid);
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g);
 
-    DistMatrix<T,MC,MR> D11(grid);
-
-    DistMatrix<T,MC,Star> 
-        xT_MC_Star(grid),  x0_MC_Star(grid),
-        xB_MC_Star(grid),  x1_MC_Star(grid),
-                           x2_MC_Star(grid);
-
-    DistMatrix<T,MR,Star> 
-        xT_MR_Star(grid),  x0_MR_Star(grid),
-        xB_MR_Star(grid),  x1_MR_Star(grid),
-                           x2_MR_Star(grid);
+    DistMatrix<T,MC,MR> D11(g);
 
     DistMatrix<T,MC,Star> 
-        zT_MC_Star(grid),  z0_MC_Star(grid),
-        zB_MC_Star(grid),  z1_MC_Star(grid),
-                           z2_MC_Star(grid);
+        xT_MC_Star(g),  x0_MC_Star(g),
+        xB_MC_Star(g),  x1_MC_Star(g),
+                        x2_MC_Star(g);
 
     DistMatrix<T,MR,Star> 
-        zT_MR_Star(grid),  z0_MR_Star(grid),
-        zB_MR_Star(grid),  z1_MR_Star(grid),
-                           z2_MR_Star(grid);
+        xT_MR_Star(g),  x0_MR_Star(g),
+        xB_MR_Star(g),  x1_MR_Star(g),
+                        x2_MR_Star(g);
+
+    DistMatrix<T,MC,Star> 
+        zT_MC_Star(g),  z0_MC_Star(g),
+        zB_MC_Star(g),  z1_MC_Star(g),
+                        z2_MC_Star(g);
+
+    DistMatrix<T,MR,Star> 
+        zT_MR_Star(g),  z0_MR_Star(g),
+        zB_MR_Star(g),  z1_MR_Star(g),
+                        z2_MR_Star(g);
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const int ratio = max( grid.Height(), grid.Width() );
+    const int ratio = max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
                  
     LockedPartitionDownDiagonal
@@ -209,7 +209,7 @@ elemental::blas::internal::HemvColAccumulateL
 
 template<typename T>
 void
-elemental::blas::internal::HemvRowAccumulateL
+elemental::blas::internal::LocalHemvRowAccumulateL
 ( T alpha, 
   const DistMatrix<T,MC,  MR>& A,
   const DistMatrix<T,Star,MC>& x_Star_MC,
@@ -218,7 +218,7 @@ elemental::blas::internal::HemvRowAccumulateL
         DistMatrix<T,Star,MR>& z_Star_MR )
 {
 #ifndef RELEASE
-    PushCallStack("blas::internal::HemvRowAccumulateL");
+    PushCallStack("blas::internal::LocalHemvRowAccumulateL");
     if( A.GetGrid() != x_Star_MC.GetGrid() ||
         x_Star_MC.GetGrid() != x_Star_MR.GetGrid() ||
         x_Star_MR.GetGrid() != z_Star_MC.GetGrid() ||
@@ -234,7 +234,7 @@ elemental::blas::internal::HemvRowAccumulateL
         A.Height() != z_Star_MR.Width() )
     {
         ostringstream msg;
-        msg << "Nonconformal HemvRowAccumulateL: " << endl
+        msg << "Nonconformal LocalHemvRowAccumulateL: " << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  x[* ,MC] ~ " << x_Star_MC.Height() << " x " 
                                << x_Star_MC.Width() << endl
@@ -252,35 +252,35 @@ elemental::blas::internal::HemvRowAccumulateL
         z_Star_MR.RowAlignment() != A.RowAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
-        ATL(grid), ATR(grid),  A00(grid), A01(grid), A02(grid),
-        ABL(grid), ABR(grid),  A10(grid), A11(grid), A12(grid),
-                               A20(grid), A21(grid), A22(grid);
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g);
 
-    DistMatrix<T,MC,MR> D11(grid);
-
-    DistMatrix<T,Star,MC> 
-        xL_Star_MC(grid), xR_Star_MC(grid),
-        x0_Star_MC(grid), x1_Star_MC(grid), x2_Star_MC(grid);
-
-    DistMatrix<T,Star,MR> 
-        xL_Star_MR(grid), xR_Star_MR(grid),
-        x0_Star_MR(grid), x1_Star_MR(grid), x2_Star_MR(grid);
+    DistMatrix<T,MC,MR> D11(g);
 
     DistMatrix<T,Star,MC> 
-        zL_Star_MC(grid), zR_Star_MC(grid),
-        z0_Star_MC(grid), z1_Star_MC(grid), z2_Star_MC(grid);
+        xL_Star_MC(g), xR_Star_MC(g),
+        x0_Star_MC(g), x1_Star_MC(g), x2_Star_MC(g);
 
     DistMatrix<T,Star,MR> 
-        zL_Star_MR(grid), zR_Star_MR(grid),
-        z0_Star_MR(grid), z1_Star_MR(grid), z2_Star_MR(grid);
+        xL_Star_MR(g), xR_Star_MR(g),
+        x0_Star_MR(g), x1_Star_MR(g), x2_Star_MR(g);
+
+    DistMatrix<T,Star,MC> 
+        zL_Star_MC(g), zR_Star_MC(g),
+        z0_Star_MC(g), z1_Star_MC(g), z2_Star_MC(g);
+
+    DistMatrix<T,Star,MR> 
+        zL_Star_MR(g), zR_Star_MR(g),
+        z0_Star_MR(g), z1_Star_MR(g), z2_Star_MR(g);
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const int ratio = max( grid.Height(), grid.Width() );
+    const int ratio = max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
                  
     LockedPartitionDownDiagonal
@@ -375,7 +375,7 @@ elemental::blas::internal::HemvRowAccumulateL
 #endif
 }
 
-template void elemental::blas::internal::HemvColAccumulateL
+template void elemental::blas::internal::LocalHemvColAccumulateL
 ( float alpha, 
   const DistMatrix<float,MC,MR  >& A,
   const DistMatrix<float,MC,Star>& x_MC_Star,
@@ -383,7 +383,7 @@ template void elemental::blas::internal::HemvColAccumulateL
         DistMatrix<float,MC,Star>& z_MC_Star,
         DistMatrix<float,MR,Star>& z_MR_Star );
 
-template void elemental::blas::internal::HemvRowAccumulateL
+template void elemental::blas::internal::LocalHemvRowAccumulateL
 ( float alpha, 
   const DistMatrix<float,MC,  MR>& A,
   const DistMatrix<float,Star,MC>& x_Star_MC,
@@ -391,7 +391,7 @@ template void elemental::blas::internal::HemvRowAccumulateL
         DistMatrix<float,Star,MC>& z_Star_MC,
         DistMatrix<float,Star,MR>& z_Star_MR );
 
-template void elemental::blas::internal::HemvColAccumulateL
+template void elemental::blas::internal::LocalHemvColAccumulateL
 ( double alpha, 
   const DistMatrix<double,MC,MR  >& A,
   const DistMatrix<double,MC,Star>& x_MC_Star,
@@ -399,7 +399,7 @@ template void elemental::blas::internal::HemvColAccumulateL
         DistMatrix<double,MC,Star>& z_MC_Star,
         DistMatrix<double,MR,Star>& z_MR_Star );
 
-template void elemental::blas::internal::HemvRowAccumulateL
+template void elemental::blas::internal::LocalHemvRowAccumulateL
 ( double alpha, 
   const DistMatrix<double,MC,  MR>& A,
   const DistMatrix<double,Star,MC>& x_Star_MC,
@@ -408,7 +408,7 @@ template void elemental::blas::internal::HemvRowAccumulateL
         DistMatrix<double,Star,MR>& z_Star_MR );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::blas::internal::HemvColAccumulateL
+template void elemental::blas::internal::LocalHemvColAccumulateL
 ( scomplex alpha,
   const DistMatrix<scomplex,MC,MR  >& A,
   const DistMatrix<scomplex,MC,Star>& x_MC_Star,
@@ -416,7 +416,7 @@ template void elemental::blas::internal::HemvColAccumulateL
         DistMatrix<scomplex,MC,Star>& z_MC_Star,
         DistMatrix<scomplex,MR,Star>& z_MR_Star );
 
-template void elemental::blas::internal::HemvRowAccumulateL
+template void elemental::blas::internal::LocalHemvRowAccumulateL
 ( scomplex alpha,
   const DistMatrix<scomplex,MC,  MR>& A,
   const DistMatrix<scomplex,Star,MC>& x_Star_MC,
@@ -424,7 +424,7 @@ template void elemental::blas::internal::HemvRowAccumulateL
         DistMatrix<scomplex,Star,MC>& z_Star_MC,
         DistMatrix<scomplex,Star,MR>& z_Star_MR );
 
-template void elemental::blas::internal::HemvColAccumulateL
+template void elemental::blas::internal::LocalHemvColAccumulateL
 ( dcomplex alpha,
   const DistMatrix<dcomplex,MC,MR  >& A,
   const DistMatrix<dcomplex,MC,Star>& x_MC_Star,
@@ -432,7 +432,7 @@ template void elemental::blas::internal::HemvColAccumulateL
         DistMatrix<dcomplex,MC,Star>& z_MC_Star,
         DistMatrix<dcomplex,MR,Star>& z_MR_Star );
 
-template void elemental::blas::internal::HemvRowAccumulateL
+template void elemental::blas::internal::LocalHemvRowAccumulateL
 ( dcomplex alpha,
   const DistMatrix<dcomplex,MC,  MR>& A,
   const DistMatrix<dcomplex,Star,MC>& x_Star_MC,

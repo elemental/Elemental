@@ -39,23 +39,23 @@ elemental::blas::internal::TrmmLUT
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = U.GetGrid();
+    const Grid& g = U.GetGrid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
-        UTL(grid), UTR(grid),  U00(grid), U01(grid), U02(grid),
-        UBL(grid), UBR(grid),  U10(grid), U11(grid), U12(grid),
-                               U20(grid), U21(grid), U22(grid);
+        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
+        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
+                         U20(g), U21(g), U22(g);
 
-    DistMatrix<T,MC,MR> XT(grid),  X0(grid),
-                        XB(grid),  X1(grid),
-                                   X2(grid);
+    DistMatrix<T,MC,MR> XT(g),  X0(g),
+                        XB(g),  X1(g),
+                                X2(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,  Star> U01_MC_Star(grid);
-    DistMatrix<T,Star,Star> U11_Star_Star(grid); 
-    DistMatrix<T,Star,VR  > X1_Star_VR(grid);
-    DistMatrix<T,Star,MR  > D1_Star_MR(grid);
+    DistMatrix<T,MC,  Star> U01_MC_Star(g);
+    DistMatrix<T,Star,Star> U11_Star_Star(g); 
+    DistMatrix<T,Star,VR  > X1_Star_VR(g);
+    DistMatrix<T,Star,MR  > D1_Star_MR(g);
 
     // Start the algorithm
     blas::Scal( alpha, X );

@@ -187,23 +187,6 @@ GemvT
            const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y );
 
-// This is for the case where x is a column vector.
-//
-// Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha tril(A)[MC,MR] x[MR,* ]
-//     z[MR,* ] := alpha (trils(A)[MC,MR])^H x[MC,* ]
-template<typename T>
-void
-HemvColAccumulate
-( Shape shape,
-  T alpha, 
-  const DistMatrix<T,MC,MR  >& A,
-  const DistMatrix<T,MC,Star>& x_MC_Star,
-  const DistMatrix<T,MR,Star>& x_MR_Star,
-        DistMatrix<T,MC,Star>& z_MC_Star,
-        DistMatrix<T,MR,Star>& z_MR_Star
-);
-
 // This is for the case where x is a column vector and A is lower.
 //
 // Returns the unreduced components z[MC,* ] and z[MR,* ]:
@@ -211,7 +194,7 @@ HemvColAccumulate
 //     z[MR,* ] := alpha (trils(A)[MC,MR])^H x[MC,* ]
 template<typename T>
 void
-HemvColAccumulateL
+LocalHemvColAccumulateL
 ( T alpha, 
   const DistMatrix<T,MC,MR  >& A,
   const DistMatrix<T,MC,Star>& x_MC_Star,
@@ -227,30 +210,13 @@ HemvColAccumulateL
 //     z[MR,* ] := alpha (trius(A)[MC,MR])^H x[MC,* ]
 template<typename T>
 void
-HemvColAccumulateU
+LocalHemvColAccumulateU
 ( T alpha, 
   const DistMatrix<T,MC,MR  >& A,
   const DistMatrix<T,MC,Star>& x_MC_Star,
   const DistMatrix<T,MR,Star>& x_MR_Star,
         DistMatrix<T,MC,Star>& z_MC_Star,
         DistMatrix<T,MR,Star>& z_MR_Star
-);
-
-// This is for the case where x is a row vector.
-//
-// Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha tril(A)[MC,MR] (x[* ,MR])^H
-//     z[MR,* ] := alpha (trils(A)[MC,MR])^H (x[* ,MC])^H
-template<typename T>
-void
-HemvRowAccumulate
-( Shape shape,
-  T alpha, 
-  const DistMatrix<T,MC,  MR>& A,
-  const DistMatrix<T,Star,MC>& x_Star_MC,
-  const DistMatrix<T,Star,MR>& x_Star_MR,
-        DistMatrix<T,Star,MC>& z_Star_MC,
-        DistMatrix<T,Star,MR>& z_Star_MR
 );
 
 // This is for the case where x is a row vector and A is lower.
@@ -260,7 +226,7 @@ HemvRowAccumulate
 //     z[MR,* ] := alpha (trils(A)[MC,MR])^H (x[* ,MC])^H
 template<typename T>
 void
-HemvRowAccumulateL
+LocalHemvRowAccumulateL
 ( T alpha, 
   const DistMatrix<T,MC,  MR>& A,
   const DistMatrix<T,Star,MC>& x_Star_MC,
@@ -276,30 +242,13 @@ HemvRowAccumulateL
 //     z[MR,* ] := alpha (trius(A)[MC,MR])^H (x[* ,MC])^H
 template<typename T>
 void
-HemvRowAccumulateU
+LocalHemvRowAccumulateU
 ( T alpha, 
   const DistMatrix<T,MC,  MR>& A,
   const DistMatrix<T,Star,MC>& x_Star_MC,
   const DistMatrix<T,Star,MR>& x_Star_MR,
         DistMatrix<T,Star,MC>& z_Star_MC,
         DistMatrix<T,Star,MR>& z_Star_MR
-);
-
-// This is for the case where x is a column vector.
-//
-// Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha tril(A)[MC,MR] x[MR,* ]
-//     z[MR,* ] := alpha (trils(A)[MC,MR])^T x[MC,* ]
-template<typename T>
-void
-SymvColAccumulate
-( Shape shape,
-  T alpha, 
-  const DistMatrix<T,MC,MR  >& A,
-  const DistMatrix<T,MC,Star>& x_MC_Star,
-  const DistMatrix<T,MR,Star>& x_MR_Star,
-        DistMatrix<T,MC,Star>& z_MC_Star,
-        DistMatrix<T,MR,Star>& z_MR_Star
 );
 
 // This is for the case where x is a column vector and A is lower.
@@ -309,7 +258,7 @@ SymvColAccumulate
 //     z[MR,* ] := alpha (trils(A)[MC,MR])^T x[MC,* ]
 template<typename T>
 void
-SymvColAccumulateL
+LocalSymvColAccumulateL
 ( T alpha, 
   const DistMatrix<T,MC,MR  >& A,
   const DistMatrix<T,MC,Star>& x_MC_Star,
@@ -325,30 +274,13 @@ SymvColAccumulateL
 //     z[MR,* ] := alpha (trius(A)[MC,MR])^T x[MC,* ]
 template<typename T>
 void
-SymvColAccumulateU
+LocalSymvColAccumulateU
 ( T alpha, 
   const DistMatrix<T,MC,MR  >& A,
   const DistMatrix<T,MC,Star>& x_MC_Star,
   const DistMatrix<T,MR,Star>& x_MR_Star,
         DistMatrix<T,MC,Star>& z_MC_Star,
         DistMatrix<T,MR,Star>& z_MR_Star
-);
-
-// This is for the case where x is a row vector.
-//
-// Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha tril(A)[MC,MR] (x[* ,MR])^T
-//     z[MR,* ] := alpha (trils(A)[MC,MR])^T (x[* ,MC])^T
-template<typename T>
-void
-SymvRowAccumulate
-( Shape shape,
-  T alpha, 
-  const DistMatrix<T,MC,  MR>& A,
-  const DistMatrix<T,Star,MC>& x_Star_MC,
-  const DistMatrix<T,Star,MR>& x_Star_MR,
-        DistMatrix<T,Star,MC>& z_Star_MC,
-        DistMatrix<T,Star,MR>& z_Star_MR
 );
 
 // This is for the case where x is a row vector and A is lower.
@@ -358,7 +290,7 @@ SymvRowAccumulate
 //     z[MR,* ] := alpha (trils(A)[MC,MR])^T (x[* ,MC])^T
 template<typename T>
 void
-SymvRowAccumulateL
+LocalSymvRowAccumulateL
 ( T alpha, 
   const DistMatrix<T,MC,  MR>& A,
   const DistMatrix<T,Star,MC>& x_Star_MC,
@@ -374,7 +306,7 @@ SymvRowAccumulateL
 //     z[MR,* ] := alpha (trius(A)[MC,MR])^T (x[* ,MC])^T
 template<typename T>
 void
-SymvRowAccumulateU
+LocalSymvRowAccumulateU
 ( T alpha, 
   const DistMatrix<T,MC,  MR>& A,
   const DistMatrix<T,Star,MC>& x_Star_MC,
@@ -615,6 +547,13 @@ HemmLL
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
+// Left Lower Hemm where we avoid redistributing A
+template<typename T>
+void
+HemmLLA
+( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C );
+
 // Left Lower Hemm where we avoid redistributing C
 template<typename T>
 void
@@ -622,10 +561,28 @@ HemmLLC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
+template<typename T>
+void
+LocalHemmAccumulateLL
+( T alpha, 
+  const DistMatrix<T,MC,MR  >& A,
+  const DistMatrix<T,MC,Star>& B_MC_Star,
+  const DistMatrix<T,MR,Star>& B_MR_Star,
+        DistMatrix<T,MC,Star>& Z_MC_Star,
+        DistMatrix<T,MR,Star>& Z_MR_Star
+);
+
 // Left Upper Hemm
 template<typename T>
 void
 HemmLU
+( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C );
+
+// Left Upper Hemm where we avoid redistributing A
+template<typename T>
+void
+HemmLUA
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
@@ -636,10 +593,28 @@ HemmLUC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
+template<typename T>
+void
+LocalHemmAccumulateLU
+( T alpha, 
+  const DistMatrix<T,MC,MR  >& A,
+  const DistMatrix<T,MC,Star>& B_MC_Star,
+  const DistMatrix<T,MR,Star>& B_MR_Star,
+        DistMatrix<T,MC,Star>& Z_MC_Star,
+        DistMatrix<T,MR,Star>& Z_MR_Star
+);
+
 // Right Lower Hemm
 template<typename T>
 void
 HemmRL
+( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C );
+
+// Right Lower Hemm where we avoid redistributing A
+template<typename T>
+void
+HemmRLA
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
@@ -650,10 +625,28 @@ HemmRLC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
+template<typename T>
+void
+LocalHemmAccumulateRL
+( T alpha, 
+  const DistMatrix<T,MC,  MR>& A,
+  const DistMatrix<T,Star,MC>& B_Star_MC,
+  const DistMatrix<T,Star,MR>& B_Star_MR,
+        DistMatrix<T,Star,MC>& Z_Star_MC,
+        DistMatrix<T,Star,MR>& Z_Star_MR
+);
+
 // Right Upper Hemm
 template<typename T>
 void
 HemmRU
+( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C );
+
+// Right Upper Hemm where we avoid redistributing A
+template<typename T>
+void
+HemmRUA
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
@@ -663,6 +656,17 @@ void
 HemmRUC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
+
+template<typename T>
+void
+LocalHemmAccumulateRU
+( T alpha, 
+  const DistMatrix<T,MC,  MR  >& A,
+  const DistMatrix<T,Star,MC>& B_Star_MC,
+  const DistMatrix<T,Star,MR>& B_Star_MR,
+        DistMatrix<T,Star,MC>& Z_Star_MC,
+        DistMatrix<T,Star,MR>& Z_Star_MR
+);
 
 // Lower, Normal Her2k
 template<typename T>

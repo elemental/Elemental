@@ -24,14 +24,14 @@ elemental::DistMatrixBase<T,Star,MR>::Print( const string& s ) const
 #ifndef RELEASE
     PushCallStack("[* ,MR]::Print");
 #endif
-    const Grid& grid = this->GetGrid();
-    if( grid.VCRank() == 0 && s != "" )
+    const Grid& g = this->GetGrid();
+    if( g.VCRank() == 0 && s != "" )
         cout << s << endl;
 
     const int height     = this->Height();
     const int width      = this->Width();
     const int localWidth = this->LocalWidth();
-    const int c          = grid.Width();
+    const int c          = g.Width();
     const int rowShift   = this->RowShift();
 
     if( height == 0 || width == 0 )
@@ -43,7 +43,7 @@ elemental::DistMatrixBase<T,Star,MR>::Print( const string& s ) const
     }
 
     // Only one process row needs to participate
-    if( grid.MCRank() == 0 )
+    if( g.MCRank() == 0 )
     {
         T* sendBuf = new T[height*width];
         for( int i=0; i<height*width; ++i )
@@ -54,7 +54,7 @@ elemental::DistMatrixBase<T,Star,MR>::Print( const string& s ) const
 
         // If we are the root, fill the receive buffer
         T* recvBuf = 0;
-        if( grid.MRRank() == 0 )
+        if( g.MRRank() == 0 )
         {
             recvBuf = new T[height*width];
             for( int i=0; i<height*width; ++i )
@@ -63,10 +63,10 @@ elemental::DistMatrixBase<T,Star,MR>::Print( const string& s ) const
 
         // Sum the contributions and send to the root
         Reduce
-        ( sendBuf, recvBuf, height*width, MPI_SUM, 0, grid.MRComm() );
+        ( sendBuf, recvBuf, height*width, MPI_SUM, 0, g.MRComm() );
         delete[] sendBuf;
 
-        if( grid.MRRank() == 0 )
+        if( g.MRRank() == 0 )
         {
             // Print the data
             for( int i=0; i<height; ++i )
@@ -79,7 +79,7 @@ elemental::DistMatrixBase<T,Star,MR>::Print( const string& s ) const
             delete[] recvBuf;
         }
     }
-    Barrier( grid.VCComm() );
+    Barrier( g.VCComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -168,10 +168,10 @@ elemental::DistMatrixBase<T,Star,MR>::AlignWith
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    const Grid& grid = this->GetGrid();
-    this->_rowAlignment = A.ColAlignment() % grid.Width();
+    const Grid& g = this->GetGrid();
+    this->_rowAlignment = A.ColAlignment() % g.Width();
     this->_rowShift = 
-        Shift( grid.MRRank(), this->RowAlignment(), grid.Width() );
+        Shift( g.MRRank(), this->RowAlignment(), g.Width() );
     this->_constrainedRowAlignment = true;
 #ifndef RELEASE
     PopCallStack();
@@ -188,10 +188,10 @@ elemental::DistMatrixBase<T,Star,MR>::AlignWith
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    const Grid& grid = this->GetGrid();
-    this->_rowAlignment = A.RowAlignment() % grid.Width();
+    const Grid& g = this->GetGrid();
+    this->_rowAlignment = A.RowAlignment() % g.Width();
     this->_rowShift = 
-        Shift( grid.MRRank(), this->RowAlignment(), grid.Width() );
+        Shift( g.MRRank(), this->RowAlignment(), g.Width() );
     this->_constrainedRowAlignment = true;
 #ifndef RELEASE
     PopCallStack();
@@ -296,9 +296,9 @@ elemental::DistMatrixBase<T,Star,MR>::View
     this->_height = height;
     this->_width = width;
     {
-        const Grid& grid = this->GetGrid();
-        const int c   = grid.Width();
-        const int col = grid.MRRank();
+        const Grid& g = this->GetGrid();
+        const int c   = g.Width();
+        const int col = g.MRRank();
 
         this->_rowAlignment = (A.RowAlignment()+j) % c;
         this->_rowShift = Shift( col, this->RowAlignment(), c );
@@ -332,9 +332,9 @@ elemental::DistMatrixBase<T,Star,MR>::LockedView
     this->_height = height;
     this->_width = width;
     {
-        const Grid& grid = this->GetGrid();
-        const int c = grid.Width();
-        const int col = grid.MRRank();
+        const Grid& g = this->GetGrid();
+        const int c = g.Width();
+        const int col = g.MRRank();
 
         this->_rowAlignment = (A.RowAlignment()+j) % c;
         this->_rowShift = Shift( col, this->RowAlignment(), c );
@@ -556,16 +556,16 @@ elemental::DistMatrixBase<T,Star,MR>::Get
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // column within each process row
-    const Grid& grid = this->GetGrid();
-    const int ownerCol = (j + this->RowAlignment()) % grid.Width();
+    const Grid& g = this->GetGrid();
+    const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
     T u;
-    if( grid.MRRank() == ownerCol )
+    if( g.MRRank() == ownerCol )
     {
-        const int jLoc = (j-this->RowShift()) / grid.Width();
+        const int jLoc = (j-this->RowShift()) / g.Width();
         u = this->LocalEntry(i,jLoc);
     }
-    Broadcast( &u, 1, ownerCol, grid.MRComm() );
+    Broadcast( &u, 1, ownerCol, g.MRComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -582,12 +582,12 @@ elemental::DistMatrixBase<T,Star,MR>::Set
     PushCallStack("[* ,MR]::Set");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& grid = this->GetGrid();
-    const int ownerCol = (j + this->RowAlignment()) % grid.Width();
+    const Grid& g = this->GetGrid();
+    const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
-    if( grid.MRRank() == ownerCol )
+    if( g.MRRank() == ownerCol )
     {
-        const int jLoc = (j-this->RowShift()) / grid.Width();
+        const int jLoc = (j-this->RowShift()) / g.Width();
         this->LocalEntry(i,jLoc) = u;
     }
 #ifndef RELEASE
@@ -608,11 +608,11 @@ elemental::DistMatrixBase<T,Star,MR>::MakeTrapezoidal
     PushCallStack("[* ,MR]::MakeTrapezoidal");
     this->AssertNotLockedView();
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     const int height = this->Height();
     const int width = this->Width();
     const int localWidth = this->LocalWidth();
-    const int c = grid.Width();
+    const int c = g.Width();
     const int rowShift = this->RowShift();
 
     if( shape == Lower )
@@ -683,7 +683,7 @@ elemental::DistMatrixBase<T,Star,MR>::SetToRandom()
     PushCallStack("[* ,MR]::SetToRandom");
     this->AssertNotLockedView();
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     const int height     = this->Height();
     const int localWidth = this->LocalWidth();
     const int bufSize    = height*localWidth;
@@ -692,13 +692,13 @@ elemental::DistMatrixBase<T,Star,MR>::SetToRandom()
 
     // Create random matrix on process row 0, then broadcast
     T* buffer = this->_auxMemory.Buffer();
-    if( grid.MCRank() == 0 )
+    if( g.MCRank() == 0 )
     {
         for( int j=0; j<localWidth; ++j )
             for( int i=0; i<height; ++i )
                 buffer[i+j*height] = Random<T>();
     }
-    Broadcast( buffer, bufSize, 0, grid.MCComm() );
+    Broadcast( buffer, bufSize, 0, g.MCComm() );
 
     // Unpack
     for( int j=0; j<localWidth; ++j )
@@ -762,24 +762,24 @@ elemental::DistMatrixBase<T,Star,MR>::ConjugateTransposeFrom
     if( this->Viewing() )
         this->AssertSameSizeAsTranspose( A );
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
         {
-            this->_rowAlignment = A.ColAlignment() % grid.Width();
+            this->_rowAlignment = A.ColAlignment() % g.Width();
             this->_rowShift = 
-                Shift( grid.MRRank(), this->RowAlignment(), grid.Width() );
+                Shift( g.MRRank(), this->RowAlignment(), g.Width() );
         }
         this->ResizeTo( A.Width(), A.Height() );
     }
 
-    if( this->RowAlignment() == A.ColAlignment() % grid.Width() )
+    if( this->RowAlignment() == A.ColAlignment() % g.Width() )
     {
-        const int r = grid.Height();
-        const int c = grid.Width();
-        const int p = grid.Size();
-        const int col = grid.MRRank();
+        const int r = g.Height();
+        const int c = g.Width();
+        const int p = g.Size();
+        const int col = g.MRRank();
 
         const int width = this->Width();
         const int height = this->Height();
@@ -802,7 +802,7 @@ elemental::DistMatrixBase<T,Star,MR>::ConjugateTransposeFrom
         // Communicate
         AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, grid.MCComm() );
+          gatheredData, portionSize, g.MCComm() );
 
         // Unpack
         const int rowShift = this->RowShift();
@@ -825,14 +825,14 @@ elemental::DistMatrixBase<T,Star,MR>::ConjugateTransposeFrom
     else
     {
 #ifndef RELEASE
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "Unaligned [* ,MR].ConjugateTransposeFrom[VR,* ]." << endl;
 #endif
-        const int r = grid.Height();
-        const int c = grid.Width();
-        const int p = grid.Size();
-        const int col = grid.MRRank();
-        const int rank = grid.VRRank();
+        const int r = g.Height();
+        const int c = g.Width();
+        const int p = g.Size();
+        const int col = g.MRRank();
+        const int rank = g.VRRank();
 
         // Perform the SendRecv to make A have the same rowAlignment
         const int rowAlignment = this->RowAlignment();
@@ -863,12 +863,12 @@ elemental::DistMatrixBase<T,Star,MR>::ConjugateTransposeFrom
         // Perform the SendRecv: puts the new data into the first buffer
         SendRecv
         ( secondBuffer, portionSize, sendRank, 0,
-          firstBuffer,  portionSize, recvRank, MPI_ANY_TAG, grid.VRComm() );
+          firstBuffer,  portionSize, recvRank, MPI_ANY_TAG, g.VRComm() );
 
         // Use the SendRecv as input to the AllGather
         AllGather
         ( firstBuffer,  portionSize,
-          secondBuffer, portionSize, grid.MCComm() );
+          secondBuffer, portionSize, g.MCComm() );
 
         // Unpack
         for( int k=0; k<r; ++k )
@@ -903,24 +903,24 @@ elemental::DistMatrixBase<T,Star,MR>::TransposeFrom
     if( this->Viewing() )
         this->AssertSameSizeAsTranspose( A );
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
         {
-            this->_rowAlignment = A.ColAlignment() % grid.Width();
+            this->_rowAlignment = A.ColAlignment() % g.Width();
             this->_rowShift = 
-                Shift( grid.MRRank(), this->RowAlignment(), grid.Width() );
+                Shift( g.MRRank(), this->RowAlignment(), g.Width() );
         }
         this->ResizeTo( A.Width(), A.Height() );
     }
 
-    if( this->RowAlignment() == A.ColAlignment() % grid.Width() )
+    if( this->RowAlignment() == A.ColAlignment() % g.Width() )
     {
-        const int r = grid.Height();
-        const int c = grid.Width();
-        const int p = grid.Size();
-        const int col = grid.MRRank();
+        const int r = g.Height();
+        const int c = g.Width();
+        const int p = g.Size();
+        const int col = g.MRRank();
 
         const int width = this->Width();
         const int height = this->Height();
@@ -943,7 +943,7 @@ elemental::DistMatrixBase<T,Star,MR>::TransposeFrom
         // Communicate
         AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, grid.MCComm() );
+          gatheredData, portionSize, g.MCComm() );
 
         // Unpack
         const int rowShift = this->RowShift();
@@ -966,14 +966,14 @@ elemental::DistMatrixBase<T,Star,MR>::TransposeFrom
     else
     {
 #ifndef RELEASE
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "Unaligned [* ,MR].TransposeFrom[VR,* ]." << endl;
 #endif
-        const int r = grid.Height();
-        const int c = grid.Width();
-        const int p = grid.Size();
-        const int col = grid.MRRank();
-        const int rank = grid.VRRank();
+        const int r = g.Height();
+        const int c = g.Width();
+        const int p = g.Size();
+        const int col = g.MRRank();
+        const int rank = g.VRRank();
 
         // Perform the SendRecv to make A have the same rowAlignment
         const int rowAlignment = this->RowAlignment();
@@ -1004,12 +1004,12 @@ elemental::DistMatrixBase<T,Star,MR>::TransposeFrom
         // Perform the SendRecv: puts the new data into the first buffer
         SendRecv
         ( secondBuffer, portionSize, sendRank, 0,
-          firstBuffer,  portionSize, recvRank, MPI_ANY_TAG, grid.VRComm() );
+          firstBuffer,  portionSize, recvRank, MPI_ANY_TAG, g.VRComm() );
 
         // Use the SendRecv as input to the AllGather
         AllGather
         ( firstBuffer,  portionSize,
-          secondBuffer, portionSize, grid.MCComm() );
+          secondBuffer, portionSize, g.MCComm() );
 
         // Unpack
         for( int k=0; k<r; ++k )
@@ -1044,14 +1044,14 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
         {
             this->_rowAlignment = A.RowAlignment();
             this->_rowShift = 
-                Shift( grid.MRRank(), this->RowAlignment(), grid.Width() );
+                Shift( g.MRRank(), this->RowAlignment(), g.Width() );
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
@@ -1065,7 +1065,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
             this->_auxMemory.Require( localWidth );
             T* bcastBuf = this->_auxMemory.Buffer();
 
-            if( grid.MCRank() == A.ColAlignment() )
+            if( g.MCRank() == A.ColAlignment() )
             {
                 this->_localMatrix = A.LockedLocalMatrix();
 
@@ -1076,7 +1076,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
 
             // Communicate
             Broadcast
-            ( bcastBuf, localWidth, A.ColAlignment(), grid.MCComm() );
+            ( bcastBuf, localWidth, A.ColAlignment(), g.MCComm() );
 
             // Unpack
             for( int j=0; j<localWidth; ++j )
@@ -1086,7 +1086,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
         }
         else
         {
-            const int r = grid.Height();
+            const int r = g.Height();
             const int height = this->Height();
             const int localWidth = this->LocalWidth();
             const int localHeightOfA = A.LocalHeight();
@@ -1109,7 +1109,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
             // Communicate
             AllGather
             ( originalData, portionSize,
-              gatheredData, portionSize, grid.MCComm() );
+              gatheredData, portionSize, g.MCComm() );
 
             // Unpack
             const int colAlignmentOfA = A.ColAlignment();
@@ -1132,12 +1132,12 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     else
     {
 #ifndef RELEASE
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "Unaligned [* ,MR] <- [MC,MR]." << endl;
 #endif
-        const int r = grid.Height();
-        const int c = grid.Width();
-        const int col = grid.MRRank();
+        const int r = g.Height();
+        const int c = g.Width();
+        const int col = g.MRRank();
 
         const int rowAlignment = this->RowAlignment();
         const int rowAlignmentOfA = A.RowAlignment();
@@ -1149,7 +1149,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
             const int localWidth = this->LocalWidth();
             T* bcastBuf;
 
-            if( grid.MCRank() == A.ColAlignment() )
+            if( g.MCRank() == A.ColAlignment() )
             {
                 const int localWidthOfA = A.LocalWidth();
 
@@ -1166,7 +1166,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
                 SendRecv
                 ( sendBuf,  localWidthOfA, sendCol, 0,
                   bcastBuf, localWidth,    recvCol, MPI_ANY_TAG,
-                  grid.MRComm() );
+                  g.MRComm() );
             }
             else
             {
@@ -1176,7 +1176,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
 
             // Communicate
             Broadcast
-            ( bcastBuf, localWidth, A.ColAlignment(), grid.MCComm() );
+            ( bcastBuf, localWidth, A.ColAlignment(), g.MCComm() );
 
             // Unpack
             for( int j=0; j<localWidth; ++j )
@@ -1209,12 +1209,12 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
             // Perform the SendRecv: puts the new data into the first buffer
             SendRecv
             ( secondBuffer, portionSize, sendCol, 0,
-              firstBuffer,  portionSize, recvCol, MPI_ANY_TAG, grid.MRComm() );
+              firstBuffer,  portionSize, recvCol, MPI_ANY_TAG, g.MRComm() );
 
             // Use the output of the SendRecv as input to the AllGather
             AllGather
             ( firstBuffer,  portionSize,
-              secondBuffer, portionSize, grid.MCComm() );
+              secondBuffer, portionSize, g.MCComm() );
 
             // Unpack the contents of each member of the process col
             const int colAlignmentOfA = A.ColAlignment();
@@ -1251,8 +1251,8 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& grid = this->GetGrid();
-    DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlignment(),grid);
+    const Grid& g = this->GetGrid();
+    DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlignment(),g);
 
     A_MC_MR = A;
     *this = A_MC_MR;
@@ -1274,7 +1274,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -1292,11 +1292,11 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     else
     {
 #ifndef RELEASE
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "Unaligned [* ,MR] <- [* ,MR]." << endl;
 #endif
-        const int rank = grid.MRRank();
-        const int c = grid.Width();
+        const int rank = g.MRRank();
+        const int c = g.Width();
 
         const int rowAlignment = this->RowAlignment();
         const int rowAlignmentOfA = A.RowAlignment();
@@ -1325,7 +1325,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
         // Communicate
         SendRecv
         ( sendBuffer, sendSize, sendRank, 0,
-          recvBuffer, recvSize, recvRank, MPI_ANY_TAG, grid.MRComm() );
+          recvBuffer, recvSize, recvRank, MPI_ANY_TAG, g.MRComm() );
 
         // Unpack
         for( int j=0; j<localWidth; ++j )
@@ -1390,13 +1390,13 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     auto_ptr< DistMatrix<T,Star,VC> > A_Star_VC
-    ( new DistMatrix<T,Star,VC>(grid) );
+    ( new DistMatrix<T,Star,VC>(g) );
     *A_Star_VC = A;
 
     auto_ptr< DistMatrix<T,Star,VR> > A_Star_VR
-    ( new DistMatrix<T,Star,VR>(true,this->RowAlignment(),grid) );
+    ( new DistMatrix<T,Star,VR>(true,this->RowAlignment(),g) );
     *A_Star_VR = *A_Star_VC;
     delete A_Star_VC.release(); // lowers memory highwater
 
@@ -1419,18 +1419,18 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     auto_ptr< DistMatrix<T,VR,Star> > A_VR_Star
-    ( new DistMatrix<T,VR,Star>(grid) );
+    ( new DistMatrix<T,VR,Star>(g) );
     *A_VR_Star = A;
 
     auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
-    ( new DistMatrix<T,VC,Star>(grid) );
+    ( new DistMatrix<T,VC,Star>(g) );
     *A_VC_Star = *A_VR_Star;
     delete A_VR_Star.release(); // lowers memory highwater
 
     auto_ptr< DistMatrix<T,MC,MR> > A_MC_MR
-    ( new DistMatrix<T,MC,MR>(false,true,0,this->RowAlignment(),grid) );
+    ( new DistMatrix<T,MC,MR>(false,true,0,this->RowAlignment(),g) );
     *A_MC_MR = *A_VC_Star;
     delete A_VC_Star.release(); // lowers memory highwater
 
@@ -1453,18 +1453,18 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     auto_ptr< DistMatrix<T,Star,VC> > A_Star_VC
-    ( new DistMatrix<T,Star,VC>(grid) );
+    ( new DistMatrix<T,Star,VC>(g) );
     *A_Star_VC = A;
 
     auto_ptr< DistMatrix<T,Star,VR> > A_Star_VR
-    ( new DistMatrix<T,Star,VR>(true,this->RowAlignment(),grid) );
+    ( new DistMatrix<T,Star,VR>(true,this->RowAlignment(),g) );
     *A_Star_VR = *A_Star_VC;
     delete A_Star_VC.release(); // lowers memory highwater
 
     auto_ptr< DistMatrix<T,MC,MR> > A_MC_MR
-    ( new DistMatrix<T,MC,MR>(grid) );
+    ( new DistMatrix<T,MC,MR>(g) );
     *A_MC_MR = *A_Star_VR;
     delete A_Star_VR.release(); // lowers memory highwater
 
@@ -1487,8 +1487,8 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& grid = this->GetGrid();
-    DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlignment(),grid);
+    const Grid& g = this->GetGrid();
+    DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlignment(),g);
 
     A_MC_MR = A;
     *this = A_MC_MR;
@@ -1510,8 +1510,8 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& grid = this->GetGrid();
-    DistMatrix<T,Star,VR> A_Star_VR(true,this->RowAlignment(),grid);
+    const Grid& g = this->GetGrid();
+    DistMatrix<T,Star,VR> A_Star_VR(true,this->RowAlignment(),g);
 
     A_Star_VR = A;
     *this = A_Star_VR;
@@ -1533,13 +1533,13 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
-    ( new DistMatrix<T,VC,Star>(grid) );
+    ( new DistMatrix<T,VC,Star>(g) );
     *A_VC_Star = A;
 
     auto_ptr< DistMatrix<T,MC,MR> > A_MC_MR
-    ( new DistMatrix<T,MC,MR>(false,true,0,this->RowAlignment(),grid) );
+    ( new DistMatrix<T,MC,MR>(false,true,0,this->RowAlignment(),g) );
     *A_MC_MR = *A_VC_Star;
     delete A_VC_Star.release(); // lowers memory highwater
 
@@ -1562,24 +1562,24 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& grid = this->GetGrid();
+    const Grid& g = this->GetGrid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
         {
-            this->_rowAlignment = A.RowAlignment() % grid.Width();
+            this->_rowAlignment = A.RowAlignment() % g.Width();
             this->_rowShift = 
-                Shift( grid.MRRank(), this->RowAlignment(), grid.Width() );
+                Shift( g.MRRank(), this->RowAlignment(), g.Width() );
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
 
-    if( this->RowAlignment() == A.RowAlignment() % grid.Width() )
+    if( this->RowAlignment() == A.RowAlignment() % g.Width() )
     {
-        const int r = grid.Height();
-        const int c = grid.Width();
-        const int p = grid.Size();
-        const int col = grid.MRRank();
+        const int r = g.Height();
+        const int c = g.Width();
+        const int p = g.Size();
+        const int col = g.MRRank();
 
         const int width = this->Width();
         const int height = this->Height();
@@ -1602,7 +1602,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
         // Communicate
         AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, grid.MCComm() );
+          gatheredData, portionSize, g.MCComm() );
 
         // Unpack
         const int rowShift = this->RowShift();
@@ -1625,14 +1625,14 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     else
     {
 #ifndef RELEASE
-        if( grid.VCRank() == 0 )
+        if( g.VCRank() == 0 )
             cout << "Unaligned [* ,MR] <- [* ,VR]." << endl;
 #endif
-        const int r = grid.Height();
-        const int c = grid.Width();
-        const int p = grid.Size();
-        const int col = grid.MRRank();
-        const int rank = grid.VRRank();
+        const int r = g.Height();
+        const int c = g.Width();
+        const int p = g.Size();
+        const int col = g.MRRank();
+        const int rank = g.VRRank();
 
         // Perform the SendRecv to make A have the same rowAlignment
         const int rowAlignment = this->RowAlignment();
@@ -1663,12 +1663,12 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
         // Perform the SendRecv: puts the new data into the first buffer
         SendRecv
         ( secondBuffer, portionSize, sendRank, 0,
-          firstBuffer,  portionSize, recvRank, MPI_ANY_TAG, grid.VRComm() );
+          firstBuffer,  portionSize, recvRank, MPI_ANY_TAG, g.VRComm() );
 
         // Use the SendRecv as input to the AllGather
         AllGather
         ( firstBuffer,  portionSize,
-          secondBuffer, portionSize, grid.MCComm() );
+          secondBuffer, portionSize, g.MCComm() );
 
         // Unpack
         for( int k=0; k<r; ++k )
@@ -1792,16 +1792,16 @@ elemental::DistMatrix<complex<R>,Star,MR>::GetReal
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // column within each process row
-    const Grid& grid = this->GetGrid();
-    const int ownerCol = (j + this->RowAlignment()) % grid.Width();
+    const Grid& g = this->GetGrid();
+    const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
     R u;
-    if( grid.MRRank() == ownerCol )
+    if( g.MRRank() == ownerCol )
     {
-        const int jLoc = (j-this->RowShift()) / grid.Width();
+        const int jLoc = (j-this->RowShift()) / g.Width();
         u = real(this->LocalEntry(i,jLoc));
     }
-    Broadcast( &u, 1, ownerCol, grid.MRComm() );
+    Broadcast( &u, 1, ownerCol, g.MRComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -1820,16 +1820,16 @@ elemental::DistMatrix<complex<R>,Star,MR>::GetImag
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // column within each process row
-    const Grid& grid = this->GetGrid();
-    const int ownerCol = (j + this->RowAlignment()) % grid.Width();
+    const Grid& g = this->GetGrid();
+    const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
     R u;
-    if( grid.MRRank() == ownerCol )
+    if( g.MRRank() == ownerCol )
     {
-        const int jLoc = (j-this->RowShift()) / grid.Width();
+        const int jLoc = (j-this->RowShift()) / g.Width();
         u = imag(this->LocalEntry(i,jLoc));
     }
-    Broadcast( &u, 1, ownerCol, grid.MRComm() );
+    Broadcast( &u, 1, ownerCol, g.MRComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -1846,12 +1846,12 @@ elemental::DistMatrix<complex<R>,Star,MR>::SetReal
     PushCallStack("[* ,MR]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& grid = this->GetGrid();
-    const int ownerCol = (j + this->RowAlignment()) % grid.Width();
+    const Grid& g = this->GetGrid();
+    const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
-    if( grid.MRRank() == ownerCol )
+    if( g.MRRank() == ownerCol )
     {
-        const int jLoc = (j-this->RowShift()) / grid.Width();
+        const int jLoc = (j-this->RowShift()) / g.Width();
         real(this->LocalEntry(i,jLoc)) = u;
     }
 #ifndef RELEASE
@@ -1868,12 +1868,12 @@ elemental::DistMatrix<complex<R>,Star,MR>::SetImag
     PushCallStack("[* ,MR]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& grid = this->GetGrid();
-    const int ownerCol = (j + this->RowAlignment()) % grid.Width();
+    const Grid& g = this->GetGrid();
+    const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
-    if( grid.MRRank() == ownerCol )
+    if( g.MRRank() == ownerCol )
     {
-        const int jLoc = (j-this->RowShift()) / grid.Width();
+        const int jLoc = (j-this->RowShift()) / g.Width();
         imag(this->LocalEntry(i,jLoc)) = u;
     }
 #ifndef RELEASE
@@ -1890,9 +1890,9 @@ template class elemental::DistMatrixBase<scomplex,Star,MR>;
 template class elemental::DistMatrixBase<dcomplex,Star,MR>;
 #endif
 
-template class elemental::DistMatrix<int,     Star,MR>;
-template class elemental::DistMatrix<float,   Star,MR>;
-template class elemental::DistMatrix<double,  Star,MR>;
+template class elemental::DistMatrix<int,   Star,MR>;
+template class elemental::DistMatrix<float, Star,MR>;
+template class elemental::DistMatrix<double,Star,MR>;
 #ifndef WITHOUT_COMPLEX
 template class elemental::DistMatrix<scomplex,Star,MR>;
 template class elemental::DistMatrix<dcomplex,Star,MR>;

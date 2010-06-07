@@ -37,12 +37,12 @@ elemental::blas::Geru
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
     if( x.Width() == 1 && y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,Star> x_MC_Star(grid);
-        DistMatrix<T,MR,Star> y_MR_Star(grid);
+        DistMatrix<T,MC,Star> x_MC_Star(g);
+        DistMatrix<T,MR,Star> y_MR_Star(g);
 
         // Begin the algoritm
         x_MC_Star.AlignWith( A );
@@ -61,8 +61,8 @@ elemental::blas::Geru
     else if( x.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,  Star> x_MC_Star(grid);
-        DistMatrix<T,Star,MR  > y_Star_MR(grid);
+        DistMatrix<T,MC,  Star> x_MC_Star(g);
+        DistMatrix<T,Star,MR  > y_Star_MR(g);
 
         // Begin the algorithm
         x_MC_Star.AlignWith( A );
@@ -81,8 +81,8 @@ elemental::blas::Geru
     else if( y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC  > x_Star_MC(grid);
-        DistMatrix<T,MR,  Star> y_MR_Star(grid);
+        DistMatrix<T,Star,MC  > x_Star_MC(g);
+        DistMatrix<T,MR,  Star> y_MR_Star(g);
 
         // Begin the algorithm
         x_Star_MC.AlignWith( A );
@@ -101,8 +101,8 @@ elemental::blas::Geru
     else
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC> x_Star_MC(grid);
-        DistMatrix<T,Star,MR> y_Star_MR(grid);
+        DistMatrix<T,Star,MC> x_Star_MC(g);
+        DistMatrix<T,Star,MR> y_Star_MR(g);
 
         // Begin the algorithm
         x_Star_MC.AlignWith( A );

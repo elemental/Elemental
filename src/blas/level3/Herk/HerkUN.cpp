@@ -30,16 +30,16 @@ elemental::blas::internal::HerkUN
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> AL(grid), AR(grid),
-                        A0(grid), A1(grid), A2(grid);
+    DistMatrix<T,MC,MR> AL(g), AR(g),
+                        A0(g), A1(g), A2(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,  Star> A1_MC_Star(grid);
-    DistMatrix<T,VR,  Star> A1_VR_Star(grid);
-    DistMatrix<T,Star,MR  > A1Herm_Star_MR(grid);
+    DistMatrix<T,MC,  Star> A1_MC_Star(g);
+    DistMatrix<T,VR,  Star> A1_VR_Star(g);
+    DistMatrix<T,Star,MR  > A1Herm_Star_MR(g);
 
     // Start the algorithm
     blas::Scal( beta, C );

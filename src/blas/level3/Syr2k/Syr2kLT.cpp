@@ -36,24 +36,24 @@ elemental::blas::internal::Syr2kLT
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& grid = A.GetGrid();
+    const Grid& g = A.GetGrid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> AT(grid),  A0(grid),
-                        AB(grid),  A1(grid),
-                                   A2(grid);
+    DistMatrix<T,MC,MR> AT(g),  A0(g),
+                        AB(g),  A1(g),
+                                A2(g);
 
-    DistMatrix<T,MC,MR> BT(grid),  B0(grid),
-                        BB(grid),  B1(grid),
-                                   B2(grid);
+    DistMatrix<T,MC,MR> BT(g),  B0(g),
+                        BB(g),  B1(g),
+                                B2(g);
 
     // Temporary distributions
-    DistMatrix<T,MR,  Star> A1Trans_MR_Star(grid);
-    DistMatrix<T,MR,  Star> B1Trans_MR_Star(grid);
-    DistMatrix<T,Star,VR  > A1_Star_VR(grid);
-    DistMatrix<T,Star,VR  > B1_Star_VR(grid);
-    DistMatrix<T,Star,MC  > A1_Star_MC(grid);
-    DistMatrix<T,Star,MC  > B1_Star_MC(grid);
+    DistMatrix<T,MR,  Star> A1Trans_MR_Star(g);
+    DistMatrix<T,MR,  Star> B1Trans_MR_Star(g);
+    DistMatrix<T,Star,VR  > A1_Star_VR(g);
+    DistMatrix<T,Star,VR  > B1_Star_VR(g);
+    DistMatrix<T,Star,MC  > A1_Star_MC(g);
+    DistMatrix<T,Star,MC  > B1_Star_MC(g);
 
     // Start the algorithm
     blas::Scal( beta, C );
