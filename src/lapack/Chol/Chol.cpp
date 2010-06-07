@@ -10,7 +10,6 @@
 #include "elemental/lapack_internal.hpp"
 using namespace elemental;
 
-// The mainline Cholesky wraps the variant 2 algorithm
 template<typename T>
 void
 elemental::lapack::Chol
@@ -19,7 +18,7 @@ elemental::lapack::Chol
 #ifndef RELEASE
     PushCallStack("lapack::Chol");
 #endif
-    lapack::internal::CholVar2( shape, A );
+    lapack::internal::CholVar3( shape, A );
 #ifndef RELEASE
     PopCallStack();
 #endif

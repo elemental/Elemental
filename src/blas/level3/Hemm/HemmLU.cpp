@@ -369,11 +369,11 @@ elemental::blas::internal::LocalHemmAccumulateLU
           alpha, D11, B1_MC_Star, (T)1, Z1_MR_Star );
 
         blas::internal::LocalGemm
-        ( Normal, Normal, alpha, A01, B1_MR_Star, (T)1, Z0_MC_Star );
+        ( Normal, Normal, alpha, A12, B2_MR_Star, (T)1, Z1_MC_Star );
 
         blas::internal::LocalGemm
         ( ConjugateTranspose, Normal,
-          alpha, A01, B0_MC_Star, (T)1, Z1_MR_Star );
+          alpha, A12, B1_MC_Star, (T)1, Z2_MR_Star );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 

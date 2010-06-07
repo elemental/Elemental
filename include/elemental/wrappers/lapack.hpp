@@ -41,6 +41,28 @@ Chol
 #endif
 
 void
+Hegst
+( int itype, char uplo, 
+  int n, float* A, int lda, const float* B, int ldb );
+
+void
+Hegst
+( int itype, char uplo,
+  int n, double* A, int lda, const double* B, int ldb );
+
+#ifndef WITHOUT_COMPLEX
+void
+Hegst
+( int itype, char uplo,
+  int n, scomplex* A, int lda, const scomplex* B, int ldb );
+
+void
+Hegst
+( int itype, char uplo,
+  int n, dcomplex* A, int lda, const dcomplex* B, int ldb );
+#endif
+
+void
 LU
 ( int m, int n, float* A, int lda, int* p );
 
@@ -116,6 +138,7 @@ Trinv
 
 extern "C" {
 
+// LU factorization
 void LAPACK(sgetrf)
 ( const int* m, const int* n, 
   float* A, const int* lda, int* p, int* info );
@@ -134,6 +157,7 @@ void LAPACK(zgetrf)
   elemental::dcomplex* A, const int* lda, int* p, int* info );
 #endif
 
+// Safe norms
 float LAPACK(slapy2)
 ( const float* alpha, const float* beta );
 
@@ -146,6 +170,7 @@ float LAPACK(slapy3)
 double LAPACK(dlapy3)
 ( const double* alpha, const double* beta, const double* gamma );
 
+// Cholesky factorization
 void LAPACK(spotrf)
 ( const char* uplo, const int* n, const float* A, const int* lda,
   int* info );
@@ -163,7 +188,29 @@ void LAPACK(zpotrf)
 ( const char* uplo, const int* n, const elemental::dcomplex* A, 
   const int* lda, int* info );
 #endif
-    
+
+// Hermitian generalized EVP to hermitian standard EVP
+void LAPACK(ssygst)
+( const int* itype, const char* uplo, const int* n,
+  float* A, int* lda, const float* B, int* ldb, int* info );
+
+void LAPACK(dsygst)
+( const int* itype, const char* uplo, const int* n,
+  double* A, int* lda, const double* B, int* ldb, int* info );
+ 
+#ifndef WITHOUT_COMPLEX
+void LAPACK(chegst)
+( const int* itype, const char* uplo, const int* n,
+        elemental::scomplex* A, const int* lda, 
+  const elemental::scomplex* B, const int* ldb, int* info );
+
+void LAPACK(zhegst)
+( const int* itype, const char* uplo, const int* n,
+        elemental::dcomplex* A, const int* lda,
+  const elemental::dcomplex* B, const int* ldb, int* info );
+#endif
+
+// Triangular inversion
 void LAPACK(strtri)
 ( const char* uplo, const char* diag, 
   const int* n, const float* A, const int* lda, int* info );
@@ -182,6 +229,7 @@ void LAPACK(ztrtri)
   const int* n, const elemental::dcomplex* A, const int* lda, int* info );
 #endif
 
+// Reduction from hermitian to symmetric tridiagonal
 void LAPACK(ssytd2)
 ( const char* uplo,
   const int* n, float* A, const int* lda,
@@ -285,6 +333,92 @@ elemental::wrappers::lapack::Chol
     {
         std::ostringstream msg;
         msg << "zpotrf returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+    PopCallStack();
+#endif
+}
+#endif
+
+inline void
+elemental::wrappers::lapack::Hegst
+( int itype, char uplo, int n,
+  float* A, int lda, const float* B, int ldb )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::lapack::Hegst");
+#endif
+    int info;
+    LAPACK(ssygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
+#ifndef RELEASE
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "ssygst returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::wrappers::lapack::Hegst
+( int itype, char uplo, int n,
+  double* A, int lda, const double* B, int ldb )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::lapack::Hegst");
+#endif
+    int info;
+    LAPACK(dsygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
+#ifndef RELEASE
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "dsygst returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+    PopCallStack();
+#endif
+}
+
+#ifndef WITHOUT_COMPLEX
+inline void
+elemental::wrappers::lapack::Hegst
+( int itype, char uplo, int n,
+  scomplex* A, int lda, const scomplex* B, int ldb )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::lapack::Hegst");
+#endif
+    int info;
+    LAPACK(chegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
+#ifndef RELEASE
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "chegst returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::wrappers::lapack::Hegst
+( int itype, char uplo, int n,
+  dcomplex* A, int lda, const dcomplex* B, int ldb )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::lapack::Hegst");
+#endif
+    int info;
+    LAPACK(zhegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
+#ifndef RELEASE
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "zhegst returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
     PopCallStack();

@@ -457,6 +457,5 @@ template void elemental::blas::internal::HemmLLA
 ( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                   const DistMatrix<dcomplex,MC,MR>& B,
   dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
-
 #endif
 

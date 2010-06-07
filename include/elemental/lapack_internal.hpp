@@ -27,6 +27,12 @@ LocalChol
 
 template<typename T>
 void
+LocalHegst
+( bool bothOnLeft, Shape shape, 
+  DistMatrix<T,Star,Star>& A, const DistMatrix<T,Star,Star>& B );
+
+template<typename T>
+void
 LocalTrinv
 ( Shape shape, Diagonal diagonal, DistMatrix<T,Star,Star>& A );
 
@@ -76,6 +82,23 @@ template<typename T>
 void
 ReduceToRowEchelon
 ( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
+
+//----------------------------------------------------------------------------//
+// Hegst                                                                      //
+//----------------------------------------------------------------------------//
+
+template<typename T>
+void
+HegstFalseL
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+
+// Soon to come
+/*
+template<typename T>
+void
+HegstFalseU
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
+*/
 
 //----------------------------------------------------------------------------//
 // LU                                                                         //
@@ -364,6 +387,21 @@ LocalChol
     PushCallStack("lapack::internal::LocalChol");
 #endif
     Chol( shape, A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+LocalHegst
+( bool bothOnLeft, Shape shape,
+  DistMatrix<T,Star,Star>& A, const DistMatrix<T,Star,Star>& B )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::internal::LocalHegst");
+#endif
+    Hegst( bothOnLeft, shape, A.LocalMatrix(), B.LockedLocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

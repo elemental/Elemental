@@ -26,6 +26,11 @@ Chol
 
 template<typename T>
 void
+Hegst
+( bool bothOnLeft, Shape shape, Matrix<T>& A, const Matrix<T>& B );
+
+template<typename T>
+void
 LU
 ( Matrix<T>& A, Matrix<int>& p );
 
@@ -62,6 +67,12 @@ template<typename T>
 void
 GaussElim
 ( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
+
+template<typename T>
+void
+Hegst
+( bool bothOnLeft, Shape shape, 
+  DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
 
 template<typename T>
 void
@@ -112,6 +123,30 @@ elemental::lapack::Chol
 #endif
     const char uplo = ShapeToChar( shape );
     wrappers::lapack::Chol( uplo, A.Height(), A.Buffer(), A.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+elemental::lapack::Hegst
+( bool bothOnLeft, Shape shape, Matrix<T>& A, const Matrix<T>& B )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::Hegst");
+    if( A.Height() != A.Width() )
+        throw std::logic_error( "A must be square." );
+    if( B.Height() != B.Width() )
+        throw std::logic_error( "B must be square." );
+    if( A.Height() != B.Height() )
+        throw std::logic_error( "A and B must be the same size." );
+#endif
+    const int itype = ( bothOnLeft ? 2 : 1 );
+    const char uplo = ShapeToChar( shape );
+    wrappers::lapack::Hegst
+    ( itype, uplo, A.Height(), 
+      A.Buffer(), A.LDim(), B.LockedBuffer(), B.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif

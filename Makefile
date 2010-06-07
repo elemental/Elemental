@@ -140,6 +140,8 @@ lapackfiles = Chol/Chol.cpp \
               Chol/CholU.cpp \
               GaussElim/GaussElim.cpp \
               GaussElim/ReduceToRowEchelon.cpp \
+              Hegst/Hegst.cpp \
+              Hegst/HegstFalseL.cpp \
               LU/ApplyRowPivots.cpp \
               LU/ComposePivots.cpp \
               LU/FindPivot.cpp \
