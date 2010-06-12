@@ -297,7 +297,6 @@ class DistMatrix<std::complex<R>,Star,MC>
 : public DistMatrixBase<std::complex<R>,Star,MC>
 {
 protected:
-    typedef std::complex<R> C;
     typedef DistMatrixBase<std::complex<R>,Star,MC> DMB;
 
 public:
@@ -316,48 +315,48 @@ public:
       bool constrainedRowAlignment, int rowAlignment, const Grid& g );
 
     DistMatrix
-    ( const DistMatrix<C,Star,MC>& A );
+    ( const DistMatrix<std::complex<R>,Star,MC>& A );
 
     ~DistMatrix();
     
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,MC,MR>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,MC,MR>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,MC,Star>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,MC,Star>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,Star,MR>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,Star,MR>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,MD,Star>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,MD,Star>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,Star,MD>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,Star,MD>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,MR,MC>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,MR,MC>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,MR,Star>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,MR,Star>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,Star,MC>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,Star,MC>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,VC,Star>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,VC,Star>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,Star,VC>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,Star,VC>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,VR,Star>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,VR,Star>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,Star,VR>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,Star,VR>& A );
 
-    const DistMatrix<C,Star,MC>&
-    operator=( const DistMatrix<C,Star,Star>& A );
+    const DistMatrix<std::complex<R>,Star,MC>&
+    operator=( const DistMatrix<std::complex<R>,Star,Star>& A );
 
     //------------------------------------------------------------------------//
     // Fulfillments of abstract virtual func's from AbstractDistMatrixBase    //
