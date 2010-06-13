@@ -51,12 +51,13 @@ elemental::blas::internal::HemmRUA
         CB(g),  C1(g),
                 C2(g);
 
-    DistMatrix<T,Star,MC> B1_Star_MC(g);
-    DistMatrix<T,Star,MR> B1_Star_MR(g);
-    DistMatrix<T,MC  ,MR> Z1(g);
-    DistMatrix<T,Star,MC> Z1_Star_MC(g);
-    DistMatrix<T,Star,MR> Z1_Star_MR(g);
-    DistMatrix<T,MR,  MC> Z1_MR_MC(g);
+    DistMatrix<T,MR,  Star> B1Trans_MR_Star(g);
+    DistMatrix<T,VC,  Star> B1Trans_VC_Star(g);
+    DistMatrix<T,Star,MC  > B1_Star_MC(g);
+    DistMatrix<T,MC  ,MR  > Z1(g);
+    DistMatrix<T,Star,MC  > Z1_Star_MC(g);
+    DistMatrix<T,Star,MR  > Z1_Star_MR(g);
+    DistMatrix<T,MR,  MC  > Z1_MR_MC(g);
 
     blas::Scal( beta, C );
     LockedPartitionDown
@@ -79,8 +80,9 @@ elemental::blas::internal::HemmRUA
                C1,
           CB,  C2 );
 
+        B1Trans_MR_Star.AlignWith( A );
+        B1Trans_VC_Star.AlignWith( A );
         B1_Star_MC.AlignWith( A );
-        B1_Star_MR.AlignWith( A );
         Z1_Star_MC.AlignWith( A );
         Z1_Star_MR.AlignWith( A );
         Z1.AlignWith( C1 );
@@ -89,18 +91,20 @@ elemental::blas::internal::HemmRUA
         Z1_Star_MC.SetToZero();
         Z1_Star_MR.SetToZero();
         //--------------------------------------------------------------------//
-        B1_Star_MR = B1;
-        B1_Star_MC = B1_Star_MR;
+        B1Trans_MR_Star.TransposeFrom( B1 );
+        B1Trans_VC_Star = B1Trans_MR_Star;
+        B1_Star_MC.TransposeFrom( B1Trans_VC_Star );
         blas::internal::LocalHemmAccumulateRU
-        ( alpha, A, B1_Star_MC, B1_Star_MR, Z1_Star_MC, Z1_Star_MR );
+        ( alpha, A, B1_Star_MC, B1Trans_MR_Star, Z1_Star_MC, Z1_Star_MR );
 
         Z1_MR_MC.SumScatterFrom( Z1_Star_MC );
         Z1 = Z1_MR_MC;
         Z1.SumScatterUpdate( (T)1, Z1_Star_MR );
         blas::Axpy( (T)1, Z1, C1 );
         //--------------------------------------------------------------------//
+        B1Trans_MR_Star.FreeAlignments();
+        B1Trans_VC_Star.FreeAlignments();
         B1_Star_MC.FreeAlignments();
-        B1_Star_MR.FreeAlignments();
         Z1_Star_MC.FreeAlignments();
         Z1_Star_MR.FreeAlignments();
         Z1.FreeAlignments();
@@ -232,26 +236,26 @@ template<typename T>
 void
 elemental::blas::internal::LocalHemmAccumulateRU
 ( T alpha,
-  const DistMatrix<T,MC,  MR>& A,
-  const DistMatrix<T,Star,MC>& B_Star_MC,
-  const DistMatrix<T,Star,MR>& B_Star_MR,
-        DistMatrix<T,Star,MC>& Z_Star_MC,
-        DistMatrix<T,Star,MR>& Z_Star_MR )
+  const DistMatrix<T,MC,  MR  >& A,
+  const DistMatrix<T,Star,MC  >& B_Star_MC,
+  const DistMatrix<T,MR,  Star>& BTrans_MR_Star,
+        DistMatrix<T,Star,MC  >& Z_Star_MC,
+        DistMatrix<T,Star,MR  >& Z_Star_MR )
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::LocalHemmAccumulateRU");
     if( A.GetGrid() != B_Star_MC.GetGrid() ||
-        B_Star_MC.GetGrid() != B_Star_MR.GetGrid() ||
-        B_Star_MR.GetGrid() != Z_Star_MC.GetGrid() ||
+        B_Star_MC.GetGrid() != BTrans_MR_Star.GetGrid() ||
+        BTrans_MR_Star.GetGrid() != Z_Star_MC.GetGrid() ||
         Z_Star_MC.GetGrid() != Z_Star_MR.GetGrid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != A.Width() ||
         A.Height() != B_Star_MC.Width() ||
-        A.Height() != B_Star_MR.Width() ||
+        A.Height() != BTrans_MR_Star.Height() ||
         A.Height() != Z_Star_MC.Width() ||
         A.Height() != Z_Star_MR.Width() ||
-        B_Star_MC.Height() != B_Star_MR.Height() ||
-        B_Star_MR.Height() != Z_Star_MC.Height() ||
+        B_Star_MC.Height() != BTrans_MR_Star.Width() ||
+        BTrans_MR_Star.Width() != Z_Star_MC.Height() ||
         Z_Star_MC.Height() != Z_Star_MR.Height() )
     {
         ostringstream msg;
@@ -259,8 +263,8 @@ elemental::blas::internal::LocalHemmAccumulateRU
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
             << "  B[* ,MC] ~ " << B_Star_MC.Height() << " x "
                                << B_Star_MC.Width() << endl
-            << "  B[* ,MR] ~ " << B_Star_MR.Height() << " x "
-                               << B_Star_MR.Width() << endl
+            << "  B^T[MR,* ] ~ " << BTrans_MR_Star.Height() << " x "
+                               << BTrans_MR_Star.Width() << endl
             << "  Z[* ,MC] ~ " << Z_Star_MC.Height() << " x "
                                << Z_Star_MC.Width() << endl
             << "  Z[* ,MR] ~ " << Z_Star_MR.Height() << " x "
@@ -268,7 +272,7 @@ elemental::blas::internal::LocalHemmAccumulateRU
         throw logic_error( msg.str() );
     }
     if( B_Star_MC.RowAlignment() != A.ColAlignment() ||
-        B_Star_MR.RowAlignment() != A.RowAlignment() ||
+        BTrans_MR_Star.ColAlignment() != A.RowAlignment() ||
         Z_Star_MC.RowAlignment() != A.ColAlignment() ||
         Z_Star_MR.RowAlignment() != A.RowAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
@@ -287,9 +291,10 @@ elemental::blas::internal::LocalHemmAccumulateRU
         BL_Star_MC(g), BR_Star_MC(g),
         B0_Star_MC(g), B1_Star_MC(g), B2_Star_MC(g);
 
-    DistMatrix<T,Star,MR>
-        BL_Star_MR(g), BR_Star_MR(g),
-        B0_Star_MR(g), B1_Star_MR(g), B2_Star_MR(g);
+    DistMatrix<T,MR,Star>
+        BTransT_MR_Star(g),  BTrans0_MR_Star(g),
+        BTransB_MR_Star(g),  BTrans1_MR_Star(g),
+                             BTrans2_MR_Star(g);
 
     DistMatrix<T,Star,MC>
         ZL_Star_MC(g), ZR_Star_MC(g),
@@ -306,7 +311,9 @@ elemental::blas::internal::LocalHemmAccumulateRU
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     LockedPartitionRight( B_Star_MC,  BL_Star_MC, BR_Star_MC, 0 );
-    LockedPartitionRight( B_Star_MR,  BL_Star_MR, BR_Star_MR, 0 );
+    LockedPartitionDown
+    ( BTrans_MR_Star, BTransT_MR_Star,
+                      BTransB_MR_Star, 0 );
     PartitionRight( Z_Star_MC,  ZL_Star_MC, ZR_Star_MC, 0 );
     PartitionRight( Z_Star_MR,  ZL_Star_MR, ZR_Star_MR, 0 );
     while( ATL.Height() < A.Height() )
@@ -321,9 +328,11 @@ elemental::blas::internal::LocalHemmAccumulateRU
         ( BL_Star_MC, /**/ BR_Star_MC,
           B0_Star_MC, /**/ B1_Star_MC, B2_Star_MC );
 
-        LockedRepartitionRight
-        ( BL_Star_MR, /**/ BR_Star_MR,
-          B0_Star_MR, /**/ B1_Star_MR, B2_Star_MR );
+        LockedRepartitionDown
+        ( BTransT_MR_Star,   BTrans0_MR_Star,
+         /****************/ /****************/
+                             BTrans1_MR_Star,
+          BTransB_MR_Star,   BTrans2_MR_Star );
 
         RepartitionRight
         ( ZL_Star_MC, /**/ ZR_Star_MC,
@@ -342,15 +351,15 @@ elemental::blas::internal::LocalHemmAccumulateRU
         D11.MakeTrapezoidal( Left, Upper, 1 );
 
         blas::internal::LocalGemm
-        ( Normal, ConjugateTranspose,
-          alpha, B1_Star_MR, D11, (T)1, Z1_Star_MC );
+        ( Transpose, ConjugateTranspose,
+          alpha, BTrans1_MR_Star, D11, (T)1, Z1_Star_MC );
 
         blas::internal::LocalGemm
         ( Normal, Normal, alpha, B1_Star_MC, A12, (T)1, Z2_Star_MR );
 
         blas::internal::LocalGemm
-        ( Normal, ConjugateTranspose,
-          alpha, B2_Star_MR, A12, (T)1, Z1_Star_MC );
+        ( Transpose, ConjugateTranspose,
+          alpha, BTrans2_MR_Star, A12, (T)1, Z1_Star_MC );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 
@@ -364,9 +373,11 @@ elemental::blas::internal::LocalHemmAccumulateRU
         ( BL_Star_MC,             /**/ BR_Star_MC,
           B0_Star_MC, B1_Star_MC, /**/ B2_Star_MC );
 
-        SlideLockedPartitionRight
-        ( BL_Star_MR,             /**/ BR_Star_MR,
-          B0_Star_MR, B1_Star_MR, /**/ B2_Star_MR );
+        SlideLockedPartitionDown
+        ( BTransT_MR_Star,   BTrans0_MR_Star,
+                             BTrans1_MR_Star,
+         /****************/ /****************/
+          BTransB_MR_Star,   BTrans2_MR_Star );
 
         SlidePartitionRight
         ( ZL_Star_MC,             /**/ ZR_Star_MC,

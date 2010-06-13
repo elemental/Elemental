@@ -141,7 +141,7 @@ void TestHegst
     B.ResizeTo( m, m );
 
     A.SetToRandomHPD();
-    B.SetToRandom();
+    B.SetToRandomHPD();
     B.MakeTrapezoidal( Left, shape );
     if( testCorrectness )
     {

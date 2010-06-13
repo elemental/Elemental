@@ -44,8 +44,9 @@ elemental::lapack::internal::HegstFalseL
     DistMatrix<T,Star,VR  > A10_Star_VR(g);
     DistMatrix<T,Star,Star> A11_Star_Star(g);
     DistMatrix<T,VC,  Star> A21_VC_Star(g);
+    DistMatrix<T,MR,  Star> L10Trans_MR_Star(g);
+    DistMatrix<T,VC,  Star> L10Trans_VC_Star(g);
     DistMatrix<T,Star,MC  > L10_Star_MC(g);
-    DistMatrix<T,Star,MR  > L10_Star_MR(g);
     DistMatrix<T,Star,Star> L11_Star_Star(g);
     DistMatrix<T,Star,MC  > E10_Star_MC(g);
     DistMatrix<T,Star,MR  > F10_Star_MR(g);
@@ -76,8 +77,9 @@ elemental::lapack::internal::HegstFalseL
           LBL, /**/ LBR,  L20, /**/ L21, L22 );
 
         A10_Star_MR.AlignWith( L10 );
+        L10Trans_MR_Star.AlignWith( A00 );
+        L10Trans_VC_Star.AlignWith( A00 );
         L10_Star_MC.AlignWith( A00 );
-        L10_Star_MR.AlignWith( A00 );
         E10_Star_MC.AlignWith( A00 );
         F10_Star_MR.AlignWith( A00 );
         E10.AlignWith( A10 );
@@ -91,17 +93,18 @@ elemental::lapack::internal::HegstFalseL
         E10_Star_MC.SetToZero();
         F10_Star_MR.SetToZero();
         //--------------------------------------------------------------------//
-        L10_Star_MR = L10;
-        L10_Star_MC = L10_Star_MR;
+        L10Trans_MR_Star.TransposeFrom( L10 );
+        L10Trans_VC_Star = L10Trans_MR_Star;
+        L10_Star_MC.TransposeFrom( L10Trans_VC_Star );
         blas::internal::LocalHemmAccumulateRL
-        ( (T)1, A00, L10_Star_MC, L10_Star_MR, E10_Star_MC, F10_Star_MR );
+        ( (T)1, A00, L10_Star_MC, L10Trans_MR_Star, E10_Star_MC, F10_Star_MR );
         E10_MR_MC.SumScatterFrom( E10_Star_MC );
         E10 = E10_MR_MC;
         E10.SumScatterUpdate( (T)1, F10_Star_MR );
         
+        blas::Conj( L10Trans_MR_Star );
         blas::internal::LocalGemm
-        ( Normal, ConjugateTranspose, 
-          (T)1, A10, L10_Star_MR, (T)0, G11_MC_Star );
+        ( Normal, Normal, (T)1, A10, L10Trans_MR_Star, (T)0, G11_MC_Star );
 
         blas::Axpy( (T)-1, E10, A10 );
         A10_Star_MR = A10;
@@ -125,8 +128,8 @@ elemental::lapack::internal::HegstFalseL
         A11 = A11_Star_Star;
 
         blas::internal::LocalGemm
-        ( Normal, ConjugateTranspose, 
-          (T)1, A20, L10_Star_MR, (T)0, H21_MC_Star );
+        ( Normal, Normal,
+          (T)1, A20, L10Trans_MR_Star, (T)0, H21_MC_Star );
         A21.SumScatterUpdate( (T)-1, H21_MC_Star );
 
         A21_VC_Star =  A21;
@@ -136,8 +139,9 @@ elemental::lapack::internal::HegstFalseL
         A21 = A21_VC_Star;
         //--------------------------------------------------------------------//
         A10_Star_MR.FreeAlignments();
+        L10Trans_MR_Star.FreeAlignments();
+        L10Trans_VC_Star.FreeAlignments();
         L10_Star_MC.FreeAlignments();
-        L10_Star_MR.FreeAlignments();
         E10_Star_MC.FreeAlignments();
         F10_Star_MR.FreeAlignments();
         E10.FreeAlignments();

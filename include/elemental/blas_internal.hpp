@@ -565,11 +565,11 @@ template<typename T>
 void
 LocalHemmAccumulateLL
 ( T alpha, 
-  const DistMatrix<T,MC,MR  >& A,
-  const DistMatrix<T,MC,Star>& B_MC_Star,
-  const DistMatrix<T,MR,Star>& B_MR_Star,
-        DistMatrix<T,MC,Star>& Z_MC_Star,
-        DistMatrix<T,MR,Star>& Z_MR_Star
+  const DistMatrix<T,MC,  MR  >& A,
+  const DistMatrix<T,MC,  Star>& B_MC_Star,
+  const DistMatrix<T,Star,MR  >& BTrans_Star_MR,
+        DistMatrix<T,MC,  Star>& Z_MC_Star,
+        DistMatrix<T,MR,  Star>& Z_MR_Star
 );
 
 // Left Upper Hemm
@@ -597,11 +597,11 @@ template<typename T>
 void
 LocalHemmAccumulateLU
 ( T alpha, 
-  const DistMatrix<T,MC,MR  >& A,
-  const DistMatrix<T,MC,Star>& B_MC_Star,
-  const DistMatrix<T,MR,Star>& B_MR_Star,
-        DistMatrix<T,MC,Star>& Z_MC_Star,
-        DistMatrix<T,MR,Star>& Z_MR_Star
+  const DistMatrix<T,MC,  MR  >& A,
+  const DistMatrix<T,MC,  Star>& B_MC_Star,
+  const DistMatrix<T,Star,MR  >& BTrans_Star_MR,
+        DistMatrix<T,MC,  Star>& Z_MC_Star,
+        DistMatrix<T,MR,  Star>& Z_MR_Star
 );
 
 // Right Lower Hemm
@@ -629,11 +629,11 @@ template<typename T>
 void
 LocalHemmAccumulateRL
 ( T alpha, 
-  const DistMatrix<T,MC,  MR>& A,
-  const DistMatrix<T,Star,MC>& B_Star_MC,
-  const DistMatrix<T,Star,MR>& B_Star_MR,
-        DistMatrix<T,Star,MC>& Z_Star_MC,
-        DistMatrix<T,Star,MR>& Z_Star_MR
+  const DistMatrix<T,MC,  MR  >& A,
+  const DistMatrix<T,Star,MC  >& B_Star_MC,
+  const DistMatrix<T,MR,  Star>& BTrans_MR_Star,
+        DistMatrix<T,Star,MC  >& Z_Star_MC,
+        DistMatrix<T,Star,MR  >& Z_Star_MR
 );
 
 // Right Upper Hemm
@@ -662,10 +662,10 @@ void
 LocalHemmAccumulateRU
 ( T alpha, 
   const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,Star,MC>& B_Star_MC,
-  const DistMatrix<T,Star,MR>& B_Star_MR,
-        DistMatrix<T,Star,MC>& Z_Star_MC,
-        DistMatrix<T,Star,MR>& Z_Star_MR
+  const DistMatrix<T,Star,MC  >& B_Star_MC,
+  const DistMatrix<T,MR,  Star>& BTrans_MR_Star,
+        DistMatrix<T,Star,MC  >& Z_Star_MC,
+        DistMatrix<T,Star,MR  >& Z_Star_MR
 );
 
 // Lower, Normal Her2k
