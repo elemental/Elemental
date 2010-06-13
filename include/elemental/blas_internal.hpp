@@ -837,6 +837,31 @@ SyrkUT
 ( T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
 // Triangular Rank-K Update:
+// tril(C) := alpha tril( A*B^(T/H) ) + beta tril(C)
+//   or 
+// triu(C) := alpha triu( A*B^(T/H) ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRankK
+( Shape shape,
+  Orientation orientationOfB,
+  T alpha, const DistMatrix<T,MC,Star>& A, const DistMatrix<T,MR,Star>& B,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-K Update:
+// tril(C) := alpha tril( A^(T/H)*B^(T/H) ) + beta tril(C)
+//   or 
+// triu(C) := alpha triu( A^(T/H)*B^(T/H) ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRankK
+( Shape shape,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
+  T alpha, const DistMatrix<T,Star,MC>& A, const DistMatrix<T,MR,Star>& B,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-K Update:
 // tril(C) := alpha tril( A*B ) + beta tril(C)
 //   or 
 // triu(C) := alpha triu( A*B ) + beta triu(C)
@@ -857,19 +882,6 @@ LocalTriangularRankK
 ( Shape shape,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,Star,MC>& A, const DistMatrix<T,Star,MR>& B,
-  T beta,        DistMatrix<T,MC,  MR>& C );
-
-// Triangular Rank-K Update:
-// tril(C) := alpha tril( A^(T/H)*B^(T/H) ) + beta tril(C)
-//   or 
-// triu(C) := alpha triu( A^(T/H)*B^(T/H) ) + beta triu(C)
-template<typename T>
-void
-LocalTriangularRankK
-( Shape shape,
-  Orientation orientationOfA,
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T,Star,MC>& A, const DistMatrix<T,MR,Star>& B,
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:

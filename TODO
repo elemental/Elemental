@@ -1,5 +1,6 @@
 Relatively trivial but important 
 ================================
+- Add warnings to redistribution routines that necessarily cause cache-thrashing
 - Modify Hegst algorithms to avoid cache-thrashing
 - Unit tests for unaligned DistMatrix redistributions and summations
 - Finish adding dot product gemm algorithms for NT, TN, and TT options
@@ -18,7 +19,6 @@ Substantial effort and important
 
 Substantial effort but not terribly important 
 =============================================
-- Finish adding all versions of LocalTriangularRankK
 - Finish adding vector versions of all DistMatrix communications.
 - Finish adding redistributions to and from [MD,* ]/[* ,MD] 
 - Automate the build process? (preferably not with autoconf)
