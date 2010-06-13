@@ -108,7 +108,6 @@ elemental::lapack::internal::HegstTrueL
           (T)1, L11_Star_Star, A10_Star_VR );
         A10 = A10_Star_VR;
 
-        // HERE
         A21_MC_Star = A21;
         blas::internal::LocalGemm
         ( Normal, Normal, (T)1, A21_MC_Star, L10_Star_MR, (T)1, A20 );

@@ -285,7 +285,6 @@ elemental::lapack::internal::TridiagU
 
         if( A00.Height() > 0 )
         {
-            // HERE
             A11Expanded.View
             ( ATL, 
               A00.Height()-1, A00.Width()-1, A11.Height()+1, A11.Width()+1 );
