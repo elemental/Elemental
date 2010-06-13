@@ -873,6 +873,63 @@ LocalTriangularRankK
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1*B1^(T/H) + A2*B2^(T/H) ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1*B1^(T/H) + A2*B2^(T/H) ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
+  T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,MC,Star>& A2, 
+           const DistMatrix<T,MR,Star>& B1, const DistMatrix<T,MR,Star>& B2,
+  T beta,        DistMatrix<T,MC,MR  >& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1^(T/H)*B1^(T/H) + A2*B2^(T/H) ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1^(T/H)*B1^(T/H) + A2*B2^(T/H) ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
+  T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,MC,Star>& A2, 
+           const DistMatrix<T,MR,Star>& B1, const DistMatrix<T,MR,Star>& B2,
+  T beta,        DistMatrix<T,MC,MR  >& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1*B1^(T/H) + A2^(T/H)*B2^(T/H) ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1*B1^(T/H) + A2^(T/H)*B2^(T/H) ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  Orientation orientationOfB2,
+  T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,Star,MC>& A2, 
+           const DistMatrix<T,MR,Star>& B1, const DistMatrix<T,MR,Star>& B2,
+  T beta,        DistMatrix<T,MC,MR  >& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1*B1 + A2*B2^(T/H) ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1*B1 + A2*B2^(T/H) ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfB2,
+  T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,MC,Star>& A2, 
+           const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,MR,Star>& B2,
+  T beta,        DistMatrix<T,MC,MR  >& C );
+
+// Triangular Rank-2K Update:
 // tril(C) := alpha tril( A1*B1^(T/H) + A2*B2 ) + beta tril(C)
 //   or
 // triu(C) := alpha triu( A1*B1^(T/H) + A2*B2 ) + beta triu(C)
@@ -884,32 +941,6 @@ LocalTriangularRank2K
   T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,MC,Star>& A2, 
            const DistMatrix<T,MR,Star>& B1, const DistMatrix<T,Star,MR>& B2,
   T beta,        DistMatrix<T,MC,MR  >& C );
-
-// Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1*B1 + A2*B2 ) + beta tril(C)
-//   or
-// triu(C) := alpha triu( A1*B1 + A2*B2 ) + beta triu(C)
-template<typename T>
-void
-LocalTriangularRank2K
-( Shape shape,
-  T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,MC,Star>& A2, 
-           const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,Star,MR>& B2,
-  T beta,        DistMatrix<T,MC,  MR>& C );
-
-// Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^(T/H)*B1 + A2^(T/H)*B2 ) + beta tril(C)
-//   or
-// triu(C) := alpha triu( A1^(T/H)*B1 + A2^(T/H)*B2 ) + beta triu(C)
-template<typename T>
-void
-LocalTriangularRank2K
-( Shape shape,
-  Orientation orientationOfA1,
-  Orientation orientationOfA2,
-  T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,Star,MC>& A2, 
-           const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,Star,MR>& B2,
-  T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
 // tril(C) := alpha tril( A1^(T/H)*B1^(T/H) + A2^(T/H)*B2^(T/H) ) + beta tril(C)
@@ -925,6 +956,144 @@ LocalTriangularRank2K
   Orientation orientationOfB2,
   T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,Star,MC>& A2, 
            const DistMatrix<T,MR,Star>& B1, const DistMatrix<T,MR,Star>& B2,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1^(T/H)*B1 + A2*B2^(T/H) ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1^(T/H)*B1 + A2*B2^(T/H) ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfB2,
+  T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,MC,Star>& A2, 
+           const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,MR,Star>& B2,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1^(T/H)*B1^(T/H) + A2*B2 ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1^(T/H)*B1^(T/H) + A2*B2 ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfB2,
+  T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,MC,Star>& A2, 
+           const DistMatrix<T,MR,Star>& B1, const DistMatrix<T,Star,MR>& B2,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1*B1 + A2^(T/H)*B2^(T/H) ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1*B1 + A2^(T/H)*B2^(T/H) ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA2,
+  Orientation orientationOfB2,
+  T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,Star,MC>& A2, 
+           const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,MR,Star>& B2,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1*B1^(T/H) + A2^(T/H)*B2 ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1*B1^(T/H) + A2^(T/H)*B2 ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,Star,MC>& A2, 
+           const DistMatrix<T,MR,Star>& B1, const DistMatrix<T,Star,MR>& B2,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1*B1 + A2*B2 ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1*B1 + A2*B2 ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,MC,Star>& A2, 
+           const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,Star,MR>& B2,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1^(T/H)*B1 + A2^(T/H)*B2^(T/H) ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1^(T/H)*B1 + A2^(T/H)*B2^(T/H) ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB2,
+  T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,Star,MC>& A2, 
+           const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,MR,Star>& B2,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1^(T/H)*B1^(T/H) + A2^(T/H)*B2 ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1^(T/H)*B1^(T/H) + A2^(T/H)*B2 ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,Star,MC>& A2, 
+           const DistMatrix<T,MR,Star>& B1, const DistMatrix<T,Star,MR>& B2,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1^(T/H)*B1 + A2*B2 ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1^(T/H)*B1 + A2*B2 ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA1,
+  T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,MC,Star>& A2, 
+           const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,Star,MR>& B2,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1*B1 + A2^(T/H)*B2 ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1*B1 + A2^(T/H)*B2 ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA2,
+  T alpha, const DistMatrix<T,MC,Star>& A1, const DistMatrix<T,Star,MC>& A2, 
+           const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,Star,MR>& B2,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+// Triangular Rank-2K Update:
+// tril(C) := alpha tril( A1^(T/H)*B1 + A2^(T/H)*B2 ) + beta tril(C)
+//   or
+// triu(C) := alpha triu( A1^(T/H)*B1 + A2^(T/H)*B2 ) + beta triu(C)
+template<typename T>
+void
+LocalTriangularRank2K
+( Shape shape,
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  T alpha, const DistMatrix<T,Star,MC>& A1, const DistMatrix<T,Star,MC>& A2, 
+           const DistMatrix<T,Star,MR>& B1, const DistMatrix<T,Star,MR>& B2,
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Left, Lower, Normal Trmm

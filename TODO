@@ -17,6 +17,7 @@ Substantial effort and important
 
 Substantial effort but not terribly important 
 =============================================
+- Finish adding all versions of LocalTriangularRankK
 - Finish adding vector versions of all DistMatrix communications.
 - Finish adding redistributions to and from [MD,* ]/[* ,MD] 
 - Automate the build process? (preferably not with autoconf)
