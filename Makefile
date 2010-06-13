@@ -143,6 +143,8 @@ lapackfiles = Chol/Chol.cpp \
               Hegst/Hegst.cpp \
               Hegst/HegstFalseL.cpp \
               Hegst/HegstFalseU.cpp \
+              Hegst/HegstTrueL.cpp \
+              Hegst/HegstTrueU.cpp \
               LU/ApplyRowPivots.cpp \
               LU/ComposePivots.cpp \
               LU/FindPivot.cpp \

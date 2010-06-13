@@ -900,11 +900,8 @@ LocalTriangularRank2KKernel
     DistMatrix<T,MC,Star> A1T(g),  A2T(g),
                           A1B(g),  A2B(g);
 
-    DistMatrix<T,MR,Star> B1T(g), 
-                          B1B(g);
-
-    DistMatrix<T,MR,Star> B2T(g), 
-                          B2B(g);
+    DistMatrix<T,MR,Star> B1T(g),  B2T(g),
+                          B1B(g),  B2B(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
                         CBL(g), CBR(g);

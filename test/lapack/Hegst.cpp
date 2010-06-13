@@ -141,7 +141,7 @@ void TestHegst
     B.ResizeTo( m, m );
 
     A.SetToRandomHPD();
-    B.SetToRandomHPD();
+    B.SetToRandom();
     B.MakeTrapezoidal( Left, shape );
     if( testCorrectness )
     {
@@ -172,8 +172,7 @@ void TestHegst
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
-    //gFlops = lapack::internal::HegstGFlops<T>( m, runTime );
-    gFlops = -1;
+    gFlops = lapack::internal::HegstGFlops<T>( m, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl

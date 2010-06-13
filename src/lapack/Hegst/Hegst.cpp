@@ -22,7 +22,10 @@ elemental::lapack::Hegst
 #endif
     if( bothOnLeft )
     {
-        throw logic_error( "A B X = X Lambda version not yet written." );
+        if( shape == Lower )
+            lapack::internal::HegstTrueL( A, B );
+        else
+            lapack::internal::HegstTrueU( A, B );
     }
     else
     {

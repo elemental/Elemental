@@ -97,6 +97,16 @@ void
 HegstFalseU
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
 
+template<typename T>
+void
+HegstTrueL
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+
+template<typename T>
+void
+HegstTrueU
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
+
 //----------------------------------------------------------------------------//
 // LU                                                                         //
 //----------------------------------------------------------------------------//
