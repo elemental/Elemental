@@ -44,7 +44,7 @@ protected:
       int rowShift,
       const Grid& g );
 
-    ~AbstractDistMatrixBase();
+    virtual ~AbstractDistMatrixBase();
 
 public:
     //-----------------------------------------------------------------------//
