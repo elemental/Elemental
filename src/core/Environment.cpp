@@ -12,8 +12,10 @@
 using namespace std;
 using namespace elemental;
 
-static bool elementalInitializedMPI;
-static stack<int> blocksizeStack;
+namespace {
+bool elementalInitializedMPI;
+stack<int> blocksizeStack;
+}
 
 void
 elemental::Init
@@ -107,7 +109,7 @@ elemental::PopBlocksizeStack()
 
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
 #ifndef RELEASE
-static stack<string> callStack;
+namespace { stack<string> callStack; }
 
 void
 elemental::PushCallStack( string s )
