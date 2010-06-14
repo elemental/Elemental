@@ -551,7 +551,7 @@ AbstractDistMatrixBase<T>::SetToZero()
 { _localMatrix.SetToZero(); }
 
 //
-// AbstractDistMatrix
+// Real AbstractDistMatrix
 //
 
 template<typename R>
@@ -576,7 +576,7 @@ AbstractDistMatrix<R>::~AbstractDistMatrix()
 { }
 
 //
-// Real AbstractDistMatrix
+// Complex AbstractDistMatrix
 //
 
 #ifndef WITHOUT_COMPLEX
