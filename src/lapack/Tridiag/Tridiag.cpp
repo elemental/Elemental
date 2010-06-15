@@ -14,7 +14,7 @@ using namespace std;
 template<typename R>
 void
 elemental::lapack::Tridiag
-( const Shape shape,
+( Shape shape,
   DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MD,Star>& d,
   DistMatrix<R,MD,Star>& e,
@@ -36,7 +36,7 @@ elemental::lapack::Tridiag
 template<typename R>
 void
 elemental::lapack::Tridiag
-( const Shape shape,
+( Shape shape,
   DistMatrix<complex<R>,MC,MR  >& A,
   DistMatrix<R,         MD,Star>& d,
   DistMatrix<R,         MD,Star>& e,
@@ -56,14 +56,14 @@ elemental::lapack::Tridiag
 #endif // WITHOUT_COMPLEX
 
 template void elemental::lapack::Tridiag
-( const Shape shape, 
+( Shape shape, 
   DistMatrix<float,MC,MR  >& A,
   DistMatrix<float,MD,Star>& d,
   DistMatrix<float,MD,Star>& e,
   DistMatrix<float,MD,Star>& t );
 
 template void elemental::lapack::Tridiag
-( const Shape shape, 
+( Shape shape, 
   DistMatrix<double,MC,MR  >& A,
   DistMatrix<double,MD,Star>& d,
   DistMatrix<double,MD,Star>& e,
@@ -71,14 +71,14 @@ template void elemental::lapack::Tridiag
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::Tridiag
-( const Shape shape,
+( Shape shape,
   DistMatrix<scomplex,MC,MR  >& A,
   DistMatrix<float,   MD,Star>& d,
   DistMatrix<float,   MD,Star>& e,
   DistMatrix<scomplex,MD,Star>& t );
 
 template void elemental::lapack::Tridiag
-( const Shape shape,
+( Shape shape,
   DistMatrix<dcomplex,MC,MR  >& A,
   DistMatrix<double,  MD,Star>& d,
   DistMatrix<double,  MD,Star>& e,

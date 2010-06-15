@@ -351,6 +351,30 @@ TrinvUVar3
 ( Diagonal diagonal, DistMatrix<T,MC,MR>& U );
 
 //----------------------------------------------------------------------------//
+// UT Transform                                                               //
+//----------------------------------------------------------------------------//
+
+template<typename T>
+void
+UTLN
+( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+UTLH
+( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+UTUN
+( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+UTUH
+( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
 // LAPACK Utility Functions                                                   //
 //----------------------------------------------------------------------------//
 template<typename T>

@@ -160,7 +160,12 @@ lapackfiles = Chol/Chol.cpp \
               Tridiag/TridiagU.cpp \
               Trinv/Trinv.cpp \
               Trinv/TrinvL.cpp \
-              Trinv/TrinvU.cpp
+              Trinv/TrinvU.cpp \
+              UT/UT.cpp \
+              UT/UTLH.cpp \
+              UT/UTLN.cpp \
+              UT/UTUH.cpp \
+              UT/UTUN.cpp
 lapacksrc = $(addprefix $(lapackdir)/,$(lapackfiles))
 
 # The entire list of source files relative to $(srcdir)

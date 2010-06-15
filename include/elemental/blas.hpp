@@ -17,343 +17,254 @@
 namespace elemental {
 namespace blas {
 
-//--------------------------------------------------------------------//
-// Local BLAS: Level 1                                                //
-//--------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+// Level 1 BLAS                                                               //
+//----------------------------------------------------------------------------//
 
-// AXPY: Y := Alpha X Plus Y 
+//
+// Axpy (Alpha X Plus Y):
+//
+// Y := alpha X + Y
+//
+
+// Serial version
 template<typename T>
 void
 Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y );
 
-// COPY: Copy
-template<typename T>
-void
-Copy( const Matrix<T>& X, Matrix<T>& Y );
-
-// DOT: alpha := conj(x)^T * y
-// 
-// Though the standard BLAS interface only defines DOT for real 
-// datatypes, it is naturally generalized to an inner product over the
-// complex field. Recall that the conjugate symmetry of inner products 
-// requires that (x,y) = conj(y,x), so that (x,x) = conj( (x,x) ) => 
-// (x,x) is real. This requires that we choose (x,x) = conj(x)^T * x.
-template<typename T>
-T
-Dot( const Matrix<T>& x, const Matrix<T>& y );
-
-// DOTC: alpha := conj(x)^T * y
-//
-// This is the sister routine to DOT; while DOT is originally defined 
-// only over the reals, DOTC was defined only over the complex field. 
-// They are each others' extensions, and so, to us, they are 
-// identical.
-template<typename T>
-T
-Dotc( const Matrix<T>& x, const Matrix<T>& y );
-
-// DOTU: alpha := x^T * y
-//
-// Standard BLAS defines DOTU for complex datatypes, but the operation
-// is perfectly valid over the reals (clearly), so we extend it.
-template<typename T>
-T
-Dotu( const Matrix<T>& x, const Matrix<T>& y );
-
-// NRM2: NoRM 2 (Euclidean norm)
-template<typename R>
-R
-Nrm2( const Matrix<R>& x ); 
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-R
-Nrm2( const Matrix< std::complex<R> >& x );
-#endif
-
-// SCAL: SCALe X by alpha
-template<typename T>
-void
-Scal( T alpha, Matrix<T>& X );
-        
-//--------------------------------------------------------------------//
-// Local BLAS: Level 1 (extensions)                                   //
-//--------------------------------------------------------------------//
-
-// CONJ: CONJugate in-place
-//
-// There are two implementations because, for real datatypes, Conj is
-// a no-op. Partial specialization of function templates is not allowed,
-// so we must have two declarations.
-template<typename R>
-void
-Conj( Matrix<R>& A );
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-void
-Conj( Matrix< std::complex<R> >& A );
-#endif
-
-// CONJ: CONJugated copy
-template<typename T>
-void
-Conj( const Matrix<T>& A, Matrix<T>& B );
-
-// CONJTRANS: CONJugated Transposed copy
-template<typename T>
-void
-ConjTrans( const Matrix<T>& A, Matrix<T>& B );
-
-// TRANS: TRANSposed copy
-template<typename T>
-void
-Trans( const Matrix<T>& A, Matrix<T>& B );
-
-//--------------------------------------------------------------------//
-// Local BLAS: Level 2                                                //
-//--------------------------------------------------------------------//
-
-// GEMV: GEneral Matrix-Vector multiply
-template<typename T>
-void
-Gemv( Orientation orientation, 
-      T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
-
-// GER: GEneral Rank-one update
-//
-// For complex datatypes it routes to Gerc, as x (tensor product) y 
-// is x * conj(y)^T. That is, the dual of y is its conjugate transpose
-// thanks to the Riesz map. Thus our generalized Ger is equivalent to
-// our generalized Gerc.
-template<typename T>
-void
-Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
-
-// GERC: GEneral Rank-one Conjugated update
-template<typename T>
-void
-Gerc( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
-
-// GERU: GEneral Rank-one Unconjugated update
-template<typename T>
-void
-Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
-
-// HEMV: HErmitian Matrix-Vector multiply
-template<typename T>
-void
-Hemv( Shape shape,
-      T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
-
-// HER: HErmitian Rank-one update
-template<typename T>
-void
-Her( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A );
-
-// HER2: HErmitian Rank-2 update
-template<typename T>
-void
-Her2( Shape shape,
-      T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
-
-// SYMV: SYmmetric Matrix-Vector multiply
-template<typename T>
-void
-Symv( Shape shape,
-      T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
-
-// SYR: SYmmetric Rank-one update
-template<typename T>
-void
-Syr( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A );
-
-// SYR2: SYmmetric Rank-2 update
-template<typename T>
-void
-Syr2( Shape shape,
-      T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
-
-// TRMV: TRiangular Matrix-Vector multiply
-template<typename T>
-void
-Trmv
-( Shape shape, Orientation orientation, Diagonal diagonal,
-  const Matrix<T>& A, Matrix<T>& x );
-
-// TRSV: TRiangular Solve with a Vector
-template<typename T>
-void
-Trsv
-( Shape shape, Orientation orientation, Diagonal diagonal,
-  const Matrix<T>& A, Matrix<T>& x );
-
-//--------------------------------------------------------------------//
-// Local BLAS: Level 3                                                //
-//--------------------------------------------------------------------//
-
-// GEMM: GEneral Matrix-Matrix multiplication
-template<typename T>
-void
-Gemm
-( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
-
-// HEMM: HErmitian Matrix-Matrix multiply
-template<typename T>
-void
-Hemm
-( Side side, Shape shape,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
-
-// HER2K: HErmitian Rank-2K update
-template<typename T>
-void
-Her2k
-( Shape shape, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
-
-// HERK: HErmitian Rank-K update
-template<typename T>
-void
-Herk
-( Shape shape, Orientation orientation,
-  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
-
-// SYMM: SYmmetric Matrix-Matrix multiply
-template<typename T>
-void
-Symm
-( Side side, Shape shape,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C ); 
-
-// SYR2K: SYmmetric Rank-2K update
-template<typename T>
-void
-Syr2k
-( Shape shape, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
-
-// SYRK: SYmmetric Rank-K update
-template<typename T>
-void
-Syrk
-( Shape shape, Orientation orientation,
-  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
-
-// TRMM: TRiangular Matrix-Matrix multiplication
-template<typename T>
-void
-Trmm
-( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
-  T alpha, const Matrix<T>& A, Matrix<T>& B );
-
-// TRSM: TRiangular Solve with Multiple right-hand sides
-template<typename T>
-void
-Trsm
-( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
-  T alpha, const Matrix<T>& A, Matrix<T>& B ); 
-        
-//--------------------------------------------------------------------//
-// Distributed BLAS: Level 1                                          //
-//--------------------------------------------------------------------//
-
-// AXPY: Y := Alpha X Plus Y 
+// Parallel version
 template<typename T, Distribution U, Distribution V>
 void
 Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y );
 
-// COPY: Copy
 //
-// In our case, it is just a wrapper around the '=' operator for those
-// that prefer BLAS/PLAPACK syntax.
-template<typename T, Distribution U, Distribution V,
-                     Distribution W, Distribution Z >
+// Copy:
+//
+// Y := X
+//
+
+// Serial version
+template<typename T>
+void
+Copy( const Matrix<T>& X, Matrix<T>& Y );
+
+// Parallel version
+template<typename T, 
+         Distribution U, Distribution V,
+         Distribution W, Distribution Z >
 void
 Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
-// DOT: alpha := conj(x)^T * y
+//
+// Dot: 
 // 
+// Returns (x,y) = x^H y.
+//
 // Though the standard BLAS interface only defines DOT for real 
 // datatypes, it is naturally generalized to an inner product over the
 // complex field. Recall that the conjugate symmetry of inner products 
 // requires that (x,y) = conj(y,x), so that (x,x) = conj( (x,x) ) => 
 // (x,x) is real. This requires that we choose (x,x) = conj(x)^T * x.
-template<typename T, Distribution U, Distribution V,
-                     Distribution W, Distribution Z >
+//
+
+// Serial version
+template<typename T>
+T
+Dot( const Matrix<T>& x, const Matrix<T>& y );
+
+// Parallel version
+template<typename T, 
+         Distribution U, Distribution V,
+         Distribution W, Distribution Z >
 T
 Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y );
 
-// DOTC: alpha := conj(x)^T * y
 //
-// This is the sister routine to DOT; while DOT is originally defined 
-// only over the reals, DOTC was defined only over the complex field. 
-// They are each others' extensions, and so, to us, they are 
-// identical.
-template<typename T, Distribution U, Distribution V,
-                     Distribution W, Distribution Z >
+// Dotc:
+//
+// Returns (x,y) = x^H y.
+//
+// This is the sister routine to 'Dot'; while 'Dot' is originally defined 
+// only over the reals, 'Dotc' was defined only over the complex field. 
+// They both have been extended to the same function, so from our point of 
+// view they are identical.
+//
+
+// Serial version
+template<typename T>
+T
+Dotc( const Matrix<T>& x, const Matrix<T>& y );
+
+// Parallel version
+template<typename T, 
+         Distribution U, Distribution V,
+         Distribution W, Distribution Z >
 T
 Dotc( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y );
 
-// DOTU: alpha := x^T * y
 //
-// Standard BLAS defines DOTU for complex datatypes, but the operation
-// is perfectly valid over the reals (clearly), so we extend it.
+// Dotu: 
+//
+// Returns x^T y.
+//
+// Note: in the complex case, this is NOT an inner product.
+//
+
+// Serial version
+template<typename T>
+T
+Dotu( const Matrix<T>& x, const Matrix<T>& y );
+
+// Parallel version
 template<typename T, Distribution U, Distribution V,
                      Distribution W, Distribution Z >
 T
 Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y );
 
-// NRM2: NoRM 2 (Euclidean norm)
+//
+// Nrm2 (2-norm):
+//
+// || x ||_2 = sqrt( x^H x ).
+//
+
+// Serial version for real datatypes
+template<typename R>
+R
+Nrm2( const Matrix<R>& x ); 
+
+#ifndef WITHOUT_COMPLEX
+// Serial version for complex datatypes
+template<typename R>
+R
+Nrm2( const Matrix< std::complex<R> >& x );
+#endif
+
+// Parallel version for real datatypes
 template<typename R>
 R
 Nrm2( const DistMatrix<R,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
+// Parallel version for complex datatypes
 template<typename R>
 R
 Nrm2( const DistMatrix< std::complex<R>, MC, MR >& x );
 #endif
 
-// SCAL: SCALe by a constant
+// 
+// Scal:
+//
+// X := alpha X
+//
+
+// Serial version
+template<typename T>
+void
+Scal( T alpha, Matrix<T>& X );
+    
+// Parallel version
 template<typename T, Distribution U, Distribution V>
 void
 Scal
 ( T alpha, DistMatrix<T,U,V>& A );
+    
+//----------------------------------------------------------------------------//
+// Level 1 BLAS extensions                                                    //
+//----------------------------------------------------------------------------//
 
-//--------------------------------------------------------------------//
-// Distributed BLAS: Level 1 (extensions)                             //
-//--------------------------------------------------------------------//
+//
+// Conj: 
+//
+// Conjugates a matrix. The in-place version performs A := Conj(A), while the 
+// out-of-place sets B := Conj(A).
+//
 
-// CONJ: CONJugate in-place
+// In-place serial version for real datatypes. 
+// Note: this is a no-op.
+template<typename R>
+void
+Conj( Matrix<R>& A );
+
+#ifndef WITHOUT_COMPLEX
+// In-place serial version for complex datatypes.
+template<typename R>
+void
+Conj( Matrix< std::complex<R> >& A );
+#endif
+
+// In-place parallel version
 template<typename T, Distribution U, Distribution V>
 void
 Conj( DistMatrix<T,U,V>& A );
 
-// CONJ: CONJugated copy
-template<typename T, Distribution U, Distribution V,
-                     Distribution W, Distribution Z >
+// Out-of-place serial version.
+template<typename T>
+void
+Conj( const Matrix<T>& A, Matrix<T>& B );
+
+
+// Out-of-place parallel version.
+template<typename T, 
+         Distribution U, Distribution V,
+         Distribution W, Distribution Z>
 void
 Conj( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
-// CONJTRANS: CONJugated Transposed copy
-template<typename T, Distribution U, Distribution V,
-                     Distribution W, Distribution Z >
+//
+// ConjTrans:
+//
+// B := A^H
+//
+
+// Serial version
+template<typename T>
+void
+ConjTrans( const Matrix<T>& A, Matrix<T>& B );
+
+// Parallel version
+template<typename T, 
+         Distribution U, Distribution V,
+         Distribution W, Distribution Z>
 void
 ConjTrans( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
-// TRANS: TRANSposed copy
-template<typename T, Distribution U, Distribution V,
-                     Distribution W, Distribution Z >
+//
+// Trans:
+//
+// B := A^T
+//
+
+// Serial version
+template<typename T>
+void
+Trans( const Matrix<T>& A, Matrix<T>& B );
+
+// Parallel version
+template<typename T, 
+         Distribution U, Distribution V,
+         Distribution W, Distribution Z>
 void
 Trans( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
-//--------------------------------------------------------------------//
-// Distributed BLAS: Level 2                                          //
-//--------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+// Level 2 BLAS                                                               //
+//----------------------------------------------------------------------------//
 
-// GEMV: GEneral Matrix-Vector multiplication
+//
+// Gemv (GEneral Matrix-Vector multiply):
+//
+// y := alpha orientation( A ) x + beta y,
+// where orientation( A ) is determined by 'orientation'.
+//
+
+// Serial version
+template<typename T>
+void
+Gemv
+( Orientation orientation, 
+  T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
+
+// Parallel version
 template<typename T>
 void
 Gemv
@@ -361,35 +272,78 @@ Gemv
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y );
 
-// GER: GEneral Rank-one update
 //
-// For complex datatypes it routes to Gerc, as x (tensor product) y 
-// is x * conj(y)^T. That is, the dual of y is its conjugate transpose
-// thanks to the Riesz map. Thus our generalized Ger is equivalent to
-// our generalized Gerc.
+// Ger (GEneral Rank-one update):
+//
+// A := alpha x y^H + A
+//
+
+// Serial version
+template<typename T>
+void
+Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+
+// Parallel version
 template<typename T>
 void
 Ger
 ( T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
-        
-// GERC: GEneral Rank-one Conjugated update
+
 //
-// Since the extension of Ger to complex datatypes 
+// Gerc (GEneral Rank-one Conjugated update):
+//
+// A := alpha x y^H + A
+//
+// This is identical to Ger because both have been extended to work for both
+// real and complex datatypes.
+//
+
+// Serial version
+template<typename T>
+void
+Gerc( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+
+// Parallel version
 template<typename T>
 void
 Gerc
 ( T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
-        
-// GERU: GEneral Rank-one Unconjugated update
+
+//
+// Geru (GEneral Rank-one Unconjugated update):
+//
+// A := alpha x y^T + A
+//
+
+// Serial version
+template<typename T>
+void
+Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+
+// Parallel version
 template<typename T>
 void
 Geru
 ( T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
 
-// HEMV: HErmitian Matrix-Vector multiplication
+//
+// Hemv (HErmitian Matrix-Vector multiply):
+//
+// Implicitly performs
+//   y := alpha A x + beta y,
+// where only the triangle specified by 'shape' is referenced and the other
+// triangle is implied by the Hermitian assumption.
+
+// Serial version
+template<typename T>
+void
+Hemv( Shape shape,
+      T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
+
+// Parallel version
 template<typename T>
 void
 Hemv
@@ -397,14 +351,40 @@ Hemv
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y );
 
-// HER: HErmitian Rank-one update
+//
+// Her (HErmitian Rank-one update):
+//
+// Implicitly performs
+//   A := alpha x x^H + A,
+// where only the triangle specified by 'shape' is updated.
+//
+
+// Serial version
+template<typename T>
+void
+Her( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A );
+
+// Parallel version
 template<typename T>
 void
 Her
-( Shape shape, 
-  T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A );
+( Shape shape, T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A );
 
-// HER: HErmitian Rank-2 update
+//
+// Her2 (HErmitian Rank-2 update):
+//
+// Implicitly performs
+//   A := alpha ( x y^H + y x^H ) + A,
+// where only the triangle specified by 'shape' is updated.
+//
+
+// Serial version
+template<typename T>
+void
+Her2
+( Shape shape, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+
+// Parallel version
 template<typename T>
 void
 Her2
@@ -412,7 +392,23 @@ Her2
   T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
 
-// SYMV: SYmmetric Matrix-Vector multiplication
+//
+// Symv (SYmmetric Matrix-Vector multiply):
+//
+// Implicitly performs
+//   y := alpha A x + beta y,
+// where only the triangle specified by 'shape' is referenced and the other
+// triangle is implied by the symmetry assumption.
+//
+
+// Serial version
+template<typename T>
+void
+Symv
+( Shape shape,
+  T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
+
+// Parallel version
 template<typename T>
 void
 Symv
@@ -420,14 +416,41 @@ Symv
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y );
 
-// SYR: SYmmetric Rank-one update
+//
+// Syr (SYmmetric Rank-one update):
+//
+// Implicitly performs the update
+//   A := alpha x x^T + A,
+// where only the triangle specified by 'shape' is updated.
+//
+
+// Serial version
+template<typename T>
+void
+Syr( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A );
+
+// Parallel version
 template<typename T>
 void
 Syr
 ( Shape shape,
   T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A );
 
-// SYR2: SYmmetric Rank-2 update
+//
+// Syr2 (SYmmetric Rank-2 update):
+//
+// Implicitly perform the update
+//   A := alpha ( x y^T + y x^T ) + A
+// where only the triangle specified by 'shape' is updated.
+//
+
+// Serial version
+template<typename T>
+void
+Syr2
+( Shape shape, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+
+// Parallel version
 template<typename T>
 void
 Syr2
@@ -435,25 +458,72 @@ Syr2
   T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
 
-// TRMV: TRiangular Matrix-Vector multiply
+//
+// Trmv (TRiangular Matrix-Vector multiply):
+//
+// Performs the update
+//   x := orientation( A ) x,
+// where 'shape' determines whether or not A is to be implicitly treated as 
+// lower or upper triangular, and 'diagonal' specifies whether it has an 
+// implicit unit diagonal.
+//
+
+// Serial version
+template<typename T>
+void
+Trmv
+( Shape shape, Orientation orientation, Diagonal diagonal,
+  const Matrix<T>& A, Matrix<T>& x );
+
+// Parallel version
 template<typename T>
 void
 Trmv
 ( Shape shape, Orientation orientation, Diagonal diagonal,
   const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& x );
 
-// TRSV: TRiangular Solve with a Vector
+//
+// Trsv (TRiangular Solve with a Vector):
+//
+// Performs the update
+//   x := orientation( A )^-1 x,
+// where 'shape' determines whether or not A is to be implicitly treated as 
+// lower or upper triangular, and 'diagonal' specifies whether it has an 
+// implicit unit diagonal.
+//
+
+// Serial version
+template<typename T>
+void
+Trsv
+( Shape shape, Orientation orientation, Diagonal diagonal,
+  const Matrix<T>& A, Matrix<T>& x );
+
+// Parallel version
 template<typename T>
 void
 Trsv
 ( Shape shape, Orientation orientation, Diagonal diagonal,
   const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& x );
 
-//--------------------------------------------------------------------//
-// Distributed BLAS: Level 3                                          //
-//--------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+// Level 3 BLAS                                                               //
+//----------------------------------------------------------------------------//
 
-// GEMM: GEneral Matrix-Matrix multiplication
+//
+// Gemm (GEneral Matrix-Matrix multiplication):
+//
+// C := alpha orientationOfA( A ) orientationOfB( B ) + beta C
+//
+
+// Serial version
+template<typename T>
+void
+Gemm
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
+
+// Parallel version
 template<typename T>
 void
 Gemm
@@ -461,7 +531,25 @@ Gemm
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-// HEMM: HErmitian Matrix-Matrix multiply
+//
+// Hemm (HErmitian Matrix-Matrix multiplication):
+//
+// Performs the update
+//   C := alpha A B + beta C,  { side = Left }
+// or
+//   C := alpha B A + beta C,  { side = Right }
+// where only the triangle of 'A' specified by 'shape' is referenced, and the
+// other triangle is implied by the Hermitian assumption.
+//
+
+// Serial version
+template<typename T>
+void
+Hemm
+( Side side, Shape shape,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
+
+// Parallel version
 template<typename T>
 void
 Hemm
@@ -469,7 +557,24 @@ Hemm
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-// HER2K: HErmitian Rank-2K Update
+//
+// Her2k (HErmitian Rank-2K update):
+//
+// Performs the update
+//   C := alpha ( A B^H + B A^H ) + beta C, { orientation = Normal }
+// or
+//   C := alpha ( A^H B + B^H A ) + beta C, { orientation = ConjugateTranspose }
+// where only the triangle of C specified by 'shape' is updated.
+//
+
+// Serial version
+template<typename T>
+void
+Her2k
+( Shape shape, Orientation orientation,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
+
+// Parallel version
 template<typename T>
 void
 Her2k
@@ -477,14 +582,49 @@ Her2k
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-// HERK: HErmitian Rank-K Update
+//
+// Herk (HErmitian Rank-K update):
+//
+// Performs the update
+//   C := alpha A B^H + beta C,  { orientation = Normal }
+// or
+//   C := alpha A^H B + beta C,  { orientation = ConjugateTranspose }
+// where only the triangle of C specified by 'shape' is updated.
+//
+
+// Serial version
+template<typename T>
+void
+Herk
+( Shape shape, Orientation orientation,
+  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
+
+// Parallel version
 template<typename T>
 void
 Herk
 ( Shape shape, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
-// SYMM: SYmmetric Matrix-Matrix multiply
+//
+// Symm (SYmmetric Matrix-Matrix multiplication):
+//
+// Performs the update
+//   C := alpha A B + beta C,  { side = Left }
+// or
+//   C := alpha B A + beta C,  { side = Right }
+// where only the triangle of A specified by 'shape' is referenced, and the 
+// other triangle is implied by the symmetry assumption.
+//
+
+// Serial version
+template<typename T>
+void
+Symm
+( Side side, Shape shape,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C ); 
+
+// Parallel version
 template<typename T>
 void
 Symm
@@ -492,7 +632,24 @@ Symm
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-// SYR2K: SYmmetric Rank-2K Update
+//
+// Syr2k (SYmmetric Rank-2K update):
+//
+// Performs the update
+//   C := alpha ( A B^H + B A^H ) + beta C,  { orientation = Normal }
+// or
+//   C := alpha ( A^H B + B^H A ) + beta C,  { orientation = Transpose }
+// where only the triangle of C specified by 'shape' is updated.
+//
+
+// Serial version
+template<typename T>
+void
+Syr2k
+( Shape shape, Orientation orientation,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
+
+// Parallel version
 template<typename T>
 void
 Syr2k
@@ -500,21 +657,76 @@ Syr2k
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-// SYRK: SYmmetric Rank-K Update
+//
+// Syrk (SYmmetric Rank-K update):
+//
+// Performs the update
+//   C := alpha A B^H + beta C,  { orientation = Normal }
+// or
+//   C := alpha A^H B + beta C,  { orientation = Transpose }
+// where only the triangle of C specified by 'shape' is updated.
+//
+
+// Serial version
+template<typename T>
+void
+Syrk
+( Shape shape, Orientation orientation,
+  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
+
+// Parallel version
 template<typename T>
 void
 Syrk
 ( Shape shape, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
-// TRMM: TRiangular Matrix-Matrix multiplication
+//
+// Trmm (TRiangular Matrix-Matrix multiplication):
+//
+// Performs the update
+//   B := alpha orientation( A ) B,  { side = Left }
+// or
+//   B := alpha B orientation( A ),  { side = Right }
+// where 'shape' determines whether A is assumed to be upper or lower 
+// triangular and 'diagonal' determines whether A has an implicit unit
+// diagonal.
+//
+
+// Serial version
+template<typename T>
+void
+Trmm
+( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+  T alpha, const Matrix<T>& A, Matrix<T>& B );
+
+// Parallel version
 template<typename T>
 void
 Trmm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
 
-// TRSM: TRiangular Solve with Multiplie right-hand sides
+//
+// Trsm (TRiangular Solve with Multiple right-hand sides):
+//
+// Performs the update
+//   B := alpha orientation( A )^-1 B,  { side = Left }
+// or
+//   B := alpha B orientation( A )^-1,  { side = Right }
+// where 'shape' determines whether A is assumed to be upper or lower
+// triangular and 'diagonal' determines whether A has an implicit unit
+// diagonal.
+//
+
+// Serial version
+template<typename T>
+void
+Trsm
+( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+  T alpha, const Matrix<T>& A, Matrix<T>& B ); 
+        
+// Parallel version
 template<typename T>
 void
 Trsm

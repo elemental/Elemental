@@ -9,6 +9,8 @@ Relatively trivial but important
 
 Relatively trivial but not important
 ====================================
+- Add a local version of Gaussian Elimination
+- Add a local version of the UT transform
 - Add routines like 'LocalGemm' to avoid repetetive '.LockedLocalMatrix()' calls
   and ensure alignment safety
 - Add shortcuts for square process grids and diagonally-aligned matrices

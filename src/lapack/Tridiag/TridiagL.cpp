@@ -50,7 +50,6 @@ elemental::lapack::internal::TridiagL
     if( t.ColAlignment() != A.ColAlignment() + A.RowAlignment()*g.Height() )
         throw logic_error( "t ist not aligned with A." );
 #endif
-
     // Matrix views 
     DistMatrix<R,MC,MR> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g), 

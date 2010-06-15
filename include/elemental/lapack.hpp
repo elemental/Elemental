@@ -16,30 +16,105 @@
 namespace elemental {
 namespace lapack {
 
-//--------------------------------------------------------------------//
-// Local LAPACK                                                       //
-//--------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+// Chol:                                                                      //
+//                                                                            //
+// Overwrite a triangle of A with the Cholesky factor of A. 'shape'           //
+// determines whether it is the upper or lower triangle.                      //
+//----------------------------------------------------------------------------//
+
+// Serial version
 template<typename T>
 void
 Chol
 ( Shape shape, Matrix<T>& A );
 
+// Parallel version
+template<typename T>
+void
+Chol
+( Shape shape, DistMatrix<T,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
+// GaussElim (Gaussian Elimination):                                          //
+//                                                                            //
+// Uses an LU factorization with partial pivoting to overwrite B := A^-1 B    //
+//----------------------------------------------------------------------------//
+
+// TODO: Add a serial version
+
+// Parallel version
+template<typename T>
+void
+GaussElim
+( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
+
+//----------------------------------------------------------------------------//
+// Hegst (HErmitian GEneralized to STandard eigenvalue problem):              //
+//                                                                            //
+// If bothOnLeft,                                                             //
+//   reduce the problem A B X = X Lamda to A X = X Lambda                     //
+// If ~bothOnLeft,                                                            //
+//   reduce the problem A X = B X Lambda to A X = X Lambda                    //
+//                                                                            //
+// D contains the Cholesky factor of B in the triangle corresponding to the   //
+// parameter 'shape'.                                                         //
+//----------------------------------------------------------------------------//
+
+// Serial version
 template<typename T>
 void
 Hegst
-( bool bothOnLeft, Shape shape, Matrix<T>& A, const Matrix<T>& B );
+( bool bothOnLeft, Shape shape, 
+  Matrix<T>& A, const Matrix<T>& D );
 
+// Parallel version
+template<typename T>
+void
+Hegst
+( bool bothOnLeft, Shape shape, 
+  DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
+
+//----------------------------------------------------------------------------//
+// LU (LU factorization with partial pivoting):                               //
+//                                                                            //
+// Overwrite A with its LU factorization after partial pivoting: P A = L U.   //
+// P is compressed into the vector p by storing the location of the nonzero   //
+// element of each row.                                                       //
+//----------------------------------------------------------------------------//
+
+// Serial version
 template<typename T>
 void
 LU
 ( Matrix<T>& A, Matrix<int>& p );
 
+// Parallel version
+template<typename T>
+void
+LU
+( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
+
+//----------------------------------------------------------------------------//
+// Tridiag (Householder tridiagonalization):                                  //
+//                                                                            //
+// The diagonal and sub/super-diagonal of A are overwritten with a similar    //
+// tridiagonal matrix that is found by successively applying Householder      //
+// reflections to zero the matrix outside of the tridiagonal band.            //
+//                                                                            //
+// 'shape' decided which triangle of A specifies the Hermitian matrix, and on //
+// exit the transforms are stored above the super/sub-diagonal and are        //
+// implicitly one on the super/sub-diagonal.                                  //
+//----------------------------------------------------------------------------//
+
+// Serial version for real datatypes
 template<typename R>
 void
 Tridiag
 ( Shape shape, Matrix<R>& A, Matrix<R>& d, Matrix<R>& e, Matrix<R>& t );
 
 #ifndef WITHOUT_COMPLEX
+// Serial version for complex datatypes
 template<typename R>
 void
 Tridiag
@@ -50,35 +125,7 @@ Tridiag
   Matrix< std::complex<R> >& t );
 #endif
 
-template<typename T>
-void
-Trinv
-( Shape shape, Diagonal diagonal, Matrix<T>& A );
-
-//--------------------------------------------------------------------//
-// Distributed LAPACK                                                 //
-//--------------------------------------------------------------------//
-template<typename T>
-void
-Chol
-( Shape shape, DistMatrix<T,MC,MR>& A );
-
-template<typename T>
-void
-GaussElim
-( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
-
-template<typename T>
-void
-Hegst
-( bool bothOnLeft, Shape shape, 
-  DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
-
-template<typename T>
-void
-LU
-( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
-
+// Parallel version for real datatypes
 template<typename R>
 void
 Tridiag
@@ -89,6 +136,7 @@ Tridiag
   DistMatrix<R,MD,Star>& t );
 
 #ifndef WITHOUT_COMPLEX
+// Parallel version for complex datatypes
 template<typename R>
 void
 Tridiag
@@ -99,10 +147,54 @@ Tridiag
   DistMatrix<std::complex<R>,MD,Star>& t );
 #endif
 
+//----------------------------------------------------------------------------//
+// Trinv (TRiangular INVersion):                                              //
+//                                                                            //
+// Inverts a triangular matrix. 'shape' determines whether A is assumed to be //
+// upper or lower triangular, and 'diagonal' determines whether or not A is   //
+// to be treated as having a unit diagonal.                                   //
+//----------------------------------------------------------------------------//
+
+// Serial version
+template<typename T>
+void
+Trinv
+( Shape shape, Diagonal diagonal, Matrix<T>& A );
+
+// Parallel version
 template<typename T>
 void
 Trinv
 ( Shape shape, Diagonal diagonal, DistMatrix<T,MC,MR>& A  );
+
+//----------------------------------------------------------------------------//
+// UT (UT transform):                                                         //
+//                                                                            //
+// Applies the accumulated Householder transforms that are stored in the      //
+// triangle of H specified by 'shape' to the matrix A.                        //
+//                                                                            //
+// If 'shape' is set to 'Lower', then offset determines the diagonal that the //
+// transforms are stored above (they are implicitly one on that diagonal).    //
+// Due to the conventions of the LAPACK routines 'chetrd' and 'zhetrd', the   //
+// transforms are assumed to be accumulated left-to-right.                    //
+//                                                                            //
+// If 'shape' is set to 'Upper', then offset determines the diagonal that the //
+// transforms are stored below (they are implicitly one on that diagonal).    //
+// Due to the conventions of the LAPACK routines 'chetrd' and 'zhetrd', the   //
+// transforms are assumed to be accumulated right-to-left.                    //
+//----------------------------------------------------------------------------//
+
+// TODO: Add serial versions
+
+// Parallel version
+template<typename T>
+void
+UT
+( Shape shape, 
+  Orientation orientation,
+  int offset,
+  const DistMatrix<T,MC,MR>& H,
+        DistMatrix<T,MC,MR>& A );
 
 } // lapack
 } // elemental
