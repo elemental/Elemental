@@ -481,9 +481,7 @@ elemental::lapack::internal::PanelTridiagU
                /**/       w10, /**/ omega11, w12,
           WBL, /**/ WBR,  W20, /**/ w21,     W22 );
     }
-
     PopBlocksizeStack();
-
 #ifndef RELEASE
     PopCallStack();
 #endif

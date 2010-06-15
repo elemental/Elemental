@@ -161,6 +161,9 @@ public:
       const DistMatrixBase<T,VC,Star>& ABL, 
       const DistMatrixBase<T,VC,Star>& ABR );
 
+    void SumScatterFrom( const DistMatrixBase<T,MC,Star>& A );
+    void SumScatterUpdate( T alpha, const DistMatrixBase<T,MC,Star>& A );
+
     const DistMatrixBase<T,VC,Star>&
     operator=( const DistMatrixBase<T,MC,MR>& A );
 

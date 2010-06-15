@@ -2569,7 +2569,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
             T* recvBuffer = &buffer[sendSize];
         
             // Pack 
-            int* recvSizes = new int[c];
+            vector<int> recvSizes(c);
             for( int k=0; k<c; ++k )
             {
                 T* data = &sendBuffer[k*recvSize];
@@ -2586,8 +2586,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
 
             // Reduce-scatter over each process row
             ReduceScatter
-            ( sendBuffer, recvBuffer, recvSizes, MPI_SUM, g.MRComm() );
-            delete[] recvSizes;
+            ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
 
             // Unpack our received data
             for( int j=0; j<localWidth; ++j )
@@ -2681,7 +2680,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
             T* secondBuffer = &buffer[recvSize_RS];
 
             // Pack 
-            int* recvSizes = new int[c];
+            vector<int> recvSizes(c);
             for( int k=0; k<c; ++k )
             {
                 T* data = &secondBuffer[k*recvSize_RS];
@@ -2698,8 +2697,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
 
             // Reduce-scatter over each process row
             ReduceScatter
-            ( secondBuffer, firstBuffer, recvSizes, MPI_SUM, g.MRComm() );
-            delete[] recvSizes;
+            ( secondBuffer, firstBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
 
             // Trade reduced data with the appropriate process row
             SendRecv
@@ -2764,7 +2762,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
         T* recvBuffer = &buffer[sendSize];
 
         // Pack 
-        int* recvSizes = new int[r];
+        vector<int> recvSizes(r);
         for( int k=0; k<r; ++k )
         {
             T* data = &sendBuffer[k*recvSize];
@@ -2781,8 +2779,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
 
         // Reduce-scatter over each process col
         ReduceScatter
-        ( sendBuffer, recvBuffer, recvSizes, MPI_SUM, g.MCComm() );
-        delete[] recvSizes;
+        ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MCComm() );
 
         // Unpack our received data
         for( int j=0; j<localWidth; ++j )
@@ -2825,7 +2822,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
         T* secondBuffer = &buffer[recvSize_RS];
 
         // Pack 
-        int* recvSizes = new int[r];
+        vector<int> recvSizes(r);
         for( int k=0; k<r; ++k )
         {
             T* data = &secondBuffer[k*recvSize_RS];
@@ -2842,8 +2839,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
 
         // Reduce-scatter over each process col
         ReduceScatter
-        ( secondBuffer, firstBuffer, recvSizes, MPI_SUM, g.MCComm() );
-        delete[] recvSizes;
+        ( secondBuffer, firstBuffer, &recvSizes[0], MPI_SUM, g.MCComm() );
 
         // Trade reduced data with the appropriate process col
         SendRecv
@@ -2900,7 +2896,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
     T* recvBuffer = &buffer[sendSize];
 
     // Pack 
-    int* recvSizes = new int[r*c];
+    vector<int> recvSizes(r*c);
     for( int l=0; l<c; ++l )
     {
         const int thisRowShift = Shift( l, rowAlignment, c );
@@ -2923,8 +2919,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
 
     // Reduce-scatter over each process col
     ReduceScatter
-    ( sendBuffer, recvBuffer, recvSizes, MPI_SUM, g.VCComm() );
-    delete[] recvSizes;
+    ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.VCComm() );
 
     // Unpack our received data
     for( int j=0; j<localWidth; ++j )
@@ -3003,7 +2998,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
             T* recvBuffer = &buffer[c*portionSize];
 
             // Pack 
-            int* recvSizes = new int[c];
+            vector<int> recvSizes(c);
             for( int k=0; k<c; ++k )
             {
                 T* data = &sendBuffer[k*portionSize];
@@ -3020,8 +3015,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
         
             // Reduce-scatter over each process row
             ReduceScatter
-            ( sendBuffer, recvBuffer, recvSizes, MPI_SUM, g.MRComm() );
-            delete[] recvSizes;
+            ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
 
             // Update with our received data
             for( int j=0; j<localWidth; ++j )
@@ -3115,7 +3109,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
             T* secondBuffer = &buffer[recvSize_RS];
 
             // Pack 
-            int* recvSizes = new int[c];
+            vector<int> recvSizes(c);
             for( int k=0; k<c; ++k )
             {
                 T* data = &secondBuffer[k*recvSize_RS];
@@ -3132,8 +3126,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
 
             // Reduce-scatter over each process row
             ReduceScatter
-            ( secondBuffer, firstBuffer, recvSizes, MPI_SUM, g.MRComm() );
-            delete[] recvSizes;
+            ( secondBuffer, firstBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
 
             // Trade reduced data with the appropriate process row
             SendRecv
@@ -3187,7 +3180,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
         T* recvBuffer = &buffer[sendSize];
 
         // Pack 
-        int* recvSizes = new int[r];
+        vector<int> recvSizes(r);
         for( int k=0; k<r; ++k )
         {
             T* data = &sendBuffer[k*recvSize];
@@ -3204,8 +3197,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
 
         // Reduce-scatter over each process col
         ReduceScatter
-        ( sendBuffer, recvBuffer, recvSizes, MPI_SUM, g.MCComm() );
-        delete[] recvSizes;
+        ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MCComm() );
 
         // Update with our received data
         for( int j=0; j<localWidth; ++j )
@@ -3248,7 +3240,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
         T* secondBuffer = &buffer[recvSize_RS];
 
         // Pack
-        int* recvSizes = new int[r];
+        vector<int> recvSizes(r);
         for( int k=0; k<r; ++k )
         {
             T* data = &secondBuffer[k*recvSize_RS];
@@ -3265,8 +3257,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
 
         // Reduce-scatter over each process col
         ReduceScatter
-        ( secondBuffer, firstBuffer, recvSizes, MPI_SUM, g.MCComm() );
-        delete[] recvSizes;
+        ( secondBuffer, firstBuffer, &recvSizes[0], MPI_SUM, g.MCComm() );
 
         // Trade reduced data with the appropriate process col
         SendRecv
@@ -3324,7 +3315,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
     T* recvBuffer = &buffer[sendSize];
 
     // Pack 
-    int* recvSizes = new int[r*c];
+    vector<int> recvSizes(r*c);
     for( int l=0; l<c; ++l )
     {
         const int thisRowShift = Shift( l, rowAlignment, c );
@@ -3347,8 +3338,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
 
     // Reduce-scatter over each process col
     ReduceScatter
-    ( sendBuffer, recvBuffer, recvSizes, MPI_SUM, g.VCComm() );
-    delete[] recvSizes;
+    ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.VCComm() );
 
     // Unpack our received data
     for( int j=0; j<localWidth; ++j )

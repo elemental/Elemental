@@ -161,6 +161,9 @@ public:
       const DistMatrixBase<T,Star,VR>& ABL, 
       const DistMatrixBase<T,Star,VR>& ABR );
 
+    void SumScatterFrom( const DistMatrixBase<T,Star,MR>& A );
+    void SumScatterUpdate( T alpha, const DistMatrixBase<T,Star,MR>& A );
+
     // Auxiliary routines needed to implement algorithms that avoid using
     // inefficient unpackings of partial matrix distributions
     void ConjugateTransposeFrom( const DistMatrixBase<T,MR,Star>& A );

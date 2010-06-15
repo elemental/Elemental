@@ -241,9 +241,7 @@ elemental::lapack::internal::PanelTridiagL
          /*************/ /**********************/
           WBL, /**/ WBR,  W20, w21,     /**/ W22 );
     }
-
     PopBlocksizeStack();
-
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -486,9 +484,7 @@ elemental::lapack::internal::PanelTridiagL
          /*************/ /**********************/
           WBL, /**/ WBR,  W20, w21,     /**/ W22 );
     }
-
     PopBlocksizeStack();
-
 #ifndef RELEASE
     PopCallStack();
 #endif

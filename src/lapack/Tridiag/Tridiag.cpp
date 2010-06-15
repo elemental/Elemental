@@ -84,3 +84,4 @@ template void elemental::lapack::Tridiag
   DistMatrix<double,  MD,Star>& e,
   DistMatrix<dcomplex,MD,Star>& t );
 #endif
+

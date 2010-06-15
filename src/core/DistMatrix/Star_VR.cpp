@@ -1513,6 +1513,158 @@ elemental::DistMatrixBase<T,Star,VR>::operator=
     return *this;
 }
 
+template<typename T>
+void
+elemental::DistMatrixBase<T,Star,VR>::SumScatterFrom
+( const DistMatrixBase<T,Star,MR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VR]::SumScatterFrom( [* ,MR] )");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
+#endif
+    const Grid& g = this->GetGrid();
+    if( !this->Viewing() )
+    {
+        if( !this->ConstrainedRowAlignment() )
+        {
+            this->_rowAlignment = A.RowAlignment();
+            this->_rowShift = 
+                Shift( g.VRRank(), this->RowAlignment(), g.Size() );
+        }
+        this->ResizeTo( A.Height(), A.Width() );
+    }
+
+    if( this->RowAlignment() % g.Width() == A.RowAlignment() )
+    {
+        const int r = g.Height();
+        const int c = g.Width();
+        const int p = r * c;
+        const int rowAlignment = this->RowAlignment();
+
+        const int width = this->Width();
+        const int localHeight = this->LocalHeight();
+        const int localWidth = this->LocalWidth();
+        const int maxLocalWidth = MaxLocalLength( width, p );
+
+        const int recvSize = max(localHeight*maxLocalWidth,MinCollectContrib);
+        const int sendSize = c*recvSize;
+
+        this->_auxMemory.Require( sendSize + recvSize );
+
+        T* buffer = this->_auxMemory.Buffer();
+        T* sendBuffer = &buffer[0];
+        T* recvBuffer = &buffer[sendSize];
+
+        // Pack
+        vector<int> recvSizes(c);
+        for( int k=0; k<c; ++k )
+        {
+            T* data = &sendBuffer[k*recvSize];
+            recvSizes[k] = recvSize;
+
+            const int thisRowShift = Shift( k, rowAlignment, p );
+            const int thisLocalWidth = LocalLength( width, thisRowShift, p );
+
+            for( int j=0; j<thisLocalWidth; ++j )
+                for( int i=0; i<localHeight; ++i )
+                    data[i+j*localHeight] = A.LocalEntry(i,thisRowShift+j*c);
+        }
+
+        // Reduce-scatter over each process row
+        ReduceScatter
+        ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
+
+        // Unpack our received data
+        for( int j=0; j<localWidth; ++j )
+            for( int i=0; i<localHeight; ++i )
+                this->LocalEntry(i,j) = recvBuffer[i+j*localHeight];
+
+        this->_auxMemory.Release();
+    }
+    else
+    {
+        throw logic_error
+              ( "Unaligned [* ,VR]::ReduceScatterFrom( [* ,MR] ) is not "
+                "yet implemented." );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+elemental::DistMatrixBase<T,Star,VR>::SumScatterUpdate
+( T alpha, const DistMatrixBase<T,Star,MR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VR]::SumScatterUpdate( [* ,MR] )");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    this->AssertSameSize( A );
+#endif
+    const Grid& g = this->GetGrid();
+    if( this->RowAlignment() % g.Width() == A.RowAlignment() )
+    {
+        const int r = g.Height();
+        const int c = g.Width();
+        const int p = r * c;
+        const int rowAlignment = this->RowAlignment();
+
+        const int width = this->Width();
+        const int localHeight = this->LocalHeight();
+        const int localWidth = this->LocalWidth();
+        const int maxLocalWidth = MaxLocalLength( width, p );
+
+        const int recvSize = max(localHeight*maxLocalWidth,MinCollectContrib);
+        const int sendSize = c*recvSize;
+
+        this->_auxMemory.Require( sendSize + recvSize );
+
+        T* buffer = this->_auxMemory.Buffer();
+        T* sendBuffer = &buffer[0];
+        T* recvBuffer = &buffer[sendSize];
+
+        // Pack
+        vector<int> recvSizes(c);
+        for( int k=0; k<c; ++k )
+        {
+            T* data = &sendBuffer[k*recvSize];
+            recvSizes[k] = recvSize;
+
+            const int thisRowShift = Shift( k, rowAlignment, p );
+            const int thisLocalWidth = LocalLength( width, thisRowShift, p );
+
+            for( int j=0; j<thisLocalWidth; ++j )
+                for( int i=0; i<localHeight; ++i )
+                    data[i+j*localHeight] = A.LocalEntry(i,thisRowShift+j*c);
+        }
+
+        // Reduce-scatter over each process row
+        ReduceScatter
+        ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
+
+        // Unpack our received data
+        for( int j=0; j<localWidth; ++j )
+            for( int i=0; i<localHeight; ++i )
+                this->LocalEntry(i,j) += alpha*recvBuffer[i+j*localHeight];
+
+        this->_auxMemory.Release();
+    }
+    else
+    {
+        throw logic_error
+              ( "Unaligned [* ,VR]::ReduceScatterUpdate( [* ,MR] ) is not "
+                "yet implemented." );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 //----------------------------------------------------------------------------//
 // DistMatrix                                                                 //
 //----------------------------------------------------------------------------//

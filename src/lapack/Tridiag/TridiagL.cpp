@@ -132,9 +132,9 @@ elemental::lapack::internal::TridiagL
         else
         {
             A11_Star_Star = A11;
-            d1_Star_Star = d1;
-            e1_Star_Star = e1;
-            t1_Star_Star = t1;
+            d1_Star_Star.ResizeTo( d1.Height(), 1 );
+            e1_Star_Star.ResizeTo( e1.Height(), 1 );
+            t1_Star_Star.ResizeTo( t1.Height(), 1 );
 
             lapack::Tridiag
             ( Lower, 
@@ -173,7 +173,6 @@ elemental::lapack::internal::TridiagL
          /**/ /**/
           tB,  t2 );
     }
-        
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -301,9 +300,9 @@ elemental::lapack::internal::TridiagL
         else
         {
             A11_Star_Star = A11;
-            d1_Star_Star = d1;
-            e1_Star_Star = e1;
-            t1_Star_Star = t1;
+            d1_Star_Star.ResizeTo( d1.Height(), 1 );
+            e1_Star_Star.ResizeTo( e1.Height(), 1 );
+            t1_Star_Star.ResizeTo( t1.Height(), 1 );
 
             lapack::Tridiag
             ( Lower, 
@@ -342,7 +341,6 @@ elemental::lapack::internal::TridiagL
          /**/ /**/
           tB,  t2 );
     }
-        
 #ifndef RELEASE
     PopCallStack();
 #endif
