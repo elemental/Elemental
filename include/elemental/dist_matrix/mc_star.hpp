@@ -423,7 +423,8 @@ DistMatrixBase<T,MC,Star>::~DistMatrixBase()
 template<typename R>
 inline
 DistMatrix<R,MC,Star>::DistMatrix
-( const Grid& g ): DMB(0,0,false,0,g.MCRank(),g)
+( const Grid& g )
+: DMB(0,0,false,0,g.MCRank(),g)
 { }
 
 template<typename R>
@@ -578,7 +579,8 @@ DistMatrix<R,MC,Star>::operator=
 template<typename R>
 inline
 DistMatrix<std::complex<R>,MC,Star>::DistMatrix
-( const Grid& g ): DMB(0,0,false,0,g.MCRank(),g)
+( const Grid& g )
+: DMB(0,0,false,0,g.MCRank(),g)
 { }
 
 template<typename R>

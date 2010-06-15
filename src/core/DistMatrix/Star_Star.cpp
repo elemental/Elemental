@@ -1254,6 +1254,23 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     return *this;
 }
 
+template<typename T>
+void
+elemental::DistMatrixBase<T,Star,Star>::AllSum()
+{
+#ifndef RELEASE
+    PushCallStack("[* ,* ]::AllSum");
+    this->AssertNotLockedView();
+#endif
+    Matrix<T> B( this->LocalMatrix() );
+    AllReduce
+    ( B.LockedBuffer(), this->LocalMatrix().Buffer(), B.Height()*B.Width(),
+      MPI_SUM, this->GetGrid().VCComm() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 //----------------------------------------------------------------------------//
 // DistMatrix                                                                 //
 //----------------------------------------------------------------------------//

@@ -187,6 +187,8 @@ public:
 
     const DistMatrixBase<T,Star,Star>&
     operator=( const DistMatrixBase<T,Star,Star>& A );
+
+    void AllSum(); 
 };
 
 template<typename R>
