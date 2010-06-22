@@ -32,6 +32,10 @@ namespace blas {
 //----------------------------------------------------------------//
 void
 Axpy
+( int n, int alpha, const int* x, int incx, int* y, int incy );
+
+void
+Axpy
 ( int n, float alpha, const float* x, int incx, float* y, int incy );
 
 void
@@ -1227,6 +1231,14 @@ void BLAS(ztrsm)
 //----------------------------------------------------------------------------//
 // Level 1 BLAS                                                               //
 //----------------------------------------------------------------------------//
+inline void
+elemental::wrappers::blas::Axpy
+( int n, int alpha, const int* x, int incx, int* y, int incy )
+{
+    for( int i=0; i<n; ++i )
+        y[i] += alpha*x[i];
+}
+
 inline void
 elemental::wrappers::blas::Axpy
 ( int n, float alpha, const float* x, int incx, float* y, int incy )

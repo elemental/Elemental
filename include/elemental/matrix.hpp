@@ -43,8 +43,8 @@ public:
 
     void SetToRandom();
 
-    T& operator() ( int i, int j );
-    T  operator() ( int i, int j ) const;
+          T& operator() ( int i, int j );
+    const T& operator() ( int i, int j ) const;
     
     int Height() const;
     int Width() const;
@@ -211,7 +211,7 @@ elemental::Matrix<T>::operator()
 }
 
 template<typename T>
-inline T
+inline const T&
 elemental::Matrix<T>::operator()
 ( int i, int j ) const
 {

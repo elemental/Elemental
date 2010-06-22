@@ -118,8 +118,8 @@ public:
     int LocalWidth() const;
     int LocalLDim() const;
 
-    T& LocalEntry( int i, int j );
-    T  LocalEntry( int i, int j ) const;
+          T& LocalEntry( int i, int j );
+    const T& LocalEntry( int i, int j ) const;
 
           Matrix<T>& LocalMatrix();
     const Matrix<T>& LockedLocalMatrix() const;
@@ -533,7 +533,7 @@ AbstractDistMatrixBase<T>::LocalEntry
 { return _localMatrix(i,j); }
 
 template<typename T>
-inline T
+inline const T&
 AbstractDistMatrixBase<T>::LocalEntry
 ( int i, int j ) const
 { return _localMatrix(i,j); }
