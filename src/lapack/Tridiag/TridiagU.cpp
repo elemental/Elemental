@@ -32,24 +32,49 @@ elemental::lapack::internal::TridiagU
         ( "A, d, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
-    if( d.Height() != A.Height() || d.Width() != 1 )
+    if( d.Viewing() && ( d.Height() != A.Height() || d.Width() != 1 ) )
         throw logic_error
         ( "d must be a column vector of the same length as A's width." );
-    if( e.Height() != A.Height()-1 || e.Width() != 1 )
+    if( e.Viewing() && ( e.Height() != A.Height()-1 || e.Width() != 1 ) )
         throw logic_error
         ( "e must be a column vector of length one less than the width of A." );
-    if( t.Height() != A.Height()-1 || t.Width() != 1 )
+    if( t.Viewing() && ( t.Height() != A.Height()-1 || t.Width() != 1 ) )
         throw logic_error
         ( "t must be a column vector of length one less than the width of A." );
-    if( d.ColAlignment() != A.ColAlignment() + A.RowAlignment()*g.Height() )
+    if( ( d.Viewing() || d.ConstrainedColAlignment() ) && 
+        ( d.ColAlignment() != A.ColAlignment() + A.RowAlignment()*g.Height() ) )
         throw logic_error( "d is not aligned with A." );
-    if( e.ColAlignment() != A.ColAlignment() +
-                            ((A.RowAlignment()+1)%g.Width())*g.Height() )
+    if( ( e.Viewing() || e.ConstrainedColAlignment() ) && 
+        ( e.ColAlignment() != A.ColAlignment() +
+                            ((A.RowAlignment()+1)%g.Width())*g.Height() ) )
         throw logic_error( "e is not aligned with A." );
-    if( t.ColAlignment() != ((A.ColAlignment()+1)%g.Height()) + 
-                            ((A.RowAlignment()+1)%g.Width())*g.Height() )
+    if( ( t.Viewing() || t.ConstrainedColAlignment() ) && 
+        ( t.ColAlignment() != ((A.ColAlignment()+1)%g.Height()) + 
+                            ((A.RowAlignment()+1)%g.Width())*g.Height() ) )
         throw logic_error( "t is not aligned with A." );
 #endif
+    if( !d.Viewing() )
+    {
+        if( !d.ConstrainedColAlignment() )
+            d.AlignWithDiag( A );
+        d.ResizeTo( A.Height(), 1 );
+    }
+    if( !e.Viewing() )
+    {
+        if( !e.ConstrainedColAlignment() )
+            e.AlignWithDiag( A, 1 );
+        e.ResizeTo( A.Height()-1, 1 );
+    }
+    if( !t.Viewing() )
+    {
+        if( !t.ConstrainedColAlignment() )
+        {
+            DistMatrix<R,MC,MR> Z(g);
+            Z.View( A, 1, 1, A.Height()-1, A.Width()-1 );
+            t.AlignWithDiag( Z );
+        }
+        t.ResizeTo( A.Height()-1, 1 );
+    }
 
     // Matrix views 
     DistMatrix<R,MC,MR> 
@@ -200,24 +225,49 @@ elemental::lapack::internal::TridiagU
         ( "A, d, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
-    if( d.Height() != A.Height() || d.Width() != 1 )
+    if( d.Viewing() && ( d.Height() != A.Height() || d.Width() != 1 ) )
         throw logic_error
         ( "d must be a column vector of the same length as A's width." );
-    if( e.Height() != A.Height()-1 || e.Width() != 1 )
+    if( e.Viewing() && ( e.Height() != A.Height()-1 || e.Width() != 1 ) )
         throw logic_error
         ( "e must be a column vector of length one less than the width of A." );
-    if( t.Height() != A.Height()-1 || t.Width() != 1 )
+    if( t.Viewing() && ( t.Height() != A.Height()-1 || t.Width() != 1 ) )
         throw logic_error
         ( "t must be a column vector of length one less than the width of A." );
-    if( d.ColAlignment() != A.ColAlignment() + A.RowAlignment()*g.Height() )
+    if( ( d.Viewing() || d.ConstrainedColAlignment() ) && 
+        ( d.ColAlignment() != A.ColAlignment() + A.RowAlignment()*g.Height() ) )
         throw logic_error( "d is not aligned with A." );
-    if( e.ColAlignment() != A.ColAlignment() +
-                            ((A.RowAlignment()+1)%g.Width())*g.Height() )
+    if( ( e.Viewing() || e.ConstrainedColAlignment() ) && 
+        ( e.ColAlignment() != A.ColAlignment() +
+                            ((A.RowAlignment()+1)%g.Width())*g.Height() ) )
         throw logic_error( "e is not aligned with A." );
-    if( t.ColAlignment() != ((A.ColAlignment()+1)%g.Height()) + 
-                            ((A.RowAlignment()+1)%g.Width())*g.Height() )
+    if( ( t.Viewing() || t.ConstrainedColAlignment() ) && 
+        ( t.ColAlignment() != ((A.ColAlignment()+1)%g.Height()) + 
+                            ((A.RowAlignment()+1)%g.Width())*g.Height() ) )
         throw logic_error( "t is not aligned with A." );
 #endif
+    if( !d.Viewing() )
+    {
+        if( !d.ConstrainedColAlignment() )
+            d.AlignWithDiag( A );
+        d.ResizeTo( A.Height(), 1 );
+    }
+    if( !e.Viewing() )
+    {
+        if( !e.ConstrainedColAlignment() )
+            e.AlignWithDiag( A, 1 );
+        e.ResizeTo( A.Height()-1, 1 );
+    }
+    if( !t.Viewing() )
+    {
+        if( !t.ConstrainedColAlignment() )
+        {
+            DistMatrix<complex<R>,MC,MR> Z(g);
+            Z.View( A, 1, 1, A.Height()-1, A.Width()-1 );
+            t.AlignWithDiag( Z );
+        }
+        t.ResizeTo( A.Height()-1, 1 );
+    }
     typedef complex<R> C;
 
     // Matrix views 

@@ -19,6 +19,8 @@ elemental::lapack::internal::RowReflector
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::RowReflector");
+    if( chi.GetGrid() != x.GetGrid() )
+        throw logic_error( "chi and x must be distributed over the same grid" );
     if( chi.Height() != 1 || chi.Width() != 1 )
         throw logic_error( "chi must be a scalar." );
     if( x.Height() != 1 )
@@ -95,6 +97,8 @@ elemental::lapack::internal::RowReflector
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::RowReflector");    
+    if( chi.GetGrid() != x.GetGrid() )
+        throw logic_error( "chi and x must be distributed over the same grid" );
     if( chi.Height() != 1 || chi.Width() != 1 )
         throw logic_error( "chi must be a scalar." );
     if( x.Height() != 1 )
@@ -105,9 +109,6 @@ elemental::lapack::internal::RowReflector
         throw logic_error( "Reflecting with incorrect row of processes." );
 #endif
     typedef complex<R> C;
-
-    if( x.Width() == 0 )
-        return (C)0;
 
     const Grid& g = x.GetGrid();
     const int c = g.Width();

@@ -34,12 +34,12 @@ bool OKRelativeError( T truth, T computed );
 
 template<>
 bool OKRelativeError( double truth, double computed )
-{ return ( Abs(truth-computed) / max(Abs(truth),(double)1) <= 1e-9 ); }
+{ return ( Abs(truth-computed) / max(Abs(truth),(double)1) <= 1e-8 ); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( Abs(truth-computed) / max(Abs(truth),(double)1) <= 1e-9 ); }
+{ return ( Abs(truth-computed) / max(Abs(truth),(double)1) <= 1e-8 ); }
 #endif
 
 template<typename R>

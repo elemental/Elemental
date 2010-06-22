@@ -86,14 +86,28 @@ Hegst
 // Serial version
 template<typename T>
 void
-LU
-( Matrix<T>& A, Matrix<int>& p );
+LU( Matrix<T>& A, Matrix<int>& p );
 
 // Parallel version
 template<typename T>
 void
-LU
-( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
+LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
+
+//----------------------------------------------------------------------------//
+// QR (QR factorization):                                                     //
+//                                                                            //
+// Performs a Householder QR factorization that overwrites the upper triangle //
+// of A with R and fills the lower triangle with the scaled Householder       //
+// transforms used to generate Q (they are implicitly one on the diagonal of  //
+// A). The scaling factors for the Householder transforms are stored in t.    //
+//----------------------------------------------------------------------------//
+
+// TODO: Serial version
+
+// Parallel version
+template<typename T>
+void
+QR( DistMatrix<T,MC,MR>& A, DistMatrix<T,MD,Star>& t );
 
 //----------------------------------------------------------------------------//
 // Tridiag (Householder tridiagonalization):                                  //

@@ -211,19 +211,19 @@ PivotFunc
   int* length, MPI_Datatype* datatype );
 
 //----------------------------------------------------------------------------//
+// QR                                                                         //
+//----------------------------------------------------------------------------//
+
+template<typename T>
+void
+PanelQR( DistMatrix<T,MC,MR>& A, DistMatrix<T,MD,Star>& t );
+
+//----------------------------------------------------------------------------//
 // Tridiag                                                                    //
 //----------------------------------------------------------------------------//
-template<typename R>
-R 
-Reflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-std::complex<R>
-Reflector
-( DistMatrix<std::complex<R>,MC,MR>& chi, 
-  DistMatrix<std::complex<R>,MC,MR>& x );
-#endif
+template<typename T>
+T
+Reflector( DistMatrix<T,MC,MR>& chi, DistMatrix<T,MC,MR>& x );
 
 template<typename R>
 R 

@@ -150,6 +150,8 @@ lapackfiles = Chol/Chol.cpp \
               LU/FindPivot.cpp \
               LU/LU.cpp \
               LU/PanelLU.cpp \
+              QR/PanelQR.cpp \
+              QR/QR.cpp \
               Tridiag/ColReflector.cpp \
               Tridiag/PanelTridiagL.cpp \
               Tridiag/PanelTridiagU.cpp \
