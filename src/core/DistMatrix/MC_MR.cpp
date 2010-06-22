@@ -2728,6 +2728,24 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
     this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
+    if( A.GetGrid().VCRank() == 0 )
+    {
+        if( A.Width() == 1 )
+        {
+            cout <<
+              "The vector version of [MC,MR].SumScatterFrom([* ,MR]) does not "
+              "yet have a vector version implemented, but it would only require"
+              " a modification of the vector version of "
+              "[MC,MR].SumScatterFrom([MC,* ])" << endl;
+        }
+        else
+        {
+            cout << 
+              "[MC,MR]::SumScatterFrom([* ,MR]) necessarily causes a large "
+              "amount of cache-thrashing. If possible, avoid it by forming the "
+              "(conjugate-)transpose of the [* ,MR] matrix instead." << endl;
+        }
+    }
 #endif
     const Grid& g = this->GetGrid();
     if( !this->Viewing() )
@@ -3158,6 +3176,24 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
     this->AssertNotLockedView();
     this->AssertSameGrid( A );
     this->AssertSameSize( A );
+    if( A.GetGrid().VCRank() == 0 )
+    {
+        if( A.Width() == 1 )
+        {
+            cout <<
+              "The vector version of [MC,MR].SumScatterUpdate([* ,MR]) does not"
+              " yet have a vector version implemented, but it would only "
+              "require a modification of the vector version of "
+              "[MC,MR].SumScatterUpdate([MC,* ])" << endl;
+        }
+        else
+        {
+            cout << 
+              "[MC,MR]::SumScatterUpdate([* ,MR]) necessarily causes a large "
+              "amount of cache-thrashing. If possible, avoid it by forming the "
+              "(conjugate-)transpose of the [* ,MR] matrix instead." << endl;
+        }
+    }
 #endif
     const Grid& g = this->GetGrid();
     if( this->RowAlignment() == A.RowAlignment() )

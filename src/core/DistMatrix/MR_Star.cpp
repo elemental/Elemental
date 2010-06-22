@@ -1510,6 +1510,14 @@ elemental::DistMatrixBase<T,MR,Star>::operator=
     this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
+    if( A.Width() != 1 && A.GetGrid().VCRank() == 0 )
+    {
+        cout <<
+          "[MR,* ] <- [VR,* ] necessarily causes a large amount of cache-"
+          "thrashing. If possible avoid it by performing the redistribution "
+          "with a (conjugate)-transpose: " << endl <<
+          "  [* ,MR].(Conjugate)TransposeFrom([VR,* ])" << endl;
+    }
 #endif
     const Grid& g = this->GetGrid();
     if( !this->Viewing() )

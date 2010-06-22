@@ -1329,6 +1329,13 @@ elemental::DistMatrixBase<T,VR,Star>::SumScatterFrom
     this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
+    if( A.Width() != 1 && A.GetGrid().VCRank() == 0 )
+    {
+        cout <<
+          "[VR,* ]::SumScatterFrom([MR,* ]) necessarily causes a large amount "
+          "of cache-thrashing. If possible, avoid it by forming the "
+          "(conjugate-)transpose of the [MR,* ] matrix instead." << endl;
+    }
 #endif
     const Grid& g = this->GetGrid();
     if( !this->Viewing() )
@@ -1411,6 +1418,13 @@ elemental::DistMatrixBase<T,VR,Star>::SumScatterUpdate
     this->AssertNotLockedView();
     this->AssertSameGrid( A );
     this->AssertSameSize( A );
+    if( A.Width() != 1 && A.GetGrid().VCRank() == 0 )
+    {
+        cout <<
+          "[VR,* ]::SumScatterUpdate([MR,* ]) necessarily causes a large amount"
+          " of cache-thrashing. If possible, avoid it by forming the "
+          "(conjugate-)transpose of the [MR,* ] matrix instead." << endl;
+    }
 #endif
     const Grid& g = this->GetGrid();
     if( this->ColAlignment() % g.Width() == A.ColAlignment() )

@@ -1175,6 +1175,24 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
     this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
+    if( A.GetGrid().VCRank() == 0 )
+    {
+        if( A.Width() == 1 )
+        {
+            cout << 
+              "The vector version of [MC,* ] <- [VC,* ] is not yet written, but"
+              " it only requires a modification of the vector version of "
+              "[* ,MR] <- [* ,VR]" << endl;
+        }
+        else
+        {
+            cout << 
+              "[MC,* ] <- [VC,* ] necessarily causes a large amount of cache-"
+              "thrashing. If possible avoid it by performing the redistribution"
+              " with a (conjugate)-transpose: " << endl << 
+              "  [* ,MC].(Conjugate)TransposeFrom([VC,* ])" << endl;
+        }
+    }
 #endif
     const Grid& g = this->GetGrid();
     if( !this->Viewing() )

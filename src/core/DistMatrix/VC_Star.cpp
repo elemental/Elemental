@@ -1328,6 +1328,13 @@ elemental::DistMatrixBase<T,VC,Star>::SumScatterFrom
     this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
+    if( A.Width() != 1 && A.GetGrid().VCRank() == 0 )
+    {
+        cout <<
+          "[VC,* ]::SumScatterFrom([MC,* ]) necessarily causes a large amount "
+          "of cache-thrashing. If possible, avoid it by forming the "
+          "(conjugate-)transpose of the [MC,* ] matrix instead." << endl;
+    }
 #endif
     const Grid& g = this->GetGrid();
     if( !this->Viewing() )
@@ -1410,6 +1417,13 @@ elemental::DistMatrixBase<T,VC,Star>::SumScatterUpdate
     this->AssertNotLockedView();
     this->AssertSameGrid( A );
     this->AssertSameSize( A );
+    if( A.Width() != 1 && A.GetGrid().VCRank() == 0 )
+    {
+        cout <<
+          "[VC,* ]::SumScatterUpdate([MC,* ]) necessarily causes a large amount"
+          " of cache-thrashing. If possible, avoid it by forming the "
+          "(conjugate-)transpose of the [MC,* ] matrix instead." << endl;
+    }
 #endif
     const Grid& g = this->GetGrid();
     if( this->ColAlignment() % g.Height() == A.ColAlignment() )
@@ -1470,7 +1484,6 @@ elemental::DistMatrixBase<T,VC,Star>::SumScatterUpdate
     PopCallStack();
 #endif
 }
-
 
 //----------------------------------------------------------------------------//
 // DistMatrix                                                                 //
