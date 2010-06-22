@@ -52,16 +52,19 @@ public:
     // Collective routines
     //
 
-    T Get( int i, int j ) const;
-    void Set( int i, int j, T alpha );
+    virtual T Get( int i, int j ) const;
+    virtual void Set( int i, int j, T alpha );
 
-    void MakeTrapezoidal
+    virtual void MakeTrapezoidal
     ( Side side, Shape shape, int offset = 0 );
 
-    void Print( const std::string& s ) const;
-    void ResizeTo( int height, int width );
-    void SetToIdentity();
-    void SetToRandom();
+    virtual void Print( const std::string& s ) const;
+    virtual void ResizeTo( int height, int width );
+    virtual void SetToIdentity();
+    virtual void SetToRandom();
+
+    // We can assign a scalar if the matrix is 1x1
+    virtual T operator=( T alpha );
 
     //------------------------------------------------------------------------//
     // Routines specific to [* ,MC] distribution                              //
@@ -235,6 +238,9 @@ public:
 
     ~DistMatrix();
     
+    // We can assign a scalar if the matrix is 1x1
+    R operator=( R alpha );
+
     const DistMatrix<R,Star,MC>&
     operator=( const DistMatrix<R,MC,MR>& A );
 
@@ -288,7 +294,7 @@ public:
     // Collective routines
     //
 
-    void SetToRandomHPD();
+    virtual void SetToRandomHPD();
 };
 
 #ifndef WITHOUT_COMPLEX
@@ -319,6 +325,9 @@ public:
 
     ~DistMatrix();
     
+    // We can assign a scalar if the matrix is 1x1
+    std::complex<R> operator=( std::complex<R> alpha );
+
     const DistMatrix<std::complex<R>,Star,MC>&
     operator=( const DistMatrix<std::complex<R>,MC,MR>& A );
 
@@ -372,7 +381,7 @@ public:
     // Collective routines
     //
 
-    void SetToRandomHPD();
+    virtual void SetToRandomHPD();
 
     //------------------------------------------------------------------------//
     // Fulfillments of abstract virtual func's from AbstractDistMatrix        //
@@ -388,10 +397,10 @@ public:
     // Collective routines
     //
 
-    R GetReal( int i, int j ) const;
-    R GetImag( int i, int j ) const;
-    void SetReal( int i, int j, R u );
-    void SetImag( int i, int j, R u );
+    virtual R GetReal( int i, int j ) const;
+    virtual R GetImag( int i, int j ) const;
+    virtual void SetReal( int i, int j, R u );
+    virtual void SetImag( int i, int j, R u );
 };
 #endif
 
@@ -419,6 +428,23 @@ template<typename T>
 inline
 DistMatrixBase<T,Star,MC>::~DistMatrixBase()
 { }
+
+template<typename T>
+inline T
+DistMatrixBase<T,Star,MC>::operator=( T alpha )
+{
+#ifndef RELEASE
+    PushCallStack("DistMatrixBase::operator=");
+#endif
+    if( this->Height() == 1 && this->Width() == 1 )
+        this->Set( 0, 0, alpha );
+    else
+        throw std::logic_error("Scalars can only be assigned to 1x1 matrices.");
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return alpha;
+}
 
 //
 // Real DistMatrix[* ,MC]
@@ -496,6 +522,12 @@ template<typename R>
 inline
 DistMatrix<R,Star,MC>::~DistMatrix()
 { }
+
+template<typename R>
+inline R
+DistMatrix<R,Star,MC>::operator=
+( R alpha )
+{ return DMB::operator=( alpha ); }
 
 template<typename R>
 inline const DistMatrix<R,Star,MC>&
@@ -652,6 +684,12 @@ template<typename R>
 inline
 DistMatrix<std::complex<R>,Star,MC>::~DistMatrix()
 { }
+
+template<typename R>
+inline std::complex<R>
+DistMatrix<std::complex<R>,Star,MC>::operator=
+( std::complex<R> alpha )
+{ return DMB::operator=( alpha ); }
 
 template<typename R>
 inline const DistMatrix<std::complex<R>,Star,MC>&

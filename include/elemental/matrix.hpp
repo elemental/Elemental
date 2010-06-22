@@ -98,6 +98,7 @@ public:
 
     void SetToZero();
 
+    T operator=( T alpha );
     const Matrix<T>& operator=( const Matrix<T>& A );
 };
 
@@ -429,6 +430,23 @@ elemental::Matrix<T>::LockedPointer
         return &_lockedData[i+j*_ldim];
     else
         return &_data[i+j*_ldim];
+}
+
+template<typename T>
+inline T
+elemental::Matrix<T>::operator=( T alpha )
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::operator=");
+#endif
+    if( this->Height() == 1 && this->Width() == 1 )
+        _data[0] = alpha;
+    else
+        throw std::logic_error("Scalars can only be assigned to 1x1 matrices.");
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return alpha;
 }
 
 #endif /* ELEMENTAL_MATRIX_HPP */

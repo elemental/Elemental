@@ -182,6 +182,9 @@ public:
     // It is then _implicitly_ Hermitian, and therefore _implicitly_ Hermitian
     // Positive Definite (HPD).
     virtual void SetToRandomHPD() = 0;
+
+    // Iff the matrix is 1x1, we should be able to assign a scalar.
+    virtual T operator=( T alpha ) = 0;
 };
 
 template<typename R>

@@ -153,11 +153,11 @@ elemental::lapack::internal::PanelTridiagL
         if( thisIsMyColumn )
         {
             tau = lapack::internal::ColReflector( alpha21T, a21B );
-            tau1.Set( 0, 0, tau );
+            tau1 = tau;
         }
             
         alpha21T.GetDiagonal( epsilon1 );
-        alpha21T.Set( 0, 0, (R)1 );
+        alpha21T = (R)1;
 
         a21_MR_Star = a21_MC_Star = a21;
 
@@ -396,11 +396,11 @@ elemental::lapack::internal::PanelTridiagL
         if( thisIsMyColumn )
         {
             tau = lapack::internal::ColReflector( alpha21T, a21B );
-            tau1.Set( 0, 0, tau );
+            tau1 = tau;
         }
             
         alpha21T.GetRealDiagonal( epsilon1 );
-        alpha21T.Set( 0, 0, (C)1 );
+        alpha21T = (C)1;
 
         a21_MR_Star = a21_MC_Star = a21;
 

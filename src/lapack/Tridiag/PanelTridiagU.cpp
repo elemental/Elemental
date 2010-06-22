@@ -151,11 +151,11 @@ elemental::lapack::internal::PanelTridiagU
         if( thisIsMyColumn )
         {
             tau = lapack::internal::ColReflector( alpha01B, a01T );
-            tau1.Set( 0, 0, tau );
+            tau1 = tau;
         }
             
         alpha01B.GetDiagonal( epsilon1 );
-        alpha01B.Set( 0, 0, (R)1 );
+        alpha01B = (R)1;
 
         a01_MR_Star = a01_MC_Star = a01;
 
@@ -387,17 +387,18 @@ elemental::lapack::internal::PanelTridiagU
         blas::Gemv( Normal, (C)-1, ATR, w12Conj, (C)1, ACol );
         blas::Conj( a12, a12Conj );
         blas::Gemv( Normal, (C)-1, WTR, a12Conj, (C)1, ACol );
+        alpha11.SetImag( 0, 0, (R)0 );
 
         C tau = 0; // Initializing avoids false compiler warnings
         const bool thisIsMyColumn = ( g.MRRank() == a01.RowAlignment() );
         if( thisIsMyColumn )
         {
             tau = lapack::internal::ColReflector( alpha01B, a01T );
-            tau1.Set( 0, 0, tau );
+            tau1 = tau;
         }
             
         alpha01B.GetRealDiagonal( epsilon1 );
-        alpha01B.Set( 0, 0, (C)1 );
+        alpha01B = (C)1;
 
         a01_MR_Star = a01_MC_Star = a01;
 
