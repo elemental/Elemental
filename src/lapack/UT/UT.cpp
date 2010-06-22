@@ -14,7 +14,8 @@ using namespace std;
 template<typename T>
 void
 elemental::lapack::UT
-( Shape shape, 
+( Side side,
+  Shape shape, 
   Orientation orientation,
   int offset,
   const DistMatrix<T,MC,MR>& H, 
@@ -27,19 +28,27 @@ elemental::lapack::UT
               ( "Only Normal and ConjugateTranspose UT transform applications "
                 "are written." );
 #endif
-    if( shape == Lower )
+    if( side == Left )
     {
-        if( orientation == Normal )
-            lapack::internal::UTLN( offset, H, A );
+        if( shape == Lower )
+        {
+            if( orientation == Normal )
+                lapack::internal::UTLLN( offset, H, A );
+            else
+                lapack::internal::UTLLH( offset, H, A );
+        }
         else
-            lapack::internal::UTLH( offset, H, A );
+        {
+            if( orientation == Normal )
+                lapack::internal::UTLUN( offset, H, A );
+            else
+                lapack::internal::UTLUH( offset, H, A );
+        }
     }
     else
     {
-        if( orientation == Normal )
-            lapack::internal::UTUN( offset, H, A );
-        else
-            lapack::internal::UTUH( offset, H, A );
+        throw logic_error
+              ( "Only the left applications are currently implemented." );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -47,14 +56,16 @@ elemental::lapack::UT
 }
 
 template void elemental::lapack::UT
-( Shape shape,
+( Side side,
+  Shape shape,
   Orientation orientation,
   int offset,
   const DistMatrix<float,MC,MR>& H,
         DistMatrix<float,MC,MR>& A );
 
 template void elemental::lapack::UT
-( Shape shape,
+( Side side,
+  Shape shape,
   Orientation orientation,
   int offset,
   const DistMatrix<double,MC,MR>& H,
@@ -62,14 +73,16 @@ template void elemental::lapack::UT
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::UT
-( Shape shape,
+( Side side,
+  Shape shape,
   Orientation orientation,
   int offset,
   const DistMatrix<scomplex,MC,MR>& H,
         DistMatrix<scomplex,MC,MR>& A );
 
 template void elemental::lapack::UT
-( Shape shape,
+( Side side,
+  Shape shape,
   Orientation orientation,
   int offset,
   const DistMatrix<dcomplex,MC,MR>& H,

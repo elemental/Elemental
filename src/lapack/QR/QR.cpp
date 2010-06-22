@@ -83,7 +83,7 @@ elemental::lapack::QR
 
         //--------------------------------------------------------------------//
         lapack::internal::PanelQR( ALeftPan, t1 );
-        lapack::UT( Lower, Normal, 0, ALeftPan, ARightPan );
+        lapack::UT( Left, Lower, Normal, 0, ALeftPan, ARightPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal

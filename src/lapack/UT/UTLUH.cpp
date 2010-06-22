@@ -16,21 +16,21 @@ namespace {
 
 template<typename T>
 void
-SetDiagonalToOne( int offset, DistMatrix<T,VC,Star>& A )
+SetDiagonalToOne( int offset, DistMatrix<T,Star,VR>& A )
 {
 #ifndef RELEASE
     PushCallStack("SetDiagonalToOne");
 #endif
-    const int width = A.Width();
-    const int localHeight = A.LocalHeight();
+    const int height = A.Height();
+    const int localWidth = A.LocalWidth();
     const int p = A.GetGrid().Size();
-    const int colShift = A.ColShift();
+    const int rowShift = A.RowShift();
 
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int i = colShift + iLoc*p;
-        if( (i+offset) > 0 && (i+offset) < width )
-            A.LocalEntry(iLoc,i+offset) = (T)1;
+        const int j = rowShift + jLoc*p;
+        if( (j-offset) > 0 && (j-offset) < height )
+            A.LocalEntry(j-offset,jLoc) = (T)1;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -54,22 +54,22 @@ HalveMainDiagonal( DistMatrix<T,Star,Star>& A )
 }
 
 // This routine reverses the accumulation of Householder transforms stored 
-// in the portion of H below the diagonal marked by 'offset'. It is assumed 
-// that the Householder transforms were accumulated left-to-right.
+// in the portion of H above the diagonal marked by 'offset'. It is assumed 
+// that the Householder transforms were accumulated right-to-left.
 template<typename T>
 void
-elemental::lapack::internal::UTLH
+elemental::lapack::internal::UTLUH
 ( int offset, 
   const DistMatrix<T,MC,MR>& H,
         DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::UTLH");
+    PushCallStack("lapack::internal::UTLUH");
     if( H.GetGrid() != A.GetGrid() )
         throw logic_error( "H and A must be distributed over the same grid." );
-    if( offset > 0 )
+    if( offset > H.Height() )
         throw logic_error( "Transforms cannot extend above matrix." );
-    if( offset < -H.Height() )
+    if( offset < 0 )
         throw logic_error( "Transforms cannot extend below matrix." );
     if( H.Width() != A.Height() )
         throw logic_error
@@ -87,56 +87,53 @@ elemental::lapack::internal::UTLH
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<T,VC,  Star> HPan_VC_Star(g);
-    DistMatrix<T,MC,  Star> HPan_MC_Star(g);
+    DistMatrix<T,Star,VR  > HPan_Star_VR(g);
+    DistMatrix<T,Star,MC  > HPan_Star_MC(g);
     DistMatrix<T,Star,Star> U_Star_Star(g);
     DistMatrix<T,Star,MR  > Z_Star_MR(g);
     DistMatrix<T,Star,VR  > Z_Star_VR(g);
 
-    LockedPartitionUpDiagonal
+    LockedPartitionDownDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
-    PartitionUpDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    while( HBR.Width() < H.Width() )
+    while( HTL.Width() < H.Width() )
     {
-        LockedRepartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
+        LockedRepartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
          /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+               /**/       H10, /**/ H11, H12,
+          HBL, /**/ HBR,  H20, /**/ H21, H22 );
 
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
          /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        HPan.LockedView2x1
-        ( H11,
-          H21 );
+        HPan.LockedView1x2( H11, H12 );
 
-        HPan_MC_Star.AlignWith( ABR );
+        HPan_Star_MC.AlignWith( ABR );
         Z_Star_MR.AlignWith( ABR );
         Z_Star_VR.AlignWith( ABR );
         Z_Star_MR.ResizeTo( HPan.Width(), ABR.Width() );
         U_Star_Star.ResizeTo( HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
-        HPan_VC_Star = HPan;
-        HPan_VC_Star.MakeTrapezoidal( Left, Lower, offset );
-        SetDiagonalToOne( offset, HPan_VC_Star );
+        HPan_Star_VR = HPan;
+        HPan_Star_VR.MakeTrapezoidal( Left, Upper, offset );
+        SetDiagonalToOne( offset, HPan_Star_VR );
         blas::Herk
-        ( Upper, ConjugateTranspose, 
-          (T)1, HPan_VC_Star.LockedLocalMatrix(),
-          (T)0, U_Star_Star.LocalMatrix() );     
+        ( Upper, Normal, 
+          (T)1, HPan_Star_VR.LockedLocalMatrix(),
+          (T)0, U_Star_Star.LocalMatrix() ); 
         U_Star_Star.AllSum();
         HalveMainDiagonal( U_Star_Star );
 
-        HPan_MC_Star = HPan;
+        HPan_Star_MC = HPan_Star_VR;
         blas::internal::LocalGemm
-        ( ConjugateTranspose, Normal, 
-          (T)1, HPan_MC_Star, ABR, (T)0, Z_Star_MR );
+        ( Normal, Normal, (T)1, HPan_Star_MC, ABR, (T)0, Z_Star_MR );
         Z_Star_VR.SumScatterFrom( Z_Star_MR );
         
         blas::internal::LocalTrsm
@@ -145,46 +142,47 @@ elemental::lapack::internal::UTLH
 
         Z_Star_MR = Z_Star_VR;
         blas::internal::LocalGemm
-        ( Normal, Normal, (T)-1, HPan_MC_Star, Z_Star_MR, (T)1, ABR );
+        ( ConjugateTranspose, Normal, 
+          (T)-1, HPan_Star_MC, Z_Star_MR, (T)1, ABR );
         //--------------------------------------------------------------------//
-        HPan_MC_Star.FreeAlignments();
+        HPan_Star_MC.FreeAlignments();
         Z_Star_MR.FreeAlignments();
         Z_Star_VR.FreeAlignments();
 
-        SlideLockedPartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
+        SlideLockedPartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
+               /**/       H10, H11, /**/ H12,
          /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
+          HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
         SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
          /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+               /**/       A10, A11, /**/ A12,
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template void elemental::lapack::internal::UTLH
+template void elemental::lapack::internal::UTLUH
 ( int offset,
   const DistMatrix<float,MC,MR>& H,
         DistMatrix<float,MC,MR>& A );
 
-template void elemental::lapack::internal::UTLH
+template void elemental::lapack::internal::UTLUH
 ( int offset,
   const DistMatrix<double,MC,MR>& H,
         DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::UTLH
+template void elemental::lapack::internal::UTLUH
 ( int offset,
   const DistMatrix<scomplex,MC,MR>& H,
         DistMatrix<scomplex,MC,MR>& A );
 
-template void elemental::lapack::internal::UTLH
+template void elemental::lapack::internal::UTLUH
 ( int offset,
   const DistMatrix<dcomplex,MC,MR>& H,
         DistMatrix<dcomplex,MC,MR>& A );

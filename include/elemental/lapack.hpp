@@ -204,7 +204,8 @@ Trinv
 template<typename T>
 void
 UT
-( Shape shape, 
+( Side side,
+  Shape shape, 
   Orientation orientation,
   int offset,
   const DistMatrix<T,MC,MR>& H,

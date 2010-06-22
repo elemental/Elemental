@@ -356,22 +356,42 @@ TrinvUVar3
 
 template<typename T>
 void
-UTLN
+UTLLN
 ( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
 
 template<typename T>
 void
-UTLH
+UTLLH
 ( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
 
 template<typename T>
 void
-UTUN
+UTLUN
 ( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
 
 template<typename T>
 void
-UTUH
+UTLUH
+( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+UTRLN
+( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+UTRLH
+( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+UTRUN
+( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+UTRUH
 ( int offset, const DistMatrix<T,MC,MR>& H, DistMatrix<T,MC,MR>& A );
 
 //----------------------------------------------------------------------------//

@@ -58,13 +58,13 @@ HalveMainDiagonal( DistMatrix<T,Star,Star>& A )
 // that the Householder transforms were accumulated right-to-left.
 template<typename T>
 void
-elemental::lapack::internal::UTUN
+elemental::lapack::internal::UTLUN
 ( int offset, 
   const DistMatrix<T,MC,MR>& H,
         DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::UTUN");
+    PushCallStack("lapack::internal::UTLUN");
     if( H.GetGrid() != A.GetGrid() )
         throw logic_error( "H and A must be distributed over the same grid." );
     if( offset > H.Height() )
@@ -166,23 +166,23 @@ elemental::lapack::internal::UTUN
 #endif
 }
 
-template void elemental::lapack::internal::UTUN
+template void elemental::lapack::internal::UTLUN
 ( int offset,
   const DistMatrix<float,MC,MR>& H,
         DistMatrix<float,MC,MR>& A );
 
-template void elemental::lapack::internal::UTUN
+template void elemental::lapack::internal::UTLUN
 ( int offset,
   const DistMatrix<double,MC,MR>& H,
         DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::UTUN
+template void elemental::lapack::internal::UTLUN
 ( int offset,
   const DistMatrix<scomplex,MC,MR>& H,
         DistMatrix<scomplex,MC,MR>& A );
 
-template void elemental::lapack::internal::UTUN
+template void elemental::lapack::internal::UTLUN
 ( int offset,
   const DistMatrix<dcomplex,MC,MR>& H,
         DistMatrix<dcomplex,MC,MR>& A );
