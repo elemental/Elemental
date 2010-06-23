@@ -7,7 +7,6 @@
    This program is released under the terms of the license contained in the 
    file LICENSE.
 */
-#include "elemental/wrappers/blas.hpp"
 #include "elemental/dist_matrix.hpp"
 using namespace std;
 using namespace elemental;

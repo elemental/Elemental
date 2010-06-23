@@ -28,9 +28,7 @@ elemental::Matrix<T>::Print( string msg ) const
     for( int i=0; i<height; ++i )
     {
         for( int j=0; j<width; ++j )
-        {
             cout << operator()(i,j) << " ";
-        }
         cout << endl;
     }
     cout << endl;
@@ -412,9 +410,18 @@ elemental::Matrix<T>::SetToZero()
 #endif
     const int height = Height();
     const int width = Width();
+#ifdef RELEASE
+    for( int j=0; j<width; ++j )
+    {
+        T* _dataCol = &(_data[j*_ldim]);
+        memset( _dataCol, 0, height*sizeof(T) );
+    }
+#else
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
             _data[i+j*_ldim] = (T)0;
+#endif
+
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -459,9 +466,19 @@ elemental::Matrix<T>::operator=
     const int ldim = LDim();
     const int ldimOfA = A.LDim();
     const T* data = A.LockedBuffer();
+#ifdef RELEASE
+    for( int j=0; j<width; ++j )
+    {
+        const T* dataCol = &(data[j*ldimOfA]);
+        T* _dataCol = &(_data[j*ldim]);
+        memcpy( _dataCol, dataCol, height*sizeof(T) );
+    }
+#else
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
             _data[i+j*ldim] = data[i+j*ldimOfA];
+#endif
+
 #ifndef RELEASE
     PopCallStack();
 #endif

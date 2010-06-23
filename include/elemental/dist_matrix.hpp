@@ -11,6 +11,7 @@
 #define ELEMENTAL_DIST_MATRIX_HPP 1
 
 #include "elemental/matrix.hpp"
+#include "elemental/wrappers/blas.hpp"
 #include "elemental/wrappers/mpi.hpp"
 
 namespace elemental {
