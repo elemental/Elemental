@@ -701,8 +701,13 @@ elemental::DistMatrixBase<T,Star,MD>::MakeTrapezoidal
                     firstNonzero_i = max(j-offset+height-width,0);
 
                 const int boundary = min(height,firstNonzero_i);
+#ifdef RELEASE
+                T* thisCol = &(this->LocalEntry(0,jLoc));           
+                memset( thisCol, 0, boundary*sizeof(T) );
+#else
                 for( int i=0; i<boundary; ++i )
-                    this->_localMatrix(i,jLoc) = (T)0;
+                    this->LocalEntry(i,jLoc) = (T)0;
+#endif
             }
         }
         else
@@ -715,8 +720,13 @@ elemental::DistMatrixBase<T,Star,MD>::MakeTrapezoidal
                     firstZero_i = max(j-offset+1,0);
                 else
                     firstZero_i = max(j-offset+height-width+1,0);
+#ifdef RELEASE
+                T* thisCol = &(this->LocalEntry(0,jLoc));
+                memset( thisCol, 0, (height-firstZero_i)*sizeof(T) );
+#else
                 for( int i=firstZero_i; i<height; ++i )
-                    this->_localMatrix(i,jLoc) = (T)0;
+                    this->LocalEntry(i,jLoc) = (T)0;
+#endif
             }
         }
     }
@@ -745,7 +755,7 @@ elemental::DistMatrixBase<T,Star, MD>::SetToIdentity()
         {
             const int j = rowShift + jLoc*lcm;
             if( j < height )
-                this->_localMatrix(j,jLoc) = (T)1;
+                this->LocalEntry(j,jLoc) = (T)1;
         }
     }
 #ifndef RELEASE
@@ -767,7 +777,7 @@ elemental::DistMatrixBase<T,Star,MD>::SetToRandom()
         const int localWidth = this->LocalWidth();
         for( int j=0; j<localWidth; ++j )
             for( int i=0; i<height; ++i )
-                this->_localMatrix(i,j) = Random<T>();
+                this->LocalEntry(i,j) = Random<T>();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1047,9 +1057,18 @@ elemental::DistMatrixBase<T,Star,MD>::operator=
 
         const int height = this->Height();
         const int localWidth = this->LocalWidth();
+#ifdef RELEASE
+        for( int j=0; j<localWidth; ++j )
+        {
+            const T* ACol = &(A.LocalEntry(0,rowShift+j*lcm));
+            T* thisCol = &(this->LocalEntry(0,j));
+            memcpy( thisCol, ACol, height*sizeof(T) );
+        }
+#else
         for( int j=0; j<localWidth; ++j )
             for( int i=0; i<height; ++i )
-                this->_localMatrix(i,j) = A.LocalEntry(i,rowShift+j*lcm);
+                this->LocalEntry(i,j) = A.LocalEntry(i,rowShift+j*lcm);
+#endif
     }
 #ifndef RELEASE
     PopCallStack();
