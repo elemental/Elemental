@@ -373,8 +373,13 @@ elemental::DistMatrixBase<T,Star,Star>::MakeTrapezoidal
                 firstNonzero_i = max(j-offset+height-width,0);
 
             const int boundary = min(height,firstNonzero_i);
+#ifdef RELEASE
+            T* thisCol = &(this->LocalEntry(0,j));
+            memset( thisCol, 0, boundary*sizeof(T) );
+#else
             for( int i=0; i<boundary; ++i )
                 this->LocalEntry(i,j) = (T)0;
+#endif
         }
     }
     else
@@ -386,8 +391,13 @@ elemental::DistMatrixBase<T,Star,Star>::MakeTrapezoidal
                 firstZero_i = max(j-offset+1,0);
             else
                 firstZero_i = max(j-offset+height-width+1,0);
+#ifdef RELEASE
+            T* thisCol = &(this->LocalEntry(firstZero_i,j));
+            memset( thisCol, 0, (height-firstZero_i)*sizeof(T) );
+#else
             for( int i=firstZero_i; i<height; ++i )
                 this->LocalEntry(i,j) = (T)0;
+#endif
         }
     }
 #ifndef RELEASE
@@ -440,9 +450,18 @@ elemental::DistMatrixBase<T,Star,Star>::SetToRandom()
     Broadcast( buffer, bufSize, 0, g.VCComm() );
 
     // Unpack
+#ifdef RELEASE
+    for( int j=0; j<width; ++j )
+    {
+        const T* bufferCol = &(buffer[j*height]);
+        T* thisCol = &(this->LocalEntry(0,j));
+        memcpy( thisCol, bufferCol, height*sizeof(T) );
+    }
+#else
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
             this->LocalEntry(i,j) = buffer[i+j*height];
+#endif
 
     this->_auxMemory.Release();
 #ifndef RELEASE
@@ -487,9 +506,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     T* gatheredData = &buffer[portionSize];
 
     // Pack
+#ifdef RELEASE
+    for( int j=0; j<localWidthOfA; ++j )
+    {
+        const T* ACol = &(A.LocalEntry(0,j));
+        T* originalDataCol = &(originalData[j*localHeightOfA]);
+        memcpy( originalDataCol, ACol, localHeightOfA*sizeof(T) );
+    }
+#else
     for( int j=0; j<localWidthOfA; ++j )
         for( int i=0; i<localHeightOfA; ++i )
             originalData[i+j*localHeightOfA] = A.LocalEntry(i,j);
+#endif
 
     // Communicate
     AllGather
@@ -556,9 +584,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     T* gatheredData = &buffer[portionSize];
 
     // Pack
+#ifdef RELEASE
+    for( int j=0; j<width; ++j )
+    {
+        const T* ACol = &(A.LocalEntry(0,j));
+        T* originalDataCol = &(originalData[j*localHeightOfA]);
+        memcpy( originalDataCol, ACol, localHeightOfA*sizeof(T) );
+    }
+#else
     for( int j=0; j<width; ++j )
         for( int i=0; i<localHeightOfA; ++i )
             originalData[i+j*localHeightOfA] = A.LocalEntry(i,j);
+#endif
 
     // Communicate
     AllGather
@@ -617,9 +654,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     T* gatheredData = &buffer[portionSize];
 
     // Pack
+#ifdef RELEASE
+    for( int j=0; j<localWidthOfA; ++j )
+    {
+        const T* ACol = &(A.LocalEntry(0,j));
+        T* originalDataCol = &(originalData[j*height]);
+        memcpy( originalDataCol, ACol, height*sizeof(T) );
+    }
+#else
     for( int j=0; j<localWidthOfA; ++j )
         for( int i=0; i<height; ++i )
             originalData[i+j*height] = A.LocalEntry(i,j);
+#endif
 
     // Communicate
     AllGather
@@ -635,9 +681,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int rowShift = Shift( k, rowAlignmentOfA, c );
         const int localWidth = LocalLength( width, rowShift, c );
 
+#ifdef RELEASE
+        for( int j=0; j<localWidth; ++j )
+        {
+            const T* dataCol = &(data[j*height]);
+            T* thisCol = &(this->LocalEntry(0,rowShift+j*c));
+            memcpy( thisCol, dataCol, height*sizeof(T) );
+        }
+#else
         for( int j=0; j<localWidth; ++j )
             for( int i=0; i<height; ++i )
                 this->LocalEntry(i,rowShift+j*c) = data[i+j*height];
+#endif
     }
 
     this->_auxMemory.Release();
@@ -685,9 +740,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Pack
     if( A.InDiagonal() )
     {
+#ifdef RELEASE
+        for( int j=0; j<width; ++j )
+        {
+            const T* ACol = &(A.LocalEntry(0,j));
+            T* sendBufCol = &(sendBuf[j*localHeight]);
+            memcpy( sendBufCol, ACol, localHeight*sizeof(T) );
+        }
+#else
         for( int j=0; j<width; ++j )
             for( int i=0; i<localHeight; ++i )
                 sendBuf[i+j*localHeight] = A.LocalEntry(i,j);
+#endif
     }
 
     // Communicate
@@ -759,9 +823,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     // Pack
     if( A.InDiagonal() )
     {
+#ifdef RELEASE
+        for( int j=0; j<localWidth; ++j )
+        {
+            const T* ACol = &(A.LocalEntry(0,j));
+            T* sendBufCol = &(sendBuf[j*height]);
+            memcpy( sendBufCol, ACol, height*sizeof(T) );
+        }
+#else
         for( int j=0; j<localWidth; ++j )
             for( int i=0; i<height; ++i )
                 sendBuf[i+j*height] = A.LocalEntry(i,j);
+#endif
     }
 
     // Communicate
@@ -780,9 +853,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
             const int thisRowShift = Shift( thisPathRank, ownerPathRank, lcm );
             const int thisLocalWidth =  LocalLength( width, thisRowShift, lcm );
 
+#ifdef RELEASE
+            for( int j=0; j<thisLocalWidth; ++j )
+            {
+                const T* dataCol = &(data[j*height]);
+                T* thisCol = &(this->LocalEntry(0,thisRowShift+j*lcm));
+                memcpy( thisCol, dataCol, height*sizeof(T) );
+            }
+#else
             for( int j=0; j<thisLocalWidth; ++j )
                 for( int i=0; i<height; ++i )
                     this->LocalEntry(i,thisRowShift+j*lcm) = data[i+j*height];
+#endif
         }
     }
 
@@ -829,9 +911,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     T* gatheredData = &buffer[portionSize];
 
     // Pack
+#ifdef RELEASE
+    for( int j=0; j<localWidthOfA; ++j )
+    {
+        const T* ACol = &(A.LocalEntry(0,j));
+        T* originalDataCol = &(originalData[j*localHeightOfA]);
+        memcpy( originalDataCol, ACol, localHeightOfA*sizeof(T) );
+    }
+#else
     for( int j=0; j<localWidthOfA; ++j )
         for( int i=0; i<localHeightOfA; ++i )
             originalData[i+j*localHeightOfA] = A.LocalEntry(i,j);
+#endif
 
     // Communicate
     AllGather
@@ -898,9 +989,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     T* gatheredData = &buffer[portionSize];
 
     // Pack
+#ifdef RELEASE
+    for( int j=0; j<width; ++j )
+    {
+        const T* ACol = &(A.LocalEntry(0,j));
+        T* originalDataCol = &(originalData[j*localHeightOfA]);
+        memcpy( originalDataCol, ACol, localHeightOfA*sizeof(T) );
+    }
+#else
     for( int j=0; j<width; ++j )
         for( int i=0; i<localHeightOfA; ++i )
             originalData[i+j*localHeightOfA] = A.LocalEntry(i,j);
+#endif
 
     // Communicate
     AllGather
@@ -959,9 +1059,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     T* gatheredData = &buffer[portionSize];
 
     // Pack
+#ifdef RELEASE
+    for( int j=0; j<localWidthOfA; ++j )
+    {
+        const T* ACol = &(A.LocalEntry(0,j));
+        T* originalDataCol = &(originalData[j*height]);
+        memcpy( originalDataCol, ACol, height*sizeof(T) );
+    }
+#else
     for( int j=0; j<localWidthOfA; ++j )
         for( int i=0; i<height; ++i )
             originalData[i+j*height] = A.LocalEntry(i,j);
+#endif
 
     // Communicate
     AllGather
@@ -977,9 +1086,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int rowShift = Shift( k, rowAlignmentOfA, r );
         const int localWidth = LocalLength( width, rowShift, r );
 
+#ifdef RELEASE
+        for( int j=0; j<localWidth; ++j )
+        {
+            const T* dataCol = &(data[j*height]);
+            T* thisCol = &(this->LocalEntry(0,rowShift+j*r));
+            memcpy( thisCol, dataCol, height*sizeof(T) );
+        }
+#else
         for( int j=0; j<localWidth; ++j )
             for( int i=0; i<height; ++i )
                 this->LocalEntry(i,rowShift+j*r) = data[i+j*height];
+#endif
     }
 
     this->_auxMemory.Release();
@@ -1020,9 +1138,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     T* gatheredData = &buffer[portionSize];
 
     // Pack
+#ifdef RELEASE
+    for( int j=0; j<width; ++j )
+    {
+        const T* ACol = &(A.LocalEntry(0,j));
+        T* originalDataCol = &(originalData[j*localHeightOfA]);
+        memcpy( originalDataCol, ACol, localHeightOfA*sizeof(T) );
+    }
+#else
     for( int j=0; j<width; ++j )
         for( int i=0; i<localHeightOfA; ++i )
             originalData[i+j*localHeightOfA] = A.LocalEntry(i,j);
+#endif
 
     // Communicate
     AllGather
@@ -1081,9 +1208,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     T* gatheredData = &buffer[portionSize];
 
     // Pack
+#ifdef RELEASE
+    for( int j=0; j<localWidthOfA; ++j )
+    {
+        const T* ACol = &(A.LocalEntry(0,j));
+        T* originalDataCol = &(originalData[j*height]);
+        memcpy( originalDataCol, ACol, height*sizeof(T) );
+    }
+#else
     for( int j=0; j<localWidthOfA; ++j )
         for( int i=0; i<height; ++i )
             originalData[i+j*height] = A.LocalEntry(i,j);
+#endif
 
     // Communicate
     AllGather
@@ -1099,9 +1235,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int rowShift = Shift( k, rowAlignmentOfA, p );
         const int localWidth = LocalLength( width, rowShift, p );
 
+#ifdef RELEASE
+        for( int j=0; j<localWidth; ++j )
+        {
+            const T* dataCol = &(data[j*height]);
+            T* thisCol = &(this->LocalEntry(0,rowShift+j*p));
+            memcpy( thisCol, dataCol, height*sizeof(T) );
+        }
+#else
         for( int j=0; j<localWidth; ++j )
             for( int i=0; i<height; ++i )
                 this->LocalEntry(i,rowShift+j*p) = data[i+j*height];
+#endif
     }
 
     this->_auxMemory.Release();
@@ -1142,9 +1287,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     T* gatheredData = &buffer[portionSize];
 
     // Pack
+#ifdef RELEASE
+    for( int j=0; j<width; ++j )
+    {
+        const T* ACol = &(A.LocalEntry(0,j));
+        T* originalDataCol = &(originalData[j*localHeightOfA]);
+        memcpy( originalDataCol, ACol, localHeightOfA*sizeof(T) );
+    }
+#else
     for( int j=0; j<width; ++j )
         for( int i=0; i<localHeightOfA; ++i )
             originalData[i+j*localHeightOfA] = A.LocalEntry(i,j);
+#endif
 
     // Communicate
     AllGather
@@ -1203,9 +1357,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     T* gatheredData = &buffer[portionSize];
 
     // Pack
+#ifdef RELEASE
+    for( int j=0; j<localWidthOfA; ++j )
+    {
+        const T* ACol = &(A.LocalEntry(0,j));
+        T* originalDataCol = &(originalData[j*height]);
+        memcpy( originalDataCol, ACol, height*sizeof(T) );
+    }
+#else
     for( int j=0; j<localWidthOfA; ++j )
         for( int i=0; i<height; ++i )
             originalData[i+j*height] = A.LocalEntry(i,j);
+#endif
 
     // Communicate
     AllGather
@@ -1221,9 +1384,18 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int rowShift = Shift( k, rowAlignmentOfA, p );
         const int localWidth = LocalLength( width, rowShift, p );
 
+#ifdef RELEASE
+        for( int j=0; j<localWidth; ++j )
+        {
+            const T* dataCol = &(data[j*height]);
+            T* thisCol = &(this->LocalEntry(0,rowShift+j*p));
+            memcpy( thisCol, dataCol, height*sizeof(T) );
+        }
+#else
         for( int j=0; j<localWidth; ++j )
             for( int i=0; i<height; ++i )
                 this->LocalEntry(i,rowShift+j*p) = data[i+j*height];
+#endif
     }
 
     this->_auxMemory.Release();
