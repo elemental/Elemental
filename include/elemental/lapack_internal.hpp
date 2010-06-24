@@ -47,7 +47,17 @@ CholVar2
 
 template<typename T>
 void
+CholVar2Naive
+( Shape shape, DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
 CholVar3
+( Shape shape, DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+CholVar3Naive
 ( Shape shape, DistMatrix<T,MC,MR>& A );
 
 template<typename T>
@@ -64,15 +74,31 @@ CholLVar2( DistMatrix<T,MC,MR>& A );
 
 template<typename T>
 void
+CholLVar2Naive( DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
 CholLVar3( DistMatrix<T,MC,MR>& A );
 
 template<typename T>
 void
+CholLVar3Naive( DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
 CholUVar2( DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+CholUVar2Naive( DistMatrix<T,MC,MR>& A );
  
 template<typename T>
 void
 CholUVar3( DistMatrix<T,MC,MR>& A );
+
+template<typename T>
+void
+CholUVar3Naive( DistMatrix<T,MC,MR>& A );
             
 //----------------------------------------------------------------------------//
 // GaussElim                                                                  //

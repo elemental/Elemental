@@ -43,6 +43,23 @@ elemental::lapack::internal::CholVar2
 
 template<typename T>
 void
+elemental::lapack::internal::CholVar2Naive
+( Shape shape, DistMatrix<T,MC,MR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::internal::CholVar2Naive");
+#endif
+    if( shape == Lower )
+        lapack::internal::CholLVar2Naive( A );
+    else
+        lapack::internal::CholUVar2Naive( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
 elemental::lapack::internal::CholVar3
 ( Shape shape, DistMatrix<T,MC,MR>& A )
 {
@@ -58,13 +75,36 @@ elemental::lapack::internal::CholVar3
 #endif
 }
 
+template<typename T>
+void
+elemental::lapack::internal::CholVar3Naive
+( Shape shape, DistMatrix<T,MC,MR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::internal::CholVar3Naive");
+#endif
+    if( shape == Lower )
+        lapack::internal::CholLVar3Naive( A );
+    else
+        lapack::internal::CholUVar3Naive( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template void elemental::lapack::Chol
 ( Shape shape, DistMatrix<float,MC,MR>& A );
 
 template void elemental::lapack::internal::CholVar2
 ( Shape shape, DistMatrix<float,MC,MR>& A );
 
+template void elemental::lapack::internal::CholVar2Naive
+( Shape shape, DistMatrix<float,MC,MR>& A );
+
 template void elemental::lapack::internal::CholVar3
+( Shape shape, DistMatrix<float,MC,MR>& A );
+
+template void elemental::lapack::internal::CholVar3Naive
 ( Shape shape, DistMatrix<float,MC,MR>& A );
 
 template void elemental::lapack::Chol
@@ -73,7 +113,13 @@ template void elemental::lapack::Chol
 template void elemental::lapack::internal::CholVar2
 ( Shape shape, DistMatrix<double,MC,MR>& A );
 
+template void elemental::lapack::internal::CholVar2Naive
+( Shape shape, DistMatrix<double,MC,MR>& A );
+
 template void elemental::lapack::internal::CholVar3
+( Shape shape, DistMatrix<double,MC,MR>& A );
+
+template void elemental::lapack::internal::CholVar3Naive
 ( Shape shape, DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
@@ -83,7 +129,13 @@ template void elemental::lapack::Chol
 template void elemental::lapack::internal::CholVar2
 ( Shape shape, DistMatrix<scomplex,MC,MR>& A );
 
+template void elemental::lapack::internal::CholVar2Naive
+( Shape shape, DistMatrix<scomplex,MC,MR>& A );
+
 template void elemental::lapack::internal::CholVar3
+( Shape shape, DistMatrix<scomplex,MC,MR>& A );
+
+template void elemental::lapack::internal::CholVar3Naive
 ( Shape shape, DistMatrix<scomplex,MC,MR>& A );
 
 template void elemental::lapack::Chol
@@ -92,7 +144,13 @@ template void elemental::lapack::Chol
 template void elemental::lapack::internal::CholVar2
 ( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
 
+template void elemental::lapack::internal::CholVar2Naive
+( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
+
 template void elemental::lapack::internal::CholVar3
+( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
+
+template void elemental::lapack::internal::CholVar3Naive
 ( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
 #endif
 

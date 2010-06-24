@@ -79,7 +79,7 @@ elemental::lapack::internal::PanelQR
         Z_MR_Star.AlignWith( ARightPan );
         Z_MR_Star.ResizeTo( ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
-        T tau = lapack::internal::Reflector( alpha11, a21 );
+        T tau = tau1 = lapack::internal::Reflector( alpha11, a21 );
         ALeftCol_MC_Star = ALeftCol;
         blas::Gemv
         ( ConjugateTranspose, 
@@ -92,8 +92,6 @@ elemental::lapack::internal::PanelQR
           ALeftCol_MC_Star.LockedLocalMatrix(), 
           Z_MR_Star.LockedLocalMatrix(),
           ARightPan.LocalMatrix() );
-
-        tau1.Set( 0, 0, tau );
         //--------------------------------------------------------------------//
         ALeftCol_MC_Star.FreeAlignments();
         Z_MR_Star.FreeAlignments();
