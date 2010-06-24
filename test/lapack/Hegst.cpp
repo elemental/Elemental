@@ -18,12 +18,13 @@ void Usage()
 {
     cout << "Reduced a Hermitian GEneralized EVP to Hermitian STandard EVP" <<
     endl << endl;
-    cout << "  Hegst <r> <c> <bothOnLeft> <shape> <m> <nb> <test correctness?>"
-         << " <print matrices?>" << endl << endl;
+    cout << "  Hegst <r> <c> <bothOnLeft> <shape> <naive> <m> <nb> "
+            "<test correctness?> <print matrices?>" << endl << endl;
     cout << "  r: number of process rows                   " << endl;
     cout << "  c: number of process cols                   " << endl;
     cout << "  bothOnLeft: we solve A X = B X Lambda iff 0 " << endl;
     cout << "  shape: {L,U}                                " << endl;
+    cout << "  naive: smart iff 0                          " << endl;
     cout << "  m: height of matrix                         " << endl;
     cout << "  nb: algorithmic blocksize                   " << endl;
     cout << "  test correctness?: false iff 0              " << endl;
@@ -129,7 +130,7 @@ void TestCorrectness
 template<typename T>
 void TestHegst
 ( bool testCorrectness, bool printMatrices,
-  bool bothOnLeft, Shape shape, int m, const Grid& g )
+  bool bothOnLeft, Shape shape, bool naive, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g);
@@ -168,7 +169,10 @@ void TestHegst
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    lapack::Hegst( bothOnLeft, shape, A, B );
+    if( naive )
+        lapack::internal::HegstNaive( bothOnLeft, shape, A, B );
+    else
+        lapack::Hegst( bothOnLeft, shape, A, B );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -190,7 +194,7 @@ int main( int argc, char* argv[] )
     int rank;
     elemental::Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 9 )
+    if( argc != 10 )
     {
         if( rank == 0 )
             Usage();
@@ -203,10 +207,11 @@ int main( int argc, char* argv[] )
         const int   c = atoi( argv[2] );
         const bool  bothOnLeft = ( atoi(argv[3]) != 0 );
         const Shape shape = CharToShape( *argv[4] );
-        const int   m = atoi( argv[5] );
-        const int   nb = atoi( argv[6] );
-        const bool  testCorrectness = ( atoi(argv[7]) != 0 );
-        const bool  printMatrices = ( atoi(argv[8]) != 0 );
+        const bool  naive = ( atoi(argv[5]) != 0 );
+        const int   m = atoi( argv[6] );
+        const int   nb = atoi( argv[7] );
+        const bool  testCorrectness = ( atoi(argv[8]) != 0 );
+        const bool  printMatrices = ( atoi(argv[9]) != 0 );
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -221,7 +226,7 @@ int main( int argc, char* argv[] )
         if( rank == 0 )
         {
             cout << "Will test Hegst" << bothOnLeft << ShapeToChar(shape)
-                 << endl;
+                 << ( naive ? "Naive" : "" ) << endl;
         }
 
         if( rank == 0 )
@@ -231,7 +236,7 @@ int main( int argc, char* argv[] )
             cout << "---------------------" << endl;
         }
         TestHegst<double>
-        ( testCorrectness, printMatrices, bothOnLeft, shape, m, g );
+        ( testCorrectness, printMatrices, bothOnLeft, shape, naive, m, g );
         if( rank == 0 )
             cout << endl;
 
@@ -243,7 +248,7 @@ int main( int argc, char* argv[] )
             cout << "--------------------------------------" << endl;
         }
         TestHegst<dcomplex>
-        ( testCorrectness, printMatrices, bothOnLeft, shape, m, g );
+        ( testCorrectness, printMatrices, bothOnLeft, shape, naive, m, g );
         if( rank == 0 )
             cout << endl;
 #endif

@@ -12,13 +12,20 @@
 using namespace std;
 using namespace elemental;
 
+// This routine has not yet been optimized
 template<typename T>
 void
 elemental::lapack::internal::HegstTrueL
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L )
+{ elemental::lapack::internal::HegstTrueLNaive( A, L ); }
+
+template<typename T>
+void
+elemental::lapack::internal::HegstTrueLNaive
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::HegstTrueL");
+    PushCallStack("lapack::internal::HegstTrueLNaive");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( L.Height() != L.Width() )
@@ -150,14 +157,26 @@ elemental::lapack::internal::HegstTrueL
 template void elemental::lapack::internal::HegstTrueL
 ( DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& L );
 
+template void elemental::lapack::internal::HegstTrueLNaive
+( DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& L );
+
 template void elemental::lapack::internal::HegstTrueL
+( DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& L );
+
+template void elemental::lapack::internal::HegstTrueLNaive
 ( DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& L );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::internal::HegstTrueL
 ( DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& L );
 
+template void elemental::lapack::internal::HegstTrueLNaive
+( DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& L );
+
 template void elemental::lapack::internal::HegstTrueL
+( DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& L );
+
+template void elemental::lapack::internal::HegstTrueLNaive
 ( DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& L );
 #endif
 

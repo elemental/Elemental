@@ -115,7 +115,18 @@ ReduceToRowEchelon
 
 template<typename T>
 void
+HegstNaive
+( bool bothOnLeft, Shape shape, 
+  DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
+
+template<typename T>
+void
 HegstFalseL
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+
+template<typename T>
+void
+HegstFalseLNaive
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
 
 template<typename T>
@@ -125,12 +136,27 @@ HegstFalseU
 
 template<typename T>
 void
+HegstFalseUNaive
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
+
+template<typename T>
+void
 HegstTrueL
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
 
 template<typename T>
 void
+HegstTrueLNaive
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+
+template<typename T>
+void
 HegstTrueU
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
+
+template<typename T>
+void
+HegstTrueUNaive
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
 
 //----------------------------------------------------------------------------//

@@ -39,11 +39,48 @@ elemental::lapack::Hegst
 #endif
 }
 
+template<typename T>
+void
+elemental::lapack::internal::HegstNaive
+( bool bothOnLeft, Shape shape, 
+  DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::internal::HegstNaive");
+#endif
+    if( bothOnLeft )
+    {
+        if( shape == Lower )
+            lapack::internal::HegstTrueLNaive( A, B );
+        else
+            lapack::internal::HegstTrueUNaive( A, B );
+    }
+    else
+    {
+        if( shape == Lower )
+            lapack::internal::HegstFalseLNaive( A, B );
+        else
+            lapack::internal::HegstFalseUNaive( A, B );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+
 template void elemental::lapack::Hegst
 ( bool bothOnLeft, Shape shape, 
   DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& B );
 
+template void elemental::lapack::internal::HegstNaive
+( bool bothOnLeft, Shape shape, 
+  DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& B );
+
 template void elemental::lapack::Hegst
+( bool bothOnLeft, Shape shape,
+  DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& B );
+
+template void elemental::lapack::internal::HegstNaive
 ( bool bothOnLeft, Shape shape,
   DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& B );
 
@@ -52,7 +89,16 @@ template void elemental::lapack::Hegst
 ( bool bothOnLeft, Shape shape,
   DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& B );
 
+template void elemental::lapack::internal::HegstNaive
+( bool bothOnLeft, Shape shape,
+  DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& B );
+
 template void elemental::lapack::Hegst
+( bool bothOnLeft, Shape shape,
+  DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& B );
+
+
+template void elemental::lapack::internal::HegstNaive
 ( bool bothOnLeft, Shape shape,
   DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& B );
 #endif
