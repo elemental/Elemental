@@ -154,7 +154,7 @@ elemental::Grid::Init
     }
     wrappers::mpi::AllGather
     ( myDiagPathAndRank, 2, _diagPathsAndRanks, 2, _vectorColComm );
-    delete myDiagPathAndRank;
+    delete[] myDiagPathAndRank;
 
 #ifndef RELEASE
     MPI_Errhandler_set( _matrixColComm, MPI_ERRORS_RETURN );
