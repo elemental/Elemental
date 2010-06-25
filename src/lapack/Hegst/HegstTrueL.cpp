@@ -12,7 +12,7 @@
 using namespace std;
 using namespace elemental;
 
-// This routine has not yet been optimized
+// This routine does not need to be optimized
 template<typename T>
 void
 elemental::lapack::internal::HegstTrueL

@@ -1,9 +1,5 @@
 Relatively trivial but important 
 ================================
-- Add warnings to redistribution routines that necessarily cause cache-thrashing
-  (Note: this includes SumScatter operations!)
-- Add transpose versions of SumScatter routines for avoiding cache-thrashing
-- Modify Hegst algorithms to avoid cache-thrashing
 - Unit tests for unaligned DistMatrix redistributions and summations
 - Finish adding dot product gemm algorithms for NT, TN, and TT options
 
