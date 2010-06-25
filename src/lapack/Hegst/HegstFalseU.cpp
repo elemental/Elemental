@@ -48,7 +48,7 @@ elemental::lapack::internal::HegstFalseU
     DistMatrix<T,Star,VR  > A12_Star_VR(g);
     DistMatrix<T,MC,  Star> U01_MC_Star(g);
     DistMatrix<T,VR,  Star> U01_VR_Star(g);
-    DistMatrix<T,Star,MR  > U01Trans_Star_MR(g);
+    DistMatrix<T,Star,MR  > U01Herm_Star_MR(g);
     DistMatrix<T,Star,Star> U11_Star_Star(g);
     DistMatrix<T,MR,  Star> E01_MR_Star(g);
     DistMatrix<T,MC,  Star> F01_MC_Star(g);
@@ -81,7 +81,7 @@ elemental::lapack::internal::HegstFalseU
         A01_MC_Star.AlignWith( U01 );
         U01_MC_Star.AlignWith( A00 );
         U01_VR_Star.AlignWith( A00 );
-        U01Trans_Star_MR.AlignWith( A00 );
+        U01Herm_Star_MR.AlignWith( A00 );
         E01_MR_Star.AlignWith( A00 );
         F01_MC_Star.AlignWith( A00 );
         E01.AlignWith( A01 );
@@ -97,9 +97,9 @@ elemental::lapack::internal::HegstFalseU
         //--------------------------------------------------------------------//
         U01_MC_Star = U01;
         U01_VR_Star = U01_MC_Star;
-        U01Trans_Star_MR.TransposeFrom( U01_VR_Star );
+        U01Herm_Star_MR.ConjugateTransposeFrom( U01_VR_Star );
         blas::internal::LocalHemmAccumulateLU
-        ( (T)1, A00, U01_MC_Star, U01Trans_Star_MR, F01_MC_Star, E01_MR_Star );
+        ( (T)1, A00, U01_MC_Star, U01Herm_Star_MR, F01_MC_Star, E01_MR_Star );
         E01_MR_MC.SumScatterFrom( E01_MR_Star );
         E01 = E01_MR_MC;
         E01.SumScatterUpdate( (T)1, F01_MC_Star );
@@ -143,7 +143,7 @@ elemental::lapack::internal::HegstFalseU
         A01_MC_Star.FreeAlignments();
         U01_MC_Star.FreeAlignments();
         U01_VR_Star.FreeAlignments();
-        U01Trans_Star_MR.FreeAlignments();
+        U01Herm_Star_MR.FreeAlignments();
         E01_MR_Star.FreeAlignments();
         F01_MC_Star.FreeAlignments();
         E01.FreeAlignments();
