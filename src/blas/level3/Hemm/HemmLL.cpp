@@ -145,9 +145,9 @@ elemental::blas::internal::HemmLLC
                 C2(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,Star> AColPan_MC_Star(g);
-    DistMatrix<T,Star,MC> ARowPan_Star_MC(g);
-    DistMatrix<T,Star,MR> B1_Star_MR(g);
+    DistMatrix<T,MC,  Star> AColPan_MC_Star(g);
+    DistMatrix<T,Star,MC  > ARowPan_Star_MC(g);
+    DistMatrix<T,MR,  Star> B1Herm_MR_Star(g);
 
     // Start the algorithm
     blas::Scal( beta, C );
@@ -196,25 +196,26 @@ elemental::blas::internal::HemmLLC
 
         AColPan_MC_Star.AlignWith( CBelow );
         ARowPan_Star_MC.AlignWith( CAbove );
-        B1_Star_MR.AlignWith( C );
+        B1Herm_MR_Star.AlignWith( C );
         //--------------------------------------------------------------------//
         AColPan_MC_Star = AColPan;
         ARowPan_Star_MC = ARowPan;
         AColPan_MC_Star.MakeTrapezoidal( Left, Lower );
         ARowPan_Star_MC.MakeTrapezoidal( Right, Lower, -1 );
 
-        B1_Star_MR = B1;
+        B1Herm_MR_Star.ConjugateTransposeFrom( B1 );
 
         blas::internal::LocalGemm
-        ( Normal, Normal, alpha, AColPan_MC_Star, B1_Star_MR, (T)1, CBelow );
+        ( Normal, ConjugateTranspose, 
+          alpha, AColPan_MC_Star, B1Herm_MR_Star, (T)1, CBelow );
 
         blas::internal::LocalGemm
-        ( ConjugateTranspose, Normal, 
-          alpha, ARowPan_Star_MC, B1_Star_MR, (T)1, CAbove );
+        ( ConjugateTranspose, ConjugateTranspose, 
+          alpha, ARowPan_Star_MC, B1Herm_MR_Star, (T)1, CAbove );
         //--------------------------------------------------------------------//
         AColPan_MC_Star.FreeAlignments();
         ARowPan_Star_MC.FreeAlignments();
-        B1_Star_MR.FreeAlignments();
+        B1Herm_MR_Star.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

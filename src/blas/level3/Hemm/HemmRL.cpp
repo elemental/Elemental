@@ -154,9 +154,10 @@ elemental::blas::internal::HemmRLC
                         CLeft(g), CRight(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,Star> B1_MC_Star(g);
-    DistMatrix<T,MR,Star> AColPan_MR_Star(g);
-    DistMatrix<T,Star,MR> ARowPan_Star_MR(g);
+    DistMatrix<T,MC,  Star> B1_MC_Star(g);
+    DistMatrix<T,VR,  Star> AColPan_VR_Star(g);
+    DistMatrix<T,Star,MR  > AColPanHerm_Star_MR(g);
+    DistMatrix<T,MR,  Star> ARowPanHerm_MR_Star(g);
 
     // Start the algorithm
     blas::Scal( beta, C );
@@ -192,26 +193,30 @@ elemental::blas::internal::HemmRLC
         CRight.View1x2( C1, C2 );
 
         B1_MC_Star.AlignWith( C );
-        AColPan_MR_Star.AlignWith( CRight );
-        ARowPan_Star_MR.AlignWith( CLeft );
+        AColPan_VR_Star.AlignWith( CRight );
+        AColPanHerm_Star_MR.AlignWith( CRight );
+        ARowPanHerm_MR_Star.AlignWith( CLeft );
         //--------------------------------------------------------------------//
         B1_MC_Star = B1;
 
-        ARowPan_Star_MR = ARowPan;
-        AColPan_MR_Star = AColPan;
-        ARowPan_Star_MR.MakeTrapezoidal( Right, Lower );
-        AColPan_MR_Star.MakeTrapezoidal( Left, Lower, -1 );
-
-        blas::internal::LocalGemm
-        ( Normal, Normal, alpha, B1_MC_Star, ARowPan_Star_MR, (T)1, CLeft );
+        ARowPanHerm_MR_Star.ConjugateTransposeFrom( ARowPan );
+        AColPan_VR_Star = AColPan;
+        AColPanHerm_Star_MR.ConjugateTransposeFrom( AColPan_VR_Star );
+        ARowPanHerm_MR_Star.MakeTrapezoidal( Right, Upper );
+        AColPanHerm_Star_MR.MakeTrapezoidal( Left, Upper, 1 );
 
         blas::internal::LocalGemm
         ( Normal, ConjugateTranspose, 
-          alpha, B1_MC_Star, AColPan_MR_Star, (T)1, CRight );
+          alpha, B1_MC_Star, ARowPanHerm_MR_Star, (T)1, CLeft );
+
+        blas::internal::LocalGemm
+        ( Normal, Normal, 
+          alpha, B1_MC_Star, AColPanHerm_Star_MR, (T)1, CRight );
         //--------------------------------------------------------------------//
         B1_MC_Star.FreeAlignments();
-        AColPan_MR_Star.FreeAlignments();
-        ARowPan_Star_MR.FreeAlignments();
+        AColPan_VR_Star.FreeAlignments();
+        AColPanHerm_Star_MR.FreeAlignments();
+        ARowPanHerm_MR_Star.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
