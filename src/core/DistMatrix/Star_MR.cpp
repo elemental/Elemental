@@ -1119,7 +1119,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( A.Height() != 1 && A.GetGrid().VCRank() == 0 )
     {
         cout << 
-          "The matrix redistribution [* ,MR] <- [MC,MR] necessarily causes a "
+          "The matrix redistribution [* ,MR] <- [MC,MR] potentially causes a "
           "large amount of cache-thrashing. If possible, avoid it by "
           "performing the redistribution with a (conjugate)-transpose:"
           << endl <<

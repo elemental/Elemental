@@ -1274,7 +1274,7 @@ elemental::DistMatrixBase<T,Star,MC>::operator=
         else
         {
             cout << 
-              "The redistribution [* ,MC] <- [MR,MC] necessarily causes a large"
+              "The redistribution [* ,MC] <- [MR,MC] potentially causes a large"
               " amount of cache-thrashing. If possible, avoid it. "
               "Unfortunately, the following routines are not yet implemented: "
               << endl <<

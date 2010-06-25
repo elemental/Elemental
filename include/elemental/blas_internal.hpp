@@ -561,6 +561,7 @@ HemmLLC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
+// Careful version
 template<typename T>
 void
 LocalHemmAccumulateLL
@@ -570,6 +571,18 @@ LocalHemmAccumulateLL
   const DistMatrix<T,Star,MR  >& BHerm_Star_MR,
         DistMatrix<T,MC,  Star>& Z_MC_Star,
         DistMatrix<T,MR,  Star>& Z_MR_Star
+);
+
+// Naive version
+template<typename T>
+void
+LocalHemmAccumulateLL
+( T alpha, 
+  const DistMatrix<T,MC,MR  >& A,
+  const DistMatrix<T,MC,Star>& B_MC_Star,
+  const DistMatrix<T,MR,Star>& B_MR_Star,
+        DistMatrix<T,MC,Star>& Z_MC_Star,
+        DistMatrix<T,MR,Star>& Z_MR_Star
 );
 
 // Left Upper Hemm
@@ -593,17 +606,7 @@ HemmLUC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-template<typename T>
-void
-LocalHemmAccumulateLU
-( T alpha, 
-  const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,MC,  Star>& B_MC_Star,
-  const DistMatrix<T,MR,  Star>& B_MR_Star,
-        DistMatrix<T,MC,  Star>& Z_MC_Star,
-        DistMatrix<T,MR,  Star>& Z_MR_Star
-);
-
+// Careful version
 template<typename T>
 void
 LocalHemmAccumulateLU
@@ -611,6 +614,18 @@ LocalHemmAccumulateLU
   const DistMatrix<T,MC,  MR  >& A,
   const DistMatrix<T,MC,  Star>& B_MC_Star,
   const DistMatrix<T,Star,MR  >& BHerm_Star_MR,
+        DistMatrix<T,MC,  Star>& Z_MC_Star,
+        DistMatrix<T,MR,  Star>& Z_MR_Star
+);
+
+// Naive version
+template<typename T>
+void
+LocalHemmAccumulateLU
+( T alpha, 
+  const DistMatrix<T,MC,  MR  >& A,
+  const DistMatrix<T,MC,  Star>& B_MC_Star,
+  const DistMatrix<T,MR,  Star>& B_MR_Star,
         DistMatrix<T,MC,  Star>& Z_MC_Star,
         DistMatrix<T,MR,  Star>& Z_MR_Star
 );
@@ -636,6 +651,7 @@ HemmRLC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
+// Careful version
 template<typename T>
 void
 LocalHemmAccumulateRL
@@ -643,19 +659,20 @@ LocalHemmAccumulateRL
   const DistMatrix<T,MC,  MR  >& A,
   const DistMatrix<T,Star,MC  >& B_Star_MC,
   const DistMatrix<T,MR,  Star>& BHerm_MR_Star,
-        DistMatrix<T,Star,MC  >& Z_Star_MC,
-        DistMatrix<T,Star,MR  >& Z_Star_MR
+        DistMatrix<T,MC,  Star>& ZHerm_MC_Star,
+        DistMatrix<T,MR,  Star>& ZHerm_MR_Star
 );
 
+// Naive version
 template<typename T>
 void
 LocalHemmAccumulateRL
 ( T alpha, 
-  const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,Star,MC  >& B_Star_MC,
-  const DistMatrix<T,Star,MR  >& B_Star_MR,
-        DistMatrix<T,Star,MC  >& Z_Star_MC,
-        DistMatrix<T,Star,MR  >& Z_Star_MR
+  const DistMatrix<T,MC,  MR>& A,
+  const DistMatrix<T,Star,MC>& B_Star_MC,
+  const DistMatrix<T,Star,MR>& B_Star_MR,
+        DistMatrix<T,Star,MC>& Z_Star_MC,
+        DistMatrix<T,Star,MR>& Z_Star_MR
 );
 
 // Right Upper Hemm
@@ -679,6 +696,7 @@ HemmRUC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
+// Careful version
 template<typename T>
 void
 LocalHemmAccumulateRU
@@ -686,8 +704,20 @@ LocalHemmAccumulateRU
   const DistMatrix<T,MC,  MR  >& A,
   const DistMatrix<T,Star,MC  >& B_Star_MC,
   const DistMatrix<T,MR,  Star>& BHerm_MR_Star,
-        DistMatrix<T,Star,MC  >& Z_Star_MC,
-        DistMatrix<T,Star,MR  >& Z_Star_MR
+        DistMatrix<T,MC,  Star>& ZHerm_MC_Star,
+        DistMatrix<T,MR,  Star>& ZHerm_MR_Star
+);
+
+// Naive version
+template<typename T>
+void
+LocalHemmAccumulateRU
+( T alpha, 
+  const DistMatrix<T,MC,  MR>& A,
+  const DistMatrix<T,Star,MC>& B_Star_MC,
+  const DistMatrix<T,Star,MR>& B_Star_MR,
+        DistMatrix<T,Star,MC>& Z_Star_MC,
+        DistMatrix<T,Star,MR>& Z_Star_MR
 );
 
 // Lower, Normal Her2k

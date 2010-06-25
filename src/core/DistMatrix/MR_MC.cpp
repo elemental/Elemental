@@ -2710,7 +2710,7 @@ elemental::DistMatrixBase<T,MR,MC>::SumScatterFrom
         else
         {
             cout << 
-              "[MR,MC]::SumScatterFrom([* ,MC]) necessarily causes a large "
+              "[MR,MC]::SumScatterFrom([* ,MC]) potentially causes a large "
               "amount of cache-thrashing. If possible, avoid it by forming the "
               "(conjugate-)transpose of the [* ,MC] matrix instead." << endl;
         }
@@ -3244,7 +3244,7 @@ elemental::DistMatrixBase<T,MR,MC>::SumScatterUpdate
         else
         {
             cout << 
-              "[MR,MC]::SumScatterUpdate([* ,MC]) necessarily causes a large "
+              "[MR,MC]::SumScatterUpdate([* ,MC]) potentially causes a large "
               "amount of cache-thrashing. If possible, avoid it by forming the "
               "(conjugate-)transpose of the [* ,MC] matrix instead." << endl;
         }

@@ -1404,7 +1404,7 @@ elemental::DistMatrixBase<T,VC,Star>::SumScatterFrom
     if( A.Width() != 1 && A.GetGrid().VCRank() == 0 )
     {
         cout <<
-          "[VC,* ]::SumScatterFrom([MC,* ]) necessarily causes a large amount "
+          "[VC,* ]::SumScatterFrom([MC,* ]) potentially causes a large amount "
           "of cache-thrashing. If possible, avoid it by forming the "
           "(conjugate-)transpose of the [MC,* ] matrix instead." << endl;
     }
@@ -1502,7 +1502,7 @@ elemental::DistMatrixBase<T,VC,Star>::SumScatterUpdate
     if( A.Width() != 1 && A.GetGrid().VCRank() == 0 )
     {
         cout <<
-          "[VC,* ]::SumScatterUpdate([MC,* ]) necessarily causes a large amount"
+          "[VC,* ]::SumScatterUpdate([MC,* ]) potentially causes a large amount"
           " of cache-thrashing. If possible, avoid it by forming the "
           "(conjugate-)transpose of the [MC,* ] matrix instead." << endl;
     }

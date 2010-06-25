@@ -1283,7 +1283,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
         else
         {
             cout << 
-              "[MC,* ] <- [VC,* ] necessarily causes a large amount of cache-"
+              "[MC,* ] <- [VC,* ] potentially causes a large amount of cache-"
               "thrashing. If possible avoid it by performing the redistribution"
               " with a (conjugate)-transpose: " << endl << 
               "  [* ,MC].(Conjugate)TransposeFrom([VC,* ])" << endl;

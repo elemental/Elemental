@@ -56,7 +56,11 @@ elemental::lapack::internal::HegstFalseU
     DistMatrix<T,MC,  MR  > E01(g);
     DistMatrix<T,Star,MR  > G11_Star_MR(g);
     DistMatrix<T,MC,  MR  > G11(g);
-    DistMatrix<T,Star,MR  > H12_Star_MR(g);
+    DistMatrix<T,MR,  Star> H12Herm_MR_Star(g);
+    DistMatrix<T,MR,  MC  > H12Herm_MR_MC(g);
+
+    Matrix<T> H12Local;
+
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -87,11 +91,12 @@ elemental::lapack::internal::HegstFalseU
         E01.AlignWith( A01 );
         G11_Star_MR.AlignWith( U01 );
         G11.AlignWith( A11 );
-        H12_Star_MR.AlignWith( A02 );
+        H12Herm_MR_Star.AlignWith( A02 );
+        H12Herm_MR_MC.AlignWith( A12 );
         E01_MR_Star.ResizeTo( A01.Height(), A01.Width() ); 
         F01_MC_Star.ResizeTo( A01.Height(), A01.Width() );
         G11_Star_MR.ResizeTo( A11.Height(), A11.Width() );
-        H12_Star_MR.ResizeTo( A12.Height(), A12.Width() );
+        H12Herm_MR_Star.ResizeTo( A12.Width(), A12.Height() );
         E01_MR_Star.SetToZero();
         F01_MC_Star.SetToZero();
         //--------------------------------------------------------------------//
@@ -131,8 +136,10 @@ elemental::lapack::internal::HegstFalseU
 
         blas::internal::LocalGemm
         ( ConjugateTranspose, Normal,
-          (T)1, U01_MC_Star, A02, (T)0, H12_Star_MR );
-        A12.SumScatterUpdate( (T)-1, H12_Star_MR );
+          (T)1, A02, U01_MC_Star, (T)0, H12Herm_MR_Star );
+        H12Herm_MR_MC.SumScatterFrom( H12Herm_MR_Star );
+        blas::ConjTrans( H12Herm_MR_MC.LockedLocalMatrix(), H12Local );
+        blas::Axpy( (T)-1, H12Local, A12.LocalMatrix() );
 
         A12_Star_VR = A12;
         blas::internal::LocalTrsm
@@ -149,7 +156,8 @@ elemental::lapack::internal::HegstFalseU
         E01.FreeAlignments();
         G11_Star_MR.FreeAlignments();
         G11.FreeAlignments();
-        H12_Star_MR.FreeAlignments();
+        H12Herm_MR_Star.FreeAlignments();
+        H12Herm_MR_MC.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

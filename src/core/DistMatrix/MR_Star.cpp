@@ -1631,7 +1631,7 @@ elemental::DistMatrixBase<T,MR,Star>::operator=
     if( A.Width() != 1 && A.GetGrid().VCRank() == 0 )
     {
         cout <<
-          "[MR,* ] <- [VR,* ] necessarily causes a large amount of cache-"
+          "[MR,* ] <- [VR,* ] potentially causes a large amount of cache-"
           "thrashing. If possible avoid it by performing the redistribution "
           "with a (conjugate)-transpose: " << endl <<
           "  [* ,MR].(Conjugate)TransposeFrom([VR,* ])" << endl;
