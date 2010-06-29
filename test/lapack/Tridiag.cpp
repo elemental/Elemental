@@ -49,7 +49,6 @@ void TestCorrectness
   const DistMatrix<R,MC,MR>& A, 
   const DistMatrix<R,MD,Star>& d,
   const DistMatrix<R,MD,Star>& e,
-  const DistMatrix<R,MD,Star>& t,
         DistMatrix<R,Star,Star>& ARef )
 {
     const Grid& g = A.GetGrid();
@@ -60,7 +59,6 @@ void TestCorrectness
     DistMatrix<R,Star,Star> t_copy(g);
     DistMatrix<R,Star,Star> dRef(m,1,g);
     DistMatrix<R,Star,Star> eRef(m-1,1,g);
-    DistMatrix<R,Star,Star> tRef(m-1,1,g);
 
     if( g.VCRank() == 0 )
     {
@@ -70,7 +68,6 @@ void TestCorrectness
     A_copy = A;
     d_copy = d;
     e_copy = e;
-    t_copy = t;
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
@@ -81,11 +78,7 @@ void TestCorrectness
     }
     double startTime = Time();
     lapack::Tridiag
-    ( shape, 
-      ARef.LocalMatrix(), 
-      dRef.LocalMatrix(), 
-      eRef.LocalMatrix(), 
-      tRef.LocalMatrix() );
+    ( shape, ARef.LocalMatrix(), dRef.LocalMatrix(), eRef.LocalMatrix() );
     double stopTime = Time();
     double gFlops = lapack::internal::TridiagGFlops<R>(m,stopTime-startTime);
     if( g.VCRank() == 0 )
@@ -96,7 +89,6 @@ void TestCorrectness
         ARef.Print("True A:");
         dRef.Print("True d:");
         eRef.Print("True e:");
-        tRef.Print("True t:");
     }
 
     if( g.VCRank() == 0 )
@@ -170,19 +162,6 @@ void TestCorrectness
             throw logic_error( msg.str() );
         }
     }
-    for( int j=0; j<m-1; ++j )
-    {
-        R truth = tRef.LocalEntry(j,0);
-        R computed = t_copy.LocalEntry(j,0);
-
-        if( ! OKRelativeError( truth, computed ) )
-        {
-            ostringstream msg;
-            msg << "FAILED at index " << j << " of t: truth=" << truth
-                 << ", computed=" << computed;
-            throw logic_error( msg.str() );
-        }
-    }
 
     Barrier( g.VCComm() );
     if( g.VCRank() == 0 )
@@ -197,7 +176,6 @@ void TestCorrectness
   const DistMatrix<complex<R>,MC,  MR  >& A, 
   const DistMatrix<R,         MD,  Star>& d,
   const DistMatrix<R,         MD,  Star>& e,
-  const DistMatrix<complex<R>,MD,  Star>& t,
         DistMatrix<complex<R>,Star,Star>& ARef )
 {
     typedef complex<R> C;
@@ -207,10 +185,8 @@ void TestCorrectness
     DistMatrix<C,Star,Star> A_copy(g);
     DistMatrix<R,Star,Star> d_copy(g);
     DistMatrix<R,Star,Star> e_copy(g);
-    DistMatrix<C,Star,Star> t_copy(g);
     DistMatrix<R,Star,Star> dRef(m,1,g);
     DistMatrix<R,Star,Star> eRef(m-1,1,g);
-    DistMatrix<C,Star,Star> tRef(m-1,1,g);
 
     if( g.VCRank() == 0 )
     {
@@ -220,7 +196,6 @@ void TestCorrectness
     A_copy = A;
     d_copy = d;
     e_copy = e;
-    t_copy = t;
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
@@ -231,11 +206,7 @@ void TestCorrectness
     }
     double startTime = Time();
     lapack::Tridiag
-    ( shape, 
-      ARef.LocalMatrix(), 
-      dRef.LocalMatrix(),
-      eRef.LocalMatrix(),
-      tRef.LocalMatrix() );
+    ( shape, ARef.LocalMatrix(), dRef.LocalMatrix(), eRef.LocalMatrix() );
     double stopTime = Time();
     double gFlops = lapack::internal::TridiagGFlops<C>(m,stopTime-startTime);
     if( g.VCRank() == 0 )
@@ -246,7 +217,6 @@ void TestCorrectness
         ARef.Print("True A:");
         dRef.Print("True d:");
         eRef.Print("True e:");
-        tRef.Print("True t:");
     }
 
     if( g.VCRank() == 0 )
@@ -320,19 +290,6 @@ void TestCorrectness
             throw logic_error( msg.str() );
         }
     }
-    for( int j=0; j<m-1; ++j )
-    {
-        C truth = tRef.LocalEntry(j,0);
-        C computed = t_copy.LocalEntry(j,0);
-
-        if( ! OKRelativeError( truth, computed ) )
-        {
-            ostringstream msg;
-            msg << "FAILED at index " << j << " of t: truth=" << truth
-                 << ", computed=" << computed;
-            throw logic_error( msg.str() );
-        }
-    }
 
     Barrier( g.VCComm() );
     if( g.VCRank() == 0 )
@@ -356,7 +313,6 @@ void TestTridiag<double>
     DistMatrix<R,MC,MR> A(g);
     DistMatrix<R,MD,Star> d(g);
     DistMatrix<R,MD,Star> e(g);
-    DistMatrix<R,MD,Star> t(g);
     DistMatrix<R,Star,Star> ARef(g);
 
     A.ResizeTo( m, m );
@@ -367,24 +323,8 @@ void TestTridiag<double>
     else
         e.AlignWithDiag( A, +1 );
 
-    if( shape == Lower )
-    {
-        // Lower Tridiag traverses down the diagonal, so we must align t 
-        // with the top-left (m-1) x (m-1) submatrix of A.
-        t.AlignWithDiag( A );
-    }
-    else
-    {
-        // Upper Tridiag traverses up the diagonal, so we must align t 
-        // with the bottom-right (m-1) x (m-1) submatrix of A.
-        DistMatrix<R,MC,MR> ABR(g);
-        ABR.View( A, 1, 1, m-1, m-1 );
-        t.AlignWithDiag( ABR );
-    }
-
     d.ResizeTo( m,   1 );
     e.ResizeTo( m-1, 1 );
-    t.ResizeTo( m-1, 1 );
 
     A.SetToRandomHPD();
     if( testCorrectness )
@@ -408,7 +348,7 @@ void TestTridiag<double>
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    lapack::Tridiag( shape, A, d, e, t );
+    lapack::Tridiag( shape, A, d, e );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -424,10 +364,9 @@ void TestTridiag<double>
         A.Print("A after Tridiag");
         d.Print("d after Tridiag");
         e.Print("e after Tridiag");
-        t.Print("t after Tridiag");
     }
     if( testCorrectness )
-        TestCorrectness( printMatrices, shape, A, d, e, t, ARef );
+        TestCorrectness( printMatrices, shape, A, d, e, ARef );
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -443,7 +382,6 @@ void TestTridiag< complex<double> >
     DistMatrix<C,MC,MR> A(g);
     DistMatrix<R,MD,Star> d(g);
     DistMatrix<R,MD,Star> e(g);
-    DistMatrix<C,MD,Star> t(g);
     DistMatrix<C,Star,Star> ARef(g);
 
     A.ResizeTo( m, m );
@@ -453,24 +391,9 @@ void TestTridiag< complex<double> >
         e.AlignWithDiag( A, -1 );
     else
         e.AlignWithDiag( A, +1 );
-    if( shape == Lower )
-    {
-        // Lower Tridiag traverses down the diagonal, so we must align t 
-        // with the top-left (m-1) x (m-1) submatrix of A.
-        t.AlignWithDiag( A );
-    }
-    else
-    {
-        // Upper Tridiag traverses up the diagonal, so we must align t 
-        // with the bottom-right (m-1) x (m-1) submatrix of A.
-        DistMatrix<C,MC,MR> ABR(g);
-        ABR.View( A, 1, 1, m-1, m-1 );
-        t.AlignWithDiag( ABR );
-    }
 
     d.ResizeTo( m,   1 );
     e.ResizeTo( m-1, 1 );
-    t.ResizeTo( m-1, 1 );
 
     // Make A diagonally dominant
     A.SetToRandomHPD();
@@ -495,7 +418,7 @@ void TestTridiag< complex<double> >
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    lapack::Tridiag( shape, A, d, e, t );
+    lapack::Tridiag( shape, A, d, e );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -511,10 +434,9 @@ void TestTridiag< complex<double> >
         A.Print("A after Tridiag");
         d.Print("d after Tridiag");
         e.Print("e after Tridiag");
-        t.Print("t after Tridiag");
     }
     if( testCorrectness )
-        TestCorrectness( printMatrices, shape, A, d, e, t, ARef );
+        TestCorrectness( printMatrices, shape, A, d, e, ARef );
 }
 #endif // WITHOUT_COMPLEX
 

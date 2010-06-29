@@ -15,19 +15,10 @@ using namespace elemental;
 template<typename T>
 void
 elemental::lapack::internal::PanelQR
-( DistMatrix<T,MC,MR>& A, DistMatrix<T,MD,Star>& t )
+( DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelQR");
-    if( A.GetGrid() != t.GetGrid() )
-        throw logic_error( "A and t must be distributed over the same grid." );
-    if( t.Height() != min(A.Height(),A.Width()) || t.Width() != 1 )
-        throw logic_error
-              ( "t must be a column vector of the same length as the minimum "
-                "dimension of A." );
-    if( t.ColAlignment() != A.ColAlignment() + 
-                            A.RowAlignment()*A.GetGrid().Height() )
-        throw logic_error( "t is not aligned with A." );
 #endif
     const Grid& g = A.GetGrid();
 
@@ -37,11 +28,6 @@ elemental::lapack::internal::PanelQR
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
                          A20(g), a21(g),     A22(g);
 
-    DistMatrix<T,MD,Star>
-        tT(g),  t0(g),
-        tB(g),  tau1(g),
-                t2(g);
-
     // Temporary distributions
     DistMatrix<T,MC,Star> ALeftCol_MC_Star(g);
     DistMatrix<T,MR,Star> Z_MR_Star(g);
@@ -50,9 +36,6 @@ elemental::lapack::internal::PanelQR
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionDown
-    ( t, tT,
-         tB, 0 );
     while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
     {
         RepartitionDownDiagonal
@@ -60,12 +43,6 @@ elemental::lapack::internal::PanelQR
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
-
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /****/
-               tau1,
-          tB,  t2 );
 
         ALeftCol.View2x1
         ( alpha11,
@@ -79,7 +56,7 @@ elemental::lapack::internal::PanelQR
         Z_MR_Star.AlignWith( ARightPan );
         Z_MR_Star.ResizeTo( ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
-        T tau = tau1 = lapack::internal::Reflector( alpha11, a21 );
+        T tau = lapack::internal::Reflector( alpha11, a21 );
         ALeftCol_MC_Star = ALeftCol;
         blas::Gemv
         ( ConjugateTranspose, 
@@ -101,12 +78,6 @@ elemental::lapack::internal::PanelQR
                /**/       a10, alpha11, /**/ a12,
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
-
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -115,19 +86,19 @@ elemental::lapack::internal::PanelQR
 
 template void
 elemental::lapack::internal::PanelQR
-( DistMatrix<float,MC,MR>& A, DistMatrix<float,MD,Star>& t );
+( DistMatrix<float,MC,MR>& A );
 
 template void
 elemental::lapack::internal::PanelQR
-( DistMatrix<double,MC,MR>& A, DistMatrix<double,MD,Star>& t );
+( DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template void
 elemental::lapack::internal::PanelQR
-( DistMatrix<scomplex,MC,MR>& A, DistMatrix<scomplex,MD,Star>& t );
+( DistMatrix<scomplex,MC,MR>& A );
 
 template void
 elemental::lapack::internal::PanelQR
-( DistMatrix<dcomplex,MC,MR>& A, DistMatrix<dcomplex,MD,Star>& t );
+( DistMatrix<dcomplex,MC,MR>& A );
 #endif
 

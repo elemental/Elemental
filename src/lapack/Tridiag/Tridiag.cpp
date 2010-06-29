@@ -17,16 +17,15 @@ elemental::lapack::Tridiag
 ( Shape shape,
   DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MD,Star>& d,
-  DistMatrix<R,MD,Star>& e,
-  DistMatrix<R,MD,Star>& t )
+  DistMatrix<R,MD,Star>& e )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
 #endif
     if( shape == Lower )
-        lapack::internal::TridiagL( A, d, e, t );
+        lapack::internal::TridiagL( A, d, e );
     else
-        lapack::internal::TridiagU( A, d, e, t );
+        lapack::internal::TridiagU( A, d, e );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -39,16 +38,15 @@ elemental::lapack::Tridiag
 ( Shape shape,
   DistMatrix<complex<R>,MC,MR  >& A,
   DistMatrix<R,         MD,Star>& d,
-  DistMatrix<R,         MD,Star>& e,
-  DistMatrix<complex<R>,MD,Star>& t )
+  DistMatrix<R,         MD,Star>& e )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
 #endif
     if( shape == Lower )
-        lapack::internal::TridiagL( A, d, e, t );
+        lapack::internal::TridiagL( A, d, e );
     else
-        lapack::internal::TridiagU( A, d, e, t );
+        lapack::internal::TridiagU( A, d, e );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -59,29 +57,25 @@ template void elemental::lapack::Tridiag
 ( Shape shape, 
   DistMatrix<float,MC,MR  >& A,
   DistMatrix<float,MD,Star>& d,
-  DistMatrix<float,MD,Star>& e,
-  DistMatrix<float,MD,Star>& t );
+  DistMatrix<float,MD,Star>& e );
 
 template void elemental::lapack::Tridiag
 ( Shape shape, 
   DistMatrix<double,MC,MR  >& A,
   DistMatrix<double,MD,Star>& d,
-  DistMatrix<double,MD,Star>& e,
-  DistMatrix<double,MD,Star>& t );
+  DistMatrix<double,MD,Star>& e );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::Tridiag
 ( Shape shape,
   DistMatrix<scomplex,MC,MR  >& A,
   DistMatrix<float,   MD,Star>& d,
-  DistMatrix<float,   MD,Star>& e,
-  DistMatrix<scomplex,MD,Star>& t );
+  DistMatrix<float,   MD,Star>& e );
 
 template void elemental::lapack::Tridiag
 ( Shape shape,
   DistMatrix<dcomplex,MC,MR  >& A,
   DistMatrix<double,  MD,Star>& d,
-  DistMatrix<double,  MD,Star>& e,
-  DistMatrix<dcomplex,MD,Star>& t );
+  DistMatrix<double,  MD,Star>& e );
 #endif
 

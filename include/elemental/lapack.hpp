@@ -107,7 +107,7 @@ LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 // Parallel version
 template<typename T>
 void
-QR( DistMatrix<T,MC,MR>& A, DistMatrix<T,MD,Star>& t );
+QR( DistMatrix<T,MC,MR>& A );
 
 //----------------------------------------------------------------------------//
 // Tridiag (Householder tridiagonalization):                                  //
@@ -125,7 +125,7 @@ QR( DistMatrix<T,MC,MR>& A, DistMatrix<T,MD,Star>& t );
 template<typename R>
 void
 Tridiag
-( Shape shape, Matrix<R>& A, Matrix<R>& d, Matrix<R>& e, Matrix<R>& t );
+( Shape shape, Matrix<R>& A, Matrix<R>& d, Matrix<R>& e );
 
 #ifndef WITHOUT_COMPLEX
 // Serial version for complex datatypes
@@ -135,8 +135,7 @@ Tridiag
 ( Shape shape, 
   Matrix< std::complex<R> >& A,
   Matrix< R               >& d,
-  Matrix< R               >& e,
-  Matrix< std::complex<R> >& t );
+  Matrix< R               >& e );
 #endif
 
 // Parallel version for real datatypes
@@ -146,8 +145,7 @@ Tridiag
 ( Shape shape, 
   DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MD,Star>& d,
-  DistMatrix<R,MD,Star>& e,
-  DistMatrix<R,MD,Star>& t );
+  DistMatrix<R,MD,Star>& e );
 
 #ifndef WITHOUT_COMPLEX
 // Parallel version for complex datatypes
@@ -157,8 +155,7 @@ Tridiag
 ( Shape shape,
   DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<R,              MD,Star>& d,
-  DistMatrix<R,              MD,Star>& e,
-  DistMatrix<std::complex<R>,MD,Star>& t );
+  DistMatrix<R,              MD,Star>& e );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -279,7 +276,7 @@ elemental::lapack::LU
 template<typename R>
 inline void
 elemental::lapack::Tridiag
-( Shape shape, Matrix<R>& A, Matrix<R>& d, Matrix<R>& e, Matrix<R>& t )
+( Shape shape, Matrix<R>& A, Matrix<R>& d, Matrix<R>& e )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
@@ -289,13 +286,10 @@ elemental::lapack::Tridiag
         throw std::logic_error( "d must be a column vector of length n." );
     if( e.Height() != A.Height()-1 || e.Width() != 1 )
         throw std::logic_error( "e must be a column vector of length n-1." );
-    if( t.Height() != A.Height()-1 || t.Width() != 1 )
-        throw std::logic_error( "t must be a column vector of length n-1." );
 #endif
     const char uplo = ShapeToChar( shape );
     wrappers::lapack::Tridiag
-    ( uplo, A.Height(), A.Buffer(), A.LDim(),
-      d.Buffer(), e.Buffer(), t.Buffer() );
+    ( uplo, A.Height(), A.Buffer(), A.LDim(), d.Buffer(), e.Buffer() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -308,8 +302,7 @@ elemental::lapack::Tridiag
 ( Shape shape, 
   Matrix< std::complex<R> >& A, 
   Matrix< R               >& d, 
-  Matrix< R               >& e, 
-  Matrix< std::complex<R> >& t )
+  Matrix< R               >& e )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
@@ -319,13 +312,10 @@ elemental::lapack::Tridiag
         throw std::logic_error( "d must be a column vector of length n." );
     if( e.Height() != A.Height()-1 || e.Width() != 1 )
         throw std::logic_error( "e must be a column vector of length n-1." );
-    if( t.Height() != A.Height()-1 || t.Width() != 1 )
-        throw std::logic_error( "t must be a column vector of length n-1." );
 #endif
     const char uplo = ShapeToChar( shape );
     wrappers::lapack::Tridiag
-    ( uplo, A.Height(), A.Buffer(), A.LDim(),
-      d.Buffer(), e.Buffer(), t.Buffer() );
+    ( uplo, A.Height(), A.Buffer(), A.LDim(), d.Buffer(), e.Buffer() );
 #ifndef RELEASE
     PopCallStack();
 #endif

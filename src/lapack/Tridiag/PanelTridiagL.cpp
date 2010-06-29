@@ -18,16 +18,13 @@ void
 elemental::lapack::internal::PanelTridiagL
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MD,Star>& e,
-  DistMatrix<R,MD,Star>& t )
+  DistMatrix<R,MD,Star>& e )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagL");
-    if( A.GetGrid() != W.GetGrid() ||
-        W.GetGrid() != e.GetGrid() ||
-        e.GetGrid() != t.GetGrid() )
+    if( A.GetGrid() != W.GetGrid() || W.GetGrid() != e.GetGrid() )
         throw logic_error
-        ( "A, d, e, and t must be distributed over the same grid." );
+        ( "A, d, and e must be distributed over the same grid." );
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( A.Height() != W.Height() )
@@ -40,15 +37,9 @@ elemental::lapack::internal::PanelTridiagL
     if( e.Height() != W.Width() || e.Width() != 1 )
         throw logic_error
         ( "e must be a column vector of the same length as W's width." );
-    if( t.Height() != W.Width() || t.Width() != 1 )
-        throw logic_error
-        ( "t must be a column vector of the same length as W's width." );
     if( e.ColAlignment() != ((A.ColAlignment()+1) % e.GetGrid().Height())
                             + A.RowAlignment() * e.GetGrid().Height() )
         throw logic_error( "e is not aligned with A." );
-    if( t.ColAlignment() != (A.ColAlignment()+
-                             A.RowAlignment()*t.GetGrid().Height()) )
-        throw logic_error( "t is not aligned with A." );
 #endif
     const Grid& g = A.GetGrid();
 
@@ -65,10 +56,6 @@ elemental::lapack::internal::PanelTridiagL
         eT(g),  e0(g),
         eB(g),  epsilon1(g),
                 e2(g);
-    DistMatrix<R,MD,Star> 
-        tT(g),  t0(g),
-        tB(g),  tau1(g),
-                t2(g);
 
     // Temporary distributions
     DistMatrix<R,MC,  Star> a21_MC_Star(g);
@@ -91,9 +78,6 @@ elemental::lapack::internal::PanelTridiagL
     PartitionDown
     ( e,  eT,
           eB, 0 );
-    PartitionDown
-    ( t,  tT,
-          tB, 0 );
     while( WTL.Width() < W.Width() )
     {
         RepartitionDownDiagonal
@@ -113,12 +97,6 @@ elemental::lapack::internal::PanelTridiagL
          /**/ /********/
                epsilon1,
           eB,  e2 );
-
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /****/
-               tau1,
-          tB,  t2 );
 
         ACol.View2x1
         ( alpha11,
@@ -151,10 +129,7 @@ elemental::lapack::internal::PanelTridiagL
         R tau = 0; // Initializing avoids false compiler warnings
         const bool thisIsMyColumn = ( g.MRRank() == a21.RowAlignment() );
         if( thisIsMyColumn )
-        {
             tau = lapack::internal::ColReflector( alpha21T, a21B );
-            tau1 = tau;
-        }
             
         alpha21T.GetDiagonal( epsilon1 );
         alpha21T = (R)1;
@@ -217,18 +192,6 @@ elemental::lapack::internal::PanelTridiagL
         z21_MR_Star.FreeAlignments();
         z21_MR_MC.FreeAlignments();
 
-        SlidePartitionDown
-        ( eT,  e0,
-               epsilon1,
-         /**/ /********/
-          eB,  e2 );
-
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
-
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
                /**/       a10, alpha11, /**/ a12,
@@ -240,6 +203,12 @@ elemental::lapack::internal::PanelTridiagL
                /**/       w10, omega11, /**/ w12,
          /*************/ /**********************/
           WBL, /**/ WBR,  W20, w21,     /**/ W22 );
+        
+        SlidePartitionDown
+        ( eT,  e0,
+               epsilon1,
+         /**/ /********/
+          eB,  e2 );
     }
     PopBlocksizeStack();
 #ifndef RELEASE
@@ -253,16 +222,13 @@ void
 elemental::lapack::internal::PanelTridiagL
 ( DistMatrix<complex<R>,MC,MR  >& A,
   DistMatrix<complex<R>,MC,MR  >& W,
-  DistMatrix<R,MD,Star>& e,
-  DistMatrix<complex<R>,MD,Star>& t )
+  DistMatrix<R,MD,Star>& e )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagL");
-    if( A.GetGrid() != W.GetGrid() ||
-        W.GetGrid() != e.GetGrid() ||
-        e.GetGrid() != t.GetGrid() )
+    if( A.GetGrid() != W.GetGrid() || W.GetGrid() != e.GetGrid() )
         throw logic_error
-        ( "A, d, e, and t must be distributed over the same grid." );
+        ( "A, d, and e must be distributed over the same grid." );
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( A.Height() != W.Height() )
@@ -275,15 +241,9 @@ elemental::lapack::internal::PanelTridiagL
     if( e.Height() != W.Width() || e.Width() != 1 )
         throw logic_error
         ( "e must be a column vector of the same length as W's width." );
-    if( t.Height() != W.Width() || t.Width() != 1 )
-        throw logic_error
-        ( "t must be a column vector of the same length as W's width." );
     if( e.ColAlignment() != ((A.ColAlignment()+1) % e.GetGrid().Height())
                             + A.RowAlignment() * e.GetGrid().Height() )
         throw logic_error( "e is not aligned with A." );
-    if( t.ColAlignment() != (A.ColAlignment()+
-                             A.RowAlignment()*t.GetGrid().Height()) )
-        throw logic_error( "t is not aligned with A." );
 #endif
     typedef complex<R> C;
 
@@ -302,10 +262,6 @@ elemental::lapack::internal::PanelTridiagL
         eT(g),  e0(g),
         eB(g),  epsilon1(g),
                 e2(g);
-    DistMatrix<C,MD,Star> 
-        tT(g),  t0(g),
-        tB(g),  tau1(g),
-                t2(g);
 
     // Temporary distributions
     DistMatrix<C,MC,  MR  > a10Conj(g);
@@ -330,9 +286,6 @@ elemental::lapack::internal::PanelTridiagL
     PartitionDown
     ( e,  eT,
           eB, 0 );
-    PartitionDown
-    ( t,  tT,
-          tB, 0 );
     while( WTL.Width() < W.Width() )
     {
         RepartitionDownDiagonal
@@ -352,12 +305,6 @@ elemental::lapack::internal::PanelTridiagL
          /**/ /********/
                epsilon1,
           eB,  e2 );
-
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /****/
-               tau1,
-          tB,  t2 );
 
         ACol.View2x1
         ( alpha11,
@@ -394,10 +341,7 @@ elemental::lapack::internal::PanelTridiagL
         C tau = 0; // Initializing avoids false compiler warnings
         const bool thisIsMyColumn = ( g.MRRank() == a21.RowAlignment() );
         if( thisIsMyColumn )
-        {
             tau = lapack::internal::ColReflector( alpha21T, a21B );
-            tau1 = tau;
-        }
             
         alpha21T.GetRealDiagonal( epsilon1 );
         alpha21T = (C)1;
@@ -460,18 +404,6 @@ elemental::lapack::internal::PanelTridiagL
         z21_MR_Star.FreeAlignments();
         z21_MR_MC.FreeAlignments();
 
-        SlidePartitionDown
-        ( eT,  e0,
-               epsilon1,
-         /**/ /********/
-          eB,  e2 );
-
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
-
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
                /**/       a10, alpha11, /**/ a12,
@@ -483,6 +415,12 @@ elemental::lapack::internal::PanelTridiagL
                /**/       w10, omega11, /**/ w12,
          /*************/ /**********************/
           WBL, /**/ WBR,  W20, w21,     /**/ W22 );
+        
+        SlidePartitionDown
+        ( eT,  e0,
+               epsilon1,
+         /**/ /********/
+          eB,  e2 );
     }
     PopBlocksizeStack();
 #ifndef RELEASE
@@ -494,26 +432,22 @@ elemental::lapack::internal::PanelTridiagL
 template void elemental::lapack::internal::PanelTridiagL
 ( DistMatrix<float,MC,MR  >& A,
   DistMatrix<float,MC,MR  >& W,
-  DistMatrix<float,MD,Star>& e,
-  DistMatrix<float,MD,Star>& t );
+  DistMatrix<float,MD,Star>& e );
 
 template void elemental::lapack::internal::PanelTridiagL
 ( DistMatrix<double,MC,MR  >& A,
   DistMatrix<double,MC,MR  >& W,
-  DistMatrix<double,MD,Star>& e,
-  DistMatrix<double,MD,Star>& t );
+  DistMatrix<double,MD,Star>& e );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::internal::PanelTridiagL
 ( DistMatrix<scomplex,MC,MR  >& A,
   DistMatrix<scomplex,MC,MR  >& W,
-  DistMatrix<float,   MD,Star>& e,
-  DistMatrix<scomplex,MD,Star>& t );
+  DistMatrix<float,   MD,Star>& e );
 
 template void elemental::lapack::internal::PanelTridiagL
 ( DistMatrix<dcomplex,MC,MR  >& A,
   DistMatrix<dcomplex,MC,MR  >& W,
-  DistMatrix<double,  MD,Star>& e,
-  DistMatrix<dcomplex,MD,Star>& t );
+  DistMatrix<double,  MD,Star>& e );
 #endif
 

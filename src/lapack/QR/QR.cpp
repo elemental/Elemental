@@ -19,28 +19,11 @@ using namespace elemental;
 template<typename T>
 void
 elemental::lapack::QR
-( DistMatrix<T,MC,MR>& A, DistMatrix<T,MD,Star>& t )
+( DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::QR");
-    if( A.GetGrid() != t.GetGrid() )
-        throw logic_error( "A and t must be distributed over the same grid." );
-    if( t.Viewing() && 
-        ( t.Height() != min(A.Height(),A.Width()) || t.Width() != 1 ) )
-        throw logic_error
-              ( "t must be a column vector of the same length as the minimum "
-                "dimension of A." );
-    if( ( t.Viewing() || t.ConstrainedColAlignment() ) && 
-        ( t.ColAlignment() != A.ColAlignment() + 
-                              A.RowAlignment()*A.GetGrid().Height() ) )
-        throw logic_error( "t is not aligned with A." );
 #endif
-    if( !t.Viewing() ) 
-    {
-        if( !t.ConstrainedColAlignment() )
-            t.AlignWithDiag( A );
-        t.ResizeTo( min(A.Height(),A.Width()), 1 );
-    }
     const Grid& g = A.GetGrid();
 
     // Matrix views
@@ -48,17 +31,10 @@ elemental::lapack::QR
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ALeftPan(g), ARightPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
-    DistMatrix<T,MD,Star>
-        tT(g),  t0(g),
-        tB(g),  t1(g),
-                t2(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionDown
-    ( t, tT,
-         tB, 0 );
     while( ( ATL.Height() < A.Height() && ATL.Width() < A.Width() ) )
     {
         RepartitionDownDiagonal
@@ -66,12 +42,6 @@ elemental::lapack::QR
          /*************/ /******************/
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
-
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
 
         ALeftPan.View2x1
         ( A11,
@@ -82,7 +52,7 @@ elemental::lapack::QR
           A22 );
 
         //--------------------------------------------------------------------//
-        lapack::internal::PanelQR( ALeftPan, t1 );
+        lapack::internal::PanelQR( ALeftPan );
         lapack::UT( Left, Lower, Normal, 0, ALeftPan, ARightPan );
         //--------------------------------------------------------------------//
 
@@ -91,12 +61,6 @@ elemental::lapack::QR
                /**/       A10, A11, /**/ A12,
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlidePartitionDown
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -105,19 +69,19 @@ elemental::lapack::QR
 
 template void
 elemental::lapack::QR
-( DistMatrix<float,MC,MR>& A, DistMatrix<float,MD,Star>& t );
+( DistMatrix<float,MC,MR>& A );
 
 template void
 elemental::lapack::QR
-( DistMatrix<double,MC,MR>& A, DistMatrix<double,MD,Star>& t );
+( DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template void
 elemental::lapack::QR
-( DistMatrix<scomplex,MC,MR>& A, DistMatrix<scomplex,MD,Star>& t );
+( DistMatrix<scomplex,MC,MR>& A );
 
 template void
 elemental::lapack::QR
-( DistMatrix<dcomplex,MC,MR>& A, DistMatrix<dcomplex,MD,Star>& t );
+( DistMatrix<dcomplex,MC,MR>& A );
 #endif
 
