@@ -1,11 +1,12 @@
 /*
-   This file is part of elemental, a library for distributed-memory dense 
+   This file is part of Elemental, a library for distributed-memory dense 
    linear algebra.
 
-   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
+   Copyright (c) 2009-2010 Jack Poulson <jack.poulson@gmail.com>.
+   All rights reserved.
 
-   This program is released under the terms of the license contained in the 
-   file LICENSE.
+   This file is released under the terms of the license contained in the file
+   LICENSE-PURE.
 */
 #include "elemental/blas_internal.hpp"
 #include "elemental/lapack_internal.hpp"
@@ -56,19 +57,35 @@ elemental::lapack::internal::PanelQR
         Z_MR_Star.AlignWith( ARightPan );
         Z_MR_Star.ResizeTo( ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
-        T tau = lapack::internal::Reflector( alpha11, a21 );
         ALeftCol_MC_Star = ALeftCol;
-        blas::Gemv
-        ( ConjugateTranspose, 
-          (T)1, ARightPan.LockedLocalMatrix(), ALeftCol.LockedLocalMatrix(),
-          (T)0, Z_MR_Star.LocalMatrix() );
-        Z_MR_Star.SumOverCol(); 
 
-        blas::Ger
-        ( -tau, 
-          ALeftCol_MC_Star.LockedLocalMatrix(), 
-          Z_MR_Star.LockedLocalMatrix(),
-          ARightPan.LocalMatrix() );
+        if( g.MRRank() == ALeftCol.RowAlignment() )
+        {
+            T tau = lapack::internal::ColReflector( alpha11, a21 );
+            T alpha = (T)0;
+            if( g.MCRank() == alpha11.ColAlignment() )
+            {
+                alpha = alpha11.LocalEntry(0,0);
+                alpha11 = (T)1;
+                cout << "tau: " << tau << endl;
+                cout << "alpha: " << alpha << endl << endl;
+            }
+
+            blas::Gemv
+            ( ConjugateTranspose, 
+              (T)1, ARightPan.LockedLocalMatrix(), ALeftCol.LockedLocalMatrix(),
+              (T)0, Z_MR_Star.LocalMatrix() );
+            Z_MR_Star.SumOverCol(); 
+
+            blas::Ger
+            ( -tau, 
+              ALeftCol_MC_Star.LockedLocalMatrix(), 
+              Z_MR_Star.LockedLocalMatrix(),
+              ARightPan.LocalMatrix() );
+
+            if( g.MCRank() == alpha11.ColAlignment() )
+                alpha11 = alpha;
+        }
         //--------------------------------------------------------------------//
         ALeftCol_MC_Star.FreeAlignments();
         Z_MR_Star.FreeAlignments();
@@ -79,6 +96,7 @@ elemental::lapack::internal::PanelQR
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
+    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

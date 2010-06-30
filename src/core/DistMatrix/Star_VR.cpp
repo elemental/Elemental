@@ -1,11 +1,12 @@
 /*
-   This file is part of elemental, a library for distributed-memory dense 
+   This file is part of Elemental, a library for distributed-memory dense 
    linear algebra.
 
-   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
+   Copyright (c) 2009-2010 Jack Poulson <jack.poulson@gmail.com>.
+   All rights reserved.
 
-   This program is released under the terms of the license contained in the 
-   file LICENSE.
+   This file is released under the terms of the license contained in the file
+   LICENSE-PURE.
 */
 #include "elemental/dist_matrix.hpp"
 using namespace std;
@@ -1661,7 +1662,9 @@ elemental::DistMatrixBase<T,Star,VR>::SumScatterFrom
         const int r = g.Height();
         const int c = g.Width();
         const int p = r * c;
+        const int col = g.MRRank();
         const int rowAlignment = this->RowAlignment();
+        const int rowShiftOfA = A.RowShift();
 
         const int width = this->Width();
         const int localHeight = this->LocalHeight();
@@ -1669,7 +1672,7 @@ elemental::DistMatrixBase<T,Star,VR>::SumScatterFrom
         const int maxLocalWidth = MaxLocalLength( width, p );
 
         const int recvSize = max(localHeight*maxLocalWidth,MinCollectContrib);
-        const int sendSize = c*recvSize;
+        const int sendSize = r*recvSize;
 
         this->_auxMemory.Require( sendSize + recvSize );
 
@@ -1678,32 +1681,34 @@ elemental::DistMatrixBase<T,Star,VR>::SumScatterFrom
         T* recvBuffer = &buffer[sendSize];
 
         // Pack
-        vector<int> recvSizes(c);
-        for( int k=0; k<c; ++k )
+        vector<int> recvSizes(r);
+        for( int k=0; k<r; ++k )
         {
             T* data = &sendBuffer[k*recvSize];
             recvSizes[k] = recvSize;
 
-            const int thisRowShift = Shift( k, rowAlignment, p );
+            const int thisRank = col+k*c;
+            const int thisRowShift = Shift( thisRank, rowAlignment, p );
+            const int thisRowOffset = (thisRowShift-rowShiftOfA) / c;
             const int thisLocalWidth = LocalLength( width, thisRowShift, p );
 
 #ifdef RELEASE
             for( int j=0; j<thisLocalWidth; ++j )
             {
-                const T* ACol = &(A.LocalEntry(0,thisRowShift+j*c));
+                const T* ACol = &(A.LocalEntry(0,thisRowOffset+j*r));
                 T* dataCol = &(data[j*localHeight]);
                 memcpy( dataCol, ACol, localHeight*sizeof(T) );
             }
 #else
             for( int j=0; j<thisLocalWidth; ++j )
                 for( int i=0; i<localHeight; ++i )
-                    data[i+j*localHeight] = A.LocalEntry(i,thisRowShift+j*c);
+                    data[i+j*localHeight] = A.LocalEntry(i,thisRowOffset+j*r);
 #endif
         }
 
-        // Reduce-scatter over each process row
+        // Reduce-scatter over each process column
         ReduceScatter
-        ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
+        ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MCComm() );
 
         // Unpack our received data
 #ifdef RELEASE
@@ -1749,7 +1754,9 @@ elemental::DistMatrixBase<T,Star,VR>::SumScatterUpdate
         const int r = g.Height();
         const int c = g.Width();
         const int p = r * c;
+        const int col = g.MRRank();
         const int rowAlignment = this->RowAlignment();
+        const int rowShiftOfA = A.RowShift();
 
         const int width = this->Width();
         const int localHeight = this->LocalHeight();
@@ -1757,7 +1764,7 @@ elemental::DistMatrixBase<T,Star,VR>::SumScatterUpdate
         const int maxLocalWidth = MaxLocalLength( width, p );
 
         const int recvSize = max(localHeight*maxLocalWidth,MinCollectContrib);
-        const int sendSize = c*recvSize;
+        const int sendSize = r*recvSize;
 
         this->_auxMemory.Require( sendSize + recvSize );
 
@@ -1766,32 +1773,34 @@ elemental::DistMatrixBase<T,Star,VR>::SumScatterUpdate
         T* recvBuffer = &buffer[sendSize];
 
         // Pack
-        vector<int> recvSizes(c);
-        for( int k=0; k<c; ++k )
+        vector<int> recvSizes(r);
+        for( int k=0; k<r; ++k )
         {
             T* data = &sendBuffer[k*recvSize];
             recvSizes[k] = recvSize;
 
-            const int thisRowShift = Shift( k, rowAlignment, p );
+            const int thisRank = col+k*c;
+            const int thisRowShift = Shift( thisRank, rowAlignment, p );
+            const int thisRowOffset = (thisRowShift-rowShiftOfA) / c;
             const int thisLocalWidth = LocalLength( width, thisRowShift, p );
 
 #ifdef RELEASE
             for( int j=0; j<thisLocalWidth; ++j )
             {
-                const T* ACol = &(A.LocalEntry(0,thisRowShift+j*c));
+                const T* ACol = &(A.LocalEntry(0,thisRowOffset+j*r));
                 T* dataCol = &(data[j*localHeight]);
                 memcpy( dataCol, ACol, localHeight*sizeof(T) );
             }
 #else
             for( int j=0; j<thisLocalWidth; ++j )
                 for( int i=0; i<localHeight; ++i )
-                    data[i+j*localHeight] = A.LocalEntry(i,thisRowShift+j*c);
+                    data[i+j*localHeight] = A.LocalEntry(i,thisRowOffset+j*r);
 #endif
         }
 
-        // Reduce-scatter over each process row
+        // Reduce-scatter over each process column
         ReduceScatter
-        ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
+        ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MCComm() );
 
         // Unpack our received data
 #ifdef RELEASE

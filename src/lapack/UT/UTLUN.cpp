@@ -1,11 +1,12 @@
 /*
-   This file is part of elemental, a library for distributed-memory dense 
+   This file is part of Elemental, a library for distributed-memory dense 
    linear algebra.
 
-   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
+   Copyright (c) 2009-2010 Jack Poulson <jack.poulson@gmail.com>.
+   All rights reserved.
 
-   This program is released under the terms of the license contained in the
-   file LICENSE.
+   This file is released under the terms of the license contained in the file
+   LICENSE-PURE.
 */
 #include "elemental/blas_internal.hpp"
 #include "elemental/lapack_internal.hpp"
@@ -51,7 +52,7 @@ HalveMainDiagonal( DistMatrix<T,Star,Star>& A )
 #endif
 }
 
-}
+} // anonymous namespace
 
 // This routine applies the accumulation of Householder transforms stored 
 // in the portion of H above the diagonal marked by 'offset'. It is assumed 
@@ -73,7 +74,7 @@ elemental::lapack::internal::UTLUN
         throw logic_error( "Transforms cannot extend below matrix." );
     if( H.Width() != A.Height() )
         throw logic_error
-              ( "Width of transform must equal height of target matrix." );
+              ( "Width of transforms must equal height of target matrix." );
 #endif
     const Grid& g = H.GetGrid();
 

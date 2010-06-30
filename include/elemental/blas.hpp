@@ -1,11 +1,12 @@
 /*
-   This file is part of elemental, a library for distributed-memory dense 
+   This file is part of Elemental, a library for distributed-memory dense 
    linear algebra.
 
-   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
+   Copyright (c) 2009-2010 Jack Poulson <jack.poulson@gmail.com>.
+   All rights reserved.
 
-   This program is released under the terms of the license contained in the 
-   file LICENSE.
+   This file is released under the terms of the license contained in the file
+   LICENSE-PURE.
 */
 #ifndef ELEMENTAL_BLAS_HPP
 #define ELEMENTAL_BLAS_HPP 1
@@ -1154,7 +1155,13 @@ elemental::blas::Gemv
     PushCallStack("blas::Gemv");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
-        throw std::logic_error( "x and y must be vector." );
+    {
+        std::ostringstream msg;
+        msg << "x and y must be vectors: " << std::endl
+            << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
+            << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
+        throw std::logic_error( msg.str() );
+    }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( orientation == Normal )

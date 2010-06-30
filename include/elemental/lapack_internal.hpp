@@ -1,11 +1,12 @@
 /*
-   This file is part of elemental, a library for distributed-memory dense 
+   This file is part of Elemental, a library for distributed-memory dense 
    linear algebra.
 
-   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
+   Copyright (c) 2009-2010 Jack Poulson <jack.poulson@gmail.com>.
+   All rights reserved.
 
-   This program is released under the terms of the license contained in the 
-   file LICENSE.
+   This file is released under the terms of the license contained in the file
+   LICENSE-PURE.
 */
 #ifndef ELEMENTAL_LAPACK_INTERNAL_HPP
 #define ELEMENTAL_LAPACK_INTERNAL_HPP 1
@@ -455,6 +456,10 @@ LUGFlops( int m, double seconds );
 
 template<typename T>
 double
+QRGFlops( int m, int n, double seconds );
+
+template<typename T>
+double
 TridiagGFlops( int m, double seconds );
 
 template<typename T>
@@ -600,6 +605,32 @@ inline double
 LUGFlops<dcomplex>
 ( int m, double seconds )
 { return 4.*LUGFlops<float>(m,seconds); }
+#endif
+
+template<>
+inline double
+QRGFlops<float>
+( int m, int n, double seconds )
+{ return (2.*m*n*n-2./3.*n*n*n)/(1.e9*seconds); }
+
+template<>
+inline double
+QRGFlops<double>
+( int m, int n, double seconds )
+{ return QRGFlops<float>(m,n,seconds); }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+inline double
+QRGFlops<scomplex>
+( int m, int n, double seconds )
+{ return 4.*QRGFlops<float>(m,n,seconds); }
+
+template<>
+inline double
+QRGFlops<dcomplex>
+( int m, int n, double seconds )
+{ return 4.*QRGFlops<float>(m,n,seconds); }
 #endif
 
 template<>

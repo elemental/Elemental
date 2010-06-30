@@ -17,16 +17,14 @@ using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
-    cout << "Generates SPD matrix then solves for its Cholesky factor."
+    cout << "Generates random matrix then solves for its QR factorization."
          << endl << endl;
-    cout << "  Chol <r> <c> <shape> <var2/3> <naive> <m> <nb> "
-            "<test correctness?> <print matrices?>" << endl << endl;
+    cout << "  QR <r> <c> <m> <n> <nb> <test correctness?> "
+         << "<print matrices?>" << endl << endl;
     cout << "  r: number of process rows      " << endl;
     cout << "  c: number of process cols      " << endl;
-    cout << "  shape: {L,U}                   " << endl;
-    cout << "  var2/3: 2 iff 0                " << endl;
-    cout << "  naive: smart algorithms iff 0  " << endl;
     cout << "  m: height of matrix            " << endl;
+    cout << "  n: width of matrix             " << endl;
     cout << "  nb: algorithmic blocksize      " << endl;
     cout << "  test correctness?: false iff 0 " << endl;
     cout << "  print matrices?: false iff 0   " << endl;
@@ -50,18 +48,19 @@ template<typename T>
 void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<T,MC,MR>& A,
-  Shape shape, DistMatrix<T,Star,Star>& ARef )
+        DistMatrix<T,Star,Star>& ARef )
 {
     const Grid& g = A.GetGrid();
     const int m = ARef.Height();
-    DistMatrix<T,Star,Star> ACopy(g);
+    const int n = ARef.Width();
+    DistMatrix<T,Star,Star> A_copy(g);
 
     if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed result...";
         cout.flush();
     }
-    ACopy = A;
+    A_copy = A;
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
@@ -70,53 +69,32 @@ void TestCorrectness
         cout << "  Computing 'truth'...";
         cout.flush();
     }
-    lapack::internal::LocalChol( shape, ARef );
+    lapack::QR( ARef.LocalMatrix() );
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
     if( printMatrices )
-        ARef.Print("Truth");
+        ARef.Print("True A:");
 
     if( g.VCRank() == 0 )
     {
         cout << "  Testing correctness...";
         cout.flush();
     }
-    if( shape == Lower )
+    // Test A
+    for( int j=0; j<n; ++j )
     {
-        for( int j=0; j<m; ++j )
+        for( int i=0; i<m; ++i )
         {
-            for( int i=j; i<m; ++i )
-            {
-                T truth = ARef.LocalEntry(i,j);
-                T computed = ACopy.LocalEntry(i,j);
+            T truth = ARef.LocalEntry(i,j);
+            T computed = A_copy.LocalEntry(i,j);
 
-                if( ! OKRelativeError( truth, computed ) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j << "): truth=" 
-                         << truth << ", computed=" << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
-        }
-    }
-    else
-    {
-        for( int j=0; j<m; ++j )
-        {
-            for( int i=0; i<=j; ++i )
+            if( ! OKRelativeError( truth, computed ) )
             {
-                T truth = ARef.LocalEntry(i,j);
-                T computed = ACopy.LocalEntry(i,j);
-
-                if( ! OKRelativeError( truth, computed ) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j << "): truth=" 
-                         << truth << ", computed=" << computed;
-                    throw logic_error( msg.str() );
-                }
+                ostringstream msg;
+                msg << "FAILED at index (" << i << "," << j << "): truth=" 
+                     << truth << ", computed=" << computed;
+                throw logic_error( msg.str() );
             }
         }
     }
@@ -126,18 +104,17 @@ void TestCorrectness
 }
 
 template<typename T>
-void TestChol
-( bool var3, bool naive,
-  bool testCorrectness, bool printMatrices, 
-  Shape shape, int m, const Grid& g )
+void TestQR
+( bool testCorrectness, bool printMatrices,
+  int m, int n, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g);
     DistMatrix<T,Star,Star> ARef(g);
 
-    A.ResizeTo( m, m );
+    A.ResizeTo( m, n );
 
-    A.SetToRandomHPD();
+    A.SetToRandom();
     if( testCorrectness )
     {
         if( g.VCRank() == 0 )
@@ -154,29 +131,16 @@ void TestChol
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Starting Cholesky factorization...";
+        cout << "  Starting QR factorization...";
         cout.flush();
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    if( var3 )
-    {
-        if( naive )
-            lapack::internal::CholVar3Naive( shape, A );
-        else
-            lapack::internal::CholVar3( shape, A );
-    }
-    else
-    {
-        if( naive )
-            lapack::internal::CholVar2Naive( shape, A );
-        else
-            lapack::internal::CholVar2( shape, A );
-    }
+    lapack::QR( A );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = lapack::internal::CholGFlops<T>( m, runTime );
+    gFlops = lapack::internal::QRGFlops<T>( m, n, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
@@ -186,7 +150,7 @@ void TestChol
     if( printMatrices )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( printMatrices, A, shape, ARef );
+        TestCorrectness( printMatrices, A, ARef );
 }
 
 int main( int argc, char* argv[] )
@@ -194,7 +158,7 @@ int main( int argc, char* argv[] )
     int rank;
     elemental::Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 10 )
+    if( argc != 8 )
     {
         if( rank == 0 )
             Usage();
@@ -205,13 +169,11 @@ int main( int argc, char* argv[] )
     {
         const int   r = atoi( argv[1] );
         const int   c = atoi( argv[2] );
-        const Shape shape = CharToShape( *argv[3] );
-        const bool  var3 = ( atoi(argv[4]) != 0 );
-        const bool  naive = ( atoi(argv[5]) != 0 );
-        const int   m = atoi( argv[6] );
-        const int   nb = atoi( argv[7] );
-        const bool  testCorrectness = ( atoi(argv[8]) != 0 );
-        const bool  printMatrices = ( atoi(argv[9]) != 0 );
+        const int   m = atoi( argv[3] );
+        const int   n = atoi( argv[4] );
+        const int   nb = atoi( argv[5] );
+        const bool  testCorrectness = atoi( argv[6] );
+        const bool  printMatrices = atoi( argv[7] );
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -224,10 +186,7 @@ int main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         if( rank == 0 )
-        {
-            cout << "Will test Chol" << ShapeToChar(shape) << ", Var"
-                 << ( var3 ? "3" : "2" ) << ( naive ? "Naive" : "" ) << endl;
-        }
+            cout << "Will test QR" << endl;
 
         if( rank == 0 )
         {
@@ -235,8 +194,8 @@ int main( int argc, char* argv[] )
             cout << "Testing with doubles:" << endl;
             cout << "---------------------" << endl;
         }
-        TestChol<double>
-        ( var3, naive, testCorrectness, printMatrices, shape, m, g );
+        TestQR<double>
+        ( testCorrectness, printMatrices, m, n, g );
         if( rank == 0 )
             cout << endl;
 
@@ -247,8 +206,8 @@ int main( int argc, char* argv[] )
             cout << "Testing with double-precision complex:" << endl;
             cout << "--------------------------------------" << endl;
         }
-        TestChol<dcomplex>
-        ( var3, naive, testCorrectness, printMatrices, shape, m, g );
+        TestQR<dcomplex>
+        ( testCorrectness, printMatrices, m, n, g );
         if( rank == 0 )
             cout << endl;
 #endif

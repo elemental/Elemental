@@ -1,11 +1,12 @@
 /*
-    This file is part of elemental, a library for distributed-memory dense 
+    This file is part of Elemental, a library for distributed-memory dense 
     linear algebra.
 
-    Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
+    Copyright (c) 2009-2010 Jack Poulson <jack.poulson@gmail.com>.
+    All rights reserved.
 
-    This program is released under the terms of the license contained in the 
-    file LICENSE.
+    This file is released under the terms of the license contained in the file
+    LICENSE-PURE.
 */
 #include "elemental/blas_internal.hpp"
 using namespace std;

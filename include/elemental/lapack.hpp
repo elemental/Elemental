@@ -1,11 +1,12 @@
 /*
-   This file is part of elemental, a library for distributed-memory dense 
+   This file is part of Elemental, a library for distributed-memory dense 
    linear algebra.
 
-   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
+   Copyright (c) 2009-2010 Jack Poulson <jack.poulson@gmail.com>.
+   All rights reserved.
 
-   This program is released under the terms of the license contained in the 
-   file LICENSE.
+   This file is released under the terms of the license contained in the file
+   LICENSE-PURE.
 */
 #ifndef ELEMENTAL_LAPACK_HPP
 #define ELEMENTAL_LAPACK_HPP 1
@@ -102,7 +103,10 @@ LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 // A). The scaling factors for the Householder transforms are stored in t.    //
 //----------------------------------------------------------------------------//
 
-// TODO: Serial version
+// Serial version
+template<typename T>
+void
+QR( Matrix<T>& A );
 
 // Parallel version
 template<typename T>
@@ -268,6 +272,21 @@ elemental::lapack::LU
 #endif
     wrappers::lapack::LU
     ( A.Height(), A.Width(), A.Buffer(), A.LDim(), p.Buffer() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+elemental::lapack::QR
+( Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::QR");
+#endif
+    wrappers::lapack::QR
+    ( A.Height(), A.Width(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
