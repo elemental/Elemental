@@ -11,8 +11,6 @@
 #ifndef ELEMENTAL_DIST_MATRIX_ABSTRACT_HPP
 #define ELEMENTAL_DIST_MATRIX_ABSTRACT_HPP 1
 
-#include "elemental/dist_matrix.hpp"
-
 namespace elemental {
 
 template<typename T>
@@ -103,6 +101,8 @@ public:
 
     int Height() const;
     int Width() const;
+
+    int DiagonalLength( int offset ) const;
     
     void FreeAlignments();
     bool ConstrainedColAlignment() const;
@@ -183,13 +183,11 @@ public:
     // It is then _implicitly_ Hermitian, and therefore _implicitly_ Hermitian
     // Positive Definite (HPD).
     virtual void SetToRandomHPD() = 0;
-
-    // Iff the matrix is 1x1, we should be able to assign a scalar.
-    virtual T operator=( T alpha ) = 0;
 };
 
 template<typename R>
-class AbstractDistMatrix : public AbstractDistMatrixBase<R>
+class AbstractDistMatrix 
+: public AbstractDistMatrixBase<R>
 {
 protected:
     typedef AbstractDistMatrixBase<R> ADMB;
@@ -463,6 +461,27 @@ template<typename T>
 inline int
 AbstractDistMatrixBase<T>::Width() const
 { return _width; }
+
+template<typename T>
+inline int
+AbstractDistMatrixBase<T>::DiagonalLength
+( int offset ) const
+{
+    int width = this->Width();
+    int height = this->Height();
+    int length;
+    if( offset > 0 )
+    {
+        const int remainingWidth = std::max(width-offset,0);
+        length = std::min(height,remainingWidth);
+    }
+    else
+    {
+        const int remainingHeight = std::max(height+offset,0);
+        length = std::min(remainingHeight,width);
+    }
+    return length;
+}
 
 template<typename T>
 inline void

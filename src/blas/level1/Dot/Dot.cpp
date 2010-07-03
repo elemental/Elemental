@@ -34,7 +34,7 @@ using namespace elemental::wrappers::mpi;
 */
 template<typename T, Distribution U, Distribution V,
                      Distribution W, Distribution Z >
-inline T
+T
 elemental::blas::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
 {
@@ -49,7 +49,7 @@ elemental::blas::Dot
 }
 
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
 {
@@ -140,7 +140,7 @@ elemental::blas::internal::Dot
 
 #ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,Star>& y )
 {
@@ -214,7 +214,7 @@ elemental::blas::internal::Dot
 }
 
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,MR>& y )
 {
@@ -288,7 +288,7 @@ elemental::blas::internal::Dot
 }
 
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
 {
@@ -378,7 +378,7 @@ elemental::blas::internal::Dot
 }
 
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,Star>& y )
 {
@@ -452,7 +452,7 @@ elemental::blas::internal::Dot
 }
 
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,MC>& y )
 {
@@ -526,7 +526,7 @@ elemental::blas::internal::Dot
 }
 
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,Star>& y )
 {
@@ -600,7 +600,7 @@ elemental::blas::internal::Dot
 }
 
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,VC>& y )
 {
@@ -674,7 +674,7 @@ elemental::blas::internal::Dot
 }
 
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,Star>& y )
 {
@@ -748,7 +748,7 @@ elemental::blas::internal::Dot
 }
 
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,VR>& y )
 {
@@ -822,7 +822,7 @@ elemental::blas::internal::Dot
 }
 
 template<typename T, Distribution U, Distribution V>
-inline T
+T
 elemental::blas::internal::Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,Star>& y )
 {

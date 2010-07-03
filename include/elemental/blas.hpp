@@ -11,9 +11,7 @@
 #ifndef ELEMENTAL_BLAS_HPP
 #define ELEMENTAL_BLAS_HPP 1
 
-#include "elemental/dist_matrix.hpp"
 #include "elemental/partitioning.hpp"
-#include "elemental/wrappers/blas.hpp"
 
 namespace elemental {
 namespace blas {

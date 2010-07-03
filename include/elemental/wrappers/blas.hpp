@@ -11,8 +11,6 @@
 #ifndef ELEMENTAL_WRAPPERS_BLAS_HPP
 #define ELEMENTAL_WRAPPERS_BLAS_HPP 1
 
-#include "elemental/environment.hpp"
-
 #ifdef BLAS_UNDERSCORE
 #define BLAS(name) name ## _
 #else

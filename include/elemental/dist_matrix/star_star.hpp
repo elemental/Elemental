@@ -11,8 +11,6 @@
 #ifndef ELEMENTAL_DIST_MATRIX_STAR_STAR_HPP
 #define ELEMENTAL_DIST_MATRIX_STAR_STAR_HPP 1
 
-#include "elemental/dist_matrix.hpp"
-
 namespace elemental {
 
 // Partial specialization to A[* ,* ]
@@ -55,9 +53,6 @@ public:
     virtual void ResizeTo( int height, int width );
     virtual void SetToIdentity();
     virtual void SetToRandom();
-
-    // We can assign a scalar if the matrix is 1x1
-    virtual T operator=( T alpha );
 
     //------------------------------------------------------------------------//
     // Routines specific to [* ,MD] distribution                              //
@@ -210,9 +205,6 @@ public:
 
     ~DistMatrix();
     
-    // We can assign a scalar if the matrix is 1x1
-    R operator=( R alpha );
-
     const DistMatrix<R,Star,Star>&
     operator=( const DistMatrixBase<R,MC,MR>& A );
 
@@ -286,9 +278,6 @@ public:
 
     ~DistMatrix();
     
-    // We can assign a scalar if the matrix is 1x1
-    std::complex<R> operator=( std::complex<R> alpha );
-
     const DistMatrix<std::complex<R>,Star,Star>&
     operator=( const DistMatrixBase<std::complex<R>,MC,MR>& A );
 
@@ -385,23 +374,6 @@ inline
 DistMatrixBase<T,Star,Star>::~DistMatrixBase()
 { }
 
-template<typename T>
-inline T
-DistMatrixBase<T,Star,Star>::operator=( T alpha )
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrixBase::operator=");
-#endif
-    if( this->Height() == 1 && this->Width() == 1 )
-        this->Set( 0, 0, alpha );
-    else
-        throw std::logic_error("Scalars can only be assigned to 1x1 matrices.");
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return alpha;
-}
-
 //
 // Real DistMatrix[* ,* ]
 //
@@ -451,12 +423,6 @@ template<typename R>
 inline
 DistMatrix<R,Star,Star>::~DistMatrix()
 { }
-
-template<typename R>
-inline R
-DistMatrix<R,Star,Star>::operator=
-( R alpha )
-{ return DMB::operator=( alpha ); }
 
 template<typename R>
 inline const DistMatrix<R,Star,Star>&
@@ -586,12 +552,6 @@ template<typename R>
 inline
 DistMatrix<std::complex<R>,Star,Star>::~DistMatrix()
 { }
-
-template<typename R>
-inline std::complex<R>
-DistMatrix<std::complex<R>,Star,Star>::operator=
-( std::complex<R> alpha )
-{ return DMB::operator=( alpha ); }
 
 template<typename R>
 inline const DistMatrix<std::complex<R>,Star,Star>&

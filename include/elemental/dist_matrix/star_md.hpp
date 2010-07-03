@@ -11,8 +11,6 @@
 #ifndef ELEMENTAL_DIST_MATRIX_STAR_MD_HPP
 #define ELEMENTAL_DIST_MATRIX_STAR_MD_HPP 1
 
-#include "elemental/dist_matrix.hpp"
-
 namespace elemental {
 
 // Partial specialization to A[* ,MD]
@@ -67,9 +65,6 @@ public:
     virtual void SetToIdentity();
     virtual void SetToRandom();
 
-    // We can assign a scalar if the matrix is 1x1
-    virtual T operator=( T alpha );
-
     //------------------------------------------------------------------------//
     // Routines specific to [* ,MD] distribution                              //
     //------------------------------------------------------------------------//
@@ -110,8 +105,14 @@ public:
     void AlignRowsWith( const DistMatrixBase<T,MD,  Star>& A );
     void AlignRowsWith( const DistMatrixBase<T,Star,MD  >& A );
 
+    bool AlignedWithDiag
+    ( const DistMatrixBase<T,MC,MR>& A, int offset = 0 ) const;
+
     void AlignWithDiag
     ( const DistMatrixBase<T,MC,MR>& A, int offset = 0 );
+
+    bool AlignedWithDiag
+    ( const DistMatrixBase<T,MR,MC>& A, int offset = 0 ) const;
 
     void AlignWithDiag
     ( const DistMatrixBase<T,MR,MC>& A, int offset = 0 );
@@ -225,9 +226,6 @@ public:
 
     ~DistMatrix();
     
-    // We can assign a scalar if the matrix is 1x1
-    R operator=( R alpha );
-
     const DistMatrix<R,Star,MD>&
     operator=( const DistMatrixBase<R,MC,MR>& A );
 
@@ -286,15 +284,27 @@ public:
     //------------------------------------------------------------------------//
     // Routines specific to real [* ,MD] distribution                         //
     //------------------------------------------------------------------------//
+    bool AlignedWithDiag
+    ( const DistMatrixBase<R,MC,MR>& A, int offset = 0 ) const;
+
     void AlignWithDiag
     ( const DistMatrixBase<R,MC,MR>& A, int offset = 0 );
+
+    bool AlignedWithDiag
+    ( const DistMatrixBase<R,MR,MC>& A, int offset = 0 ) const;
 
     void AlignWithDiag
     ( const DistMatrixBase<R,MR,MC>& A, int offset = 0 );
 
 #ifndef WITHOUT_COMPLEX
+    bool AlignedWithDiag
+    ( const DistMatrixBase<std::complex<R>,MC,MR>& A, int offset = 0 ) const;
+
     void AlignWithDiag
     ( const DistMatrixBase<std::complex<R>,MC,MR>& A, int offset = 0 );
+
+    bool AlignedWithDiag
+    ( const DistMatrixBase<std::complex<R>,MR,MC>& A, int offset = 0 ) const;
 
     void AlignWithDiag
     ( const DistMatrixBase<std::complex<R>,MR,MC>& A, int offset = 0 );
@@ -328,9 +338,6 @@ public:
 
     ~DistMatrix();
     
-    // We can assign a scalar if the matrix is 1x1
-    std::complex<R> operator=( std::complex<R> alpha );
-
     const DistMatrix<std::complex<R>,Star,MD>&
     operator=( const DistMatrixBase<std::complex<R>,MC,MR>& A );
 
@@ -436,23 +443,6 @@ template<typename T>
 inline bool
 DistMatrixBase<T,Star,MD>::InDiagonal() const
 { return _inDiagonal; }
-
-template<typename T>
-inline T
-DistMatrixBase<T,Star,MD>::operator=( T alpha )
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrixBase::operator=");
-#endif
-    if( this->Height() == 1 && this->Width() == 1 )
-        this->Set( 0, 0, alpha );
-    else
-        throw std::logic_error("Scalars can only be assigned to 1x1 matrices.");
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return alpha;
-}
 
 //
 // Real DistMatrix[* ,MD]
@@ -581,12 +571,6 @@ template<typename R>
 inline
 DistMatrix<R,Star,MD>::~DistMatrix()
 { }
-
-template<typename R>
-inline R
-DistMatrix<R,Star,MD>::operator=
-( R alpha )
-{ return DMB::operator=( alpha ); }
 
 template<typename R>
 inline const DistMatrix<R,Star,MD>&
@@ -794,12 +778,6 @@ template<typename R>
 inline
 DistMatrix<std::complex<R>,Star,MD>::~DistMatrix()
 { }
-
-template<typename R>
-inline std::complex<R>
-DistMatrix<std::complex<R>,Star,MD>::operator=
-( std::complex<R> alpha )
-{ return DMB::operator=( alpha ); }
 
 template<typename R>
 inline const DistMatrix<std::complex<R>,Star,MD>&

@@ -137,6 +137,40 @@ elemental::DistMatrixBase<T,Star,MD>::AlignRowsWith
 { AlignWith( A ); }
 
 template<typename T>
+bool
+elemental::DistMatrixBase<T,Star,MD>::AlignedWithDiag
+( const DistMatrixBase<T,MC,MR>& A, int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MD]::AlignedWithDiag([MC,MR])");
+    this->AssertSameGrid( A );
+#endif
+    const Grid& g = this->GetGrid();
+    const int r = g.Height();
+    const int c = g.Width();
+    const int colAlignment = A.ColAlignment();
+    const int rowAlignment = A.RowAlignment();
+    bool aligned;
+
+    if( offset >= 0 )
+    {
+        const int ownerRow = colAlignment;
+        const int ownerCol = (rowAlignment + offset) % c;
+        aligned = ( this->RowAlignment() == ownerRow + r*ownerCol );
+    }
+    else
+    {
+        const int ownerRow = (colAlignment-offset) % r;
+        const int ownerCol = rowAlignment;
+        aligned = ( this->RowAlignment() == ownerRow + r*ownerCol );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return aligned;
+}
+
+template<typename T>
 void
 elemental::DistMatrixBase<T,Star,MD>::AlignWithDiag
 ( const DistMatrixBase<T,MC,MR>& A, int offset )
@@ -178,6 +212,40 @@ elemental::DistMatrixBase<T,Star,MD>::AlignWithDiag
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+bool
+elemental::DistMatrixBase<T,Star,MD>::AlignedWithDiag
+( const DistMatrixBase<T,MR,MC>& A, int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MD]::AlignedWithDiag([MR,MC])");
+    this->AssertSameGrid( A );
+#endif
+    const Grid& g = this->GetGrid();
+    const int r = g.Height();
+    const int c = g.Width();
+    const int colAlignment = A.ColAlignment();
+    const int rowAlignment = A.RowAlignment();
+    bool aligned;
+
+    if( offset >= 0 )
+    {
+        const int ownerRow = rowAlignment;
+        const int ownerCol = (colAlignment + offset) % c;
+        aligned = ( this->RowAlignment() == ownerRow + r*ownerCol );
+    }
+    else
+    {
+        const int ownerRow = (rowAlignment-offset) % r;
+        const int ownerCol = colAlignment;
+        aligned = ( this->RowAlignment() == ownerRow + r*ownerCol );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return aligned;
 }
 
 template<typename T>
@@ -1082,10 +1150,22 @@ elemental::DistMatrixBase<T,Star,MD>::operator=
 //----------------------------------------------------------------------------//
 
 template<typename R>
+bool
+elemental::DistMatrix<R,Star,MD>::AlignedWithDiag
+( const DistMatrixBase<R,MC,MR>& A, int offset ) const
+{ return DMB::AlignedWithDiag( A, offset ); }
+
+template<typename R>
 void
 elemental::DistMatrix<R,Star,MD>::AlignWithDiag
 ( const DistMatrixBase<R,MC,MR>& A, int offset )
 { DMB::AlignWithDiag( A, offset ); }
+
+template<typename R>
+bool
+elemental::DistMatrix<R,Star,MD>::AlignedWithDiag
+( const DistMatrixBase<R,MR,MC>& A, int offset ) const
+{ return DMB::AlignedWithDiag( A, offset ); }
 
 template<typename R>
 void
@@ -1298,6 +1378,40 @@ elemental::DistMatrix<complex<R>,Star,MD>::SetImag
 }
 
 template<typename R>
+bool
+elemental::DistMatrix<R,Star,MD>::AlignedWithDiag
+( const DistMatrixBase<complex<R>,MC,MR>& A, int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MD]::AlignWithedDiag([MC,MR])");
+    this->AssertSameGrid( A );
+#endif
+    const Grid& g = this->GetGrid();
+    const int r = g.Height();
+    const int c = g.Width();
+    const int colAlignment = A.ColAlignment();
+    const int rowAlignment = A.RowAlignment();
+    bool aligned;
+
+    if( offset >= 0 )
+    {
+        const int ownerRow = colAlignment;
+        const int ownerCol = (rowAlignment + offset) % c;
+        aligned = ( this->RowAlignment() == ownerRow + r*ownerCol );
+    }
+    else
+    {
+        const int ownerRow = (colAlignment-offset) % r;
+        const int ownerCol = rowAlignment;
+        aligned = ( this->RowAlignment() == ownerRow + r*ownerCol );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return aligned;
+}
+
+template<typename R>
 void
 elemental::DistMatrix<R,Star,MD>::AlignWithDiag
 ( const DistMatrixBase<complex<R>,MC,MR>& A, int offset )
@@ -1339,6 +1453,40 @@ elemental::DistMatrix<R,Star,MD>::AlignWithDiag
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename R>
+bool
+elemental::DistMatrix<R,Star,MD>::AlignedWithDiag
+( const DistMatrixBase<complex<R>,MR,MC>& A, int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MD]::AlignedWithDiag([MR,MC])");
+    this->AssertSameGrid( A );
+#endif
+    const Grid& g = this->GetGrid();
+    const int r = g.Height();
+    const int c = g.Width();
+    const int colAlignment = A.ColAlignment();
+    const int rowAlignment = A.RowAlignment();
+    bool aligned;
+
+    if( offset >= 0 )
+    {
+        const int ownerRow = rowAlignment;
+        const int ownerCol = (colAlignment + offset) % c;
+        aligned = ( this->RowAlignment() == ownerRow + r*ownerCol );
+    }
+    else
+    {
+        const int ownerRow = (rowAlignment-offset) % r;
+        const int ownerCol = colAlignment;
+        aligned = ( this->RowAlignment() == ownerRow + r*ownerCol );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return aligned;
 }
 
 template<typename R>

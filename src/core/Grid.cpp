@@ -9,7 +9,6 @@
    LICENSE-PURE.
 */
 #include "elemental/environment.hpp"
-#include "elemental/wrappers/mpi.hpp"
 using namespace elemental;
 using namespace std;
 

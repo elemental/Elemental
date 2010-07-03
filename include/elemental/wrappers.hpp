@@ -8,9 +8,12 @@
    This file is released under the terms of the license contained in the file
    LICENSE-PURE.
 */
-#ifndef ELEMENTAL_H
-#define ELEMENTAL_H 1
+#ifndef ELEMENTAL_WRAPPERS_HPP
+#define ELEMENTAL_WRAPPERS_HPP 1
 
-#include "elemental/lapack.hpp"
+#include "elemental/wrappers/blas.hpp"
+#include "elemental/wrappers/lapack.hpp"
+#include "elemental/wrappers/mpi.hpp"
 
-#endif
+#endif /* ELEMENTAL_WRAPPERS_HPP */
+

@@ -15,18 +15,15 @@ using namespace std;
 template<typename R>
 void
 elemental::lapack::Tridiag
-( Shape shape,
-  DistMatrix<R,MC,MR  >& A,
-  DistMatrix<R,MD,Star>& d,
-  DistMatrix<R,MD,Star>& e )
+( Shape shape, DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
 #endif
     if( shape == Lower )
-        lapack::internal::TridiagL( A, d, e );
+        lapack::internal::TridiagL( A );
     else
-        lapack::internal::TridiagU( A, d, e );
+        lapack::internal::TridiagU( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -36,18 +33,17 @@ elemental::lapack::Tridiag
 template<typename R>
 void
 elemental::lapack::Tridiag
-( Shape shape,
+( Shape shape, 
   DistMatrix<complex<R>,MC,MR  >& A,
-  DistMatrix<R,         MD,Star>& d,
-  DistMatrix<R,         MD,Star>& e )
+  DistMatrix<complex<R>,MD,Star>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
 #endif
     if( shape == Lower )
-        lapack::internal::TridiagL( A, d, e );
+        lapack::internal::TridiagL( A, t );
     else
-        lapack::internal::TridiagU( A, d, e );
+        lapack::internal::TridiagU( A, t );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -56,27 +52,21 @@ elemental::lapack::Tridiag
 
 template void elemental::lapack::Tridiag
 ( Shape shape, 
-  DistMatrix<float,MC,MR  >& A,
-  DistMatrix<float,MD,Star>& d,
-  DistMatrix<float,MD,Star>& e );
+  DistMatrix<float,MC,MR>& A );
 
 template void elemental::lapack::Tridiag
 ( Shape shape, 
-  DistMatrix<double,MC,MR  >& A,
-  DistMatrix<double,MD,Star>& d,
-  DistMatrix<double,MD,Star>& e );
+  DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::Tridiag
 ( Shape shape,
   DistMatrix<scomplex,MC,MR  >& A,
-  DistMatrix<float,   MD,Star>& d,
-  DistMatrix<float,   MD,Star>& e );
+  DistMatrix<scomplex,MD,Star>& t );
 
 template void elemental::lapack::Tridiag
 ( Shape shape,
   DistMatrix<dcomplex,MC,MR  >& A,
-  DistMatrix<double,  MD,Star>& d,
-  DistMatrix<double,  MD,Star>& e );
+  DistMatrix<dcomplex,MD,Star>& t );
 #endif
 

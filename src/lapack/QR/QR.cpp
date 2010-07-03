@@ -15,12 +15,19 @@ using namespace elemental;
 
 // On exit, the upper triangle of A is overwritten by R, and the Householder
 // transforms that determine Q are stored below the diagonal of A with an 
-// implicit one on the diagonal. On exit, the column-vector t stores the 
-// coefficients of the Householder transforms.
-template<typename T>
+// implicit one on the diagonal. 
+//
+// In the complex case, the column-vector s stores the unit-magnitude complex 
+// rotations that map the norms of the implicit Householder vectors to their
+// coefficient:  
+//                tau_j = 2 psi_j / ( u_j^H u_j ),
+// where psi_j is the j'th entry of s and u_j is the j'th unscaled Householder
+// reflector.
+
+template<typename R>
 void
 elemental::lapack::QR
-( DistMatrix<T,MC,MR>& A )
+( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::QR");
@@ -28,7 +35,7 @@ elemental::lapack::QR
     const Grid& g = A.GetGrid();
 
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<R,MC,MR>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ALeftPan(g), ARightPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
@@ -68,6 +75,95 @@ elemental::lapack::QR
 #endif
 }
 
+template<typename R>
+void
+elemental::lapack::QR
+( DistMatrix<complex<R>,MC,MR  >& A, 
+  DistMatrix<complex<R>,MD,Star>& t )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::QR");
+    if( A.GetGrid() != t.GetGrid() )
+        throw logic_error( "A and s must be distributed over the same grid." );
+#endif
+    const Grid& g = A.GetGrid();
+#ifndef RELEASE
+    if( t.Viewing() && 
+        (t.Height() != min(A.Height(),A.Width()) || t.Width() != 1) )
+        throw logic_error
+              ( "t must be a column vector of the same height as the minimum "
+                "dimension of A." );
+    if( !t.AlignedWithDiag( A ) )
+        throw logic_error( "t must be aligned with A's main diagonal." );
+#endif
+    typedef complex<R> C;
+    if( !t.Viewing() )
+    {
+        if( !t.ConstrainedColAlignment() )
+            t.AlignWithDiag( A );
+        t.ResizeTo( min(A.Height(),A.Width()), 1 );
+    }
+
+    // Matrix views
+    DistMatrix<C,MC,MR>
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ALeftPan(g), ARightPan(g),
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g);
+    DistMatrix<C,MD,Star>
+        tT(g),  t0(g),
+        tB(g),  t1(g),
+                t2(g);
+
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    PartitionDown
+    ( t, tT,
+         tB, 0 );
+    while( ( ATL.Height() < A.Height() && ATL.Width() < A.Width() ) )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        RepartitionDown
+        ( tT,  t0,
+         /**/ /**/
+               t1,
+          tB,  t2 );
+
+        ALeftPan.View2x1
+        ( A11,
+          A21 );
+
+        ARightPan.View2x1
+        ( A12,
+          A22 );
+
+        //--------------------------------------------------------------------//
+        lapack::internal::PanelQR( ALeftPan, t1 );
+        lapack::UT( Left, Lower, Normal, 0, ALeftPan, t1, ARightPan );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+
+        SlidePartitionDown
+        ( tT,  t0,
+               t1,
+         /**/ /**/
+          tB,  t2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template void
 elemental::lapack::QR
 ( DistMatrix<float,MC,MR>& A );
@@ -79,10 +175,12 @@ elemental::lapack::QR
 #ifndef WITHOUT_COMPLEX
 template void
 elemental::lapack::QR
-( DistMatrix<scomplex,MC,MR>& A );
+( DistMatrix<scomplex,MC,MR  >& A,
+  DistMatrix<scomplex,MD,Star>& t );
 
 template void
 elemental::lapack::QR
-( DistMatrix<dcomplex,MC,MR>& A );
+( DistMatrix<dcomplex,MC,MR  >& A,
+  DistMatrix<dcomplex,MD,Star>& t );
 #endif
 

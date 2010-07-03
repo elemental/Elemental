@@ -158,6 +158,7 @@ lapackfiles = Chol/Chol.cpp \
               QR/PanelQR.cpp \
               QR/QR.cpp \
               Tridiag/ColReflector.cpp \
+              Tridiag/LocalTridiag.cpp \
               Tridiag/PanelTridiagL.cpp \
               Tridiag/PanelTridiagU.cpp \
               Tridiag/Reflector.cpp \
@@ -172,7 +173,11 @@ lapackfiles = Chol/Chol.cpp \
               UT/UTLLH.cpp \
               UT/UTLLN.cpp \
               UT/UTLUH.cpp \
-              UT/UTLUN.cpp
+              UT/UTLUN.cpp \
+              UT/UTRLH.cpp \
+              UT/UTRLN.cpp \
+              UT/UTRUH.cpp \
+              UT/UTRUN.cpp
 lapacksrc = $(addprefix $(lapackdir)/,$(lapackfiles))
 
 # The entire list of source files relative to $(srcdir)
@@ -205,6 +210,7 @@ includefiles = elemental.hpp \
                elemental/partitioning.hpp \
                elemental/random.hpp \
                elemental/types.hpp \
+               elemental/wrappers.hpp \
                elemental/wrappers/blas.hpp \
                elemental/wrappers/lapack.hpp \
                elemental/wrappers/mpi.hpp

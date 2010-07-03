@@ -35,12 +35,20 @@ elemental::lapack::internal::ColReflector
     if( x.GetGrid().MRRank() != x.RowAlignment() )
         throw logic_error( "Reflecting with incorrect column of processes." );
 #endif
-    if( x.Height() == 0 )
-        return (R)0;
 
     const Grid& g = x.GetGrid();
     const int r = g.Height();
     const int myRow = g.MCRank();
+
+    if( x.Height() == 0 )
+    {
+        if( myRow == chi.ColAlignment() )
+            chi.LocalEntry(0,0) *= (R)-1;
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return (R)2;
+    }
 
     vector<R> localNorms(r);
     R localNorm = blas::Nrm2( x.LockedLocalMatrix() ); 
@@ -130,7 +138,14 @@ elemental::lapack::internal::ColReflector
     Broadcast( &alpha, 1, chi.ColAlignment(), g.MCComm() );
 
     if( norm == (R)0 && imag(alpha) == (R)0 )
-        return (C)0;
+    {
+        if( myRow == chi.ColAlignment() )
+            chi.LocalEntry(0,0) *= (R)-1;
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return (C)2;
+    }
 
     R beta;
     if( real(alpha) <= 0 )

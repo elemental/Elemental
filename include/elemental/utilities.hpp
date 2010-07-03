@@ -6,7 +6,7 @@
    All rights reserved.
 
    This file is released under the terms of the license contained in the file
-   LICENSE.
+   LICENSE-PURE.
 */
 #ifndef ELEMENTAL_UTILITIES_HPP
 #define ELEMENTAL_UTILITIES_HPP 1

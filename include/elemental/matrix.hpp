@@ -46,6 +46,9 @@ public:
 
           T& operator() ( int i, int j );
     const T& operator() ( int i, int j ) const;
+
+    bool Viewing() const;
+    bool LockedView() const;
     
     int Height() const;
     int Width() const;
@@ -235,6 +238,16 @@ elemental::Matrix<T>::operator()
     else
         return _data[i+j*_ldim];
 }
+
+template<typename T>
+inline bool
+elemental::Matrix<T>::Viewing() const
+{ return _viewing; }
+
+template<typename T>
+inline bool
+elemental::Matrix<T>::LockedView() const
+{ return _lockedView; }
 
 template<typename T>
 inline int

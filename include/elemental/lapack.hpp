@@ -12,7 +12,6 @@
 #define ELEMENTAL_LAPACK_HPP 1
 
 #include "elemental/blas.hpp"
-#include "elemental/wrappers/lapack.hpp"
 
 namespace elemental {
 namespace lapack {
@@ -101,17 +100,53 @@ LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 // of A with R and fills the lower triangle with the scaled Householder       //
 // transforms used to generate Q (they are implicitly one on the diagonal of  //
 // A). The scaling factors for the Householder transforms are stored in t.    //
+//                                                                            //
+// For the complex case, 't' holds the Householder reflection coefficients    //
+// that define the Householder transformation                                 //
+//     House(tau,u) = I - tau u u^H                                           //
+//                                                                            //
+// IMPORTANT NOTE: The LAPACK convention for early-exiting when computing the //
+// Householder reflection for a vector a = [ alpha11, a12 ]^T, where          //
+// || a12 ||_2 = 0 and Im( alpha11 ) = 0, is to set 'tau' to zero in the      //
+// Householder reflector equation:                                            //
+//                                                                            //
+//   House(tau,u) = I - tau u u^H                                             //
+//                                                                            //
+// which is not a valid Householder reflection due to the requirement that    //
+// u be normalizable. We thus take the approach of setting tau = 2 when       //
+// || a12 ||_2 = 0 and Im( alpha11 ) = 0, so that                             //
+//                                                                            //
+//   House(2,u) a = (I - 2 | 1 | | 1 0 | ) | alpha11 | = | -alpha11 |         //
+//                         | 0 |           |    0    |   |     0    |         //
+//                                                                            //
+// This allows for the computation of the triangular matrix in the Compact WY //
+// transform / UT transform to be computed mainly with Level 3 BLAS.          //
 //----------------------------------------------------------------------------//
 
-// Serial version
-template<typename T>
+// Serial version for real datatypes
+template<typename R>
 void
-QR( Matrix<T>& A );
+QR( Matrix<R>& A );
 
-// Parallel version
-template<typename T>
+#ifndef WITHOUT_COMPLEX
+// Serial version for complex datatypes
+template<typename R>
 void
-QR( DistMatrix<T,MC,MR>& A );
+QR( Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& t );
+#endif
+
+// Parallel version for real datatypes
+template<typename R>
+void
+QR( DistMatrix<R,MC,MR>& A );
+
+#ifndef WITHOUT_COMPLEX
+// Parallel version for complex datatypes
+template<typename R>
+void
+QR( DistMatrix<std::complex<R>,MC,MR  >& A, 
+    DistMatrix<std::complex<R>,MD,Star>& t );
+#endif
 
 //----------------------------------------------------------------------------//
 // Tridiag (Householder tridiagonalization):                                  //
@@ -123,33 +158,31 @@ QR( DistMatrix<T,MC,MR>& A );
 // 'shape' decided which triangle of A specifies the Hermitian matrix, and on //
 // exit the transforms are stored above the super/sub-diagonal and are        //
 // implicitly one on the super/sub-diagonal.                                  //
+//                                                                            //
+// See the above note for QR factorizations detailing 't' and the difference  //
+// in Householder transform early-exit approaches for the serial and parallel //
+// routines.                                                                  //
 //----------------------------------------------------------------------------//
 
 // Serial version for real datatypes
 template<typename R>
 void
 Tridiag
-( Shape shape, Matrix<R>& A, Matrix<R>& d, Matrix<R>& e );
+( Shape shape, Matrix<R>& A );
 
 #ifndef WITHOUT_COMPLEX
 // Serial version for complex datatypes
 template<typename R>
 void
 Tridiag
-( Shape shape, 
-  Matrix< std::complex<R> >& A,
-  Matrix< R               >& d,
-  Matrix< R               >& e );
+( Shape shape, Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& t );
 #endif
 
 // Parallel version for real datatypes
 template<typename R>
 void
 Tridiag
-( Shape shape, 
-  DistMatrix<R,MC,MR  >& A,
-  DistMatrix<R,MD,Star>& d,
-  DistMatrix<R,MD,Star>& e );
+( Shape shape, DistMatrix<R,MC,MR  >& A );
 
 #ifndef WITHOUT_COMPLEX
 // Parallel version for complex datatypes
@@ -158,8 +191,7 @@ void
 Tridiag
 ( Shape shape,
   DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<R,              MD,Star>& d,
-  DistMatrix<R,              MD,Star>& e );
+  DistMatrix<std::complex<R>,MD,Star>& t );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -197,20 +229,27 @@ Trinv
 // transforms are stored below (they are implicitly one on that diagonal).    //
 // Due to the conventions of the LAPACK routines 'chetrd' and 'zhetrd', the   //
 // transforms are assumed to be accumulated right-to-left.                    //
+//                                                                            //
+// See the above note for QR factorizations regarding the vector 't' and      //
+// Householder early-exit conditions.                                         //
 //----------------------------------------------------------------------------//
 
 // TODO: Add serial versions
 
-// Parallel version
-template<typename T>
+// Parallel version for real datatypes
+template<typename R>
 void
-UT
-( Side side,
-  Shape shape, 
-  Orientation orientation,
-  int offset,
-  const DistMatrix<T,MC,MR>& H,
-        DistMatrix<T,MC,MR>& A );
+UT( Side side, Shape shape, Orientation orientation, int offset,
+    const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR  >& A );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+UT( Side side, Shape shape, Orientation orientation, int offset,
+    const DistMatrix<std::complex<R>,MC,MR  >& H,
+    const DistMatrix<std::complex<R>,MD,Star>& t,
+          DistMatrix<std::complex<R>,MC,MR  >& A );
+#endif
 
 } // lapack
 } // elemental
@@ -277,10 +316,10 @@ elemental::lapack::LU
 #endif
 }
 
-template<typename T>
+template<typename R>
 inline void
 elemental::lapack::QR
-( Matrix<T>& A )
+( Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::QR");
@@ -292,23 +331,44 @@ elemental::lapack::QR
 #endif
 }
 
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline void
+elemental::lapack::QR
+( Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& t )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::QR");
+    if( t.Viewing() && 
+        (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
+        throw std::logic_error
+              ( "t must be a vector of length equal to the min. dim. of A." );
+#endif
+    if( !t.Viewing() )
+        t.ResizeTo( A.Height(), 1 );
+    wrappers::lapack::QR
+    ( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif
+
+// Disabled due to writing custom local versions
+/*
 template<typename R>
 inline void
 elemental::lapack::Tridiag
-( Shape shape, Matrix<R>& A, Matrix<R>& d, Matrix<R>& e )
+( Shape shape, Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
     if( A.Height() != A.Width() )
         throw std::logic_error( "A must be square." );
-    if( d.Height() != A.Height() || d.Width() != 1 )
-        throw std::logic_error( "d must be a column vector of length n." );
-    if( e.Height() != A.Height()-1 || e.Width() != 1 )
-        throw std::logic_error( "e must be a column vector of length n-1." );
 #endif
     const char uplo = ShapeToChar( shape );
     wrappers::lapack::Tridiag
-    ( uplo, A.Height(), A.Buffer(), A.LDim(), d.Buffer(), e.Buffer() );
+    ( uplo, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -318,28 +378,27 @@ elemental::lapack::Tridiag
 template<typename R>
 inline void
 elemental::lapack::Tridiag
-( Shape shape, 
-  Matrix< std::complex<R> >& A, 
-  Matrix< R               >& d, 
-  Matrix< R               >& e )
+( Shape shape, Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
     if( A.Height() != A.Width() )
         throw std::logic_error( "A must be square." );
-    if( d.Height() != A.Height() || d.Width() != 1 )
-        throw std::logic_error( "d must be a column vector of length n." );
-    if( e.Height() != A.Height()-1 || e.Width() != 1 )
-        throw std::logic_error( "e must be a column vector of length n-1." );
+    if( t.Viewing() && (t.Height() != A.Height()-1 || t.Width() != 1) )
+        throw std::logic_error
+              ( "t must be a vector of the same height as A minus one." );
 #endif
+    if( !t.Viewing() )
+        t.ResizeTo( A.Height()-1, 1 );
     const char uplo = ShapeToChar( shape );
     wrappers::lapack::Tridiag
-    ( uplo, A.Height(), A.Buffer(), A.LDim(), d.Buffer(), e.Buffer() );
+    ( uplo, A.Height(), A.Buffer(), A.LDim(), t.Buffer() );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 #endif // WITHOUT_COMPLEX
+*/
 
 template<typename T>
 inline void

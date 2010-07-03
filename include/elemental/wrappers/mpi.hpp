@@ -11,8 +11,6 @@
 #ifndef ELEMENTAL_WRAPPERS_MPI_HPP
 #define ELEMENTAL_WRAPPERS_MPI_HPP 1
 
-#include "elemental/environment.hpp"
-
 namespace elemental {
 namespace wrappers {
 namespace mpi {

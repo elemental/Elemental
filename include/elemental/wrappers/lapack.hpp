@@ -11,8 +11,6 @@
 #ifndef ELEMENTAL_WRAPPERS_LAPACK_HPP
 #define ELEMENTAL_WRAPPERS_LAPACK_HPP 1
 
-#include "elemental/environment.hpp"
-
 #ifdef LAPACK_UNDERSCORE
 #define LAPACK(name) name ## _
 #else
@@ -92,11 +90,11 @@ QR
 #ifndef WITHOUT_COMPLEX
 void
 QR
-( int m, int n, scomplex* A, int lda );
+( int m, int n, scomplex* A, int lda, scomplex* t );
 
 void
 QR
-( int m, int n, dcomplex* A, int lda );
+( int m, int n, dcomplex* A, int lda, dcomplex* t );
 #endif
 
 float
@@ -117,20 +115,20 @@ SafeNorm
 
 void
 Tridiag
-( char uplo, int n, float* A, int lda, float* d, float* e );
+( char uplo, int n, float* A, int lda );
 
 void
 Tridiag
-( char uplo, int n, double* A, int lda, double* d, double* e );
+( char uplo, int n, double* A, int lda );
 
 #ifndef WITHOUT_COMPLEX
 void
 Tridiag
-( char uplo, int n, scomplex* A, int lda, float* d, float* e );
+( char uplo, int n, scomplex* A, int lda, scomplex* t );
 
 void
 Tridiag
-( char uplo, int n, dcomplex* A, int lda, double* d, double* e );
+( char uplo, int n, dcomplex* A, int lda, dcomplex* t );
 #endif
 
 void
@@ -617,7 +615,7 @@ elemental::wrappers::lapack::QR
 #ifndef WITHOUT_COMPLEX
 inline void
 elemental::wrappers::lapack::QR
-( int m, int n, scomplex* A, int lda )
+( int m, int n, scomplex* A, int lda, scomplex* t )
 {
 #ifndef RELEASE
     PushCallStack("wrappers::lapack::QR");
@@ -626,16 +624,14 @@ elemental::wrappers::lapack::QR
     int lwork;
     scomplex workSize;
 
-    std::vector<scomplex> t(std::min(m,n));
-
     // Retrieve the optimal worksize
     lwork = -1;
-    LAPACK(cgeqrf)( &m, &n, A, &lda, &t[0], &workSize, &lwork, &info );
+    LAPACK(cgeqrf)( &m, &n, A, &lda, t, &workSize, &lwork, &info );
     
     // Allocate the work buffer and make the actual call
     lwork = (int)std::real(workSize);
     std::vector<scomplex> work(lwork); 
-    LAPACK(cgeqrf)( &m, &n, A, &lda, &t[0], &work[0], &lwork, &info );
+    LAPACK(cgeqrf)( &m, &n, A, &lda, t, &work[0], &lwork, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -649,7 +645,7 @@ elemental::wrappers::lapack::QR
 
 inline void
 elemental::wrappers::lapack::QR
-( int m, int n, dcomplex* A, int lda )
+( int m, int n, dcomplex* A, int lda, dcomplex* t )
 {
 #ifndef RELEASE
     PushCallStack("wrappers::lapack::QR");
@@ -658,16 +654,14 @@ elemental::wrappers::lapack::QR
     int lwork;
     dcomplex workSize;
 
-    std::vector<dcomplex> t(std::min(m,n));
-
     // Retrieve the optimal worksize
     lwork = -1;
-    LAPACK(zgeqrf)( &m, &n, A, &lda, &t[0], &workSize, &lwork, &info );
+    LAPACK(zgeqrf)( &m, &n, A, &lda, t, &workSize, &lwork, &info );
     
     // Allocate the work buffer and make the actual call
     lwork = (int)std::real(workSize);
     std::vector<dcomplex> work(lwork); 
-    LAPACK(zgeqrf)( &m, &n, A, &lda, &t[0], &work[0], &lwork, &info );
+    LAPACK(zgeqrf)( &m, &n, A, &lda, t, &work[0], &lwork, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -738,7 +732,7 @@ elemental::wrappers::lapack::SafeNorm
 
 inline void
 elemental::wrappers::lapack::Tridiag
-( char uplo, int n, float* A, int lda, float* d, float* e )
+( char uplo, int n, float* A, int lda )
 {
 #ifndef RELEASE
     PushCallStack("wrappers::lapack::Tridiag");
@@ -747,16 +741,20 @@ elemental::wrappers::lapack::Tridiag
     int lwork;
     float workSize;
 
+    std::vector<float> d(n);
+    std::vector<float> e(n-1);
     std::vector<float> t(n-1);
 
     // Retrieve the optimal worksize
     lwork = -1;
-    LAPACK(ssytrd)( &uplo, &n, A, &lda, d, e, &t[0], &workSize, &lwork, &info );
+    LAPACK(ssytrd)
+    ( &uplo, &n, A, &lda, &d[0], &e[0], &t[0], &workSize, &lwork, &info );
     
     // Allocate the work buffer and make the actual call
     lwork = (int)workSize;
     std::vector<float> work(lwork); 
-    LAPACK(ssytrd)( &uplo, &n, A, &lda, d, e, &t[0], &work[0], &lwork, &info );
+    LAPACK(ssytrd)
+    ( &uplo, &n, A, &lda, &d[0], &e[0], &t[0], &work[0], &lwork, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -770,7 +768,7 @@ elemental::wrappers::lapack::Tridiag
 
 inline void
 elemental::wrappers::lapack::Tridiag
-( char uplo, int n, double* A, int lda, double* d, double* e )
+( char uplo, int n, double* A, int lda )
 {
 #ifndef RELEASE
     PushCallStack("wrappers::lapack::Tridiag");
@@ -779,16 +777,20 @@ elemental::wrappers::lapack::Tridiag
     int lwork;
     double workSize;
 
+    std::vector<double> d(n);
+    std::vector<double> e(n-1);
     std::vector<double> t(n-1);
 
     // Retrieve the optimal worksize
     lwork = -1;
-    LAPACK(dsytrd)( &uplo, &n, A, &lda, d, e, &t[0], &workSize, &lwork, &info );
+    LAPACK(dsytrd)
+    ( &uplo, &n, A, &lda, &d[0], &e[0], &t[0], &workSize, &lwork, &info );
     
     // Allocate the work buffer and make the actual call
     lwork = (int)workSize;
     std::vector<double> work(lwork); 
-    LAPACK(dsytrd)( &uplo, &n, A, &lda, d, e, &t[0], &work[0], &lwork, &info );
+    LAPACK(dsytrd)
+    ( &uplo, &n, A, &lda, &d[0], &e[0], &t[0], &work[0], &lwork, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -803,7 +805,7 @@ elemental::wrappers::lapack::Tridiag
 #ifndef WITHOUT_COMPLEX
 inline void
 elemental::wrappers::lapack::Tridiag
-( char uplo, int n, scomplex* A, int lda, float* d, float* e )
+( char uplo, int n, scomplex* A, int lda, scomplex* t )
 {
 #ifndef RELEASE
     PushCallStack("wrappers::lapack::Tridiag");
@@ -812,16 +814,19 @@ elemental::wrappers::lapack::Tridiag
     int lwork;
     scomplex workSize;
 
-    std::vector<scomplex> t(n-1);
+    std::vector<float> d(n);
+    std::vector<float> e(n-1);
 
     // Retrieve the optimal worksize
     lwork = -1;
-    LAPACK(chetrd)( &uplo, &n, A, &lda, d, e, &t[0], &workSize, &lwork, &info );
+    LAPACK(chetrd)
+    ( &uplo, &n, A, &lda, &d[0], &e[0], t, &workSize, &lwork, &info );
     
     // Allocate the work buffer and make the actual call
     lwork = (int)std::real(workSize);
     std::vector<scomplex> work(lwork); 
-    LAPACK(chetrd)( &uplo, &n, A, &lda, d, e, &t[0], &work[0], &lwork, &info );
+    LAPACK(chetrd)
+    ( &uplo, &n, A, &lda, &d[0], &e[0], t, &work[0], &lwork, &info );
 #ifndef RELEASE
     if( info != 0 )
     {
@@ -835,7 +840,7 @@ elemental::wrappers::lapack::Tridiag
 
 inline void
 elemental::wrappers::lapack::Tridiag
-( char uplo, int n, dcomplex* A, int lda, double* d, double* e )
+( char uplo, int n, dcomplex* A, int lda, dcomplex* t )
 {
 #ifndef RELEASE
     PushCallStack("wrappers::lapack::Tridiag");
@@ -844,16 +849,19 @@ elemental::wrappers::lapack::Tridiag
     int lwork;
     dcomplex workSize;
 
-    std::vector<dcomplex> t(n-1);
+    std::vector<double> d(n);
+    std::vector<double> e(n-1);
 
     // Retrieve the optimal worksize
     lwork = -1;
-    LAPACK(zhetrd)( &uplo, &n, A, &lda, d, e, &t[0], &workSize, &lwork, &info );
+    LAPACK(zhetrd)
+    ( &uplo, &n, A, &lda, &d[0], &e[0], t, &workSize, &lwork, &info );
     
     // Allocate the work buffer and make the actual call
     lwork = (int)std::real(workSize);
     std::vector<dcomplex> work(lwork); 
-    LAPACK(zhetrd)( &uplo, &n, A, &lda, d, e, &t[0], &work[0], &lwork, &info );
+    LAPACK(zhetrd)
+    ( &uplo, &n, A, &lda, &d[0], &e[0], t, &work[0], &lwork, &info );
 #ifndef RELEASE
     if( info != 0 )
     {

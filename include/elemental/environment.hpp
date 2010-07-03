@@ -20,7 +20,6 @@
 #include <stack>
 #include <stdexcept>
 #include <vector>
-#include "mpi.h"
 
 #ifndef RELEASE
 namespace elemental {
@@ -37,6 +36,7 @@ void DumpCallStack();
 #include "elemental/random.hpp"
 #include "elemental/types.hpp"
 #include "elemental/utilities.hpp"
+#include "elemental/wrappers.hpp"
 
 namespace elemental {
 

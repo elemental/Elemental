@@ -58,14 +58,14 @@ void TestCorrectness
                  DistMatrix<T,Star,Star>& XRef )
 {
     const Grid& g = X.GetGrid();
-    DistMatrix<T,Star,Star> X_copy(g);
+    DistMatrix<T,Star,Star> XCopy(g);
 
     if( g.VCRank() == 0 )
     {
         cout << "  Copying computed result...";
         cout.flush();
     }
-    X_copy = X;
+    XCopy = X;
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
@@ -93,7 +93,7 @@ void TestCorrectness
         for( int i=0; i<X.Height(); ++i )
         {
             T truth = XRef.LocalEntry(i,j);
-            T computed = X_copy.LocalEntry(i,j);
+            T computed = XCopy.LocalEntry(i,j);
 
             if( ! OKRelativeError( truth, computed ) )
             {

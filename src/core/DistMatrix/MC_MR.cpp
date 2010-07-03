@@ -929,19 +929,7 @@ elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
     PushCallStack("[MC,MR]::GetDiagonal");
     this->AssertNotLockedView();
 #endif
-    int width = this->Width();
-    int height = this->Height();
-    int length;
-    if( offset > 0 )
-    {
-        const int remainingWidth = max(width-offset,0);
-        length = min(height,remainingWidth);
-    }
-    else
-    {
-        const int remainingHeight = max(height+offset,0);
-        length = min(remainingHeight,width);
-    }
+    int length = this->DiagonalLength( offset );
 #ifndef RELEASE
     if( d.Viewing() && length != d.Height() )
     {
@@ -952,14 +940,14 @@ elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
             << "  A diag length: " << length << endl;
         throw logic_error( msg.str() );
     }
+    if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
+        !d.AlignedWithDiag( *this, offset ) )
+        throw logic_error( "d must be aligned with the 'offset' diagonal." );
 #endif
-
     if( !d.Viewing() )
     {
         if( !d.ConstrainedColAlignment() )
-        {
             d.AlignWithDiag( *this, offset );
-        }
         d.ResizeTo( length, 1 );
     }
 
@@ -1007,19 +995,7 @@ elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
     PushCallStack("[MC,MR]::GetDiagonal");
     this->AssertNotLockedView();
 #endif
-    int height = this->Height();
-    int width = this->Width();
-    int length;
-    if( offset > 0 )
-    {
-        const int remainingWidth = max(width-offset,0);
-        length = min(height,remainingWidth);
-    }
-    else
-    {
-        const int remainingHeight = max(height+offset,0);
-        length = min(remainingHeight,width);
-    }
+    int length = this->DiagonalLength( offset );
 #ifndef RELEASE
     if( d.Viewing() && length != d.Width() )
     {
@@ -1030,14 +1006,14 @@ elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
             << "  A diag length: " << length << endl;
         throw logic_error( msg.str() );
     }
+    if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
+        !d.AlignedWithDiag( *this, offset ) )
+        throw logic_error( "d must be aligned with the 'offset' diagonal." );
 #endif
-
     if( !d.Viewing() )
     {
         if( !d.ConstrainedRowAlignment() )
-        {
             d.AlignWithDiag( *this, offset );
-        }
         d.ResizeTo( 1, length );
     }
 
@@ -1086,19 +1062,7 @@ elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
     if( d.Width() != 1 )
         throw logic_error( "d must be a column vector." );
     {
-        int height = this->Height();
-        int width = this->Width();
-        int length;
-        if( offset >= 0 )
-        {
-            const int remainingWidth = max(width-offset,0);
-            length = min(remainingWidth,height);
-        }
-        else
-        {
-            const int remainingHeight = max(height+offset,0);
-            length = min(remainingHeight,width);
-        }
+        int length = this->DiagonalLength( offset );
         if( length != d.Height() )
         {
             ostringstream msg;
@@ -1109,6 +1073,8 @@ elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
             throw logic_error( msg.str() );
         }
     }
+    if( !d.AlignedWithDiag( *this, offset ) )
+        throw logic_error( "d must be aligned with the 'offset' diagonal." );
 #endif
     if( d.InDiagonal() )
     {
@@ -1155,19 +1121,7 @@ elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
     if( d.Height() != 1 )
         throw logic_error( "d must be a row vector." );
     {
-        int height = this->Height();
-        int width = this->Width();
-        int length;
-        if( offset >= 0 )
-        {
-            const int remainingWidth = max(width-offset,0);
-            length = min(remainingWidth,height);
-        }
-        else
-        {
-            const int remainingHeight = max(height+offset,0);
-            length = min(remainingHeight,width);
-        }
+        int length = this->DiagonalLength( offset );
         if( length != d.Width() )
         {
             ostringstream msg;
@@ -1178,6 +1132,8 @@ elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
             throw logic_error( msg.str() );
         }
     }
+    if( !d.AlignedWithDiag( *this, offset ) )
+        throw logic_error( "d must be aligned with the 'offset' diagonal." );
 #endif
     if( d.InDiagonal() )
     {

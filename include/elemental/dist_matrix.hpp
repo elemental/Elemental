@@ -12,8 +12,6 @@
 #define ELEMENTAL_DIST_MATRIX_HPP 1
 
 #include "elemental/matrix.hpp"
-#include "elemental/wrappers/blas.hpp"
-#include "elemental/wrappers/mpi.hpp"
 
 namespace elemental {
 
@@ -29,7 +27,7 @@ class DistMatrixBase;
 template<typename T, Distribution ColDist, Distribution RowDist> 
 class DistMatrix;
 
-} // elemental
+}
 
 #include "elemental/dist_matrix/abstract.hpp"
 #include "elemental/dist_matrix/mc_mr.hpp"

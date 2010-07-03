@@ -123,11 +123,13 @@ elemental::PopCallStack()
 void
 elemental::DumpCallStack()
 {
+    ostringstream msg;
     while( ! ::callStack.empty() )
     {
-        cerr << "[" << ::callStack.size() << "]: " << ::callStack.top() << endl;
+        msg << "[" << ::callStack.size() << "]: " << ::callStack.top() << endl;
         ::callStack.pop();
     }
+    cerr << msg.str();
 }
 #endif
 
