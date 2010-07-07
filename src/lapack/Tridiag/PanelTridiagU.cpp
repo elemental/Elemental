@@ -39,8 +39,14 @@ elemental::lapack::internal::PanelTridiagU
     if( e.Height() != W.Width() || e.Width() != 1 )
         throw logic_error
         ( "e must be a column vector of the same length as W's width." );
-    if( !e.AlignedWithDiag( A, 1 ) )
-        throw logic_error( "e is not aligned with A." );
+    {
+        DistMatrix<R,MC,MR> A11Expanded(A.GetGrid());
+        A11Expanded.View
+        ( A, A.Height()-W.Width()-1, A.Width()-W.Width()-1,
+             W.Width()+1, W.Width()+1 );
+        if( !e.AlignedWithDiag( A11Expanded, 1 ) )
+            throw logic_error( "e is not correctly aligned with A." );
+    }
 #endif
     const Grid& g = A.GetGrid();
 
@@ -242,14 +248,20 @@ elemental::lapack::internal::PanelTridiagU
         throw logic_error( "W and A must be aligned." );
     if( e.Height() != W.Width() || e.Width() != 1 )
         throw logic_error
-        ( "e must be a column vector of the same length as W's width." );
-    if( !e.AlignedWithDiag( A, 1 ) )
-        throw logic_error( "e is not aligned with A's superdiagonal." );
+        ( "e must be a column vector of the same length as W's width." );    
     if( t.Height() != W.Width() || t.Width() != 1 )
         throw logic_error
               ( "t must be a column vector of the same length as W's width." );
-    if( !t.AlignedWithDiag( A, 1 ) )
-        throw logic_error( "t is not aligned with A's superdiagonal." );
+    {
+        DistMatrix<complex<R>,MC,MR> A11Expanded(A.GetGrid());
+        A11Expanded.View
+        ( A, A.Height()-W.Width()-1, A.Width()-W.Width()-1,
+             W.Width()+1, W.Width()+1 );
+        if( !e.AlignedWithDiag( A11Expanded, 1 ) )
+            throw logic_error( "e is not correctly aligned with A." );
+        if( !t.AlignedWithDiag( A11Expanded, 1 ) )
+            throw logic_error( "t is not correctly aligned with A." );
+    }
 #endif
     typedef complex<R> C;
 

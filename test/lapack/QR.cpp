@@ -337,7 +337,7 @@ int main( int argc, char* argv[] )
         }
 #endif
         if( m != n )
-            throw "QR for non-square matrices is not yet supported.";
+            throw logic_error( "QR for non-square matrices not yet supported." );
         Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 

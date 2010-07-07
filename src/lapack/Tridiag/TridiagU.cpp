@@ -58,7 +58,7 @@ elemental::lapack::internal::TridiagU
             PartitionUp
             ( WPan, W01,
                     W11, A11.Height() );
-            e1.AlignWithDiag( ATL, 1 );
+            e1.AlignWithDiag( A11Expanded, 1 );
             e1.ResizeTo( WPan.Width(), 1 );
             //----------------------------------------------------------------//
             lapack::internal::PanelTridiagU( ATL, WPan, e1 );
@@ -106,10 +106,10 @@ elemental::lapack::internal::TridiagU
         throw logic_error( "t must not be a view or constrained." );
 #endif
     typedef complex<R> C;
+    if( !t.Viewing() )
     {
-        DistMatrix<complex<R>,MC,MR> AShrunkByOne(g);
-        t.AlignWithDiag( AShrunkByOne, 1 );
-        t.ResizeTo( AShrunkByOne.Height(), 1 );
+        t.AlignWithDiag( A, 1 );
+        t.ResizeTo( A.DiagonalLength( 1 ), 1 );
     }
 
     // Matrix views 
@@ -159,7 +159,7 @@ elemental::lapack::internal::TridiagU
             PartitionUp
             ( WPan, W01,
                     W11, A11.Height() );
-            e1.AlignWithDiag( ATL, 1 );
+            e1.AlignWithDiag( A11Expanded, 1 );
             e1.ResizeTo( WPan.Width(), 1 );
             //----------------------------------------------------------------//
             lapack::internal::PanelTridiagU( ATL, WPan, e1, t1 );

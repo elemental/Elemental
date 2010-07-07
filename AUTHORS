@@ -2,9 +2,9 @@ Authors of Elemental
 
 Jack Poulson <jack.poulson@gmail.com>:
   The entire library, with the exception of basing the files 
-  { ColReflector.cpp, RowReflector.cpp } on the LAPACK source code 
-  for real and complex Householder reflectors, { dlarfg.f, zlarfg.f }
+  ColReflector.cpp, RowReflector.cpp, and Reflector.cpp on the LAPACK source
+  for real and complex Householder reflectors, dlarfg.f and zlarfg.f.
 
 Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd.:
-  The serial code for generating Householder reflectors, { dlarfg.f, zlarfg.f }.
+  The serial code for generating Householder reflectors, dlarfg.f and zlarfg.f.
 

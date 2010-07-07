@@ -50,10 +50,82 @@ void TestCorrectness
   const DistMatrix<R,MC,MR>& A, 
         DistMatrix<R,Star,Star>& ARef )
 {
-    if( A.GetGrid().VCRank() == 0 )
-        cout << "Correctness check for Tridiag temporarily disabled due to "
-                "differences in the way LAPACK handles Householder reflection "
-                "early exits." << endl;
+    const Grid& g = A.GetGrid();
+    const int m = ARef.Height();
+    DistMatrix<R,Star,Star> ACopy(g);
+
+    if( g.VCRank() == 0 )
+    {
+        cout << "  Gathering computed result...";
+        cout.flush();
+    }
+    ACopy = A;
+    if( g.VCRank() == 0 )
+        cout << "DONE" << endl;
+
+    if( g.VCRank() == 0 )
+    {
+        cout << "  Computing 'truth'...";
+        cout.flush();
+    }
+    double startTime = Time();
+    lapack::Tridiag( shape, ARef.LocalMatrix() );
+    double stopTime = Time();
+    double gFlops = lapack::internal::TridiagGFlops<R>(m,stopTime-startTime);
+    if( g.VCRank() == 0 )
+        cout << "DONE. GFlops = " << gFlops << endl;
+
+    if( printMatrices )
+        ARef.Print("True A:");
+
+    if( g.VCRank() == 0 )
+    {
+        cout << "  Testing correctness...";
+        cout.flush();
+    }
+    if( shape == Lower )
+    {
+        for( int j=0; j<m; ++j )
+        {
+            for( int i=j; i<m; ++i )
+            {
+                R truth = ARef.LocalEntry(i,j);
+                R computed = ACopy.LocalEntry(i,j);
+
+                if( !OKRelativeError(truth,computed) )
+                {
+                    ostringstream msg;
+                    msg << "FAILED at index (" << i << "," << j
+                        << ") of A: truth=" << truth << ", computed="
+                        << computed;
+                    throw logic_error( msg.str() );
+                }
+            }
+        }
+    }
+    else
+    {
+        for( int j=0; j<m; ++j )
+        {
+            for( int i=0; i<=j; ++i )
+            {
+                R truth = ARef.LocalEntry(i,j);
+                R computed = ACopy.LocalEntry(i,j);
+
+                if( !OKRelativeError(truth,computed) )
+                {
+                    ostringstream msg;
+                    msg << "FAILED at index (" << i << "," << j
+                        << ") of A: truth=" << truth << ", computed="
+                        << computed;
+                    throw logic_error( msg.str() );
+                }
+            }
+        }
+    }
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
+        cout << "PASSED" << endl;
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -65,10 +137,85 @@ void TestCorrectness
   const DistMatrix<complex<R>,MD,  Star>& t,
         DistMatrix<complex<R>,Star,Star>& ARef )
 {
-    if( A.GetGrid().VCRank() == 0 )
-        cout << "Correctness check for Tridiag temporarily disabled due to "
-                "differences in the way LAPACK handles Householder reflection "
-                "early exits." << endl;
+    typedef complex<R> C;
+    const Grid& g = A.GetGrid();
+    const int m = ARef.Height();
+    Matrix<C> tRef;
+    DistMatrix<C,Star,Star> ACopy(g);
+    
+
+    if( g.VCRank() == 0 )
+    {
+        cout << "  Gathering computed result...";
+        cout.flush();
+    }
+    ACopy = A;
+    if( g.VCRank() == 0 )
+        cout << "DONE" << endl;
+
+    if( g.VCRank() == 0 )
+    {
+        cout << "  Computing 'truth'...";
+        cout.flush();
+    }
+    double startTime = Time();
+    lapack::Tridiag( shape, ARef.LocalMatrix(), tRef );
+    double stopTime = Time();
+    double gFlops = lapack::internal::TridiagGFlops<C>(m,stopTime-startTime);
+    if( g.VCRank() == 0 )
+        cout << "DONE. GFlops = " << gFlops << endl;
+
+    if( printMatrices )
+        ARef.Print("True A:");
+
+    if( g.VCRank() == 0 )
+    {
+        cout << "  Testing correctness...";
+        cout.flush();
+    }
+    if( shape == Lower )
+    {
+        for( int j=0; j<m; ++j )
+        {
+            for( int i=j; i<m; ++i )
+            {
+                C truth = ARef.LocalEntry(i,j);
+                C computed = ACopy.LocalEntry(i,j);
+
+                if( !OKRelativeError(truth,computed) )
+                {
+                    ostringstream msg;
+                    msg << "FAILED at index (" << i << "," << j
+                        << ") of A: truth=" << truth << ", computed="
+                        << computed;
+                    throw logic_error( msg.str() );
+                }
+            }
+        }
+    }
+    else
+    {
+        for( int j=0; j<m; ++j )
+        {
+            for( int i=0; i<=j; ++i )
+            {
+                C truth = ARef.LocalEntry(i,j);
+                C computed = ACopy.LocalEntry(i,j);
+
+                if( !OKRelativeError(truth,computed) )
+                {
+                    ostringstream msg;
+                    msg << "FAILED at index (" << i << "," << j
+                        << ") of A: truth=" << truth << ", computed="
+                        << computed;
+                    throw logic_error( msg.str() );
+                }
+            }
+        }
+    }
+    Barrier( g.VCComm() );
+    if( g.VCRank() == 0 )
+        cout << "PASSED" << endl;
 }
 #endif // WITHOUT_COMPLEX
 

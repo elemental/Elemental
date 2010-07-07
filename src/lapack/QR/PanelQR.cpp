@@ -57,7 +57,7 @@ elemental::lapack::internal::PanelQR
         Z_MR_Star.AlignWith( ARightPan );
         Z_MR_Star.ResizeTo( ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
-        R tau = lapack::internal::Reflector( alpha11, a21 );
+        R tau = lapack::Reflector( alpha11, a21 );
 
         bool myDiagonalEntry = ( g.MCRank() == alpha11.ColAlignment() && 
                                  g.MRRank() == alpha11.RowAlignment() );
@@ -169,7 +169,7 @@ elemental::lapack::internal::PanelQR
         Z_MR_Star.AlignWith( ARightPan );
         Z_MR_Star.ResizeTo( ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
-        C tau = lapack::internal::Reflector( alpha11, a21 );
+        C tau = lapack::Reflector( alpha11, a21 );
         tau1.Set( 0, 0, tau );
 
         bool myDiagonalEntry = ( g.MCRank() == alpha11.ColAlignment() && 

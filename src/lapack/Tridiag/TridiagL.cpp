@@ -145,7 +145,7 @@ elemental::lapack::internal::TridiagL
          /**/ /**/
                t1,
           tB,  t2 );
-
+            
         if( A22.Height() > 0 )
         {
             A11Expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );

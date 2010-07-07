@@ -279,12 +279,8 @@ PanelQR( DistMatrix<std::complex<R>,MC,MR  >& A,
 #endif
 
 //----------------------------------------------------------------------------//
-// Tridiag                                                                    //
+// Reflector                                                                  //
 //----------------------------------------------------------------------------//
-template<typename T>
-T
-Reflector( DistMatrix<T,MC,MR>& chi, DistMatrix<T,MC,MR>& x );
-
 template<typename R>
 R 
 ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
@@ -309,6 +305,9 @@ RowReflector
   DistMatrix<std::complex<R>,MC,MR>& x );
 #endif
 
+//----------------------------------------------------------------------------//
+// Tridiag                                                                    //
+//----------------------------------------------------------------------------//
 template<typename R>
 void
 PanelTridiagL

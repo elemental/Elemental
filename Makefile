@@ -157,12 +157,12 @@ lapackfiles = Chol/Chol.cpp \
               LU/PanelLU.cpp \
               QR/PanelQR.cpp \
               QR/QR.cpp \
-              Tridiag/ColReflector.cpp \
+              Reflector/ColReflector.cpp \
+              Reflector/RowReflector.cpp \
+              Reflector/Reflector.cpp \
               Tridiag/LocalTridiag.cpp \
               Tridiag/PanelTridiagL.cpp \
               Tridiag/PanelTridiagU.cpp \
-              Tridiag/Reflector.cpp \
-              Tridiag/RowReflector.cpp \
               Tridiag/Tridiag.cpp \
               Tridiag/TridiagL.cpp \
               Tridiag/TridiagU.cpp \

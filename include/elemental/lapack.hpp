@@ -149,6 +149,25 @@ QR( DistMatrix<std::complex<R>,MC,MR  >& A,
 #endif
 
 //----------------------------------------------------------------------------//
+// Reflector (Householder reflector):                                         //
+//----------------------------------------------------------------------------//
+
+// Serial version for real datatypes
+template<typename R>
+R
+Reflector( Matrix<R>& chi, Matrix<R>& x );
+
+// Serial version for complex datatypes
+template<typename R>
+std::complex<R>
+Reflector( Matrix< std::complex<R> >& chi, Matrix< std::complex<R> >& x );
+
+// Parallel version
+template<typename T>
+T
+Reflector( DistMatrix<T,MC,MR>& chi, DistMatrix<T,MC,MR>& x );
+
+//----------------------------------------------------------------------------//
 // Tridiag (Householder tridiagonalization):                                  //
 //                                                                            //
 // The diagonal and sub/super-diagonal of A are overwritten with a similar    //
