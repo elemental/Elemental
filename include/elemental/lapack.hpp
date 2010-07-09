@@ -157,10 +157,12 @@ template<typename R>
 R
 Reflector( Matrix<R>& chi, Matrix<R>& x );
 
+#ifndef WITHOUT_COMPLEX
 // Serial version for complex datatypes
 template<typename R>
 std::complex<R>
 Reflector( Matrix< std::complex<R> >& chi, Matrix< std::complex<R> >& x );
+#endif
 
 // Parallel version
 template<typename T>
@@ -372,52 +374,6 @@ elemental::lapack::QR
 #endif
 }
 #endif
-
-// Disabled due to writing custom local versions
-/*
-template<typename R>
-inline void
-elemental::lapack::Tridiag
-( Shape shape, Matrix<R>& A )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Tridiag");
-    if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
-#endif
-    const char uplo = ShapeToChar( shape );
-    wrappers::lapack::Tridiag
-    ( uplo, A.Height(), A.Buffer(), A.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-inline void
-elemental::lapack::Tridiag
-( Shape shape, Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& t )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Tridiag");
-    if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
-    if( t.Viewing() && (t.Height() != A.Height()-1 || t.Width() != 1) )
-        throw std::logic_error
-              ( "t must be a vector of the same height as A minus one." );
-#endif
-    if( !t.Viewing() )
-        t.ResizeTo( A.Height()-1, 1 );
-    const char uplo = ShapeToChar( shape );
-    wrappers::lapack::Tridiag
-    ( uplo, A.Height(), A.Buffer(), A.LDim(), t.Buffer() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif // WITHOUT_COMPLEX
-*/
 
 template<typename T>
 inline void

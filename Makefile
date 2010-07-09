@@ -27,7 +27,7 @@ library = libelemental.a
 #   POOL_MEMORY: if defined, Memory class only accumulates until destruction
 #   ENABLE_ALL_DISTRIBUTED_DOT: if defined, build all distributed dot products
 CXX = mpicxx
-CXXFLAGS = -DBLAS_UNDERSCORE -DLAPACK_UNDERSCORE -I$(incdir) 
+CXXFLAGS = -DBLAS_UNDERSCORE -DLAPACK_UNDERSCORE -DWITHOUT_COMPLEX -I$(incdir) 
 CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)
 CXXFLAGS_RELEASE = -O3 -Wall -DRELEASE $(CXXFLAGS)
 LDFLAGS = -L/usr/lib -llapack -lblas

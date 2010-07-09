@@ -594,12 +594,14 @@ elemental::PartitionUpDiagonal
     if( diagABR > A.Height() || diagABR > A.Width() )
         throw std::logic_error( "Bottom-right size is too large." );
 #endif
-    const int heightATL = A.Height()-diagABR;
-    const int widthATL = A.Width()-diagABR;
-    ATL.View( A, 0,         0,        heightATL, widthATL );
-    ATR.View( A, 0,         widthATL, heightATL, diagABR  );
-    ABL.View( A, heightATL, 0,        diagABR,   widthATL );
-    ABR.View( A, heightATL, widthATL, diagABR,   diagABR  );
+    const int minDim = std::min( A.Height(), A.Width() );
+    const int sizeATL = minDim - diagABR;
+    const int remHeight = A.Height()-sizeATL;
+    const int remWidth = A.Width()-sizeATL;
+    ATL.View( A, 0,       0,       sizeATL,   sizeATL  );
+    ATR.View( A, 0,       sizeATL, sizeATL,   remWidth );
+    ABL.View( A, sizeATL, 0,       remHeight, sizeATL  );
+    ABR.View( A, sizeATL, sizeATL, remHeight, remWidth );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -618,12 +620,14 @@ elemental::PartitionUpDiagonal
     if( diagABR > A.Height() || diagABR > A.Width() )
         throw std::logic_error( "Bottom-right size is too large." );
 #endif
-    const int heightATL = A.Height()-diagABR;
-    const int widthATL = A.Width()-diagABR;
-    ATL.View( A, 0,         0,        heightATL, widthATL );
-    ATR.View( A, 0,         widthATL, heightATL, diagABR  );
-    ABL.View( A, heightATL, 0,        diagABR,   widthATL );
-    ABR.View( A, heightATL, widthATL, diagABR,   diagABR  );
+    const int minDim = std::min( A.Height(), A.Width() );
+    const int sizeATL = minDim - diagABR;
+    const int remHeight = A.Height()-sizeATL;
+    const int remWidth = A.Width()-sizeATL;
+    ATL.View( A, 0,       0,       sizeATL,   sizeATL  );
+    ATR.View( A, 0,       sizeATL, sizeATL,   remWidth );
+    ABL.View( A, sizeATL, 0,       remHeight, sizeATL  );
+    ABR.View( A, sizeATL, sizeATL, remHeight, remWidth );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -862,12 +866,14 @@ elemental::LockedPartitionUpDiagonal
     if( diagABR > A.Height() || diagABR > A.Width() )
         throw std::logic_error( "Bottom-right size is too large." );
 #endif
-    const int heightATL = A.Height()-diagABR;
-    const int widthATL = A.Width()-diagABR;
-    ATL.LockedView( A, 0,         0,        heightATL, widthATL );
-    ATR.LockedView( A, 0,         widthATL, heightATL, diagABR  );
-    ABL.LockedView( A, heightATL, 0,        diagABR,   widthATL );
-    ABR.LockedView( A, heightATL, widthATL, diagABR,   diagABR  );
+    const int minDim = std::min( A.Height(), A.Width() );
+    const int sizeATL = minDim - diagABR;
+    const int remHeight = A.Height()-sizeATL;
+    const int remWidth = A.Width()-sizeATL;
+    ATL.LockedView( A, 0,       0,       sizeATL,   sizeATL  );
+    ATR.LockedView( A, 0,       sizeATL, sizeATL,   remWidth );
+    ABL.LockedView( A, sizeATL, 0,       remHeight, sizeATL  );
+    ABR.LockedView( A, sizeATL, sizeATL, remHeight, remWidth );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -886,12 +892,14 @@ elemental::LockedPartitionUpDiagonal
     if( diagABR > A.Height() || diagABR > A.Width() )
         throw std::logic_error( "Bottom-right size is too large." );
 #endif
-    const int heightATL = A.Height()-diagABR;
-    const int widthATL = A.Width()-diagABR;
-    ATL.LockedView( A, 0,         0,        heightATL, widthATL );
-    ATR.LockedView( A, 0,         widthATL, heightATL, diagABR  );
-    ABL.LockedView( A, heightATL, 0,        diagABR,   widthATL );
-    ABR.LockedView( A, heightATL, widthATL, diagABR,   diagABR  );
+    const int minDim = std::min( A.Height(), A.Width() );
+    const int sizeATL = minDim - diagABR;
+    const int remHeight = A.Height()-sizeATL;
+    const int remWidth = A.Width()-sizeATL;
+    ATL.LockedView( A, 0,       0,       sizeATL,   sizeATL  );
+    ATR.LockedView( A, 0,       sizeATL, sizeATL,   remWidth );
+    ABL.LockedView( A, sizeATL, 0,       remHeight, sizeATL  );
+    ABR.LockedView( A, sizeATL, sizeATL, remHeight, remWidth );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1150,9 +1158,7 @@ elemental::RepartitionUpDiagonal
         (ATR.Buffer() + ATR.Height()) != ABR.Buffer() ||
         (ATL.Buffer() + ATL.Width()*ATL.LDim()) != ATR.Buffer() ||
         (ABL.Buffer() + ABL.Width()*ABL.LDim()) != ABR.Buffer()    )
-    {
         throw std::logic_error( "Noncontiguous 2x2 grid of matrices." );
-    }
 #endif
     int bsize = std::min( Blocksize(), std::min( ATL.Height(),
                                                  ATL.Width() ) );

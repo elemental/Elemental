@@ -60,28 +60,18 @@ void TestCorrectness
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Z(m,n,g);
     Z.SetToIdentity();
-    Barrier( MPI_COMM_WORLD );
-    if( g.VCRank() == 0 )
-    {
-        cout << "    forming Q...";
-        cout.flush();
-    }
     lapack::UT( Left, Lower, ConjugateTranspose, 0, A, Z );
-    Barrier( MPI_COMM_WORLD );
-    if( g.VCRank() == 0 )
-    {
-        cout << endl; 
-        cout << "    forming Q^H Q...";
-        cout.flush();
-    }
     lapack::UT( Left, Lower, Normal, 0, A, Z );
 
+    DistMatrix<R,MC,MR> ZUpper(g);
+    ZUpper.View( Z, 0, 0, n, n );
+
     // Form Identity
-    DistMatrix<R,MC,MR> X(m,n,g);
+    DistMatrix<R,MC,MR> X(n,n,g);
     X.SetToIdentity();
 
     // Form X := I - Q^H Q
-    blas::Axpy( (R)-1, Z, X );
+    blas::Axpy( (R)-1, ZUpper, X );
 
     // Compute the maximum deviance
     R myMaxDevFromIdentity = 0.;
@@ -147,6 +137,9 @@ void TestCorrectness
     Z.SetToIdentity();
     lapack::UT( Left, Lower, ConjugateTranspose, 0, A, t, Z );
     lapack::UT( Left, Lower, Normal, 0, A, t, Z );
+    
+    DistMatrix<C,MC,MR> ZUpper(g);
+    ZUpper.View( Z, 0, 0, n, n );
 
     // Form Identity
     DistMatrix<C,MC,MR> X(m,n,g);
@@ -336,8 +329,8 @@ int main( int argc, char* argv[] )
             cout << "==========================================" << endl;
         }
 #endif
-        if( m != n )
-            throw logic_error( "QR for non-square matrices not yet supported." );
+        if( n > m )
+            throw logic_error( "QR only supported when height >= width." );
         Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
