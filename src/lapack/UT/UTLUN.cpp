@@ -52,6 +52,7 @@ HalveMainDiagonal( DistMatrix<R,Star,Star>& SInv )
 #endif
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 FixDiagonal
@@ -67,6 +68,7 @@ FixDiagonal
     PopCallStack();
 #endif
 }
+#endif
 
 } // anonymous namespace
 
@@ -186,6 +188,7 @@ elemental::lapack::internal::UTLUN
 #endif
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 elemental::lapack::internal::UTLUN
@@ -325,7 +328,7 @@ elemental::lapack::internal::UTLUN
     PopCallStack();
 #endif
 }
-
+#endif
 
 template void elemental::lapack::internal::UTLUN
 ( int offset,

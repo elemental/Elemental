@@ -75,6 +75,7 @@ elemental::lapack::QR
 #endif
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 elemental::lapack::QR
@@ -163,6 +164,7 @@ elemental::lapack::QR
     PopCallStack();
 #endif
 }
+#endif
 
 template void
 elemental::lapack::QR

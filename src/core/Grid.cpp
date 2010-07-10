@@ -119,16 +119,10 @@ elemental::Grid::Init
     MPI_Comm_rank( _matrixRowComm, &_matrixRowRank );
 
     // Set up the VectorCol and VectorRow communicators
-    int dimensions[2];
-    int periods[2];
-    int coordinates[2];
-    MPI_Cart_get( _comm, 2, dimensions, periods, coordinates );
-    int colMajorRank = coordinates[0] + dimensions[0]*coordinates[1];
-    int rowMajorRank = coordinates[1] + dimensions[1]*coordinates[0];
-    MPI_Comm_split( _comm, 0, colMajorRank, &_vectorColComm );
-    MPI_Comm_split( _comm, 0, rowMajorRank, &_vectorRowComm );
-    MPI_Comm_rank( _vectorColComm, &_vectorColRank );
-    MPI_Comm_rank( _vectorRowComm, &_vectorRowRank );
+    _vectorColRank = _matrixColRank + _r*_matrixRowRank;
+    _vectorRowRank = _matrixRowRank + _c*_matrixColRank;
+    MPI_Comm_split( _comm, 0, _vectorColRank, &_vectorColComm );
+    MPI_Comm_split( _comm, 0, _vectorRowRank, &_vectorRowComm );
 
     // Compute which diagonal 'path' we're in, and what our rank is, then
     // perform AllGather world to store everyone's info
