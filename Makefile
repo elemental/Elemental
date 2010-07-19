@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2009-2010 Jack Poulson <jack.poulson@gmail.com>.
+# Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>.
 #
 # This file is part of Elemental.
 #
