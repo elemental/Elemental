@@ -78,7 +78,7 @@ elemental::Grid::Grid
     }
 
     // Create a cartesian communicator
-    int dimensions[2] = { r,   c     };
+    int dimensions[2] = { c, r };
     int periods[2]    = { true, true };
     int reorder       = false;
     MPI_Cart_create( comm, 2, dimensions, periods, reorder, &_comm );
@@ -117,11 +117,11 @@ elemental::Grid::Init
 
     // Set up the MatrixCol and MatrixRow communicators
     int remainingDimensions[2];
-    remainingDimensions[0] = true;
-    remainingDimensions[1] = false;
-    MPI_Cart_sub( _comm, remainingDimensions, &_matrixColComm );
     remainingDimensions[0] = false;
     remainingDimensions[1] = true;
+    MPI_Cart_sub( _comm, remainingDimensions, &_matrixColComm );
+    remainingDimensions[0] = true;
+    remainingDimensions[1] = false;
     MPI_Cart_sub( _comm, remainingDimensions, &_matrixRowComm );
     MPI_Comm_rank( _matrixColComm, &_matrixColRank );
     MPI_Comm_rank( _matrixRowComm, &_matrixRowRank );
