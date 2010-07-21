@@ -712,7 +712,30 @@ double BLAS(ddot)
 ( const int* n, const double* x, const int* incx,
                 const double* y, const int* incy );
 
+// To avoid the compatibility issue, we simply handroll our own complex dots
+/*
 #ifndef WITHOUT_COMPLEX
+#ifdef NO_COMPLEX_RETURN_FROM_BLAS
+void BLAS(cdotu)
+( elemental::scomplex* alpha,
+  const int* n, const elemental::scomplex* x, const int* incx,
+                const elemental::scomplex* y, const int* incy );
+
+void BLAS(zdotu)
+( elemental::dcomplex* alpha,
+  const int* n, const elemental::dcomplex* x, const int* incx,
+                const elemental::dcomplex* y, const int* incy );
+
+void BLAS(cdotc)
+( elemental::scomplex* alpha,
+  const int* n, const elemental::scomplex* x, const int* incx,
+                const elemental::scomplex* y, const int* incy );
+
+void BLAS(zdotc)
+( elemental::dcomplex* alpha,
+  const int* n, const elemental::dcomplex* x, const int* incx,
+                const elemental::dcomplex* y, const int* incy );
+#else
 elemental::scomplex BLAS(cdotu)
 ( const int* n, const elemental::scomplex* x, const int* incx,
                 const elemental::scomplex* y, const int* incy );
@@ -728,7 +751,9 @@ elemental::scomplex BLAS(cdotc)
 elemental::dcomplex BLAS(zdotc)
 ( const int* n, const elemental::dcomplex* x, const int* incx,
                 const elemental::dcomplex* y, const int* incy );
-#endif
+#endif // NO_COMPLEX_RETURN_FROM_BLAS
+#endif // WITHOUT_COMPLEX
+*/
 
 float BLAS(snrm2)
 ( const int* n, const float* x, const int* incx );
@@ -1243,7 +1268,7 @@ elemental::wrappers::blas::Axpy
 ( int n, int alpha, const int* x, int incx, int* y, int incy )
 {
     for( int i=0; i<n; ++i )
-        y[i] += alpha*x[i];
+        y[i*incy] += alpha*x[i*incx];
 }
 
 inline void
@@ -1283,14 +1308,42 @@ inline elemental::scomplex
 elemental::wrappers::blas::Dot
 ( int n, const elemental::scomplex* x, int incx,
          const elemental::scomplex* y, int incy )
-{ return BLAS(cdotc)( &n, x, &incx, y, &incy ); }
+{ 
+    elemental::scomplex alpha = 0;
+    for( int i=0; i<n; ++i ) 
+        alpha += std::conj(x[i*incx])*y[i*incy];
+    return alpha;
+/*
+#ifdef NO_COMPLEX_RETURN_FROM_BLAS
+    elemental::scomplex alpha;
+    BLAS(cdotc)( &alpha, &n, x, &incx, y, &incy );
+    return alpha;
+#else
+    return BLAS(cdotc)( &n, x, &incx, y, &incy ); 
+#endif
+*/
+}
 
 inline elemental::dcomplex
 elemental::wrappers::blas::Dot
 ( int n, const elemental::dcomplex* x, int incx,
          const elemental::dcomplex* y, int incy )
-{ return BLAS(zdotc)( &n, x, &incx, y, &incy ); }
+{
+    elemental::dcomplex alpha = 0;
+    for( int i=0; i<n; ++i ) 
+        alpha += std::conj(x[i*incx])*y[i*incy];
+    return alpha;
+/*
+#ifdef NO_COMPLEX_RETURN_FROM_BLAS
+    elemental::dcomplex alpha;
+    BLAS(zdotc)( &alpha, &n, x, &incx, y, &incy );
+    return alpha;
+#else
+    return BLAS(zdotc)( &n, x, &incx, y, &incy ); 
 #endif
+*/
+}
+#endif // WITHOUT_COMPLEX
 
 inline float
 elemental::wrappers::blas::Dotc
@@ -1307,14 +1360,42 @@ inline elemental::scomplex
 elemental::wrappers::blas::Dotc
 ( int n, const elemental::scomplex* x, int incx,
          const elemental::scomplex* y, int incy )
-{ return BLAS(cdotc)( &n, x, &incx, y, &incy ); }
+{ 
+    elemental::scomplex alpha = 0;
+    for( int i=0; i<n; ++i ) 
+        alpha += std::conj(x[i*incx])*y[i*incy];
+    return alpha;
+/*
+#ifdef NO_COMPLEX_RETURN_FROM_BLAS
+    elemental::scomplex alpha;
+    BLAS(cdotc)( &alpha, &n, x, &incx, y, &incy );
+    return alpha;
+#else
+    return BLAS(cdotc)( &n, x, &incx, y, &incy ); 
+#endif
+*/
+}
 
 inline elemental::dcomplex
 elemental::wrappers::blas::Dotc
 ( int n, const elemental::dcomplex* x, int incx,
          const elemental::dcomplex* y, int incy )
-{ return BLAS(zdotc)( &n, x, &incx, y, &incy ); }
+{ 
+    elemental::dcomplex alpha = 0;
+    for( int i=0; i<n; ++i ) 
+        alpha += std::conj(x[i*incx])*y[i*incy];
+    return alpha;
+/*
+#ifdef NO_COMPLEX_RETURN_FROM_BLAS
+    elemental::dcomplex alpha;
+    BLAS(zdotc)( &alpha, &n, x, &incx, y, &incy );
+    return alpha;
+#else
+    return BLAS(zdotc)( &n, x, &incx, y, &incy ); 
 #endif
+*/
+}
+#endif // WITHOUT_COMPLEX
 
 inline float
 elemental::wrappers::blas::Dotu
@@ -1331,14 +1412,42 @@ inline elemental::scomplex
 elemental::wrappers::blas::Dotu
 ( int n, const elemental::scomplex* x, int incx,
          const elemental::scomplex* y, int incy )
-{ return BLAS(cdotu)( &n, x, &incx, y, &incy ); }
+{
+    elemental::scomplex alpha = 0;
+    for( int i=0; i<n; ++i ) 
+        alpha += x[i*incx]*y[i*incy];
+    return alpha;
+/* 
+#ifdef NO_COMPLEX_RETURN_FROM_BLAS
+    elemental::scomplex alpha;
+    BLAS(cdotu)( &alpha, &n, x, &incx, y, &incy );
+    return alpha;
+#else
+    return BLAS(cdotu)( &n, x, &incx, y, &incy ); 
+#endif
+*/
+}
 
 inline elemental::dcomplex
 elemental::wrappers::blas::Dotu
 ( int n, const elemental::dcomplex* x, int incx,
          const elemental::dcomplex* y, int incy )
-{ return BLAS(zdotu)( &n, x, &incx, y, &incy ); }
+{
+    elemental::dcomplex alpha = 0;
+    for( int i=0; i<n; ++i ) 
+        alpha += x[i*incx]*y[i*incy];
+    return alpha;
+/* 
+#ifdef NO_COMPLEX_RETURN_FROM_BLAS
+    elemental::dcomplex alpha;
+    BLAS(zdotu)( &alpha, &n, x, &incx, y, &incy );
+    return alpha;
+#else
+    return BLAS(zdotu)( &n, x, &incx, y, &incy ); 
 #endif
+*/
+}
+#endif // WITHOUT_COMPLEX
 
 inline float
 elemental::wrappers::blas::Nrm2
