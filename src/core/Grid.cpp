@@ -45,9 +45,9 @@ elemental::Grid::Grid
     }
 
     // Create cartesian communicator
-    int dimensions[2] = { r,    c    };
-    int periods[2]    = { true, true };
-    int reorder       = false;
+    int dimensions[2] = { c, r };
+    int periods[2] = { true, true };
+    int reorder = false;
     MPI_Cart_create( comm, 2, dimensions, periods, reorder, &_comm );
     MPI_Comm_rank( _comm, &_rank  );
 
@@ -79,8 +79,8 @@ elemental::Grid::Grid
 
     // Create a cartesian communicator
     int dimensions[2] = { c, r };
-    int periods[2]    = { true, true };
-    int reorder       = false;
+    int periods[2] = { true, true };
+    int reorder = false;
     MPI_Cart_create( comm, 2, dimensions, periods, reorder, &_comm );
     MPI_Comm_rank( _comm, &_rank );
     
