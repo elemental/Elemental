@@ -74,12 +74,52 @@ void PartitionUpDiagonal
          DM& ABL, DM& ABR, int diagABR );
 
 template<typename T>
+void PartitionUpLeftDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR, int diagABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionUpLeftDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR, int diagABR );
+
+template<typename T>
+void PartitionUpRightDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR, int diagABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionUpRightDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR, int diagABR );
+
+template<typename T>
 void PartitionDownDiagonal
 ( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, int diagATL );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionDownDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR, int diagATL );
+
+template<typename T>
+void PartitionDownLeftDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR, int diagATL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionDownLeftDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR, int diagATL );
+
+template<typename T>
+void PartitionDownRightDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR, int diagATL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionDownRightDiagonal
 ( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, int diagATL );
 
@@ -130,12 +170,52 @@ void LockedPartitionUpDiagonal
                DM& ABL, DM& ABR, int diagABR );
 
 template<typename T>
+void LockedPartitionUpLeftDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR, int diagABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionUpLeftDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR, int diagABR );
+
+template<typename T>
+void LockedPartitionUpRightDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR, int diagABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionUpRightDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR, int diagABR );
+
+template<typename T>
 void LockedPartitionDownDiagonal
 ( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, int diagATL );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionDownDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR, int diagATL );
+
+template<typename T>
+void LockedPartitionDownLeftDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR, int diagATL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionDownLeftDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR, int diagATL );
+
+template<typename T>
+void LockedPartitionDownRightDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR, int diagATL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionDownRightDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, int diagATL );
 
@@ -597,6 +677,40 @@ elemental::PartitionUpDiagonal
 {
 #ifndef RELEASE
     PushCallStack("PartitionUpDiagonal [Matrix]");
+#endif
+    elemental::PartitionUpLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, diagABR );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionUpDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR, int diagABR )
+{
+#ifndef RELEASE
+    PushCallStack("PartitionUpDiagonal [DistMatrix]");
+#endif
+    elemental::PartitionUpLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, diagABR );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+elemental::PartitionUpLeftDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR, int diagABR )
+{
+#ifndef RELEASE
+    PushCallStack("PartitionUpLeftDiagonal [Matrix]");
     if( diagABR < 0 )
         throw std::logic_error( "Bottom-right size must be non-negative." );
     if( diagABR > A.Height() || diagABR > A.Width() )
@@ -617,12 +731,12 @@ elemental::PartitionUpDiagonal
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
-elemental::PartitionUpDiagonal
+elemental::PartitionUpLeftDiagonal
 ( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionUpDiagonal [DistMatrix]");
+    PushCallStack("PartitionUpLeftDiagonal [DistMatrix]");
     if( diagABR < 0 )
         throw std::logic_error( "Bottom-right size must be non-negative." );
     if( diagABR > A.Height() || diagABR > A.Width() )
@@ -643,12 +757,94 @@ elemental::PartitionUpDiagonal
 
 template<typename T>
 inline void
+elemental::PartitionUpRightDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR, int diagABR )
+{
+#ifndef RELEASE
+    PushCallStack("PartitionUpRightDiagonal [Matrix]");
+    if( diagABR < 0 )
+        throw std::logic_error( "Bottom-right size must be non-negative." );
+    if( diagABR > A.Height() || diagABR > A.Width() )
+        throw std::logic_error( "Bottom-right size is too large." );
+#endif
+    const int remHeight = A.Height()-diagABR;
+    const int remWidth = A.Width()-diagABR;
+    ATL.View( A, 0,         0,        remHeight, remWidth );
+    ATR.View( A, 0,         remWidth, remHeight, diagABR  );
+    ABL.View( A, remHeight, 0,        diagABR,   remWidth );
+    ABR.View( A, remHeight, remWidth, diagABR,   diagABR  );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionUpRightDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR, int diagABR )
+{
+#ifndef RELEASE
+    PushCallStack("PartitionUpRightDiagonal [DistMatrix]");
+    if( diagABR < 0 )
+        throw std::logic_error( "Bottom-right size must be non-negative." );
+    if( diagABR > A.Height() || diagABR > A.Width() )
+        throw std::logic_error( "Bottom-right size is too large." );
+#endif
+    const int remHeight = A.Height()-diagABR;
+    const int remWidth = A.Width()-diagABR;
+    ATL.View( A, 0,         0,        remHeight, remWidth );
+    ATR.View( A, 0,         remWidth, remHeight, diagABR  );
+    ABL.View( A, remHeight, 0,        diagABR,   remWidth );
+    ABR.View( A, remHeight, remWidth, diagABR,   diagABR  );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 elemental::PartitionDownDiagonal
 ( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, int diagATL )
 {
 #ifndef RELEASE
     PushCallStack("PartitionDownDiagonal [Matrix]");
+#endif
+    elemental::PartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, diagATL );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionDownDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR, int diagATL )
+{
+#ifndef RELEASE
+    PushCallStack("PartitionDownDiagonal [DistMatrix]");
+#endif
+    elemental::PartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, diagATL );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+elemental::PartitionDownLeftDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR, int diagATL )
+{
+#ifndef RELEASE
+    PushCallStack("PartitionDownLeftDiagonal [Matrix]");
     if( diagATL < 0 )
         throw std::logic_error( "Top-left size must be non-negative." );
     if( diagATL > A.Height() || diagATL > A.Width() )
@@ -667,12 +863,12 @@ elemental::PartitionDownDiagonal
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
-elemental::PartitionDownDiagonal
+elemental::PartitionDownLeftDiagonal
 ( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionDownDiagonal [DistMatrix]");
+    PushCallStack("PartitionDownLeftDiagonal [DistMatrix]");
     if( diagATL < 0 )
         throw std::logic_error( "Top-left size must be non-negative." );
     if( diagATL > A.Height() || diagATL > A.Width() )
@@ -684,6 +880,58 @@ elemental::PartitionDownDiagonal
     ATR.View( A, 0,       diagATL, diagATL,   widthABR );
     ABL.View( A, diagATL, 0,       heightABR, diagATL  );
     ABR.View( A, diagATL, diagATL, heightABR, widthABR );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+elemental::PartitionDownRightDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR, int diagATL )
+{
+#ifndef RELEASE
+    PushCallStack("PartitionDownRightDiagonal [Matrix]");
+    if( diagATL < 0 )
+        throw std::logic_error( "Top-left size must be non-negative." );
+    if( diagATL > A.Height() || diagATL > A.Width() )
+        throw std::logic_error( "Top-left size is too large." );
+#endif
+    const int minDim = std::min( A.Height(), A.Width() );
+    const int sizeABR = minDim-diagATL;
+    const int remHeight = A.Height()-sizeABR;
+    const int remWidth = A.Width()-sizeABR;
+    ATL.View( A, 0,         0,        remHeight, remWidth );
+    ATR.View( A, 0,         remWidth, remHeight, sizeABR  );
+    ABL.View( A, remHeight, 0,        sizeABR,   remWidth );
+    ABR.View( A, remHeight, remWidth, sizeABR,   sizeABR  );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionDownRightDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR, int diagATL )
+{
+#ifndef RELEASE
+    PushCallStack("PartitionDownRightDiagonal [DistMatrix]");
+    if( diagATL < 0 )
+        throw std::logic_error( "Top-left size must be non-negative." );
+    if( diagATL > A.Height() || diagATL > A.Width() )
+        throw std::logic_error( "Top-left size is too large." );
+#endif
+    const int minDim = std::min( A.Height(), A.Width() );
+    const int sizeABR = minDim-diagATL;
+    const int remHeight = A.Height()-sizeABR;
+    const int remWidth = A.Width()-sizeABR;
+    ATL.View( A, 0,         0,        remHeight, remWidth );
+    ATR.View( A, 0,         remWidth, remHeight, sizeABR  );
+    ABL.View( A, remHeight, 0,        sizeABR,   remWidth );
+    ABR.View( A, remHeight, remWidth, sizeABR,   sizeABR  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -869,6 +1117,40 @@ elemental::LockedPartitionUpDiagonal
 {
 #ifndef RELEASE
     PushCallStack("LockedPartitionUpDiagonal [Matrix]");
+#endif
+    elemental::LockedPartitionUpLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, diagABR );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionUpDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR, int diagABR )
+{
+#ifndef RELEASE
+    PushCallStack("LockedPartitionUpDiagonal [DistMatrix]");
+#endif
+    elemental::LockedPartitionUpLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, diagABR );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionUpLeftDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR, int diagABR )
+{
+#ifndef RELEASE
+    PushCallStack("LockedPartitionUpLeftDiagonal [Matrix]");
     if( diagABR < 0 )
         throw std::logic_error( "Bottom-right size must be non-negative." );
     if( diagABR > A.Height() || diagABR > A.Width() )
@@ -889,12 +1171,12 @@ elemental::LockedPartitionUpDiagonal
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
-elemental::LockedPartitionUpDiagonal
+elemental::LockedPartitionUpLeftDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionUpDiagonal [DistMatrix]");
+    PushCallStack("LockedPartitionUpLeftDiagonal [DistMatrix]");
     if( diagABR < 0 )
         throw std::logic_error( "Bottom-right size must be non-negative." );
     if( diagABR > A.Height() || diagABR > A.Width() )
@@ -915,12 +1197,94 @@ elemental::LockedPartitionUpDiagonal
 
 template<typename T>
 inline void
+elemental::LockedPartitionUpRightDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR, int diagABR )
+{
+#ifndef RELEASE
+    PushCallStack("LockedPartitionUpRightDiagonal [Matrix]");
+    if( diagABR < 0 )
+        throw std::logic_error( "Bottom-right size must be non-negative." );
+    if( diagABR > A.Height() || diagABR > A.Width() )
+        throw std::logic_error( "Bottom-right size is too large." );
+#endif
+    const int remHeight = A.Height()-diagABR;
+    const int remWidth = A.Width()-diagABR;
+    ATL.View( A, 0,         0,        remHeight, remWidth );
+    ATR.View( A, 0,         remWidth, remHeight, diagABR  );
+    ABL.View( A, remHeight, 0,        diagABR,   remWidth );
+    ABR.View( A, remHeight, remWidth, diagABR,   diagABR  );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionUpRightDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR, int diagABR )
+{
+#ifndef RELEASE
+    PushCallStack("LockedPartitionUpRightDiagonal [DistMatrix]");
+    if( diagABR < 0 )
+        throw std::logic_error( "Bottom-right size must be non-negative." );
+    if( diagABR > A.Height() || diagABR > A.Width() )
+        throw std::logic_error( "Bottom-right size is too large." );
+#endif
+    const int remHeight = A.Height()-diagABR;
+    const int remWidth = A.Width()-diagABR;
+    ATL.View( A, 0,         0,        remHeight, remWidth );
+    ATR.View( A, 0,         remWidth, remHeight, diagABR  );
+    ABL.View( A, remHeight, 0,        diagABR,   remWidth );
+    ABR.View( A, remHeight, remWidth, diagABR,   diagABR  );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 elemental::LockedPartitionDownDiagonal
 ( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, int diagATL )
 {
 #ifndef RELEASE
     PushCallStack("LockedPartitionDownDiagonal [Matrix]");
+#endif
+    elemental::LockedPartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, diagATL );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionDownDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR, int diagATL )
+{
+#ifndef RELEASE
+    PushCallStack("LockedPartitionDownDiagonal [DistMatrix]");
+#endif
+    elemental::LockedPartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, diagATL );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionDownLeftDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR, int diagATL )
+{
+#ifndef RELEASE
+    PushCallStack("LockedPartitionDownLeftDiagonal [Matrix]");
     if( diagATL < 0 )
         throw std::logic_error( "Top-left size must be non-negative." );
     if( diagATL > A.Height() || diagATL > A.Width() )
@@ -939,12 +1303,12 @@ elemental::LockedPartitionDownDiagonal
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
-elemental::LockedPartitionDownDiagonal
+elemental::LockedPartitionDownLeftDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionDownDiagonal [DistMatrix]");
+    PushCallStack("LockedPartitionDownLeftDiagonal [DistMatrix]");
     if( diagATL < 0 )
         throw std::logic_error( "Top-left size must be non-negative." );
     if( diagATL > A.Height() || diagATL > A.Width() )
@@ -956,6 +1320,58 @@ elemental::LockedPartitionDownDiagonal
     ATR.LockedView( A, 0,       diagATL, diagATL,   widthABR );
     ABL.LockedView( A, diagATL, 0,       heightABR, diagATL  );
     ABR.LockedView( A, diagATL, diagATL, heightABR, widthABR );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionDownRightDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR, int diagATL )
+{
+#ifndef RELEASE
+    PushCallStack("LockedPartitionDownRightDiagonal [Matrix]");
+    if( diagATL < 0 )
+        throw std::logic_error( "Top-left size must be non-negative." );
+    if( diagATL > A.Height() || diagATL > A.Width() )
+        throw std::logic_error( "Top-left size is too large." );
+#endif
+    const int minDim = std::min( A.Height(), A.Width() );
+    const int sizeABR = minDim-diagATL;
+    const int remHeight = A.Height()-sizeABR;
+    const int remWidth = A.Width()-sizeABR;
+    ATL.View( A, 0,         0,        remHeight, remWidth );
+    ATR.View( A, 0,         remWidth, remHeight, sizeABR  );
+    ABL.View( A, remHeight, 0,        sizeABR,   remWidth );
+    ABR.View( A, remHeight, remWidth, sizeABR,   sizeABR  );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionDownRightDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR, int diagATL )
+{
+#ifndef RELEASE
+    PushCallStack("LockedPartitionDownRightDiagonal [DistMatrix]");
+    if( diagATL < 0 )
+        throw std::logic_error( "Top-left size must be non-negative." );
+    if( diagATL > A.Height() || diagATL > A.Width() )
+        throw std::logic_error( "Top-left size is too large." );
+#endif
+    const int minDim = std::min( A.Height(), A.Width() );
+    const int sizeABR = minDim-diagATL;
+    const int remHeight = A.Height()-sizeABR;
+    const int remWidth = A.Width()-sizeABR;
+    ATL.View( A, 0,         0,        remHeight, remWidth );
+    ATR.View( A, 0,         remWidth, remHeight, sizeABR  );
+    ABL.View( A, remHeight, 0,        sizeABR,   remWidth );
+    ABR.View( A, remHeight, remWidth, sizeABR,   sizeABR  );
 #ifndef RELEASE
     PopCallStack();
 #endif

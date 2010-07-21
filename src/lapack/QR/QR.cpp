@@ -48,7 +48,7 @@ elemental::lapack::QR
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
 
-    PartitionDownDiagonal
+    PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     while( ( ATL.Height() < A.Height() && ATL.Width() < A.Width() ) )
@@ -123,7 +123,7 @@ elemental::lapack::QR
         tB(g),  t1(g),
                 t2(g);
 
-    PartitionDownDiagonal
+    PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionDown

@@ -77,10 +77,10 @@ elemental::lapack::internal::PanelTridiagL
     // Push to the blocksize of 1, then pop at the end of the routine
     PushBlocksizeStack( 1 );
 
-    PartitionDownDiagonal
+    PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionDownDiagonal
+    PartitionDownLeftDiagonal
     ( W, WTL, WTR,
          WBL, WBR, 0 );
     PartitionDown
@@ -296,10 +296,10 @@ elemental::lapack::internal::PanelTridiagL
     // Push to the blocksize of 1, then pop at the end of the routine
     PushBlocksizeStack( 1 );
 
-    PartitionDownDiagonal
+    PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionDownDiagonal
+    PartitionDownLeftDiagonal
     ( W, WTL, WTR,
          WBL, WBR, 0 );
     PartitionDown

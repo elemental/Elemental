@@ -42,7 +42,7 @@ elemental::lapack::internal::PanelQR
     DistMatrix<R,MR,Star> Z_MR_Star(g);
 
     PushBlocksizeStack( 1 );
-    PartitionDownDiagonal
+    PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
@@ -145,7 +145,7 @@ elemental::lapack::internal::PanelQR
     DistMatrix<C,MR,Star> Z_MR_Star(g);
 
     PushBlocksizeStack( 1 );
-    PartitionDownDiagonal
+    PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionDown
