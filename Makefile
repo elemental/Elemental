@@ -29,13 +29,14 @@ library = libelemental.a
 #   RELEASE: if defined, callstack is not maintained and debug checks are off
 #   BLAS_UNDERSCORE: if defined, all blas wrappers assume underscore postfix
 #   LAPACK_UNDERSCORE: if defined, all lapack wrappers assume underscore postfix
+#   AVOID_COMPLEX_MPI: try to treat all complex datatypes as two real datatypes
 #
 # Auxilliary compile flags:
 #   WITHOUT_COMPLEX: if defined, no complex datatypes are implemented
 #   POOL_MEMORY: if defined, Memory class only accumulates until destruction
 #   ENABLE_ALL_DISTRIBUTED_DOT: if defined, build all distributed dot products
 CXX = mpicxx
-CXXFLAGS = -DBLAS_UNDERSCORE -DLAPACK_UNDERSCORE -I$(incdir) 
+CXXFLAGS = -DBLAS_UNDERSCORE -DLAPACK_UNDERSCORE -DAVOID_COMPLEX_MPI -I$(incdir)
 CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)
 CXXFLAGS_RELEASE = -O3 -Wall -DRELEASE $(CXXFLAGS)
 LDFLAGS = -L/usr/lib -llapack -lblas

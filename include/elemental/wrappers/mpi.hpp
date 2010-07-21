@@ -427,10 +427,17 @@ elemental::wrappers::mpi::Send
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::Send");
 #endif
-    SafeMpi( 
-        MPI_Send( const_cast<scomplex*>(buf), count, MPI_COMPLEX, to, tag, 
-                  comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Send
+        ( const_cast<scomplex*>(buf), 2*count, MPI_FLOAT, to, tag, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Send
+        ( const_cast<scomplex*>(buf), count, MPI_COMPLEX, to, tag, comm )
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -443,10 +450,17 @@ elemental::wrappers::mpi::Send
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::Send");
 #endif
-    SafeMpi( 
-        MPI_Send( const_cast<dcomplex*>(buf), count, MPI_DOUBLE_COMPLEX, to, 
-                  tag, comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Send
+        ( const_cast<dcomplex*>(buf), 2*count, MPI_DOUBLE, to, tag, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Send
+        ( const_cast<dcomplex*>(buf), count, MPI_DOUBLE_COMPLEX, to, tag, comm )
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -504,7 +518,11 @@ elemental::wrappers::mpi::Recv
     PushCallStack("wrappers::mpi::Recv");
 #endif
     MPI_Status status;
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi( MPI_Recv( buf, 2*count, MPI_FLOAT, from, tag, comm, &status ) );
+#else
     SafeMpi( MPI_Recv( buf, count, MPI_COMPLEX, from, tag, comm, &status ) );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -518,9 +536,15 @@ elemental::wrappers::mpi::Recv
     PushCallStack("wrappers::mpi::Recv");
 #endif
     MPI_Status status;
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Recv( buf, 2*count, MPI_DOUBLE, from, tag, comm, &status )
+    );
+#else
     SafeMpi( 
         MPI_Recv( buf, count, MPI_DOUBLE_COMPLEX, from, tag, comm, &status )
     );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -537,8 +561,9 @@ elemental::wrappers::mpi::SendRecv
 #endif
     MPI_Status status;
     SafeMpi( 
-        MPI_Sendrecv( const_cast<int*>(sbuf), sc, MPI_INT, to, stag,
-                      rbuf, rc, MPI_INT, from, rtag, comm, &status ) 
+        MPI_Sendrecv
+        ( const_cast<int*>(sbuf), sc, MPI_INT, to, stag,
+          rbuf, rc, MPI_INT, from, rtag, comm, &status ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -555,8 +580,9 @@ elemental::wrappers::mpi::SendRecv
 #endif
     MPI_Status status;
     SafeMpi( 
-        MPI_Sendrecv( const_cast<float*>(sbuf), sc, MPI_FLOAT, to, stag,
-                      rbuf, rc, MPI_FLOAT, from, rtag, comm, &status ) 
+        MPI_Sendrecv
+        ( const_cast<float*>(sbuf), sc, MPI_FLOAT, to, stag,
+          rbuf, rc, MPI_FLOAT, from, rtag, comm, &status ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -573,8 +599,9 @@ elemental::wrappers::mpi::SendRecv
 #endif
     MPI_Status status;
     SafeMpi( 
-        MPI_Sendrecv( const_cast<double*>(sbuf), sc, MPI_DOUBLE, to, stag,
-                      rbuf, rc, MPI_DOUBLE, from, rtag, comm, &status ) 
+        MPI_Sendrecv
+        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE, to, stag,
+          rbuf, rc, MPI_DOUBLE, from, rtag, comm, &status ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -591,10 +618,21 @@ elemental::wrappers::mpi::SendRecv
     PushCallStack("wrappers::mpi::SendRecv");
 #endif
     MPI_Status status;
-    SafeMpi( 
-        MPI_Sendrecv( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX, to, stag,
-                      rbuf, rc, MPI_COMPLEX, from, rtag, comm, &status )
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Sendrecv
+        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT, to,   stag,
+          rbuf,                        2*rc, MPI_FLOAT, from, rtag, 
+          comm, &status )
     );
+#else
+    SafeMpi( 
+        MPI_Sendrecv
+        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX, to,   stag,
+          rbuf,                        rc, MPI_COMPLEX, from, rtag, 
+          comm, &status )
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -609,11 +647,21 @@ elemental::wrappers::mpi::SendRecv
     PushCallStack("wrappers::mpi::SendRecv");
 #endif
     MPI_Status status;
-    SafeMpi( 
-        MPI_Sendrecv( const_cast<dcomplex*>(sbuf), 
-                            sc, MPI_DOUBLE_COMPLEX, to,   stag,
-                      rbuf, rc, MPI_DOUBLE_COMPLEX, from, rtag, comm, &status )
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Sendrecv
+        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE, to,   stag,
+          rbuf,                        2*rc, MPI_DOUBLE, from, rtag, 
+          comm, &status )
     );
+#else
+    SafeMpi( 
+        MPI_Sendrecv
+        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX, to,   stag,
+          rbuf,                        rc, MPI_DOUBLE_COMPLEX, from, rtag, 
+          comm, &status )
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -667,7 +715,11 @@ elemental::wrappers::mpi::Broadcast
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::Broadcast");
 #endif
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi( MPI_Bcast( buf, 2*count, MPI_FLOAT, root, comm ) );
+#else
     SafeMpi( MPI_Bcast( buf, count, MPI_COMPLEX, root, comm ) );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -680,7 +732,11 @@ elemental::wrappers::mpi::Broadcast
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::Broadcast");
 #endif
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi( MPI_Bcast( buf, 2*count, MPI_DOUBLE, root, comm ) );
+#else
     SafeMpi( MPI_Bcast( buf, count, MPI_DOUBLE_COMPLEX, root, comm ) );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -696,8 +752,9 @@ elemental::wrappers::mpi::Gather
     PushCallStack("wrappers::mpi::Gather");
 #endif
     SafeMpi( 
-        MPI_Gather( const_cast<int*>(sbuf), sc, MPI_INT,
-                    rbuf, rc, MPI_INT, root, comm ) 
+        MPI_Gather
+        ( const_cast<int*>(sbuf), sc, MPI_INT,
+          rbuf,                   rc, MPI_INT, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -713,8 +770,9 @@ elemental::wrappers::mpi::Gather
     PushCallStack("wrappers::mpi::Gather");
 #endif
     SafeMpi( 
-        MPI_Gather( const_cast<float*>(sbuf), sc, MPI_FLOAT,
-                    rbuf, rc, MPI_FLOAT, root, comm ) 
+        MPI_Gather
+        ( const_cast<float*>(sbuf), sc, MPI_FLOAT,
+          rbuf,                     rc, MPI_FLOAT, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -730,8 +788,9 @@ elemental::wrappers::mpi::Gather
     PushCallStack("wrappers::mpi::Gather");
 #endif
     SafeMpi( 
-        MPI_Gather( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
-                    rbuf, rc, MPI_DOUBLE, root, comm ) 
+        MPI_Gather
+        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
+          rbuf,                      rc, MPI_DOUBLE, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -747,10 +806,19 @@ elemental::wrappers::mpi::Gather
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::Gather");
 #endif
-    SafeMpi( 
-        MPI_Gather( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
-                    rbuf, rc, MPI_COMPLEX, root, comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Gather
+        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
+          rbuf,                        2*rc, MPI_FLOAT, root, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Gather
+        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
+          rbuf,                        rc, MPI_COMPLEX, root, comm ) 
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -764,10 +832,19 @@ elemental::wrappers::mpi::Gather
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::Gather");
 #endif
-    SafeMpi( 
-        MPI_Gather( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
-                    rbuf, rc, MPI_DOUBLE_COMPLEX, root, comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Gather
+        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
+          rbuf,                        2*rc, MPI_DOUBLE, root, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Gather
+        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
+          rbuf,                        rc, MPI_DOUBLE_COMPLEX, root, comm )
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -783,8 +860,9 @@ elemental::wrappers::mpi::AllGather
     PushCallStack("wrappers::mpi::AllGather");
 #endif
     SafeMpi( 
-        MPI_Allgather( const_cast<int*>(sbuf), sc, MPI_INT,
-                       rbuf, rc, MPI_INT, comm ) 
+        MPI_Allgather
+        ( const_cast<int*>(sbuf), sc, MPI_INT, 
+          rbuf,                   rc, MPI_INT, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -800,8 +878,9 @@ elemental::wrappers::mpi::AllGather
     PushCallStack("wrappers::mpi::AllGather");
 #endif
     SafeMpi( 
-        MPI_Allgather( const_cast<float*>(sbuf), sc, MPI_FLOAT,
-                       rbuf, rc, MPI_FLOAT, comm ) 
+        MPI_Allgather
+        ( const_cast<float*>(sbuf), sc, MPI_FLOAT, 
+          rbuf,                     rc, MPI_FLOAT, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -817,8 +896,9 @@ elemental::wrappers::mpi::AllGather
     PushCallStack("wrappers::mpi::AllGather");
 #endif
     SafeMpi( 
-        MPI_Allgather( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
-                       rbuf, rc, MPI_DOUBLE, comm ) 
+        MPI_Allgather
+        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
+          rbuf,                      rc, MPI_DOUBLE, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -834,10 +914,19 @@ elemental::wrappers::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::AllGather");
 #endif
-    SafeMpi( 
-        MPI_Allgather( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
-                       rbuf, rc, MPI_COMPLEX, comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Allgather
+        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
+          rbuf,                        2*rc, MPI_FLOAT, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
+          rbuf,                        rc, MPI_COMPLEX, comm ) 
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -851,11 +940,19 @@ elemental::wrappers::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::AllGather");
 #endif
-    SafeMpi( 
-        MPI_Allgather( const_cast<dcomplex*>(sbuf), 
-                             sc, MPI_DOUBLE_COMPLEX,
-                       rbuf, rc, MPI_DOUBLE_COMPLEX, comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Allgather
+        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
+          rbuf,                        2*rc, MPI_DOUBLE, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
+          rbuf,                        rc, MPI_DOUBLE_COMPLEX, comm ) 
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -871,8 +968,9 @@ elemental::wrappers::mpi::Scatter
     PushCallStack("wrappers::mpi::Scatter");
 #endif
     SafeMpi( 
-        MPI_Scatter( const_cast<int*>(sbuf), sc, MPI_INT,
-                     rbuf, rc, MPI_INT, root, comm ) 
+        MPI_Scatter
+        ( const_cast<int*>(sbuf), sc, MPI_INT,
+          rbuf,                   rc, MPI_INT, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -888,8 +986,9 @@ elemental::wrappers::mpi::Scatter
     PushCallStack("wrappers::mpi::Scatter");
 #endif
     SafeMpi( 
-        MPI_Scatter( const_cast<float*>(sbuf), sc, MPI_FLOAT,
-                     rbuf, rc, MPI_FLOAT, root, comm ) 
+        MPI_Scatter
+        ( const_cast<float*>(sbuf), sc, MPI_FLOAT,
+          rbuf,                     rc, MPI_FLOAT, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -905,8 +1004,9 @@ elemental::wrappers::mpi::Scatter
     PushCallStack("wrappers::mpi::Scatter");
 #endif
     SafeMpi( 
-        MPI_Scatter( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
-                     rbuf, rc, MPI_DOUBLE, root, comm ) 
+        MPI_Scatter
+        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
+          rbuf,                      rc, MPI_DOUBLE, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -922,10 +1022,19 @@ elemental::wrappers::mpi::Scatter
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::Scatter");
 #endif
-    SafeMpi( 
-        MPI_Scatter( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
-                     rbuf, rc, MPI_COMPLEX, root, comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Scatter
+        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
+          rbuf,                        2*rc, MPI_FLOAT, root, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Scatter
+        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
+          rbuf,                        rc, MPI_COMPLEX, root, comm ) 
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -939,10 +1048,19 @@ elemental::wrappers::mpi::Scatter
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::Scatter");
 #endif
-    SafeMpi( 
-        MPI_Scatter( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
-                     rbuf, rc, MPI_DOUBLE_COMPLEX, root, comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Scatter
+        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
+          rbuf,                        2*rc, MPI_DOUBLE, root, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Scatter
+        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
+          rbuf,                        rc, MPI_DOUBLE_COMPLEX, root, comm ) 
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -958,8 +1076,9 @@ elemental::wrappers::mpi::AllToAll
     PushCallStack("wrappers::mpi::AllToAll");
 #endif
     SafeMpi( 
-        MPI_Alltoall( const_cast<int*>(sbuf), sc, MPI_INT,
-                      rbuf, rc, MPI_INT, comm ) 
+        MPI_Alltoall
+        ( const_cast<int*>(sbuf), sc, MPI_INT,
+          rbuf,                   rc, MPI_INT, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -975,8 +1094,9 @@ elemental::wrappers::mpi::AllToAll
     PushCallStack("wrappers::mpi::AllToAll");
 #endif
     SafeMpi( 
-        MPI_Alltoall( const_cast<float*>(sbuf), sc, MPI_FLOAT,
-                      rbuf, rc, MPI_FLOAT, comm ) 
+        MPI_Alltoall
+        ( const_cast<float*>(sbuf), sc, MPI_FLOAT,
+          rbuf,                     rc, MPI_FLOAT, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -992,8 +1112,9 @@ elemental::wrappers::mpi::AllToAll
     PushCallStack("wrappers::mpi::AllToAll");
 #endif
     SafeMpi( 
-        MPI_Alltoall( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
-                      rbuf, rc, MPI_DOUBLE, comm ) 
+        MPI_Alltoall
+        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
+          rbuf,                      rc, MPI_DOUBLE, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1009,10 +1130,19 @@ elemental::wrappers::mpi::AllToAll
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::AllToAll");
 #endif
-    SafeMpi( 
-        MPI_Alltoall( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
-                      rbuf, rc, MPI_COMPLEX, comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Alltoall
+        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
+          rbuf,                        2*rc, MPI_FLOAT, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Alltoall
+        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
+          rbuf,                        rc, MPI_COMPLEX, comm ) 
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1026,10 +1156,19 @@ elemental::wrappers::mpi::AllToAll
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::AllToAll");
 #endif
-    SafeMpi( 
-        MPI_Alltoall( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
-                      rbuf, rc, MPI_DOUBLE_COMPLEX, comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Alltoall
+        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
+          rbuf,                        2*rc, MPI_DOUBLE, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Alltoall
+        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
+          rbuf,                        rc, MPI_DOUBLE_COMPLEX, comm ) 
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1045,15 +1184,16 @@ elemental::wrappers::mpi::AllToAll
     PushCallStack("wrappers::mpi::AllToAll");
 #endif
     SafeMpi( 
-        MPI_Alltoallv( const_cast<int*>(sbuf), 
-                       const_cast<int*>(scs), 
-                       const_cast<int*>(sds), 
-                       MPI_INT,
-                       rbuf, 
-                       const_cast<int*>(rcs), 
-                       const_cast<int*>(rds), 
-                       MPI_INT, 
-                       comm ) 
+        MPI_Alltoallv
+        ( const_cast<int*>(sbuf), 
+          const_cast<int*>(scs), 
+          const_cast<int*>(sds), 
+          MPI_INT,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_INT, 
+          comm ) 
     ); 
 #ifndef RELEASE
     PopCallStack();
@@ -1069,15 +1209,16 @@ elemental::wrappers::mpi::AllToAll
     PushCallStack("wrappers::mpi::AllToAll");
 #endif
     SafeMpi( 
-        MPI_Alltoallv( const_cast<float*>(sbuf), 
-                       const_cast<int*>(scs), 
-                       const_cast<int*>(sds), 
-                       MPI_FLOAT,
-                       rbuf, 
-                       const_cast<int*>(rcs), 
-                       const_cast<int*>(rds), 
-                       MPI_FLOAT, 
-                       comm ) 
+        MPI_Alltoallv
+        ( const_cast<float*>(sbuf), 
+          const_cast<int*>(scs), 
+          const_cast<int*>(sds), 
+          MPI_FLOAT,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_FLOAT, 
+          comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1093,15 +1234,16 @@ elemental::wrappers::mpi::AllToAll
     PushCallStack("wrappers::mpi::AllToAll");
 #endif
     SafeMpi( 
-        MPI_Alltoallv( const_cast<double*>(sbuf), 
-                       const_cast<int*>(scs), 
-                       const_cast<int*>(sds), 
-                       MPI_DOUBLE,
-                       rbuf, 
-                       const_cast<int*>(rcs), 
-                       const_cast<int*>(rds), 
-                       MPI_DOUBLE, 
-                       comm ) 
+        MPI_Alltoallv
+        ( const_cast<double*>(sbuf), 
+          const_cast<int*>(scs), 
+          const_cast<int*>(sds), 
+          MPI_DOUBLE,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_DOUBLE, 
+          comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1117,17 +1259,41 @@ elemental::wrappers::mpi::AllToAll
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::AllToAll");
 #endif
-    SafeMpi( 
-        MPI_Alltoallv( const_cast<scomplex*>(sbuf), 
-                       const_cast<int*>(scs), 
-                       const_cast<int*>(sds), 
-                       MPI_COMPLEX,
-                       rbuf, 
-                       const_cast<int*>(rcs), 
-                       const_cast<int*>(rds), 
-                       MPI_COMPLEX, 
-                       comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    int p;
+    MPI_Comm_size( comm, &p );
+    std::vector<int> scsDoubled(p);
+    std::vector<int> sdsDoubled(p);
+    std::vector<int> rcsDoubled(p);
+    std::vector<int> rdsDoubled(p);
+    for( int i=0; i<p; ++i )
+        scsDoubled[i] = 2*scs[i];
+    for( int i=0; i<p; ++i )
+        sdsDoubled[i] = 2*sds[i];
+    for( int i=0; i<p; ++i )
+        rcsDoubled[i] = 2*rcs[i];
+    for( int i=0; i<p; ++i )
+        rdsDoubled[i] = 2*rds[i];
+    SafeMpi(
+        MPI_Alltoallv
+        ( const_cast<scomplex*>(sbuf),
+                &scsDoubled[0], &sdsDoubled[0], MPI_FLOAT,
+          rbuf, &rcsDoubled[0], &rdsDoubled[0], MPI_FLOAT, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Alltoallv
+        ( const_cast<scomplex*>(sbuf), 
+          const_cast<int*>(scs), 
+          const_cast<int*>(sds), 
+          MPI_COMPLEX,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_COMPLEX, 
+          comm )
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1141,17 +1307,41 @@ elemental::wrappers::mpi::AllToAll
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::AllToAll");
 #endif
-    SafeMpi( 
-        MPI_Alltoallv( const_cast<dcomplex*>(sbuf), 
-                       const_cast<int*>(scs), 
-                       const_cast<int*>(sds), 
-                       MPI_DOUBLE_COMPLEX,
-                       rbuf, 
-                       const_cast<int*>(rcs), 
-                       const_cast<int*>(rds), 
-                       MPI_DOUBLE_COMPLEX, 
-                       comm ) 
+#ifdef AVOID_COMPLEX_MPI
+    int p;
+    MPI_Comm_size( comm, &p );
+    std::vector<int> scsDoubled(p);
+    std::vector<int> sdsDoubled(p);
+    std::vector<int> rcsDoubled(p);
+    std::vector<int> rdsDoubled(p);
+    for( int i=0; i<p; ++i )
+        scsDoubled[i] = 2*scs[i];
+    for( int i=0; i<p; ++i )
+        sdsDoubled[i] = 2*sds[i];
+    for( int i=0; i<p; ++i )
+        rcsDoubled[i] = 2*rcs[i];
+    for( int i=0; i<p; ++i )
+        rdsDoubled[i] = 2*rds[i];
+    SafeMpi(
+        MPI_Alltoallv
+        ( const_cast<dcomplex*>(sbuf),
+                &scsDoubled[0], &sdsDoubled[0], MPI_DOUBLE,
+          rbuf, &rcsDoubled[0], &rdsDoubled[0], MPI_DOUBLE, comm )
     );
+#else
+    SafeMpi( 
+        MPI_Alltoallv
+        ( const_cast<dcomplex*>(sbuf), 
+          const_cast<int*>(scs), 
+          const_cast<int*>(sds), 
+          MPI_DOUBLE_COMPLEX,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_DOUBLE_COMPLEX, 
+          comm ) 
+    );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1166,8 +1356,8 @@ elemental::wrappers::mpi::Reduce
     PushCallStack("wrappers::mpi::Reduce");
 #endif
     SafeMpi( 
-        MPI_Reduce( const_cast<int*>(sbuf), 
-                    rbuf, count, MPI_INT, op, root, comm ) 
+        MPI_Reduce
+        ( const_cast<int*>(sbuf), rbuf, count, MPI_INT, op, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1183,8 +1373,8 @@ elemental::wrappers::mpi::Reduce
     PushCallStack("wrappers::mpi::Reduce");
 #endif
     SafeMpi( 
-        MPI_Reduce( const_cast<float*>(sbuf), 
-                    rbuf, count, MPI_FLOAT, op, root, comm ) 
+        MPI_Reduce
+        ( const_cast<float*>(sbuf), rbuf, count, MPI_FLOAT, op, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1200,8 +1390,8 @@ elemental::wrappers::mpi::Reduce
     PushCallStack("wrappers::mpi::Reduce");
 #endif
     SafeMpi( 
-        MPI_Reduce( const_cast<double*>(sbuf), 
-                    rbuf, count, MPI_DOUBLE, op, root, comm ) 
+        MPI_Reduce
+        ( const_cast<double*>(sbuf), rbuf, count, MPI_DOUBLE, op, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1217,10 +1407,30 @@ elemental::wrappers::mpi::Reduce
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::Reduce");
 #endif
+#ifdef AVOID_COMPLEX_MPI
+    if( op == MPI_SUM )
+    {
+        SafeMpi(
+            MPI_Reduce
+            ( const_cast<scomplex*>(sbuf),
+              rbuf, 2*count, MPI_FLOAT, op, root, comm )
+        );
+    }
+    else
+    {
+        SafeMpi(
+            MPI_Reduce
+            ( const_cast<scomplex*>(sbuf),
+              rbuf, count, MPI_COMPLEX, op, root, comm )
+        );
+    }
+#else
     SafeMpi( 
-        MPI_Reduce( const_cast<scomplex*>(sbuf), 
-                    rbuf, count, MPI_COMPLEX, op, root, comm ) 
+        MPI_Reduce
+        ( const_cast<scomplex*>(sbuf), 
+          rbuf, count, MPI_COMPLEX, op, root, comm ) 
     );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1234,10 +1444,30 @@ elemental::wrappers::mpi::Reduce
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::Reduce");
 #endif
+#ifdef AVOID_COMPLEX_MPI
+    if( op == MPI_SUM )
+    {
+        SafeMpi(
+            MPI_Reduce
+            ( const_cast<dcomplex*>(sbuf),
+              rbuf, 2*count, MPI_DOUBLE, op, root, comm )
+        );
+    }
+    else
+    {
+        SafeMpi(
+            MPI_Reduce
+            ( const_cast<dcomplex*>(sbuf),
+              rbuf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
+        );
+    }
+#else
     SafeMpi( 
-        MPI_Reduce( const_cast<dcomplex*>(sbuf), 
-                    rbuf, count, MPI_DOUBLE_COMPLEX, op, root, comm ) 
+        MPI_Reduce
+        ( const_cast<dcomplex*>(sbuf), 
+          rbuf, count, MPI_DOUBLE_COMPLEX, op, root, comm ) 
     );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1252,8 +1482,8 @@ elemental::wrappers::mpi::AllReduce
     PushCallStack("wrappers::mpi::AllReduce");
 #endif
     SafeMpi( 
-        MPI_Allreduce( const_cast<char*>(sbuf), 
-                       rbuf, count, MPI_CHAR, op, comm ) 
+        MPI_Allreduce
+        ( const_cast<char*>(sbuf), rbuf, count, MPI_CHAR, op, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1268,8 +1498,8 @@ elemental::wrappers::mpi::AllReduce
     PushCallStack("wrappers::mpi::AllReduce");
 #endif
     SafeMpi( 
-        MPI_Allreduce( const_cast<int*>(sbuf), 
-                       rbuf, count, MPI_INT, op, comm ) 
+        MPI_Allreduce
+        ( const_cast<int*>(sbuf), rbuf, count, MPI_INT, op, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1284,8 +1514,8 @@ elemental::wrappers::mpi::AllReduce
     PushCallStack("wrappers::mpi::AllReduce");
 #endif
     SafeMpi( 
-        MPI_Allreduce( const_cast<float*>(sbuf), 
-                       rbuf, count, MPI_FLOAT, op, comm ) 
+        MPI_Allreduce
+        ( const_cast<float*>(sbuf), rbuf, count, MPI_FLOAT, op, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1300,8 +1530,8 @@ elemental::wrappers::mpi::AllReduce
     PushCallStack("wrappers::mpi::AllReduce");
 #endif
     SafeMpi( 
-        MPI_Allreduce( const_cast<double*>(sbuf), 
-                       rbuf, count, MPI_DOUBLE, op, comm ) 
+        MPI_Allreduce
+        ( const_cast<double*>(sbuf), rbuf, count, MPI_DOUBLE, op, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1316,10 +1546,30 @@ elemental::wrappers::mpi::AllReduce
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::AllReduce");
 #endif
+#ifdef AVOID_COMPLEX_MPI
+    if( op == MPI_SUM )
+    {
+        SafeMpi(
+            MPI_Allreduce
+            ( const_cast<scomplex*>(sbuf),
+              rbuf, 2*count, MPI_FLOAT, op, comm )
+        );
+    }
+    else
+    {
+        SafeMpi(
+            MPI_Allreduce
+            ( const_cast<scomplex*>(sbuf),
+              rbuf, count, MPI_COMPLEX, op, comm )
+        );
+    }
+#else
     SafeMpi( 
-        MPI_Allreduce( const_cast<scomplex*>(sbuf), 
-                       rbuf, count, MPI_COMPLEX, op, comm ) 
+        MPI_Allreduce
+        ( const_cast<scomplex*>(sbuf), 
+          rbuf, count, MPI_COMPLEX, op, comm ) 
     );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1332,10 +1582,30 @@ elemental::wrappers::mpi::AllReduce
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::AllReduce");
 #endif
+#ifdef AVOID_COMPLEX_MPI
+    if( op == MPI_SUM )
+    {
+        SafeMpi(
+            MPI_Allreduce
+            ( const_cast<dcomplex*>(sbuf),
+              rbuf, 2*count, MPI_DOUBLE, op, comm )
+        );
+    }
+    else
+    {
+        SafeMpi(
+            MPI_Allreduce
+            ( const_cast<dcomplex*>(sbuf),
+              rbuf, count, MPI_DOUBLE_COMPLEX, op, comm )
+        );
+    }
+#else
     SafeMpi( 
-        MPI_Allreduce( const_cast<dcomplex*>(sbuf), 
-                       rbuf, count, MPI_DOUBLE_COMPLEX, op, comm )
+        MPI_Allreduce
+        ( const_cast<dcomplex*>(sbuf), 
+          rbuf, count, MPI_DOUBLE_COMPLEX, op, comm )
     );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1350,9 +1620,9 @@ elemental::wrappers::mpi::ReduceScatter
     PushCallStack("wrappers::mpi::ReduceScatter");
 #endif
     SafeMpi( 
-        MPI_Reduce_scatter( const_cast<int*>(sbuf), 
-                            rbuf, 
-                            const_cast<int*>(rcs), MPI_INT, op, comm ) 
+        MPI_Reduce_scatter
+        ( const_cast<int*>(sbuf), 
+          rbuf, const_cast<int*>(rcs), MPI_INT, op, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1367,9 +1637,9 @@ elemental::wrappers::mpi::ReduceScatter
     PushCallStack("wrappers::mpi::ReduceScatter");
 #endif
     SafeMpi( 
-        MPI_Reduce_scatter( const_cast<float*>(sbuf), 
-                            rbuf, 
-                            const_cast<int*>(rcs), MPI_FLOAT, op, comm ) 
+        MPI_Reduce_scatter
+        ( const_cast<float*>(sbuf), 
+          rbuf, const_cast<int*>(rcs), MPI_FLOAT, op, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1384,9 +1654,9 @@ elemental::wrappers::mpi::ReduceScatter
     PushCallStack("wrappers::mpi::ReduceScatter");
 #endif
     SafeMpi( 
-        MPI_Reduce_scatter( const_cast<double*>(sbuf), 
-                            rbuf, 
-                            const_cast<int*>(rcs), MPI_DOUBLE, op, comm ) 
+        MPI_Reduce_scatter
+        ( const_cast<double*>(sbuf), 
+          rbuf, const_cast<int*>(rcs), MPI_DOUBLE, op, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1402,11 +1672,35 @@ elemental::wrappers::mpi::ReduceScatter
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::ReduceScatter");
 #endif
+#ifdef AVOID_COMPLEX_MPI
+    if( op == MPI_SUM )
+    {
+        int p;
+        MPI_Comm_size( comm, &p );
+        std::vector<int> rcsDoubled(p);
+        for( int i=0; i<p; ++i )
+            rcsDoubled[i] = 2*rcs[i];
+        SafeMpi(
+            MPI_Reduce_scatter
+            ( const_cast<scomplex*>(sbuf),
+              rbuf, &rcsDoubled[0], MPI_FLOAT, op, comm )
+        );
+    }
+    else
+    {
+        SafeMpi(
+            MPI_Reduce_scatter
+            ( const_cast<scomplex*>(sbuf),
+              rbuf, const_cast<int*>(rcs), MPI_COMPLEX, op, comm )
+        );
+    }
+#else
     SafeMpi( 
-        MPI_Reduce_scatter( const_cast<scomplex*>(sbuf), 
-                            rbuf, 
-                            const_cast<int*>(rcs), MPI_COMPLEX, op, comm ) 
+        MPI_Reduce_scatter
+        ( const_cast<scomplex*>(sbuf), 
+          rbuf, const_cast<int*>(rcs), MPI_COMPLEX, op, comm ) 
     );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1420,12 +1714,35 @@ elemental::wrappers::mpi::ReduceScatter
 #ifndef RELEASE
     PushCallStack("wrappers::mpi::ReduceScatter");
 #endif
+#ifdef AVOID_COMPLEX_MPI
+    if( op == MPI_SUM )
+    {
+        int p;
+        MPI_Comm_size( comm, &p );
+        std::vector<int> rcsDoubled(p);
+        for( int i=0; i<p; ++i )
+            rcsDoubled[i] = 2*rcs[i];
+        SafeMpi(
+            MPI_Reduce_scatter
+            ( const_cast<dcomplex*>(sbuf),
+              rbuf, &rcsDoubled[0], MPI_DOUBLE, op, comm )
+        );
+    }
+    else
+    {
+        SafeMpi(
+            MPI_Reduce_scatter
+            ( const_cast<dcomplex*>(sbuf),
+              rbuf, const_cast<int*>(rcs), MPI_DOUBLE_COMPLEX, op, comm )
+        );
+    }
+#else
     SafeMpi( 
-        MPI_Reduce_scatter( const_cast<dcomplex*>(sbuf), 
-                            rbuf, 
-                            const_cast<int*>(rcs), 
-                            MPI_DOUBLE_COMPLEX, op, comm ) 
+        MPI_Reduce_scatter
+        ( const_cast<dcomplex*>(sbuf), 
+          rbuf, const_cast<int*>(rcs), MPI_DOUBLE_COMPLEX, op, comm ) 
     );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
