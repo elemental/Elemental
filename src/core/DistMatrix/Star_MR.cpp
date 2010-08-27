@@ -879,9 +879,9 @@ elemental::DistMatrixBase<T,Star,MR>::ConjugateTransposeFrom
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,MR].ConjugateTransposeFrom[VR,* ]." << endl;
+            cerr << "Unaligned [* ,MR].ConjugateTransposeFrom[VR,* ]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1038,9 +1038,9 @@ elemental::DistMatrixBase<T,Star,MR>::TransposeFrom
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,MR].TransposeFrom[VR,* ]." << endl;
+            cerr << "Unaligned [* ,MR].TransposeFrom[VR,* ]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1125,9 +1125,12 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
-    if( A.Height() != 1 && A.GetGrid().VCRank() == 0 )
+#endif
+    const Grid& g = this->GetGrid();
+#ifdef CACHE_WARNINGS
+    if( A.Height() != 1 && g.VCRank() == 0 )
     {
-        cout << 
+        cerr << 
           "The matrix redistribution [* ,MR] <- [MC,MR] potentially causes a "
           "large amount of cache-thrashing. If possible, avoid it by "
           "performing the redistribution with a (conjugate)-transpose:"
@@ -1135,7 +1138,6 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
           "  [MR,* ].(Conjugate)TransposeFrom([MC,MR])" << endl;
     }
 #endif
-    const Grid& g = this->GetGrid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -1231,9 +1233,9 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,MR] <- [MC,MR]." << endl;
+            cerr << "Unaligned [* ,MR] <- [MC,MR]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1400,9 +1402,9 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,MR] <- [* ,MR]." << endl;
+            cerr << "Unaligned [* ,MR] <- [* ,MR]." << endl;
 #endif
         const int rank = g.MRRank();
         const int c = g.Width();
@@ -1769,9 +1771,9 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,MR] <- [* ,VR]." << endl;
+            cerr << "Unaligned [* ,MR] <- [* ,VR]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();

@@ -15,11 +15,10 @@ GNU General Public License version 3 (GPLv3)
 
 Current Status
 ==============
-- The Level 3 BLAS is fully functional, as well as Cholesky, LU, QR, Householder
-  tridiagonalization, and  triangular inversion. Also, reduction of the 
-  Hermitian generalized EVP, A X = B X Lambda, to the Hermitian standard EVP is 
-  fully functional. Gaussian elimination has been implemented but has not yet 
-  been tested. Performance is generally superior to PLAPACK and ScaLAPACK.
+- The Level 3 BLAS is fully functional, as well as Cholesky, Gaussian 
+  elimination, LU, QR, Householder tridiagonalization, UT transform application,
+  and triangular inversion. Also, reduction of the Hermitian generalized EVPs, 
+  A X = B X Lambda and A B X = X Lambda, to Hermitian standard EVPs are running.
 
 Build
 =====

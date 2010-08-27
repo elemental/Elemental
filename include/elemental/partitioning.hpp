@@ -30,7 +30,17 @@ namespace elemental {
 template<typename T>
 void PartitionUp
 ( M& A, M& AT,
+        M& AB );
+
+template<typename T>
+void PartitionUp
+( M& A, M& AT,
         M& AB, int heightAB );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionUp
+( DM& A, DM& AT,
+         DM& AB );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionUp
@@ -40,7 +50,17 @@ void PartitionUp
 template<typename T>
 void PartitionDown
 ( M& A, M& AT,
+        M& AB );
+
+template<typename T>
+void PartitionDown
+( M& A, M& AT,
         M& AB, int heightAT );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionDown
+( DM& A, DM& AT,
+         DM& AB );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionDown
@@ -49,7 +69,15 @@ void PartitionDown
 
 template<typename T>
 void PartitionLeft
+( M& A, M& AL, M& AR );
+
+template<typename T>
+void PartitionLeft
 ( M& A, M& AL, M& AR, int widthAR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionLeft
+( DM& A, DM& AL, DM& AR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionLeft
@@ -57,7 +85,15 @@ void PartitionLeft
 
 template<typename T>
 void PartitionRight
+( M& A, M& AL, M& AR );
+
+template<typename T>
+void PartitionRight
 ( M& A, M& AL, M& AR, int widthAL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionRight
+( DM& A, DM& AL, DM& AR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionRight
@@ -66,7 +102,17 @@ void PartitionRight
 template<typename T>
 void PartitionUpDiagonal
 ( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR );
+
+template<typename T>
+void PartitionUpDiagonal
+( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, int diagABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionUpDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionUpDiagonal
@@ -76,7 +122,17 @@ void PartitionUpDiagonal
 template<typename T>
 void PartitionUpLeftDiagonal
 ( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR );
+
+template<typename T>
+void PartitionUpLeftDiagonal
+( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, int diagABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionUpLeftDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionUpLeftDiagonal
@@ -86,7 +142,17 @@ void PartitionUpLeftDiagonal
 template<typename T>
 void PartitionUpRightDiagonal
 ( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR );
+
+template<typename T>
+void PartitionUpRightDiagonal
+( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, int diagABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionUpRightDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionUpRightDiagonal
@@ -96,7 +162,17 @@ void PartitionUpRightDiagonal
 template<typename T>
 void PartitionDownDiagonal
 ( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR );
+
+template<typename T>
+void PartitionDownDiagonal
+( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, int diagATL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionDownDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionDownDiagonal
@@ -106,7 +182,17 @@ void PartitionDownDiagonal
 template<typename T>
 void PartitionDownLeftDiagonal
 ( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR );
+
+template<typename T>
+void PartitionDownLeftDiagonal
+( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, int diagATL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionDownLeftDiagonal
+( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionDownLeftDiagonal
@@ -116,12 +202,27 @@ void PartitionDownLeftDiagonal
 template<typename T>
 void PartitionDownRightDiagonal
 ( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR );
+
+template<typename T>
+void PartitionDownRightDiagonal
+( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, int diagATL );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void PartitionDownRightDiagonal
 ( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void PartitionDownRightDiagonal
+( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, int diagATL );
+
+template<typename T>
+void LockedPartitionUp
+( const M& A, M& AT,
+              M& AB );
 
 template<typename T>
 void LockedPartitionUp
@@ -131,7 +232,17 @@ void LockedPartitionUp
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionUp
 ( const DM& A, DM& AT,
+               DM& AB );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionUp
+( const DM& A, DM& AT,
                DM& AB, int heightAB );
+
+template<typename T>
+void LockedPartitionDown
+( const M& A, M& AT,
+              M& AB );
 
 template<typename T>
 void LockedPartitionDown
@@ -141,7 +252,16 @@ void LockedPartitionDown
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionDown
 ( const DM& A, DM& AT,
+               DM& AB );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionDown
+( const DM& A, DM& AT,
                DM& AB, int heightAT );
+
+template<typename T>
+void LockedPartitionLeft
+( const M& A, M& AL, M& AR );
 
 template<typename T>
 void LockedPartitionLeft
@@ -149,11 +269,23 @@ void LockedPartitionLeft
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionLeft
+( const DM& A, DM& AL, DM& AR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionLeft
 ( const DM& A, DM& AL, DM& AR, int widthAR );
 
 template<typename T>
 void LockedPartitionRight
+( const M& A, M& AL, M& AR );
+
+template<typename T>
+void LockedPartitionRight
 ( const M& A, M& AL, M& AR, int widthAL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionRight
+( const DM& A, DM& AL, DM& AR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionRight
@@ -162,7 +294,17 @@ void LockedPartitionRight
 template<typename T>
 void LockedPartitionUpDiagonal
 ( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR );
+
+template<typename T>
+void LockedPartitionUpDiagonal
+( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, int diagABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionUpDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionUpDiagonal
@@ -172,7 +314,17 @@ void LockedPartitionUpDiagonal
 template<typename T>
 void LockedPartitionUpLeftDiagonal
 ( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR );
+
+template<typename T>
+void LockedPartitionUpLeftDiagonal
+( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, int diagABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionUpLeftDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionUpLeftDiagonal
@@ -182,7 +334,17 @@ void LockedPartitionUpLeftDiagonal
 template<typename T>
 void LockedPartitionUpRightDiagonal
 ( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR );
+
+template<typename T>
+void LockedPartitionUpRightDiagonal
+( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, int diagABR );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionUpRightDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionUpRightDiagonal
@@ -192,7 +354,17 @@ void LockedPartitionUpRightDiagonal
 template<typename T>
 void LockedPartitionDownDiagonal
 ( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR );
+
+template<typename T>
+void LockedPartitionDownDiagonal
+( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, int diagATL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionDownDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionDownDiagonal
@@ -202,7 +374,17 @@ void LockedPartitionDownDiagonal
 template<typename T>
 void LockedPartitionDownLeftDiagonal
 ( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR );
+
+template<typename T>
+void LockedPartitionDownLeftDiagonal
+( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, int diagATL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionDownLeftDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionDownLeftDiagonal
@@ -212,7 +394,17 @@ void LockedPartitionDownLeftDiagonal
 template<typename T>
 void LockedPartitionDownRightDiagonal
 ( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR );
+
+template<typename T>
+void LockedPartitionDownRightDiagonal
+( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, int diagATL );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedPartitionDownRightDiagonal
+( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedPartitionDownRightDiagonal
@@ -225,17 +417,35 @@ void RepartitionUp
          M& A1,
   M& AB, M& A2 );
 
+template<typename T>
+void RepartitionUp
+( M& AT, M& A0,
+         M& A1,
+  M& AB, M& A2, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void RepartitionUp
 ( DM& AT, DM& A0,
           DM& A1,
   DM& AB, DM& A2 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void RepartitionUp
+( DM& AT, DM& A0,
+          DM& A1,
+  DM& AB, DM& A2, int bsize );
+
 template<typename T>
 void RepartitionDown
 ( M& AT, M& A0,
          M& A1,
   M& AB, M& A2 );
+
+template<typename T>
+void RepartitionDown
+( M& AT, M& A0,
+         M& A1,
+  M& AB, M& A2, int bsize );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void RepartitionDown
@@ -243,25 +453,51 @@ void RepartitionDown
           DM& A1,
   DM& AB, DM& A2 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void RepartitionDown
+( DM& AT, DM& A0,
+          DM& A1,
+  DM& AB, DM& A2, int bsize );
+
 template<typename T>
 void RepartitionLeft
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2 );
+
+template<typename T>
+void RepartitionLeft
+( M& AL, M& AR,
+  M& A0, M& A1, M& A2, int bsize );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void RepartitionLeft
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void RepartitionLeft
+( DM& AL, DM& AR,
+  DM& A0, DM& A1, DM& A2, int bsize );
+
 template<typename T>
 void RepartitionRight
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2 );
 
+template<typename T>
+void RepartitionRight
+( M& AL, M& AR,
+  M& A0, M& A1, M& A2, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void RepartitionRight
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void RepartitionRight
+( DM& AL, DM& AR,
+  DM& A0, DM& A1, DM& A2, int bsize );
 
 template<typename T>
 void RepartitionUpDiagonal
@@ -269,23 +505,47 @@ void RepartitionUpDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22 );
 
+template<typename T>
+void RepartitionUpDiagonal
+( M& ATL, M& ATR, M& A00, M& A01, M& A02,
+                  M& A10, M& A11, M& A12,
+  M& ABL, M& ABR, M& A20, M& A21, M& A22, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void RepartitionUpDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
                     DM& A10, DM& A11, DM& A12,
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void RepartitionUpDiagonal
+( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
+                    DM& A10, DM& A11, DM& A12,
+  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, int bsize );
+
 template<typename T>
 void RepartitionDownDiagonal
 ( M& ATL, M& ATR, M& A00, M& A01, M& A02,
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22 );
 
+template<typename T>
+void RepartitionDownDiagonal
+( M& ATL, M& ATR, M& A00, M& A01, M& A02,
+                  M& A10, M& A11, M& A12,
+  M& ABL, M& ABR, M& A20, M& A21, M& A22, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void RepartitionDownDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
                     DM& A10, DM& A11, DM& A12,
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void RepartitionDownDiagonal
+( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
+                    DM& A10, DM& A11, DM& A12,
+  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, int bsize );
 
 template<typename T>
 void LockedRepartitionUp
@@ -293,11 +553,23 @@ void LockedRepartitionUp
                M& A1,
   const M& AB, M& A2 );
 
+template<typename T>
+void LockedRepartitionUp
+( const M& AT, M& A0,
+               M& A1,
+  const M& AB, M& A2, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedRepartitionUp
 ( const DM& AT, DM& A0,
                 DM& A1,
   const DM& AB, DM& A2 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedRepartitionUp
+( const DM& AT, DM& A0,
+                DM& A1,
+  const DM& AB, DM& A2, int bsize );
 
 template<typename T>
 void LockedRepartitionDown
@@ -305,31 +577,63 @@ void LockedRepartitionDown
                M& A1,
   const M& AB, M& A2 );
 
+template<typename T>
+void LockedRepartitionDown
+( const M& AT, M& A0,
+               M& A1,
+  const M& AB, M& A2, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedRepartitionDown
 ( const DM& AT, DM& A0,
                 DM& A1,
   const DM& AB, DM& A2 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedRepartitionDown
+( const DM& AT, DM& A0,
+                DM& A1,
+  const DM& AB, DM& A2, int bsize );
+
 template<typename T>
 void LockedRepartitionLeft
 ( const M& AL, const M& AR,
-  M& A0, M& A1, M& A2      );
+  M& A0, M& A1, M& A2 );
+
+template<typename T>
+void LockedRepartitionLeft
+( const M& AL, const M& AR,
+  M& A0, M& A1, M& A2, int bsize );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedRepartitionLeft
 ( const DM& AL, const DM& AR,
-  DM& A0, DM& A1, DM& A2     );
+  DM& A0, DM& A1, DM& A2 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedRepartitionLeft
+( const DM& AL, const DM& AR,
+  DM& A0, DM& A1, DM& A2, int bsize );
 
 template<typename T>
 void LockedRepartitionRight
 ( const M& AL, const M& AR,
-  M& A0, M& A1, M& A2      );
+  M& A0, M& A1, M& A2 );
+
+template<typename T>
+void LockedRepartitionRight
+( const M& AL, const M& AR,
+  M& A0, M& A1, M& A2, int bsize );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedRepartitionRight
 ( const DM& AL, const DM& AR,
-  DM& A0, DM& A1, DM& A2     );
+  DM& A0, DM& A1, DM& A2 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedRepartitionRight
+( const DM& AL, const DM& AR,
+  DM& A0, DM& A1, DM& A2, int bsize );
 
 template<typename T>
 void LockedRepartitionUpDiagonal
@@ -337,11 +641,23 @@ void LockedRepartitionUpDiagonal
                               M& A10, M& A11, M& A12,
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22 );
 
+template<typename T>
+void LockedRepartitionUpDiagonal
+( const M& ATL, const M& ATR, M& A00, M& A01, M& A02,
+                              M& A10, M& A11, M& A12,
+  const M& ABL, const M& ABR, M& A20, M& A21, M& A22, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedRepartitionUpDiagonal
 ( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
                                 DM& A10, DM& A11, DM& A12,
   const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedRepartitionUpDiagonal
+( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
+                                DM& A10, DM& A11, DM& A12,
+  const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, int bsize );
 
 template<typename T>
 void LockedRepartitionDownDiagonal
@@ -349,17 +665,35 @@ void LockedRepartitionDownDiagonal
                               M& A10, M& A11, M& A12,
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22 );
 
+template<typename T>
+void LockedRepartitionDownDiagonal
+( const M& ATL, const M& ATR, M& A00, M& A01, M& A02,
+                              M& A10, M& A11, M& A12,
+  const M& ABL, const M& ABR, M& A20, M& A21, M& A22, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void LockedRepartitionDownDiagonal
 ( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
                                 DM& A10, DM& A11, DM& A12,
   const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void LockedRepartitionDownDiagonal
+( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
+                                DM& A10, DM& A11, DM& A12,
+  const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, int bsize );
+
 template<typename T>
 void SlidePartitionUp
 ( M& AT, M& A0,
          M& A1,
   M& AB, M& A2 );
+
+template<typename T>
+void SlidePartitionUp
+( M& AT, M& A0,
+         M& A1,
+  M& AB, M& A2, int bsize );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlidePartitionUp
@@ -367,11 +701,23 @@ void SlidePartitionUp
           DM& A1,
   DM& AB, DM& A2 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlidePartitionUp
+( DM& AT, DM& A0,
+          DM& A1,
+  DM& AB, DM& A2, int bsize );
+
 template<typename T>
 void SlidePartitionDown
 ( M& AT, M& A0,
          M& A1,
   M& AB, M& A2 );
+
+template<typename T>
+void SlidePartitionDown
+( M& AT, M& A0,
+         M& A1,
+  M& AB, M& A2, int bsize );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlidePartitionDown
@@ -379,25 +725,51 @@ void SlidePartitionDown
           DM& A1,
   DM& AB, DM& A2 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlidePartitionDown
+( DM& AT, DM& A0,
+          DM& A1,
+  DM& AB, DM& A2, int bsize );
+
 template<typename T>
 void SlidePartitionLeft
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2 );
+
+template<typename T>
+void SlidePartitionLeft
+( M& AL, M& AR,
+  M& A0, M& A1, M& A2, int bsize );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlidePartitionLeft
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlidePartitionLeft
+( DM& AL, DM& AR,
+  DM& A0, DM& A1, DM& A2, int bsize );
+
 template<typename T>
 void SlidePartitionRight
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2 );
 
+template<typename T>
+void SlidePartitionRight
+( M& AL, M& AR,
+  M& A0, M& A1, M& A2, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlidePartitionRight
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlidePartitionRight
+( DM& AL, DM& AR,
+  DM& A0, DM& A1, DM& A2, int bsize );
 
 template<typename T>
 void SlidePartitionUpDiagonal
@@ -405,11 +777,23 @@ void SlidePartitionUpDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22 );
 
+template<typename T>
+void SlidePartitionUpDiagonal
+( M& ATL, M& ATR, M& A00, M& A01, M& A02,
+                  M& A10, M& A11, M& A12,
+  M& ABL, M& ABR, M& A20, M& A21, M& A22, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlidePartitionUpDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
                     DM& A10, DM& A11, DM& A12,
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlidePartitionUpDiagonal
+( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
+                    DM& A10, DM& A11, DM& A12,
+  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, int bsize );
 
 template<typename T>
 void SlidePartitionDownDiagonal
@@ -417,17 +801,35 @@ void SlidePartitionDownDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22 );
 
+template<typename T>
+void SlidePartitionDownDiagonal
+( M& ATL, M& ATR, M& A00, M& A01, M& A02,
+                  M& A10, M& A11, M& A12,
+  M& ABL, M& ABR, M& A20, M& A21, M& A22, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlidePartitionDownDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
                     DM& A10, DM& A11, DM& A12,
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlidePartitionDownDiagonal
+( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
+                    DM& A10, DM& A11, DM& A12,
+  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, int bsize );
+
 template<typename T>
 void SlideLockedPartitionUp
 ( M& AT, const M& A0,
          const M& A1,
   M& AB, const M& A2 );
+
+template<typename T>
+void SlideLockedPartitionUp
+( M& AT, const M& A0,
+         const M& A1,
+  M& AB, const M& A2, int bsize );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlideLockedPartitionUp
@@ -435,43 +837,87 @@ void SlideLockedPartitionUp
           const DM& A1,
   DM& AB, const DM& A2 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlideLockedPartitionUp
+( DM& AT, const DM& A0,
+          const DM& A1,
+  DM& AB, const DM& A2, int bsize );
+
 template<typename T>
 void SlideLockedPartitionDown
 ( M& AT, const M& A0,
          const M& A1,
   M& AB, const M& A2 );
 
+template<typename T>
+void SlideLockedPartitionDown
+( M& AT, const M& A0,
+         const M& A1,
+  M& AB, const M& A2, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlideLockedPartitionDown
 ( DM& AT, const DM& A0,
           const DM& A1,
   DM& AB, const DM& A2 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlideLockedPartitionDown
+( DM& AT, const DM& A0,
+          const DM& A1,
+  DM& AB, const DM& A2, int bsize );
 
 template<typename T>
 void SlideLockedPartitionLeft
 ( M& AL, M& AR,
   const M& A0, const M& A1, const M& A2 ); 
 
+template<typename T>
+void SlideLockedPartitionLeft
+( M& AL, M& AR,
+  const M& A0, const M& A1, const M& A2, int bsize ); 
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlideLockedPartitionLeft
 ( DM& AL, DM& AR,
   const DM& A0, const DM& A1, const DM& A2 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlideLockedPartitionLeft
+( DM& AL, DM& AR,
+  const DM& A0, const DM& A1, const DM& A2, int bsize );
 
 template<typename T>
 void SlideLockedPartitionRight
 ( M& AL, M& AR,
   const M& A0, const M& A1, const M& A2 );
 
+template<typename T>
+void SlideLockedPartitionRight
+( M& AL, M& AR,
+  const M& A0, const M& A1, const M& A2, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlideLockedPartitionRight
 ( DM& AL, DM& AR,
   const DM& A0, const DM& A1, const DM& A2 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlideLockedPartitionRight
+( DM& AL, DM& AR,
+  const DM& A0, const DM& A1, const DM& A2, int bsize );
+
 template<typename T>
 void SlideLockedPartitionUpDiagonal
 ( M& ATL, M& ATR, const M& A00, const M& A01, const M& A02,
                   const M& A10, const M& A11, const M& A12,
   M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 );
+
+template<typename T>
+void SlideLockedPartitionUpDiagonal
+( M& ATL, M& ATR, const M& A00, const M& A01, const M& A02,
+                  const M& A10, const M& A11, const M& A12,
+  M& ABL, M& ABR, const M& A20, const M& A21, const M& A22, int bsize );
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlideLockedPartitionUpDiagonal
@@ -479,23 +925,52 @@ void SlideLockedPartitionUpDiagonal
                     const DM& A10, const DM& A11, const DM& A12,
   DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 );
 
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlideLockedPartitionUpDiagonal
+( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
+                    const DM& A10, const DM& A11, const DM& A12,
+  DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22, int bsize );
+
 template<typename T>
 void SlideLockedPartitionDownDiagonal
 ( M& ATL, M& ATR, const M& A00, const M& A01, const M& A02,
                   const M& A10, const M& A11, const M& A12,
   M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 );
 
+template<typename T>
+void SlideLockedPartitionDownDiagonal
+( M& ATL, M& ATR, const M& A00, const M& A01, const M& A02,
+                  const M& A10, const M& A11, const M& A12,
+  M& ABL, M& ABR, const M& A20, const M& A21, const M& A22, int bsize );
+
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 void SlideLockedPartitionDownDiagonal
 ( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
                     const DM& A10, const DM& A11, const DM& A12,
   DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 );
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+void SlideLockedPartitionDownDiagonal
+( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
+                    const DM& A10, const DM& A11, const DM& A12,
+  DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22, int bsize );
 
 } // elemental
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
+
+template<typename T>
+inline void
+elemental::PartitionUp
+( M& A, M& AT,
+        M& AB )
+{ 
+    PartitionUp
+    ( A, AT, 
+         AB, std::min( Blocksize(), A.Height() ) ); 
+}
 
 template<typename T>
 inline void
@@ -517,6 +992,17 @@ elemental::PartitionUp
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionUp
+( DM& A, DM& AT,
+         DM& AB )
+{
+    PartitionUp
+    ( A, AT,
+         AB, std::min( Blocksize(), A.Height() ) );
 }
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
@@ -545,6 +1031,17 @@ template<typename T>
 inline void
 elemental::PartitionDown
 ( M& A, M& AT,
+        M& AB ) 
+{
+    PartitionDown
+    ( A, AT,
+         AB, std::min( Blocksize(), A.Height() ) );
+}
+
+template<typename T>
+inline void
+elemental::PartitionDown
+( M& A, M& AT,
         M& AB, int heightAT ) 
 {
 #ifndef RELEASE
@@ -561,6 +1058,17 @@ elemental::PartitionDown
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionDown
+( DM& A, DM& AT,
+         DM& AB )
+{
+    PartitionDown
+    ( A, AT,
+         AB, std::min( Blocksize(), A.Height() ) );
 }
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
@@ -588,6 +1096,14 @@ elemental::PartitionDown
 template<typename T>
 inline void
 elemental::PartitionLeft
+( M& A, M& AL, M& AR )
+{
+    PartitionLeft( A, AL, AR, std::min( Blocksize(), A.Width() ) );
+}
+
+template<typename T>
+inline void
+elemental::PartitionLeft
 ( M& A, M& AL, M& AR, int widthAR )
 {
 #ifndef RELEASE
@@ -604,6 +1120,14 @@ elemental::PartitionLeft
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionLeft
+( DM& A, DM& AL, DM& AR )
+{
+    PartitionLeft( A, AL, AR, std::min( Blocksize(), A.Width() ) );
 }
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
@@ -630,6 +1154,14 @@ elemental::PartitionLeft
 template<typename T>
 inline void
 elemental::PartitionRight
+( M& A, M& AL, M& AR )
+{
+    PartitionRight( A, AL, AR, std::min( Blocksize(), A.Width() ) );
+}
+
+template<typename T>
+inline void
+elemental::PartitionRight
 ( M& A, M& AL, M& AR, int widthAL )
 {
 #ifndef RELEASE
@@ -646,6 +1178,14 @@ elemental::PartitionRight
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionRight
+( DM& A, DM& AL, DM& AR )
+{
+    PartitionRight( A, AL, AR, std::min( Blocksize(), A.Width() ) );
 }
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
@@ -673,6 +1213,18 @@ template<typename T>
 inline void
 elemental::PartitionUpDiagonal
 ( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionUpDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T>
+inline void
+elemental::PartitionUpDiagonal
+( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, int diagABR )
 {
 #ifndef RELEASE
@@ -690,6 +1242,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::PartitionUpDiagonal
 ( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionUpDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionUpDiagonal
+( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, int diagABR )
 {
 #ifndef RELEASE
@@ -701,6 +1265,18 @@ elemental::PartitionUpDiagonal
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::PartitionUpLeftDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionUpLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
 }
 
 template<typename T>
@@ -733,6 +1309,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::PartitionUpLeftDiagonal
 ( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionUpLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionUpLeftDiagonal
+( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, int diagABR )
 {
 #ifndef RELEASE
@@ -753,6 +1341,18 @@ elemental::PartitionUpLeftDiagonal
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::PartitionUpRightDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionUpRightDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
 }
 
 template<typename T>
@@ -783,6 +1383,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::PartitionUpRightDiagonal
 ( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionUpRightDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionUpRightDiagonal
+( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, int diagABR )
 {
 #ifndef RELEASE
@@ -807,6 +1419,18 @@ template<typename T>
 inline void
 elemental::PartitionDownDiagonal
 ( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T>
+inline void
+elemental::PartitionDownDiagonal
+( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, int diagATL )
 {
 #ifndef RELEASE
@@ -824,6 +1448,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::PartitionDownDiagonal
 ( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionDownDiagonal
+( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, int diagATL )
 {
 #ifndef RELEASE
@@ -835,6 +1471,18 @@ elemental::PartitionDownDiagonal
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::PartitionDownLeftDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
 }
 
 template<typename T>
@@ -865,6 +1513,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::PartitionDownLeftDiagonal
 ( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionDownLeftDiagonal
+( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, int diagATL )
 {
 #ifndef RELEASE
@@ -883,6 +1543,18 @@ elemental::PartitionDownLeftDiagonal
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::PartitionDownRightDiagonal
+( M& A, M& ATL, M& ATR,
+        M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionDownRightDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
 }
 
 template<typename T>
@@ -915,6 +1587,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::PartitionDownRightDiagonal
 ( DM& A, DM& ATL, DM& ATR,
+         DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    PartitionDownRightDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::PartitionDownRightDiagonal
+( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, int diagATL )
 {
 #ifndef RELEASE
@@ -935,6 +1619,17 @@ elemental::PartitionDownRightDiagonal
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionUp
+( const M& A, M& AT,
+              M& AB )
+{
+    LockedPartitionUp
+    ( A, AT,
+         AB, std::min( Blocksize(), A.Height() ) );
 }
 
 template<typename T>
@@ -963,6 +1658,17 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedPartitionUp
 ( const DM& A, DM& AT,
+               DM& AB )
+{
+    LockedPartitionUp
+    ( A, AT,
+         AB, std::min( Blocksize(), A.Height() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionUp
+( const DM& A, DM& AT,
                DM& AB, int heightAB )
 {
 #ifndef RELEASE
@@ -979,6 +1685,17 @@ elemental::LockedPartitionUp
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionDown
+( const M& A, M& AT,
+              M& AB ) 
+{
+    LockedPartitionDown
+    ( A, AT,
+         AB, std::min( Blocksize(), A.Height() ) );
 }
 
 template<typename T>
@@ -1007,6 +1724,17 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedPartitionDown
 ( const DM& A, DM& AT,
+               DM& AB )
+{
+    LockedPartitionDown
+    ( A, AT,
+         AB, std::min( Blocksize(), A.Height() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionDown
+( const DM& A, DM& AT,
                DM& AB, int heightAT )
 {
 #ifndef RELEASE
@@ -1023,6 +1751,14 @@ elemental::LockedPartitionDown
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionLeft
+( const M& A, M& AL, M& AR )
+{
+    LockedPartitionLeft( A, AL, AR, std::min( Blocksize(), A.Width() ) );
 }
 
 template<typename T>
@@ -1049,6 +1785,14 @@ elemental::LockedPartitionLeft
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedPartitionLeft
+( const DM& A, DM& AL, DM& AR )
+{
+    LockedPartitionLeft( A, AL, AR, std::min( Blocksize(), A.Width() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionLeft
 ( const DM& A, DM& AL, DM& AR, int widthAR )
 {
 #ifndef RELEASE
@@ -1070,6 +1814,14 @@ elemental::LockedPartitionLeft
 template<typename T>
 inline void
 elemental::LockedPartitionRight
+( const M& A, M& AL, M& AR )
+{
+    LockedPartitionRight( A, AL, AR, std::min( Blocksize(), A.Width() ) );
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionRight
 ( const M& A, M& AL, M& AR, int widthAL )
 {
 #ifndef RELEASE
@@ -1086,6 +1838,14 @@ elemental::LockedPartitionRight
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionRight
+( const DM& A, DM& AL, DM& AR )
+{
+    LockedPartitionRight( A, AL, AR, std::min( Blocksize(), A.Width() ) );
 }
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
@@ -1113,6 +1873,18 @@ template<typename T>
 inline void
 elemental::LockedPartitionUpDiagonal
 ( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionUpDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionUpDiagonal
+( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, int diagABR )
 {
 #ifndef RELEASE
@@ -1130,6 +1902,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedPartitionUpDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionUpDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionUpDiagonal
+( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, int diagABR )
 {
 #ifndef RELEASE
@@ -1141,6 +1925,18 @@ elemental::LockedPartitionUpDiagonal
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionUpLeftDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionUpLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
 }
 
 template<typename T>
@@ -1173,6 +1969,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedPartitionUpLeftDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionUpLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionUpLeftDiagonal
+( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, int diagABR )
 {
 #ifndef RELEASE
@@ -1193,6 +2001,18 @@ elemental::LockedPartitionUpLeftDiagonal
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionUpRightDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionUpRightDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
 }
 
 template<typename T>
@@ -1223,6 +2043,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedPartitionUpRightDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionUpRightDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionUpRightDiagonal
+( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, int diagABR )
 {
 #ifndef RELEASE
@@ -1247,6 +2079,18 @@ template<typename T>
 inline void
 elemental::LockedPartitionDownDiagonal
 ( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionDownDiagonal
+( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, int diagATL )
 {
 #ifndef RELEASE
@@ -1264,6 +2108,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedPartitionDownDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionDownDiagonal
+( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, int diagATL )
 {
 #ifndef RELEASE
@@ -1275,6 +2131,18 @@ elemental::LockedPartitionDownDiagonal
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionDownLeftDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
 }
 
 template<typename T>
@@ -1305,6 +2173,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedPartitionDownLeftDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionDownLeftDiagonal
+( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, int diagATL )
 {
 #ifndef RELEASE
@@ -1323,6 +2203,18 @@ elemental::LockedPartitionDownLeftDiagonal
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+inline void
+elemental::LockedPartitionDownRightDiagonal
+( const M& A, M& ATL, M& ATR,
+              M& ABL, M& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionDownRightDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
 }
 
 template<typename T>
@@ -1355,6 +2247,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedPartitionDownRightDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
+               DM& ABL, DM& ABR )
+{
+    const int minDim = std::min( A.Height(), A.Width() );
+    LockedPartitionDownRightDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedPartitionDownRightDiagonal
+( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, int diagATL )
 {
 #ifndef RELEASE
@@ -1377,6 +2281,8 @@ elemental::LockedPartitionDownRightDiagonal
 #endif
 }
 
+// HERE: Should Partition routines overflow if Blocksize() too big? No!
+
 template<typename T>
 inline void
 elemental::RepartitionUp
@@ -1384,15 +2290,29 @@ elemental::RepartitionUp
          M& A1,
   M& AB, M& A2 )
 {
+    RepartitionUp
+    ( AT, A0,
+          A1,
+      AB, A2, std::min( AT.Height(), Blocksize() ) );
+}
+
+template<typename T>
+inline void
+elemental::RepartitionUp
+( M& AT, M& A0,
+         M& A1,
+  M& AB, M& A2, int A1Height )
+{
 #ifndef RELEASE
     PushCallStack("RepartitionUp [Matrix]");
     if( (AT.Buffer() + AT.Height()) != AB.Buffer() )
         throw std::logic_error( "Noncontiguous 2x1 array of matrices." );
+    if( A1Height > AT.Height() )
+        throw std::logic_error( "A1 cannot be taller than AT." );
 #endif
-    int bsize = std::min( AT.Height(), Blocksize() );
-    int offset = AT.Height()-bsize; 
-    A0.View( AT, 0,      0, offset, AT.Width() );
-    A1.View( AT, offset, 0, bsize,  AT.Width() );
+    int offset = AT.Height()-A1Height; 
+    A0.View( AT, 0,      0, offset,   AT.Width() );
+    A1.View( AT, offset, 0, A1Height, AT.Width() );
     A2.View( AB );
 #ifndef RELEASE
     PopCallStack();
@@ -1405,6 +2325,19 @@ elemental::RepartitionUp
 ( DM& AT, DM& A0,
           DM& A1,
   DM& AB, DM& A2 )
+{
+    RepartitionUp
+    ( AT, A0,
+          A1,
+      AB, A2, std::min( Blocksize(), AT.Height() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::RepartitionUp
+( DM& AT, DM& A0,
+          DM& A1,
+  DM& AB, DM& A2, int A1Height )
 {
 #ifndef RELEASE
     PushCallStack("RepartitionUp [DistMatrix]");
@@ -1414,11 +2347,12 @@ elemental::RepartitionUp
         throw std::logic_error
         ( "Noncontiguous 2x1 array of distributed matrices." );
     }
+    if( A1Height > AT.Height() )
+        throw std::logic_error( "A1 cannot be taller than AT." );
 #endif
-    int bsize = std::min( AT.Height(), Blocksize() );
-    int offset = AT.Height()-bsize; 
-    A0.View( AT, 0,      0, offset, AT.Width() );
-    A1.View( AT, offset, 0, bsize,  AT.Width() );
+    int offset = AT.Height()-A1Height; 
+    A0.View( AT, 0,      0, offset,   AT.Width() );
+    A1.View( AT, offset, 0, A1Height, AT.Width() );
     A2.View( AB );
 #ifndef RELEASE
     PopCallStack();
@@ -1432,16 +2366,30 @@ elemental::RepartitionDown
          M& A1,
   M& AB, M& A2 )
 {
+    RepartitionDown
+    ( AT, A0,
+          A1,
+      AB, A2, std::min( Blocksize(), AB.Height() ) );
+}
+
+template<typename T>
+inline void
+elemental::RepartitionDown
+( M& AT, M& A0,
+         M& A1,
+  M& AB, M& A2, int A1Height )
+{
 #ifndef RELEASE
     PushCallStack("RepartitionDown [Matrix]");
     if( (AT.Buffer() + AT.Height()) != AB.Buffer() )
         throw std::logic_error( "Noncontiguous 2x1 array of matrices." );
+    if( A1Height > AB.Height() )
+        throw std::logic_error( "A1 cannot be taller than AB." );
 #endif
-    int bsize = std::min( AB.Height(), Blocksize() );
-    int offset = AB.Height()-bsize; 
+    int offset = AB.Height()-A1Height; 
     A0.View( AT );
-    A1.View( AB, 0,     0, bsize,  AB.Width() );
-    A2.View( AB, bsize, 0, offset, AB.Width() );
+    A1.View( AB, 0,        0, A1Height, AB.Width() );
+    A2.View( AB, A1Height, 0, offset,   AB.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1454,6 +2402,19 @@ elemental::RepartitionDown
           DM& A1,
   DM& AB, DM& A2 )
 {
+    RepartitionDown
+    ( AT, A0,
+          A1,
+      AB, A2, std::min( Blocksize(), AB.Height() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::RepartitionDown
+( DM& AT, DM& A0,
+          DM& A1,
+  DM& AB, DM& A2, int A1Height )
+{
 #ifndef RELEASE
     PushCallStack("RepartitionDown [DistMatrix]");
     if( (AT.LocalMatrix().Buffer() + AT.LocalHeight()) != 
@@ -1462,12 +2423,13 @@ elemental::RepartitionDown
         throw std::logic_error
         ( "Noncontiguous 2x1 array of distributed matrices." );
     }
+    if( A1Height > AB.Height() )
+        throw std::logic_error( "A1 cannot be taller than AB." );
 #endif
-    int bsize = std::min( AB.Height(), Blocksize() );
-    int offset = AB.Height()-bsize; 
+    int offset = AB.Height()-A1Height; 
     A0.View( AT );
-    A1.View( AB, 0,     0, bsize,  AB.Width() );
-    A2.View( AB, bsize, 0, offset, AB.Width() );
+    A1.View( AB, 0,        0, A1Height, AB.Width() );
+    A2.View( AB, A1Height, 0, offset, AB.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1479,17 +2441,27 @@ elemental::RepartitionLeft
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2 )
 {
+    RepartitionLeft
+    ( AL, AR,
+      A0, A1, A2, std::min( Blocksize(), AL.Width() ) );
+}
+
+template<typename T>
+inline void
+elemental::RepartitionLeft
+( M& AL, M& AR,
+  M& A0, M& A1, M& A2, int A1Width )
+{
 #ifndef RELEASE
     PushCallStack("RepartitionLeft [Matrix]");
     if( (AL.Buffer() + AL.Width()*AL.LDim()) != AR.Buffer() )
-    {
         throw std::logic_error( "Noncontiguous 1x2 array of matrices." );
-    }
+    if( A1Width > AL.Width() )
+        throw std::logic_error( "A1 cannot be wider than AL." );
 #endif
-    int bsize = std::min( AL.Width(), Blocksize() );
-    int offset = AL.Width()-bsize;
-    A0.View( AL, 0, 0,      AL.Height(), offset );
-    A1.View( AL, 0, offset, AL.Height(), bsize  );
+    int offset = AL.Width()-A1Width;
+    A0.View( AL, 0, 0,      AL.Height(), offset   );
+    A1.View( AL, 0, offset, AL.Height(), A1Width  );
     A2.View( AR );
 #ifndef RELEASE
     PopCallStack();
@@ -1501,6 +2473,17 @@ inline void
 elemental::RepartitionLeft
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2 )
+{
+    RepartitionLeft
+    ( AL, AR,
+      A0, A1, A2, std::min( Blocksize(), AL.Width() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::RepartitionLeft
+( DM& AL, DM& AR,
+  DM& A0, DM& A1, DM& A2, int A1Width )
 {
 #ifndef RELEASE
     PushCallStack("RepartitionLeft [DistMatrix]");
@@ -1510,11 +2493,12 @@ elemental::RepartitionLeft
         throw std::logic_error
         ( "Noncontiguous 1x2 array of distributed matrices." );
     }
+    if( A1Width > AL.Width() )
+        throw std::logic_error( "A1 cannot be wider than AL." );
 #endif
-    int bsize = std::min( AL.Width(), Blocksize() );
-    int offset = AL.Width()-bsize;
-    A0.View( AL, 0, 0,      AL.Height(), offset );
-    A1.View( AL, 0, offset, AL.Height(), bsize  );
+    int offset = AL.Width()-A1Width;
+    A0.View( AL, 0, 0,      AL.Height(), offset  );
+    A1.View( AL, 0, offset, AL.Height(), A1Width );
     A2.View( AR );
 #ifndef RELEASE
     PopCallStack();
@@ -1527,18 +2511,28 @@ elemental::RepartitionRight
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2 )
 {
+    RepartitionRight
+    ( AL, AR,
+      A0, A1, A2, std::min( Blocksize(), AR.Width() ) );
+}
+
+template<typename T>
+inline void
+elemental::RepartitionRight
+( M& AL, M& AR,
+  M& A0, M& A1, M& A2, int A1Width )
+{
 #ifndef RELEASE
     PushCallStack("RepartitionRight [Matrix]");
     if( (AL.Buffer() + AL.Width()*AL.LDim()) != AR.Buffer() )
-    {
         throw std::logic_error( "Noncontiguous 1x2 array of matrices." );
-    }
+    if( A1Width > AR.Width() )
+        throw std::logic_error( "A1 cannot be wider than AR." );
 #endif
-    int bsize = std::min( AR.Width(), Blocksize() );
-    int offset = AR.Width()-bsize;
+    int offset = AR.Width()-A1Width;
     A0.View( AL );
-    A1.View( AR, 0, 0,     AR.Height(), bsize  );
-    A2.View( AR, 0, bsize, AR.Height(), offset );
+    A1.View( AR, 0, 0,       AR.Height(), A1Width );
+    A2.View( AR, 0, A1Width, AR.Height(), offset  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1550,6 +2544,17 @@ elemental::RepartitionRight
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2 )
 {
+    RepartitionRight
+    ( AL, AR,
+      A0, A1, A2, std::min( Blocksize(), AR.Width() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::RepartitionRight
+( DM& AL, DM& AR,
+  DM& A0, DM& A1, DM& A2, int A1Width )
+{
 #ifndef RELEASE
     PushCallStack("RepartitionRight [DistMatrix]");
     if( (AL.LocalMatrix().Buffer() + AL.LocalWidth()*AL.LocalLDim()) 
@@ -1558,12 +2563,13 @@ elemental::RepartitionRight
         throw std::logic_error
         ( "Noncontiguous 1x2 array of distributed matrices." );
     }
+    if( A1Width > AR.Width() )
+        throw std::logic_error( "A1 cannot be wider than AR." );
 #endif
-    int bsize = std::min( AR.Width(), Blocksize() );
-    int offset = AR.Width()-bsize;
+    int offset = AR.Width()-A1Width;
     A0.View( AL );
-    A1.View( AR, 0, 0,     AR.Height(), bsize  );
-    A2.View( AR, 0, bsize, AR.Height(), offset );
+    A1.View( AR, 0, 0,       AR.Height(), A1Width );
+    A2.View( AR, 0, A1Width, AR.Height(), offset  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1576,6 +2582,20 @@ elemental::RepartitionUpDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22 )
 {
+    const int minDim = std::min( ATL.Height(), ATL.Width() );
+    RepartitionUpDiagonal
+    ( ATL, ATR,  A00, A01, A02,
+                 A10, A11, A12,
+      ABL, ABR,  A20, A21, A22, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T>
+inline void
+elemental::RepartitionUpDiagonal
+( M& ATL, M& ATR, M& A00, M& A01, M& A02,
+                  M& A10, M& A11, M& A12,
+  M& ABL, M& ABR, M& A20, M& A21, M& A22, int bsize )
+{
 #ifndef RELEASE
     PushCallStack("RepartitionUpDiagonal [Matrix]");
     if( (ATL.Buffer() + ATL.Height()) != ABL.Buffer() ||
@@ -1583,9 +2603,9 @@ elemental::RepartitionUpDiagonal
         (ATL.Buffer() + ATL.Width()*ATL.LDim()) != ATR.Buffer() ||
         (ABL.Buffer() + ABL.Width()*ABL.LDim()) != ABR.Buffer()    )
         throw std::logic_error( "Noncontiguous 2x2 grid of matrices." );
+    if( bsize > std::min( ATL.Height(), ATL.Width() ) )
+        throw std::logic_error( "A11 cannot be larger than ATL." );
 #endif
-    int bsize = std::min( Blocksize(), std::min( ATL.Height(),
-                                                 ATL.Width() ) );
     int vOffset = ATL.Height()-bsize;
     int hOffset = ATL.Width()-bsize;
     A00.View( ATL, 0,       0,       vOffset,      hOffset     );
@@ -1608,6 +2628,20 @@ elemental::RepartitionUpDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
                     DM& A10, DM& A11, DM& A12,
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 )
+{
+    const int minDim = std::min( ATL.Height(), ATL.Width() );
+    RepartitionUpDiagonal
+    ( ATL, ATR,  A00, A01, A02,
+                 A10, A11, A12,
+      ABL, ABR,  A20, A21, A22, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::RepartitionUpDiagonal
+( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
+                    DM& A10, DM& A11, DM& A12,
+  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, int bsize )
 {
 #ifndef RELEASE
     PushCallStack("RepartitionUpDiagonal [DistMatrix]");
@@ -1623,9 +2657,9 @@ elemental::RepartitionUpDiagonal
         throw std::logic_error
         ( "Noncontiguous 2x2 grid of distributed matrices." );
     }
+    if( bsize > std::min( ATL.Height(), ATL.Width() ) )
+        throw std::logic_error( "A11 cannot be larger than ATL." );
 #endif
-    int bsize = std::min( Blocksize(), std::min( ATL.Height(),
-                                                 ATL.Width() ) );
     int vOffset = ATL.Height()-bsize;
     int hOffset = ATL.Width()-bsize;
     A00.View( ATL, 0,       0,       vOffset,      hOffset     );
@@ -1649,18 +2683,30 @@ elemental::RepartitionDownDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22 )
 {
+    const int minDim = std::min( ABR.Height(), ABR.Width() );
+    RepartitionDownDiagonal
+    ( ATL, ATR,  A00, A01, A02,
+                 A10, A11, A12,
+      ABL, ABR,  A20, A21, A22, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T>
+inline void
+elemental::RepartitionDownDiagonal
+( M& ATL, M& ATR, M& A00, M& A01, M& A02,
+                  M& A10, M& A11, M& A12,
+  M& ABL, M& ABR, M& A20, M& A21, M& A22, int bsize )
+{
 #ifndef RELEASE
     PushCallStack("RepartitionDownDiagonal [Matrix]");
     if( (ATL.Buffer() + ATL.Height()) != ABL.Buffer() ||
         (ATR.Buffer() + ATR.Height()) != ABR.Buffer() ||
         (ATL.Buffer() + ATL.Width()*ATL.LDim()) != ATR.Buffer() ||
         (ABL.Buffer() + ABL.Width()*ABL.LDim()) != ABR.Buffer()    )
-    {
         throw std::logic_error( "Noncontiguous 2x2 grid of matrices." );
-    }
+    if( bsize > std::min( ABR.Height(), ABR.Width() ) )
+        throw std::logic_error( "A11 cannot be larger than ABR." );
 #endif
-    int bsize = std::min( Blocksize(), std::min( ABR.Height(),
-                                                 ABR.Width() ) );
     int vOffset = ABR.Height()-bsize;
     int hOffset = ABR.Width()-bsize;
     A00.View( ATL );
@@ -1684,6 +2730,20 @@ elemental::RepartitionDownDiagonal
                     DM& A10, DM& A11, DM& A12,
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 )
 {
+    const int minDim = std::min( ABR.Height(), ABR.Width() );
+    RepartitionDownDiagonal
+    ( ATL, ATR,  A00, A01, A02,
+                 A10, A11, A12,
+      ABL, ABR,  A20, A21, A22, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::RepartitionDownDiagonal
+( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
+                    DM& A10, DM& A11, DM& A12,
+  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, int bsize )
+{
 #ifndef RELEASE
     PushCallStack("RepartitionDownDiagonal [DistMatrix]");
     if( (ATL.LocalMatrix().Buffer() + ATL.LocalHeight()) != 
@@ -1698,9 +2758,9 @@ elemental::RepartitionDownDiagonal
         throw std::logic_error
         ( "Noncontiguous 2x2 grid of distributed matrices." );
     }
+    if( bsize > std::min( ABR.Height(), ABR.Width() ) )
+        throw std::logic_error( "A11 cannot be larger than ABR." );
 #endif
-    int bsize = std::min( Blocksize(), std::min( ABR.Height(),
-                                                 ABR.Width() ) );
     int vOffset = ABR.Height()-bsize;
     int hOffset = ABR.Width()-bsize;
     A00.View( ATL );
@@ -1724,15 +2784,29 @@ elemental::LockedRepartitionUp
                M& A1,
   const M& AB, M& A2 )
 {
+    LockedRepartitionUp
+    ( AT, A0,
+          A1,
+      AB, A2, std::min( Blocksize(), AT.Height() ) );
+}
+
+template<typename T>
+inline void
+elemental::LockedRepartitionUp
+( const M& AT, M& A0,
+               M& A1,
+  const M& AB, M& A2, int A1Height )
+{
 #ifndef RELEASE
     PushCallStack("LockedRepartitionUp [Matrix]");
     if( (AT.LockedBuffer() + AT.Height()) != AB.LockedBuffer() )
         throw std::logic_error( "Noncontiguous 2x1 array of matrices." );
+    if( A1Height > AT.Height() )
+        throw std::logic_error( "A1 cannot be taller than AT." );
 #endif
-    int bsize = std::min( AT.Height(), Blocksize() );
-    int offset = AT.Height()-bsize;
-    A0.LockedView( AT, 0,      0, offset, AT.Width() );
-    A1.LockedView( AT, offset, 0, bsize,  AT.Width() );
+    int offset = AT.Height()-A1Height;
+    A0.LockedView( AT, 0,      0, offset,   AT.Width() );
+    A1.LockedView( AT, offset, 0, A1Height, AT.Width() );
     A2.LockedView( AB );
 #ifndef RELEASE
     PopCallStack();
@@ -1746,6 +2820,19 @@ elemental::LockedRepartitionUp
                 DM& A1,
   const DM& AB, DM& A2 )
 {
+    LockedRepartitionUp
+    ( AT, A0,
+          A1,
+      AB, A2, std::min( Blocksize(), AT.Height() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedRepartitionUp
+( const DM& AT, DM& A0,
+                DM& A1,
+  const DM& AB, DM& A2, int A1Height )
+{
 #ifndef RELEASE
     PushCallStack("LockedRepartitionUp [DistMatrix]");
     if( (AT.LockedLocalMatrix().LockedBuffer() + AT.LocalHeight()) != 
@@ -1754,11 +2841,12 @@ elemental::LockedRepartitionUp
         throw std::logic_error
         ( "Noncontiguous 2x1 array of distributed matrices." );
     }
+    if( A1Height > AT.Height() )
+        throw std::logic_error( "A1 cannot be taller than AT." );
 #endif
-    int bsize = std::min( AT.Height(), Blocksize() );
-    int offset = AT.Height()-bsize;
-    A0.LockedView( AT, 0,      0, offset, AT.Width() );
-    A1.LockedView( AT, offset, 0, bsize,  AT.Width() );
+    int offset = AT.Height()-A1Height;
+    A0.LockedView( AT, 0,      0, offset,   AT.Width() );
+    A1.LockedView( AT, offset, 0, A1Height, AT.Width() );
     A2.LockedView( AB );
 #ifndef RELEASE
     PopCallStack();
@@ -1772,16 +2860,30 @@ elemental::LockedRepartitionDown
                M& A1,
   const M& AB, M& A2 )
 {
+    LockedRepartitionDown
+    ( AT, A0,
+          A1,
+      AB, A2, std::min( Blocksize(), AB.Height() ) );
+}
+
+template<typename T>
+inline void
+elemental::LockedRepartitionDown
+( const M& AT, M& A0,
+               M& A1,
+  const M& AB, M& A2, int A1Height )
+{
 #ifndef RELEASE
     PushCallStack("LockedRepartitionDown [Matrix]");
     if( (AT.LockedBuffer() + AT.Height()) != AB.LockedBuffer() )
         throw std::logic_error( "Noncontiguous 2x1 array of matrices." );
+    if( A1Height > AB.Height() )
+        throw std::logic_error( "A1 cannot be taller than AB." );
 #endif
-    int bsize = std::min( AB.Height(), Blocksize() );
-    int offset = AB.Height()-bsize;
+    int offset = AB.Height()-A1Height;
     A0.LockedView( AT );
-    A1.LockedView( AB, 0,     0, bsize,  AB.Width() );
-    A2.LockedView( AB, bsize, 0, offset, AB.Width() );
+    A1.LockedView( AB, 0,        0, A1Height, AB.Width() );
+    A2.LockedView( AB, A1Height, 0, offset,   AB.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1794,6 +2896,19 @@ elemental::LockedRepartitionDown
                 DM& A1,
   const DM& AB, DM& A2 )
 {
+    LockedRepartitionDown
+    ( AT, A0,
+          A1,
+      AB, A2, std::min( Blocksize(), AB.Height() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedRepartitionDown
+( const DM& AT, DM& A0,
+                DM& A1,
+  const DM& AB, DM& A2, int A1Height )
+{
 #ifndef RELEASE
     PushCallStack("LockedRepartitionDown [DistMatrix]");
     if( (AT.LockedLocalMatrix().LockedBuffer() + AT.LocalHeight()) != 
@@ -1802,12 +2917,13 @@ elemental::LockedRepartitionDown
         throw std::logic_error
         ( "Noncontiguous 2x1 array of distributed matrices." );
     }
+    if( A1Height > AB.Height() )
+        throw std::logic_error( "A1 cannot be taller than AB." );
 #endif
-    int bsize = std::min( AB.Height(), Blocksize() );
-    int offset = AB.Height()-bsize;
+    int offset = AB.Height()-A1Height;
     A0.LockedView( AT );
-    A1.LockedView( AB, 0,     0, bsize,  AB.Width() );
-    A2.LockedView( AB, bsize, 0, offset, AB.Width() );
+    A1.LockedView( AB, 0,        0, A1Height, AB.Width() );
+    A2.LockedView( AB, A1Height, 0, offset,   AB.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1817,19 +2933,29 @@ template<typename T>
 inline void
 elemental::LockedRepartitionLeft
 ( const M& AL, const M& AR,
-  M& A0, M& A1, M& A2      )
+  M& A0, M& A1, M& A2 )
+{
+    LockedRepartitionLeft
+    ( AL, AR,
+      A0, A1, A2, std::min( Blocksize(), AL.Width() ) );
+}
+
+template<typename T>
+inline void
+elemental::LockedRepartitionLeft
+( const M& AL, const M& AR,
+  M& A0, M& A1, M& A2, int A1Width )
 {
 #ifndef RELEASE
     PushCallStack("LockedRepartitionLeft [Matrix]");
     if( (AL.LockedBuffer() + AL.Width()*AL.LDim()) != AR.LockedBuffer() )
-    {
         throw std::logic_error( "Noncontiguous 1x2 array of matrices." );
-    }
+    if( A1Width > AL.Width() )
+        throw std::logic_error( "A1 cannot be wider than AL." );
 #endif
-    int bsize = std::min( AL.Width(), Blocksize() );
-    int offset = AL.Width()-bsize;
-    A0.LockedView( AL, 0, 0,      AL.Height(), offset );
-    A1.LockedView( AL, 0, offset, AL.Height(), bsize  );
+    int offset = AL.Width()-A1Width;
+    A0.LockedView( AL, 0, 0,      AL.Height(), offset  );
+    A1.LockedView( AL, 0, offset, AL.Height(), A1Width );
     A2.LockedView( AR );
 #ifndef RELEASE
     PopCallStack();
@@ -1840,7 +2966,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedRepartitionLeft
 ( const DM& AL, const DM& AR,
-  DM& A0, DM& A1, DM& A2     )
+  DM& A0, DM& A1, DM& A2 )
+{
+    LockedRepartitionLeft
+    ( AL, AR,
+      A0, A1, A2, std::min( Blocksize(), AL.Width() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedRepartitionLeft
+( const DM& AL, const DM& AR,
+  DM& A0, DM& A1, DM& A2, int A1Width )
 {
 #ifndef RELEASE
     PushCallStack("LockedRepartitionLeft [DistMatrix]");
@@ -1850,11 +2987,12 @@ elemental::LockedRepartitionLeft
         throw std::logic_error
         ( "Noncontiguous 1x1 array of distributed matrices." );
     }
+    if( A1Width > AL.Width() )
+        throw std::logic_error( "A1 cannot be wider than AL." );
 #endif
-    int bsize = std::min( AL.Width(), Blocksize() );
-    int offset = AL.Width()-bsize;
-    A0.LockedView( AL, 0, 0,      AL.Height(), offset );
-    A1.LockedView( AL, 0, offset, AL.Height(), bsize  );
+    int offset = AL.Width()-A1Width;
+    A0.LockedView( AL, 0, 0,      AL.Height(), offset  );
+    A1.LockedView( AL, 0, offset, AL.Height(), A1Width );
     A2.LockedView( AR );
 #ifndef RELEASE
     PopCallStack();
@@ -1865,20 +3003,30 @@ template<typename T>
 inline void
 elemental::LockedRepartitionRight
 ( const M& AL, const M& AR,
-  M& A0, M& A1, M& A2      )
+  M& A0, M& A1, M& A2 )
+{
+    LockedRepartitionRight
+    ( AL, AR,
+      A0, A1, A2, std::min( Blocksize(), AR.Width() ) );
+}
+
+template<typename T>
+inline void
+elemental::LockedRepartitionRight
+( const M& AL, const M& AR,
+  M& A0, M& A1, M& A2, int A1Width )
 {
 #ifndef RELEASE
     PushCallStack("LockedRepartitionRight [Matrix]");
     if( (AL.LockedBuffer() + AL.Width()*AL.LDim()) != AR.LockedBuffer() )
-    {
         throw std::logic_error( "Noncontiguous 1x2 array of matrices." );
-    }
+    if( A1Width > AR.Width() )
+        throw std::logic_error( "A1 cannot be wider than AR." );
 #endif
-    int bsize = std::min( AR.Width(), Blocksize() );
-    int offset = AR.Width()-bsize;
+    int offset = AR.Width()-A1Width;
     A0.LockedView( AL );
-    A1.LockedView( AR, 0, 0,     AR.Height(), bsize  );
-    A2.LockedView( AR, 0, bsize, AR.Height(), offset );
+    A1.LockedView( AR, 0, 0,       AR.Height(), A1Width );
+    A2.LockedView( AR, 0, A1Width, AR.Height(), offset  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1888,7 +3036,18 @@ template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
 elemental::LockedRepartitionRight
 ( const DM& AL, const DM& AR,
-  DM& A0, DM& A1, DM& A2     )
+  DM& A0, DM& A1, DM& A2 )
+{
+    LockedRepartitionRight
+    ( AL, AR,
+      A0, A1, A2, std::min( Blocksize(), AR.Width() ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedRepartitionRight
+( const DM& AL, const DM& AR,
+  DM& A0, DM& A1, DM& A2, int A1Width )
 {
 #ifndef RELEASE
     PushCallStack("LockedRepartitionRight [DistMatrix]");
@@ -1898,12 +3057,13 @@ elemental::LockedRepartitionRight
         throw std::logic_error
         ( "Noncontiguous 1x2 DistMatrices in LockedRepartitionRight." );
     }
+    if( A1Width > AR.Width() )
+        throw std::logic_error( "A1 cannot be wider than AR." );
 #endif
-    int bsize = std::min( AR.Width(), Blocksize() );
-    int offset = AR.Width()-bsize;
+    int offset = AR.Width()-A1Width;
     A0.LockedView( AL );
-    A1.LockedView( AR, 0, 0,     AR.Height(), bsize  );
-    A2.LockedView( AR, 0, bsize, AR.Height(), offset );
+    A1.LockedView( AR, 0, 0,       AR.Height(), A1Width );
+    A2.LockedView( AR, 0, A1Width, AR.Height(), offset  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1916,18 +3076,30 @@ elemental::LockedRepartitionUpDiagonal
                               M& A10, M& A11, M& A12,
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22 )
 {
+    const int minDim = std::min( ATL.Height(), ATL.Width() );
+    LockedRepartitionUpDiagonal
+    ( ATL, ATR,  A00, A01, A02,
+                 A10, A11, A12,
+      ABL, ABR,  A20, A21, A22, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T>
+inline void
+elemental::LockedRepartitionUpDiagonal
+( const M& ATL, const M& ATR, M& A00, M& A01, M& A02,
+                              M& A10, M& A11, M& A12,
+  const M& ABL, const M& ABR, M& A20, M& A21, M& A22, int bsize )
+{
 #ifndef RELEASE
     PushCallStack("LockedRepartitionUpDiagonal [Matrix]");
     if( (ATL.LockedBuffer() + ATL.Height()) != ABL.LockedBuffer() ||
         (ATR.LockedBuffer() + ATR.Height()) != ABR.LockedBuffer() ||
         (ATL.LockedBuffer() + ATL.Width()*ATL.LDim()) != ATR.LockedBuffer() ||
         (ABL.LockedBuffer() + ABL.Width()*ABL.LDim()) != ABR.LockedBuffer()    )
-    {
         throw std::logic_error( "Noncontiguous 2x2 grid of matrices." );
-    }
+    if( bsize > std::min( ATL.Height(), ATL.Width() ) )
+        throw std::logic_error( "A11 cannot be larger than ATL." );
 #endif
-    int bsize = std::min( Blocksize(), std::min( ATL.Height(),
-                                                 ATL.Width() ) );
     int vOffset = ATL.Height()-bsize;
     int hOffset = ATL.Width()-bsize;
     A00.LockedView( ATL, 0,       0,       vOffset,      hOffset     );
@@ -1951,6 +3123,20 @@ elemental::LockedRepartitionUpDiagonal
                                 DM& A10, DM& A11, DM& A12,
   const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22 )
 {
+    const int minDim = std::min( ATL.Height(), ATL.Width() );
+    LockedRepartitionUpDiagonal
+    ( ATL, ATR,  A00, A01, A02,
+                 A10, A11, A12,
+      ABL, ABR,  A20, A21, A22, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedRepartitionUpDiagonal
+( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
+                                DM& A10, DM& A11, DM& A12,
+  const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, int bsize )
+{
 #ifndef RELEASE
     PushCallStack("LockedRepartitionUpDiagonal [DistMatrix]");
     if( (ATL.LockedLocalMatrix().LockedBuffer()+ATL.LocalHeight()) != 
@@ -1967,9 +3153,9 @@ elemental::LockedRepartitionUpDiagonal
         throw std::logic_error
         ( "Noncontiguous 2x2 grid of distributed matrices." );
     }
+    if( bsize > std::min( ATL.Height(), ATL.Width() ) )
+        throw std::logic_error( "A11 cannot be larger than ATL." );
 #endif
-    int bsize = std::min( Blocksize(), std::min( ATL.Height(),
-                                                 ATL.Width() ) );
     int vOffset = ATL.Height()-bsize;
     int hOffset = ATL.Width()-bsize;
     A00.LockedView( ATL, 0,       0,       vOffset,      hOffset     );
@@ -1993,18 +3179,30 @@ elemental::LockedRepartitionDownDiagonal
                               M& A10, M& A11, M& A12,
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22 )
 {
+    const int minDim = std::min( ABR.Height(), ABR.Width() );
+    LockedRepartitionDownDiagonal
+    ( ATL, ATR,  A00, A01, A02,
+                 A10, A11, A12,
+      ABL, ABR,  A20, A21, A22, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T>
+inline void
+elemental::LockedRepartitionDownDiagonal
+( const M& ATL, const M& ATR, M& A00, M& A01, M& A02,
+                              M& A10, M& A11, M& A12,
+  const M& ABL, const M& ABR, M& A20, M& A21, M& A22, int bsize )
+{
 #ifndef RELEASE
     PushCallStack("LockedRepartitionDownDiagonal [Matrix]");
     if( (ATL.LockedBuffer() + ATL.Height()) != ABL.LockedBuffer() ||
         (ATR.LockedBuffer() + ATR.Height()) != ABR.LockedBuffer() ||
         (ATL.LockedBuffer() + ATL.Width()*ATL.LDim()) != ATR.LockedBuffer() ||
         (ABL.LockedBuffer() + ABL.Width()*ABL.LDim()) != ABR.LockedBuffer()    )
-    {
         throw std::logic_error( "Noncontiguous 2x2 grid of matrices." );
-    }
+    if( bsize > std::min( ABR.Height(), ABR.Width() ) )
+        throw std::logic_error( "A11 cannot be larger than ABR." );
 #endif
-    int bsize = std::min( Blocksize(), std::min( ABR.Height(),
-                                                 ABR.Width() ) );
     int vOffset = ABR.Height()-bsize;
     int hOffset = ABR.Width()-bsize;
     A00.LockedView( ATL );
@@ -2028,6 +3226,20 @@ elemental::LockedRepartitionDownDiagonal
                                 DM& A10, DM& A11, DM& A12,
   const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22 )
 {
+    const int minDim = std::min( ABR.Height(), ABR.Width() );
+    LockedRepartitionDownDiagonal
+    ( ATL, ATR,  A00, A01, A02,
+                 A10, A11, A12,
+      ABL, ABR,  A20, A21, A22, std::min( Blocksize(), minDim ) );
+}
+
+template<typename T, elemental::Distribution U, elemental::Distribution V>
+inline void
+elemental::LockedRepartitionDownDiagonal
+( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
+                                DM& A10, DM& A11, DM& A12,
+  const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, int bsize )
+{
 #ifndef RELEASE
     PushCallStack("LockedRepartitionDownDiagonal [DistMatrix]");
     if( (ATL.LockedLocalMatrix().LockedBuffer()+ATL.LocalHeight()) != 
@@ -2044,9 +3256,9 @@ elemental::LockedRepartitionDownDiagonal
         throw std::logic_error
         ( "Noncontiguous 2x2 grid of distributed matrices." );
     }
+    if( bsize > std::min( ABR.Height(), ABR.Width() ) )
+        throw std::logic_error( "A11 cannot be larger than ABR." );
 #endif
-    int bsize = std::min( Blocksize(), std::min( ABR.Height(),
-                                                 ABR.Width() ) );
     int vOffset = ABR.Height()-bsize;
     int hOffset = ABR.Width()-bsize;
     A00.LockedView( ATL );

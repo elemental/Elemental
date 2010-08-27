@@ -150,11 +150,11 @@ void TestCorrectness
     ZUpper.View( Z, 0, 0, n, n );
 
     // Form Identity
-    DistMatrix<C,MC,MR> X(m,n,g);
+    DistMatrix<C,MC,MR> X(n,n,g);
     X.SetToIdentity();
 
     // Form X := I - Q^H Q
-    blas::Axpy( (C)-1, Z, X );
+    blas::Axpy( (C)-1, ZUpper, X );
 
     // Compute the maximum deviance
     R myMaxDevFromIdentity = 0.;

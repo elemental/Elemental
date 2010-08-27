@@ -748,9 +748,9 @@ elemental::DistMatrixBase<T,Star,VR>::ConjugateTransposeFrom
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,VR]::ConjugateTransposeFrom" << endl;
+            cerr << "Unaligned [* ,VR]::ConjugateTransposeFrom" << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -856,9 +856,9 @@ elemental::DistMatrixBase<T,Star,VR>::TransposeFrom
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,VR]::TransposeFrom" << endl;
+            cerr << "Unaligned [* ,VR]::TransposeFrom" << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1019,9 +1019,9 @@ elemental::DistMatrixBase<T,Star,VR>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,VR] <- [MC,MR]." << endl;
+            cerr << "Unaligned [* ,VR] <- [MC,MR]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1180,9 +1180,9 @@ elemental::DistMatrixBase<T,Star,VR>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,VR] <- [* ,MR]." << endl;
+            cerr << "Unaligned [* ,VR] <- [* ,MR]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1535,9 +1535,9 @@ elemental::DistMatrixBase<T,Star,VR>::operator=
     else
     {
         const Grid& g = this->GetGrid();
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,VR] <- [* ,VR]." << endl;
+            cerr << "Unaligned [* ,VR] <- [* ,VR]." << endl;
 #endif
         const int rank = g.VRRank();
         const int p = g.Size();

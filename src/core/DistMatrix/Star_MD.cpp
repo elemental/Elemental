@@ -967,9 +967,9 @@ elemental::DistMatrixBase<T,Star,MD>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( this->GetGrid().VCRank() == 0 )
-            cout << "Unaligned [* ,MD] <- [* ,MD]." << endl;
+            cerr << "Unaligned [* ,MD] <- [* ,MD]." << endl;
 #endif
         throw logic_error( "Unaligned [* ,MD] = [* ,MD] not yet implemented." );
     }

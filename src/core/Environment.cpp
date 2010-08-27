@@ -61,7 +61,7 @@ elemental::Init
     // Seed the random number generator with out rank
     int rank;
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    srand( rank );
+    srand( rank+time(0) );
 #ifndef RELEASE
     PopCallStack();
 #endif

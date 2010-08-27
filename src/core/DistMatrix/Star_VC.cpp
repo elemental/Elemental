@@ -914,9 +914,9 @@ elemental::DistMatrixBase<T,Star,VC>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,VC] <- [MR,MC]." << endl;
+            cerr << "Unaligned [* ,VC] <- [MR,MC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1075,9 +1075,9 @@ elemental::DistMatrixBase<T,Star,VC>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,VC] <- [* ,MC]." << endl;
+            cerr << "Unaligned [* ,VC] <- [* ,MC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1209,9 +1209,9 @@ elemental::DistMatrixBase<T,Star,VC>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,VC] <- [* ,VC]." << endl;
+            cerr << "Unaligned [* ,VC] <- [* ,VC]." << endl;
 #endif
         const int rank = g.VCRank();
         const int p = g.Size();

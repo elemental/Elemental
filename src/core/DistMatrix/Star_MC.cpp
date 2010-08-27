@@ -824,9 +824,9 @@ elemental::DistMatrixBase<T,Star,MC>::ConjugateTransposeFrom
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,MC]::ConjugateTransposeFrom." << endl;
+            cerr << "Unaligned [* ,MC]::ConjugateTransposeFrom." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -985,9 +985,9 @@ elemental::DistMatrixBase<T,Star,MC>::TransposeFrom
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,MC]::TransposeFrom." << endl;
+            cerr << "Unaligned [* ,MC]::TransposeFrom." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1271,27 +1271,28 @@ elemental::DistMatrixBase<T,Star,MC>::operator=
     this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
-    if( A.GetGrid().VCRank() == 0 )
-    {
-        if( A.Height() == 1 )
-        {
-            cout << 
-              "The vector version of [* ,MC] <- [MR,MC] is not yet written, but"
-              " it would only require a modification of the vector version of "
-              "[* ,MR] <- [MC,MR]." << endl;
-        }
-        else
-        {
-            cout << 
-              "The redistribution [* ,MC] <- [MR,MC] potentially causes a large"
-              " amount of cache-thrashing. If possible, avoid it. "
-              "Unfortunately, the following routines are not yet implemented: "
-              << endl <<
-              "  [MC,* ].(Conjugate)TransposeFrom([MR,MC])" << endl;
-        }
-    }
 #endif
     const Grid& g = this->GetGrid();
+#ifdef VECTOR_WARNINGS
+    if( A.Height() == 1 && g.VCRank() == 0 )
+    {
+        cerr << 
+          "The vector version of [* ,MC] <- [MR,MC] is not yet written, but"
+          " it would only require a modification of the vector version of "
+          "[* ,MR] <- [MC,MR]." << endl;
+    }
+#endif
+#ifdef UNALIGNED_WARNINGS
+    if( A.Height() != 1 && g.VCRank() == 0 )
+    {
+        cerr << 
+          "The redistribution [* ,MC] <- [MR,MC] potentially causes a large"
+          " amount of cache-thrashing. If possible, avoid it. "
+          "Unfortunately, the following routines are not yet implemented: "
+          << endl <<
+          "  [MC,* ].(Conjugate)TransposeFrom([MR,MC])" << endl;
+    }
+#endif
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -1357,9 +1358,9 @@ elemental::DistMatrixBase<T,Star,MC>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,MC] <- [MR,MC]." << endl;
+            cerr << "Unaligned [* ,MC] <- [MR,MC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1484,9 +1485,9 @@ elemental::DistMatrixBase<T,Star,MC>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,MC] <- [* ,MC]." << endl;
+            cerr << "Unaligned [* ,MC] <- [* ,MC]." << endl;
 #endif
         const int rank = g.MCRank();
         const int r = g.Height();
@@ -1673,9 +1674,9 @@ elemental::DistMatrixBase<T,Star,MC>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [* ,MC] <- [* ,VC]." << endl;
+            cerr << "Unaligned [* ,MC] <- [* ,VC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();

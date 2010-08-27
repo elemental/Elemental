@@ -1,90 +1,9 @@
-/*
-   Copyright (C) 2009-2010 Jack Poulson <jack.poulson@gmail.com>
-
-   This file is part of Elemental.
-
-   Elemental is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   Elemental is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with Elemental.  If not, see <http://www.gnu.org/licenses/>.
-*/
 #include "elemental/blas_internal.hpp"
 #include "elemental/lapack_internal.hpp"
 using namespace elemental;
 using namespace std;
 
-namespace {
-
-template<typename T>
-void
-SetDiagonalToOne( int offset, DistMatrix<T,MC,MR>& H )
-{   
-#ifndef RELEASE
-    PushCallStack("SetDiagonalToOne");
-#endif
-    const int localHeight = H.LocalHeight();
-    const int localWidth = H.LocalWidth();
-    const int r = H.GetGrid().Height();
-    const int c = H.GetGrid().Width();
-    const int colShift = H.ColShift();
-    const int rowShift = H.RowShift();
-
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
-    {
-        const int i = colShift + iLoc*r + offset;
-        if( i % c == rowShift )
-        {
-            const int jLoc = (i-rowShift) / c;
-            if( jLoc < localWidth )
-                H.LocalEntry(iLoc,jLoc) = (T)1;
-        }
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename R>
-void 
-HalveMainDiagonal( DistMatrix<R,Star,Star>& SInv )
-{
-#ifndef RELEASE
-    PushCallStack("HalveMainDiagonal");
-#endif
-    for( int j=0; j<SInv.Height(); ++j )
-        SInv.LocalEntry(j,j) /= (R)2;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-void
-FixDiagonal
-( const DistMatrix<complex<R>,Star,Star>& t,
-        DistMatrix<complex<R>,Star,Star>& SInv )
-{
-#ifndef RELEASE
-    PushCallStack("FixDiagonal");
-#endif
-    for( int j=0; j<SInv.Height(); ++j )
-        SInv.LocalEntry(j,j) = complex<R>(1)/t.LocalEntry(j,0);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif
-
-} // anonymous namespace
+#include "./UTUtil.hpp"
 
 // This routine reverses the accumulation of Householder transforms stored 
 // in the portion of H below the diagonal marked by 'offset'. It is assumed 
@@ -92,13 +11,13 @@ FixDiagonal
 
 template<typename R>
 void
-elemental::lapack::internal::UTRLH
+elemental::lapack::internal::UTRLC
 ( int offset, 
   const DistMatrix<R,MC,MR>& H,
         DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::UTRLH");
+    PushCallStack("lapack::internal::UTRLC");
     if( H.GetGrid() != A.GetGrid() )
         throw logic_error( "H and A must be distributed over the same grid." );
     if( offset > 0 )
@@ -147,43 +66,43 @@ elemental::lapack::internal::UTRLH
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
-        HPan.LockedView2x1
-        ( H11,
-          H21 );
-
-        ARight.View( A, 0, A00.Width(), A.Height(), A.Width()-A00.Width() );
+        int HPanHeight = H11.Height() + H21.Height();
+        int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
+        int leftover = A.Width()-HPanHeight;
+        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        ARight.View( A, 0, leftover, A.Height(), HPanHeight );
 
         HPan_MR_Star.AlignWith( ARight );
         Z_MC_Star.AlignWith( ARight );
         Z_VC_Star.AlignWith( ARight );
-        Z_MC_Star.ResizeTo( ARight.Height(), HPan.Width() );
-        SInv_Star_Star.ResizeTo( HPan.Width(), HPan.Width() );
+        Z_MC_Star.ResizeTo( ARight.Height(), HPanWidth );
+        SInv_Star_Star.ResizeTo( HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         HPanCopy.MakeTrapezoidal( Left, Lower, offset );
-        SetDiagonalToOne( offset, HPanCopy );
+        SetDiagonalToOne( Left, offset, HPanCopy );
 
         HPan_VC_Star = HPanCopy;
-        blas::Herk
-        ( Upper, ConjugateTranspose, 
+        blas::Syrk
+        ( Upper, Transpose, 
           (R)1, HPan_VC_Star.LockedLocalMatrix(),
           (R)0, SInv_Star_Star.LocalMatrix() );     
         SInv_Star_Star.AllSum();
         HalveMainDiagonal( SInv_Star_Star );
 
-        HPan_MR_Star = HPanCopy;
+        HPan_MR_Star = HPan_VC_Star;
         blas::internal::LocalGemm
         ( Normal, Normal, 
           (R)1, ARight, HPan_MR_Star, (R)0, Z_MC_Star );
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
  
         blas::internal::LocalTrsm
-        ( Right, Upper, Normal, NonUnit, 
+        ( Right, Upper, Transpose, NonUnit,
           (R)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;
         blas::internal::LocalGemm
-        ( Normal, ConjugateTranspose, 
+        ( Normal, Transpose, 
           (R)-1, Z_MC_Star, HPan_MR_Star, (R)1, ARight );
         //--------------------------------------------------------------------//
         HPan_MR_Star.FreeAlignments();
@@ -210,14 +129,14 @@ elemental::lapack::internal::UTRLH
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
-elemental::lapack::internal::UTRLH
+elemental::lapack::internal::UTRLC
 ( int offset, 
   const DistMatrix<complex<R>,MC,MR  >& H,
   const DistMatrix<complex<R>,MD,Star>& t,
         DistMatrix<complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::UTRLH");
+    PushCallStack("lapack::internal::UTRLC");
     if( H.GetGrid() != t.GetGrid() || t.GetGrid() != A.GetGrid() )
         throw logic_error
               ( "H, t, and A must be distributed over the same grid." );
@@ -274,11 +193,15 @@ elemental::lapack::internal::UTRLH
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
+        int HPanHeight = H11.Height() + H21.Height();
+        int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
+        int leftover = A.Width()-HPanHeight;
+
         LockedRepartitionUp
         ( tT,  t0,
                t1,
          /**/ /**/
-          tB,  t2 );
+          tB,  t2, HPanWidth );
 
         RepartitionUpDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
@@ -286,11 +209,8 @@ elemental::lapack::internal::UTRLH
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
-        HPan.LockedView2x1
-        ( H11,
-          H21 );
-
-        ARight.View( A, 0, A00.Width(), A.Height(), A.Width()-A00.Width() );
+        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        ARight.View( A, 0, leftover, A.Height(), HPanHeight );
 
         HPan_MR_Star.AlignWith( ARight );
         Z_MC_Star.AlignWith( ARight );
@@ -300,7 +220,7 @@ elemental::lapack::internal::UTRLH
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         HPanCopy.MakeTrapezoidal( Left, Lower, offset );
-        SetDiagonalToOne( offset, HPanCopy );
+        SetDiagonalToOne( Left, offset, HPanCopy );
 
         HPan_VC_Star = HPanCopy;
         blas::Herk
@@ -311,14 +231,14 @@ elemental::lapack::internal::UTRLH
         t1_Star_Star = t1;
         FixDiagonal( t1_Star_Star, SInv_Star_Star );
 
-        HPan_MR_Star = HPanCopy;
+        HPan_MR_Star = HPan_VC_Star;
         blas::internal::LocalGemm
         ( Normal, Normal, 
           (C)1, ARight, HPan_MR_Star, (C)0, Z_MC_Star );
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
  
         blas::internal::LocalTrsm
-        ( Right, Upper, Normal, NonUnit, 
+        ( Right, Upper, ConjugateTranspose, NonUnit, 
           (C)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;
@@ -354,24 +274,24 @@ elemental::lapack::internal::UTRLH
 }
 #endif
 
-template void elemental::lapack::internal::UTRLH
+template void elemental::lapack::internal::UTRLC
 ( int offset,
   const DistMatrix<float,MC,MR>& H,
         DistMatrix<float,MC,MR>& A );
 
-template void elemental::lapack::internal::UTRLH
+template void elemental::lapack::internal::UTRLC
 ( int offset,
   const DistMatrix<double,MC,MR>& H,
         DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::UTRLH
+template void elemental::lapack::internal::UTRLC
 ( int offset,
   const DistMatrix<scomplex,MC,MR  >& H,
   const DistMatrix<scomplex,MD,Star>& t,
         DistMatrix<scomplex,MC,MR  >& A );
 
-template void elemental::lapack::internal::UTRLH
+template void elemental::lapack::internal::UTRLC
 ( int offset,
   const DistMatrix<dcomplex,MC,MR  >& H,
   const DistMatrix<dcomplex,MD,Star>& t,

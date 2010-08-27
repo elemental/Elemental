@@ -40,34 +40,18 @@ elemental::blas::internal::GemmNN
 
     if( weightAwayFromDot*m <= k && weightAwayFromDot*n <= k )
     {
-#ifndef RELEASE
-        if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmNN routing to GemmNNDot." << endl;
-#endif
         blas::internal::GemmNNDot( alpha, A, B, beta, C );
     }
     else if( m <= n && weightTowardsC*m <= k )
     {
-#ifndef RELEASE
-        if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmNN routing to GemmNNB." << endl;
-#endif
         blas::internal::GemmNNB( alpha, A, B, beta, C );    
     }
     else if( n <= m && weightTowardsC*n <= k )
     {
-#ifndef RELEASE
-        if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmNN routing to GemmNNA." << endl;
-#endif
         blas::internal::GemmNNA( alpha, A, B, beta, C );
     }
     else
     {
-#ifndef RELEASE
-        if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmNN routing to GemmNNC." << endl;
-#endif
         blas::internal::GemmNNC( alpha, A, B, beta, C );
     }
 #ifndef RELEASE
@@ -554,7 +538,47 @@ template void elemental::blas::internal::GemmNN
                const DistMatrix<float,MC,MR>& B,
   float beta,        DistMatrix<float,MC,MR>& C );
 
+template void elemental::blas::internal::GemmNNA
+( float alpha, const DistMatrix<float,MC,MR>& A,     
+               const DistMatrix<float,MC,MR>& B,
+  float beta,        DistMatrix<float,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNB
+( float alpha, const DistMatrix<float,MC,MR>& A,     
+               const DistMatrix<float,MC,MR>& B,
+  float beta,        DistMatrix<float,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNC
+( float alpha, const DistMatrix<float,MC,MR>& A,     
+               const DistMatrix<float,MC,MR>& B,
+  float beta,        DistMatrix<float,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNDot
+( float alpha, const DistMatrix<float,MC,MR>& A,     
+               const DistMatrix<float,MC,MR>& B,
+  float beta,        DistMatrix<float,MC,MR>& C );
+
 template void elemental::blas::internal::GemmNN
+( double alpha, const DistMatrix<double,MC,MR>& A,         
+                const DistMatrix<double,MC,MR>& B,
+  double beta,        DistMatrix<double,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNA
+( double alpha, const DistMatrix<double,MC,MR>& A,         
+                const DistMatrix<double,MC,MR>& B,
+  double beta,        DistMatrix<double,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNB
+( double alpha, const DistMatrix<double,MC,MR>& A,         
+                const DistMatrix<double,MC,MR>& B,
+  double beta,        DistMatrix<double,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNC
+( double alpha, const DistMatrix<double,MC,MR>& A,         
+                const DistMatrix<double,MC,MR>& B,
+  double beta,        DistMatrix<double,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNDot
 ( double alpha, const DistMatrix<double,MC,MR>& A,         
                 const DistMatrix<double,MC,MR>& B,
   double beta,        DistMatrix<double,MC,MR>& C );
@@ -565,7 +589,47 @@ template void elemental::blas::internal::GemmNN
                   const DistMatrix<scomplex,MC,MR>& B,
   scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
+template void elemental::blas::internal::GemmNNA
+( scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
+                  const DistMatrix<scomplex,MC,MR>& B,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNB
+( scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
+                  const DistMatrix<scomplex,MC,MR>& B,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNC
+( scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
+                  const DistMatrix<scomplex,MC,MR>& B,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNDot
+( scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
+                  const DistMatrix<scomplex,MC,MR>& B,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+
 template void elemental::blas::internal::GemmNN
+( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
+                  const DistMatrix<dcomplex,MC,MR>& B,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNA
+( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
+                  const DistMatrix<dcomplex,MC,MR>& B,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNB
+( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
+                  const DistMatrix<dcomplex,MC,MR>& B,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNC
+( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
+                  const DistMatrix<dcomplex,MC,MR>& B,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmNNDot
 ( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
                   const DistMatrix<dcomplex,MC,MR>& B,
   dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );

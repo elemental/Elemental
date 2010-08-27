@@ -43,28 +43,16 @@ elemental::blas::internal::GemmTT
 
     if( m <= n && weightTowardsC*m <= k )
     {
-#ifndef RELEASE
-        if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmTT routing to GemmTTB." << endl;
-#endif
         blas::internal::GemmTTB
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else if( n <= m && weightTowardsC*n <= k )
     {
-#ifndef RELEASE
-        if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmTT routing to GemmTTA." << endl;
-#endif
         blas::internal::GemmTTA
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else
     {
-#ifndef RELEASE
-        if( A.GetGrid().VCRank() == 0 )
-            cout << "  GemmTT routing to GemmTTC." << endl;
-#endif
         blas::internal::GemmTTC
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
@@ -371,7 +359,49 @@ template void elemental::blas::internal::GemmTT
                const DistMatrix<float,MC,MR>& B,
   float beta,        DistMatrix<float,MC,MR>& C );
 
+template void elemental::blas::internal::GemmTTA
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  float alpha, const DistMatrix<float,MC,MR>& A, 
+               const DistMatrix<float,MC,MR>& B,
+  float beta,        DistMatrix<float,MC,MR>& C );
+
+template void elemental::blas::internal::GemmTTB
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  float alpha, const DistMatrix<float,MC,MR>& A, 
+               const DistMatrix<float,MC,MR>& B,
+  float beta,        DistMatrix<float,MC,MR>& C );
+
+template void elemental::blas::internal::GemmTTC
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  float alpha, const DistMatrix<float,MC,MR>& A, 
+               const DistMatrix<float,MC,MR>& B,
+  float beta,        DistMatrix<float,MC,MR>& C );
+
 template void elemental::blas::internal::GemmTT
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  double alpha, const DistMatrix<double,MC,MR>& A, 
+                const DistMatrix<double,MC,MR>& B,
+  double beta,        DistMatrix<double,MC,MR>& C );
+
+template void elemental::blas::internal::GemmTTA
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  double alpha, const DistMatrix<double,MC,MR>& A, 
+                const DistMatrix<double,MC,MR>& B,
+  double beta,        DistMatrix<double,MC,MR>& C );
+
+template void elemental::blas::internal::GemmTTB
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  double alpha, const DistMatrix<double,MC,MR>& A, 
+                const DistMatrix<double,MC,MR>& B,
+  double beta,        DistMatrix<double,MC,MR>& C );
+
+template void elemental::blas::internal::GemmTTC
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   double alpha, const DistMatrix<double,MC,MR>& A, 
@@ -386,7 +416,49 @@ template void elemental::blas::internal::GemmTT
                   const DistMatrix<scomplex,MC,MR>& B,
   scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
+template void elemental::blas::internal::GemmTTA
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
+                  const DistMatrix<scomplex,MC,MR>& B,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmTTB
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
+                  const DistMatrix<scomplex,MC,MR>& B,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmTTC
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  scomplex alpha, const DistMatrix<scomplex,MC,MR>& A, 
+                  const DistMatrix<scomplex,MC,MR>& B,
+  scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
+
 template void elemental::blas::internal::GemmTT
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
+                  const DistMatrix<dcomplex,MC,MR>& B,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmTTA
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
+                  const DistMatrix<dcomplex,MC,MR>& B,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmTTB
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 
+                  const DistMatrix<dcomplex,MC,MR>& B,
+  dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void elemental::blas::internal::GemmTTC
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A, 

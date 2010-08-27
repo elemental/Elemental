@@ -44,14 +44,14 @@ elemental::lapack::UT
             if( orientation == Normal )
                 lapack::internal::UTLLN( offset, H, A );
             else
-                lapack::internal::UTLLH( offset, H, A );
+                lapack::internal::UTLLC( offset, H, A );
         }
         else
         {
             if( orientation == Normal )
                 lapack::internal::UTLUN( offset, H, A );
             else
-                lapack::internal::UTLUH( offset, H, A );
+                lapack::internal::UTLUC( offset, H, A );
         }
     }
     else
@@ -61,14 +61,14 @@ elemental::lapack::UT
             if( orientation == Normal )
                 lapack::internal::UTRLN( offset, H, A );
             else
-                lapack::internal::UTRLH( offset, H, A );
+                lapack::internal::UTRLC( offset, H, A );
         }
         else
         {
             if( orientation == Normal )
                 lapack::internal::UTRUN( offset, H, A );
             else
-                lapack::internal::UTRUH( offset, H, A );
+                lapack::internal::UTRUC( offset, H, A );
         }
     }
 #ifndef RELEASE
@@ -102,14 +102,14 @@ elemental::lapack::UT
             if( orientation == Normal )
                 lapack::internal::UTLLN( offset, H, t, A );
             else
-                lapack::internal::UTLLH( offset, H, t, A );
+                lapack::internal::UTLLC( offset, H, t, A );
         }
         else
         {
             if( orientation == Normal )
                 lapack::internal::UTLUN( offset, H, t, A );
             else
-                lapack::internal::UTLUH( offset, H, t, A );
+                lapack::internal::UTLUC( offset, H, t, A );
         }
     }
     else
@@ -119,14 +119,14 @@ elemental::lapack::UT
             if( orientation == Normal )
                 lapack::internal::UTRLN( offset, H, t, A );
             else
-                lapack::internal::UTRLH( offset, H, t, A );
+                lapack::internal::UTRLC( offset, H, t, A );
         }
         else
         {
             if( orientation == Normal )
                 lapack::internal::UTRUN( offset, H, t, A );
             else
-                lapack::internal::UTRUH( offset, H, t, A );
+                lapack::internal::UTRUC( offset, H, t, A );
         }
     }
 #ifndef RELEASE

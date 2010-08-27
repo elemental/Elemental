@@ -424,13 +424,13 @@ UTLLN
 
 template<typename R>
 void
-UTLLH
+UTLLC
 ( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
-UTLLH
+UTLLC
 ( int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
@@ -454,13 +454,13 @@ UTLUN
 
 template<typename R>
 void
-UTLUH
+UTLUC
 ( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
-UTLUH
+UTLUC
 ( int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
@@ -484,13 +484,13 @@ UTRLN
 
 template<typename R>
 void
-UTRLH
+UTRLC
 ( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
-UTRLH
+UTRLC
 ( int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
@@ -514,13 +514,13 @@ UTRUN
 
 template<typename R>
 void
-UTRUH
+UTRUC
 ( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
-UTRUH
+UTRUC
 ( int offset, 
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
@@ -553,6 +553,10 @@ TridiagGFlops( int m, double seconds );
 template<typename T>
 double
 TrinvGFlops( int m, double seconds );
+
+template<typename T>
+double
+UTGFlops( int m, double seconds );
 
 } // internal
 } // lapack
@@ -771,6 +775,32 @@ inline double
 TrinvGFlops<dcomplex>
 ( int m, double seconds )
 { return 4.*TrinvGFlops<float>(m,seconds); }
+#endif
+
+template<>
+inline double
+UTGFlops<float>
+( int m, double seconds )
+{ return (2.*m*m*m)/(1.e9*seconds); }
+
+template<>
+inline double
+UTGFlops<double>
+( int m, double seconds )
+{ return UTGFlops<float>(m,seconds); }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+inline double
+UTGFlops<scomplex>
+( int m, double seconds )
+{ return 4.*UTGFlops<float>(m,seconds); }
+
+template<>
+inline double
+UTGFlops<dcomplex>
+( int m, double seconds )
+{ return 4.*UTGFlops<float>(m,seconds); }
 #endif
 
 } // internal

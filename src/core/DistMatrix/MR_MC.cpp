@@ -1629,9 +1629,9 @@ elemental::DistMatrixBase<T,MR,MC>::operator=
     else
     {
         const Grid& g = this->GetGrid();
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [MR,MC] <- [MR,MC]." << endl;
+            cerr << "Unaligned [MR,MC] <- [MR,MC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1751,9 +1751,9 @@ elemental::DistMatrixBase<T,MR,MC>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [MR,MC] <- [MR,* ]." << endl;
+            cerr << "Unaligned [MR,MC] <- [MR,* ]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1857,9 +1857,9 @@ elemental::DistMatrixBase<T,MR,MC>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [MR,MC] <- [* ,MC]." << endl;
+            cerr << "Unaligned [MR,MC] <- [* ,MC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -2038,9 +2038,9 @@ elemental::DistMatrixBase<T,MR,MC>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [MR,MC] <- [* ,VC]." << endl;
+            cerr << "Unaligned [MR,MC] <- [* ,VC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -2225,9 +2225,9 @@ elemental::DistMatrixBase<T,MR,MC>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [MR,MC] <- [* ,VC]." << endl;
+            cerr << "Unaligned [MR,MC] <- [* ,VC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -2505,9 +2505,9 @@ elemental::DistMatrixBase<T,MR,MC>::SumScatterFrom
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned SumScatterFrom [MR,MC] <- [MR,* ]." << endl;
+            cerr << "Unaligned SumScatterFrom [MR,MC] <- [MR,* ]." << endl;
 #endif
         if( this->Width() == 1 )
         {
@@ -2664,25 +2664,26 @@ elemental::DistMatrixBase<T,MR,MC>::SumScatterFrom
     this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
-    if( A.GetGrid().VCRank() == 0 )
-    {
-        if( A.Height() == 1 )
-        {
-            cout <<    
-              "The vector version of [MR,MC].SumScatterFrom([* ,MC]) is not yet"
-              " written, but it only requires a modification of the vector "
-              "version of [MR,MC].SumScatterFrom([MR,* ])." << endl;
-        }
-        else
-        {
-            cout << 
-              "[MR,MC]::SumScatterFrom([* ,MC]) potentially causes a large "
-              "amount of cache-thrashing. If possible, avoid it by forming the "
-              "(conjugate-)transpose of the [* ,MC] matrix instead." << endl;
-        }
-    }
 #endif
     const Grid& g = this->GetGrid();
+#ifdef VECTOR_WARNINGS
+    if( A.Height() == 1 && g.VCRank() == 0 )
+    {
+        cerr <<    
+          "The vector version of [MR,MC].SumScatterFrom([* ,MC]) is not yet"
+          " written, but it only requires a modification of the vector "
+          "version of [MR,MC].SumScatterFrom([MR,* ])." << endl;
+    }
+#endif
+#ifdef CACHE_WARNINGS
+    if( A.Height() != 1 && g.VCRank() == 0 )
+    {
+        cerr << 
+          "[MR,MC]::SumScatterFrom([* ,MC]) potentially causes a large "
+          "amount of cache-thrashing. If possible, avoid it by forming the "
+          "(conjugate-)transpose of the [* ,MC] matrix instead." << endl;
+    }
+#endif
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -2751,9 +2752,9 @@ elemental::DistMatrixBase<T,MR,MC>::SumScatterFrom
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned SumScatterFrom [MR,MC] <- [* ,MC]." << endl;
+            cerr << "Unaligned SumScatterFrom [MR,MC] <- [* ,MC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -3037,9 +3038,9 @@ elemental::DistMatrixBase<T,MR,MC>::SumScatterUpdate
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned SumScatterUpdate [MR,MC] <- [MR,* ]." << endl;
+            cerr << "Unaligned SumScatterUpdate [MR,MC] <- [MR,* ]." << endl;
 #endif
         if( this->Width() == 1 )
         {
@@ -3198,25 +3199,26 @@ elemental::DistMatrixBase<T,MR,MC>::SumScatterUpdate
     this->AssertNotLockedView();
     this->AssertSameGrid( A );
     this->AssertSameSize( A );
-    if( A.GetGrid().VCRank() == 0 )
-    {
-        if( A.Height() == 1 )
-        {
-            cout <<    
-              "The vector version of [MR,MC].SumScatterUpdate([* ,MC]) is not "
-              "yet written, but it only requires a modification of the vector "
-              "version of [MR,MC].SumScatterUpdate([MR,* ])." << endl;
-        }
-        else
-        {
-            cout << 
-              "[MR,MC]::SumScatterUpdate([* ,MC]) potentially causes a large "
-              "amount of cache-thrashing. If possible, avoid it by forming the "
-              "(conjugate-)transpose of the [* ,MC] matrix instead." << endl;
-        }
-    }
 #endif
     const Grid& g = this->GetGrid();
+#ifdef VECTOR_WARNINGS
+    if( A.Height() == 1 && g.VCRank() == 0 )
+    {
+        cerr <<    
+          "The vector version of [MR,MC].SumScatterUpdate([* ,MC]) is not "
+          "yet written, but it only requires a modification of the vector "
+          "version of [MR,MC].SumScatterUpdate([MR,* ])." << endl;
+    }
+#endif
+#ifdef CACHE_WARNINGS
+    if( A.Height() != 1 && g.VCRank() == 0 )
+    {
+        cerr <<
+          "[MR,MC]::SumScatterUpdate([* ,MC]) potentially causes a large "
+          "amount of cache-thrashing. If possible, avoid it by forming the "
+          "(conjugate-)transpose of the [* ,MC] matrix instead." << endl;
+    }
+#endif
     if( this->RowAlignment() == A.RowAlignment() )
     {
         const int c = g.Width();
@@ -3275,9 +3277,9 @@ elemental::DistMatrixBase<T,MR,MC>::SumScatterUpdate
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned SumScatterUpdate [MR,MC] <- [* ,MC]." << endl;
+            cerr << "Unaligned SumScatterUpdate [MR,MC] <- [* ,MC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();

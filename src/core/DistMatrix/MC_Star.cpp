@@ -898,9 +898,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [MC,* ] <- [MC,MR]." << endl;
+            cerr << "Unaligned [MC,* ] <- [MC,MR]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1050,9 +1050,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [MC,* ] <- [MC,* ]." << endl;
+            cerr << "Unaligned [MC,* ] <- [MC,* ]." << endl;
 #endif
         const int rank = g.MCRank();
         const int r = g.Height();
@@ -1280,26 +1280,27 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
     this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
-    if( A.GetGrid().VCRank() == 0 )
-    {
-        if( A.Width() == 1 )
-        {
-            cout << 
-              "The vector version of [MC,* ] <- [VC,* ] is not yet written, but"
-              " it only requires a modification of the vector version of "
-              "[* ,MR] <- [* ,VR]" << endl;
-        }
-        else
-        {
-            cout << 
-              "[MC,* ] <- [VC,* ] potentially causes a large amount of cache-"
-              "thrashing. If possible avoid it by performing the redistribution"
-              " with a (conjugate)-transpose: " << endl << 
-              "  [* ,MC].(Conjugate)TransposeFrom([VC,* ])" << endl;
-        }
-    }
 #endif
     const Grid& g = this->GetGrid();
+#ifdef VECTOR_WARNINGS
+    if( A.Width() == 1 && g.VCRank() == 0 )
+    {
+        cerr << 
+          "The vector version of [MC,* ] <- [VC,* ] is not yet written, but"
+          " it only requires a modification of the vector version of "
+          "[* ,MR] <- [* ,VR]" << endl;
+    }
+#endif
+#ifdef CACHE_WARNINGS
+    if( A.Width() != 1 && g.VCRank() == 0 )
+    {
+        cerr << 
+          "[MC,* ] <- [VC,* ] potentially causes a large amount of cache-"
+          "thrashing. If possible avoid it by performing the redistribution"
+          " with a (conjugate)-transpose: " << endl << 
+          "  [* ,MC].(Conjugate)TransposeFrom([VC,* ])" << endl;
+    }
+#endif
     if( !this->Viewing() )
     {
         if( !this->ConstrainedColAlignment() )
@@ -1370,9 +1371,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [MC,* ] <- [VC,* ]." << endl;
+            cerr << "Unaligned [MC,* ] <- [VC,* ]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();

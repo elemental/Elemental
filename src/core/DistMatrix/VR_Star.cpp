@@ -917,9 +917,9 @@ elemental::DistMatrixBase<T,VR,Star>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [VR,* ] <- [MR,MC]." << endl;
+            cerr << "Unaligned [VR,* ] <- [MR,MC]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1046,9 +1046,9 @@ elemental::DistMatrixBase<T,VR,Star>::operator=
     }
     else
     {
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [VR,* ] <- [MR,* ]." << endl;
+            cerr << "Unaligned [VR,* ] <- [MR,* ]." << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1275,9 +1275,9 @@ elemental::DistMatrixBase<T,VR,Star>::operator=
     else
     {
         const Grid& g = this->GetGrid();
-#ifndef RELEASE
+#ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cout << "Unaligned [VR,* ] <- [VR,* ]." << endl;
+            cerr << "Unaligned [VR,* ] <- [VR,* ]." << endl;
 #endif
         const int rank = g.VRRank();
         const int p = g.Size();
@@ -1411,15 +1411,17 @@ elemental::DistMatrixBase<T,VR,Star>::SumScatterFrom
     this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
-    if( A.Width() != 1 && A.GetGrid().VCRank() == 0 )
+#endif
+    const Grid& g = this->GetGrid();
+#ifdef CACHE_WARNINGS
+    if( A.Width() != 1 && g.VCRank() == 0 )
     {
-        cout <<
+        cerr <<
           "[VR,* ]::SumScatterFrom([MR,* ]) potentially causes a large amount "
           "of cache-thrashing. If possible, avoid it by forming the "
           "(conjugate-)transpose of the [MR,* ] matrix instead." << endl;
     }
 #endif
-    const Grid& g = this->GetGrid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedColAlignment() )
@@ -1513,15 +1515,17 @@ elemental::DistMatrixBase<T,VR,Star>::SumScatterUpdate
     this->AssertNotLockedView();
     this->AssertSameGrid( A );
     this->AssertSameSize( A );
-    if( A.Width() != 1 && A.GetGrid().VCRank() == 0 )
+#endif
+    const Grid& g = this->GetGrid();
+#ifdef CACHE_WARNINGS
+    if( A.Width() != 1 && g.VCRank() == 0 )
     {
-        cout <<
+        cerr <<
           "[VR,* ]::SumScatterUpdate([MR,* ]) potentially causes a large amount"
           " of cache-thrashing. If possible, avoid it by forming the "
           "(conjugate-)transpose of the [MR,* ] matrix instead." << endl;
     }
 #endif
-    const Grid& g = this->GetGrid();
     if( this->ColAlignment() % g.Width() == A.ColAlignment() )
     {
         const int r = g.Height();
