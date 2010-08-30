@@ -6,5 +6,5 @@ Jack Poulson <jack.poulson@gmail.com>:
   for real and complex Householder reflectors, dlarfg.f and zlarfg.f.
 
 Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd.:
-  The serial code for generating Householder reflectors, dlarfg.f and zlarfg.f.
+  The serial code for generating Householder reflectors: dlarfg.f and zlarfg.f.
 
