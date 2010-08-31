@@ -52,15 +52,23 @@ library = libelemental.a
 #   WITHOUT_COMPLEX: if defined, no complex datatypes are implemented
 #   POOL_MEMORY: if defined, Memory class only accumulates until destruction
 #   ENABLE_ALL_DISTRIBUTED_DOT: if defined, build all distributed dot products
+#
+# OpenMP compile flags:
+#   PARALLELIZE_INNER_LOOPS: if defined, if the outer loop is of the size of 
+#     a row or column of the process grid, avoid the common wisdom of
+#     parallelizing the outer-most loop
+#
 CXX = mpicxx
 CXXFLAGS = -DBLAS_UNDERSCORE \
            -DLAPACK_UNDERSCORE \
            -DAVOID_COMPLEX_MPI \
            -DUNALIGNED_WARNINGS \
            -I$(incdir)
+OMPFLAGS = -fopenmp
 CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)
 CXXFLAGS_RELEASE = -O3 -Wall -DRELEASE $(CXXFLAGS)
-LDFLAGS = -L/usr/lib -llapack -lblas
+LDFLAGS_PURE = -L/usr/lib -llapack -lblas
+LDFLAGS_OMP  = -L/usr/lib -llapack -lblas # these should be threaded
 AR = ar
 ARFLAGS = rc
 
@@ -250,47 +258,80 @@ includes += $(srcdir)/lapack/UT/UTUtil.hpp
 ################################################################################
 # make                                                                         #
 ################################################################################
-libdir_debug = $(libdir)/debug
-libdir_release = $(libdir)/release
-obj_debug = $(addprefix $(libdir_debug)/,$(src:.cpp=.o))
-obj_release = $(addprefix $(libdir_release)/,$(src:.cpp=.o))
-library_debug = $(libdir_debug)/$(library)
-library_release = $(libdir_release)/$(library)
+libdir_omp_debug    = $(libdir)/omp/debug
+libdir_pure_debug   = $(libdir)/pure/debug
+libdir_omp_release  = $(libdir)/omp/release
+libdir_pure_release = $(libdir)/pure/release
+obj_omp_debug    = $(addprefix $(libdir_omp_debug)/,$(src:.cpp=.o))
+obj_pure_debug   = $(addprefix $(libdir_pure_debug)/,$(src:.cpp=.o))
+obj_omp_release  = $(addprefix $(libdir_omp_release)/,$(src:.cpp=.o))
+obj_pure_release = $(addprefix $(libdir_pure_release)/,$(src:.cpp=.o))
+library_omp_debug    = $(libdir_omp_debug)/$(library)
+library_pure_debug   = $(libdir_pure_debug)/$(library)
+library_omp_release  = $(libdir_omp_release)/$(library)
+library_pure_release = $(libdir_pure_release)/$(library)
 
 # This is the default target
 .PHONY : lib
-lib: release debug
+lib: omp-release pure-release omp-debug pure-debug
 
-.PHONY : debug
-debug: $(library_debug) 
+.PHONY : omp-debug
+omp-debug: $(library_omp_debug)
 
-.PHONY : release
-release: $(library_release)
+.PHONY : pure-debug
+pure-debug: $(library_pure_debug) 
 
-$(library_debug): $(obj_debug)
-	@echo "[ debug ] Creating $@"
+.PHONY : omp-release
+omp-release: $(library_omp_release)
+
+.PHONY : pure-release
+pure-release: $(library_pure_release)
+
+$(library_omp_debug): $(obj_omp_debug)
+	@echo "[  omp-debug ] Creating $@"
 	@$(AR) $(ARFLAGS) $@ $^
 
-$(library_release): $(obj_release)
-	@echo "[release] Creating $@"
+$(library_pure_debug): $(obj_pure_debug)
+	@echo "[ pure-debug ] Creating $@"
+	@$(AR) $(ARFLAGS) $@ $^
+
+$(library_omp_release): $(obj_omp_release)
+	@echo "[ omp-release] Creating $@"
+	@$(AR) $(ARFLAGS) $@ $^
+
+$(library_pure_release): $(obj_pure_release)
+	@echo "[pure-release] Creating $@"
 	@$(AR) $(ARFLAGS) $@ $^
 
 # Object files must depend upon headers because we inline functions
-$(libdir_debug)/%.o: $(srcdir)/%.cpp $(includes)
+
+$(libdir_omp_debug)/%.o: $(srcdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[ debug ] Compiling $<"
+	@echo "[  omp-debug ] Compiling $<"
+	@$(CXX) $(CXXFLAGS_DEBUG) $(OMPFLAGS)-c -o $@ $<
+
+$(libdir_pure_debug)/%.o: $(srcdir)/%.cpp $(includes)
+	@mkdir -p $(dir $@)
+	@echo "[ pure-debug ] Compiling $<"
 	@$(CXX) $(CXXFLAGS_DEBUG) -c -o $@ $<
 
-$(libdir_release)/%.o: $(srcdir)/%.cpp $(includes)
+$(libdir_omp_release)/%.o: $(srcdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[release] Compiling $<"
+	@echo "[ omp-release] Compiling $<"
+	@$(CXX) $(CXXFLAGS_RELEASE) $(OMPFLAGS) -c -o $@ $<
+
+$(libdir_pure_release)/%.o: $(srcdir)/%.cpp $(includes)
+	@mkdir -p $(dir $@)
+	@echo "[pure-release] Compiling $<"
 	@$(CXX) $(CXXFLAGS_RELEASE) -c -o $@ $<
 
 ################################################################################
 # make test                                                                    #
 ################################################################################
-bindir_debug = $(bindir)/debug
-bindir_release = $(bindir)/release
+bindir_omp_debug    = $(bindir)/omp/debug
+bindir_pure_debug   = $(bindir)/pure/debug
+bindir_omp_release  = $(bindir)/omp/release
+bindir_pure_release = $(bindir)/pure/release
 
 tests = DistMatrix \
         blas/Gemm \
@@ -312,35 +353,62 @@ tests = DistMatrix \
         lapack/UT
 testobjs = $(addsuffix .o, $(tests))
 
-tests_debug = $(addprefix $(bindir_debug)/, $(tests))
-testobjs_debug = $(addprefix $(bindir_debug)/, $(testobjs))
-tests_release = $(addprefix $(bindir_release)/, $(tests))
+tests_omp_debug     = $(addprefix $(bindir_omp_debug)/, $(tests))
+tests_pure_debug    = $(addprefix $(bindir_pure_debug)/, $(tests))
+testobjs_omp_debug  = $(addprefix $(bindir_omp_debug)/, $(testobjs))
+testobjs_pure_debug = $(addprefix $(bindir_pure_debug)/, $(testobjs))
+tests_omp_release   = $(addprefix $(bindir_omp_release)/, $(tests))
+tests_pure_release  = $(addprefix $(bindir_pure_release)/, $(tests))
 
 .PHONY : test
-test: test-release test-debug
+test: test-omp-release test-pure-release test-omp-debug test-pure-debug
 
-.PHONY : test-debug
-test-debug: $(tests_debug) $(testobjs_debug)
+.PHONY : test-omp-debug 
+tests-omp-debug: $(tests_omp_debug) $(testobjs_omp_debug)
 
-.PHONY : test-release
-test-release: $(tests_release)
+.PHONY : test-pure-debug
+test-pure-debug: $(tests_pure_debug) $(testobjs_pure_debug)
 
-$(bindir_debug)/%: $(bindir_debug)/%.o $(library_debug)
-	@echo "[ debug ] Creating $@"
-	@$(CXX) -o $@ $^ $(LDFLAGS)
+.PHONY : test-omp-release
+test-omp-release: $(tests_omp_release)
 
-$(bindir_release)/%: $(bindir_release)/%.o $(library_release)
-	@echo "[release] Creating $@"
-	@$(CXX) -o $@ $^ $(LDFLAGS)
+.PHONY : test-pure-release
+test-pure-release: $(tests_pure_release)
 
-$(bindir_debug)/%.o: $(testdir)/%.cpp $(includes)
+$(bindir_omp_debug)/%: $(bindir_omp_debug)/%.o $(library_omp_debug)
+	@echo "[  omp-debug ] Creating $@"
+	@$(CXX) $(OMPFLAGS) -o $@ $^ $(LDFLAGS_OMP)
+
+$(bindir_pure_debug)/%: $(bindir_pure_debug)/%.o $(library_pure_debug)
+	@echo "[ pure-debug ] Creating $@"
+	@$(CXX) -o $@ $^ $(LDFLAGS_PURE)
+
+$(bindir_omp_release)/%: $(bindir_omp_release)/%.o $(library_omp_release)
+	@echo "[ omp-release] Creating $@"
+	@$(CXX) $(OMPFLAGS) -o $@ $^ $(LDFLAGS_OMP)
+
+$(bindir_pure_release)/%: $(bindir_pure_release)/%.o $(library_pure_release)
+	@echo "[pure-release] Creating $@"
+	@$(CXX) -o $@ $^ $(LDFLAGS_PURE)
+
+$(bindir_omp_debug)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[ debug ] Compiling $<"
+	@echo "[  omp-debug ] Compiling $<"
+	@$(CXX) $(CXXFLAGS_DEBUG) $(OMPFLAGS) -c -o $@ $<
+
+$(bindir_pure_debug)/%.o: $(testdir)/%.cpp $(includes)
+	@mkdir -p $(dir $@)
+	@echo "[ pure-debug ] Compiling $<"
 	@$(CXX) $(CXXFLAGS_DEBUG) -c -o $@ $<
 
-$(bindir_release)/%.o: $(testdir)/%.cpp $(includes)
+$(bindir_omp_release)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[release] Compiling $<"
+	@echo "[ omp-release] Compiling $<"
+	@$(CXX) $(CXXFLAGS_RELEASE) $(OMPFLAGS) -c -o $@ $<
+
+$(bindir_pure_release)/%.o: $(testdir)/%.cpp $(includes)
+	@mkdir -p $(dir $@)
+	@echo "[pure-release] Compiling $<"
 	@$(CXX) $(CXXFLAGS_RELEASE) -c -o $@ $<
 
 ################################################################################
@@ -351,13 +419,33 @@ clean:
 	@rm -Rf lib/
 	@rm -Rf bin/
 
-.PHONY : clean-debug
-clean-debug:
-	@rm -Rf lib/debug
-	@rm -Rf bin/debug
+.PHONY : clean-omp
+clean-omp:
+	@rm -Rf lib/omp
+	@rm -Rf bin/omp
 
-.PHONY : clean-release
-clean-release:
-	@rm -Rf lib/release
-	@rm -Rf bin/release
+.PHONY : clean-pure
+clean-pure:
+	@rm -Rf lib/pure
+	@rm -Rf bin/pure
+
+.PHONY : clean-omp-debug
+clean-omp-debug:
+	@rm -Rf lib/omp/debug
+	@rm -Rf bin/omp/debug
+
+.PHONY : clean-pure-debug
+clean-pure-debug:
+	@rm -Rf lib/pure/debug
+	@rm -Rf bin/pure/debug
+
+.PHONY : clean-omp-release
+clean-omp-release:
+	@rm -Rf lib/omp/release
+	@rm -Rf bin/omp/release
+
+.PHONY : clean-pure-release
+clean-pure-release:
+	@rm -Rf lib/pure/release
+	@rm -Rf bin/pure/release
 

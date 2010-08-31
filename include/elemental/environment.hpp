@@ -45,6 +45,16 @@
 #include <stdexcept>
 #include <vector>
 
+// If defined, the _OPENMP macro contains the date of the specification
+#ifdef _OPENMP
+# include <omp.h>
+# if _OPENMP >= 200805
+#  define COLLAPSE(N) collapse(N)
+# else
+#  define COLLAPSE(N) 
+# endif 
+#endif
+
 #ifndef RELEASE
 namespace elemental {
 

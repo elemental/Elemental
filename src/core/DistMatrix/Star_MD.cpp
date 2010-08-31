@@ -63,30 +63,27 @@ elemental::DistMatrixBase<T,Star,MD>::Print( const string& s ) const
         return;
     }
 
-    T* sendBuf = new T[height*width];
-    for( int i=0; i<height*width; ++i )
-        sendBuf[i] = (T)0;
+    vector<T> sendBuf(height*width,0);
     if( inDiagonal )
     {
         const int colShift = this->ColShift();
+#ifdef _OPENMP
+        #pragma omp parallel for COLLAPSE(2)
+#endif
         for( int i=0; i<height; ++i )
             for( int j=0; j<localWidth; ++j )
                 sendBuf[colShift+i+j*lcm*height] = this->_localMatrix(i,j);
     }
 
-    // If we are the root, fill the receive buffer
-    T* recvBuf = 0;
+    // If we are the root, allocate a receive buffer
+    vector<T> recvBuf;
     if( this->GetGrid().VCRank() == 0 )
-    {
-        recvBuf = new T[height*width];     
-        for( int i=0; i<height*width; ++i )
-            recvBuf[i] = (T)0;
-    }
+        recvBuf.resize( height*width );
 
     // Sum the contributions and send to the root
     Reduce
-    ( sendBuf, recvBuf, height*width, MPI_SUM, 0, this->GetGrid().VCComm() );
-    delete[] sendBuf;
+    ( &sendBuf[0], &recvBuf[0], height*width, MPI_SUM, 0, 
+      this->GetGrid().VCComm() );
 
     if( this->GetGrid().VCRank() == 0 )
     {
@@ -98,7 +95,6 @@ elemental::DistMatrixBase<T,Star,MD>::Print( const string& s ) const
             cout << endl;
         }
         cout << endl;
-        delete[] recvBuf;
     }
 
 #ifndef RELEASE
@@ -782,6 +778,9 @@ elemental::DistMatrixBase<T,Star,MD>::MakeTrapezoidal
 
         if( shape == Lower )
         {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 const int j = rowShift + jLoc*lcm;
@@ -803,6 +802,9 @@ elemental::DistMatrixBase<T,Star,MD>::MakeTrapezoidal
         }
         else
         {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 const int j = rowShift + jLoc*lcm;
@@ -842,6 +844,9 @@ elemental::DistMatrixBase<T,Star, MD>::SetToIdentity()
         const int rowShift = this->RowShift();
 
         this->_localMatrix.SetToZero();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const int j = rowShift + jLoc*lcm;
@@ -1149,6 +1154,9 @@ elemental::DistMatrixBase<T,Star,MD>::operator=
         const int height = this->Height();
         const int localWidth = this->LocalWidth();
 #ifdef RELEASE
+# ifdef _OPENMP
+        #pragma omp parallel for
+# endif
         for( int j=0; j<localWidth; ++j )
         {
             const T* ACol = &(A.LocalEntry(0,rowShift+j*lcm));
@@ -1156,6 +1164,9 @@ elemental::DistMatrixBase<T,Star,MD>::operator=
             memcpy( thisCol, ACol, height*sizeof(T) );
         }
 #else
+# ifdef _OPENMP
+        #pragma omp parallel for COLLAPSE(2)
+# endif
         for( int j=0; j<localWidth; ++j )
             for( int i=0; i<height; ++i )
                 this->LocalEntry(i,j) = A.LocalEntry(i,rowShift+j*lcm);
@@ -1214,6 +1225,9 @@ elemental::DistMatrix<R,Star,MD>::SetToRandomHPD()
         const int lcm = this->GetGrid().LCM();
         const int rowShift = this->RowShift();
 
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const int j = rowShift + jLoc*lcm;
@@ -1246,6 +1260,9 @@ elemental::DistMatrix<complex<R>,Star,MD>::SetToRandomHPD()
         const int lcm = this->GetGrid().LCM();
         const int rowShift = this->RowShift();
 
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const int j = rowShift + jLoc*lcm;
