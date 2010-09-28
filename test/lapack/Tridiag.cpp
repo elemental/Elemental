@@ -39,17 +39,16 @@ using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
-    cout << "Tridiagonalizes a symmetric matrix." << endl << endl;
-    cout << "  Tridiag <r> <c> <shape> <m> <nb> <test correctness?> "
-         << "<print matrices?>" << endl << endl;
-    cout << "  r: number of process rows      " << endl;
-    cout << "  c: number of process cols      " << endl;
-    cout << "  shape: {L,U}                   " << endl;
-    cout << "  m: height of matrix            " << endl;
-    cout << "  nb: algorithmic blocksize      " << endl;
-    cout << "  test correctness?: false iff 0 " << endl;
-    cout << "  print matrices?: false iff 0   " << endl;
-    cout << endl;
+    cout << "Tridiagonalizes a symmetric matrix.\n\n"
+         << "  Tridiag <r> <c> <shape> <m> <nb> <test correctness?> "
+         << "<print matrices?>\n\n"
+         << "  r: number of process rows\n"
+         << "  c: number of process cols\n"
+         << "  shape: {L,U}\n"
+         << "  m: height of matrix\n"
+         << "  nb: algorithmic blocksize\n"
+         << "  test correctness?: false iff 0\n"
+         << "  print matrices?: false iff 0\n" << endl;
 }
 
 template<typename T>
@@ -361,13 +360,13 @@ void TestTridiag< complex<double> >
 int main( int argc, char* argv[] )
 {
     int rank;
-    elemental::Init( &argc, &argv );
+    Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     if( argc != 8 )
     {
         if( rank == 0 )
             Usage();
-        elemental::Finalize();
+        Finalize();
         return 0;
     }
     try
@@ -382,9 +381,9 @@ int main( int argc, char* argv[] )
 #ifndef RELEASE
         if( rank == 0 )
         {
-            cout << "==========================================" << endl;
-            cout << " In debug mode! Performance will be poor! " << endl;
-            cout << "==========================================" << endl;
+            cout << "==========================================\n"
+                 << " In debug mode! Performance will be poor! \n"
+                 << "==========================================" << endl;
         }
 #endif
         Grid g( MPI_COMM_WORLD, r, c );
@@ -395,24 +394,20 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "---------------------" << endl;
-            cout << "Testing with doubles:" << endl;
-            cout << "---------------------" << endl;
+            cout << "---------------------\n"
+                 << "Testing with doubles:\n"
+                 << "---------------------" << endl;
         }
         TestTridiag<double>( testCorrectness, printMatrices, shape, m, g );
-        if( rank == 0 )
-            cout << endl;
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
-            cout << "----------------------------" << endl;
-            cout << "Testing with double-complex:" << endl;
-            cout << "----------------------------" << endl;
+            cout << "----------------------------\n"
+                 << "Testing with double-complex:\n"
+                 << "----------------------------" << endl;
         }
         TestTridiag<dcomplex>( testCorrectness, printMatrices, shape, m, g );
-        if( rank == 0 )
-            cout << endl;
 #endif
     }
     catch( exception& e )
@@ -420,10 +415,10 @@ int main( int argc, char* argv[] )
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:" << endl 
+        cerr << "Process " << rank << " caught error message:\n"
              << e.what() << endl;
     }   
-    elemental::Finalize();
+    Finalize();
     return 0;
 }
 

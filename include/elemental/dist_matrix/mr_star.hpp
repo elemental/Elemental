@@ -80,6 +80,9 @@ public:
     virtual void MakeTrapezoidal
     ( Side side, Shape shape, int offset = 0 );
 
+    virtual void ScaleTrapezoidal
+    ( T alpha, Side side, Shape shape, int offset = 0 );
+
     virtual void Print( const std::string& s ) const;
     virtual void ResizeTo( int height, int width );
     virtual void SetToIdentity();

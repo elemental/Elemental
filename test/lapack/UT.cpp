@@ -39,20 +39,19 @@ using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
-    cout << "Tests UT transform application." << endl << endl;
-    cout << "  UT <r> <c> <side> <shape> <orientation> <m> <offset> <nb> "
-         << "<correctness?> <print?>" << endl << endl;
-    cout << "  r: number of process rows      " << endl;
-    cout << "  c: number of process cols      " << endl;
-    cout << "  side: {L/R}                    " << endl;
-    cout << "  shape: {L/U}                   " << endl;
-    cout << "  orientation: {N/C}             " << endl;
-    cout << "  m: height of matrix            " << endl;
-    cout << "  offset: diagonal transforms are stored above/below" << endl;
-    cout << "  nb: algorithmic blocksize      " << endl;
-    cout << "  test correctness?: false iff 0 " << endl;
-    cout << "  print matrices?: false iff 0   " << endl;
-    cout << endl;
+    cout << "Tests UT transform application.\n\n"
+         << "  UT <r> <c> <side> <shape> <orientation> <m> <offset> <nb> "
+         << "<correctness?> <print?>\n\n"
+         << "  r: number of process rows\n"
+         << "  c: number of process cols\n"
+         << "  side: {L/R}\n"
+         << "  shape: {L/U}\n"
+         << "  orientation: {N/C}\n"
+         << "  m: height of matrix\n"
+         << "  offset: diagonal transforms are stored above/below\n"
+         << "  nb: algorithmic blocksize\n"
+         << "  test correctness?: false iff 0\n"
+         << "  print matrices?: false iff 0\n" << endl;
 }
 
 template<typename T>
@@ -342,13 +341,13 @@ int
 main( int argc, char* argv[] )
 {
     int rank;
-    elemental::Init( &argc, &argv );
+    Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     if( argc != 11 )
     {
         if( rank == 0 )
             Usage();
-        elemental::Finalize();
+        Finalize();
         return 0;
     }
     try
@@ -366,9 +365,9 @@ main( int argc, char* argv[] )
 #ifndef RELEASE
         if( rank == 0 )
         {
-            cout << "==========================================" << endl;
-            cout << " In debug mode! Performance will be poor! " << endl;
-            cout << "==========================================" << endl;
+            cout << "==========================================\n"
+                 << " In debug mode! Performance will be poor! \n"
+                 << "==========================================" << endl;
         }
 #endif
         Grid g( MPI_COMM_WORLD, r, c );
@@ -379,28 +378,24 @@ main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "---------------------" << endl;
-            cout << "Testing with doubles:" << endl;
-            cout << "---------------------" << endl;
+            cout << "---------------------\n"
+                 << "Testing with doubles:\n"
+                 << "---------------------" << endl;
         }
         TestUT<double>
         ( side, shape, orientation, m, offset, 
           testCorrectness, printMatrices, g );
-        if( rank == 0 )
-            cout << endl;
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
-            cout << "--------------------------------------" << endl;
-            cout << "Testing with double-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
+            cout << "--------------------------------------\n"
+                 << "Testing with double-precision complex:\n"
+                 << "--------------------------------------" << endl;
         }
         TestUT<dcomplex>
         ( side, shape, orientation, m, offset, 
           testCorrectness, printMatrices, g );
-        if( rank == 0 )
-            cout << endl;
 #endif
     }
     catch( exception& e )
@@ -408,10 +403,10 @@ main( int argc, char* argv[] )
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:" << endl 
+        cerr << "Process " << rank << " caught error message:\n"
              << e.what() << endl;
     }   
-    elemental::Finalize();
+    Finalize();
     return 0;
 }
 

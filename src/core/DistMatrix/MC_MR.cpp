@@ -94,7 +94,7 @@ elemental::DistMatrixBase<T,MC,MR>::Print( const string& s ) const
         {
             for( int j=0; j<width; ++j )
                 cout << recvBuf[i+j*height] << " ";
-            cout << endl;
+            cout << "\n";
         }
         cout << endl;
     }
@@ -1227,21 +1227,18 @@ elemental::DistMatrixBase<T,MC,MR>::MakeTrapezoidal
 #endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLoc*c;
-            int lastZero_i;
-            if( side == Left )
-                lastZero_i = j-offset-1;
-            else
-                lastZero_i = j-offset+height-width-1;
-            if( lastZero_i >= 0 )
+            int j = rowShift + jLoc*c;
+            int lastZeroRow = ( side==Left ? j-offset-1
+                                           : j-offset+height-width-1 );
+            if( lastZeroRow >= 0 )
             {
-                const int boundary = min( lastZero_i+1, height );
-                const int numZeros = LocalLength( boundary, colShift, r );
+                int boundary = min( lastZeroRow+1, height );
+                int numZeroRows = LocalLength( boundary, colShift, r );
 #ifdef RELEASE
                 T* thisCol = &(this->LocalEntry(0,jLoc));
-                memset( thisCol, 0, numZeros*sizeof(T) );
+                memset( thisCol, 0, numZeroRows*sizeof(T) );
 #else
-                for( int iLoc=0; iLoc<numZeros; ++iLoc )
+                for( int iLoc=0; iLoc<numZeroRows; ++iLoc )
                     this->LocalEntry(iLoc,jLoc) = (T)0;
 #endif
             }
@@ -1254,19 +1251,81 @@ elemental::DistMatrixBase<T,MC,MR>::MakeTrapezoidal
 #endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLoc*c;
-            int firstZero_i;
-            if( side == Left )
-                firstZero_i = max(j-offset+1,0);
-            else
-                firstZero_i = max(j+height-width-offset+1,0);
-            const int nonzeroLength = LocalLength(firstZero_i,colShift,r);
+            int j = rowShift + jLoc*c;
+            int firstZeroRow = ( side==Left ? max(j-offset+1,0)
+                                            : max(j-offset+height-width+1,0) );
+            int numNonzeroRows = LocalLength(firstZeroRow,colShift,r);
 #ifdef RELEASE
-            T* thisCol = &(this->LocalEntry(nonzeroLength,jLoc));
-            memset( thisCol, 0, (localHeight-nonzeroLength)*sizeof(T) );
+            T* thisCol = &(this->LocalEntry(numNonzeroRows,jLoc));
+            memset( thisCol, 0, (localHeight-numNonzeroRows)*sizeof(T) );
 #else
-            for( int iLoc=nonzeroLength; iLoc<localHeight; ++iLoc )
+            for( int iLoc=numNonzeroRows; iLoc<localHeight; ++iLoc )
                 this->LocalEntry(iLoc,jLoc) = (T)0;
+#endif
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+elemental::DistMatrixBase<T,MC,MR>::ScaleTrapezoidal
+( T alpha, Side side, Shape shape, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::ScaleTrapezoidal");
+    this->AssertNotLockedView();
+#endif
+    const int height = this->Height();
+    const int width = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int localWidth = this->LocalWidth();
+    const int r = this->GetGrid().Height();
+    const int c = this->GetGrid().Width();
+    const int colShift = this->ColShift();
+    const int rowShift = this->RowShift();
+
+    if( shape == Upper )
+    {
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        {
+            int j = rowShift + jLoc*c;
+            int lastRow = ( side==Left ? j-offset : j-offset+height-width );
+            int boundary = min( lastRow+1, height );
+            int numRows = LocalLength( boundary, colShift, r );
+#ifdef RELEASE
+            T* thisCol = &(this->LocalEntry(0,jLoc));
+            for( int iLoc=0; iLoc<numRows; ++iLoc )
+                thisCol[iLoc] *= alpha;
+#else
+            for( int iLoc=0; iLoc<numRows; ++iLoc )
+                this->LocalEntry(iLoc,jLoc) *= alpha;
+#endif
+        }
+    }
+    else
+    {
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        {
+            int j = rowShift + jLoc*c;
+            int firstRow = ( side==Left ? max(j-offset,0) 
+                                        : max(j-offset+height-width,0) );
+            int numZeroRows = LocalLength( firstRow, colShift, r );
+#ifdef RELEASE
+            T* thisCol = &(this->LocalEntry(numZeroRows,jLoc));
+            for( int iLoc=0; iLoc<(localHeight-numZeroRows); ++iLoc )
+                thisCol[iLoc] *= alpha;
+#else
+            for( int iLoc=numZeroRows; iLoc<localHeight; ++iLoc )
+                this->LocalEntry(iLoc,jLoc) *= alpha;
 #endif
         }
     }

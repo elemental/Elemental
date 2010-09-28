@@ -88,7 +88,7 @@ elemental::DistMatrixBase<T,Star,VR>::Print( const string& s ) const
         {
             for( int j=0; j<width; ++j )
                 cout << recvBuf[i+j*height] << " ";
-            cout << endl;
+            cout << "\n";
         }
         cout << endl;
     }
@@ -634,20 +634,79 @@ elemental::DistMatrixBase<T,Star,VR>::MakeTrapezoidal
 #endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLoc*p;
-            int firstNonzero_i;
-            if( side == Left )
-                firstNonzero_i = max(j-offset,0);
-            else
-                firstNonzero_i = max(j-offset+height-width,0);
+            int j = rowShift + jLoc*p;
+            int lastZeroRow = ( side==Left ? j-offset-1
+                                           : j-offset+height-width-1 );
+            if( lastZeroRow >= 0 )
+            {
+                int boundary = min( lastZeroRow+1, height );
+#ifdef RELEASE
+                T* thisCol = &(this->LocalEntry(0,jLoc));
+                memset( thisCol, 0, boundary*sizeof(T) );
+#else
+                for( int i=0; i<boundary; ++i )
+                    this->LocalEntry(i,jLoc) = (T)0;
+#endif
+            }
+        }
+    }
+    else
+    {
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        {
+            int j = rowShift + jLoc*p;
+            int firstZeroRow = ( side==Left ? max(j-offset+1,0)
+                                            : max(j-offset+height-width+1,0) );
+#ifdef RELEASE
+            T* thisCol = &(this->LocalEntry(firstZeroRow,jLoc));
+            memset( thisCol, 0, (height-firstZeroRow)*sizeof(T) );
+#else
+            for( int i=firstZeroRow; i<height; ++i )
+                this->LocalEntry(i,jLoc) = (T)0;
+#endif
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
-            const int boundary = min(height,firstNonzero_i);
+template<typename T>
+void
+elemental::DistMatrixBase<T,Star,VR>::ScaleTrapezoidal
+( T alpha, Side side, Shape shape, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VR]::ScaleTrapezoidal");
+    this->AssertNotLockedView();
+#endif
+    const Grid& g = this->GetGrid();
+    const int height = this->Height();
+    const int width = this->Width();
+    const int localWidth = this->LocalWidth();
+    const int p = g.Size();
+    const int rowShift = this->RowShift();
+
+    if( shape == Upper )
+    {
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        {
+            int j = rowShift + jLoc*p;
+            int lastRow = ( side==Left ? j-offset : j-offset+height-width );
+            int boundary = min( lastRow+1, height );
 #ifdef RELEASE
             T* thisCol = &(this->LocalEntry(0,jLoc));
-            memset( thisCol, 0, boundary*sizeof(T) );
+            for( int i=0; i<boundary; ++i )
+                thisCol[i] *= alpha;
 #else
             for( int i=0; i<boundary; ++i )
-                this->LocalEntry(i,jLoc) = (T)0;
+                this->LocalEntry(i,jLoc) *= alpha;
 #endif
         }
     }
@@ -658,18 +717,16 @@ elemental::DistMatrixBase<T,Star,VR>::MakeTrapezoidal
 #endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLoc*p;
-            int firstZero_i;
-            if( side == Left )
-                firstZero_i = max(j-offset+1,0);
-            else
-                firstZero_i = max(j-offset+height-width+1,0);
+            int j = rowShift + jLoc*p;
+            int firstRow = ( side==Left ? max(j-offset,0)
+                                        : max(j-offset+height-width,0) );
 #ifdef RELEASE
-            T* thisCol = &(this->LocalEntry(firstZero_i,jLoc));
-            memset( thisCol, 0, (height-firstZero_i)*sizeof(T) );
+            T* thisCol = &(this->LocalEntry(firstRow,jLoc));
+            for( int i=0; i<(height-firstRow); ++i )
+                thisCol[i] *= alpha;
 #else
-            for( int i=firstZero_i; i<height; ++i )
-                this->LocalEntry(i,jLoc) = (T)0;
+            for( int i=firstRow; i<height; ++i )
+                this->LocalEntry(i,jLoc) *= alpha;
 #endif
         }
     }

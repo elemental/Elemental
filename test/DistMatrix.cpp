@@ -39,14 +39,12 @@ using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
-    cout << "Test all of the aligned redistributions of DistMatrix class."
-         << endl << endl;
-    cout << "  DistMatrix <r> <c> <m> <n>  " << endl << endl;    
-    cout << "  r: number of process rows " << endl;
-    cout << "  c: number of process cols " << endl;
-    cout << "  m: height of matrices     " << endl;
-    cout << "  n: width of matrices      " << endl;
-    cout << endl;
+    cout << "Test all of the aligned redistributions of DistMatrix class.\n\n"
+         << "  DistMatrix <r> <c> <m> <n>\n\n"
+         << "  r: number of process rows\n"
+         << "  c: number of process cols\n"
+         << "  m: height of matrices\n"
+         << "  n: width of matrices\n" << endl;
 }
 
 template<typename T, Distribution AColDist, Distribution ARowDist,
@@ -114,9 +112,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
         if( everyonePassed )
             cout << "PASSED" << endl;
         else
-        {
             throw logic_error( "Redistribution failed.");
-        }
     }
 #ifndef RELEASE
     PopCallStack();
@@ -303,13 +299,13 @@ DistMatrixTest( int m, int n, const Grid& g )
 int main( int argc, char* argv[] )
 {
     int rank;
-    elemental::Init( &argc, &argv );
+    Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     if( argc != 5 )
     {
         if( rank == 0 )
             Usage();
-        elemental::Finalize();
+        Finalize();
         return 0;
     }
     const int r = atoi(argv[1]);
@@ -319,9 +315,9 @@ int main( int argc, char* argv[] )
 #ifndef RELEASE
     if( rank == 0 )
     {
-        cout << "==========================================" << endl;
-        cout << " In debug mode! Performance will be poor! " << endl;
-        cout << "==========================================" << endl;
+        cout << "==========================================\n"
+             << " In debug mode! Performance will be poor! \n"
+             << "==========================================" << endl;
     }
 #endif
     try
@@ -330,52 +326,36 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "--------------------" << endl;
-            cout << "Testing with floats:" << endl;
-            cout << "--------------------" << endl;
+            cout << "--------------------\n"
+                 << "Testing with floats:\n"
+                 << "--------------------" << endl;
         }
         DistMatrixTest<float>( m, n, g );
-        if( rank == 0 )
-        {
-            cout << endl;
-        }
 
         if( rank == 0 )
         {
-            cout << "---------------------" << endl;
-            cout << "Testing with doubles:" << endl;
-            cout << "---------------------" << endl;
+            cout << "---------------------\n"
+                 << "Testing with doubles:\n"
+                 << "---------------------" << endl;
         }
         DistMatrixTest<double>( m, n, g );
-        if( rank == 0 )
-        {
-            cout << endl;
-        }
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
-            cout << "--------------------------------------" << endl;
-            cout << "Testing with single-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
+            cout << "--------------------------------------\n"
+                 << "Testing with single-precision complex:\n"
+                 << "--------------------------------------" << endl;
         }
         DistMatrixTest<scomplex>( m, n, g );
-        if( rank == 0 )
-        {
-            cout << endl;
-        }
         
         if( rank == 0 )
         {
-            cout << "--------------------------------------" << endl;
-            cout << "Testing with double-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
+            cout << "--------------------------------------\n"
+                 << "Testing with double-precision complex:\n"
+                 << "--------------------------------------" << endl;
         }
         DistMatrixTest<dcomplex>( m, n, g );
-        if( rank == 0 )
-        {
-            cout << endl;
-        }
 #endif
     }
     catch( exception& e )
@@ -383,10 +363,10 @@ int main( int argc, char* argv[] )
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message: " << endl 
+        cerr << "Process " << rank << " caught error message:\n"
              << e.what() << endl;
     }
-    elemental::Finalize();
+    Finalize();
     return 0;
 }
 

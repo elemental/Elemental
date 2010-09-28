@@ -39,19 +39,18 @@ using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
-    cout << "HErmitian Matrix Matrix multiplication." << endl << endl;;
-    cout << "  Hemm <r> <c> <Side> <Shape> <m> <n> <nb> <correctness?> <print?>"
-         << endl << endl;
-    cout << "  r: number of process rows    " << endl;
-    cout << "  c: number of process cols    " << endl;
-    cout << "  Side: {L,R}                  " << endl;
-    cout << "  Shape: {L,U}                 " << endl;
-    cout << "  m: height of C               " << endl;
-    cout << "  n: width  of C               " << endl;
-    cout << "  nb: algorithmic blocksize    " << endl;
-    cout << "  correctness?: [0/1]          " << endl;
-    cout << "  print?: [0/1]                " << endl;
-    cout << endl;
+    cout << "HErmitian Matrix Matrix multiplication.\n\n"
+         << "  Hemm <r> <c> <Side> <Shape> <m> <n> <nb> <correctness?> <print?>"
+         << "\n\n"
+         << "  r: number of process rows\n" 
+         << "  c: number of process cols\n"
+         << "  Side: {L,R}\n"
+         << "  Shape: {L,U}\n"
+         << "  m: height of C\n"
+         << "  n: width  of C\n"
+         << "  nb: algorithmic blocksize\n"
+         << "  correctness?: [0/1]\n"
+         << "  print?: [0/1]\n" << endl;
 }
 
 template<typename T>
@@ -215,13 +214,13 @@ void TestHemm
 int main( int argc, char* argv[] )
 {
     int rank;
-    elemental::Init( &argc, &argv );
+    Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     if( argc != 10 )
     {
         if( rank == 0 )
             Usage();
-        elemental::Finalize();
+        Finalize();
         return 0;
     }
     try
@@ -238,9 +237,9 @@ int main( int argc, char* argv[] )
 #ifndef RELEASE
         if( rank == 0 )
         {
-            cout << "==========================================" << endl;
-            cout << " In debug mode! Performance will be poor! " << endl;
-            cout << "==========================================" << endl;
+            cout << "==========================================\n"
+                 << " In debug mode! Performance will be poor! \n"
+                 << "==========================================" << endl;
         }
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
@@ -254,28 +253,24 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "--------------------------------------" << endl;
-            cout << "Testing with doubles:                 " << endl;
-            cout << "--------------------------------------" << endl;
+            cout << "--------------------------------------\n"
+                 << "Testing with doubles:                 \n"
+                 << "--------------------------------------" << endl;
         }
         TestHemm<double>
         ( testCorrectness, printMatrices,
           side, shape, m, n, (double)3, (double)4, g );
-        if( rank == 0 )
-            cout << endl;
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
-            cout << "--------------------------------------" << endl;
-            cout << "Testing with double-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
+            cout << "--------------------------------------\n"
+                 << "Testing with double-precision complex:\n"
+                 << "--------------------------------------" << endl;
         }
         TestHemm<dcomplex>
         ( testCorrectness, printMatrices,
           side, shape, m, n, (dcomplex)3, (dcomplex)4, g );
-        if( rank == 0 )
-            cout << endl;
 #endif
     }
     catch( exception& e )
@@ -283,10 +278,10 @@ int main( int argc, char* argv[] )
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:" << endl 
+        cerr << "Process " << rank << " caught error message:\n"
              << e.what() << endl;
     }
-    elemental::Finalize();
+    Finalize();
     return 0;
 }
 

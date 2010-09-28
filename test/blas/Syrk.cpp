@@ -39,19 +39,18 @@ using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
-    cout << "SYmmetric Rank-K update." << endl << endl;;
-    cout << "  Syrk <r> <c> <shape> <trans?> <m> <k> <nb> ";
-    cout << "<correctness?> <print?>   " << endl << endl;;
-    cout << "  r: number of process rows             " << endl;
-    cout << "  c: number of process cols             " << endl;
-    cout << "  shape?: {L,U}                         " << endl;
-    cout << "  trans?: {N,T}                         " << endl;
-    cout << "  m: height of C                        " << endl;
-    cout << "  k: inner dimension                    " << endl;
-    cout << "  nb: algorithmic blocksize             " << endl;
-    cout << "  correctness?: false iff 0             " << endl;
-    cout << "  print?: false iff 0                   " << endl;
-    cout << endl;
+    cout << "SYmmetric Rank-K update.\n\n"
+         << "  Syrk <r> <c> <shape> <trans?> <m> <k> <nb> <correctness?> "
+         << "<print?>\n\n"
+         << "  r: number of process rows\n"
+         << "  c: number of process cols\n"
+         << "  shape?: {L,U}\n"
+         << "  trans?: {N,T}\n"
+         << "  m: height of C\n"
+         << "  k: inner dimension\n"
+         << "  nb: algorithmic blocksize\n"
+         << "  correctness?: false iff 0\n"
+         << "  print?: false iff 0\n" << endl;
 }
 
 template<typename T>
@@ -227,13 +226,13 @@ void TestSyrk
 int main( int argc, char* argv[] )
 {
     int rank;
-    elemental::Init( &argc, &argv );
+    Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     if( argc != 10 )
     {
         if( rank == 0 )
             Usage();
-        elemental::Finalize();
+        Finalize();
         return 0;
     }
     try
@@ -250,9 +249,9 @@ int main( int argc, char* argv[] )
 #ifndef RELEASE
         if( rank == 0 )
         {
-            cout << "==========================================" << endl;
-            cout << " In debug mode! Performance will be poor! " << endl;
-            cout << "==========================================" << endl;
+            cout << "==========================================\n"
+                 << " In debug mode! Performance will be poor! \n"
+                 << "==========================================" << endl;
         }
 #endif
         Grid g( MPI_COMM_WORLD, r, c );
@@ -266,28 +265,24 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "---------------------" << endl;
-            cout << "Testing with doubles:" << endl;
-            cout << "---------------------" << endl;
+            cout << "---------------------\n"
+                 << "Testing with doubles:\n"
+                 << "---------------------" << endl;
         }
         TestSyrk<double>
         ( testCorrectness, printMatrices,
           shape, orientation, m, k, (double)3, (double)4, g );
-        if( rank == 0 )
-            cout << endl;
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
-            cout << "--------------------------------------" << endl;
-            cout << "Testing with double-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
+            cout << "--------------------------------------\n"
+                 << "Testing with double-precision complex:\n"
+                 << "--------------------------------------" << endl;
         }
         TestSyrk<dcomplex>
         ( testCorrectness, printMatrices,
           shape, orientation, m, k, (double)3, (double)4, g );
-        if( rank == 0 )
-            cout << endl;
 #endif
     }
     catch( exception& e )
@@ -298,7 +293,7 @@ int main( int argc, char* argv[] )
         cerr << "Process " << rank << " caught error message:" << endl 
              << e.what() << endl;
     }
-    elemental::Finalize();
+    Finalize();
     return 0;
 }
 

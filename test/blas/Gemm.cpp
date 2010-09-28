@@ -39,24 +39,21 @@ using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
-    cout << "GEneral Matrix Matrix multiplication." << endl << endl;;
-    cout << "  Gemm <r> <c> <orient. of A?> <orient. of B?> <m> <n> <k> <nb> "  
-         << endl
-         << "       <serial gemm?> <parallel gemm?> <correctness?> <print?> " 
-         << endl << endl;
-    cout << "  r: number of process rows    " << endl;
-    cout << "  c: number of process cols    " << endl;
-    cout << "  orient. of A: {N,T,C}        " << endl;
-    cout << "  orient. of B: {N,T,C}        " << endl;
-    cout << "  m: height of C               " << endl;
-    cout << "  n: width  of C               " << endl;
-    cout << "  k: inner dimension of AB     " << endl;
-    cout << "  nb: algorithmic blocksize    " << endl;
-    cout << "  serial gemm? [0/1]           " << endl;
-    cout << "  parallel gemm? [0/1]         " << endl;
-    cout << "  correctness?: [0/1]          " << endl;
-    cout << "  print?: [0/1]                " << endl;
-    cout << endl;
+    cout << "GEneral Matrix Matrix multiplication.\n\n"
+         << "  Gemm <r> <c> <orient. of A?> <orient. of B?> <m> <n> <k> <nb>\n" 
+         << "       <serial gemm?> <parallel gemm?> <correctness?> <print?>\n\n"
+         << "  r: number of process rows\n"
+         << "  c: number of process cols\n"
+         << "  orient. of A: {N,T,C}\n"
+         << "  orient. of B: {N,T,C}\n"
+         << "  m: height of C\n" 
+         << "  n: width  of C\n"
+         << "  k: inner dimension of AB\n"
+         << "  nb: algorithmic blocksize\n"
+         << "  serial gemm? [0/1]\n"
+         << "  parallel gemm? [0/1]\n" 
+         << "  correctness?: [0/1]\n"
+         << "  print?: [0/1]\n" << endl; 
 }
 
 template<typename T>
@@ -624,13 +621,13 @@ void TestParallelGemm
 int main( int argc, char* argv[] )
 {
     int rank;
-    elemental::Init( &argc, &argv );
+    Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     if( argc != 13 )
     {
         if( rank == 0 )
             Usage();
-        elemental::Finalize();
+        Finalize();
         return 0;
     }
     try
@@ -650,9 +647,9 @@ int main( int argc, char* argv[] )
 #ifndef RELEASE
         if( rank == 0 )
         {
-            cout << "==========================================" << endl;
-            cout << " In debug mode! Performance will be poor! " << endl;
-            cout << "==========================================" << endl;
+            cout << "==========================================\n"
+                 << " In debug mode! Performance will be poor! \n"
+                 << "==========================================" << endl;
         }
 #endif
         Barrier( MPI_COMM_WORLD );
@@ -676,9 +673,9 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "---------------------" << endl;
-            cout << "Testing with doubles:" << endl;
-            cout << "---------------------" << endl;
+            cout << "---------------------\n"
+                 << "Testing with doubles:\n"
+                 << "---------------------" << endl;
         }
         if( testSerial )
         {
@@ -694,15 +691,13 @@ int main( int argc, char* argv[] )
               orientationOfA, orientationOfB,
               m, n, k, (double)3, (double)4, g );
         }
-        if( rank == 0 )
-            cout << endl;
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
-            cout << "--------------------------------------" << endl;
-            cout << "Testing with double-precision complex:" << endl;
-            cout << "--------------------------------------" << endl;
+            cout << "--------------------------------------\n"
+                 << "Testing with double-precision complex:\n"
+                 << "--------------------------------------" << endl;
         }
         if( testSerial )
         {
@@ -718,8 +713,6 @@ int main( int argc, char* argv[] )
               orientationOfA, orientationOfB,
               m, n, k, (dcomplex)3, (dcomplex)4, g );
         }
-        if( rank == 0 )
-            cout << endl;
 #endif
     }
     catch( exception& e )
@@ -727,10 +720,10 @@ int main( int argc, char* argv[] )
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:" << endl 
+        cerr << "Process " << rank << " caught error message:\n"
              << e.what() << endl;
     }
-    elemental::Finalize();
+    Finalize();
     return 0;
 }
 

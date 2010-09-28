@@ -66,7 +66,7 @@ elemental::blas::internal::SyrkUT
     DistMatrix<T,Star,MC  > A1_Star_MC(g);
 
     // Start the algorithm
-    blas::Scal( beta, C );
+    C.ScaleTrapezoidal( beta, Left, Upper );
     LockedPartitionUp
     ( A, AT, 
          AB, 0 );

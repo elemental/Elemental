@@ -79,7 +79,7 @@ elemental::blas::internal::Her2kLC
     DistMatrix<T,Star,MC  > B1_Star_MC(g);
 
     // Start the algorithm
-    blas::Scal( beta, C );
+    C.ScaleTrapezoidal( beta, Left, Lower );
     LockedPartitionDown
     ( A, AT,
          AB, 0 );

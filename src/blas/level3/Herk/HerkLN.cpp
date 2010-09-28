@@ -65,7 +65,7 @@ elemental::blas::internal::HerkLN
     DistMatrix<T,Star,MR  > A1Herm_Star_MR(g);
 
     // Start the algorithm
-    blas::Scal( beta, C );
+    C.ScaleTrapezoidal( beta, Left, Lower );
     LockedPartitionRight( A, AL, AR, 0 );
     while( AR.Width() > 0 )
     {
