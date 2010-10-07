@@ -62,7 +62,6 @@ CXX = mpicxx
 CXXFLAGS = -DBLAS_UNDERSCORE \
            -DLAPACK_UNDERSCORE \
            -DAVOID_COMPLEX_MPI \
-           -DUNALIGNED_WARNINGS \
            -I$(incdir)
 OMPFLAGS = -fopenmp
 CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)

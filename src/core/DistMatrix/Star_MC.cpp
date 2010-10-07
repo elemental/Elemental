@@ -1428,7 +1428,7 @@ elemental::DistMatrixBase<T,Star,MC>::operator=
           "[* ,MR] <- [MC,MR]." << endl;
     }
 #endif
-#ifdef UNALIGNED_WARNINGS
+#ifdef CACHE_WARNINGS
     if( A.Height() != 1 && g.VCRank() == 0 )
     {
         cerr << 
