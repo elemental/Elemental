@@ -117,6 +117,23 @@ void
 LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 
 //----------------------------------------------------------------------------//
+// Pinv (Moore-Penrose pseudoinverse)                                         //
+//----------------------------------------------------------------------------//
+
+// TODO: Serial version
+
+// Parallel version for tall, skinny matrices
+template<typename R>
+void
+Pinv( DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& PinvA );
+
+template<typename R>
+void
+Pinv
+( DistMatrix<std::complex<R>,MC,MR>& A, 
+  DistMatrix<std::complex<R>,MC,MR>& PinvA );
+
+//----------------------------------------------------------------------------//
 // QR (QR factorization):                                                     //
 //                                                                            //
 // Performs a Householder QR factorization that overwrites the upper triangle //
@@ -191,6 +208,46 @@ Reflector( Matrix< std::complex<R> >& chi, Matrix< std::complex<R> >& x );
 template<typename T>
 T
 Reflector( DistMatrix<T,MC,MR>& chi, DistMatrix<T,MC,MR>& x );
+
+//----------------------------------------------------------------------------//
+// SVD (Singular Value Decomposition):                                        //
+//                                                                            //
+// Two approaches:                                                            //
+// (1)                                                                        //
+//   Compute the skinny SVD of A, A = U Sigma V^T, where, if A is m x n,      //
+//   U is m x min(m,n) and V^T is min(m,n) x n. We store U in A, V^T in V,    //
+//   and Sigma in SigmaDiag.                                                  //
+// (2)                                                                        //
+//   Compute the skinny SVD of A, A = U Sigma V^T, where, if A is m x n,      //
+//   U is m x min(m,n) and V^T is min(m,n) x n. We store U in U, V^T in V,    //
+//   and Sigma in SigmaDiag.                                                  //
+//----------------------------------------------------------------------------//
+
+// Serial versions where A is overwritten by U
+template<typename R>
+void
+SVD( Matrix<R>& A, Matrix<R>& VT, std::vector<R>& SigmaDiag );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+SVD
+( Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& VT, 
+  std::vector<R>& SigmaDiag );     
+#endif
+
+// Serial versions where A is not overwritten
+template<typename R>
+void
+SVD( Matrix<R>& A, Matrix<R>& U, Matrix<R>& VT, std::vector<R>& SigmaDiag );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+SVD
+( Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& U, 
+  Matrix< std::complex<R> >& VT, std::vector<R>& SigmaDiag );
+#endif
 
 //----------------------------------------------------------------------------//
 // Tridiag (Householder tridiagonalization):                                  //
@@ -392,6 +449,94 @@ elemental::lapack::QR
         t.ResizeTo( A.Height(), 1 );
     wrappers::lapack::QR
     ( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif
+
+template<typename R>
+inline void
+elemental::lapack::SVD
+( Matrix<R>& A, Matrix<R>& VT, std::vector<R>& SigmaDiag )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::SVD");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    SigmaDiag.resize( std::min(m,n) );
+    VT.ResizeTo( std::min(m,n), n );
+    wrappers::lapack::SVD
+    ( 'O', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], 0, 0, 
+      VT.Buffer(), VT.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline void
+elemental::lapack::SVD
+( Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& VT, 
+  std::vector<R>& SigmaDiag )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::SVD");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    SigmaDiag.resize( std::min(m,n) );
+    VT.ResizeTo( std::min(m,n), n );
+    wrappers::lapack::SVD
+    ( 'O', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], 0, 0, 
+      VT.Buffer(), VT.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif
+
+template<typename R>
+inline void
+elemental::lapack::SVD
+( Matrix<R>& A, Matrix<R>& U, Matrix<R>& VT, std::vector<R>& SigmaDiag )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::SVD");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    SigmaDiag.resize( std::min(m,n) );
+    U.ResizeTo( m, std::min(m,n) );
+    VT.ResizeTo( std::min(m,n), n );
+    wrappers::lapack::SVD
+    ( 'S', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], U.Buffer(), U.LDim(),
+      VT.Buffer(), VT.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline void
+elemental::lapack::SVD
+( Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& U, 
+  Matrix< std::complex<R> >& VT, std::vector<R>& SigmaDiag )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::SVD");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    SigmaDiag.resize( std::min(m,n) );
+    U.ResizeTo( m, std::min(m,n) );
+    VT.ResizeTo( std::min(m,n), n );
+    wrappers::lapack::SVD
+    ( 'S', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], U.Buffer(), U.LDim(),
+      VT.Buffer(), VT.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif

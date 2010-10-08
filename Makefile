@@ -192,6 +192,7 @@ lapackfiles = Chol/Chol.cpp \
               LU/FindPivot.cpp \
               LU/LU.cpp \
               LU/PanelLU.cpp \
+              Pinv/Pinv.cpp \
               QR/PanelQR.cpp \
               QR/QR.cpp \
               Reflector/ColReflector.cpp \

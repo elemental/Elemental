@@ -137,6 +137,28 @@ SafeNorm
 ( double alpha, double beta, double gamma );
 
 void
+SVD
+( char UColumns, char VColumns, int m, int n, float* A, int lda,
+  float* SigmaDiag, float* U, int ldu, float* VT, int ldvt );
+
+void
+SVD
+( char UColumns, char VColumns, int m, int n, double* A, int lda,
+  double* SigmaDiag, double* U, int ldu, double* VT, int ldvt );
+
+#ifndef WITHOUT_COMPLEX
+void
+SVD
+( char UColumns, char VColumns, int m, int n, scomplex* A, int lda,
+  float* SigmaDiag, scomplex* U, int ldu, scomplex* VT, int ldvt );
+
+void
+SVD
+( char UColumns, char VColumns, int m, int n, dcomplex* A, int lda,
+  double* SigmaDiag, dcomplex* U, int ldu, dcomplex* VT, int ldvt );
+#endif
+
+void
 Tridiag
 ( char uplo, int n, float* A, int lda );
 
@@ -269,6 +291,33 @@ void LAPACK(zhegst)
 ( const int* itype, const char* uplo, const int* n,
         elemental::dcomplex* A, const int* lda,
   const elemental::dcomplex* B, const int* ldb, int* info );
+#endif
+
+// SVD
+void LAPACK(sgesvd)
+( const char* UColumns, const char* VColumns, const int* m, const int* n,
+  float* A, const int* lda, float* SigmaDiag, float* U, const int* ldu,
+  float* VT, const int* ldvt, float* work, const int* lwork, int* info );
+
+void LAPACK(dgesvd)
+( const char* UColumns, const char* VColumns, const int* m, const int* n,
+  double* A, const int* lda, double* SigmaDiag, double* U, const int* ldu,
+  double* VT, const int* ldvt, double* work, const int* lwork, int* info );
+
+#ifndef WITHOUT_COMPLEX
+void LAPACK(cgesvd)
+( const char* UColumns, const char* VColumns, const int* m, const int* n,
+  elemental::scomplex* A, const int* lda, float* SigmaDiag, 
+  elemental::scomplex* U, const int* ldu, elemental::scomplex* VT, 
+  const int* ldvt, elemental::scomplex* work, const int* lwork, 
+  float* realWork, int* info );
+
+void LAPACK(zgesvd)
+( const char* UColumns, const char* VColumns, const int* m, const int* n,
+  elemental::dcomplex* A, const int* lda, double* SigmaDiag, 
+  elemental::dcomplex* U, const int* ldu, elemental::dcomplex* VT, 
+  const int* ldvt, elemental::dcomplex* work, const int* lwork, 
+  double* realWork, int* info );
 #endif
 
 // Triangular inversion
@@ -752,6 +801,150 @@ elemental::wrappers::lapack::SafeNorm
 #endif
     return delta;
 }
+
+inline void
+elemental::wrappers::lapack::SVD
+( char UColumns, char VColumns, int m, int n, float* A, int lda,
+  float* SigmaDiag, float* U, int ldu, float* VT, int ldvt )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::lapack::SVD");
+#endif
+    int info;
+    int lwork;
+    float workSize;
+
+    // Retrieve the optimal worksize
+    lwork = -1;
+    LAPACK(sgesvd)
+    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
+      &workSize, &lwork, &info );
+
+    // Allocate the work buffer and make the actual call
+    lwork = (int)workSize;
+    std::vector<float> work(lwork);
+    LAPACK(sgesvd)
+    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
+      &work[0], &lwork, &info );
+#ifndef RELEASE
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "sgesvd returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::wrappers::lapack::SVD
+( char UColumns, char VColumns, int m, int n, double* A, int lda,
+  double* SigmaDiag, double* U, int ldu, double* VT, int ldvt )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::lapack::SVD");
+#endif
+    int info;
+    int lwork;
+    double workSize;
+
+    // Retrieve the optimal worksize
+    lwork = -1;
+    LAPACK(dgesvd)
+    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
+      &workSize, &lwork, &info );
+
+    // Allocate the work buffer and make the actual call
+    lwork = (int)workSize;
+    std::vector<double> work(lwork);
+    LAPACK(dgesvd)
+    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
+      &work[0], &lwork, &info );
+#ifndef RELEASE
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "dgesvd returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+    PopCallStack();
+#endif
+}
+
+#ifndef WITHOUT_COMPLEX
+inline void
+elemental::wrappers::lapack::SVD
+( char UColumns, char VColumns, int m, int n, scomplex* A, int lda,
+  float* SigmaDiag, scomplex* U, int ldu, scomplex* VT, int ldvt )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::lapack::SVD");
+#endif
+    int info;
+    int lwork;
+    scomplex workSize;
+    std::vector<float> realWork(5*std::min(m,n));
+
+    // Retrieve the optimal worksize
+    lwork = -1;
+    LAPACK(cgesvd)
+    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
+      &workSize, &lwork, &realWork[0], &info );
+
+    // Allocate the work buffer and make the actual call
+    lwork = (int)std::real(workSize);
+    std::vector<scomplex> work(lwork);
+    LAPACK(cgesvd)
+    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
+      &work[0], &lwork, &realWork[0], &info );
+#ifndef RELEASE
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "cgesvd returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::wrappers::lapack::SVD
+( char UColumns, char VColumns, int m, int n, dcomplex* A, int lda,
+  double* SigmaDiag, dcomplex* U, int ldu, dcomplex* VT, int ldvt )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::lapack::SVD");
+#endif
+    int info;
+    int lwork;
+    dcomplex workSize;
+    std::vector<double> realWork(5*std::min(m,n));
+
+    // Retrieve the optimal worksize
+    lwork = -1;
+    LAPACK(zgesvd)
+    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
+      &workSize, &lwork, &realWork[0], &info );
+
+    // Allocate the work buffer and make the actual call
+    lwork = (int)std::real(workSize);
+    std::vector<dcomplex> work(lwork);
+    LAPACK(zgesvd)
+    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
+      &work[0], &lwork, &realWork[0], &info );
+#ifndef RELEASE
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "zgesvd returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+    PopCallStack();
+#endif
+}
+#endif
 
 inline void
 elemental::wrappers::lapack::Tridiag
