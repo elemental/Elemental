@@ -36,7 +36,7 @@ using namespace std;
 using namespace elemental;
 
 // Assumes A is a tall, skinny m x n matrix that is small enough for all cores 
-// to keep the upper m x m portion of A in main memory.
+// to keep the upper n x n portion of A in main memory.
 template<typename R>
 void
 elemental::lapack::Pinv
@@ -55,7 +55,7 @@ elemental::lapack::Pinv
     // and the upper triangle with R
     lapack::QR( A );
 
-    // Partition off the top m x m portion of A
+    // Partition off the top n x n portion of A
     DistMatrix<R,MC,MR> ATop(g), ABottom(g);
     PartitionDown( A, ATop,
                       ABottom, n );
@@ -125,7 +125,7 @@ elemental::lapack::Pinv
 
 #ifndef WITHOUT_COMPLEX
 // Assumes A is a tall, skinny m x n matrix that is small enough for all cores 
-// to keep the upper m x m portion of A in main memory.
+// to keep the upper n x n portion of A in main memory.
 template<typename R>
 void
 elemental::lapack::Pinv
@@ -147,7 +147,7 @@ elemental::lapack::Pinv
     DistMatrix<C,MD,Star> t(g);
     lapack::QR( A, t );
 
-    // Partition off the top m x m portion of A
+    // Partition off the top n x n portion of A
     DistMatrix<C,MC,MR> ATop(g), ABottom(g);
     PartitionDown( A, ATop,
                       ABottom, n );
