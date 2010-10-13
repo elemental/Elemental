@@ -96,18 +96,6 @@ bool operator!= ( const Grid& A, const Grid& B );
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-inline
-elemental::Grid::~Grid()
-{
-    MPI_Comm_free( &_matrixColComm );
-    MPI_Comm_free( &_matrixRowComm );
-    MPI_Comm_free( &_vectorColComm );
-    MPI_Comm_free( &_vectorRowComm );
-    MPI_Comm_free( &_comm );
-
-    delete _diagPathsAndRanks;
-}
-
 inline int
 elemental::Grid::Size() const
 { return _p; }

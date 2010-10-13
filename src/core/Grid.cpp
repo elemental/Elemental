@@ -184,3 +184,20 @@ elemental::Grid::Init
 #endif
 }
 
+elemental::Grid::~Grid()
+{
+    int finalized;
+    MPI_Finalized( &finalized );
+    if( !finalized )
+    {
+        MPI_Comm_free( &_matrixColComm );
+        MPI_Comm_free( &_matrixRowComm );
+        MPI_Comm_free( &_vectorColComm );
+        MPI_Comm_free( &_vectorRowComm );
+        MPI_Comm_free( &_comm );
+    }
+
+    delete _diagPathsAndRanks;
+}
+
+

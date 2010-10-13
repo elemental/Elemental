@@ -99,6 +99,27 @@ Hegst
   DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
+// Hessenberg (Reduce to upper or lower Hessenberg form)                      //
+//                                                                            //
+// These are not yet ready, but are coming soon.                              //
+//----------------------------------------------------------------------------//
+
+// Serial version for real datatypes
+template<typename R>
+void
+Hessenberg( Shape shape, Matrix<R>& A );
+
+#ifndef WITHOUT_COMPLEX
+// Serial version for complex datatypes
+template<typename R>
+void
+Hessenberg
+( Shape shape, Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& t );
+#endif
+
+// TODO: Parallel versions
+
+//----------------------------------------------------------------------------//
 // LU (LU factorization with partial pivoting):                               //
 //                                                                            //
 // Overwrite A with its LU factorization after partial pivoting: P A = L U.   //

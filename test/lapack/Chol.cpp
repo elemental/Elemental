@@ -40,13 +40,11 @@ using namespace elemental::wrappers::mpi;
 void Usage()
 {
     cout << "Generates SPD matrix then solves for its Cholesky factor.\n\n"
-         << "  Chol <r> <c> <shape> <var2/3> <naive> <m> <nb> "
-            "<test correctness?> <print matrices?>\n\n"
+         << "  Chol <r> <c> <shape> <m> <nb> <test correctness?> "
+         << "<print matrices?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  shape: {L,U}\n"
-         << "  var2/3: 2 iff 0\n"
-         << "  naive: smart algorithms iff 0\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
          << "  test correctness?: false iff 0\n"
@@ -147,8 +145,7 @@ void TestCorrectness
 
 template<typename T>
 void TestChol
-( bool var3, bool naive,
-  bool testCorrectness, bool printMatrices, 
+( bool testCorrectness, bool printMatrices, 
   Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
@@ -179,20 +176,7 @@ void TestChol
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    if( var3 )
-    {
-        if( naive )
-            lapack::internal::CholVar3Naive( shape, A );
-        else
-            lapack::internal::CholVar3( shape, A );
-    }
-    else
-    {
-        if( naive )
-            lapack::internal::CholVar2Naive( shape, A );
-        else
-            lapack::internal::CholVar2( shape, A );
-    }
+    lapack::internal::CholVar3( shape, A );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -214,7 +198,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 10 )
+    if( argc != 8 )
     {
         if( rank == 0 )
             Usage();
@@ -226,12 +210,10 @@ int main( int argc, char* argv[] )
         const int   r = atoi( argv[1] );
         const int   c = atoi( argv[2] );
         const Shape shape = CharToShape( *argv[3] );
-        const bool  var3 = ( atoi(argv[4]) != 0 );
-        const bool  naive = ( atoi(argv[5]) != 0 );
-        const int   m = atoi( argv[6] );
-        const int   nb = atoi( argv[7] );
-        const bool  testCorrectness = ( atoi(argv[8]) != 0 );
-        const bool  printMatrices = ( atoi(argv[9]) != 0 );
+        const int   m = atoi( argv[4] );
+        const int   nb = atoi( argv[5] );
+        const bool  testCorrectness = ( atoi(argv[6]) != 0 );
+        const bool  printMatrices = ( atoi(argv[7]) != 0 );
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -244,10 +226,7 @@ int main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         if( rank == 0 )
-        {
-            cout << "Will test Chol" << ShapeToChar(shape) << ", Var"
-                 << ( var3 ? "3" : "2" ) << ( naive ? "Naive" : "" ) << endl;
-        }
+            cout << "Will test Chol" << ShapeToChar(shape) << endl;
 
         if( rank == 0 )
         {
@@ -256,7 +235,7 @@ int main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestChol<double>
-        ( var3, naive, testCorrectness, printMatrices, shape, m, g );
+        ( testCorrectness, printMatrices, shape, m, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -266,7 +245,7 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestChol<dcomplex>
-        ( var3, naive, testCorrectness, printMatrices, shape, m, g );
+        ( testCorrectness, printMatrices, shape, m, g );
 #endif
     }
     catch( exception& e )
@@ -277,6 +256,7 @@ int main( int argc, char* argv[] )
         cerr << "Process " << rank << " caught error message:\n"
              << e.what() << endl;
     }   
+
     Finalize();
     return 0;
 }
