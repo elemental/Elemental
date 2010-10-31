@@ -72,7 +72,6 @@ elemental::blas::Her2
 
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        // Temporary distributions
         DistMatrix<T,MC,Star> x_MC_Star(g);
         DistMatrix<T,MR,Star> x_MR_Star(g);
         DistMatrix<T,MC,Star> y_MC_Star(g);
@@ -96,11 +95,14 @@ elemental::blas::Her2
                 const int heightAboveDiag = LocalLength(j,colShift,r);
                 for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                 {
-                    A.LocalEntry(iLoc,jLoc) += alpha *
-                        (             x_MC_Star.LocalEntry(iLoc,0)   *
-                          elemental::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
-                                      y_MC_Star.LocalEntry(iLoc,0)   *
-                          elemental::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
+                    const T value = A.GetLocalEntry(iLoc,jLoc);
+                    A.SetLocalEntry
+                    ( iLoc, jLoc,
+                      value + alpha*
+                      (                 x_MC_Star.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(y_MR_Star.GetLocalEntry(jLoc,0)) + 
+                                        y_MC_Star.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(x_MR_Star.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
@@ -112,11 +114,14 @@ elemental::blas::Her2
                 const int heightToDiag = LocalLength(j+1,colShift,r);
                 for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
                 {
-                    A.LocalEntry(iLoc,jLoc) += alpha *
-                        ( x_MC_Star.LocalEntry(iLoc,0) *
-                          elemental::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
-                          y_MC_Star.LocalEntry(iLoc,0) *
-                          elemental::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
+                    const T value = A.GetLocalEntry(iLoc,jLoc);
+                    A.SetLocalEntry
+                    ( iLoc, jLoc,
+                      value + alpha*
+                      (                 x_MC_Star.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(y_MR_Star.GetLocalEntry(jLoc,0)) + 
+                                        y_MC_Star.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(x_MR_Star.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
@@ -128,7 +133,6 @@ elemental::blas::Her2
     }
     else if( x.Width() == 1 )
     {
-        // Temporary distributions
         DistMatrix<T,MC,Star> x_MC_Star(g);
         DistMatrix<T,MR,Star> x_MR_Star(g);
         DistMatrix<T,Star,MC> y_Star_MC(g);
@@ -152,11 +156,14 @@ elemental::blas::Her2
                 const int heightAboveDiag = LocalLength(j,colShift,r);
                 for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                 {
-                    A.LocalEntry(iLoc,jLoc) += alpha *
-                        (             x_MC_Star.LocalEntry(iLoc,0)   *
-                          elemental::Conj( y_Star_MR.LocalEntry(0,jLoc) ) +
-                                      y_Star_MC.LocalEntry(0,iLoc)   *
-                          elemental::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
+                    const T value = A.GetLocalEntry(iLoc,jLoc);
+                    A.SetLocalEntry
+                    ( iLoc, jLoc,
+                      value + alpha*
+                      (                 x_MC_Star.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(y_Star_MR.GetLocalEntry(0,jLoc)) + 
+                                        y_Star_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(x_MR_Star.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
@@ -168,11 +175,14 @@ elemental::blas::Her2
                 const int heightToDiag = LocalLength(j+1,colShift,r);
                 for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
                 {
-                    A.LocalEntry(iLoc,jLoc) += alpha *
-                        (             x_MC_Star.LocalEntry(iLoc,0)   *
-                          elemental::Conj( y_Star_MR.LocalEntry(0,jLoc) ) +
-                                      y_Star_MC.LocalEntry(0,iLoc)   *
-                          elemental::Conj( x_MR_Star.LocalEntry(jLoc,0) )   );
+                    const T value = A.GetLocalEntry(iLoc,jLoc);
+                    A.SetLocalEntry
+                    ( iLoc, jLoc,
+                      value + alpha*
+                      (                 x_MC_Star.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(y_Star_MR.GetLocalEntry(0,jLoc)) +
+                                        y_Star_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(x_MR_Star.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
@@ -181,11 +191,9 @@ elemental::blas::Her2
         x_MR_Star.FreeAlignments();
         y_Star_MC.FreeAlignments();
         y_Star_MR.FreeAlignments();
-
     }
     else if( y.Width() == 1 )
     {
-        // Temporary distributions
         DistMatrix<T,Star,MC> x_Star_MC(g);
         DistMatrix<T,Star,MR> x_Star_MR(g);
         DistMatrix<T,MC,Star> y_MC_Star(g);
@@ -209,11 +217,14 @@ elemental::blas::Her2
                 const int heightAboveDiag = LocalLength(j,colShift,r);
                 for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                 {
-                    A.LocalEntry(iLoc,jLoc) += alpha *
-                        (             x_Star_MC.LocalEntry(0,iLoc)   *
-                          elemental::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
-                                      y_MC_Star.LocalEntry(iLoc,0)   *
-                          elemental::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
+                    const T value = A.GetLocalEntry(iLoc,jLoc);
+                    A.SetLocalEntry
+                    ( iLoc, jLoc,
+                      value + alpha*
+                      (                 x_Star_MC.GetLocalEntry(0,iLoc)* 
+                        elemental::Conj(y_MR_Star.GetLocalEntry(jLoc,0)) + 
+                                        y_MC_Star.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(x_Star_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
@@ -225,11 +236,14 @@ elemental::blas::Her2
                 const int heightToDiag = LocalLength(j+1,colShift,r);
                 for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
                 {
-                    A.LocalEntry(iLoc,jLoc) += alpha *
-                        (             x_Star_MC.LocalEntry(0,iLoc)   *
-                          elemental::Conj( y_MR_Star.LocalEntry(jLoc,0) ) +
-                                      y_MC_Star.LocalEntry(iLoc,0)   *
-                          elemental::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
+                    const T value = A.GetLocalEntry(iLoc,jLoc);
+                    A.SetLocalEntry
+                    ( iLoc, jLoc,
+                      value + alpha*
+                      (                 x_Star_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(y_MR_Star.GetLocalEntry(jLoc,0)) +
+                                        y_MC_Star.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(x_Star_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
@@ -241,7 +255,6 @@ elemental::blas::Her2
     }
     else
     {
-        // Temporary distributions
         DistMatrix<T,Star,MC> x_Star_MC(g);
         DistMatrix<T,Star,MR> x_Star_MR(g);
         DistMatrix<T,Star,MC> y_Star_MC(g);
@@ -265,11 +278,14 @@ elemental::blas::Her2
                 const int heightAboveDiag = LocalLength(j,colShift,r);
                 for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                 {
-                    A.LocalEntry(iLoc,jLoc) += alpha *
-                        (             x_Star_MC.LocalEntry(0,iLoc)   *
-                          elemental::Conj( y_Star_MR.LocalEntry(0,jLoc) ) + 
-                                      y_Star_MC.LocalEntry(0,iLoc)   *
-                          elemental::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
+                    const T value = A.GetLocalEntry(iLoc,jLoc);
+                    A.SetLocalEntry
+                    ( iLoc, jLoc,
+                      value + alpha*
+                      (                 x_Star_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(y_Star_MR.GetLocalEntry(0,jLoc)) + 
+                                        y_Star_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(x_Star_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
@@ -281,11 +297,14 @@ elemental::blas::Her2
                 const int heightToDiag = LocalLength(j+1,colShift,r);
                 for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
                 {
-                    A.LocalEntry(iLoc,jLoc) += alpha *
-                        (             x_Star_MC.LocalEntry(0,iLoc)   *
-                          elemental::Conj( y_Star_MR.LocalEntry(0,jLoc) ) +
-                                      y_Star_MC.LocalEntry(0,iLoc)   *
-                          elemental::Conj( x_Star_MR.LocalEntry(0,jLoc) )   );
+                    const T value = A.GetLocalEntry(iLoc,jLoc);
+                    A.SetLocalEntry
+                    ( iLoc, jLoc,
+                      value + alpha*
+                      (                 x_Star_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(y_Star_MR.GetLocalEntry(0,jLoc)) + 
+                                        y_Star_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(x_Star_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
@@ -294,7 +313,6 @@ elemental::blas::Her2
         x_Star_MR.FreeAlignments();
         y_Star_MC.FreeAlignments();
         y_Star_MR.FreeAlignments();
- 
     }
 #ifndef RELEASE
     PopCallStack();

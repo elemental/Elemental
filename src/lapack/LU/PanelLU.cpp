@@ -112,11 +112,11 @@ elemental::lapack::internal::PanelLU
         //--------------------------------------------------------------------//
         
         // Store the index/value of the pivot candidate in A
-        T pivotValue = alpha11.LocalEntry(0,0);
+        T pivotValue = alpha11.GetLocalEntry(0,0);
         int pivotIndex = a01.Height();
         for( int i=0; i<a21.Height(); ++i )
         {
-            T value = a21.LocalEntry(i,0);
+            T value = a21.GetLocalEntry(i,0);
             if( FastAbs(value) > FastAbs(pivotValue) )
             {
                 pivotValue = value;
@@ -127,7 +127,7 @@ elemental::lapack::internal::PanelLU
         // Update the pivot candidate to include local data from B
         for( int i=0; i<B.LocalHeight(); ++i )
         {
-            T value = b1.LocalEntry(i,0);
+            T value = b1.GetLocalEntry(i,0);
             if( FastAbs(value) > FastAbs(pivotValue) )
             {
                 pivotValue = value;
@@ -139,16 +139,16 @@ elemental::lapack::internal::PanelLU
         // [ pivotValue | pivotRow | pivotIndex ]
         if( pivotIndex < A.Height() )
         {
-            ((T*)sendBuf)[0] = A.LocalEntry(pivotIndex,a10.Width());
+            ((T*)sendBuf)[0] = A.GetLocalEntry(pivotIndex,a10.Width());
             for( int j=0; j<width; ++j )
-                ((T*)sendBuf)[j+1] = A.LocalEntry(pivotIndex,j);
+                ((T*)sendBuf)[j+1] = A.GetLocalEntry(pivotIndex,j);
         }
         else
         {
             const int localIndex = ((pivotIndex-A.Height())-colShift)/np;
-            ((T*)sendBuf)[0] = b1.LocalEntry(localIndex,0);
+            ((T*)sendBuf)[0] = b1.GetLocalEntry(localIndex,0);
             for( int j=0; j<width; ++j )
-                ((T*)sendBuf)[j+1] = B.LocalEntry(localIndex,j);
+                ((T*)sendBuf)[j+1] = B.GetLocalEntry(localIndex,j);
         }
         ((int*)(((T*)sendBuf)+width+1))[0] = pivotIndex;
 
@@ -158,13 +158,13 @@ elemental::lapack::internal::PanelLU
 
         // Update the pivot vector
         const int maxIndex = ((int*)(((T*)recvBuf)+width+1))[0];
-        p.LocalEntry(a01.Height(),0) = maxIndex + pivotOffset;
+        p.SetLocalEntry(a01.Height(),0,maxIndex + pivotOffset);
 
         // Copy the current row into the pivot row
         if( maxIndex < A.Height() )
         {
             for( int j=0; j<width; ++j )
-                A.LocalEntry(maxIndex,j) = A.LocalEntry(A00.Height(),j);
+                A.SetLocalEntry(maxIndex,j,A.GetLocalEntry(A00.Height(),j));
         }
         else
         {
@@ -173,16 +173,17 @@ elemental::lapack::internal::PanelLU
             {
                 const int localIndex = ((maxIndex-A.Height())-colShift) / np;
                 for( int j=0; j<width; ++j )
-                    B.LocalEntry(localIndex,j) = A.LocalEntry(A00.Height(),j);
+                    B.SetLocalEntry
+                    (localIndex,j,A.GetLocalEntry(A00.Height(),j));
             }
         }
 
         // Copy the pivot row into the current row
         for( int j=0; j<width; ++j )
-            A.LocalEntry(A00.Height(),j) = ((T*)recvBuf)[j+1];
+            A.SetLocalEntry(A00.Height(),j,((T*)recvBuf)[j+1]);
 
         // Now we can perform the update
-        T alpha11Inv = ((T)1) / alpha11.LocalEntry(0,0);
+        T alpha11Inv = ((T)1) / alpha11.GetLocalEntry(0,0);
         Scal( alpha11Inv, a21.LocalMatrix() );
         Scal( alpha11Inv, b1.LocalMatrix()  );
         Geru( (T)-1, a21.LocalMatrix(), a12.LocalMatrix(), A22.LocalMatrix() );

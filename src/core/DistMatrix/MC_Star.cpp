@@ -74,7 +74,7 @@ elemental::DistMatrixBase<T,MC,Star>::Print( const string& s ) const
 #endif
         for( int i=0; i<localHeight; ++i )
             for( int j=0; j<width; ++j )
-                sendBuf[colShift+i*r+j*height] = this->LocalEntry(i,j);
+                sendBuf[colShift+i*r+j*height] = this->GetLocalEntry(i,j);
 
         // If we are the root, allocate a receive buffer
         vector<T> recvBuf;
@@ -579,7 +579,7 @@ elemental::DistMatrixBase<T,MC,Star>::Get
     if( g.MCRank() == ownerRow )
     {
         const int iLoc = (i-this->ColShift()) / g.Height();
-        u = this->LocalEntry(iLoc,j);
+        u = this->GetLocalEntry(iLoc,j);
     }
     Broadcast( &u, 1, ownerRow, g.MCComm() );
 
@@ -604,7 +604,7 @@ elemental::DistMatrixBase<T,MC,Star>::Set
     if( g.MCRank() == ownerRow )
     {
         const int iLoc = (i-this->ColShift()) / g.Height();
-        this->LocalEntry(iLoc,j) = u;
+        this->SetLocalEntry(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -645,11 +645,11 @@ elemental::DistMatrixBase<T,MC,Star>::MakeTrapezoidal
                 int boundary = min( lastZeroRow+1, height );
                 int numZeroRows = LocalLength( boundary, colShift, r );
 #ifdef RELEASE
-                T* thisCol = &(this->LocalEntry(0,j));
+                T* thisCol = this->LocalBuffer(0,j);
                 memset( thisCol, 0, numZeroRows*sizeof(T) );
 #else
                 for( int iLoc=0; iLoc<numZeroRows; ++iLoc )
-                    this->LocalEntry(iLoc,j) = (T)0;
+                    this->SetLocalEntry(iLoc,j,0);
 #endif
             }
         }
@@ -665,11 +665,11 @@ elemental::DistMatrixBase<T,MC,Star>::MakeTrapezoidal
                                             : max(j-offset+height-width+1,0) );
             int numNonzeroRows = LocalLength(firstZeroRow,colShift,r);
 #ifdef RELEASE
-            T* thisCol = &(this->LocalEntry(numNonzeroRows,j));
+            T* thisCol = this->LocalBuffer(numNonzeroRows,j);
             memset( thisCol, 0, (localHeight-numNonzeroRows)*sizeof(T) );
 #else
             for( int iLoc=numNonzeroRows; iLoc<localHeight; ++iLoc )
-                this->LocalEntry(iLoc,j) = (T)0;
+                this->SetLocalEntry(iLoc,j,0);
 #endif
         }
     }
@@ -705,12 +705,15 @@ elemental::DistMatrixBase<T,MC,Star>::ScaleTrapezoidal
             int boundary = min( lastRow+1, height );
             int numRows = LocalLength( boundary, colShift, r );
 #ifdef RELEASE
-            T* thisCol = &(this->LocalEntry(0,j));
+            T* thisCol = this->LocalBuffer(0,j);
             for( int iLoc=0; iLoc<numRows; ++iLoc )
                 thisCol[iLoc] *= alpha;
 #else
             for( int iLoc=0; iLoc<numRows; ++iLoc )
-                this->LocalEntry(iLoc,jLoc) *= alpha;
+            {
+                const T value = this->GetLocalEntry(iLoc,jLoc);
+                this->SetLocalEntry(iLoc,jLoc,alpha*value);
+            }
 #endif
         }
     }
@@ -725,12 +728,15 @@ elemental::DistMatrixBase<T,MC,Star>::ScaleTrapezoidal
                                         : max(j+height-width-offset,0) );
             int numZeroRows = LocalLength( firstRow, colShift, r );
 #ifdef RELEASE
-            T* thisCol = &(this->LocalEntry(numZeroRows,j));
+            T* thisCol = this->LocalBuffer(numZeroRows,j);
             for( int iLoc=0; iLoc<(localHeight-numZeroRows); ++iLoc )
                 thisCol[iLoc] *= alpha;
 #else
             for( int iLoc=numZeroRows; iLoc<localHeight; ++iLoc )
-                this->LocalEntry(iLoc,jLoc) *= alpha;
+            {
+                const T value = this->GetLocalEntry(iLoc,jLoc);
+                this->SetLocalEntry(iLoc,jLoc,alpha*value);
+            }
 #endif
         }
     }
@@ -761,7 +767,7 @@ elemental::DistMatrixBase<T,MC,Star>::SetToIdentity()
     {
         const int i = colShift + iLoc*r;
         if( i < width )
-            this->LocalEntry(iLoc,i) = (T)1;
+            this->SetLocalEntry(iLoc,i,1);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -801,7 +807,7 @@ elemental::DistMatrixBase<T,MC,Star>::SetToRandom()
     for( int j=0; j<width; ++j )
     {
         const T* bufferCol = &(buffer[j*localHeight]);
-        T* thisCol = &(this->LocalEntry(0,j));
+        T* thisCol = this->LocalBuffer(0,j);
         memcpy( thisCol, bufferCol, localHeight*sizeof(T) );
     }
 #else
@@ -810,7 +816,7 @@ elemental::DistMatrixBase<T,MC,Star>::SetToRandom()
 # endif
     for( int j=0; j<width; ++j )
         for( int i=0; i<localHeight; ++i )
-            this->LocalEntry(i,j) = buffer[i+j*localHeight];
+            this->SetLocalEntry(i,j,buffer[i+j*localHeight]);
 #endif
 
     this->_auxMemory.Release();
@@ -844,7 +850,7 @@ elemental::DistMatrixBase<T,MC,Star>::SumOverRow()
 # endif
     for( int j=0; j<localWidth; ++j )
     {
-        const T* thisCol = &(this->LocalEntry(0,j));
+        const T* thisCol = this->LockedLocalBuffer(0,j);
         T* sendBufCol = &(sendBuf[j*localHeight]);
         memcpy( sendBufCol, thisCol, localHeight*sizeof(T) );
     }
@@ -854,7 +860,7 @@ elemental::DistMatrixBase<T,MC,Star>::SumOverRow()
 # endif
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
-            sendBuf[i+j*localHeight] = this->LocalEntry(i,j);
+            sendBuf[i+j*localHeight] = this->GetLocalEntry(i,j);
 #endif
 
     // AllReduce sum
@@ -869,7 +875,7 @@ elemental::DistMatrixBase<T,MC,Star>::SumOverRow()
     for( int j=0; j<localWidth; ++j )
     {
         const T* recvBufCol = &(recvBuf[j*localHeight]);
-        T* thisCol = &(this->LocalEntry(0,j));
+        T* thisCol = this->LocalBuffer(0,j);
         memcpy( thisCol, recvBufCol, localHeight*sizeof(T) );
     }
 #else
@@ -878,7 +884,7 @@ elemental::DistMatrixBase<T,MC,Star>::SumOverRow()
 # endif
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
-            this->LocalEntry(i,j) = recvBuf[i+j*localHeight];
+            this->SetLocalEntry(i,j,recvBuf[i+j*localHeight]);
 #endif
 
     this->_auxMemory.Release();
@@ -948,7 +954,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
             for( int j=0; j<localWidthOfA; ++j )
             {
-                const T* ACol = &(A.LocalEntry(0,j));
+                const T* ACol = A.LockedLocalBuffer(0,j);
                 T* originalDataCol = &(originalData[j*localHeight]);
                 memcpy( originalDataCol, ACol, localHeight*sizeof(T) );
             }
@@ -958,7 +964,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
             for( int j=0; j<localWidthOfA; ++j )
                 for( int i=0; i<localHeight; ++i )
-                    originalData[i+j*localHeight] = A.LocalEntry(i,j);
+                    originalData[i+j*localHeight] = A.GetLocalEntry(i,j);
 #endif
 
             // Communicate
@@ -985,7 +991,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
                 for( int j=0; j<localWidth; ++j )
                 {
                     const T* dataCol = &(data[j*localHeight]);
-                    T* thisCol = &(this->LocalEntry(0,rowShift+j*c));
+                    T* thisCol = this->LocalBuffer(0,rowShift+j*c);
                     memcpy( thisCol, dataCol, localHeight*sizeof(T) );
                 }
 #else
@@ -994,8 +1000,8 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
                 for( int j=0; j<localWidth; ++j )
                     for( int i=0; i<localHeight; ++i )
-                        this->LocalEntry(i,rowShift+j*c) = 
-                            data[i+j*localHeight];
+                        this->SetLocalEntry
+                            (i,rowShift+j*c,data[i+j*localHeight]);
 #endif
             }
 
@@ -1030,14 +1036,14 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 
                 // Pack
 #ifdef RELEASE
-                const T* ACol = &(A.LocalEntry(0,0));
+                const T* ACol = A.LockedLocalBuffer(0,0);
                 memcpy( buffer, ACol, localHeightOfA*sizeof(T) );
 #else
 # ifdef _OPENMP
                 #pragma omp parallel for
 # endif
                 for( int i=0; i<localHeightOfA; ++i )
-                    buffer[i] = A.LocalEntry(i,0);
+                    buffer[i] = A.GetLocalEntry(i,0);
 #endif
 
                 // Communicate
@@ -1080,7 +1086,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
             for( int j=0; j<localWidthOfA; ++j )
             {
-                const T* ACol = &(A.LocalEntry(0,j));
+                const T* ACol = A.LockedLocalBuffer(0,j);
                 T* secondBufferCol = &(secondBuffer[j*localHeightOfA]);
                 memcpy( secondBufferCol, ACol, localHeightOfA*sizeof(T) );
             }
@@ -1090,7 +1096,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
             for( int j=0; j<localWidthOfA; ++j )
                 for( int i=0; i<localHeightOfA; ++i )
-                    secondBuffer[i+j*localHeightOfA] = A.LocalEntry(i,j);
+                    secondBuffer[i+j*localHeightOfA] = A.GetLocalEntry(i,j);
 #endif
 
             // Perform the SendRecv: puts the new data into the first buffer
@@ -1122,7 +1128,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
                 for( int j=0; j<localWidth; ++j )
                 {
                     const T* dataCol = &(data[j*localHeight]);
-                    T* thisCol = &(this->LocalEntry(0,rowShift+j*c));
+                    T* thisCol = this->LocalBuffer(0,rowShift+j*c);
                     memcpy( thisCol, dataCol, localHeight*sizeof(T) );
                 }
 #else
@@ -1131,8 +1137,8 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
                 for( int j=0; j<localWidth; ++j )
                     for( int i=0; i<localHeight; ++i )
-                        this->LocalEntry(i,rowShift+j*c) = 
-                            data[i+j*localHeight];
+                        this->SetLocalEntry
+                            (i,rowShift+j*c,data[i+j*localHeight]);
 #endif
             }
 
@@ -1207,7 +1213,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
         for( int j=0; j<width; ++j )
         {
-            const T* ACol = &(A.LocalEntry(0,j));
+            const T* ACol = A.LockedLocalBuffer(0,j);
             T* sendBufferCol = &(sendBuffer[j*localHeightOfA]);
             memcpy( sendBufferCol, ACol, localHeightOfA*sizeof(T) );
         }
@@ -1217,7 +1223,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
         for( int j=0; j<width; ++j )
             for( int i=0; i<localHeightOfA; ++i )
-                sendBuffer[i+j*localHeightOfA] = A.LocalEntry(i,j);
+                sendBuffer[i+j*localHeightOfA] = A.GetLocalEntry(i,j);
 #endif
 
         // Communicate
@@ -1233,7 +1239,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
         for( int j=0; j<width; ++j )
         {
             const T* recvBufferCol = &(recvBuffer[j*localHeight]);
-            T* thisCol = &(this->LocalEntry(0,j));
+            T* thisCol = this->LocalBuffer(0,j);
             memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
         }
 #else
@@ -1242,7 +1248,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
         for( int j=0; j<width; ++j )
             for( int i=0; i<localHeight; ++i )
-                this->LocalEntry(i,j) = recvBuffer[i+j*localHeight];
+                this->SetLocalEntry(i,j,recvBuffer[i+j*localHeight]);
 #endif
 
         this->_auxMemory.Release();
@@ -1475,7 +1481,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
         for( int j=0; j<width; ++j )
         {
-            const T* ACol = &(A.LocalEntry(0,j));
+            const T* ACol = A.LockedLocalBuffer(0,j);
             T* originalDataCol = &(originalData[j*localHeightOfA]);
             memcpy( originalDataCol, ACol, localHeightOfA*sizeof(T) );
         }
@@ -1485,7 +1491,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
         for( int j=0; j<width; ++j )
             for( int i=0; i<localHeightOfA; ++i )
-                originalData[i+j*localHeightOfA] = A.LocalEntry(i,j);
+                originalData[i+j*localHeightOfA] = A.GetLocalEntry(i,j);
 #endif
 
         // Communicate 
@@ -1512,7 +1518,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 #endif
             for( int j=0; j<width; ++j )
                 for( int i=0; i<localHeight; ++i )
-                    this->LocalEntry(colOffset+i*c,j) = data[i+j*localHeight];
+                    this->SetLocalEntry(colOffset+i*c,j,data[i+j*localHeight]);
         }
 
         this->_auxMemory.Release();
@@ -1557,7 +1563,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
         for( int j=0; j<width; ++j )
         {
-            const T* ACol = &(A.LocalEntry(0,j));
+            const T* ACol = A.LockedLocalBuffer(0,j);
             T* secondBufferCol = &(secondBuffer[j*localHeightOfA]);
             memcpy( secondBufferCol, ACol, localHeightOfA*sizeof(T) );
         }
@@ -1567,7 +1573,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 # endif
         for( int j=0; j<width; ++j )
             for( int i=0; i<localHeightOfA; ++i )
-                secondBuffer[i+j*localHeightOfA] = A.LocalEntry(i,j);
+                secondBuffer[i+j*localHeightOfA] = A.GetLocalEntry(i,j);
 #endif
 
         // Perform the SendRecv: puts the new data into the first buffer
@@ -1597,7 +1603,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 #endif
             for( int j=0; j<width; ++j )
                 for( int i=0; i<localHeight; ++i )
-                    this->LocalEntry(colOffset+i*c,j) = data[i+j*localHeight];
+                    this->SetLocalEntry(colOffset+i*c,j,data[i+j*localHeight]);
         }
 
         this->_auxMemory.Release();
@@ -1708,7 +1714,7 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 #endif
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
-            this->LocalEntry(i,j) = A.LocalEntry(colShift+i*r,j);
+            this->SetLocalEntry(i,j,A.GetLocalEntry(colShift+i*r,j));
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1742,7 +1748,10 @@ elemental::DistMatrix<R,MC,Star>::SetToRandomHPD()
     {
         const int i = colShift + iLoc*r;
         if( i < width )
-            this->LocalEntry(iLoc,i) += (R)this->Width();
+        {
+            const R value = this->GetLocalEntry(iLoc,i);
+            this->SetLocalEntry(iLoc,i,value+this->Width());
+        }
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1773,8 +1782,10 @@ elemental::DistMatrix<complex<R>,MC,Star>::SetToRandomHPD()
     {
         const int i = colShift + iLoc*r;
         if( i < width )
-            this->LocalEntry(iLoc,i) = 
-                real(this->LocalEntry(iLoc,i)) + (R)this->Width();
+        {
+            const R value = real(this->GetLocalEntry(iLoc,i));
+            this->SetLocalEntry(iLoc,i,value+this->Width());
+        }
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1799,7 +1810,7 @@ elemental::DistMatrix<complex<R>,MC,Star>::GetReal
     if( g.MCRank() == ownerRow )
     {
         const int iLoc = (i-this->ColShift()) / g.Height();
-        u = real(this->LocalEntry(iLoc,j));
+        u = real(this->GetLocalEntry(iLoc,j));
     }
     Broadcast( &u, 1, ownerRow, g.MCComm() );
 
@@ -1827,7 +1838,7 @@ elemental::DistMatrix<complex<R>,MC,Star>::GetImag
     if( g.MCRank() == ownerRow )
     {
         const int iLoc = (i-this->ColShift()) / g.Height();
-        u = imag(this->LocalEntry(iLoc,j));
+        u = imag(this->GetLocalEntry(iLoc,j));
     }
     Broadcast( &u, 1, ownerRow, g.MCComm() );
 
@@ -1853,7 +1864,8 @@ elemental::DistMatrix<complex<R>,MC,Star>::SetReal
     if( g.MCRank() == ownerRow )
     {
         const int iLoc = (i-this->ColShift()) / g.Height();
-        real(this->LocalEntry(iLoc,j)) = u;
+        const R v = imag(this->GetLocalEntry(iLoc,j));
+        this->SetLocalEntry(iLoc,j,complex<R>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1863,7 +1875,7 @@ elemental::DistMatrix<complex<R>,MC,Star>::SetReal
 template<typename R>
 void
 elemental::DistMatrix<complex<R>,MC,Star>::SetImag
-( int i, int j, R u )
+( int i, int j, R v )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetImag");
@@ -1875,7 +1887,8 @@ elemental::DistMatrix<complex<R>,MC,Star>::SetImag
     if( g.MCRank() == ownerRow )
     {
         const int iLoc = (i-this->ColShift()) / g.Height();
-        imag(this->LocalEntry(iLoc,j)) = u;
+        const R u = real(this->GetLocalEntry(iLoc,j)); 
+        this->SetLocalEntry(iLoc,j,complex<R>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();

@@ -1098,7 +1098,7 @@ elemental::blas::Conj
     const int n = A.Width();
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            A(i,j) = elemental::Conj( A(i,j) );
+            A.Set(i,j,elemental::Conj(A.Get(i,j)));
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1118,7 +1118,7 @@ elemental::blas::Conj
     B.ResizeTo( m, n );
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            B(i,j) = elemental::Conj( A(i,j) );
+            B.Set(i,j,elemental::Conj(A.Get(i,j)));
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1137,7 +1137,7 @@ elemental::blas::ConjTrans
     B.ResizeTo( n, m );
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            B(j,i) = elemental::Conj( A(i,j) );
+            B.Set(j,i,elemental::Conj(A.Get(i,j)));
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1156,7 +1156,7 @@ elemental::blas::Trans
     B.ResizeTo( n, m );
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            B(j,i) = A(i,j);
+            B.Set(j,i,A.Get(i,j));
 #ifndef RELEASE
     PopCallStack();
 #endif

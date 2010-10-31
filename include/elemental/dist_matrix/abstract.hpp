@@ -142,8 +142,11 @@ public:
     int LocalWidth() const;
     int LocalLDim() const;
 
-          T& LocalEntry( int i, int j );
-    const T& LocalEntry( int i, int j ) const;
+    const T& GetLocalEntry( int i, int j ) const;
+    void SetLocalEntry( int i, int j, T value );
+
+    T* LocalBuffer( int i, int j );
+    const T* LockedLocalBuffer( int i, int j ) const;
 
           Matrix<T>& LocalMatrix();
     const Matrix<T>& LockedLocalMatrix() const;
@@ -573,16 +576,28 @@ AbstractDistMatrixBase<T>::LocalLDim() const
 { return _localMatrix.LDim(); }
 
 template<typename T>
-inline T&
-AbstractDistMatrixBase<T>::LocalEntry
-( int i, int j ) 
-{ return _localMatrix(i,j); }
+inline const T&
+AbstractDistMatrixBase<T>::GetLocalEntry
+( int i, int j ) const
+{ return _localMatrix.Get(i,j); }
 
 template<typename T>
-inline const T&
-AbstractDistMatrixBase<T>::LocalEntry
+void
+AbstractDistMatrixBase<T>::SetLocalEntry
+( int i, int j, T value )
+{ _localMatrix.Set(i,j,value); }
+
+template<typename T>
+inline T*
+AbstractDistMatrixBase<T>::LocalBuffer
+( int i, int j )
+{ return _localMatrix.Buffer(i,j); }
+
+template<typename T>
+inline const T*
+AbstractDistMatrixBase<T>::LockedLocalBuffer
 ( int i, int j ) const
-{ return _localMatrix(i,j); }
+{ return _localMatrix.LockedBuffer(i,j); }
 
 template<typename T>
 inline Matrix<T>&

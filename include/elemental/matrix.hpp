@@ -58,6 +58,10 @@ public:
 
     Matrix( int height, int width, int ldim );
 
+    Matrix( int height, int width, int ldim, const T* buffer );
+
+    Matrix( int height, int width, int ldim, T* buffer );
+
     Matrix( const Matrix<T>& A );
 
     ~Matrix();
@@ -67,8 +71,9 @@ public:
 
     void SetToRandom();
 
-          T& operator() ( int i, int j );
-    const T& operator() ( int i, int j ) const;
+    T& operator() ( int i, int j );
+    const T& Get( int i, int j ) const;
+    void Set( int i, int j, T value );
 
     bool Viewing() const;
     bool LockedView() const;
@@ -139,7 +144,7 @@ template<typename T>
 inline
 elemental::Matrix<T>::Matrix()
 : _viewing(false), _lockedView(false),
-  _height(0), _width(0), _ldim(0), _data(NULL), _lockedData(NULL),
+  _height(0), _width(0), _ldim(0), _data(0), _lockedData(0),
   _memory()
 { }
 
@@ -148,10 +153,10 @@ inline
 elemental::Matrix<T>::Matrix( int height, int width )
 : _viewing(false), _lockedView(false),
   _height(height), _width(width), _ldim(std::max(height,1)), 
-  _lockedData(NULL)
+  _lockedData(0)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix(height,width)");
+    PushCallStack("Matrix::Matrix");
     if( height < 0 || width < 0 )
         throw std::logic_error( "Height and width must be non-negative." );
 #endif
@@ -167,26 +172,76 @@ inline
 elemental::Matrix<T>::Matrix
 ( int height, int width, int ldim )
 : _viewing(false), _lockedView(false),
-  _height(height), _width(width), _ldim(ldim), _lockedData(NULL)
+  _height(height), _width(width), _ldim(ldim), _lockedData(0)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix(height,width,ldim)");
+    PushCallStack("Matrix::Matrix");
     if( height < 0 || width < 0 )
         throw std::logic_error( "Height and width must be non-negative." );
     if( ldim < height )
     {
         std::ostringstream msg;
         msg << "Initialized with ldim(" << ldim << ") < "
-            << "height(" << height << ")." << std::endl;
+            << "height(" << height << ").";
         throw std::logic_error( msg.str() );
     }
     if( ldim == 0 )
         throw std::logic_error
-        ( "Leading dimensions cannot be zero (for BLAS compat.)." );
+        ( "Leading dimensions cannot be zero (for BLAS compatibility)." );
 #endif
     _memory.Require( ldim*width );
     _data = _memory.Buffer();
 #ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline
+elemental::Matrix<T>::Matrix
+( int height, int width, int ldim, const T* buffer )
+: _viewing(true), _lockedView(true),
+  _height(height), _width(width), _ldim(ldim), _data(0), _lockedData(buffer)
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::Matrix");
+    if( height < 0 || width < 0 )
+        throw std::logic_error( "Height and width must be non-negative." );
+    if( ldim < height )
+    {
+        std::ostringstream msg;
+        msg << "Initialized with ldim(" << ldim << ") < "
+            << "height(" << height << ").";
+        throw std::logic_error( msg.str() );
+    }
+    if( ldim == 0 )
+        throw std::logic_error
+        ( "Leading dimensions cannot be zero (for BLAS compatibility)." );
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline
+elemental::Matrix<T>::Matrix
+( int height, int width, int ldim, T* buffer )
+: _viewing(true), _lockedView(false),
+  _height(height), _width(width), _ldim(ldim), _data(buffer), _lockedData(0)
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::Matrix");
+    if( height < 0 || width < 0 )
+        throw std::logic_error( "Height and width must be non-negative." );
+    if( ldim < height )
+    {
+        std::ostringstream msg;
+        msg << "Initialized with ldim(" << ldim << ") < "
+            << "height(" << height << ").";
+        throw std::logic_error( msg.str() );
+    }
+    if( ldim == 0 )
+        throw std::logic_error
+        ( "Leading dimensions cannot be zero (for BLAS compatibility)." );
     PopCallStack();
 #endif
 }
@@ -229,21 +284,25 @@ elemental::Matrix<T>::operator()
         std::ostringstream msg;
         msg << "Out of bounds: "
             << "(" << i << "," << j << ") of " << Height() 
-            << " x " << Width() << " Matrix." << std::endl;
+            << " x " << Width() << " Matrix.";
         throw std::logic_error( msg.str() );
     }
     PopCallStack();
 #endif
-    return _data[i+j*_ldim];
+    if( !_lockedData )
+        return _data[i+j*_ldim];
+    else
+        throw std::logic_error
+        ("Locked matrices cannot return modifiable references to their data.");
 }
 
 template<typename T>
 inline const T&
-elemental::Matrix<T>::operator()
+elemental::Matrix<T>::Get
 ( int i, int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::operator");
+    PushCallStack("Matrix::Get");
     if( i < 0 || j < 0 )
         throw std::logic_error( "Indices must be non-negative." );
     if( i > Height() || j > Width() )
@@ -251,7 +310,7 @@ elemental::Matrix<T>::operator()
         std::ostringstream msg;
         msg << "Out of bounds: "
             << "(" << i << "," << j << ") of " << Height()
-            << " x " << Width() << " Matrix." << std::endl;
+            << " x " << Width() << " Matrix.";
         throw std::logic_error( msg.str() );
     }
     PopCallStack();
@@ -260,6 +319,33 @@ elemental::Matrix<T>::operator()
         return _lockedData[i+j*_ldim];
     else
         return _data[i+j*_ldim];
+}
+
+template<typename T>
+void
+elemental::Matrix<T>::Set
+( int i, int j, T value ) 
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::Set");
+    if( i < 0 || j < 0 )
+        throw std::logic_error( "Indices must be non-negative." );
+    if( i > Height() || j > Width() )
+    {
+        std::ostringstream msg;
+        msg << "Out of bounds: "
+            << "(" << i << "," << j << ") of " << Height()
+            << " x " << Width() << " Matrix.";
+        throw std::logic_error( msg.str() );
+    }
+#endif
+    if( !_lockedData )
+        _data[i+j*_ldim] = value;
+    else
+        throw std::logic_error( "Cannot modify data of locked matrices." );
+#ifndef RELEASE
+    PopCallStack();
+#endif
 }
 
 template<typename T>

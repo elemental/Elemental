@@ -83,7 +83,8 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     {
         for( int i=0; i<height; ++i )
         {
-            if( A_Star_Star.LocalEntry(i,j) != B_Star_Star.LocalEntry(i,j) )
+            if( A_Star_Star.GetLocalEntry(i,j) != 
+                B_Star_Star.GetLocalEntry(i,j) )
             {
                 sameData = false;
                 break;

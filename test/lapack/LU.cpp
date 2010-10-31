@@ -110,8 +110,8 @@ void TestCorrectness
     {
         for( int i=0; i<m; ++i )
         {
-            T truth = ARef.LocalEntry(i,j);
-            T computed = ACopy.LocalEntry(i,j);
+            T truth = ARef.GetLocalEntry(i,j);
+            T computed = ACopy.GetLocalEntry(i,j);
 
             if( ! OKRelativeError( truth, computed ) )
             {
@@ -124,8 +124,8 @@ void TestCorrectness
     }
     for( int i=0; i<m; ++i )
     {
-        int truth = pRef.LocalEntry(i,0);
-        int computed = pCopy.LocalEntry(i,0);
+        int truth = pRef.GetLocalEntry(i,0);
+        int computed = pCopy.GetLocalEntry(i,0);
         if( truth != computed+1 /* 0 vs. 1 indexing */ )
         {
             ostringstream msg;

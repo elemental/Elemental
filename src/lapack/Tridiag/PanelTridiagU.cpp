@@ -395,7 +395,7 @@ elemental::lapack::internal::PanelTridiagU
             tau = lapack::internal::ColReflector( alpha01B, a01T );
             const bool thisIsMyRow = ( g.MCRank() == alpha01B.ColAlignment() );
             if( thisIsMyRow )
-                tau1.LocalEntry(0,0) = tau;
+                tau1.SetLocalEntry(0,0,tau);
         }
             
         alpha01B.GetRealDiagonal( epsilon1 );

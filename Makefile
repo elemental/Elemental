@@ -344,6 +344,7 @@ tests = DistMatrix \
         blas/Syrk \
         blas/Trmm \
         blas/Trsm \
+        core/Matrix \
         lapack/Chol \
         lapack/Hegst \
         lapack/LU \

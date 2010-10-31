@@ -74,7 +74,10 @@ void TestCorrectness
     const int n = A.Width();
 
     if( g.VCRank() == 0 )
-        cout << "  Testing orthogonality of Q:" << endl;
+    {
+        cout << "  Testing orthogonality of Q...";
+        cout.flush();
+    }
 
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Z(m,n,g);
@@ -97,7 +100,7 @@ void TestCorrectness
     for( int j=0; j<X.LocalWidth(); ++j )
         for( int i=0; i<X.LocalHeight(); ++i )
             myMaxDevFromIdentity = 
-                max(myMaxDevFromIdentity,abs(X.LocalEntry(i,j)));
+                max(myMaxDevFromIdentity,abs(X.GetLocalEntry(i,j)));
     R maxDevFromIdentity;
     Reduce
     ( &myMaxDevFromIdentity, &maxDevFromIdentity, 1, MPI_MAX, 0, g.VCComm() );
@@ -123,7 +126,7 @@ void TestCorrectness
     for( int j=0; j<U.LocalWidth(); ++j )
         for( int i=0; i<U.LocalHeight(); ++i )
             myMaxDevFromA = 
-                max(myMaxDevFromA,abs(U.LocalEntry(i,j)));
+                max(myMaxDevFromA,abs(U.GetLocalEntry(i,j)));
     R maxDevFromA;
     Reduce
     ( &myMaxDevFromA, &maxDevFromA, 1, MPI_MAX, 0, g.VCComm() );
@@ -172,7 +175,7 @@ void TestCorrectness
     for( int j=0; j<X.LocalWidth(); ++j )
         for( int i=0; i<X.LocalHeight(); ++i )
             myMaxDevFromIdentity = 
-                max(myMaxDevFromIdentity,abs(X.LocalEntry(i,j)));
+                max(myMaxDevFromIdentity,abs(X.GetLocalEntry(i,j)));
     R maxDevFromIdentity;
     Reduce
     ( &myMaxDevFromIdentity, &maxDevFromIdentity, 1, MPI_MAX, 0, g.VCComm() );
@@ -198,7 +201,7 @@ void TestCorrectness
     for( int j=0; j<U.LocalWidth(); ++j )
         for( int i=0; i<U.LocalHeight(); ++i )
             myMaxDevFromA = 
-                max(myMaxDevFromA,abs(U.LocalEntry(i,j)));
+                max(myMaxDevFromA,abs(U.GetLocalEntry(i,j)));
     R maxDevFromA;
     Reduce
     ( &myMaxDevFromA, &maxDevFromA, 1, MPI_MAX, 0, g.VCComm() );

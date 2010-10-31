@@ -112,8 +112,8 @@ void TestCorrectness
     {
         for( int i=0; i<X.Height(); ++i )
         {
-            T truth = XRef.LocalEntry(i,j);
-            T computed = XCopy.LocalEntry(i,j);
+            T truth = XRef.GetLocalEntry(i,j);
+            T computed = XCopy.GetLocalEntry(i,j);
 
             if( ! OKRelativeError( truth, computed ) )
             {

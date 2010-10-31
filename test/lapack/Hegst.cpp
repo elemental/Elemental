@@ -40,13 +40,12 @@ using namespace elemental::wrappers::mpi;
 void Usage()
 {
     cout << "Reduced a Hermitian GEneralized EVP to Hermitian STandard EVP\n\n"
-         << "  Hegst <r> <c> <bothOnLeft> <shape> <naive> <m> <nb> "
+         << "  Hegst <r> <c> <bothOnLeft> <shape> <m> <nb> "
             "<test correctness?> <print matrices?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  bothOnLeft: we solve A X = B X Lambda iff 0\n"
          << "  shape: {L,U}\n"
-         << "  naive: smart iff 0\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
          << "  test correctness?: false iff 0\n"
@@ -111,8 +110,8 @@ void TestCorrectness
         {
             for( int i=j; i<m; ++i )
             {
-                T truth = ARef.LocalEntry(i,j);
-                T computed = ACopy.LocalEntry(i,j);
+                T truth = ARef.GetLocalEntry(i,j);
+                T computed = ACopy.GetLocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
                 {
@@ -130,8 +129,8 @@ void TestCorrectness
         {
             for( int i=0; i<=j; ++i )
             {
-                T truth = ARef.LocalEntry(i,j);
-                T computed = ACopy.LocalEntry(i,j);
+                T truth = ARef.GetLocalEntry(i,j);
+                T computed = ACopy.GetLocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
                 {
@@ -151,7 +150,7 @@ void TestCorrectness
 template<typename T>
 void TestHegst
 ( bool testCorrectness, bool printMatrices,
-  bool bothOnLeft, Shape shape, bool naive, int m, const Grid& g )
+  bool bothOnLeft, Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g);
@@ -190,10 +189,7 @@ void TestHegst
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    if( naive )
-        lapack::internal::HegstNaive( bothOnLeft, shape, A, B );
-    else
-        lapack::Hegst( bothOnLeft, shape, A, B );
+    lapack::Hegst( bothOnLeft, shape, A, B );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -215,7 +211,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 10 )
+    if( argc != 9 )
     {
         if( rank == 0 )
             Usage();
@@ -228,11 +224,10 @@ int main( int argc, char* argv[] )
         const int   c = atoi( argv[2] );
         const bool  bothOnLeft = ( atoi(argv[3]) != 0 );
         const Shape shape = CharToShape( *argv[4] );
-        const bool  naive = ( atoi(argv[5]) != 0 );
-        const int   m = atoi( argv[6] );
-        const int   nb = atoi( argv[7] );
-        const bool  testCorrectness = ( atoi(argv[8]) != 0 );
-        const bool  printMatrices = ( atoi(argv[9]) != 0 );
+        const int   m = atoi( argv[5] );
+        const int   nb = atoi( argv[6] );
+        const bool testCorrectness = atoi(argv[7]);
+        const bool printMatrices = atoi(argv[8]);
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -247,7 +242,7 @@ int main( int argc, char* argv[] )
         if( rank == 0 )
         {
             cout << "Will test Hegst" << bothOnLeft << ShapeToChar(shape)
-                 << ( naive ? "Naive" : "" ) << endl;
+                 << endl;
         }
 
         if( rank == 0 )
@@ -257,7 +252,7 @@ int main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestHegst<double>
-        ( testCorrectness, printMatrices, bothOnLeft, shape, naive, m, g );
+        ( testCorrectness, printMatrices, bothOnLeft, shape, m, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -267,7 +262,7 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHegst<dcomplex>
-        ( testCorrectness, printMatrices, bothOnLeft, shape, naive, m, g );
+        ( testCorrectness, printMatrices, bothOnLeft, shape, m, g );
 #endif
     }
     catch( exception& e )

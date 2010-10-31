@@ -144,7 +144,7 @@ elemental::lapack::internal::ApplyRowPivots
         const int sendTo = ( colAlignment + sendLocation ) % r;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
         for( int j=0; j<localWidth; ++j )     
-            sendData[offset+j] = A.LocalEntry(i,j);
+            sendData[offset+j] = A.GetLocalEntry(i,j);
         offsets[sendTo] += localWidth;
     }
     for( int i=0; i<b; ++i )
@@ -159,7 +159,7 @@ elemental::lapack::internal::ApplyRowPivots
                 const int iLocal = ( recvLocation - colShift ) / r;
                 const int offset = sendDispls[recvTo]+offsets[recvTo];
                 for( int j=0; j<localWidth; ++j )
-                    sendData[offset+j] = A.LocalEntry(iLocal,j);
+                    sendData[offset+j] = A.GetLocalEntry(iLocal,j);
                 offsets[recvTo] += localWidth;
             }
         }
@@ -192,7 +192,7 @@ elemental::lapack::internal::ApplyRowPivots
                 const int offset = recvDispls[k]+offsets[k];
                 const int iLocal = ( sendLocation - colShift ) / r;
                 for( int j=0; j<localWidth; ++j )
-                    A.LocalEntry(iLocal,j) = recvData[offset+j];
+                    A.SetLocalEntry(iLocal,j,recvData[offset+j]);
                 offsets[k] += localWidth;
             }
         }
@@ -209,7 +209,7 @@ elemental::lapack::internal::ApplyRowPivots
                 const int iLocal = ( i - colShift ) / r;
                 const int offset = recvDispls[recvFrom]+offsets[recvFrom];
                 for( int j=0; j<localWidth; ++j )
-                    A.LocalEntry(iLocal,j) = recvData[offset+j];
+                    A.SetLocalEntry(iLocal,j,recvData[offset+j]);
                 offsets[recvFrom] += localWidth;
             }
         }

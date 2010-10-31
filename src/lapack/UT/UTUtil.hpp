@@ -57,7 +57,7 @@ SetDiagonalToOne( Side side, int offset, DistMatrix<T,MC,MR>& H )
             if( i >= 0 && i < height && (i-colShift) % r == 0 )
             {
                 const int iLoc = (i-colShift)/r;
-                H.LocalEntry(iLoc,jLoc) = (T)1;
+                H.SetLocalEntry(iLoc,jLoc,1);
             }
         }
     }
@@ -70,7 +70,7 @@ SetDiagonalToOne( Side side, int offset, DistMatrix<T,MC,MR>& H )
             if( i >= 0 && i < height && (i-colShift) % r == 0 )
             {
                 const int iLoc = (i-colShift)/r;
-                H.LocalEntry(iLoc,jLoc) = (T)1;
+                H.SetLocalEntry(iLoc,jLoc,1);
             }
         }
     }
@@ -87,7 +87,10 @@ HalveMainDiagonal( DistMatrix<R,Star,Star>& SInv )
     PushCallStack("HalveMainDiagonal");
 #endif
     for( int j=0; j<SInv.Height(); ++j )
-        SInv.LocalEntry(j,j) /= (R)2;
+    {
+        const R value = SInv.GetLocalEntry(j,j);
+        SInv.SetLocalEntry(j,j,value/2);
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -104,7 +107,10 @@ FixDiagonal
     PushCallStack("FixDiagonal");
 #endif
     for( int j=0; j<SInv.Height(); ++j )
-        SInv.LocalEntry(j,j) = complex<R>(1)/t.LocalEntry(j,0);
+    {
+        const complex<R> value = complex<R>(1)/t.GetLocalEntry(j,0);
+        SInv.SetLocalEntry(j,j,value);
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

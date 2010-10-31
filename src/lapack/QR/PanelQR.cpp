@@ -86,8 +86,8 @@ elemental::lapack::internal::PanelQR
         R alpha = (R)0;
         if( myDiagonalEntry )
         {
-            alpha = alpha11.LocalEntry(0,0);
-            alpha11.LocalEntry(0,0) = (R)1;
+            alpha = alpha11.GetLocalEntry(0,0);
+            alpha11.SetLocalEntry(0,0,1);
         }
 
         ALeftCol_MC_Star = ALeftCol;
@@ -106,7 +106,7 @@ elemental::lapack::internal::PanelQR
           ARightPan.LocalMatrix() );
 
         if( myDiagonalEntry )
-            alpha11.LocalEntry(0,0) = alpha;
+            alpha11.SetLocalEntry(0,0,alpha);
         //--------------------------------------------------------------------//
         ALeftCol_MC_Star.FreeAlignments();
         Z_MR_Star.FreeAlignments();
@@ -199,8 +199,8 @@ elemental::lapack::internal::PanelQR
         C alpha = (C)0;
         if( myDiagonalEntry )
         {
-            alpha = alpha11.LocalEntry(0,0);
-            alpha11.LocalEntry(0,0) = (C)1;
+            alpha = alpha11.GetLocalEntry(0,0);
+            alpha11.SetLocalEntry(0,0,1);
         }
 
         ALeftCol_MC_Star = ALeftCol;
@@ -219,7 +219,7 @@ elemental::lapack::internal::PanelQR
           ARightPan.LocalMatrix() );
 
         if( myDiagonalEntry )
-            alpha11.LocalEntry(0,0) = alpha;
+            alpha11.SetLocalEntry(0,0,alpha);
         //--------------------------------------------------------------------//
         ALeftCol_MC_Star.FreeAlignments();
         Z_MR_Star.FreeAlignments();

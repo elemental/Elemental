@@ -65,7 +65,7 @@ elemental::lapack::internal::ColReflector
     if( x.Height() == 0 )
     {
         if( myRow == chi.ColAlignment() )
-            chi.LocalEntry(0,0) *= (R)-1;
+            chi.SetLocalEntry(0,0,-chi.GetLocalEntry(0,0));
 #ifndef RELEASE
         PopCallStack();
 #endif
@@ -79,7 +79,7 @@ elemental::lapack::internal::ColReflector
 
     R alpha;
     if( myRow == chi.ColAlignment() )
-        alpha = chi.LocalEntry(0,0);
+        alpha = chi.GetLocalEntry(0,0);
     Broadcast( &alpha, 1, chi.ColAlignment(), g.MCComm() );
 
     R beta;
@@ -116,7 +116,7 @@ elemental::lapack::internal::ColReflector
     for( int j=0; j<count; ++j )
         beta *= safeMin;
     if( myRow == chi.ColAlignment() )
-        chi.LocalEntry(0,0) = beta;
+        chi.SetLocalEntry(0,0,beta);
         
 #ifndef RELEASE
     PopCallStack();
@@ -156,13 +156,13 @@ elemental::lapack::internal::ColReflector
 
     C alpha;
     if( myRow == chi.ColAlignment() )
-        alpha = chi.LocalEntry(0,0);
+        alpha = chi.GetLocalEntry(0,0);
     Broadcast( &alpha, 1, chi.ColAlignment(), g.MCComm() );
 
     if( norm == (R)0 && imag(alpha) == (R)0 )
     {
         if( myRow == chi.ColAlignment() )
-            chi.LocalEntry(0,0) *= (R)-1;
+            chi.SetLocalEntry(0,0,-chi.GetLocalEntry(0,0));
 #ifndef RELEASE
         PopCallStack();
 #endif
@@ -209,7 +209,7 @@ elemental::lapack::internal::ColReflector
     for( int j=0; j<count; ++j )
         beta *= safeMin;
     if( myRow == chi.ColAlignment() )
-        chi.LocalEntry(0,0) = beta;
+        chi.SetLocalEntry(0,0,beta);
         
 #ifndef RELEASE
     PopCallStack();

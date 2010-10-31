@@ -51,7 +51,7 @@ elemental::Matrix<T>::Print( string msg ) const
     for( int i=0; i<height; ++i )
     {
         for( int j=0; j<width; ++j )
-            cout << operator()(i,j) << " ";
+            cout << Get(i,j) << " ";
         cout << endl;
     }
     cout << endl;

@@ -106,8 +106,8 @@ void TestCorrectness
         {
             for( int i=j; i<m; ++i )
             {
-                T truth = ARef.LocalEntry(i,j);
-                T computed = ACopy.LocalEntry(i,j);
+                T truth = ARef.GetLocalEntry(i,j);
+                T computed = ACopy.GetLocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
                 {
@@ -125,8 +125,8 @@ void TestCorrectness
         {
             for( int i=0; i<=j; ++i )
             {
-                T truth = ARef.LocalEntry(i,j);
-                T computed = ACopy.LocalEntry(i,j);
+                T truth = ARef.GetLocalEntry(i,j);
+                T computed = ACopy.GetLocalEntry(i,j);
 
                 if( ! OKRelativeError( truth, computed ) )
                 {

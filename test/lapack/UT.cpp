@@ -123,7 +123,7 @@ void TestCorrectness
     for( int j=0; j<X.LocalWidth(); ++j )
         for( int i=0; i<X.LocalHeight(); ++i )
             myMaxDevFromIdentity = 
-                max(myMaxDevFromIdentity,abs(X.LocalEntry(i,j)));
+                max(myMaxDevFromIdentity,abs(X.GetLocalEntry(i,j)));
     R maxDevFromIdentity;
     Reduce
     ( &myMaxDevFromIdentity, &maxDevFromIdentity, 1, MPI_MAX, 0, g.VCComm() );
@@ -194,7 +194,7 @@ void TestCorrectness
     for( int j=0; j<X.LocalWidth(); ++j )
         for( int i=0; i<X.LocalHeight(); ++i )
             myMaxDevFromIdentity = 
-                max(myMaxDevFromIdentity,abs(X.LocalEntry(i,j)));
+                max(myMaxDevFromIdentity,abs(X.GetLocalEntry(i,j)));
     R maxDevFromIdentity;
     Reduce
     ( &myMaxDevFromIdentity, &maxDevFromIdentity, 1, MPI_MAX, 0, g.VCComm() );

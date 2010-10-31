@@ -108,8 +108,8 @@ void TestCorrectness
     {
         for( int i=0; i<y.Height(); ++i )
         {
-            T truth = yRef.LocalEntry(i,j);
-            T computed = y_copy.LocalEntry(i,j);
+            T truth = yRef.GetLocalEntry(i,j);
+            T computed = y_copy.GetLocalEntry(i,j);
 
             if( ! OKRelativeError( truth, computed ) )
             {

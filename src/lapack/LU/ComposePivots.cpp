@@ -60,10 +60,10 @@ elemental::lapack::internal::ComposePivots
         int row = i;
         for( int j=0; j<min(b,row+1); ++j )
         {
-            if( p.LocalEntry(j,0)-pivotOffset == row )
+            if( p.GetLocalEntry(j,0)-pivotOffset == row )
                 row = j;
             else if( j == row )
-                row = p.LocalEntry(j,0)-pivotOffset;
+                row = p.GetLocalEntry(j,0)-pivotOffset;
         }
         image[i] = row;
     }
@@ -71,13 +71,13 @@ elemental::lapack::internal::ComposePivots
     // Construct the preimage of {0,...,b-1} under the permutation
     for( int i=0; i<b; ++i )
     {
-        int row = p.LocalEntry(i,0)-pivotOffset;
+        int row = p.GetLocalEntry(i,0)-pivotOffset;
         for( int j=i-1; j>=0; --j )
         {
-            if( p.LocalEntry(j,0)-pivotOffset == row )
+            if( p.GetLocalEntry(j,0)-pivotOffset == row )
                 row = j;
             else if( j == row )
-                row = p.LocalEntry(j,0)-pivotOffset;
+                row = p.GetLocalEntry(j,0)-pivotOffset;
         }
         preimage[i] = row;
     }

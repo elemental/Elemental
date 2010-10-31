@@ -41,7 +41,7 @@ void Usage()
 {
     cout << "GEneral Matrix Matrix multiplication.\n\n"
          << "  Gemm <r> <c> <orient. of A?> <orient. of B?> <m> <n> <k> <nb>\n" 
-         << "       <serial gemm?> <parallel gemm?> <correctness?> <print?>\n\n"
+         << "       <correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  orient. of A: {N,T,C}\n"
@@ -50,8 +50,6 @@ void Usage()
          << "  n: width  of C\n"
          << "  k: inner dimension of AB\n"
          << "  nb: algorithmic blocksize\n"
-         << "  serial gemm? [0/1]\n"
-         << "  parallel gemm? [0/1]\n" 
          << "  correctness?: [0/1]\n"
          << "  print?: [0/1]\n" << endl; 
 }
@@ -70,147 +68,7 @@ bool OKRelativeError( dcomplex truth, dcomplex computed )
 #endif
 
 template<typename T>
-void ManualGemm
-( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta, Matrix<T>& C )
-{
-    const int m = C.Height();
-    const int n = C.Width();
-    blas::Scal( beta, C );
-    if( orientationOfA == Normal && orientationOfB == Normal )
-    {
-        const int k = A.Width();
-        for( int j=0; j<n; ++j )
-            for( int i=0; i<m; ++i )
-                for( int l=0; l<k; ++l )
-                    C(i,j) += alpha * A(i,l) * B(l,j);
-    }
-    else if( orientationOfA == Normal )
-    {
-        const int k = A.Width();
-        if( orientationOfB == Transpose )
-        {
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * A(i,l) * B(j,l);
-        }
-        else
-        {
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * A(i,l) * Conj(B(j,l));
-        }
-    }
-    else if( orientationOfB == Normal )
-    {
-        const int k = A.Height();
-        if( orientationOfA == Transpose )
-        {
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * A(l,i) * B(l,j);
-        }
-        else
-        {
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * Conj(A(l,i)) * B(l,j);
-        }
-    }
-    else
-    {
-        const int k = A.Height();
-        if( orientationOfA == Transpose && orientationOfB == Transpose )
-        {
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * A(l,i) * B(j,l);
-        }
-        else if( orientationOfA == Transpose )
-        {
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * A(l,i) * Conj(B(j,l));
-        }
-        else if( orientationOfB == Transpose )
-        {
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * Conj(A(l,i)) * B(j,l);
-        }
-        else
-        {
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C(i,j) += alpha * Conj(A(l,i)) * Conj(B(j,l));
-        }
-    }
-}
-
-template<typename T>
-void TestSerialCorrectness
-( bool printMatrices,
-  const DistMatrix<T,Star,Star>& C,
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T,Star,Star>& ARef,
-           const DistMatrix<T,Star,Star>& BRef,
-  T beta,        DistMatrix<T,Star,Star>& CRef )
-{
-    const Grid& g = C.GetGrid();
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    ManualGemm( orientationOfA, orientationOfB,
-                alpha, ARef.LockedLocalMatrix(),
-                       BRef.LockedLocalMatrix(),
-                beta,  CRef.LocalMatrix()       );
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( printMatrices )
-        CRef.Print("Truth");
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness...";
-        cout.flush();
-    }
-    for( int j=0; j<C.Width(); ++j )
-    {
-        for( int i=0; i<C.Height(); ++i )
-        {
-            T truth = CRef.LocalEntry(i,j);
-            T computed = C.LocalEntry(i,j);
-
-            if( ! OKRelativeError( truth, computed ) )
-            {
-                ostringstream msg;
-                msg << "FAILED at index (" << i << "," << j << "): truth="
-                    << truth << ", computed=" << computed << ", error=" 
-                    << Abs(truth-computed) << endl;
-                throw logic_error( msg.str() );
-            }
-        }
-    }
-    Barrier( g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
-}
-
-template<typename T>
-void TestParallelCorrectness
+void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<T,MC,MR>& C,
   Orientation orientationOfA, Orientation orientationOfB,
@@ -252,8 +110,8 @@ void TestParallelCorrectness
     {
         for( int i=0; i<C.Height(); ++i )
         {
-            T truth = CRef.LocalEntry(i,j);
-            T computed = CCopy.LocalEntry(i,j);
+            T truth = CRef.GetLocalEntry(i,j);
+            T computed = CCopy.GetLocalEntry(i,j);
 
             if( ! OKRelativeError( truth, computed ) )
             {
@@ -357,7 +215,7 @@ void TestSerialGemm
 }
 
 template<typename T>
-void TestParallelGemm
+void TestGemm
 ( bool testCorrectness, bool printMatrices,
   Orientation orientationOfA, Orientation orientationOfB,
   int m, int n, int k, T alpha, T beta, const Grid& g )
@@ -409,7 +267,7 @@ void TestParallelGemm
     }
     if( g.VCRank() == 0 )
     {
-        cout << "  Starting Parallel Gemm...";
+        cout << "  Starting Gemm...";
         cout.flush();
     }
     Barrier( g.VCComm() );
@@ -434,7 +292,7 @@ void TestParallelGemm
     }
     if( testCorrectness )
     {
-        TestParallelCorrectness
+        TestCorrectness
         ( printMatrices, C,
           orientationOfA, orientationOfB, 
           alpha, ARef, BRef, beta, CRef );
@@ -467,7 +325,7 @@ void TestParallelGemm
     }
     if( g.VCRank() == 0 )
     {
-        cout << "  Starting Parallel Gemm...";
+        cout << "  Starting Gemm...";
         cout.flush();
     }
     Barrier( g.VCComm() );
@@ -492,7 +350,7 @@ void TestParallelGemm
     }
     if( testCorrectness )
     {
-        TestParallelCorrectness
+        TestCorrectness
         ( printMatrices, C,
           orientationOfA, orientationOfB,
           alpha, ARef, BRef, beta, CRef );
@@ -525,7 +383,7 @@ void TestParallelGemm
     }
     if( g.VCRank() == 0 )
     {
-        cout << "  Starting Parallel Gemm...";
+        cout << "  Starting Gemm...";
         cout.flush();
     }
     Barrier( g.VCComm() );
@@ -550,7 +408,7 @@ void TestParallelGemm
     }
     if( testCorrectness )
     {
-        TestParallelCorrectness
+        TestCorrectness
         ( printMatrices, C, 
           orientationOfA, orientationOfB,
           alpha, ARef, BRef, beta, CRef );
@@ -585,7 +443,7 @@ void TestParallelGemm
         }
         if( g.VCRank() == 0 )
         {
-            cout << "  Starting Parallel Gemm...";
+            cout << "  Starting Gemm...";
             cout.flush();
         }
         Barrier( g.VCComm() );
@@ -610,7 +468,7 @@ void TestParallelGemm
         }
         if( testCorrectness )
         {
-            TestParallelCorrectness
+            TestCorrectness
             ( printMatrices, C,
               orientationOfA, orientationOfB,
               alpha, ARef, BRef, beta, CRef );
@@ -623,7 +481,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 13 )
+    if( argc != 11 )
     {
         if( rank == 0 )
             Usage();
@@ -640,10 +498,8 @@ int main( int argc, char* argv[] )
         const int         n = atoi( argv[6] );
         const int         k = atoi( argv[7] );
         const int         nb = atoi( argv[8] );
-        const bool        testSerial = atoi( argv[9] );
-        const bool        testParallel = atoi( argv[10] );
-        const bool        testCorrectness = atoi( argv[11] );
-        const bool        printMatrices = atoi( argv[12] );
+        const bool        testCorrectness = atoi( argv[9] );
+        const bool        printMatrices = atoi( argv[10] );
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -677,20 +533,10 @@ int main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        if( testSerial )
-        {
-            TestSerialGemm<double>
-            ( testCorrectness, printMatrices, 
-              orientationOfA, orientationOfB,
-              m, n, k, (double)3, (double)4, g );
-        }
-        if( testParallel )
-        {
-            TestParallelGemm<double>
-            ( testCorrectness, printMatrices,
-              orientationOfA, orientationOfB,
-              m, n, k, (double)3, (double)4, g );
-        }
+        TestGemm<double>
+        ( testCorrectness, printMatrices,
+          orientationOfA, orientationOfB,
+          m, n, k, (double)3, (double)4, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -699,20 +545,10 @@ int main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        if( testSerial )
-        {
-            TestSerialGemm<dcomplex>
-            ( testCorrectness, printMatrices,
-              orientationOfA, orientationOfB,
-              m, n, k, (dcomplex)3, (dcomplex)4, g );
-        }
-        if( testParallel )
-        {
-            TestParallelGemm<dcomplex>
-            ( testCorrectness, printMatrices,
-              orientationOfA, orientationOfB,
-              m, n, k, (dcomplex)3, (dcomplex)4, g );
-        }
+        TestGemm<dcomplex>
+        ( testCorrectness, printMatrices,
+          orientationOfA, orientationOfB,
+          m, n, k, (dcomplex)3, (dcomplex)4, g );
 #endif
     }
     catch( exception& e )
