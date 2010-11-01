@@ -28,21 +28,30 @@ top of the Makefile.
 
 There are two main build modes, *debug* and *release*. The former maintains a 
 call stack and performs judicious error-checking. Thus debug-mode should be used
-when testing a new algorithm. You can build it with
-      make debug
+when testing a new algorithm. Each of those two build modes further supports 
+both pure MPI and hybrid OpenMP/MPI parallelism. You can build the pure MPI 
+debug library with:
+      make pure-debug
+Likewise, the hybrid OpenMP/MPI library can be built with:
+      make omp-debug
 If you would also like to build the debug test drivers for the distributed 
-BLAS and LAPACK routines, run
-      make test-debug
+BLAS and LAPACK routines, run either
+      make test-pure-debug
+or
+      make test-omp-debug
+Similarly, you can build the baremetal versions of the library with
+      make pure-release
+and
+      make omp-release
+The commands
+      make test-pure-release
+and
+      make test-omp-release
+perform the equivalent actions as in the debug case.
 
-Similarly, you can build the baremetal version of the library by running 
-      make release
-The command
-      make test-release
-perform the equivalent action as in the debug case.
-
-If neither debug nor release modes are specified, both are built. The relevant
-commands are
+Alternatively, all four library versions may be built with
       make
+and all four versions of test drivers may be built with
       make test
 
 Overview
