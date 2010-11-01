@@ -46,12 +46,16 @@ LocalLength
 ( int n, int shift, int modulus );
 
 int
+LocalLength
+( int n, int index, int alignment, int modulus );
+
+int
 MaxLocalLength
 ( int n, int modulus );
 
 int
 Shift
-( int index, int align, int modulus );
+( int index, int alignment, int modulus );
 
 } // utilities
 } // elemental
@@ -86,7 +90,7 @@ elemental::utilities::LocalLength
     {
         std::ostringstream msg;
         msg << "Invalid shift: "
-            << "shift=" << shift << ", modulus=" << modulus << std::endl;
+            << "shift=" << shift << ", modulus=" << modulus;
         throw std::logic_error( msg.str() );
     }
     if( modulus <= 0 )
@@ -94,6 +98,21 @@ elemental::utilities::LocalLength
     PopCallStack();
 #endif
     return ( n > shift ? (n - shift - 1)/modulus + 1 : 0 );
+}
+
+inline int
+elemental::utilities::LocalLength
+( int n, int index, int alignment, int modulus )
+{
+#ifndef RELEASE
+    PushCallStack("utilities::LocalLength");
+#endif
+    int shift = Shift( index, alignment, modulus );
+    int localLength = LocalLength( n, shift, modulus );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return localLength;
 }
 
 inline int
@@ -112,11 +131,11 @@ elemental::utilities::MaxLocalLength
 }
 
 // For determining the first global element of process row/column 
-// 'index', with distribution alignment 'align' and number of process 
+// 'index', with distribution alignment 'alignment' and number of process 
 // rows/cols 'modulus'
 inline int
 elemental::utilities::Shift
-( int index, int align, int modulus )
+( int index, int alignment, int modulus )
 {
 #ifndef RELEASE
     PushCallStack("utilities::Shift");
@@ -124,21 +143,21 @@ elemental::utilities::Shift
     {
         std::ostringstream msg;
         msg << "Invalid index: "
-            << "index=" << index << ", modulus=" << modulus << std::endl;
+            << "index=" << index << ", modulus=" << modulus;
         throw std::logic_error( msg.str() );
     }
-    if( align < 0 || align >= modulus )
+    if( alignment < 0 || alignment >= modulus )
     {
         std::ostringstream msg;
         msg << "Invalid alignment: "
-            << "align=" << align << ", modulus=" << modulus << std::endl;
+            << "alignment=" << alignment << ", modulus=" << modulus;
         throw std::logic_error( msg.str() );
     }
     if( modulus <= 0 )
         throw std::logic_error( "Modulus must be positive." );
     PopCallStack();
 #endif
-    return (index + modulus - align) % modulus;
+    return (index + modulus - alignment) % modulus;
 }
 
 #endif /* ELEMENTAL_UTILITIES_HPP */

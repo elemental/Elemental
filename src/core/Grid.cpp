@@ -148,8 +148,8 @@ elemental::Grid::Init
 
     // Compute which diagonal 'path' we're in, and what our rank is, then
     // perform AllGather world to store everyone's info
-    _diagPathsAndRanks = new int[2*_p];
-    int* myDiagPathAndRank = new int[2];
+    _diagPathsAndRanks.resize(2*_p);
+    vector<int> myDiagPathAndRank(2);
     myDiagPathAndRank[0] = (_matrixRowRank+r-_matrixColRank) % _gcd;
     int diagPathRank = 0;
     int row = 0;
@@ -169,8 +169,7 @@ elemental::Grid::Init
         }
     }
     wrappers::mpi::AllGather
-    ( myDiagPathAndRank, 2, _diagPathsAndRanks, 2, _vectorColComm );
-    delete[] myDiagPathAndRank;
+    ( &myDiagPathAndRank[0], 2, &_diagPathsAndRanks[0], 2, _vectorColComm );
 
 #ifndef RELEASE
     MPI_Errhandler_set( _matrixColComm, MPI_ERRORS_RETURN );
@@ -196,8 +195,6 @@ elemental::Grid::~Grid()
         MPI_Comm_free( &_vectorRowComm );
         MPI_Comm_free( &_comm );
     }
-
-    delete _diagPathsAndRanks;
 }
 
 

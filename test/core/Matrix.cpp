@@ -53,7 +53,7 @@ void TestMatrix( int m, int n, int ldim )
         for( int i=0; i<m; ++i )
             buffer[i+j*ldim] = i+j*m;
 
-    Matrix<T> A( m, n, ldim, buffer );
+    Matrix<T> A( m, n, buffer, ldim );
 
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
@@ -61,7 +61,7 @@ void TestMatrix( int m, int n, int ldim )
                 throw logic_error
                 ( "Matrix class was not properly filled with buffer." );
 
-    const Matrix<T> B( m, n, ldim, (const T*)buffer );
+    const Matrix<T> B( m, n, (const T*)buffer, ldim );
 
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )

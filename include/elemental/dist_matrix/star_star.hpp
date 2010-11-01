@@ -46,8 +46,21 @@ class DistMatrixBase<T,Star,Star> : public AbstractDistMatrix<T>
 protected:
     typedef AbstractDistMatrix<T> ADM;
 
+    // The basic constructor
     DistMatrixBase
     ( int height, int width, const Grid& g );
+
+    // The basic constructor, but with a supplied leading dimension
+    DistMatrixBase
+    ( int height, int width, int ldim, const Grid& g );
+
+    // View a constant distributed matrix's buffer
+    DistMatrixBase
+    ( int height, int width, const T* buffer, int ldim, const Grid& g );
+
+    // View a mutable distributed matrix's buffer
+    DistMatrixBase
+    ( int height, int width, T* buffer, int ldim, const Grid& g );
 
     ~DistMatrixBase();
 
@@ -223,10 +236,27 @@ protected:
     typedef DistMatrixBase<R,Star,Star> DMB;
 
 public:
-    DistMatrix( const Grid& g );
+    // Create a 0 x 0 matrix
+    DistMatrix
+    ( const Grid& g );
 
-    DistMatrix( int height, int width, const Grid& g );
+    // Create a height x width matrix
+    DistMatrix
+    ( int height, int width, const Grid& g );
 
+    // Create a height x width matrix with specified leading dim.
+    DistMatrix
+    ( int height, int width, int ldim, const Grid& g );
+
+    // View a constant matrix's buffer
+    DistMatrix
+    ( int height, int width, const R* buffer, int ldim, const Grid& g );
+
+    // View a mutable matrix's buffer
+    DistMatrix
+    ( int height, int width, R* buffer, int ldim, const Grid& g );
+
+    // Create a copy of A
     DistMatrix( const DistMatrix<R,Star,Star>& A );
 
     ~DistMatrix();
@@ -296,10 +326,28 @@ protected:
     typedef DistMatrixBase<std::complex<R>,Star,Star> DMB;
 
 public:
-    DistMatrix( const Grid& g );
+    // Create a 0 x 0 matrix
+    DistMatrix
+    ( const Grid& g );
+    
+    // Create a height x width matrix
+    DistMatrix
+    ( int height, int width, const Grid& g ); 
 
-    DistMatrix( int height, int width, const Grid& g );
+    // Create a height x width matrix with specified leading dim.
+    DistMatrix 
+    ( int height, int width, int ldim, const Grid& g );
 
+    // View a constant matrix's buffer
+    DistMatrix
+    ( int height, int width, 
+      const std::complex<R>* buffer, int ldim, const Grid& g );
+
+    // View a mutable matrix's buffer
+    DistMatrix
+    ( int height, int width, std::complex<R>* buffer, int ldim, const Grid& g );
+
+    // Create a copy of A
     DistMatrix( const DistMatrix<std::complex<R>,Star,Star>& A );
 
     ~DistMatrix();
@@ -392,7 +440,30 @@ template<typename T>
 inline
 DistMatrixBase<T,Star,Star>::DistMatrixBase
 ( int height, int width, const Grid& g )
-: ADM(height,width,false,false,0,0,0,0,g)
+: ADM(height,width,false,false,0,0,0,0,height,width,g)
+{ }
+
+template<typename T>
+inline
+DistMatrixBase<T,Star,Star>::DistMatrixBase
+( int height, int width, int ldim, const Grid& g )
+: ADM(height,width,false,false,0,0,0,0,height,width,ldim,g)
+{ }
+
+template<typename T>
+inline
+DistMatrixBase<T,Star,Star>::DistMatrixBase
+( int height, int width, 
+  const T* buffer, int ldim, const Grid& g )
+: ADM(height,width,0,0,0,0,height,width,buffer,ldim,g)
+{ }
+
+template<typename T>
+inline
+DistMatrixBase<T,Star,Star>::DistMatrixBase
+( int height, int width, 
+  T* buffer, int ldim, const Grid& g )
+: ADM(height,width,0,0,0,0,height,width,buffer,ldim,g)
 { }
 
 template<typename T>
@@ -416,21 +487,34 @@ inline
 DistMatrix<R,Star,Star>::DistMatrix
 ( int height, int width, const Grid& g ) 
 : DMB(height,width,g)
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[* ,MD]::DistMatrix");
-#endif
-    DMB::LocalMatrix().ResizeTo( height, width );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+{ }
+
+template<typename R>
+inline
+DistMatrix<R,Star,Star>::DistMatrix
+( int height, int width, int ldim, const Grid& g ) 
+: DMB(height,width,ldim,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<R,Star,Star>::DistMatrix
+( int height, int width, const R* buffer, int ldim, const Grid& g )
+: DMB(height,width,buffer,ldim,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<R,Star,Star>::DistMatrix
+( int height, int width, R* buffer, int ldim, const Grid& g )
+: DMB(height,width,buffer,ldim,g)
+{ }
 
 template<typename R>
 inline
 DistMatrix<R,Star,Star>::DistMatrix
 ( const DistMatrix<R,Star,Star>& A ) 
-: DMB(A.Height(),A.Width(),A.GetGrid())
+: DMB(0,0,A.GetGrid())
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");
@@ -545,21 +629,36 @@ inline
 DistMatrix<std::complex<R>,Star,Star>::DistMatrix
 ( int height, int width, const Grid& g ) 
 : DMB(height,width,g)
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[* ,MD]::DistMatrix");
-#endif
-    DMB::LocalMatrix().ResizeTo( height, width );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+{ }
+
+template<typename R>
+inline
+DistMatrix<std::complex<R>,Star,Star>::DistMatrix
+( int height, int width, int ldim, const Grid& g ) 
+: DMB(height,width,ldim,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<std::complex<R>,Star,Star>::DistMatrix
+( int height, int width, 
+  const std::complex<R>* buffer, int ldim, const Grid& g ) 
+: DMB(height,width,buffer,ldim,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<std::complex<R>,Star,Star>::DistMatrix
+( int height, int width, 
+  std::complex<R>* buffer, int ldim, const Grid& g ) 
+: DMB(height,width,buffer,ldim,g)
+{ }
 
 template<typename R>
 inline
 DistMatrix<std::complex<R>,Star,Star>::DistMatrix
 ( const DistMatrix<std::complex<R>,Star,Star>& A ) 
-: DMB(A.Height(),A.Width(),A.GetGrid())
+: DMB(0,0,A.GetGrid())
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");

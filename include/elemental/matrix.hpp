@@ -45,9 +45,9 @@ class Matrix
     bool      _lockedView;
     int       _height;
     int       _width;
-    int       _ldim;
     T*        _data;
     const T*  _lockedData;
+    int       _ldim;
     Memory<T> _memory;
 
 public:    
@@ -58,9 +58,9 @@ public:
 
     Matrix( int height, int width, int ldim );
 
-    Matrix( int height, int width, int ldim, const T* buffer );
+    Matrix( int height, int width, const T* buffer, int ldim );
 
-    Matrix( int height, int width, int ldim, T* buffer );
+    Matrix( int height, int width, T* buffer, int ldim );
 
     Matrix( const Matrix<T>& A );
 
@@ -144,7 +144,7 @@ template<typename T>
 inline
 elemental::Matrix<T>::Matrix()
 : _viewing(false), _lockedView(false),
-  _height(0), _width(0), _ldim(0), _data(0), _lockedData(0),
+  _height(0), _width(0), _data(0), _lockedData(0), _ldim(0),
   _memory()
 { }
 
@@ -152,8 +152,7 @@ template<typename T>
 inline
 elemental::Matrix<T>::Matrix( int height, int width )
 : _viewing(false), _lockedView(false),
-  _height(height), _width(width), _ldim(std::max(height,1)), 
-  _lockedData(0)
+  _height(height), _width(width), _lockedData(0), _ldim(std::max(height,1))
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix");
@@ -172,7 +171,7 @@ inline
 elemental::Matrix<T>::Matrix
 ( int height, int width, int ldim )
 : _viewing(false), _lockedView(false),
-  _height(height), _width(width), _ldim(ldim), _lockedData(0)
+  _height(height), _width(width), _lockedData(0), _ldim(ldim)
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix");
@@ -199,9 +198,9 @@ elemental::Matrix<T>::Matrix
 template<typename T>
 inline
 elemental::Matrix<T>::Matrix
-( int height, int width, int ldim, const T* buffer )
+( int height, int width, const T* buffer, int ldim )
 : _viewing(true), _lockedView(true),
-  _height(height), _width(width), _ldim(ldim), _data(0), _lockedData(buffer)
+  _height(height), _width(width), _data(0), _lockedData(buffer), _ldim(ldim)
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix");
@@ -224,9 +223,9 @@ elemental::Matrix<T>::Matrix
 template<typename T>
 inline
 elemental::Matrix<T>::Matrix
-( int height, int width, int ldim, T* buffer )
+( int height, int width, T* buffer, int ldim )
 : _viewing(true), _lockedView(false),
-  _height(height), _width(width), _ldim(ldim), _data(buffer), _lockedData(0)
+  _height(height), _width(width), _data(buffer), _lockedData(0), _ldim(ldim)
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix");

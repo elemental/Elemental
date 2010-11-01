@@ -48,13 +48,25 @@ class DistMatrixBase<T,VR,Star> : public AbstractDistMatrix<T>
 protected:
     typedef AbstractDistMatrix<T> ADM;
 
+    // The basic constructor
     DistMatrixBase
-    ( int height,
-      int width,
-      bool constrainedColAlignment,
-      int colAlignment,
-      int colShift,
+    ( int height, int width, bool constrainedColAlignment, int colAlignment,
       const Grid& g );
+
+    // The basic constructor, but with a supplied leading dimension
+    DistMatrixBase
+    ( int height, int width, bool constrainedColAlignment, int colAlignment,
+      int ldim, const Grid& g );
+
+    // View a constant distributed matrix's buffer
+    DistMatrixBase
+    ( int height, int width, int colAlignment,
+      const T* buffer, int ldim, const Grid& g );
+
+    // View a mutable distributed matrix's buffer
+    DistMatrixBase
+    ( int height, int width, int colAlignment,
+      T* buffer, int ldim, const Grid& g );
 
     ~DistMatrixBase();
 
@@ -239,19 +251,40 @@ protected:
     typedef DistMatrixBase<R,VR,Star> DMB;
 
 public:
+    // Create a 0 x 0 distributed matrix
     DistMatrix
     ( const Grid& g );
 
+    // Create a height x width distributed matrix
     DistMatrix
     ( int height, int width, const Grid& g );
 
+    // Create a 0 x 0 distributed matrix with specified alignments
     DistMatrix
     ( bool constrainedColAlignment, int colAlignment, const Grid& g );
 
+    // Create a height x width distributed matrix with specified alignments
     DistMatrix
-    ( int height, int width,
-      bool constrainedColAlignment, int colAlignment, const Grid& g );
+    ( int height, int width, bool constrainedColAlignment, int colAlignment,
+      const Grid& g );
 
+    // Create a height x width distributed matrix with specified alignments
+    // and leading dimension
+    DistMatrix
+    ( int height, int width, bool constrainedColAlignment, int colAlignment,
+      int ldim, const Grid& g );
+
+    // View a constant distributed matrix's buffer
+    DistMatrix
+    ( int height, int width, int colAlignment,
+      const R* buffer, int ldim, const Grid& g );
+
+    // View a mutable distributed matrix's buffer
+    DistMatrix
+    ( int height, int width, int colAlignment,
+      R* buffer, int ldim, const Grid& g );
+
+    // Create a copy of distributed matrix A
     DistMatrix
     ( const DistMatrix<R,VR,Star>& A );
 
@@ -322,19 +355,40 @@ protected:
     typedef DistMatrixBase<std::complex<R>,VR,Star> DMB;
 
 public:
+    // Create a 0 x 0 distributed matrix
     DistMatrix
     ( const Grid& g );
 
+    // Create a height x width distributed matrix
     DistMatrix
     ( int height, int width, const Grid& g );
 
+    // Create a 0 x 0 distributed matrix with specified alignments
     DistMatrix
     ( bool constrainedColAlignment, int colAlignment, const Grid& g );
 
+    // Create a height x width distributed matrix with specified alignments
     DistMatrix
-    ( int height, int width,
-      bool constrainedColAlignment, int colAlignment, const Grid& g );
+    ( int height, int width, bool constrainedColAlignment, int colAlignment,
+      const Grid& g );
 
+    // Create a height x width distributed matrix with specified alignments
+    // and leading dimension
+    DistMatrix
+    ( int height, int width, bool constrainedColAlignment, int colAlignment,
+      int ldim, const Grid& g );
+
+    // View a constant distributed matrix's buffer
+    DistMatrix
+    ( int height, int width, int colAlignment,
+      const std::complex<R>* buffer, int ldim, const Grid& g );
+
+    // View a mutable distributed matrix's buffer
+    DistMatrix
+    ( int height, int width, int colAlignment,
+      std::complex<R>* buffer, int ldim, const Grid& g );
+
+    // Create a copy of distributed matrix A
     DistMatrix
     ( const DistMatrix<std::complex<R>,VR,Star>& A );
 
@@ -427,13 +481,69 @@ public:
 template<typename T>
 inline
 DistMatrixBase<T,VR,Star>::DistMatrixBase
-( int height,
-  int width,
-  bool constrainedColAlignment,
-  int colAlignment,
-  int colShift,
+( int height, int width, bool constrainedColAlignment, int colAlignment,
   const Grid& g )
-: ADM(height,width,constrainedColAlignment,false,colAlignment,0,colShift,0,g)
+: ADM(height,width,constrainedColAlignment,false,colAlignment,0,
+      // column shift
+      utilities::Shift(g.VRRank(),colAlignment,g.Size()),
+      // row shift
+      0,
+      // local height
+      utilities::LocalLength(height,g.VRRank(),colAlignment,g.Size()),
+      // local width
+      width,
+      g)
+{ }
+
+template<typename T>
+inline
+DistMatrixBase<T,VR,Star>::DistMatrixBase
+( int height, int width, bool constrainedColAlignment, int colAlignment,
+  int ldim, const Grid& g )
+: ADM(height,width,constrainedColAlignment,false,colAlignment,0,
+      // column shift
+      utilities::Shift(g.VRRank(),colAlignment,g.Size()),
+      // row shift
+      0,
+      // local height
+      utilities::LocalLength(height,g.VRRank(),colAlignment,g.Size()),
+      // local width
+      width,
+      ldim,g)
+{ }
+
+template<typename T>
+inline
+DistMatrixBase<T,VR,Star>::DistMatrixBase
+( int height, int width, int colAlignment,
+  const T* buffer, int ldim, const Grid& g )
+: ADM(height,width,colAlignment,0,
+      // column shift
+      utilities::Shift(g.VRRank(),colAlignment,g.Size()),
+      // row shift
+      0,
+      // local height
+      utilities::LocalLength(height,g.VRRank(),colAlignment,g.Size()),
+      // local width
+      width,
+      buffer,ldim,g)
+{ }
+
+template<typename T>
+inline
+DistMatrixBase<T,VR,Star>::DistMatrixBase
+( int height, int width, int colAlignment,
+  T* buffer, int ldim, const Grid& g )
+: ADM(height,width,colAlignment,0,
+      // column shift
+      utilities::Shift(g.VRRank(),colAlignment,g.Size()),
+      // row shift
+      0,
+      // local height
+      utilities::LocalLength(height,g.VRRank(),colAlignment,g.Size()),
+      // local width
+      width,
+      buffer,ldim,g)
 { }
 
 template<typename T>
@@ -449,56 +559,60 @@ template<typename R>
 inline
 DistMatrix<R,VR,Star>::DistMatrix
 ( const Grid& g )
-: DMB(0,0,false,0,g.VRRank(),g)
+: DMB(0,0,false,0,g)
 { }
 
 template<typename R>
 inline
 DistMatrix<R,VR,Star>::DistMatrix
 ( int height, int width, const Grid& g )
-: DMB(height,width,false,0,g.VRRank(),g)
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[VR,* ]::DistMatrix");
-#endif
-    DMB::LocalMatrix().ResizeTo
-    ( utilities::LocalLength( height, g.VRRank(), g.Size() ), width );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename R>
-inline
-DistMatrix<R,VR,Star>::DistMatrix
-( bool constrainedColAlignment, int colAlignment, const Grid& g )
-: DMB(0,0,constrainedColAlignment,colAlignment,
-      utilities::Shift( g.VRRank(), colAlignment, g.Size() ),g)
+: DMB(height,width,false,0,g)
 { }
 
 template<typename R>
 inline
 DistMatrix<R,VR,Star>::DistMatrix
-( int height, int width,
-  bool constrainedColAlignment, int colAlignment, const Grid& g )
-: DMB(height,width,constrainedColAlignment,colAlignment,
-      utilities::Shift( g.VRRank(), colAlignment, g.Size() ),g)
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[VR,* ]::DistMatrix");
-#endif
-    DMB::LocalMatrix().ResizeTo
-    ( utilities::LocalLength( height, DMB::ColShift(), g.Size() ), width );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+( bool constrainedColAlignment, int colAlignment, const Grid& g )
+: DMB(0,0,constrainedColAlignment,colAlignment,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<R,VR,Star>::DistMatrix
+( int height, int width, bool constrainedColAlignment, int colAlignment, 
+  const Grid& g )
+: DMB(height,width,constrainedColAlignment,colAlignment,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<R,VR,Star>::DistMatrix
+( int height, int width, bool constrainedColAlignment, int colAlignment, 
+  int ldim, const Grid& g )
+: DMB(height,width,constrainedColAlignment,colAlignment,ldim,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<R,VR,Star>::DistMatrix
+( int height, int width, int colAlignment,
+  const R* buffer, int ldim, const Grid& g )
+: DMB(height,width,colAlignment,buffer,ldim,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<R,VR,Star>::DistMatrix
+( int height, int width, int colAlignment,
+  R* buffer, int ldim, const Grid& g )
+: DMB(height,width,colAlignment,buffer,ldim,g)
+{ }
 
 template<typename R>
 inline
 DistMatrix<R,VR,Star>::DistMatrix
 ( const DistMatrix<R,VR,Star>& A )
-: DMB(0,0,false,0,0,A.GetGrid())
+: DMB(0,0,false,0,A.GetGrid())
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::DistMatrix");
@@ -605,56 +719,60 @@ template<typename R>
 inline
 DistMatrix<std::complex<R>,VR,Star>::DistMatrix
 ( const Grid& g )
-: DMB(0,0,false,0,g.VRRank(),g)
+: DMB(0,0,false,0,g)
 { }
 
 template<typename R>
 inline
 DistMatrix<std::complex<R>,VR,Star>::DistMatrix
 ( int height, int width, const Grid& g )
-: DMB(height,width,false,0,g.VRRank(),g)
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[VR,* ]::DistMatrix");
-#endif
-    DMB::LocalMatrix().ResizeTo
-    ( utilities::LocalLength( height, g.VRRank(), g.Size() ), width );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename R>
-inline
-DistMatrix<std::complex<R>,VR,Star>::DistMatrix
-( bool constrainedColAlignment, int colAlignment, const Grid& g )
-: DMB(0,0,constrainedColAlignment,colAlignment,
-      utilities::Shift( g.VRRank(), colAlignment, g.Size() ),g)
+: DMB(height,width,false,0,g)
 { }
 
 template<typename R>
 inline
 DistMatrix<std::complex<R>,VR,Star>::DistMatrix
-( int height, int width,
-  bool constrainedColAlignment, int colAlignment, const Grid& g )
-: DMB(height,width,constrainedColAlignment,colAlignment,
-      utilities::Shift( g.VRRank(), colAlignment, g.Size() ),g)
-{
-#ifndef RELEASE
-    PushCallStack("DistMatrix[VR,* ]::DistMatrix");
-#endif
-    DMB::LocalMatrix().ResizeTo
-    ( utilities::LocalLength( height, DMB::ColShift(), g.Size() ), width );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+( bool constrainedColAlignment, int colAlignment, const Grid& g )
+: DMB(0,0,constrainedColAlignment,colAlignment,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<std::complex<R>,VR,Star>::DistMatrix
+( int height, int width, bool constrainedColAlignment, int colAlignment, 
+  const Grid& g )
+: DMB(height,width,constrainedColAlignment,colAlignment,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<std::complex<R>,VR,Star>::DistMatrix
+( int height, int width, bool constrainedColAlignment, int colAlignment, 
+  int ldim, const Grid& g )
+: DMB(height,width,constrainedColAlignment,colAlignment,ldim,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<std::complex<R>,VR,Star>::DistMatrix
+( int height, int width, int colAlignment,
+  const std::complex<R>* buffer, int ldim, const Grid& g )
+: DMB(height,width,colAlignment,buffer,ldim,g)
+{ }
+
+template<typename R>
+inline
+DistMatrix<std::complex<R>,VR,Star>::DistMatrix
+( int height, int width, int colAlignment,
+  std::complex<R>* buffer, int ldim, const Grid& g )
+: DMB(height,width,colAlignment,buffer,ldim,g)
+{ }
 
 template<typename R>
 inline
 DistMatrix<std::complex<R>,VR,Star>::DistMatrix
 ( const DistMatrix<std::complex<R>,VR,Star>& A )
-: DMB(0,0,false,0,0,A.GetGrid())
+: DMB(0,0,false,0,A.GetGrid())
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[VR,* ]::DistMatrix");

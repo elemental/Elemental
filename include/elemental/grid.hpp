@@ -41,23 +41,23 @@ namespace elemental {
 
 class Grid
 {
-    int        _p;
-    int        _c;
-    int        _r;
-    int        _gcd;
-    int        _col;
-    int        _row;
-    int        _rank; 
-    int        _matrixColRank;
-    int        _matrixRowRank;
-    int        _vectorColRank;
-    int        _vectorRowRank;
-    int*       _diagPathsAndRanks; 
-    MPI_Comm   _comm;
-    MPI_Comm   _matrixColComm;
-    MPI_Comm   _matrixRowComm;
-    MPI_Comm   _vectorColComm;
-    MPI_Comm   _vectorRowComm;
+    int _p;
+    int _c;
+    int _r;
+    int _gcd;
+    int _col;
+    int _row;
+    int _rank; 
+    int _matrixColRank;
+    int _matrixRowRank;
+    int _vectorColRank;
+    int _vectorRowRank;
+    std::vector<int> _diagPathsAndRanks;
+    MPI_Comm _comm;
+    MPI_Comm _matrixColComm;
+    MPI_Comm _matrixRowComm;
+    MPI_Comm _vectorColComm;
+    MPI_Comm _vectorRowComm;
 
     void Init( int r, int c );
 
