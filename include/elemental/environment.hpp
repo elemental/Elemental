@@ -68,6 +68,7 @@ void DumpCallStack();
 #include "elemental/memory.hpp"
 #include "elemental/grid.hpp"
 #include "elemental/random.hpp"
+#include "elemental/timer.hpp"
 #include "elemental/types.hpp"
 #include "elemental/utilities.hpp"
 #include "elemental/wrappers.hpp"

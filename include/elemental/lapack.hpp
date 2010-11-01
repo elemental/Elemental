@@ -137,6 +137,12 @@ template<typename T>
 void
 LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 
+#ifdef TIMING
+namespace lu {
+void PrintTimings();
+}
+#endif
+
 //----------------------------------------------------------------------------//
 // Pinv (Moore-Penrose pseudoinverse)                                         //
 //----------------------------------------------------------------------------//

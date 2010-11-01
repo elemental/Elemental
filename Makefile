@@ -41,6 +41,7 @@ library = libelemental.a
 
 # Common compile flags:
 #   RELEASE: if defined, callstack is not maintained and debug checks are off
+#   TIMING: if defined, some routines will accumulate timing statistics
 #   BLAS_UNDERSCORE: if defined, all blas wrappers assume underscore postfix
 #   LAPACK_UNDERSCORE: if defined, all lapack wrappers assume underscore postfix
 #   AVOID_COMPLEX_MPI: try to treat all complex datatypes as two real datatypes
@@ -65,7 +66,7 @@ CXXFLAGS = -DBLAS_UNDERSCORE \
            -I$(incdir)
 OMPFLAGS = -fopenmp
 CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)
-CXXFLAGS_RELEASE = -O3 -Wall -DRELEASE $(CXXFLAGS)
+CXXFLAGS_RELEASE = -O3 -Wall -DRELEASE -DTIMING $(CXXFLAGS)
 LDFLAGS_PURE = -L/usr/lib -llapack -lblas
 LDFLAGS_OMP  = -L/usr/lib -llapack -lblas # these should be threaded
 AR = ar
@@ -247,6 +248,7 @@ includefiles = elemental.hpp \
                elemental/matrix.hpp \
                elemental/partitioning.hpp \
                elemental/random.hpp \
+               elemental/timer.hpp \
                elemental/types.hpp \
                elemental/wrappers.hpp \
                elemental/wrappers/blas.hpp \
