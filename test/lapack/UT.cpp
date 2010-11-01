@@ -352,16 +352,16 @@ main( int argc, char* argv[] )
     }
     try
     {
-        const int         r = atoi( argv[1] );
-        const int         c = atoi( argv[2] );
-        const Side        side = CharToSide( *argv[3] );
-        const Shape       shape = CharToShape( *argv[4] );
-        const Orientation orientation = CharToOrientation( *argv[5] );
-        const int         m = atoi( argv[6] );
-        const int         offset = atoi( argv[7] );
-        const int         nb = atoi( argv[8] );
-        const bool        testCorrectness = atoi( argv[9] );
-        const bool        printMatrices = atoi( argv[10] );
+        const int r = atoi(argv[1]);
+        const int c = atoi(argv[2]);
+        const Side side = CharToSide(*argv[3]);
+        const Shape shape = CharToShape(*argv[4]);
+        const Orientation orientation = CharToOrientation(*argv[5]);
+        const int m = atoi(argv[6]);
+        const int offset = atoi(argv[7]);
+        const int nb = atoi(argv[8]);
+        const bool testCorrectness = atoi(argv[9]);
+        const bool printMatrices = atoi(argv[10]);
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -370,7 +370,7 @@ main( int argc, char* argv[] )
                  << "==========================================" << endl;
         }
 #endif
-        Grid g( MPI_COMM_WORLD, r, c );
+        const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )

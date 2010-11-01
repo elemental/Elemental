@@ -53,8 +53,8 @@ elemental::Grid::Grid
     if( _p != r*c )
     {
         ostringstream msg;
-        msg << "Number of processes must match grid size:" << endl
-            << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
+        msg << "Number of processes must match grid size:\n"
+            << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")";
         throw logic_error( msg.str() );
     }
 
@@ -77,7 +77,7 @@ elemental::Grid::Grid
 ( MPI_Comm comm, int r, int c )
 {
 #ifndef RELEASE
-    PushCallStack("Grid::Grid( comm, r, c )");
+    PushCallStack("Grid::Grid");
 #endif
 
     // Extract the total number of processes
@@ -86,8 +86,8 @@ elemental::Grid::Grid
     if( _p != r*c )
     {
         ostringstream msg;
-        msg << "Number of processes must match grid size:" << endl
-            << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
+        msg << "Number of processes must match grid size:\n"
+            << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")";
         throw logic_error( msg.str() );
     }
 
@@ -110,7 +110,7 @@ elemental::Grid::Init
 ( int r, int c )
 {
 #ifndef RELEASE
-    PushCallStack("Grid::Init(r,c)");
+    PushCallStack("Grid::Init");
     if( r <= 0 || c <= 0 )
         throw logic_error( "r and c must be positive." );
 #endif
@@ -123,9 +123,9 @@ elemental::Grid::Init
 #ifndef RELEASE
     if( _rank == 0 )
     {
-        cout << "Building process grid with:" << endl;   
-        cout << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")" << endl;
-        cout << "  gcd=" << _gcd << endl;
+        cout << "Building process grid with:\n"
+             << "  p=" << _p << ", (r,c)=(" << r << "," << c << ")\n"
+             << "  gcd=" << _gcd << endl;
     }
 #endif
 

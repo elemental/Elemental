@@ -45,7 +45,7 @@ elemental::Init
 ( int* argc, char** argv[] )
 {
 #ifndef RELEASE
-    PushCallStack("init");
+    PushCallStack("Init");
 #endif
     int initialized;
     MPI_Initialized( &initialized );
@@ -148,10 +148,10 @@ elemental::DumpCallStack()
     ostringstream msg;
     while( ! ::callStack.empty() )
     {
-        msg << "[" << ::callStack.size() << "]: " << ::callStack.top() << endl;
+        msg << "[" << ::callStack.size() << "]: " << ::callStack.top() << "\n"; 
         ::callStack.pop();
     }
-    cerr << msg.str();
+    cerr << msg.str() << endl;;
 }
 #endif
 

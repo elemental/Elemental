@@ -40,8 +40,8 @@ using namespace elemental::wrappers::mpi;
 void Usage()
 {
     cout << "Inverts a triangular matrix.\n\n"
-         << "  Trinv <r> <c> <shape> <diag> <m> <nb> <test correctness?> "
-         << "<print matrices?>\n\n"
+         << "  Trinv <r> <c> <shape> <diag> <m> <nb> <correctness?> "
+            "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  shape: {L,U}\n"
@@ -216,14 +216,14 @@ int main( int argc, char* argv[] )
     }
     try
     {
-        const int      r = atoi( argv[1] );
-        const int      c = atoi( argv[2] );
-        const Shape    shape = CharToShape( *argv[3] );
-        const Diagonal diagonal = CharToDiagonal( *argv[4] );
-        const int      m = atoi( argv[5] );
-        const int      nb = atoi( argv[6] );
-        const bool     testCorrectness = atoi( argv[7] );
-        const bool     printMatrices = atoi( argv[8] );
+        const int r = atoi(argv[1]);
+        const int c = atoi(argv[2]);
+        const Shape shape = CharToShape(*argv[3]);
+        const Diagonal diagonal = CharToDiagonal(*argv[4]);
+        const int m = atoi(argv[5]);
+        const int nb = atoi(argv[6]);
+        const bool testCorrectness = atoi(argv[7]);
+        const bool printMatrices = atoi(argv[8]);
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -232,7 +232,7 @@ int main( int argc, char* argv[] )
                  << "==========================================" << endl;
         }
 #endif
-        Grid g( MPI_COMM_WORLD, r, c );
+        const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )

@@ -40,7 +40,7 @@ using namespace elemental::wrappers::mpi;
 void Usage()
 {
     cout << "Generates random matrix then solves for its QR factorization.\n\n"
-         << "  QR <r> <c> <m> <n> <nb> <correctness?> <print matrices?>\n\n"
+         << "  QR <r> <c> <m> <n> <nb> <correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  m: height of matrix\n"
@@ -336,13 +336,13 @@ int main( int argc, char* argv[] )
     }
     try
     {
-        const int   r = atoi( argv[1] );
-        const int   c = atoi( argv[2] );
-        const int   m = atoi( argv[3] );
-        const int   n = atoi( argv[4] );
-        const int   nb = atoi( argv[5] );
-        const bool  testCorrectness = atoi( argv[6] );
-        const bool  printMatrices = atoi( argv[7] );
+        const int r = atoi(argv[1]);
+        const int c = atoi(argv[2]);
+        const int m = atoi(argv[3]);
+        const int n = atoi(argv[4]);
+        const int nb = atoi(argv[5]);
+        const bool testCorrectness = atoi(argv[6]);
+        const bool printMatrices = atoi(argv[7]);
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -353,7 +353,7 @@ int main( int argc, char* argv[] )
 #endif
         if( n > m )
             throw logic_error( "QR only supported when height >= width." );
-        Grid g( MPI_COMM_WORLD, r, c );
+        const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
 
         if( rank == 0 )

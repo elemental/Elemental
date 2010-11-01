@@ -490,16 +490,16 @@ int main( int argc, char* argv[] )
     }
     try
     {
-        const int         r = atoi( argv[1] );
-        const int         c = atoi( argv[2] );
-        const Orientation orientationOfA = CharToOrientation( *argv[3] );
-        const Orientation orientationOfB = CharToOrientation( *argv[4] );
-        const int         m = atoi( argv[5] );
-        const int         n = atoi( argv[6] );
-        const int         k = atoi( argv[7] );
-        const int         nb = atoi( argv[8] );
-        const bool        testCorrectness = atoi( argv[9] );
-        const bool        printMatrices = atoi( argv[10] );
+        const int         r = atoi(argv[1]);
+        const int         c = atoi(argv[2]);
+        const Orientation orientationOfA = CharToOrientation(*argv[3]);
+        const Orientation orientationOfB = CharToOrientation(*argv[4]);
+        const int         m = atoi(argv[5]);
+        const int         n = atoi(argv[6]);
+        const int         k = atoi(argv[7]);
+        const int         nb = atoi(argv[8]);
+        const bool        testCorrectness = atoi(argv[9]);
+        const bool        printMatrices = atoi(argv[10]);
 #ifndef RELEASE
         if( rank == 0 )
         {
