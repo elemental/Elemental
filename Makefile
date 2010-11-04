@@ -39,12 +39,25 @@ bindir = bin
 
 library = libelemental.a
 
+# Choose whether or not to build against PMRRR; it is linked if and only if 
+# 'use_pmrrr = true'
+# For more information, please contact Matthias Petschow at
+# petschow@aices.rwth-aachen.de and/or Paolo Bientinesi at 
+# pauldj@aices.rwth-aachen.de.
+#
+# If PMRRR is not linked then there is not yet support for Hermitian 
+# eigenvalue problems.
+use_pmrrr = false
+pmrrr_libdir = /home/poulson/Source/PMRRR/LIB
+pmrrr_lib = pmrrr
+
 # Common compile flags:
 #   RELEASE: if defined, callstack is not maintained and debug checks are off
 #   TIMING: if defined, some routines will accumulate timing statistics
 #   BLAS_UNDERSCORE: if defined, all blas wrappers assume underscore postfix
 #   LAPACK_UNDERSCORE: if defined, all lapack wrappers assume underscore postfix
 #   AVOID_COMPLEX_MPI: try to treat all complex datatypes as two real datatypes
+#   WITHOUT_PMRRR: do not link against PMRRR
 #
 # Auxilliary compile flags:
 #   CACHE_WARNINGS: if defined, warn when using cache-unfriendly routines
@@ -59,6 +72,8 @@ library = libelemental.a
 #     a row or column of the process grid, avoid the common wisdom of
 #     parallelizing the outer-most loop
 #
+AR = ar
+ARFLAGS = rc
 CXX = mpicxx
 CXXFLAGS = -DBLAS_UNDERSCORE \
            -DLAPACK_UNDERSCORE \
@@ -69,8 +84,13 @@ CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)
 CXXFLAGS_RELEASE = -O3 -Wall -DRELEASE -DTIMING $(CXXFLAGS)
 LDFLAGS_PURE = -L/usr/lib -llapack -lblas
 LDFLAGS_OMP  = -L/usr/lib -llapack -lblas # these should be threaded
-AR = ar
-ARFLAGS = rc
+ifeq ($(use_pmrrr),true)
+    LDFLAGS_PURE += -L$(pmrrr_libdir) -l$(pmrrr_lib)
+    LDFLAGS_OMP += -L$(pmrrr_libdir) -l$(pmrrr_lib)
+else
+    CXXFLAGS_DEBUG += -DWITHOUT_PMRRR
+    CXXFLAGS_RELEASE += -DWITHOUT_PMRRR
+endif
 
 ################################################################################
 # Only developers should edit past this point.                                 #
@@ -217,6 +237,9 @@ lapackfiles = Chol/Chol.cpp \
               UT/UTRLN.cpp \
               UT/UTRUC.cpp \
               UT/UTRUN.cpp
+ifeq ($(use_pmrrr),true)
+    lapackfiles += HermitianEig/HermitianEig.cpp
+endif
 lapacksrc = $(addprefix $(lapackdir)/,$(lapackfiles))
 
 # The entire list of source files relative to $(srcdir)
@@ -335,7 +358,8 @@ bindir_pure_debug   = $(bindir)/pure/debug
 bindir_omp_release  = $(bindir)/omp/release
 bindir_pure_release = $(bindir)/pure/release
 
-tests = DistMatrix \
+tests = 
+#tests = DistMatrix \
         blas/Gemm \
         blas/Hemm \
         blas/Her2k \
@@ -354,6 +378,9 @@ tests = DistMatrix \
         lapack/Tridiag \
         lapack/Trinv \
         lapack/UT
+ifeq ($(use_pmrrr),true)
+    tests += lapack/HermitianEig
+endif
 testobjs = $(addsuffix .o, $(tests))
 
 tests_omp_debug     = $(addprefix $(bindir_omp_debug)/, $(tests))
@@ -392,7 +419,7 @@ $(bindir_omp_release)/%: $(bindir_omp_release)/%.o $(library_omp_release)
 
 $(bindir_pure_release)/%: $(bindir_pure_release)/%.o $(library_pure_release)
 	@echo "[pure-release] Creating $@"
-	@$(CXX) -o $@ $^ $(LDFLAGS_PURE)
+	$(CXX) -o $@ $^ $(LDFLAGS_PURE)
 
 $(bindir_omp_debug)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)

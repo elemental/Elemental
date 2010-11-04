@@ -99,9 +99,27 @@ Hegst
   DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
+// HermitianEig (Hermitian Eigensolver)                                       //
+//                                                                            //
+//----------------------------------------------------------------------------//
+
+#ifndef WITHOUT_PMRRR
+// Parallel version(s) for computing all eigenpairs of A. On exit, either the 
+// upper or lower triangle of A is overwritten with Householder vectors 
+// and its similar tridiagonal matrix, Z contains the computed eigenvectors, 
+// and w contains the corresponding eigenvalues. 
+void
+HermitianEig
+( Shape shape, 
+  DistMatrix<double,MC,  MR>& A, 
+  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,MC,  MR>& Z );
+#endif // WITHOUT_PMRRR
+
+//----------------------------------------------------------------------------//
 // Hessenberg (Reduce to upper or lower Hessenberg form)                      //
 //                                                                            //
-// These are not yet ready, but are coming soon.                              //
+// These are not yet ready, but are hopefully coming soon.                    //
 //----------------------------------------------------------------------------//
 
 // Serial version for real datatypes

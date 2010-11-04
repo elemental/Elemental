@@ -191,8 +191,8 @@ public:
     const T& GetLocalEntry( int i, int j ) const;
     void SetLocalEntry( int i, int j, T value );
 
-    T* LocalBuffer( int i, int j );
-    const T* LockedLocalBuffer( int i, int j ) const;
+    T* LocalBuffer( int i=0, int j=0 );
+    const T* LockedLocalBuffer( int i=0, int j=0 ) const;
 
           Matrix<T>& LocalMatrix();
     const Matrix<T>& LockedLocalMatrix() const;
