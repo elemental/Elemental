@@ -358,8 +358,7 @@ bindir_pure_debug   = $(bindir)/pure/debug
 bindir_omp_release  = $(bindir)/omp/release
 bindir_pure_release = $(bindir)/pure/release
 
-tests = 
-#tests = DistMatrix \
+tests = DistMatrix \
         blas/Gemm \
         blas/Hemm \
         blas/Her2k \
