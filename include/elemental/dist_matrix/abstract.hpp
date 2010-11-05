@@ -202,6 +202,7 @@ public:
     //
 
     void SetToZero();
+    void Empty();
 
     //------------------------------------------------------------------------//
     // Routines that MUST be implemented in non-abstract derived classes      //
@@ -841,6 +842,24 @@ template<typename T>
 inline void
 AbstractDistMatrixBase<T>::SetToZero()
 { _localMatrix.SetToZero(); }
+
+template<typename T>
+inline void
+AbstractDistMatrixBase<T>::Empty()
+{
+    _localMatrix.Empty();
+    _auxMemory.Empty();
+    _lockedView = false;
+    _viewing = false;
+    _height = 0;
+    _width = 0;
+    _colAlignment = 0;
+    _rowAlignment = 0;
+    _constrainedColAlignment = false;
+    _constrainedRowAlignment = false;
+    _colShift = 0;
+    _rowShift = 0;
+}
 
 //
 // Real AbstractDistMatrix

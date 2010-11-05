@@ -51,14 +51,13 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename R>
-void TestCorrectness
+void TestCorrectnessDouble
 ( bool printMatrices,
   Shape shape,
-  const DistMatrix<R,MC,  MR>& A,
-  const DistMatrix<R,Star,VR>& w,
-  const DistMatrix<R,MC,  MR>& Z,
-  const DistMatrix<R,MC  ,MR>& ARef )
+  const DistMatrix<double,MC,  MR>& A,
+  const DistMatrix<double,Star,VR>& w,
+  const DistMatrix<double,MC,  MR>& Z,
+  const DistMatrix<double,MC  ,MR>& ARef )
 {
     const Grid& g = A.GetGrid();
     const int k = Z.Width();
@@ -74,8 +73,9 @@ void TestCorrectness
         cout << "  Gathering computed eigenvalues...";
         cout.flush();
     }
-    DistMatrix<R,Star,Star> w_Star_Star(g); 
-    w_Star_Star = w;
+    DistMatrix<double,Star,MR> w_Star_MR(g); 
+    w_Star_MR.AlignWith( Z );
+    w_Star_MR = w;
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
@@ -84,14 +84,14 @@ void TestCorrectness
         cout << "  Testing orthogonality of eigenvectors...";
         cout.flush();
     }
-    DistMatrix<R,MC,MR> X(k,k,g);
+    DistMatrix<double,MC,MR> X(k,k,g);
     X.SetToIdentity();
-    blas::Herk( shape, ConjugateTranspose, (R)-1, Z, (R)1, X );
-    R myResidual = 0; 
+    blas::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, X );
+    double myResidual = 0; 
     for( int j=0; j<X.LocalWidth(); ++j )
         for( int i=0; i<X.LocalHeight(); ++i )
             myResidual = max( Abs(X.GetLocalEntry(i,j)),myResidual );
-    R residual;
+    double residual;
     Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
         cout << "max deviation from I is " << residual << endl;
@@ -103,13 +103,13 @@ void TestCorrectness
     }
     // Set X := WZ, where W is the diagonal eigenvalue matrix
     X = Z;
-    for( int j=0; j<Z.LocalWidth(); ++j )
+    for( int j=0; j<X.LocalWidth(); ++j )
     {
-        R omega = w.GetLocalEntry(0,j);
+        double omega = w_Star_MR.GetLocalEntry(0,j);
         elemental::wrappers::blas::Scal
         ( X.LocalHeight(), omega, X.LocalBuffer(0,j), 1 );
     }
-    blas::Gemm( Normal, Normal, (R)-1, ARef, Z, (R)1, X );
+    blas::Hemm( Left, shape, (double)-1, ARef, Z, (double)1, X );
     myResidual = 0;
     for( int j=0; j<X.LocalWidth(); ++j )
         for( int i=0; i<X.LocalHeight(); ++i )
@@ -119,16 +119,89 @@ void TestCorrectness
         cout << "max deviation of AZ from WZ is " << residual << endl;
 }
 
-template<typename R>
-void TestHermitianEig
+#ifndef WITHOUT_COMPLEX
+void TestCorrectnessDoubleComplex
+( bool printMatrices,
+  Shape shape,
+  const DistMatrix<std::complex<double>,MC,  MR>& A,
+  const DistMatrix<             double, Star,VR>& w,
+  const DistMatrix<std::complex<double>,MC,  MR>& Z,
+  const DistMatrix<std::complex<double>,MC  ,MR>& ARef )
+{
+    const Grid& g = A.GetGrid();
+    const int k = Z.Width();
+
+    if( printMatrices )
+    {
+        w.Print("Computed eigenvalues:");
+        Z.Print("Computed eigenvectors:");
+    }
+
+    if( g.VCRank() == 0 )
+    {
+        cout << "  Gathering computed eigenvalues...";
+        cout.flush();
+    }
+    DistMatrix<double,Star,MR> w_Star_MR(true,Z.RowAlignment(),g); 
+    w_Star_MR = w;
+    if( g.VCRank() == 0 )
+        cout << "DONE" << endl;
+
+    if( g.VCRank() == 0 )
+    {
+        cout << "  Testing orthogonality of eigenvectors...";
+        cout.flush();
+    }
+    DistMatrix<std::complex<double>,MC,MR> X(k,k,g);
+    X.SetToIdentity();
+    blas::Herk
+    ( shape, ConjugateTranspose, 
+      std::complex<double>(-1), Z, std::complex<double>(1), X );
+    double myResidual = 0; 
+    for( int j=0; j<X.LocalWidth(); ++j )
+        for( int i=0; i<X.LocalHeight(); ++i )
+            myResidual = max( Abs(X.GetLocalEntry(i,j)),myResidual );
+    double residual;
+    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+    if( g.VCRank() == 0 )
+        cout << "max deviation from I is " << residual << endl;
+
+    if( g.VCRank() == 0 )
+    {
+        cout << "  Testing for deviation of AX from WX...";
+        cout.flush();
+    }
+    // Set X := WZ, where W is the diagonal eigenvalue matrix
+    X = Z;
+    for( int j=0; j<X.LocalWidth(); ++j )
+    {
+        double omega = w_Star_MR.GetLocalEntry(0,j);
+	double* thisCol = (double*)X.LocalBuffer(0,j);
+	for( int i=0; i<2*X.LocalHeight(); ++i )
+	    thisCol[i] *= omega;
+    }
+    blas::Hemm
+    ( Left, shape, std::complex<double>(-1), ARef, Z, 
+      std::complex<double>(1), X );
+    myResidual = 0;
+    for( int j=0; j<X.LocalWidth(); ++j )
+        for( int i=0; i<X.LocalHeight(); ++i )
+            myResidual = max( Abs(X.GetLocalEntry(i,j)),myResidual );
+    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+    if( g.VCRank() == 0 )
+        cout << "max deviation of AZ from WZ is " << residual << endl;
+}
+#endif // WITHOUT_COMPLEX
+
+void TestHermitianEigDouble
 ( bool testCorrectness, bool printMatrices,
   Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<R,MC,MR> A(m,m,g);
-    DistMatrix<R,MC,MR> ARef(m,m,g);
-    DistMatrix<R,Star,VR> w(1,m,g);
-    DistMatrix<R,MC,MR> Z(m,m,g);
+    DistMatrix<double,MC,MR> A(m,m,g);
+    DistMatrix<double,MC,MR> ARef(m,m,g);
+    DistMatrix<double,Star,VR> w(1,m,g);
+    DistMatrix<double,MC,MR> Z(m,m,g);
 
     A.SetToRandomHPD();
     if( testCorrectness )
@@ -169,9 +242,64 @@ void TestHermitianEig
     }
     if( testCorrectness )
     {
-        TestCorrectness( printMatrices, shape, A, w, Z, ARef );
+        TestCorrectnessDouble( printMatrices, shape, A, w, Z, ARef );
     }
 }
+    
+#ifndef WITHOUT_COMPLEX
+void TestHermitianEigDoubleComplex
+( bool testCorrectness, bool printMatrices,
+  Shape shape, int m, const Grid& g )
+{
+    double startTime, endTime, runTime;
+    DistMatrix<std::complex<double>,MC,  MR> A(m,m,g);
+    DistMatrix<std::complex<double>,MC,  MR> ARef(m,m,g);
+    DistMatrix<             double, Star,VR> w(1,m,g);
+    DistMatrix<std::complex<double>,MC,  MR> Z(m,m,g);
+
+    A.SetToRandomHPD();
+    if( testCorrectness )
+    {
+        if( g.VCRank() == 0 )
+        {
+            cout << "  Making copy of original matrix...";
+            cout.flush();
+        }
+        ARef = A;
+        if( g.VCRank() == 0 )
+            cout << "DONE" << endl;
+    }
+    if( printMatrices )
+    {
+        A.Print("A");
+    }
+
+    if( g.VCRank() == 0 )
+    {
+        cout << "  Starting Hermitian eigensolver.\n";
+        cout.flush();
+    }
+    Barrier( MPI_COMM_WORLD );
+    startTime = Time();
+    lapack::HermitianEig( shape, A, w, Z );
+    Barrier( MPI_COMM_WORLD );
+    endTime = Time();
+    runTime = endTime - startTime;
+    if( g.VCRank() == 0 )
+    {
+        cout << "DONE. " << endl
+             << "  Time = " << runTime << " seconds." << endl;
+    }
+    if( printMatrices )
+    {
+        A.Print("A after eigensolve");
+    }
+    if( testCorrectness )
+    {
+        TestCorrectnessDoubleComplex( printMatrices, shape, A, w, Z, ARef );
+    }
+}
+#endif // WITHOUT_COMPLEX
 
 int main( int argc, char* argv[] )
 {
@@ -217,8 +345,20 @@ int main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestHermitianEig<double>
+        TestHermitianEigDouble
         ( testCorrectness, printMatrices, shape, m, g );
+
+#ifndef WITHOUT_COMPLEX
+        if( rank == 0 )
+        {
+            cout << "--------------------------------------\n"
+                 << "Testing with double-precision complex:\n"
+                 << "--------------------------------------" << endl;
+        }
+        TestHermitianEigDoubleComplex
+        ( testCorrectness, printMatrices, shape, m, g );
+
+#endif 
     }
     catch( exception& e )
     {

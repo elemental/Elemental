@@ -57,6 +57,99 @@ int pmrrr
 
 } // extern "C"
 
+// We create a specialized redistribution routine for redistributing the 
+// real eigenvectors of the symmetric tridiagonal matrix at the core of our 
+// eigensolver in order to minimize the temporary memory usage.
+namespace {
+
+void
+RealToRealRedistribution
+( DistMatrix<double,MC,  MR>& Z,
+  DistMatrix<double,Star,VR>& Z_Star_VR )
+{
+    const Grid& g = Z.GetGrid();
+
+    const int r = g.Height();
+    const int c = g.Width();
+    const int p = r * c;
+    const int col = g.MRRank();
+    const int rowShift = Z.RowShift();
+    const int colAlignment = Z.ColAlignment();
+    const int rowAlignmentOfInput = Z_Star_VR.RowAlignment();
+
+    const int height = Z_Star_VR.Height();
+    const int width = Z_Star_VR.Width();
+
+    const int localWidthOfInput = Z_Star_VR.LocalWidth();
+
+    const int maxHeight = utilities::MaxLocalLength(height,r);
+    const int maxWidth = utilities::MaxLocalLength(width,p);
+    const int portionSize = 
+	std::max(maxHeight*maxWidth,wrappers::mpi::MinCollectContrib);
+    
+    // Carefully allocate our temporary space, as it might be quite large
+    double* buffer = new double[2*r*portionSize];
+    double* sendBuffer = &buffer[0];
+    double* recvBuffer = &buffer[r*portionSize];
+
+    // Pack
+#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+    #pragma omp parallel for
+#endif
+    for( int k=0; k<r; ++k )
+    {
+        double* data = &sendBuffer[k*portionSize];
+
+        const int thisColShift = utilities::Shift(k,colAlignment,r);
+        const int thisLocalHeight = 
+	    utilities::LocalLength(height,thisColShift,r);
+
+#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+            #pragma omp parallel for COLLAPSE(2)
+#endif
+        for( int j=0; j<localWidthOfInput; ++j )
+            for( int i=0; i<thisLocalHeight; ++i )
+                data[i+j*thisLocalHeight] =
+                      Z_Star_VR.GetLocalEntry(thisColShift+i*r,j);
+    }
+    Z_Star_VR.Empty();
+
+    // Communicate
+    wrappers::mpi::AllToAll
+    ( sendBuffer, portionSize,
+      recvBuffer, portionSize, g.MCComm() );
+
+    // Unpack the double-precision buffer into the complex buffer
+    Z.ResizeTo( height, width );
+    const int localHeight = Z.LocalHeight();
+#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+    #pragma omp parallel for
+#endif
+    for( int k=0; k<r; ++k )
+    {
+        const double* data = &recvBuffer[k*portionSize];
+
+        const int thisRank = col+k*c;
+        const int thisRowShift = 
+	    utilities::Shift(thisRank,rowAlignmentOfInput,p);
+        const int thisRowOffset = (thisRowShift-rowShift) / c;
+        const int thisLocalWidth = utilities::LocalLength(width,thisRowShift,p);
+
+#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for
+#endif
+        for( int j=0; j<thisLocalWidth; ++j )
+        {
+            const double* dataCol = &(data[j*localHeight]);
+            double* thisCol = Z.LocalBuffer(0,thisRowOffset+j*r);
+	    std::memcpy( thisCol, dataCol, localHeight*sizeof(double) );
+        }
+    }
+    delete[] buffer;
+}
+
+} // anonymous namespace
+
 void
 elemental::lapack::HermitianEig
 ( Shape shape, 
@@ -94,6 +187,8 @@ elemental::lapack::HermitianEig
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR]
     {
+        DistMatrix<double,Star,VR> Z_Star_VR( n, n, g );
+
         char jobz = 'V';
         char range = 'A';
         double vl, vu;
@@ -101,12 +196,9 @@ elemental::lapack::HermitianEig
         int tryrac = 0;
         int nz;
         int offset;
-        // Need to add ability for DistMatrix class to take ownership of 
-        // an input buffer.
-        DistMatrix<double,Star,VR> Z_Star_VR( n, n, g );
         int ldz = Z_Star_VR.LocalLDim();
         std::vector<int> ZSupp(2*n);
-        std::vector<double> wBuffer(w.LocalWidth()); // perhaps ldim(w) != 1
+	std::vector<double> wBuffer(n);
         int retval = 
             pmrrr
             ( &jobz, 
@@ -131,7 +223,7 @@ elemental::lapack::HermitianEig
         }
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
-        Z = Z_Star_VR;
+	RealToRealRedistribution( Z, Z_Star_VR );
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
@@ -142,4 +234,186 @@ elemental::lapack::HermitianEig
     PopCallStack();
 #endif
 }
+
+#ifndef WITHOUT_COMPLEX
+// We create a specialized redistribution routine for redistributing the 
+// real eigenvectors of the symmetric tridiagonal matrix at the core of our 
+// Hermitian eigensolver as complex matrix with zero imaginary entries.
+namespace {
+
+void
+RealToComplexRedistribution
+( DistMatrix<std::complex<double>,MC,  MR>& Z,
+  DistMatrix<             double, Star,VR>& Z_Star_VR )
+{
+    const Grid& g = Z.GetGrid();
+
+    const int r = g.Height();
+    const int c = g.Width();
+    const int p = r * c;
+    const int col = g.MRRank();
+    const int rowShift = Z.RowShift();
+    const int colAlignment = Z.ColAlignment();
+    const int rowAlignmentOfInput = Z_Star_VR.RowAlignment();
+
+    const int height = Z_Star_VR.Height();
+    const int width = Z_Star_VR.Width();
+
+    const int localWidthOfInput = Z_Star_VR.LocalWidth();
+
+    const int maxHeight = utilities::MaxLocalLength(height,r);
+    const int maxWidth = utilities::MaxLocalLength(width,p);
+    const int portionSize = 
+	std::max(maxHeight*maxWidth,wrappers::mpi::MinCollectContrib);
+    
+    // Carefully allocate our temporary space, as it might be quite large
+    double* buffer = new double[2*r*portionSize];
+    double* sendBuffer = &buffer[0];
+    double* recvBuffer = &buffer[r*portionSize];
+
+    // Pack
+#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+    #pragma omp parallel for
+#endif
+    for( int k=0; k<r; ++k )
+    {
+        double* data = &sendBuffer[k*portionSize];
+
+        const int thisColShift = utilities::Shift(k,colAlignment,r);
+        const int thisLocalHeight = 
+	    utilities::LocalLength(height,thisColShift,r);
+
+#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+            #pragma omp parallel for COLLAPSE(2)
+#endif
+        for( int j=0; j<localWidthOfInput; ++j )
+            for( int i=0; i<thisLocalHeight; ++i )
+                data[i+j*thisLocalHeight] =
+                      Z_Star_VR.GetLocalEntry(thisColShift+i*r,j);
+    }
+    Z_Star_VR.Empty();
+
+    // Communicate
+    wrappers::mpi::AllToAll
+    ( sendBuffer, portionSize,
+      recvBuffer, portionSize, g.MCComm() );
+
+    // Unpack the double-precision buffer into the complex buffer
+    Z.ResizeTo( height, width );
+    const int localHeight = Z.LocalHeight();
+#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+    #pragma omp parallel for
+#endif
+    for( int k=0; k<r; ++k )
+    {
+        const double* data = &recvBuffer[k*portionSize];
+
+        const int thisRank = col+k*c;
+        const int thisRowShift = 
+	    utilities::Shift(thisRank,rowAlignmentOfInput,p);
+        const int thisRowOffset = (thisRowShift-rowShift) / c;
+        const int thisLocalWidth = utilities::LocalLength(width,thisRowShift,p);
+
+#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for
+#endif
+        for( int j=0; j<thisLocalWidth; ++j )
+        {
+            const double* dataCol = &(data[j*localHeight]);
+            double* thisCol = (double*)Z.LocalBuffer(0,thisRowOffset+j*r);
+            for( int i=0; i<localHeight; ++i )
+                thisCol[2*i] = dataCol[i];
+        }
+    }
+    delete[] buffer;
+}
+
+} // anonymous namespace
+
+void
+elemental::lapack::HermitianEig
+( Shape shape, 
+  DistMatrix<std::complex<double>,MC,  MR>& A,
+  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<std::complex<double>,MC,  MR>& Z )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    int n = A.Height();
+    const Grid& g = A.GetGrid();
+    const int rank = g.VCRank();
+
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    // Tridiagonalize A
+    DistMatrix<std::complex<double>,MD,Star> t(g);
+    lapack::Tridiag( shape, A, t );
+
+    // Grab copies of the diagonal and subdiagonal of A
+    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
+    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
+    A.GetRealDiagonal( d_MD_Star );
+    A.GetRealDiagonal( e_MD_Star, subdiagonal );
+
+    // In order to call pmrrr, we need full copies of the diagonal and 
+    // subdiagonal in vectors of length n. We accomplish this for e by 
+    // making its leading dimension n.
+    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
+    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
+    d_Star_Star = d_MD_Star;
+    e_Star_Star = e_MD_Star;
+
+    // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
+    // then redistribute into Z[MC,MR]
+    {
+        DistMatrix<double,Star,VR> Z_Star_VR( n, n, g );
+
+        char jobz = 'V';
+        char range = 'A';
+        double vl, vu;
+        int il, iu;
+        int tryrac = 0;
+        int nz;
+        int offset;
+        int ldz = Z_Star_VR.LocalLDim();
+        std::vector<int> ZSupp(2*n);
+	std::vector<double> wBuffer(n);
+        int retval = 
+            pmrrr
+            ( &jobz, 
+              &range, 
+              &n, 
+              d_Star_Star.LocalBuffer(),
+              e_Star_Star.LocalBuffer(),
+              &vl, &vu, &il, &iu,
+              &tryrac,
+              g.VRComm(),
+              &nz,
+              &offset,
+              &wBuffer[0],
+              Z_Star_VR.LocalBuffer(),
+              &ldz,
+              &ZSupp[0] );
+        if( retval != 0 )
+        {
+            std::ostringstream msg;
+            msg << "PMRRR returned " << retval;
+            throw std::runtime_error( msg.str() );
+        }
+        for( int j=0; j<w.LocalWidth(); ++j )
+            w.SetLocalEntry(0,j,wBuffer[j]);
+	RealToComplexRedistribution( Z, Z_Star_VR );
+    }
+
+    // Backtransform the tridiagonal eigenvectors, Z
+    lapack::UT
+    ( Left, shape, ConjugateTranspose, subdiagonal, A, t, Z );
+
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // WITHOUT_COMPLEX
 

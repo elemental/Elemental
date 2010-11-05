@@ -101,6 +101,9 @@ public:
     void ResizeTo( int height, int width );
     void ResizeTo( int height, int width, int ldim );
 
+    // Empty the contents (frees all memory)
+    void Empty();
+
     void View( Matrix<T>& A);
 
     void View( Matrix<T>& A, int i, int j, int height, int width );
@@ -268,6 +271,20 @@ template<typename T>
 inline
 elemental::Matrix<T>::~Matrix()
 { }
+
+template<typename T>
+inline void
+elemental::Matrix<T>::Empty()
+{
+    _memory.Empty();
+    _height = 0;
+    _width = 0;
+    _ldim = 0;
+    _data = 0;
+    _lockedData = 0;
+    _viewing = false;
+    _lockedView = false;
+}
 
 template<typename T>
 inline T& 

@@ -114,6 +114,15 @@ HermitianEig
   DistMatrix<double,MC,  MR>& A, 
   DistMatrix<double,Star,VR>& w,
   DistMatrix<double,MC,  MR>& Z );
+
+#ifndef WITHOUT_COMPLEX
+void
+HermitianEig    
+( Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& A,
+  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<std::complex<double>,MC,  MR>& Z );
+#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//

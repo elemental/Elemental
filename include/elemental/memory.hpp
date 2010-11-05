@@ -51,6 +51,7 @@ public:
 
     void   Require( size_t size );
     void   Release();
+    void   Empty();
 };
 
 } // elemental
@@ -104,10 +105,17 @@ inline void
 elemental::Memory<T>::Release()
 {
 #ifndef POOL_MEMORY
+    this->Empty();
+#endif
+}
+
+template<typename T>
+inline void
+elemental::Memory<T>::Empty()
+{
     delete[] _buffer;
     _size = 0;
     _buffer = 0;
-#endif
 }
 
 #endif /* ELEMENTAL_MEMORY_HPP */
