@@ -73,11 +73,42 @@ GaussElim
 ( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
+// GeneralizedHermitianEig (Hermitian Eigensolver)                            //
+//                                                                            //
+//----------------------------------------------------------------------------//
+
+#ifndef WITHOUT_PMRRR
+// Parallel version(s) for computing all eigenpairs of (A,B). On exit, either 
+// the upper or lower triangle of A is overwritten with Householder vectors 
+// and its similar tridiagonal matrix, Z contains the computed eigenvectors, 
+// and w contains the corresponding eigenvalues. 
+template<typename R>
+void
+GeneralizedHermitianEig
+( Side side, Shape shape, 
+  DistMatrix<R,MC,  MR>& A, 
+  DistMatrix<R,MC,  MR>& B, 
+  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,MC,  MR>& Z );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+GeneralizedHermitianEig    
+( Side side, Shape shape,
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<std::complex<R>,MC,  MR>& Z );
+#endif // WITHOUT_COMPLEX
+#endif // WITHOUT_PMRRR
+
+//----------------------------------------------------------------------------//
 // Hegst (HErmitian GEneralized to STandard eigenvalue problem):              //
 //                                                                            //
-// If bothOnLeft,                                                             //
-//   reduce the problem A B X = X Lamda to A X = X Lambda                     //
-// If ~bothOnLeft,                                                            //
+// If side==Left,                                                             //
+//   reduce the problem B A X = X Lamda to A X = X Lambda                     //
+// If side==Right,                                                            //
 //   reduce the problem A X = B X Lambda to A X = X Lambda                    //
 //                                                                            //
 // D contains the Cholesky factor of B in the triangle corresponding to the   //
@@ -88,14 +119,14 @@ GaussElim
 template<typename T>
 void
 Hegst
-( bool bothOnLeft, Shape shape, 
-  Matrix<T>& A, const Matrix<T>& D );
+( Side side, Shape shape, 
+  Matrix<T>& A, const Matrix<T>& B );
 
 // Parallel version
 template<typename T>
 void
 Hegst
-( bool bothOnLeft, Shape shape, 
+( Side side, Shape shape, 
   DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
@@ -181,11 +212,13 @@ template<typename R>
 void
 Pinv( DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& PinvA );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 Pinv
 ( DistMatrix<std::complex<R>,MC,MR>& A, 
   DistMatrix<std::complex<R>,MC,MR>& PinvA );
+#endif
 
 //----------------------------------------------------------------------------//
 // QR (QR factorization):                                                     //
@@ -433,7 +466,7 @@ elemental::lapack::Chol
 template<typename T>
 inline void
 elemental::lapack::Hegst
-( bool bothOnLeft, Shape shape, Matrix<T>& A, const Matrix<T>& B )
+( Side side, Shape shape, Matrix<T>& A, const Matrix<T>& B )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Hegst");
@@ -444,7 +477,7 @@ elemental::lapack::Hegst
     if( A.Height() != B.Height() )
         throw std::logic_error( "A and B must be the same size." );
 #endif
-    const int itype = ( bothOnLeft ? 2 : 1 );
+    const int itype = ( side==Left ? 2 : 1 );
     const char uplo = ShapeToChar( shape );
     wrappers::lapack::Hegst
     ( itype, uplo, A.Height(), 

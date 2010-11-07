@@ -83,7 +83,7 @@ OMPFLAGS = -fopenmp
 CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)
 CXXFLAGS_RELEASE = -O3 -Wall -DRELEASE -DTIMING $(CXXFLAGS)
 LDFLAGS_PURE = -L/usr/lib -llapack -lblas
-LDFLAGS_OMP  = -L/usr/lib -llapack -lblas # these should be threaded
+LDFLAGS_OMP  = -L/usr/lib -llapack -lblas # these should be threaded if possible
 ifeq ($(use_pmrrr),true)
     LDFLAGS_PURE += -L$(pmrrr_libdir) -l$(pmrrr_lib)
     LDFLAGS_OMP += -L$(pmrrr_libdir) -l$(pmrrr_lib)
@@ -204,10 +204,10 @@ lapackfiles = Chol/Chol.cpp \
               GaussElim/GaussElim.cpp \
               GaussElim/ReduceToRowEchelon.cpp \
               Hegst/Hegst.cpp \
-              Hegst/HegstFalseL.cpp \
-              Hegst/HegstFalseU.cpp \
-              Hegst/HegstTrueL.cpp \
-              Hegst/HegstTrueU.cpp \
+              Hegst/HegstLL.cpp \
+              Hegst/HegstLU.cpp \
+              Hegst/HegstRL.cpp \
+              Hegst/HegstRU.cpp \
               LU/ApplyRowPivots.cpp \
               LU/ComposePivots.cpp \
               LU/FindPivot.cpp \
@@ -238,7 +238,8 @@ lapackfiles = Chol/Chol.cpp \
               UT/UTRUC.cpp \
               UT/UTRUN.cpp
 ifeq ($(use_pmrrr),true)
-    lapackfiles += HermitianEig/HermitianEig.cpp
+    lapackfiles += GeneralizedHermitianEig/GeneralizedHermitianEig.cpp \
+                   HermitianEig/HermitianEig.cpp
 endif
 lapacksrc = $(addprefix $(lapackdir)/,$(lapackfiles))
 
@@ -378,7 +379,8 @@ tests = DistMatrix \
         lapack/Trinv \
         lapack/UT
 ifeq ($(use_pmrrr),true)
-    tests += lapack/HermitianEig
+    tests += lapack/GeneralizedHermitianEig \
+             lapack/HermitianEig
 endif
 testobjs = $(addsuffix .o, $(tests))
 
@@ -418,7 +420,7 @@ $(bindir_omp_release)/%: $(bindir_omp_release)/%.o $(library_omp_release)
 
 $(bindir_pure_release)/%: $(bindir_pure_release)/%.o $(library_pure_release)
 	@echo "[pure-release] Creating $@"
-	$(CXX) -o $@ $^ $(LDFLAGS_PURE)
+	@$(CXX) -o $@ $^ $(LDFLAGS_PURE)
 
 $(bindir_omp_debug)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)

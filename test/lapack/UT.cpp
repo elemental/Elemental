@@ -80,7 +80,10 @@ void TestCorrectness
     const int m = H.Height();
 
     if( g.VCRank() == 0 )
-        cout << "  Testing orthogonality of transform:" << endl;
+    {
+        cout << "  Testing orthogonality of transform...";
+	cout.flush();
+    }
 
     // Form Z := Q^H Q or Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Y(m,m,g);
@@ -104,7 +107,8 @@ void TestCorrectness
         }
     }
     DistMatrix<R,MC,MR> Z(m,m,g);
-    blas::Syrk( Lower, Normal, 1.0, Y, 0.0, Z );
+    Z.SetToZero();
+    blas::Syrk( shape, Normal, 1.0, Y, 0.0, Z );
 
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<R,MC,MR> X(m,m,g);
@@ -175,7 +179,8 @@ void TestCorrectness
         }
     }
     DistMatrix<C,MC,MR> Z(m,m,g);
-    blas::Herk( Lower, Normal, (C)1, Y, (C)0, Z );
+    Z.SetToZero();
+    blas::Herk( shape, Normal, (C)1, Y, (C)0, Z );
     
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<C,MC,MR> X(m,m,g);

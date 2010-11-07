@@ -40,11 +40,11 @@ using namespace elemental::wrappers::mpi;
 void Usage()
 {
     cout << "Reduced a Hermitian GEneralized EVP to Hermitian STandard EVP\n\n"
-         << "  Hegst <r> <c> <bothOnLeft> <shape> <m> <nb> <correctness?> "
+         << "  Hegst <r> <c> <side> <shape> <m> <nb> <correctness?> "
             "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
-         << "  bothOnLeft: we solve A X = B X Lambda iff 0\n"
+         << "  side: we solve ABX=XW if side=Left, AX=BXW if side=Right\n"
          << "  shape: {L,U}\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
@@ -69,7 +69,7 @@ template<typename T>
 void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<T,MC,MR>& A,
-  bool bothOnLeft, 
+  Side side,
   Shape shape,  
         DistMatrix<T,Star,Star>& ARef,
   const DistMatrix<T,Star,Star>& BRef )
@@ -92,7 +92,7 @@ void TestCorrectness
         cout << "  Computing 'truth'...";
         cout.flush();
     }
-    lapack::internal::LocalHegst( bothOnLeft, shape, ARef, BRef );
+    lapack::internal::LocalHegst( side, shape, ARef, BRef );
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
@@ -150,7 +150,7 @@ void TestCorrectness
 template<typename T>
 void TestHegst
 ( bool testCorrectness, bool printMatrices,
-  bool bothOnLeft, Shape shape, int m, const Grid& g )
+  Side side, Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g);
@@ -189,7 +189,7 @@ void TestHegst
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    lapack::Hegst( bothOnLeft, shape, A, B );
+    lapack::Hegst( side, shape, A, B );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -203,7 +203,7 @@ void TestHegst
     if( printMatrices )
         A.Print("A after reduction");
     if( testCorrectness )
-        TestCorrectness( printMatrices, A, bothOnLeft, shape, ARef, BRef );
+        TestCorrectness( printMatrices, A, side, shape, ARef, BRef );
 }
 
 int main( int argc, char* argv[] )
@@ -222,7 +222,7 @@ int main( int argc, char* argv[] )
     {
         const int r = atoi(argv[1]);
         const int c = atoi(argv[2]);
-        const bool bothOnLeft = atoi(argv[3]);
+        const Side side = CharToSide(*argv[3]);
         const Shape shape = CharToShape(*argv[4]);
         const int m = atoi(argv[5]);
         const int nb = atoi(argv[6]);
@@ -241,7 +241,7 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "Will test Hegst" << bothOnLeft << ShapeToChar(shape)
+            cout << "Will test Hegst" << SideToChar(side) << ShapeToChar(shape)
                  << endl;
         }
 
@@ -252,7 +252,7 @@ int main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestHegst<double>
-        ( testCorrectness, printMatrices, bothOnLeft, shape, m, g );
+        ( testCorrectness, printMatrices, side, shape, m, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -262,7 +262,7 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHegst<dcomplex>
-        ( testCorrectness, printMatrices, bothOnLeft, shape, m, g );
+        ( testCorrectness, printMatrices, side, shape, m, g );
 #endif
     }
     catch( exception& e )

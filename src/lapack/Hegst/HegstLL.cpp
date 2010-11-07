@@ -38,17 +38,17 @@ using namespace elemental;
 // This routine does not need to be optimized
 template<typename T>
 void
-elemental::lapack::internal::HegstTrueL
+elemental::lapack::internal::HegstLL
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L )
-{ elemental::lapack::internal::HegstTrueLNaive( A, L ); }
+{ elemental::lapack::internal::HegstLLNaive( A, L ); }
 
 template<typename T>
 void
-elemental::lapack::internal::HegstTrueLNaive
+elemental::lapack::internal::HegstLLNaive
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::HegstTrueLNaive");
+    PushCallStack("lapack::internal::HegstLLNaive");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( L.Height() != L.Width() )
@@ -143,7 +143,7 @@ elemental::lapack::internal::HegstTrueLNaive
         ( Normal, Normal, (T)1, A21_MC_Star, L10_Star_MR, (T)1, A20 );
 
         lapack::internal::LocalHegst
-        ( true, Lower, A11_Star_Star, L11_Star_Star );
+        ( Left, Lower, A11_Star_Star, L11_Star_Star );
         A11 = A11_Star_Star;
 
         A21_VC_Star = A21_MC_Star;
@@ -177,29 +177,29 @@ elemental::lapack::internal::HegstTrueLNaive
 #endif
 }
 
-template void elemental::lapack::internal::HegstTrueL
+template void elemental::lapack::internal::HegstLL
 ( DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstTrueLNaive
+template void elemental::lapack::internal::HegstLLNaive
 ( DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstTrueL
+template void elemental::lapack::internal::HegstLL
 ( DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstTrueLNaive
+template void elemental::lapack::internal::HegstLLNaive
 ( DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& L );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::HegstTrueL
+template void elemental::lapack::internal::HegstLL
 ( DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstTrueLNaive
+template void elemental::lapack::internal::HegstLLNaive
 ( DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstTrueL
+template void elemental::lapack::internal::HegstLL
 ( DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstTrueLNaive
+template void elemental::lapack::internal::HegstLLNaive
 ( DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& L );
 #endif
 

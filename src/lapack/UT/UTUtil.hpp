@@ -115,6 +115,25 @@ FixDiagonal
     PopCallStack();
 #endif
 }
+
+template<typename R>
+void
+FixDiagonalConj
+( const DistMatrix<complex<R>,Star,Star>& t,
+        DistMatrix<complex<R>,Star,Star>& SInv )
+{
+#ifndef RELEASE
+    PushCallStack("FixDiagonal");
+#endif
+    for( int j=0; j<SInv.Height(); ++j )
+    {
+        const complex<R> value = complex<R>(1)/Conj(t.GetLocalEntry(j,0));
+        SInv.SetLocalEntry(j,j,value);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 #endif
 
 } // anonymous namespace

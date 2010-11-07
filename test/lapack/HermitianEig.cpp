@@ -39,7 +39,8 @@ using namespace elemental::wrappers::mpi;
 
 void Usage()
 {
-    cout << "Generates random HPD matrix then solves for its eigenpairs.\n\n"
+    cout << "Generates random Hermitian matrix then solves for its eigenpairs."
+	 << "\n\n"
          << "  HermitianEig <r> <c> <shape> <m> <nb> <correctness?> "
          << "<print?>\n\n"
          << "  r: number of process rows\n"
@@ -60,6 +61,7 @@ void TestCorrectnessDouble
   const DistMatrix<double,MC  ,MR>& ARef )
 {
     const Grid& g = A.GetGrid();
+    const int n = Z.Height();
     const int k = Z.Width();
 
     if( printMatrices )
@@ -94,29 +96,32 @@ void TestCorrectnessDouble
     double residual;
     Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-        cout << "max deviation from I is " << residual << endl;
+        cout << "||Z^H Z - I||_oo = " << residual << endl;
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Testing for deviation of AX from WX...";
+        cout << "  Testing for deviation of AZ from ZW...";
         cout.flush();
     }
-    // Set X := WZ, where W is the diagonal eigenvalue matrix
-    X = Z;
+    // Set X := AZ
+    X.AlignWith( Z );
+    X.ResizeTo( n, k );
+    blas::Hemm( Left, shape, (double)1, ARef, Z, (double)0, X );
+    // Find the residual, ||X-ZW||_oo = ||AZ-ZW||_oo
+    myResidual = 0;
     for( int j=0; j<X.LocalWidth(); ++j )
     {
         double omega = w_Star_MR.GetLocalEntry(0,j);
-        elemental::wrappers::blas::Scal
-        ( X.LocalHeight(), omega, X.LocalBuffer(0,j), 1 );
-    }
-    blas::Hemm( Left, shape, (double)-1, ARef, Z, (double)1, X );
-    myResidual = 0;
-    for( int j=0; j<X.LocalWidth(); ++j )
         for( int i=0; i<X.LocalHeight(); ++i )
-            myResidual = max( Abs(X.GetLocalEntry(i,j)),myResidual );
+        {
+            double thisResidual = 
+                Abs( omega*Z.GetLocalEntry(i,j)-X.GetLocalEntry(i,j) );
+            myResidual = max( thisResidual, myResidual );
+        }
+    }
     Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-        cout << "max deviation of AZ from WZ is " << residual << endl;
+        cout << "||A Z - Z W||_oo = " << residual << endl;
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -129,6 +134,7 @@ void TestCorrectnessDoubleComplex
   const DistMatrix<std::complex<double>,MC  ,MR>& ARef )
 {
     const Grid& g = A.GetGrid();
+    const int n = Z.Height();
     const int k = Z.Width();
 
     if( printMatrices )
@@ -152,7 +158,7 @@ void TestCorrectnessDoubleComplex
         cout << "  Testing orthogonality of eigenvectors...";
         cout.flush();
     }
-    DistMatrix<std::complex<double>,MC,MR> X(k,k,g);
+    DistMatrix<std::complex<double>,MC,MR> X( k, k, g );
     X.SetToIdentity();
     blas::Herk
     ( shape, ConjugateTranspose, 
@@ -160,36 +166,38 @@ void TestCorrectnessDoubleComplex
     double myResidual = 0; 
     for( int j=0; j<X.LocalWidth(); ++j )
         for( int i=0; i<X.LocalHeight(); ++i )
-            myResidual = max( Abs(X.GetLocalEntry(i,j)),myResidual );
+            myResidual = max( Abs(X.GetLocalEntry(i,j)), myResidual );
     double residual;
     Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-        cout << "max deviation from I is " << residual << endl;
+        cout << "||Z^H Z - I||_oo =  " << residual << endl;
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Testing for deviation of AX from WX...";
+        cout << "  Testing for deviation of AZ from ZW...";
         cout.flush();
     }
-    // Set X := WZ, where W is the diagonal eigenvalue matrix
-    X = Z;
+    // X := AZ
+    X.AlignWith( Z );
+    X.ResizeTo( n, k );
+    blas::Hemm
+    ( Left, shape, std::complex<double>(1), ARef, Z, 
+      std::complex<double>(0), X );
+    // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
+    myResidual = 0;
     for( int j=0; j<X.LocalWidth(); ++j )
     {
         double omega = w_Star_MR.GetLocalEntry(0,j);
-	double* thisCol = (double*)X.LocalBuffer(0,j);
-	for( int i=0; i<2*X.LocalHeight(); ++i )
-	    thisCol[i] *= omega;
-    }
-    blas::Hemm
-    ( Left, shape, std::complex<double>(-1), ARef, Z, 
-      std::complex<double>(1), X );
-    myResidual = 0;
-    for( int j=0; j<X.LocalWidth(); ++j )
         for( int i=0; i<X.LocalHeight(); ++i )
-            myResidual = max( Abs(X.GetLocalEntry(i,j)),myResidual );
+        { 
+            double thisResidual =
+                Abs( omega*Z.GetLocalEntry(i,j)-X.GetLocalEntry(i,j) );
+            myResidual = max( thisResidual, myResidual );
+        }
+    }
     Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-        cout << "max deviation of AZ from WZ is " << residual << endl;
+        cout << "||A Z - Z W||_oo = " << residual << endl;
 }
 #endif // WITHOUT_COMPLEX
 
@@ -199,9 +207,9 @@ void TestHermitianEigDouble
 {
     double startTime, endTime, runTime;
     DistMatrix<double,MC,MR> A(m,m,g);
-    DistMatrix<double,MC,MR> ARef(m,m,g);
-    DistMatrix<double,Star,VR> w(1,m,g);
-    DistMatrix<double,MC,MR> Z(m,m,g);
+    DistMatrix<double,MC,MR> ARef(g);
+    DistMatrix<double,Star,VR> w(g);
+    DistMatrix<double,MC,MR> Z(g);
 
     A.SetToRandomHPD();
     if( testCorrectness )
@@ -253,9 +261,9 @@ void TestHermitianEigDoubleComplex
 {
     double startTime, endTime, runTime;
     DistMatrix<std::complex<double>,MC,  MR> A(m,m,g);
-    DistMatrix<std::complex<double>,MC,  MR> ARef(m,m,g);
-    DistMatrix<             double, Star,VR> w(1,m,g);
-    DistMatrix<std::complex<double>,MC,  MR> Z(m,m,g);
+    DistMatrix<std::complex<double>,MC,  MR> ARef(g);
+    DistMatrix<             double, Star,VR> w(g);
+    DistMatrix<std::complex<double>,MC,  MR> Z(g);
 
     A.SetToRandomHPD();
     if( testCorrectness )

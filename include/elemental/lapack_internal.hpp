@@ -52,7 +52,7 @@ LocalChol
 template<typename T>
 void
 LocalHegst
-( bool bothOnLeft, Shape shape, 
+( Side side, Shape shape, 
   DistMatrix<T,Star,Star>& A, const DistMatrix<T,Star,Star>& B );
 
 template<typename T>
@@ -140,47 +140,47 @@ ReduceToRowEchelon
 template<typename T>
 void
 HegstNaive
-( bool bothOnLeft, Shape shape, 
+( Side side, Shape shape, 
   DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
 
 template<typename T>
 void
-HegstFalseL
+HegstLL
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
 
 template<typename T>
 void
-HegstFalseLNaive
+HegstLLNaive
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
 
 template<typename T>
 void
-HegstFalseU
+HegstLU
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
 
 template<typename T>
 void
-HegstFalseUNaive
+HegstLUNaive
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
 
 template<typename T>
 void
-HegstTrueL
+HegstRL
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
 
 template<typename T>
 void
-HegstTrueLNaive
+HegstRLNaive
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
 
 template<typename T>
 void
-HegstTrueU
+HegstRU
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
 
 template<typename T>
 void
-HegstTrueUNaive
+HegstRUNaive
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
 
 //----------------------------------------------------------------------------//
@@ -606,13 +606,13 @@ LocalChol
 template<typename T>
 inline void
 LocalHegst
-( bool bothOnLeft, Shape shape,
+( Side side, Shape shape,
   DistMatrix<T,Star,Star>& A, const DistMatrix<T,Star,Star>& B )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::LocalHegst");
 #endif
-    Hegst( bothOnLeft, shape, A.LocalMatrix(), B.LockedLocalMatrix() );
+    Hegst( side, shape, A.LocalMatrix(), B.LockedLocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

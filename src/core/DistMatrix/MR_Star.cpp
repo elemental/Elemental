@@ -664,8 +664,11 @@ elemental::DistMatrixBase<T,MR,Star>::MakeTrapezoidal
                                             : max(j-offset+height-width+1,0) );
             int numNonzeroRows = LocalLength(firstZeroRow,colShift,c);
 #ifdef RELEASE
-            T* thisCol = this->LocalBuffer(numNonzeroRows,j);
-            memset( thisCol, 0, (localHeight-numNonzeroRows)*sizeof(T) );
+            if( numNonzeroRows < localHeight )
+            {
+                T* thisCol = this->LocalBuffer(numNonzeroRows,j);
+                memset( thisCol, 0, (localHeight-numNonzeroRows)*sizeof(T) );
+            }
 #else
             for( int iLoc=numNonzeroRows; iLoc<localHeight; ++iLoc )
                 this->SetLocalEntry(iLoc,j,0);

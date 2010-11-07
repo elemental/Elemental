@@ -85,7 +85,7 @@ RealToRealRedistribution
     const int maxHeight = utilities::MaxLocalLength(height,r);
     const int maxWidth = utilities::MaxLocalLength(width,p);
     const int portionSize = 
-	std::max(maxHeight*maxWidth,wrappers::mpi::MinCollectContrib);
+    std::max(maxHeight*maxWidth,wrappers::mpi::MinCollectContrib);
     
     // Carefully allocate our temporary space, as it might be quite large
     double* buffer = new double[2*r*portionSize];
@@ -102,7 +102,7 @@ RealToRealRedistribution
 
         const int thisColShift = utilities::Shift(k,colAlignment,r);
         const int thisLocalHeight = 
-	    utilities::LocalLength(height,thisColShift,r);
+        utilities::LocalLength(height,thisColShift,r);
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for COLLAPSE(2)
@@ -131,7 +131,7 @@ RealToRealRedistribution
 
         const int thisRank = col+k*c;
         const int thisRowShift = 
-	    utilities::Shift(thisRank,rowAlignmentOfInput,p);
+        utilities::Shift(thisRank,rowAlignmentOfInput,p);
         const int thisRowOffset = (thisRowShift-rowShift) / c;
         const int thisLocalWidth = utilities::LocalLength(width,thisRowShift,p);
 
@@ -142,7 +142,7 @@ RealToRealRedistribution
         {
             const double* dataCol = &(data[j*localHeight]);
             double* thisCol = Z.LocalBuffer(0,thisRowOffset+j*r);
-	    std::memcpy( thisCol, dataCol, localHeight*sizeof(double) );
+            std::memcpy( thisCol, dataCol, localHeight*sizeof(double) );
         }
     }
     delete[] buffer;
@@ -153,9 +153,9 @@ RealToRealRedistribution
 void
 elemental::lapack::HermitianEig
 ( Shape shape, 
-  DistMatrix<double,MC,MR  >& A,
+  DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,Star,VR>& w,
-  DistMatrix<double,MC,MR  >& Z )
+  DistMatrix<double,MC,  MR>& Z )
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
@@ -188,6 +188,8 @@ elemental::lapack::HermitianEig
     // then redistribute into Z[MC,MR]
     {
         DistMatrix<double,Star,VR> Z_Star_VR( n, n, g );
+        w.AlignWith( Z_Star_VR );
+        w.ResizeTo( 1, n );
 
         char jobz = 'V';
         char range = 'A';
@@ -198,7 +200,7 @@ elemental::lapack::HermitianEig
         int offset;
         int ldz = Z_Star_VR.LocalLDim();
         std::vector<int> ZSupp(2*n);
-	std::vector<double> wBuffer(n);
+        std::vector<double> wBuffer(n);
         int retval = 
             pmrrr
             ( &jobz, 
@@ -223,7 +225,7 @@ elemental::lapack::HermitianEig
         }
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
-	RealToRealRedistribution( Z, Z_Star_VR );
+        RealToRealRedistribution( Z, Z_Star_VR );
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
@@ -264,7 +266,7 @@ RealToComplexRedistribution
     const int maxHeight = utilities::MaxLocalLength(height,r);
     const int maxWidth = utilities::MaxLocalLength(width,p);
     const int portionSize = 
-	std::max(maxHeight*maxWidth,wrappers::mpi::MinCollectContrib);
+    std::max(maxHeight*maxWidth,wrappers::mpi::MinCollectContrib);
     
     // Carefully allocate our temporary space, as it might be quite large
     double* buffer = new double[2*r*portionSize];
@@ -281,7 +283,7 @@ RealToComplexRedistribution
 
         const int thisColShift = utilities::Shift(k,colAlignment,r);
         const int thisLocalHeight = 
-	    utilities::LocalLength(height,thisColShift,r);
+        utilities::LocalLength(height,thisColShift,r);
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for COLLAPSE(2)
@@ -310,7 +312,7 @@ RealToComplexRedistribution
 
         const int thisRank = col+k*c;
         const int thisRowShift = 
-	    utilities::Shift(thisRank,rowAlignmentOfInput,p);
+        utilities::Shift(thisRank,rowAlignmentOfInput,p);
         const int thisRowOffset = (thisRowShift-rowShift) / c;
         const int thisLocalWidth = utilities::LocalLength(width,thisRowShift,p);
 
@@ -322,7 +324,10 @@ RealToComplexRedistribution
             const double* dataCol = &(data[j*localHeight]);
             double* thisCol = (double*)Z.LocalBuffer(0,thisRowOffset+j*r);
             for( int i=0; i<localHeight; ++i )
+            {
                 thisCol[2*i] = dataCol[i];
+                thisCol[2*i+1] = 0;
+            }
         }
     }
     delete[] buffer;
@@ -369,6 +374,8 @@ elemental::lapack::HermitianEig
     // then redistribute into Z[MC,MR]
     {
         DistMatrix<double,Star,VR> Z_Star_VR( n, n, g );
+        w.AlignWith( Z_Star_VR );
+        w.ResizeTo( 1, n );
 
         char jobz = 'V';
         char range = 'A';
@@ -379,7 +386,7 @@ elemental::lapack::HermitianEig
         int offset;
         int ldz = Z_Star_VR.LocalLDim();
         std::vector<int> ZSupp(2*n);
-	std::vector<double> wBuffer(n);
+        std::vector<double> wBuffer(n);
         int retval = 
             pmrrr
             ( &jobz, 
@@ -404,7 +411,7 @@ elemental::lapack::HermitianEig
         }
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
-	RealToComplexRedistribution( Z, Z_Star_VR );
+        RealToComplexRedistribution( Z, Z_Star_VR );
     }
 
     // Backtransform the tridiagonal eigenvectors, Z

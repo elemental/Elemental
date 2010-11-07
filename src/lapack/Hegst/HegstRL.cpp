@@ -39,11 +39,11 @@ using namespace elemental;
 // need to be (conjugate-)transposed in order to play nice with cache.
 template<typename T>
 void
-elemental::lapack::internal::HegstFalseL
+elemental::lapack::internal::HegstRL
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::HegstFalseL");
+    PushCallStack("lapack::internal::HegstRL");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( L.Height() != L.Width() )
@@ -152,7 +152,7 @@ elemental::lapack::internal::HegstFalseL
 
         A11_Star_Star = A11;
         lapack::internal::LocalHegst
-        ( false, Lower, A11_Star_Star, L11_Star_Star );
+        ( Right, Lower, A11_Star_Star, L11_Star_Star );
         A11 = A11_Star_Star;
 
         blas::internal::LocalGemm
@@ -196,11 +196,11 @@ elemental::lapack::internal::HegstFalseL
 
 template<typename T>
 void
-elemental::lapack::internal::HegstFalseLNaive
+elemental::lapack::internal::HegstRLNaive
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::HegstFalseLNaive");
+    PushCallStack("lapack::internal::HegstRLNaive");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( L.Height() != L.Width() )
@@ -209,8 +209,8 @@ elemental::lapack::internal::HegstFalseLNaive
         throw logic_error( "A and L must be the same size." );
     if( A.GetGrid().VCRank() == 0 )
     { 
-        cout << "HegstFalseLNaive exists solely for academic purposes. Please "
-                "use HegstFalseL in real applications." << endl; 
+        cout << "HegstRLNaive exists solely for academic purposes. Please "
+                "use HegstRL in real applications." << endl; 
     }
 #endif
     const Grid& g = A.GetGrid();
@@ -308,7 +308,7 @@ elemental::lapack::internal::HegstFalseLNaive
 
         A11_Star_Star = A11;
         lapack::internal::LocalHegst
-        ( false, Lower, A11_Star_Star, L11_Star_Star );
+        ( Right, Lower, A11_Star_Star, L11_Star_Star );
         A11 = A11_Star_Star;
 
         blas::internal::LocalGemm
@@ -349,29 +349,29 @@ elemental::lapack::internal::HegstFalseLNaive
 #endif
 }
 
-template void elemental::lapack::internal::HegstFalseL
+template void elemental::lapack::internal::HegstRL
 ( DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstFalseLNaive
+template void elemental::lapack::internal::HegstRLNaive
 ( DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstFalseL
+template void elemental::lapack::internal::HegstRL
 ( DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstFalseLNaive
+template void elemental::lapack::internal::HegstRLNaive
 ( DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& L );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::HegstFalseL
+template void elemental::lapack::internal::HegstRL
 ( DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstFalseLNaive
+template void elemental::lapack::internal::HegstRLNaive
 ( DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstFalseL
+template void elemental::lapack::internal::HegstRL
 ( DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstFalseLNaive
+template void elemental::lapack::internal::HegstRLNaive
 ( DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& L );
 #endif
 

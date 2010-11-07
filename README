@@ -13,12 +13,16 @@ License
 =======
 New BSD License
 
-Current Status
-==============
-- The Level 3 BLAS is fully functional, as well as Cholesky, Gaussian 
-  elimination, LU, QR, Householder tridiagonalization, UT transform application,
-  and triangular inversion. Also, reduction of the Hermitian generalized EVPs, 
-  A X = B X Lambda and A B X = X Lambda, to Hermitian standard EVPs are running.
+Currently Supported Routines
+============================
+- Dense level 3 BLAS
+- Cholesky factorization
+- Gaussian elimination
+- Generalized Hermitian eigenvalue problems
+- Hermitian eigenvalue problems
+- LU factorization
+- QR factorization
+- UT transform application
 
 Build
 =====
