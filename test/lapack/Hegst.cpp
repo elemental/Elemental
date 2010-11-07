@@ -44,7 +44,7 @@ void Usage()
             "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
-         << "  side: we solve ABX=XW if side=Left, AX=BXW if side=Right\n"
+         << "  side: we solve BAX=XW if side=Left, AX=BXW if side=Right\n"
          << "  shape: {L,U}\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
