@@ -139,6 +139,12 @@ ReduceToRowEchelon
 
 template<typename T>
 void
+HegstOld
+( Side side, Shape shape,
+  DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
+
+template<typename T>
+void
 HegstNaive
 ( Side side, Shape shape, 
   DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
@@ -155,12 +161,22 @@ HegstLLNaive
 
 template<typename T>
 void
+HegstLLOld
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+
+template<typename T>
+void
 HegstLU
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
 
 template<typename T>
 void
 HegstLUNaive
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
+
+template<typename T>
+void
+HegstLUOld
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
 
 template<typename T>
@@ -175,12 +191,22 @@ HegstRLNaive
 
 template<typename T>
 void
+HegstRLOld
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+
+template<typename T>
+void
 HegstRU
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
 
 template<typename T>
 void
 HegstRUNaive
+( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
+
+template<typename T>
+void
+HegstRUOld
 ( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
 
 //----------------------------------------------------------------------------//

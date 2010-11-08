@@ -53,98 +53,103 @@ void Usage()
 }
 
 template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-10 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-10 ); }
-#endif
-
-template<typename T>
 void TestCorrectness
-( bool printMatrices,
+( bool printMatrices, Side side, Shape shape,
   const DistMatrix<T,MC,MR>& A,
-  Side side,
-  Shape shape,  
-        DistMatrix<T,Star,Star>& ARef,
-  const DistMatrix<T,Star,Star>& BRef )
+  const DistMatrix<T,MC,MR>& B,
+  const DistMatrix<T,MC,MR>& AOrig )
 {
     const Grid& g = A.GetGrid();
-    const int m = ARef.Height();
-    DistMatrix<T,Star,Star> ACopy(g);
+    const int m = AOrig.Height();
 
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Gathering computed result...";
-        cout.flush();
-    }
-    ACopy = A;
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
+    DistMatrix<T,MC,MR> X(m,100,g);
+    DistMatrix<T,MC,MR> Y(m,100,g);
+    DistMatrix<T,MC,MR> Z(m,100,g);
+    X.SetToRandom();
+    Y = X;
 
-    if( g.VCRank() == 0 )
+    if( side == Right )
     {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    lapack::internal::LocalHegst( side, shape, ARef, BRef );
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( printMatrices )
-        ARef.Print("Truth");
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness..."; 
-        cout.flush();
-    }
-    if( shape == Lower )
-    {
-        for( int j=0; j<m; ++j )
+        if( shape == Lower )
         {
-            for( int i=j; i<m; ++i )
-            {
-                T truth = ARef.GetLocalEntry(i,j);
-                T computed = ACopy.GetLocalEntry(i,j);
-
-                if( ! OKRelativeError( truth, computed ) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j << "): truth="
-                         << truth << ", computed=" << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
+            // Test correctness by comparing the application of A against a 
+            // random set of 100 vectors to the application of 
+            // tril(B)^-1 AOrig tril(B)^-H
+            blas::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (T)1, B, Y );
+            blas::Hemm( Left, Lower, (T)1, AOrig, Y, (T)0, Z );
+            blas::Trsm( Left, Lower, Normal, NonUnit, (T)1, B, Z );
+            blas::Hemm( Left, Lower, (T)-1, A, X, (T)1, Z );
+            double myResidual = 0;
+            for( int j=0; j<Z.LocalWidth(); ++j )
+                for( int i=0; i<Z.LocalHeight(); ++i )
+                    myResidual = 
+                        max( (double)Abs(Z.GetLocalEntry(i,j)), myResidual );
+            double residual;
+            Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+            if( g.VCRank() == 0 )
+                cout << "||A X - L^-1 AOrig L^-H X||_oo = " << residual << endl;
+        }
+        else
+        {
+            // Test correctness by comparing the application of A against a 
+            // random set of 100 vectors to the application of 
+            // triu(B)^-H AOrig triu(B)^-1
+            blas::Trsm( Left, Upper, Normal, NonUnit, (T)1, B, Y );
+            blas::Hemm( Left, Upper, (T)1, AOrig, Y, (T)0, Z );
+            blas::Trsm( Left, Upper, ConjugateTranspose, NonUnit, (T)1, B, Z );
+            blas::Hemm( Left, Upper, (T)-1, A, X, (T)1, Z );
+            double myResidual = 0;
+            for( int j=0; j<Z.LocalWidth(); ++j )
+                for( int i=0; i<Z.LocalHeight(); ++i )
+                    myResidual = 
+                        max( (double)Abs(Z.GetLocalEntry(i,j)), myResidual );
+            double residual;
+            Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+            if( g.VCRank() == 0 )
+                cout << "||A X - U^-H AOrig U^-1 X||_oo = " << residual << endl;
         }
     }
     else
     {
-        for( int j=0; j<m; ++j )
+        if( shape == Lower )
         {
-            for( int i=0; i<=j; ++i )
-            {
-                T truth = ARef.GetLocalEntry(i,j);
-                T computed = ACopy.GetLocalEntry(i,j);
-
-                if( ! OKRelativeError( truth, computed ) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j << "): truth="
-                         << truth << ", computed=" << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
+            // Test correctness by comparing the application of A against a 
+            // random set of 100 vectors to the application of 
+            // tril(B)^H AOrig tril(B)
+            blas::Trmm( Left, Lower, Normal, NonUnit, (T)1, B, Y );
+            blas::Hemm( Left, Lower, (T)1, AOrig, Y, (T)0, Z );
+            blas::Trmm( Left, Lower, ConjugateTranspose, NonUnit, (T)1, B, Z );
+            blas::Hemm( Left, Lower, (T)-1, A, X, (T)1, Z );
+            double myResidual = 0;
+            for( int j=0; j<Z.LocalWidth(); ++j )
+                for( int i=0; i<Z.LocalHeight(); ++i )
+                    myResidual = 
+                        max( (double)Abs(Z.GetLocalEntry(i,j)), myResidual );
+            double residual;
+            Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+            if( g.VCRank() == 0 )
+                cout << "||A X - L^H AOrig L X||_oo = " << residual << endl;
+        }
+        else
+        {
+            // Test correctness by comparing the application of A against a 
+            // random set of 100 vectors to the application of 
+            // triu(B) AOrig triu(B)^H
+            blas::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (T)1, B, Y );
+            blas::Hemm( Left, Upper, (T)1, AOrig, Y, (T)0, Z );
+            blas::Trmm( Left, Upper, Normal, NonUnit, (T)1, B, Z );
+            blas::Hemm( Left, Upper, (T)-1, A, X, (T)1, Z );
+            double myResidual = 0;
+            for( int j=0; j<Z.LocalWidth(); ++j )
+                for( int i=0; i<Z.LocalHeight(); ++i )
+                    myResidual = 
+                        max( (double)Abs(Z.GetLocalEntry(i,j)), myResidual );
+            double residual;
+            Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+            if( g.VCRank() == 0 )
+                cout << "||A X - U AOrig U^H X||_oo = " << residual << endl;
         }
     }
-    Barrier( g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
 }
 
 template<typename T>
@@ -155,8 +160,7 @@ void TestHegst
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g);
     DistMatrix<T,MC,MR> B(g);
-    DistMatrix<T,Star,Star> ARef(g);
-    DistMatrix<T,Star,Star> BRef(g);
+    DistMatrix<T,MC,MR> AOrig(g);
 
     A.ResizeTo( m, m );
     B.ResizeTo( m, m );
@@ -168,11 +172,10 @@ void TestHegst
     {
         if( g.VCRank() == 0 )
         {
-            cout << "  Making copy of original matrices...";
+            cout << "  Making copy of original matrix...";
             cout.flush();
         }
-        ARef = A;
-        BRef = B;
+        AOrig = A;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -203,7 +206,7 @@ void TestHegst
     if( printMatrices )
         A.Print("A after reduction");
     if( testCorrectness )
-        TestCorrectness( printMatrices, A, side, shape, ARef, BRef );
+        TestCorrectness( printMatrices, side, shape, A, B, AOrig );
 }
 
 int main( int argc, char* argv[] )

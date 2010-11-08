@@ -45,7 +45,7 @@ void Usage()
          << "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
-         << "  shape: Upper iff 1\n"
+         << "  shape: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
          << "  test correctness?: false iff 0\n"

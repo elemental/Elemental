@@ -50,24 +50,11 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-10 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-10 ); }
-#endif
-
 template<typename R>
 void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<R,MC,MR>& A,
-        DistMatrix<R,MC,MR>& ARef )
+        DistMatrix<R,MC,MR>& AOrig )
 {
     const Grid& g = A.GetGrid();
     const int m = A.Height();
@@ -105,7 +92,7 @@ void TestCorrectness
     Reduce
     ( &myMaxDevFromIdentity, &maxDevFromIdentity, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-        cout << "max deviation from I is " << maxDevFromIdentity << endl;
+        cout << "||Q^H Q - I||_oo = " << maxDevFromIdentity << endl;
 
     if( g.VCRank() == 0 )
     {
@@ -119,7 +106,7 @@ void TestCorrectness
     lapack::UT( Left, Lower, ConjugateTranspose, 0, A, U );
 
     // Form Q R - A
-    blas::Axpy( (R)-1, ARef, U );
+    blas::Axpy( (R)-1, AOrig, U );
     
     // Compute the maximum deviance
     R myMaxDevFromA = 0.;
@@ -131,7 +118,7 @@ void TestCorrectness
     Reduce
     ( &myMaxDevFromA, &maxDevFromA, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-        cout << "max deviation from A is " << maxDevFromA << endl;
+        cout << "||AOrig - QR||_oo = " << maxDevFromA << endl;
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -140,7 +127,7 @@ void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<complex<R>,MC,MR  >& A,
   const DistMatrix<complex<R>,MD,Star>& t,
-        DistMatrix<complex<R>,MC,MR  >& ARef )
+        DistMatrix<complex<R>,MC,MR  >& AOrig )
 {
     typedef complex<R> C;
 
@@ -180,7 +167,7 @@ void TestCorrectness
     Reduce
     ( &myMaxDevFromIdentity, &maxDevFromIdentity, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-        cout << "max deviation from I is " << maxDevFromIdentity << endl;
+        cout << "||Q^H Q - I||_oo = " << maxDevFromIdentity << endl;
 
     if( g.VCRank() == 0 )
     {
@@ -194,7 +181,7 @@ void TestCorrectness
     lapack::UT( Left, Lower, ConjugateTranspose, 0, A, t, U );
 
     // Form Q R - A
-    blas::Axpy( (C)-1, ARef, U );
+    blas::Axpy( (C)-1, AOrig, U );
     
     // Compute the maximum deviance
     R myMaxDevFromA = 0.;
@@ -206,7 +193,7 @@ void TestCorrectness
     Reduce
     ( &myMaxDevFromA, &maxDevFromA, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-        cout << "max deviation from A is " << maxDevFromA << endl;
+        cout << "||AOrig - QR||_oo = " << maxDevFromA << endl;
 }
 #endif // WITHOUT_COMPLEX
 
@@ -224,7 +211,7 @@ void TestQR<double>
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<R,MC,MR> A(g);
-    DistMatrix<R,MC,MR> ARef(g);
+    DistMatrix<R,MC,MR> AOrig(g);
 
     A.ResizeTo( m, n );
 
@@ -236,7 +223,7 @@ void TestQR<double>
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
-        ARef = A;
+        AOrig = A;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -264,7 +251,7 @@ void TestQR<double>
     if( printMatrices )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( printMatrices, A, ARef );
+        TestCorrectness( printMatrices, A, AOrig );
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -278,7 +265,7 @@ void TestQR< complex<double> >
     double startTime, endTime, runTime, gFlops;
     DistMatrix<C,MC,MR  > A(g);
     DistMatrix<C,MD,Star> t(g);
-    DistMatrix<C,MC,MR  > ARef(g);
+    DistMatrix<C,MC,MR  > AOrig(g);
 
     A.ResizeTo( m, n );
 
@@ -290,7 +277,7 @@ void TestQR< complex<double> >
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
-        ARef = A;
+        AOrig = A;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -318,7 +305,7 @@ void TestQR< complex<double> >
     if( printMatrices )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( printMatrices, A, t, ARef );
+        TestCorrectness( printMatrices, A, t, AOrig );
 }
 #endif
 

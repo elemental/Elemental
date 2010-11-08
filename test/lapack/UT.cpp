@@ -54,19 +54,6 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-10 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-10 ); }
-#endif
-
 template<typename R>
 void TestCorrectness
 ( Side side, 

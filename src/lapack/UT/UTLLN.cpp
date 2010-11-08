@@ -260,7 +260,7 @@ elemental::lapack::internal::UTLLN
           (C)0, SInv_Star_Star.LocalMatrix() );     
         SInv_Star_Star.AllSum();
         t1_Star_Star = t1;
-        FixDiagonalConj( t1_Star_Star, SInv_Star_Star );
+        FixDiagonal( t1_Star_Star, SInv_Star_Star );
 
         HPan_MC_Star = HPanCopy;
         blas::internal::LocalGemm

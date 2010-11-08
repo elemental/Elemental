@@ -50,93 +50,44 @@ void Usage()
 }
 
 template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-10 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-10 ); }
-#endif
-
-template<typename T>
 void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<T,MC,MR>& A,
   const DistMatrix<int,VC,Star>& p,
-        DistMatrix<T,Star,Star>& ARef )
+  const DistMatrix<T,MC,MR>& AOrig )
 {
     const Grid& g = A.GetGrid();
-    const int m = ARef.Height();
-    DistMatrix<T,Star,Star> ACopy(g);
-    DistMatrix<int,Star,Star> pCopy(g);
+    const int m = AOrig.Height();
+    DistMatrix<int,Star,Star> p_Star_Star(g);
+    vector<int> image;
+    vector<int> preimage;
 
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Gathering computed result...";
-        cout.flush();
-    }
-    ACopy = A;
-    pCopy = p;
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
+    // Compose the pivots
+    p_Star_Star = p;
+    lapack::internal::ComposePivots( p_Star_Star, image, preimage, 0 );
 
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    DistMatrix<int,Star,Star> pRef(m,1,g);
-    lapack::LU( ARef.LocalMatrix(), pRef.LocalMatrix() );
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
+    // Apply the pivots to our random right-hand sides
+    DistMatrix<T,MC,MR> X(m,100,g);
+    DistMatrix<T,MC,MR> Y(g);
+    X.SetToRandom();
+    Y = X;
+    lapack::internal::ApplyRowPivots( Y, image, preimage, 0 );
 
-    if( printMatrices )
-    {
-        ARef.Print("True A:");
-        pRef.Print("True p:");
-    }
+    // Solve against the pivoted right-hand sides
+    blas::Trsm( Left, Lower, Normal, Unit, (T)1, A, Y );
+    blas::Trsm( Left, Upper, Normal, NonUnit, (T)1, A, Y );
 
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness...";
-        cout.flush();
-    }
-    // Test A
-    for( int j=0; j<m; ++j )
-    {
-        for( int i=0; i<m; ++i )
-        {
-            T truth = ARef.GetLocalEntry(i,j);
-            T computed = ACopy.GetLocalEntry(i,j);
+    // Now investigate the residual, ||AOrig Y - X||_oo
+    blas::Gemm( Normal, Normal, (T)-1, AOrig, Y, (T)1, X );
 
-            if( ! OKRelativeError( truth, computed ) )
-            {
-                ostringstream msg;
-                msg << "FAILED at index (" << i << "," << j << "): truth=" 
-                     << truth << ", computed=" << computed;
-                throw logic_error( msg.str() );
-            }
-        }
-    }
-    for( int i=0; i<m; ++i )
-    {
-        int truth = pRef.GetLocalEntry(i,0);
-        int computed = pCopy.GetLocalEntry(i,0);
-        if( truth != computed+1 /* 0 vs. 1 indexing */ )
-        {
-            ostringstream msg;
-            msg << "Pivots off at index " << i << ": truth=" << truth 
-                 << ", computed=" << computed;
-            throw logic_error( msg.str() );
-        }
-    }
-    Barrier( g.VCComm() );
+    double myResidual = 0;
+    for( int j=0; j<X.LocalWidth(); ++j )
+        for( int i=0; i<X.LocalHeight(); ++i )
+            myResidual = max( (double)Abs(X.GetLocalEntry(i,j)), myResidual );
+    double residual;
+    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
+        cout << "||AOrig Y - X||_oo = " << residual << endl;
 }
 
 template<typename T>
@@ -146,7 +97,7 @@ void TestLU
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,Star,Star> ARef(g);
+    DistMatrix<T,MC,MR> ARef(g);
     DistMatrix<int,VC,Star> p(g);
 
     A.ResizeTo( m, m );
@@ -165,9 +116,7 @@ void TestLU
             cout << "DONE" << endl;
     }
     if( printMatrices )
-    {
         A.Print("A");
-    }
 
     if( g.VCRank() == 0 )
     {
