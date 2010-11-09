@@ -122,6 +122,8 @@ elemental::lapack::internal::HegstRU
         H12Herm_MR_Star.ResizeTo( A12.Width(), A12.Height() );
         E01_MR_Star.SetToZero();
         F01_MC_Star.SetToZero();
+        G11_Star_MR.SetToZero();
+        H12Herm_MR_Star.SetToZero();
         //--------------------------------------------------------------------//
         U01_MC_Star = U01;
         U01_VR_Star = U01_MC_Star;
@@ -282,6 +284,8 @@ elemental::lapack::internal::HegstRUNaive
         H12_Star_MR.ResizeTo( A12.Height(), A12.Width() );
         E01_MR_Star.SetToZero();
         F01_MC_Star.SetToZero();
+        G11_Star_MR.SetToZero();
+        H12_Star_MR.SetToZero();
         //--------------------------------------------------------------------//
         U01_MC_Star = U01;
         U01_MR_Star = U01_MC_Star;

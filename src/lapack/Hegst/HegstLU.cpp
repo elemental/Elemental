@@ -108,6 +108,7 @@ elemental::lapack::internal::HegstLU
         U01Herm_Star_MR.AlignWith( A00 );
         X01_VC_Star.AlignWith( A01 );
         X01_VC_Star.ResizeTo( A01.Height(), A01.Width() );
+        X01_VC_Star.SetToZero();
         //--------------------------------------------------------------------//
         A11_Star_Star = A11;
         U01_VC_Star = U01;
@@ -258,6 +259,7 @@ elemental::lapack::internal::HegstLUNaive
         U01_MR_Star.AlignWith( A00 );
         X01_VC_Star.AlignWith( A01 );
         X01_VC_Star.ResizeTo( A01.Height(), A01.Width() );
+        X01_VC_Star.SetToZero();
         //--------------------------------------------------------------------//
         A11_Star_Star = A11;
         U01_VC_Star = U01;

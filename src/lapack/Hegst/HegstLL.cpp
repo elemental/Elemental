@@ -111,6 +111,7 @@ elemental::lapack::internal::HegstLLNaive
         L10_Star_MC.AlignWith( A00 );
         X10_Star_VR.AlignWith( A10 );
         X10_Star_VR.ResizeTo( A10.Height(), A10.Width() );
+        X10_Star_VR.SetToZero();
         //--------------------------------------------------------------------//
         A11_Star_Star = A11;
         L10_Star_VR = L10;

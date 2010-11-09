@@ -119,6 +119,8 @@ elemental::lapack::internal::HegstRL
         H21_MC_Star.ResizeTo( A21.Height(), A21.Width() );
         E10Herm_MC_Star.SetToZero();
         F10Herm_MR_Star.SetToZero();
+        G11_MC_Star.SetToZero();
+        H21_MC_Star.SetToZero();
         //--------------------------------------------------------------------//
         L10Herm_MR_Star.ConjugateTransposeFrom( L10 );
         L10Herm_VC_Star = L10Herm_MR_Star;
@@ -277,6 +279,8 @@ elemental::lapack::internal::HegstRLNaive
         H21_MC_Star.ResizeTo( A21.Height(), A21.Width() );
         E10_Star_MC.SetToZero();
         F10_Star_MR.SetToZero();
+        G11_MC_Star.SetToZero();
+        H21_MC_Star.SetToZero();
         //--------------------------------------------------------------------//
         L10_Star_MR = L10;
         L10_Star_MC = L10_Star_MR;

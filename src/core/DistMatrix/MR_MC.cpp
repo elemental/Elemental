@@ -3300,8 +3300,8 @@ elemental::DistMatrixBase<T,MR,MC>::SumScatterUpdate
             this->_auxMemory.Require( (r+1)*portionSize );
 
             T* buffer = this->_auxMemory.Buffer();
-            T* sendBuffer = &buffer[0];
-            T* recvBuffer = &buffer[portionSize];
+            T* recvBuffer = &buffer[0];
+            T* sendBuffer = &buffer[portionSize];
 
             // Pack 
             vector<int> recvSizes(r);
