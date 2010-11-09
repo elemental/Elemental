@@ -140,7 +140,6 @@ void TestCorrectness
     B.SetRealDiagonal( d );
     B.SetRealDiagonal( e, subdiagonal );
     B.SetRealDiagonal( eOpposite, -subdiagonal );
-    B.Print("Full tridiagonal:");
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
     lapack::UT( Left, shape, ConjugateTranspose, subdiagonal, A, t, B ); 

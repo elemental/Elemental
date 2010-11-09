@@ -131,7 +131,7 @@ elemental::lapack::internal::UTRUC
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
         
         blas::internal::LocalTrsm
-        ( Right, Upper, Normal, NonUnit, 
+        ( Right, Upper, Transpose, NonUnit, 
           (R)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;
@@ -274,7 +274,7 @@ elemental::lapack::internal::UTRUC
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
         
         blas::internal::LocalTrsm
-        ( Right, Upper, Normal, NonUnit, 
+        ( Right, Upper, ConjugateTranspose, NonUnit, 
           (C)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;

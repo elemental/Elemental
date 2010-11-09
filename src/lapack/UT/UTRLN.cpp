@@ -129,7 +129,7 @@ elemental::lapack::internal::UTRLN
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
  
         blas::internal::LocalTrsm
-        ( Right, Upper, Normal, NonUnit,
+        ( Right, Upper, Transpose, NonUnit,
           (R)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;
@@ -261,7 +261,7 @@ elemental::lapack::internal::UTRLN
           (C)0, SInv_Star_Star.LocalMatrix() );     
         SInv_Star_Star.AllSum();
         t1_Star_Star = t1;
-        FixDiagonalConj( t1_Star_Star, SInv_Star_Star );
+        FixDiagonal( t1_Star_Star, SInv_Star_Star );
 
         HPan_MR_Star = HPan_VC_Star;
         blas::internal::LocalGemm
@@ -270,7 +270,7 @@ elemental::lapack::internal::UTRLN
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
  
         blas::internal::LocalTrsm
-        ( Right, Upper, Normal, NonUnit, 
+        ( Right, Upper, ConjugateTranspose, NonUnit, 
           (C)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;

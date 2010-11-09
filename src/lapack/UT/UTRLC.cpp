@@ -112,7 +112,6 @@ elemental::lapack::internal::UTRLC
         HPanCopy = HPan;
         HPanCopy.MakeTrapezoidal( Left, Lower, offset );
         SetDiagonalToOne( Left, offset, HPanCopy );
-        HPanCopy.Print("HPanCopy:");
 
         HPan_VC_Star = HPanCopy;
         blas::Syrk
@@ -129,14 +128,13 @@ elemental::lapack::internal::UTRLC
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
         
         blas::internal::LocalTrsm
-        ( Right, Upper, Transpose, NonUnit, 
+        ( Right, Upper, Normal, NonUnit, 
           (R)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;
         blas::internal::LocalGemm
         ( Normal, Transpose,
           (R)-1, Z_MC_Star, HPan_MR_Star, (R)1, ARight );
-        ARight.Print("ARight");
         //--------------------------------------------------------------------//
         HPan_MR_Star.FreeAlignments();
         Z_MC_Star.FreeAlignments();
@@ -270,7 +268,7 @@ elemental::lapack::internal::UTRLC
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
         
         blas::internal::LocalTrsm
-        ( Right, Upper, ConjugateTranspose, NonUnit, 
+        ( Right, Upper, Normal, NonUnit, 
           (C)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;
