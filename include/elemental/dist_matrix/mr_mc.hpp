@@ -118,10 +118,10 @@ public:
     //
 
     void GetDiagonal
-    ( DistMatrixBase<T,MD,Star>& d, int offset = 0 );
+    ( DistMatrixBase<T,MD,Star>& d, int offset = 0 ) const;
 
     void GetDiagonal
-    ( DistMatrixBase<T,Star,MD>& d, int offset = 0 );
+    ( DistMatrixBase<T,Star,MD>& d, int offset = 0 ) const;
 
     void SetDiagonal
     ( const DistMatrixBase<T,MD,Star>& d, int offset = 0 );
@@ -502,16 +502,16 @@ public:
     //------------------------------------------------------------------------//
 
     void GetRealDiagonal
-    ( DistMatrix<R,MD,Star>& d, int offset = 0 );
+    ( DistMatrix<R,MD,Star>& d, int offset = 0 ) const;
 
     void GetImagDiagonal
-    ( DistMatrix<R,MD,Star>& d, int offset = 0 );
+    ( DistMatrix<R,MD,Star>& d, int offset = 0 ) const;
 
     void GetRealDiagonal
-    ( DistMatrix<R,Star,MD>& d, int offset = 0 );
+    ( DistMatrix<R,Star,MD>& d, int offset = 0 ) const;
 
     void GetImagDiagonal
-    ( DistMatrix<R,Star,MD>& d, int offset = 0 );
+    ( DistMatrix<R,Star,MD>& d, int offset = 0 ) const;
 
     void SetDiagonal
     ( const DistMatrixBase<R,MD,Star>& d, int offset = 0 );

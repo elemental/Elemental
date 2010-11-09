@@ -50,102 +50,58 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( Abs(truth-computed) / max(Abs(truth),(double)1) <= 1e-8 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( Abs(truth-computed) / max(Abs(truth),(double)1) <= 1e-8 ); }
-#endif
-
 template<typename R>
 void TestCorrectness
 ( bool printMatrices,
   Shape shape, 
   const DistMatrix<R,MC,MR>& A, 
-        DistMatrix<R,Star,Star>& ARef )
+        DistMatrix<R,MC,MR>& AOrig )
 {
     const Grid& g = A.GetGrid();
-    const int m = ARef.Height();
-    DistMatrix<R,Star,Star> ACopy(g);
+    const int m = AOrig.Height();
 
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Gathering computed result...";
-        cout.flush();
-    }
-    ACopy = A;
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
+    int subdiagonal = ( shape==Lower ? -1 : +1 );
 
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    double startTime = Time();
-    lapack::Tridiag( shape, ARef.LocalMatrix() );
-    double stopTime = Time();
-    double gFlops = lapack::internal::TridiagGFlops<R>(m,stopTime-startTime);
-    if( g.VCRank() == 0 )
-        cout << "DONE. GFlops = " << gFlops << endl;
+    // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
+    DistMatrix<R,MD,Star> d(g);
+    DistMatrix<R,MD,Star> e(g);
+    A.GetDiagonal( d );
+    A.GetDiagonal( e, subdiagonal );
 
-    if( printMatrices )
-        ARef.Print("True A:");
+    // Grab a full copy of e so that we may fill the opposite subdiagonal 
+    // The unaligned [MD,Star] <- [MD,Star] redistribution is not yet written,
+    // so go around it via [MD,Star] <- [Star,Star] <- [MD,Star]
+    DistMatrix<R,Star,Star> e_Star_Star(g);
+    DistMatrix<R,MD,Star> eOpposite(g);
+    e_Star_Star = e;
+    eOpposite.AlignWithDiag( A, -subdiagonal );
+    eOpposite = e_Star_Star;
+    
+    // Zero B and then fill its tridiagonal
+    DistMatrix<R,MC,MR> B(g);
+    B.AlignWith( A );
+    B.ResizeTo( m, m );
+    B.SetToZero();
+    B.SetDiagonal( d );
+    B.SetDiagonal( e, subdiagonal );
+    B.SetDiagonal( eOpposite, -subdiagonal );
 
+    // Reverse the accumulated Householder transforms, ignoring symmetry
+    lapack::UT( Left, shape, ConjugateTranspose, subdiagonal, A, B ); 
+    lapack::UT( Right, shape, Normal, subdiagonal, A, B );
+
+    // Compare the appropriate triangle of AOrig and B
+    AOrig.MakeTrapezoidal( Left, shape );
+    B.MakeTrapezoidal( Left, shape );
+    blas::Axpy( (R)-1, AOrig, B );
+    double myResidual = 0;
+    for( int j=0; j<B.LocalWidth(); ++j )
+        for( int i=0; i<B.LocalHeight(); ++i )
+            myResidual = max( (double)Abs(B.GetLocalEntry(i,j)), myResidual );
+    double residual;
+    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness...";
-        cout.flush();
-    }
-    if( shape == Lower )
-    {
-        for( int j=0; j<m; ++j )
-        {
-            for( int i=j; i<m; ++i )
-            {
-                R truth = ARef.GetLocalEntry(i,j);
-                R computed = ACopy.GetLocalEntry(i,j);
-
-                if( !OKRelativeError(truth,computed) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j
-                        << ") of A: truth=" << truth << ", computed="
-                        << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
-        }
-    }
-    else
-    {
-        for( int j=0; j<m; ++j )
-        {
-            for( int i=0; i<=j; ++i )
-            {
-                R truth = ARef.GetLocalEntry(i,j);
-                R computed = ACopy.GetLocalEntry(i,j);
-
-                if( !OKRelativeError(truth,computed) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j
-                        << ") of A: truth=" << truth << ", computed="
-                        << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
-        }
-    }
-    Barrier( g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
+        cout << "||AOrig - Q^H A Q||_oo = " << residual << endl;
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -153,89 +109,55 @@ template<typename R>
 void TestCorrectness
 ( bool printMatrices,
   Shape shape, 
-  const DistMatrix<complex<R>,MC,  MR  >& A, 
-  const DistMatrix<complex<R>,MD,  Star>& t,
-        DistMatrix<complex<R>,Star,Star>& ARef )
+  const DistMatrix<complex<R>,MC,MR  >& A, 
+  const DistMatrix<complex<R>,MD,Star>& t,
+        DistMatrix<complex<R>,MC,MR  >& AOrig )
 {
     typedef complex<R> C;
     const Grid& g = A.GetGrid();
-    const int m = ARef.Height();
-    Matrix<C> tRef;
-    DistMatrix<C,Star,Star> ACopy(g);
+    const int m = AOrig.Height();
+
+    int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
+    DistMatrix<R,MD,Star> d(g);
+    DistMatrix<R,MD,Star> e(g);
+    A.GetRealDiagonal( d );
+    A.GetRealDiagonal( e, subdiagonal );
+     
+    // Grab a full copy of e so that we may fill the opposite subdiagonal 
+    DistMatrix<R,Star,Star> e_Star_Star(g);
+    DistMatrix<R,MD,Star> eOpposite(g);
+    e_Star_Star = e;
+    eOpposite.AlignWithDiag( A, -subdiagonal );
+    eOpposite = e_Star_Star;
     
+    // Zero B and then fill its tridiagonal
+    DistMatrix<C,MC,MR> B(g);
+    B.AlignWith( A );
+    B.ResizeTo( m, m );
+    B.SetToZero();
+    B.SetRealDiagonal( d );
+    B.SetRealDiagonal( e, subdiagonal );
+    B.SetRealDiagonal( eOpposite, -subdiagonal );
+    B.Print("Full tridiagonal:");
 
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Gathering computed result...";
-        cout.flush();
-    }
-    ACopy = A;
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
+    // Reverse the accumulated Householder transforms, ignoring symmetry
+    lapack::UT( Left, shape, ConjugateTranspose, subdiagonal, A, t, B ); 
+    lapack::UT( Right, shape, Normal, subdiagonal, A, t, B );
 
+    // Compare the appropriate triangle of AOrig and B
+    AOrig.MakeTrapezoidal( Left, shape );
+    B.MakeTrapezoidal( Left, shape );
+    blas::Axpy( (C)-1, AOrig, B );
+    double myResidual = 0;
+    for( int j=0; j<B.LocalWidth(); ++j )
+        for( int i=0; i<B.LocalHeight(); ++i )
+            myResidual = max( (double)Abs(B.GetLocalEntry(i,j)), myResidual );
+    double residual;
+    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-    {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    double startTime = Time();
-    lapack::Tridiag( shape, ARef.LocalMatrix(), tRef );
-    double stopTime = Time();
-    double gFlops = lapack::internal::TridiagGFlops<C>(m,stopTime-startTime);
-    if( g.VCRank() == 0 )
-        cout << "DONE. GFlops = " << gFlops << endl;
-
-    if( printMatrices )
-        ARef.Print("True A:");
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness...";
-        cout.flush();
-    }
-    if( shape == Lower )
-    {
-        for( int j=0; j<m; ++j )
-        {
-            for( int i=j; i<m; ++i )
-            {
-                C truth = ARef.GetLocalEntry(i,j);
-                C computed = ACopy.GetLocalEntry(i,j);
-
-                if( !OKRelativeError(truth,computed) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j
-                        << ") of A: truth=" << truth << ", computed="
-                        << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
-        }
-    }
-    else
-    {
-        for( int j=0; j<m; ++j )
-        {
-            for( int i=0; i<=j; ++i )
-            {
-                C truth = ARef.GetLocalEntry(i,j);
-                C computed = ACopy.GetLocalEntry(i,j);
-
-                if( !OKRelativeError(truth,computed) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j
-                        << ") of A: truth=" << truth << ", computed="
-                        << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
-        }
-    }
-    Barrier( g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
+        cout << "||AOrig - Q^H A Q||_oo = " << residual << endl;
 }
 #endif // WITHOUT_COMPLEX
 
@@ -253,7 +175,7 @@ void TestTridiag<double>
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<R,MC,MR> A(g);
-    DistMatrix<R,Star,Star> ARef(g);
+    DistMatrix<R,MC,MR> AOrig(g);
 
     A.ResizeTo( m, m );
 
@@ -265,7 +187,7 @@ void TestTridiag<double>
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
-        ARef = A;
+        AOrig = A;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -293,7 +215,7 @@ void TestTridiag<double>
     if( printMatrices )
         A.Print("A after Tridiag");
     if( testCorrectness )
-        TestCorrectness( printMatrices, shape, A, ARef );
+        TestCorrectness( printMatrices, shape, A, AOrig );
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -308,7 +230,7 @@ void TestTridiag< complex<double> >
     double startTime, endTime, runTime, gFlops;
     DistMatrix<C,MC,MR> A(g);
     DistMatrix<C,MD,Star> t(g);
-    DistMatrix<C,Star,Star> ARef(g);
+    DistMatrix<C,MC,MR> AOrig(g);
 
     A.ResizeTo( m, m );
 
@@ -321,7 +243,7 @@ void TestTridiag< complex<double> >
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
-        ARef = A;
+        AOrig = A;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -352,7 +274,7 @@ void TestTridiag< complex<double> >
         t.Print("t after Tridiag");
     }
     if( testCorrectness )
-        TestCorrectness( printMatrices, shape, A, t, ARef );
+        TestCorrectness( printMatrices, shape, A, t, AOrig );
 }
 #endif // WITHOUT_COMPLEX
 

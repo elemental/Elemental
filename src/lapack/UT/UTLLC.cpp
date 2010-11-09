@@ -107,8 +107,8 @@ elemental::lapack::internal::UTLLC
         HPan_MC_Star.AlignWith( ABottom );
         Z_Star_MR.AlignWith( ABottom );
         Z_Star_VR.AlignWith( ABottom );
-        Z_Star_MR.ResizeTo( HPan.Width(), ABottom.Width() );
-        SInv_Star_Star.ResizeTo( HPan.Width(), HPan.Width() );
+        Z_Star_MR.ResizeTo( HPanWidth, ABottom.Width() );
+        SInv_Star_Star.ResizeTo( HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         HPanCopy.MakeTrapezoidal( Left, Lower, offset );

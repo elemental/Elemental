@@ -359,7 +359,10 @@ bindir_pure_debug   = $(bindir)/pure/debug
 bindir_omp_release  = $(bindir)/omp/release
 bindir_pure_release = $(bindir)/pure/release
 
-tests = DistMatrix \
+tests = lapack/QR \
+        lapack/Tridiag \
+        lapack/UT 
+#tests = DistMatrix \
         blas/Gemm \
         blas/Hemm \
         blas/Her2k \

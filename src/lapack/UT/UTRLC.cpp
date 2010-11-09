@@ -37,7 +37,7 @@ using namespace std;
 
 #include "./UTUtil.hpp"
 
-// This routine reverses the accumulation of Householder transforms stored 
+// This routine applies the accumulation of Householder transforms stored 
 // in the portion of H below the diagonal marked by 'offset'. It is assumed 
 // that the Householder transforms were accumulated left-to-right.
 
@@ -78,31 +78,30 @@ elemental::lapack::internal::UTRLC
     DistMatrix<R,MC,  Star> Z_MC_Star(g);
     DistMatrix<R,VC,  Star> Z_VC_Star(g);
 
-    LockedPartitionUpDiagonal
+    LockedPartitionDownDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
-    PartitionUpDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
+    while( HTL.Height() < H.Height() && HTL.Width() < H.Width() )
     {
-        LockedRepartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
+        LockedRepartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
          /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+               /**/       H10, /**/ H11, H12,
+          HBL, /**/ HBR,  H20, /**/ H21, H22 );
 
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
          /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
         int HPanHeight = H11.Height() + H21.Height();
         int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
-        int leftover = A.Width()-HPanHeight;
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
-        ARight.View( A, 0, leftover, A.Height(), HPanHeight );
+        ARight.View2x1( ATR, ABR );
 
         HPan_MR_Star.AlignWith( ARight );
         Z_MC_Star.AlignWith( ARight );
@@ -113,6 +112,7 @@ elemental::lapack::internal::UTRLC
         HPanCopy = HPan;
         HPanCopy.MakeTrapezoidal( Left, Lower, offset );
         SetDiagonalToOne( Left, offset, HPanCopy );
+        HPanCopy.Print("HPanCopy:");
 
         HPan_VC_Star = HPanCopy;
         blas::Syrk
@@ -124,34 +124,35 @@ elemental::lapack::internal::UTRLC
 
         HPan_MR_Star = HPan_VC_Star;
         blas::internal::LocalGemm
-        ( Normal, Normal, 
+        ( Normal, Normal,
           (R)1, ARight, HPan_MR_Star, (R)0, Z_MC_Star );
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
- 
+        
         blas::internal::LocalTrsm
-        ( Right, Upper, Transpose, NonUnit,
+        ( Right, Upper, Transpose, NonUnit, 
           (R)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;
         blas::internal::LocalGemm
-        ( Normal, Transpose, 
+        ( Normal, Transpose,
           (R)-1, Z_MC_Star, HPan_MR_Star, (R)1, ARight );
+        ARight.Print("ARight");
         //--------------------------------------------------------------------//
         HPan_MR_Star.FreeAlignments();
         Z_MC_Star.FreeAlignments();
         Z_VC_Star.FreeAlignments();
 
-        SlideLockedPartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
+        SlideLockedPartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
+               /**/       H10, H11, /**/ H12,
          /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
+          HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
          /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -200,7 +201,7 @@ elemental::lapack::internal::UTRLC
         tT(g),  t0(g),
         tB(g),  t1(g),
                 t2(g);
-    
+
     DistMatrix<C,VC,  Star> HPan_VC_Star(g);
     DistMatrix<C,MR,  Star> HPan_MR_Star(g);
     DistMatrix<C,Star,Star> t1_Star_Star(g);
@@ -208,41 +209,40 @@ elemental::lapack::internal::UTRLC
     DistMatrix<C,MC,  Star> Z_MC_Star(g);
     DistMatrix<C,VC,  Star> Z_VC_Star(g);
 
-    LockedPartitionUpDiagonal
+    LockedPartitionDownDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
-    LockedPartitionUp
+    LockedPartitionDown
     ( t, tT,
          tB, 0 );
-    PartitionUpDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
+    while( HTL.Height() < H.Height() && HTL.Width() < H.Width() )
     {
-        LockedRepartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
+        LockedRepartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
          /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+               /**/       H10, /**/ H11, H12,
+          HBL, /**/ HBR,  H20, /**/ H21, H22 );
 
         int HPanHeight = H11.Height() + H21.Height();
         int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
-        int leftover = A.Width()-HPanHeight;
 
-        LockedRepartitionUp
+        LockedRepartitionDown
         ( tT,  t0,
-               t1,
          /**/ /**/
+               t1,
           tB,  t2, HPanWidth );
 
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
          /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
-        ARight.View( A, 0, leftover, A.Height(), HPanHeight );
+        ARight.View2x1( ATR, ABR );
 
         HPan_MR_Star.AlignWith( ARight );
         Z_MC_Star.AlignWith( ARight );
@@ -261,44 +261,44 @@ elemental::lapack::internal::UTRLC
           (C)0, SInv_Star_Star.LocalMatrix() );     
         SInv_Star_Star.AllSum();
         t1_Star_Star = t1;
-        FixDiagonal( t1_Star_Star, SInv_Star_Star );
+        FixDiagonalConj( t1_Star_Star, SInv_Star_Star );
 
         HPan_MR_Star = HPan_VC_Star;
         blas::internal::LocalGemm
-        ( Normal, Normal, 
+        ( Normal, Normal,
           (C)1, ARight, HPan_MR_Star, (C)0, Z_MC_Star );
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
- 
+        
         blas::internal::LocalTrsm
         ( Right, Upper, ConjugateTranspose, NonUnit, 
           (C)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;
         blas::internal::LocalGemm
-        ( Normal, ConjugateTranspose, 
+        ( Normal, ConjugateTranspose,
           (C)-1, Z_MC_Star, HPan_MR_Star, (C)1, ARight );
         //--------------------------------------------------------------------//
         HPan_MR_Star.FreeAlignments();
         Z_MC_Star.FreeAlignments();
         Z_VC_Star.FreeAlignments();
 
-        SlideLockedPartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
+        SlideLockedPartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
+               /**/       H10, H11, /**/ H12,
          /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
+          HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        SlideLockedPartitionUp
+        SlideLockedPartitionDown
         ( tT,  t0,
-         /**/ /**/
                t1,
-          tB,  t2 );
+         /**/ /**/
+          tB,  t2 ); 
 
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
          /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 #ifndef RELEASE
     PopCallStack();

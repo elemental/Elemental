@@ -53,96 +53,33 @@ void Usage()
 }
 
 template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-10 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-10 ); }
-#endif
-
-template<typename T>
 void TestCorrectness
 ( bool printMatrices,
   Shape shape, Diagonal diagonal,
   const DistMatrix<T,MC,MR>& A,
-        DistMatrix<T,Star,Star>& ARef )
+  const DistMatrix<T,MC,MR>& AOrig )
 {
     const Grid& g = A.GetGrid();
-    const int m = ARef.Height();
-    DistMatrix<T,Star,Star> ACopy(g);
+    const int m = AOrig.Height();
 
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Gathering computed result...";
-        cout.flush();
-    }
-    ACopy = A;
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
+    DistMatrix<T,MC,MR> X(m,100,g);
+    DistMatrix<T,MC,MR> Y(g);
+    X.SetToRandom();
+    Y = X;
 
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    lapack::Trinv( shape, diagonal, ARef.LocalMatrix() );
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
+    // Since A o A^-1 = I, test the change introduced by the approximate comp.
+    blas::Trmm( Left, shape, Normal, NonUnit, (T)1, A, Y );
+    blas::Trmm( Left, shape, Normal, NonUnit, (T)1, AOrig, Y );
+    blas::Axpy( (T)-1, Y, X );
 
-    if( printMatrices )
-        ARef.Print("Truth");
-
+    double myResidual = 0;
+    for( int j=0; j<X.LocalWidth(); ++j )
+        for( int i=0; i<X.LocalHeight(); ++i )
+            myResidual = max( (double)Abs(X.GetLocalEntry(i,j)), myResidual );
+    double residual;
+    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness...";
-        cout.flush();
-    }
-    if( shape == Lower )
-    {
-        for( int j=0; j<m; ++j )
-        {
-            for( int i=j; i<m; ++i )
-            {
-                T truth = ARef.GetLocalEntry(i,j);
-                T computed = ACopy.GetLocalEntry(i,j);
-
-                if( ! OKRelativeError( truth, computed ) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j << "): truth=" 
-                         << truth << ", computed=" << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
-        }
-    }
-    else
-    {
-        for( int j=0; j<m; ++j )
-        {
-            for( int i=0; i<=j; ++i )
-            {
-                T truth = ARef.GetLocalEntry(i,j);
-                T computed = ACopy.GetLocalEntry(i,j);
-
-                if( ! OKRelativeError( truth, computed ) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j << "): truth=" 
-                         << truth << ", computed=" << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
-        }
-    }
-    Barrier( g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
+        cout << "||A A^-1 - I||_oo = " << residual << endl;
 }
 
 template<typename T>
@@ -152,7 +89,7 @@ void TestTrinv
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,Star,Star> ARef(g);
+    DistMatrix<T,MC,MR> AOrig(g);
 
     A.ResizeTo( m, m );
 
@@ -165,14 +102,12 @@ void TestTrinv
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
-        ARef = A;
+        AOrig = A;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
-    {
         A.Print("A");
-    }
 
     if( g.VCRank() == 0 )
     {
@@ -193,13 +128,9 @@ void TestTrinv
              << gFlops << endl;
     }
     if( printMatrices )
-    {
         A.Print("A after inversion");
-    }
     if( testCorrectness )
-    {
-        TestCorrectness( printMatrices, shape, diagonal, A, ARef );
-    }
+        TestCorrectness( printMatrices, shape, diagonal, A, AOrig );
 }
 
 int main( int argc, char* argv[] )
