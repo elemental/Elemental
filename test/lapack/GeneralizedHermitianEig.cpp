@@ -41,11 +41,11 @@ void Usage()
 {
     cout << "Generates random Hermitian A and random HPD B then solves for "
          << "their eigenpairs.\n\n"
-         << "  GeneralizedHermitianEig <r> <c> <side> <shape> <m> <nb> "
+         << "  GeneralizedHermitianEig <r> <c> <genEigType> <shape> <m> <nb> "
          << "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
-         << "  side: L/R\n"
+         << "  genEigType: 1 -> AX=BXW, 2 -> ABX=XW, 3-> BAX=XW\n"
          << "  shape: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
@@ -55,23 +55,23 @@ void Usage()
 
 void TestCorrectnessDouble
 ( bool printMatrices,
-  Side side,
+  lapack::GenEigType genEigType,
   Shape shape,
   const DistMatrix<double,MC,  MR>& A,
   const DistMatrix<double,MC,  MR>& B,
   const DistMatrix<double,Star,VR>& w,
-  const DistMatrix<double,MC,  MR>& Z,
-  const DistMatrix<double,MC  ,MR>& ARef,
-  const DistMatrix<double,MC,  MR>& BRef )
+  const DistMatrix<double,MC,  MR>& X,
+  const DistMatrix<double,MC  ,MR>& AOrig,
+  const DistMatrix<double,MC,  MR>& BOrig )
 {
     const Grid& g = A.GetGrid();
-    const int n = Z.Height();
-    const int k = Z.Width();
+    const int n = X.Height();
+    const int k = X.Width();
 
     if( printMatrices )
     {
         w.Print("Computed eigenvalues:");
-        Z.Print("Computed eigenvectors:");
+        X.Print("Computed eigenvectors:");
     }
 
     if( g.VCRank() == 0 )
@@ -80,150 +80,209 @@ void TestCorrectnessDouble
         cout.flush();
     }
     DistMatrix<double,Star,MR> w_Star_MR(g); 
-    w_Star_MR.AlignWith( Z );
+    w_Star_MR.AlignWith( X );
     w_Star_MR = w;
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( side == Right )
+    if( genEigType == lapack::AXBX )
     {
         if( g.VCRank() == 0 )
         {
-            cout << "  Testing for deviation of AZ from BZW...";
+            cout << "  Testing for deviation of AX from BXW...";
             cout.flush();
         }
-        // Set X := BZW, where W is the diagonal eigenvalue matrix
-        DistMatrix<double,MC,MR> X( g );
-        X.AlignWith( Z );
-        X.ResizeTo( n, k );
-        blas::Hemm( Left, shape, (double)1, BRef, Z, (double)0, X );
+        // Set Y := BXW, where W is the diagonal eigenvalue matrix
+        DistMatrix<double,MC,MR> Y( g );
+        Y.AlignWith( X );
+        Y.ResizeTo( n, k );
+        blas::Hemm( Left, shape, (double)1, BOrig, X, (double)0, Y );
         for( int j=0; j<X.LocalWidth(); ++j )
         {
             double omega = w_Star_MR.GetLocalEntry(0,j);
             elemental::wrappers::blas::Scal
-            ( X.LocalHeight(), omega, X.LocalBuffer(0,j), 1 );
+            ( Y.LocalHeight(), omega, Y.LocalBuffer(0,j), 1 );
         }
-        // X := X - AZ = BZW - AZ
-        blas::Hemm( Left, shape, (double)-1, ARef, Z, (double)1, X );
-        // Compute the residual, ||BZW-AZ||_oo
+        // Y := Y - AX = BXW - AX
+        blas::Hemm( Left, shape, (double)-1, AOrig, X, (double)1, Y );
+        // Compute the residual, ||BXW-AX||_oo
         double myResidual = 0;
-        for( int j=0; j<X.LocalWidth(); ++j )
-            for( int i=0; i<X.LocalHeight(); ++i )
-                myResidual = max( Abs(X.GetLocalEntry(i,j)),myResidual );
+        for( int j=0; j<Y.LocalWidth(); ++j )
+            for( int i=0; i<Y.LocalHeight(); ++i )
+                myResidual = max( Abs(Y.GetLocalEntry(i,j)),myResidual );
         double residual;
         Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
         if( g.VCRank() == 0 )
-            cout << "||A Z - B Z W||_oo = " << residual << endl;
+            cout << "||A X - B X W||_oo = " << residual << endl;
         
         if( g.VCRank() == 0 )
         {
             cout << "  Testing orthonormality of eigenvectors w.r.t. B...";
             cout.flush();
         }
-        DistMatrix<double,MC,MR> Y(g);
-        Y = Z;
+        DistMatrix<double,MC,MR> Z(g);
+        Z = X;
         if( shape == Lower )
         {
             blas::Trmm
-            ( Left, Lower, ConjugateTranspose, NonUnit, (double)1, B, Y );
+            ( Left, Lower, ConjugateTranspose, NonUnit, (double)1, B, Z );
         }
         else
         {
             blas::Trmm
-            ( Left, Upper, Normal, NonUnit, (double)1, B, Y );
+            ( Left, Upper, Normal, NonUnit, (double)1, B, Z );
         }
-        X.ResizeTo( k, k );
-        X.SetToIdentity();
-        blas::Herk( shape, ConjugateTranspose, (double)-1, Y, (double)1, X );
+        Y.ResizeTo( k, k );
+        Y.SetToIdentity();
+        blas::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, Y );
         myResidual = 0; 
-        for( int j=0; j<X.LocalWidth(); ++j )
-            for( int i=0; i<X.LocalHeight(); ++i )
-                myResidual = max( Abs(X.GetLocalEntry(i,j)), myResidual );
+        for( int j=0; j<Y.LocalWidth(); ++j )
+            for( int i=0; i<Y.LocalHeight(); ++i )
+                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
         Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
         if( g.VCRank() == 0 )
-            cout << "||Z^H B Z - I||_oo = " << residual << endl;
+            cout << "||X^H B X - I||_oo = " << residual << endl;
     }
-    else
+    else if( genEigType == lapack::ABX )
     {
         if( g.VCRank() == 0 )
         {
-            cout << "  Testing for deviation of BAZ from ZW...";
+            cout << "  Testing for deviation of ABX from XW...";
             cout.flush();
         }
-        // Set X := AZ
-        DistMatrix<double,MC,MR> X( g );
-        X.AlignWith( Z );
-        X.ResizeTo( n, k );
-        blas::Hemm( Left, shape, (double)1, ARef, Z, (double)0, X );
-        // Set Y := BX = BAZ
-        DistMatrix<double,MC,MR> Y( n, k, g );
-        blas::Hemm( Left, shape, (double)1, BRef, X, (double)0, Y );
-        // Compute the residual, ||Y - ZW||_oo = ||BAZ - ZW||_oo
+        // Set Y := BX
+        DistMatrix<double,MC,MR> Y( g );
+        Y.AlignWith( X );
+        Y.ResizeTo( n, k );
+        blas::Hemm( Left, shape, (double)1, BOrig, X, (double)0, Y );
+        // Set Z := AY = ABX
+        DistMatrix<double,MC,MR> Z( n, k, g );
+        blas::Hemm( Left, shape, (double)1, AOrig, Y, (double)0, Z );
+        // Compute the residual, ||Z - XW||_oo = ||ABX - XW||_oo
         double myResidual = 0;
-        for( int j=0; j<Y.LocalWidth(); ++j )
+        for( int j=0; j<Z.LocalWidth(); ++j )
         {
             double omega = w_Star_MR.GetLocalEntry(0,j); 
-            for( int i=0; i<Y.LocalHeight(); ++i )
+            for( int i=0; i<Z.LocalHeight(); ++i )
             {
                 double thisResidual = 
-                    Abs(omega*Z.GetLocalEntry(i,j)-Y.GetLocalEntry(i,j));
+                    Abs(omega*X.GetLocalEntry(i,j)-Z.GetLocalEntry(i,j));
                 myResidual = max( thisResidual, myResidual );
             }
         }
         double residual;
         Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
         if( g.VCRank() == 0 )
-            cout << "||B A Z - Z W||_oo =  " << residual << endl;
+            cout << "||A B X - X W||_oo =  " << residual << endl;
         
         if( g.VCRank() == 0 )
         {
             cout << "  Testing orthonormality of eigenvectors w.r.t. B...";
             cout.flush();
         }
-        Y = Z;
+        Z = X;
+        if( shape == Lower )
+        {
+            blas::Trmm
+            ( Left, Lower, ConjugateTranspose, NonUnit, (double)1, B, Z );
+        }
+        else
+        {
+            blas::Trmm
+            ( Left, Upper, Normal, NonUnit, (double)1, B, Z );
+        }
+        Y.ResizeTo( k, k );
+        Y.SetToIdentity();
+        blas::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, Y );
+        myResidual = 0; 
+        for( int j=0; j<Y.LocalWidth(); ++j )
+            for( int i=0; i<Y.LocalHeight(); ++i )
+                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
+        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        if( g.VCRank() == 0 )
+            cout << "||X^H B X - I||_oo = " << residual << endl;
+    }
+    else /* genEigType == lapack::BAX */
+    {
+        if( g.VCRank() == 0 )
+        {
+            cout << "  Testing for deviation of BAX from XW...";
+            cout.flush();
+        }
+        // Set Y := AX
+        DistMatrix<double,MC,MR> Y( g );
+        Y.AlignWith( X );
+        Y.ResizeTo( n, k );
+        blas::Hemm( Left, shape, (double)1, AOrig, X, (double)0, Y );
+        // Set Z := BY = BAX
+        DistMatrix<double,MC,MR> Z( n, k, g );
+        blas::Hemm( Left, shape, (double)1, BOrig, Y, (double)0, Z );
+        // Compute the residual, ||Z - XW||_oo = ||BAX - XW||_oo
+        double myResidual = 0;
+        for( int j=0; j<Z.LocalWidth(); ++j )
+        {
+            double omega = w_Star_MR.GetLocalEntry(0,j); 
+            for( int i=0; i<Z.LocalHeight(); ++i )
+            {
+                double thisResidual = 
+                    Abs(omega*X.GetLocalEntry(i,j)-Z.GetLocalEntry(i,j));
+                myResidual = max( thisResidual, myResidual );
+            }
+        }
+        double residual;
+        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        if( g.VCRank() == 0 )
+            cout << "||B A X - X W||_oo =  " << residual << endl;
+        
+        if( g.VCRank() == 0 )
+        {
+            cout << "  Testing orthonormality of eigenvectors w.r.t. B^-1...";
+            cout.flush();
+        }
+        Z = X;
         if( shape == Lower )
         {
             blas::Trsm
-            ( Left, Lower, Normal, NonUnit, (double)1, B, Y );
+            ( Left, Lower, Normal, NonUnit, (double)1, B, Z );
         }
         else
         {
             blas::Trsm
-            ( Left, Upper, ConjugateTranspose, NonUnit, (double)1, B, Y );
+            ( Left, Upper, ConjugateTranspose, NonUnit, (double)1, B, Z );
         }
-        X.ResizeTo( k, k );
-        X.SetToIdentity();
-        blas::Herk( shape, ConjugateTranspose, (double)-1, Y, (double)1, X );
+        Y.ResizeTo( k, k );
+        Y.SetToIdentity();
+        blas::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, Y );
         myResidual = 0; 
-        for( int j=0; j<X.LocalWidth(); ++j )
-            for( int i=0; i<X.LocalHeight(); ++i )
-                myResidual = max( Abs(X.GetLocalEntry(i,j)), myResidual );
+        for( int j=0; j<Y.LocalWidth(); ++j )
+            for( int i=0; i<Y.LocalHeight(); ++i )
+                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
         Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
         if( g.VCRank() == 0 )
-            cout << "||Z^H B^-1 Z - I||_oo = " << residual << endl;
+            cout << "||X^H B^-1 X - I||_oo = " << residual << endl;
     }
 }
 
 #ifndef WITHOUT_COMPLEX
 void TestCorrectnessDoubleComplex
 ( bool printMatrices,
-  Side side,
+  lapack::GenEigType genEigType,
   Shape shape,
   const DistMatrix<std::complex<double>,MC,  MR>& A,
   const DistMatrix<std::complex<double>,MC,  MR>& B,
   const DistMatrix<             double, Star,VR>& w,
-  const DistMatrix<std::complex<double>,MC,  MR>& Z,
-  const DistMatrix<std::complex<double>,MC  ,MR>& ARef,
-  const DistMatrix<std::complex<double>,MC  ,MR>& BRef )
+  const DistMatrix<std::complex<double>,MC,  MR>& X,
+  const DistMatrix<std::complex<double>,MC  ,MR>& AOrig,
+  const DistMatrix<std::complex<double>,MC  ,MR>& BOrig )
 {
     const Grid& g = A.GetGrid();
-    const int n = Z.Height();
-    const int k = Z.Width();
+    const int n = X.Height();
+    const int k = X.Width();
 
     if( printMatrices )
     {
         w.Print("Computed eigenvalues:");
-        Z.Print("Computed eigenvectors:");
+        X.Print("Computed eigenvectors:");
     }
 
     if( g.VCRank() == 0 )
@@ -231,160 +290,239 @@ void TestCorrectnessDoubleComplex
         cout << "  Gathering computed eigenvalues...";
         cout.flush();
     }
-    DistMatrix<double,Star,MR> w_Star_MR(true,Z.RowAlignment(),g); 
+    DistMatrix<double,Star,MR> w_Star_MR(true,X.RowAlignment(),g); 
     w_Star_MR = w;
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( side == Right )
+    if( genEigType == lapack::AXBX )
     {
         if( g.VCRank() == 0 )
         {
-            cout << "  Testing for deviation of AZ from BZW...";
+            cout << "  Testing for deviation of AX from BXW...";
             cout.flush();
         }
-        // Set X := BZW, where W is the diagonal eigenvalue matrix
-        DistMatrix<std::complex<double>,MC,MR> X( g );
-        X.AlignWith( Z );
-        X.ResizeTo( n, k );
+        // Set Y := BXW, where W is the diagonal eigenvalue matrix
+        DistMatrix<std::complex<double>,MC,MR> Y( g );
+        Y.AlignWith( X );
+        Y.ResizeTo( n, k );
         blas::Hemm
-        ( Left, shape, std::complex<double>(1), BRef, Z, 
-          std::complex<double>(0), X );
-        for( int j=0; j<X.LocalWidth(); ++j )
+        ( Left, shape, std::complex<double>(1), BOrig, X, 
+          std::complex<double>(0), Y );
+        for( int j=0; j<Y.LocalWidth(); ++j )
         {
             double omega = w_Star_MR.GetLocalEntry(0,j);
             elemental::wrappers::blas::Scal
-            ( 2*X.LocalHeight(), omega, (double*)X.LocalBuffer(0,j), 1 );
+            ( 2*Y.LocalHeight(), omega, (double*)Y.LocalBuffer(0,j), 1 );
         }
-        // X := X - AZ = BZW - AZ
+        // Y := Y - AX = BXW - AX
         blas::Hemm
-        ( Left, shape, std::complex<double>(-1), ARef, Z, 
-        std::complex<double>(1), X );
-        // Compute the residual, ||BZW-AZ||_oo
+        ( Left, shape, std::complex<double>(-1), AOrig, X, 
+        std::complex<double>(1), Y );
+        // Compute the residual, ||BXW-AX||_oo
         double myResidual = 0;
-        for( int j=0; j<X.LocalWidth(); ++j )
-            for( int i=0; i<X.LocalHeight(); ++i )
-                myResidual = max( Abs(X.GetLocalEntry(i,j)),myResidual );
+        for( int j=0; j<Y.LocalWidth(); ++j )
+            for( int i=0; i<Y.LocalHeight(); ++i )
+                myResidual = max( Abs(Y.GetLocalEntry(i,j)),myResidual );
         double residual;
         Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
         if( g.VCRank() == 0 )
-            cout << "||A Z - B Z W||_oo = " << residual << endl;
+            cout << "||A X - B X W||_oo = " << residual << endl;
         
         if( g.VCRank() == 0 )
         {
             cout << "  Testing orthonormality of eigenvectors w.r.t. B...";
             cout.flush();
         }
-        DistMatrix<std::complex<double>,MC,MR> Y(g);
-        Y = Z;
+        DistMatrix<std::complex<double>,MC,MR> Z(g);
+        Z = X;
         if( shape == Lower )
         {
             blas::Trmm
             ( Left, Lower, ConjugateTranspose, NonUnit, 
-              std::complex<double>(1), B, Y );
+              std::complex<double>(1), B, Z );
         }
         else
         {
             blas::Trmm
             ( Left, Upper, Normal, NonUnit,
-              std::complex<double>(1), B, Y );
+              std::complex<double>(1), B, Z );
         }
-        X.ResizeTo( k, k );
-        X.SetToIdentity();
+        Y.ResizeTo( k, k );
+        Y.SetToIdentity();
         blas::Herk
-        ( shape, ConjugateTranspose, std::complex<double>(-1), Y, 
-          std::complex<double>(1), X );
+        ( shape, ConjugateTranspose, std::complex<double>(-1), Z, 
+          std::complex<double>(1), Y );
         myResidual = 0; 
-        for( int j=0; j<X.LocalWidth(); ++j )
-            for( int i=0; i<X.LocalHeight(); ++i )
-                myResidual = max( Abs(X.GetLocalEntry(i,j)), myResidual );
+        for( int j=0; j<Y.LocalWidth(); ++j )
+            for( int i=0; i<Y.LocalHeight(); ++i )
+                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
         Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
         if( g.VCRank() == 0 )
-            cout << "||Z^H B Z - I||_oo = " << residual << endl;
+            cout << "||X^H B X - I||_oo = " << residual << endl;
     }
-    else
+    else if( genEigType == lapack::ABX )
     {
         if( g.VCRank() == 0 )
         {
-            cout << "  Testing for deviation of BAZ from ZW...";
+            cout << "  Testing for deviation of ABX from XW...";
             cout.flush();
         }
-        // Set X := AZ
-        DistMatrix<std::complex<double>,MC,MR> X( g );
-        X.AlignWith( Z );
-        X.ResizeTo( n, k );
+        // Set Y := BX
+        DistMatrix<std::complex<double>,MC,MR> Y( g );
+        Y.AlignWith( X );
+        Y.ResizeTo( n, k );
         blas::Hemm
-        ( Left, shape, std::complex<double>(1), ARef, Z, 
-          std::complex<double>(0), X );
-        // Set Y := BX = BAZ
-        DistMatrix<std::complex<double>,MC,MR> Y( n, k, g );
-        blas::Hemm
-        ( Left, shape, std::complex<double>(1), BRef, X, 
+        ( Left, shape, std::complex<double>(1), BOrig, X, 
           std::complex<double>(0), Y );
-        // Compute the residual, ||Y - ZW||_oo = ||BAZ - ZW||_oo
+        // Set Z := AY = ABX
+        DistMatrix<std::complex<double>,MC,MR> Z( n, k, g );
+        blas::Hemm
+        ( Left, shape, std::complex<double>(1), AOrig, Y, 
+          std::complex<double>(0), Z );
+        // Compute the residual, ||Z - XW||_oo = ||ABX - XW||_oo
         double myResidual = 0;
-        for( int j=0; j<Y.LocalWidth(); ++j )
+        for( int j=0; j<Z.LocalWidth(); ++j )
         {
             double omega = w_Star_MR.GetLocalEntry(0,j); 
-            for( int i=0; i<Y.LocalHeight(); ++i )
+            for( int i=0; i<Z.LocalHeight(); ++i )
             {
                 double thisResidual = 
-                    Abs(omega*Z.GetLocalEntry(i,j)-Y.GetLocalEntry(i,j));
+                    Abs(omega*X.GetLocalEntry(i,j)-Z.GetLocalEntry(i,j));
                 myResidual = max( thisResidual, myResidual );
             }
         }
         double residual;
         Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
         if( g.VCRank() == 0 )
-            cout << "||B A Z - Z W||_oo =  " << residual << endl;
+            cout << "||A B X - X W||_oo =  " << residual << endl;
         
         if( g.VCRank() == 0 )
         {
             cout << "  Testing orthonormality of eigenvectors w.r.t. B...";
             cout.flush();
         }
-        Y = Z;
+        Z = X;
+        if( shape == Lower )
+        {
+            blas::Trmm
+            ( Left, Lower, ConjugateTranspose, NonUnit, 
+              std::complex<double>(1), B, Z );
+        }
+        else
+        {
+            blas::Trmm
+            ( Left, Upper, Normal, NonUnit, 
+              std::complex<double>(1), B, Z );
+        }
+        Y.ResizeTo( k, k );
+        Y.SetToIdentity();
+        blas::Herk
+        ( shape, ConjugateTranspose, std::complex<double>(-1), Z, 
+          std::complex<double>(1), Y );
+        myResidual = 0; 
+        for( int j=0; j<Y.LocalWidth(); ++j )
+            for( int i=0; i<Y.LocalHeight(); ++i )
+                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
+        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        if( g.VCRank() == 0 )
+            cout << "||X^H B X - I||_oo = " << residual << endl;
+    }
+    else /* genEigType == lapack::BAX */
+    {
+        if( g.VCRank() == 0 )
+        {
+            cout << "  Testing for deviation of BAX from XW...";
+            cout.flush();
+        }
+        // Set Y := AX
+        DistMatrix<std::complex<double>,MC,MR> Y( g );
+        Y.AlignWith( X );
+        Y.ResizeTo( n, k );
+        blas::Hemm
+        ( Left, shape, std::complex<double>(1), AOrig, X, 
+          std::complex<double>(0), Y );
+        // Set Z := BY = BAX
+        DistMatrix<std::complex<double>,MC,MR> Z( n, k, g );
+        blas::Hemm
+        ( Left, shape, std::complex<double>(1), BOrig, Y, 
+          std::complex<double>(0), Z );
+        // Compute the residual, ||Z - XW||_oo = ||BAX - XW||_oo
+        double myResidual = 0;
+        for( int j=0; j<Z.LocalWidth(); ++j )
+        {
+            double omega = w_Star_MR.GetLocalEntry(0,j); 
+            for( int i=0; i<Z.LocalHeight(); ++i )
+            {
+                double thisResidual = 
+                    Abs(omega*X.GetLocalEntry(i,j)-Z.GetLocalEntry(i,j));
+                myResidual = max( thisResidual, myResidual );
+            }
+        }
+        double residual;
+        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        if( g.VCRank() == 0 )
+            cout << "||B A X - X W||_oo =  " << residual << endl;
+        
+        if( g.VCRank() == 0 )
+        {
+            cout << "  Testing orthonormality of eigenvectors w.r.t. B^-1...";
+            cout.flush();
+        }
+        Z = X;
         if( shape == Lower )
         {
             blas::Trsm
-            ( Left, Lower, Normal, NonUnit, std::complex<double>(1), B, Y );
+            ( Left, Lower, Normal, NonUnit, std::complex<double>(1), B, Z );
         }
         else
         {
             blas::Trsm
             ( Left, Upper, ConjugateTranspose, NonUnit, 
-              std::complex<double>(1), B, Y );
+              std::complex<double>(1), B, Z );
         }
-        X.ResizeTo( k, k );
-        X.SetToIdentity();
+        Y.ResizeTo( k, k );
+        Y.SetToIdentity();
         blas::Herk
-        ( shape, ConjugateTranspose, std::complex<double>(-1), Y, 
-          std::complex<double>(1), X );
+        ( shape, ConjugateTranspose, std::complex<double>(-1), Z, 
+          std::complex<double>(1), Y );
         myResidual = 0; 
-        for( int j=0; j<X.LocalWidth(); ++j )
-            for( int i=0; i<X.LocalHeight(); ++i )
-                myResidual = max( Abs(X.GetLocalEntry(i,j)), myResidual );
+        for( int j=0; j<Y.LocalWidth(); ++j )
+            for( int i=0; i<Y.LocalHeight(); ++i )
+                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
         Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
         if( g.VCRank() == 0 )
-            cout << "||Z^H B^-1 Z - I||_oo = " << residual << endl;
+            cout << "||X^H B^-1 X - I||_oo = " << residual << endl;
     }
 }
 #endif // WITHOUT_COMPLEX
 
 void TestGeneralizedHermitianEigDouble
 ( bool testCorrectness, bool printMatrices,
-  Side side, Shape shape, int m, const Grid& g )
+  lapack::GenEigType genEigType, Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<double,MC,MR> A(m,m,g);
     DistMatrix<double,MC,MR> B(m,m,g);
-    DistMatrix<double,MC,MR> ARef(g);
-    DistMatrix<double,MC,MR> BRef(g);
+    DistMatrix<double,MC,MR> AOrig(g);
+    DistMatrix<double,MC,MR> BOrig(g);
     DistMatrix<double,Star,VR> w(g);
-    DistMatrix<double,MC,MR> Z(g);
+    DistMatrix<double,MC,MR> X(g);
 
-    A.SetToRandomHPD(); 
-    B.SetToRandomHPD();
+    A.SetToRandomHPD();
+    if( genEigType == lapack::BAX )
+    {
+        // Because we will multiply by L three times, generate HPD B more 
+        // carefully than just adding m to its diagonal entries.
+        DistMatrix<double,MC,MR> C(m,m,g);
+        C.SetToRandom();
+        blas::Herk( shape, ConjugateTranspose, (double)1, C, (double)0, B );
+    }
+    else
+    {
+        B.SetToRandomHPD();
+    }
+
     if( testCorrectness )
     {
         if( g.VCRank() == 0 )
@@ -392,8 +530,8 @@ void TestGeneralizedHermitianEigDouble
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
-        ARef = A;
-        BRef = B;
+        AOrig = A;
+        BOrig = B;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -410,7 +548,7 @@ void TestGeneralizedHermitianEigDouble
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    lapack::GeneralizedHermitianEig( side, shape, A, B, w, Z );
+    lapack::GeneralizedHermitianEig( genEigType, shape, A, B, w, X );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -427,25 +565,39 @@ void TestGeneralizedHermitianEigDouble
     if( testCorrectness )
     {
         TestCorrectnessDouble
-        ( printMatrices, side, shape, A, B, w, Z, ARef, BRef );
+        ( printMatrices, genEigType, shape, A, B, w, X, AOrig, BOrig );
     }
 }
     
 #ifndef WITHOUT_COMPLEX
 void TestGeneralizedHermitianEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
-  Side side, Shape shape, int m, const Grid& g )
+  lapack::GenEigType genEigType, Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<std::complex<double>,MC,  MR> A(m,m,g);
     DistMatrix<std::complex<double>,MC,  MR> B(m,m,g);
-    DistMatrix<std::complex<double>,MC,  MR> ARef(g);
-    DistMatrix<std::complex<double>,MC,  MR> BRef(g);
+    DistMatrix<std::complex<double>,MC,  MR> AOrig(g);
+    DistMatrix<std::complex<double>,MC,  MR> BOrig(g);
     DistMatrix<             double, Star,VR> w(g);
-    DistMatrix<std::complex<double>,MC,  MR> Z(g);
+    DistMatrix<std::complex<double>,MC,  MR> X(g);
 
     A.SetToRandomHPD();
-    B.SetToRandomHPD();
+    if( genEigType == lapack::BAX )
+    {
+        // Because we will multiply by L three times, generate HPD B more 
+        // carefully than just adding m to its diagonal entries.
+        DistMatrix<std::complex<double>,MC,MR> C(m,m,g);
+        C.SetToRandom();
+        blas::Herk
+        ( shape, ConjugateTranspose, 
+          std::complex<double>(1), C, std::complex<double>(0), B );
+    }
+    else
+    {
+        B.SetToRandomHPD();
+    }
+
     if( testCorrectness )
     {
         if( g.VCRank() == 0 )
@@ -453,8 +605,8 @@ void TestGeneralizedHermitianEigDoubleComplex
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
-        ARef = A;
-        BRef = B;
+        AOrig = A;
+        BOrig = B;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -471,7 +623,7 @@ void TestGeneralizedHermitianEigDoubleComplex
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    lapack::GeneralizedHermitianEig( side, shape, A, B, w, Z );
+    lapack::GeneralizedHermitianEig( genEigType, shape, A, B, w, X );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -488,7 +640,7 @@ void TestGeneralizedHermitianEigDoubleComplex
     if( testCorrectness )
     {
         TestCorrectnessDoubleComplex
-        ( printMatrices, side, shape, A, B, w, Z, ARef, BRef );
+        ( printMatrices, genEigType, shape, A, B, w, X, AOrig, BOrig );
     }
 }
 #endif // WITHOUT_COMPLEX
@@ -509,12 +661,33 @@ int main( int argc, char* argv[] )
     {
         const int r = atoi(argv[1]);
         const int c = atoi(argv[2]);
-        const Side side = CharToSide(*argv[3]);
+        const int genEigInt = atoi(argv[3]);
         const Shape shape = CharToShape(*argv[4]);
         const int m = atoi(argv[5]);
         const int nb = atoi(argv[6]);
         const bool testCorrectness = atoi(argv[7]);
         const bool printMatrices = atoi(argv[8]);
+
+        lapack::GenEigType genEigType;
+        std::string genEigString;
+        if( genEigInt == 1 )
+        {
+            genEigType = lapack::AXBX;
+            genEigString = "AXBX";
+        }
+        else if( genEigInt == 2 )
+        {
+            genEigType = lapack::ABX;
+            genEigString = "ABX";
+        }
+        else if( genEigInt == 3 )
+        {
+            genEigType = lapack::BAX;
+            genEigString = "BAX";
+        }
+        else
+            throw std::runtime_error
+                  ( "Invalid GenEigType, choose from {1,2,3}" );
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -528,9 +701,9 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "Will test " << ( side==Left ? "left" : "right" ) << " "
+            cout << "Will test " 
                  << ( shape==Lower ? "lower" : "upper" )
-                 << " GeneralizedHermitianEig." << endl;
+                 << " " << genEigString << " GeneralizedHermitianEig." << endl;
         }
 
         if( rank == 0 )
@@ -540,7 +713,7 @@ int main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestGeneralizedHermitianEigDouble
-        ( testCorrectness, printMatrices, side, shape, m, g );
+        ( testCorrectness, printMatrices, genEigType, shape, m, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -550,7 +723,7 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestGeneralizedHermitianEigDoubleComplex
-        ( testCorrectness, printMatrices, side, shape, m, g );
+        ( testCorrectness, printMatrices, genEigType, shape, m, g );
 
 #endif 
     }

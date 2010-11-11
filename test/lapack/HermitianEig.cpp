@@ -58,7 +58,7 @@ void TestCorrectnessDouble
   const DistMatrix<double,MC,  MR>& A,
   const DistMatrix<double,Star,VR>& w,
   const DistMatrix<double,MC,  MR>& Z,
-  const DistMatrix<double,MC  ,MR>& ARef )
+  const DistMatrix<double,MC  ,MR>& AOrig )
 {
     const Grid& g = A.GetGrid();
     const int n = Z.Height();
@@ -106,7 +106,7 @@ void TestCorrectnessDouble
     // Set X := AZ
     X.AlignWith( Z );
     X.ResizeTo( n, k );
-    blas::Hemm( Left, shape, (double)1, ARef, Z, (double)0, X );
+    blas::Hemm( Left, shape, (double)1, AOrig, Z, (double)0, X );
     // Find the residual, ||X-ZW||_oo = ||AZ-ZW||_oo
     myResidual = 0;
     for( int j=0; j<X.LocalWidth(); ++j )
@@ -131,7 +131,7 @@ void TestCorrectnessDoubleComplex
   const DistMatrix<std::complex<double>,MC,  MR>& A,
   const DistMatrix<             double, Star,VR>& w,
   const DistMatrix<std::complex<double>,MC,  MR>& Z,
-  const DistMatrix<std::complex<double>,MC  ,MR>& ARef )
+  const DistMatrix<std::complex<double>,MC  ,MR>& AOrig )
 {
     const Grid& g = A.GetGrid();
     const int n = Z.Height();
@@ -181,7 +181,7 @@ void TestCorrectnessDoubleComplex
     X.AlignWith( Z );
     X.ResizeTo( n, k );
     blas::Hemm
-    ( Left, shape, std::complex<double>(1), ARef, Z, 
+    ( Left, shape, std::complex<double>(1), AOrig, Z, 
       std::complex<double>(0), X );
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
     myResidual = 0;
@@ -207,7 +207,7 @@ void TestHermitianEigDouble
 {
     double startTime, endTime, runTime;
     DistMatrix<double,MC,MR> A(m,m,g);
-    DistMatrix<double,MC,MR> ARef(g);
+    DistMatrix<double,MC,MR> AOrig(g);
     DistMatrix<double,Star,VR> w(g);
     DistMatrix<double,MC,MR> Z(g);
 
@@ -219,7 +219,7 @@ void TestHermitianEigDouble
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
-        ARef = A;
+        AOrig = A;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -250,7 +250,7 @@ void TestHermitianEigDouble
     }
     if( testCorrectness )
     {
-        TestCorrectnessDouble( printMatrices, shape, A, w, Z, ARef );
+        TestCorrectnessDouble( printMatrices, shape, A, w, Z, AOrig );
     }
 }
     
@@ -261,7 +261,7 @@ void TestHermitianEigDoubleComplex
 {
     double startTime, endTime, runTime;
     DistMatrix<std::complex<double>,MC,  MR> A(m,m,g);
-    DistMatrix<std::complex<double>,MC,  MR> ARef(g);
+    DistMatrix<std::complex<double>,MC,  MR> AOrig(g);
     DistMatrix<             double, Star,VR> w(g);
     DistMatrix<std::complex<double>,MC,  MR> Z(g);
 
@@ -273,7 +273,7 @@ void TestHermitianEigDoubleComplex
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
-        ARef = A;
+        AOrig = A;
         if( g.VCRank() == 0 )
             cout << "DONE" << endl;
     }
@@ -304,7 +304,7 @@ void TestHermitianEigDoubleComplex
     }
     if( testCorrectness )
     {
-        TestCorrectnessDoubleComplex( printMatrices, shape, A, w, Z, ARef );
+        TestCorrectnessDoubleComplex( printMatrices, shape, A, w, Z, AOrig );
     }
 }
 #endif // WITHOUT_COMPLEX

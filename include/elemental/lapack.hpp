@@ -80,26 +80,29 @@ GaussElim
 #ifndef WITHOUT_PMRRR
 // Parallel version(s) for computing all eigenpairs of (A,B). On exit, either 
 // the upper or lower triangle of A is overwritten with Householder vectors 
-// and its similar tridiagonal matrix, Z contains the computed eigenvectors, 
+// and its similar tridiagonal matrix, X contains the computed eigenvectors, 
 // and w contains the corresponding eigenvalues. 
+
+enum GenEigType { AXBX=1, ABX=2, BAX=3 };
+
 template<typename R>
 void
 GeneralizedHermitianEig
-( Side side, Shape shape, 
+( GenEigType genEigType, Shape shape, 
   DistMatrix<R,MC,  MR>& A, 
   DistMatrix<R,MC,  MR>& B, 
   DistMatrix<R,Star,VR>& w,
-  DistMatrix<R,MC,  MR>& Z );
+  DistMatrix<R,MC,  MR>& X );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 GeneralizedHermitianEig    
-( Side side, Shape shape,
+( GenEigType genEigType, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
-  DistMatrix<std::complex<R>,MC,  MR>& Z );
+  DistMatrix<std::complex<R>,MC,  MR>& X );
 #endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
@@ -107,7 +110,9 @@ GeneralizedHermitianEig
 // Hegst (HErmitian GEneralized to STandard eigenvalue problem):              //
 //                                                                            //
 // If side==Left,                                                             //
-//   reduce the problem B A X = X Lamda to A X = X Lambda                     //
+//   reduce the problems                                                      //
+//                      A B X = X Lambda to A X = X Lambda                    //
+//                      B A X = X Lambda to A X = X Lambda                    //
 // If side==Right,                                                            //
 //   reduce the problem A X = B X Lambda to A X = X Lambda                    //
 //                                                                            //

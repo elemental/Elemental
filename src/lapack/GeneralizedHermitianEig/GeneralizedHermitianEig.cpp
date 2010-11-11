@@ -36,32 +36,34 @@ using namespace elemental;
 template<typename R>
 void
 elemental::lapack::GeneralizedHermitianEig
-( Side side, Shape shape, 
+( GenEigType genEigType, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
-  DistMatrix<R,MC,  MR>& Z )
+  DistMatrix<R,MC,  MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
     // TODO: Checks for input consistency
 #endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
     lapack::Chol( shape, B );
     lapack::Hegst( side, shape, A, B );
-    lapack::HermitianEig( shape, A, w, Z );
-    if( side == Right )
+    lapack::HermitianEig( shape, A, w, X );
+    if( genEigType == AXBX || genEigType == ABX )
     {
         if( shape == Lower )
-            blas::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (R)1, B, Z );
+            blas::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (R)1, B, X );
         else
-            blas::Trsm( Left, Upper, Normal, NonUnit, (R)1, B, Z );
+            blas::Trsm( Left, Upper, Normal, NonUnit, (R)1, B, X );
     }
-    else
+    else /* genEigType == BAX */
     {
         if( shape == Lower )
-            blas::Trmm( Left, Lower, Normal, NonUnit, (R)1, B, Z );
+            blas::Trmm( Left, Lower, Normal, NonUnit, (R)1, B, X );
         else
-            blas::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (R)1, B, Z );
+            blas::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (R)1, B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -72,47 +74,49 @@ elemental::lapack::GeneralizedHermitianEig
 template<typename R>
 void
 elemental::lapack::GeneralizedHermitianEig
-( Side side, Shape shape, 
+( GenEigType genEigType, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
-  DistMatrix<std::complex<R>,MC,  MR>& Z )
+  DistMatrix<std::complex<R>,MC,  MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
     // TODO: Checks for input consistency
 #endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
     lapack::Chol( shape, B );
     lapack::Hegst( side, shape, A, B );
-    lapack::HermitianEig( shape, A, w, Z );
-    if( side == Right )
+    lapack::HermitianEig( shape, A, w, X );
+    if( genEigType == AXBX || genEigType == ABX )
     {
         if( shape == Lower )
         {
             blas::Trsm
             ( Left, Lower, ConjugateTranspose, NonUnit, 
-              std::complex<R>(1), B, Z );
+              std::complex<R>(1), B, X );
         }
         else
         {
             blas::Trsm
             ( Left, Upper, Normal, NonUnit, 
-              std::complex<R>(1), B, Z );
+              std::complex<R>(1), B, X );
         }
     }
-    else
+    else /* genEigType == BAX */
     {
         if( shape == Lower )
         {
             blas::Trmm
             ( Left, Lower, Normal, NonUnit,
-              std::complex<R>(1), B, Z );
+              std::complex<R>(1), B, X );
         }
         else
         {
             blas::Trmm
             ( Left, Upper, ConjugateTranspose, NonUnit,
-              std::complex<R>(1), B, Z );
+              std::complex<R>(1), B, X );
         }
     }
 #ifndef RELEASE
@@ -123,19 +127,19 @@ elemental::lapack::GeneralizedHermitianEig
 
 template void
 elemental::lapack::GeneralizedHermitianEig
-( Side side, Shape shape,
+( GenEigType genEigType, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
   DistMatrix<double,Star,VR>& w,
-  DistMatrix<double,MC,  MR>& Z );
+  DistMatrix<double,MC,  MR>& X );
 
 #ifndef WITHOUT_COMPLEX
 template void
 elemental::lapack::GeneralizedHermitianEig
-( Side side, Shape shape,
+( GenEigType genEigType, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
   DistMatrix<             double, Star,VR>& w,
-  DistMatrix<std::complex<double>,MC,  MR>& Z );
+  DistMatrix<std::complex<double>,MC,  MR>& X );
 #endif
 

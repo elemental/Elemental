@@ -163,7 +163,6 @@ elemental::lapack::HermitianEig
 #endif
     int n = A.Height();
     const Grid& g = A.GetGrid();
-    const int rank = g.VCRank();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
@@ -348,7 +347,6 @@ elemental::lapack::HermitianEig
 #endif
     int n = A.Height();
     const Grid& g = A.GetGrid();
-    const int rank = g.VCRank();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
