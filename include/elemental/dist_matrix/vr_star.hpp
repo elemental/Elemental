@@ -113,6 +113,10 @@ public:
     // Collective routines
     //
 
+    // Set the alignments
+    void Align( int colAlignment );
+    void AlignCols( int colAlignment );
+
     // For aligning the row and/or column distributions with another matrix.
     // Often useful when two distributed matrices are added together.
     //

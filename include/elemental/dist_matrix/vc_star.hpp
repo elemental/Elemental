@@ -113,6 +113,10 @@ public:
     // Collective routines
     //
 
+    // Set the alignments
+    void Align( int colAlignment );
+    void AlignCols( int colAlignment );
+
     // Aligns all of our DistMatrix's distributions that match a distribution
     // of the argument DistMatrix.
     void AlignWith( const DistMatrixBase<T,MC,  MR  >& A );

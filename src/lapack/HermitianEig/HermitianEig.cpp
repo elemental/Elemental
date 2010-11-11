@@ -236,6 +236,84 @@ elemental::lapack::HermitianEig
 #endif
 }
 
+void
+elemental::lapack::HermitianEig
+( Shape shape, 
+  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double,Star,VR>& w )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    int n = A.Height();
+    const Grid& g = A.GetGrid();
+
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    // Tridiagonalize A
+    lapack::Tridiag( shape, A );
+
+    // Grab copies of the diagonal and subdiagonal of A
+    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
+    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
+    A.GetDiagonal( d_MD_Star );
+    A.GetDiagonal( e_MD_Star, subdiagonal );
+
+    // In order to call pmrrr, we need full copies of the diagonal and 
+    // subdiagonal in vectors of length n. We accomplish this for e by 
+    // making its leading dimension n.
+    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
+    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
+    d_Star_Star = d_MD_Star;
+    e_Star_Star = e_MD_Star;
+
+    // Solve the tridiagonal eigenvalue problem with PMRRR.
+    {
+        w.Align( 0 ); // PMRRR requires a zero alignment, though we could
+                      // have arbitrary alignments if we shift the communicator
+        w.ResizeTo( 1, n );
+
+        char jobz = 'N';
+        char range = 'A';
+        double vl, vu;
+        int il, iu;
+        int tryrac = 0;
+        int nz;
+        int offset;
+        int ldz;
+        std::vector<double> wBuffer(n);
+        std::vector<int> ZSupp(2*n);
+        int retval = 
+            pmrrr
+            ( &jobz, 
+              &range, 
+              &n, 
+              d_Star_Star.LocalBuffer(),
+              e_Star_Star.LocalBuffer(),
+              &vl, &vu, &il, &iu,
+              &tryrac,
+              g.VRComm(),
+              &nz,
+              &offset,
+              &wBuffer[0],
+              0,
+              &ldz,
+              &ZSupp[0] );
+        if( retval != 0 )
+        {
+            std::ostringstream msg;
+            msg << "PMRRR returned " << retval;
+            throw std::runtime_error( msg.str() );
+        }
+        for( int j=0; j<w.LocalWidth(); ++j )
+            w.SetLocalEntry(0,j,wBuffer[j]);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 #ifndef WITHOUT_COMPLEX
 // We create a specialized redistribution routine for redistributing the 
 // real eigenvectors of the symmetric tridiagonal matrix at the core of our 
@@ -416,6 +494,85 @@ elemental::lapack::HermitianEig
     lapack::UT
     ( Left, shape, ConjugateTranspose, subdiagonal, A, t, Z );
 
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::lapack::HermitianEig
+( Shape shape, 
+  DistMatrix<std::complex<double>,MC,  MR>& A,
+  DistMatrix<             double, Star,VR>& w )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    int n = A.Height();
+    const Grid& g = A.GetGrid();
+
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    // Tridiagonalize A
+    DistMatrix<std::complex<double>,MD,Star> t(g);
+    lapack::Tridiag( shape, A, t );
+
+    // Grab copies of the diagonal and subdiagonal of A
+    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
+    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
+    A.GetRealDiagonal( d_MD_Star );
+    A.GetRealDiagonal( e_MD_Star, subdiagonal );
+
+    // In order to call pmrrr, we need full copies of the diagonal and 
+    // subdiagonal in vectors of length n. We accomplish this for e by 
+    // making its leading dimension n.
+    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
+    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
+    d_Star_Star = d_MD_Star;
+    e_Star_Star = e_MD_Star;
+
+    // Solve the tridiagonal eigenvalue problem with PMRRR
+    {
+        w.Align( 0 ); // PMRRR expects an alignment of 0, though we could 
+                      // handle arbitrary alignments by shifting the comm.
+        w.ResizeTo( 1, n );
+
+        char jobz = 'N';
+        char range = 'A';
+        double vl, vu;
+        int il, iu;
+        int tryrac = 0;
+        int nz;
+        int offset;
+        int ldz;
+        std::vector<int> ZSupp(2*n);
+        std::vector<double> wBuffer(n);
+        int retval = 
+            pmrrr
+            ( &jobz, 
+              &range, 
+              &n, 
+              d_Star_Star.LocalBuffer(),
+              e_Star_Star.LocalBuffer(),
+              &vl, &vu, &il, &iu,
+              &tryrac,
+              g.VRComm(),
+              &nz,
+              &offset,
+              &wBuffer[0],
+              0,
+              &ldz,
+              &ZSupp[0] );
+        if( retval != 0 )
+        {
+            std::ostringstream msg;
+            msg << "PMRRR returned " << retval;
+            throw std::runtime_error( msg.str() );
+        }
+        for( int j=0; j<w.LocalWidth(); ++j )
+            w.SetLocalEntry(0,j,wBuffer[j]);
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

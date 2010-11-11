@@ -41,10 +41,11 @@ void Usage()
 {
     cout << "Generates random Hermitian matrix then solves for its eigenpairs."
 	 << "\n\n"
-         << "  HermitianEig <r> <c> <shape> <m> <nb> <correctness?> "
-         << "<print?>\n\n"
+         << "  HermitianEig <r> <c> <only eigenvalues?> <shape> <m> <nb> "
+         << "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
+         << "  only eigenvalues?: 0/1\n"
          << "  shape: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
@@ -63,12 +64,6 @@ void TestCorrectnessDouble
     const Grid& g = A.GetGrid();
     const int n = Z.Height();
     const int k = Z.Width();
-
-    if( printMatrices )
-    {
-        w.Print("Computed eigenvalues:");
-        Z.Print("Computed eigenvectors:");
-    }
 
     if( g.VCRank() == 0 )
     {
@@ -137,12 +132,6 @@ void TestCorrectnessDoubleComplex
     const int n = Z.Height();
     const int k = Z.Width();
 
-    if( printMatrices )
-    {
-        w.Print("Computed eigenvalues:");
-        Z.Print("Computed eigenvectors:");
-    }
-
     if( g.VCRank() == 0 )
     {
         cout << "  Gathering computed eigenvalues...";
@@ -203,7 +192,7 @@ void TestCorrectnessDoubleComplex
 
 void TestHermitianEigDouble
 ( bool testCorrectness, bool printMatrices,
-  Shape shape, int m, const Grid& g )
+  bool onlyEigenvalues, Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<double,MC,MR> A(m,m,g);
@@ -224,9 +213,7 @@ void TestHermitianEigDouble
             cout << "DONE" << endl;
     }
     if( printMatrices )
-    {
         A.Print("A");
-    }
 
     if( g.VCRank() == 0 )
     {
@@ -235,7 +222,10 @@ void TestHermitianEigDouble
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    lapack::HermitianEig( shape, A, w, Z );
+    if( onlyEigenvalues )
+        lapack::HermitianEig( shape, A, w );
+    else
+        lapack::HermitianEig( shape, A, w, Z );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -246,9 +236,11 @@ void TestHermitianEigDouble
     }
     if( printMatrices )
     {
-        A.Print("A after eigensolve");
+        w.Print("eigenvalues:");
+        if( !onlyEigenvalues )
+            Z.Print("eigenvectors:");
     }
-    if( testCorrectness )
+    if( testCorrectness && !onlyEigenvalues )
     {
         TestCorrectnessDouble( printMatrices, shape, A, w, Z, AOrig );
     }
@@ -257,7 +249,7 @@ void TestHermitianEigDouble
 #ifndef WITHOUT_COMPLEX
 void TestHermitianEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
-  Shape shape, int m, const Grid& g )
+  bool onlyEigenvalues, Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<std::complex<double>,MC,  MR> A(m,m,g);
@@ -289,7 +281,10 @@ void TestHermitianEigDoubleComplex
     }
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
-    lapack::HermitianEig( shape, A, w, Z );
+    if( onlyEigenvalues )
+        lapack::HermitianEig( shape, A, w );
+    else
+        lapack::HermitianEig( shape, A, w, Z );
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -300,9 +295,11 @@ void TestHermitianEigDoubleComplex
     }
     if( printMatrices )
     {
-        A.Print("A after eigensolve");
+        w.Print("eigenvalues:");
+        if( !onlyEigenvalues )
+            Z.Print("eigenvectors:");
     }
-    if( testCorrectness )
+    if( testCorrectness && !onlyEigenvalues )
     {
         TestCorrectnessDoubleComplex( printMatrices, shape, A, w, Z, AOrig );
     }
@@ -314,7 +311,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 8 )
+    if( argc != 9 )
     {
         if( rank == 0 )
             Usage();
@@ -325,11 +322,19 @@ int main( int argc, char* argv[] )
     {
         const int r = atoi(argv[1]);
         const int c = atoi(argv[2]);
-        const Shape shape = CharToShape(*argv[3]);
-        const int m = atoi(argv[4]);
-        const int nb = atoi(argv[5]);
-        const bool testCorrectness = atoi(argv[6]);
-        const bool printMatrices = atoi(argv[7]);
+        const bool onlyEigenvalues = atoi(argv[3]);
+        const Shape shape = CharToShape(*argv[4]);
+        const int m = atoi(argv[5]);
+        const int nb = atoi(argv[6]);
+        const bool testCorrectness = atoi(argv[7]);
+        const bool printMatrices = atoi(argv[8]);
+
+        if( onlyEigenvalues && testCorrectness && rank==0 )
+        {
+            cout << "Cannot test correctness with only the eigenvalues." 
+                 << endl;
+        }
+
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -354,7 +359,7 @@ int main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestHermitianEigDouble
-        ( testCorrectness, printMatrices, shape, m, g );
+        ( testCorrectness, printMatrices, onlyEigenvalues, shape, m, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -364,8 +369,7 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHermitianEigDoubleComplex
-        ( testCorrectness, printMatrices, shape, m, g );
-
+        ( testCorrectness, printMatrices, onlyEigenvalues, shape, m, g );
 #endif 
     }
     catch( exception& e )

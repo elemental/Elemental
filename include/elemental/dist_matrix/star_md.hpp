@@ -108,6 +108,10 @@ public:
 
     bool InDiagonal() const;
 
+    // Set the alignments
+    void Align( int rowAlignment );
+    void AlignRows( int rowAlignment );
+
     // Aligns all of our DistMatrix's distributions that match a distribution
     // of the argument DistMatrix.
     void AlignWith( const DistMatrixBase<T,MD,  Star>& A );

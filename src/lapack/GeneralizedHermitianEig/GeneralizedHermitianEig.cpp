@@ -70,6 +70,28 @@ elemental::lapack::GeneralizedHermitianEig
 #endif
 }
 
+template<typename R>
+void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<R,MC,  MR>& A,
+  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R,Star,VR>& w )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::GeneralizedHermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
+    lapack::Chol( shape, B );
+    lapack::Hegst( side, shape, A, B );
+    lapack::HermitianEig( shape, A, w );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
@@ -123,6 +145,28 @@ elemental::lapack::GeneralizedHermitianEig
     PopCallStack();
 #endif
 }
+
+template<typename R>
+void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::GeneralizedHermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
+    lapack::Chol( shape, B );
+    lapack::Hegst( side, shape, A, B );
+    lapack::HermitianEig( shape, A, w );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 #endif // WITHOUT_COMPLEX
 
 template void
@@ -133,6 +177,13 @@ elemental::lapack::GeneralizedHermitianEig
   DistMatrix<double,Star,VR>& w,
   DistMatrix<double,MC,  MR>& X );
 
+template void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double,MC,  MR>& B,
+  DistMatrix<double,Star,VR>& w );
+
 #ifndef WITHOUT_COMPLEX
 template void
 elemental::lapack::GeneralizedHermitianEig
@@ -141,5 +192,12 @@ elemental::lapack::GeneralizedHermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& B,
   DistMatrix<             double, Star,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& X );
+
+template void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& A,
+  DistMatrix<std::complex<double>,MC,  MR>& B,
+  DistMatrix<             double, Star,VR>& w );
 #endif
 

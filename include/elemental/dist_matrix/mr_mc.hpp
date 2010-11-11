@@ -128,6 +128,11 @@ public:
 
     void SetDiagonal
     ( const DistMatrixBase<T,Star,MD>& d, int offset = 0 );
+
+    // Set the alignments
+    void Align( int colAlignment, int rowAlignment );
+    void AlignCols( int colAlignment );
+    void AlignRows( int rowAlignment );
     
     // Aligns all of our DistMatrix's distributions that match a distribution
     // of the argument DistMatrix.

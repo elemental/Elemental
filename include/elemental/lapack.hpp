@@ -78,13 +78,12 @@ GaussElim
 //----------------------------------------------------------------------------//
 
 #ifndef WITHOUT_PMRRR
-// Parallel version(s) for computing all eigenpairs of (A,B). On exit, either 
-// the upper or lower triangle of A is overwritten with Householder vectors 
-// and its similar tridiagonal matrix, X contains the computed eigenvectors, 
-// and w contains the corresponding eigenvalues. 
 
 enum GenEigType { AXBX=1, ABX=2, BAX=3 };
 
+// On exit, the upper or lower triangle of A is overwritten with Householder 
+// vectors and its similar tridiagonal matrix, X contains the computed 
+// eigenvectors, and w contains the corresponding eigenvalues. 
 template<typename R>
 void
 GeneralizedHermitianEig
@@ -93,7 +92,6 @@ GeneralizedHermitianEig
   DistMatrix<R,MC,  MR>& B, 
   DistMatrix<R,Star,VR>& w,
   DistMatrix<R,MC,  MR>& X );
-
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
@@ -103,6 +101,24 @@ GeneralizedHermitianEig
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X );
+#endif // WITHOUT_COMPLEX
+
+// Only compute the eigenvalues
+template<typename R>
+void
+GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<R,MC,  MR>& A, 
+  DistMatrix<R,MC,  MR>& B, 
+  DistMatrix<R,Star,VR>& w );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+GeneralizedHermitianEig    
+( GenEigType genEigType, Shape shape,
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w );
 #endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
@@ -140,17 +156,15 @@ Hegst
 //----------------------------------------------------------------------------//
 
 #ifndef WITHOUT_PMRRR
-// Parallel version(s) for computing all eigenpairs of A. On exit, either the 
-// upper or lower triangle of A is overwritten with Householder vectors 
-// and its similar tridiagonal matrix, Z contains the computed eigenvectors, 
-// and w contains the corresponding eigenvalues. 
+// On exit, either the upper or lower triangle of A is overwritten with 
+// Householder vectors and its similar tridiagonal matrix, Z contains the 
+// computed eigenvectors, and w contains the corresponding eigenvalues. 
 void
 HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A, 
   DistMatrix<double,Star,VR>& w,
   DistMatrix<double,MC,  MR>& Z );
-
 #ifndef WITHOUT_COMPLEX
 void
 HermitianEig    
@@ -158,6 +172,20 @@ HermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, Star,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z );
+#endif // WITHOUT_COMPLEX
+
+// Only compute all of the eigenvalues of A
+void
+HermitianEig
+( Shape shape,
+  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double,Star,VR>& w );
+#ifndef WITHOUT_COMPLEX
+void
+HermitianEig
+( Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& A,
+  DistMatrix<             double, Star,VR>& w );
 #endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 

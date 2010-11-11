@@ -104,6 +104,48 @@ elemental::DistMatrixBase<T,Star,MD>::Print( const string& s ) const
 
 template<typename T>
 void
+elemental::DistMatrixBase<T,Star,MD>::Align
+( int rowAlignment )
+{
+#ifndef RELEASE
+    PushCallStack("[Star,MD]::Align");
+    this->AssertFreeRowAlignment();
+#endif
+    this->AlignRows( rowAlignment );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+elemental::DistMatrixBase<T,Star,MD>::AlignRows
+( int rowAlignment )
+{
+#ifndef RELEASE
+    PushCallStack("[Star,MD]::AlignRows");
+    this->AssertFreeRowAlignment();
+#endif
+    const Grid& g = this->GetGrid();
+#ifndef RELEASE
+    if( rowAlignment < 0 || rowAlignment >= g.Size() )
+        throw std::runtime_error( "Invalid row alignment for [Star,MD]" );
+#endif
+    this->_rowAlignment = rowAlignment;
+    this->_inDiagonal = ( g.DiagPath() == g.DiagPath(rowAlignment) );
+    if( this->_inDiagonal )
+        this->_rowShift = Shift( g.DiagPathRank(), rowAlignment, g.Size() );
+    this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
 elemental::DistMatrixBase<T,Star,MD>::AlignWith
 ( const DistMatrixBase<T,Star,MD>& A )
 {
@@ -117,6 +159,9 @@ elemental::DistMatrixBase<T,Star,MD>::AlignWith
     if( this->InDiagonal() )
         this->_rowShift = A.RowShift();
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -137,6 +182,9 @@ elemental::DistMatrixBase<T,Star,MD>::AlignWith
     if( this->InDiagonal() )
         this->_rowShift = A.ColShift();
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -227,6 +275,10 @@ elemental::DistMatrixBase<T,Star,MD>::AlignWithDiag
             ( g.DiagPathRank() + lcm - 
               g.DiagPathRank( this->RowAlignment() ) ) % lcm;
     }
+    this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -305,6 +357,10 @@ elemental::DistMatrixBase<T,Star,MD>::AlignWithDiag
             ( g.DiagPathRank() + lcm -
               g.DiagPathRank( this->RowAlignment() ) ) % lcm;
     }
+    this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif

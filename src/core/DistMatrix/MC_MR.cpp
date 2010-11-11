@@ -108,6 +108,87 @@ elemental::DistMatrixBase<T,MC,MR>::Print( const string& s ) const
 
 template<typename T>
 void
+elemental::DistMatrixBase<T,MC,MR>::Align
+( int colAlignment, int rowAlignment )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::Align");
+    this->AssertFreeColAlignment();
+    this->AssertFreeRowAlignment();
+#endif
+    const Grid& g = this->GetGrid();
+#ifndef RELEASE
+    if( colAlignment < 0 || colAlignment >= g.Height() )
+        throw std::runtime_error( "Invalid column alignment for [MC,MR]" );
+    if( rowAlignment < 0 || rowAlignment >= g.Width() )
+        throw std::runtime_error( "Invalid row alignment for [MC,MR]" );
+#endif
+    this->_colAlignment = colAlignment;
+    this->_rowAlignment = rowAlignment;
+    this->_colShift = Shift( g.MCRank(), colAlignment, g.Height() );
+    this->_rowShift = Shift( g.MRRank(), rowAlignment, g.Width() );
+    this->_constrainedColAlignment = true;
+    this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+elemental::DistMatrixBase<T,MC,MR>::AlignCols
+( int colAlignment )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::AlignCols");
+    this->AssertFreeColAlignment();
+#endif
+    const Grid& g = this->GetGrid();
+#ifndef RELEASE
+    if( colAlignment < 0 || colAlignment >= g.Height() )
+        throw std::runtime_error( "Invalid column alignment for [MC,MR]" );
+#endif
+    this->_colAlignment = colAlignment;
+    this->_colShift = Shift( g.MCRank(), colAlignment, g.Height() );
+    this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+elemental::DistMatrixBase<T,MC,MR>::AlignRows
+( int rowAlignment )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::AlignRows");
+    this->AssertFreeRowAlignment();
+#endif
+    const Grid& g = this->GetGrid();
+#ifndef RELEASE
+    if( rowAlignment < 0 || rowAlignment >= g.Width() )
+        throw std::runtime_error( "Invalid row alignment for [MC,MR]" );
+#endif
+    this->_rowAlignment = rowAlignment;
+    this->_rowShift = Shift( g.MRRank(), rowAlignment, g.Width() );
+    this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
 elemental::DistMatrixBase<T,MC,MR>::AlignWith
 ( const DistMatrixBase<T,MC,MR>& A )
 {
@@ -123,6 +204,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_rowShift     = A.RowShift();
     this->_constrainedColAlignment = true;
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -141,6 +225,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_colAlignment = A.ColAlignment();
     this->_colShift     = A.ColShift();
     this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -159,6 +246,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_rowAlignment = A.RowAlignment();
     this->_rowShift     = A.RowShift();
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -181,6 +271,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_rowShift     = A.ColShift();
     this->_constrainedColAlignment = true;
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -199,6 +292,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_rowAlignment = A.ColAlignment();
     this->_rowShift     = A.ColShift();
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -217,6 +313,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_colAlignment = A.RowAlignment();
     this->_colShift     = A.RowShift();
     this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -237,6 +336,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_colShift = 
         Shift( g.MCRank(), this->ColAlignment(), g.Height() );
     this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -257,6 +359,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_colShift = 
         Shift( g.MCRank(), this->ColAlignment(), g.Height() );
     this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -277,6 +382,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_rowShift = 
         Shift( g.MRRank(), this->RowAlignment(), g.Width() );
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -297,6 +405,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_rowShift = 
         Shift( g.MRRank(), this->RowAlignment(), g.Width() );
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -315,6 +426,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_colAlignment = A.ColAlignment();
     this->_colShift     = A.ColShift();
     this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -333,6 +447,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_colAlignment = A.ColAlignment();
     this->_colShift     = A.ColShift();
     this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -351,6 +468,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_colAlignment = A.RowAlignment();
     this->_colShift     = A.RowShift();
     this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -369,6 +489,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_colAlignment = A.RowAlignment();
     this->_colShift     = A.RowShift();
     this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -389,6 +512,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_colShift = 
         Shift( g.MCRank(), this->ColAlignment(), g.Height() );
     this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -409,6 +535,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_colShift = 
         Shift( g.MCRank(), this->ColAlignment(), g.Height() );
     this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -427,6 +556,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_rowAlignment = A.RowAlignment();
     this->_rowShift     = A.RowShift();
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -445,6 +577,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_rowAlignment = A.RowAlignment();
     this->_rowShift     = A.RowShift();
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -463,6 +598,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_rowAlignment = A.ColAlignment();
     this->_rowShift     = A.ColShift();
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -481,6 +619,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_rowAlignment = A.ColAlignment();
     this->_rowShift     = A.ColShift();
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -501,6 +642,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_rowShift = 
         Shift( g.MRRank(), this->RowAlignment(), g.Width() );
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -521,6 +665,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_rowShift = 
         Shift( g.MRRank(), this->RowAlignment(), g.Width() );
     this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -5003,8 +5150,6 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
     PopCallStack();
 #endif
 }
-
-// HERE
 
 template<typename R>
 void
