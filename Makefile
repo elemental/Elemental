@@ -47,7 +47,7 @@ library = libelemental.a
 #
 # If PMRRR is not linked then there is not yet support for Hermitian 
 # eigenvalue problems.
-use_pmrrr = true
+use_pmrrr = false
 pmrrr_libdir = /home/poulson/Source/PMRRR/LIB
 pmrrr_lib = pmrrr
 
