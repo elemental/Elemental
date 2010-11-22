@@ -34,6 +34,46 @@
 using namespace std;
 using namespace elemental;
 
+// Set up interface for managing tuning parameters
+namespace {
+int localSymvFloatBlocksize = 64;
+int localSymvDoubleBlocksize = 64;
+int localSymvComplexFloatBlocksize = 64;
+int localSymvComplexDoubleBlocksize = 64;
+} 
+
+void elemental::blas::SetLocalSymvFloatBlocksize( int blocksize )
+{ ::localSymvFloatBlocksize = blocksize; }
+
+void elemental::blas::SetLocalSymvDoubleBlocksize( int blocksize )
+{ ::localSymvDoubleBlocksize = blocksize; }
+
+void elemental::blas::SetLocalSymvComplexFloatBlocksize( int blocksize )
+{ ::localSymvComplexFloatBlocksize = blocksize; }
+
+void elemental::blas::SetLocalSymvComplexDoubleBlocksize( int blocksize )
+{ ::localSymvComplexDoubleBlocksize = blocksize; }
+
+template<>
+int
+elemental::blas::LocalSymvBlocksize<float>()
+{ return ::localSymvFloatBlocksize; }
+
+template<>
+int
+elemental::blas::LocalSymvBlocksize<double>()
+{ return ::localSymvDoubleBlocksize; }
+
+template<>
+int
+elemental::blas::LocalSymvBlocksize<scomplex>()
+{ return ::localSymvComplexFloatBlocksize; }
+
+template<>
+int
+elemental::blas::LocalSymvBlocksize<dcomplex>()
+{ return ::localSymvComplexDoubleBlocksize; }
+
 template<typename T>
 void
 elemental::blas::Symv

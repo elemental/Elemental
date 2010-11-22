@@ -40,6 +40,32 @@ namespace elemental {
 namespace blas {
 
 //----------------------------------------------------------------------------//
+// Tuning parameters                                                          //
+//----------------------------------------------------------------------------//
+
+void SetLocalHemvFloatBlocksize( int blocksize );
+void SetLocalHemvDoubleBlocksize( int blocksize );
+void SetLocalHemvComplexFloatBlocksize( int blocksize );
+void SetLocalHemvComplexDoubleBlocksize( int blocksize );
+
+void SetLocalSymvFloatBlocksize( int blocksize );
+void SetLocalSymvDoubleBlocksize( int blocksize );
+void SetLocalSymvComplexFloatBlocksize( int blocksize );
+void SetLocalSymvComplexDoubleBlocksize( int blocksize );
+
+template<typename T> int LocalHemvBlocksize();
+template<> int LocalHemvBlocksize<float>();
+template<> int LocalHemvBlocksize<double>();
+template<> int LocalHemvBlocksize<scomplex>();
+template<> int LocalHemvBlocksize<dcomplex>();
+
+template<typename T> int LocalSymvBlocksize();
+template<> int LocalSymvBlocksize<float>();
+template<> int LocalSymvBlocksize<double>();
+template<> int LocalSymvBlocksize<scomplex>();
+template<> int LocalSymvBlocksize<dcomplex>();
+
+//----------------------------------------------------------------------------//
 // Level 1 BLAS                                                               //
 //----------------------------------------------------------------------------//
 

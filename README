@@ -6,7 +6,7 @@ dense linear algebra that is inspired by [PLAPACK][1] and, more recently,
 [FLAME][2].
 
 The key idea behind the project is that an appropriate level of abstraction 
-allows one to focus on *algorithms* rather than getting tied down in 
+allows one to focus on algorithms rather than getting tied down in 
 implementation details.
 
 License
@@ -57,6 +57,39 @@ Alternatively, all four library versions may be built with
       make
 and all four versions of test drivers may be built with
       make test
+
+Tuning
+======
+There are a few categories of parameters that can be tuned for better 
+performance:
+
+- The algorithmic blocksize can be adjusted at any time with the function 
+
+  void elemental::SetBlocksize( int blocksize );
+
+- The process grid dimensions should typically be square, but they can be 
+  manually chosen to build an r x c grid using the extended process grid 
+  constructor:
+
+  elemental::Grid::Grid( MPI_Comm comm, int r, int c );
+
+- The local blocksizes for Hemv and Symv may be set for single-precision, 
+  double-precision, single-precision complex, and double-precision complex 
+  using:
+
+  void elemental::blas::SetLocalHemvFloatBlocksize( int blocksize ); 
+  void elemental::blas::SetLocalHemvDoubleBlocksize( int blocksize );
+  void elemental::blas::SetLocalHemvComplexFloatBlocksize( int blocksize );
+  void elemental::blas::SetLocalHemvComplexDoubleBlocksize( int blocksize );
+
+  void elemental::blas::SetLocalSymvFloatBlocksize( int blocksize );
+  void elemental::blas::SetLocalSymvDoubleBlocksize( int blocksize );
+  void elemental::blas::SetLocalSymvComplexFloatBlocksize( int blocksize );
+  void elemental::blas::SetLocalSymvComplexDoubleBlocksize( int blocksize );
+
+  These interfaces were exposed because they play an important role in the 
+  speed of the parallel Householder tridiagonalization routine, 
+  elemental::lapack::Tridiag.
 
 Overview
 --------

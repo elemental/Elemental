@@ -40,12 +40,15 @@ using namespace elemental::wrappers::mpi;
 void Usage()
 {
     cout << "Tridiagonalizes a symmetric matrix.\n\n"
-         << "  Tridiag <r> <c> <shape> <m> <nb> <correctness?> <print?>\n\n"
+         << "  Tridiag <r> <c> <shape> <m> <nb> <Hemv local nb double> "
+         << "<Hemv local nb complex double> <correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  shape: {L,U}\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
+         << "  Hemv local nb double: local blocksize for Hemv, double-prec.\n"
+         << "  Hemv local nb complex double: \" \", complex double-precision\n"
          << "  test correctness?: false iff 0\n"
          << "  print matrices?: false iff 0\n" << endl;
 }
@@ -282,7 +285,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 8 )
+    if( argc != 10 )
     {
         if( rank == 0 )
             Usage();
@@ -296,8 +299,10 @@ int main( int argc, char* argv[] )
         const Shape shape = CharToShape(*argv[3]);
         const int m = atoi(argv[4]);
         const int nb = atoi(argv[5]);
-        const bool testCorrectness = atoi(argv[6]);
-        const bool printMatrices = atoi(argv[7]);
+        const int nbLocalHemvDouble = atoi(argv[6]);
+        const int nbLocalHemvComplexDouble = atoi(argv[7]);
+        const bool testCorrectness = atoi(argv[8]);
+        const bool printMatrices = atoi(argv[9]);
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -308,6 +313,8 @@ int main( int argc, char* argv[] )
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
+        blas::SetLocalHemvDoubleBlocksize( nbLocalHemvDouble );
+        blas::SetLocalHemvComplexDoubleBlocksize( nbLocalHemvComplexDouble );
 
         if( rank == 0 )
             cout << "Will test Tridiag" << ShapeToChar(shape) << endl;

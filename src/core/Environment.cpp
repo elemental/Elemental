@@ -65,6 +65,11 @@ elemental::Init
     {
         ::elementalInitializedMPI = false;
     }
+
+    while( ! ::blocksizeStack.empty() )
+        ::blocksizeStack.pop();
+    ::blocksizeStack.push( 128 );
+
     lapack::internal::CreatePivotOp<float>();
     lapack::internal::CreatePivotOp<double>();
 #ifndef WITHOUT_COMPLEX
@@ -107,20 +112,11 @@ elemental::Finalize()
 
 int 
 elemental::Blocksize()
-{ 
-    if( ::blocksizeStack.size() == 0 )
-        ::blocksizeStack.push( 192 );
-    return ::blocksizeStack.top(); 
-}
+{ return ::blocksizeStack.top(); }
 
 void
 elemental::SetBlocksize( int blocksize )
-{ 
-    if( ::blocksizeStack.size() == 0 )
-        ::blocksizeStack.push( blocksize );
-    else
-        ::blocksizeStack.top() = blocksize; 
-}
+{ ::blocksizeStack.top() = blocksize; }
 
 void
 elemental::PushBlocksizeStack( int blocksize )

@@ -40,12 +40,15 @@ using namespace elemental::wrappers::mpi;
 void Usage()
 {
     cout << "SYmmetric Matrix vector multiplication.\n\n"
-         << "  Symv <r> <c> <Shape> <m> <nb> <correctness?> <print?>\n\n"
+         << "  Symv <r> <c> <Shape> <m> <nb> <local nb double> "
+         << "<local nb complex double> <correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  Shape: {L,U}\n"
          << "  m: height of C\n"
          << "  nb: algorithmic blocksize\n"
+         << "  local nb double: local algorithmic blocksize for double-prec.\n"
+         << "  local nb complex double: \" \" complex double-precision\n"
          << "  correctness?: [0/1]\n"
          << "  print?: [0/1]\n" << endl;
 }
@@ -205,7 +208,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 8 )
+    if( argc != 10 )
     {
         if( rank == 0 )
             Usage();
@@ -219,8 +222,10 @@ int main( int argc, char* argv[] )
         const Shape shape = CharToShape(*argv[3]);
         const int m = atoi(argv[4]);
         const int nb = atoi(argv[5]);
-        const bool testCorrectness = atoi(argv[6]);
-        const bool printMatrices = atoi(argv[7]);
+        const int nbLocalDouble = atoi(argv[6]);
+        const int nbLocalComplexDouble = atoi(argv[7]);
+        const bool testCorrectness = atoi(argv[8]);
+        const bool printMatrices = atoi(argv[9]);
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -231,6 +236,8 @@ int main( int argc, char* argv[] )
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
+        blas::SetLocalSymvDoubleBlocksize( nbLocalDouble );
+        blas::SetLocalSymvComplexDoubleBlocksize( nbLocalComplexDouble );
 
         if( rank == 0 )
             cout << "Will test Symv" << ShapeToChar(shape) << endl;
