@@ -2296,8 +2296,6 @@ elemental::LockedPartitionDownRightDiagonal
 #endif
 }
 
-// HERE: Should Partition routines overflow if Blocksize() too big? No!
-
 template<typename T>
 inline void
 elemental::RepartitionUp
