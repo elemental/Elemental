@@ -38,8 +38,10 @@ using namespace elemental;
 namespace {
 int localHemvFloatBlocksize = 64;
 int localHemvDoubleBlocksize = 64;
+#ifndef WITHOUT_COMPLEX
 int localHemvComplexFloatBlocksize = 64;
 int localHemvComplexDoubleBlocksize = 64;
+#endif // WITHOUT_COMPLEX
 } 
 
 void elemental::blas::SetLocalHemvFloatBlocksize( int blocksize )
@@ -48,11 +50,13 @@ void elemental::blas::SetLocalHemvFloatBlocksize( int blocksize )
 void elemental::blas::SetLocalHemvDoubleBlocksize( int blocksize )
 { ::localHemvDoubleBlocksize = blocksize; }
 
+#ifndef WITHOUT_COMPLEX
 void elemental::blas::SetLocalHemvComplexFloatBlocksize( int blocksize )
 { ::localHemvComplexFloatBlocksize = blocksize; }
 
 void elemental::blas::SetLocalHemvComplexDoubleBlocksize( int blocksize )
 { ::localHemvComplexDoubleBlocksize = blocksize; }
+#endif // WITHOUT_COMPLEX
 
 template<>
 int
@@ -64,6 +68,7 @@ int
 elemental::blas::LocalHemvBlocksize<double>()
 { return ::localHemvDoubleBlocksize; }
 
+#ifndef WITHOUT_COMPLEX
 template<>
 int
 elemental::blas::LocalHemvBlocksize<scomplex>()
@@ -73,6 +78,7 @@ template<>
 int
 elemental::blas::LocalHemvBlocksize<dcomplex>()
 { return ::localHemvComplexDoubleBlocksize; }
+#endif // WITHOUT_COMPLEX
 
 template<typename T>
 void

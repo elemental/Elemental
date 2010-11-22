@@ -38,8 +38,10 @@ using namespace elemental;
 namespace {
 int localSymvFloatBlocksize = 64;
 int localSymvDoubleBlocksize = 64;
+#ifndef WITHOUT_COMPLEX
 int localSymvComplexFloatBlocksize = 64;
 int localSymvComplexDoubleBlocksize = 64;
+#endif // WITHOUT_COMPLEX
 } 
 
 void elemental::blas::SetLocalSymvFloatBlocksize( int blocksize )
@@ -48,11 +50,13 @@ void elemental::blas::SetLocalSymvFloatBlocksize( int blocksize )
 void elemental::blas::SetLocalSymvDoubleBlocksize( int blocksize )
 { ::localSymvDoubleBlocksize = blocksize; }
 
+#ifndef WITHOUT_COMPLEX
 void elemental::blas::SetLocalSymvComplexFloatBlocksize( int blocksize )
 { ::localSymvComplexFloatBlocksize = blocksize; }
 
 void elemental::blas::SetLocalSymvComplexDoubleBlocksize( int blocksize )
 { ::localSymvComplexDoubleBlocksize = blocksize; }
+#endif // WITHOUT_COMPLEX
 
 template<>
 int
@@ -64,6 +68,7 @@ int
 elemental::blas::LocalSymvBlocksize<double>()
 { return ::localSymvDoubleBlocksize; }
 
+#ifndef WITHOUT_COMPLEX
 template<>
 int
 elemental::blas::LocalSymvBlocksize<scomplex>()
@@ -73,6 +78,7 @@ template<>
 int
 elemental::blas::LocalSymvBlocksize<dcomplex>()
 { return ::localSymvComplexDoubleBlocksize; }
+#endif // WITHOUT_COMPLEX
 
 template<typename T>
 void

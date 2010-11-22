@@ -45,25 +45,33 @@ namespace blas {
 
 void SetLocalHemvFloatBlocksize( int blocksize );
 void SetLocalHemvDoubleBlocksize( int blocksize );
+#ifndef WITHOUT_COMPLEX
 void SetLocalHemvComplexFloatBlocksize( int blocksize );
 void SetLocalHemvComplexDoubleBlocksize( int blocksize );
+#endif // WITHOUT_COMPLEX
 
 void SetLocalSymvFloatBlocksize( int blocksize );
 void SetLocalSymvDoubleBlocksize( int blocksize );
+#ifndef WITHOUT_COMPLEX
 void SetLocalSymvComplexFloatBlocksize( int blocksize );
 void SetLocalSymvComplexDoubleBlocksize( int blocksize );
+#endif // WITHOUT_COMPLEX
 
 template<typename T> int LocalHemvBlocksize();
 template<> int LocalHemvBlocksize<float>();
 template<> int LocalHemvBlocksize<double>();
+#ifndef WITHOUT_COMPLEX
 template<> int LocalHemvBlocksize<scomplex>();
 template<> int LocalHemvBlocksize<dcomplex>();
+#endif // WITHOUT_COMPLEX
 
 template<typename T> int LocalSymvBlocksize();
 template<> int LocalSymvBlocksize<float>();
 template<> int LocalSymvBlocksize<double>();
+#ifndef WITHOUT_COMPLEX
 template<> int LocalSymvBlocksize<scomplex>();
 template<> int LocalSymvBlocksize<dcomplex>();
+#endif // WITHOUT_COMPLEX
 
 //----------------------------------------------------------------------------//
 // Level 1 BLAS                                                               //

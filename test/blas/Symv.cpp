@@ -223,7 +223,9 @@ int main( int argc, char* argv[] )
         const int m = atoi(argv[4]);
         const int nb = atoi(argv[5]);
         const int nbLocalDouble = atoi(argv[6]);
+#ifndef WITHOUT_COMPLEX
         const int nbLocalComplexDouble = atoi(argv[7]);
+#endif
         const bool testCorrectness = atoi(argv[8]);
         const bool printMatrices = atoi(argv[9]);
 #ifndef RELEASE
@@ -237,7 +239,9 @@ int main( int argc, char* argv[] )
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
         blas::SetLocalSymvDoubleBlocksize( nbLocalDouble );
+#ifndef WITHOUT_COMPLEX
         blas::SetLocalSymvComplexDoubleBlocksize( nbLocalComplexDouble );
+#endif
 
         if( rank == 0 )
             cout << "Will test Symv" << ShapeToChar(shape) << endl;
