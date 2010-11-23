@@ -30,12 +30,24 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_WRAPPERS_HPP
-#define ELEMENTAL_WRAPPERS_HPP 1
+#ifndef ELEMENTAL_DIST_MATRIX_FORWARD_HPP
+#define ELEMENTAL_DIST_MATRIX_FORWARD_HPP 1
 
-#include "elemental/wrappers/blas.hpp"
-#include "elemental/wrappers/lapack.hpp"
-#include "elemental/wrappers/mpi.hpp"
+namespace elemental {
 
-#endif /* ELEMENTAL_WRAPPERS_HPP */
+template<typename T>
+class AbstractDistMatrixBase;
+
+template<typename T>
+class AbstractDistMatrix;
+
+template<typename T, Distribution ColDist, Distribution RowDist>
+class DistMatrixBase;
+
+template<typename T, Distribution ColDist, Distribution RowDist>
+class DistMatrix;
+
+}
+
+#endif /* ELEMENTAL_DIST_MATRIX_FORWARD_HPP */
 

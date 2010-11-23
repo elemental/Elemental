@@ -101,6 +101,19 @@ coredir = core
 corefiles = Environment.cpp \
             Grid.cpp \
             Matrix.cpp \
+            DistMatrix/Base_MC_MR.cpp \
+            DistMatrix/Base_MC_Star.cpp \
+            DistMatrix/Base_MD_Star.cpp \
+            DistMatrix/Base_MR_MC.cpp \
+            DistMatrix/Base_MR_Star.cpp \
+            DistMatrix/Base_Star_MC.cpp \
+            DistMatrix/Base_Star_MD.cpp \
+            DistMatrix/Base_Star_MR.cpp \
+            DistMatrix/Base_Star_Star.cpp \
+            DistMatrix/Base_Star_VC.cpp \
+            DistMatrix/Base_Star_VR.cpp \
+            DistMatrix/Base_VC_Star.cpp \
+            DistMatrix/Base_VR_Star.cpp \
             DistMatrix/MC_MR.cpp \
             DistMatrix/MC_Star.cpp \
             DistMatrix/MD_Star.cpp \
@@ -250,6 +263,7 @@ includefiles = elemental.hpp \
                elemental/blas.hpp \
                elemental/blas_internal.hpp \
                elemental/dist_matrix.hpp \
+               elemental/dist_matrix/forward.hpp \
                elemental/dist_matrix/abstract.hpp \
                elemental/dist_matrix/mc_mr.hpp \
                elemental/dist_matrix/mc_star.hpp \

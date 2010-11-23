@@ -30,27 +30,12 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#pragma once
 #ifndef ELEMENTAL_DIST_MATRIX_HPP
 #define ELEMENTAL_DIST_MATRIX_HPP 1
 
 #include "elemental/matrix.hpp"
 
-namespace elemental {
-
-template<typename T>
-class AbstractDistMatrixBase;
-
-template<typename T>
-class AbstractDistMatrix;
-
-template<typename T, Distribution ColDist, Distribution RowDist>
-class DistMatrixBase;
-
-template<typename T, Distribution ColDist, Distribution RowDist> 
-class DistMatrix;
-
-}
+#include "elemental/dist_matrix/forward.hpp"
 
 #include "elemental/dist_matrix/abstract.hpp"
 #include "elemental/dist_matrix/mc_mr.hpp"
