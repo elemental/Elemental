@@ -37,20 +37,20 @@ both pure MPI and hybrid OpenMP/MPI parallelism. You can build the pure MPI
 debug library with:
       make pure-debug
 Likewise, the hybrid OpenMP/MPI library can be built with:
-      make omp-debug
+      make hybrid-debug
 If you would also like to build the debug test drivers for the distributed 
 BLAS and LAPACK routines, run either
       make test-pure-debug
 or
-      make test-omp-debug
+      make test-hybrid-debug
 Similarly, you can build the baremetal versions of the library with
       make pure-release
 and
-      make omp-release
+      make hybrid-release
 The commands
       make test-pure-release
 and
-      make test-omp-release
+      make test-hybrid-release
 perform the equivalent actions as in the debug case.
 
 Alternatively, all four library versions may be built with

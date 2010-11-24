@@ -37,7 +37,13 @@ testdir = test
 libdir = lib
 bindir = bin
 
-library = libelemental.a
+# The revision number will typically identify this copy by the Mercurial 
+# revision number of the main branch of Elemental at 
+# http://code.google.com/p/elemental
+#
+# Custom versions of the library should modify the revision string to reflect
+# changes.
+revision = 126
 
 # Choose whether or not to build against PMRRR; it is linked if and only if 
 # 'use_pmrrr = true'
@@ -74,27 +80,41 @@ pmrrr_lib = pmrrr
 #
 AR = ar
 ARFLAGS = rc
+
 CXX = mpicxx
 CXXFLAGS = -DBLAS_UNDERSCORE \
            -DLAPACK_UNDERSCORE \
            -DAVOID_COMPLEX_MPI \
            -I$(incdir)
-OMPFLAGS = -fopenmp
+CXXFLAGS_OMP = -fopenmp # OpenMP CXX flags
+
 CXXFLAGS_DEBUG = -g -Wall $(CXXFLAGS)
+CXXFLAGS_PURE_DEBUG = $(CXXFLAGS_DEBUG)
+CXXFLAGS_HYBRID_DEBUG = $(CXXFLAGS_DEBUG) $(CXXFLAGS_OMP) 
+
 CXXFLAGS_RELEASE = -O3 -Wall -DRELEASE -DTIMING $(CXXFLAGS)
+CXXFLAGS_PURE_RELEASE = $(CXXFLAGS_RELEASE)
+CXXFLAGS_HYBRID_RELEASE = $(CXXFLAGS_RELEASE) $(CXXFLAGS_OMP)
+
 LDFLAGS_PURE = -L/usr/lib -llapack -lblas
-LDFLAGS_OMP  = -L/usr/lib -llapack -lblas # these should be threaded if possible
+LDFLAGS_HYBRID = -L/usr/lib -llapack -lblas # use a threaded library if possible
+
 ifeq ($(use_pmrrr),true)
     LDFLAGS_PURE += -L$(pmrrr_libdir) -l$(pmrrr_lib)
-    LDFLAGS_OMP += -L$(pmrrr_libdir) -l$(pmrrr_lib)
+    LDFLAGS_HYBRID += -L$(pmrrr_libdir) -l$(pmrrr_lib)
 else
-    CXXFLAGS_DEBUG += -DWITHOUT_PMRRR
-    CXXFLAGS_RELEASE += -DWITHOUT_PMRRR
+    CXXFLAGS_PURE_DEBUG += -DWITHOUT_PMRRR
+    CXXFLAGS_PURE_RELEASE += -DWITHOUT_PMRRR
+    CXXFLAGS_HYBRID_DEBUG += -DWITHOUT_PMRRR
+    CXXFLAGS_HYBRID_RELEASE += -DWITHOUT_PMRRR
 endif
 
 ################################################################################
 # Only developers should edit past this point.                                 #
 ################################################################################
+
+library_base = libelemental
+library_suffix = -r$(revision).a
 
 # Source/object organization
 coredir = core
@@ -298,79 +318,83 @@ includes += $(srcdir)/lapack/UT/UTUtil.hpp
 ################################################################################
 # make                                                                         #
 ################################################################################
-libdir_omp_debug    = $(libdir)/omp/debug
+libdir_hybrid_debug    = $(libdir)/hybrid/debug
 libdir_pure_debug   = $(libdir)/pure/debug
-libdir_omp_release  = $(libdir)/omp/release
+libdir_hybrid_release  = $(libdir)/hybrid/release
 libdir_pure_release = $(libdir)/pure/release
-obj_omp_debug    = $(addprefix $(libdir_omp_debug)/,$(src:.cpp=.o))
+obj_hybrid_debug    = $(addprefix $(libdir_hybrid_debug)/,$(src:.cpp=.o))
 obj_pure_debug   = $(addprefix $(libdir_pure_debug)/,$(src:.cpp=.o))
-obj_omp_release  = $(addprefix $(libdir_omp_release)/,$(src:.cpp=.o))
+obj_hybrid_release  = $(addprefix $(libdir_hybrid_release)/,$(src:.cpp=.o))
 obj_pure_release = $(addprefix $(libdir_pure_release)/,$(src:.cpp=.o))
-library_omp_debug    = $(libdir_omp_debug)/$(library)
-library_pure_debug   = $(libdir_pure_debug)/$(library)
-library_omp_release  = $(libdir_omp_release)/$(library)
-library_pure_release = $(libdir_pure_release)/$(library)
+library_hybrid_debug = \
+    $(libdir_hybrid_debug)/$(library_base)-hybrid-debug$(library_suffix)
+library_pure_debug = \
+    $(libdir_pure_debug)/$(library_base)-pure-debug$(library_suffix)
+library_hybrid_release  = \
+    $(libdir_hybrid_release)/$(library_base)-hybrid-release$(library_suffix)
+library_pure_release = \
+    $(libdir_pure_release)/$(library_base)-pure-release$(library_suffix)
 
 # This is the default target
 .PHONY : lib
-lib: omp-release pure-release omp-debug pure-debug
+lib: hybrid-release pure-release hybrid-debug pure-debug
 
-.PHONY : omp-debug
-omp-debug: $(library_omp_debug)
+.PHONY : hybrid-debug
+hybrid-debug: $(library_hybrid_debug)
 
 .PHONY : pure-debug
 pure-debug: $(library_pure_debug) 
 
-.PHONY : omp-release
-omp-release: $(library_omp_release)
+.PHONY : hybrid-release
+hybrid-release: $(library_hybrid_release)
 
 .PHONY : pure-release
 pure-release: $(library_pure_release)
 
-$(library_omp_debug): $(obj_omp_debug)
-	@echo "[  omp-debug ] Creating $@"
+$(library_hybrid_debug): $(obj_hybrid_debug)
+	@echo "[rev:$(revision) hybrid-debug] Creating $@"
 	@$(AR) $(ARFLAGS) $@ $^
 
 $(library_pure_debug): $(obj_pure_debug)
-	@echo "[ pure-debug ] Creating $@"
+	@echo "[rev:$(revision) pure-debug] Creating $@"
 	@$(AR) $(ARFLAGS) $@ $^
 
-$(library_omp_release): $(obj_omp_release)
-	@echo "[ omp-release] Creating $@"
+$(library_hybrid_release): $(obj_hybrid_release)
+	@echo "[rev:$(revision) hybrid-release] Creating $@"
 	@$(AR) $(ARFLAGS) $@ $^
 
 $(library_pure_release): $(obj_pure_release)
-	@echo "[pure-release] Creating $@"
+	@echo "[rev:$(revision) pure-release] Creating $@"
 	@$(AR) $(ARFLAGS) $@ $^
 
 # Object files must depend upon headers because we inline functions
 
-$(libdir_omp_debug)/%.o: $(srcdir)/%.cpp $(includes)
+$(libdir_hybrid_debug)/%.o: $(srcdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[  omp-debug ] Compiling $<"
-	@$(CXX) $(CXXFLAGS_DEBUG) $(OMPFLAGS)-c -o $@ $<
+	@echo "[rev:$(revision) hybrid-debug] Compiling $<"
+	@$(CXX) $(CXXFLAGS_HYBRID_DEBUG) -c -o $@ $<
 
 $(libdir_pure_debug)/%.o: $(srcdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[ pure-debug ] Compiling $<"
-	@$(CXX) $(CXXFLAGS_DEBUG) -c -o $@ $<
+	@echo "[rev:$(revision) pure-debug] Compiling $<"
+	@$(CXX) $(CXXFLAGS_PURE_DEBUG) -c -o $@ $<
 
-$(libdir_omp_release)/%.o: $(srcdir)/%.cpp $(includes)
+$(libdir_hybrid_release)/%.o: $(srcdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[ omp-release] Compiling $<"
-	@$(CXX) $(CXXFLAGS_RELEASE) $(OMPFLAGS) -c -o $@ $<
+	@echo "[rev:$(revision) hybrid-release] Compiling $<"
+	@$(CXX) $(CXXFLAGS_HYBRID_RELEASE) -c -o $@ $<
 
 $(libdir_pure_release)/%.o: $(srcdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[pure-release] Compiling $<"
-	@$(CXX) $(CXXFLAGS_RELEASE) -c -o $@ $<
+	@echo "[rev:$(revision) pure-release] Compiling $<"
+	@$(CXX) $(CXXFLAGS_PURE_RELEASE) -c -o $@ $<
 
 ################################################################################
 # make test                                                                    #
 ################################################################################
-bindir_omp_debug    = $(bindir)/omp/debug
+bindir_hybrid_debug    = $(bindir)/hybrid/debug
 bindir_pure_debug   = $(bindir)/pure/debug
-bindir_omp_release  = $(bindir)/omp/release
+bindir_hybrid_release  = $(bindir)/hybrid/release
 bindir_pure_release = $(bindir)/pure/release
 
 tests = DistMatrix \
@@ -398,63 +422,64 @@ ifeq ($(use_pmrrr),true)
 endif
 testobjs = $(addsuffix .o, $(tests))
 
-tests_omp_debug     = $(addprefix $(bindir_omp_debug)/, $(tests))
-tests_pure_debug    = $(addprefix $(bindir_pure_debug)/, $(tests))
-testobjs_omp_debug  = $(addprefix $(bindir_omp_debug)/, $(testobjs))
-testobjs_pure_debug = $(addprefix $(bindir_pure_debug)/, $(testobjs))
-tests_omp_release   = $(addprefix $(bindir_omp_release)/, $(tests))
-tests_pure_release  = $(addprefix $(bindir_pure_release)/, $(tests))
+tests_hybrid_debug    = $(addprefix $(bindir_hybrid_debug)/,   $(tests))
+tests_pure_debug      = $(addprefix $(bindir_pure_debug)/,     $(tests))
+testobjs_hybrid_debug = $(addprefix $(bindir_hybrid_debug)/,   $(testobjs))
+testobjs_pure_debug   = $(addprefix $(bindir_pure_debug)/,     $(testobjs))
+tests_hybrid_release  = $(addprefix $(bindir_hybrid_release)/, $(tests))
+tests_pure_release    = $(addprefix $(bindir_pure_release)/,   $(tests))
 
 .PHONY : test
-test: test-omp-release test-pure-release test-omp-debug test-pure-debug
+test: test-hybrid-release test-pure-release test-hybrid-debug test-pure-debug
 
-.PHONY : test-omp-debug 
-tests-omp-debug: $(tests_omp_debug) $(testobjs_omp_debug)
+.PHONY : test-hybrid-debug 
+tests-hybrid-debug: $(tests_hybrid_debug) $(testobjs_hybrid_debug)
 
 .PHONY : test-pure-debug
 test-pure-debug: $(tests_pure_debug) $(testobjs_pure_debug)
 
-.PHONY : test-omp-release
-test-omp-release: $(tests_omp_release)
+.PHONY : test-hybrid-release
+test-hybrid-release: $(tests_hybrid_release)
 
 .PHONY : test-pure-release
 test-pure-release: $(tests_pure_release)
 
-$(bindir_omp_debug)/%: $(bindir_omp_debug)/%.o $(library_omp_debug)
-	@echo "[  omp-debug ] Creating $@"
-	@$(CXX) $(OMPFLAGS) -o $@ $^ $(LDFLAGS_OMP)
+$(bindir_hybrid_debug)/%: $(bindir_hybrid_debug)/%.o $(library_hybrid_debug)
+	@echo "[rev:$(revision) hybrid-debug] Creating $@"
+	@$(CXX) $(HYBRIDFLAGS) -o $@ $^ $(LDFLAGS_HYBRID)
 
 $(bindir_pure_debug)/%: $(bindir_pure_debug)/%.o $(library_pure_debug)
-	@echo "[ pure-debug ] Creating $@"
+	@echo "[rev:$(revision) pure-debug] Creating $@"
 	@$(CXX) -o $@ $^ $(LDFLAGS_PURE)
 
-$(bindir_omp_release)/%: $(bindir_omp_release)/%.o $(library_omp_release)
-	@echo "[ omp-release] Creating $@"
-	@$(CXX) $(OMPFLAGS) -o $@ $^ $(LDFLAGS_OMP)
+$(bindir_hybrid_release)/%: $(bindir_hybrid_release)/%.o \
+                            $(library_hybrid_release)
+	@echo "[rev:$(revision) hybrid-release] Creating $@"
+	@$(CXX) $(HYBRIDFLAGS) -o $@ $^ $(LDFLAGS_HYBRID)
 
 $(bindir_pure_release)/%: $(bindir_pure_release)/%.o $(library_pure_release)
-	@echo "[pure-release] Creating $@"
+	@echo "[rev:$(revision) pure-release] Creating $@"
 	@$(CXX) -o $@ $^ $(LDFLAGS_PURE)
 
-$(bindir_omp_debug)/%.o: $(testdir)/%.cpp $(includes)
+$(bindir_hybrid_debug)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[  omp-debug ] Compiling $<"
-	@$(CXX) $(CXXFLAGS_DEBUG) $(OMPFLAGS) -c -o $@ $<
+	@echo "[rev:$(revision) hybrid-debug] Compiling $<"
+	@$(CXX) $(CXXFLAGS_HYBRID_DEBUG) -c -o $@ $<
 
 $(bindir_pure_debug)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[ pure-debug ] Compiling $<"
-	@$(CXX) $(CXXFLAGS_DEBUG) -c -o $@ $<
+	@echo "[rev:$(revision) pure-debug] Compiling $<"
+	@$(CXX) $(CXXFLAGS_PURE_DEBUG) -c -o $@ $<
 
-$(bindir_omp_release)/%.o: $(testdir)/%.cpp $(includes)
+$(bindir_hybrid_release)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[ omp-release] Compiling $<"
-	@$(CXX) $(CXXFLAGS_RELEASE) $(OMPFLAGS) -c -o $@ $<
+	@echo "[rev:$(revision) hybrid-release] Compiling $<"
+	@$(CXX) $(CXXFLAGS_HYBRID_RELEASE) -c -o $@ $<
 
 $(bindir_pure_release)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[pure-release] Compiling $<"
-	@$(CXX) $(CXXFLAGS_RELEASE) -c -o $@ $<
+	@echo "[rev:$(revision) pure-release] Compiling $<"
+	@$(CXX) $(CXXFLAGS_PURE_RELEASE) -c -o $@ $<
 
 ################################################################################
 # make clean                                                                   #
@@ -464,30 +489,30 @@ clean:
 	@rm -Rf lib/
 	@rm -Rf bin/
 
-.PHONY : clean-omp
-clean-omp:
-	@rm -Rf lib/omp
-	@rm -Rf bin/omp
+.PHONY : clean-hybrid
+clean-hybrid:
+	@rm -Rf lib/hybrid
+	@rm -Rf bin/hybrid
 
 .PHONY : clean-pure
 clean-pure:
 	@rm -Rf lib/pure
 	@rm -Rf bin/pure
 
-.PHONY : clean-omp-debug
-clean-omp-debug:
-	@rm -Rf lib/omp/debug
-	@rm -Rf bin/omp/debug
+.PHONY : clean-hybrid-debug
+clean-hybrid-debug:
+	@rm -Rf lib/hybrid/debug
+	@rm -Rf bin/hybrid/debug
 
 .PHONY : clean-pure-debug
 clean-pure-debug:
 	@rm -Rf lib/pure/debug
 	@rm -Rf bin/pure/debug
 
-.PHONY : clean-omp-release
-clean-omp-release:
-	@rm -Rf lib/omp/release
-	@rm -Rf bin/omp/release
+.PHONY : clean-hybrid-release
+clean-hybrid-release:
+	@rm -Rf lib/hybrid/release
+	@rm -Rf bin/hybrid/release
 
 .PHONY : clean-pure-release
 clean-pure-release:
