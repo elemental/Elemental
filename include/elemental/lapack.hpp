@@ -88,7 +88,64 @@ GeneralizedHermitianEig
   DistMatrix<R,MC,  MR>& A, 
   DistMatrix<R,MC,  MR>& B, 
   DistMatrix<R,Star,VR>& w,
-  DistMatrix<R,MC,  MR>& X );
+  DistMatrix<R,MC,  MR>& X,
+  bool tryForHighAccuracy = false );
+// Grab a partial set of eigenpairs. 
+// The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
+template<typename R>
+void
+GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<R,MC,  MR>& A,
+  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,MC,  MR>& X,
+  int a, int b, bool tryForHighAccuracy = false );
+// Grab a partial set of eigenpairs.
+// The partial set is determined by the half-open interval (a,b]
+template<typename R>
+void
+GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<R,MC,  MR>& A,
+  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,MC,  MR>& X,
+  R a, R b, bool tryForHighAccuracy = false );
+// Grab the full set of eigenvalues of real symmetric A and SPD B
+template<typename R>
+void
+GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<R,MC,  MR>& A, 
+  DistMatrix<R,MC,  MR>& B, 
+  DistMatrix<R,Star,VR>& w,
+  bool tryForHighAccuracy = false );
+// Grab a partial set of eigenvalues. 
+// The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
+template<typename R>
+void
+GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<R,MC,  MR>& A,
+  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R,Star,VR>& w,
+  int a, int b, bool tryForHighAccuracy = false );
+// Grab a partial set of eigenvalues.
+// The partial set is determined by the half-open interval (a,b]
+template<typename R>
+void
+GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<R,MC,  MR>& A,
+  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R,Star,VR>& w,
+  R a, R b, bool tryForHighAccuracy = false );
+
 #ifndef WITHOUT_COMPLEX
 // Grab the full set of eigenpairs of complex Hermitian A and HPD B
 template<typename R>
@@ -98,18 +155,32 @@ GeneralizedHermitianEig
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
-  DistMatrix<std::complex<R>,MC,  MR>& X );
-#endif // WITHOUT_COMPLEX
-
-// Grab the full set of eigenvalues of real symmetric A and SPD B
+  DistMatrix<std::complex<R>,MC,  MR>& X,
+  bool tryForHighAccuracy = false );
+// Grab a partial set of eigenpairs. 
+// The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void
 GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
-  DistMatrix<R,MC,  MR>& A, 
-  DistMatrix<R,MC,  MR>& B, 
-  DistMatrix<R,Star,VR>& w );
-#ifndef WITHOUT_COMPLEX
+( GenEigType genEigType, Shape shape,
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<std::complex<R>,MC,  MR>& X,
+  int a, int b, bool tryForHighAccuracy = false );
+// Grab a partial set of eigenpairs.
+// The partial set is determined by the half-open interval (a,b]
+template<typename R>
+void
+GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<std::complex<R>,MC,  MR>& X,
+  R a, R b, bool tryForHighAccuracy = false );
 // Grab the full set of eigenvalues of complex Hermitian A and HPD B
 template<typename R>
 void
@@ -117,7 +188,30 @@ GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, Star,VR>& w );
+  DistMatrix<             R, Star,VR>& w,
+  bool tryForHighAccuracy = false );
+// Grab a partial set of eigenvalues. 
+// The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
+template<typename R>
+void
+GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w,
+  int a, int b, bool tryForHighAccuracy = false );
+// Grab a partial set of eigenvalues.
+// The partial set is determined by the half-open interval (a,b]
+template<typename R>
+void
+GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w,
+  R a, R b, bool tryForHighAccuracy = false );
 #endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 

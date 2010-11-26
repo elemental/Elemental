@@ -42,14 +42,25 @@ void Usage()
     cout << "Generates random Hermitian A and random HPD B then solves for "
          << "their eigenpairs.\n\n"
          << "  GeneralizedHermitianEig <r> <c> <genEigType> <only eigenvalues?>"
-         << " <shape> <m> <nb> <correctness?> <print?>\n\n"
+            " <range> <a> <b> <highAccuracy?> <shape> <m> <nb> "
+            "<hemv local double> <hemv local complex double> <correctness?> "
+            "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  genEigType: 1 -> AX=BXW, 2 -> ABX=XW, 3-> BAX=XW\n"
          << "  only eigenvalues?: 0/1\n"
+         << "  range: 'A' for all, 'I' for index range, "
+            "'V' for floating-point range\n"
+         << "  a: if range=='I', 0-indexed first eigenpair to compute\n"
+            "     if range=='V', lower-bound on eigenvalues\n"
+         << "  b: if range=='I', 0-indexed last eigenpair to compute\n"
+            "     if range=='V', upper-bound on eigenvalues\n"
+         << "  highAccuracy? try for high acc. iff != 0\n"
          << "  shape: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
+         << "  Hemv local nb double: local blocksize for Hemv, double-prec.\n"
+         << "  Hemv local nb complex double: \" \", complex double-precision\n"
          << "  test correctness?: false iff 0\n"
          << "  print matrices?: false iff 0\n" << endl;
 }
@@ -489,7 +500,8 @@ void TestCorrectnessDoubleComplex
 void TestGeneralizedHermitianEigDouble
 ( bool testCorrectness, bool printMatrices,
   lapack::GenEigType genEigType, bool onlyEigenvalues, Shape shape, 
-  int m, const Grid& g )
+  int m, char range, double vl, double vu, int il, int iu,
+  bool tryForHighAccuracy, const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<double,MC,MR> A(m,m,g);
@@ -539,9 +551,41 @@ void TestGeneralizedHermitianEigDouble
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
     if( onlyEigenvalues )
-        lapack::GeneralizedHermitianEig( genEigType, shape, A, B, w );
+    {
+        if( range == 'A' )
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, tryForHighAccuracy );
+        }
+        else if( range == 'I' )
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, il, iu, tryForHighAccuracy );
+        }
+        else
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, vl, vu, tryForHighAccuracy );
+        }
+    }
     else
-        lapack::GeneralizedHermitianEig( genEigType, shape, A, B, w, X );
+    {
+        if( range == 'A' )
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, X, tryForHighAccuracy );
+        }
+        else if( range == 'I' )
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, X, il, iu, tryForHighAccuracy );
+        }
+        else
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, X, vl, vu, tryForHighAccuracy );
+        }
+    }
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -567,7 +611,8 @@ void TestGeneralizedHermitianEigDouble
 void TestGeneralizedHermitianEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
   lapack::GenEigType genEigType, bool onlyEigenvalues, Shape shape, 
-  int m, const Grid& g )
+  int m, char range, double vl, double vu, int il, int iu, 
+  bool tryForHighAccuracy, const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<std::complex<double>,MC,  MR> A(m,m,g);
@@ -619,9 +664,41 @@ void TestGeneralizedHermitianEigDoubleComplex
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
     if( onlyEigenvalues )
-        lapack::GeneralizedHermitianEig( genEigType, shape, A, B, w );
-     else
-        lapack::GeneralizedHermitianEig( genEigType, shape, A, B, w, X );
+    {
+        if( range == 'A' )
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, tryForHighAccuracy );
+        }
+        else if( range == 'I' )
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, il, iu, tryForHighAccuracy );
+        }
+        else
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, vl, vu, tryForHighAccuracy );
+        }
+    }
+    else
+    {
+        if( range == 'A' )
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, X, tryForHighAccuracy );
+        }
+        else if( range == 'I' )
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, X, il, iu, tryForHighAccuracy );
+        }
+        else
+        {
+            lapack::GeneralizedHermitianEig
+            ( genEigType, shape, A, B, w, X, vl, vu, tryForHighAccuracy );
+        }
+    }
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -649,7 +726,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 10 )
+    if( argc != 16 )
     {
         if( rank == 0 )
             Usage();
@@ -662,11 +739,31 @@ int main( int argc, char* argv[] )
         const int c = atoi(argv[2]);
         const int genEigInt = atoi(argv[3]);
         const bool onlyEigenvalues = atoi(argv[4]);
-        const Shape shape = CharToShape(*argv[5]);
-        const int m = atoi(argv[6]);
-        const int nb = atoi(argv[7]);
-        const bool testCorrectness = atoi(argv[8]);
-        const bool printMatrices = atoi(argv[9]);
+        const char range = *argv[5];
+        if( range != 'A' && range != 'I' && range != 'V' )
+            throw std::runtime_error("'range' must be 'A', 'I', or 'V'");
+        double vl = 0, vu = 0;
+        int il = 0, iu = 0;
+        if( range == 'I' )
+        {
+            il = atoi(argv[6]);
+            iu = atoi(argv[7]);
+        }
+        else if( range == 'V' )
+        {
+            vl = atof(argv[6]);
+            vu = atof(argv[7]);
+        }
+        const bool tryForHighAccuracy = atoi(argv[8]);
+        const Shape shape = CharToShape(*argv[9]);
+        const int m = atoi(argv[10]);
+        const int nb = atoi(argv[11]);
+        const int nbLocalHemvDouble = atoi(argv[12]);
+#ifndef WITHOUT_COMPLEX
+        const int nbLocalHemvComplexDouble = atoi(argv[13]);
+#endif
+        const bool testCorrectness = atoi(argv[14]);
+        const bool printMatrices = atoi(argv[15]);
 
         if( testCorrectness && onlyEigenvalues && rank==0 )
             cout << "Cannot test correctness with only eigenvalues." << endl;
@@ -701,6 +798,10 @@ int main( int argc, char* argv[] )
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
+        blas::SetLocalHemvDoubleBlocksize( nbLocalHemvDouble );
+#ifndef WITHOUT_COMPLEX
+        blas::SetLocalHemvComplexDoubleBlocksize( nbLocalHemvComplexDouble );
+#endif
 
         if( rank == 0 )
         {
@@ -717,7 +818,8 @@ int main( int argc, char* argv[] )
         }
         TestGeneralizedHermitianEigDouble
         ( testCorrectness, printMatrices, 
-          genEigType, onlyEigenvalues, shape, m, g );
+          genEigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,
+          tryForHighAccuracy, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -728,7 +830,8 @@ int main( int argc, char* argv[] )
         }
         TestGeneralizedHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          genEigType, onlyEigenvalues, shape, m, g );
+          genEigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, 
+          tryForHighAccuracy, g );
 #endif 
     }
     catch( exception& e )

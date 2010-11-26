@@ -41,8 +41,9 @@ void Usage()
 {
     cout << "Generates random Hermitian matrix then solves for its eigenpairs."
 	 << "\n\n"
-         << "  HermitianEig <r> <c> <only eigenvalues?> <range <a> <b> <shape> "
-         << "<m> <nb> <correctness?> <print?>\n\n"
+         << "  HermitianEig <r> <c> <only eigenvalues?> <range> <a> <b> "
+            "<highAccuracy?> <shape> <m> <nb> <hemv local double> "
+            "<hemv local complex double> <correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  only eigenvalues?: 0/1\n"
@@ -56,6 +57,8 @@ void Usage()
          << "  shape: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
+         << "  Hemv local nb double: local blocksize for Hemv, double-prec.\n"
+         << "  Hemv local nb complex double: \" \", complex double-precision\n"
          << "  test correctness?: false iff 0\n"
          << "  print matrices?: false iff 0\n" << endl;
 }
@@ -350,7 +353,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 13 )
+    if( argc != 15 )
     {
         if( rank == 0 )
             Usage();
@@ -381,8 +384,12 @@ int main( int argc, char* argv[] )
         const Shape shape = CharToShape(*argv[8]);
         const int m = atoi(argv[9]);
         const int nb = atoi(argv[10]);
-        const bool testCorrectness = atoi(argv[11]);
-        const bool printMatrices = atoi(argv[12]);
+        const int nbLocalHemvDouble = atoi(argv[11]);
+#ifndef WITHOUT_COMPLEX
+        const int nbLocalHemvComplexDouble = atoi(argv[12]);
+#endif
+        const bool testCorrectness = atoi(argv[13]);
+        const bool printMatrices = atoi(argv[14]);
 
         if( onlyEigenvalues && testCorrectness && rank==0 )
         {
@@ -400,6 +407,10 @@ int main( int argc, char* argv[] )
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
+        blas::SetLocalHemvDoubleBlocksize( nbLocalHemvDouble );
+#ifndef WITHOUT_COMPLEX
+        blas::SetLocalHemvComplexDoubleBlocksize( nbLocalHemvComplexDouble );
+#endif
 
         if( rank == 0 )
         {

@@ -43,7 +43,7 @@ bindir = bin
 #
 # Custom versions of the library should modify the revision string to reflect
 # changes.
-revision = 127
+revision = 128
 
 # Choose whether or not to build against PMRRR; it is linked if and only if 
 # 'use_pmrrr = true'
@@ -397,8 +397,7 @@ bindir_pure_debug   = $(bindir)/pure/debug
 bindir_hybrid_release  = $(bindir)/hybrid/release
 bindir_pure_release = $(bindir)/pure/release
 
-tests = 
-#tests = DistMatrix \
+tests = DistMatrix \
         blas/Gemm \
         blas/Hemm \
         blas/Her2k \

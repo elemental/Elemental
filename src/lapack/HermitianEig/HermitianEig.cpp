@@ -319,8 +319,6 @@ elemental::lapack::HermitianEig
         if( tryForHighAccuracy && tryrac==0 )
             std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
-        std::cout << "Exited pmrrr." << std::endl;
-
         // Copy wBuffer into the distributed matrix w[* ,VR]
         w.AlignWith( Z_Star_VR );
         w.ResizeTo( 1, n );

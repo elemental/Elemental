@@ -33,6 +33,7 @@
 #include "elemental/lapack.hpp"
 using namespace elemental;
 
+// Grab the full set of eigenpairs.
 template<typename R>
 void
 elemental::lapack::GeneralizedHermitianEig
@@ -40,7 +41,8 @@ elemental::lapack::GeneralizedHermitianEig
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
-  DistMatrix<R,MC,  MR>& X )
+  DistMatrix<R,MC,  MR>& X,
+  bool tryForHighAccuracy )
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
@@ -50,7 +52,7 @@ elemental::lapack::GeneralizedHermitianEig
 
     lapack::Chol( shape, B );
     lapack::Hegst( side, shape, A, B );
-    lapack::HermitianEig( shape, A, w, X );
+    lapack::HermitianEig( shape, A, w, X, tryForHighAccuracy );
     if( genEigType == AXBX || genEigType == ABX )
     {
         if( shape == Lower )
@@ -70,13 +72,19 @@ elemental::lapack::GeneralizedHermitianEig
 #endif
 }
 
+// Grab a partial set of eigenpairs. 
+// The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,Star,VR>& w )
+  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,MC,  MR>& X,
+  int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
@@ -86,13 +94,144 @@ elemental::lapack::GeneralizedHermitianEig
 
     lapack::Chol( shape, B );
     lapack::Hegst( side, shape, A, B );
-    lapack::HermitianEig( shape, A, w );
+    lapack::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
+    if( genEigType == AXBX || genEigType == ABX )
+    {
+        if( shape == Lower )
+            blas::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (R)1, B, X );
+        else
+            blas::Trsm( Left, Upper, Normal, NonUnit, (R)1, B, X );
+    }
+    else /* genEigType == BAX */
+    {
+        if( shape == Lower )
+            blas::Trmm( Left, Lower, Normal, NonUnit, (R)1, B, X );
+        else
+            blas::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (R)1, B, X );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Grab a partial set of eigenpairs.
+// The partial set is determined by the half-open interval (a,b]
+template<typename R>
+void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<R,MC,  MR>& A,
+  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,MC,  MR>& X,
+  R a, R b, bool tryForHighAccuracy )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::GeneralizedHermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
+    lapack::Chol( shape, B );
+    lapack::Hegst( side, shape, A, B );
+    lapack::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
+    if( genEigType == AXBX || genEigType == ABX )
+    {
+        if( shape == Lower )
+            blas::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (R)1, B, X );
+        else
+            blas::Trsm( Left, Upper, Normal, NonUnit, (R)1, B, X );
+    }
+    else /* genEigType == BAX */
+    {
+        if( shape == Lower )
+            blas::Trmm( Left, Lower, Normal, NonUnit, (R)1, B, X );
+        else
+            blas::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (R)1, B, X );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Grab the full set of eigenvalues
+template<typename R>
+void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<R,MC,  MR>& A,
+  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R,Star,VR>& w,
+  bool tryForHighAccuracy )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::GeneralizedHermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
+    lapack::Chol( shape, B );
+    lapack::Hegst( side, shape, A, B );
+    lapack::HermitianEig( shape, A, w, tryForHighAccuracy );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Grab a partial set of eigenvalues. 
+// The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
+template<typename R>
+void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<R,MC,  MR>& A,
+  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R,Star,VR>& w,
+  int a, int b, bool tryForHighAccuracy )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::GeneralizedHermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
+    lapack::Chol( shape, B );
+    lapack::Hegst( side, shape, A, B );
+    lapack::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Grab a partial set of eigenvalues.
+// The partial set is determined by the half-open interval (a,b]
+template<typename R>
+void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<R,MC,  MR>& A,
+  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R,Star,VR>& w,
+  R a, R b, bool tryForHighAccuracy )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::GeneralizedHermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
+    lapack::Chol( shape, B );
+    lapack::Hegst( side, shape, A, B );
+    lapack::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
 #ifndef WITHOUT_COMPLEX
+// Grab the full set of eigenpairs
 template<typename R>
 void
 elemental::lapack::GeneralizedHermitianEig
@@ -100,7 +239,8 @@ elemental::lapack::GeneralizedHermitianEig
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
-  DistMatrix<std::complex<R>,MC,  MR>& X )
+  DistMatrix<std::complex<R>,MC,  MR>& X,
+  bool tryForHighAccuracy )
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
@@ -110,7 +250,7 @@ elemental::lapack::GeneralizedHermitianEig
 
     lapack::Chol( shape, B );
     lapack::Hegst( side, shape, A, B );
-    lapack::HermitianEig( shape, A, w, X );
+    lapack::HermitianEig( shape, A, w, X, tryForHighAccuracy );
     if( genEigType == AXBX || genEigType == ABX )
     {
         if( shape == Lower )
@@ -146,13 +286,19 @@ elemental::lapack::GeneralizedHermitianEig
 #endif
 }
 
+// Grab a partial set of eigenpairs. 
+// The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, Star,VR>& w )
+  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<std::complex<R>,MC,  MR>& X,
+  int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
@@ -162,7 +308,169 @@ elemental::lapack::GeneralizedHermitianEig
 
     lapack::Chol( shape, B );
     lapack::Hegst( side, shape, A, B );
-    lapack::HermitianEig( shape, A, w );
+    lapack::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
+    if( genEigType == AXBX || genEigType == ABX )
+    {
+        if( shape == Lower )
+        {
+            blas::Trsm
+            ( Left, Lower, ConjugateTranspose, NonUnit, 
+              std::complex<R>(1), B, X );
+        }
+        else
+        {
+            blas::Trsm
+            ( Left, Upper, Normal, NonUnit, 
+              std::complex<R>(1), B, X );
+        }
+    }
+    else /* genEigType == BAX */
+    {
+        if( shape == Lower )
+        {
+            blas::Trmm
+            ( Left, Lower, Normal, NonUnit,
+              std::complex<R>(1), B, X );
+        }
+        else
+        {
+            blas::Trmm
+            ( Left, Upper, ConjugateTranspose, NonUnit,
+              std::complex<R>(1), B, X );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Grab a partial set of eigenpairs.
+// The partial set is determined by the half-open interval (a,b]
+template<typename R>
+void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<std::complex<R>,MC,  MR>& X,
+  R a, R b, bool tryForHighAccuracy )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::GeneralizedHermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
+    lapack::Chol( shape, B );
+    lapack::Hegst( side, shape, A, B );
+    lapack::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
+    if( genEigType == AXBX || genEigType == ABX )
+    {
+        if( shape == Lower )
+        {
+            blas::Trsm
+            ( Left, Lower, ConjugateTranspose, NonUnit, 
+              std::complex<R>(1), B, X );
+        }
+        else
+        {
+            blas::Trsm
+            ( Left, Upper, Normal, NonUnit, 
+              std::complex<R>(1), B, X );
+        }
+    }
+    else /* genEigType == BAX */
+    {
+        if( shape == Lower )
+        {
+            blas::Trmm
+            ( Left, Lower, Normal, NonUnit,
+              std::complex<R>(1), B, X );
+        }
+        else
+        {
+            blas::Trmm
+            ( Left, Upper, ConjugateTranspose, NonUnit,
+              std::complex<R>(1), B, X );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Grab a full set of eigenvalues
+template<typename R>
+void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w,
+  bool tryForHighAccuracy )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::GeneralizedHermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
+    lapack::Chol( shape, B );
+    lapack::Hegst( side, shape, A, B );
+    lapack::HermitianEig( shape, A, w, tryForHighAccuracy );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Grab a partial set of eigenvalues. 
+// The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
+template<typename R>
+void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w,
+  int a, int b, bool tryForHighAccuracy )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::GeneralizedHermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
+    lapack::Chol( shape, B );
+    lapack::Hegst( side, shape, A, B );
+    lapack::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Grab a partial set of eigenvalues.
+// The partial set is determined by the half-open interval (a,b]
+template<typename R>
+void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape, 
+  DistMatrix<std::complex<R>,MC,  MR>& A,
+  DistMatrix<std::complex<R>,MC,  MR>& B,
+  DistMatrix<             R, Star,VR>& w,
+  R a, R b, bool tryForHighAccuracy )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::GeneralizedHermitianEig");
+    // TODO: Checks for input consistency
+#endif
+    const Side side = ( genEigType==AXBX ? Right : Left );
+
+    lapack::Chol( shape, B );
+    lapack::Hegst( side, shape, A, B );
+    lapack::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -175,14 +483,50 @@ elemental::lapack::GeneralizedHermitianEig
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
   DistMatrix<double,Star,VR>& w,
-  DistMatrix<double,MC,  MR>& X );
+  DistMatrix<double,MC,  MR>& X,
+  bool tryForHighAccuracy );
 
 template void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
-  DistMatrix<double,Star,VR>& w );
+  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,MC,  MR>& X,
+  int a, int b, bool tryForHighAccuracy );
+
+template void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double,MC,  MR>& B,
+  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,MC,  MR>& X,
+  double a, double b, bool tryForHighAccuracy );
+
+template void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double,MC,  MR>& B,
+  DistMatrix<double,Star,VR>& w,
+  bool tryForHighAccuracy );
+
+template void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double,MC,  MR>& B,
+  DistMatrix<double,Star,VR>& w,
+  int a, int b, bool tryForHighAccuracy );
+
+template void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double,MC,  MR>& B,
+  DistMatrix<double,Star,VR>& w,
+  double a, double b, bool tryForHighAccuracy );
 
 #ifndef WITHOUT_COMPLEX
 template void
@@ -191,13 +535,49 @@ elemental::lapack::GeneralizedHermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
   DistMatrix<             double, Star,VR>& w,
-  DistMatrix<std::complex<double>,MC,  MR>& X );
+  DistMatrix<std::complex<double>,MC,  MR>& X,
+  bool tryForHighAccuracy );
 
 template void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
-  DistMatrix<             double, Star,VR>& w );
+  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<std::complex<double>,MC,  MR>& X,
+  int a, int b, bool tryForHighAccuracy );
+
+template void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& A,
+  DistMatrix<std::complex<double>,MC,  MR>& B,
+  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<std::complex<double>,MC,  MR>& X,
+  double a, double b, bool tryForHighAccuracy );
+
+template void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& A,
+  DistMatrix<std::complex<double>,MC,  MR>& B,
+  DistMatrix<             double, Star,VR>& w,
+  bool tryForHighAccuracy );
+
+template void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& A,
+  DistMatrix<std::complex<double>,MC,  MR>& B,
+  DistMatrix<             double, Star,VR>& w,
+  int a, int b, bool tryForHighAccuracy );
+
+template void
+elemental::lapack::GeneralizedHermitianEig
+( GenEigType genEigType, Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& A,
+  DistMatrix<std::complex<double>,MC,  MR>& B,
+  DistMatrix<             double, Star,VR>& w,
+  double a, double b, bool tryForHighAccuracy );
 #endif
 
