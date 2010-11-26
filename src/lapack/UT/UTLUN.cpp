@@ -68,9 +68,9 @@ elemental::lapack::internal::UTLUN
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
                          H20(g), H21(g), H22(g);
     DistMatrix<R,MC,MR>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ATop(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
+        AT(g),  A0(g),  ATop(g),
+        AB(g),  A1(g),
+                A2(g);
 
     DistMatrix<R,VC,  Star> HPan_VC_Star(g);
     DistMatrix<R,MC,  Star> HPan_MC_Star(g);
@@ -81,9 +81,9 @@ elemental::lapack::internal::UTLUN
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
-    PartitionUpDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
+    PartitionUp
+    ( A, AT,
+         AB, 0 );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -92,19 +92,20 @@ elemental::lapack::internal::UTLUN
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
         int HPanHeight = H01.Height() + H11.Height();
         int HPanOffset = min( H11.Width(), max(offset-H00.Width(),0) );
         int HPanWidth = H11.Width()-HPanOffset;
         HPan.LockedView
         ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
-        ATop.View( A, 0, 0, A00.Height()+A11.Height(), A.Width() );
+        RepartitionUp
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
+
+        ATop.View2x1( A0,
+                      A1 );
 
         HPan_MC_Star.AlignWith( ATop );
         Z_Star_MR.AlignWith( ATop );
@@ -147,11 +148,11 @@ elemental::lapack::internal::UTLUN
                /**/       H10, /**/ H11, H12,
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
 
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        SlidePartitionUp
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -193,9 +194,9 @@ elemental::lapack::internal::UTLUN
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
                          H20(g), H21(g), H22(g);
     DistMatrix<C,MC,MR>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ATop(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
+        AT(g),  A0(g),  ATop(g),
+        AB(g),  A1(g),
+                A2(g);
     DistMatrix<C,MD,Star>
         tT(g),  t0(g),
         tB(g),  t1(g),
@@ -214,9 +215,9 @@ elemental::lapack::internal::UTLUN
     LockedPartitionUp
     ( t, tT,
          tB, 0 );
-    PartitionUpDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
+    PartitionUp
+    ( A, AT,
+         AB, 0 );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -228,6 +229,8 @@ elemental::lapack::internal::UTLUN
         int HPanHeight = H01.Height() + H11.Height();
         int HPanOffset = min( H11.Width(), max(offset-H00.Width(),0) );
         int HPanWidth = H11.Width()-HPanOffset;
+        HPan.LockedView
+        ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
         LockedRepartitionUp
         ( tT,  t0,
@@ -235,16 +238,14 @@ elemental::lapack::internal::UTLUN
          /**/ /**/
           tB,  t2, HPanWidth );
 
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        RepartitionUp
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
 
-        HPan.LockedView
-        ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
-
-        ATop.View( A, 0, 0, A00.Height()+A11.Height(), A.Width() );
+        ATop.View2x1( A0,
+                      A1 );
 
         HPan_MC_Star.AlignWith( ATop );
         Z_Star_MR.AlignWith( ATop );
@@ -294,11 +295,11 @@ elemental::lapack::internal::UTLUN
                t1,
           tB,  t2 );
 
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        SlidePartitionUp
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
     }
 #ifndef RELEASE
     PopCallStack();

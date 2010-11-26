@@ -67,10 +67,7 @@ elemental::lapack::internal::UTRLN
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
                          H20(g), H21(g), H22(g);
-    DistMatrix<R,MC,MR>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ARight(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
+    DistMatrix<R,MC,MR> ARight(g);
 
     DistMatrix<R,VC,  Star> HPan_VC_Star(g);
     DistMatrix<R,MR,  Star> HPan_MR_Star(g);
@@ -81,9 +78,6 @@ elemental::lapack::internal::UTRLN
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
-    PartitionUpDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -92,16 +86,11 @@ elemental::lapack::internal::UTRLN
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
         int HPanHeight = H11.Height() + H21.Height();
         int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
         int leftover = A.Width()-HPanHeight;
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+
         ARight.View( A, 0, leftover, A.Height(), HPanHeight );
 
         HPan_MR_Star.AlignWith( ARight );
@@ -146,12 +135,6 @@ elemental::lapack::internal::UTRLN
          /*************/ /******************/
                /**/       H10, /**/ H11, H12,
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
-
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -192,10 +175,7 @@ elemental::lapack::internal::UTRLN
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
                          H20(g), H21(g), H22(g);
-    DistMatrix<C,MC,MR>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ARight(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
+    DistMatrix<C,MC,MR> ARight(g);
     DistMatrix<C,MD,Star>
         tT(g),  t0(g),
         tB(g),  t1(g),
@@ -214,9 +194,6 @@ elemental::lapack::internal::UTRLN
     LockedPartitionUp
     ( t, tT,
          tB, 0 );
-    PartitionUpDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -228,6 +205,7 @@ elemental::lapack::internal::UTRLN
         int HPanHeight = H11.Height() + H21.Height();
         int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
         int leftover = A.Width()-HPanHeight;
+        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         LockedRepartitionUp
         ( tT,  t0,
@@ -235,13 +213,6 @@ elemental::lapack::internal::UTRLN
          /**/ /**/
           tB,  t2, HPanWidth );
 
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
         ARight.View( A, 0, leftover, A.Height(), HPanHeight );
 
         HPan_MR_Star.AlignWith( ARight );
@@ -293,12 +264,6 @@ elemental::lapack::internal::UTRLN
          /**/ /**/
                t1,
           tB,  t2 );
-
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
 #ifndef RELEASE
     PopCallStack();

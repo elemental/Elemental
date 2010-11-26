@@ -41,11 +41,18 @@ void Usage()
 {
     cout << "Generates random Hermitian matrix then solves for its eigenpairs."
 	 << "\n\n"
-         << "  HermitianEig <r> <c> <only eigenvalues?> <shape> <m> <nb> "
-         << "<correctness?> <print?>\n\n"
+         << "  HermitianEig <r> <c> <only eigenvalues?> <range <a> <b> <shape> "
+         << "<m> <nb> <correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  only eigenvalues?: 0/1\n"
+         << "  range: 'A' for all, 'I' for index range, "
+            "'V' for floating-point range\n"
+         << "  a: if range=='I', 0-indexed first eigenpair to compute\n"
+            "     if range=='V', lower-bound on eigenvalues\n"
+         << "  b: if range=='I', 0-indexed last eigenpair to compute\n"
+            "     if range=='V', upper-bound on eigenvalues\n"
+         << "  highAccuracy?: try for high acc. iff != 0\n"
          << "  shape: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
@@ -192,7 +199,9 @@ void TestCorrectnessDoubleComplex
 
 void TestHermitianEigDouble
 ( bool testCorrectness, bool printMatrices,
-  bool onlyEigenvalues, Shape shape, int m, const Grid& g )
+  bool onlyEigenvalues, char range, Shape shape, int m, 
+  double vl, double vu, int il, int iu, bool tryForHighAccuracy, 
+  const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<double,MC,MR> A(m,m,g);
@@ -223,9 +232,23 @@ void TestHermitianEigDouble
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
     if( onlyEigenvalues )
-        lapack::HermitianEig( shape, A, w );
+    {
+        if( range == 'A' )
+            lapack::HermitianEig( shape, A, w, tryForHighAccuracy );
+        else if( range == 'I' )
+            lapack::HermitianEig( shape, A, w, il, iu, tryForHighAccuracy );
+        else
+            lapack::HermitianEig( shape, A, w, vl, vu, tryForHighAccuracy );
+    }
     else
-        lapack::HermitianEig( shape, A, w, Z );
+    {
+        if( range == 'A' )
+            lapack::HermitianEig( shape, A, w, Z, tryForHighAccuracy );
+        else if( range == 'I' )
+            lapack::HermitianEig( shape, A, w, Z, il, iu, tryForHighAccuracy );
+        else
+            lapack::HermitianEig( shape, A, w, Z, vl, vu, tryForHighAccuracy );
+    }
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -249,7 +272,9 @@ void TestHermitianEigDouble
 #ifndef WITHOUT_COMPLEX
 void TestHermitianEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
-  bool onlyEigenvalues, Shape shape, int m, const Grid& g )
+  bool onlyEigenvalues, char range, Shape shape, int m, 
+  double vl, double vu, int il, int iu, bool tryForHighAccuracy, 
+  const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<std::complex<double>,MC,  MR> A(m,m,g);
@@ -282,9 +307,23 @@ void TestHermitianEigDoubleComplex
     Barrier( MPI_COMM_WORLD );
     startTime = Time();
     if( onlyEigenvalues )
-        lapack::HermitianEig( shape, A, w );
+    {
+        if( range == 'A' )
+            lapack::HermitianEig( shape, A, w, tryForHighAccuracy );
+        else if( range == 'I' )
+            lapack::HermitianEig( shape, A, w, il, iu, tryForHighAccuracy );
+        else
+            lapack::HermitianEig( shape, A, w, vl, vu, tryForHighAccuracy );
+    }
     else
-        lapack::HermitianEig( shape, A, w, Z );
+    {
+        if( range == 'A' )
+            lapack::HermitianEig( shape, A, w, Z, tryForHighAccuracy );
+        else if( range == 'I' )
+            lapack::HermitianEig( shape, A, w, Z, il, iu, tryForHighAccuracy );
+        else
+            lapack::HermitianEig( shape, A, w, Z, vl, vu, tryForHighAccuracy );
+    }
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
@@ -311,7 +350,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 9 )
+    if( argc != 13 )
     {
         if( rank == 0 )
             Usage();
@@ -323,11 +362,27 @@ int main( int argc, char* argv[] )
         const int r = atoi(argv[1]);
         const int c = atoi(argv[2]);
         const bool onlyEigenvalues = atoi(argv[3]);
-        const Shape shape = CharToShape(*argv[4]);
-        const int m = atoi(argv[5]);
-        const int nb = atoi(argv[6]);
-        const bool testCorrectness = atoi(argv[7]);
-        const bool printMatrices = atoi(argv[8]);
+        const char range = *argv[4];
+        if( range != 'A' && range != 'I' && range != 'V' )
+            throw std::runtime_error("'range' must be 'A', 'I', or 'V'");
+        double vl = 0, vu = 0;
+        int il = 0, iu = 0;
+        if( range == 'I' )
+        {
+            il = atoi(argv[5]);
+            iu = atoi(argv[6]);
+        }
+        else if( range == 'V' )
+        {
+            vl = atof(argv[5]);
+            vu = atof(argv[6]);
+        }
+        const bool tryForHighAccuracy = atoi(argv[7]);
+        const Shape shape = CharToShape(*argv[8]);
+        const int m = atoi(argv[9]);
+        const int nb = atoi(argv[10]);
+        const bool testCorrectness = atoi(argv[11]);
+        const bool printMatrices = atoi(argv[12]);
 
         if( onlyEigenvalues && testCorrectness && rank==0 )
         {
@@ -359,7 +414,9 @@ int main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestHermitianEigDouble
-        ( testCorrectness, printMatrices, onlyEigenvalues, shape, m, g );
+        ( testCorrectness, printMatrices, 
+          onlyEigenvalues, range, shape, m, vl, vu, il, iu, 
+          tryForHighAccuracy, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -369,7 +426,9 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHermitianEigDoubleComplex
-        ( testCorrectness, printMatrices, onlyEigenvalues, shape, m, g );
+        ( testCorrectness, printMatrices, 
+          onlyEigenvalues, range, shape, m, vl, vu, il, iu, 
+          tryForHighAccuracy, g );
 #endif 
     }
     catch( exception& e )
