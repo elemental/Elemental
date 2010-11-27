@@ -13,6 +13,12 @@ License
 =======
 New BSD License
 
+Version
+=======
+This is the first official release, version 0.5, which is a branch from 
+revision 129:f60dfb08c5 of the main Elemental repository at 
+http://code.google.com/p/elemental.
+
 Currently Supported Routines
 ============================
 - Dense level 3 BLAS

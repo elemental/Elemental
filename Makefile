@@ -37,13 +37,7 @@ testdir = test
 libdir = lib
 bindir = bin
 
-# The revision number will typically identify this copy by the Mercurial 
-# revision number of the main branch of Elemental at 
-# http://code.google.com/p/elemental
-#
-# Custom versions of the library should modify the revision string to reflect
-# changes.
-revision = 129
+version = 0.5
 
 # Choose whether or not to build against PMRRR; it is linked if and only if 
 # 'use_pmrrr = true'
@@ -114,7 +108,7 @@ endif
 ################################################################################
 
 library_base = libelemental
-library_suffix = -r$(revision).a
+library_suffix = .a
 
 # Source/object organization
 coredir = core
@@ -352,41 +346,41 @@ hybrid-release: $(library_hybrid_release)
 pure-release: $(library_pure_release)
 
 $(library_hybrid_debug): $(obj_hybrid_debug)
-	@echo "[rev:$(revision) hybrid-debug] Creating $@"
+	@echo "[$(version) hybrid-debug] Creating $@"
 	@$(AR) $(ARFLAGS) $@ $^
 
 $(library_pure_debug): $(obj_pure_debug)
-	@echo "[rev:$(revision) pure-debug] Creating $@"
+	@echo "[$(version) pure-debug] Creating $@"
 	@$(AR) $(ARFLAGS) $@ $^
 
 $(library_hybrid_release): $(obj_hybrid_release)
-	@echo "[rev:$(revision) hybrid-release] Creating $@"
+	@echo "[$(version) hybrid-release] Creating $@"
 	@$(AR) $(ARFLAGS) $@ $^
 
 $(library_pure_release): $(obj_pure_release)
-	@echo "[rev:$(revision) pure-release] Creating $@"
+	@echo "[$(version) pure-release] Creating $@"
 	@$(AR) $(ARFLAGS) $@ $^
 
 # Object files must depend upon headers because we inline functions
 
 $(libdir_hybrid_debug)/%.o: $(srcdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[rev:$(revision) hybrid-debug] Compiling $<"
+	@echo "[$(version) hybrid-debug] Compiling $<"
 	@$(CXX) $(CXXFLAGS_HYBRID_DEBUG) -c -o $@ $<
 
 $(libdir_pure_debug)/%.o: $(srcdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[rev:$(revision) pure-debug] Compiling $<"
+	@echo "[$(version) pure-debug] Compiling $<"
 	@$(CXX) $(CXXFLAGS_PURE_DEBUG) -c -o $@ $<
 
 $(libdir_hybrid_release)/%.o: $(srcdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[rev:$(revision) hybrid-release] Compiling $<"
+	@echo "[$(version) hybrid-release] Compiling $<"
 	@$(CXX) $(CXXFLAGS_HYBRID_RELEASE) -c -o $@ $<
 
 $(libdir_pure_release)/%.o: $(srcdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[rev:$(revision) pure-release] Compiling $<"
+	@echo "[$(version) pure-release] Compiling $<"
 	@$(CXX) $(CXXFLAGS_PURE_RELEASE) -c -o $@ $<
 
 ################################################################################
@@ -445,40 +439,40 @@ test-hybrid-release: $(tests_hybrid_release)
 test-pure-release: $(tests_pure_release)
 
 $(bindir_hybrid_debug)/%: $(bindir_hybrid_debug)/%.o $(library_hybrid_debug)
-	@echo "[rev:$(revision) hybrid-debug] Creating $@"
+	@echo "[$(version) hybrid-debug] Creating $@"
 	@$(CXX) $(HYBRIDFLAGS) -o $@ $^ $(LDFLAGS_HYBRID)
 
 $(bindir_pure_debug)/%: $(bindir_pure_debug)/%.o $(library_pure_debug)
-	@echo "[rev:$(revision) pure-debug] Creating $@"
+	@echo "[$(version) pure-debug] Creating $@"
 	@$(CXX) -o $@ $^ $(LDFLAGS_PURE)
 
 $(bindir_hybrid_release)/%: $(bindir_hybrid_release)/%.o \
                             $(library_hybrid_release)
-	@echo "[rev:$(revision) hybrid-release] Creating $@"
+	@echo "[$(version) hybrid-release] Creating $@"
 	@$(CXX) $(HYBRIDFLAGS) -o $@ $^ $(LDFLAGS_HYBRID)
 
 $(bindir_pure_release)/%: $(bindir_pure_release)/%.o $(library_pure_release)
-	@echo "[rev:$(revision) pure-release] Creating $@"
+	@echo "[$(version) pure-release] Creating $@"
 	@$(CXX) -o $@ $^ $(LDFLAGS_PURE)
 
 $(bindir_hybrid_debug)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[rev:$(revision) hybrid-debug] Compiling $<"
+	@echo "[$(version) hybrid-debug] Compiling $<"
 	@$(CXX) $(CXXFLAGS_HYBRID_DEBUG) -c -o $@ $<
 
 $(bindir_pure_debug)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[rev:$(revision) pure-debug] Compiling $<"
+	@echo "[$(version) pure-debug] Compiling $<"
 	@$(CXX) $(CXXFLAGS_PURE_DEBUG) -c -o $@ $<
 
 $(bindir_hybrid_release)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[rev:$(revision) hybrid-release] Compiling $<"
+	@echo "[$(version) hybrid-release] Compiling $<"
 	@$(CXX) $(CXXFLAGS_HYBRID_RELEASE) -c -o $@ $<
 
 $(bindir_pure_release)/%.o: $(testdir)/%.cpp $(includes)
 	@mkdir -p $(dir $@)
-	@echo "[rev:$(revision) pure-release] Compiling $<"
+	@echo "[$(version) pure-release] Compiling $<"
 	@$(CXX) $(CXXFLAGS_PURE_RELEASE) -c -o $@ $<
 
 ################################################################################
