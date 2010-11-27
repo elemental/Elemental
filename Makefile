@@ -43,7 +43,7 @@ bindir = bin
 #
 # Custom versions of the library should modify the revision string to reflect
 # changes.
-revision = 128
+revision = 129
 
 # Choose whether or not to build against PMRRR; it is linked if and only if 
 # 'use_pmrrr = true'

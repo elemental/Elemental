@@ -5,21 +5,19 @@ Relatively trivial but important
 
 Relatively trivial but not important
 ====================================
-- Add a local version of Gaussian Elimination
-- Add a local version of the UT transform
-- Add routines like 'LocalGemm' to avoid repetetive '.LockedLocalMatrix()' calls
-  and ensure alignment safety
+- Add local versions of more routines
 - Add shortcuts for square process grids and diagonally-aligned matrices
 
 Substantial effort and important
 ================================
+- Automate the build process?
 - Add method for redistributing from one grid to another.
-- More LAPACK-level routines!
+- SVD
+- RQ, LQ, and QL factorizations
 - Complete parallel Level2 BLAS (e.g., Trmv)
 
 Substantial effort but not terribly important 
 =============================================
 - Finish adding vector versions of all DistMatrix communications.
 - Finish adding redistributions to and from [MD,* ]/[* ,MD] 
-- Automate the build process? (preferably not with autoconf)
 
