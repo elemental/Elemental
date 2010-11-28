@@ -53,7 +53,7 @@ public:
     void Reset();
 
     const std::string& Name() const;
-    const double Time() const;
+    double Time() const;
 };
 
 } // elemental
@@ -106,7 +106,7 @@ inline const std::string&
 elemental::Timer::Name() const
 { return _name; }
 
-inline const double
+inline double
 elemental::Timer::Time() const
 {
 #ifndef RELEASE
