@@ -10,7 +10,6 @@ Relatively trivial but not important
 
 Substantial effort and important
 ================================
-- Automate the build process?
 - Add method for redistributing from one grid to another.
 - SVD
 - RQ, LQ, and QL factorizations
