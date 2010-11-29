@@ -33,13 +33,21 @@
 #ifndef ELEMENTAL_WRAPPERS_BLAS_HPP
 #define ELEMENTAL_WRAPPERS_BLAS_HPP 1
 
-#ifdef BLAS_UNDERSCORE
+#if defined(BLAS_PRE) && defined(BLAS_POST)
+#define BLAS(name) _ ## name ## _
+#elif defined(BLAS_PRE)
+#define BLAS(name) _ ## name
+#elif defined(BLAS_POST)
 #define BLAS(name) name ## _
 #else
 #define BLAS(name) name
 #endif
 
-#ifdef LAPACK_UNDERSCORE
+#if defined(LAPACK_PRE) && defined(LAPACK_POST)
+#define LAPACK(name) _ ## name ## _
+#elif defined(LAPACK_PRE)
+#define LAPACK(name) _ ## name
+#elif defined(LAPACK_POST)
 #define LAPACK(name) name ## _
 #else
 #define LAPACK(name) name

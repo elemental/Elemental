@@ -33,7 +33,11 @@
 #ifndef ELEMENTAL_WRAPPERS_LAPACK_HPP
 #define ELEMENTAL_WRAPPERS_LAPACK_HPP 1
 
-#ifdef LAPACK_UNDERSCORE
+#if defined(LAPACK_PRE) && defined(LAPACK_POST)
+#define LAPACK(name) _ ## name ## _
+#elif defined(LAPACK_PRE)
+#define LAPACK(name) _ ## name
+#elif defined(LAPACK_POST)
 #define LAPACK(name) name ## _
 #else
 #define LAPACK(name) name

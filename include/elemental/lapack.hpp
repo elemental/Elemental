@@ -360,27 +360,6 @@ HermitianEig
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
-// Hessenberg (Reduce to upper or lower Hessenberg form)                      //
-//                                                                            //
-// These are not yet ready, but are hopefully coming soon.                    //
-//----------------------------------------------------------------------------//
-
-// Serial version for real datatypes
-template<typename R>
-void
-Hessenberg( Shape shape, Matrix<R>& A );
-
-#ifndef WITHOUT_COMPLEX
-// Serial version for complex datatypes
-template<typename R>
-void
-Hessenberg
-( Shape shape, Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& t );
-#endif
-
-// TODO: Parallel versions
-
-//----------------------------------------------------------------------------//
 // LU (LU factorization with partial pivoting):                               //
 //                                                                            //
 // Overwrite A with its LU factorization after partial pivoting: P A = L U.   //
@@ -402,25 +381,6 @@ LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 namespace lu {
 void PrintTimings();
 }
-#endif
-
-//----------------------------------------------------------------------------//
-// Pinv (Moore-Penrose pseudoinverse)                                         //
-//----------------------------------------------------------------------------//
-
-// TODO: Serial version
-
-// Parallel version for tall, skinny matrices
-template<typename R>
-void
-Pinv( DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& PinvA );
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-void
-Pinv
-( DistMatrix<std::complex<R>,MC,MR>& A, 
-  DistMatrix<std::complex<R>,MC,MR>& PinvA );
 #endif
 
 //----------------------------------------------------------------------------//

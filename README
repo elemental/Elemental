@@ -26,9 +26,14 @@ Currently Supported Routines
 
 Build
 =====
-The build system is not yet automated. However, all that is currently required
-is to define the appropriate MPI compiler and BLAS/LAPACK libraries at the 
-top of the Makefile.
+There is now an initial version of a CMake [http://www.cmake.org] build script
+which supports building with and without PMRRR and attempts to search for the 
+appropriate BLAS/LAPACK configurations. As of now, it will probably only work
+on Linux and MacOSX with vecLib or MKL.
+
+Alternatively, the old manual Makefile approach is still possible by running:
+  cp Makefile.backup Makefile
+and then modifying the top portion appropriately.
 
 There are two main build modes, *debug* and *release*. The former maintains a 
 call stack and performs judicious error-checking. Thus debug-mode should be used

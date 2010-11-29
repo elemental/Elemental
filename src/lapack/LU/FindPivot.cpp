@@ -37,21 +37,22 @@ using namespace elemental::blas;
 using namespace elemental::lapack::internal;
 using namespace elemental::wrappers::mpi;
 
+namespace {
 #ifndef RELEASE
-static bool createdPivotOpFloat = false;
-static bool createdPivotOpDouble = false;
+bool createdPivotOpFloat = false;
+bool createdPivotOpDouble = false;
 #ifndef WITHOUT_COMPLEX
-static bool createdPivotOpScomplex = false;
-static bool createdPivotOpDcomplex = false;
+bool createdPivotOpScomplex = false;
+bool createdPivotOpDcomplex = false;
 #endif
 #endif
-static MPI_Op pivotOpFloat;
-static MPI_Op pivotOpDouble;
+MPI_Op pivotOpFloat;
+MPI_Op pivotOpDouble;
 #ifndef WITHOUT_COMPLEX
-static MPI_Op pivotOpScomplex;
-static MPI_Op pivotOpDcomplex;
+MPI_Op pivotOpScomplex;
+MPI_Op pivotOpDcomplex;
 #endif
-
+}
 template<typename T>
 void
 elemental::lapack::internal::PivotFunc
