@@ -38,7 +38,7 @@ set(Elemental_VERSION_MINOR 5)
 option(BUILD_HYBRID "Also build a hybrid OpenMP/MPI version of Elemental" OFF)
 option(BUILD_DEBUG "Also build a version with many consistency checks" OFF)
 option(BUILD_TESTS "Also build a collection of test executables" ON)
-option(BUILD_PMRRR "Build and link against the eigensolver PMRRR" ON)
+option(LINK_PMRRR "Link against the eigensolver PMRRR" ON)
 
 find_package(MPI REQUIRED)
 set(CMAKE_CXX_COMPILER ${MPI_COMPILER})
@@ -82,7 +82,8 @@ endif(${CMAKE_SIZEOF_VOID_P} MATCHES 4)
 # Since the CMake find_blas for some reason requires a Fortran compiler, we
 # must build our own.
 if(APPLE)
-  set(BLAS_LAPACK_LIBS "-framework vecLib")
+  set(BLAS_LAPACK_LIBS "-framework vecLib" 
+      CACHE STRING "BLAS/LAPACK link flags")
   set(FOUND_BLAS "vecLib")
   set(FOUND_LAPACK "vecLib")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -99,16 +100,22 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     if(FOUND_PTHREAD)
       set(FOUND_BLAS "MKL")    
       set(FOUND_LAPACK "MKL")
+      set(BLAS_LAPACK_LIBS ${BLAS_LAPACK_LIBS} 
+          CACHE STRING "BLAS/LAPACK link flags")
     else(FOUND_PTHREAD)
       message("Found MKL but could not find a libpthread")  
+      set(BLAS_LAPACK_LIBS "")
     endif(FOUND_PTHREAD)
-  else(BLAS_LAPACK_LIBS)
+  endif(BLAS_LAPACK_LIBS)
+  if(NOT BLAS_LAPACK_LIBS)
     # Look for default BLAS and LAPACK
     set(REFERENCE_LIBS lapack blas)
     find_library_list(BLAS_LAPACK_LIBS REFERENCE_LIBS "" "")
     if(BLAS_LAPACK_LIBS)
       set(FOUND_BLAS "Default")
       set(FOUND_LAPACK "Default")
+      set(BLAS_LAPACK_LIBS ${BLAS_LAPACK_LIBS}
+          CACHE STRING "BLAS/LAPACK link flags")
     else(BLAS_LAPACK_LIBS)
       message(FATAL_ERROR "Could not find BLAS/LAPACK libraries")
     endif(BLAS_LAPACK_LIBS)
@@ -159,20 +166,28 @@ if(NOT HAVE_DPOTRF)
   endif(HAVE_DPOTRF_PRE)
 endif(NOT HAVE_DPOTRF)
 
+# Configure for PMRRR
+if(LINK_PMRRR)
+  find_library(FOUND_PMRRR pmrrr)
+  if(NOT FOUND_PMRRR)
+    message("Could not find PMRRR; Elemental will not have eigensolvers.")
+  endif(NOT FOUND_PMRRR)
+endif(LINK_PMRRR)
+
 # Grab all of the .cpp and .hpp Elemental files
 file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
      "src/*.cpp")
 file(GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
      "include/*.hpp")
+if(NOT LINK_PMRRR OR NOT FOUND_PMRRR)
+  # It might be cleaner to force these files to be empty
+  list(REMOVE_ITEM ELEMENTAL_CPP 
+       "src/lapack/HermitianEig/HermitianEig.cpp")
+  list(REMOVE_ITEM ELEMENTAL_CPP 
+       "src/lapack/GeneralizedHermitianEig/GeneralizedHermitianEig.cpp")
+endif(NOT LINK_PMRRR OR NOT FOUND_PMRRR)
 set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
-# Configure for PMRRR
-if(BUILD_PMRRR)
-  find_library(FOUND_PMRRR pmrrr)
-  if(NOT FOUND_PMRRR)
-    message("Could not find PMRRR; Elemental will not have eigensolvers.")
-  endif(NOT FOUND_PMRRR)
-endif(BUILD_PMRRR)
 
 # Create the lists of test executables
 if(BUILD_TESTS)
@@ -185,13 +200,13 @@ endif(BUILD_TESTS)
 # Set up for the build
 include_directories("${PROJECT_SOURCE_DIR}/include")
 set(ELEMENTAL_REQUIRED_LIBS ${BLAS_LAPACK_LIBS})
-if(BUILD_PMRRR AND FOUND_PMRRR)
+if(LINK_PMRRR AND FOUND_PMRRR)
   list(APPEND ELEMENTAL_REQUIRED_LIBS FOUND_PMRRR)
   list(APPEND LAPACK_TESTS GeneralizedHermitianEig)
   list(APPEND LAPACK_TESTS HermitianEig)
-else(BUILD_PMRRR AND FOUND_PMRRR)
+else(LINK_PMRRR AND FOUND_PMRRR)
   list(APPEND CMAKE_CXX_FLAGS "-DWITHOUT_PMRRR")
-endif(BUILD_PMRRR AND FOUND_PMRRR)
+endif(LINK_PMRRR AND FOUND_PMRRR)
 
 # Build the pure-debug version (if necessary)
 if(BUILD_DEBUG)
