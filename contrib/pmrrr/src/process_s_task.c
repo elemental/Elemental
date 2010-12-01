@@ -187,7 +187,7 @@ int PMR_process_s_task(singleton_t *sng, int tid, proc_t *procinfo,
 	tmp     = Wgap[i]; 
 	Wgap[i] = 0.0;
 	
-	dlarrb_(&bl_size, D, DLL, &i_local, &i_local, &DZERO, 
+	LAPACK(dlarrb)(&bl_size, D, DLL, &i_local, &i_local, &DZERO, 
 		&twoeps, &offset, &Wshifted[i], &Wgap[i],
 		&Werr[i], work, iwork, &pivmin, &bl_spdiam,
 		&itmp, &info);
@@ -200,7 +200,7 @@ int PMR_process_s_task(singleton_t *sng, int tid, proc_t *procinfo,
       wantNC = (usedBS == true) ? false : true;
 
       /* compute the eigenvector corresponding to lambda */
-      dlar1v_(&bl_size, &IONE, &bl_size, &lambda, D, L, DL, DLL,
+      LAPACK(dlar1v)(&bl_size, &IONE, &bl_size, &lambda, D, L, DL, DLL,
 	      &pivmin, &gaptol, &Z[zind*ldz+bl_begin], &wantNC,
 	      &negcount, &ztz, &mingma, &r, &isuppZ[2*zind],
 	      &norminv, &residual, &RQcorr, work);
@@ -264,7 +264,7 @@ int PMR_process_s_task(singleton_t *sng, int tid, proc_t *procinfo,
       step2II = true;
     }
     if ( step2II == true ) {
-      dlar1v_(&bl_size, &IONE, &bl_size, &lambda, D, L, DL, DLL,
+      LAPACK(dlar1v)(&bl_size, &IONE, &bl_size, &lambda, D, L, DL, DLL,
 	      &pivmin, &gaptol, &Z[zind*ldz+bl_begin], &wantNC,
 	      &negcount, &ztz, &mingma, &r, &isuppZ[2*zind],
 	      &norminv, &residual, &RQcorr, work);
@@ -295,7 +295,7 @@ int PMR_process_s_task(singleton_t *sng, int tid, proc_t *procinfo,
     
     /* normalize eigenvector */
     suppsize = i_Zto - i_Zfrom + 1;
-    odscal_(&suppsize, &norminv, &Z[i_Zfrom + zind*ldz], &IONE);
+    pmrrr_dscal(&suppsize, &norminv, &Z[i_Zfrom + zind*ldz], &IONE);
     
     sigma = L[bl_size-1];
     W[i]  = lambda + sigma;

@@ -1,3 +1,8 @@
+Notice: The PMRRR Fortran dependencies were stripped out by Jack Poulson in 
+        order to ease integration with Elemental. The old Makefiles and 
+        examples were therefore removed because they would no longer 
+        function properly.
+
 These files provide the routine 'pmrrr'. Its purpose is to compute all 
 or a subset of eigenvalues and optionally eigenvectors of a symmetric 
 tridiagonal matrix. 'pmrrr' is based on the algorithm of Multiple 

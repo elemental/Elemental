@@ -219,49 +219,74 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
 
 /* LAPACK function prototypes
  * Note: type specifier 'extern' does not matter in declaration
- * so here used to mark routines from LAPACK and BLAS libraries */
-extern double dlamch_(char*);
-extern double dlanst_(char*, int*, double*, double*);
-extern void   dlarrr_(int*, double*, double*, int*);
-extern void   dlarra_(int*, double*, double*, double*, double*, 
+ * so here used to mark routines from LAPACK and BLAS libraries 
+ * 
+ * The macros for determining underscore convention were added by 
+ * Jack Poulson to ease integration into Elemental */
+#if defined(LAPACK_PRE) && defined(LAPACK_POST)
+#define LAPACK(name) _ ## name _
+#elif defined(LAPACK_PRE)
+#define LAPACK(name) _ ## name
+#elif defined(LAPACK_POST)
+#define LAPACK(name) name ## _
+#else
+#define LAPACK(name) name
+#endif
+extern double LAPACK(dlamch)(char*);
+extern double LAPACK(dlanst)(char*, int*, double*, double*);
+extern void   LAPACK(dlarrr)(int*, double*, double*, int*);
+extern void   LAPACK(dlarra)(int*, double*, double*, double*, double*, 
 		      double*, int*, int*, int*);
-extern void   dlarrc_(char*, int*, double*, double*, double*, double*,
+extern void   LAPACK(dlarrc)(char*, int*, double*, double*, double*, double*,
 		      double*, int*, int*, int*, int*);
-extern void   dlarrd_(char*, char*, int*, double*, double*, int*, 
+extern void   LAPACK(dlarrd)(char*, char*, int*, double*, double*, int*, 
 		      int*, double*, double*, double*, double*, 
 		      double*, double*, int*, int*, int*, double*, 
 		      double*, double*, double*, int*, int*, double*, 
 		      int*, int*);
-extern void   dlarrb_(int*, double*, double*, int*, int*, double*,
+extern void   LAPACK(dlarrb)(int*, double*, double*, int*, int*, double*,
 		      double*, int*, double*, double*, double*, double*,
 		      int*, double*, double*, int*, int*);
-extern void   dlarrk_(int*, int*, double*, double*, double*, double*,
+extern void   LAPACK(dlarrk)(int*, int*, double*, double*, double*, double*,
 		      double*, double*, double*, double*, int*);
-extern void   dlaebz_(int*, int*, int*, int*, int*, int*, double*, 
+extern void   LAPACK(dlaebz)(int*, int*, int*, int*, int*, int*, double*, 
 		      double*, double*, double*, double*, double*,
 		      int*, double*, double*, int*, int*, double*,
 		      int*, int*);
-extern void   dlarnv_(int*, int*, int*, double*);
-extern void   dlarrf_(int*, double*, double*, double*, int*, int*, 
+extern void   LAPACK(dlarnv)(int*, int*, int*, double*);
+extern void   LAPACK(dlarrf)(int*, double*, double*, double*, int*, int*, 
 		      double*, double*, double*, double*, double*, 
 		      double*, double*, double*, double*, double*, 
 		      double*, int*);
-extern void   dlar1v_(int*, int*, int*, double*, double*, double*, 
+extern void   LAPACK(dlar1v)(int*, int*, int*, double*, double*, double*, 
 		      double*, double*, double*, double*, double*, 
 		      bool*, int*, double*, double*, int*, int*, 
 		      double*, double*, double*, double*);
-extern void   dlarrj_(int*, double*, double*, int*, int*, double*, 
+extern void   LAPACK(dlarrj)(int*, double*, double*, int*, int*, double*, 
 		      int*, double*, double*, double*, int*, double*, 
 		      double*, int*);
-extern void   dstemr_(char*, char*, int*, double*, double*, double*, 
+extern void   LAPACK(dstemr)(char*, char*, int*, double*, double*, double*, 
 		      double*, int*, int*, int*, double*, double*, 
 		      int*, int*, int*, int*, double*, int*, int*, 
 		      int*, int*);
 
 
 /* BLAS function prototypes - renamed version for prevending
- * use of multithreaded version */
-extern void   odscal_(int*, double*, double*, int*);
-extern void   dscal_(int*, double*, double*, int*);
+ * use of multithreaded version 
+* 
+ * The macros for determining underscore convention were added by 
+ * Jack Poulson to ease integration into Elemental */
+#if defined(BLAS_PRE) && defined(BLAS_POST)
+#define BLAS(name) _ ## name _
+#elif defined(BLAS_PRE)
+#define BLAS(name) _ ## name
+#elif defined(BLAS_POST)
+#define BLAS(name) name ## _
+#else
+#define BLAS(name) name
+#endif
+
+void pmrrr_dscal(int*, double*, double*, int*);
+extern void   BLAS(dscal)(int*, double*, double*, int*);
 
 #endif /* End of header file */

@@ -31,7 +31,6 @@
 #  POSSIBILITY OF SUCH DAMAGE.
 #
 cmake_minimum_required(VERSION 2.6)
-enable_language(Fortran)
 
 if(CMAKE_BUILD_TYPE)
   message("PMRRR does not use CMAKE_BUILD_TYPE.")
@@ -39,33 +38,25 @@ endif(CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE "" CACHE INTERNAL "Removing GUI option" FORCE)
 
 option(HAVE_SPINLOCKS "Enable if pthread lib supports spinlocks" OFF)
-option(INCLUDE_LAPACK "Enable if PMRRR should build LAPACK dependencies" ON)
-MARK_AS_ADVANCED(HAVE_SPINLOCKS INCLUDE_LAPACK)
+MARK_AS_ADVANCED(HAVE_SPINLOCKS)
 
-set(CXX_BASE_FLAGS "")
+set(C_OPT_FLAGS "-O3" CACHE STRING "C optimization flags")
+
+set(C_BASE_FLAGS "${BLAS_DEFS} ${LAPACK_DEFS}")
 if(NOT HAVE_SPINLOCKS)
-  set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} -DNOSPINLOCKS")
+  set(C_BASE_FLAGS "${C_BASE_FLAGS} -DNOSPINLOCKS")
 endif(NOT HAVE_SPINLOCKS)
 
 # Grab all of the .c and .h files
 file(GLOB_RECURSE PMRRR_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.c")
 file(GLOB_RECURSE PMRRR_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
-if(INCLUDE_LAPACK)
-  file(GLOB_RECURSE PMRRR_F RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.f")
-else(INCLUDE_LAPACK)
-  set(PMRRR_F "SRC/LAPACK/SEQUENTIAL/odscal.f")
-endif(INCLUDE_LAPACK)
-set(PMRRR_SRC "${PMRRR_C};${PMRRR_H};${PMRRR_F}")
+set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
 
-# Search for the MPI CXX and F77 compilers
+# Search for the MPI C compiler
 if(MPI_C_COMPILER AND NOT EXISTS ${MPI_C_COMPILER})
   message(FATAL_ERROR 
           "Invalid MPI_C_COMPILER: ${MPI_C_COMPILER} does not exist.")
 endif(MPI_C_COMPILER AND NOT EXISTS ${MPI_C_COMPILER})
-if(MPI_F77_COMPILER AND NOT EXISTS ${MPI_F77_COMPILER})
-  message(FATAL_ERROR
-          "Invalid MPI_F77_COMPILER: ${MPI_F77_COMPILER} does not exist.")
-endif(MPI_F77_COMPILER AND NOT EXISTS ${MPI_F77_COMPILER})
 if(NOT MPI_C_COMPILER)
   find_program(MPI_C_COMPILER mpicc mpixlc mpixlc_r 
     DOC "Full path to MPI C compiler. If blank, CMake will search for it.")
@@ -74,17 +65,20 @@ if(NOT MPI_C_COMPILER)
       "Could not find MPI C compiler. Please manually set MPI_C_COMPILER.")
   endif(NOT MPI_C_COMPILER)
 endif(NOT MPI_C_COMPILER)
-if(NOT MPI_F77_COMPILER)
-  find_program(MPI_F77_COMPILER mpif77 mpixlf77 mpixlf77_r
-    DOC "Full path to MPI F77 compiler. If blank, CMake will search for it.")
-  if(NOT MPI_F77_COMPILER)
-    message(FATAL_ERROR
-      "Could not find MPI F77 compiler. Please manually set MPI_F77_COMPILER.")
-  endif(NOT MPI_F77_COMPILER)
-endif(NOT MPI_F77_COMPILER)
 set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-set(CMAKE_Fortran_Compiler ${MPI_F77_COMPILER})
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/INCLUDE")
+# Findpthreads.cmake does not seem to be standard
+#
+#find_package(pthreads REQUIRED)
+#set(C_BASE_FLAGS "${C_BASE_FLAGS} -I${PTHREADS_INCLUDE_DIR}")
+#foreach(DEF ${PTHREADS_DEFINITIONS})
+#  set(C_BASE_FLAGS "${C_BASE_FLAGS} -D${DEF}")
+#endforeach(DEF)
+set(C_PTHREADS_FLAGS "-pthread" CACHE STRING 
+    "C compile flag for pthreads support.")
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+set(CMAKE_C_FLAGS "${C_BASE_FLAGS} ${C_OPT_FLAGS} ${C_PTHREADS_FLAG}")
+set(CMAKE_Fortran_FLAGS "${FORTRAN_OPT_FLAGS}")
 add_library(pmrrr STATIC ${PMRRR_SRC})
 

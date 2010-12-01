@@ -100,14 +100,19 @@ endif(NOT MPI_CXX_COMPILER)
 set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 
 if(BUILD_HYBRID)
-  if(NOT MANUAL_OPENMP_CXX_FLAGS)
+  if(MANUAL_OPENMP_CXX_FLAGS)
+    set(HAVE_OPENMP TRUE)
+    set(OpenMP_CXX_FLAGS ${MANUAL_OPENMP_CXX_FLAGS})
+  else(MANUAL_OPENMP_CXX_FLAGS)
     find_package(OpenMP)
-    if(NOT OpenMP_FOUND)
+    if(OpenMP_FOUND)
+      set(HAVE_OPENMP TRUE)
+    else(OpenMP_FOUND)
       set(MANUAL_OPENMP_CXX_FLAGS "" CACHE STRING "OpenMP CXX FLAGS")
       message("Hybrid build disabled because OpenMP support was not verified.")
-      message("You can alternatively manually specify OpenMP_CXX_FLAGS.")
-    endif(NOT OpenMP_FOUND)
-  endif(NOT MANUAL_OPENMP_CXX_FLAGS)
+      message("You can alternatively manually specify MANUAL_OPENMP_CXX_FLAGS.")
+    endif(OpenMP_FOUND)
+  endif(MANUAL_OPENMP_CXX_FLAGS)
 endif(BUILD_HYBRID)
 
 # A simple extension of find_library from a single lib to a list of libs
@@ -224,46 +229,51 @@ endif(ENABLE_ALL_DISTRIBUTED_DOT)
 include(CheckFunctionExists)
 set(CMAKE_REQUIRED_LIBRARIES ${BLAS_LAPACK_LIBS})
 check_function_exists(daxpy HAVE_DAXPY)
-if(NOT HAVE_DAXPY)
+if(HAVE_DAXPY)
+  set(BLAS_DEFS "")
+else(HAVE_DAXPY)
   check_function_exists(_daxpy HAVE_DAXPY_PRE)
   if(HAVE_DAXPY_PRE)
-    set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} -DBLAS_PRE")
+    set(BLAS_DEFS "-DBLAS_PRE")
   else(HAVE_DAXPY_PRE)
     check_function_exists(daxpy_ HAVE_DAXPY_POST)
     if(HAVE_DAXPY_POST)
-      set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} -DBLAS_POST")
+      set(BLAS_DEFS "-DBLAS_POST")
     else(HAVE_DAXPY_POST)
       check_function_exists(_daxpy_ HAVE_DAXPY_PRE_POST)
       if(HAVE_DAXPY_PRE_POST)
-        set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} -DBLAS_PRE -DBLAS_POST")
+        set(BLAS_DEFS "-DBLAS_PRE -DBLAS_POST")
       else(HAVE_DAXPY_PRE_POST)
         message(FATAL_ERROR "Could not determine BLAS format.")
       endif(HAVE_DAXPY_PRE_POST)
     endif(HAVE_DAXPY_POST)
   endif(HAVE_DAXPY_PRE)
-endif(NOT HAVE_DAXPY)
+endif(HAVE_DAXPY)
 check_function_exists(dpotrf HAVE_DPOTRF)
-if(NOT HAVE_DPOTRF)
+if(HAVE_DPOTRF)
+  set(LAPACK_DEFS "")
+else(HAVE_DPOTRF)
   check_function_exists(_dpotrf HAVE_DPOTRF_PRE)
   if(HAVE_DPOTRF_PRE)
-    set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} -DLAPACK_PRE")
+    set(LAPACK_DEFS "-DLAPACK_PRE")
   else(HAVE_DPOTRF_PRE)
     check_function_exists(dpotrf_ HAVE_DPOTRF_POST)
     if(HAVE_DPOTRF_POST)
-      set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} -DLAPACK_POST")
+      set(LAPACK_DEFS "-DLAPACK_POST")
     else(HAVE_DPOTRF_POST)
       check_function_exists(_dpotrf_ HAVE_DPOTRF_PRE_POST)
       if(HAVE_DPOTRF_PRE_POST)
-        set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} -DLAPACK_PRE -DLAPACK_POST")
+        set(LAPACK_DEFS "-DLAPACK_PRE -DLAPACK_POST")
       else(HAVE_DPOTRF_PRE_POST)
         message(FATAL_ERROR "Could not determine LAPACK format.")
       endif(HAVE_DPOTRF_PRE_POST)
     endif(HAVE_DPOTRF_POST)
   endif(HAVE_DPOTRF_PRE)
-endif(NOT HAVE_DPOTRF)
+endif(HAVE_DPOTRF)
+set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} ${BLAS_DEFS} ${LAPACK_DEFS}")
 
 if(BUILD_PMRRR)
-  add_subdirectory(contrib/PMRRR-0.6)
+  add_subdirectory(contrib/pmrrr)
 endif(BUILD_PMRRR)
 
 # Grab all of the .cpp and .hpp Elemental files
@@ -302,37 +312,41 @@ endif(BUILD_PMRRR)
 # Build the pure-debug version (if necessary)
 if(BUILD_PURE AND BUILD_DEBUG)
   set(CMAKE_CXX_FLAGS "${CXX_BASE_FLAGS} ${CXX_PURE_DEBUG_FLAGS}")
-  set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib/pure/debug)
-  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/pure/release)
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/lib/pure/debug")
   add_library(pure-debug STATIC ${ELEMENTAL_SRC})
-  set_target_properties(pure-debug PROPERTIES OUTPUT_NAME elemental)
+  set_target_properties(pure-debug 
+                        PROPERTIES OUTPUT_NAME elemental
+                        RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
   if(BUILD_TESTS)
     # Build the core tests
-    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/pure/debug/core)
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/pure/debug/core")
     foreach(TEST ${CORE_TESTS})
       add_executable(pure-debug-core-${TEST} ${TEST_DIR}/core/${TEST}.cpp)
       target_link_libraries(pure-debug-core-${TEST} 
                             pure-debug ${ELEMENTAL_REQUIRED_LIBS})
       set_target_properties(pure-debug-core-${TEST} 
-                            PROPERTIES OUTPUT_NAME ${TEST})
+                            PROPERTIES OUTPUT_NAME ${TEST}
+                            RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     endforeach(TEST)
     # Build the blas tests
-    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/pure/debug/blas)
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/pure/debug/blas")
     foreach(TEST ${BLAS_TESTS})
       add_executable(pure-debug-blas-${TEST} ${TEST_DIR}/blas/${TEST}.cpp)
       target_link_libraries(pure-debug-blas-${TEST} 
                             pure-debug ${ELEMENTAL_REQUIRED_LIBS})
       set_target_properties(pure-debug-blas-${TEST} 
-                            PROPERTIES OUTPUT_NAME ${TEST})
+                            PROPERTIES OUTPUT_NAME ${TEST}
+                            RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     endforeach(TEST)
     # Build the lapack tests
-    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/pure/debug/lapack)
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/pure/debug/lapack")
     foreach(TEST ${LAPACK_TESTS})
       add_executable(pure-debug-lapack-${TEST} ${TEST_DIR}/lapack/${TEST}.cpp)
       target_link_libraries(pure-debug-lapack-${TEST} 
                             pure-debug ${ELEMENTAL_REQUIRED_LIBS})
       set_target_properties(pure-debug-lapack-${TEST} 
-                            PROPERTIES OUTPUT_NAME ${TEST})
+                            PROPERTIES OUTPUT_NAME ${TEST}
+                            RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     endforeach(TEST)
   endif(BUILD_TESTS)
 endif(BUILD_PURE AND BUILD_DEBUG)
@@ -340,77 +354,86 @@ endif(BUILD_PURE AND BUILD_DEBUG)
 # Build the pure-release version (if necessary)
 if(BUILD_PURE AND BUILD_RELEASE)
   set(CMAKE_CXX_FLAGS "${CXX_BASE_FLAGS} ${CXX_PURE_RELEASE_FLAGS} -DRELEASE")
-  set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib/pure/release)
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/lib/pure/release")
   add_library(pure-release STATIC ${ELEMENTAL_SRC})
-  set_target_properties(pure-release PROPERTIES OUTPUT_NAME elemental)
+  set_target_properties(pure-release
+                        PROPERTIES OUTPUT_NAME elemental
+                        RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
   if(BUILD_TESTS)
     # Build the core tests
-    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/pure/release/core) 
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/pure/release/core")
     foreach(TEST ${CORE_TESTS})
       add_executable(pure-release-core-${TEST} ${TEST_DIR}/core/${TEST}.cpp)
       target_link_libraries(pure-release-core-${TEST} 
                             pure-release ${ELEMENTAL_REQUIRED_LIBS})
       set_target_properties(pure-release-core-${TEST} 
-                            PROPERTIES OUTPUT_NAME ${TEST})
+                            PROPERTIES OUTPUT_NAME ${TEST}
+                            RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     endforeach(TEST)
     # Build the blas tests
-    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/pure/release/blas) 
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/pure/release/blas")
     foreach(TEST ${BLAS_TESTS})
       add_executable(pure-release-blas-${TEST} ${TEST_DIR}/blas/${TEST}.cpp) 
       target_link_libraries(pure-release-blas-${TEST} 
                             pure-release ${ELEMENTAL_REQUIRED_LIBS})
       set_target_properties(pure-release-blas-${TEST} 
-                            PROPERTIES OUTPUT_NAME ${TEST})
+                            PROPERTIES OUTPUT_NAME ${TEST}
+                            RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     endforeach(TEST)
     # Build the lapack tests
-    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/pure/release/lapack)
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/pure/release/lapack")
     foreach(TEST ${LAPACK_TESTS})
       add_executable(pure-release-lapack-${TEST} ${TEST_DIR}/lapack/${TEST}.cpp)
       target_link_libraries(pure-release-lapack-${TEST} 
                             pure-release ${ELEMENTAL_REQUIRED_LIBS})
       set_target_properties(pure-release-lapack-${TEST} 
-                            PROPERTIES OUTPUT_NAME ${TEST})
+                            PROPERTIES OUTPUT_NAME ${TEST}
+                            RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     endforeach(TEST)
   endif(BUILD_TESTS)
 endif(BUILD_PURE AND BUILD_RELEASE)
 
-if(BUILD_HYBRID AND OpenMP_FOUND)
+if(BUILD_HYBRID AND HAVE_OPENMP)
   # Build the hybrid-debug version (if necessary)
   if(BUILD_DEBUG)
     set(CMAKE_CXX_FLAGS "${CXX_BASE_FLAGS} ${CXX_HYBRID_DEBUG_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib/hybrid/debug)
-    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/hybrid/debug)
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/lib/hybrid/debug")
     add_library(hybrid-debug STATIC ${ELEMENTAL_SRC})
-    set_target_properties(hybrid-debug PROPERTIES OUTPUT_NAME elemental)
+    set_target_properties(hybrid-debug
+                          PROPERTIES OUTPUT_NAME elemental
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(BUILD_TESTS)
       # Build the core tests
-      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/hybrid/debug/core) 
+      set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/hybrid/debug/core")
       foreach(TEST ${CORE_TESTS})
         add_executable(hybrid-debug-core-${TEST} ${TEST_DIR}/core/${TEST}.cpp)
         target_link_libraries(hybrid-debug-core-${TEST} 
                               hybrid-debug ${ELEMENTAL_REQUIRED_LIBS})
         set_target_properties(hybrid-debug-core-${TEST} 
-                              PROPERTIES OUTPUT_NAME ${TEST})
+                              PROPERTIES OUTPUT_NAME ${TEST}
+                              RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       endforeach(TEST)
       # Build the blas tests
-      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/hybrid/debug/blas) 
+      set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/hybrid/debug/blas")
       foreach(TEST ${BLAS_TESTS})
         add_executable(hybrid-debug-blas-${TEST} ${TEST_DIR}/blas/${TEST}.cpp) 
         target_link_libraries(hybrid-debug-blas-${TEST} 
                               hybrid-debug ${ELEMENTAL_REQUIRED_LIBS})
         set_target_properties(hybrid-debug-blas-${TEST} 
-                              PROPERTIES OUTPUT_NAME ${TEST})
+                              PROPERTIES OUTPUT_NAME ${TEST}
+                              RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       endforeach(TEST)
       # Build the lapack tests
-      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/hybrid/debug/lapack)
+      set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/hybrid/debug/lapack")
       foreach(TEST ${LAPACK_TESTS})
         add_executable(hybrid-debug-lapack-${TEST} 
                        ${TEST_DIR}/lapack/${TEST}.cpp)
         target_link_libraries(hybrid-debug-lapack-${TEST} 
                               hybrid-debug ${ELEMENTAL_REQUIRED_LIBS})
         set_target_properties(hybrid-debug-lapack-${TEST} 
-                              PROPERTIES OUTPUT_NAME ${TEST})
+                              PROPERTIES OUTPUT_NAME ${TEST}
+                              RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       endforeach(TEST)
     endif(BUILD_TESTS)
   endif(BUILD_DEBUG)
@@ -419,40 +442,44 @@ if(BUILD_HYBRID AND OpenMP_FOUND)
   if(BUILD_RELEASE)
     set(CMAKE_CXX_FLAGS "${CXX_BASE_FLAGS} ${CXX_HYBRID_RELEASE_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DRELEASE")
-    set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib/hybrid/release)
-    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/hybrid/release)
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/lib/hybrid/release")
     add_library(hybrid-release STATIC ${ELEMENTAL_SRC})
-    set_target_properties(hybrid-release PROPERTIES OUTPUT_NAME elemental)
+    set_target_properties(hybrid-release
+                          PROPERTIES OUTPUT_NAME elemental
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(BUILD_TESTS)
       # Build the core tests
-      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/hybrid/release/core) 
+      set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/hybrid/release/core")
       foreach(TEST ${CORE_TESTS})
         add_executable(hybrid-release-core-${TEST} ${TEST_DIR}/core/${TEST}.cpp)
         target_link_libraries(hybrid-release-core-${TEST} 
                               hybrid-release ${ELEMENTAL_REQUIRED_LIBS})
         set_target_properties(hybrid-release-core-${TEST} 
-                              PROPERTIES OUTPUT_NAME ${TEST})
+                              PROPERTIES OUTPUT_NAME ${TEST}
+                              RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       endforeach(TEST)
       # Build the blas tests
-      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/hybrid/release/blas) 
+      set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/hybrid/release/blas")
       foreach(TEST ${BLAS_TESTS})
         add_executable(hybrid-release-blas-${TEST} ${TEST_DIR}/blas/${TEST}.cpp) 
         target_link_libraries(hybrid-release-blas-${TEST} 
                               hybrid-release ${ELEMENTAL_REQUIRED_LIBS})
         set_target_properties(hybrid-release-blas-${TEST} 
-                              PROPERTIES OUTPUT_NAME ${TEST})
+                              PROPERTIES OUTPUT_NAME ${TEST}
+                              RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       endforeach(TEST)
       # Build the lapack tests
-      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/hybrid/release/lapack)
+      set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/hybrid/release/lapack")
       foreach(TEST ${LAPACK_TESTS})
         add_executable(hybrid-release-lapack-${TEST} 
                        ${TEST_DIR}/lapack/${TEST}.cpp)
         target_link_libraries(hybrid-release-lapack-${TEST} 
                               hybrid-release ${ELEMENTAL_REQUIRED_LIBS})
         set_target_properties(hybrid-release-lapack-${TEST} 
-                              PROPERTIES OUTPUT_NAME ${TEST})
+                              PROPERTIES OUTPUT_NAME ${TEST}
+                              RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       endforeach(TEST)
     endif(BUILD_TESTS)
   endif(BUILD_RELEASE)
-endif(BUILD_HYBRID AND OpenMP_FOUND)
+endif(BUILD_HYBRID AND HAVE_OPENMP)
 
