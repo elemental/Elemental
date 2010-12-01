@@ -45,7 +45,7 @@ option(BUILD_HYBRID  "Build a hybrid OpenMP/MPI version of Elemental"     OFF)
 option(BUILD_DEBUG   "Build a version with many consistency checks"       OFF)
 option(BUILD_RELEASE "Build the release (optimized) version of Elemental" ON)
 option(BUILD_TESTS   "Build a collection of test executables"             ON)
-option(LINK_PMRRR    "Link against the eigensolver PMRRR"                 ON)
+option(BUILD_PMRRR   "Build and link against eigensolver PMRRR"           ON)
 
 option(WITHOUT_COMPLEX "Avoid all usage of complex numbers" OFF)
 if(NOT WITHOUT_COMPLEX)
@@ -56,6 +56,8 @@ option(CACHE_WARNINGS "Warns when using cache-unfriendly routines"          OFF)
 option(UNALIGNED_WARNINGS "Warn when performing unaligned redistributions"  OFF)
 option(VECTOR_WARNINGS "Warn when vector redistribution chances are missed" OFF)
 option(ENABLE_ALL_DISTRIBUTED_DOT "Build every parallel dot product."       OFF)
+MARK_AS_ADVANCED(AVOID_COMPLEX_MPI TIMING CACHE_WARNINGS UNALIGNED_WARNINGS 
+                 VECTOR_WARNINGS ENABLE_ALL_DISTRIBUTED_DOT)
 
 if(BUILD_PURE AND BUILD_DEBUG)
   set(CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
@@ -74,12 +76,23 @@ if(BUILD_HYBRID AND BUILD_RELEASE)
       "CXX optimization flags for hybrid OpenMP/MPI release build")
 endif(BUILD_HYBRID AND BUILD_RELEASE)
 
+if(MPI_CXX_COMPILER AND NOT EXISTS ${MPI_CXX_COMPILER})
+  message(FATAL_ERROR 
+          "Invalid MPI_CXX_COMPILER: ${MPI_CXX_COMPILER} does not exist.")
+endif(MPI_CXX_COMPILER AND NOT EXISTS ${MPI_CXX_COMPILER})
 if(NOT MPI_CXX_COMPILER)
   find_package(MPI)
-  set(MPI_CXX_DESC "Full path to MPI CXX compiler. If blank, CMake will search for it.")
+  set(MPI_CXX_DESC 
+      "Full path to MPI CXX compiler. If blank, CMake will search for it.")
   if(NOT MPI_FOUND)
-    set(MPI_CXX_COMPILER "" CACHE STRING ${MPI_CXX_MSG})
-    message(FATAL_ERROR "Could not find MPI CXX compiler. Please manually set MPI_CXX_COMPILER")
+    # Try a manual search for the common MPI names
+    find_program(MPI_COMPILER mpicxx mpic++ mpixlC mpixlC_r
+                 DOC "Full path to MPI CXX compiler")
+    if(NOT MPI_COMPILER)
+      set(MPI_CXX_COMPILER "" CACHE STRING ${MPI_CXX_MSG})
+      message(FATAL_ERROR 
+        "Could not find MPI CXX compiler. Please manually set MPI_CXX_COMPILER")
+    endif(NOT MPI_COMPILER)
   endif(NOT MPI_FOUND)
   # Regrettably, 'find_package(MPI)' does not qualify the compiler as CXX
   set(MPI_CXX_COMPILER ${MPI_COMPILER} CACHE STRING ${MPI_CXX_DESC})
@@ -87,10 +100,14 @@ endif(NOT MPI_CXX_COMPILER)
 set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 
 if(BUILD_HYBRID)
-  find_package(OpenMP)
-  if(NOT OpenMP_FOUND)
-    message("Hybrid build disabled because OpenMP support was not found")
-  endif(NOT OpenMP_FOUND)
+  if(NOT MANUAL_OPENMP_CXX_FLAGS)
+    find_package(OpenMP)
+    if(NOT OpenMP_FOUND)
+      set(MANUAL_OPENMP_CXX_FLAGS "" CACHE STRING "OpenMP CXX FLAGS")
+      message("Hybrid build disabled because OpenMP support was not verified.")
+      message("You can alternatively manually specify OpenMP_CXX_FLAGS.")
+    endif(NOT OpenMP_FOUND)
+  endif(NOT MANUAL_OPENMP_CXX_FLAGS)
 endif(BUILD_HYBRID)
 
 # A simple extension of find_library from a single lib to a list of libs
@@ -104,6 +121,10 @@ macro(find_library_list FOUND_LIST SEARCH_LIST PATH PATH_SUFFIX)
     if(FOUND_${LIB})
       list(APPEND ${FOUND_LIST} ${FOUND_${LIB}})
     endif(FOUND_${LIB})
+    # On some machines, all of the above FOUND_${LIB} variables show up in 
+    # the CMake wizard's cache. This is annoying, so we should explicitly 
+    # remove them by forcing them to be internal.
+    set(FOUND_${LIB} CACHE INTERNAL "")
   endforeach(LIB)
   # If FOUND_LIST is not the same length as SEARCH_LIST, then empty it so that
   # it is easy to check whether or not all of the libraries were found.
@@ -124,6 +145,13 @@ endif(${CMAKE_SIZEOF_VOID_P} MATCHES 4)
 
 # Since the CMake find_blas for some reason requires a Fortran compiler, we
 # must build our own.
+if(BLAS_LAPACK_LIBS)
+  foreach(LIB ${BLAS_LAPACK_LIBS})
+    if(NOT EXISTS ${LIB})
+      message(FATAL_ERROR "Invalid BLAS_LAPACK_LIBS: ${LIB} does not exist.")
+    endif(NOT EXISTS ${LIB})
+  endforeach(LIB)
+endif(BLAS_LAPACK_LIBS)
 if(NOT BLAS_LAPACK_LIBS)
   set(BLAS_LAPACK_DESC "BLAS/LAPACK link flags")
   if(APPLE)
@@ -234,28 +262,22 @@ if(NOT HAVE_DPOTRF)
   endif(HAVE_DPOTRF_PRE)
 endif(NOT HAVE_DPOTRF)
 
-# Search for PMRRR
-if(LINK_PMRRR)
-  find_library(PMRRR_LIB pmrrr 
-      DOC "Parallel Multiple Relatively Robust Representations (PMRRR) library")
-  if(NOT PMRRR_LIB)
-    set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} -DWITHOUT_PMRRR")
-    message("Could not find PMRRR; Elemental will not have eigensolvers.")
-  endif(NOT PMRRR_LIB)
-endif(LINK_PMRRR)
+if(BUILD_PMRRR)
+  add_subdirectory(contrib/PMRRR-0.6)
+endif(BUILD_PMRRR)
 
 # Grab all of the .cpp and .hpp Elemental files
 file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
      "src/*.cpp")
 file(GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
      "include/*.hpp")
-if(NOT LINK_PMRRR OR NOT PMRRR_LIB)
+if(NOT BUILD_PMRRR)
   # It might be cleaner to force these to be empty through the preprocessor
   list(REMOVE_ITEM ELEMENTAL_CPP 
        "src/lapack/HermitianEig/HermitianEig.cpp")
   list(REMOVE_ITEM ELEMENTAL_CPP 
        "src/lapack/GeneralizedHermitianEig/GeneralizedHermitianEig.cpp")
-endif(NOT LINK_PMRRR OR NOT PMRRR_LIB)
+endif(NOT BUILD_PMRRR)
 set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
 # Create the lists of test executables
@@ -264,18 +286,18 @@ if(BUILD_TESTS)
   set(CORE_TESTS DistMatrix Matrix)
   set(BLAS_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
   set(LAPACK_TESTS Chol Hegst LU QR Tridiag Trinv UT)
-  if(LINK_PMRRR AND PMRRR_LIB)
+  if(BUILD_PMRRR)
     list(APPEND LAPACK_TESTS GeneralizedHermitianEig)
     list(APPEND LAPACK_TESTS HermitianEig)
-  endif(LINK_PMRRR AND PMRRR_LIB)
+  endif(BUILD_PMRRR)
 endif(BUILD_TESTS)
 
 # Set up the include directories and the required libraries
 include_directories("${PROJECT_SOURCE_DIR}/include")
 set(ELEMENTAL_REQUIRED_LIBS ${BLAS_LAPACK_LIBS})
-if(LINK_PMRRR AND PMRRR_LIB)
-  list(APPEND ELEMENTAL_REQUIRED_LIBS ${PMRRR_LIB})
-endif(LINK_PMRRR AND PMRRR_LIB)
+if(BUILD_PMRRR)
+  list(APPEND ELEMENTAL_REQUIRED_LIBS pmrrr)
+endif(BUILD_PMRRR)
 
 # Build the pure-debug version (if necessary)
 if(BUILD_PURE AND BUILD_DEBUG)
@@ -296,7 +318,7 @@ if(BUILD_PURE AND BUILD_DEBUG)
     endforeach(TEST)
     # Build the blas tests
     set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/pure/debug/blas)
-    foreach(TEST ${BLASE_TESTS})
+    foreach(TEST ${BLAS_TESTS})
       add_executable(pure-debug-blas-${TEST} ${TEST_DIR}/blas/${TEST}.cpp)
       target_link_libraries(pure-debug-blas-${TEST} 
                             pure-debug ${ELEMENTAL_REQUIRED_LIBS})

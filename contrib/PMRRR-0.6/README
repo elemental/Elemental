@@ -1,0 +1,207 @@
+These files provide the routine 'pmrrr'. Its purpose is to compute all 
+or a subset of eigenvalues and optionally eigenvectors of a symmetric 
+tridiagonal matrix. 'pmrrr' is based on the algorithm of Multiple 
+Relatively Robust Representations (MRRR). The routine thereby targets 
+hybrid architectures consisting of multiple SMP nodes. It also runs in 
+fully distributed mode, with each node having only one processor, and 
+fully SMP mode, in which case no message passing is required. The 
+implementation is based on LAPACK's routine 'dstemr'.
+
+
+Building the archive libpmrrr.a:
+--------------------------------
+1) In the folder INSTALL, depending on the compiler used, 
+   replace the file 'make.inc' (which assumes GNU gcc) 
+   with the corresponding file. 
+   For example if you want to use Intel's compilers: 
+   $cp ./INSTALL/make.inc.intel ./make.inc
+   If you do not find a file matching your compiler, then use any of 
+   the files as a basis to edit.
+2) Edit the file 'make.inc' according to your system.
+3) Run make.
+
+
+Using libmrrr.a:
+----------------
+The folder EXAMPLES contains examples of how to use the routine 
+'pmrrr' in C and Fortran code. Edit the 'Makefile' in these folders if 
+you do not use the GNU compilers and run 'make' to compile the 
+examples.
+
+In general, the code that calls 'pmrrr' needs to be linked to the 
+library 'libpmrrr.a', which is created in the LIB folder. 
+Additionally, it has to be linked to the libraries on which it 
+depends (see example files).
+
+Below are given the C and Fortran prototypes of the function 'pmrrr'.
+For more information please see 'INCLUDE/pmrrr.h'.
+
+
+######################################################################
+# C function prototype:                                              #
+###################################################################### 
+# int pmrrr(char *jobz, char *range, int *n, double  *D,             #
+#           double *E, double *vl, double *vu, int *il, int *iu,     #
+#           int *tryrac, MPI_Comm comm, int *nz, int *offset,        #
+#           double *W, double *Z, int *ldz, int *Zsupp);             #
+#                                                                    #
+# Arguments:                                                         #
+# ----------                                                         #
+#                                                                    #
+# INPUTS:                                                            #
+# -------                                                            #
+# jobz              "N" or "n" - compute only eigenvalues            #
+#                   "V" or "v" - compute also eigenvectors           #
+#                   "C" or "c" - count the maximal number of         #
+#                                locally computed eigenvectors       #
+# range             "A" or "a" - all                                 #
+#                   "V" or "v" - by interval: (VL,VU]                #
+#                   "I" or "i" - by index:     IL-IU                 #
+# n                 matrix size                                      #
+# ldz               must be set on input to the leading dimension    #
+#                   of of eigenvector matrix Z; this is often equal  #
+#                   to matrix size n (not changed on output)         #
+#                                                                    #
+# INPUT + OUTPUT:                                                    #
+# ---------------                                                    #
+# D (double[n])     Diagonal elements of tridiagonal T.              #
+#                   (On output the array will be overwritten).       #
+# E (double[n])     Off-diagonal elements of tridiagonal T.          #
+#                   First n-1 elements contain off-diagonals,        #
+#                   the last element can have an abitrary value.     #
+#                   (On output the array will be overwritten.)       #
+# vl                If range="V", lower bound of interval            #
+#                   (vl,vu], on output refined.                      #
+#                   If range="A" or "I" not referenced as input.     #
+#                   On output the interval (vl,vu] contains ALL      #
+#                   the computed eigenvalues.                        #
+# vu                If range="V", upper bound of interval            #
+#                   (vl,vu], on output refined.                      #
+#                   If range="A" or "I" not referenced as input.     #
+#                   On output the interval (vl,vu] contains ALL      #
+#                   the computed eigenvalues.                        #
+# il                If range="I", lower index (1-based indexing) of  #
+#                   the subset 'il' to 'iu'.                         #
+#                   If range="A" or "V" not referenced as input.     #
+#                   On output the eigenvalues with index il to iu    #
+#                   are computed by ALL processes.                   #
+# iu                If range="I", upper index (1-based indexing) of  #
+#                   the subset 'il' to 'iu'.                         #
+#                   If range="A" or "V" not referenced as input.     #
+#                   On output the eigenvalues with index il to iu    # 
+#                   are computed by ALL processes.                   #
+# tryrac            0 - do not try to achieve high relative accuracy.#
+#                   1 - relative accuracy will be attempted;         #
+#                       on output it is set to zero if high relative #
+#                       accuracy is not achieved.                    #
+# comm              MPI communicator; commonly: MPI_COMM_WORLD.      #
+#                                                                    #
+# OUTPUT:                                                            #
+# -------                                                            #
+# nz                Number of eigenvalues and eigenvectors computed  #
+#                   locally.                                         #
+#                   If jobz="C", 'nz' will be set to the maximal     #
+#                   number of locally computed eigenvectors such     #
+#                   that double[n*nz] will provide enough memory     #
+#                   for the local eigenvectors;  this is only        #
+#                   important in case of range="V" since             #
+#                   '#eigenpairs' are not known in advance           #
+# offset            Index, relative to the computed eigenvalues, of  #
+#                   the smallest eigenvalue computed locally         #
+#                   (0-based indexing).                              #
+# W (double[n])     Locally computed eigenvalues;                    #
+#                   The first nz entries contain the eigenvalues     #
+#                   computed locally; the first entry contains the   #
+#                   'offset + 1'-th eigenvalue computed and the      #
+#                   'offset + il'-th eigenvalue of the input matrix  #
+#                   (1-based indexing in both cases).                #
+#                   In some situations it is desirable to have all   #
+#                   computed eigenvalues in W, instead of only       #
+#                   those computed locally. In this case the         #
+#                   routine 'PMR_comm_eigvals' can be called right   #
+#                   after 'pmrrr' returns (see below).               #
+# Z                 Locally computed eigenvectors.                   #
+# (double[n*nz])    Enough space must be provided to store the       #
+#                   vectors. 'nz' should be bigger or equal          #
+#                   to ceil('#eigenpairs'/'#processes'), where       #
+#                   '#eigenpairs' is 'n' in case of range="A" and    #
+#                  'iu-il+1' in case of range="I". Alternatively,    #
+#                   and for range="V" 'nz' can be obtained           #
+#                   by running the routine with jobz="C".            #
+# Zsupp             Support of eigenvectors, which is given by       #
+# (double[2*n])     Z[2*i] to Z[2*i+1] for the i-th eigenvector      #
+#                   stored locally (1-based indexing in both         #
+#                   cases).                                          #
+#                                                                    #
+# RETURN VALUE:                                                      #
+# -------------                                                      #
+#                 0 - success                                        #
+#                 1 - wrong input parameter                          #
+#                 2 - misc errors                                    #
+#                                                                    #
+######################################################################
+
+######################################################################
+# Fortran prototype:                                                 #
+######################################################################
+# PMRRR(JOBZ, RANGE, N, D, E, VL, VU, IL, IU, TRYRAC,                #
+#       MPI_COMM, NZ, OFFSET, W, Z, LDZ, ZSUPP, INFO)                #
+#                                                                    #
+# CHARACTER        JOBZ, RANGE                                       #
+# INTEGER          N, IL, IU, TRYRAC, MPI_COMM, NZ, OFFSET, LDZ,     # 
+#                  ZSUPP(*), INFO                                    #
+# DOUBLE PRECISION D(*), D(*), VL, VU, W(*), Z(*,*)                  #
+######################################################################
+
+
+The function is called by every process of the MPI communicator 
+specified as an argument. Each process is assumed to have the diagonal 
+and sub-diagonal of the symmetric tridiagonal input matrix. It is 
+thereby important that MPI is always initialized by 
+'MPI_Init_thread' (as opposed to 'MPI_Init'!). If multithreading is 
+desired, the thread level support MPI_THREAD_MULTIPLE has to be 
+requested in 'MPI_Init_thread'. If no multithreading is used, the 
+thread support 'MPI_THREAD_SINGLE' can be requested. Notice that 
+multithreading is disabled if the implementation of the MPI library 
+does not support MPI_THREAD_MULTIPLE.
+The number of threads created in each process can be specified via the 
+environment variable PMR_NUM_THREADS. In case this variable is not 
+defined, then the routine will create as many threads as specified by 
+the variable DEFAULT_NUM_THREADS (which is set in 'pmrrr.h'). 
+Note: Do not forget to tell mpiexec/mpirun about the environment 
+variable PMR_NUM_THREADS if you use it. This is typically done via the 
+option '-env' or '-x'.
+
+
+Some additinal comments:
+------------------------
+
+COMMUNICATING COMPUTED EIGENVALUES:
+Upon completion of routine 'pmrrr', each process has a subset of the 
+eigenvalues, stored in the array W (see 'pmrrr.h'). In some situations
+it is desirable to let all processes have all the computed eigenvalues. 
+To this end, an additional routine 'PMR_comm_eigvals' is provided. It 
+can be called right after 'pmrrr' returned. Upon completion, each 
+process has all the computed eigenvalues, stored in W.
+The C and Fortran prototypes of the function 'PMR_comm_eigvals' are 
+given below. For more information please see 'pmrrr.h'.
+
+######################################################################
+# C function prototype:                                              #
+###################################################################### 
+# int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *offset,          # 
+#                      double *W);                                   #
+######################################################################
+
+######################################################################
+# Fortran prototype:                                                 #
+######################################################################
+# PMR_COMM_EIGVALS(MPI_COMM, NZ, OFFSET, W, INFO)                    #
+#                                                                    #
+# INTEGER          MPI_COMM, NZ, OFFSET, INFO                        #
+# DOUBLE PRECISION W(*)                                              #
+######################################################################
+
+
+COMMENTS AND BUGS:
+petschow@aices.rwth-aachen.de

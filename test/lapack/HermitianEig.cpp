@@ -229,7 +229,7 @@ void TestHermitianEigDouble
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Starting Hermitian eigensolver.\n";
+        cout << "  Starting Hermitian eigensolver...";
         cout.flush();
     }
     Barrier( MPI_COMM_WORLD );
@@ -304,7 +304,7 @@ void TestHermitianEigDoubleComplex
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Starting Hermitian eigensolver.\n";
+        cout << "  Starting Hermitian eigensolver...";
         cout.flush();
     }
     Barrier( MPI_COMM_WORLD );
