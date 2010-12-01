@@ -33,7 +33,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 if(CMAKE_BUILD_TYPE)
-  message("PMRRR does not use CMAKE_BUILD_TYPE.")
+  message(STATUS "PMRRR does not use CMAKE_BUILD_TYPE.")
 endif(CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE "" CACHE INTERNAL "Removing GUI option" FORCE)
 
@@ -42,7 +42,59 @@ MARK_AS_ADVANCED(HAVE_SPINLOCKS)
 
 set(C_OPT_FLAGS "-O3" CACHE STRING "C optimization flags")
 
-set(C_BASE_FLAGS "${BLAS_DEFS} ${LAPACK_DEFS}")
+# Search the BLAS/LAPACK libs for dstemr to test whether it is a new enough version
+include(CheckFunctionExists)
+set(CMAKE_REQUIRED_LIBRARIES ${BLAS_LAPACK_LIBS})
+if(HAVE_DPOTRF)
+  check_function_exists(dstemr RECENT_LAPACK)
+elseif(HAVE_DPOTRF_PRE)
+  check_function_exists(_dstemr RECENT_LAPACK)
+elseif(HAVE_DPOTRF_POST)
+  check_function_exists(dstemr_ RECENT_LAPACK)
+elseif(HAVE_DPOTRF_PRE_POST)
+  check_function_exists(_dstemr_ RECENT_LAPACK)
+endif(HAVE_DPOTRF)
+if(NOT RECENT_LAPACK)
+  message(STATUS
+          "LAPACK lib does not contain dstemr and friends; we must build it.")
+  enable_language(Fortran OPTIONAL)
+  if(NOT CMAKE_Fortran_COMPILER_WORKS)
+    message(SEND_ERROR "Could not find a valid Fortran compiler.")
+  else(NOT CMAKE_Fortran_COMPILER_WORKS) 
+    file(GLOB_RECURSE LAPACK_ADDON_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.f")
+    add_library(lapack_addons STATIC ${LAPACK_ADDON_SRC})
+    # Now determine the way C should interface with our Fortran addons
+    set(CMAKE_REQUIRED_LIBRARIES lapack_addons)
+    check_function_exists(dstemr HAVE_DSTEMR)
+    if(HAVE_DSTEMR)
+      set(F_FROM_C_DEFS "")
+    else(HAVE_DSTEMR)
+      check_function_exists(_dstemr HAVE_DSTEMR_PRE)
+      if(HAVE_DSTEMR_PRE)
+        set(F_FROM_C_DEFS "-DLAPACK_PRE")
+      else(HAVE_DSTEMR_PRE)
+        check_function_exists(dstemr_ HAVE_DSTEMR_POST)
+        if(HAVE_DSTEMR_POST)
+          set(F_FROM_C_DEFS "-DLAPACK_POST")
+        else(HAVE_DSTEMR_POST)
+          check_function_exists(_dstemr_ HAVE_DSTEMR_PRE_POST)
+          if(HAVE_DSTEMR_PRE_POST)
+            set(F_FROM_C_DEFS "-DLAPACK_PRE -DLAPACK_POST")
+          else(HAVE_DSTEMR_PRE_POST)
+            message(SEND_ERROR "Could not determine dstemr symbol convention.")
+          endif(HAVE_DSTEMR_PRE_POST)
+        endif(HAVE_DSTEMR_POST)
+      endif(HAVE_DSTEMR_PRE)
+    endif(HAVE_DSTEMR)
+  endif(NOT CMAKE_Fortran_COMPILER_WORKS)
+endif(NOT RECENT_LAPACK)
+
+# Add in the preprocessor definitions 
+if(RECENT_LAPACK)
+  set(C_BASE_FLAGS "${BLAS_DEFS} ${LAPACK_DEFS}")
+else(RECENT_LAPACK)
+  set(C_BASE_FLAGS "${BLAS_DEFS} ${F_FROM_C_DEFS}")
+endif(RECENT_LAPACK)
 if(NOT HAVE_SPINLOCKS)
   set(C_BASE_FLAGS "${C_BASE_FLAGS} -DNOSPINLOCKS")
 endif(NOT HAVE_SPINLOCKS)
@@ -54,14 +106,14 @@ set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
 
 # Search for the MPI C compiler
 if(MPI_C_COMPILER AND NOT EXISTS ${MPI_C_COMPILER})
-  message(FATAL_ERROR 
+  message(SEND_ERROR 
           "Invalid MPI_C_COMPILER: ${MPI_C_COMPILER} does not exist.")
 endif(MPI_C_COMPILER AND NOT EXISTS ${MPI_C_COMPILER})
 if(NOT MPI_C_COMPILER)
   find_program(MPI_C_COMPILER mpicc mpixlc mpixlc_r 
     DOC "Full path to MPI C compiler. If blank, CMake will search for it.")
   if(NOT MPI_C_COMPILER)
-    message(FATAL_ERROR 
+    message(SEND_ERROR 
       "Could not find MPI C compiler. Please manually set MPI_C_COMPILER.")
   endif(NOT MPI_C_COMPILER)
 endif(NOT MPI_C_COMPILER)
@@ -80,5 +132,9 @@ set(C_PTHREADS_FLAGS "-pthread" CACHE STRING
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 set(CMAKE_C_FLAGS "${C_BASE_FLAGS} ${C_OPT_FLAGS} ${C_PTHREADS_FLAG}")
 set(CMAKE_Fortran_FLAGS "${FORTRAN_OPT_FLAGS}")
-add_library(pmrrr STATIC ${PMRRR_SRC})
+if(RECENT_LAPACK)
+  add_library(pmrrr STATIC ${PMRRR_SRC})
+else(RECENT_LAPACK)
+  add_library(pmrrr STATIC ${PMRRR_SRC} lapack_addons)
+endif(RECENT_LAPACK)
 

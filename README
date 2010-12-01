@@ -31,10 +31,12 @@ which supports building with and without PMRRR and attempts to search for the
 appropriate BLAS/LAPACK configurations. As of now, it will probably only work
 on Linux and MacOSX with vecLib or MKL. The recommended CMake build method is 
 to run:
-      cmake -i .
+      mkdir build
+      cd build
+      cmake -i ..
 and to answer all of the install wizards questions. Alternatively, CMake includes
 a GUI that can be used with
-      cmake-gui .
+      cmake-gui ..
 Afterwards, simply run 
       make
 in order to build the library/libraries. The CMake build system is still very 
