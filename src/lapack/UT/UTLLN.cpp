@@ -102,10 +102,10 @@ elemental::lapack::internal::UTLLN
                A1,
           AB,  A2 );
 
-        HPan_MC_Star.AlignWith( A2 );
-        Z_Star_MR.AlignWith( A2 );
-        Z_Star_VR.AlignWith( A2 );
-        Z_Star_MR.ResizeTo( HPanWidth, A2.Width() );
+        HPan_MC_Star.AlignWith( AB );
+        Z_Star_MR.AlignWith( AB );
+        Z_Star_VR.AlignWith( AB );
+        Z_Star_MR.ResizeTo( HPanWidth, AB.Width() );
         SInv_Star_Star.ResizeTo( HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
@@ -123,7 +123,7 @@ elemental::lapack::internal::UTLLN
         HPan_MC_Star = HPanCopy;
         blas::internal::LocalGemm
         ( Transpose, Normal, 
-          (R)1, HPan_MC_Star, A2, (R)0, Z_Star_MR );
+          (R)1, HPan_MC_Star, AB, (R)0, Z_Star_MR );
         Z_Star_VR.SumScatterFrom( Z_Star_MR );
         
         blas::internal::LocalTrsm
@@ -132,7 +132,7 @@ elemental::lapack::internal::UTLLN
 
         Z_Star_MR = Z_Star_VR;
         blas::internal::LocalGemm
-        ( Normal, Normal, (R)-1, HPan_MC_Star, Z_Star_MR, (R)1, A2 );
+        ( Normal, Normal, (R)-1, HPan_MC_Star, Z_Star_MR, (R)1, AB );
         //--------------------------------------------------------------------//
         HPan_MC_Star.FreeAlignments();
         Z_Star_MR.FreeAlignments();
@@ -238,10 +238,10 @@ elemental::lapack::internal::UTLLN
                A1,
           AB,  A2 );
 
-        HPan_MC_Star.AlignWith( A2 );
-        Z_Star_MR.AlignWith( A2 );
-        Z_Star_VR.AlignWith( A2 );
-        Z_Star_MR.ResizeTo( HPan.Width(), A2.Width() );
+        HPan_MC_Star.AlignWith( AB );
+        Z_Star_MR.AlignWith( AB );
+        Z_Star_VR.AlignWith( AB );
+        Z_Star_MR.ResizeTo( HPan.Width(), AB.Width() );
         SInv_Star_Star.ResizeTo( HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
@@ -260,7 +260,7 @@ elemental::lapack::internal::UTLLN
         HPan_MC_Star = HPanCopy;
         blas::internal::LocalGemm
         ( ConjugateTranspose, Normal, 
-          (C)1, HPan_MC_Star, A2, (C)0, Z_Star_MR );
+          (C)1, HPan_MC_Star, AB, (C)0, Z_Star_MR );
         Z_Star_VR.SumScatterFrom( Z_Star_MR );
         
         blas::internal::LocalTrsm
@@ -269,7 +269,7 @@ elemental::lapack::internal::UTLLN
 
         Z_Star_MR = Z_Star_VR;
         blas::internal::LocalGemm
-        ( Normal, Normal, (C)-1, HPan_MC_Star, Z_Star_MR, (C)1, A2 );
+        ( Normal, Normal, (C)-1, HPan_MC_Star, Z_Star_MR, (C)1, AB );
         //--------------------------------------------------------------------//
         HPan_MC_Star.FreeAlignments();
         Z_Star_MR.FreeAlignments();

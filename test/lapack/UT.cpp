@@ -354,6 +354,18 @@ main( int argc, char* argv[] )
         const int nb = atoi(argv[8]);
         const bool testCorrectness = atoi(argv[9]);
         const bool printMatrices = atoi(argv[10]);
+        if( shape == Lower && offset > 0 )
+        {
+            throw std::runtime_error
+                  ("The offset cannot be positive if the transforms are in "
+                   "the lower triangle.");
+        }
+        else if( shape == Upper && offset < 0 )
+        {
+            throw std::runtime_error
+                  ("The offset cannot be negative if the transforms are in "
+                   "the upper triangle.");
+        }
 #ifndef RELEASE
         if( rank == 0 )
         {

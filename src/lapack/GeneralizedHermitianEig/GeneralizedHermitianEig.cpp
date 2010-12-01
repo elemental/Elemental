@@ -30,6 +30,7 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
+#ifndef WITHOUT_PMRRR
 #include "elemental/lapack.hpp"
 using namespace elemental;
 
@@ -579,5 +580,5 @@ elemental::lapack::GeneralizedHermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& B,
   DistMatrix<             double, Star,VR>& w,
   double a, double b, bool tryForHighAccuracy );
-#endif
-
+#endif // WITHOUT_COMPLEX
+#endif // WITHOUT_PMRRR
