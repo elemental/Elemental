@@ -110,6 +110,7 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
       # to default to assuming an appended underscore.
       set(F_FROM_C_DEFS "-DLAPACK_POST")
     endif(Fortran_COMPILER_NAME STREQUAL "gfortran")
+    set(F_FROM_C_DEFS "${F_FROM_C_DEFS} -DPREPEND_X")
     
     file(GLOB_RECURSE LAPACK_ADDON_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
          "*.f")

@@ -32,6 +32,9 @@
  * Coded by Matthias Petschow (petschow@aices.rwth-aachen.de),
  * August 2010, Version 0.6
  *
+ * BLAS/LAPACK macros added by Jack Poulson (jack.poulson@gmail.com),
+ * December 2010
+ *
  * This code was the result of a collaboration between 
  * Matthias Petschow and Paolo Bientinesi. When you use this 
  * code, kindly reference a paper related to this work.
@@ -224,48 +227,64 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
  * The macros for determining underscore convention were added by 
  * Jack Poulson to ease integration into Elemental */
 #if defined(LAPACK_PRE) && defined(LAPACK_POST)
-#define LAPACK(name) _ ## name _
+# if defined(PREPEND_X)
+#  define LAPACK(name) _x ## name _
+# else
+#  define LAPACK(name) _ ## name _
+# endif
 #elif defined(LAPACK_PRE)
-#define LAPACK(name) _ ## name
+# if defined(PREPEND_X)
+#  define LAPACK(name) _x ## name
+# else
+#  define LAPACK(name) _ ## name
+# endif
 #elif defined(LAPACK_POST)
-#define LAPACK(name) name ## _
+# if defined(PREPEND_X)
+#  define LAPACK(name) x ## name ## _
+# else
+#  define LAPACK(name) name ## _
+# endif
 #else
-#define LAPACK(name) name
+# if defined(PREPEND_X)
+#  define LAPACK(name) x ## name
+# else
+#  define LAPACK(name) name
+# endif
 #endif
-extern double LAPACK(xdlamch)(char*);
-extern double LAPACK(xdlanst)(char*, int*, double*, double*);
-extern void   LAPACK(xdlarrr)(int*, double*, double*, int*);
-extern void   LAPACK(xdlarra)(int*, double*, double*, double*, double*, 
+extern double LAPACK(dlamch)(char*);
+extern double LAPACK(dlanst)(char*, int*, double*, double*);
+extern void   LAPACK(dlarrr)(int*, double*, double*, int*);
+extern void   LAPACK(dlarra)(int*, double*, double*, double*, double*, 
 		      double*, int*, int*, int*);
-extern void   LAPACK(xdlarrc)(char*, int*, double*, double*, double*, double*,
+extern void   LAPACK(dlarrc)(char*, int*, double*, double*, double*, double*,
 		      double*, int*, int*, int*, int*);
-extern void   LAPACK(xdlarrd)(char*, char*, int*, double*, double*, int*, 
+extern void   LAPACK(dlarrd)(char*, char*, int*, double*, double*, int*, 
 		      int*, double*, double*, double*, double*, 
 		      double*, double*, int*, int*, int*, double*, 
 		      double*, double*, double*, int*, int*, double*, 
 		      int*, int*);
-extern void   LAPACK(xdlarrb)(int*, double*, double*, int*, int*, double*,
+extern void   LAPACK(dlarrb)(int*, double*, double*, int*, int*, double*,
 		      double*, int*, double*, double*, double*, double*,
 		      int*, double*, double*, int*, int*);
-extern void   LAPACK(xdlarrk)(int*, int*, double*, double*, double*, double*,
+extern void   LAPACK(dlarrk)(int*, int*, double*, double*, double*, double*,
 		      double*, double*, double*, double*, int*);
-extern void   LAPACK(xdlaebz)(int*, int*, int*, int*, int*, int*, double*, 
+extern void   LAPACK(dlaebz)(int*, int*, int*, int*, int*, int*, double*, 
 		      double*, double*, double*, double*, double*,
 		      int*, double*, double*, int*, int*, double*,
 		      int*, int*);
-extern void   LAPACK(xdlarnv)(int*, int*, int*, double*);
-extern void   LAPACK(xdlarrf)(int*, double*, double*, double*, int*, int*, 
+extern void   LAPACK(dlarnv)(int*, int*, int*, double*);
+extern void   LAPACK(dlarrf)(int*, double*, double*, double*, int*, int*, 
 		      double*, double*, double*, double*, double*, 
 		      double*, double*, double*, double*, double*, 
 		      double*, int*);
-extern void   LAPACK(xdlar1v)(int*, int*, int*, double*, double*, double*, 
+extern void   LAPACK(dlar1v)(int*, int*, int*, double*, double*, double*, 
 		      double*, double*, double*, double*, double*, 
 		      bool*, int*, double*, double*, int*, int*, 
 		      double*, double*, double*, double*);
-extern void   LAPACK(xdlarrj)(int*, double*, double*, int*, int*, double*, 
+extern void   LAPACK(dlarrj)(int*, double*, double*, int*, int*, double*, 
 		      int*, double*, double*, double*, int*, double*, 
 		      double*, int*);
-extern void   LAPACK(xdstemr)(char*, char*, int*, double*, double*, double*, 
+extern void   LAPACK(dstemr)(char*, char*, int*, double*, double*, double*, 
 		      double*, int*, int*, int*, double*, double*, 
 		      int*, int*, int*, int*, double*, int*, int*, 
 		      int*, int*);
@@ -277,16 +296,32 @@ extern void   LAPACK(xdstemr)(char*, char*, int*, double*, double*, double*,
  * The macros for determining underscore convention were added by 
  * Jack Poulson to ease integration into Elemental */
 #if defined(BLAS_PRE) && defined(BLAS_POST)
-#define BLAS(name) _ ## name _
+# if defined(PREPEND_X)
+#  define BLAS(name) _x ## name _
+# else
+#  define BLAS(name) _ ## name _
+# endif
 #elif defined(BLAS_PRE)
-#define BLAS(name) _ ## name
+# if defined(PREPEND_X)
+#  define BLAS(name) _x ## name
+# else
+#  define BLAS(name) _ ## name
+# endif
 #elif defined(BLAS_POST)
-#define BLAS(name) name ## _
+# if defined(PREPEND_X)
+#  define BLAS(name) x ## name ## _
+# else
+#  define BLAS(name) name ## _
+# endif
 #else
-#define BLAS(name) name
+# if defined(PREPEND_X)
+#  define BLAS(name) x ## name
+# else
+#  define BLAS(name) name
+# endif
 #endif
 
 void odscal(int*, double*, double*, int*);
-extern void BLAS(xdscal)(int*, double*, double*, int*);
+extern void BLAS(dscal)(int*, double*, double*, int*);
 
 #endif /* End of header file */

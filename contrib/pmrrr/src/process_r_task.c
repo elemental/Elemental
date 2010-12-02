@@ -152,7 +152,7 @@ int PMR_process_r_task(refine_t *rf, proc_t *procinfo,
     Wgap[ts_begin] = 0.0;
   }  
 
-  LAPACK(xdlarrb)(&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
+  LAPACK(dlarrb)(&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
 	  &Wshifted[ts_begin], &Wgap[ts_begin], &Werr[ts_begin],
 	  work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
   assert(info == 0);
