@@ -90,20 +90,31 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
                                 xlf95_r xlf95 xlf2003_r xlf2003)
   if(FORTRAN_COMPILER)
     enable_language(Fortran)
-    file(GLOB_RECURSE LAPACK_ADDON_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
-         "*.f")
-    add_library(lapack-addons STATIC ${LAPACK_ADDON_SRC})
 
     # Now determine the way C should interface with our Fortran addons. 
     get_filename_component(Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
+    set(LAPACK_ADDONS_LINK_LIBS "")
     if(Fortran_COMPILER_NAME STREQUAL "gfortran")
       # gfortran should append an underscore by default
       set(F_FROM_C_DEFS "-DLAPACK_POST")
+      if(APPLE)
+        find_library(GFORTRAN_LIB gfortran)
+        if(GFORTRAN_LIB)
+          set(LAPACK_ADDONS_LINK_LIBS ${GFORTRAN_LIB})
+        else(GFORTRAN_LIB)
+          message(FATAL_ERROR "Could not find gfortran library")
+        endif(GFORTRAN_LIB)
+      endif(APPLE)
     else(Fortran_COMPILER_NAME STREQUAL "gfortran")
       # The list of other compiler options should grow quickly. It is best
       # to default to assuming an appended underscore.
       set(F_FROM_C_DEFS "-DLAPACK_POST")
     endif(Fortran_COMPILER_NAME STREQUAL "gfortran")
+    
+    file(GLOB_RECURSE LAPACK_ADDON_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
+         "*.f")
+    add_library(lapack-addons STATIC ${LAPACK_ADDON_SRC})
+    target_link_libraries(lapack-addons ${LAPACK_ADDONS_LINK_LIBS})
   else(FORTRAN_COMPILER)
     if(MISSING_LAPACK_3_1)
       set(FAILED_PURE_PMRRR TRUE)

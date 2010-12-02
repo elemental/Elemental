@@ -232,40 +232,40 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
 #else
 #define LAPACK(name) name
 #endif
-extern double LAPACK(dlamch)(char*);
-extern double LAPACK(dlanst)(char*, int*, double*, double*);
-extern void   LAPACK(dlarrr)(int*, double*, double*, int*);
-extern void   LAPACK(dlarra)(int*, double*, double*, double*, double*, 
+extern double LAPACK(xdlamch)(char*);
+extern double LAPACK(xdlanst)(char*, int*, double*, double*);
+extern void   LAPACK(xdlarrr)(int*, double*, double*, int*);
+extern void   LAPACK(xdlarra)(int*, double*, double*, double*, double*, 
 		      double*, int*, int*, int*);
-extern void   LAPACK(dlarrc)(char*, int*, double*, double*, double*, double*,
+extern void   LAPACK(xdlarrc)(char*, int*, double*, double*, double*, double*,
 		      double*, int*, int*, int*, int*);
-extern void   LAPACK(dlarrd)(char*, char*, int*, double*, double*, int*, 
+extern void   LAPACK(xdlarrd)(char*, char*, int*, double*, double*, int*, 
 		      int*, double*, double*, double*, double*, 
 		      double*, double*, int*, int*, int*, double*, 
 		      double*, double*, double*, int*, int*, double*, 
 		      int*, int*);
-extern void   LAPACK(dlarrb)(int*, double*, double*, int*, int*, double*,
+extern void   LAPACK(xdlarrb)(int*, double*, double*, int*, int*, double*,
 		      double*, int*, double*, double*, double*, double*,
 		      int*, double*, double*, int*, int*);
-extern void   LAPACK(dlarrk)(int*, int*, double*, double*, double*, double*,
+extern void   LAPACK(xdlarrk)(int*, int*, double*, double*, double*, double*,
 		      double*, double*, double*, double*, int*);
-extern void   LAPACK(dlaebz)(int*, int*, int*, int*, int*, int*, double*, 
+extern void   LAPACK(xdlaebz)(int*, int*, int*, int*, int*, int*, double*, 
 		      double*, double*, double*, double*, double*,
 		      int*, double*, double*, int*, int*, double*,
 		      int*, int*);
-extern void   LAPACK(dlarnv)(int*, int*, int*, double*);
-extern void   LAPACK(dlarrf)(int*, double*, double*, double*, int*, int*, 
+extern void   LAPACK(xdlarnv)(int*, int*, int*, double*);
+extern void   LAPACK(xdlarrf)(int*, double*, double*, double*, int*, int*, 
 		      double*, double*, double*, double*, double*, 
 		      double*, double*, double*, double*, double*, 
 		      double*, int*);
-extern void   LAPACK(dlar1v)(int*, int*, int*, double*, double*, double*, 
+extern void   LAPACK(xdlar1v)(int*, int*, int*, double*, double*, double*, 
 		      double*, double*, double*, double*, double*, 
 		      bool*, int*, double*, double*, int*, int*, 
 		      double*, double*, double*, double*);
-extern void   LAPACK(dlarrj)(int*, double*, double*, int*, int*, double*, 
+extern void   LAPACK(xdlarrj)(int*, double*, double*, int*, int*, double*, 
 		      int*, double*, double*, double*, int*, double*, 
 		      double*, int*);
-extern void   LAPACK(dstemr)(char*, char*, int*, double*, double*, double*, 
+extern void   LAPACK(xdstemr)(char*, char*, int*, double*, double*, double*, 
 		      double*, int*, int*, int*, double*, double*, 
 		      int*, int*, int*, int*, double*, int*, int*, 
 		      int*, int*);
@@ -286,7 +286,7 @@ extern void   LAPACK(dstemr)(char*, char*, int*, double*, double*, double*,
 #define BLAS(name) name
 #endif
 
-void pmrrr_dscal(int*, double*, double*, int*);
-extern void   BLAS(dscal)(int*, double*, double*, int*);
+void odscal(int*, double*, double*, int*);
+extern void BLAS(xdscal)(int*, double*, double*, int*);
 
 #endif /* End of header file */
