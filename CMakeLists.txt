@@ -41,7 +41,7 @@ endif(CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE "" CACHE INTERNAL "Removing GUI option" FORCE)
 
 option(BUILD_PURE    "Build a pure MPI version of Elemental"              ON)
-option(BUILD_HYBRID  "Build a hybrid OpenMP/MPI version of Elemental"     OFF)
+option(BUILD_HYBRID  "Build a hybrid OpenMP/MPI version of Elemental"     ON)
 option(BUILD_DEBUG   "Build a version with many consistency checks"       OFF)
 option(BUILD_RELEASE "Build the release (optimized) version of Elemental" ON)
 option(BUILD_TESTS   "Build a collection of test executables"             ON)
