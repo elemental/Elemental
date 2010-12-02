@@ -4,3 +4,4 @@ syntax: glob
 *.o
 *.a
 *~
+build/*

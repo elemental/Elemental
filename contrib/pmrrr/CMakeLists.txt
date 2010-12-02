@@ -53,7 +53,7 @@ set(C_OPT_FLAGS "-O3" CACHE STRING "C optimization flags")
 # is >= 3.1 by searching for claqr0, and likewise searching for cuncsd to test
 # if the version is >= 3.3.
 include(CheckFunctionExists)
-set(CMAKE_REQUIRED_LIBRARIES ${BLAS_LAPACK_LIBS})
+set(CMAKE_REQUIRED_LIBRARIES ${PURE_BLAS_LAPACK_LIBS})
 if(HAVE_DPOTRF)
   check_function_exists(claqr0 LAPACK_3_1)
   check_function_exists(cuncsd LAPACK_3_3)
@@ -96,7 +96,7 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
     set(LAPACK_ADDONS_LINK_LIBS "")
     if(Fortran_COMPILER_NAME STREQUAL "gfortran")
       # gfortran should append an underscore by default
-      set(F_FROM_C_DEFS "-DLAPACK_POST")
+      set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
       if(APPLE)
         find_library(GFORTRAN_LIB gfortran)
         if(GFORTRAN_LIB)
@@ -108,7 +108,7 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
     else(Fortran_COMPILER_NAME STREQUAL "gfortran")
       # The list of other compiler options should grow quickly. It is best
       # to default to assuming an appended underscore.
-      set(F_FROM_C_DEFS "-DLAPACK_POST")
+      set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
     endif(Fortran_COMPILER_NAME STREQUAL "gfortran")
     set(F_FROM_C_DEFS "${F_FROM_C_DEFS} -DPREPEND_X")
     
@@ -138,9 +138,9 @@ if(FAILED_PURE_PMRRR)
 else(FAILED_PURE_PMRRR)
   # Add in the preprocessor definitions 
   if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
-    set(C_BASE_FLAGS "${BLAS_DEFS} ${F_FROM_C_DEFS}")
+    set(C_BASE_FLAGS "${F_FROM_C_DEFS}")
   else(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
-    set(C_BASE_FLAGS "${BLAS_DEFS} ${LAPACK_DEFS}")
+    set(C_BASE_FLAGS "${PURE_BLAS_DEFS} ${PURE_LAPACK_DEFS}")
   endif(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
   if(NOT HAVE_SPINLOCKS)
     set(C_BASE_FLAGS "${C_BASE_FLAGS} -DNOSPINLOCKS")
