@@ -86,7 +86,7 @@ if(NOT MPI_CXX_COMPILER)
       "Full path to MPI CXX compiler. If blank, CMake will search for it.")
   if(NOT MPI_FOUND)
     # Try a manual search for the common MPI names
-    find_program(MPI_COMPILER mpicxx mpic++ mpixlC mpixlC_r
+    find_program(MPI_COMPILER mpicxx mpic++ mpixlcxx_r mpixlcxx mpixlC mpixlC_r 
                  DOC "Full path to MPI CXX compiler")
     if(NOT MPI_COMPILER)
       set(MPI_CXX_COMPILER "" CACHE STRING ${MPI_CXX_MSG})
