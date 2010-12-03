@@ -83,12 +83,14 @@ elseif(BUILD_HYBRID AND HAVE_OPENMP AND NOT LAPACK_3_3)
 endif(BUILD_HYBRID AND HAVE_OPENMP AND NOT LAPACK_3_3)
 
 if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
-  # For some reason enable_language( ... OPTIONAL) causes an error, so we 
-  # should instead manually probe for a Fortran compiler first
-  #enable_language(Fortran OPTIONAL)
-  find_program(FORTRAN_COMPILER gfortran g77 ifort xlf_r xlf xlf90_r xlf90
-                                xlf95_r xlf95 xlf2003_r xlf2003)
-  if(FORTRAN_COMPILER)
+  if(NOT CMAKE_Fortran_COMPILER)
+    # For some reason enable_language( ... OPTIONAL) causes an error, so we 
+    # should instead manually probe for a Fortran compiler first
+    #enable_language(Fortran OPTIONAL)
+    find_program(FORTRAN_COMPILER gfortran g77 ifort xlf_r xlf xlf90_r xlf90
+                                  xlf95_r xlf95 xlf2003_r xlf2003)
+  endif(NOT CMAKE_Fortran_COMPILER)
+  if(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
     enable_language(Fortran)
 
     # Now determine the way C should interface with our Fortran addons. 
@@ -116,7 +118,7 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
          "*.f")
     add_library(lapack-addons STATIC ${LAPACK_ADDON_SRC})
     target_link_libraries(lapack-addons ${LAPACK_ADDONS_LINK_LIBS})
-  else(FORTRAN_COMPILER)
+  else(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
     if(MISSING_LAPACK_3_1)
       set(FAILED_PURE_PMRRR TRUE)
       set(FAILED_HYBRID_PMRRR TRUE)
@@ -130,7 +132,7 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
       # Salvage the pure PMRRR build without a Fortran compiler
       set(MISSING_LAPACK_3_3 FALSE)
     endif(MISSING_LAPACK_3_1)
-  endif(FORTRAN_COMPILER)
+  endif(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
 endif(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
 
 if(FAILED_PURE_PMRRR)

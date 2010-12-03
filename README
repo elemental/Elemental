@@ -33,10 +33,15 @@ on Linux and MacOSX with vecLib or MKL. The recommended CMake build method is
 to run:
       mkdir build
       cd build
-      cmake -i ..
-and to answer all of the install wizards questions. Alternatively, CMake includes
-a GUI that can be used with
-      cmake-gui ..
+      cmake ..
+If that fails, then one should try an interactive build with 'cmake -i ..' or 
+'cmake-gui ..'.
+
+On BlueGene/P, one should instead run
+      mkdir build
+      cd build
+      cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-BlueGeneP-xl.cmake ..
+
 Afterwards, simply run 
       make
 in order to build the library/libraries. The CMake build system is still very 
