@@ -26,18 +26,7 @@ Currently Supported Routines
 
 Build
 =====
-There is now an initial version of a CMake [http://www.cmake.org] build script
-which supports building with and without PMRRR and attempts to search for the 
-appropriate BLAS/LAPACK configurations. As of now, it will probably only work
-on Linux and MacOSX with vecLib or MKL. The recommended CMake build method is 
-to run:
-      mkdir build
-      cd build
-      cmake ..
-If that fails, then one should try an interactive build with 'cmake -i ..' or 
-'cmake-gui ..'.
-
-On BlueGene/P, one should instead run
+On BlueGene/P, one should run
       mkdir build
       cd build
       cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-BlueGeneP-xl.cmake ..
