@@ -33,7 +33,7 @@
 cmake_minimum_required(VERSION 2.6)
 project(Elemental)
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 5)
+set(Elemental_VERSION_MINOR 51)
 
 if(CMAKE_BUILD_TYPE)
   message("Elemental does not use CMAKE_BUILD_TYPE.") 
