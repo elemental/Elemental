@@ -46,7 +46,7 @@ bindir = bin
 # If PMRRR is not linked then there is not yet support for Hermitian 
 # eigenvalue problems.
 use_pmrrr = false
-pmrrr_libdir = /home/poulson/Source/PMRRR/LIB
+pmrrr_libdir = ./contrib/pmrrr/lib
 pmrrr_lib = pmrrr
 
 # Common compile flags:
