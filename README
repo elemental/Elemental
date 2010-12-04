@@ -26,47 +26,25 @@ Currently Supported Routines
 
 Build
 =====
-On BlueGene/P, one should run
+There is now a CMake [http://www.cmake.org] build script which supports building
+with and without PMRRR and attempts to search for the appropriate BLAS/LAPACK 
+configurations. The recommended CMake build method is to run:
+      cd elemental
+      mkdir build
+      cd build
+      cmake -i ..
+though, on BlueGene/P, one should instead run
+      cd elemental
       mkdir build
       cd build
       cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-BlueGeneP-xl.cmake ..
-
 Afterwards, simply run 
       make
-in order to build the library/libraries. The CMake build system is still very 
-new, so please email jack.poulson@gmail.com with any build problems or comments.
+in order to build the library/libraries. The CMake build system is still new,
+so please email jack.poulson@gmail.com with any build problems or comments.
 
-Alternatively, the old manual Makefile approach is still possible by running:
-  cp Makefile.backup Makefile
-and then modifying the top portion appropriately.
-
-There are two main build modes, *debug* and *release*. The former maintains a 
-call stack and performs judicious error-checking. Thus debug-mode should be used
-when testing a new algorithm. Each of those two build modes further supports 
-both pure MPI and hybrid OpenMP/MPI parallelism. You can build the pure MPI 
-debug library with:
-      make pure-debug
-Likewise, the hybrid OpenMP/MPI library can be built with:
-      make hybrid-debug
-If you would also like to build the debug test drivers for the distributed 
-BLAS and LAPACK routines, run either
-      make test-pure-debug
-or
-      make test-hybrid-debug
-Similarly, you can build the baremetal versions of the library with
-      make pure-release
-and
-      make hybrid-release
-The commands
-      make test-pure-release
-and
-      make test-hybrid-release
-perform the equivalent actions as in the debug case.
-
-Alternatively, all four library versions may be built with
-      make
-and all four versions of test drivers may be built with
-      make test
+If possible, both a pure MPI and hybrid OpenMP/MPI version of the library will 
+be built.
 
 Tuning
 ======

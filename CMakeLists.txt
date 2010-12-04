@@ -56,8 +56,9 @@ option(CACHE_WARNINGS "Warns when using cache-unfriendly routines"          OFF)
 option(UNALIGNED_WARNINGS "Warn when performing unaligned redistributions"  OFF)
 option(VECTOR_WARNINGS "Warn when vector redistribution chances are missed" OFF)
 option(ENABLE_ALL_DISTRIBUTED_DOT "Build every parallel dot product."       OFF)
-MARK_AS_ADVANCED(AVOID_COMPLEX_MPI TIMING CACHE_WARNINGS UNALIGNED_WARNINGS 
-                 VECTOR_WARNINGS ENABLE_ALL_DISTRIBUTED_DOT)
+option(POOL_MEMORY "Make Memory class accumulate memory until destruction"  OFF)
+mark_as_advanced(AVOID_COMPLEX_MPI TIMING CACHE_WARNINGS UNALIGNED_WARNINGS 
+                 VECTOR_WARNINGS ENABLE_ALL_DISTRIBUTED_DOT POOL_MEMORY)
 
 if(BUILD_PURE AND BUILD_DEBUG)
   set(CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
@@ -265,6 +266,9 @@ endif(VECTOR_WARNINGS)
 if(ENABLE_ALL_DISTRIBUTED_DOT)
   set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} -DENABLE_ALL_DISTRIBUTED_DOT")
 endif(ENABLE_ALL_DISTRIBUTED_DOT)
+if(POOL_MEMORY)
+  set(CXX_BASE_FLAGS "${CXX_BASE_FLAGS} -DPOOL_MEMORY")
+endif(POOL_MEMORY)
 
 # Attempt to detect the BLAS and LAPACK underscore conventions
 include(CheckFunctionExists)
