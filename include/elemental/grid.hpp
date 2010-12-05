@@ -52,20 +52,52 @@ class Grid
     int _vectorColRank;
     int _vectorRowRank;
     std::vector<int> _diagPathsAndRanks;
-    MPI_Comm _comm;
+
+    MPI_Comm _viewingComm; // contains all processes that create the grid
+    MPI_Group _viewingGroup;
+    int _viewingRank; // our rank in the viewing communicator
+
+    MPI_Group _owningGroup; // contains the processes that are in the grid
+    MPI_Group _notOwningGroup; // contains the remaining processes
+    std::vector<MPI_Group> _matrixColGroups;
+    std::vector<MPI_Group> _matrixRowGroups;
+    MPI_Group _vectorColGroup;
+    MPI_Group _vectorRowGroup;
+
+    // Keep track of whether or not our process is in the grid. This is 
+    // necessary to avoid calls like MPI_Comm_size when we're not in the
+    // communicator's group. Note that we _can_ call MPI_Group_rank when not 
+    // in the group and that the result is MPI_UNDEFINED.
+    bool _inGrid;
+
+    // Create a communicator for the processes that are in the process grid
+    MPI_Comm _owningComm;
+    MPI_Comm _notOwningComm; // necessary complimentary communicator
+
+    // These will only be valid if we are in the grid
+    MPI_Comm _cartComm;  // contains the processes that are in the grid
     MPI_Comm _matrixColComm;
     MPI_Comm _matrixRowComm;
     MPI_Comm _vectorColComm;
     MPI_Comm _vectorRowComm;
 
-    void Init( int r, int c );
+    void SetUpGrid();
 
     public:
 
+    // For constructing grids where every process is a member
     Grid( MPI_Comm comm );
     Grid( MPI_Comm comm, int r, int c );
+    
+    // For constructing grids where only the 'owningGroup' processes are in the
+    // grid. viewingComm must be valid for all processes creating the 
+    // grid, not just those in the owning group.
+    Grid( MPI_Comm viewingComm, MPI_Group owningGroup );
+    Grid( MPI_Comm viewingComm, MPI_Group owningGroup, int r, int c );
 
     ~Grid();
+
+    bool InGrid() const;
         
     int Size() const;
     int Height() const;
@@ -89,11 +121,15 @@ class Grid
 bool operator== ( const Grid& A, const Grid& B );
 bool operator!= ( const Grid& A, const Grid& B );
 
-} // Elemental
+} // elemental
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
+
+inline bool
+elemental::Grid::InGrid() const
+{ return _inGrid; }
 
 inline int
 elemental::Grid::Size() const
@@ -117,19 +153,39 @@ elemental::Grid::LCM() const
 
 inline int
 elemental::Grid::DiagPath() const
-{ return _diagPathsAndRanks[2*_vectorColRank]; }
+{ 
+    if( _inGrid )
+        return _diagPathsAndRanks[2*_vectorColRank]; 
+    else
+        return MPI_UNDEFINED;
+}
 
 inline int
 elemental::Grid::DiagPath( int vectorColRank ) const
-{ return _diagPathsAndRanks[2*vectorColRank]; }
+{ 
+    if( vectorColRank != MPI_UNDEFINED )
+        return _diagPathsAndRanks[2*vectorColRank]; 
+    else
+        return MPI_UNDEFINED;
+}
 
 inline int
 elemental::Grid::DiagPathRank() const
-{ return _diagPathsAndRanks[2*_vectorColRank+1]; }
+{ 
+    if( _inGrid )
+        return _diagPathsAndRanks[2*_vectorColRank+1];
+    else
+        return MPI_UNDEFINED;
+}
 
 inline int
 elemental::Grid::DiagPathRank( int vectorColRank ) const
-{ return _diagPathsAndRanks[2*vectorColRank+1]; }
+{ 
+    if( vectorColRank != MPI_UNDEFINED )
+        return _diagPathsAndRanks[2*vectorColRank+1]; 
+    else
+        return MPI_UNDEFINED;
+}
 
 inline int
 elemental::Grid::MCRank() const

@@ -217,6 +217,33 @@ public:
     // Collective routines
     //
 
+    // When distributed matrices are created that are only owned by subgroups,
+    // it may be necessary to occasionally resync the matrix attributes of the
+    // set of processes that constructed the distributed matrix but are not in 
+    // its process grid. An example scenario would be
+    //
+    //     MPI_Group evenGroup, oddGroup;
+    //     // Construct groups for even and odd ranks here...
+    //
+    //     elemental::Grid evenGrid( MPI_COMM_WORLD, evenGroup );
+    //     elemental::Grid oddGrid( MPI_COMM_WORLD, oddGroup );
+    //     elemental::DistMatrix<double,MC,MR> A(evenGrid);
+    //     elemental::DistMatrix<double,MC,MR> B(oddGrid);
+    //
+    //     if( rank % 2 == 0 )
+    //     {
+    //         // Form A here...
+    //     }
+    //     else
+    //     {
+    //         // Form B here...
+    //     }
+    //     A.Resync();
+    //     B.Resync();
+    //         
+    //
+    //virtual void Resync();
+
     virtual T Get( int i, int j ) const = 0;
     virtual void Set( int i, int j, T alpha ) = 0;
     

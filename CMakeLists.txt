@@ -377,7 +377,7 @@ set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 # Create the lists of test executables
 if(BUILD_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
-  set(CORE_TESTS DistMatrix Matrix)
+  set(CORE_TESTS DifferentGrids DistMatrix Matrix)
   set(BLAS_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
   set(LAPACK_TESTS_WITHOUT_PMRRR Chol Hegst LU QR Tridiag Trinv UT)
 

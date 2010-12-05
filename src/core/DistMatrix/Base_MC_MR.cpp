@@ -1777,114 +1777,120 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [MC,MR]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    if( !this->Viewing() )
+    if( this->Grid() == A.Grid() )
     {
-        if( !this->ConstrainedColAlignment() )
+        if( !this->Viewing() )
         {
-            this->_colAlignment = A.ColAlignment();
-            this->_colShift = A.ColShift();
+            if( !this->ConstrainedColAlignment() )
+            {
+                this->_colAlignment = A.ColAlignment();
+                this->_colShift = A.ColShift();
+            }
+            if( !this->ConstrainedRowAlignment() )
+            {
+                this->_rowAlignment = A.RowAlignment();
+                this->_rowShift = A.RowShift();
+            }
+            this->ResizeTo( A.Height(), A.Width() );
         }
-        if( !this->ConstrainedRowAlignment() )
-        {
-            this->_rowAlignment = A.RowAlignment();
-            this->_rowShift = A.RowShift();
-        }
-        this->ResizeTo( A.Height(), A.Width() );
-    }
 
-    if( this->ColAlignment() == A.ColAlignment() &&
-        this->RowAlignment() == A.RowAlignment() )
-    {
-        this->_localMatrix = A.LockedLocalMatrix();
-    }
-    else
-    {
-        const Grid& g = this->Grid();
+        if( this->ColAlignment() == A.ColAlignment() &&
+            this->RowAlignment() == A.RowAlignment() )
+        {
+            this->_localMatrix = A.LockedLocalMatrix();
+        }
+        else
+        {
+            const Grid& g = this->Grid();
 #ifdef UNALIGNED_WARNINGS
-        if( g.VCRank() == 0 )
-            cerr << "Unaligned [MC,MR] <- [MC,MR]." << endl;
+            if( g.VCRank() == 0 )
+                cerr << "Unaligned [MC,MR] <- [MC,MR]." << endl;
 #endif
-        const int r = g.Height();
-        const int c = g.Width();
-        const int row = g.MCRank();
-        const int col = g.MRRank();
+            const int r = g.Height();
+            const int c = g.Width();
+            const int row = g.MCRank();
+            const int col = g.MRRank();
 
-        const int colAlignment = this->ColAlignment();
-        const int rowAlignment = this->RowAlignment();
-        const int colAlignmentOfA = A.ColAlignment();
-        const int rowAlignmentOfA = A.RowAlignment();
+            const int colAlignment = this->ColAlignment();
+            const int rowAlignment = this->RowAlignment();
+            const int colAlignmentOfA = A.ColAlignment();
+            const int rowAlignmentOfA = A.RowAlignment();
 
-        const int sendRow = (row+r+colAlignment-colAlignmentOfA) % r;
-        const int sendCol = (col+c+rowAlignment-rowAlignmentOfA) % c;
-        const int recvRow = (row+r+colAlignmentOfA-colAlignment) % r;
-        const int recvCol = (col+c+rowAlignmentOfA-rowAlignment) % c;
-        const int sendRank = sendRow + sendCol*r;
-        const int recvRank = recvRow + recvCol*r;
+            const int sendRow = (row+r+colAlignment-colAlignmentOfA) % r;
+            const int sendCol = (col+c+rowAlignment-rowAlignmentOfA) % c;
+            const int recvRow = (row+r+colAlignmentOfA-colAlignment) % r;
+            const int recvCol = (col+c+rowAlignmentOfA-rowAlignment) % c;
+            const int sendRank = sendRow + sendCol*r;
+            const int recvRank = recvRow + recvCol*r;
 
-        const int localHeight = this->LocalHeight();
-        const int localWidth = this->LocalWidth();
-        const int localHeightOfA = A.LocalHeight();
-        const int localWidthOfA = A.LocalWidth();
+            const int localHeight = this->LocalHeight();
+            const int localWidth = this->LocalWidth();
+            const int localHeightOfA = A.LocalHeight();
+            const int localWidthOfA = A.LocalWidth();
 
-        const int sendSize = localHeightOfA * localWidthOfA;
-        const int recvSize = localHeight * localWidth;
+            const int sendSize = localHeightOfA * localWidthOfA;
+            const int recvSize = localHeight * localWidth;
 
-        this->_auxMemory.Require( sendSize + recvSize );
+            this->_auxMemory.Require( sendSize + recvSize );
 
-        T* buffer = this->_auxMemory.Buffer();
-        T* sendBuffer = &buffer[0];
-        T* recvBuffer = &buffer[sendSize];
+            T* buffer = this->_auxMemory.Buffer();
+            T* sendBuffer = &buffer[0];
+            T* recvBuffer = &buffer[sendSize];
 
-        // Pack
+            // Pack
 #ifdef RELEASE
 # ifdef _OPENMP
-        #pragma omp parallel for
+            #pragma omp parallel for
 # endif
-        for( int j=0; j<localWidthOfA; ++j )
-        {
-            const T* ACol = A.LockedLocalBuffer(0,j);
-            T* sendBufferCol = &(sendBuffer[j*localHeightOfA]);
-            memcpy( sendBufferCol, ACol, localHeightOfA*sizeof(T) );
-        }
+            for( int j=0; j<localWidthOfA; ++j )
+            {
+                const T* ACol = A.LockedLocalBuffer(0,j);
+                T* sendBufferCol = &(sendBuffer[j*localHeightOfA]);
+                memcpy( sendBufferCol, ACol, localHeightOfA*sizeof(T) );
+            }
 #else
 # ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
+            #pragma omp parallel for COLLAPSE(2)
 # endif
-        for( int j=0; j<localWidthOfA; ++j )
-            for( int i=0; i<localHeightOfA; ++i )
-                sendBuffer[i+j*localHeightOfA] = A.GetLocalEntry(i,j);
+            for( int j=0; j<localWidthOfA; ++j )
+                for( int i=0; i<localHeightOfA; ++i )
+                    sendBuffer[i+j*localHeightOfA] = A.GetLocalEntry(i,j);
 #endif
 
-        // Communicate
-        SendRecv
-        ( sendBuffer, sendSize, sendRank, 0,
-          recvBuffer, recvSize, recvRank, MPI_ANY_TAG, g.VCComm() );
+            // Communicate
+            SendRecv
+            ( sendBuffer, sendSize, sendRank, 0,
+              recvBuffer, recvSize, recvRank, MPI_ANY_TAG, g.VCComm() );
 
-        // Unpack
+            // Unpack
 #ifdef RELEASE
 # ifdef _OPENMP
-        #pragma omp parallel for
+            #pragma omp parallel for
 # endif
-        for( int j=0; j<localWidth; ++j )
-        {
-            const T* recvBufferCol = &(recvBuffer[j*localHeight]);
-            T* thisCol = this->LocalBuffer(0,j);
-            memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
-        }
+            for( int j=0; j<localWidth; ++j )
+            {
+                const T* recvBufferCol = &(recvBuffer[j*localHeight]);
+                T* thisCol = this->LocalBuffer(0,j);
+                memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
+            }
 #else
 # ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
+            #pragma omp parallel for COLLAPSE(2)
 # endif
-        for( int j=0; j<localWidth; ++j )
-            for( int i=0; i<localHeight; ++i )
-                this->SetLocalEntry(i,j,recvBuffer[i+j*localHeight]);
+            for( int j=0; j<localWidth; ++j )
+                for( int i=0; i<localHeight; ++i )
+                    this->SetLocalEntry(i,j,recvBuffer[i+j*localHeight]);
 #endif
 
-        this->_auxMemory.Release();
+            this->_auxMemory.Release();
+        }
+    }
+    else // the grids don't match
+    {
+      // HERE    
     }
 #ifndef RELEASE
     PopCallStack();
