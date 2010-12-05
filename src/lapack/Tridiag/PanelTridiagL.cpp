@@ -45,7 +45,7 @@ elemental::lapack::internal::PanelTridiagL
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagL");
-    if( A.GetGrid() != W.GetGrid() || W.GetGrid() != e.GetGrid() )
+    if( A.Grid() != W.Grid() || W.Grid() != e.Grid() )
         throw logic_error
         ( "A, d, and e must be distributed over the same grid." );
     if( A.Height() != A.Width() )
@@ -63,7 +63,7 @@ elemental::lapack::internal::PanelTridiagL
     if( !e.AlignedWithDiag( A, -1 ) )
         throw logic_error( "e is not aligned with A." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views 
     DistMatrix<R,MC,MR> 
@@ -249,9 +249,9 @@ elemental::lapack::internal::PanelTridiagL
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagL");
-    if( A.GetGrid() != W.GetGrid() || 
-        W.GetGrid() != e.GetGrid() || 
-        e.GetGrid() != t.GetGrid() )
+    if( A.Grid() != W.Grid() || 
+        W.Grid() != e.Grid() || 
+        e.Grid() != t.Grid() )
         throw logic_error
         ( "A, d, e, and t must be distributed over the same grid." );
     if( A.Height() != A.Width() )
@@ -276,7 +276,7 @@ elemental::lapack::internal::PanelTridiagL
 #endif
     typedef complex<R> C;
 
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views 
     DistMatrix<C,MC,MR> 

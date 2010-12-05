@@ -43,7 +43,7 @@ elemental::lapack::internal::PanelQR
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelQR");
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<R,MC,MR>
@@ -132,7 +132,7 @@ elemental::lapack::internal::PanelQR
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelQR");
-    if( A.GetGrid() != t.GetGrid() )
+    if( A.Grid() != t.Grid() )
         throw logic_error( "A and t must be distributed over the same grid." );
     if( t.Height() != min(A.Height(),A.Width()) || t.Width() != 1 )
         throw logic_error
@@ -142,7 +142,7 @@ elemental::lapack::internal::PanelQR
         throw logic_error( "t must be aligned with A's main diagonal." );
 #endif
     typedef complex<R> C;
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<C,MC,MR>

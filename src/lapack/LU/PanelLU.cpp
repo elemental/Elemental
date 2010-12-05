@@ -46,14 +46,14 @@ elemental::lapack::internal::PanelLU
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelLU");
-    if( A.GetGrid() != p.GetGrid() || p.GetGrid() != B.GetGrid() )
+    if( A.Grid() != p.Grid() || p.Grid() != B.Grid() )
         throw logic_error( "Matrices must be distributed over the same grid." );
     if( A.Width() != B.Width() )
         throw logic_error( "A and B must be the same width." );
     if( A.Height() != p.Height() || p.Width() != 1 )
         throw logic_error( "p must be a vector that conforms with A." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
     const int np = g.Size();
     const int colShift = B.ColShift();
     const int colAlignment = B.ColAlignment();

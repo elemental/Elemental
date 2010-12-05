@@ -59,10 +59,10 @@ elemental::blas::internal::HemmRUA
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::HemmRUA");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     DistMatrix<T,MC,MR>
         BT(g),  B0(g),
@@ -162,10 +162,10 @@ elemental::blas::internal::HemmRUC
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::HemmRUC");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed on the same grid." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
@@ -276,10 +276,10 @@ elemental::blas::internal::LocalHemmAccumulateRU
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::LocalHemmAccumulateRU");
-    if( A.GetGrid() != B_Star_MC.GetGrid() ||
-        B_Star_MC.GetGrid() != BHerm_MR_Star.GetGrid() ||
-        BHerm_MR_Star.GetGrid() != ZHerm_MC_Star.GetGrid() ||
-        ZHerm_MC_Star.GetGrid() != ZHerm_MR_Star.GetGrid() )
+    if( A.Grid() != B_Star_MC.Grid() ||
+        B_Star_MC.Grid() != BHerm_MR_Star.Grid() ||
+        BHerm_MR_Star.Grid() != ZHerm_MC_Star.Grid() ||
+        ZHerm_MC_Star.Grid() != ZHerm_MR_Star.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != A.Width() ||
         A.Height() != B_Star_MC.Width() ||
@@ -309,7 +309,7 @@ elemental::blas::internal::LocalHemmAccumulateRU
         ZHerm_MR_Star.ColAlignment() != A.RowAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR>
@@ -451,10 +451,10 @@ elemental::blas::internal::LocalHemmAccumulateRU
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::LocalHemmAccumulateRU");
-    if( A.GetGrid() != B_Star_MC.GetGrid() ||
-        B_Star_MC.GetGrid() != B_Star_MR.GetGrid() ||
-        B_Star_MR.GetGrid() != Z_Star_MC.GetGrid() ||
-        Z_Star_MC.GetGrid() != Z_Star_MR.GetGrid() )
+    if( A.Grid() != B_Star_MC.Grid() ||
+        B_Star_MC.Grid() != B_Star_MR.Grid() ||
+        B_Star_MR.Grid() != Z_Star_MC.Grid() ||
+        Z_Star_MC.Grid() != Z_Star_MR.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != A.Width() ||
         A.Height() != B_Star_MC.Width() ||
@@ -484,7 +484,7 @@ elemental::blas::internal::LocalHemmAccumulateRU
         Z_Star_MR.RowAlignment() != A.RowAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR>

@@ -167,7 +167,7 @@ elemental::lapack::Reflector
 {
 #ifndef RELEASE
     PushCallStack("lapack::Reflector");
-    if( chi.GetGrid() != x.GetGrid() )
+    if( chi.Grid() != x.Grid() )
         throw logic_error( "chi and x must be distributed over the same grid" );
     if( chi.Height() != 1 || chi.Width() != 1 )
         throw logic_error( "chi must be a scalar." );
@@ -177,7 +177,7 @@ elemental::lapack::Reflector
     if( max( x.Height(), x.Width() ) == 0 )
         return (T)0;
 
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
     T tau;
     if( x.Width() == 1 )
     {

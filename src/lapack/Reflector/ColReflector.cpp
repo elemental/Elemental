@@ -46,19 +46,19 @@ elemental::lapack::internal::ColReflector
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::ColReflector");
-    if( chi.GetGrid() != x.GetGrid() )
+    if( chi.Grid() != x.Grid() )
         throw logic_error( "chi and x must be distributed over the same grid" );
     if( chi.Height() != 1 || chi.Width() != 1 )
         throw logic_error( "chi must be a scalar." );
     if( x.Width() != 1 )
         throw logic_error( "x must be a column vector." );
-    if( chi.GetGrid().MRRank() != chi.RowAlignment() )
+    if( chi.Grid().MRRank() != chi.RowAlignment() )
         throw logic_error( "Reflecting with incorrect column of processes." );
-    if( x.GetGrid().MRRank() != x.RowAlignment() )
+    if( x.Grid().MRRank() != x.RowAlignment() )
         throw logic_error( "Reflecting with incorrect column of processes." );
 #endif
 
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
     const int r = g.Height();
     const int myRow = g.MCRank();
 
@@ -132,20 +132,20 @@ elemental::lapack::internal::ColReflector
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::ColReflector");
-    if( chi.GetGrid() != x.GetGrid() )
+    if( chi.Grid() != x.Grid() )
         throw logic_error( "chi and x must be distributed over the same grid" );
     if( chi.Height() != 1 || chi.Width() != 1 )
         throw logic_error( "chi must be a scalar." );
     if( x.Width() != 1 )
         throw logic_error( "x must be a column vector." );
-    if( chi.GetGrid().MRRank() != chi.RowAlignment() )
+    if( chi.Grid().MRRank() != chi.RowAlignment() )
         throw logic_error( "Reflecting with incorrect column of processes." );
-    if( x.GetGrid().MRRank() != x.RowAlignment() )
+    if( x.Grid().MRRank() != x.RowAlignment() )
         throw logic_error( "Reflecting with incorrect column of processes." );
 #endif
     typedef complex<R> C;
 
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
     const int r = g.Height();
     const int myRow = g.MCRank();
 

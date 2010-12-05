@@ -44,7 +44,7 @@ elemental::blas::internal::GemmNT
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNT");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfB == Normal )
         throw logic_error( "GemmNT requires that B be (Conjugate)Transposed." );
@@ -82,7 +82,7 @@ elemental::blas::internal::GemmNTA
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNTA");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfB == Normal )
         throw logic_error
@@ -99,7 +99,7 @@ elemental::blas::internal::GemmNTA
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> BT(g),  B0(g),
@@ -174,7 +174,7 @@ elemental::blas::internal::GemmNTB
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNTB");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfB == Normal )
         throw logic_error
@@ -191,7 +191,7 @@ elemental::blas::internal::GemmNTB
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> AT(g),  A0(g),
@@ -279,7 +279,7 @@ elemental::blas::internal::GemmNTC
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNTC");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfB == Normal )
         throw logic_error
@@ -296,7 +296,7 @@ elemental::blas::internal::GemmNTC
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> AL(g), AR(g),

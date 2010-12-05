@@ -42,12 +42,12 @@ elemental::lapack::internal::ReduceToRowEchelon
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::ReduceToRowEchelon");
-    if( A.GetGrid() != B.GetGrid() )
+    if( A.Grid() != B.Grid() )
         throw logic_error( "A and B must be distributed over the same grid." );
     if( A.Height() != B.Height() )
         throw logic_error( "A and B must be the same height." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR>

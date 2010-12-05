@@ -44,7 +44,7 @@ elemental::blas::internal::GemmTN
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmTN");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfA == Normal )
         throw logic_error( "GemmTN assumes A is (Conjugate)Transposed." );
@@ -82,7 +82,7 @@ elemental::blas::internal::GemmTNA
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmTNA");    
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfA == Normal )
         throw logic_error( "GemmTNA assumes A is (Conjugate)Transposed." );
@@ -98,7 +98,7 @@ elemental::blas::internal::GemmTNA
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> BL(g), BR(g),
@@ -172,7 +172,7 @@ elemental::blas::internal::GemmTNB
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmTNB");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfA == Normal )
         throw logic_error( "GemmTNB assumes A is (Conjugate)Transposed." );
@@ -188,7 +188,7 @@ elemental::blas::internal::GemmTNB
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> AL(g), AR(g),
@@ -263,7 +263,7 @@ elemental::blas::internal::GemmTNC
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmTNC");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfA == Normal )
         throw logic_error( "GemmTNC assumes A is (Conjugate)Transposed." );
@@ -279,7 +279,7 @@ elemental::blas::internal::GemmTNC
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> AT(g),  A0(g),

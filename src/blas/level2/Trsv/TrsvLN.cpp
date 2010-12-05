@@ -43,7 +43,7 @@ elemental::blas::internal::TrsvLN
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsvLN");
-    if( L.GetGrid() != x.GetGrid() )
+    if( L.Grid() != x.Grid() )
         throw logic_error( "L and x must be distributed over the same grid." );
     if( L.Height() != L.Width() )
         throw logic_error( "L must be square." );
@@ -53,7 +53,7 @@ elemental::blas::internal::TrsvLN
     if( L.Width() != xLength )
         throw logic_error( "Nonconformal TrsvLN." );
 #endif
-    const Grid& g = L.GetGrid();
+    const Grid& g = L.Grid();
 
     if( x.Width() == 1 )
     {

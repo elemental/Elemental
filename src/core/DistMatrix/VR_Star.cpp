@@ -48,7 +48,7 @@ elemental::DistMatrix<R,VR,Star>::SetToRandomHPD()
 #endif
     const int width = this->Width();
     const int localHeight = this->LocalHeight();
-    const int p = this->GetGrid().Size();
+    const int p = this->Grid().Size();
     const int colShift = this->ColShift();
 
     this->SetToRandom();
@@ -82,7 +82,7 @@ elemental::DistMatrix<complex<R>,VR,Star>::SetToRandomHPD()
 #endif
     const int width = this->Width();
     const int localHeight = this->LocalHeight();
-    const int p = this->GetGrid().Size();
+    const int p = this->Grid().Size();
     const int colShift = this->ColShift();
 
     this->SetToRandom();
@@ -114,7 +114,7 @@ elemental::DistMatrix<complex<R>,VR,Star>::GetReal
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     R u;
@@ -142,7 +142,7 @@ elemental::DistMatrix<complex<R>,VR,Star>::GetImag
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     R u;
@@ -168,7 +168,7 @@ elemental::DistMatrix<complex<R>,VR,Star>::SetReal
     PushCallStack("[VR,* ]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -191,7 +191,7 @@ elemental::DistMatrix<complex<R>,VR,Star>::SetImag
     PushCallStack("[VR,* ]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )

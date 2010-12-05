@@ -52,7 +52,7 @@ protected:
     int _rowAlignment;
     int _colShift;
     int _rowShift;
-    const Grid* _g;
+    const elemental::Grid* _g;
 
     // Initialize with particular local dimensions
     AbstractDistMatrixBase
@@ -66,7 +66,7 @@ protected:
       int rowShift,
       int localHeight,
       int localWidth,
-      const Grid& g );
+      const elemental::Grid& g );
 
     // Initialize with particular local dimensions and local leading dimensions
     AbstractDistMatrixBase
@@ -81,7 +81,7 @@ protected:
       int localHeight,
       int localWidth,
       int ldim,
-      const Grid& g );
+      const elemental::Grid& g );
 
     // View a constant distributed matrix's buffer
     AbstractDistMatrixBase
@@ -95,7 +95,7 @@ protected:
       int localWidth,
       const T* buffer,
       int ldim,
-      const Grid& g );
+      const elemental::Grid& g );
 
     // View a mutable distributed matrix's buffer
     AbstractDistMatrixBase
@@ -109,7 +109,7 @@ protected:
       int localWidth,
       T* buffer,
       int ldim,
-      const Grid& g );
+      const elemental::Grid& g );
 
     virtual ~AbstractDistMatrixBase();
 
@@ -179,7 +179,7 @@ public:
     int RowAlignment() const;
     int ColShift() const;
     int RowShift() const;
-    const Grid& GetGrid() const;
+    const elemental::Grid& Grid() const;
 
     size_t AllocatedMemory() const;
 
@@ -279,7 +279,7 @@ protected:
       int rowShift,
       int localHeight,
       int localWidth,
-      const Grid& g );
+      const elemental::Grid& g );
 
     // Initialize with particular local dimensions and local leading dimensions
     AbstractDistMatrix
@@ -294,7 +294,7 @@ protected:
       int localHeight,
       int localWidth,
       int ldim,
-      const Grid& g );
+      const elemental::Grid& g );
 
     // View a constant distributed matrix's buffer
     AbstractDistMatrix
@@ -308,7 +308,7 @@ protected:
       int localWidth,
       const R* buffer,
       int ldim,
-      const Grid& g );
+      const elemental::Grid& g );
 
     // View a mutable distributed matrix's buffer
     AbstractDistMatrix
@@ -322,7 +322,7 @@ protected:
       int localWidth,
       R* buffer,
       int ldim,
-      const Grid& g );
+      const elemental::Grid& g );
 
     ~AbstractDistMatrix();
 };
@@ -347,7 +347,7 @@ protected:
       int rowShift,
       int localHeight,
       int localWidth,
-      const Grid& g );
+      const elemental::Grid& g );
 
     // Initialize with particular local dimensions and local leading dimensions
     AbstractDistMatrix
@@ -362,7 +362,7 @@ protected:
       int localHeight,
       int localWidth,
       int ldim,
-      const Grid& g );
+      const elemental::Grid& g );
 
     // View a constant distributed matrix's buffer
     AbstractDistMatrix
@@ -376,7 +376,7 @@ protected:
       int localWidth,
       const std::complex<R>* buffer,
       int ldim,
-      const Grid& g );
+      const elemental::Grid& g );
 
     // View a mutable distributed matrix's buffer
     AbstractDistMatrix
@@ -390,7 +390,7 @@ protected:
       int localWidth,
       std::complex<R>* buffer,
       int ldim,
-      const Grid& g );
+      const elemental::Grid& g );
 
     ~AbstractDistMatrix();
 
@@ -426,7 +426,7 @@ AbstractDistMatrixBase<T>::AbstractDistMatrixBase
   int rowShift, 
   int localHeight,
   int localWidth,
-  const Grid& g )
+  const elemental::Grid& g )
 : _viewing(false), 
   _lockedView(false), 
   _height(height), 
@@ -456,7 +456,7 @@ AbstractDistMatrixBase<T>::AbstractDistMatrixBase
   int localHeight,
   int localWidth,
   int ldim,
-  const Grid& g )
+  const elemental::Grid& g )
 : _viewing(false), 
   _lockedView(false), 
   _height(height), 
@@ -485,7 +485,7 @@ AbstractDistMatrixBase<T>::AbstractDistMatrixBase
   int localWidth,
   const T* buffer,
   int ldim,
-  const Grid& g )
+  const elemental::Grid& g )
 : _viewing(true), 
   _lockedView(true), 
   _height(height), 
@@ -514,7 +514,7 @@ AbstractDistMatrixBase<T>::AbstractDistMatrixBase
   int localWidth,
   T* buffer,
   int ldim,
-  const Grid& g )
+  const elemental::Grid& g )
 : _viewing(true), 
   _lockedView(false), 
   _height(height), 
@@ -611,7 +611,7 @@ inline void
 AbstractDistMatrixBase<T>::AssertSameGrid
 ( const AbstractDistMatrixBase<U>& A ) const
 {
-    if( GetGrid() != A.GetGrid() )
+    if( Grid() != A.Grid() )
         throw std::logic_error( "Assertion that grids match failed." );
 }
 
@@ -779,8 +779,8 @@ AbstractDistMatrixBase<T>::RowShift() const
 { return _rowShift; }
 
 template<typename T>
-inline const Grid&
-AbstractDistMatrixBase<T>::GetGrid() const
+inline const elemental::Grid&
+AbstractDistMatrixBase<T>::Grid() const
 { return *_g; }
 
 template<typename T>
@@ -877,7 +877,7 @@ AbstractDistMatrix<R>::AbstractDistMatrix
   int rowShift,
   int localHeight,
   int localWidth,
-  const Grid& g )
+  const elemental::Grid& g )
 : ADMB(height,width,constrainedColAlignment,constrainedRowAlignment,
        colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,g)
@@ -897,7 +897,7 @@ AbstractDistMatrix<R>::AbstractDistMatrix
   int localHeight,
   int localWidth,
   int ldim,
-  const Grid& g )
+  const elemental::Grid& g )
 : ADMB(height,width,constrainedColAlignment,constrainedRowAlignment,
        colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,ldim,g)
@@ -916,7 +916,7 @@ AbstractDistMatrix<R>::AbstractDistMatrix
   int localWidth,
   const R* buffer,
   int ldim,
-  const Grid& g )
+  const elemental::Grid& g )
 : ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,buffer,ldim,g)
 { }
@@ -934,7 +934,7 @@ AbstractDistMatrix<R>::AbstractDistMatrix
   int localWidth,
   R* buffer,
   int ldim,
-  const Grid& g )
+  const elemental::Grid& g )
 : ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,buffer,ldim,g)
 { }
@@ -962,7 +962,7 @@ AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
   int rowShift,
   int localHeight,
   int localWidth,
-  const Grid& g )
+  const elemental::Grid& g )
 : ADMB(height,width,constrainedColAlignment,constrainedRowAlignment,
        colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,g)
@@ -982,7 +982,7 @@ AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
   int localHeight,
   int localWidth,
   int ldim,
-  const Grid& g )
+  const elemental::Grid& g )
 : ADMB(height,width,constrainedColAlignment,constrainedRowAlignment,
        colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,ldim,g)
@@ -1001,7 +1001,7 @@ AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
   int localWidth,
   const std::complex<R>* buffer,
   int ldim,
-  const Grid& g )
+  const elemental::Grid& g )
 : ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,buffer,ldim,g)
 { }
@@ -1019,7 +1019,7 @@ AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
   int localWidth,
   std::complex<R>* buffer,
   int ldim,
-  const Grid& g )
+  const elemental::Grid& g )
 : ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,buffer,ldim,g)
 { }

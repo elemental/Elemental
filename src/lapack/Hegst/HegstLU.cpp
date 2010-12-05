@@ -49,7 +49,7 @@ elemental::lapack::internal::HegstLU
     if( A.Height() != U.Height() )
         throw logic_error( "A and U must be the same size." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR>
@@ -198,13 +198,13 @@ elemental::lapack::internal::HegstLUNaive
         throw logic_error( "Triangular matrices must be square." );
     if( A.Height() != U.Height() )
         throw logic_error( "A and U must be the same size." );
-    if( A.GetGrid().VCRank() == 0 )
+    if( A.Grid().VCRank() == 0 )
     {
         cout << "HegstLUNaive exists solely for academic purposes. Please "
                 "use HegstLU for real applications." << endl;
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR>

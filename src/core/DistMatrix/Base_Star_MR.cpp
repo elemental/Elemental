@@ -43,7 +43,7 @@ elemental::DistMatrixBase<T,Star,MR>::Print( const string& s ) const
 #ifndef RELEASE
     PushCallStack("[* ,MR]::Print");
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     if( g.VCRank() == 0 && s != "" )
         cout << s << endl;
 
@@ -124,7 +124,7 @@ elemental::DistMatrixBase<T,Star,MR>::AlignRows
     PushCallStack("[* ,MR]::AlignRows");
     this->AssertFreeRowAlignment();
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
 #ifndef RELEASE
     if( rowAlignment < 0 || rowAlignment >= g.Width() )
         throw std::runtime_error( "Invalid row alignment for [* ,MR]" );
@@ -234,7 +234,7 @@ elemental::DistMatrixBase<T,Star,MR>::AlignWith
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     this->_rowAlignment = A.ColAlignment() % g.Width();
     this->_rowShift = 
         Shift( g.MRRank(), this->RowAlignment(), g.Width() );
@@ -257,7 +257,7 @@ elemental::DistMatrixBase<T,Star,MR>::AlignWith
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     this->_rowAlignment = A.RowAlignment() % g.Width();
     this->_rowShift = 
         Shift( g.MRRank(), this->RowAlignment(), g.Width() );
@@ -368,7 +368,7 @@ elemental::DistMatrixBase<T,Star,MR>::View
     this->_height = height;
     this->_width = width;
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int c   = g.Width();
         const int col = g.MRRank();
 
@@ -404,7 +404,7 @@ elemental::DistMatrixBase<T,Star,MR>::LockedView
     this->_height = height;
     this->_width = width;
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int c = g.Width();
         const int col = g.MRRank();
 
@@ -611,7 +611,7 @@ elemental::DistMatrixBase<T,Star,MR>::ResizeTo
     this->_height = height;
     this->_width = width;
     this->_localMatrix.ResizeTo
-    ( height, LocalLength(width,this->RowShift(),this->GetGrid().Width()) );
+    ( height, LocalLength(width,this->RowShift(),this->Grid().Width()) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -628,7 +628,7 @@ elemental::DistMatrixBase<T,Star,MR>::Get
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // column within each process row
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
     T u;
@@ -654,7 +654,7 @@ elemental::DistMatrixBase<T,Star,MR>::Set
     PushCallStack("[* ,MR]::Set");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )
@@ -680,7 +680,7 @@ elemental::DistMatrixBase<T,Star,MR>::MakeTrapezoidal
     PushCallStack("[* ,MR]::MakeTrapezoidal");
     this->AssertNotLockedView();
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int height = this->Height();
     const int width = this->Width();
     const int localWidth = this->LocalWidth();
@@ -746,7 +746,7 @@ elemental::DistMatrixBase<T,Star,MR>::ScaleTrapezoidal
     PushCallStack("[* ,MR]::ScaleTrapezoidal");
     this->AssertNotLockedView();
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int height = this->Height();
     const int width = this->Width();
     const int localWidth = this->LocalWidth();
@@ -814,7 +814,7 @@ elemental::DistMatrixBase<T,Star,MR>::SetToIdentity()
 #endif
     const int height = this->Height();
     const int localWidth = this->LocalWidth();
-    const int c = this->GetGrid().Width();
+    const int c = this->Grid().Width();
     const int rowShift = this->RowShift();
 
     this->SetToZero();
@@ -840,7 +840,7 @@ elemental::DistMatrixBase<T,Star,MR>::SetToRandom()
     PushCallStack("[* ,MR]::SetToRandom");
     this->AssertNotLockedView();
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int height     = this->Height();
     const int localWidth = this->LocalWidth();
     const int bufSize    = height*localWidth;
@@ -923,7 +923,7 @@ elemental::DistMatrixBase<T,Star,MR>::SumOverCol()
 
     // AllReduce col
     AllReduce
-    ( sendBuf, recvBuf, localSize, MPI_SUM, this->GetGrid().MCComm() );
+    ( sendBuf, recvBuf, localSize, MPI_SUM, this->Grid().MCComm() );
 
     // Unpack
 #ifdef RELEASE
@@ -964,7 +964,7 @@ elemental::DistMatrixBase<T,Star,MR>::ConjugateTransposeFrom
     if( this->Viewing() )
         this->AssertSameSizeAsTranspose( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -1147,7 +1147,7 @@ elemental::DistMatrixBase<T,Star,MR>::TransposeFrom
     if( this->Viewing() )
         this->AssertSameSizeAsTranspose( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -1330,7 +1330,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
 #ifdef CACHE_WARNINGS
     if( A.Height() != 1 && g.VCRank() == 0 )
     {
@@ -1602,7 +1602,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlignment(),g);
 
     A_MC_MR = A;
@@ -1625,7 +1625,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -1771,7 +1771,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     auto_ptr< DistMatrix<T,Star,VC> > A_Star_VC
     ( new DistMatrix<T,Star,VC>(g) );
     *A_Star_VC = A;
@@ -1800,7 +1800,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     auto_ptr< DistMatrix<T,VR,Star> > A_VR_Star
     ( new DistMatrix<T,VR,Star>(g) );
     *A_VR_Star = A;
@@ -1834,7 +1834,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     auto_ptr< DistMatrix<T,Star,VC> > A_Star_VC
     ( new DistMatrix<T,Star,VC>(g) );
     *A_Star_VC = A;
@@ -1868,7 +1868,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlignment(),g);
 
     A_MC_MR = A;
@@ -1891,7 +1891,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     DistMatrix<T,Star,VR> A_Star_VR(true,this->RowAlignment(),g);
 
     A_Star_VR = A;
@@ -1914,7 +1914,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
     ( new DistMatrix<T,VC,Star>(g) );
     *A_VC_Star = A;
@@ -1943,7 +1943,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -2154,7 +2154,7 @@ elemental::DistMatrixBase<T,Star,MR>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const int c = this->GetGrid().Width();
+    const int c = this->Grid().Width();
     const int rowShift = this->RowShift();
 
     const int localHeight = this->LocalHeight();

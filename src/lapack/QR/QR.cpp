@@ -54,7 +54,7 @@ elemental::lapack::QR
 #ifndef RELEASE
     PushCallStack("lapack::QR");
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<R,MC,MR>
@@ -106,10 +106,10 @@ elemental::lapack::QR
 {
 #ifndef RELEASE
     PushCallStack("lapack::QR");
-    if( A.GetGrid() != t.GetGrid() )
+    if( A.Grid() != t.Grid() )
         throw logic_error( "A and s must be distributed over the same grid." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 #ifndef RELEASE
     if( t.Viewing() && 
         (t.Height() != min(A.Height(),A.Width()) || t.Width() != 1) )

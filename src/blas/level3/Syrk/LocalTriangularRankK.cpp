@@ -47,7 +47,7 @@ CheckInput
 {
     if( orientationOfB == Normal )
         throw logic_error( "B[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A.Height() != C.Height() || B.Height() != C.Width() ||
@@ -88,7 +88,7 @@ CheckInput
         throw logic_error( "A[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfB == Normal )
         throw logic_error( "B[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A.Width() != C.Height() || B.Height() != C.Width() ||
@@ -123,7 +123,7 @@ CheckInput
   const DistMatrix<T,Star,MR  >& B,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A.Height() != C.Height() || B.Width() != C.Width() ||
@@ -161,7 +161,7 @@ CheckInput
 {
     if( orientationOfA == Normal )
         throw logic_error( "A[* ,MC] must be (Conjugate)Transpose'd." );
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A.Width() != C.Height() || B.Width() != C.Width() ||
@@ -203,7 +203,7 @@ LocalTriangularRankKKernel
     PushCallStack("LocalTriangularRankKKernel");
     CheckInput( orientationOfB, A, B, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,MC,Star> AT(g),
                           AB(g);
@@ -279,7 +279,7 @@ LocalTriangularRankKKernel
     PushCallStack("LocalTriangularRankKKernel");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,Star,MC> AL(g), AR(g);
 
@@ -350,7 +350,7 @@ LocalTriangularRankKKernel
     PushCallStack("LocalTriangularRankKKernel");
     CheckInput( A, B, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,MC,Star> AT(g), 
                           AB(g);
@@ -422,7 +422,7 @@ LocalTriangularRankKKernel
     PushCallStack("LocalTriangularRankKKernel");
     CheckInput( orientationOfA, A, B, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,Star,MC> AL(g), AR(g);
 
@@ -492,7 +492,7 @@ elemental::blas::internal::LocalTriangularRankK
     PushCallStack("blas::internal::LocalTriangularRankK");
     CheckInput( orientationOfB, A, B, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -564,7 +564,7 @@ elemental::blas::internal::LocalTriangularRankK
     PushCallStack("blas::internal::LocalTriangularRankK");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -631,7 +631,7 @@ elemental::blas::internal::LocalTriangularRankK
     PushCallStack("blas::internal::LocalTriangularRankK");
     CheckInput( A, B, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -699,7 +699,7 @@ elemental::blas::internal::LocalTriangularRankK
     PushCallStack("blas::internal::LocalTriangularRankK");
     CheckInput( orientationOfA, A, B, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {

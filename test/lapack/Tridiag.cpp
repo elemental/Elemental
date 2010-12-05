@@ -60,7 +60,7 @@ void TestCorrectness
   const DistMatrix<R,MC,MR>& A, 
         DistMatrix<R,MC,MR>& AOrig )
 {
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
     int subdiagonal = ( shape==Lower ? -1 : +1 );
@@ -117,7 +117,7 @@ void TestCorrectness
         DistMatrix<complex<R>,MC,MR  >& AOrig )
 {
     typedef complex<R> C;
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
     int subdiagonal = ( shape==Lower ? -1 : +1 );

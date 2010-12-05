@@ -42,7 +42,7 @@ elemental::lapack::GaussElim
 {
 #ifndef RELEASE
     PushCallStack("lapack::GaussElim");
-    if( A.GetGrid() != B.GetGrid() )
+    if( A.Grid() != B.Grid() )
         throw logic_error( "A and B must be distributed over the same grid." );
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );

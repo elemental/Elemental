@@ -59,10 +59,10 @@ elemental::blas::internal::SymmRLC
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::SymmRLC");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 

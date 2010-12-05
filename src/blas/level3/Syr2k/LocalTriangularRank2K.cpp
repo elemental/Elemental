@@ -52,8 +52,8 @@ CheckInput
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
     if( orientationOfB2 == Normal )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Height() != C.Height() || B1.Height() != C.Width() ||
@@ -109,8 +109,8 @@ CheckInput
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
     if( orientationOfB2 == Normal )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Width() != C.Height() || B1.Height() != C.Width() ||
@@ -166,8 +166,8 @@ CheckInput
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
     if( orientationOfB2 == Normal )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Height() != C.Height() || B1.Height() != C.Width() ||
@@ -217,8 +217,8 @@ CheckInput
 {
     if( orientationOfB2 == Normal )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Height() != C.Height() || B1.Height() != C.Width() ||
@@ -268,8 +268,8 @@ CheckInput
 {
     if( orientationOfB1 == Normal )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Height() != C.Height() || B1.Height() != C.Width() ||
@@ -328,8 +328,8 @@ CheckInput
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
     if( orientationOfB2 == Normal )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Width() != C.Height() || B1.Height() != C.Width() ||
@@ -382,8 +382,8 @@ CheckInput
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfB2 == Normal )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Width() != C.Height() || B1.Width() != C.Width() ||
@@ -436,8 +436,8 @@ CheckInput
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfB1 == Normal )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Width() != C.Height() || B1.Height() != C.Width() ||
@@ -490,8 +490,8 @@ CheckInput
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfB2 == Normal )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Height() != C.Height() || B1.Width() != C.Width() ||
@@ -544,8 +544,8 @@ CheckInput
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfB1 == Normal )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Height() != C.Height() || B1.Height() != C.Width() ||
@@ -592,8 +592,8 @@ CheckInput
   const DistMatrix<T,Star,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C  )
 {
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Height() != C.Height() || B1.Width() != C.Width() ||
@@ -649,8 +649,8 @@ CheckInput
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfB2 == Normal )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Width() != C.Height() || B1.Width() != C.Width() ||
@@ -706,8 +706,8 @@ CheckInput
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfB1 == Normal )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Width() != C.Height() || B1.Height() != C.Width() ||
@@ -757,8 +757,8 @@ CheckInput
 {
     if( orientationOfA1 == Normal )
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Width() != C.Height() || B1.Width() != C.Width() ||
@@ -808,8 +808,8 @@ CheckInput
 {
     if( orientationOfA2 == Normal )
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Height() != C.Height() || B1.Width() != C.Width() ||
@@ -862,8 +862,8 @@ CheckInput
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
     if( orientationOfA2 == Normal )
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
-    if( A1.GetGrid() != A2.GetGrid() || A2.GetGrid() != B1.GetGrid() ||
-        B1.GetGrid() != B2.GetGrid() || B2.GetGrid() != C.GetGrid() )
+    if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
+        B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
         throw logic_error
         ( "A, B, and C must be distributed over the same grid." );
     if( A1.Width() != C.Height() || B1.Width() != C.Width() ||
@@ -918,7 +918,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( orientationOfB1, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,MC,Star> A1T(g),  A2T(g),
                           A1B(g),  A2B(g);
@@ -1016,7 +1016,7 @@ LocalTriangularRank2KKernel
     CheckInput
     ( orientationOfA1, orientationOfB1, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,Star,MC> A1L(g), A1R(g);
 
@@ -1118,7 +1118,7 @@ LocalTriangularRank2KKernel
     CheckInput
     ( orientationOfA2, orientationOfB1, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,MC,Star> A1T(g),
                           A1B(g);
@@ -1217,7 +1217,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,MC,Star> A1T(g),  A2T(g),
                           A1B(g),  A2B(g);
@@ -1312,7 +1312,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( orientationOfB1, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,MC,Star> A1T(g),  A2T(g),
                           A1B(g),  A2B(g);
@@ -1413,7 +1413,7 @@ LocalTriangularRank2KKernel
     ( orientationOfA1, orientationOfA2, orientationOfB1, orientationOfB2, 
       A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,Star,MC> A1L(g), A1R(g),
                           A2L(g), A2R(g);
@@ -1506,7 +1506,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( orientationOfA1, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,Star,MC> A1L(g), A1R(g);
 
@@ -1602,7 +1602,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( orientationOfA1, orientationOfB1, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,Star,MC> A1L(g), A1R(g);
 
@@ -1698,7 +1698,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( orientationOfA2, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,MC,Star> A1T(g),
                           A1B(g);
@@ -1794,7 +1794,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( orientationOfA2, orientationOfB1, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,MC,Star> A1T(g),
                           A1B(g);
@@ -1888,7 +1888,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,MC,Star> A1T(g),  A2T(g),
                           A1B(g),  A2B(g);
@@ -1982,7 +1982,7 @@ LocalTriangularRank2KKernel
     CheckInput
     ( orientationOfA1, orientationOfA2, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,Star,MC> A1L(g), A1R(g),
                           A2L(g), A2R(g);
@@ -2076,7 +2076,7 @@ LocalTriangularRank2KKernel
     CheckInput
     ( orientationOfA1, orientationOfA2, orientationOfB1, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,Star,MC> A1L(g), A1R(g),
                           A2L(g), A2R(g);
@@ -2167,7 +2167,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( orientationOfA1, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,Star,MC> A1L(g), A1R(g);
 
@@ -2258,7 +2258,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( orientationOfA2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,MC,Star> A1T(g),
                           A1B(g);
@@ -2350,7 +2350,7 @@ LocalTriangularRank2KKernel
     PushCallStack("LocalTriangularRank2KKernel");
     CheckInput( orientationOfA1, orientationOfA2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     DistMatrix<T,Star,MC> A1L(g), A1R(g),
                           A2L(g), A2R(g);
@@ -2440,7 +2440,7 @@ elemental::blas::internal::LocalTriangularRank2K
     PushCallStack("blas::internal::LocalTriangularRank2K");
     CheckInput( orientationOfB1, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -2531,7 +2531,7 @@ elemental::blas::internal::LocalTriangularRank2K
     CheckInput
     ( orientationOfA1, orientationOfB1, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -2622,7 +2622,7 @@ elemental::blas::internal::LocalTriangularRank2K
     CheckInput
     ( orientationOfA2, orientationOfB1, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -2710,7 +2710,7 @@ elemental::blas::internal::LocalTriangularRank2K
     PushCallStack("blas::internal::LocalTriangularRank2K");
     CheckInput( orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -2795,7 +2795,7 @@ elemental::blas::internal::LocalTriangularRank2K
     PushCallStack("blas::internal::LocalTriangularRank2K");
     CheckInput( orientationOfB1, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -2885,7 +2885,7 @@ elemental::blas::internal::LocalTriangularRank2K
     ( orientationOfA1, orientationOfA2, orientationOfB1, orientationOfB2, 
       A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -2977,7 +2977,7 @@ elemental::blas::internal::LocalTriangularRank2K
     CheckInput
     ( orientationOfA1, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -3067,7 +3067,7 @@ elemental::blas::internal::LocalTriangularRank2K
     CheckInput
     ( orientationOfA1, orientationOfB1, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -3157,7 +3157,7 @@ elemental::blas::internal::LocalTriangularRank2K
     CheckInput
     ( orientationOfA2, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -3247,7 +3247,7 @@ elemental::blas::internal::LocalTriangularRank2K
     CheckInput
     ( orientationOfA2, orientationOfB1, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -3334,7 +3334,7 @@ elemental::blas::internal::LocalTriangularRank2K
     PushCallStack("blas::internal::LocalTriangularRank2K");
     CheckInput( A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -3418,7 +3418,7 @@ elemental::blas::internal::LocalTriangularRank2K
     CheckInput
     ( orientationOfA1, orientationOfA2, orientationOfB2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -3505,7 +3505,7 @@ elemental::blas::internal::LocalTriangularRank2K
     CheckInput
     ( orientationOfA1, orientationOfA2, orientationOfB1, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -3589,7 +3589,7 @@ elemental::blas::internal::LocalTriangularRank2K
     PushCallStack("blas::internal::LocalTriangularRank2K");
     CheckInput( orientationOfA1, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -3670,7 +3670,7 @@ elemental::blas::internal::LocalTriangularRank2K
     PushCallStack("blas::internal::LocalTriangularRank2K");
     CheckInput( orientationOfA2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {
@@ -3752,7 +3752,7 @@ elemental::blas::internal::LocalTriangularRank2K
     PushCallStack("blas::internal::LocalTriangularRank2K");
     CheckInput( orientationOfA1, orientationOfA2, A1, A2, B1, B2, C );
 #endif
-    const Grid& g = C.GetGrid();
+    const Grid& g = C.Grid();
 
     if( C.Height() < 2*g.Width()*Blocksize() )
     {

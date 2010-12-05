@@ -42,7 +42,7 @@ elemental::blas::internal::HerkLC
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::HerkLC");
-    if( A.GetGrid() != C.GetGrid() )
+    if( A.Grid() != C.Grid() )
         throw logic_error( "A and C must be distributed over the same grid." );
     if( A.Width() != C.Height() || A.Width() != C.Width() )
     {
@@ -53,7 +53,7 @@ elemental::blas::internal::HerkLC
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> AT(g),  A0(g),

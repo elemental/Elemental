@@ -51,7 +51,7 @@ elemental::lapack::internal::HegstRU
     if( A.Height() != U.Height() )
         throw logic_error( "A and U must be the same size." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR>
@@ -214,13 +214,13 @@ elemental::lapack::internal::HegstRUNaive
         throw logic_error( "Triangular matrices must be square." );
     if( A.Height() != U.Height() )
         throw logic_error( "A and U must be the same size." );
-    if( A.GetGrid().VCRank() == 0 )
+    if( A.Grid().VCRank() == 0 )
     {
         cout << "HegstRUNaive exists solely for academic purposes. Please "
                 "use HegstRU in real applications." << endl;
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR>

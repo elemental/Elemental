@@ -513,7 +513,7 @@ template<typename R>
 inline
 DistMatrix<R,Star,Star>::DistMatrix
 ( const DistMatrix<R,Star,Star>& A ) 
-: DMB(0,0,A.GetGrid())
+: DMB(0,0,A.Grid())
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");
@@ -657,7 +657,7 @@ template<typename R>
 inline
 DistMatrix<std::complex<R>,Star,Star>::DistMatrix
 ( const DistMatrix<std::complex<R>,Star,Star>& A ) 
-: DMB(0,0,A.GetGrid())
+: DMB(0,0,A.Grid())
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");

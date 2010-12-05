@@ -68,7 +68,7 @@ RealToRealRedistribution
 ( DistMatrix<double,MC,  MR>& Z,
   DistMatrix<double,Star,VR>& Z_Star_VR )
 {
-    const Grid& g = Z.GetGrid();
+    const Grid& g = Z.Grid();
 
     const int r = g.Height();
     const int c = g.Width();
@@ -155,7 +155,7 @@ RealToComplexRedistribution
 ( DistMatrix<std::complex<double>,MC,  MR>& Z,
   DistMatrix<             double, Star,VR>& Z_Star_VR )
 {
-    const Grid& g = Z.GetGrid();
+    const Grid& g = Z.Grid();
 
     const int r = g.Height();
     const int c = g.Width();
@@ -259,7 +259,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
@@ -357,7 +357,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
     const int k = (b - a) + 1;
@@ -455,7 +455,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
@@ -584,7 +584,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
@@ -672,7 +672,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
     const int k = (b - a) + 1;
@@ -760,7 +760,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
@@ -852,7 +852,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
@@ -951,7 +951,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
     const int k = (b - a) + 1;
@@ -1050,7 +1050,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
@@ -1179,7 +1179,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
@@ -1268,7 +1268,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
     const int k = (b - a) + 1;
@@ -1357,7 +1357,7 @@ elemental::lapack::HermitianEig
     // TODO: Checks for input consistency
 #endif
     int n = A.Height();
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 

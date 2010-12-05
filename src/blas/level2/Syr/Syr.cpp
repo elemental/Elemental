@@ -44,7 +44,7 @@ elemental::blas::Syr
 {
 #ifndef RELEASE
     PushCallStack("blas::Syr");
-    if( A.GetGrid() != x.GetGrid() )
+    if( A.Grid() != x.Grid() )
         throw logic_error( "A and x must be distributed over the same grid." );
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
@@ -58,7 +58,7 @@ elemental::blas::Syr
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();

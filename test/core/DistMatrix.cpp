@@ -56,7 +56,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
 #ifndef RELEASE
     PushCallStack("Check");
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     int p = g.Size();
     int rank = g.VCRank();

@@ -46,10 +46,10 @@ elemental::blas::internal::LocalHemvColAccumulateU
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::LocalHemvColAccumulateU");
-    if( A.GetGrid() != x_MC_Star.GetGrid() ||
-        x_MC_Star.GetGrid() != x_MR_Star.GetGrid() ||
-        x_MR_Star.GetGrid() != z_MC_Star.GetGrid() ||
-        z_MC_Star.GetGrid() != z_MR_Star.GetGrid() )
+    if( A.Grid() != x_MC_Star.Grid() ||
+        x_MC_Star.Grid() != x_MR_Star.Grid() ||
+        x_MR_Star.Grid() != z_MC_Star.Grid() ||
+        z_MC_Star.Grid() != z_MR_Star.Grid() )
         throw logic_error( "{A,x,z} must be distributed over the same grid." );
     if( x_MC_Star.Width() != 1 || x_MR_Star.Width() != 1 ||
         z_MC_Star.Width() != 1 || z_MR_Star.Width() != 1 )
@@ -79,7 +79,7 @@ elemental::blas::internal::LocalHemvColAccumulateU
         z_MR_Star.ColAlignment() != A.RowAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
@@ -242,10 +242,10 @@ elemental::blas::internal::LocalHemvRowAccumulateU
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::LocalHemvRowAccumulateU");
-    if( A.GetGrid() != x_Star_MC.GetGrid() ||
-        x_Star_MC.GetGrid() != x_Star_MR.GetGrid() ||
-        x_Star_MR.GetGrid() != z_Star_MC.GetGrid() ||
-        z_Star_MC.GetGrid() != z_Star_MR.GetGrid() )
+    if( A.Grid() != x_Star_MC.Grid() ||
+        x_Star_MC.Grid() != x_Star_MR.Grid() ||
+        x_Star_MR.Grid() != z_Star_MC.Grid() ||
+        z_Star_MC.Grid() != z_Star_MR.Grid() )
         throw logic_error( "{A,x,z} must be distributed over the same grid." );
     if( x_Star_MC.Height() != 1 || x_Star_MR.Height() != 1 ||
         z_Star_MC.Height() != 1 || z_Star_MR.Height() != 1 )
@@ -275,7 +275,7 @@ elemental::blas::internal::LocalHemvRowAccumulateU
         z_Star_MR.RowAlignment() != A.RowAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 

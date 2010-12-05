@@ -89,7 +89,7 @@ elemental::lapack::internal::CholUVar2
         throw logic_error
         ( "Can only compute Cholesky factor of square matrices." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
@@ -213,13 +213,13 @@ elemental::lapack::internal::CholUVar2Naive
     if( A.Height() != A.Width() )
         throw logic_error
         ( "Can only compute Cholesky factor of square matrices." );
-    if( A.GetGrid().VCRank() == 0 )
+    if( A.Grid().VCRank() == 0 )
     {
         cout << "CholUVar2Naive exists solely for academic purposes. Please "
                 "use CholUVar2 in real applications." << endl;
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 
@@ -332,7 +332,7 @@ lapack::internal::CholUVar3Naive
         throw logic_error
         ( "Can only compute Cholesky factor of square matrices." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 

@@ -47,7 +47,7 @@ elemental::blas::internal::TrsmRLN
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsmRLN");
-    if( L.GetGrid() != X.GetGrid() )
+    if( L.Grid() != X.Grid() )
         throw logic_error( "L and X must be distributed over the same grid." );
     if( L.Height() != L.Width() || X.Width() != L.Height() )
     {
@@ -58,7 +58,7 @@ elemental::blas::internal::TrsmRLN
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = L.GetGrid();
+    const Grid& g = L.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 

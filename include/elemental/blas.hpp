@@ -1911,7 +1911,7 @@ elemental::blas::Axpy
 {
 #ifndef RELEASE
     PushCallStack("blas::Axpy");
-    if( X.GetGrid() != Y.GetGrid() )
+    if( X.Grid() != Y.Grid() )
         throw std::logic_error
         ( "X and Y must be distributed over the same grid." );
     if( X.ColAlignment() != Y.ColAlignment() ||
@@ -2014,7 +2014,7 @@ elemental::blas::ConjTrans
 #ifndef RELEASE
     PushCallStack("blas::ConjTrans");
 #endif
-    DistMatrix<T,Z,W> C( B.GetGrid() );
+    DistMatrix<T,Z,W> C( B.Grid() );
     if( B.ConstrainedColAlignment() )
         C.AlignRowsWith( B );
     if( B.ConstrainedRowAlignment() )
@@ -2043,7 +2043,7 @@ elemental::blas::Trans
 #ifndef RELEASE
     PushCallStack("blas::Trans");
 #endif
-    DistMatrix<T,Z,W> C( B.GetGrid() );
+    DistMatrix<T,Z,W> C( B.Grid() );
     if( B.ConstrainedColAlignment() )
         C.AlignRowsWith( B );
     if( B.ConstrainedRowAlignment() )

@@ -63,7 +63,7 @@ void TestCorrectness
   bool printMatrices,
   const DistMatrix<R,MC,MR>& H )
 {
-    const Grid& g = H.GetGrid();
+    const Grid& g = H.Grid();
     const int m = H.Height();
 
     if( g.VCRank() == 0 )
@@ -135,7 +135,7 @@ void TestCorrectness
 {
     typedef complex<R> C;
 
-    const Grid& g = H.GetGrid();
+    const Grid& g = H.Grid();
     const int m = H.Height();
 
     if( g.VCRank() == 0 )

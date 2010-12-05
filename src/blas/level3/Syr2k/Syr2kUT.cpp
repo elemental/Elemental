@@ -43,7 +43,7 @@ elemental::blas::internal::Syr2kUT
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Syr2kUT");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Width() != C.Height() || 
         A.Width() != C.Width()  ||
@@ -59,7 +59,7 @@ elemental::blas::internal::Syr2kUT
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> AT(g),  A0(g),

@@ -43,7 +43,7 @@ elemental::blas::internal::TrsvUN
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsvUN");
-    if( U.GetGrid() != x.GetGrid() )
+    if( U.Grid() != x.Grid() )
         throw logic_error( "U and x must be distributed over the same grid." );
     if( U.Height() != U.Width() )
         throw logic_error( "U must be square." );
@@ -53,7 +53,7 @@ elemental::blas::internal::TrsvUN
     if( U.Width() != xLength )
         throw logic_error( "Nonconformal TrsvUN." );
 #endif
-    const Grid& g = U.GetGrid();
+    const Grid& g = U.Grid();
 
     if( x.Width() == 1 )
     {

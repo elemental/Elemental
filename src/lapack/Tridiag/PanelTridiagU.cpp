@@ -45,7 +45,7 @@ elemental::lapack::internal::PanelTridiagU
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagU");
-    if( A.GetGrid() != W.GetGrid() || W.GetGrid() != e.GetGrid() )
+    if( A.Grid() != W.Grid() || W.Grid() != e.Grid() )
         throw logic_error
         ( "A, W, and e must be distributed over the same grid." );
     if( A.Height() != A.Width() )
@@ -56,13 +56,13 @@ elemental::lapack::internal::PanelTridiagU
         throw logic_error( "W must be a column panel." );
     if( W.ColAlignment() != A.ColAlignment() || 
         W.RowAlignment() != 
-          ((A.RowAlignment()+A.Width()-W.Width())%A.GetGrid().Width()) )
+          ((A.RowAlignment()+A.Width()-W.Width())%A.Grid().Width()) )
         throw logic_error( "W and A must be aligned." );
     if( e.Height() != W.Width() || e.Width() != 1 )
         throw logic_error
         ( "e must be a column vector of the same length as W's width." );
     {
-        DistMatrix<R,MC,MR> A11Expanded(A.GetGrid());
+        DistMatrix<R,MC,MR> A11Expanded(A.Grid());
         A11Expanded.View
         ( A, A.Height()-W.Width()-1, A.Width()-W.Width()-1,
              W.Width()+1, W.Width()+1 );
@@ -70,7 +70,7 @@ elemental::lapack::internal::PanelTridiagU
             throw logic_error( "e is not correctly aligned with A." );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views 
     DistMatrix<R,MC,MR> 
@@ -253,9 +253,9 @@ elemental::lapack::internal::PanelTridiagU
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagU");
-    if( A.GetGrid() != W.GetGrid() || 
-        W.GetGrid() != e.GetGrid() ||
-        e.GetGrid() != t.GetGrid() )
+    if( A.Grid() != W.Grid() || 
+        W.Grid() != e.Grid() ||
+        e.Grid() != t.Grid() )
         throw logic_error
         ( "A, W, t, and e must be distributed over the same grid." );
     if( A.Height() != A.Width() )
@@ -266,7 +266,7 @@ elemental::lapack::internal::PanelTridiagU
         throw logic_error( "W must be a column panel." );
     if( W.ColAlignment() != A.ColAlignment() || 
         W.RowAlignment() != 
-          ((A.RowAlignment()+A.Width()-W.Width())%A.GetGrid().Width()) )
+          ((A.RowAlignment()+A.Width()-W.Width())%A.Grid().Width()) )
         throw logic_error( "W and A must be aligned." );
     if( e.Height() != W.Width() || e.Width() != 1 )
         throw logic_error
@@ -275,7 +275,7 @@ elemental::lapack::internal::PanelTridiagU
         throw logic_error
               ( "t must be a column vector of the same length as W's width." );
     {
-        DistMatrix<complex<R>,MC,MR> A11Expanded(A.GetGrid());
+        DistMatrix<complex<R>,MC,MR> A11Expanded(A.Grid());
         A11Expanded.View
         ( A, A.Height()-W.Width()-1, A.Width()-W.Width()-1,
              W.Width()+1, W.Width()+1 );
@@ -287,7 +287,7 @@ elemental::lapack::internal::PanelTridiagU
 #endif
     typedef complex<R> C;
 
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views 
     DistMatrix<C,MC,MR> 

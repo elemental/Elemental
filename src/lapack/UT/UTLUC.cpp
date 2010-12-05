@@ -50,7 +50,7 @@ elemental::lapack::internal::UTLUC
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::UTLUC");
-    if( H.GetGrid() != A.GetGrid() )
+    if( H.Grid() != A.Grid() )
         throw logic_error( "H and A must be distributed over the same grid." );
     if( offset > H.Height() )
         throw logic_error( "Transforms cannot extend above matrix." );
@@ -60,7 +60,7 @@ elemental::lapack::internal::UTLUC
         throw logic_error
               ( "Width of transforms must equal height of target matrix." );
 #endif
-    const Grid& g = H.GetGrid();
+    const Grid& g = H.Grid();
 
     // Matrix views    
     DistMatrix<R,MC,MR>
@@ -172,7 +172,7 @@ elemental::lapack::internal::UTLUC
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::UTLUC");
-    if( H.GetGrid() != t.GetGrid() || t.GetGrid() != A.GetGrid() )
+    if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw logic_error
               ( "H, t, and A must be distributed over the same grid." );
     if( offset > H.Height() )
@@ -188,7 +188,7 @@ elemental::lapack::internal::UTLUC
         throw logic_error( "t must be aligned with H's 'offset' diagonal." );
 #endif
     typedef complex<R> C;
-    const Grid& g = H.GetGrid();
+    const Grid& g = H.Grid();
 
     // Matrix views    
     DistMatrix<C,MC,MR>

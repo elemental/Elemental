@@ -48,7 +48,7 @@ elemental::DistMatrix<R,MC,Star>::SetToRandomHPD()
 #endif
     const int width = this->Width();
     const int localHeight = this->LocalHeight();
-    const int r = this->GetGrid().Height();
+    const int r = this->Grid().Height();
     const int colShift = this->ColShift();
 
     this->SetToRandom();
@@ -82,7 +82,7 @@ elemental::DistMatrix<complex<R>,MC,Star>::SetToRandomHPD()
 #endif
     const int width = this->Width();
     const int localHeight = this->LocalHeight();
-    const int r = this->GetGrid().Height();
+    const int r = this->Grid().Height();
     const int colShift = this->ColShift();
 
     this->SetToRandom();
@@ -114,7 +114,7 @@ elemental::DistMatrix<complex<R>,MC,Star>::GetReal
 #endif
     // We will determine the owner row of entry (i,j) and broadcast from that 
     // row within each process column
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRow = (i + this->ColAlignment()) % g.Height();
 
     R u;
@@ -142,7 +142,7 @@ elemental::DistMatrix<complex<R>,MC,Star>::GetImag
 #endif
     // We will determine the owner row of entry (i,j) and broadcast from that 
     // row within each process column
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRow = (i + this->ColAlignment()) % g.Height();
 
     R u;
@@ -168,7 +168,7 @@ elemental::DistMatrix<complex<R>,MC,Star>::SetReal
     PushCallStack("[MC,* ]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRow = (i + this->ColAlignment()) % g.Height();
 
     if( g.MCRank() == ownerRow )
@@ -191,7 +191,7 @@ elemental::DistMatrix<complex<R>,MC,Star>::SetImag
     PushCallStack("[MC,* ]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRow = (i + this->ColAlignment()) % g.Height();
 
     if( g.MCRank() == ownerRow )

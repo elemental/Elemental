@@ -43,7 +43,7 @@ elemental::blas::internal::GemmNN
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNN");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
 #endif
     const int m = C.Height();
@@ -83,7 +83,7 @@ elemental::blas::internal::GemmNNA
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNNA");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
@@ -97,7 +97,7 @@ elemental::blas::internal::GemmNNA
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> BL(g), BR(g),
@@ -166,7 +166,7 @@ elemental::blas::internal::GemmNNB
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNNB");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
@@ -180,7 +180,7 @@ elemental::blas::internal::GemmNNB
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> AT(g),  A0(g),
@@ -259,7 +259,7 @@ elemental::blas::internal::GemmNNC
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNNC");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
@@ -273,7 +273,7 @@ elemental::blas::internal::GemmNNC
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> AL(g), AR(g),
@@ -340,7 +340,7 @@ elemental::blas::internal::GemmNNDot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmNNDot");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
@@ -354,7 +354,7 @@ elemental::blas::internal::GemmNNDot
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     if( A.Height() > B.Width() )
     {

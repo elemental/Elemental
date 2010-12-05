@@ -46,7 +46,7 @@ elemental::DistMatrix<R,MR,MC>::SetToRandomHPD()
     if( this->Height() != this->Width() )
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int localHeight = this->LocalHeight();
     const int localWidth = this->LocalWidth();
     const int r = g.Height();
@@ -87,7 +87,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetToRandomHPD()
     if( this->Height() != this->Width() )
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int localHeight = this->LocalHeight();
     const int localWidth = this->LocalWidth();
     const int r = g.Height();
@@ -128,7 +128,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::GetReal
 #endif
     // We will determine the owner of the (i,j) entry and have him Broadcast
     // throughout the entire process grid
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRow = (j + this->RowAlignment()) % g.Height();
     const int ownerCol = (i + this->ColAlignment()) % g.Width();
     const int ownerRank = ownerRow + ownerCol * g.Height();
@@ -159,7 +159,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::GetImag
 #endif
     // We will determine the owner of the (i,j) entry and have him Broadcast
     // throughout the entire process grid
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRow = (j + this->RowAlignment()) % g.Height();
     const int ownerCol = (i + this->ColAlignment()) % g.Width();
     const int ownerRank = ownerRow + ownerCol * g.Height();
@@ -188,7 +188,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetReal
     PushCallStack("[MR,MC]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRow = (j + this->RowAlignment()) % g.Height();
     const int ownerCol = (i + this->ColAlignment()) % g.Width();
     const int ownerRank = ownerRow + ownerCol * g.Height();
@@ -214,7 +214,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetImag
     PushCallStack("[MR,MC]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRow = (j + this->RowAlignment()) % g.Height();
     const int ownerCol = (i + this->ColAlignment()) % g.Width();
     const int ownerRank = ownerRow + ownerCol * g.Height();
@@ -268,7 +268,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::GetRealDiagonal
 
     if( d.InDiagonal() )
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -344,7 +344,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::GetImagDiagonal
 
     if( d.InDiagonal() )
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -421,7 +421,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::GetRealDiagonal
 
     if( d.InDiagonal() )
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -498,7 +498,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::GetImagDiagonal
 
     if( d.InDiagonal() )
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -573,7 +573,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetDiagonal
 #endif
     if( d.InDiagonal() )
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -647,7 +647,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetRealDiagonal
 #endif
     if( d.InDiagonal() )
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -724,7 +724,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetImagDiagonal
 #endif
     if( d.InDiagonal() )
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -801,7 +801,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetDiagonal
 #endif
     if( d.InDiagonal() )
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -873,7 +873,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetRealDiagonal
 #endif
     if( d.InDiagonal() )
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -950,7 +950,7 @@ elemental::DistMatrix<complex<R>,MR,MC>::SetImagDiagonal
 #endif
     if( d.InDiagonal() )
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();

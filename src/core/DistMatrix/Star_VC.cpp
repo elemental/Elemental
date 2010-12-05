@@ -48,7 +48,7 @@ elemental::DistMatrix<R,Star,VC>::SetToRandomHPD()
 #endif
     const int height     = this->Height();
     const int localWidth = this->LocalWidth();
-    const int p          = this->GetGrid().Size();
+    const int p          = this->Grid().Size();
     const int rowShift   = this->RowShift();
 
     this->SetToRandom();
@@ -82,7 +82,7 @@ elemental::DistMatrix<complex<R>,Star,VC>::SetToRandomHPD()
 #endif
     const int height     = this->Height();
     const int localWidth = this->LocalWidth();
-    const int p          = this->GetGrid().Size();
+    const int p          = this->Grid().Size();
     const int rowShift   = this->RowShift();
 
     this->SetToRandom();
@@ -114,7 +114,7 @@ elemental::DistMatrix<complex<R>,Star,VC>::GetReal
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     R u;
@@ -142,7 +142,7 @@ elemental::DistMatrix<complex<R>,Star,VC>::GetImag
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     R u;
@@ -168,7 +168,7 @@ elemental::DistMatrix<complex<R>,Star,VC>::SetReal
     PushCallStack("[* ,VC]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     if( g.VCRank() == ownerRank )
@@ -191,7 +191,7 @@ elemental::DistMatrix<complex<R>,Star,VC>::SetImag
     PushCallStack("[* ,VC]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     if( g.VCRank() == ownerRank )

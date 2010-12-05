@@ -113,7 +113,7 @@ elemental::lapack::LU
 {
 #ifndef RELEASE
     PushCallStack("lapack::LU");
-    if( A.GetGrid() != p.GetGrid() )
+    if( A.Grid() != p.Grid() )
         throw logic_error( "A and p must be distributed over the same grid." );
     if( A.Height() != p.Height() ) 
         throw logic_error( "A and p must be the same height." );
@@ -122,7 +122,7 @@ elemental::lapack::LU
     ::ResetTimers();
     ::timer.Start();
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR>

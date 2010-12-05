@@ -44,7 +44,7 @@ elemental::blas::internal::GemvT
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemvT");
-    if( A.GetGrid() != x.GetGrid() || x.GetGrid() != y.GetGrid() )
+    if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw logic_error( "{A,x,y} must be distributed over the same grid." );
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
         ( y.Width() != 1 && y.Height() != 1 )   )
@@ -61,7 +61,7 @@ elemental::blas::internal::GemvT
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
     if( x.Width() == 1 && y.Width() == 1 )
     {
         // Temporary distributions

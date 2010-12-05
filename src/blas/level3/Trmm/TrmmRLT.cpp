@@ -49,7 +49,7 @@ elemental::blas::internal::TrmmRLT
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TrmmRLT");
-    if( L.GetGrid() != X.GetGrid() )
+    if( L.Grid() != X.Grid() )
         throw logic_error( "L and X must be distributed over the same grid." );
     if( orientation == Normal )
         throw logic_error( "TrmmRLT expects a (Conjugate)Transpose option." );
@@ -62,7 +62,7 @@ elemental::blas::internal::TrmmRLT
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = L.GetGrid();
+    const Grid& g = L.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 

@@ -44,7 +44,7 @@ elemental::blas::internal::TrsvLT
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsvLT");
-    if( L.GetGrid() != x.GetGrid() )
+    if( L.Grid() != x.Grid() )
         throw logic_error( "L and x must be distributed over the same grid." );
     if( orientation == Normal )
         throw logic_error( "TrsvLT expects a (conjugate-)transpose option." );
@@ -56,7 +56,7 @@ elemental::blas::internal::TrsvLT
     if( L.Width() != xLength )
         throw logic_error( "Nonconformal TrsvLT." );
 #endif
-    const Grid& g = L.GetGrid();
+    const Grid& g = L.Grid();
 
     if( x.Width() == 1 )
     {

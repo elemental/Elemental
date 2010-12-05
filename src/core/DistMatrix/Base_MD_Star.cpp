@@ -43,7 +43,7 @@ elemental::DistMatrixBase<T,MD,Star>::Print( const string& s ) const
 #ifndef RELEASE
     PushCallStack("[MD,* ]::Print");
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     if( g.VCRank() == 0 && s != "" )
         cout << s << endl;
         
@@ -122,7 +122,7 @@ elemental::DistMatrixBase<T,MD,Star>::AlignCols
     PushCallStack("[MD,Star]::AlignCols");
     this->AssertFreeColAlignment();
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
 #ifndef RELEASE
     if( colAlignment < 0 || colAlignment >= g.Size() )
         throw std::runtime_error( "Invalid column alignment for [MD,Star]" );
@@ -207,7 +207,7 @@ elemental::DistMatrixBase<T,MD,Star>::AlignedWithDiag
     PushCallStack("[MD,* ]::AlignedWithDiag([MC,MR])");
     this->AssertSameGrid( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int r = g.Height();
     const int c = g.Width();
     const int colAlignment = A.ColAlignment();
@@ -242,7 +242,7 @@ elemental::DistMatrixBase<T,MD,Star>::AlignWithDiag
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int r = g.Height();
     const int c = g.Width();
     const int lcm = g.LCM();
@@ -289,7 +289,7 @@ elemental::DistMatrixBase<T,MD,Star>::AlignedWithDiag
     PushCallStack("[MD,* ]::AlignedWithDiag([MR,MC])");
     this->AssertSameGrid( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int r = g.Height();
     const int c = g.Width();
     const int colAlignment = A.ColAlignment();
@@ -324,7 +324,7 @@ elemental::DistMatrixBase<T,MD,Star>::AlignWithDiag
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int r = g.Height();
     const int c = g.Width();
     const int lcm = g.LCM();
@@ -432,7 +432,7 @@ elemental::DistMatrixBase<T,MD,Star>::View
     this->_height = height;
     this->_width = width;
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -484,7 +484,7 @@ elemental::DistMatrixBase<T,MD,Star>::LockedView
     this->_height = height;
     this->_width  = width;
     {
-        const Grid& g = this->GetGrid();
+        const Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -731,7 +731,7 @@ elemental::DistMatrixBase<T,MD,Star>::ResizeTo
     this->_width = width;
     if( this->InDiagonal() )
     {
-        const int lcm = this->GetGrid().LCM();
+        const int lcm = this->Grid().LCM();
         this->_localMatrix.ResizeTo
         ( LocalLength(height,this->ColShift(),lcm), width );
     }
@@ -751,7 +751,7 @@ elemental::DistMatrixBase<T,MD,Star>::Get
 #endif
     // We will determine the owner of entry (i,j) and broadcast from it
     int ownerRank;
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     {
         const int r = g.Height();
         const int c = g.Width();
@@ -787,7 +787,7 @@ elemental::DistMatrixBase<T,MD,Star>::Set
     this->AssertValidEntry( i, j );
 #endif
     int ownerRank;
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     {
         const int r = g.Height();
         const int c = g.Width();
@@ -827,7 +827,7 @@ elemental::DistMatrixBase<T,MD,Star>::MakeTrapezoidal
         const int height = this->Height();
         const int width = this->Width();
         const int localHeight = this->LocalHeight();
-        const int lcm = this->GetGrid().LCM();
+        const int lcm = this->Grid().LCM();
         const int colShift = this->ColShift();
 
         if( shape == Lower )
@@ -897,7 +897,7 @@ elemental::DistMatrixBase<T,MD,Star>::ScaleTrapezoidal
         const int height = this->Height();
         const int width = this->Width();
         const int localHeight = this->LocalHeight();
-        const int lcm = this->GetGrid().LCM();
+        const int lcm = this->Grid().LCM();
         const int colShift = this->ColShift();
 
         if( shape == Upper )
@@ -962,7 +962,7 @@ elemental::DistMatrixBase<T,MD,Star>::SetToIdentity()
 #endif
     if( this->InDiagonal() )
     {
-        const int lcm = this->GetGrid().LCM();
+        const int lcm = this->Grid().LCM();
         const int width = this->Width();
         const int localHeight = this->LocalHeight();
         const int colShift = this->ColShift();
@@ -1092,7 +1092,7 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
     else
     {
 #ifdef UNALIGNED_WARNINGS
-        if( this->GetGrid().VCRank() == 0 )
+        if( this->Grid().VCRank() == 0 )
             cerr << "Unaligned [MD,* ] <- [MD,* ]." << endl;
 #endif
         throw logic_error( "Unaligned [MD,* ] = [MD,* ] not yet implemented." );

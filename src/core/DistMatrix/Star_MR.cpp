@@ -48,7 +48,7 @@ elemental::DistMatrix<R,Star,MR>::SetToRandomHPD()
 #endif
     const int height     = this->Height();
     const int localWidth = this->LocalWidth();
-    const int c          = this->GetGrid().Width();
+    const int c          = this->Grid().Width();
     const int rowShift   = this->RowShift();
 
     this->SetToRandom();
@@ -82,7 +82,7 @@ elemental::DistMatrix<complex<R>,Star,MR>::SetToRandomHPD()
 #endif
     const int height     = this->Height();
     const int localWidth = this->LocalWidth();
-    const int c          = this->GetGrid().Width();
+    const int c          = this->Grid().Width();
     const int rowShift   = this->RowShift();
 
     this->SetToRandom();
@@ -114,7 +114,7 @@ elemental::DistMatrix<complex<R>,Star,MR>::GetReal
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // column within each process row
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
     R u;
@@ -142,7 +142,7 @@ elemental::DistMatrix<complex<R>,Star,MR>::GetImag
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // column within each process row
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
     R u;
@@ -168,7 +168,7 @@ elemental::DistMatrix<complex<R>,Star,MR>::SetReal
     PushCallStack("[* ,MR]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )
@@ -191,7 +191,7 @@ elemental::DistMatrix<complex<R>,Star,MR>::SetImag
     PushCallStack("[* ,MR]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerCol = (j + this->RowAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )

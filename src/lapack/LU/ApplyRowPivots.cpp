@@ -60,7 +60,7 @@ elemental::lapack::internal::ApplyRowPivots
     const int localWidth = A.LocalWidth();
     
     // Extract the relevant process grid information
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
     const int r = g.Height();
     const int colAlignment = A.ColAlignment();
     const int colShift = A.ColShift();

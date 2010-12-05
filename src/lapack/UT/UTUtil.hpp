@@ -43,8 +43,8 @@ SetDiagonalToOne( Side side, int offset, DistMatrix<T,MC,MR>& H )
     const int height = H.Height();
     const int width = H.Width();
     const int localWidth = H.LocalWidth();
-    const int r = H.GetGrid().Height();
-    const int c = H.GetGrid().Width();
+    const int r = H.Grid().Height();
+    const int c = H.Grid().Width();
     const int colShift = H.ColShift();
     const int rowShift = H.RowShift();
 

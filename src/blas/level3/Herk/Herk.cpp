@@ -44,7 +44,7 @@ elemental::blas::Herk
 {
 #ifndef RELEASE
     PushCallStack("blas::Herk");
-    if( A.GetGrid() != C.GetGrid() )
+    if( A.Grid() != C.Grid() )
         throw logic_error( "A and C must be distributed over the same grid." );
     if( orientation == Transpose )
         throw logic_error

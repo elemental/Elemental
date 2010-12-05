@@ -90,7 +90,7 @@ elemental::blas::Hemv
 {
 #ifndef RELEASE
     PushCallStack("blas::Hemv");
-    if( A.GetGrid() != x.GetGrid() || x.GetGrid() != y.GetGrid() )
+    if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw logic_error( "{A,x,y} must be distributed over the same grid." );
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
@@ -109,7 +109,7 @@ elemental::blas::Hemv
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     if( x.Width() == 1 && y.Width() == 1 )
     {

@@ -75,7 +75,7 @@ void TestCorrectness
            const DistMatrix<T,Star,Star>& xRef,
   T beta,        DistMatrix<T,Star,Star>& yRef )
 {
-    const Grid& g = y.GetGrid();
+    const Grid& g = y.Grid();
     DistMatrix<T,Star,Star> y_copy(g);
 
     if( g.VCRank() == 0 )

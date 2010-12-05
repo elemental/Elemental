@@ -56,7 +56,7 @@ elemental::lapack::internal::HegstLLNaive
     if( A.Height() != L.Height() )
         throw logic_error( "A and L must be the same size." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR>

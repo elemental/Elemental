@@ -59,7 +59,7 @@ elemental::lapack::internal::TrinvLVar3
     if( L.Height() != L.Width() )
         throw logic_error( "Nonsquare matrices cannot be triangular." );
 #endif
-    const Grid& g = L.GetGrid();
+    const Grid& g = L.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 

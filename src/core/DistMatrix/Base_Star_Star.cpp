@@ -43,7 +43,7 @@ elemental::DistMatrixBase<T,Star,Star>::Print( const string& s ) const
 #ifndef RELEASE
     PushCallStack("[* ,* ]::Print");
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     if( g.VCRank() == 0 && s != "" )
         cout << s << endl;
 
@@ -521,7 +521,7 @@ elemental::DistMatrixBase<T,Star,Star>::SetToRandom()
     this->AssertNotLockedView();
 #endif
     // Create random matrix on process 0 and then broadcast
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int height = this->Height();
     const int width = this->Width();
     const int bufSize = height*width;
@@ -578,7 +578,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int r = g.Height();
     const int c = g.Width(); 
     const int p = g.Size();
@@ -674,7 +674,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int r = g.Height();
     const int height = this->Height();
     const int width = this->Width();
@@ -756,7 +756,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int c = g.Width();
     const int height = this->Height();
     const int width = this->Width();
@@ -850,7 +850,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int p = g.Size();
     const int lcm = g.LCM();
     const int ownerPath = g.DiagPath( A.ColAlignment() );
@@ -945,7 +945,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int p = g.Size();
     const int lcm = g.LCM();
     const int ownerPath = g.DiagPath( A.RowAlignment() );
@@ -1050,7 +1050,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int r = g.Height();
     const int c = g.Width();
     const int p = g.Size();
@@ -1145,7 +1145,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int c = g.Width();
     const int height = this->Height();
     const int width = this->Width();
@@ -1227,7 +1227,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int r = g.Height();
     const int height = this->Height();
     const int width = this->Width();
@@ -1321,7 +1321,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int p = g.Size();
     const int height = this->Height();
     const int width = this->Width();
@@ -1403,7 +1403,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int p = g.Size();
     const int height = this->Height();
     const int width = this->Width();
@@ -1497,7 +1497,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int p = g.Size();
     const int height = this->Height();
     const int width = this->Width();
@@ -1579,7 +1579,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int p = g.Size();
     const int height = this->Height();
     const int width = this->Width();
@@ -1690,7 +1690,7 @@ elemental::DistMatrixBase<T,Star,Star>::AllSum()
     Matrix<T> B( this->LocalMatrix() );
     AllReduce
     ( B.LockedBuffer(), this->LocalMatrix().Buffer(), B.Height()*B.Width(),
-      MPI_SUM, this->GetGrid().VCComm() );
+      MPI_SUM, this->Grid().VCComm() );
 #ifndef RELEASE
     PopCallStack();
 #endif

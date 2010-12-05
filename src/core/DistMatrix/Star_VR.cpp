@@ -46,7 +46,7 @@ elemental::DistMatrix<R,Star,VR>::SetToRandomHPD()
     if( this->Height() != this->Width() )
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int height = this->Height();
     const int localWidth = this->LocalWidth();
     const int p = g.Size();
@@ -81,7 +81,7 @@ elemental::DistMatrix<complex<R>,Star,VR>::SetToRandomHPD()
     if( this->Height() != this->Width() )
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int height = this->Height();
     const int localWidth = this->LocalWidth();
     const int p = g.Size();
@@ -116,7 +116,7 @@ elemental::DistMatrix<complex<R>,Star,VR>::GetReal
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     R u;
@@ -144,7 +144,7 @@ elemental::DistMatrix<complex<R>,Star,VR>::GetImag
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     R u;
@@ -170,7 +170,7 @@ elemental::DistMatrix<complex<R>,Star,VR>::SetReal
     PushCallStack("[* ,VR]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -193,7 +193,7 @@ elemental::DistMatrix<complex<R>,Star,VR>::SetImag
     PushCallStack("[* ,VR]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->GetGrid();
+    const Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )

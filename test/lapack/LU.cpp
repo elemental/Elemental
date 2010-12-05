@@ -56,7 +56,7 @@ void TestCorrectness
   const DistMatrix<int,VC,Star>& p,
   const DistMatrix<T,MC,MR>& AOrig )
 {
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
     const int m = AOrig.Height();
     DistMatrix<int,Star,Star> p_Star_Star(g);
     vector<int> image;

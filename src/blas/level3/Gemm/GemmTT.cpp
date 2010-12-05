@@ -45,7 +45,7 @@ elemental::blas::internal::GemmTT
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmTT");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfA == Normal || orientationOfB == Normal )
         throw logic_error( "GemmTT expects A and B to be transposed." );
@@ -87,7 +87,7 @@ elemental::blas::internal::GemmTTA
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmTTA");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfA == Normal || orientationOfB == Normal )
         throw logic_error
@@ -104,7 +104,7 @@ elemental::blas::internal::GemmTTA
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> BT(g),  B0(g),
@@ -187,7 +187,7 @@ elemental::blas::internal::GemmTTB
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmTTB");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfA == Normal || orientationOfB == Normal )
         throw logic_error
@@ -204,7 +204,7 @@ elemental::blas::internal::GemmTTB
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> AL(g), AR(g),
@@ -287,7 +287,7 @@ elemental::blas::internal::GemmTTC
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::GemmTTC");
-    if( A.GetGrid() != B.GetGrid() || B.GetGrid() != C.GetGrid() )
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( orientationOfA == Normal || orientationOfB == Normal )
         throw logic_error
@@ -304,7 +304,7 @@ elemental::blas::internal::GemmTTC
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> AT(g),  A0(g),

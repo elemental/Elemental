@@ -49,7 +49,7 @@ elemental::blas::internal::TrmmLUT
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TrmmLUT");
-    if( U.GetGrid() != X.GetGrid() )
+    if( U.Grid() != X.Grid() )
         throw logic_error( "U and X must be distributed over the same grid." );
     if( orientation == Normal )
         throw logic_error( "TrmmLUT expects a (Conjugate)Transpose option." );
@@ -62,7 +62,7 @@ elemental::blas::internal::TrmmLUT
         throw logic_error( msg.str() );
     }
 #endif
-    const Grid& g = U.GetGrid();
+    const Grid& g = U.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR> 

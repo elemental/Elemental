@@ -45,7 +45,7 @@ elemental::lapack::internal::TridiagU
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 
     // Matrix views 
     DistMatrix<R,MC,MR> 
@@ -117,10 +117,10 @@ elemental::lapack::internal::TridiagU
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TridiagU");
-    if( A.GetGrid() != t.GetGrid() )
+    if( A.Grid() != t.Grid() )
         throw logic_error( "A and t must be distributed over the same grid." );
 #endif
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
 #ifndef RELEASE
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );

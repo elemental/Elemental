@@ -77,7 +77,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -87,7 +87,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -168,7 +168,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -178,7 +178,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -242,7 +242,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -252,7 +252,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -316,7 +316,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -326,7 +326,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -406,7 +406,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -416,7 +416,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -480,7 +480,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -490,7 +490,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -554,7 +554,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -564,7 +564,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -628,7 +628,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -638,7 +638,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -702,7 +702,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -712,7 +712,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -776,7 +776,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -786,7 +786,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     T globalDot;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -850,7 +850,7 @@ elemental::blas::internal::Dot
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::Dot");
-    if( x.GetGrid() != y.GetGrid() )
+    if( x.Grid() != y.Grid() )
         throw logic_error( "x and y must be distributed over the same grid." );
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
@@ -860,7 +860,7 @@ elemental::blas::internal::Dot
     if( xLength != yLength )
         throw logic_error( "Dot requires x and y to be the same length." );
 #endif
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     DistMatrix<T,Star,Star> xRedist(g);
     xRedist = x;

@@ -46,7 +46,7 @@ elemental::blas::Nrm2
         throw logic_error( "x must be a vector." );
 #endif
     R norm;
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     if( x.Width() == 1 )
     {
@@ -96,7 +96,7 @@ elemental::blas::Nrm2
         throw logic_error( "x must be a vector." );
 #endif
     R norm;
-    const Grid& g = x.GetGrid();
+    const Grid& g = x.Grid();
 
     if( x.Width() == 1 )
     {

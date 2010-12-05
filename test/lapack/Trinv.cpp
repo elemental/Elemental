@@ -59,7 +59,7 @@ void TestCorrectness
   const DistMatrix<T,MC,MR>& A,
   const DistMatrix<T,MC,MR>& AOrig )
 {
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
     DistMatrix<T,MC,MR> X(m,100,g);

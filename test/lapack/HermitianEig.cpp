@@ -71,7 +71,7 @@ void TestCorrectnessDouble
   const DistMatrix<double,MC,  MR>& Z,
   const DistMatrix<double,MC  ,MR>& AOrig )
 {
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
     const int n = Z.Height();
     const int k = Z.Width();
 
@@ -138,7 +138,7 @@ void TestCorrectnessDoubleComplex
   const DistMatrix<std::complex<double>,MC,  MR>& Z,
   const DistMatrix<std::complex<double>,MC  ,MR>& AOrig )
 {
-    const Grid& g = A.GetGrid();
+    const Grid& g = A.Grid();
     const int n = Z.Height();
     const int k = Z.Width();
 
