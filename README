@@ -52,7 +52,7 @@ though, on BlueGene/P, one should instead run
       mkdir PureRelease
       cd PureRelease
       cmake -DCMAKE_BUILD_TYPE=PureRelease \
-            -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-BlueGeneP-xl.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=../../cmake/Toolchain-BlueGeneP-xl.cmake \
             ../..
       make
 The CMake build system is still new, so please email jack.poulson@gmail.com with
