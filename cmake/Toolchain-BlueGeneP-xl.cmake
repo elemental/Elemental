@@ -10,6 +10,7 @@ set(CXX_PURE_RELEASE_FLAGS "-g -O4")
 set(CXX_HYBRID_DEBUG_FLAGS "-g")
 set(CXX_HYBRID_RELEASE_FLAGS "-g -O4")
 
+set(PTHREADS_C_FLAGS "-qthreaded")
 set(OpenMP_CXX_FLAGS "-qsmp=omp:noauto -qthreaded")
 
 # The remainder of the file is for linking BLAS/LAPACK functionality

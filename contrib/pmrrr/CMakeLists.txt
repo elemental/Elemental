@@ -277,9 +277,13 @@ else(FAILED_PMRRR)
   #foreach(DEF ${PTHREADS_DEFINITIONS})
   #  set(C_BASE_FLAGS "${C_BASE_FLAGS} -D${DEF}")
   #endforeach(DEF)
-  set(C_PTHREADS_FLAGS "-pthread" CACHE STRING 
-      "C compile flag for pthreads support.")
-  set(C_BASE_FLAGS "${C_BASE_FLAGS} ${C_PTHREADS_FLAGS}")
+  if(NOT PTHREADS_C_FLAGS)
+    # TODO: Make this section more robust by checking a longer list of compile
+    #       flags using CMake's builtin routines.
+    set(PTHREADS_C_FLAGS "-pthread" CACHE STRING
+        "C compilation flags for pthreads support.")
+  endif(NOT PTHREADS_C_FLAGS)
+  set(C_BASE_FLAGS "${C_BASE_FLAGS} ${PTHREADS_C_FLAGS}")
 
   # Set the various build flags
   set(CMAKE_C_FLAGS_HYBRIDDEBUG "${C_BASE_FLAGS} ${C_HYBRID_DEBUG_FLAGS}")
