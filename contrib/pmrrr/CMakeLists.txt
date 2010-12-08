@@ -30,17 +30,65 @@
 #  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 #
+project(PMRRR)
 cmake_minimum_required(VERSION 2.6)
 
-if(CMAKE_BUILD_TYPE)
-  message(STATUS "PMRRR does not use CMAKE_BUILD_TYPE.")
-endif(CMAKE_BUILD_TYPE)
-set(CMAKE_BUILD_TYPE "" CACHE INTERNAL "Removing GUI option" FORCE)
+# Elemental and PMRRR support four build modes:
+#   HybridDebug, HybridRelease, PureDebug, and PureRelease
+if(NOT (CMAKE_BUILD_TYPE STREQUAL "HybridDebug") AND
+   NOT (CMAKE_BUILD_TYPE STREQUAL "HybridRelease") AND 
+   NOT (CMAKE_BUILD_TYPE STREQUAL "PureDebug") AND
+   NOT (CMAKE_BUILD_TYPE STREQUAL "PureRelease"))
+  message(FATAL_ERROR 
+          "CMAKE_BUILD_TYPE must be one of: HybridDebug, HybridRelease, PureDebug, PureRelease")
+endif(NOT (CMAKE_BUILD_TYPE STREQUAL "HybridDebug") AND
+      NOT (CMAKE_BUILD_TYPE STREQUAL "HybridRelease") AND 
+      NOT (CMAKE_BUILD_TYPE STREQUAL "PureDebug") AND
+      NOT (CMAKE_BUILD_TYPE STREQUAL "PureRelease"))
+set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING 
+    "Choose the build type, options are: HybridDebug, HybridRelease, PureDebug, and PureRelease" 
+    FORCE)
 
 option(HAVE_SPINLOCKS "Enable if pthread lib supports spinlocks" OFF)
 MARK_AS_ADVANCED(HAVE_SPINLOCKS)
 
-set(C_OPT_FLAGS "-O3" CACHE STRING "C optimization flags")
+if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
+  set(BUILD_HYBRID TRUE)
+  set(BUILD_DEBUG TRUE)
+  set(BUILD_HYBRID_DEBUG TRUE)
+endif(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
+if(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
+  set(BUILD_HYBRID TRUE)
+  set(BUILD_RELEASE TRUE)
+  set(BUILD_HYBRID_RELEASE TRUE)
+endif(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
+if(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
+  set(BUILD_PURE TRUE)
+  set(BUILD_DEBUG TRUE)
+  set(BUILD_PURE_DEBUG TRUE)
+endif(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
+if(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
+  set(BUILD_PURE TRUE)
+  set(BUILD_RELEASE TRUE)
+  set(BUILD_PURE_RELEASE TRUE)
+endif(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
+
+if(BUILD_HYBRID_DEBUG)
+  set(C_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
+      "C optimization/debug flags for hybrid OpenMP/MPI debug build")
+endif(BUILD_HYBRID_DEBUG)
+if(BUILD_HYBRID_RELEASE)
+  set(C_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
+      "C optimization flags for hybrid OpenMP/MPI release build")
+endif(BUILD_HYBRID_RELEASE)
+if(BUILD_PURE_DEBUG)
+  set(C_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
+      "C optimization/debugging flags for pure MPI debug build")
+endif(BUILD_PURE_DEBUG)
+if(BUILD_PURE_RELEASE)
+  set(C_PURE_RELEASE_FLAGS "-O3" CACHE STRING
+      "C optimization flags for pure MPI release build")
+endif(BUILD_PURE_RELEASE)
 
 # Search the BLAS/LAPACK libs for  to test whether it is a new enough version
 # for our purposes. If the LAPACK library is version 3.1 or later, then 
@@ -75,12 +123,12 @@ else(BUILD_PURE AND NOT LAPACK_3_1)
   set(MISSING_LAPACK_3_1 FALSE)
 endif(BUILD_PURE AND NOT LAPACK_3_1)
 
-if(BUILD_HYBRID AND HAVE_OPENMP AND NOT LAPACK_3_3)
+if(BUILD_HYBRID AND NOT LAPACK_3_3)
   set(MISSING_LAPACK_3_3 TRUE)
   message(STATUS "Hybrid Elemental+PMRRR requires LAPACK >= 3.3.")
-elseif(BUILD_HYBRID AND HAVE_OPENMP AND NOT LAPACK_3_3)
+elseif(BUILD_HYBRID AND NOT LAPACK_3_3)
   set(MISSING_LAPACK_3_3 FALSE)
-endif(BUILD_HYBRID AND HAVE_OPENMP AND NOT LAPACK_3_3)
+endif(BUILD_HYBRID AND NOT LAPACK_3_3)
 
 if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
   if(NOT CMAKE_Fortran_COMPILER)
@@ -92,6 +140,28 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
   endif(NOT CMAKE_Fortran_COMPILER)
   if(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
     enable_language(Fortran)
+
+    if(BUILD_HYBRID_DEBUG)
+      set(Fortran_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
+          "Fortran optimization/debug flags for hybrid threaded/MPI debug build")
+    endif(BUILD_HYBRID_DEBUG)
+    if(BUILD_HYBRID_RELEASE)
+      set(Fortran_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
+          "Fortran optimization flags for hybrid threaded/MPI release build")
+    endif(BUILD_HYBRID_RELEASE)
+    if(BUILD_PURE_DEBUG)
+      set(Fortran_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
+          "Fortran optimization/debugging flags for pure MPI debug build")
+    endif(BUILD_PURE_DEBUG)
+    if(BUILD_PURE_RELEASE)
+      set(Fortran_PURE_RELEASE_FLAGS "-O3" CACHE STRING
+          "Fortran optimization flags for pure MPI release build")
+    endif(BUILD_PURE_RELEASE)
+
+    set(CMAKE_Fortran_FLAGS_HYBRIDDEBUG ${Fortran_HYBRID_DEBUG_FLAGS})
+    set(CMAKE_Fortran_FLAGS_HYBRIDRELEASE ${Fortran_HYBRID_RELEASE_FLAGS})
+    set(CMAKE_Fortran_FLAGS_PUREDEBUG ${Fortran_PURE_DEBUG_FLAGS})
+    set(CMAKE_Fortran_FLAGS_PURERELEASE ${Fortran_PURE_RELEASE_FLAGS})
 
     # Now determine the way C should interface with our Fortran addons. 
     get_filename_component(Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
@@ -120,28 +190,70 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
     target_link_libraries(lapack-addons ${LAPACK_ADDONS_LINK_LIBS})
   else(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
     if(MISSING_LAPACK_3_1)
-      set(FAILED_PURE_PMRRR TRUE)
-      set(FAILED_HYBRID_PMRRR TRUE)
-      set(FAILED_PURE_PMRRR TRUE PARENT_SCOPE)
-      set(FAILED_HYBRID_PMRRR TRUE PARENT_SCOPE)
+      set(FAILED_PMRRR TRUE)
+      set(FAILED_PMRRR TRUE PARENT_SCOPE)
       message(STATUS "Fortran compiler not found; we cannot build PMRRR")
     else(MISSING_LAPACK_3_1)
-      set(FAILED_HYBRID_PMRRR TRUE)
-      set(FAILED_HYBRID_PMRRR TRUE PARENT_SCOPE)
+      set(FAILED_PMRRR TRUE)
+      set(FAILED_PMRRR TRUE PARENT_SCOPE)
       message(STATUS "Fortran compiler not found; we cannot build hybrid PMRRR")
-      # Salvage the pure PMRRR build without a Fortran compiler
-      set(MISSING_LAPACK_3_3 FALSE)
     endif(MISSING_LAPACK_3_1)
   endif(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
 endif(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
 
-if(FAILED_PURE_PMRRR)
+if(FAILED_PMRRR)
   # Do nothing, we are falling back to building Elemental without PMRRR
-else(FAILED_PURE_PMRRR)
+else(FAILED_PMRRR)
   # Add in the preprocessor definitions 
   if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
     set(C_BASE_FLAGS "${F_FROM_C_DEFS}")
   else(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
+    # Determine the BLAS/LAPACK underscore conventions if necessary
+    if(NOT PURE_BLAS_DEFS OR NOT PURE_LAPACK_DEFS)
+      set(CMAKE_REQUIRED_LIBRARIES ${PURE_BLAS_LAPACK_LIBS})
+      check_function_exists(daxpy HAVE_DAXPY)
+      if(HAVE_DAXPY)
+        set(PURE_BLAS_DEFS "")
+      else(HAVE_DAXPY)
+        check_function_exists(daxpy_ HAVE_DAXPY_PRE)
+        if(HAVE_DAXPY_PRE)
+          set(PURE_BLAS_DEFS "-DBLAS_PRE")
+        else(HAVE_DAXPY_PRE)
+          check_function_exists(daxpy_ HAVE_DAXPY_POST)
+          if(HAVE_DAXPY_POST)
+            set(PURE_BLAS_DEFS "-DBLAS_POST")
+          else(HAVE_DAXPY_POST)
+            check_function_exists(_daxpy_ HAVE_DAXPY_PRE_POST)
+            if(HAVE_DAXPY_PRE_POST)
+              set(PURE_BLAS_DEFS "-DBLAS_PRE -DBLAS_POST")
+            else(HAVE_DAXPY_PRE_POST)
+              message(FATAL_ERROR "Could not determine BLAS format.")
+            endif(HAVE_DAXPY_PRE_POST)
+          endif(HAVE_DAXPY_POST)
+        endif(HAVE_DAXPY_PRE)
+      endif(HAVE_DAXPY)
+      check_function_exists(dpotrf HAVE_DPOTRF)
+      if(HAVE_DPOTRF)
+        set(PURE_LAPACK_DEFS "")
+      else(HAVE_DPOTRF)
+        check_function_exists(_dpotrf HAVE_DPOTRF_PRE)
+        if(HAVE_DPOTRF_PRE)
+          set(PURE_LAPACK_DEFS "-DLAPACK_PRE")
+        else(HAVE_DPOTRF_PRE)
+          check_function_exists(dpotrf_ HAVE_DPOTRF_POST)
+          if(HAVE_DPOTRF_POST)
+            set(PURE_LAPACK_DEFS "-DLAPACK_POST")
+          else(HAVE_DPOTRF_POST)
+            check_function_exists(_dpotrf_ HAVE_DPOTRF_PRE_POST)
+            if(HAVE_DPOTRF_PRE_POST)
+              set(PURE_LAPACK_DEFS "-DLAPACK_PRE -DLAPACK_POST")
+            else(HAVE_DPOTRF_PRE_POST)
+              message(FATAL_ERROR "Could not determine LAPACK format.")
+            endif(HAVE_DPOTRF_PRE_POST)
+          endif(HAVE_DPOTRF_POST)
+        endif(HAVE_DPOTRF_PRE)
+      endif(HAVE_DPOTRF)
+    endif(NOT PURE_BLAS_DEFS OR NOT PURE_LAPACK_DEFS)
     set(C_BASE_FLAGS "${PURE_BLAS_DEFS} ${PURE_LAPACK_DEFS}")
   endif(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
   if(NOT HAVE_SPINLOCKS)
@@ -153,21 +265,11 @@ else(FAILED_PURE_PMRRR)
   file(GLOB_RECURSE PMRRR_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
   set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
 
-  # Search for the MPI C compiler
-  if(MPI_C_COMPILER AND NOT EXISTS ${MPI_C_COMPILER})
-    message(SEND_ERROR
-            "Invalid MPI_C_COMPILER: ${MPI_C_COMPILER} does not exist.")
-  endif(MPI_C_COMPILER AND NOT EXISTS ${MPI_C_COMPILER})
-  if(NOT MPI_C_COMPILER)
-    find_program(MPI_C_COMPILER mpicc mpixlc mpixlc_r 
-      DOC "Full path to MPI C compiler. If blank, CMake will search for it.")
-    if(NOT MPI_C_COMPILER)
-      message(SEND_ERROR 
-        "Could not find MPI C compiler. Please manually set MPI_C_COMPILER.")
-    endif(NOT MPI_C_COMPILER)
-  endif(NOT MPI_C_COMPILER)
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  
+  # Try to check if we have an MPI C compiler specified
+  if(NOT (CMAKE_C_COMPILER MATCHES "mpi"))
+    message(WARNING "C compiler, ${CMAKE_C_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CC or through the '-DCMAKE_C_COMPILER' cmake flag. You should probably also clean this build folder first.")
+  endif(NOT (CMAKE_C_COMPILER MATCHES "mpi"))
+    
   # Findpthreads.cmake does not seem to be standard
   #
   #find_package(pthreads REQUIRED)
@@ -177,22 +279,20 @@ else(FAILED_PURE_PMRRR)
   #endforeach(DEF)
   set(C_PTHREADS_FLAGS "-pthread" CACHE STRING 
       "C compile flag for pthreads support.")
+  set(C_BASE_FLAGS "${C_BASE_FLAGS} ${C_PTHREADS_FLAGS}")
+
+  # Set the various build flags
+  set(CMAKE_C_FLAGS_HYBRIDDEBUG "${C_BASE_FLAGS} ${C_HYBRID_DEBUG_FLAGS}")
+  set(CMAKE_C_FLAGS_HYBRIDRELEASE "${C_BASE_FLAGS} ${C_HYBRID_RELEASE_FLAGS}")
+  set(CMAKE_C_FLAGS_PUREDEBUG "${C_BASE_FLAGS} ${C_PURE_DEBUG_FLAGS}")
+  set(CMAKE_C_FLAGS_PURERELEASE "${C_BASE_FLAGS} ${C_PURE_RELEASE_FLAGS}")
 
   include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-  set(CMAKE_C_FLAGS "${C_BASE_FLAGS} ${C_OPT_FLAGS} ${C_PTHREADS_FLAG}")
-  set(CMAKE_Fortran_FLAGS "${FORTRAN_OPT_FLAGS}")
   if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
-    add_library(pmrrr-pure STATIC ${PMRRR_SRC})
-    target_link_libraries(pmrrr-pure lapack-addons)
-    if(BUILD_HYBRID AND HAVE_OPENMP AND NOT FAILED_HYBRID_PMRRR)
-      add_library(pmrrr-hybrid STATIC ${PMRRR_SRC})
-      target_link_libraries(pmrrr-hybrid lapack-addons)
-    endif(BUILD_HYBRID AND HAVE_OPENMP AND NOT FAILED_HYBRID_PMRRR)
+    add_library(pmrrr STATIC ${PMRRR_SRC})
+    target_link_libraries(pmrrr lapack-addons)
   else(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
-    add_library(pmrrr-pure STATIC ${PMRRR_SRC})
-    if(BUILD_HYBRID AND HAVE_OPENMP AND NOT FAILED_HYBRID_PMRRR)
-      add_library(pmrrr-hybrid STATIC ${PMRRR_SRC})
-    endif(BUILD_HYBRID AND HAVE_OPENMP AND NOT FAILED_HYBRID_PMRRR)
+    add_library(pmrrr STATIC ${PMRRR_SRC})
   endif(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
-endif(FAILED_PURE_PMRRR)
+endif(FAILED_PMRRR)
 

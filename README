@@ -28,23 +28,35 @@ Build
 =====
 There is now a CMake [http://www.cmake.org] build script which supports building
 with and without PMRRR and attempts to search for the appropriate BLAS/LAPACK 
-configurations. The recommended CMake build method is to run:
+configurations. The four build-modes are:
+- HybridDebug
+- HybridRelease
+- PureDebug
+- PureRelease
+Each should be built within its own separate build directory. For instance, 
+to build the pure-MPI release library with the C++ MPI compiler /usr/bin/mpicxx
+and the C MPI compiler /usr/bin/mpicc:
       cd elemental
       mkdir build
       cd build
-      cmake -i ..
+      mkdir PureRelease
+      cd PureRelease
+      cmake -DCMAKE_BUILD_TYPE=PureRelease \
+            -DCMAKE_CXX_COMPILER=/usr/bin/mpicxx \
+            -DCMAKE_C_COMPILER=/usr/bin/mpicxx ../..
+      make
 though, on BlueGene/P, one should instead run
       cd elemental
       mkdir build
       cd build
-      cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-BlueGeneP-xl.cmake ..
-Afterwards, simply run 
+      mkdir PureRelease
+      cd PureRelease
+      cmake -DCMAKE_BUILD_TYPE=PureRelease \
+            -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-BlueGeneP-xl.cmake \
+            ../..
       make
-in order to build the library/libraries. The CMake build system is still new,
-so please email jack.poulson@gmail.com with any build problems or comments.
-
-If possible, both a pure MPI and hybrid OpenMP/MPI version of the library will 
-be built.
+The CMake build system is still new, so please email jack.poulson@gmail.com with
+any build problems or comments.
 
 Tuning
 ======
