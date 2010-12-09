@@ -26,8 +26,8 @@ set(XLF_LIBS "-L${XLF_BASE} -lxlfmath -lxlf90_r")
 set(XLOMP_SER "-L${XLSMP_BASE} -lxlomp_ser")
 set(XLSMP "-L${XLSMP_BASE} -lxlsmp")
 
-set(PURE_BLAS_LAPACK_LIBS 
+set(PURE_MATH_LIBS 
     "${BGP_LAPACK};${PURE_ESSL};${XLF_LIBS};${XLOMP_SER}")
-set(HYBRID_BLAS_LAPACK_LIBS 
+set(HYBRID_MATH_LIBS 
     "${BGP_LAPACK};${THREADED_ESSL};${XLF_LIBS};${XLSMP}")
 
