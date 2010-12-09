@@ -19,12 +19,12 @@ set(IBMCMP_BASE "/soft/apps/ibmcmp-aug2010")
 set(XLF_BASE "${IBMCMP_BASE}/xlf/bg/11.1/bglib")
 set(XLSMP_BASE "${IBMCMP_BASE}/xlsmp/bg/1.7/bglib")
 
-set(BGP_LAPACK "/soft/apps/LAPACK/liblapack_bgp.a")
-set(PURE_ESSL "${ESSL_BASE}/lib/libesslbg.a")
-set(THREADED_ESSL "${ESSL_BASE}/lib/libesslsmpbg.a")
-set(XLF_LIBS "${XLF_BASE}/libxlfmath.a;${XLF_BASE}/libxlf90_r.a")
-set(XLOMP_SER "${XLSMP_BASE}/libxlomp_ser.a")
-set(XLSMP "${XLSMP_BASE}/libxlsmp.a")
+set(BGP_LAPACK "-L/soft/apps/LAPACK -llapack_bgp")
+set(PURE_ESSL "-L${ESSL_BASE}/lib -lesslbg")
+set(THREADED_ESSL "-L${ESSL_BASE}/lib -lesslsmpbg")
+set(XLF_LIBS "-L${XLF_BASE} -lxlfmath -lxlf90_r")
+set(XLOMP_SER "-L${XLSMP_BASE} -lxlomp_ser")
+set(XLSMP "-L${XLSMP_BASE} -lxlsmp")
 
 set(PURE_BLAS_LAPACK_LIBS 
     "${BGP_LAPACK};${PURE_ESSL};${XLF_LIBS};${XLOMP_SER}")
