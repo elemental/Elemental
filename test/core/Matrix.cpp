@@ -91,9 +91,10 @@ int main( int argc, char* argv[] )
     }
     try
     {
-        int m = atoi(argv[1]);
-        int n = atoi(argv[2]);
-        int ldim = atoi(argv[3]);
+        int argNum = 0;
+        int m = atoi(argv[++argNum]);
+        int n = atoi(argv[++argNum]);
+        int ldim = atoi(argv[++argNum]);
 
         if( rank == 0 )
         {

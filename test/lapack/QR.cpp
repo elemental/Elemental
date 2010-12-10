@@ -323,13 +323,14 @@ int main( int argc, char* argv[] )
     }
     try
     {
-        const int r = atoi(argv[1]);
-        const int c = atoi(argv[2]);
-        const int m = atoi(argv[3]);
-        const int n = atoi(argv[4]);
-        const int nb = atoi(argv[5]);
-        const bool testCorrectness = atoi(argv[6]);
-        const bool printMatrices = atoi(argv[7]);
+        int argNum = 0;
+        const int r = atoi(argv[++argNum]);
+        const int c = atoi(argv[++argNum]);
+        const int m = atoi(argv[++argNum]);
+        const int n = atoi(argv[++argNum]);
+        const int nb = atoi(argv[++argNum]);
+        const bool testCorrectness = atoi(argv[++argNum]);
+        const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
         if( rank == 0 )
         {

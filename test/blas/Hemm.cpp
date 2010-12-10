@@ -225,15 +225,16 @@ int main( int argc, char* argv[] )
     }
     try
     {
-        const int   r = atoi(argv[1]);
-        const int   c = atoi(argv[2]);
-        const Side  side = CharToSide(*argv[3]);
-        const Shape shape = CharToShape(*argv[4]);
-        const int   m = atoi(argv[5]);
-        const int   n = atoi(argv[6]);
-        const int   nb = atoi(argv[7]);
-        const bool  testCorrectness = atoi(argv[8]);
-        const bool  printMatrices = atoi(argv[9]);
+        int argNum = 0;
+        const int r = atoi(argv[++argNum]);
+        const int c = atoi(argv[++argNum]);
+        const Side side = CharToSide(*argv[++argNum]);
+        const Shape shape = CharToShape(*argv[++argNum]);
+        const int m = atoi(argv[++argNum]);
+        const int n = atoi(argv[++argNum]);
+        const int nb = atoi(argv[++argNum]);
+        const bool testCorrectness = atoi(argv[++argNum]);
+        const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
         if( rank == 0 )
         {

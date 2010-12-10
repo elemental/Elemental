@@ -344,16 +344,17 @@ main( int argc, char* argv[] )
     }
     try
     {
-        const int r = atoi(argv[1]);
-        const int c = atoi(argv[2]);
-        const Side side = CharToSide(*argv[3]);
-        const Shape shape = CharToShape(*argv[4]);
-        const Orientation orientation = CharToOrientation(*argv[5]);
-        const int m = atoi(argv[6]);
-        const int offset = atoi(argv[7]);
-        const int nb = atoi(argv[8]);
-        const bool testCorrectness = atoi(argv[9]);
-        const bool printMatrices = atoi(argv[10]);
+        int argNum = 0;
+        const int r = atoi(argv[++argNum]);
+        const int c = atoi(argv[++argNum]);
+        const Side side = CharToSide(*argv[++argNum]);
+        const Shape shape = CharToShape(*argv[++argNum]);
+        const Orientation orientation = CharToOrientation(*argv[++argNum]);
+        const int m = atoi(argv[++argNum]);
+        const int offset = atoi(argv[++argNum]);
+        const int nb = atoi(argv[++argNum]);
+        const bool testCorrectness = atoi(argv[++argNum]);
+        const bool printMatrices = atoi(argv[++argNum]);
         if( shape == Lower && offset > 0 )
         {
             throw std::runtime_error

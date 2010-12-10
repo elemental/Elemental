@@ -309,10 +309,11 @@ int main( int argc, char* argv[] )
         Finalize();
         return 0;
     }
-    const int r = atoi(argv[1]);
-    const int c = atoi(argv[2]);
-    const int m = atoi(argv[3]);
-    const int n = atoi(argv[4]);
+    int argNum = 0;
+    const int r = atoi(argv[++argNum]);
+    const int c = atoi(argv[++argNum]);
+    const int m = atoi(argv[++argNum]);
+    const int n = atoi(argv[++argNum]);
 #ifndef RELEASE
     if( rank == 0 )
     {

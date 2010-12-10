@@ -735,35 +735,38 @@ int main( int argc, char* argv[] )
     }
     try
     {
-        const int r = atoi(argv[1]);
-        const int c = atoi(argv[2]);
-        const int genEigInt = atoi(argv[3]);
-        const bool onlyEigenvalues = atoi(argv[4]);
-        const char range = *argv[5];
+        int argNum = 0;
+        const int r = atoi(argv[++argNum]);
+        const int c = atoi(argv[++argNum]);
+        const int genEigInt = atoi(argv[++argNum]);
+        const bool onlyEigenvalues = atoi(argv[++argNum]);
+        const char range = *argv[++argNum];
         if( range != 'A' && range != 'I' && range != 'V' )
             throw std::runtime_error("'range' must be 'A', 'I', or 'V'");
         double vl = 0, vu = 0;
         int il = 0, iu = 0;
         if( range == 'I' )
         {
-            il = atoi(argv[6]);
-            iu = atoi(argv[7]);
+            il = atoi(argv[++argNum]);
+            iu = atoi(argv[++argNum]);
         }
         else if( range == 'V' )
         {
-            vl = atof(argv[6]);
-            vu = atof(argv[7]);
+            vl = atof(argv[++argNum]);
+            vu = atof(argv[++argNum]);
         }
-        const bool tryForHighAccuracy = atoi(argv[8]);
-        const Shape shape = CharToShape(*argv[9]);
-        const int m = atoi(argv[10]);
-        const int nb = atoi(argv[11]);
-        const int nbLocalHemvDouble = atoi(argv[12]);
+        const bool tryForHighAccuracy = atoi(argv[++argNum]);
+        const Shape shape = CharToShape(*argv[++argNum]);
+        const int m = atoi(argv[++argNum]);
+        const int nb = atoi(argv[++argNum]);
+        const int nbLocalHemvDouble = atoi(argv[++argNum]);
 #ifndef WITHOUT_COMPLEX
-        const int nbLocalHemvComplexDouble = atoi(argv[13]);
+        const int nbLocalHemvComplexDouble = atoi(argv[++argNum]);
+#else
+        ++argNum;
 #endif
-        const bool testCorrectness = atoi(argv[14]);
-        const bool printMatrices = atoi(argv[15]);
+        const bool testCorrectness = atoi(argv[++argNum]);
+        const bool printMatrices = atoi(argv[++argNum]);
 
         if( testCorrectness && onlyEigenvalues && rank==0 )
             cout << "Cannot test correctness with only eigenvalues." << endl;
