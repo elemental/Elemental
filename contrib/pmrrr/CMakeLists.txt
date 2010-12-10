@@ -167,8 +167,10 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
     get_filename_component(Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
     set(LAPACK_ADDONS_LINK_LIBS "")
     if(Fortran_COMPILER_NAME STREQUAL "gfortran")
-      # gfortran should append an underscore by default
-      set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
+      if(NOT F_FROM_C_DEFS)
+        # gfortran should append an underscore by default
+        set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
+      endif(NOT F_FROM_C_DEFS)
       if(APPLE)
         find_library(GFORTRAN_LIB gfortran)
         if(GFORTRAN_LIB)
@@ -177,10 +179,19 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
           message(FATAL_ERROR "Could not find gfortran library")
         endif(GFORTRAN_LIB)
       endif(APPLE)
+    elseif(Fortran_COMPILER_NAME STREQUAL "bgxlf_r" OR
+           Fortran_COMPILER_NAME STREQUAL "bgxlf" OR
+           Fortran_COMPILER_NAME STREQUAL "xlf" OR
+           Fortran_COMPILER_NAME STREQUAL "xlf_r")
+      if(NOT F_FROM_C_DEFS)
+        set(F_FROM_C_DEFS "")
+      endif(NOT F_FROM_C_DEFS)
     else(Fortran_COMPILER_NAME STREQUAL "gfortran")
-      # The list of other compiler options should grow quickly. It is best
+      # The list of other compiler options should grow quickly. It is best      
       # to default to assuming an appended underscore.
-      set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
+      if(NOT F_FROM_C_DEFS) 
+        set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
+      endif(NOT F_FROM_C_DEFS)
     endif(Fortran_COMPILER_NAME STREQUAL "gfortran")
     set(F_FROM_C_DEFS "${F_FROM_C_DEFS} -DPREPEND_X")
     
