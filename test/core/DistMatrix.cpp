@@ -78,7 +78,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     A_Star_Star = A;
     B_Star_Star = B;
 
-    bool sameData = true;
+    int myErrorFlag = 0;
     for( int j=0; j<width; ++j )
     {
         for( int i=0; i<height; ++i )
@@ -86,34 +86,25 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
             if( A_Star_Star.GetLocalEntry(i,j) != 
                 B_Star_Star.GetLocalEntry(i,j) )
             {
-                sameData = false;
+                myErrorFlag = 1;
                 break;
             }
         }
-        if( ! sameData )
+        if( myErrorFlag != 0 )
             break;
     }
 
-    bool everyonePassed = true;
-    int send = sameData;
-    int* recvBuf = new int[p];
-    AllGather( &send, 1, recvBuf, 1, g.VCComm() );
-    for( int i=0; i<p; ++i )
-    {
-        if( ! recvBuf[i] )
-        {
-            everyonePassed = false;
-            break;
-        }
-    }
-    delete[] recvBuf;
+    int summedErrorFlag;
+    AllReduce( &myErrorFlag, &summedErrorFlag, 1, MPI_SUM, g.VCComm() );
 
-    if( rank == 0 )
+    if( summedErrorFlag == 0 )
     {
-        if( everyonePassed )
+        if( rank == 0 )
             cout << "PASSED" << endl;
-        else
-            throw logic_error( "Redistribution failed.");
+    }
+    else
+    {
+        throw logic_error("Redistribution failed.");
     }
 #ifndef RELEASE
     PopCallStack();

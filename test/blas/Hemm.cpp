@@ -40,7 +40,7 @@ using namespace elemental::wrappers::mpi;
 void Usage()
 {
     cout << "HErmitian Matrix Matrix multiplication.\n\n"
-         << "  Hemm <r> <c> <Side> <Shape> <m> <n> <nb> <correctness?> <print?>"
+         << "  Hemm <r> <c> <Side> <Shape> <m> <n> <nb> <print?>"
          << "\n\n"
          << "  r: number of process rows\n" 
          << "  c: number of process cols\n"
@@ -49,90 +49,12 @@ void Usage()
          << "  m: height of C\n"
          << "  n: width  of C\n"
          << "  nb: algorithmic blocksize\n"
-         << "  correctness?: [0/1]\n"
          << "  print?: [0/1]\n" << endl;
 }
 
 template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1)  <= 1e-12 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-12 ); }
-#endif
-
-template<typename T>
-void TestCorrectness
-( bool printMatrices, 
-  const DistMatrix<T,MC,MR>& C,
-  Side side, Shape shape,
-  T alpha, const DistMatrix<T,Star,Star>& A_ref,
-           const DistMatrix<T,Star,Star>& B_ref,
-  T beta,        DistMatrix<T,Star,Star>& C_ref )
-{
-    const Grid& g = C.Grid();
-    DistMatrix<T,Star,Star> CCopy(g);
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Gathering computed result...";
-        cout.flush();
-    }
-    CCopy = C;
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    blas::Hemm
-    ( side, shape,
-      alpha, A_ref.LockedLocalMatrix(),
-             B_ref.LockedLocalMatrix(),
-      beta,  C_ref.LocalMatrix() );
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( printMatrices )
-        C_ref.Print("Truth");
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness...";
-        cout.flush();
-    }
-    for( int j=0; j<C.Width(); ++j )
-    {
-        for( int i=0; i<C.Height(); ++i )
-        {
-            T truth = C_ref.GetLocalEntry(i,j);
-            T computed = CCopy.GetLocalEntry(i,j);
-
-            if( ! OKRelativeError( truth, computed ) )
-            {
-                ostringstream msg;
-                msg << "FAILED at index (" << i << "," << j << "): truth=" 
-                    << truth << ", computed=" << computed;
-                throw logic_error( msg.str() );
-            }
-        }
-    }
-    Barrier( g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
-}
-
-template<typename T>
 void TestHemm
-( bool testCorrectness, bool printMatrices,
-  Side side, Shape shape,
+( bool printMatrices, Side side, Shape shape,
   int m, int n, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
@@ -157,19 +79,6 @@ void TestHemm
     B.SetToRandom();
     C.SetToRandom();
 
-    if( testCorrectness )
-    {
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Making copies of original matrices...";
-            cout.flush();
-        }
-        A_ref = A;
-        B_ref = B;
-        C_ref = C;
-        if( g.VCRank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( printMatrices )
     {
         A.Print("A");
@@ -203,12 +112,6 @@ void TestHemm
             msg << "C := " << alpha << " B Herm(A) + " << beta << " C";
         C.Print( msg.str() );
     }
-    if( testCorrectness )
-    {
-        TestCorrectness
-        ( printMatrices, C,
-          side, shape, alpha, A_ref, B_ref, beta, C_ref );
-    }
 }
 
 int main( int argc, char* argv[] )
@@ -216,7 +119,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 10 )
+    if( argc != 9 )
     {
         if( rank == 0 )
             Usage();
@@ -233,7 +136,6 @@ int main( int argc, char* argv[] )
         const int m = atoi(argv[++argNum]);
         const int n = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
         if( rank == 0 )
@@ -259,8 +161,7 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHemm<double>
-        ( testCorrectness, printMatrices,
-          side, shape, m, n, (double)3, (double)4, g );
+        ( printMatrices, side, shape, m, n, (double)3, (double)4, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -270,8 +171,7 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHemm<dcomplex>
-        ( testCorrectness, printMatrices,
-          side, shape, m, n, (dcomplex)3, (dcomplex)4, g );
+        ( printMatrices, side, shape, m, n, (dcomplex)3, (dcomplex)4, g );
 #endif
     }
     catch( exception& e )

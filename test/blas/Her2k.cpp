@@ -40,8 +40,7 @@ using namespace elemental::wrappers::mpi;
 void Usage()
 {
     cout << "HErmitian Rank-2K update.\n\n"
-         << "  Her2k <r> <c> <shape> <trans?> <m> <k> <nb> <correctness?> "
-         << "<print?>\n\n" 
+         << "  Her2k <r> <c> <shape> <trans?> <m> <k> <nb> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  shape?: {L,U}\n"
@@ -49,112 +48,12 @@ void Usage()
          << "  m: height of C\n"
          << "  k: inner dimension\n"
          << "  nb: algorithmic blocksize\n"
-         << "  correctness?: false iff 0\n"
          << "  print?: false iff 0\n" << endl;
 }
 
 template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-12 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-12 ); }
-#endif
-
-template<typename T>
-void TestCorrectness
-( bool printMatrices,
-  const DistMatrix<T,MC,MR>& C,
-  Shape shape, Orientation orientation,
-  T alpha, const DistMatrix<T,Star,Star>& ARef,
-           const DistMatrix<T,Star,Star>& BRef,
-  T beta,        DistMatrix<T,Star,Star>& CRef )
-{
-    const Grid& g = C.Grid();
-    DistMatrix<T,Star,Star> CCopy(g);
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Gathering computed result...";
-        cout.flush();
-    }
-    CCopy = C;
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    blas::Her2k
-    ( shape, orientation,
-      alpha, ARef.LockedLocalMatrix(),
-             BRef.LockedLocalMatrix(),
-      beta,  CRef.LocalMatrix() );
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( printMatrices )
-        CRef.Print("Truth:");
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness...";
-        cout.flush();
-    }
-    if( shape == Lower )
-    {
-        for( int j=0; j<C.Width(); ++j )
-        {
-            for( int i=j; i<C.Height(); ++i )
-            {
-                T truth = CRef.GetLocalEntry(i,j);
-                T computed = CCopy.GetLocalEntry(i,j);
-
-                if( ! OKRelativeError( truth, computed ) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j << "): truth="
-                        << truth << ", computed=" << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
-        }
-    }
-    else
-    {
-        for( int j=0; j<C.Width(); ++j )
-        {
-            for( int i=0; i<=j; ++i )
-            {
-                T truth = CRef.GetLocalEntry(i,j);
-                T computed = CCopy.GetLocalEntry(i,j);
-
-                if( ! OKRelativeError( truth, computed ) )
-                {
-                    ostringstream msg;
-                    msg << "FAILED at index (" << i << "," << j << "): truth="
-                        << truth << ", computed=" << computed;
-                    throw logic_error( msg.str() );
-                }
-            }
-        }
-    }
-    Barrier( g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
-}
-
-template<typename T>
 void TestHer2k
-( bool testCorrectness, bool printMatrices,
-  Shape shape, Orientation orientation,
+( bool printMatrices, Shape shape, Orientation orientation,
   int m, int k, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
@@ -181,19 +80,6 @@ void TestHer2k
     A.SetToRandom();
     B.SetToRandom();
     C.SetToRandomHPD();
-    if( testCorrectness )
-    {
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Making copies of original matrices...";
-            cout.flush();
-        }
-        ARef = A;
-        BRef = B;
-        CRef = C;
-        if( g.VCRank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( printMatrices )
     {
         A.Print("A");
@@ -227,12 +113,6 @@ void TestHer2k
             msg << "C := " << alpha << " A' B + B' A" << beta << " C";
         C.Print( msg.str() );
     }
-    if( testCorrectness )
-    {
-        TestCorrectness
-        ( printMatrices, C,
-          shape, orientation, alpha, ARef, BRef, beta, CRef );
-    }
 }
 
 int main( int argc, char* argv[] )
@@ -240,7 +120,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 10 )
+    if( argc != 9 )
     {
         if( rank == 0 )
             Usage();
@@ -257,7 +137,6 @@ int main( int argc, char* argv[] )
         const int m = atoi(argv[++argNum]);
         const int k = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
         if( rank == 0 )
@@ -283,8 +162,8 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHer2k<double>
-        ( testCorrectness, printMatrices,
-          shape, orientation, m, k, (double)3, (double)4, g );
+        ( printMatrices, shape, orientation, 
+          m, k, (double)3, (double)4, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -294,8 +173,8 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHer2k<dcomplex>
-        ( testCorrectness, printMatrices,
-          shape, orientation, m, k, (dcomplex)3, (dcomplex)4, g );
+        ( printMatrices, shape, orientation, 
+          m, k, (dcomplex)3, (dcomplex)4, g );
 #endif
     }
     catch( exception& e )

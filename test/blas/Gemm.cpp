@@ -40,8 +40,8 @@ using namespace elemental::wrappers::mpi;
 void Usage()
 {
     cout << "GEneral Matrix Matrix multiplication.\n\n"
-         << "  Gemm <r> <c> <orient. of A?> <orient. of B?> <m> <n> <k> <nb>\n" 
-         << "       <correctness?> <print?>\n\n"
+         << "  Gemm <r> <c> <orient. of A?> <orient. of B?> <m> <n> <k> <nb> " 
+            "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  orient. of A: {N,T,C}\n"
@@ -50,174 +50,12 @@ void Usage()
          << "  n: width  of C\n"
          << "  k: inner dimension of AB\n"
          << "  nb: algorithmic blocksize\n"
-         << "  correctness?: [0/1]\n"
          << "  print?: [0/1]\n" << endl; 
 }
 
 template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1)  <= 1e-12 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-12 ); }
-#endif
-
-template<typename T>
-void TestCorrectness
-( bool printMatrices,
-  const DistMatrix<T,MC,MR>& C,
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T,Star,Star>& ARef,
-           const DistMatrix<T,Star,Star>& BRef,
-  T beta,        DistMatrix<T,Star,Star>& CRef )
-{
-    const Grid& g = C.Grid();
-    DistMatrix<T,Star,Star> CCopy(g);
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Gathering computed result...";
-        cout.flush();
-    }
-    CCopy = C;
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    blas::internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, ARef, BRef, beta, CRef );
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( printMatrices )
-        CRef.Print("Truth");
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness...";
-        cout.flush();
-    }
-    for( int j=0; j<C.Width(); ++j )
-    {
-        for( int i=0; i<C.Height(); ++i )
-        {
-            T truth = CRef.GetLocalEntry(i,j);
-            T computed = CCopy.GetLocalEntry(i,j);
-
-            if( ! OKRelativeError( truth, computed ) )
-            {
-                ostringstream msg;
-                msg << "FAILED at index (" << i << "," << j << "): truth="
-                    << truth << ", computed=" << computed << ", error="
-                    << Abs(truth-computed) << endl;
-                throw logic_error( msg.str() );
-            }
-        }
-    }
-    Barrier( g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
-}
-
-template<typename T>
-void TestSerialGemm
-( bool testCorrectness, bool printMatrices,
-  Orientation orientationOfA, Orientation orientationOfB,
-  int m, int n, int k, T alpha, T beta, const Grid& g )
-{
-    double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,Star,Star> A(g);
-    DistMatrix<T,Star,Star> B(g);
-    DistMatrix<T,Star,Star> C(g);
-    DistMatrix<T,Star,Star> ARef(g);
-    DistMatrix<T,Star,Star> BRef(g);
-    DistMatrix<T,Star,Star> CRef(g);
-
-    if( orientationOfA == Normal )
-        A.ResizeTo( m, k );
-    else
-        A.ResizeTo( k, m );
-
-    if( orientationOfB == Normal )
-        B.ResizeTo( k, n );
-    else
-        B.ResizeTo( n, k );
-
-    C.ResizeTo( m, n );
-
-    if( g.VCRank() == 0 )
-        cout << "Serial Gemm:" << endl;
-    A.SetToRandom();
-    B.SetToRandom();
-    C.SetToRandom();
-    if( testCorrectness )
-    {
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Making copies of original matrices...";
-            cout.flush();
-        }
-        ARef = A;
-        BRef = B;
-        CRef = C;
-        if( g.VCRank() == 0 )
-            cout << "DONE" << endl;
-    }
-    if( printMatrices )
-    {
-        A.Print("A");
-        B.Print("B");
-        C.Print("C");
-    }
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Starting Gemm...";
-        cout.flush();
-    }
-    Barrier( g.VCComm() );
-    startTime = Time();
-    blas::Gemm
-    ( orientationOfA, orientationOfB, 
-      alpha, A.LockedLocalMatrix(), B.LockedLocalMatrix(), 
-      beta,  C.LocalMatrix()                              );
-    Barrier( g.VCComm() );
-    endTime = Time();
-    runTime = endTime - startTime;
-    gFlops = blas::internal::GemmGFlops<T>(m,n,k,runTime);
-    if( g.VCRank() == 0 )
-    {
-        cout << "DONE. " << endl 
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
-    if( printMatrices )
-    {
-        ostringstream msg;
-        msg << "C := " << alpha << " A B + " << beta << " C";
-        C.Print( msg.str() );
-    }
-    if( testCorrectness )
-    {
-        TestSerialCorrectness
-        ( printMatrices, C,
-          orientationOfA, orientationOfB, 
-          alpha, ARef, BRef, beta, CRef );
-    }
-}
-
-template<typename T>
 void TestGemm
-( bool testCorrectness, bool printMatrices,
-  Orientation orientationOfA, Orientation orientationOfB,
+( bool printMatrices, Orientation orientationOfA, Orientation orientationOfB,
   int m, int n, int k, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
@@ -246,19 +84,6 @@ void TestGemm
     A.SetToRandom();
     B.SetToRandom();
     C.SetToRandom();
-    if( testCorrectness )
-    {
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Making copies of original matrices...";
-            cout.flush();
-        }
-        ARef = A;
-        BRef = B;
-        CRef = C;
-        if( g.VCRank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( printMatrices )
     {
         A.Print("A");
@@ -290,13 +115,6 @@ void TestGemm
         msg << "C := " << alpha << " A B + " << beta << " C";
         C.Print( msg.str() );
     }
-    if( testCorrectness )
-    {
-        TestCorrectness
-        ( printMatrices, C,
-          orientationOfA, orientationOfB, 
-          alpha, ARef, BRef, beta, CRef );
-    }
 
     // Test the variant of Gemm that keeps B stationary
     if( g.VCRank() == 0 )
@@ -304,19 +122,6 @@ void TestGemm
     A.SetToRandom();
     B.SetToRandom();
     C.SetToRandom();
-    if( testCorrectness )
-    {
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Making copies of original matrices...";
-            cout.flush();
-        }
-        ARef = A;
-        BRef = B;
-        CRef = C;
-        if( g.VCRank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( printMatrices )
     {
         A.Print("A");
@@ -348,13 +153,6 @@ void TestGemm
         msg << "C := " << alpha << " A B + " << beta << " C";
         C.Print( msg.str() );
     }
-    if( testCorrectness )
-    {
-        TestCorrectness
-        ( printMatrices, C,
-          orientationOfA, orientationOfB,
-          alpha, ARef, BRef, beta, CRef );
-    }
 
     // Test the variant of Gemm that keeps C stationary
     if( g.VCRank() == 0 )
@@ -362,19 +160,6 @@ void TestGemm
     A.SetToRandom();
     B.SetToRandom();
     C.SetToRandom();
-    if( testCorrectness )
-    {
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Making copies of original matrices...";
-            cout.flush();
-        }
-        ARef = A;
-        BRef = B;
-        CRef = C;
-        if( g.VCRank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( printMatrices )
     {
         A.Print("A");
@@ -406,13 +191,6 @@ void TestGemm
         msg << "C := " << alpha << " A B + " << beta << " C";
         C.Print( msg.str() );
     }
-    if( testCorrectness )
-    {
-        TestCorrectness
-        ( printMatrices, C, 
-          orientationOfA, orientationOfB,
-          alpha, ARef, BRef, beta, CRef );
-    }
     
     if( orientationOfA == Normal && orientationOfB == Normal )
     {
@@ -422,19 +200,6 @@ void TestGemm
         A.SetToRandom();
         B.SetToRandom();
         C.SetToRandom();
-        if( testCorrectness )
-        {
-            if( g.VCRank() == 0 )
-            {
-                cout << "  Making copies of original matrices...";
-                cout.flush();
-            }
-            ARef = A;
-            BRef = B;
-            CRef = C;
-            if( g.VCRank() == 0 )
-                cout << "DONE" << endl;
-        }
         if( printMatrices )
         {
             A.Print("A");
@@ -466,13 +231,6 @@ void TestGemm
             msg << "C := " << alpha << " A B + " << beta << " C";
             C.Print( msg.str() );
         }
-        if( testCorrectness )
-        {
-            TestCorrectness
-            ( printMatrices, C,
-              orientationOfA, orientationOfB,
-              alpha, ARef, BRef, beta, CRef );
-        }
     }
 }
 
@@ -481,7 +239,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 11 )
+    if( argc != 10 )
     {
         if( rank == 0 )
             Usage();
@@ -499,7 +257,6 @@ int main( int argc, char* argv[] )
         const int n = atoi(argv[++argNum]);
         const int k = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
         if( rank == 0 )
@@ -510,16 +267,10 @@ int main( int argc, char* argv[] )
         }
 #endif
         Barrier( MPI_COMM_WORLD );
-        if( rank == 0 )
-            cout << "Constructing grid..." << endl;
         const Grid g( MPI_COMM_WORLD, r, c );
         Barrier( MPI_COMM_WORLD );
-        if( rank == 0 )
-            cout << "Done building grid." << endl;
         SetBlocksize( nb );
         Barrier( MPI_COMM_WORLD );
-        if( rank == 0 )
-            cout << "Done setting blocksize." << endl;
 
         if( rank == 0 )
         {
@@ -535,8 +286,7 @@ int main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestGemm<double>
-        ( testCorrectness, printMatrices,
-          orientationOfA, orientationOfB,
+        ( printMatrices, orientationOfA, orientationOfB,
           m, n, k, (double)3, (double)4, g );
 
 #ifndef WITHOUT_COMPLEX
@@ -547,8 +297,7 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestGemm<dcomplex>
-        ( testCorrectness, printMatrices,
-          orientationOfA, orientationOfB,
+        ( printMatrices, orientationOfA, orientationOfB,
           m, n, k, (dcomplex)3, (dcomplex)4, g );
 #endif
     }

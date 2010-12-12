@@ -41,7 +41,7 @@ void Usage()
 {
     cout << "SYmmetric Matrix vector multiplication.\n\n"
          << "  Symv <r> <c> <Shape> <m> <nb> <local nb double> "
-         << "<local nb complex double> <correctness?> <print?>\n\n"
+         << "<local nb complex double> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  Shape: {L,U}\n"
@@ -49,90 +49,13 @@ void Usage()
          << "  nb: algorithmic blocksize\n"
          << "  local nb double: local algorithmic blocksize for double-prec.\n"
          << "  local nb complex double: \" \" complex double-precision\n"
-         << "  correctness?: [0/1]\n"
          << "  print?: [0/1]\n" << endl;
 }
 
 template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1)  <= 1e-12 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-12 ); }
-#endif
-
-template<typename T>
-void TestCorrectness
-( bool printMatrices,
-  const DistMatrix<T,MC,MR>& y,
-  Shape shape,
-  T alpha, const DistMatrix<T,Star,Star>& ARef,
-           const DistMatrix<T,Star,Star>& xRef,
-  T beta,        DistMatrix<T,Star,Star>& yRef )
-{
-    const Grid& g = y.Grid();
-    DistMatrix<T,Star,Star> y_copy(g);
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Gathering computed result...";
-        cout.flush();
-    }
-    y_copy = y;
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    blas::Symv( shape,
-                alpha, ARef.LockedLocalMatrix(),
-                       xRef.LockedLocalMatrix(),
-                beta,  yRef.LocalMatrix()       );
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( printMatrices )
-        yRef.Print("Truth");
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness...";
-        cout.flush();
-    }
-    for( int j=0; j<y.Width(); ++j )
-    {
-        for( int i=0; i<y.Height(); ++i )
-        {
-            T truth = yRef.GetLocalEntry(i,j);
-            T computed = y_copy.GetLocalEntry(i,j);
-
-            if( ! OKRelativeError( truth, computed ) )
-            {
-                ostringstream msg;
-                msg << "FAILED at index (" << i << "," << j << "): truth="
-                     << truth << ", computed=" << computed;
-                throw logic_error( msg.str() );
-            }
-        }
-    }
-    Barrier( g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
-}
-
-template<typename T>
 void TestSymv
-( const Shape shape,
-  const int m, const T alpha, const T beta, 
-  const bool testCorrectness, const bool printMatrices, const Grid& g )
+( const Shape shape, const int m, const T alpha, const T beta, 
+  const bool printMatrices, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g);
@@ -152,19 +75,6 @@ void TestSymv
     A.SetToRandom();
     x.SetToRandom();
     y.SetToRandom();
-    if( testCorrectness )
-    {
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Making copies of original matrices...";
-            cout.flush();
-        }
-        ARef = A;
-        xRef = x;
-        yRef = y;
-        if( g.VCRank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( printMatrices )
     {
         A.Print("A");
@@ -196,11 +106,6 @@ void TestSymv
         msg << "y := " << alpha << " Symm(A) x + " << beta << " y";
         y.Print( msg.str() );
     }
-    if( testCorrectness )
-    {
-        TestCorrectness
-        ( printMatrices, y, shape, alpha, ARef, xRef, beta, yRef );
-    }
 }
 
 int main( int argc, char* argv[] )
@@ -208,7 +113,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 10 )
+    if( argc != 9 )
     {
         if( rank == 0 )
             Usage();
@@ -229,7 +134,6 @@ int main( int argc, char* argv[] )
 #else
         ++argNum;
 #endif
-        const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
         if( rank == 0 )
@@ -256,7 +160,7 @@ int main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestSymv<double>
-        ( shape, m, (double)3, (double)4, testCorrectness, printMatrices, g );
+        ( shape, m, (double)3, (double)4, printMatrices, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -266,8 +170,7 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestSymv<dcomplex>
-        ( shape, m, (dcomplex)3, (dcomplex)4, testCorrectness, printMatrices,
-          g );
+        ( shape, m, (dcomplex)3, (dcomplex)4, printMatrices, g );
 #endif
     }
     catch( exception& e )

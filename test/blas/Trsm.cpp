@@ -41,7 +41,7 @@ void Usage()
 {
     cout << "TRiangular Solve with Multiple right-hand sides.\n\n"
          << "  Trsm <r> <c> <side> <shape> <orientation> <unit diag?> <m> <n> "
-            "<nb> <correctness?> <print?>\n\n"
+            "<nb> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  side: {L,R}\n"
@@ -51,88 +51,13 @@ void Usage()
          << "  m: height of right-hand sides\n"
          << "  n: number of right-hand sides\n"
          << "  nb: algorithmic blocksize\n"
-         << "  test correctness?: false iff 0\n"
          << "  print matrices?: false iff 0\n" << endl;
 }
 
 template<typename T>
-bool OKRelativeError( T truth, T computed );
-
-template<>
-bool OKRelativeError( double truth, double computed )
-{ return ( fabs(truth-computed) / max(fabs(truth),(double)1) <= 1e-12 ); }
-
-#ifndef WITHOUT_COMPLEX
-template<>
-bool OKRelativeError( dcomplex truth, dcomplex computed )
-{ return ( norm(truth-computed) / max(norm(truth),(double)1) <= 1e-12 ); }
-#endif
-
-template<typename T>
-void TestCorrectness
-( bool printMatrices,
-  const DistMatrix<T,MC,MR>& X,
-  Side side, Shape shape,
-  Orientation orientation, Diagonal diagonal,
-  T alpha, const DistMatrix<T,Star,Star>& ARef,
-                 DistMatrix<T,Star,Star>& XRef )
-{
-    const Grid& g = X.Grid();
-    DistMatrix<T,Star,Star> XCopy(g);
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Copying computed result...";
-        cout.flush();
-    }
-    XCopy = X;
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Computing 'truth'...";
-        cout.flush();
-    }
-    blas::Trsm( side, shape, orientation, diagonal,
-                alpha, ARef.LockedLocalMatrix(),
-                       XRef.LocalMatrix() );
-    if( g.VCRank() == 0 )
-        cout << "DONE" << endl;
-
-    if( printMatrices )
-        XRef.Print("Truth");
-
-    if( g.VCRank() == 0 )
-    {
-        cout << "  Testing correctness...";
-        cout.flush();
-    }
-    for( int j=0; j<X.Width(); ++j )
-    {
-        for( int i=0; i<X.Height(); ++i )
-        {
-            T truth = XRef.GetLocalEntry(i,j);
-            T computed = XCopy.GetLocalEntry(i,j);
-
-            if( ! OKRelativeError( truth, computed ) )
-            {
-                ostringstream msg;
-                msg << "FAILED at index (" << i << "," << j << "): truth="
-                     << truth << ", computed=" << computed;
-                throw logic_error( msg.str() );
-            }
-        }
-    }
-    Barrier( g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "PASSED" << endl;
-}
-
-template<typename T>
 void TestTrsm
-( bool testCorrectness, bool printMatrices,
-  Side side, Shape shape,
+( bool printMatrices,
+  Side side, Shape shape, 
   Orientation orientation, Diagonal diagonal,
   int m, int n, T alpha, const Grid& g )
 {
@@ -150,18 +75,6 @@ void TestTrsm
 
     A.SetToRandomHPD();
     X.SetToRandom();
-    if( testCorrectness )
-    {
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Making copies of original matrices...";
-            cout.flush();
-        }
-        ARef = A;
-        XRef = X;
-        if( g.VCRank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( printMatrices )
     {
         A.Print("A");
@@ -187,12 +100,6 @@ void TestTrsm
     }
     if( printMatrices )
         X.Print("X after solve");
-    if( testCorrectness )
-    {
-        TestCorrectness
-        ( printMatrices, X,
-          side, shape, orientation, diagonal, alpha, ARef, XRef );
-    }
 }
 
 int main( int argc, char* argv[] )
@@ -200,7 +107,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 12 )
+    if( argc != 11 )
     {
         if( rank == 0 )
             Usage();
@@ -219,7 +126,6 @@ int main( int argc, char* argv[] )
         const int m = atoi(argv[++argNum]);
         const int n = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
         if( rank == 0 )
@@ -247,8 +153,8 @@ int main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestTrsm<double>
-        ( testCorrectness, printMatrices,
-          side, shape, orientation, diagonal, m, n, (double)3, g );
+        ( printMatrices, side, shape, orientation, diagonal, 
+          m, n, (double)3, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -258,8 +164,8 @@ int main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestTrsm<dcomplex>
-        ( testCorrectness, printMatrices,
-          side, shape, orientation, diagonal, m, n, (dcomplex)3, g );
+        ( printMatrices, side, shape, orientation, diagonal, 
+          m, n, (dcomplex)3, g );
 #endif
     }
     catch( exception& e )

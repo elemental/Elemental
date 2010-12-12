@@ -48,27 +48,26 @@ void TestMatrix( int m, int n, int ldim )
 {
     if( m > ldim || ldim == 0 )
         throw logic_error( "Leading dimension must be >= m and nonzero." );
-    T* buffer = new T[ldim*n];
+    std::vector<T> buffer(ldim*n);
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             buffer[i+j*ldim] = i+j*m;
 
-    Matrix<T> A( m, n, buffer, ldim );
+    Matrix<T> A( m, n, &buffer[0], ldim );
 
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            if( Abs(A.Get(i,j)-buffer[i+j*ldim]) > 1e-5 )
+            if( A.Get(i,j) != buffer[i+j*ldim] )
                 throw logic_error
                 ( "Matrix class was not properly filled with buffer." );
 
-    const Matrix<T> B( m, n, (const T*)buffer, ldim );
+    const Matrix<T> B( m, n, (const T*)&buffer[0], ldim );
 
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            if( Abs(B.Get(i,j)-buffer[i+j*ldim]) > 1e-5 )
+            if( B.Get(i,j) != buffer[i+j*ldim] )
                 throw logic_error
                 ( "Matrix class was not properly filled with const buffer." );
-    delete[] buffer;
 
     int rank;
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
