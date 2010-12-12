@@ -42,8 +42,8 @@ void Usage()
     cout << "Generates random Hermitian matrix then solves for its eigenpairs."
 	 << "\n\n"
          << "  HermitianEig <r> <c> <only eigenvalues?> <range> <a> <b> "
-            "<highAccuracy?> <shape> <m> <nb> <hemv local double> "
-            "<hemv local complex double> <correctness?> <print?>\n\n"
+            "<highAccuracy?> <shape> <m> <nb> <symv local nb> <hemv local nb> "
+            "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  only eigenvalues?: 0/1\n"
@@ -57,8 +57,8 @@ void Usage()
          << "  shape: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
-         << "  Hemv local nb double: local blocksize for Hemv, double-prec.\n"
-         << "  Hemv local nb complex double: \" \", complex double-precision\n"
+         << "  Symv local nb: local blocksize for Hemv, double-prec.\n"
+         << "  Hemv local nb: \" \", complex double-precision\n"
          << "  test correctness?: false iff 0\n"
          << "  print matrices?: false iff 0\n" << endl;
 }
@@ -385,7 +385,7 @@ int main( int argc, char* argv[] )
         const Shape shape = CharToShape(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
-        const int nbLocalHemvDouble = atoi(argv[++argNum]);
+        const int nbLocalSymvDouble = atoi(argv[++argNum]);
 #ifndef WITHOUT_COMPLEX
         const int nbLocalHemvComplexDouble = atoi(argv[++argNum]);
 #else
@@ -410,7 +410,7 @@ int main( int argc, char* argv[] )
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
-        blas::SetLocalHemvDoubleBlocksize( nbLocalHemvDouble );
+        blas::SetLocalSymvDoubleBlocksize( nbLocalSymvDouble );
 #ifndef WITHOUT_COMPLEX
         blas::SetLocalHemvComplexDoubleBlocksize( nbLocalHemvComplexDouble );
 #endif
