@@ -755,6 +755,10 @@ int main( int argc, char* argv[] )
             vl = atof(argv[++argNum]);
             vu = atof(argv[++argNum]);
         }
+        else
+        {
+            argNum += 2;
+        }
         const bool tryForHighAccuracy = atoi(argv[++argNum]);
         const Shape shape = CharToShape(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
