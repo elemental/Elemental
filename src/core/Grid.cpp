@@ -51,7 +51,7 @@ elemental::Grid::Grid
 
     // All processes own the grid, so we have to trivially split _viewingGroup
     _owningGroup = _viewingGroup;
-    MPI_Group_difference( _viewingGroup, _owningGroup, &_notOwningGroup );
+    _notOwningGroup = MPI_GROUP_EMPTY;
 
     // Factor p
     _r = static_cast<int>(sqrt(static_cast<double>(_p)));
@@ -83,7 +83,7 @@ elemental::Grid::Grid
     // All processes own the grid, so we have to trivially split _viewingGroup
     _owningGroup = _viewingGroup;
     _rank = _viewingRank;
-    MPI_Group_difference( _viewingGroup, _owningGroup, &_notOwningGroup );
+    _notOwningGroup = MPI_GROUP_EMPTY;
 
     _r = r;
     _c = c;
@@ -331,14 +331,12 @@ elemental::Grid::~Grid()
         MPI_Group_free( &_vectorRowGroup );
 
         if( _inGrid )
-        {
             MPI_Comm_free( &_owningComm );
-        }
         else
-        {
             MPI_Comm_free( &_notOwningComm );
+
+        if( _notOwningGroup != MPI_GROUP_EMPTY )
             MPI_Group_free( &_notOwningGroup );
-        }
 
         MPI_Comm_free( &_viewingComm );
     }
