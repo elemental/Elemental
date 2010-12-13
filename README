@@ -45,7 +45,11 @@ and the C MPI compiler /usr/bin/mpicc:
             -DCMAKE_CXX_COMPILER=/usr/bin/mpicxx \
             -DCMAKE_C_COMPILER=/usr/bin/mpicxx ../..
       make
-though, on BlueGene/P, one should instead run
+If the correct BLAS/LAPACK libraries are not found, instead run:
+      cmake -i ../..
+in order to manually configure the compilation flags. Afterwards, just run make.
+
+On BlueGene/P, one should instead run
       cd elemental
       mkdir build
       cd build
