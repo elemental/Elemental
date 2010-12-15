@@ -62,6 +62,9 @@ void TestCorrectness
     vector<int> image;
     vector<int> preimage;
 
+    if( g.VCRank() == 0 )
+        cout << "Testing error..." << endl;
+
     // Compose the pivots
     p_Star_Star = p;
     lapack::internal::ComposePivots( p_Star_Star, image, preimage, 0 );
@@ -70,6 +73,9 @@ void TestCorrectness
     DistMatrix<T,MC,MR> X(m,100,g);
     DistMatrix<T,MC,MR> Y(g);
     X.SetToRandom();
+    T oneNormOfX = lapack::OneNorm( X );
+    T infNormOfX = lapack::InfinityNorm( X );
+    T frobNormOfX = lapack::FrobeniusNorm( X );
     Y = X;
     lapack::internal::ApplyRowPivots( Y, image, preimage, 0 );
 
@@ -79,15 +85,25 @@ void TestCorrectness
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     blas::Gemm( Normal, Normal, (T)-1, AOrig, Y, (T)1, X );
+    T oneNormOfError = lapack::OneNorm( X );
+    T infNormOfError = lapack::InfinityNorm( X );
+    T frobNormOfError = lapack::FrobeniusNorm( X );
+    T oneNormOfA = lapack::OneNorm( AOrig );
+    T infNormOfA = lapack::InfinityNorm( AOrig );
+    T frobNormOfA = lapack::FrobeniusNorm( AOrig );
 
-    double myResidual = 0;
-    for( int j=0; j<X.LocalWidth(); ++j )
-        for( int i=0; i<X.LocalHeight(); ++i )
-            myResidual = max( (double)Abs(X.GetLocalEntry(i,j)), myResidual );
-    double residual;
-    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
     if( g.VCRank() == 0 )
-        cout << "||AOrig Y - X||_oo = " << residual << endl;
+    {
+        cout << "||A||_1                  = " << Abs(oneNormOfA) << "\n"
+             << "||A||_oo                 = " << Abs(infNormOfA) << "\n"
+             << "||A||_F                  = " << Abs(frobNormOfA) << "\n"
+             << "||X||_1                  = " << Abs(oneNormOfX) << "\n"
+             << "||X||_oo                 = " << Abs(infNormOfX) << "\n"
+             << "||X||_F                  = " << Abs(frobNormOfX) << "\n"
+             << "||A U^-1 L^-1 X - X||_1  = " << Abs(oneNormOfError) << "\n"
+             << "||A U^-1 L^-1 X - X||_oo = " << Abs(infNormOfError) << "\n"
+             << "||A U^-1 L^-1 X - X||_F  = " << Abs(frobNormOfError) << endl;
+    }
 }
 
 template<typename T>

@@ -60,9 +60,6 @@ void TestSyr2k
     DistMatrix<T,MC,MR> A(g);
     DistMatrix<T,MC,MR> B(g);
     DistMatrix<T,MC,MR> C(g);
-    DistMatrix<T,Star,Star> ARef(g);
-    DistMatrix<T,Star,Star> BRef(g);
-    DistMatrix<T,Star,Star> CRef(g);
 
     if( orientation == Normal )
     {

@@ -87,46 +87,54 @@ void TestCorrectnessDouble
         cout << "DONE" << endl;
 
     if( g.VCRank() == 0 )
-    {
-        cout << "  Testing orthogonality of eigenvectors...";
-        cout.flush();
-    }
+        cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<double,MC,MR> X(k,k,g);
     X.SetToIdentity();
     blas::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, X );
-    double myResidual = 0; 
-    for( int j=0; j<X.LocalWidth(); ++j )
-        for( int i=0; i<X.LocalHeight(); ++i )
-            myResidual = max( Abs(X.GetLocalEntry(i,j)),myResidual );
-    double residual;
-    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "||Z^H Z - I||_oo = " << residual << endl;
-
+    double oneNormOfError = lapack::OneNorm( X );
+    double infNormOfError = lapack::InfinityNorm( X );
+    double frobNormOfError = lapack::FrobeniusNorm( X );
     if( g.VCRank() == 0 )
     {
-        cout << "  Testing for deviation of AZ from ZW...";
-        cout.flush();
+        cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
+             << "    ||Z^H Z - I||_oo = " << infNormOfError << "\n"
+             << "    ||Z^H Z - I||_F  = " << frobNormOfError << endl;
     }
+
+    if( g.VCRank() == 0 )
+        cout << "  Testing for deviation of AZ from ZW..." << endl;
     // Set X := AZ
     X.AlignWith( Z );
     X.ResizeTo( n, k );
     blas::Hemm( Left, shape, (double)1, AOrig, Z, (double)0, X );
-    // Find the residual, ||X-ZW||_oo = ||AZ-ZW||_oo
-    myResidual = 0;
+    // Set X := X - ZW = AZ - ZW
     for( int j=0; j<X.LocalWidth(); ++j )
     {
         double omega = w_Star_MR.GetLocalEntry(0,j);
         for( int i=0; i<X.LocalHeight(); ++i )
-        {
-            double thisResidual = 
-                Abs( omega*Z.GetLocalEntry(i,j)-X.GetLocalEntry(i,j) );
-            myResidual = max( thisResidual, myResidual );
-        }
+            X.SetLocalEntry(i,j,
+                X.GetLocalEntry(i,j)-omega*Z.GetLocalEntry(i,j));
     }
-    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+    // Find the infinity norms of A, Z, and AZ-ZW
+    double infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+    double frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+    double oneNormOfZ = lapack::OneNorm( Z );
+    double infNormOfZ = lapack::InfinityNorm( Z );
+    double frobNormOfZ = lapack::FrobeniusNorm( Z );
+    oneNormOfError = lapack::OneNorm( X );
+    infNormOfError = lapack::InfinityNorm( X );
+    frobNormOfError = lapack::FrobeniusNorm( X );
     if( g.VCRank() == 0 )
-        cout << "||A Z - Z W||_oo = " << residual << endl;
+    {
+        cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
+             << "    ||A||_F            = " << frobNormOfA << "\n"
+             << "    ||Z||_1            = " << oneNormOfZ << "\n"
+             << "    ||Z||_oo           = " << infNormOfZ << "\n"
+             << "    ||Z||_F            = " << frobNormOfZ << "\n"
+             << "    ||A Z - Z W||_1    = " << oneNormOfError << "\n"
+             << "    ||A Z - Z W||_oo   = " << infNormOfError << "\n"
+             << "    ||A Z - Z W||_F    = " << frobNormOfError << endl;
+    }
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -153,29 +161,24 @@ void TestCorrectnessDoubleComplex
         cout << "DONE" << endl;
 
     if( g.VCRank() == 0 )
-    {
-        cout << "  Testing orthogonality of eigenvectors...";
-        cout.flush();
-    }
+        cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<std::complex<double>,MC,MR> X( k, k, g );
     X.SetToIdentity();
     blas::Herk
     ( shape, ConjugateTranspose, 
       std::complex<double>(-1), Z, std::complex<double>(1), X );
-    double myResidual = 0; 
-    for( int j=0; j<X.LocalWidth(); ++j )
-        for( int i=0; i<X.LocalHeight(); ++i )
-            myResidual = max( Abs(X.GetLocalEntry(i,j)), myResidual );
-    double residual;
-    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "||Z^H Z - I||_oo =  " << residual << endl;
-
+    double oneNormOfError = lapack::OneNorm( X );
+    double infNormOfError = lapack::InfinityNorm( X );
+    double frobNormOfError = lapack::FrobeniusNorm( X );
     if( g.VCRank() == 0 )
     {
-        cout << "  Testing for deviation of AZ from ZW...";
-        cout.flush();
+        cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
+             << "    ||Z^H Z - I||_oo = " << infNormOfError << "\n"
+             << "    ||Z^H Z - I||_F  = " << frobNormOfError << endl;
     }
+
+    if( g.VCRank() == 0 )
+        cout << "  Testing for deviation of AZ from ZW..." << endl;
     // X := AZ
     X.AlignWith( Z );
     X.ResizeTo( n, k );
@@ -183,20 +186,32 @@ void TestCorrectnessDoubleComplex
     ( Left, shape, std::complex<double>(1), AOrig, Z, 
       std::complex<double>(0), X );
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
-    myResidual = 0;
     for( int j=0; j<X.LocalWidth(); ++j )
     {
         double omega = w_Star_MR.GetLocalEntry(0,j);
         for( int i=0; i<X.LocalHeight(); ++i )
-        { 
-            double thisResidual =
-                Abs( omega*Z.GetLocalEntry(i,j)-X.GetLocalEntry(i,j) );
-            myResidual = max( thisResidual, myResidual );
-        }
+            X.SetLocalEntry(i,j,
+                X.GetLocalEntry(i,j)-omega*Z.GetLocalEntry(i,j));
     }
-    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+    // Find the infinity norms of A, Z, and AZ-ZW
+    double infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+    double frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+    double oneNormOfZ = lapack::OneNorm( Z );
+    double infNormOfZ = lapack::InfinityNorm( Z );
+    double frobNormOfZ = lapack::FrobeniusNorm( Z );
+    oneNormOfError = lapack::OneNorm( X );
+    infNormOfError = lapack::InfinityNorm( X );
+    frobNormOfError = lapack::FrobeniusNorm( X );
     if( g.VCRank() == 0 )
-        cout << "||A Z - Z W||_oo = " << residual << endl;
+    {
+        cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
+             << "    ||A||_F            = " << frobNormOfA << "\n"
+             << "    ||Z||_1            = " << oneNormOfZ << "\n"
+             << "    ||Z||_oo           = " << infNormOfZ << "\n"
+             << "    ||Z||_F            = " << frobNormOfZ << "\n"
+             << "    ||A Z - Z W||_oo   = " << infNormOfError << "\n"
+             << "    ||A Z - Z W||_F    = " << frobNormOfError << endl;
+    }
 }
 #endif // WITHOUT_COMPLEX
 

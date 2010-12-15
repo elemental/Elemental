@@ -67,10 +67,7 @@ void TestCorrectness
     const int m = H.Height();
 
     if( g.VCRank() == 0 )
-    {
-        cout << "  Testing orthogonality of transform...";
-	cout.flush();
-    }
+        cout << "  Testing orthogonality of transform..." << endl;
 
     // Form Z := Q^H Q or Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Y(m,m,g);
@@ -109,17 +106,24 @@ void TestCorrectness
             X.Print("I - Q^H Q");
     }
 
-    // Compute the maximum deviance
-    R myMaxDevFromIdentity = 0.;
-    for( int j=0; j<X.LocalWidth(); ++j )
-        for( int i=0; i<X.LocalHeight(); ++i )
-            myMaxDevFromIdentity = 
-                max(myMaxDevFromIdentity,abs(X.GetLocalEntry(i,j)));
-    R maxDevFromIdentity;
-    Reduce
-    ( &myMaxDevFromIdentity, &maxDevFromIdentity, 1, MPI_MAX, 0, g.VCComm() );
+    R oneNormOfError = lapack::OneNorm( X );
+    R infNormOfError = lapack::InfinityNorm( X );
+    R frobNormOfError = lapack::FrobeniusNorm( X );
     if( g.VCRank() == 0 )
-        cout << "max deviation from I is " << maxDevFromIdentity << endl;
+    {
+        if( orientation == Normal )
+        {
+            cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
+                 << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
+                 << "    ||Q Q^H - I||_F  = " << frobNormOfError << endl;
+        }
+        else
+        {
+            cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
+                 << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
+                 << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
+        }
+    }
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -139,10 +143,7 @@ void TestCorrectness
     const int m = H.Height();
 
     if( g.VCRank() == 0 )
-    {
-        cout << "  Testing orthogonality of transform...";
-        cout.flush();
-    }
+        cout << "  Testing orthogonality of transform..." << endl;
 
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
     DistMatrix<C,MC,MR> Y(m,m,g);
@@ -182,16 +183,24 @@ void TestCorrectness
     }
 
     // Compute the maximum deviance
-    R myMaxDevFromIdentity = 0.;
-    for( int j=0; j<X.LocalWidth(); ++j )
-        for( int i=0; i<X.LocalHeight(); ++i )
-            myMaxDevFromIdentity = 
-                max(myMaxDevFromIdentity,abs(X.GetLocalEntry(i,j)));
-    R maxDevFromIdentity;
-    Reduce
-    ( &myMaxDevFromIdentity, &maxDevFromIdentity, 1, MPI_MAX, 0, g.VCComm() );
+    R oneNormOfError = lapack::OneNorm( X );
+    R infNormOfError = lapack::InfinityNorm( X );
+    R frobNormOfError = lapack::FrobeniusNorm( X );
     if( g.VCRank() == 0 )
-        cout << "max deviation from I is " << maxDevFromIdentity << endl;
+    {
+        if( orientation == Normal )
+        {
+            cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
+                 << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
+                 << "    ||Q Q^H - I||_F  = " << frobNormOfError << endl;
+        }
+        else
+        {
+            cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
+                 << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
+                 << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
+        }
+    }
 }
 #endif // WITHOUT_COMPLEX
 

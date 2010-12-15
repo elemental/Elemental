@@ -65,6 +65,9 @@ void TestCorrectness
 
     int subdiagonal = ( shape==Lower ? -1 : +1 );
 
+    if( g.VCRank() == 0 )
+        cout << "Testing error..." << endl;
+
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
     DistMatrix<R,MD,Star> d(g);
     DistMatrix<R,MD,Star> e(g);
@@ -97,14 +100,18 @@ void TestCorrectness
     AOrig.MakeTrapezoidal( Left, shape );
     B.MakeTrapezoidal( Left, shape );
     blas::Axpy( (R)-1, AOrig, B );
-    double myResidual = 0;
-    for( int j=0; j<B.LocalWidth(); ++j )
-        for( int i=0; i<B.LocalHeight(); ++i )
-            myResidual = max( (double)Abs(B.GetLocalEntry(i,j)), myResidual );
-    double residual;
-    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+
+    R infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
+    R frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
+    R infNormOfError = lapack::HermitianInfinityNorm( shape, B );
+    R frobNormOfError = lapack::HermitianFrobeniusNorm( shape, B );
     if( g.VCRank() == 0 )
-        cout << "||AOrig - Q^H A Q||_oo = " << residual << endl;
+    {
+        cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
+             << "    ||AOrig||_F                = " << frobNormOfAOrig << "\n"
+             << "    ||A - Q^H T Q||_oo         = " << infNormOfError << "\n"
+             << "    ||A - Q^H T Q||_F          = " << frobNormOfError << endl;
+    }
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -121,6 +128,9 @@ void TestCorrectness
     const int m = AOrig.Height();
 
     int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    if( g.VCRank() == 0 )
+        cout << "Testing error..." << endl;
 
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
     DistMatrix<R,MD,Star> d(g);
@@ -152,14 +162,18 @@ void TestCorrectness
     AOrig.MakeTrapezoidal( Left, shape );
     B.MakeTrapezoidal( Left, shape );
     blas::Axpy( (C)-1, AOrig, B );
-    double myResidual = 0;
-    for( int j=0; j<B.LocalWidth(); ++j )
-        for( int i=0; i<B.LocalHeight(); ++i )
-            myResidual = max( (double)Abs(B.GetLocalEntry(i,j)), myResidual );
-    double residual;
-    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+
+    R infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
+    R frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
+    R infNormOfError = lapack::HermitianInfinityNorm( shape, B );
+    R frobNormOfError = lapack::HermitianFrobeniusNorm( shape, B );
     if( g.VCRank() == 0 )
-        cout << "||AOrig - Q^H A Q||_oo = " << residual << endl;
+    {
+        cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
+             << "    ||AOrig||_F                = " << frobNormOfAOrig << "\n"
+             << "    ||AOrig - Q^H A Q||_oo     = " << infNormOfError << "\n"
+             << "    ||AOrig - Q^H A Q||_F      = " << frobNormOfError << endl;
+    }
 }
 #endif // WITHOUT_COMPLEX
 

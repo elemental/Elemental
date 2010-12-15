@@ -256,8 +256,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -317,7 +319,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
@@ -354,8 +356,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -417,7 +421,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
@@ -452,8 +456,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -543,7 +549,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Sum the local sizes to get the true number of eigenvectors and then
@@ -581,8 +587,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -639,7 +647,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
@@ -669,8 +677,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -729,8 +739,8 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
-            std::cout << "PMRRR could not achieve high accuracy" << std::endl;
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
+            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         w.Align( 0 ); // PMRRR requires a zero alignment, though we could
@@ -757,8 +767,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -816,7 +828,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Get the total number of eigenvalues computed
@@ -849,8 +861,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -911,7 +925,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy." << std::endl;
         
         // Copy wBuffer into the distributed matrix w[* ,VR]
@@ -948,8 +962,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -1012,7 +1028,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
@@ -1047,8 +1063,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -1138,7 +1156,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Sum the local sizes to get the true number of eigenvectors and then
@@ -1176,8 +1194,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -1235,7 +1255,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
@@ -1265,8 +1285,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -1326,7 +1348,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
@@ -1354,8 +1376,10 @@ elemental::lapack::HermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::HermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -1414,7 +1438,7 @@ elemental::lapack::HermitianEig
             msg << "PMRRR returned " << retval;
             throw std::runtime_error( msg.str() );
         }
-        if( tryForHighAccuracy && tryrac==0 )
+        if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Get the total number of eigenvalues computed 

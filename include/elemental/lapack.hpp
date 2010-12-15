@@ -367,12 +367,10 @@ HermitianEig
 // element of each row.                                                       //
 //----------------------------------------------------------------------------//
 
-// Serial version
 template<typename T>
 void
 LU( Matrix<T>& A, Matrix<int>& p );
 
-// Parallel version
 template<typename T>
 void
 LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
@@ -382,6 +380,166 @@ namespace lu {
 void PrintTimings();
 }
 #endif
+
+//----------------------------------------------------------------------------//
+// FrobeniusNorm                                                              //
+//                                                                            //
+// Computes the elementwise L2 norm of the matrix.                            //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R
+FrobeniusNorm( const Matrix<R>& A );
+
+template<typename R>
+R
+FrobeniusNorm( const Matrix< std::complex<R> >& A );
+
+template<typename R>
+R
+FrobeniusNorm( const DistMatrix<R,MC,MR>& A );
+
+template<typename R>
+R
+FrobeniusNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
+// HermitianFrobeniusNorm                                                     //
+//                                                                            //
+// Computes the elementwise L2 norm of a Hermitian matrix.                    //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R
+HermitianFrobeniusNorm
+( Shape shape, const Matrix<R>& A );
+
+template<typename R>
+R
+HermitianFrobeniusNorm
+( Shape shape, const Matrix< std::complex<R> >& A );
+
+template<typename R>
+R
+HermitianFrobeniusNorm
+( Shape shape, const DistMatrix<R,MC,MR>& A );
+
+template<typename R>
+R
+HermitianFrobeniusNorm
+( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
+// InfinityNorm                                                               //
+//                                                                            //
+// Computes the operator L infinity norm of a matrix,                         //
+//           max     ||A x||_inf                                              //
+//       ||x||_inf=1                                                          //
+//  which corresponds to the maximum L1 norm of the rows of A.                //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R
+InfinityNorm( const Matrix<R>& A );
+
+template<typename R>
+R
+InfinityNorm( const Matrix< std::complex<R> >& A );
+
+template<typename R>
+R
+InfinityNorm( const DistMatrix<R,MC,MR>& A );
+
+template<typename R>
+R
+InfinityNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
+// HermitianInfinityNorm                                                      //
+//                                                                            //
+// Computes the operator L infinity norm of a Hermitian matrix,               //
+//           max     ||A x||_inf                                              //
+//       ||x||_inf=1                                                          //
+//  which corresponds to the maximum L1 norm of the rows of A.                //
+//                                                                            //
+// Note: For Hermitian matrices, the L1 and Linf norms are identical.         //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R
+HermitianInfinityNorm
+( Shape shape, const Matrix<R>& A );
+
+template<typename R>
+R
+HermitianInfinityNorm
+( Shape shape, const Matrix< std::complex<R> >& A );
+
+template<typename R>
+R
+HermitianInfinityNorm
+( Shape shape, const DistMatrix<R,MC,MR>& A );
+
+template<typename R>
+R
+HermitianInfinityNorm
+( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
+// OneNorm                                                                    //
+//                                                                            //
+// Computes the operator L1 norm of a matrix,                                 //
+//           max    ||A x||_1                                                 //
+//       ||x||_1=1                                                            //
+//  which corresponds to the maximum L1 norm of the columns of A.             //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R
+OneNorm( const Matrix<R>& A );
+
+template<typename R>
+R
+OneNorm( const Matrix< std::complex<R> >& A );
+
+template<typename R>
+R
+OneNorm( const DistMatrix<R,MC,MR>& A );
+
+template<typename R>
+R
+OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
+// HermitianOneNorm                                                           //
+//                                                                            //
+// Computes the operator L1 norm of a Hermitian matrix,                       //
+//           max    ||A x||_1                                                 //
+//       ||x||_1=1                                                            //
+//  which corresponds to the maximum L1 norm of the columns of A.             //
+//                                                                            //
+// Note: For Hermitian matrices, the L1 and Linf norms are identical.         //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R
+HermitianOneNorm
+( Shape shape, const Matrix<R>& A );
+
+template<typename R>
+R
+HermitianOneNorm
+( Shape shape, const Matrix< std::complex<R> >& A );
+
+template<typename R>
+R
+HermitianOneNorm
+( Shape shape, const DistMatrix<R,MC,MR>& A );
+
+template<typename R>
+R
+HermitianOneNorm
+( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
 
 //----------------------------------------------------------------------------//
 // QR (QR factorization):                                                     //

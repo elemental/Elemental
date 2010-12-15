@@ -64,8 +64,6 @@ void TestTrsm
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g);
     DistMatrix<T,MC,MR> X(g);
-    DistMatrix<T,Star,Star> ARef(g);
-    DistMatrix<T,Star,Star> XRef(g);
 
     if( side == Left )
         A.ResizeTo( m, m );

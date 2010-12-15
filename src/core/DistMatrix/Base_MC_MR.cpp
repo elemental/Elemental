@@ -1043,9 +1043,9 @@ elemental::DistMatrixBase<T,MC,MR>::Get
     T u;
     if( g.VCRank() == ownerRank )
     {
-        const int iLoc = (i-this->ColShift()) / g.Height();
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        u = this->GetLocalEntry(iLoc,jLoc);
+        const int iLocal = (i-this->ColShift()) / g.Height();
+        const int jLocal = (j-this->RowShift()) / g.Width();
+        u = this->GetLocalEntry(iLocal,jLocal);
     }
     Broadcast( &u, 1, ownerRank, g.VCComm() );
 
@@ -1071,9 +1071,9 @@ elemental::DistMatrixBase<T,MC,MR>::Set
 
     if( g.VCRank() == ownerRank )
     {
-        const int iLoc = (i-this->ColShift()) / g.Height();
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        this->SetLocalEntry(iLoc,jLoc,u);
+        const int iLocal = (i-this->ColShift()) / g.Height();
+        const int jLocal = (j-this->RowShift()) / g.Width();
+        this->SetLocalEntry(iLocal,jLocal,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1133,8 +1133,8 @@ elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalHeight();
 #ifdef _OPENMP
@@ -1143,7 +1143,8 @@ elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
         for( int k=0; k<localDiagLength; ++k )
         {
             const T value = 
-                this->GetLocalEntry(iLocStart+k*(lcm/r),jLocStart+k*(lcm/c));
+                this->GetLocalEntry(iLocalStart+k*(lcm/r),
+                                    jLocalStart+k*(lcm/c));
             d.SetLocalEntry(k,0,value);
         }
     }
@@ -1205,8 +1206,8 @@ elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalWidth();
 #ifdef _OPENMP
@@ -1215,7 +1216,8 @@ elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
         for( int k=0; k<localDiagLength; ++k )
         {
             const T value = 
-                this->GetLocalEntry(iLocStart+k*(lcm/r),jLocStart+k*(lcm/c));
+                this->GetLocalEntry(iLocalStart+k*(lcm/r),
+                                    jLocalStart+k*(lcm/c));
             d.SetLocalEntry(0,k,value);
         }
     }
@@ -1270,8 +1272,8 @@ elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalHeight();
 #ifdef _OPENMP
@@ -1280,7 +1282,8 @@ elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
         for( int k=0; k<localDiagLength; ++k )
         {
             const T value = d.GetLocalEntry(k,0);
-            this->SetLocalEntry(iLocStart+k*(lcm/r),jLocStart+k*(lcm/c),value);
+            this->SetLocalEntry(iLocalStart+k*(lcm/r),
+                                jLocalStart+k*(lcm/c),value);
         }
     }
 #ifndef RELEASE
@@ -1334,8 +1337,8 @@ elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalWidth();
 #ifdef _OPENMP
@@ -1344,7 +1347,8 @@ elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
         for( int k=0; k<localDiagLength; ++k )
         {
             const T value = d.GetLocalEntry(0,k);
-            this->SetLocalEntry(iLocStart+k*(lcm/r),jLocStart+k*(lcm/c),value);
+            this->SetLocalEntry(iLocalStart+k*(lcm/r),
+                                jLocalStart+k*(lcm/c),value);
         }
     }
 #ifndef RELEASE
@@ -1379,9 +1383,9 @@ elemental::DistMatrixBase<T,MC,MR>::MakeTrapezoidal
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            int j = rowShift + jLoc*c;
+            int j = rowShift + jLocal*c;
             int lastZeroRow = ( side==Left ? j-offset-1
                                            : j-offset+height-width-1 );
             if( lastZeroRow >= 0 )
@@ -1389,11 +1393,11 @@ elemental::DistMatrixBase<T,MC,MR>::MakeTrapezoidal
                 int boundary = min( lastZeroRow+1, height );
                 int numZeroRows = LocalLength( boundary, colShift, r );
 #ifdef RELEASE
-                T* thisCol = this->LocalBuffer(0,jLoc);
+                T* thisCol = this->LocalBuffer(0,jLocal);
                 memset( thisCol, 0, numZeroRows*sizeof(T) );
 #else
-                for( int iLoc=0; iLoc<numZeroRows; ++iLoc )
-                    this->SetLocalEntry(iLoc,jLoc,0);
+                for( int iLocal=0; iLocal<numZeroRows; ++iLocal )
+                    this->SetLocalEntry(iLocal,jLocal,0);
 #endif
             }
         }
@@ -1403,21 +1407,21 @@ elemental::DistMatrixBase<T,MC,MR>::MakeTrapezoidal
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            int j = rowShift + jLoc*c;
+            int j = rowShift + jLocal*c;
             int firstZeroRow = ( side==Left ? max(j-offset+1,0)
                                             : max(j-offset+height-width+1,0) );
             int numNonzeroRows = LocalLength(firstZeroRow,colShift,r);
 #ifdef RELEASE
             if( numNonzeroRows < localHeight )
             {
-                T* thisCol = this->LocalBuffer(numNonzeroRows,jLoc);
+                T* thisCol = this->LocalBuffer(numNonzeroRows,jLocal);
                 memset( thisCol, 0, (localHeight-numNonzeroRows)*sizeof(T) );
             }
 #else
-            for( int iLoc=numNonzeroRows; iLoc<localHeight; ++iLoc )
-                this->SetLocalEntry(iLoc,jLoc,0);
+            for( int iLocal=numNonzeroRows; iLocal<localHeight; ++iLocal )
+                this->SetLocalEntry(iLocal,jLocal,0);
 #endif
         }
     }
@@ -1449,21 +1453,21 @@ elemental::DistMatrixBase<T,MC,MR>::ScaleTrapezoidal
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            int j = rowShift + jLoc*c;
+            int j = rowShift + jLocal*c;
             int lastRow = ( side==Left ? j-offset : j-offset+height-width );
             int boundary = min( lastRow+1, height );
             int numRows = LocalLength( boundary, colShift, r );
 #ifdef RELEASE
-            T* thisCol = this->LocalBuffer(0,jLoc);
-            for( int iLoc=0; iLoc<numRows; ++iLoc )
-                thisCol[iLoc] *= alpha;
+            T* thisCol = this->LocalBuffer(0,jLocal);
+            for( int iLocal=0; iLocal<numRows; ++iLocal )
+                thisCol[iLocal] *= alpha;
 #else
-            for( int iLoc=0; iLoc<numRows; ++iLoc )
+            for( int iLocal=0; iLocal<numRows; ++iLocal )
             {
-                const T value = this->GetLocalEntry(iLoc,jLoc);
-                this->SetLocalEntry(iLoc,jLoc,alpha*value);
+                const T value = this->GetLocalEntry(iLocal,jLocal);
+                this->SetLocalEntry(iLocal,jLocal,alpha*value);
             }
 #endif
         }
@@ -1473,21 +1477,21 @@ elemental::DistMatrixBase<T,MC,MR>::ScaleTrapezoidal
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            int j = rowShift + jLoc*c;
+            int j = rowShift + jLocal*c;
             int firstRow = ( side==Left ? max(j-offset,0) 
                                         : max(j-offset+height-width,0) );
             int numZeroRows = LocalLength( firstRow, colShift, r );
 #ifdef RELEASE
-            T* thisCol = this->LocalBuffer(numZeroRows,jLoc);
-            for( int iLoc=0; iLoc<(localHeight-numZeroRows); ++iLoc )
-                thisCol[iLoc] *= alpha;
+            T* thisCol = this->LocalBuffer(numZeroRows,jLocal);
+            for( int iLocal=0; iLocal<(localHeight-numZeroRows); ++iLocal )
+                thisCol[iLocal] *= alpha;
 #else
-            for( int iLoc=numZeroRows; iLoc<localHeight; ++iLoc )
+            for( int iLocal=numZeroRows; iLocal<localHeight; ++iLocal )
             {
-                const T value = this->GetLocalEntry(iLoc,jLoc);
-                this->SetLocalEntry(iLoc,jLoc,alpha*value);
+                const T value = this->GetLocalEntry(iLocal,jLocal);
+                this->SetLocalEntry(iLocal,jLocal,alpha*value);
             }
 #endif
         }
@@ -1516,14 +1520,14 @@ elemental::DistMatrixBase<T,MC,MR>::SetToIdentity()
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int i = colShift + iLoc*r;                
+        const int i = colShift + iLocal*r;                
         if( i % c == rowShift )
         {
-            const int jLoc = (i-rowShift) / c;
-            if( jLoc < localWidth )
-                this->SetLocalEntry(iLoc,jLoc,1);
+            const int jLocal = (i-rowShift) / c;
+            if( jLocal < localWidth )
+                this->SetLocalEntry(iLocal,jLocal,1);
         }
     }
 #ifndef RELEASE

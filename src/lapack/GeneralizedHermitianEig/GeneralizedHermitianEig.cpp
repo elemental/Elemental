@@ -47,8 +47,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -89,8 +91,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -129,8 +133,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -167,8 +173,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -194,8 +202,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -219,8 +229,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -245,8 +257,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -303,8 +317,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -359,8 +375,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -413,8 +431,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -440,8 +460,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );
@@ -465,8 +487,10 @@ elemental::lapack::GeneralizedHermitianEig
 {
 #ifndef RELEASE
     PushCallStack("lapack::GeneralizedHermitianEig");
-    // TODO: Checks for input consistency
 #endif
+    if( A.Height() != A.Width() || B.Height() != B.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
     const Side side = ( genEigType==AXBX ? Right : Left );
 
     lapack::Chol( shape, B );

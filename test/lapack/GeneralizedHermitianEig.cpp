@@ -94,10 +94,7 @@ void TestCorrectnessDouble
     if( genEigType == lapack::AXBX )
     {
         if( g.VCRank() == 0 )
-        {
-            cout << "  Testing for deviation of AX from BXW...";
-            cout.flush();
-        }
+            cout << "  Testing for deviation of AX from BXW..." << endl;
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
         DistMatrix<double,MC,MR> Y( g );
         Y.AlignWith( X );
@@ -111,20 +108,36 @@ void TestCorrectnessDouble
         }
         // Y := Y - AX = BXW - AX
         blas::Hemm( Left, shape, (double)-1, AOrig, X, (double)1, Y );
-        // Compute the residual, ||BXW-AX||_oo
-        double myResidual = 0;
-        for( int j=0; j<Y.LocalWidth(); ++j )
-            for( int i=0; i<Y.LocalHeight(); ++i )
-                myResidual = max( Abs(Y.GetLocalEntry(i,j)),myResidual );
-        double residual;
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        // Find the infinity norms of A, B, and X, and ||BXW-AX||
+        double infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+        double frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+        double infNormOfB = lapack::HermitianInfinityNorm( shape, BOrig );
+        double frobNormOfB = lapack::HermitianFrobeniusNorm( shape, BOrig );
+        double oneNormOfX = lapack::OneNorm( X );
+        double infNormOfX = lapack::InfinityNorm( X );
+        double frobNormOfX = lapack::FrobeniusNorm( X );
+        double oneNormOfError = lapack::OneNorm( Y );
+        double infNormOfError = lapack::InfinityNorm( Y );
+        double frobNormOfError = lapack::FrobeniusNorm( Y );
         if( g.VCRank() == 0 )
-            cout << "||A X - B X W||_oo = " << residual << endl;
-        
+        {            
+
+            cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
+                 << "    ||A||_F            = " << frobNormOfA << "\n"
+                 << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"       
+                 << "    ||B||_F            = " << frobNormOfB << "\n"
+                 << "    ||X||_1            = " << oneNormOfX << "\n"
+                 << "    ||X||_oo           = " << infNormOfX << "\n"
+                 << "    ||X||_F            = " << frobNormOfX << "\n"
+                 << "    ||A B X - X W||_1  = " << oneNormOfError << "\n"
+                 << "    ||A B X - X W||_oo = " << infNormOfError << "\n"
+                 << "    ||A B X - X W||_F  = " << frobNormOfError << endl;
+        }
+
         if( g.VCRank() == 0 )
         {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B...";
-            cout.flush();
+            cout << "  Testing orthonormality of eigenvectors w.r.t. B..." 
+                 << endl; 
         }
         DistMatrix<double,MC,MR> Z(g);
         Z = X;
@@ -141,21 +154,20 @@ void TestCorrectnessDouble
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         blas::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, Y );
-        myResidual = 0; 
-        for( int j=0; j<Y.LocalWidth(); ++j )
-            for( int i=0; i<Y.LocalHeight(); ++i )
-                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        oneNormOfError = lapack::OneNorm( Y );
+        infNormOfError = lapack::InfinityNorm( Y );
+        frobNormOfError = lapack::FrobeniusNorm( Y );
         if( g.VCRank() == 0 )
-            cout << "||X^H B X - I||_oo = " << residual << endl;
+        {
+            cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
+                 << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
+                 << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
+        }
     }
     else if( genEigType == lapack::ABX )
     {
         if( g.VCRank() == 0 )
-        {
-            cout << "  Testing for deviation of ABX from XW...";
-            cout.flush();
-        }
+            cout << "  Testing for deviation of ABX from XW..." << endl;
         // Set Y := BX
         DistMatrix<double,MC,MR> Y( g );
         Y.AlignWith( X );
@@ -164,27 +176,43 @@ void TestCorrectnessDouble
         // Set Z := AY = ABX
         DistMatrix<double,MC,MR> Z( n, k, g );
         blas::Hemm( Left, shape, (double)1, AOrig, Y, (double)0, Z );
-        // Compute the residual, ||Z - XW||_oo = ||ABX - XW||_oo
-        double myResidual = 0;
+        // Set Z := Z - XW = ABX - XW
         for( int j=0; j<Z.LocalWidth(); ++j )
         {
             double omega = w_Star_MR.GetLocalEntry(0,j); 
             for( int i=0; i<Z.LocalHeight(); ++i )
-            {
-                double thisResidual = 
-                    Abs(omega*X.GetLocalEntry(i,j)-Z.GetLocalEntry(i,j));
-                myResidual = max( thisResidual, myResidual );
-            }
+                Z.SetLocalEntry(i,j,
+                    Z.GetLocalEntry(i,j)-omega*X.GetLocalEntry(i,j));
         }
-        double residual;
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        // Find the infinity norms of A, B, X, and ABX-XW
+        double infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+        double frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+        double infNormOfB = lapack::HermitianInfinityNorm( shape, BOrig );
+        double frobNormOfB = lapack::HermitianFrobeniusNorm( shape, BOrig );
+        double oneNormOfX = lapack::OneNorm( X );
+        double infNormOfX = lapack::InfinityNorm( X );
+        double frobNormOfX = lapack::FrobeniusNorm( X );
+        double oneNormOfError = lapack::OneNorm( Z );
+        double infNormOfError = lapack::InfinityNorm( Z );
+        double frobNormOfError = lapack::FrobeniusNorm( Z );
         if( g.VCRank() == 0 )
-            cout << "||A B X - X W||_oo =  " << residual << endl;
+        {
+            cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
+                 << "    ||A||_F            = " << frobNormOfA << "\n"
+                 << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"
+                 << "    ||B||_F            = " << frobNormOfB << "\n"
+                 << "    ||X||_1            = " << oneNormOfX << "\n"
+                 << "    ||X||_oo           = " << infNormOfX << "\n"
+                 << "    ||X||_F            = " << frobNormOfX << "\n"
+                 << "    ||A B X - X W||_1  = " << oneNormOfError << "\n"
+                 << "    ||A B X - X W||_oo = " << infNormOfError << "\n"
+                 << "    ||A B X - X W||_F  = " << frobNormOfError << endl;
+        }
         
         if( g.VCRank() == 0 )
         {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B...";
-            cout.flush();
+            cout << "  Testing orthonormality of eigenvectors w.r.t. B..." 
+                 << endl;
         }
         Z = X;
         if( shape == Lower )
@@ -200,21 +228,20 @@ void TestCorrectnessDouble
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         blas::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, Y );
-        myResidual = 0; 
-        for( int j=0; j<Y.LocalWidth(); ++j )
-            for( int i=0; i<Y.LocalHeight(); ++i )
-                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        oneNormOfError = lapack::OneNorm( Y );
+        infNormOfError = lapack::InfinityNorm( Y );
+        frobNormOfError = lapack::FrobeniusNorm( Y );
         if( g.VCRank() == 0 )
-            cout << "||X^H B X - I||_oo = " << residual << endl;
+        {
+            cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
+                 << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
+                 << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
+        }
     }
     else /* genEigType == lapack::BAX */
     {
         if( g.VCRank() == 0 )
-        {
-            cout << "  Testing for deviation of BAX from XW...";
-            cout.flush();
-        }
+            cout << "  Testing for deviation of BAX from XW..." << endl;
         // Set Y := AX
         DistMatrix<double,MC,MR> Y( g );
         Y.AlignWith( X );
@@ -223,27 +250,43 @@ void TestCorrectnessDouble
         // Set Z := BY = BAX
         DistMatrix<double,MC,MR> Z( n, k, g );
         blas::Hemm( Left, shape, (double)1, BOrig, Y, (double)0, Z );
-        // Compute the residual, ||Z - XW||_oo = ||BAX - XW||_oo
-        double myResidual = 0;
+        // Set Z := Z - XW = BAX - XW
         for( int j=0; j<Z.LocalWidth(); ++j )
         {
             double omega = w_Star_MR.GetLocalEntry(0,j); 
             for( int i=0; i<Z.LocalHeight(); ++i )
-            {
-                double thisResidual = 
-                    Abs(omega*X.GetLocalEntry(i,j)-Z.GetLocalEntry(i,j));
-                myResidual = max( thisResidual, myResidual );
-            }
+                Z.SetLocalEntry(i,j,
+                    Z.GetLocalEntry(i,j)-omega*X.GetLocalEntry(i,j));
         }
-        double residual;
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        // Find the infinity norms of A, B, X, and BAX-XW
+        double infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+        double frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+        double infNormOfB = lapack::HermitianInfinityNorm( shape, BOrig );
+        double frobNormOfB = lapack::HermitianFrobeniusNorm( shape, BOrig );
+        double oneNormOfX = lapack::OneNorm( X );
+        double infNormOfX = lapack::InfinityNorm( X );
+        double frobNormOfX = lapack::FrobeniusNorm( X );
+        double oneNormOfError = lapack::OneNorm( Z );
+        double infNormOfError = lapack::InfinityNorm( Z );
+        double frobNormOfError = lapack::FrobeniusNorm( Z );
         if( g.VCRank() == 0 )
-            cout << "||B A X - X W||_oo =  " << residual << endl;
+        {
+            cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
+                 << "    ||A||_F            = " << frobNormOfA << "\n"
+                 << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"
+                 << "    ||B||_F            = " << frobNormOfB << "\n"
+                 << "    ||X||_1            = " << oneNormOfX << "\n"
+                 << "    ||X||_oo           = " << infNormOfX << "\n"
+                 << "    ||X||_F            = " << frobNormOfX << "\n"
+                 << "    ||B A X - X W||_1  = " << oneNormOfError << "\n"
+                 << "    ||B A X - X W||_oo = " << infNormOfError << "\n"
+                 << "    ||B A X - X W||_F  = " << frobNormOfError << endl;
+        }
         
         if( g.VCRank() == 0 )
         {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B^-1...";
-            cout.flush();
+            cout << "  Testing orthonormality of eigenvectors w.r.t. B^-1..."
+                 << endl;
         }
         Z = X;
         if( shape == Lower )
@@ -259,13 +302,15 @@ void TestCorrectnessDouble
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         blas::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, Y );
-        myResidual = 0; 
-        for( int j=0; j<Y.LocalWidth(); ++j )
-            for( int i=0; i<Y.LocalHeight(); ++i )
-                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        oneNormOfError = lapack::OneNorm( Y );
+        infNormOfError = lapack::InfinityNorm( Y );
+        frobNormOfError = lapack::FrobeniusNorm( Y );
         if( g.VCRank() == 0 )
-            cout << "||X^H B^-1 X - I||_oo = " << residual << endl;
+        {
+            cout << "    ||X^H B^-1 X - I||_1  = " << oneNormOfError << "\n"
+                 << "    ||X^H B^-1 X - I||_oo = " << infNormOfError << "\n"
+                 << "    ||X^H B^-1 X - I||_F  = " << frobNormOfError << endl;
+        }
     }
 }
 
@@ -298,10 +343,7 @@ void TestCorrectnessDoubleComplex
     if( genEigType == lapack::AXBX )
     {
         if( g.VCRank() == 0 )
-        {
-            cout << "  Testing for deviation of AX from BXW...";
-            cout.flush();
-        }
+            cout << "  Testing for deviation of AX from BXW..." << endl;
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
         DistMatrix<std::complex<double>,MC,MR> Y( g );
         Y.AlignWith( X );
@@ -319,20 +361,34 @@ void TestCorrectnessDoubleComplex
         blas::Hemm
         ( Left, shape, std::complex<double>(-1), AOrig, X, 
         std::complex<double>(1), Y );
-        // Compute the residual, ||BXW-AX||_oo
-        double myResidual = 0;
-        for( int j=0; j<Y.LocalWidth(); ++j )
-            for( int i=0; i<Y.LocalHeight(); ++i )
-                myResidual = max( Abs(Y.GetLocalEntry(i,j)),myResidual );
-        double residual;
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        // Find the infinity norms of A, B, X, and AX-BXW
+        double infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+        double frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+        double infNormOfB = lapack::HermitianInfinityNorm( shape, BOrig );
+        double frobNormOfB = lapack::HermitianFrobeniusNorm( shape, BOrig );
+        double oneNormOfX = lapack::OneNorm( X );
+        double infNormOfX = lapack::InfinityNorm( X );
+        double frobNormOfX = lapack::FrobeniusNorm( X );
+        double oneNormOfError = lapack::OneNorm( Y );
+        double infNormOfError = lapack::InfinityNorm( Y );
+        double frobNormOfError = lapack::FrobeniusNorm( Y );
         if( g.VCRank() == 0 )
-            cout << "||A X - B X W||_oo = " << residual << endl;
+        {
+            cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
+                 << "    ||A||_F            = " << frobNormOfA << "\n"
+                 << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"
+                 << "    ||X||_1            = " << oneNormOfX << "\n"
+                 << "    ||X||_oo           = " << infNormOfX << "\n"
+                 << "    ||X||_F            = " << frobNormOfX << "\n"
+                 << "    ||A X - B X W||_1  = " << oneNormOfError << "\n"
+                 << "    ||A X - B X W||_oo = " << infNormOfError << "\n"
+                 << "    ||A X - B X W||_F  = " << frobNormOfError << endl;
+        }
         
         if( g.VCRank() == 0 )
         {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B...";
-            cout.flush();
+            cout << "  Testing orthonormality of eigenvectors w.r.t. B..."
+                 << endl;
         }
         DistMatrix<std::complex<double>,MC,MR> Z(g);
         Z = X;
@@ -353,21 +409,20 @@ void TestCorrectnessDoubleComplex
         blas::Herk
         ( shape, ConjugateTranspose, std::complex<double>(-1), Z, 
           std::complex<double>(1), Y );
-        myResidual = 0; 
-        for( int j=0; j<Y.LocalWidth(); ++j )
-            for( int i=0; i<Y.LocalHeight(); ++i )
-                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        oneNormOfError = lapack::OneNorm( Y );
+        infNormOfError = lapack::InfinityNorm( Y );
+        frobNormOfError = lapack::FrobeniusNorm( Y );
         if( g.VCRank() == 0 )
-            cout << "||X^H B X - I||_oo = " << residual << endl;
+        {
+            cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
+                 << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
+                 << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
+        }
     }
     else if( genEigType == lapack::ABX )
     {
         if( g.VCRank() == 0 )
-        {
-            cout << "  Testing for deviation of ABX from XW...";
-            cout.flush();
-        }
+            cout << "  Testing for deviation of ABX from XW..." << endl;
         // Set Y := BX
         DistMatrix<std::complex<double>,MC,MR> Y( g );
         Y.AlignWith( X );
@@ -380,27 +435,43 @@ void TestCorrectnessDoubleComplex
         blas::Hemm
         ( Left, shape, std::complex<double>(1), AOrig, Y, 
           std::complex<double>(0), Z );
-        // Compute the residual, ||Z - XW||_oo = ||ABX - XW||_oo
-        double myResidual = 0;
+        // Set Z := Z - XW = ABX - XW
         for( int j=0; j<Z.LocalWidth(); ++j )
         {
             double omega = w_Star_MR.GetLocalEntry(0,j); 
             for( int i=0; i<Z.LocalHeight(); ++i )
-            {
-                double thisResidual = 
-                    Abs(omega*X.GetLocalEntry(i,j)-Z.GetLocalEntry(i,j));
-                myResidual = max( thisResidual, myResidual );
-            }
+                Z.SetLocalEntry(i,j,
+                    Z.GetLocalEntry(i,j)-omega*X.GetLocalEntry(i,j));
         }
-        double residual;
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        // Find the infinity norms of A, B, X, and ABX-XW
+        double infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+        double frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+        double infNormOfB = lapack::HermitianInfinityNorm( shape, BOrig );
+        double frobNormOfB = lapack::HermitianFrobeniusNorm( shape, BOrig );
+        double oneNormOfX = lapack::OneNorm( X );
+        double infNormOfX = lapack::InfinityNorm( X );
+        double frobNormOfX = lapack::FrobeniusNorm( X );
+        double oneNormOfError = lapack::OneNorm( Z );
+        double infNormOfError = lapack::InfinityNorm( Z );
+        double frobNormOfError = lapack::FrobeniusNorm( Z );
         if( g.VCRank() == 0 )
-            cout << "||A B X - X W||_oo =  " << residual << endl;
+        {
+            cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
+                 << "    ||A||_F            = " << frobNormOfA << "\n"
+                 << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"
+                 << "    ||B||_F            = " << frobNormOfB << "\n"
+                 << "    ||X||_1            = " << oneNormOfX << "\n"
+                 << "    ||X||_oo           = " << infNormOfX << "\n"
+                 << "    ||X||_F            = " << frobNormOfX << "\n"
+                 << "    ||A B X - X W||_1  = " << oneNormOfError << "\n"
+                 << "    ||A B X - X W||_oo = " << infNormOfError << "\n"
+                 << "    ||A B X - X W||_F  = " << frobNormOfError << endl;
+        }
         
         if( g.VCRank() == 0 )
         {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B...";
-            cout.flush();
+            cout << "  Testing orthonormality of eigenvectors w.r.t. B..."
+                 << endl;
         }
         Z = X;
         if( shape == Lower )
@@ -420,21 +491,20 @@ void TestCorrectnessDoubleComplex
         blas::Herk
         ( shape, ConjugateTranspose, std::complex<double>(-1), Z, 
           std::complex<double>(1), Y );
-        myResidual = 0; 
-        for( int j=0; j<Y.LocalWidth(); ++j )
-            for( int i=0; i<Y.LocalHeight(); ++i )
-                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        oneNormOfError = lapack::OneNorm( Y );
+        infNormOfError = lapack::InfinityNorm( Y );
+        frobNormOfError = lapack::FrobeniusNorm( Y );
         if( g.VCRank() == 0 )
-            cout << "||X^H B X - I||_oo = " << residual << endl;
+        {
+            cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
+                 << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
+                 << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
+        }
     }
     else /* genEigType == lapack::BAX */
     {
         if( g.VCRank() == 0 )
-        {
-            cout << "  Testing for deviation of BAX from XW...";
-            cout.flush();
-        }
+            cout << "  Testing for deviation of BAX from XW..." << endl;
         // Set Y := AX
         DistMatrix<std::complex<double>,MC,MR> Y( g );
         Y.AlignWith( X );
@@ -447,27 +517,43 @@ void TestCorrectnessDoubleComplex
         blas::Hemm
         ( Left, shape, std::complex<double>(1), BOrig, Y, 
           std::complex<double>(0), Z );
-        // Compute the residual, ||Z - XW||_oo = ||BAX - XW||_oo
-        double myResidual = 0;
+        // Set Z := Z - XW = BAX-XW
         for( int j=0; j<Z.LocalWidth(); ++j )
         {
             double omega = w_Star_MR.GetLocalEntry(0,j); 
             for( int i=0; i<Z.LocalHeight(); ++i )
-            {
-                double thisResidual = 
-                    Abs(omega*X.GetLocalEntry(i,j)-Z.GetLocalEntry(i,j));
-                myResidual = max( thisResidual, myResidual );
-            }
+                Z.SetLocalEntry(i,j,
+                    Z.GetLocalEntry(i,j)-omega*X.GetLocalEntry(i,j));
         }
-        double residual;
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        // Find the infinity norms of A, B, X, and BAX-XW
+        double infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+        double frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+        double infNormOfB = lapack::HermitianInfinityNorm( shape, BOrig );
+        double frobNormOfB = lapack::HermitianFrobeniusNorm( shape, BOrig );
+        double oneNormOfX = lapack::OneNorm( X );
+        double infNormOfX = lapack::InfinityNorm( X );
+        double frobNormOfX = lapack::FrobeniusNorm( X );
+        double oneNormOfError = lapack::OneNorm( Z );
+        double infNormOfError = lapack::InfinityNorm( Z );
+        double frobNormOfError = lapack::FrobeniusNorm( Z );
         if( g.VCRank() == 0 )
-            cout << "||B A X - X W||_oo =  " << residual << endl;
+        {
+            cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
+                 << "    ||A||_F            = " << frobNormOfA << "\n"
+                 << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"
+                 << "    ||B||_F            = " << frobNormOfB << "\n"
+                 << "    ||X||_1            = " << oneNormOfX << "\n"
+                 << "    ||X||_oo           = " << infNormOfX << "\n"
+                 << "    ||X||_F            = " << frobNormOfX << "\n"
+                 << "    ||B A X - X W||_1  = " << oneNormOfError << "\n"
+                 << "    ||B A X - X W||_oo = " << infNormOfError << "\n"
+                 << "    ||B A X - X W||_F  = " << frobNormOfError << endl;
+        }
         
         if( g.VCRank() == 0 )
         {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B^-1...";
-            cout.flush();
+            cout << "  Testing orthonormality of eigenvectors w.r.t. B^-1..."
+                 << endl;
         }
         Z = X;
         if( shape == Lower )
@@ -486,13 +572,15 @@ void TestCorrectnessDoubleComplex
         blas::Herk
         ( shape, ConjugateTranspose, std::complex<double>(-1), Z, 
           std::complex<double>(1), Y );
-        myResidual = 0; 
-        for( int j=0; j<Y.LocalWidth(); ++j )
-            for( int i=0; i<Y.LocalHeight(); ++i )
-                myResidual = max( Abs(Y.GetLocalEntry(i,j)), myResidual );
-        Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+        oneNormOfError = lapack::OneNorm( Y );
+        infNormOfError = lapack::InfinityNorm( Y );
+        frobNormOfError = lapack::FrobeniusNorm( Y );
         if( g.VCRank() == 0 )
-            cout << "||X^H B^-1 X - I||_oo = " << residual << endl;
+        {
+            cout << "    ||X^H B^-1 X - I||_1  = " << oneNormOfError << "\n"
+                 << "    ||X^H B^-1 X - I||_oo = " << infNormOfError << "\n"
+                 << "    ||X^H B^-1 X - I||_F  = " << frobNormOfError << endl;
+        }
     }
 }
 #endif // WITHOUT_COMPLEX

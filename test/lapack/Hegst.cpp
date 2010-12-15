@@ -80,15 +80,30 @@ void TestCorrectness
             blas::Hemm( Left, Lower, (T)1, AOrig, Y, (T)0, Z );
             blas::Trsm( Left, Lower, Normal, NonUnit, (T)1, B, Z );
             blas::Hemm( Left, Lower, (T)-1, A, X, (T)1, Z );
-            double myResidual = 0;
-            for( int j=0; j<Z.LocalWidth(); ++j )
-                for( int i=0; i<Z.LocalHeight(); ++i )
-                    myResidual = 
-                        max( (double)Abs(Z.GetLocalEntry(i,j)), myResidual );
-            double residual;
-            Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+            T infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
+            T frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            T infNormOfA = lapack::HermitianInfinityNorm( shape, A );
+            T frobNormOfA = lapack::HermitianFrobeniusNorm( shape, A );
+            T oneNormOfError = lapack::OneNorm( Z );
+            T infNormOfError = lapack::InfinityNorm( Z );
+            T frobNormOfError = lapack::FrobeniusNorm( Z );
             if( g.VCRank() == 0 )
-                cout << "||A X - L^-1 AOrig L^-H X||_oo = " << residual << endl;
+            {
+                cout << "||AOrig||_1 = ||AOrig||_oo     = "
+                     << Abs(infNormOfAOrig) << "\n"
+                     << "||AOrig||_F                    = "
+                     << Abs(frobNormOfAOrig) << "\n"
+                     << "||A||_1 = ||A||_oo             = "
+                     << Abs(infNormOfA) << "\n"
+                     << "||A||_F                        = "
+                     << Abs(frobNormOfA) << "\n"
+                     << "||A X - L^-1 AOrig L^-H X||_1  = "
+                     << Abs(oneNormOfError) << "\n"
+                     << "||A X - L^-1 AOrig L^-H X||_oo = " 
+                     << Abs(infNormOfError) << "\n"
+                     << "||A X - L^-1 AOrig L^-H X||_F  = "
+                     << Abs(frobNormOfError) << endl;
+            }
         }
         else
         {
@@ -99,15 +114,30 @@ void TestCorrectness
             blas::Hemm( Left, Upper, (T)1, AOrig, Y, (T)0, Z );
             blas::Trsm( Left, Upper, ConjugateTranspose, NonUnit, (T)1, B, Z );
             blas::Hemm( Left, Upper, (T)-1, A, X, (T)1, Z );
-            double myResidual = 0;
-            for( int j=0; j<Z.LocalWidth(); ++j )
-                for( int i=0; i<Z.LocalHeight(); ++i )
-                    myResidual = 
-                        max( (double)Abs(Z.GetLocalEntry(i,j)), myResidual );
-            double residual;
-            Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+            T infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
+            T frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            T infNormOfA = lapack::HermitianInfinityNorm( shape, A );
+            T frobNormOfA = lapack::HermitianFrobeniusNorm( shape, A );
+            T oneNormOfError = lapack::OneNorm( Z );
+            T infNormOfError = lapack::InfinityNorm( Z );
+            T frobNormOfError = lapack::FrobeniusNorm( Z );
             if( g.VCRank() == 0 )
-                cout << "||A X - U^-H AOrig U^-1 X||_oo = " << residual << endl;
+            {
+                cout << "||AOrig||_1 = ||AOrig||_oo     = "
+                     << Abs(infNormOfAOrig) << "\n"
+                     << "||AOrig||_F                    = "
+                     << Abs(frobNormOfAOrig) << "\n"
+                     << "||A||_1 = ||A||_oo             = "
+                     << Abs(infNormOfA) << "\n"
+                     << "||A||_F                        = "
+                     << Abs(frobNormOfA) << "\n"
+                     << "||A X - U^-H AOrig U^-1 X||_1  = "
+                     << Abs(oneNormOfError) << "\n"
+                     << "||A X - U^-H AOrig U^-1 X||_oo = " 
+                     << Abs(infNormOfError) << "\n"
+                     << "||A X - U^-H AOrig U^-1 X||_F  = "
+                     << Abs(frobNormOfError) << endl;
+            }
         }
     }
     else
@@ -121,15 +151,30 @@ void TestCorrectness
             blas::Hemm( Left, Lower, (T)1, AOrig, Y, (T)0, Z );
             blas::Trmm( Left, Lower, ConjugateTranspose, NonUnit, (T)1, B, Z );
             blas::Hemm( Left, Lower, (T)-1, A, X, (T)1, Z );
-            double myResidual = 0;
-            for( int j=0; j<Z.LocalWidth(); ++j )
-                for( int i=0; i<Z.LocalHeight(); ++i )
-                    myResidual = 
-                        max( (double)Abs(Z.GetLocalEntry(i,j)), myResidual );
-            double residual;
-            Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+            T infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
+            T frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            T infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+            T frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            T oneNormOfError = lapack::OneNorm( Z );
+            T infNormOfError = lapack::InfinityNorm( Z );
+            T frobNormOfError = lapack::FrobeniusNorm( Z );
             if( g.VCRank() == 0 )
-                cout << "||A X - L^H AOrig L X||_oo = " << residual << endl;
+            {
+                cout << "||AOrig||_1 = ||AOrig||_oo = "
+                     << Abs(infNormOfAOrig) << "\n"
+                     << "||AOrig||_F                = "
+                     << Abs(frobNormOfAOrig) << "\n"
+                     << "||A||_1 = ||A||_F          = "
+                     << Abs(infNormOfA) << "\n"
+                     << "||A||_F                    = "
+                     << Abs(frobNormOfA) << "\n"
+                     << "||A X - L^H AOrig L X||_1  = "
+                     << Abs(oneNormOfError) << "\n"
+                     << "||A X - L^H AOrig L X||_oo = " 
+                     << Abs(infNormOfError) << "\n"
+                     << "||A X - L^H AOrig L X||_F  = "
+                     << Abs(frobNormOfError) << endl;
+            }
         }
         else
         {
@@ -140,15 +185,30 @@ void TestCorrectness
             blas::Hemm( Left, Upper, (T)1, AOrig, Y, (T)0, Z );
             blas::Trmm( Left, Upper, Normal, NonUnit, (T)1, B, Z );
             blas::Hemm( Left, Upper, (T)-1, A, X, (T)1, Z );
-            double myResidual = 0;
-            for( int j=0; j<Z.LocalWidth(); ++j )
-                for( int i=0; i<Z.LocalHeight(); ++i )
-                    myResidual = 
-                        max( (double)Abs(Z.GetLocalEntry(i,j)), myResidual );
-            double residual;
-            Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+            T infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
+            T frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            T infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+            T frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            T oneNormOfError = lapack::OneNorm( Z );
+            T infNormOfError = lapack::InfinityNorm( Z );
+            T frobNormOfError = lapack::FrobeniusNorm( Z );
             if( g.VCRank() == 0 )
-                cout << "||A X - U AOrig U^H X||_oo = " << residual << endl;
+            {
+                cout << "||AOrig||_1 = ||AOrig||_oo = "
+                     << Abs(infNormOfAOrig) << "\n"
+                     << "||AOrig||_F                = "
+                     << Abs(frobNormOfAOrig) << "\n"
+                     << "||A||_1 = ||A||_F          = "
+                     << Abs(infNormOfA) << "\n"
+                     << "||A||_F                    = "
+                     << Abs(frobNormOfA) << "\n"
+                     << "||A X - U AOrig U^H X||_1  = "
+                     << Abs(oneNormOfError) << "\n"
+                     << "||A X - U AOrig U^H X||_oo = " 
+                     << Abs(infNormOfError) << "\n"
+                     << "||A X - U AOrig U^H X||_F  = "
+                     << Abs(frobNormOfError) << endl;
+            }
         }
     }
 }

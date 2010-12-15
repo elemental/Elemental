@@ -58,16 +58,16 @@ elemental::DistMatrix<R,MC,MR>::SetToRandomHPD()
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int i = colShift + iLoc*r;                
+        const int i = colShift + iLocal*r;                
         if( i % c == rowShift )
         {
-            const int jLoc = (i-rowShift) / c;
-            if( jLoc < localWidth )
+            const int jLocal = (i-rowShift) / c;
+            if( jLocal < localWidth )
             {
-                const R value = this->GetLocalEntry(iLoc,jLoc);
-                this->SetLocalEntry(iLoc,jLoc,value+this->Width());
+                const R value = this->GetLocalEntry(iLocal,jLocal);
+                this->SetLocalEntry(iLocal,jLocal,value+this->Width());
             }
         }
     }
@@ -99,16 +99,16 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetToRandomHPD()
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int i = colShift + iLoc*r;                
+        const int i = colShift + iLocal*r;                
         if( i % c == rowShift )
         {
-            const int jLoc = (i-rowShift) / c;
-            if( jLoc < localWidth )
+            const int jLocal = (i-rowShift) / c;
+            if( jLocal < localWidth )
             {
-                const R value = real(this->GetLocalEntry(iLoc,jLoc));
-                this->SetLocalEntry(iLoc,jLoc,value+this->Width());
+                const R value = real(this->GetLocalEntry(iLocal,jLocal));
+                this->SetLocalEntry(iLocal,jLocal,value+this->Width());
             }
         }
     }
@@ -136,9 +136,9 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetReal
     R u;
     if( g.VCRank() == ownerRank )
     {
-        const int iLoc = (i-this->ColShift()) / g.Height();
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        u = real(this->GetLocalEntry(iLoc,jLoc));
+        const int iLocal = (i-this->ColShift()) / g.Height();
+        const int jLocal = (j-this->RowShift()) / g.Width();
+        u = real(this->GetLocalEntry(iLocal,jLocal));
     }
     Broadcast( &u, 1, ownerRank, g.VCComm() );
 
@@ -167,9 +167,9 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImag
     R u;
     if( g.VCRank() == ownerRank )
     {
-        const int iLoc = (i-this->ColShift()) / g.Height();
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        u = imag(this->GetLocalEntry(iLoc,jLoc));
+        const int iLocal = (i-this->ColShift()) / g.Height();
+        const int jLocal = (j-this->RowShift()) / g.Width();
+        u = imag(this->GetLocalEntry(iLocal,jLocal));
     }
     Broadcast( &u, 1, ownerRank, g.VCComm() );
 
@@ -195,10 +195,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetReal
 
     if( g.VCRank() == ownerRank )
     {
-        const int iLoc = (i-this->ColShift()) / g.Height();
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        const R v = imag(this->GetLocalEntry(iLoc,jLoc));
-        this->SetLocalEntry(iLoc,jLoc,complex<R>(u,v));
+        const int iLocal = (i-this->ColShift()) / g.Height();
+        const int jLocal = (j-this->RowShift()) / g.Width();
+        const R v = imag(this->GetLocalEntry(iLocal,jLocal));
+        this->SetLocalEntry(iLocal,jLocal,complex<R>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();
@@ -221,10 +221,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetImag
 
     if( g.VCRank() == ownerRank )
     {
-        const int iLoc = (i-this->ColShift()) / g.Height();
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        R u = real(this->GetLocalEntry(iLoc,jLoc));
-        this->SetLocalEntry(iLoc,jLoc,complex<R>(u,v));
+        const int iLocal = (i-this->ColShift()) / g.Height();
+        const int jLocal = (j-this->RowShift()) / g.Width();
+        R u = real(this->GetLocalEntry(iLocal,jLocal));
+        this->SetLocalEntry(iLocal,jLocal,complex<R>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();
@@ -296,8 +296,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetRealDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalHeight();
 #ifdef _OPENMP
@@ -305,8 +305,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetRealDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R u = real(this->GetLocalEntry(iLocStart+k*(lcm/r),
-                                                 jLocStart+k*(lcm/c)));
+            const R u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+                                                 jLocalStart+k*(lcm/c)));
             d.SetLocalEntry(k,0,u);
         }
     }
@@ -380,8 +380,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImagDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalHeight();
 #ifdef _OPENMP
@@ -389,8 +389,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImagDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R v = imag(this->GetLocalEntry(iLocStart+k*(lcm/r),
-                                                 jLocStart+k*(lcm/c)));
+            const R v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+                                                 jLocalStart+k*(lcm/c)));
             d.SetLocalEntry(k,0,v);
         }
     }
@@ -464,8 +464,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetRealDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalWidth();
 #ifdef _OPENMP
@@ -473,8 +473,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetRealDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R u = real(this->GetLocalEntry(iLocStart+k*(lcm/r),
-                                                 jLocStart+k*(lcm/c)));
+            const R u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+                                                 jLocalStart+k*(lcm/c)));
             d.SetLocalEntry(0,k,u);
         }
     }
@@ -548,8 +548,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImagDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalWidth();
 #ifdef _OPENMP
@@ -557,8 +557,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImagDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R v = imag(this->GetLocalEntry(iLocStart+k*(lcm/r),
-                                                 jLocStart+k*(lcm/c)));
+            const R v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+                                                 jLocalStart+k*(lcm/c)));
             d.SetLocalEntry(0,k,v);
         }
     }
@@ -623,8 +623,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalHeight();
 #ifdef _OPENMP
@@ -632,7 +632,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
             this->SetLocalEntry
-                (iLocStart+k*(lcm/r),jLocStart+k*(lcm/c),d.GetLocalEntry(k,0));
+                (iLocalStart+k*(lcm/r),jLocalStart+k*(lcm/c),
+                 d.GetLocalEntry(k,0));
     }
 #ifndef RELEASE
     PopCallStack();
@@ -695,8 +696,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalHeight();
 #ifdef _OPENMP
@@ -704,10 +705,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R v = imag(this->GetLocalEntry(iLocStart+k*(lcm/r),
-                                                 jLocStart+k*(lcm/c)));
+            const R v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+                                                 jLocalStart+k*(lcm/c)));
             this->SetLocalEntry
-                (iLocStart+k*(lcm/r),jLocStart+k*(lcm/c),
+                (iLocalStart+k*(lcm/r),jLocalStart+k*(lcm/c),
                  complex<R>(d.GetLocalEntry(k,0),v));
         }
     }
@@ -772,8 +773,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetImagDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalHeight();
 #ifdef _OPENMP
@@ -781,10 +782,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetImagDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R u = real(this->GetLocalEntry(iLocStart+k*(lcm/r),
-                                                 jLocStart+k*(lcm/c)));
+            const R u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+                                                 jLocalStart+k*(lcm/c)));
             this->SetLocalEntry
-                (iLocStart+k*(lcm/r),jLocStart+k*(lcm/c),
+                (iLocalStart+k*(lcm/r),jLocalStart+k*(lcm/c),
                  complex<R>(u,d.GetLocalEntry(k,0)));
         }
     }
@@ -850,8 +851,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalWidth();
 #ifdef _OPENMP
@@ -859,7 +860,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
             this->SetLocalEntry
-                (iLocStart+k*(lcm/r),jLocStart+k*(lcm/c),d.GetLocalEntry(0,k));
+                (iLocalStart+k*(lcm/r),jLocalStart+k*(lcm/c),
+                 d.GetLocalEntry(0,k));
     }
 #ifndef RELEASE
     PopCallStack();
@@ -923,8 +925,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalWidth();
 #ifdef _OPENMP
@@ -932,10 +934,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R v = imag(this->GetLocalEntry(iLocStart+k*(lcm/r),
-                                                 jLocStart+k*(lcm/c)));
+            const R v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+                                                 jLocalStart+k*(lcm/c)));
             this->SetLocalEntry
-                (iLocStart+k*(lcm/r),jLocStart+k*(lcm/c),
+                (iLocalStart+k*(lcm/r),jLocalStart+k*(lcm/c),
                  complex<R>(d.GetLocalEntry(0,k),v));
         }
     }
@@ -1001,8 +1003,8 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetImagDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / r;
-        const int jLocStart = (jStart-rowShift) / c;
+        const int iLocalStart = (iStart-colShift) / r;
+        const int jLocalStart = (jStart-rowShift) / c;
 
         const int localDiagLength = d.LocalWidth();
 #ifdef _OPENMP
@@ -1010,10 +1012,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetImagDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R u = real(this->GetLocalEntry(iLocStart+k*(lcm/r),
-                                                 jLocStart+k*(lcm/c)));
+            const R u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+                                                 jLocalStart+k*(lcm/c)));
             this->SetLocalEntry
-                (iLocStart+k*(lcm/r),jLocStart+k*(lcm/c),
+                (iLocalStart+k*(lcm/r),jLocalStart+k*(lcm/c),
                  complex<R>(u,d.GetLocalEntry(0,k)));
         }
     }

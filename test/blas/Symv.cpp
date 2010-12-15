@@ -61,9 +61,6 @@ void TestSymv
     DistMatrix<T,MC,MR> A(g);
     DistMatrix<T,MC,MR> x(g);
     DistMatrix<T,MC,MR> y(g);
-    DistMatrix<T,Star,Star> ARef(g);
-    DistMatrix<T,Star,Star> xRef(g);
-    DistMatrix<T,Star,Star> yRef(g);
 
     A.ResizeTo( m, m );
     x.ResizeTo( m, 1 );

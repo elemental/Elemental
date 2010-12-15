@@ -58,12 +58,9 @@ void TestHemm
   int m, int n, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,  MR  > A(g);
-    DistMatrix<T,MC,  MR  > B(g);
-    DistMatrix<T,MC,  MR  > C(g);
-    DistMatrix<T,Star,Star> A_ref(g);
-    DistMatrix<T,Star,Star> B_ref(g);
-    DistMatrix<T,Star,Star> C_ref(g);
+    DistMatrix<T,MC,MR> A(g);
+    DistMatrix<T,MC,MR> B(g);
+    DistMatrix<T,MC,MR> C(g);
 
     if( side == Left )
         A.ResizeTo( m, m );

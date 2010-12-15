@@ -72,14 +72,15 @@ void TestCorrectness
     blas::Trmm( Left, shape, Normal, NonUnit, (T)1, AOrig, Y );
     blas::Axpy( (T)-1, Y, X );
 
-    double myResidual = 0;
-    for( int j=0; j<X.LocalWidth(); ++j )
-        for( int i=0; i<X.LocalHeight(); ++i )
-            myResidual = max( (double)Abs(X.GetLocalEntry(i,j)), myResidual );
-    double residual;
-    Reduce( &myResidual, &residual, 1, MPI_MAX, 0, g.VCComm() );
+    T oneNormOfError = lapack::OneNorm( Y );
+    T infNormOfError = lapack::InfinityNorm( Y );
+    T frobNormOfError = lapack::FrobeniusNorm( Y );
     if( g.VCRank() == 0 )
-        cout << "||A A^-1 - I||_oo = " << residual << endl;
+    {
+        cout << "||A A^-1 - I||_1  = " << Abs(oneNormOfError) << "\n"
+             << "||A A^-1 - I||_oo = " << Abs(infNormOfError) << "\n"
+             << "||A A^-1 - I||_F  = " << Abs(frobNormOfError) << endl;
+    }
 }
 
 template<typename T>

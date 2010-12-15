@@ -61,10 +61,7 @@ void TestCorrectness
     const int n = A.Width();
 
     if( g.VCRank() == 0 )
-    {
-        cout << "  Testing orthogonality of Q...";
-        cout.flush();
-    }
+        cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Z(m,n,g);
@@ -82,22 +79,19 @@ void TestCorrectness
     // Form X := I - Q^H Q
     blas::Axpy( (R)-1, ZUpper, X );
 
-    // Compute the maximum deviance
-    R myMaxDevFromIdentity = 0.;
-    for( int j=0; j<X.LocalWidth(); ++j )
-        for( int i=0; i<X.LocalHeight(); ++i )
-            myMaxDevFromIdentity = 
-                max(myMaxDevFromIdentity,abs(X.GetLocalEntry(i,j)));
-    R maxDevFromIdentity;
-    Reduce
-    ( &myMaxDevFromIdentity, &maxDevFromIdentity, 1, MPI_MAX, 0, g.VCComm() );
+    R oneNormOfError = lapack::OneNorm( X );
+    R infNormOfError = lapack::InfinityNorm( X );
+    R frobNormOfError = lapack::FrobeniusNorm( X );
     if( g.VCRank() == 0 )
-        cout << "||Q^H Q - I||_oo = " << maxDevFromIdentity << endl;
+    {
+        cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
+             << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
+             << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
+    }
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Testing if A = QR...";
-        cout.flush();
+        cout << "  Testing if A = QR..." << endl;
     }
 
     // Form Q R
@@ -108,17 +102,21 @@ void TestCorrectness
     // Form Q R - A
     blas::Axpy( (R)-1, AOrig, U );
     
-    // Compute the maximum deviance
-    R myMaxDevFromA = 0.;
-    for( int j=0; j<U.LocalWidth(); ++j )
-        for( int i=0; i<U.LocalHeight(); ++i )
-            myMaxDevFromA = 
-                max(myMaxDevFromA,abs(U.GetLocalEntry(i,j)));
-    R maxDevFromA;
-    Reduce
-    ( &myMaxDevFromA, &maxDevFromA, 1, MPI_MAX, 0, g.VCComm() );
+    R oneNormOfA = lapack::OneNorm( AOrig );
+    R infNormOfA = lapack::InfinityNorm( AOrig );
+    R frobNormOfA = lapack::FrobeniusNorm( AOrig );
+    oneNormOfError = lapack::OneNorm( U );
+    infNormOfError = lapack::InfinityNorm( U );
+    frobNormOfError = lapack::FrobeniusNorm( U );
     if( g.VCRank() == 0 )
-        cout << "||AOrig - QR||_oo = " << maxDevFromA << endl;
+    {
+        cout << "    ||A||_1       = " << oneNormOfA << "\n"
+             << "    ||A||_oo      = " << infNormOfA << "\n"
+             << "    ||A||_F       = " << frobNormOfA << "\n"
+             << "    ||A - QR||_1  = " << oneNormOfError << "\n"
+             << "    ||A - QR||_oo = " << infNormOfError << "\n"
+             << "    ||A - QR||_F  = " << frobNormOfError << endl;
+    }
 }
 
 #ifndef WITHOUT_COMPLEX
@@ -136,10 +134,7 @@ void TestCorrectness
     const int n = A.Width();
 
     if( g.VCRank() == 0 )
-    {
-        cout << "  Testing orthogonality of Q...";
-        cout.flush();
-    }
+        cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<C,MC,MR> Z(m,n,g);
@@ -157,23 +152,18 @@ void TestCorrectness
     // Form X := I - Q^H Q
     blas::Axpy( (C)-1, ZUpper, X );
 
-    // Compute the maximum deviance
-    R myMaxDevFromIdentity = 0.;
-    for( int j=0; j<X.LocalWidth(); ++j )
-        for( int i=0; i<X.LocalHeight(); ++i )
-            myMaxDevFromIdentity = 
-                max(myMaxDevFromIdentity,abs(X.GetLocalEntry(i,j)));
-    R maxDevFromIdentity;
-    Reduce
-    ( &myMaxDevFromIdentity, &maxDevFromIdentity, 1, MPI_MAX, 0, g.VCComm() );
-    if( g.VCRank() == 0 )
-        cout << "||Q^H Q - I||_oo = " << maxDevFromIdentity << endl;
-
+    R oneNormOfError = lapack::OneNorm( X );
+    R infNormOfError = lapack::InfinityNorm( X );
+    R frobNormOfError = lapack::FrobeniusNorm( X );
     if( g.VCRank() == 0 )
     {
-        cout << "  Testing if A = QR...";
-        cout.flush();
+        cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
+             << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
+             << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
     }
+
+    if( g.VCRank() == 0 )
+        cout << "  Testing if A = QR..." << endl;
 
     // Form Q R
     DistMatrix<C,MC,MR> U( A );
@@ -183,17 +173,21 @@ void TestCorrectness
     // Form Q R - A
     blas::Axpy( (C)-1, AOrig, U );
     
-    // Compute the maximum deviance
-    R myMaxDevFromA = 0.;
-    for( int j=0; j<U.LocalWidth(); ++j )
-        for( int i=0; i<U.LocalHeight(); ++i )
-            myMaxDevFromA = 
-                max(myMaxDevFromA,abs(U.GetLocalEntry(i,j)));
-    R maxDevFromA;
-    Reduce
-    ( &myMaxDevFromA, &maxDevFromA, 1, MPI_MAX, 0, g.VCComm() );
+    R oneNormOfA = lapack::OneNorm( AOrig );
+    R infNormOfA = lapack::InfinityNorm( AOrig );
+    R frobNormOfA = lapack::FrobeniusNorm( AOrig );
+    oneNormOfError = lapack::OneNorm( U );
+    infNormOfError = lapack::InfinityNorm( U );
+    frobNormOfError = lapack::FrobeniusNorm( U );
     if( g.VCRank() == 0 )
-        cout << "||AOrig - QR||_oo = " << maxDevFromA << endl;
+    {
+        cout << "    ||A||_1       = " << oneNormOfA << "\n"
+             << "    ||A||_oo      = " << infNormOfA << "\n"
+             << "    ||A||_F       = " << frobNormOfA << "\n"
+             << "    ||A - QR||_1  = " << oneNormOfError << "\n"
+             << "    ||A - QR||_oo = " << infNormOfError << "\n"
+             << "    ||A - QR||_F  = " << frobNormOfError << endl;
+    }
 }
 #endif // WITHOUT_COMPLEX
 
