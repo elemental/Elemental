@@ -43,7 +43,7 @@ and the C MPI compiler /usr/bin/mpicc:
       cd PureRelease
       cmake -DCMAKE_BUILD_TYPE=PureRelease \
             -DCMAKE_CXX_COMPILER=/usr/bin/mpicxx \
-            -DCMAKE_C_COMPILER=/usr/bin/mpicxx ../..
+            -DCMAKE_C_COMPILER=/usr/bin/mpicc ../..
       make
 If the correct BLAS/LAPACK libraries are not found, instead run:
       cmake -i ../..
