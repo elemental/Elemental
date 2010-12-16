@@ -223,7 +223,7 @@ if(NEED_PURE_MATH OR NEED_HYBRID_MATH)
               CACHE STRING ${HYBRID_MATH_DESC})
         endif(NEED_HYBRID_MATH)
         message(FATAL_ERROR 
-          "Could not find BLAS/LAPACK libs. Please manually specify MATH_LIBS.")
+          "Could not find BLAS/LAPACK libs. Please manually specify PURE_MATH_LIBS and/or HYBRID_MATH_LIBS.")
       endif(REF_MATH_LIBS)
     endif(NOT FOUND_MATH_LIBS)
   endif(APPLE)
