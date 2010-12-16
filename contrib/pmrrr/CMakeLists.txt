@@ -135,8 +135,8 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
     # For some reason enable_language( ... OPTIONAL) causes an error, so we 
     # should instead manually probe for a Fortran compiler first
     #enable_language(Fortran OPTIONAL)
-    find_program(FORTRAN_COMPILER gfortran g77 ifort xlf_r xlf xlf90_r xlf90
-                                  xlf95_r xlf95 xlf2003_r xlf2003)
+    find_program(FORTRAN_COMPILER NAMES gfortran g77 ifort xlf_r xlf xlf90_r 
+                 xlf90 xlf95_r xlf95 xlf2003_r xlf2003)
   endif(NOT CMAKE_Fortran_COMPILER)
   if(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
     enable_language(Fortran)
