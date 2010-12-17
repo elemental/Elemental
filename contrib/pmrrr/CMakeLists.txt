@@ -31,7 +31,7 @@
 #  POSSIBILITY OF SUCH DAMAGE.
 #
 project(PMRRR)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 # Elemental and PMRRR support four build modes:
 #   HybridDebug, HybridRelease, PureDebug, and PureRelease
@@ -172,7 +172,9 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
         set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
       endif(NOT F_FROM_C_DEFS)
       if(APPLE)
-        find_library(GFORTRAN_LIB gfortran)
+        string(REGEX REPLACE "bin/gfortran" "lib" GFORTRAN_LIB_DIR
+               "${CMAKE_Fortran_COMPILER}")
+        find_library(GFORTRAN_LIB gfortran HINTS ${GFORTRAN_LIB_DIR})
         if(GFORTRAN_LIB)
           set(LAPACK_ADDONS_LINK_LIBS ${GFORTRAN_LIB})
         else(GFORTRAN_LIB)
@@ -186,6 +188,18 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
       if(NOT F_FROM_C_DEFS)
         set(F_FROM_C_DEFS "")
       endif(NOT F_FROM_C_DEFS)
+    elseif(Fortran_COMPILER_NAME STREQUAL "ifort")
+      if(NOT F_FROM_C_DEFS)
+        set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
+      endif(NOT F_FROM_C_DEFS)
+      string(REGEX REPLACE "bin/ifort" "lib" IFORT_LIB_DIR
+             "${CMAKE_Fortran_COMPILER}")
+      find_library(IFCORE_LIB ifcore HINTS ${IFORT_LIB_DIR})
+      if(IFCORE_LIB)
+        set(LAPACK_ADDONS_LINK_LIBS ${IFCORE_LIB})
+      else(IFCORE_LIB)
+        message(FATAL_ERROR "Could not find ifort library")
+      endif(IFCORE_LIB)
     else(Fortran_COMPILER_NAME STREQUAL "gfortran")
       # The list of other compiler options should grow quickly. It is best      
       # to default to assuming an appended underscore.
