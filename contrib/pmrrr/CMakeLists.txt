@@ -192,7 +192,7 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
       if(NOT F_FROM_C_DEFS)
         set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
       endif(NOT F_FROM_C_DEFS)
-      string(REGEX REPLACE "bin/ifort" "lib" IFORT_LIB_DIR
+      string(REGEX REPLACE "/bin/([^/]*)/?ifort" "/lib/\\1" IFORT_LIB_DIR
              "${CMAKE_Fortran_COMPILER}")
       find_library(IFCORE_LIB ifcore HINTS ${IFORT_LIB_DIR})
       if(IFCORE_LIB)
