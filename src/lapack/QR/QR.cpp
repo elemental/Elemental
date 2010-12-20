@@ -101,8 +101,8 @@ elemental::lapack::QR
 template<typename R>
 void
 elemental::lapack::QR
-( DistMatrix<complex<R>,MC,MR  >& A, 
-  DistMatrix<complex<R>,MD,Star>& t )
+( DistMatrix<complex<R>,MC,  MR  >& A, 
+  DistMatrix<complex<R>,Star,Star>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::QR");
@@ -111,21 +111,15 @@ elemental::lapack::QR
 #endif
     const Grid& g = A.Grid();
 #ifndef RELEASE
-    if( t.Viewing() && 
-        (t.Height() != min(A.Height(),A.Width()) || t.Width() != 1) )
+    if( t.Height() != min(A.Height(),A.Width()) || t.Width() != 1 )
         throw logic_error
               ( "t must be a column vector of the same height as the minimum "
                 "dimension of A." );
-    if( !t.AlignedWithDiag( A ) )
-        throw logic_error( "t must be aligned with A's main diagonal." );
 #endif
     typedef complex<R> C;
-    if( !t.Viewing() )
-    {
-        if( !t.ConstrainedColAlignment() )
-            t.AlignWithDiag( A );
-        t.ResizeTo( min(A.Height(),A.Width()), 1 );
-    }
+    DistMatrix<C,MD,Star> tDiag(g);
+    tDiag.AlignWithDiag( A );
+    tDiag.ResizeTo( min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     DistMatrix<C,MC,MR>
@@ -141,8 +135,8 @@ elemental::lapack::QR
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionDown
-    ( t, tT,
-         tB, 0 );
+    ( tDiag, tT,
+             tB, 0 );
     while( ( ATL.Height() < A.Height() && ATL.Width() < A.Width() ) )
     {
         RepartitionDownDiagonal
@@ -182,6 +176,8 @@ elemental::lapack::QR
          /**/ /**/
           tB,  t2 );
     }
+    // Redistribute from matrix-diag to fully replicated form
+    t = tDiag;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -199,12 +195,12 @@ elemental::lapack::QR
 #ifndef WITHOUT_COMPLEX
 template void
 elemental::lapack::QR
-( DistMatrix<scomplex,MC,MR  >& A,
-  DistMatrix<scomplex,MD,Star>& t );
+( DistMatrix<scomplex,MC,  MR  >& A,
+  DistMatrix<scomplex,Star,Star>& t );
 
 template void
 elemental::lapack::QR
-( DistMatrix<dcomplex,MC,MR  >& A,
-  DistMatrix<dcomplex,MD,Star>& t );
+( DistMatrix<dcomplex,MC,  MR  >& A,
+  DistMatrix<dcomplex,Star,Star>& t );
 #endif
 

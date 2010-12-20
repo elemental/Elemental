@@ -871,7 +871,7 @@ elemental::lapack::HermitianEig
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,MD,Star> t(g);
+    DistMatrix<std::complex<double>,Star,Star> t(g);
     lapack::Tridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
@@ -973,7 +973,7 @@ elemental::lapack::HermitianEig
     const int k = (b - a) + 1;
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,MD,Star> t(g);
+    DistMatrix<std::complex<double>,Star,Star> t(g);
     lapack::Tridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
@@ -1073,7 +1073,7 @@ elemental::lapack::HermitianEig
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,MD,Star> t(g);
+    DistMatrix<std::complex<double>,Star,Star> t(g);
     lapack::Tridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
@@ -1204,7 +1204,7 @@ elemental::lapack::HermitianEig
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,MD,Star> t(g);
+    DistMatrix<std::complex<double>,Star,Star> t(g);
     lapack::Tridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
@@ -1296,7 +1296,7 @@ elemental::lapack::HermitianEig
     const int k = (b - a) + 1;
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,MD,Star> t(g);
+    DistMatrix<std::complex<double>,Star,Star> t(g);
     lapack::Tridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
@@ -1386,7 +1386,7 @@ elemental::lapack::HermitianEig
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,MD,Star> t(g);
+    DistMatrix<std::complex<double>,Star,Star> t(g);
     lapack::Tridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A

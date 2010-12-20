@@ -361,7 +361,14 @@ void
 PanelTridiagL
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MD,Star>& e  );
+  DistMatrix<R,MD,Star>& e );
+template<typename R>
+void
+PanelTridiagLSquare
+( DistMatrix<R,MC,MR  >& paddedA,
+  DistMatrix<R,MC,MR  >& W,
+  DistMatrix<R,MD,Star>& e,
+  int padding );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -371,6 +378,14 @@ PanelTridiagL
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<R,              MD,Star>& e,
   DistMatrix<std::complex<R>,MD,Star>& t );
+template<typename R>
+void
+PanelTridiagLSquare
+( DistMatrix<std::complex<R>,MC,MR  >& paddedA,
+  DistMatrix<std::complex<R>,MC,MR  >& W,
+  DistMatrix<R,              MD,Star>& e,
+  DistMatrix<std::complex<R>,MD,Star>& t,
+  int padding );
 #endif
  
 template<typename R>
@@ -379,6 +394,13 @@ PanelTridiagU
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MD,Star>& e );
+template<typename R>
+void
+PanelTridiagUSquare
+( DistMatrix<R,MC,MR  >& paddedA,
+  DistMatrix<R,MC,MR  >& W,
+  DistMatrix<R,MD,Star>& e,
+  int padding );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -388,30 +410,56 @@ PanelTridiagU
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<R,              MD,Star>& e,
   DistMatrix<std::complex<R>,MD,Star>& t );
+template<typename R>
+void
+PanelTridiagUSquare
+( DistMatrix<std::complex<R>,MC,MR  >& paddedA,
+  DistMatrix<std::complex<R>,MC,MR  >& W,
+  DistMatrix<R,              MD,Star>& e,
+  DistMatrix<std::complex<R>,MD,Star>& t,
+  int padding );
 #endif
 
 template<typename R>
 void
 TridiagL( DistMatrix<R,MC,MR>& A );
+template<typename R>
+void
+TridiagLSquare( DistMatrix<R,MC,MR>& paddedA, int padding );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 TridiagL
-( DistMatrix<std::complex<R>,MC,MR  >& A, 
-  DistMatrix<std::complex<R>,MD,Star>& t );
+( DistMatrix<std::complex<R>,MC,  MR  >& A, 
+  DistMatrix<std::complex<R>,Star,Star>& t );
+template<typename R>
+void
+TridiagLSquare
+( DistMatrix<std::complex<R>,MC,  MR  >& paddedA, 
+  DistMatrix<std::complex<R>,Star,Star>& t,
+  int padding );
 #endif
 
 template<typename R>
 void
-TridiagU( DistMatrix<R,MC,MR  >& A );
+TridiagU( DistMatrix<R,MC,MR>& A );
+template<typename R>
+void
+TridiagUSquare( DistMatrix<R,MC,MR>& paddedA, int padding );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 TridiagU
-( DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<std::complex<R>,MD,Star>& t );
+( DistMatrix<std::complex<R>,MC,  MR  >& A,
+  DistMatrix<std::complex<R>,Star,Star>& t );
+template<typename R>
+void
+TridiagUSquare
+( DistMatrix<std::complex<R>,MC,  MR  >& paddedA,
+  DistMatrix<std::complex<R>,Star,Star>& t,
+  int padding );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -450,7 +498,9 @@ TrinvUVar3
 template<typename R>
 void
 UTLLN
-( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -465,7 +515,9 @@ UTLLN
 template<typename R>
 void
 UTLLC
-( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -480,7 +532,9 @@ UTLLC
 template<typename R>
 void
 UTLUN
-( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -495,7 +549,9 @@ UTLUN
 template<typename R>
 void
 UTLUC
-( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -510,7 +566,9 @@ UTLUC
 template<typename R>
 void
 UTRLN
-( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -525,7 +583,9 @@ UTRLN
 template<typename R>
 void
 UTRLC
-( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -540,7 +600,9 @@ UTRLC
 template<typename R>
 void
 UTRUN
-( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -555,7 +617,9 @@ UTRUN
 template<typename R>
 void
 UTRUC
-( int offset, const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR>& A );
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>

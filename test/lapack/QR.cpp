@@ -123,9 +123,9 @@ void TestCorrectness
 template<typename R>
 void TestCorrectness
 ( bool printMatrices,
-  const DistMatrix<complex<R>,MC,MR  >& A,
-  const DistMatrix<complex<R>,MD,Star>& t,
-        DistMatrix<complex<R>,MC,MR  >& AOrig )
+  const DistMatrix<complex<R>,MC,  MR  >& A,
+  const DistMatrix<complex<R>,Star,Star>& t,
+        DistMatrix<complex<R>,MC,  MR  >& AOrig )
 {
     typedef complex<R> C;
 
@@ -257,9 +257,9 @@ void TestQR< complex<double> >
     typedef complex<double> C;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<C,MC,MR  > A(g);
-    DistMatrix<C,MD,Star> t(g);
-    DistMatrix<C,MC,MR  > AOrig(g);
+    DistMatrix<C,MC,  MR  > A(g);
+    DistMatrix<C,Star,Star> t(g);
+    DistMatrix<C,MC,  MR  > AOrig(g);
 
     A.ResizeTo( m, n );
 

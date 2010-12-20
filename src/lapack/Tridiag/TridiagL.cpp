@@ -111,8 +111,8 @@ elemental::lapack::internal::TridiagL
 template<typename R>
 void
 elemental::lapack::internal::TridiagL
-( DistMatrix<complex<R>,MC,MR  >& A,
-  DistMatrix<complex<R>,MD,Star>& t )
+( DistMatrix<complex<R>,MC,  MR  >& A,
+  DistMatrix<complex<R>,Star,Star>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TridiagL");
@@ -123,13 +123,14 @@ elemental::lapack::internal::TridiagL
 #ifndef RELEASE
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
-    if( t.Viewing() || t.ConstrainedColAlignment() )
-        throw logic_error( "t must not be a view or constrained." );
+    if( t.Viewing() )
+        throw logic_error( "t must not be a view." );
 #endif
     typedef complex<R> C;
 
-    t.AlignWithDiag( A, -1 );
-    t.ResizeTo( A.Height()-1, 1 );
+    DistMatrix<C,MD,Star> tDiag(g);
+    tDiag.AlignWithDiag( A, -1 );
+    tDiag.ResizeTo( A.Height()-1, 1 );
 
     // Matrix views 
     DistMatrix<C,MC,MR> 
@@ -152,8 +153,8 @@ elemental::lapack::internal::TridiagL
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionDown
-    ( t, tT,
-         tB, 0 );
+    ( tDiag, tT,
+             tB, 0 );
     while( ATL.Height() < A.Height() )
     {
         RepartitionDownDiagonal
@@ -210,6 +211,8 @@ elemental::lapack::internal::TridiagL
          /**/ /**/
           tB,  t2 );
     }
+    // Redistribute from matrix-diagonal form to fully replicated
+    t = tDiag;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -224,11 +227,11 @@ template void elemental::lapack::internal::TridiagL
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::internal::TridiagL
-( DistMatrix<scomplex,MC,MR  >& A, 
-  DistMatrix<scomplex,MD,Star>& t );
+( DistMatrix<scomplex,MC,  MR  >& A, 
+  DistMatrix<scomplex,Star,Star>& t );
 
 template void elemental::lapack::internal::TridiagL
-( DistMatrix<dcomplex,MC,MR  >& A, 
-  DistMatrix<dcomplex,MD,Star>& t );
+( DistMatrix<dcomplex,MC,  MR  >& A, 
+  DistMatrix<dcomplex,Star,Star>& t );
 #endif
 

@@ -42,10 +42,51 @@ elemental::lapack::Tridiag
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
 #endif
+    // The old approach was to use a general (i.e., nonsquare) process grid,
+    // but it is usually significantly faster to redistribute to a (smaller)
+    // square process grid, tridiagonalize, and then redistribute back to the
+    // full grid.
     if( shape == Lower )
         lapack::internal::TridiagL( A );
     else
         lapack::internal::TridiagU( A );
+
+    // This will be enabled as soon as the redistributions are written
+    /*
+    const Grid& g = A.Grid();
+    int p = g.Size();
+    int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
+
+    if( g.InGrid() )
+    {
+        MPI_Comm owningComm = g.OwningComm();
+        MPI_Group owningGroup;
+        MPI_Comm_group( owningComm, &owningGroup );
+        
+        std::vector<int> ranks(pSqrt*pSqrt);
+        for( int i=0; i<ranks.size(); ++i )
+            ranks[i] = i;
+        MPI_Group squareGroup;
+        MPI_Group_incl( owningGroup, pSqrt*pSqrt, &ranks[0], &squareGroup );
+
+        const Grid squareGrid( owningComm, squareGroup, pSqrt, pSqrt );
+        bool inSquareGroup = squareGrid.InGrid();
+
+        // Determine padding size
+
+        DistMatrix<R,MC,MR> ASquare(m,m,squareGrid);
+
+        // Redistribute to from A to ASquare
+
+        if( shape == Lower )        
+            lapack::internal::TridiagLSquare( ASquare, paddingSize );
+        else
+            lapack::internal::TridiagUSquare( ASquare, paddingSize );
+
+        // Redistribute from ASquare to A
+    }
+    */
+
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -56,16 +97,58 @@ template<typename R>
 void
 elemental::lapack::Tridiag
 ( Shape shape, 
-  DistMatrix<complex<R>,MC,MR  >& A,
-  DistMatrix<complex<R>,MD,Star>& t )
+  DistMatrix<complex<R>,MC,  MR  >& A,
+  DistMatrix<complex<R>,Star,Star>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
 #endif
+    // The old approach was to use a general (i.e., nonsquare) process grid,
+    // but it is usually significantly faster to redistribute to a (smaller)
+    // square process grid, tridiagonalize, and then redistribute back to the
+    // full grid.
     if( shape == Lower )
         lapack::internal::TridiagL( A, t );
     else
         lapack::internal::TridiagU( A, t );
+
+    // This will be enabled as soon as the redistributions are written
+    /*
+    const Grid& g = A.Grid();
+    int p = g.Size();
+    int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
+
+    if( g.InGrid() )
+    {
+        MPI_Comm owningComm = g.OwningComm();
+        MPI_Group owningGroup;
+        MPI_Comm_group( owningComm, &owningGroup );
+        
+        std::vector<int> ranks(pSqrt*pSqrt);
+        for( int i=0; i<ranks.size(); ++i )
+            ranks[i] = i;
+        MPI_Group squareGroup;
+        MPI_Group_incl( owningGroup, pSqrt*pSqrt, &ranks[0], &squareGroup );
+
+        const Grid squareGrid( owningComm, squareGroup, pSqrt, pSqrt );
+        bool inSquareGroup = squareGrid.InGrid();
+
+        // Determine padding size
+
+        DistMatrix<complex<R>,MC,MR> ASquare(m,m,squareGrid);
+        DistMatrix<complex<R>,Star,Star> tSquare(squareGrid);
+
+        // Redistribute to from A to ASquare
+
+        if( shape == Lower )        
+            lapack::internal::TridiagLSquare( ASquare, tSquare, paddingSize );
+        else
+            lapack::internal::TridiagUSquare( ASquare, tSquare, paddingSize );
+
+        // Redistribute from ASquare to A
+        // Redistribute from tSquare to t
+    }
+    */
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -83,12 +166,12 @@ template void elemental::lapack::Tridiag
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::Tridiag
 ( Shape shape,
-  DistMatrix<scomplex,MC,MR  >& A,
-  DistMatrix<scomplex,MD,Star>& t );
+  DistMatrix<scomplex,MC,  MR  >& A,
+  DistMatrix<scomplex,Star,Star>& t );
 
 template void elemental::lapack::Tridiag
 ( Shape shape,
-  DistMatrix<dcomplex,MC,MR  >& A,
-  DistMatrix<dcomplex,MD,Star>& t );
+  DistMatrix<dcomplex,MC,  MR  >& A,
+  DistMatrix<dcomplex,Star,Star>& t );
 #endif
 

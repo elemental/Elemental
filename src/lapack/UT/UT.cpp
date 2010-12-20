@@ -147,6 +147,34 @@ elemental::lapack::UT
     PopCallStack();
 #endif
 }
+
+template<typename R>
+void
+elemental::lapack::UT
+( Side side,
+  Shape shape, 
+  Orientation orientation,
+  int offset,
+  const DistMatrix<complex<R>,MC,  MR  >& H, 
+  const DistMatrix<complex<R>,Star,Star>& t,
+        DistMatrix<complex<R>,MC,  MR  >& A )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::UT");
+    if( orientation == Transpose )
+        throw logic_error
+              ( "Only Normal and ConjugateTranspose UT transform applications "
+                "are written." );
+#endif
+    DistMatrix<complex<R>,MD,Star> tDiag(A.Grid());
+    tDiag.AlignWithDiag( A, offset );
+    tDiag = t;
+    lapack::UT( side, shape, orientation, offset, H, tDiag, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 #endif // WITHOUT_COMPLEX
 
 template void elemental::lapack::UT
@@ -171,17 +199,33 @@ template void elemental::lapack::UT
   Shape shape,
   Orientation orientation,
   int offset,
-  const DistMatrix<scomplex,MC,MR  >& H,
-  const DistMatrix<scomplex,MD,Star>& t,
-        DistMatrix<scomplex,MC,MR  >& A );
+  const DistMatrix<scomplex,MC,  MR  >& H,
+  const DistMatrix<scomplex,MD,  Star>& t,
+        DistMatrix<scomplex,MC,  MR  >& A );
+template void elemental::lapack::UT
+( Side side,
+  Shape shape,
+  Orientation orientation,
+  int offset,
+  const DistMatrix<scomplex,MC,  MR  >& H,
+  const DistMatrix<scomplex,Star,Star>& t,
+        DistMatrix<scomplex,MC,  MR  >& A );
 
 template void elemental::lapack::UT
 ( Side side,
   Shape shape,
   Orientation orientation,
   int offset,
-  const DistMatrix<dcomplex,MC,MR  >& H,
-  const DistMatrix<dcomplex,MD,Star>& t,
-        DistMatrix<dcomplex,MC,MR  >& A );
+  const DistMatrix<dcomplex,MC,  MR  >& H,
+  const DistMatrix<dcomplex,MD,  Star>& t,
+        DistMatrix<dcomplex,MC,  MR  >& A );
+template void elemental::lapack::UT
+( Side side,
+  Shape shape,
+  Orientation orientation,
+  int offset,
+  const DistMatrix<dcomplex,MC,  MR  >& H,
+  const DistMatrix<dcomplex,Star,Star>& t,
+        DistMatrix<dcomplex,MC,  MR  >& A );
 #endif
 

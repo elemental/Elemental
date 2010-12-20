@@ -112,8 +112,8 @@ elemental::lapack::internal::TridiagU
 template<typename R>
 void
 elemental::lapack::internal::TridiagU
-( DistMatrix<complex<R>,MC,MR  >& A,
-  DistMatrix<complex<R>,MD,Star>& t )
+( DistMatrix<complex<R>,MC,  MR  >& A,
+  DistMatrix<complex<R>,Star,Star>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TridiagU");
@@ -124,15 +124,13 @@ elemental::lapack::internal::TridiagU
 #ifndef RELEASE
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
-    if( t.Viewing() || t.ConstrainedColAlignment() )
-        throw logic_error( "t must not be a view or constrained." );
+    if( t.Viewing() )
+        throw logic_error( "t must not be a view." );
 #endif
     typedef complex<R> C;
-    if( !t.Viewing() )
-    {
-        t.AlignWithDiag( A, 1 );
-        t.ResizeTo( A.DiagonalLength( 1 ), 1 );
-    }
+    DistMatrix<C,MD,Star> tDiag(g);
+    tDiag.AlignWithDiag( A, 1 );
+    tDiag.ResizeTo( A.DiagonalLength( 1 ), 1 );
 
     // Matrix views 
     DistMatrix<C,MC,MR> 
@@ -155,8 +153,8 @@ elemental::lapack::internal::TridiagU
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionUp
-    ( t, tT,
-         tB, 0 );
+    ( tDiag, tT,
+             tB, 0 );
     while( ABR.Height() < A.Height() )
     {
         RepartitionUpDiagonal
@@ -217,6 +215,8 @@ elemental::lapack::internal::TridiagU
                t1,
           tB,  t2 );
     }
+    // Redistribute from matrix-diag form to fully replicated
+    t = tDiag;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -224,18 +224,18 @@ elemental::lapack::internal::TridiagU
 #endif // WITHOUT_COMPLEX
 
 template void elemental::lapack::internal::TridiagU
-( DistMatrix<float,MC,MR  >& A );
+( DistMatrix<float,MC,MR>& A );
 
 template void elemental::lapack::internal::TridiagU
-( DistMatrix<double,MC,MR  >& A );
+( DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::internal::TridiagU
-( DistMatrix<scomplex,MC,MR  >& A,
-  DistMatrix<scomplex,MD,Star>& t );
+( DistMatrix<scomplex,MC,  MR  >& A,
+  DistMatrix<scomplex,Star,Star>& t );
 
 template void elemental::lapack::internal::TridiagU
-( DistMatrix<dcomplex,MC,MR  >& A,
-  DistMatrix<dcomplex,MD,Star>& t );
+( DistMatrix<dcomplex,MC,  MR  >& A,
+  DistMatrix<dcomplex,Star,Star>& t );
 #endif
 

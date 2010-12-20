@@ -112,6 +112,8 @@ class Grid
     int MRRank() const;
     int VCRank() const;
     int VRRank() const;
+    MPI_Comm OwningComm() const;
+    MPI_Comm ViewingComm() const;
     MPI_Comm MCComm() const;
     MPI_Comm MRComm() const;
     MPI_Comm VCComm() const;
@@ -202,6 +204,14 @@ elemental::Grid::VCRank() const
 inline int
 elemental::Grid::VRRank() const
 { return _vectorRowRank; }
+
+inline MPI_Comm
+elemental::Grid::OwningComm() const
+{ return _owningComm; }
+
+inline MPI_Comm
+elemental::Grid::ViewingComm() const
+{ return _viewingComm; }
 
 inline MPI_Comm
 elemental::Grid::MCComm() const

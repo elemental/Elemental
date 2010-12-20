@@ -592,8 +592,8 @@ QR( DistMatrix<R,MC,MR>& A );
 // Parallel version for complex datatypes
 template<typename R>
 void
-QR( DistMatrix<std::complex<R>,MC,MR  >& A, 
-    DistMatrix<std::complex<R>,MD,Star>& t );
+QR( DistMatrix<std::complex<R>,MC,  MR  >& A, 
+    DistMatrix<std::complex<R>,Star,Star>& t );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -691,7 +691,7 @@ Tridiag
 template<typename R>
 void
 Tridiag
-( Shape shape, DistMatrix<R,MC,MR  >& A );
+( Shape shape, DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 // Parallel version for complex datatypes
@@ -699,8 +699,8 @@ template<typename R>
 void
 Tridiag
 ( Shape shape,
-  DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<std::complex<R>,MD,Star>& t );
+  DistMatrix<std::complex<R>,MC,  MR  >& A,
+  DistMatrix<std::complex<R>,Star,Star>& t );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -749,15 +749,22 @@ Trinv
 template<typename R>
 void
 UT( Side side, Shape shape, Orientation orientation, int offset,
-    const DistMatrix<R,MC,MR>& H, DistMatrix<R,MC,MR  >& A );
+    const DistMatrix<R,MC,MR>& H, 
+          DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 UT( Side side, Shape shape, Orientation orientation, int offset,
-    const DistMatrix<std::complex<R>,MC,MR  >& H,
-    const DistMatrix<std::complex<R>,MD,Star>& t,
-          DistMatrix<std::complex<R>,MC,MR  >& A );
+    const DistMatrix<std::complex<R>,MC,  MR  >& H,
+    const DistMatrix<std::complex<R>,MD,  Star>& t,
+          DistMatrix<std::complex<R>,MC,  MR  >& A );
+template<typename R>
+void
+UT( Side side, Shape shape, Orientation orientation, int offset,
+    const DistMatrix<std::complex<R>,MC,  MR  >& H,
+    const DistMatrix<std::complex<R>,Star,Star>& t,
+          DistMatrix<std::complex<R>,MC,  MR  >& A );
 #endif
 
 } // lapack
