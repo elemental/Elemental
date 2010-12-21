@@ -46,12 +46,17 @@ elemental::Grid::Grid
     MPI_Comm_dup( comm, &_viewingComm );
     MPI_Comm_group( _viewingComm, &_viewingGroup );
     MPI_Comm_rank( _viewingComm, &_viewingRank );
-    _rank = _viewingRank;
     MPI_Comm_size( _viewingComm, &_p );
 
     // All processes own the grid, so we have to trivially split _viewingGroup
     _owningGroup = _viewingGroup;
     _notOwningGroup = MPI_GROUP_EMPTY;
+    _owningRank = _viewingRank;
+
+    // Set up the map from the owning to viewing ranks.
+    _owningToViewingMap.resize(_p);
+    for( int i=0; i<_p; ++i )
+        _owningToViewingMap[i] = i;
 
     // Factor p
     _r = static_cast<int>(sqrt(static_cast<double>(_p)));
@@ -82,8 +87,13 @@ elemental::Grid::Grid
 
     // All processes own the grid, so we have to trivially split _viewingGroup
     _owningGroup = _viewingGroup;
-    _rank = _viewingRank;
     _notOwningGroup = MPI_GROUP_EMPTY;
+    _owningRank = _viewingRank;
+
+    // Set up the map from the owning to viewing ranks.
+    _owningToViewingMap.resize(_p);
+    for( int i=0; i<_p; ++i )
+        _owningToViewingMap[i] = i;
 
     _r = r;
     _c = c;
@@ -112,11 +122,19 @@ elemental::Grid::Grid
     // Extract our rank and the number of processes from the owning group
     _owningGroup = owningGroup;
     MPI_Group_size( _owningGroup, &_p );
-    MPI_Group_rank( _owningGroup, &_rank );
-    _inGrid = ( _rank != MPI_UNDEFINED );
+    MPI_Group_rank( _owningGroup, &_owningRank );
+    _inGrid = ( _owningRank != MPI_UNDEFINED );
 
     // Create the complement of the owning group
     MPI_Group_difference( _viewingGroup, _owningGroup, &_notOwningGroup );
+
+    // Set up the map from the owning to viewing ranks
+    std::vector<int> ranks(_p);
+    for( int i=0; i<_p; ++i )
+        ranks[i] = i;
+    _owningToViewingMap.resize(_p);
+    MPI_Group_translate_ranks
+    ( _owningGroup, _p, &ranks[0], _viewingGroup, &_owningToViewingMap[0] );
 
     // Factor p
     _r = static_cast<int>(sqrt(static_cast<double>(_p)));
@@ -147,11 +165,19 @@ elemental::Grid::Grid
     // Extract our rank and the number of processes from the owning group
     _owningGroup = owningGroup;
     MPI_Group_size( _owningGroup, &_p );
-    MPI_Group_rank( _owningGroup, &_rank );
-    _inGrid = ( _rank != MPI_UNDEFINED );
+    MPI_Group_rank( _owningGroup, &_owningRank );
+    _inGrid = ( _owningRank != MPI_UNDEFINED );
 
     // Create the complement of the owning group
     MPI_Group_difference( _viewingGroup, _owningGroup, &_notOwningGroup );
+
+    // Set up the map from the owning to viewing ranks
+    std::vector<int> ranks(_p);
+    for( int i=0; i<_p; ++i )
+        ranks[i] = i;
+    _owningToViewingMap.resize(_p);
+    MPI_Group_translate_ranks
+    ( _owningGroup, _p, &ranks[0], _viewingGroup, &_owningToViewingMap[0] );
 
     _r = r;
     _c = c;
@@ -184,7 +210,7 @@ elemental::Grid::SetUpGrid()
     int lcm = _p / _gcd;
 
 #ifndef RELEASE
-    if( _rank == 0 )
+    if( _owningRank == 0 )
     {
         cout << "Building process grid with:\n"
              << "  p=" << _p << ", (r,c)=(" << _r << "," << _c << ")\n"

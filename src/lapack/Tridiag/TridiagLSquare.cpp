@@ -170,7 +170,7 @@ elemental::lapack::internal::TridiagLSquare
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TridiagLSquare");
-    if( A.Height() != A.Width() )
+    if( paddedA.Height() != paddedA.Width() )
         throw logic_error( "A must be square." );
 #endif
     const Grid& g = paddedA.Grid();

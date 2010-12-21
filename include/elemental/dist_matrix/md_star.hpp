@@ -513,21 +513,19 @@ DistMatrixBase<T,MD,Star>::DistMatrixBase
   const Grid& g )
 : ADM(height,width,constrainedColAlignment,false,colAlignment,0,
       // column shift
-      ( g.DiagPath()==g.DiagPath(colAlignment) ?
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ?
         utilities::Shift
-        (g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
-        0 ),
+        (g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) : 0 ),
       // row shift
       0,
       // local height
-      ( g.DiagPath()==g.DiagPath(colAlignment) ? 
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ? 
         utilities::LocalLength
-        (height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
-        0 ),
+        (height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) : 0 ),
       // local width
-      width,
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ? width : 0 ),
       g)
-{ _inDiagonal = ( g.DiagPath() == g.DiagPath(colAlignment) ); }
+{ _inDiagonal = ( g.InGrid() && g.DiagPath() == g.DiagPath(colAlignment) ); }
 
 template<typename T>
 inline
@@ -536,21 +534,19 @@ DistMatrixBase<T,MD,Star>::DistMatrixBase
   int ldim, const Grid& g )
 : ADM(height,width,constrainedColAlignment,false,colAlignment,0,
       // column shift
-      ( g.DiagPath()==g.DiagPath(colAlignment) ?
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ?
         utilities::Shift
-        (g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
-        0 ),
+        (g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) : 0 ),
       // row shift
       0,
       // local height
-      ( g.DiagPath()==g.DiagPath(colAlignment) ? 
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ? 
         utilities::LocalLength
-        (height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
-        0 ),
+        (height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) : 0 ),
       // local width
-      width,
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ? width : 0 ),
       ldim,g)
-{ _inDiagonal = ( g.DiagPath() == g.DiagPath(colAlignment) ); }
+{ _inDiagonal = ( g.InGrid() && g.DiagPath() == g.DiagPath(colAlignment) ); }
 
 template<typename T>
 inline
@@ -559,21 +555,19 @@ DistMatrixBase<T,MD,Star>::DistMatrixBase
   const T* buffer, int ldim, const Grid& g )
 : ADM(height,width,colAlignment,0,
       // column shift
-      ( g.DiagPath()==g.DiagPath(colAlignment) ?
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ?
         utilities::Shift
-        (g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
-        0 ),
+        (g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) : 0 ),
       // row shift
       0,
       // local height
-      ( g.DiagPath()==g.DiagPath(colAlignment) ? 
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ? 
         utilities::LocalLength
-        (height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
-        0 ),
+        (height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) : 0 ),
       // local width
-      width,
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ? width : 0 ),
       buffer,ldim,g)
-{ _inDiagonal = ( g.DiagPath() == g.DiagPath(colAlignment) ); }
+{ _inDiagonal = ( g.InGrid() && g.DiagPath() == g.DiagPath(colAlignment) ); }
 
 template<typename T>
 inline
@@ -582,21 +576,19 @@ DistMatrixBase<T,MD,Star>::DistMatrixBase
   T* buffer, int ldim, const Grid& g )
 : ADM(height,width,colAlignment,0,
       // column shift
-      ( g.DiagPath()==g.DiagPath(colAlignment) ?
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ?
         utilities::Shift
-        (g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
-        0 ),
+        (g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) : 0 ),
       // row shift
       0,
       // local height
-      ( g.DiagPath()==g.DiagPath(colAlignment) ? 
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ? 
         utilities::LocalLength
-        (height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
-        0 ),
+        (height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) : 0 ),
       // local width
-      width,
+      ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ? width : 0 ),
       buffer,ldim,g)
-{ _inDiagonal = ( g.DiagPath() == g.DiagPath(colAlignment) ); }
+{ _inDiagonal = ( g.InGrid() && g.DiagPath() == g.DiagPath(colAlignment) ); }
 
 template<typename T>
 inline

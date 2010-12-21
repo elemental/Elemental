@@ -487,11 +487,12 @@ DistMatrixBase<T,Star,VC>::DistMatrixBase
       // column shift
       0,
       // row shift
-      utilities::Shift(g.VCRank(),rowAlignment,g.Size()),
+      ( g.InGrid() ? utilities::Shift(g.VCRank(),rowAlignment,g.Size()) : 0 ),
       // local height
-      height,
+      ( g.InGrid() ? height : 0 ),
       // local width
-      utilities::LocalLength(width,g.VCRank(),rowAlignment,g.Size()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(width,g.VCRank(),rowAlignment,g.Size()) : 0 ),
       g)
 { }
 
@@ -504,11 +505,12 @@ DistMatrixBase<T,Star,VC>::DistMatrixBase
       // column shift
       0,
       // row shift
-      utilities::Shift(g.VCRank(),rowAlignment,g.Size()),
+      ( g.InGrid() ? utilities::Shift(g.VCRank(),rowAlignment,g.Size()) : 0 ),
       // local height
-      height,
+      ( g.InGrid() ? height : 0 ),
       // local width
-      utilities::LocalLength(width,g.VCRank(),rowAlignment,g.Size()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(width,g.VCRank(),rowAlignment,g.Size()) : 0 ),
       ldim,g)
 { }
 
@@ -521,11 +523,12 @@ DistMatrixBase<T,Star,VC>::DistMatrixBase
       // column shift
       0,
       // row shift
-      utilities::Shift(g.VCRank(),rowAlignment,g.Size()),
+      ( g.InGrid() ? utilities::Shift(g.VCRank(),rowAlignment,g.Size()) : 0 ),
       // local height
-      height,
+      ( g.InGrid() ? height : 0 ),
       // local width
-      utilities::LocalLength(width,g.VCRank(),rowAlignment,g.Size()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(width,g.VCRank(),rowAlignment,g.Size()) : 0 ),
       buffer,ldim,g)
 { }
 
@@ -538,11 +541,12 @@ DistMatrixBase<T,Star,VC>::DistMatrixBase
       // column shift
       0,
       // row shift
-      utilities::Shift(g.VCRank(),rowAlignment,g.Size()),
+      ( g.InGrid() ? utilities::Shift(g.VCRank(),rowAlignment,g.Size()) : 0 ),
       // local height
-      height,
+      ( g.InGrid() ? height : 0 ),
       // local width
-      utilities::LocalLength(width,g.VCRank(),rowAlignment,g.Size()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(width,g.VCRank(),rowAlignment,g.Size()) : 0 ),
       buffer,ldim,g)
 { }
 

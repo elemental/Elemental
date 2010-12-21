@@ -48,47 +48,93 @@ void
 Barrier( MPI_Comm comm );
 
 void
+Wait( MPI_Request& request );
+
+bool
+CongruentComms( MPI_Comm comm1, MPI_Comm comm2 );
+
+void
 Send
 ( const int* buf, int count, int to, int tag, MPI_Comm comm );
+void
+ISend
+( const int* buf, int count, int to, int tag, MPI_Comm comm, 
+  MPI_Request& request );
 
 void
 Send
 ( const float* buf, int count, int to, int tag, MPI_Comm comm );
+void
+ISend
+( const float* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request );
 
 void
 Send
 ( const double* buf, int count, int to, int tag, MPI_Comm comm );
+void
+ISend
+( const double* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request );
 
 #ifndef WITHOUT_COMPLEX
 void
 Send
 ( const scomplex* buf, int count, int to, int tag, MPI_Comm comm );
+void
+ISend
+( const scomplex* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request );
 
 void
 Send
 ( const dcomplex* buf, int count, int to, int tag, MPI_Comm comm );
+void
+ISend
+( const dcomplex* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request );
 #endif
         
 void
 Recv
 ( int* buf, int count, int from, int tag, MPI_Comm comm );
+void
+IRecv
+( int* buf, int count, int from, int tag, MPI_Comm comm,
+  MPI_Request& request );
 
 void
 Recv
 ( float* buf, int count, int from, int tag, MPI_Comm comm );
+void
+IRecv
+( float* buf, int count, int from, int tag, MPI_Comm comm,
+  MPI_Request& request );
 
 void
 Recv
 ( double* buf, int count, int from, int tag, MPI_Comm comm );
+void
+IRecv
+( double* buf, int count, int from, int tag, MPI_Comm comm,
+  MPI_Request& request );
 
 #ifndef WITHOUT_COMPLEX
 void
 Recv
 ( scomplex* buf, int count, int from, int tag, MPI_Comm comm );
+void
+IRecv
+( scomplex* buf, int count, int from, int tag, MPI_Comm comm,
+  MPI_Request& request );
 
 void
 Recv
 ( dcomplex* buf, int count, int from, int tag, MPI_Comm comm );
+void
+IRecv
+( dcomplex* buf, int count, int from, int tag, MPI_Comm comm,
+  MPI_Request& request );
 #endif
 
 void
@@ -389,6 +435,33 @@ elemental::wrappers::mpi::Barrier( MPI_Comm comm )
 }
 
 inline void
+elemental::wrappers::mpi::Wait( MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::Wait");
+#endif
+    MPI_Status status;
+    SafeMpi( MPI_Wait( &request, &status ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline bool
+elemental::wrappers::mpi::CongruentComms( MPI_Comm comm1, MPI_Comm comm2 )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::CongruentComms");
+#endif
+    int result;
+    SafeMpi( MPI_Comm_compare( comm1, comm2, &result ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return ( result == MPI_IDENT || result == MPI_CONGRUENT );
+}
+
+inline void
 elemental::wrappers::mpi::Send
 ( const int* buf, int count, int to, int tag, MPI_Comm comm )
 { 
@@ -397,6 +470,23 @@ elemental::wrappers::mpi::Send
 #endif
     SafeMpi( 
         MPI_Send( const_cast<int*>(buf), count, MPI_INT, to, tag, comm ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::wrappers::mpi::ISend
+( const int* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{ 
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::ISend");
+#endif
+    SafeMpi( 
+        MPI_Isend
+        ( const_cast<int*>(buf), count, MPI_INT, to, tag, comm, &request ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -419,6 +509,23 @@ elemental::wrappers::mpi::Send
 }
 
 inline void
+elemental::wrappers::mpi::ISend
+( const float* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::ISend");
+#endif
+    SafeMpi( 
+        MPI_Isend
+        ( const_cast<float*>(buf), count, MPI_FLOAT, to, tag, comm, &request ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
 elemental::wrappers::mpi::Send
 ( const double* buf, int count, int to, int tag, MPI_Comm comm )
 {
@@ -427,6 +534,23 @@ elemental::wrappers::mpi::Send
 #endif
     SafeMpi( 
         MPI_Send( const_cast<double*>(buf), count, MPI_DOUBLE, to, tag, comm ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::wrappers::mpi::ISend
+( const double* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::ISend");
+#endif
+    SafeMpi( 
+        MPI_Isend
+        ( const_cast<double*>(buf), count, MPI_DOUBLE, to, tag, comm, &request )
     );
 #ifndef RELEASE
     PopCallStack();
@@ -458,6 +582,32 @@ elemental::wrappers::mpi::Send
 }
 
 inline void
+elemental::wrappers::mpi::ISend
+( const scomplex* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::ISend");
+#endif
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Isend
+        ( const_cast<scomplex*>(buf), 2*count, MPI_FLOAT, to, tag, comm,
+          &request )
+    );
+#else
+    SafeMpi( 
+        MPI_Isend
+        ( const_cast<scomplex*>(buf), count, MPI_COMPLEX, to, tag, comm,
+          &request )
+    );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
 elemental::wrappers::mpi::Send
 ( const dcomplex* buf, int count, int to, int tag, MPI_Comm comm )
 {
@@ -473,6 +623,32 @@ elemental::wrappers::mpi::Send
     SafeMpi( 
         MPI_Send
         ( const_cast<dcomplex*>(buf), count, MPI_DOUBLE_COMPLEX, to, tag, comm )
+    );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::wrappers::mpi::ISend
+( const dcomplex* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::ISend");
+#endif
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Isend
+        ( const_cast<dcomplex*>(buf), 2*count, MPI_DOUBLE, to, tag, comm,
+          &request )
+    );
+#else
+    SafeMpi( 
+        MPI_Isend
+        ( const_cast<dcomplex*>(buf), count, MPI_DOUBLE_COMPLEX, to, tag, comm,
+          &request )
     );
 #endif
 #ifndef RELEASE
@@ -496,6 +672,20 @@ elemental::wrappers::mpi::Recv
 }
 
 inline void
+elemental::wrappers::mpi::IRecv
+( int* buf, int count, int from, int tag, MPI_Comm comm, 
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::IRecv");
+#endif
+    SafeMpi( MPI_Irecv( buf, count, MPI_INT, from, tag, comm, &request ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
 elemental::wrappers::mpi::Recv
 ( float* buf, int count, int from, int tag, MPI_Comm comm )
 {
@@ -510,6 +700,20 @@ elemental::wrappers::mpi::Recv
 }
 
 inline void
+elemental::wrappers::mpi::IRecv
+( float* buf, int count, int from, int tag, MPI_Comm comm, 
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::IRecv");
+#endif
+    SafeMpi( MPI_Irecv( buf, count, MPI_FLOAT, from, tag, comm, &request ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
 elemental::wrappers::mpi::Recv
 ( double* buf, int count, int from, int tag, MPI_Comm comm )
 {
@@ -518,6 +722,20 @@ elemental::wrappers::mpi::Recv
 #endif
     MPI_Status status;
     SafeMpi( MPI_Recv( buf, count, MPI_DOUBLE, from, tag, comm, &status ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::wrappers::mpi::IRecv
+( double* buf, int count, int from, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::IRecv");
+#endif
+    SafeMpi( MPI_Irecv( buf, count, MPI_DOUBLE, from, tag, comm, &request ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -543,6 +761,24 @@ elemental::wrappers::mpi::Recv
 }
 
 inline void
+elemental::wrappers::mpi::IRecv
+( scomplex* buf, int count, int from, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::IRecv");
+#endif
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi( MPI_Irecv( buf, 2*count, MPI_FLOAT, from, tag, comm, &request ) );
+#else
+    SafeMpi( MPI_Irecv( buf, count, MPI_COMPLEX, from, tag, comm, &request ) );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
 elemental::wrappers::mpi::Recv
 ( dcomplex* buf, int count, int from, int tag, MPI_Comm comm )
 {
@@ -557,6 +793,28 @@ elemental::wrappers::mpi::Recv
 #else
     SafeMpi( 
         MPI_Recv( buf, count, MPI_DOUBLE_COMPLEX, from, tag, comm, &status )
+    );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::wrappers::mpi::IRecv
+( dcomplex* buf, int count, int from, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("wrappers::mpi::IRecv");
+#endif
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Irecv( buf, 2*count, MPI_DOUBLE, from, tag, comm, &request )
+    );
+#else
+    SafeMpi( 
+        MPI_Irecv( buf, count, MPI_DOUBLE_COMPLEX, from, tag, comm, &request )
     );
 #endif
 #ifndef RELEASE

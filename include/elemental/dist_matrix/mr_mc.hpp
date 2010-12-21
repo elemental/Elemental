@@ -554,13 +554,15 @@ DistMatrixBase<T,MR,MC>::DistMatrixBase
 : ADM(height,width,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,
       // column shift
-      utilities::Shift(g.MRRank(),colAlignment,g.Width()),
+      ( g.InGrid() ? utilities::Shift(g.MRRank(),colAlignment,g.Width()) : 0 ),
       // row shift
-      utilities::Shift(g.MCRank(),rowAlignment,g.Height()),
+      ( g.InGrid() ? utilities::Shift(g.MCRank(),rowAlignment,g.Height()) : 0 ),
       // local height
-      utilities::LocalLength(height,g.MRRank(),colAlignment,g.Width()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(height,g.MRRank(),colAlignment,g.Width()) : 0 ),
       // local width
-      utilities::LocalLength(width,g.MCRank(),rowAlignment,g.Height()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(width,g.MCRank(),rowAlignment,g.Height()) : 0 ),
       g)
 { }
 
@@ -573,13 +575,15 @@ DistMatrixBase<T,MR,MC>::DistMatrixBase
 : ADM(height,width,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,
       // column shift
-      utilities::Shift(g.MRRank(),colAlignment,g.Width()),
+      ( g.InGrid() ? utilities::Shift(g.MRRank(),colAlignment,g.Width()) : 0 ),
       // row shift
-      utilities::Shift(g.MCRank(),rowAlignment,g.Height()),
+      ( g.InGrid() ? utilities::Shift(g.MCRank(),rowAlignment,g.Height()) : 0 ),
       // local height
-      utilities::LocalLength(height,g.MRRank(),colAlignment,g.Width()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(height,g.MRRank(),colAlignment,g.Width()) : 0 ),
       // local width
-      utilities::LocalLength(width,g.MCRank(),rowAlignment,g.Height()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(width,g.MCRank(),rowAlignment,g.Height()) : 0 ),
       ldim,g)
 { }
 
@@ -590,13 +594,15 @@ DistMatrixBase<T,MR,MC>::DistMatrixBase
   const T* buffer, int ldim, const Grid& g )
 : ADM(height,width,colAlignment,rowAlignment,
       // column shift
-      utilities::Shift(g.MRRank(),colAlignment,g.Width()),
+      ( g.InGrid() ? utilities::Shift(g.MRRank(),colAlignment,g.Width()) : 0 ),
       // row shift
-      utilities::Shift(g.MCRank(),rowAlignment,g.Height()),
+      ( g.InGrid() ? utilities::Shift(g.MCRank(),rowAlignment,g.Height()) : 0 ),
       // local height
-      utilities::LocalLength(height,g.MRRank(),colAlignment,g.Width()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(height,g.MRRank(),colAlignment,g.Width()) : 0 ),
       // local width
-      utilities::LocalLength(width,g.MCRank(),rowAlignment,g.Height()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(width,g.MCRank(),rowAlignment,g.Height()) : 0 ),
       buffer,ldim,g)
 { }
 
@@ -607,13 +613,15 @@ DistMatrixBase<T,MR,MC>::DistMatrixBase
   T* buffer, int ldim, const Grid& g )
 : ADM(height,width,colAlignment,rowAlignment,
       // column shift
-      utilities::Shift(g.MRRank(),colAlignment,g.Width()),
+      ( g.InGrid() ? utilities::Shift(g.MRRank(),colAlignment,g.Width()) : 0 ),
       // row shift
-      utilities::Shift(g.MCRank(),rowAlignment,g.Height()),
+      ( g.InGrid() ? utilities::Shift(g.MCRank(),rowAlignment,g.Height()) : 0 ),
       // local height
-      utilities::LocalLength(height,g.MRRank(),colAlignment,g.Width()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(height,g.MRRank(),colAlignment,g.Width()) : 0 ),
       // local width
-      utilities::LocalLength(width,g.MCRank(),rowAlignment,g.Height()),
+      ( g.InGrid() ? 
+        utilities::LocalLength(width,g.MCRank(),rowAlignment,g.Height()) : 0 ),
       buffer,ldim,g)
 { }
 

@@ -46,7 +46,6 @@ class Grid
     int _gcd;
     int _col;
     int _row;
-    int _rank; 
     int _matrixColRank;
     int _matrixRowRank;
     int _vectorColRank;
@@ -64,6 +63,8 @@ class Grid
     MPI_Group _vectorColGroup;
     MPI_Group _vectorRowGroup;
 
+    std::vector<int> _owningToViewingMap;
+
     // Keep track of whether or not our process is in the grid. This is 
     // necessary to avoid calls like MPI_Comm_size when we're not in the
     // communicator's group. Note that we _can_ call MPI_Group_rank when not 
@@ -73,6 +74,7 @@ class Grid
     // Create a communicator for the processes that are in the process grid
     MPI_Comm _owningComm;
     MPI_Comm _notOwningComm; // necessary complimentary communicator
+    int _owningRank;
 
     // These will only be valid if we are in the grid
     MPI_Comm _cartComm;  // contains the processes that are in the grid
@@ -112,6 +114,9 @@ class Grid
     int MRRank() const;
     int VCRank() const;
     int VRRank() const;
+    int OwningRank() const;
+    int ViewingRank() const;
+    int OwningToViewingMap( int owningRank ) const;
     MPI_Comm OwningComm() const;
     MPI_Comm ViewingComm() const;
     MPI_Comm MCComm() const;
@@ -204,6 +209,18 @@ elemental::Grid::VCRank() const
 inline int
 elemental::Grid::VRRank() const
 { return _vectorRowRank; }
+
+inline int
+elemental::Grid::OwningRank() const
+{ return _owningRank; }
+
+inline int
+elemental::Grid::ViewingRank() const
+{ return _viewingRank; }
+
+inline int
+elemental::Grid::OwningToViewingMap( int owningRank ) const
+{ return _owningToViewingMap[owningRank]; }
 
 inline MPI_Comm
 elemental::Grid::OwningComm() const

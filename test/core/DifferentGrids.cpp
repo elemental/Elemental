@@ -74,42 +74,34 @@ int main( int argc, char* argv[] )
         MPI_Comm comm = MPI_COMM_WORLD;
         MPI_Comm_size( comm, &p );
 
-        std::vector<int> evenRanks((p+1)/2);
-        std::vector<int> oddRanks(p/2);
-        for( int i=0; i<evenRanks.size(); ++i )
-            evenRanks[i] = 2*i;
-        for( int i=0; i<oddRanks.size(); ++i )
-            oddRanks[i] = 2*i + 1;
+        // Drop down to a square grid, change the matrix, and redistribute back
+        int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
-        MPI_Group group, evenGroup, oddGroup;
+        std::vector<int> sqrtRanks(pSqrt*pSqrt);
+        for( int i=0; i<pSqrt*pSqrt; ++i )
+            sqrtRanks[i] = i;
+
+        MPI_Group group, sqrtGroup;
         MPI_Comm_group( comm, &group );
-        MPI_Group_incl( group, evenRanks.size(), &evenRanks[0], &evenGroup );
-        MPI_Group_incl( group, oddRanks.size(), &oddRanks[0], &oddGroup );
+        MPI_Group_incl( group, sqrtRanks.size(), &sqrtRanks[0], &sqrtGroup );
 
-        if( rank == 0 )
-        {
-            std::cout << "Creating even grid...";
-            std::cout.flush();
-        }
-        const Grid evenGrid( comm, evenGroup );
-        if( rank == 0 )
-            std::cout << "done." << std::endl;
-        if( rank == 0 )
-        {
-            std::cout << "Creating odd grid...";
-            std::cout.flush();
-        }
-        const Grid oddGrid( comm, oddGroup );
-        if( rank == 0 )
-            std::cout << "done." << std::endl;
+        const Grid grid( comm );
+        const Grid sqrtGrid( comm, sqrtGroup );
 
-        /*
-        DistMatrix<double,MC,MR> AEven( m, n, evenGrid );
-        DistMatrix<double,MC,MR> AOdd( m, n, oddGrid );
+        DistMatrix<double,MC,MR> A( m, n, grid );
+        DistMatrix<double,MC,MR> ASqrt( m, n, sqrtGrid );
 
-        AEven.Print("AEven");
-        AOdd.Print("AOdd");
-        */
+        A.SetToIdentity();
+        A.Print("AOdd");
+
+        ASqrt = A;
+        ASqrt.Print("ASqrt := A");
+
+        blas::Scal( 2.0, ASqrt );
+        ASqrt.Print("ASqrt := 2 ASqrt");
+
+        A = ASqrt;
+        A.Print("A := ASqrt");
     }
     catch( exception& e )
     {

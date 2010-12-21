@@ -140,7 +140,7 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetReal
         const int jLocal = (j-this->RowShift()) / g.Width();
         u = real(this->GetLocalEntry(iLocal,jLocal));
     }
-    Broadcast( &u, 1, ownerRank, g.VCComm() );
+    Broadcast( &u, 1, g.OwningToViewingMap(ownerRank), g.ViewingComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -171,7 +171,7 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImag
         const int jLocal = (j-this->RowShift()) / g.Width();
         u = imag(this->GetLocalEntry(iLocal,jLocal));
     }
-    Broadcast( &u, 1, ownerRank, g.VCComm() );
+    Broadcast( &u, 1, g.OwningToViewingMap(ownerRank), g.ViewingComm() );
 
 #ifndef RELEASE
     PopCallStack();
