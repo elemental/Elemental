@@ -54,6 +54,7 @@ lapack::OneNorm( const Matrix<R>& A )
     return maxColSum;
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 lapack::OneNorm( const Matrix< std::complex<R> >& A )
@@ -74,6 +75,7 @@ lapack::OneNorm( const Matrix< std::complex<R> >& A )
 #endif
     return maxColSum;
 }
+#endif
 
 template<typename R>
 R
@@ -112,6 +114,7 @@ lapack::OneNorm( const DistMatrix<R,MC,MR>& A )
     return maxColSum;
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 lapack::OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
@@ -148,22 +151,27 @@ lapack::OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 #endif
     return maxColSum;
 }
+#endif
 
 template float elemental::lapack::OneNorm
 ( const Matrix<float>& A );
 template double elemental::lapack::OneNorm
 ( const Matrix<double>& A );
+#ifndef WITHOUT_COMPLEX
 template float elemental::lapack::OneNorm
 ( const Matrix< std::complex<float> >& A );
 template double elemental::lapack::OneNorm
 ( const Matrix< std::complex<double> >& A );
+#endif
 
 template float elemental::lapack::OneNorm
 ( const DistMatrix<float,MC,MR>& A );
 template double elemental::lapack::OneNorm
 ( const DistMatrix<double,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
 template float elemental::lapack::OneNorm
 ( const DistMatrix<std::complex<float>,MC,MR>& A );
 template double elemental::lapack::OneNorm
 ( const DistMatrix<std::complex<double>,MC,MR>& A );
+#endif
 

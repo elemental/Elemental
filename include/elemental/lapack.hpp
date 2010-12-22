@@ -391,17 +391,21 @@ template<typename R>
 R
 FrobeniusNorm( const Matrix<R>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 FrobeniusNorm( const Matrix< std::complex<R> >& A );
+#endif
 
 template<typename R>
 R
 FrobeniusNorm( const DistMatrix<R,MC,MR>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 FrobeniusNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+#endif
 
 //----------------------------------------------------------------------------//
 // HermitianFrobeniusNorm                                                     //
@@ -414,20 +418,24 @@ R
 HermitianFrobeniusNorm
 ( Shape shape, const Matrix<R>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 HermitianFrobeniusNorm
 ( Shape shape, const Matrix< std::complex<R> >& A );
+#endif
 
 template<typename R>
 R
 HermitianFrobeniusNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 HermitianFrobeniusNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+#endif
 
 //----------------------------------------------------------------------------//
 // InfinityNorm                                                               //
@@ -442,17 +450,21 @@ template<typename R>
 R
 InfinityNorm( const Matrix<R>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 InfinityNorm( const Matrix< std::complex<R> >& A );
+#endif
 
 template<typename R>
 R
 InfinityNorm( const DistMatrix<R,MC,MR>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 InfinityNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+#endif
 
 //----------------------------------------------------------------------------//
 // HermitianInfinityNorm                                                      //
@@ -470,20 +482,24 @@ R
 HermitianInfinityNorm
 ( Shape shape, const Matrix<R>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 HermitianInfinityNorm
 ( Shape shape, const Matrix< std::complex<R> >& A );
+#endif
 
 template<typename R>
 R
 HermitianInfinityNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 HermitianInfinityNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+#endif
 
 //----------------------------------------------------------------------------//
 // OneNorm                                                                    //
@@ -498,17 +514,21 @@ template<typename R>
 R
 OneNorm( const Matrix<R>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 OneNorm( const Matrix< std::complex<R> >& A );
+#endif
 
 template<typename R>
 R
 OneNorm( const DistMatrix<R,MC,MR>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+#endif
 
 //----------------------------------------------------------------------------//
 // HermitianOneNorm                                                           //
@@ -526,20 +546,24 @@ R
 HermitianOneNorm
 ( Shape shape, const Matrix<R>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 HermitianOneNorm
 ( Shape shape, const Matrix< std::complex<R> >& A );
+#endif
 
 template<typename R>
 R
 HermitianOneNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A );
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 HermitianOneNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+#endif
 
 //----------------------------------------------------------------------------//
 // QR (QR factorization):                                                     //

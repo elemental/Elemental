@@ -105,10 +105,6 @@ elemental::lapack::Tridiag
             ASquare.View( paddedASquare, padding, padding, height, height );
             ASquare = A;
 
-            DistMatrix<R,MC,MR> ASquareCopy(squareGrid);
-            ASquareCopy = ASquare;
-            lapack::internal::TridiagU( ASquareCopy );
-
             // Perform the fast tridiagonalization on the square grid
             lapack::internal::TridiagUSquare( paddedASquare );
 

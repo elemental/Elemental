@@ -79,6 +79,7 @@ lapack::HermitianFrobeniusNorm
     return norm;
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 lapack::HermitianFrobeniusNorm
@@ -129,6 +130,7 @@ lapack::HermitianFrobeniusNorm
 #endif
     return norm;
 }
+#endif
 
 template<typename R>
 R
@@ -195,6 +197,7 @@ lapack::HermitianFrobeniusNorm
     return norm;
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 lapack::HermitianFrobeniusNorm
@@ -264,22 +267,26 @@ lapack::HermitianFrobeniusNorm
 #endif
     return norm;
 }
+#endif
 
 template float elemental::lapack::HermitianFrobeniusNorm
 ( Shape shape, const Matrix<float>& A );
 template double elemental::lapack::HermitianFrobeniusNorm
 ( Shape shape, const Matrix<double>& A );
+#ifndef WITHOUT_COMPLEX
 template float elemental::lapack::HermitianFrobeniusNorm
 ( Shape shape, const Matrix< std::complex<float> >& A );
 template double elemental::lapack::HermitianFrobeniusNorm
 ( Shape shape, const Matrix< std::complex<double> >& A );
+#endif
 
 template float elemental::lapack::HermitianFrobeniusNorm
 ( Shape shape, const DistMatrix<float,MC,MR>& A );
 template double elemental::lapack::HermitianFrobeniusNorm
 ( Shape shape, const DistMatrix<double,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
 template float elemental::lapack::HermitianFrobeniusNorm
 ( Shape shape, const DistMatrix<std::complex<float>,MC,MR>& A );
 template double elemental::lapack::HermitianFrobeniusNorm
 ( Shape shape, const DistMatrix<std::complex<double>,MC,MR>& A );
-
+#endif

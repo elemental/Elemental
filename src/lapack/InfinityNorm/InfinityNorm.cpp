@@ -54,6 +54,7 @@ lapack::InfinityNorm( const Matrix<R>& A )
     return maxRowSum;
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 lapack::InfinityNorm( const Matrix< std::complex<R> >& A )
@@ -74,6 +75,7 @@ lapack::InfinityNorm( const Matrix< std::complex<R> >& A )
 #endif
     return maxRowSum;
 }
+#endif
 
 template<typename R>
 R
@@ -112,6 +114,7 @@ lapack::InfinityNorm( const DistMatrix<R,MC,MR>& A )
     return maxRowSum;
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 lapack::InfinityNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
@@ -148,22 +151,27 @@ lapack::InfinityNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 #endif
     return maxRowSum;
 }
+#endif
 
 template float elemental::lapack::InfinityNorm
 ( const Matrix<float>& A );
 template double elemental::lapack::InfinityNorm
 ( const Matrix<double>& A );
+#ifndef WITHOUT_COMPLEX
 template float elemental::lapack::InfinityNorm
 ( const Matrix< std::complex<float> >& A );
 template double elemental::lapack::InfinityNorm
 ( const Matrix< std::complex<double> >& A );
+#endif
 
 template float elemental::lapack::InfinityNorm
 ( const DistMatrix<float,MC,MR>& A );
 template double elemental::lapack::InfinityNorm
 ( const DistMatrix<double,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
 template float elemental::lapack::InfinityNorm
 ( const DistMatrix<std::complex<float>,MC,MR>& A );
 template double elemental::lapack::InfinityNorm
 ( const DistMatrix<std::complex<double>,MC,MR>& A );
+#endif
 

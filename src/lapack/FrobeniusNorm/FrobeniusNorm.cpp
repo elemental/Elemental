@@ -56,6 +56,7 @@ lapack::FrobeniusNorm( const Matrix<R>& A )
     return norm;
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 lapack::FrobeniusNorm( const Matrix< std::complex<R> >& A )
@@ -82,6 +83,7 @@ lapack::FrobeniusNorm( const Matrix< std::complex<R> >& A )
 #endif
     return norm;
 }
+#endif
 
 template<typename R>
 R
@@ -112,6 +114,7 @@ lapack::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
     return norm;
 }
 
+#ifndef WITHOUT_COMPLEX
 template<typename R>
 R
 lapack::FrobeniusNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
@@ -144,22 +147,27 @@ lapack::FrobeniusNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 #endif
     return norm;
 }
+#endif
 
 template float elemental::lapack::FrobeniusNorm
 ( const Matrix<float>& A );
 template double elemental::lapack::FrobeniusNorm
 ( const Matrix<double>& A );
+#ifndef WITHOUT_COMPLEX
 template float elemental::lapack::FrobeniusNorm
 ( const Matrix< std::complex<float> >& A );
 template double elemental::lapack::FrobeniusNorm
 ( const Matrix< std::complex<double> >& A );
+#endif
 
 template float elemental::lapack::FrobeniusNorm
 ( const DistMatrix<float,MC,MR>& A );
 template double elemental::lapack::FrobeniusNorm
 ( const DistMatrix<double,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
 template float elemental::lapack::FrobeniusNorm
 ( const DistMatrix<std::complex<float>,MC,MR>& A );
 template double elemental::lapack::FrobeniusNorm
 ( const DistMatrix<std::complex<double>,MC,MR>& A );
+#endif
 

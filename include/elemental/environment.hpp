@@ -44,6 +44,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "elemental/config.hpp"
+
 // If defined, the _OPENMP macro contains the date of the specification
 #ifdef _OPENMP
 # include <omp.h>
