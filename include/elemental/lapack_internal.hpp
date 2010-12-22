@@ -367,8 +367,7 @@ void
 PanelTridiagLSquare
 ( DistMatrix<R,MC,MR  >& paddedA,
   DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MD,Star>& e,
-  int padding );
+  DistMatrix<R,MD,Star>& e );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -384,8 +383,7 @@ PanelTridiagLSquare
 ( DistMatrix<std::complex<R>,MC,MR  >& paddedA,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<R,              MD,Star>& e,
-  DistMatrix<std::complex<R>,MD,Star>& t,
-  int padding );
+  DistMatrix<std::complex<R>,MD,Star>& t );
 #endif
  
 template<typename R>
@@ -399,8 +397,7 @@ void
 PanelTridiagUSquare
 ( DistMatrix<R,MC,MR  >& paddedA,
   DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MD,Star>& e,
-  int padding );
+  DistMatrix<R,MD,Star>& e );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -416,8 +413,7 @@ PanelTridiagUSquare
 ( DistMatrix<std::complex<R>,MC,MR  >& paddedA,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<R,              MD,Star>& e,
-  DistMatrix<std::complex<R>,MD,Star>& t,
-  int padding );
+  DistMatrix<std::complex<R>,MD,Star>& t );
 #endif
 
 template<typename R>
@@ -425,7 +421,7 @@ void
 TridiagL( DistMatrix<R,MC,MR>& A );
 template<typename R>
 void
-TridiagLSquare( DistMatrix<R,MC,MR>& paddedA, int padding );
+TridiagLSquare( DistMatrix<R,MC,MR>& paddedA );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -437,8 +433,7 @@ template<typename R>
 void
 TridiagLSquare
 ( DistMatrix<std::complex<R>,MC,  MR  >& paddedA, 
-  DistMatrix<std::complex<R>,Star,Star>& t,
-  int padding );
+  DistMatrix<std::complex<R>,Star,Star>& t );
 #endif
 
 template<typename R>
@@ -446,7 +441,7 @@ void
 TridiagU( DistMatrix<R,MC,MR>& A );
 template<typename R>
 void
-TridiagUSquare( DistMatrix<R,MC,MR>& paddedA, int padding );
+TridiagUSquare( DistMatrix<R,MC,MR>& paddedA );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -458,8 +453,7 @@ template<typename R>
 void
 TridiagUSquare
 ( DistMatrix<std::complex<R>,MC,  MR  >& paddedA,
-  DistMatrix<std::complex<R>,Star,Star>& t,
-  int padding );
+  DistMatrix<std::complex<R>,Star,Star>& t );
 #endif
 
 //----------------------------------------------------------------------------//

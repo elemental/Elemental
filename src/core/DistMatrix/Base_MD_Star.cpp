@@ -61,38 +61,41 @@ elemental::DistMatrixBase<T,MD,Star>::Print( const string& s ) const
         return;
     }
 
-    vector<T> sendBuf(height*width,0);
-    if( inDiagonal )
+    if( g.InGrid() )
     {
-        const int colShift = this->ColShift();
-#ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
-#endif
-        for( int i=0; i<localHeight; ++i )
-            for( int j=0; j<width; ++j )
-                sendBuf[colShift+i*lcm+j*height] = this->GetLocalEntry(i,j);
-    }
-
-    // If we are the root, allocate a receive buffer
-    vector<T> recvBuf;
-    if( g.VCRank() == 0 )
-        recvBuf.resize( height*width );
-
-    // Sum the contributions and send to the root
-    Reduce( &sendBuf[0], &recvBuf[0], height*width, MPI_SUM, 0, g.VCComm() );
-
-    if( g.VCRank() == 0 )
-    {
-        // Print the data
-        for( int i=0; i<height; ++i )
+        vector<T> sendBuf(height*width,0);
+        if( inDiagonal )
         {
-            for( int j=0; j<width; ++j )
-                cout << recvBuf[i+j*height] << " ";
-            cout << "\n";
+            const int colShift = this->ColShift();
+#ifdef _OPENMP
+            #pragma omp parallel for COLLAPSE(2)
+#endif
+            for( int i=0; i<localHeight; ++i )
+                for( int j=0; j<width; ++j )
+                    sendBuf[colShift+i*lcm+j*height] = this->GetLocalEntry(i,j);
         }
-        cout << endl;
-    }
 
+        // If we are the root, allocate a receive buffer
+        vector<T> recvBuf;
+        if( g.VCRank() == 0 )
+            recvBuf.resize( height*width );
+
+        // Sum the contributions and send to the root
+        Reduce
+        ( &sendBuf[0], &recvBuf[0], height*width, MPI_SUM, 0, g.VCComm() );
+
+        if( g.VCRank() == 0 )
+        {
+            // Print the data
+            for( int i=0; i<height; ++i )
+            {
+                for( int j=0; j<width; ++j )
+                    cout << recvBuf[i+j*height] << " ";
+                cout << "\n";
+            }
+            cout << endl;
+        }
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -129,12 +132,15 @@ elemental::DistMatrixBase<T,MD,Star>::AlignCols
 #endif
     this->_colAlignment = colAlignment;
     this->_inDiagonal = ( g.DiagPath() == g.DiagPath(colAlignment) );
-    if( this->_inDiagonal )
-        this->_colShift = Shift( g.DiagPathRank(), colAlignment, g.Size() );
     this->_constrainedColAlignment = true;
     this->_height = 0;
     this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    if( g.InGrid() )
+    {
+        if( this->_inDiagonal )
+            this->_colShift = Shift( g.DiagPathRank(), colAlignment, g.Size() );
+        this->_localMatrix.ResizeTo( 0, 0 );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -152,12 +158,15 @@ elemental::DistMatrixBase<T,MD,Star>::AlignWith
 #endif
     this->_colAlignment = A.ColAlignment();
     this->_inDiagonal = A.InDiagonal();
-    if( this->InDiagonal() )
-        this->_colShift = A.ColShift();
     this->_constrainedColAlignment = true;
     this->_height = 0;
     this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    if( this->Grid().InGrid() )
+    {
+        if( this->InDiagonal() )
+            this->_colShift = A.ColShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -175,12 +184,15 @@ elemental::DistMatrixBase<T,MD,Star>::AlignWith
 #endif
     this->_colAlignment = A.RowAlignment();
     this->_inDiagonal = A.InDiagonal();
-    if( this->InDiagonal() )
-        this->_colShift = A.RowShift();
     this->_constrainedColAlignment = true;
     this->_height = 0;
     this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    if( this->Grid().InGrid() )
+    {
+        if( this->InDiagonal() )
+            this->_colShift = A.RowShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -254,16 +266,26 @@ elemental::DistMatrixBase<T,MD,Star>::AlignWithDiag
         const int ownerRow = colAlignment;
         const int ownerCol = (rowAlignment + offset) % c;
         this->_colAlignment = ownerRow + r*ownerCol;
-        this->_inDiagonal = 
-            ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
+        if( g.InGrid() )
+        {
+            this->_inDiagonal = 
+                ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
+        }
+        else
+            this->_inDiagonal = false;
     }
     else
     {
         const int ownerRow = (colAlignment-offset) % r;
         const int ownerCol = rowAlignment;
         this->_colAlignment = ownerRow + r*ownerCol;
-        this->_inDiagonal = 
-            ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
+        if( g.InGrid() )
+        {
+            this->_inDiagonal = 
+                ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
+        }
+        else
+            this->_inDiagonal = false;
     }
     if( this->InDiagonal() )
     {
@@ -336,16 +358,26 @@ elemental::DistMatrixBase<T,MD,Star>::AlignWithDiag
         const int ownerRow = rowAlignment;
         const int ownerCol = (colAlignment + offset) % c;
         this->_colAlignment = ownerRow + r*ownerCol;
-        this->_inDiagonal = 
-            ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
+        if( g.InGrid() )
+        {
+            this->_inDiagonal = 
+                ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
+        }
+        else
+            this->_inDiagonal = false;
     }
     else
     {
         const int ownerRow = (rowAlignment-offset) % r;
         const int ownerCol = colAlignment;
         this->_colAlignment = ownerRow + r*ownerCol;
-        this->_inDiagonal = 
-            ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
+        if( g.InGrid() )
+        {
+            this->_inDiagonal = 
+                ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
+        }
+        else
+            this->_inDiagonal = false;
     }
     if( this->InDiagonal() )
     {
@@ -445,7 +477,7 @@ elemental::DistMatrixBase<T,MD,Star>::View
         const int newAlignmentRank = newAlignmentRow + r*newAlignmentCol;
 
         this->_colAlignment = newAlignmentRank;
-        this->_inDiagonal   = A.InDiagonal();
+        this->_inDiagonal = A.InDiagonal();
 
         if( this->_inDiagonal )
         {
@@ -459,7 +491,6 @@ elemental::DistMatrixBase<T,MD,Star>::View
             this->_localMatrix.View
             ( A.LocalMatrix(), localHeightBefore, j, localHeight, width );
         }
-
     }
     this->_viewing = true;
     this->_lockedView = false;
@@ -769,7 +800,7 @@ elemental::DistMatrixBase<T,MD,Star>::Get
         const int iLoc = (i-this->ColShift()) / g.LCM();
         u = this->GetLocalEntry(iLoc,j);
     }
-    Broadcast( &u, 1, ownerRank, g.VCComm() );
+    Broadcast( &u, 1, g.OwningToViewingMap(ownerRank), g.ViewingComm() );
 
 #ifndef RELEASE
     PopCallStack();

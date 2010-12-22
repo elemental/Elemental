@@ -58,10 +58,6 @@ class Grid
 
     MPI_Group _owningGroup; // contains the processes that are in the grid
     MPI_Group _notOwningGroup; // contains the remaining processes
-    std::vector<MPI_Group> _matrixColGroups;
-    std::vector<MPI_Group> _matrixRowGroups;
-    MPI_Group _vectorColGroup;
-    MPI_Group _vectorRowGroup;
 
     std::vector<int> _owningToViewingMap;
 
@@ -117,6 +113,7 @@ class Grid
     int OwningRank() const;
     int ViewingRank() const;
     int OwningToViewingMap( int owningRank ) const;
+    MPI_Group OwningGroup() const;
     MPI_Comm OwningComm() const;
     MPI_Comm ViewingComm() const;
     MPI_Comm MCComm() const;
@@ -221,6 +218,10 @@ elemental::Grid::ViewingRank() const
 inline int
 elemental::Grid::OwningToViewingMap( int owningRank ) const
 { return _owningToViewingMap[owningRank]; }
+
+inline MPI_Group
+elemental::Grid::OwningGroup() const
+{ return _owningGroup; }
 
 inline MPI_Comm
 elemental::Grid::OwningComm() const

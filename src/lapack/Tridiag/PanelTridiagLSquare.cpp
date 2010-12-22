@@ -41,13 +41,13 @@ void
 elemental::lapack::internal::PanelTridiagLSquare
 ( DistMatrix<R,MC,MR  >& paddedA,
   DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MD,Star>& e,
-  int padding )
+  DistMatrix<R,MD,Star>& e )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagLSquare");
 #endif 
     const Grid& g = paddedA.Grid();
+    const int padding = g.Height();
 
     // Separate out the padded and original A (the padded parts should be zero)
     DistMatrix<R,MC,MR> 
@@ -78,15 +78,13 @@ elemental::lapack::internal::PanelTridiagLSquare
     if( g.Height() != g.Width() || 
         A.ColAlignment() != A.RowAlignment() )
         throw logic_error("Square Tridiag is for square, diag aligned grids.");
-    if( paddedA.Height() % g.Height() != 0 )
-        throw logic_error("Square Tridiag requires a padded matrix.");
 #endif
 
     DistMatrix<R,MC,MR> 
-        ATL(g), A00(g),       a01(g),       paddedA02(g),  
-                a10(g),       alpha11(g),   paddeda12(g),  
-                paddedA20(g), paddeda21(g), paddedA22(g),
-        ABL(g), A20(g), a21(g), A22(g), ACol(g), alpha21T(g), a21B(g);
+        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  
+        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),  
+                         A20(g), a21(g),     A22(g),
+        ACol(g), alpha21T(g), a21B(g), paddeda21(g), paddedA22(g);
     DistMatrix<R,MC,MR> 
         WTL(g), WTR(g),  W00(g), w01(g),     W02(g),  WCol(g),
         WBL(g), WBR(g),  w10(g), omega11(g), w12(g),
@@ -97,24 +95,25 @@ elemental::lapack::internal::PanelTridiagLSquare
                 e2(g);
 
     // Temporary distributions
+    vector<R> u;
     DistMatrix<R,MC,  Star> a21_MC_Star(g);
-    DistMatrix<R,MC,  Star> paddeda21_MC_Star(g);
-    DistMatrix<R,MR,  Star> paddeda21_MR_Star(g);
+    DistMatrix<R,MR,  Star> a21_MR_Star(g);
     DistMatrix<R,Star,MR  > z10_Star_MR(g);
     DistMatrix<R,MC,  MR  > z21(g);
     DistMatrix<R,MC,  Star> z21_MC_Star(g);
-    DistMatrix<R,MC,  Star> paddedz21_MC_Star(g);
     DistMatrix<R,MR,  Star> z21_MR_Star(g);
-    DistMatrix<R,MR,  Star> paddedz21_MR_Star(g);
     DistMatrix<R,MR,  MC  > z21_MR_MC(g);
-    vector<R> u;
+    DistMatrix<R,MC,  Star> paddeda21_MC_Star(g);
+    DistMatrix<R,MR,  Star> paddeda21_MR_Star(g);
+    DistMatrix<R,MC,  Star> paddedz21_MC_Star(g);
+    DistMatrix<R,MR,  Star> paddedz21_MR_Star(g);
 
     // Push to the blocksize of 1, then pop at the end of the routine
     PushBlocksizeStack( 1 );
 
     PartitionDownLeftDiagonal
-    ( paddedA, ATL,       paddedATR,
-               paddedABL, paddedABR, 0 );
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
     PartitionDownLeftDiagonal
     ( W, WTL, WTR,
          WBL, WBR, 0 );
@@ -124,10 +123,10 @@ elemental::lapack::internal::PanelTridiagLSquare
     while( WTL.Width() < W.Width() )
     {
         RepartitionDownDiagonal
-        ( ATL,       /**/ paddedATR,  A00,       /**/ a01,       paddedA02,
-         /*************************/ /*************************************/
-                     /**/             a10,       /**/ alpha11,   paddeda12, 
-          paddedABL, /**/ paddedABR,  paddedA20, /**/ paddeda21, paddedA22 );
+        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
+         /*************/ /**********************/
+               /**/       a10, /**/ alpha11, a12, 
+          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
         
         RepartitionDownDiagonal
         ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
@@ -141,15 +140,6 @@ elemental::lapack::internal::PanelTridiagLSquare
                epsilon1,
           eB,  e2 );
 
-        ABL.View
-        ( paddedABL, 0, 0, ABL.Height()-padding, ABL.Width() );
-        A20.View
-        ( paddedA20, 0, 0, A20.Height()-padding, A20.Width() );
-        a21.View
-        ( paddeda21, 0, 0, a21.Height()-padding, a21.Width() );
-        A22.View
-        ( paddedA22, 0, 0, A22.Height()-padding, A22.Width()-padding );
-
         ACol.View2x1
         ( alpha11,
           a21 );
@@ -162,16 +152,42 @@ elemental::lapack::internal::PanelTridiagLSquare
         ( a21, alpha21T,
                a21B,     1 );
 
+        // Have A22 dip into the padding as necessary
+        if( A22.LocalHeight() < A22.LocalWidth() )
+        {
+            paddedA22.View
+            ( paddedA, ATL.Height()+1, ATL.Width()+1, 
+              A22.Height()+padding, A22.Width() );
+        }
+        else if( A22.LocalHeight() > A22.LocalWidth() )
+        {
+            paddedA22.View
+            ( paddedA, ATL.Height()+1, ATL.Width()+1,
+              A22.Height(), A22.Width()+padding );
+        }
+        else
+        {
+            paddedA22.View( A22 );
+        }
+
+        z21.AlignWith( w21 );
+        z21_MR_MC.AlignColsWith( A22 );
+        z10_Star_MR.AlignWith( W20 );
+        z10_Star_MR.ResizeTo( 1, w10.Width() );
         paddeda21_MC_Star.AlignWith( paddedA22 );
         paddeda21_MR_Star.AlignWith( paddedA22 );
-        z10_Star_MR.AlignWith( W20 );
-        z21.AlignWith( w21 );
         paddedz21_MC_Star.AlignWith( paddedA22 );
         paddedz21_MR_Star.AlignWith( paddedA22 );
-        paddedz21_MC_Star.ResizeTo( paddeda21.Height(), 1 );
-        paddedz21_MR_Star.ResizeTo( paddeda21.Height(), 1 );
-        z21_MR_MC.AlignColsWith( A22 );
-        z10_Star_MR.ResizeTo( 1, w10.Width() );
+        paddeda21_MC_Star.ResizeTo( paddedA22.Height(), 1 );
+        paddeda21_MR_Star.ResizeTo( paddedA22.Width(), 1 );
+        paddedz21_MC_Star.ResizeTo( paddedA22.Height(), 1 );
+        paddedz21_MR_Star.ResizeTo( paddedA22.Width(), 1 );
+        paddeda21_MC_Star.SetToZero();
+        paddeda21_MR_Star.SetToZero();
+        a21_MC_Star.View( paddeda21_MC_Star, 0, 0, a21.Height(), 1 );
+        a21_MR_Star.View( paddeda21_MR_Star, 0, 0, a21.Height(), 1 );
+        z21_MC_Star.View( paddedz21_MC_Star, 0, 0, a21.Height(), 1 );
+        z21_MR_Star.View( paddedz21_MR_Star, 0, 0, a21.Height(), 1 );
         //--------------------------------------------------------------------//
         blas::Gemv( Normal, (R)-1, ABL, w10, (R)1, ACol );
         blas::Gemv( Normal, (R)-1, WBL, a10, (R)1, ACol );
@@ -184,12 +200,12 @@ elemental::lapack::internal::PanelTridiagLSquare
         alpha21T.GetDiagonal( epsilon1 );
         alpha21T.Set( 0, 0, (R)1 );
 
-        paddeda21_MC_Star = paddeda21; // Braodcast in row
-        paddeda21_MR_Star = paddeda21; // pairwise exchange, Bcast in column
+        a21_MC_Star = a21; // Broadcast in row
+        a21_MR_Star = a21; // Pairwise exchange then Broadcast in column
 
         // Perform the local portion of the Symv
-        paddedz21_MC_Star.LocalMatrix() = paddeda21_MC_Star.LocalMatrix();
-        if( g.MCRank() < g.MRRank() )
+        paddedz21_MC_Star.LocalMatrix() = paddeda21_MR_Star.LocalMatrix();
+        if( paddedA22.ColShift() < paddedA22.RowShift() )
         {
             // We're above the diagonal, so we must zero our local diagonal
             u.resize( paddedA22.LocalWidth() );
@@ -210,8 +226,8 @@ elemental::lapack::internal::PanelTridiagLSquare
             ( Lower, Normal, NonUnit, 
               paddedA22.LockedLocalMatrix(), paddedz21_MC_Star.LocalMatrix() );
         }
-        paddedz21_MR_Star.LocalMatrix() = paddeda21_MR_Star.LocalMatrix();
-        if( g.MCRank() <= g.MRRank() ) 
+        paddedz21_MR_Star.LocalMatrix() = paddeda21_MC_Star.LocalMatrix();
+        if( paddedA22.ColShift() <= paddedA22.RowShift() )
         {
             // We're on or above the diagonal, zero our local diagonal
             u.resize( paddedA22.LocalWidth() );
@@ -232,13 +248,6 @@ elemental::lapack::internal::PanelTridiagLSquare
             ( Lower, Transpose, NonUnit,
               paddedA22.LockedLocalMatrix(), paddedz21_MR_Star.LocalMatrix() );
         }
-
-        a21_MC_Star.View
-        ( paddeda21_MC_Star, 0, 0, a21_MC_Star.Height()-padding, 1 );
-        z21_MC_Star.View
-        ( paddedz21_MC_Star, 0, 0, z21_MC_Star.Height()-padding, 1 );
-        z21_MR_Star.View
-        ( paddedz21_MR_Star, 0, 0, z21_MR_Star.Height()-padding, 1 );
 
         blas::Gemv
         ( Transpose, 
@@ -283,19 +292,19 @@ elemental::lapack::internal::PanelTridiagLSquare
             blas::Axpy( alpha, a21, w21 );
         }
         //--------------------------------------------------------------------//
-        paddeda21_MC_Star.FreeAlignments();
-        paddeda21_MR_Star.FreeAlignments();
         z10_Star_MR.FreeAlignments();
         z21.FreeAlignments();
+        z21_MR_MC.FreeAlignments();
+        paddeda21_MC_Star.FreeAlignments();
+        paddeda21_MR_Star.FreeAlignments();
         paddedz21_MC_Star.FreeAlignments();
         paddedz21_MR_Star.FreeAlignments();
-        z21_MR_MC.FreeAlignments();
 
         SlidePartitionDownDiagonal
-        ( ATL,       /**/ paddedATR,  A00,       a01,       /**/ paddedA02,
-                     /**/             a10,       alpha11,   /**/ paddeda12,
-         /*************************/ /************************************/
-          paddedABL, /**/ paddedABR,  paddedA20, paddeda21, /**/ paddedA22 );
+        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
+               /**/       a10, alpha11, /**/ a12,
+         /*************/ /**********************/
+          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
 
         SlidePartitionDownDiagonal
         ( WTL, /**/ WTR,  W00, w01,     /**/ W02,
@@ -322,13 +331,13 @@ elemental::lapack::internal::PanelTridiagLSquare
 ( DistMatrix<complex<R>,MC,MR  >& paddedA,
   DistMatrix<complex<R>,MC,MR  >& W,
   DistMatrix<R,MD,Star>& e,
-  DistMatrix<complex<R>,MD,Star>& t,
-  int padding )
+  DistMatrix<complex<R>,MD,Star>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagLSquare");
 #endif    
     const Grid& g = paddedA.Grid();
+    const int padding = g.Height();
     typedef complex<R> C;
 
     // Separate out the padded and original A (the padded parts should be zero)
@@ -367,16 +376,14 @@ elemental::lapack::internal::PanelTridiagLSquare
     if( g.Height() != g.Width() || 
         A.ColAlignment() != A.RowAlignment() )
         throw logic_error("Square Tridiag is for square, diag aligned grids.");
-    if( paddedA.Height() % g.Height() != 0 )
-        throw logic_error("Square Tridiag requires a padded matrix.");
 #endif
 
     // Matrix views 
     DistMatrix<C,MC,MR> 
-        ATL(g),  A00(g),       a01(g),       paddedA02(g), 
-                 a10(g),       alpha11(g),   paddeda12(g),
-                 paddedA20(g), paddeda21(g), paddedA22(g),
-        ABL(g), A20(g), a21(g), A22(g), ACol(g), alpha21T(g), a21B(g); 
+        ATL(g), ATR(g),  A00(g), a01(g),     A02(g), 
+        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
+                         A20(g), a21(g),     A22(g),
+        ACol(g), alpha21T(g), a21B(g), paddeda21(g), paddedA22(g);
     DistMatrix<C,MC,MR> 
         WTL(g), WTR(g),  W00(g), w01(g),     W02(g),  WCol(g),
         WBL(g), WBR(g),  w10(g), omega11(g), w12(g),
@@ -391,26 +398,27 @@ elemental::lapack::internal::PanelTridiagLSquare
                 t2(g);
 
     // Temporary distributions
+    vector<C> u;
     DistMatrix<C,MC,  MR  > a10Conj(g);
     DistMatrix<C,MC,  MR  > w10Conj(g);
     DistMatrix<C,MC,  Star> a21_MC_Star(g);
-    DistMatrix<C,MC,  Star> paddeda21_MC_Star(g);
-    DistMatrix<C,MR,  Star> paddeda21_MR_Star(g);
+    DistMatrix<C,MR,  Star> a21_MR_Star(g);
     DistMatrix<C,Star,MR  > z10_Star_MR(g);
     DistMatrix<C,MC,  MR  > z21(g);
     DistMatrix<C,MC,  Star> z21_MC_Star(g);
-    DistMatrix<C,MC,  Star> paddedz21_MC_Star(g);
     DistMatrix<C,MR,  Star> z21_MR_Star(g);
-    DistMatrix<C,MR,  Star> paddedz21_MR_Star(g);
     DistMatrix<C,MR,  MC  > z21_MR_MC(g);
-    vector<C> u;
+    DistMatrix<C,MC,  Star> paddedz21_MC_Star(g);
+    DistMatrix<C,MR,  Star> paddedz21_MR_Star(g);
+    DistMatrix<C,MC,  Star> paddeda21_MC_Star(g);
+    DistMatrix<C,MR,  Star> paddeda21_MR_Star(g);
 
     // Push to the blocksize of 1, then pop at the end of the routine
     PushBlocksizeStack( 1 );
 
     PartitionDownLeftDiagonal
-    ( paddedA, ATL,       paddedATR,
-               paddedABL, paddedABR, 0 );
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
     PartitionDownLeftDiagonal
     ( W, WTL, WTR,
          WBL, WBR, 0 );
@@ -423,10 +431,10 @@ elemental::lapack::internal::PanelTridiagLSquare
     while( WTL.Width() < W.Width() )
     {
         RepartitionDownDiagonal
-        ( ATL,       /**/ paddedATR,  A00,       /**/ a01,       paddedA02,
-         /*************************/ /************************************/
-                     /**/             a10,       /**/ alpha11,   paddeda12, 
-          paddedABL, /**/ paddedABR,  paddedA20, /**/ paddeda21, paddedA22 );
+        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
+         /*************/ /**********************/
+               /**/       a10, /**/ alpha11, a12, 
+          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
         
         RepartitionDownDiagonal
         ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
@@ -446,15 +454,6 @@ elemental::lapack::internal::PanelTridiagLSquare
                tau1,
           tB,  t2 );
 
-        ABL.View
-        ( paddedABL, 0, 0, ABL.Height()-padding, ABL.Width() );
-        A20.View
-        ( paddedA20, 0, 0, A20.Height()-padding, A20.Width() );
-        a21.View
-        ( paddeda21, 0, 0, a21.Height()-padding, a21.Width() );
-        A22.View
-        ( paddedA22, 0, 0, A22.Height()-padding, A22.Width()-padding );
-
         ACol.View2x1
         ( alpha11,
           a21 );
@@ -467,16 +466,42 @@ elemental::lapack::internal::PanelTridiagLSquare
         ( a21, alpha21T,
                a21B,     1 );
 
+        // Have A22 dip into the padding as appropriate
+        if( A22.LocalHeight() < A22.LocalWidth() )
+        {
+            paddedA22.View
+            ( paddedA, ATL.Height()+1, ATL.Width()+1,
+              A22.Height()+padding, A22.Width() );
+        }
+        else if( A22.LocalHeight() > A22.LocalWidth() )
+        {
+            paddedA22.View
+            ( paddedA, ATL.Height()+1, ATL.Width()+1,
+              A22.Height(), A22.Width()+padding );
+        }
+        else
+        {
+            paddedA22.View( A22 );
+        }
+
+        z21.AlignWith( w21 );
+        z21_MR_MC.AlignColsWith( A22 );
+        z10_Star_MR.AlignWith( W20 );
+        z10_Star_MR.ResizeTo( 1, w10.Width() );
         paddeda21_MC_Star.AlignWith( paddedA22 );
         paddeda21_MR_Star.AlignWith( paddedA22 );
-        z10_Star_MR.AlignWith( W20 );
-        z21.AlignWith( w21 );
         paddedz21_MC_Star.AlignWith( paddedA22 );
         paddedz21_MR_Star.AlignWith( paddedA22 );
-        paddedz21_MC_Star.ResizeTo( paddeda21.Height(), 1 );
-        paddedz21_MR_Star.ResizeTo( paddeda21.Height(), 1 );
-        z21_MR_MC.AlignColsWith( A22 );
-        z10_Star_MR.ResizeTo( 1, w10.Width() );
+        paddeda21_MC_Star.ResizeTo( paddedA22.Height(), 1 );
+        paddeda21_MR_Star.ResizeTo( paddedA22.Width(), 1 );
+        paddedz21_MC_Star.ResizeTo( paddedA22.Height(), 1 );
+        paddedz21_MR_Star.ResizeTo( paddedA22.Width(), 1 );
+        paddeda21_MC_Star.SetToZero();
+        paddeda21_MR_Star.SetToZero();
+        a21_MC_Star.View( paddeda21_MC_Star, 0, 0, a21.Height(), 1 );
+        a21_MR_Star.View( paddeda21_MR_Star, 0, 0, a21.Height(), 1 );
+        z21_MC_Star.View( paddedz21_MC_Star, 0, 0, a21.Height(), 1 );
+        z21_MR_Star.View( paddedz21_MR_Star, 0, 0, a21.Height(), 1 );
         //--------------------------------------------------------------------//
         alpha11.SetImag( 0, 0, (R)0 ); 
         blas::Conj( w10, w10Conj );
@@ -498,12 +523,12 @@ elemental::lapack::internal::PanelTridiagLSquare
         alpha21T.GetRealDiagonal( epsilon1 );
         alpha21T.Set( 0, 0, (C)1 );
 
-        paddeda21_MC_Star = paddeda21; // Broadcast in row
-        paddeda21_MR_Star = paddeda21; // pairwise exchange, Bcast in col
+        a21_MC_Star = a21; // Broadcast in row
+        a21_MR_Star = a21; // Pairwise exchange then Broadcast in column
 
         // Perform the local portion of the Hemv
-        paddedz21_MC_Star.LocalMatrix() = paddeda21_MC_Star.LocalMatrix();
-        if( g.MCRank() < g.MRRank() )
+        paddedz21_MC_Star.LocalMatrix() = paddeda21_MR_Star.LocalMatrix();
+        if( paddedA22.ColShift() < paddedA22.RowShift() )
         {
             // We're above the diagonal, so we must zero our local diagonal
             u.resize( paddedA22.LocalWidth() );
@@ -524,8 +549,8 @@ elemental::lapack::internal::PanelTridiagLSquare
             ( Lower, Normal, NonUnit,
               paddedA22.LockedLocalMatrix(), paddedz21_MC_Star.LocalMatrix() );
         }
-        paddedz21_MR_Star.LocalMatrix() = paddeda21_MR_Star.LocalMatrix();
-        if( g.MCRank() <= g.MRRank() )
+        paddedz21_MR_Star.LocalMatrix() = paddeda21_MC_Star.LocalMatrix();
+        if( paddedA22.ColShift() <= paddedA22.RowShift() )
         {
             // We're on or above the diagonal, zero our local diagonal
             u.resize( paddedA22.LocalWidth() );
@@ -546,13 +571,6 @@ elemental::lapack::internal::PanelTridiagLSquare
             ( Lower, ConjugateTranspose, NonUnit,
               paddedA22.LockedLocalMatrix(), paddedz21_MR_Star.LocalMatrix() );
         }
-
-        a21_MC_Star.View
-        ( paddeda21_MC_Star, 0, 0, a21_MC_Star.Height()-padding, 1 );
-        z21_MC_Star.View
-        ( paddedz21_MC_Star, 0, 0, z21_MC_Star.Height()-padding, 1 );
-        z21_MR_Star.View
-        ( paddedz21_MR_Star, 0, 0, z21_MR_Star.Height()-padding, 1 );
 
         blas::Gemv
         ( ConjugateTranspose, 
@@ -597,19 +615,19 @@ elemental::lapack::internal::PanelTridiagLSquare
             blas::Axpy( alpha, a21, w21 );
         }
         //--------------------------------------------------------------------//
-        paddeda21_MC_Star.FreeAlignments();
-        paddeda21_MR_Star.FreeAlignments();
         z10_Star_MR.FreeAlignments();
         z21.FreeAlignments();
+        z21_MR_MC.FreeAlignments();
+        paddeda21_MC_Star.FreeAlignments();
+        paddeda21_MR_Star.FreeAlignments();
         paddedz21_MC_Star.FreeAlignments();
         paddedz21_MR_Star.FreeAlignments();
-        z21_MR_MC.FreeAlignments();
 
         SlidePartitionDownDiagonal
-        ( ATL,       /**/ paddedATR,  A00,       a01,       /**/ paddedA02,
-                     /**/             a10,       alpha11,   /**/ paddeda12,
-         /*************************/ /************************************/
-          paddedABL, /**/ paddedABR,  paddedA20, paddeda21, /**/ paddedA22 );
+        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
+               /**/       a10, alpha11, /**/ a12,
+         /*************/ /**********************/
+          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
 
         SlidePartitionDownDiagonal
         ( WTL, /**/ WTR,  W00, w01,     /**/ W02,
@@ -639,28 +657,24 @@ elemental::lapack::internal::PanelTridiagLSquare
 template void elemental::lapack::internal::PanelTridiagLSquare
 ( DistMatrix<float,MC,MR  >& paddedA,
   DistMatrix<float,MC,MR  >& W,
-  DistMatrix<float,MD,Star>& e,
-  int padding );
+  DistMatrix<float,MD,Star>& e );
 
 template void elemental::lapack::internal::PanelTridiagLSquare
 ( DistMatrix<double,MC,MR  >& paddedA,
   DistMatrix<double,MC,MR  >& W,
-  DistMatrix<double,MD,Star>& e,
-  int padding );
+  DistMatrix<double,MD,Star>& e );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::internal::PanelTridiagLSquare
 ( DistMatrix<scomplex,MC,MR  >& paddedA,
   DistMatrix<scomplex,MC,MR  >& W,
   DistMatrix<float,   MD,Star>& e,
-  DistMatrix<scomplex,MD,Star>& t,
-  int padding );
+  DistMatrix<scomplex,MD,Star>& t );
 
 template void elemental::lapack::internal::PanelTridiagLSquare
 ( DistMatrix<dcomplex,MC,MR  >& paddedA,
   DistMatrix<dcomplex,MC,MR  >& W,
   DistMatrix<double,  MD,Star>& e,
-  DistMatrix<dcomplex,MD,Star>& t,
-  int padding );
+  DistMatrix<dcomplex,MD,Star>& t );
 #endif
 

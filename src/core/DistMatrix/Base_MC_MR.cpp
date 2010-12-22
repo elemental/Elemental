@@ -216,9 +216,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
+        this->_colShift = A.ColShift();
+        this->_rowShift = A.RowShift();
         this->_localMatrix.ResizeTo( 0, 0 );
-        this->_colShift     = A.ColShift();
-        this->_rowShift     = A.RowShift();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -241,8 +241,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_colShift = A.ColShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -265,8 +265,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_rowShift = A.RowShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -292,9 +292,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_colShift = A.RowShift();
         this->_rowShift = A.ColShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -317,8 +317,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_rowShift = A.ColShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -341,8 +341,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_colShift = A.RowShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -364,11 +364,11 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_constrainedColAlignment = true;
     this->_height = 0;
     this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
     if( g.InGrid() )
     {
         this->_colShift = 
             Shift( g.MCRank(), this->ColAlignment(), g.Height() );
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -392,9 +392,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_width = 0;
     if( g.InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_colShift = 
             Shift( g.MCRank(), this->ColAlignment(), g.Height() );
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -418,9 +418,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_width = 0;
     if( g.InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_rowShift = 
             Shift( g.MRRank(), this->RowAlignment(), g.Width() );
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -444,9 +444,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
     this->_width = 0;
     if( g.InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_rowShift = 
             Shift( g.MRRank(), this->RowAlignment(), g.Width() );
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -469,8 +469,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_colShift = A.ColShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -493,8 +493,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_colShift = A.ColShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -517,8 +517,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_colShift = A.RowShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -541,8 +541,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_colShift = A.RowShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -566,9 +566,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_width = 0;
     if( g.InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_colShift = 
             Shift( g.MCRank(), this->ColAlignment(), g.Height() );
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -592,9 +592,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
     this->_width = 0;
     if( g.InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_colShift = 
             Shift( g.MCRank(), this->ColAlignment(), g.Height() );
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -617,8 +617,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_rowShift = A.RowShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -641,8 +641,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_rowShift = A.RowShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -665,8 +665,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_rowShift = A.ColShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -689,8 +689,8 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_width = 0;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_rowShift = A.ColShift();
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -714,9 +714,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_width = 0;
     if( g.InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_rowShift = 
             Shift( g.MRRank(), this->RowAlignment(), g.Width() );
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -740,9 +740,9 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
     this->_width = 0;
     if( g.InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
         this->_rowShift = 
             Shift( g.MRRank(), this->RowAlignment(), g.Width() );
+        this->_localMatrix.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2023,7 +2023,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
         if( !CongruentComms( A.Grid().ViewingComm(), 
                              this->Grid().ViewingComm() ) )
             throw logic_error
-                  ("Redistributing between notmatching grids currently requires"
+                  ("Redistributing between nonmatching grids currently requires"
                    " the viewing communicators to match.");
                      
         // Compute the number of process rows and columns that each process 
@@ -2059,30 +2059,27 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             (A.Height()/(rA*localColStrideA)+1) * 
             (A.Width()/(cA*localRowStrideA)+1);
 
-        // Have each member of A's grid individually send to all numRow x numCol 
+        // Have each member of A's grid individually send to all numRow x numCol
         // processes in order, while the members of this grid receive from all 
         // necessary processes at each step.
         int requiredMemory = 0;
+        T* sendBuffer;
+        T* recvBuffer;
         if( inAGrid )
             requiredMemory += maxSendSize;
         if( inThisGrid )
-        {
-            int maxRowRecvsPerSend = rA/r0 + 1;
-            int maxColRecvsPerSend = cA/c0 + 1;
-            int maxRecvsPerSend = maxRowRecvsPerSend*maxColRecvsPerSend;
-            requiredMemory += maxRecvsPerSend*maxSendSize;
-        }
-        // Grab memory and partition it into the send and recv buffers
+            requiredMemory += maxSendSize;
         this->_auxMemory.Require( requiredMemory );
-        T* buffer = this->_auxMemory.Buffer();
-        T* sendBuffer;
-        T* recvBuffer;
         {
+            T* buffer = this->_auxMemory.Buffer();
             int offset = 0;
-            sendBuffer = &buffer[0];
             if( inAGrid )
+            {
+                sendBuffer = &buffer[offset];
                 offset += maxSendSize;
-            recvBuffer = &buffer[offset];
+            }
+            if( inThisGrid )
+                recvBuffer = &buffer[offset];
         }
 
         int recvRow = 0; // avoid compiler warnings...

@@ -218,45 +218,6 @@ elemental::Grid::SetUpGrid()
     }
 #endif
 
-    _matrixColGroups.resize( _c );
-    _matrixRowGroups.resize( _r );
-
-    // MatrixCol groups
-    for( int i=0; i<_c; ++i )
-    {
-        std::vector<int> ranks(_r);    
-        for( int j=0; j<_r; ++j )
-            ranks[j] = i*_r + j;
-        MPI_Group_incl( _owningGroup, _r, &ranks[0], &_matrixColGroups[i] );
-    }
-    // MatrixRow groups
-    for( int i=0; i<_r; ++i )
-    {
-        std::vector<int> ranks(_c);
-        for( int j=0; j<_c; ++j )
-            ranks[j] = i + j*_r;
-        MPI_Group_incl( _owningGroup, _c, &ranks[0], &_matrixRowGroups[i] );
-    }
-    // VectorCol group
-    {
-        // MPI_Group_dup does not exist
-        std::vector<int> ranks(_p);
-        for( int i=0; i<_p; ++i )
-            ranks[i] = i;
-        MPI_Group_incl( _owningGroup, _p, &ranks[0], &_vectorColGroup );
-    }
-    // VectorRow group
-    {
-        std::vector<int> ranks(_p);
-        for( int i=0; i<_p; ++i )
-        {
-            int thisRow = i % _r;
-            int thisCol = i / _r;
-            ranks[i] = thisCol + thisRow*_c;
-        }
-        MPI_Group_incl( _owningGroup, _p, &ranks[0], &_vectorRowGroup );
-    }
-
     // Split the viewing comm into the owning and not owning subsets
     if( _inGrid )
         MPI_Comm_create( _viewingComm, _owningGroup, &_owningComm );    
@@ -329,7 +290,6 @@ elemental::Grid::SetUpGrid()
         _vectorColRank = MPI_UNDEFINED;
         _vectorRowRank = MPI_UNDEFINED;
     }
-
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -349,12 +309,6 @@ elemental::Grid::~Grid()
             MPI_Comm_free( &_vectorRowComm );
             MPI_Comm_free( &_cartComm );
         }
-        for( int i=0; i<_r; ++i )
-            MPI_Group_free( &_matrixRowGroups[i] );
-        for( int i=0; i<_c; ++i )
-            MPI_Group_free( &_matrixColGroups[i] );
-        MPI_Group_free( &_vectorColGroup );
-        MPI_Group_free( &_vectorRowGroup );
 
         if( _inGrid )
             MPI_Comm_free( &_owningComm );

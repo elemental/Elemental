@@ -78,7 +78,7 @@ int main( int argc, char* argv[] )
         int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
         std::vector<int> sqrtRanks(pSqrt*pSqrt);
-        for( int i=0; i<pSqrt*pSqrt; ++i )
+        for( int i=0; i<sqrtRanks.size(); ++i )
             sqrtRanks[i] = i;
 
         MPI_Group group, sqrtGroup;
@@ -92,7 +92,7 @@ int main( int argc, char* argv[] )
         DistMatrix<double,MC,MR> ASqrt( m, n, sqrtGrid );
 
         A.SetToIdentity();
-        A.Print("AOdd");
+        A.Print("A");
 
         ASqrt = A;
         ASqrt.Print("ASqrt := A");

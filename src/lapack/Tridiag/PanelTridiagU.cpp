@@ -161,7 +161,7 @@ elemental::lapack::internal::PanelTridiagU
         alpha01B.Set( 0, 0, (R)1 );
 
         a01_MR_Star = a01_MC_Star = a01;
-
+        
         PopBlocksizeStack();
         blas::internal::LocalSymvColAccumulateU
         ( (R)1, A00, a01_MC_Star, a01_MR_Star, z01_MC_Star, z01_MR_Star );

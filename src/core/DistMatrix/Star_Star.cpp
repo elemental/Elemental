@@ -46,17 +46,20 @@ elemental::DistMatrix<R,Star,Star>::SetToRandomHPD()
     if( this->Height() != this->Width() )
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
-    const int height = this->Height();
-    const int width = this->Width();
-
-    this->SetToRandom();
-#ifdef _OPENMP
-    #pragma omp parallel for
-#endif
-    for( int j=0; j<min(height,width); ++j )
+    if( this->Grid().InGrid() )
     {
-        const R value = this->GetLocalEntry(j,j);
-        this->SetLocalEntry(j,j,value+this->Width());
+        const int height = this->Height();
+        const int width = this->Width();
+
+        this->SetToRandom();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int j=0; j<min(height,width); ++j )
+        {
+            const R value = this->GetLocalEntry(j,j);
+            this->SetLocalEntry(j,j,value+this->Width());
+        }
     }
 #ifndef RELEASE
     PopCallStack();
@@ -74,17 +77,20 @@ elemental::DistMatrix<complex<R>,Star,Star>::SetToRandomHPD()
     if( this->Height() != this->Width() )
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
-    const int height = this->Height();
-    const int width = this->Width();
-
-    this->SetToRandom();
-#ifdef _OPENMP
-    #pragma omp parallel for
-#endif
-    for( int j=0; j<min(height,width); ++j )
+    if( this->Grid().InGrid() )
     {
-        const R value = real(this->GetLocalEntry(j,j));
-        this->SetLocalEntry(j,j,value+this->Width());
+        const int height = this->Height();
+        const int width = this->Width();
+
+        this->SetToRandom();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int j=0; j<min(height,width); ++j )
+        {
+            const R value = real(this->GetLocalEntry(j,j));
+            this->SetLocalEntry(j,j,value+this->Width());
+        }
     }
 #ifndef RELEASE
     PopCallStack();
@@ -100,7 +106,24 @@ elemental::DistMatrix<complex<R>,Star,Star>::GetReal
     PushCallStack("[* ,* ]::GetReal");
     this->AssertValidEntry( i, j );
 #endif
-    R u = real(this->GetLocalEntry(i,j));
+    int viewingSize, owningSize;
+    MPI_Comm_size( this->Grid().ViewingComm(), &viewingSize );
+    MPI_Group_size( this->Grid().OwningGroup(), &owningSize );
+    R u;
+    if( viewingSize == owningSize )
+    {
+        // Everyone can just grab their own copy of the data
+        u = real(this->GetLocalEntry(i,j));
+    }
+    else
+    {
+        // Have the root broadcast its data
+        if( this->Grid().VCRank() == 0 )
+            u = real(this->GetLocalEntry(i,j));
+        Broadcast
+        ( &u, 1, this->Grid().OwningToViewingMap(0),
+          this->Grid().ViewingComm() );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -116,7 +139,24 @@ elemental::DistMatrix<complex<R>,Star,Star>::GetImag
     PushCallStack("[* ,* ]::GetImag");
     this->AssertValidEntry( i, j );
 #endif
-    R u = imag(this->GetLocalEntry(i,j));
+    int viewingSize, owningSize;
+    MPI_Comm_size( this->Grid().ViewingComm(), &viewingSize );
+    MPI_Group_size( this->Grid().OwningGroup(), &owningSize );
+    R u;
+    if( viewingSize == owningSize )
+    {
+        // Everyone can just grab their own copy of the data
+        u = imag(this->GetLocalEntry(i,j));
+    }
+    else
+    { 
+        // Have the root broadcast its data
+        if( this->Grid().VCRank() == 0 )
+            u = imag(this->GetLocalEntry(i,j));
+        Broadcast
+        ( &u, 1, this->Grid().OwningToViewingMap(0),
+          this->Grid().ViewingComm() );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -132,8 +172,11 @@ elemental::DistMatrix<complex<R>,Star,Star>::SetReal
     PushCallStack("[* ,* ]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const R v = imag(this->GetLocalEntry(i,j));
-    this->SetLocalEntry(i,j,complex<R>(u,v));
+    if( this->Grid().InGrid() )
+    {
+        const R v = imag(this->GetLocalEntry(i,j));
+        this->SetLocalEntry(i,j,complex<R>(u,v));
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -148,8 +191,11 @@ elemental::DistMatrix<complex<R>,Star,Star>::SetImag
     PushCallStack("[* ,* ]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const R u = real(this->GetLocalEntry(i,j));
-    this->SetLocalEntry(i,j,complex<R>(u,v));
+    if( this->Grid().InGrid() )
+    {
+        const R u = real(this->GetLocalEntry(i,j));
+        this->SetLocalEntry(i,j,complex<R>(u,v));
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

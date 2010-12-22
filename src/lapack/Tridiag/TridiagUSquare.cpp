@@ -38,7 +38,7 @@ using namespace elemental;
 template<typename R>
 void
 elemental::lapack::internal::TridiagUSquare
-( DistMatrix<R,MC,MR>& paddedA, int padding )
+( DistMatrix<R,MC,MR>& paddedA )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TridiagUSquare");
@@ -46,6 +46,7 @@ elemental::lapack::internal::TridiagUSquare
         throw logic_error("A must be square.");
 #endif
     const Grid& g = paddedA.Grid();
+    const int padding = g.Height();
 
     // Separate off the padded parts of A and ensure that they are zero
     DistMatrix<R,MC,MR>
@@ -62,99 +63,102 @@ elemental::lapack::internal::TridiagUSquare
     if( g.Height() != g.Width() ||
         paddedA.ColAlignment() != paddedA.RowAlignment() )
         throw logic_error("Square Tridiag is for square, diag aligned grids.");
-    if( paddedA.Height() % g.Height() != 0 )
-        throw logic_error("Square Tridiag requires a padded matrix.");
 #endif
 
-    // Matrix views 
-    DistMatrix<R,MC,MR> 
-        ABR(g), paddedA00(g), paddedA01(g), paddedA02(g),  
-                paddedA10(g), A11(g),       A12(g),
-                paddedA20(g), A21(g),       A22(g),
-        ATL(g), A11Expanded(g), A01(g), A00(g);
-
-    // Temporary distributions
-    DistMatrix<R,MC,  Star> A01_MC_Star(g);
-    DistMatrix<R,MR,  Star> A01_MR_Star(g);
-    DistMatrix<R,MC,  Star> W01_MC_Star(g);
-    DistMatrix<R,MR,  Star> W01_MR_Star(g);
-    DistMatrix<R,Star,Star> A11_Star_Star(g);
-    DistMatrix<R,MD,  Star> e1(g);
-    DistMatrix<R,MC,  MR  > W01(g), W11(g),  WPan(g);
-
-    PartitionUpDiagonal
-    ( paddedA, paddedATL, paddedATR,
-               paddedABL, ABR,       0 );
-    while( ABR.Height()+padding < paddedA.Height() )
+    if( g.InGrid() )
     {
-        int bsize = min( Blocksize(), paddedA.Height()-(ABR.Height()+padding) );
-        RepartitionUpDiagonal
-        ( paddedATL, /**/ paddedATR,  paddedA00, paddedA01, /**/ paddedA02,
-                     /**/             paddedA10, A11,       /**/ A12,
-         /*************************/ /************************************/
-          paddedABL, /**/ ABR,        paddedA20, A21,       /**/ A22,
-          bsize );
+        // Matrix views 
+        DistMatrix<R,MC,MR> 
+            ABR(g), paddedA00(g), paddedA01(g), paddedA02(g),  
+                    paddedA10(g), A11(g),       A12(g),
+                    paddedA20(g), A21(g),       A22(g),
+            ATL(g), A11Expanded(g), A01(g), A00(g);
 
-        ATL.View
-        ( paddedATL, padding, padding,
-          paddedATL.Height()-padding, paddedATL.Width()-padding );
-        A01.View
-        ( paddedA01, padding, 0,
-          paddedA01.Height()-padding, paddedA01.Width() );
-        A00.View
-        ( paddedA00, padding, padding,
-          paddedA00.Height()-padding, paddedA00.Width()-padding );
+        // Temporary distributions
+        DistMatrix<R,MC,  Star> A01_MC_Star(g);
+        DistMatrix<R,MR,  Star> A01_MR_Star(g);
+        DistMatrix<R,MC,  Star> W01_MC_Star(g);
+        DistMatrix<R,MR,  Star> W01_MR_Star(g);
+        DistMatrix<R,Star,Star> A11_Star_Star(g);
+        DistMatrix<R,MD,  Star> e1(g);
+        DistMatrix<R,MC,  MR  > W01(g), W11(g),  WPan(g);
 
-        if( A00.Height() > 0 )
+        PartitionUpDiagonal
+        ( paddedA, paddedATL, paddedATR,
+                   paddedABL, ABR,       0 );
+        while( ABR.Height()+padding < paddedA.Height() )
         {
-            A11Expanded.View
-            ( ATL, 
-              A00.Height()-1, A00.Width()-1, A11.Height()+1, A11.Width()+1 );
-            WPan.AlignWith( A01 );
-            WPan.ResizeTo( ATL.Height(), A11.Width() );
-            PartitionUp
-            ( WPan, W01,
-                    W11, A11.Height() );
-            e1.AlignWithDiag( A11Expanded, 1 );
-            e1.ResizeTo( WPan.Width(), 1 );
-            A01_MC_Star.AlignWith( A00 );
-            A01_MR_Star.AlignWith( A00 );
-            W01_MC_Star.AlignWith( A00 );
-            W01_MR_Star.AlignWith( A00 );
-            //----------------------------------------------------------------//
-            lapack::internal::PanelTridiagUSquare
-            ( paddedATL, WPan, e1, padding );
+            int bsize = 
+                min( Blocksize(), paddedA.Height()-(ABR.Height()+padding) );
+            RepartitionUpDiagonal
+            ( paddedATL, /**/ paddedATR,  paddedA00, paddedA01, /**/ paddedA02,
+                         /**/             paddedA10, A11,       /**/ A12,
+             /*************************/ /************************************/
+              paddedABL, /**/ ABR,        paddedA20, A21,       /**/ A22,
+              bsize );
 
-            // Perform the Syr2k for square process grids on A00
-            A01_MC_Star = A01; // Allgather row 
-            A01_MR_Star = A01; // Pairwise exchange then Allgather column
-            W01_MC_Star = W01; // Allgather row
-            W01_MR_Star = W01; // Pairwise exchange then Allgather column
-            blas::internal::LocalTriangularRank2K
-            ( Upper, Transpose, Transpose, (R)-1,
-              A01_MC_Star, W01_MC_Star, A01_MR_Star, W01_MR_Star, (R)1, A00 );
+            ATL.View
+            ( paddedATL, padding, padding,
+              paddedATL.Height()-padding, paddedATL.Width()-padding );
+            A01.View
+            ( paddedA01, padding, 0,
+              paddedA01.Height()-padding, paddedA01.Width() );
+            A00.View
+            ( paddedA00, padding, padding,
+              paddedA00.Height()-padding, paddedA00.Width()-padding );
 
-            A11Expanded.SetDiagonal( e1, 1 );
-            //----------------------------------------------------------------//
-            WPan.FreeAlignments();
-            e1.FreeAlignments();
-            A01_MC_Star.FreeAlignments();
-            A01_MR_Star.FreeAlignments();
-            W01_MC_Star.FreeAlignments();
-            W01_MR_Star.FreeAlignments();
+            if( A00.Height() > 0 )
+            {
+                A11Expanded.View
+                ( ATL, A00.Height()-1, A00.Width()-1, 
+                  A11.Height()+1, A11.Width()+1 );
+                WPan.AlignWith( A01 );
+                WPan.ResizeTo( ATL.Height(), A11.Width() );
+                PartitionUp
+                ( WPan, W01,
+                        W11, A11.Height() );
+                e1.AlignWithDiag( A11Expanded, 1 );
+                e1.ResizeTo( WPan.Width(), 1 );
+                A01_MC_Star.AlignWith( A00 );
+                A01_MR_Star.AlignWith( A00 );
+                W01_MC_Star.AlignWith( A00 );
+                W01_MR_Star.AlignWith( A00 );
+                //------------------------------------------------------------//
+                lapack::internal::PanelTridiagUSquare
+                ( paddedATL, WPan, e1 );
+
+                // Perform the Syr2k for square process grids on A00
+                A01_MC_Star = A01; // Allgather row 
+                A01_MR_Star = A01; // Pairwise exchange then Allgather column
+                W01_MC_Star = W01; // Allgather row
+                W01_MR_Star = W01; // Pairwise exchange then Allgather column
+                blas::internal::LocalTriangularRank2K
+                ( Upper, Transpose, Transpose, (R)-1,
+                  A01_MC_Star, W01_MC_Star, A01_MR_Star, W01_MR_Star, 
+                  (R)1, A00 );
+
+                A11Expanded.SetDiagonal( e1, 1 );
+                //------------------------------------------------------------//
+                WPan.FreeAlignments();
+                e1.FreeAlignments();
+                A01_MC_Star.FreeAlignments();
+                A01_MR_Star.FreeAlignments();
+                W01_MC_Star.FreeAlignments();
+                W01_MR_Star.FreeAlignments();
+            }
+            else
+            {
+                A11_Star_Star = A11;
+                lapack::Tridiag( Upper, A11_Star_Star.LocalMatrix() );
+                A11 = A11_Star_Star;
+            }
+
+            SlidePartitionUpDiagonal
+            ( paddedATL, /**/ paddedATR,  paddedA00, /**/ paddedA01, paddedA02,
+             /*************************/ /************************************/
+                         /**/             paddedA10, /**/ A11,       A12,
+              paddedABL, /**/ ABR,        paddedA20, /**/ A21,       A22 );
         }
-        else
-        {
-            A11_Star_Star = A11;
-            lapack::Tridiag( Upper, A11_Star_Star.LocalMatrix() );
-            A11 = A11_Star_Star;
-        }
-
-        SlidePartitionUpDiagonal
-        ( paddedATL, /**/ paddedATR,  paddedA00, /**/ paddedA01, paddedA02,
-         /*************************/ /************************************/
-                     /**/             paddedA10, /**/ A11,       A12,
-          paddedABL, /**/ ABR,        paddedA20, /**/ A21,       A22 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -166,8 +170,7 @@ template<typename R>
 void
 elemental::lapack::internal::TridiagUSquare
 ( DistMatrix<complex<R>,MC,  MR  >& paddedA,
-  DistMatrix<complex<R>,Star,Star>& t,
-  int padding )
+  DistMatrix<complex<R>,Star,Star>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TridiagUSquare");
@@ -175,6 +178,7 @@ elemental::lapack::internal::TridiagUSquare
         throw logic_error("A must be square.");
 #endif
     const Grid& g = paddedA.Grid();
+    const int padding = g.Height();
     typedef complex<R> C;
 
     // Separate off the padded parts of A and ensure that they are zero
@@ -196,130 +200,134 @@ elemental::lapack::internal::TridiagUSquare
     if( g.Height() != g.Width() ||
         paddedA.ColAlignment() != paddedA.RowAlignment() )
         throw logic_error("Square Tridiag is for square, diag aligned grids.");
-    if( paddedA.Height() % g.Height() != 0 )
-        throw logic_error("Square Tridiag requires a padded matrix.");
 #endif
 
     DistMatrix<C,MD,Star> tDiag(g);
     tDiag.AlignWithDiag( A, 1 );
     tDiag.ResizeTo( A.DiagonalLength( 1 ), 1 );
 
-    // Matrix views 
-    DistMatrix<C,MC,MR> 
-        ABR(g),  paddedA00(g), paddedA01(g), paddedA02(g),  
-                 paddedA10(g), A11(g),       A12(g),
-                 paddedA20(g), A21(g),       A22(g),
-        ATL(g), A11Expanded(g), A01(g), A00(g);
-    DistMatrix<C,MD,Star> tT(g),  t0(g),
-                          tB(g),  t1(g), 
-                                  t2(g);
-
-    // Temporary distributions
-    Matrix<C> A11_Herm;
-    DistMatrix<C,MC,  Star> A01_MC_Star(g);
-    DistMatrix<C,MR,  Star> A01_MR_Star(g);
-    DistMatrix<C,MC,  Star> W01_MC_Star(g);
-    DistMatrix<C,MR,  Star> W01_MR_Star(g);
-    DistMatrix<C,Star,Star> A11_Star_Star(g);
-    DistMatrix<R,MD,  Star> e1(g);
-    DistMatrix<C,Star,Star> t1_Star_Star(g);
-    DistMatrix<C,MC,  MR  > W01(g), W11(g),  WPan(g);
-
-    PartitionUpDiagonal
-    ( paddedA, paddedATL, paddedATR,
-               paddedABL, ABR,       0 );
-    PartitionUp
-    ( tDiag, tT,
-             tB, 0 );
-    while( ABR.Height()+padding < paddedA.Height() )
+    if( g.InGrid() )
     {
-        int bsize = min( Blocksize(), paddedA.Height()-(ABR.Height()+padding) );
-        RepartitionUpDiagonal
-        ( paddedATL, /**/ paddedATR,  paddedA00, paddedA01, /**/ paddedA02,
-                     /**/             paddedA10, A11,       /**/ A12,
-         /*************************/ /************************************/
-          paddedABL, /**/ ABR,        paddedA20, A21,       /**/ A22,
-          bsize );
+        // Matrix views 
+        DistMatrix<C,MC,MR> 
+            ABR(g),  paddedA00(g), paddedA01(g), paddedA02(g),  
+                     paddedA10(g), A11(g),       A12(g),
+                     paddedA20(g), A21(g),       A22(g),
+            ATL(g), A11Expanded(g), A01(g), A00(g);
+        DistMatrix<C,MD,Star> tT(g),  t0(g),
+                              tB(g),  t1(g), 
+                                      t2(g);
 
-        RepartitionUp
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2 );
+        // Temporary distributions
+        Matrix<C> A11_Herm;
+        DistMatrix<C,MC,  Star> A01_MC_Star(g);
+        DistMatrix<C,MR,  Star> A01_MR_Star(g);
+        DistMatrix<C,MC,  Star> W01_MC_Star(g);
+        DistMatrix<C,MR,  Star> W01_MR_Star(g);
+        DistMatrix<C,Star,Star> A11_Star_Star(g);
+        DistMatrix<R,MD,  Star> e1(g);
+        DistMatrix<C,Star,Star> t1_Star_Star(g);
+        DistMatrix<C,MC,  MR  > W01(g), W11(g),  WPan(g);
 
-        ATL.View
-        ( paddedATL, padding, padding,
-          paddedATL.Height()-padding, paddedATL.Width()-padding );
-        A01.View
-        ( paddedA01, padding, 0,
-          paddedA01.Height()-padding, paddedA01.Width() );
-        A00.View
-        ( paddedA00, padding, padding,
-          paddedA00.Height()-padding, paddedA00.Width()-padding );
-
-        if( A00.Height() > 0 )
+        PartitionUpDiagonal
+        ( paddedA, paddedATL, paddedATR,
+                   paddedABL, ABR,       0 );
+        PartitionUp
+        ( tDiag, tT,
+                 tB, 0 );
+        while( ABR.Height()+padding < paddedA.Height() )
         {
-            A11Expanded.View
-            ( ATL, 
-              A00.Height()-1, A00.Width()-1, A11.Height()+1, A11.Width()+1 );
-            WPan.AlignWith( A01 );
-            WPan.ResizeTo( ATL.Height(), A11.Width() );
-            PartitionUp
-            ( WPan, W01,
-                    W11, A11.Height() );
-            e1.AlignWithDiag( A11Expanded, 1 );
-            e1.ResizeTo( WPan.Width(), 1 );
-            A01_MC_Star.AlignWith( A00 );
-            A01_MR_Star.AlignWith( A00 );
-            W01_MC_Star.AlignWith( A00 );
-            W01_MR_Star.AlignWith( A00 );
-            //----------------------------------------------------------------//
-            lapack::internal::PanelTridiagUSquare
-            ( paddedATL, WPan, e1, t1, padding );
+            int bsize = 
+                min( Blocksize(), paddedA.Height()-(ABR.Height()+padding) );
+            RepartitionUpDiagonal
+            ( paddedATL, /**/ paddedATR,  paddedA00, paddedA01, /**/ paddedA02,
+                         /**/             paddedA10, A11,       /**/ A12,
+             /*************************/ /************************************/
+              paddedABL, /**/ ABR,        paddedA20, A21,       /**/ A22,
+              bsize );
 
-            // Perform the Her2k for square process grids on A00
-            A01_MC_Star = A01; // Allgather row
-            A01_MR_Star = A01; // Pairwise exchange then Allgather column
-            W01_MC_Star = W01; // Allgather row
-            W01_MR_Star = W01; // Pairwise exchange then Allgather column
-            blas::internal::LocalTriangularRank2K
-            ( Upper, ConjugateTranspose, ConjugateTranspose, (C)-1,
-              A01_MC_Star, W01_MC_Star, A01_MR_Star, W01_MR_Star, (C)1, A00 );
+            RepartitionUp
+            ( tT,  t0,
+                   t1,
+             /**/ /**/
+              tB,  t2 );
 
-            A11Expanded.SetDiagonal( e1, 1 );
-            //----------------------------------------------------------------//
-            WPan.FreeAlignments();
-            e1.FreeAlignments();
-            A01_MC_Star.FreeAlignments();
-            A01_MR_Star.FreeAlignments();
-            W01_MC_Star.FreeAlignments();
-            W01_MR_Star.FreeAlignments();
-        }
-        else
-        {
-            A11_Star_Star = A11;
-            t1_Star_Star.ResizeTo( t1.Height(), 1 );
+            ATL.View
+            ( paddedATL, padding, padding,
+              paddedATL.Height()-padding, paddedATL.Width()-padding );
+            A01.View
+            ( paddedA01, padding, 0,
+              paddedA01.Height()-padding, paddedA01.Width() );
+            A00.View
+            ( paddedA00, padding, padding,
+              paddedA00.Height()-padding, paddedA00.Width()-padding );
 
-            lapack::Tridiag
-            ( Upper, 
-              A11_Star_Star.LocalMatrix(),        
-              t1_Star_Star.LocalMatrix() );
+            if( A00.Height() > 0 )
+            {
+                A11Expanded.View
+                ( ATL, 
+                  A00.Height()-1, A00.Width()-1, 
+                  A11.Height()+1, A11.Width()+1 );
+                WPan.AlignWith( A01 );
+                WPan.ResizeTo( ATL.Height(), A11.Width() );
+                PartitionUp
+                ( WPan, W01,
+                        W11, A11.Height() );
+                e1.AlignWithDiag( A11Expanded, 1 );
+                e1.ResizeTo( WPan.Width(), 1 );
+                A01_MC_Star.AlignWith( A00 );
+                A01_MR_Star.AlignWith( A00 );
+                W01_MC_Star.AlignWith( A00 );
+                W01_MR_Star.AlignWith( A00 );
+                //------------------------------------------------------------//
+                lapack::internal::PanelTridiagUSquare
+                ( paddedATL, WPan, e1, t1 );
+
+                // Perform the Her2k for square process grids on A00
+                A01_MC_Star = A01; // Allgather row
+                A01_MR_Star = A01; // Pairwise exchange then Allgather column
+                W01_MC_Star = W01; // Allgather row
+                W01_MR_Star = W01; // Pairwise exchange then Allgather column
+                blas::internal::LocalTriangularRank2K
+                ( Upper, ConjugateTranspose, ConjugateTranspose, (C)-1,
+                  A01_MC_Star, W01_MC_Star, A01_MR_Star, W01_MR_Star, 
+                  (C)1, A00 );
+
+                A11Expanded.SetDiagonal( e1, 1 );
+                //------------------------------------------------------------//
+                WPan.FreeAlignments();
+                e1.FreeAlignments();
+                A01_MC_Star.FreeAlignments();
+                A01_MR_Star.FreeAlignments();
+                W01_MC_Star.FreeAlignments();
+                W01_MR_Star.FreeAlignments();
+            }
+            else
+            {
+                A11_Star_Star = A11;
+                t1_Star_Star.ResizeTo( t1.Height(), 1 );
+
+                lapack::Tridiag
+                ( Upper, 
+                  A11_Star_Star.LocalMatrix(),        
+                  t1_Star_Star.LocalMatrix() );
             
-            A11 = A11_Star_Star;
-            t1 = t1_Star_Star;
+                A11 = A11_Star_Star;
+                t1 = t1_Star_Star;
+            }
+
+            SlidePartitionUpDiagonal
+            ( paddedATL, /**/ paddedATR,  paddedA00, /**/ paddedA01, paddedA02,
+             /*************************/ /************************************/
+                         /**/             paddedA10, /**/ A11,       A12,
+              paddedABL, /**/ ABR,        paddedA20, /**/ A21,       A22 );
+
+            SlidePartitionUp
+            ( tT,  t0,
+             /**/ /**/
+                   t1,
+              tB,  t2 );
         }
-
-        SlidePartitionUpDiagonal
-        ( paddedATL, /**/ paddedATR,  paddedA00, /**/ paddedA01, paddedA02,
-         /*************************/ /************************************/
-                     /**/             paddedA10, /**/ A11,       A12,
-          paddedABL, /**/ ABR,        paddedA20, /**/ A21,       A22 );
-
-        SlidePartitionUp
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
     }
     // Redistribute from matrix-diag form to fully replicated
     t = tDiag;
@@ -330,20 +338,18 @@ elemental::lapack::internal::TridiagUSquare
 #endif // WITHOUT_COMPLEX
 
 template void elemental::lapack::internal::TridiagUSquare
-( DistMatrix<float,MC,MR>& paddedA, int padding );
+( DistMatrix<float,MC,MR>& paddedA );
 
 template void elemental::lapack::internal::TridiagUSquare
-( DistMatrix<double,MC,MR>& paddedA, int padding );
+( DistMatrix<double,MC,MR>& paddedA );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::internal::TridiagUSquare
 ( DistMatrix<scomplex,MC,  MR  >& paddedA,
-  DistMatrix<scomplex,Star,Star>& t,
-  int padding );
+  DistMatrix<scomplex,Star,Star>& t );
 
 template void elemental::lapack::internal::TridiagUSquare
 ( DistMatrix<dcomplex,MC,  MR  >& paddedA,
-  DistMatrix<dcomplex,Star,Star>& t,
-  int padding );
+  DistMatrix<dcomplex,Star,Star>& t );
 #endif
 
