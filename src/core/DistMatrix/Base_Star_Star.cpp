@@ -1775,20 +1775,12 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         if( this->Grid().InGrid() )
             requiredMemory += A.Height()*A.Width();
         this->_auxMemory.Require( requiredMemory );
-        T* sendBuffer;
-        T* bcastBuffer;
-        if( A.Grid().VCRank() == 0 || this->Grid().InGrid() )
-        {
-            T* buffer = this->_auxMemory.Buffer();
-            int offset = 0;
-            if( A.Grid().VCRank() == 0 )
-            {
-                sendBuffer = &buffer[offset];
-                offset += A.Height()*A.Width();
-            }
-            if( this->Grid().InGrid() )
-                bcastBuffer = &buffer[offset];
-        }
+        T* buffer = this->_auxMemory.Buffer();
+        int offset = 0;
+        T* sendBuffer = &buffer[offset];
+        if( A.Grid().VCRank() == 0 )
+            offset += A.Height()*A.Width();
+        T* bcastBuffer = &buffer[offset];
 
         // Send from the root of A to the root of this matrix's grid
         MPI_Request sendRequest;

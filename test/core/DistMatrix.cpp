@@ -58,7 +58,6 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
 #endif
     const Grid& g = A.Grid();
 
-    int p = g.Size();
     int rank = g.VCRank();
     int height = B.Height();
     int width = B.Width();

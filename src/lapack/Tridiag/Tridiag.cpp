@@ -46,13 +46,12 @@ elemental::lapack::Tridiag
     // but it is usually significantly faster to redistribute to a (smaller)
     // square process grid, tridiagonalize, and then redistribute back to the
     // full grid.
-    /*
     if( shape == Lower )
         lapack::internal::TridiagL( A );
     else
         lapack::internal::TridiagU( A );
-    */
 
+    /*
     const Grid& g = A.Grid();
     if( g.InGrid() )
     {
@@ -112,6 +111,7 @@ elemental::lapack::Tridiag
             A = ASquare;
         }
     }
+    */
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -134,13 +134,12 @@ elemental::lapack::Tridiag
     // but it is usually significantly faster to redistribute to a (smaller)
     // square process grid, tridiagonalize, and then redistribute back to the
     // full grid.
-    /*
     if( shape == Lower )
         lapack::internal::TridiagL( A, t );
     else
         lapack::internal::TridiagU( A, t );
-    */
 
+    /*
     const Grid& g = A.Grid();
     if( g.InGrid() )
     {
@@ -203,6 +202,7 @@ elemental::lapack::Tridiag
             t = tSquare;
         }
     }
+    */
 #ifndef RELEASE
     PopCallStack();
 #endif

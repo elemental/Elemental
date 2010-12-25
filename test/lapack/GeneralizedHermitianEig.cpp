@@ -374,6 +374,7 @@ void TestCorrectnessDoubleComplex
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
                  << "    ||A||_F            = " << frobNormOfA << "\n"
                  << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"
+                 << "    ||B||_F            = " << frobNormOfB << "\n"
                  << "    ||X||_1            = " << oneNormOfX << "\n"
                  << "    ||X||_oo           = " << infNormOfX << "\n"
                  << "    ||X||_F            = " << frobNormOfX << "\n"

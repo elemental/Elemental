@@ -362,25 +362,12 @@ PanelTridiagL
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MD,Star>& e );
-template<typename R>
-void
-PanelTridiagLSquare
-( DistMatrix<R,MC,MR  >& paddedA,
-  DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MD,Star>& e );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 PanelTridiagL
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<std::complex<R>,MC,MR  >& W,
-  DistMatrix<R,              MD,Star>& e,
-  DistMatrix<std::complex<R>,MD,Star>& t );
-template<typename R>
-void
-PanelTridiagLSquare
-( DistMatrix<std::complex<R>,MC,MR  >& paddedA,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<R,              MD,Star>& e,
   DistMatrix<std::complex<R>,MD,Star>& t );
@@ -392,25 +379,11 @@ PanelTridiagU
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MD,Star>& e );
-template<typename R>
-void
-PanelTridiagUSquare
-( DistMatrix<R,MC,MR  >& paddedA,
-  DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MD,Star>& e );
-
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 PanelTridiagU
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<std::complex<R>,MC,MR  >& W,
-  DistMatrix<R,              MD,Star>& e,
-  DistMatrix<std::complex<R>,MD,Star>& t );
-template<typename R>
-void
-PanelTridiagUSquare
-( DistMatrix<std::complex<R>,MC,MR  >& paddedA,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<R,              MD,Star>& e,
   DistMatrix<std::complex<R>,MD,Star>& t );

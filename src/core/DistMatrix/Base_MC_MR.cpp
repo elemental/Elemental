@@ -2063,24 +2063,17 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
         // processes in order, while the members of this grid receive from all 
         // necessary processes at each step.
         int requiredMemory = 0;
-        T* sendBuffer;
-        T* recvBuffer;
         if( inAGrid )
             requiredMemory += maxSendSize;
         if( inThisGrid )
             requiredMemory += maxSendSize;
         this->_auxMemory.Require( requiredMemory );
-        {
-            T* buffer = this->_auxMemory.Buffer();
-            int offset = 0;
-            if( inAGrid )
-            {
-                sendBuffer = &buffer[offset];
-                offset += maxSendSize;
-            }
-            if( inThisGrid )
-                recvBuffer = &buffer[offset];
-        }
+        T* buffer = this->_auxMemory.Buffer();
+        int offset = 0;
+        T* sendBuffer = &buffer[offset];
+        if( inAGrid )
+            offset += maxSendSize;
+        T* recvBuffer = &buffer[offset];
 
         int recvRow = 0; // avoid compiler warnings...
         if( inAGrid )

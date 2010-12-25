@@ -88,7 +88,8 @@ elemental::lapack::internal::PanelTridiagU
     // Temporary distributions
     DistMatrix<R,MC,  Star> a01_MC_Star(g);
     DistMatrix<R,MR,  Star> a01_MR_Star(g);
-    DistMatrix<R,Star,MR  > z12_Star_MR(g);
+    DistMatrix<R,MR,  Star> x_MR_Star(g);
+    DistMatrix<R,MR,  Star> y_MR_Star(g);
     DistMatrix<R,MC,  MR  > z01(g);
     DistMatrix<R,MC,  Star> z01_MC_Star(g);
     DistMatrix<R,MR,  Star> z01_MR_Star(g);
@@ -138,14 +139,16 @@ elemental::lapack::internal::PanelTridiagU
 
         a01_MC_Star.AlignWith( A00 );
         a01_MR_Star.AlignWith( A00 );
-        z12_Star_MR.AlignWith( W02 );
+        x_MR_Star.AlignWith( W02 );
+        y_MR_Star.AlignWith( W02 );
+        x_MR_Star.ResizeTo( w12.Width(), 1 );
+        y_MR_Star.ResizeTo( w12.Width(), 1 );
         z01.AlignWith( w01 );
         z01_MC_Star.AlignWith( A00 );
         z01_MR_Star.AlignWith( A00 );
         z01_MR_MC.AlignColsWith( A00 );
         z01_MC_Star.ResizeTo( w01.Height(), 1 );
         z01_MR_Star.ResizeTo( w01.Height(), 1 );
-        z12_Star_MR.ResizeTo( 1, w12.Width() );
         z01_MC_Star.SetToZero();
         z01_MR_Star.SetToZero();
         //--------------------------------------------------------------------//
@@ -171,26 +174,24 @@ elemental::lapack::internal::PanelTridiagU
         ( Transpose, 
           (R)1, W02.LockedLocalMatrix(),
                 a01_MC_Star.LockedLocalMatrix(),
-          (R)0, z12_Star_MR.LocalMatrix() );
-        z12_Star_MR.SumOverCol();
-
-        blas::Gemv
-        ( Normal,
-          (R)-1, A02.LockedLocalMatrix(),
-                 z12_Star_MR.LockedLocalMatrix(),
-          (R)+1, z01_MC_Star.LocalMatrix() );
-
+          (R)0, x_MR_Star.LocalMatrix() );
         blas::Gemv
         ( Transpose,
           (R)1, A02.LockedLocalMatrix(),
                 a01_MC_Star.LockedLocalMatrix(),
-          (R)0, z12_Star_MR.LocalMatrix() );
-        z12_Star_MR.SumOverCol();
+          (R)0, y_MR_Star.LocalMatrix() );
+        x_MR_Star.SumOverCol();
+        y_MR_Star.SumOverCol();
 
         blas::Gemv
         ( Normal,
+          (R)-1, A02.LockedLocalMatrix(),
+                 x_MR_Star.LockedLocalMatrix(),
+          (R)+1, z01_MC_Star.LocalMatrix() );
+        blas::Gemv
+        ( Normal,
           (R)-1, W02.LockedLocalMatrix(),
-                 z12_Star_MR.LockedLocalMatrix(),
+                 y_MR_Star.LockedLocalMatrix(),
           (R)+1, z01_MC_Star.LocalMatrix() );
 
         w01.SumScatterFrom( z01_MC_Star );
@@ -212,7 +213,8 @@ elemental::lapack::internal::PanelTridiagU
         //--------------------------------------------------------------------//
         a01_MC_Star.FreeAlignments();
         a01_MR_Star.FreeAlignments();
-        z12_Star_MR.FreeAlignments();
+        x_MR_Star.FreeAlignments();
+        y_MR_Star.FreeAlignments();
         z01.FreeAlignments();
         z01_MC_Star.FreeAlignments();
         z01_MR_Star.FreeAlignments();
@@ -311,7 +313,8 @@ elemental::lapack::internal::PanelTridiagU
     DistMatrix<C,MC,  MR  > w12Conj(g);
     DistMatrix<C,MC,  Star> a01_MC_Star(g);
     DistMatrix<C,MR,  Star> a01_MR_Star(g);
-    DistMatrix<C,Star,MR  > z12_Star_MR(g);
+    DistMatrix<C,MR,  Star> x_MR_Star(g);
+    DistMatrix<C,MR,  Star> y_MR_Star(g);
     DistMatrix<C,MC,  MR  > z01(g);
     DistMatrix<C,MC,  Star> z01_MC_Star(g);
     DistMatrix<C,MR,  Star> z01_MR_Star(g);
@@ -370,14 +373,16 @@ elemental::lapack::internal::PanelTridiagU
 
         a01_MC_Star.AlignWith( A00 );
         a01_MR_Star.AlignWith( A00 );
-        z12_Star_MR.AlignWith( W02 );
+        x_MR_Star.AlignWith( W02 );
+        y_MR_Star.AlignWith( W02 );
+        x_MR_Star.ResizeTo( w12.Width(), 1 );
+        y_MR_Star.ResizeTo( w12.Width(), 1 );
         z01.AlignWith( w01 );
         z01_MC_Star.AlignWith( A00 );
         z01_MR_Star.AlignWith( A00 );
         z01_MR_MC.AlignColsWith( A00 );
         z01_MC_Star.ResizeTo( w01.Height(), 1 );
         z01_MR_Star.ResizeTo( w01.Height(), 1 );
-        z12_Star_MR.ResizeTo( 1, w12.Width() );
         z01_MC_Star.SetToZero();
         z01_MR_Star.SetToZero();
         //--------------------------------------------------------------------//
@@ -412,26 +417,24 @@ elemental::lapack::internal::PanelTridiagU
         ( ConjugateTranspose, 
           (C)1, W02.LockedLocalMatrix(),
                 a01_MC_Star.LockedLocalMatrix(),
-          (C)0, z12_Star_MR.LocalMatrix() );
-        z12_Star_MR.SumOverCol();
-
-        blas::Gemv
-        ( Normal,
-          (C)-1, A02.LockedLocalMatrix(),
-                 z12_Star_MR.LockedLocalMatrix(),
-          (C)+1, z01_MC_Star.LocalMatrix() );
-
+          (C)0, x_MR_Star.LocalMatrix() );
         blas::Gemv
         ( ConjugateTranspose,
           (C)1, A02.LockedLocalMatrix(),
                 a01_MC_Star.LockedLocalMatrix(),
-          (C)0, z12_Star_MR.LocalMatrix() );
-        z12_Star_MR.SumOverCol();
+          (C)0, y_MR_Star.LocalMatrix() );
+        x_MR_Star.SumOverCol();
+        y_MR_Star.SumOverCol();
 
         blas::Gemv
         ( Normal,
+          (C)-1, A02.LockedLocalMatrix(),
+                 x_MR_Star.LockedLocalMatrix(),
+          (C)+1, z01_MC_Star.LocalMatrix() );
+        blas::Gemv
+        ( Normal,
           (C)-1, W02.LockedLocalMatrix(),
-                 z12_Star_MR.LockedLocalMatrix(),
+                 y_MR_Star.LockedLocalMatrix(),
           (C)+1, z01_MC_Star.LocalMatrix() );
 
         w01.SumScatterFrom( z01_MC_Star );
@@ -453,7 +456,8 @@ elemental::lapack::internal::PanelTridiagU
         //--------------------------------------------------------------------//
         a01_MC_Star.FreeAlignments();
         a01_MR_Star.FreeAlignments();
-        z12_Star_MR.FreeAlignments();
+        x_MR_Star.FreeAlignments();
+        y_MR_Star.FreeAlignments();
         z01.FreeAlignments();
         z01_MC_Star.FreeAlignments();
         z01_MR_Star.FreeAlignments();

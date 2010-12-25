@@ -82,6 +82,10 @@ elemental::lapack::internal::TridiagL
             e1.AlignWithDiag( ABR, -1 );
             e1.ResizeTo( WPan.Width(), 1 );
             //----------------------------------------------------------------//
+            // Accumulate the Householder vectors into A21 and form W21 such 
+            // that subtracting (A21 W21' + W21 A21') is equal to successively
+            // applying the similarity transformations 
+            // (I-tau h h')A22(I-tau h h') for each (tau,h)
             lapack::internal::PanelTridiagL( ABR, WPan, e1 );
             blas::Syr2k( Lower, Normal, (R)-1, A21, W21, (R)1, A22 );
             A11Expanded.SetDiagonal( e1, -1 );
@@ -179,7 +183,10 @@ elemental::lapack::internal::TridiagL
                     W21, A11.Height() );
             e1.AlignWithDiag( ABR, -1 );
             e1.ResizeTo( WPan.Width(), 1 );
-            //----------------------------------------------------------------//
+            //----------------------------------------------------------------//            // Accumulate the Householder vectors into A21 and form W21 such 
+            // that subtracting (A21 W21' + W21 A21') is equal to successively
+            // applying the similarity transformations 
+            // (I-conj(tau) h h')A22(I-tau h h') for each (tau,h)
             lapack::internal::PanelTridiagL( ABR, WPan, e1, t1 );
             blas::Her2k( Lower, Normal, (C)-1, A21, W21, (C)1, A22 );
             A11Expanded.SetDiagonal( e1, -1 );
