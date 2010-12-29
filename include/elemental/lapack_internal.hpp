@@ -361,7 +361,10 @@ void
 PanelTridiagL
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MD,Star>& e );
+  DistMatrix<R,MC,Star>& APan_MC_Star,
+  DistMatrix<R,MR,Star>& APan_MR_Star,
+  DistMatrix<R,MC,Star>& WPan_MC_Star,
+  DistMatrix<R,MR,Star>& WPan_MR_Star );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -369,8 +372,11 @@ void
 PanelTridiagL
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
-  DistMatrix<R,              MD,Star>& e,
-  DistMatrix<std::complex<R>,MD,Star>& t );
+  DistMatrix<std::complex<R>,MD,Star>& t,
+  DistMatrix<std::complex<R>,MC,Star>& APan_MC_Star,
+  DistMatrix<std::complex<R>,MR,Star>& APan_MR_Star,
+  DistMatrix<std::complex<R>,MC,Star>& WPan_MC_Star,
+  DistMatrix<std::complex<R>,MR,Star>& WPan_MR_Star );
 #endif
  
 template<typename R>

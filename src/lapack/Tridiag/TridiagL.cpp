@@ -51,14 +51,23 @@ elemental::lapack::internal::TridiagL
     DistMatrix<R,MC,MR> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g),
-        A11Expanded(g);
+                         A20(g), A21(g), A22(g);
 
     // Temporary distributions
     DistMatrix<R,Star,Star> A11_Star_Star(g);
-    DistMatrix<R,MD,  Star> e1(g);
-    DistMatrix<R,MC,  MR  > W11(g),  WPan(g),
-                            W21(g);
+    DistMatrix<R,MC,  Star> APan_MC_Star(g);
+    DistMatrix<R,MR,  Star> APan_MR_Star(g);
+    DistMatrix<R,MC,  Star> A11_MC_Star(g);
+    DistMatrix<R,MR,  Star> A11_MR_Star(g);
+    DistMatrix<R,MC,  Star> A21_MC_Star(g);
+    DistMatrix<R,MR,  Star> A21_MR_Star(g);
+    DistMatrix<R,MC,  MR  > WPan(g);
+    DistMatrix<R,MC,  Star> WPan_MC_Star(g);
+    DistMatrix<R,MR,  Star> WPan_MR_Star(g);
+    DistMatrix<R,MC,  Star> W11_MC_Star(g);
+    DistMatrix<R,MR,  Star> W11_MR_Star(g);
+    DistMatrix<R,MC,  Star> W21_MC_Star(g);
+    DistMatrix<R,MR,  Star> W21_MR_Star(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -73,25 +82,49 @@ elemental::lapack::internal::TridiagL
 
         if( A22.Height() > 0 )
         {
-            A11Expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
+            APan_MC_Star.AlignWith( A11 );
+            APan_MR_Star.AlignWith( A11 );
+            APan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
+            APan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
             WPan.AlignWith( A11 );
+            WPan_MC_Star.AlignWith( A11 );
+            WPan_MR_Star.AlignWith( A11 );
             WPan.ResizeTo( ABR.Height(), A11.Width() );
+            WPan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
+            WPan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
             PartitionDown
-            ( WPan, W11,
-                    W21, A11.Height() );
-            e1.AlignWithDiag( ABR, -1 );
-            e1.ResizeTo( WPan.Width(), 1 );
+            ( APan_MC_Star, A11_MC_Star,
+                            A21_MC_Star, A11.Height() );
+            PartitionDown
+            ( APan_MR_Star, A11_MR_Star,
+                            A21_MR_Star, A11.Height() );
+            PartitionDown
+            ( WPan_MC_Star, W11_MC_Star,
+                            W21_MC_Star, A11.Height() );
+            PartitionDown
+            ( WPan_MR_Star, W11_MR_Star,
+                            W21_MR_Star, A11.Height() );
             //----------------------------------------------------------------//
             // Accumulate the Householder vectors into A21 and form W21 such 
             // that subtracting (A21 W21' + W21 A21') is equal to successively
             // applying the similarity transformations 
-            // (I-tau h h')A22(I-tau h h') for each (tau,h)
-            lapack::internal::PanelTridiagL( ABR, WPan, e1 );
-            blas::Syr2k( Lower, Normal, (R)-1, A21, W21, (R)1, A22 );
-            A11Expanded.SetDiagonal( e1, -1 );
+            // (I-tau h h')A22(I-tau h h') for each (tau,h).
+            //
+            // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are formed
+            // during the panel factorization.
+            lapack::internal::PanelTridiagL
+            ( ABR, WPan, 
+              APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
+            blas::internal::LocalTriangularRank2K
+            ( Lower, Transpose, Transpose,
+              (R)-1, A21_MC_Star, W21_MC_Star, A21_MR_Star, W21_MR_Star,
+              (R)1, A22 );
             //----------------------------------------------------------------//
+            APan_MC_Star.FreeAlignments();
+            APan_MR_Star.FreeAlignments();
             WPan.FreeAlignments();
-            e1.FreeAlignments();
+            WPan_MC_Star.FreeAlignments();
+            WPan_MR_Star.FreeAlignments();
         }
         else
         {
@@ -140,18 +173,27 @@ elemental::lapack::internal::TridiagL
     DistMatrix<C,MC,MR> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g),
-        A11Expanded(g);
+                         A20(g), A21(g), A22(g);
     DistMatrix<C,MD,Star> tT(g),  t0(g), 
                           tB(g),  t1(g),
                                   t2(g);
 
     // Temporary distributions
     DistMatrix<C,Star,Star> A11_Star_Star(g);
-    DistMatrix<R,MD,  Star> e1(g);
+    DistMatrix<C,MC,  Star> APan_MC_Star(g);
+    DistMatrix<C,MR,  Star> APan_MR_Star(g);
+    DistMatrix<C,MC,  Star> A11_MC_Star(g);
+    DistMatrix<C,MR,  Star> A11_MR_Star(g);
+    DistMatrix<C,MC,  Star> A21_MC_Star(g);
+    DistMatrix<C,MR,  Star> A21_MR_Star(g);
+    DistMatrix<C,MC,  MR  > WPan(g);
+    DistMatrix<C,MC,  Star> WPan_MC_Star(g);
+    DistMatrix<C,MR,  Star> WPan_MR_Star(g);
+    DistMatrix<C,MC,  Star> W11_MC_Star(g);
+    DistMatrix<C,MR,  Star> W11_MR_Star(g);
+    DistMatrix<C,MC,  Star> W21_MC_Star(g);
+    DistMatrix<C,MR,  Star> W21_MR_Star(g);
     DistMatrix<C,Star,Star> t1_Star_Star(g);
-    DistMatrix<C,MC,  MR  > W11(g),  WPan(g),
-                            W21(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -175,24 +217,49 @@ elemental::lapack::internal::TridiagL
             
         if( A22.Height() > 0 )
         {
-            A11Expanded.View( ABR, 0, 0, A11.Height()+1, A11.Width()+1 );
+            APan_MC_Star.AlignWith( A11 );
+            APan_MR_Star.AlignWith( A11 );
+            APan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
+            APan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
             WPan.AlignWith( A11 );
+            WPan_MC_Star.AlignWith( A11 );
+            WPan_MR_Star.AlignWith( A11 );
             WPan.ResizeTo( ABR.Height(), A11.Width() );
+            WPan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
+            WPan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
             PartitionDown
-            ( WPan, W11,
-                    W21, A11.Height() );
-            e1.AlignWithDiag( ABR, -1 );
-            e1.ResizeTo( WPan.Width(), 1 );
-            //----------------------------------------------------------------//            // Accumulate the Householder vectors into A21 and form W21 such 
+            ( APan_MC_Star, A11_MC_Star,
+                            A21_MC_Star, A11.Height() );
+            PartitionDown
+            ( APan_MR_Star, A11_MR_Star,
+                            A21_MR_Star, A11.Height() );
+            PartitionDown
+            ( WPan_MC_Star, W11_MC_Star,
+                            W21_MC_Star, A11.Height() );
+            PartitionDown
+            ( WPan_MR_Star, W11_MR_Star,
+                            W21_MR_Star, A11.Height() );
+            //----------------------------------------------------------------//
+            // Accumulate the Householder vectors into A21 and form W21 such 
             // that subtracting (A21 W21' + W21 A21') is equal to successively
             // applying the similarity transformations 
-            // (I-conj(tau) h h')A22(I-tau h h') for each (tau,h)
-            lapack::internal::PanelTridiagL( ABR, WPan, e1, t1 );
-            blas::Her2k( Lower, Normal, (C)-1, A21, W21, (C)1, A22 );
-            A11Expanded.SetDiagonal( e1, -1 );
+            // (I-conj(tau) h h')A22(I-tau h h') for each (tau,h).
+            //
+            // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are formed
+            // during the panel factorization.
+            lapack::internal::PanelTridiagL
+            ( ABR, WPan, t1,
+              APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
+            blas::internal::LocalTriangularRank2K
+            ( Lower, ConjugateTranspose, ConjugateTranspose,
+              (C)-1, A21_MC_Star, W21_MC_Star, A21_MR_Star, W21_MR_Star,
+              (C)1, A22 );
             //----------------------------------------------------------------//
+            APan_MC_Star.FreeAlignments();
+            APan_MR_Star.FreeAlignments();
             WPan.FreeAlignments();
-            e1.FreeAlignments();
+            WPan_MC_Star.FreeAlignments();
+            WPan_MR_Star.FreeAlignments();
         }
         else
         {

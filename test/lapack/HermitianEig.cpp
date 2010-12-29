@@ -42,7 +42,8 @@ void Usage()
     cout << "Generates random Hermitian matrix then solves for its eigenpairs."
 	 << "\n\n"
          << "  HermitianEig <r> <c> <only eigenvalues?> <range> <a> <b> "
-            "<highAccuracy?> <shape> <m> <nb> <correctness?> <print?>\n\n"
+            "<highAccuracy?> <shape> <m> <nb> <local nb symv/hemv> "
+            "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  only eigenvalues?: 0/1\n"
@@ -56,6 +57,7 @@ void Usage()
          << "  shape: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
+         << "  local nb symv/hemv: local blocksize for symv/hemv\n"
          << "  test correctness?: false iff 0\n"
          << "  print matrices?: false iff 0\n" << endl;
 }
@@ -365,7 +367,7 @@ int main( int argc, char* argv[] )
     int rank;
     Init( &argc, &argv );
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 13 )
+    if( argc != 14 )
     {
         if( rank == 0 )
             Usage();
@@ -401,6 +403,7 @@ int main( int argc, char* argv[] )
         const Shape shape = CharToShape(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
+        const int nbLocalSymv = atoi(argv[++argNum]);
         const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
 
@@ -420,6 +423,10 @@ int main( int argc, char* argv[] )
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
+        blas::SetLocalSymvDoubleBlocksize( nbLocalSymv );
+#ifndef WITHOUT_COMPLEX
+        blas::SetLocalHemvComplexDoubleBlocksize( nbLocalSymv );
+#endif
 
         if( rank == 0 )
         {
