@@ -46,40 +46,42 @@ elemental::lapack::Tridiag
     // but it is usually significantly faster to redistribute to a (smaller)
     // square process grid, tridiagonalize, and then redistribute back to the
     // full grid.
+    /*
     if( shape == Lower )
         lapack::internal::TridiagL( A );
     else
         lapack::internal::TridiagU( A );
+    */
 
-    /*
-    const Grid& g = A.Grid();
-    if( g.InGrid() )
+    if( shape == Lower )
     {
-        int p = g.Size();
-        int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
-
-        std::vector<int> squareRanks(pSqrt*pSqrt);
-        for( int i=0; i<squareRanks.size(); ++i )
-            squareRanks[i] = i;
-
-        MPI_Group owningGroup = g.OwningGroup();
-        MPI_Group squareGroup;
-        MPI_Group_incl
-        ( owningGroup, squareRanks.size(), &squareRanks[0], &squareGroup );
-
-        MPI_Comm owningComm = g.OwningComm();
-        const Grid squareGrid( owningComm, squareGroup, pSqrt, pSqrt );
-        const bool inSquareGroup = squareGrid.InGrid();
-
-        // Determine padding size
-        const int height = A.Height();
-        const int padding = pSqrt;
-        const int paddedHeight = height + padding;
-
-        DistMatrix<R,MC,MR> paddedASquare(squareGrid);
-        DistMatrix<R,MC,MR> ASquare(squareGrid);
-        if( shape == Lower )
+        const Grid& g = A.Grid();
+        if( g.InGrid() )
         {
+            int p = g.Size();
+            int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
+
+            std::vector<int> squareRanks(pSqrt*pSqrt);
+            for( int i=0; i<squareRanks.size(); ++i )
+                squareRanks[i] = i;
+
+            MPI_Group owningGroup = g.OwningGroup();
+            MPI_Group squareGroup;
+            MPI_Group_incl
+            ( owningGroup, squareRanks.size(), &squareRanks[0], &squareGroup );
+
+            MPI_Comm owningComm = g.OwningComm();
+            const Grid squareGrid( owningComm, squareGroup, pSqrt, pSqrt );
+            const bool inSquareGroup = squareGrid.InGrid();
+
+            // Determine padding size
+            const int height = A.Height();
+            const int padding = pSqrt;
+            const int paddedHeight = height + padding;
+
+            DistMatrix<R,MC,MR> paddedASquare(squareGrid);
+            DistMatrix<R,MC,MR> ASquare(squareGrid);
+
             // The padding goes in the bottom-right, so redistribute into the 
             // upper-left portion of paddedASquare 
             // (copy the whole matrix for now)
@@ -94,6 +96,12 @@ elemental::lapack::Tridiag
             // Redistribute back (copy the whole matrix for now)
             A = ASquare;
         }
+    }
+    else
+    {
+        lapack::internal::TridiagU( A );
+    }
+        /*
         else
         {
             // The padding goes in the top-left, so redistribute into the 
@@ -110,8 +118,7 @@ elemental::lapack::Tridiag
             // Redistribute back (copy the whole matrix for now)
             A = ASquare;
         }
-    }
-    */
+        */
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -134,41 +141,43 @@ elemental::lapack::Tridiag
     // but it is usually significantly faster to redistribute to a (smaller)
     // square process grid, tridiagonalize, and then redistribute back to the
     // full grid.
+    /*
     if( shape == Lower )
         lapack::internal::TridiagL( A, t );
     else
         lapack::internal::TridiagU( A, t );
+    */
 
-    /*
-    const Grid& g = A.Grid();
-    if( g.InGrid() )
+    if( shape == Lower )
     {
-        int p = g.Size();
-        int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
-
-        std::vector<int> squareRanks(pSqrt*pSqrt);
-        for( int i=0; i<squareRanks.size(); ++i )
-            squareRanks[i] = i;
-
-        MPI_Group owningGroup = g.OwningGroup();
-        MPI_Group squareGroup;
-        MPI_Group_incl
-        ( owningGroup, squareRanks.size(), &squareRanks[0], &squareGroup );
-
-        MPI_Comm owningComm = g.OwningComm();
-        const Grid squareGrid( owningComm, squareGroup, pSqrt, pSqrt );
-        const bool inSquareGroup = squareGrid.InGrid();
-
-        // Determine padding size
-        const int height = A.Height();
-        const int padding = pSqrt;
-        const int paddedHeight = height + padding;
-
-        DistMatrix<C,MC,MR> paddedASquare(squareGrid);
-        DistMatrix<C,MC,MR> ASquare(squareGrid);
-        DistMatrix<C,Star,Star> tSquare(squareGrid);
-        if( shape == Lower )
+        const Grid& g = A.Grid();
+        if( g.InGrid() )
         {
+            int p = g.Size();
+            int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
+
+            std::vector<int> squareRanks(pSqrt*pSqrt);
+            for( int i=0; i<squareRanks.size(); ++i )
+                squareRanks[i] = i;
+
+            MPI_Group owningGroup = g.OwningGroup();
+            MPI_Group squareGroup;
+            MPI_Group_incl
+            ( owningGroup, squareRanks.size(), &squareRanks[0], &squareGroup );
+
+            MPI_Comm owningComm = g.OwningComm();
+            const Grid squareGrid( owningComm, squareGroup, pSqrt, pSqrt );
+            const bool inSquareGroup = squareGrid.InGrid();
+
+            // Determine padding size
+            const int height = A.Height();
+            const int padding = pSqrt;
+            const int paddedHeight = height + padding;
+
+            DistMatrix<C,MC,MR> paddedASquare(squareGrid);
+            DistMatrix<C,MC,MR> ASquare(squareGrid);
+            DistMatrix<C,Star,Star> tSquare(squareGrid);
+
             // The padding goes in the bottom-right, so redistribute into the 
             // upper-left portion of paddedASquare 
             // (copy the whole matrix for now)
@@ -184,6 +193,12 @@ elemental::lapack::Tridiag
             A = ASquare;
             t = tSquare;
         }
+    }
+    else
+    {
+        lapack::internal::TridiagU( A, t );
+    }
+        /*
         else
         {
             // The padding goes in the top-left, so redistribute into the 
@@ -201,8 +216,7 @@ elemental::lapack::Tridiag
             A = ASquare;
             t = tSquare;
         }
-    }
-    */
+        */
 #ifndef RELEASE
     PopCallStack();
 #endif

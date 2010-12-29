@@ -40,8 +40,8 @@ using namespace elemental::wrappers::mpi;
 
 template<typename R>
 void
-elemental::lapack::internal::PanelTridiagL
-( DistMatrix<R,MC,MR  >& A,
+elemental::lapack::internal::PanelTridiagLSquare
+( DistMatrix<R,MC,MR  >& paddedA,
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star, 
   DistMatrix<R,MR,Star>& APan_MR_Star,
@@ -50,8 +50,17 @@ elemental::lapack::internal::PanelTridiagL
 {
     const int panelSize = W.Width();
     const int bottomSize = W.Height()-panelSize;
+    
+    const Grid& g = paddedA.Grid();
+    const int padding = g.Height();
+
+    DistMatrix<R,MC,MR> A(g),         paddedATR(g),
+                        paddedABL(g), paddedABR(g);
+    PartitionUpLeftDiagonal
+    ( paddedA, A,         paddedATR,
+               paddedABL, paddedABR, padding );
 #ifndef RELEASE
-    PushCallStack("lapack::internal::PanelTridiagL");
+    PushCallStack("lapack::internal::PanelTridiagLSquare");
     if( A.Grid() != W.Grid() )
         throw logic_error
         ( "A and W must be distributed over the same grid." );
@@ -65,10 +74,21 @@ elemental::lapack::internal::PanelTridiagL
         W.RowAlignment() != A.RowAlignment() )
         throw logic_error( "W and A must be aligned." );
 #endif
-    const Grid& g = A.Grid();
     const int r = g.Height();
-    const int c = g.Width();
-    const int p = g.Size();
+
+    // Find the process holding the our transposed data
+    int transposeRank;
+    {
+        int colAlignment = A.ColAlignment();
+        int rowAlignment = A.RowAlignment();
+        int colShift = A.ColShift();
+        int rowShift = A.RowShift();
+
+        int transposeRow = (colAlignment+rowShift) % r;
+        int transposeCol = (rowAlignment+colShift) % r;
+        transposeRank = transposeRow + r*transposeCol;
+    }
+    bool onDiagonal = ( transposeRank == g.VCRank() );
 
     // Create a distributed matrix for storing the subdiagonal
     DistMatrix<R,MD,Star> e(g);
@@ -96,7 +116,6 @@ elemental::lapack::internal::PanelTridiagL
     DistMatrix<R,MC,Star> p21_MC_Star(g);
     DistMatrix<R,MC,Star> p21B_MC_Star(g);
     DistMatrix<R,MR,Star> p21_MR_Star(g);
-    DistMatrix<R,MC,Star> q21_MC_Star(g);
     DistMatrix<R,MR,Star> q21_MR_Star(g);
     DistMatrix<R,MR,Star> x01B_MR_Star(g);
     DistMatrix<R,MR,Star> y01B_MR_Star(g);
@@ -170,13 +189,11 @@ elemental::lapack::internal::PanelTridiagL
         a21_MR_Star.AlignWith( A22 );
         p21_MC_Star.AlignWith( A22 );
         p21_MR_Star.AlignWith( A22 );
-        q21_MC_Star.AlignWith( A22 );
         q21_MR_Star.AlignWith( A22 );
         a21_MC_Star.ResizeTo( a21.Height(), 1 );
         a21_MR_Star.ResizeTo( a21.Height(), 1 );
         p21_MC_Star.ResizeTo( a21.Height(), 1 );
         p21_MR_Star.ResizeTo( a21.Height(), 1 );
-        q21_MC_Star.ResizeTo( a21.Height(), 1 );
         q21_MR_Star.ResizeTo( a21.Height(), 1 );
         x01B_MR_Star.AlignWith( W20B );
         y01B_MR_Star.AlignWith( W20B );
@@ -252,7 +269,25 @@ elemental::lapack::internal::PanelTridiagL
             // Store tau
             tau = rowBroadcastBuffer[a21LocalHeight];
             
-            a21_MR_Star = a21_MC_Star;
+            // Take advantage of the square process grid in order to form 
+            // a21[MR,* ] from a21[MC,* ]
+            if( onDiagonal )
+            {
+                memcpy
+                ( a21_MR_Star.LocalBuffer(),
+                  a21_MC_Star.LocalBuffer(),
+                  a21LocalHeight*sizeof(R) );
+            }
+            else
+            {
+                // Pairwise exchange
+                int sendSize = A22.LocalHeight();
+                int recvSize = A22.LocalWidth();
+                SendRecv
+                ( a21_MC_Star.LocalBuffer(), sendSize, transposeRank, 0,
+                  a21_MR_Star.LocalBuffer(), recvSize, transposeRank, 0, 
+                  g.VCComm() );
+            }
             // Store a21[MR,* ]
             int APan_MR_Star_Offset = 
                 APan_MR_Star.LocalHeight()-a21_MR_Star.LocalHeight();
@@ -319,85 +354,56 @@ elemental::lapack::internal::PanelTridiagL
             // Store tau
             tau = rowBroadcastBuffer[a21LocalHeight+w21LastLocalHeight];
 
-            // Form a21[MR,* ] and w21Last[MR,* ] by combining the 
-            // communications needed for taking a vector from 
-            // [MC,* ] -> [MR,* ]: 
-            //   local copy to [VC,* ], 
-            //   Send/Recv to [VR,* ], 
-            //   AllGather to [MR,* ]
-            // We can combine the two by treating a21 as [0; a21] so that its 
-            // alignments are equivalent to w21Last.
-
-            // alpha11 is the top-left entry of the A22 from the last iteration,
-            // so its alignments are identical
-            int colAlignSource = alpha11.ColAlignment();
-            int colAlignDest = alpha11.RowAlignment();
-            int colShiftSource = alpha11.ColShift();
-            int colShiftDest = alpha11.RowShift();
-
-            int height = a21.Height()+1;
-            int portionSize = max(2*MaxLocalLength(height,p),MinCollectContrib);
-
-            int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
-            int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);
-            int sendRankRM = (g.VRRank()+(p+colShiftVCSource-colShiftVRDest))%p;
-            int recvRankCM = (g.VCRank()+(p+colShiftVRDest-colShiftVCSource))%p;
-            int recvRankRM = (recvRankCM/r)+c*(recvRankCM%r);
-
-            vector<R> transposeBuffer( (r+1)*portionSize );
-            R* sendBuf = &transposeBuffer[0];
-            R* recvBuf = &transposeBuffer[r*portionSize];
-
-            // (w21Last[VC,* ] <- w21Last[MC,* ]) and
-            // ([0; a21][VC,* ] <- [0; a21][MC,* ])
+            // Take advantage of the square process grid in order to quickly
+            // form a21[MR,* ] and w21Last[MR,* ] from their [MC,* ] 
+            // counterparts
+            w21Last_MR_Star.AlignWith( ABR );
+            w21Last_MR_Star.ResizeTo( w21Last.Height(), 1 );
+            if( onDiagonal )
             {
-                // Pack the necessary portion of w21Last[MC,* ]
-                int w21Shift = Shift(g.VCRank(),colAlignSource,p);
-                int w21Offset = (w21Shift-colShiftSource)/r;
-                int w21LocalHeight = LocalLength(height,w21Shift,p);
-                for( int i=0; i<w21LocalHeight; ++i )
-                    sendBuf[i] = w21Last_MC_Star.GetLocalEntry(w21Offset+i*c,0);
-                
-                // Pack the necessary portion of a21[MC,* ]
-                int a21Shift = (w21Shift+p-1) % p;
-                int a21Offset = (a21Shift-((colShiftSource+r-1)%r))/r;
-                int a21LocalHeight = LocalLength(height-1,a21Shift,p);
-                for( int i=0; i<a21LocalHeight; ++i )
-                    sendBuf[w21LocalHeight+i] = 
-                        a21_MC_Star.GetLocalEntry(a21Offset+i*c,0);
+                memcpy
+                ( a21_MR_Star.LocalBuffer(),
+                  a21_MC_Star.LocalBuffer(),
+                  a21LocalHeight*sizeof(R) );
+                memcpy
+                ( w21Last_MR_Star.LocalBuffer(),
+                  w21Last_MC_Star.LocalBuffer(),
+                  w21LastLocalHeight*sizeof(R) );
+            }
+            else
+            {
+                int sendSize = A22.LocalHeight()+ABR.LocalHeight();
+                int recvSize = A22.LocalWidth()+ABR.LocalWidth();
+                vector<R> sendBuffer(sendSize);
+                vector<R> recvBuffer(recvSize);
+
+                // Pack the send buffer
+                memcpy
+                ( &sendBuffer[0],
+                 a21_MC_Star.LocalBuffer(),
+                 A22.LocalHeight()*sizeof(R) );
+                memcpy
+                ( &sendBuffer[A22.LocalHeight()],
+                  w21Last_MC_Star.LocalBuffer(),
+                  ABR.LocalHeight()*sizeof(R) );
+
+                // Pairwise exchange
+                SendRecv
+                ( &sendBuffer[0], sendSize, transposeRank, 0,
+                  &recvBuffer[0], recvSize, transposeRank, 0,
+                  g.VCComm() );
+
+                // Unpack the recv buffer
+                memcpy
+                ( a21_MR_Star.LocalBuffer(),
+                  &recvBuffer[0],
+                  A22.LocalWidth()*sizeof(R) );
+                memcpy
+                ( w21Last_MR_Star.LocalBuffer(),
+                  &recvBuffer[A22.LocalWidth()],
+                  ABR.LocalWidth()*sizeof(R) );
             }
 
-            // [VR,* ] <- [VC,* ]
-            SendRecv
-            ( sendBuf, portionSize, sendRankRM, 0,
-              recvBuf, portionSize, recvRankRM, MPI_ANY_TAG, g.VRComm() );
-
-            // [MR,* ] <- [VR,* ]
-            AllGather
-            ( recvBuf, portionSize,
-              sendBuf, portionSize, g.MCComm() );
-
-            // Unpack
-            w21Last_MR_Star.AlignWith( alpha11 );
-            w21Last_MR_Star.ResizeTo( a21.Height()+1, 1 );
-            for( int k=0; k<r; ++k )
-            {
-                // Unpack into w21Last[MR,* ]
-                const R* w21Data = &sendBuf[k*portionSize];
-                int w21Shift = Shift(g.MRRank()+c*k,colAlignDest,p);
-                int w21Offset = (w21Shift-colShiftDest) / c;
-                int w21LocalHeight = LocalLength(height,w21Shift,p);
-                for( int i=0; i<w21LocalHeight; ++i )
-                    w21Last_MR_Star.SetLocalEntry(w21Offset+i*r,0,w21Data[i]);
-
-                // Unpack into a21[MR,* ]
-                const R* a21Data = &sendBuf[k*portionSize+w21LocalHeight];
-                int a21Shift = (w21Shift+p-1) % p;
-                int a21Offset = (a21Shift-((colShiftDest+c-1)%c))/c;
-                int a21LocalHeight = LocalLength(height-1,a21Shift,p);
-                for( int i=0; i<a21LocalHeight; ++i )
-                    a21_MR_Star.SetLocalEntry(a21Offset+i*r,0,a21Data[i]);
-            }
             // Store w21Last[MR,* ]
             int W_MR_Star_Offset = 
                 W_MR_Star.LocalHeight()-w21Last_MR_Star.LocalHeight();
@@ -469,13 +475,12 @@ elemental::lapack::internal::PanelTridiagL
           (R)1, A20B.LockedLocalMatrix(),
                 a21B_MC_Star.LockedLocalMatrix(),
           (R)0, y01B_MR_Star.LocalMatrix() );
-        // Combine the AllReduce column summations of x01B[MR,* ], y01B[MR,* ],
-        // and q21[MR,* ]
+        // Combine the AllReduce column summations of x01B[MR,* ] and 
+        // y01B[MR,* ]
         {
             int x01BLocalHeight = x01B_MR_Star.LocalHeight();
-            int q21LocalHeight = q21_MR_Star.LocalHeight();
-            vector<R> colSummationSendBuffer(2*x01BLocalHeight+q21LocalHeight);
-            vector<R> colSummationRecvBuffer(2*x01BLocalHeight+q21LocalHeight);
+            vector<R> colSummationSendBuffer(2*x01BLocalHeight);
+            vector<R> colSummationRecvBuffer(2*x01BLocalHeight);
             memcpy
             ( &colSummationSendBuffer[0], 
               x01B_MR_Star.LocalBuffer(), 
@@ -484,14 +489,10 @@ elemental::lapack::internal::PanelTridiagL
             ( &colSummationSendBuffer[x01BLocalHeight],
               y01B_MR_Star.LocalBuffer(), 
               x01BLocalHeight*sizeof(R) );
-            memcpy
-            ( &colSummationSendBuffer[2*x01BLocalHeight],
-              q21_MR_Star.LocalBuffer(), 
-              q21LocalHeight*sizeof(R) );
             AllReduce
             ( &colSummationSendBuffer[0], 
               &colSummationRecvBuffer[0],
-              2*x01BLocalHeight+q21LocalHeight, MPI_SUM, g.MCComm() );
+              2*x01BLocalHeight, MPI_SUM, g.MCComm() );
             memcpy
             ( x01B_MR_Star.LocalBuffer(), 
               &colSummationRecvBuffer[0], 
@@ -500,10 +501,6 @@ elemental::lapack::internal::PanelTridiagL
             ( y01B_MR_Star.LocalBuffer(), 
               &colSummationRecvBuffer[x01BLocalHeight], 
               x01BLocalHeight*sizeof(R) );
-            memcpy
-            ( q21_MR_Star.LocalBuffer(), 
-              &colSummationRecvBuffer[2*x01BLocalHeight], 
-              q21LocalHeight*sizeof(R) );
         }
 
         blas::Gemv
@@ -517,102 +514,57 @@ elemental::lapack::internal::PanelTridiagL
                  y01B_MR_Star.LockedLocalMatrix(),
           (R)+1, p21B_MC_Star.LocalMatrix() );
 
+        // Fast transpose the unsummed q21[MR,* ] -> q21[MC,* ], so that
+        // it needs to be summed over process rows instead of process 
+        // columns. We immediately add it onto p21[MC,* ], which also needs
+        // to be summed within process rows.
+        if( onDiagonal )
+        {
+            int a21LocalHeight = a21.LocalHeight();
+            R* p21_MC_Star_LocalBuffer = p21_MC_Star.LocalBuffer();
+            const R* q21_MR_Star_LocalBuffer = q21_MR_Star.LocalBuffer();
+            for( int i=0; i<a21LocalHeight; ++i )
+                p21_MC_Star_LocalBuffer[i] += q21_MR_Star_LocalBuffer[i];
+        }
+        else
+        {
+            // Pairwise exchange with the transpose process
+            int sendSize = A22.LocalWidth();
+            int recvSize = A22.LocalHeight();
+            vector<R> recvBuffer(recvSize);
+            SendRecv
+            ( q21_MR_Star.LocalBuffer(), sendSize, transposeRank, 0,
+              &recvBuffer[0],            recvSize, transposeRank, 0,
+              g.VCComm() );
+
+            // Unpack the recv buffer directly onto p21[MC,* ]
+            R* p21_MC_Star_LocalBuffer = p21_MC_Star.LocalBuffer();
+            for( int i=0; i<recvSize; ++i )
+                p21_MC_Star_LocalBuffer[i] += recvBuffer[i];
+        }
+
         if( W22.Width() > 0 )
         {
             // This is not the last iteration of the panel factorization, 
-            // combine the Reduce to one of p21[MC,* ] with the redistribution 
-            // of q21[MR,* ] -> q21[MC,MR] to the next process column.
-            int localHeight = p21_MC_Star.LocalHeight();
-            vector<R> reduceToOneSendBuffer(2*localHeight);
-            vector<R> reduceToOneRecvBuffer(2*localHeight);
-
-            // Pack p21[MC,* ]
-            memcpy
-            ( &reduceToOneSendBuffer[0], 
-              p21_MC_Star.LocalBuffer(),
-              localHeight*sizeof(R) );
-
-            // Fill in contributions to q21[MC,MR] from q21[MR,* ]
-            bool contributing = 
-                ( q21_MR_Star.ColShift() % g.GCD() ==
-                  p21_MC_Star.ColShift() % g.GCD() );
-            if( contributing )
-            {
-                if( r == c )
-                {
-                    memcpy
-                    ( &reduceToOneSendBuffer[localHeight],
-                      q21_MR_Star.LocalBuffer(), 
-                      localHeight*sizeof(R) );
-                }
-                else
-                {
-                    // Zero the entire buffer first
-                    memset
-                    ( &reduceToOneSendBuffer[localHeight], 0,
-                      localHeight*sizeof(R) );
-                    // Fill in the entries that we contribute to.
-                    // We seek to find the minimum s in N such that
-                    //   s*c = a0-b0 (mod r)
-                    // where a0 is the column shift of MC, b0 is the row shift
-                    // of MR, and s is our first local entry of MR that will 
-                    // contribute to MC. I cannot think of an O(1) method, so
-                    // I will instead use the worst-case O(lcm(c,r)/c) method.
-                    int sourcePeriod = g.LCM() / c;
-                    int targetPeriod = g.LCM() / r;
-                    int a0 = p21_MC_Star.ColShift();
-                    int b0 = q21_MR_Star.ColShift();
-
-                    int sourceStart = 0;
-                    int f = (r+a0-b0) % r;
-                    for( int s=0; s<sourcePeriod; ++s )
-                    {
-                        if( (s*c) % r == f )
-                        {
-                            sourceStart = s;
-                            break;
-                        }
-                    }
-
-                    int globalShift = b0+sourceStart*c;
-                    int targetStart = (globalShift-a0)/r;
-                    int localLength =
-                        LocalLength(localHeight,targetStart,targetPeriod);
-                    const R* q21_MR_Star_LocalBuffer = 
-                        q21_MR_Star.LocalBuffer();
-                    int offset = localHeight + targetStart;
-                    for( int i=0; i<localLength; ++i )                        
-                        reduceToOneSendBuffer[offset+i*targetPeriod] = 
-                            q21_MR_Star_LocalBuffer[sourceStart+i*sourcePeriod];
-                }
-            }
-            else
-            {
-                memset
-                ( &reduceToOneSendBuffer[localHeight], 0, 
-                  localHeight*sizeof(R) );
-            }
+            // Reduce to one p21[MC,* ] to the next process column.
+            int a21LocalHeight = a21.LocalHeight();
 
             int nextProcessRow = (alpha11.ColAlignment()+1) % r;
-            int nextProcessCol = (alpha11.RowAlignment()+1) % c;
+            int nextProcessCol = (alpha11.RowAlignment()+1) % r;
+
+            vector<R> reduceToOneRecvBuffer(a21LocalHeight);
             Reduce
-            ( &reduceToOneSendBuffer[0], 
+            ( p21_MC_Star.LocalBuffer(),
               &reduceToOneRecvBuffer[0],
-              2*localHeight, MPI_SUM, nextProcessCol, g.MRComm() );
+              a21LocalHeight, MPI_SUM, nextProcessCol, g.MRComm() );
             if( g.MRRank() == nextProcessCol )
             {
-                // Combine the second half into the first half        
-                for( int i=0; i<localHeight; ++i )
-                    reduceToOneRecvBuffer[i] +=
-                        reduceToOneRecvBuffer[i+localHeight];
-
                 // Finish computing w21. During its computation, ensure that 
                 // every process has a copy of the first element of the w21.
                 // We know a priori that the first element of a21 is one.
-                const R* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
                 R myDotProduct = Dot
-                    ( localHeight, &reduceToOneRecvBuffer[0], 1, 
-                                   &a21_MC_Star_LocalBuffer[0], 1 );
+                    ( a21LocalHeight, &reduceToOneRecvBuffer[0], 1, 
+                                      a21_MC_Star.LocalBuffer(), 1 );
                 R sendBuffer[2];
                 R recvBuffer[2];
                 sendBuffer[0] = myDotProduct;
@@ -625,7 +577,8 @@ elemental::lapack::internal::PanelTridiagL
                 // - w21LastLocalBuffer
                 // - w21LastFirstEntry
                 R scale = 0.5*dotProduct*tau;
-                for( int i=0; i<localHeight; ++i )
+                const R* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
+                for( int i=0; i<a21LocalHeight; ++i )
                     w21LastLocalBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
                           scale*a21_MC_Star_LocalBuffer[i] );
@@ -634,96 +587,23 @@ elemental::lapack::internal::PanelTridiagL
         }
         else
         {
-            // This is the last iteration, our last task is to finish forming
-            // w21[MC,* ] and w21[MR,* ] so that we may place them into W[MC,* ]
-            // and W[MR,* ]
-            int localHeight = p21_MC_Star.LocalHeight();
-            vector<R> allReduceSendBuffer(2*localHeight);
-            vector<R> allReduceRecvBuffer(2*localHeight);
+            // This is the last iteration, so we just need to form w21[MC,* ]
+            // and w21[MR,* ]. 
+            int a21LocalHeight = a21.LocalHeight();
 
-            // Pack p21[MC,* ]
-            memcpy
-            ( &allReduceSendBuffer[0], 
-              p21_MC_Star.LocalBuffer(),
-              localHeight*sizeof(R) );
-
-            // Fill in contributions to q21[MC,* ] from q21[MR,* ]
-            bool contributing = 
-                ( q21_MR_Star.ColShift() % g.GCD() ==
-                  p21_MC_Star.ColShift() % g.GCD() );
-            if( contributing )
-            {
-                if( r == c )
-                {
-                    memcpy
-                    ( &allReduceSendBuffer[localHeight],
-                      q21_MR_Star.LocalBuffer(), 
-                      localHeight*sizeof(R) );
-                }
-                else
-                {
-                    // Zero the entire buffer first
-                    memset
-                    ( &allReduceSendBuffer[localHeight], 0, 
-                      localHeight*sizeof(R) );
-                    // Fill in the entries that we contribute to.
-                    // We seek to find the minimum s in N such that
-                    //   s*c = a0-b0 (mod r)
-                    // where a0 is the column shift of MC, b0 is the row shift
-                    // of MR, and s is our first local entry of MR that will 
-                    // contribute to MC. I cannot think of an O(1) method, so
-                    // I will instead use the worst-case O(lcm(c,r)/c) method.
-                    int sourcePeriod = g.LCM() / c;
-                    int targetPeriod = g.LCM() / r;
-                    int a0 = p21_MC_Star.ColShift();
-                    int b0 = q21_MR_Star.ColShift();
-
-                    int sourceStart = 0;
-                    int f = (r+a0-b0) % r;
-                    for( int s=0; s<sourcePeriod; ++s )
-                    {
-                        if( (s*c) % r == f )
-                        {
-                            sourceStart = s;
-                            break;
-                        }
-                    }
-
-                    int globalShift = b0+sourceStart*c;
-                    int targetStart = (globalShift-a0)/r;
-                    int localLength = 
-                        LocalLength(localHeight,targetStart,targetPeriod);
-                    const R* q21_MR_Star_LocalBuffer = 
-                        q21_MR_Star.LocalBuffer();
-                    int offset = localHeight + targetStart;
-                    for( int i=0; i<localLength; ++i )
-                        allReduceSendBuffer[offset+i*targetPeriod] = 
-                            q21_MR_Star_LocalBuffer[sourceStart+i*sourcePeriod];
-                }
-            }
-            else
-            {
-                memset
-                ( &allReduceSendBuffer[localHeight], 0, 
-                  localHeight*sizeof(R) );
-            }
-
+            // AllReduce sum p21[MC,* ] over process rows
+            vector<R> allReduceRecvBuffer(a21LocalHeight);
             AllReduce
-            ( &allReduceSendBuffer[0], 
+            ( p21_MC_Star.LocalBuffer(), 
               &allReduceRecvBuffer[0],
-              2*localHeight, MPI_SUM, g.MRComm() );
+              a21LocalHeight, MPI_SUM, g.MRComm() );
 
-            // Combine the second half into the first half        
-            for( int i=0; i<localHeight; ++i )
-                allReduceRecvBuffer[i] += allReduceRecvBuffer[i+localHeight];
- 
             // Finish computing w21. During its computation, ensure that 
             // every process has a copy of the first element of the w21.
             // We know a priori that the first element of a21 is one.
-            const R* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
             R myDotProduct = Dot
-                ( localHeight, &allReduceRecvBuffer[0], 1, 
-                               a21_MC_Star_LocalBuffer, 1 );
+                ( a21LocalHeight, &allReduceRecvBuffer[0],   1, 
+                                  a21_MC_Star.LocalBuffer(), 1 );
             R dotProduct;
             AllReduce( &myDotProduct, &dotProduct, 1, MPI_SUM, g.MCComm() );
 
@@ -738,20 +618,36 @@ elemental::lapack::internal::PanelTridiagL
             // Store w21[MC,* ]
             R scale = 0.5*dotProduct*tau;
             R* w21_MC_Star_LocalBuffer = w21_MC_Star.LocalBuffer();
-            for( int i=0; i<localHeight; ++i )
+            const R* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
+            for( int i=0; i<a21LocalHeight; ++i )
                 w21_MC_Star_LocalBuffer[i] = tau*
                     ( allReduceRecvBuffer[i]-
                       scale*a21_MC_Star_LocalBuffer[i] );
 
-            // Form w21[MR,* ]
-            w21_MR_Star = w21_MC_Star;
+            // Fast transpose w21[MC,* ] -> w21[MR,* ]
+            if( onDiagonal )
+            {
+                memcpy
+                ( w21_MR_Star.LocalBuffer(),
+                  w21_MC_Star.LocalBuffer(),
+                  a21LocalHeight*sizeof(R) );
+            }
+            else
+            {
+                // Pairwise exchange with the transpose process
+                int sendSize = A22.LocalHeight();
+                int recvSize = A22.LocalWidth();
+                SendRecv
+                ( w21_MC_Star.LocalBuffer(), sendSize, transposeRank, 0,
+                  w21_MR_Star.LocalBuffer(), recvSize, transposeRank, 0,
+                  g.VCComm() );
+            }
         }
         //--------------------------------------------------------------------//
         a21_MC_Star.FreeAlignments();
         a21_MR_Star.FreeAlignments();
         p21_MC_Star.FreeAlignments();
         p21_MR_Star.FreeAlignments();
-        q21_MC_Star.FreeAlignments();
         q21_MR_Star.FreeAlignments();
         x01B_MR_Star.FreeAlignments();
         y01B_MR_Star.FreeAlignments();
@@ -789,8 +685,8 @@ elemental::lapack::internal::PanelTridiagL
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
-elemental::lapack::internal::PanelTridiagL
-( DistMatrix<complex<R>,MC,MR  >& A,
+elemental::lapack::internal::PanelTridiagLSquare
+( DistMatrix<complex<R>,MC,MR  >& paddedA,
   DistMatrix<complex<R>,MC,MR  >& W,
   DistMatrix<complex<R>,MD,Star>& t,
   DistMatrix<complex<R>,MC,Star>& APan_MC_Star, 
@@ -798,10 +694,22 @@ elemental::lapack::internal::PanelTridiagL
   DistMatrix<complex<R>,MC,Star>& W_MC_Star,
   DistMatrix<complex<R>,MR,Star>& W_MR_Star )
 {
+    typedef complex<R> C;
+
     const int panelSize = W.Width();
     const int bottomSize = W.Height()-panelSize;
+
+    const Grid& g = paddedA.Grid();
+    const int padding = g.Height();
+
+    DistMatrix<C,MC,MR> A(g),         paddedATR(g),
+                        paddedABL(g), paddedABR(g);
+    PartitionUpLeftDiagonal
+    ( paddedA, A,         paddedATR,
+               paddedABL, paddedABR, padding );
+
 #ifndef RELEASE
-    PushCallStack("lapack::internal::PanelTridiagL");
+    PushCallStack("lapack::internal::PanelTridiagLSquare");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         throw logic_error
         ("A, W, and t must be distributed over the same grid.");
@@ -820,12 +728,21 @@ elemental::lapack::internal::PanelTridiagL
     if( !t.AlignedWithDiag(A,-1) )
         throw logic_error("t is not aligned with A's subdiagonal.");
 #endif
-    typedef complex<R> C;
-
-    const Grid& g = A.Grid();
     const int r = g.Height();
-    const int c = g.Width();
-    const int p = g.Size();
+
+    // Find the process holding our transposed data
+    int transposeRank;
+    {
+        int colAlignment = A.ColAlignment();
+        int rowAlignment = A.RowAlignment();
+        int colShift = A.ColShift();
+        int rowShift = A.RowShift();
+
+        int transposeRow = (colAlignment+rowShift) % r;
+        int transposeCol = (rowAlignment+colShift) % r;
+        transposeRank = transposeRow + r*transposeCol;
+    }
+    bool onDiagonal = ( transposeRank == g.VCRank() );
 
     // Create a distributed matrix for storing the subdiagonal
     DistMatrix<R,MD,Star> e(g);
@@ -857,7 +774,6 @@ elemental::lapack::internal::PanelTridiagL
     DistMatrix<C,MC,Star> p21_MC_Star(g);
     DistMatrix<C,MC,Star> p21B_MC_Star(g);
     DistMatrix<C,MR,Star> p21_MR_Star(g);
-    DistMatrix<C,MC,Star> q21_MC_Star(g);
     DistMatrix<C,MR,Star> q21_MR_Star(g);
     DistMatrix<C,MR,Star> x01B_MR_Star(g);
     DistMatrix<C,MR,Star> y01B_MR_Star(g);
@@ -940,13 +856,11 @@ elemental::lapack::internal::PanelTridiagL
         a21_MR_Star.AlignWith( A22 );
         p21_MC_Star.AlignWith( A22 );
         p21_MR_Star.AlignWith( A22 );
-        q21_MC_Star.AlignWith( A22 );
         q21_MR_Star.AlignWith( A22 );
         a21_MC_Star.ResizeTo( a21.Height(), 1 );
         a21_MR_Star.ResizeTo( a21.Height(), 1 );
         p21_MC_Star.ResizeTo( a21.Height(), 1 );
         p21_MR_Star.ResizeTo( a21.Height(), 1 );
-        q21_MC_Star.ResizeTo( a21.Height(), 1 );
         q21_MR_Star.ResizeTo( a21.Height(), 1 );
         x01B_MR_Star.AlignWith( W20B );
         y01B_MR_Star.AlignWith( W20B );
@@ -1024,7 +938,25 @@ elemental::lapack::internal::PanelTridiagL
             // Store tau
             tau = rowBroadcastBuffer[a21LocalHeight];
             
-            a21_MR_Star = a21_MC_Star;
+            // Take advantage of the square process grid in order to form 
+            // a21[MR,* ] from a21[MC,* ]
+            if( onDiagonal )
+            {
+                memcpy
+                ( a21_MR_Star.LocalBuffer(),
+                  a21_MC_Star.LocalBuffer(),
+                  a21LocalHeight*sizeof(C) );
+            }
+            else
+            {
+                // Pairwise exchange
+                int sendSize = A22.LocalHeight();
+                int recvSize = A22.LocalWidth();
+                SendRecv
+                ( a21_MC_Star.LocalBuffer(), sendSize, transposeRank, 0,
+                  a21_MR_Star.LocalBuffer(), recvSize, transposeRank, 0,
+                  g.VCComm() );
+            }
             // Store a21[MR,* ]
             int APan_MR_Star_Offset = 
                 APan_MR_Star.LocalHeight()-a21_MR_Star.LocalHeight();
@@ -1091,85 +1023,56 @@ elemental::lapack::internal::PanelTridiagL
             // Store tau
             tau = rowBroadcastBuffer[a21LocalHeight+w21LastLocalHeight];
 
-            // Form a21[MR,* ] and w21Last[MR,* ] by combining the 
-            // communications needed for taking a vector from 
-            // [MC,* ] -> [MR,* ]: 
-            //   local copy to [VC,* ], 
-            //   Send/Recv to [VR,* ], 
-            //   AllGather to [MR,* ]
-            // We can combine the two by treating a21 as [0; a21] so that its 
-            // alignments are equivalent to w21Last.
-
-            // alpha11 is the top-left entry of the A22 from the last iteration,
-            // so its alignments are identical
-            int colAlignSource = alpha11.ColAlignment();
-            int colAlignDest = alpha11.RowAlignment();
-            int colShiftSource = alpha11.ColShift();
-            int colShiftDest = alpha11.RowShift();
-
-            int height = a21.Height()+1;
-            int portionSize = max(2*MaxLocalLength(height,p),MinCollectContrib);
-
-            int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
-            int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);
-            int sendRankRM = (g.VRRank()+(p+colShiftVCSource-colShiftVRDest))%p;
-            int recvRankCM = (g.VCRank()+(p+colShiftVRDest-colShiftVCSource))%p;
-            int recvRankRM = (recvRankCM/r)+c*(recvRankCM%r);
-
-            vector<C> transposeBuffer( (r+1)*portionSize );
-            C* sendBuf = &transposeBuffer[0];
-            C* recvBuf = &transposeBuffer[r*portionSize];
-
-            // (w21Last[VC,* ] <- w21Last[MC,* ]) and
-            // ([0; a21][VC,* ] <- [0; a21][MC,* ])
+            // Take advantage of the square process grid in order to quickly
+            // form a21[MR,* ] and w21Last[MR,* ] from their [MC,* ] 
+            // counterparts
+            w21Last_MR_Star.AlignWith( ABR );
+            w21Last_MR_Star.ResizeTo( w21Last.Height(), 1 );
+            if( onDiagonal )
             {
-                // Pack the necessary portion of w21Last[MC,* ]
-                int w21Shift = Shift(g.VCRank(),colAlignSource,p);
-                int w21Offset = (w21Shift-colShiftSource)/r;
-                int w21LocalHeight = LocalLength(height,w21Shift,p);
-                for( int i=0; i<w21LocalHeight; ++i )
-                    sendBuf[i] = w21Last_MC_Star.GetLocalEntry(w21Offset+i*c,0);
-                
-                // Pack the necessary portion of a21[MC,* ]
-                int a21Shift = (w21Shift+p-1) % p;
-                int a21Offset = (a21Shift-((colShiftSource+r-1)%r))/r;
-                int a21LocalHeight = LocalLength(height-1,a21Shift,p);
-                for( int i=0; i<a21LocalHeight; ++i )
-                    sendBuf[w21LocalHeight+i] = 
-                        a21_MC_Star.GetLocalEntry(a21Offset+i*c,0);
+                memcpy
+                ( a21_MR_Star.LocalBuffer(),
+                  a21_MC_Star.LocalBuffer(),
+                  a21LocalHeight*sizeof(C) );
+                memcpy
+                ( w21Last_MR_Star.LocalBuffer(),
+                  w21Last_MC_Star.LocalBuffer(),
+                  w21LastLocalHeight*sizeof(C) );
+            }
+            else
+            {
+                int sendSize = A22.LocalHeight()+ABR.LocalHeight();
+                int recvSize = A22.LocalWidth()+ABR.LocalWidth();
+                vector<C> sendBuffer(sendSize);
+                vector<C> recvBuffer(recvSize);
+
+                // Pack the send buffer
+                memcpy
+                ( &sendBuffer[0],
+                 a21_MC_Star.LocalBuffer(),
+                 A22.LocalHeight()*sizeof(C) );
+                memcpy
+                ( &sendBuffer[A22.LocalHeight()],
+                  w21Last_MC_Star.LocalBuffer(),
+                  ABR.LocalHeight()*sizeof(C) );
+
+                // Pairwise exchange
+                SendRecv
+                ( &sendBuffer[0], sendSize, transposeRank, 0,
+                  &recvBuffer[0], recvSize, transposeRank, 0,
+                  g.VCComm() );
+
+                // Unpack the recv buffer
+                memcpy
+                ( a21_MR_Star.LocalBuffer(),
+                  &recvBuffer[0],
+                  A22.LocalWidth()*sizeof(C) );
+                memcpy
+                ( w21Last_MR_Star.LocalBuffer(),
+                  &recvBuffer[A22.LocalWidth()],
+                  ABR.LocalWidth()*sizeof(C) );
             }
 
-            // [VR,* ] <- [VC,* ]
-            SendRecv
-            ( sendBuf, portionSize, sendRankRM, 0,
-              recvBuf, portionSize, recvRankRM, MPI_ANY_TAG, g.VRComm() );
-
-            // [MR,* ] <- [VR,* ]
-            AllGather
-            ( recvBuf, portionSize,
-              sendBuf, portionSize, g.MCComm() );
-
-            // Unpack
-            w21Last_MR_Star.AlignWith( alpha11 );
-            w21Last_MR_Star.ResizeTo( a21.Height()+1, 1 );
-            for( int k=0; k<r; ++k )
-            {
-                // Unpack into w21Last[MR,* ]
-                const C* w21Data = &sendBuf[k*portionSize];
-                int w21Shift = Shift(g.MRRank()+c*k,colAlignDest,p);
-                int w21Offset = (w21Shift-colShiftDest) / c;
-                int w21LocalHeight = LocalLength(height,w21Shift,p);
-                for( int i=0; i<w21LocalHeight; ++i )
-                    w21Last_MR_Star.SetLocalEntry(w21Offset+i*r,0,w21Data[i]);
-
-                // Unpack into a21[MR,* ]
-                const C* a21Data = &sendBuf[k*portionSize+w21LocalHeight];
-                int a21Shift = (w21Shift+p-1) % p;
-                int a21Offset = (a21Shift-((colShiftDest+c-1)%c))/c;
-                int a21LocalHeight = LocalLength(height-1,a21Shift,p);
-                for( int i=0; i<a21LocalHeight; ++i )
-                    a21_MR_Star.SetLocalEntry(a21Offset+i*r,0,a21Data[i]);
-            }
             // Store w21Last[MR,* ]
             int W_MR_Star_Offset = 
                 W_MR_Star.LocalHeight()-w21Last_MR_Star.LocalHeight();
@@ -1243,13 +1146,12 @@ elemental::lapack::internal::PanelTridiagL
           (C)1, A20B.LockedLocalMatrix(),
                 a21B_MC_Star.LockedLocalMatrix(),
           (C)0, y01B_MR_Star.LocalMatrix() );
-        // Combine the AllReduce column summations of x01B[MR,* ], y01B[MR,* ],
-        // and q21[MR,* ]
+        // Combine the AllReduce column summations of x01B[MR,* ] and 
+        // y01B[MR,* ]
         {
             int x01BLocalHeight = x01B_MR_Star.LocalHeight();
-            int q21LocalHeight = q21_MR_Star.LocalHeight();
-            vector<C> colSummationSendBuffer(2*x01BLocalHeight+q21LocalHeight);
-            vector<C> colSummationRecvBuffer(2*x01BLocalHeight+q21LocalHeight);
+            vector<C> colSummationSendBuffer(2*x01BLocalHeight);
+            vector<C> colSummationRecvBuffer(2*x01BLocalHeight);
             memcpy
             ( &colSummationSendBuffer[0], 
               x01B_MR_Star.LocalBuffer(), 
@@ -1258,14 +1160,10 @@ elemental::lapack::internal::PanelTridiagL
             ( &colSummationSendBuffer[x01BLocalHeight],
               y01B_MR_Star.LocalBuffer(), 
               x01BLocalHeight*sizeof(C) );
-            memcpy
-            ( &colSummationSendBuffer[2*x01BLocalHeight],
-              q21_MR_Star.LocalBuffer(), 
-              q21LocalHeight*sizeof(C) );
             AllReduce
             ( &colSummationSendBuffer[0], 
               &colSummationRecvBuffer[0],
-              2*x01BLocalHeight+q21LocalHeight, MPI_SUM, g.MCComm() );
+              2*x01BLocalHeight, MPI_SUM, g.MCComm() );
             memcpy
             ( x01B_MR_Star.LocalBuffer(), 
               &colSummationRecvBuffer[0], 
@@ -1274,10 +1172,6 @@ elemental::lapack::internal::PanelTridiagL
             ( y01B_MR_Star.LocalBuffer(), 
               &colSummationRecvBuffer[x01BLocalHeight], 
               x01BLocalHeight*sizeof(C) );
-            memcpy
-            ( q21_MR_Star.LocalBuffer(), 
-              &colSummationRecvBuffer[2*x01BLocalHeight], 
-              q21LocalHeight*sizeof(C) );
         }
 
         blas::Gemv
@@ -1291,106 +1185,61 @@ elemental::lapack::internal::PanelTridiagL
                  y01B_MR_Star.LockedLocalMatrix(),
           (C)+1, p21B_MC_Star.LocalMatrix() );
 
+        // Fast transpose the unsummed q21[MR,* ] -> q21[MC,* ], so that
+        // it needs to be summed over process rows instead of process 
+        // columns. We immediately add it onto p21[MC,* ], which also needs
+        // to be summed within process rows.
+        if( onDiagonal )
+        {
+            int a21LocalHeight = a21.LocalHeight();
+            C* p21_MC_Star_LocalBuffer = p21_MC_Star.LocalBuffer();
+            const C* q21_MR_Star_LocalBuffer = q21_MR_Star.LocalBuffer();
+            for( int i=0; i<a21LocalHeight; ++i )
+                p21_MC_Star_LocalBuffer[i] += q21_MR_Star_LocalBuffer[i];
+        }
+        else
+        {
+            // Pairwise exchange with the transpose process
+            int sendSize = A22.LocalWidth();
+            int recvSize = A22.LocalHeight();
+            vector<C> recvBuffer(recvSize);
+            SendRecv
+            ( q21_MR_Star.LocalBuffer(), sendSize, transposeRank, 0,
+              &recvBuffer[0],            recvSize, transposeRank, 0,
+              g.VCComm() );
+
+            // Unpack the recv buffer directly onto p21[MC,* ]
+            C* p21_MC_Star_LocalBuffer = p21_MC_Star.LocalBuffer();
+            for( int i=0; i<recvSize; ++i )
+                p21_MC_Star_LocalBuffer[i] += recvBuffer[i];
+        }
+
         if( W22.Width() > 0 )
         {
             // This is not the last iteration of the panel factorization, 
-            // combine the Reduce to one of p21[MC,* ] with the redistribution 
-            // of q21[MR,* ] -> q21[MC,MR] to the next process column.
-            int localHeight = p21_MC_Star.LocalHeight();
-            vector<C> reduceToOneSendBuffer(2*localHeight);
-            vector<C> reduceToOneRecvBuffer(2*localHeight);
-
-            // Pack p21[MC,* ]
-            memcpy
-            ( &reduceToOneSendBuffer[0], 
-              p21_MC_Star.LocalBuffer(),
-              localHeight*sizeof(C) );
-
-            // Fill in contributions to q21[MC,MR] from q21[MR,* ]
-            bool contributing = 
-                ( q21_MR_Star.ColShift() % g.GCD() ==
-                  p21_MC_Star.ColShift() % g.GCD() );
-            if( contributing )
-            {
-                if( r == c )
-                {
-                    memcpy
-                    ( &reduceToOneSendBuffer[localHeight],
-                      q21_MR_Star.LocalBuffer(), 
-                      localHeight*sizeof(C) );
-                }
-                else
-                {
-                    // Zero the entire buffer first
-                    memset
-                    ( &reduceToOneSendBuffer[localHeight], 0,
-                      localHeight*sizeof(C) );
-                    // Fill in the entries that we contribute to.
-                    // We seek to find the minimum s in N such that
-                    //   s*c = a0-b0 (mod r)
-                    // where a0 is the column shift of MC, b0 is the row shift
-                    // of MR, and s is our first local entry of MR that will 
-                    // contribute to MC. I cannot think of an O(1) method, so
-                    // I will instead use the worst-case O(lcm(c,r)/c) method.
-                    int sourcePeriod = g.LCM() / c;
-                    int targetPeriod = g.LCM() / r;
-                    int a0 = p21_MC_Star.ColShift();
-                    int b0 = q21_MR_Star.ColShift();
-
-                    int sourceStart = 0;
-                    int f = (r+a0-b0) % r;
-                    for( int s=0; s<sourcePeriod; ++s )
-                    {
-                        if( (s*c) % r == f )
-                        {
-                            sourceStart = s;
-                            break;
-                        }
-                    }
-
-                    int globalShift = b0+sourceStart*c;
-                    int targetStart = (globalShift-a0)/r;
-                    int localLength =
-                        LocalLength(localHeight,targetStart,targetPeriod);
-                    const C* q21_MR_Star_LocalBuffer = 
-                        q21_MR_Star.LocalBuffer();
-                    int offset = localHeight + targetStart;
-                    for( int i=0; i<localLength; ++i )                        
-                        reduceToOneSendBuffer[offset+i*targetPeriod] = 
-                            q21_MR_Star_LocalBuffer[sourceStart+i*sourcePeriod];
-                }
-            }
-            else
-            {
-                memset
-                ( &reduceToOneSendBuffer[localHeight], 0, 
-                  localHeight*sizeof(C) );
-            }
+            // Reduce to one p21[MC,* ] to the next process column.
+            int a21LocalHeight = a21.LocalHeight();
 
             int nextProcessRow = (alpha11.ColAlignment()+1) % r;
-            int nextProcessCol = (alpha11.RowAlignment()+1) % c;
+            int nextProcessCol = (alpha11.RowAlignment()+1) % r;
+
+            vector<C> reduceToOneRecvBuffer(a21LocalHeight);
             Reduce
-            ( &reduceToOneSendBuffer[0], 
+            ( p21_MC_Star.LocalBuffer(),
               &reduceToOneRecvBuffer[0],
-              2*localHeight, MPI_SUM, nextProcessCol, g.MRComm() );
+              a21LocalHeight, MPI_SUM, nextProcessCol, g.MRComm() );
             if( g.MRRank() == nextProcessCol )
             {
-                // Combine the second half into the first half        
-                for( int i=0; i<localHeight; ++i )
-                    reduceToOneRecvBuffer[i] +=
-                        reduceToOneRecvBuffer[i+localHeight];
-
                 // Finish computing w21. During its computation, ensure that 
                 // every process has a copy of the first element of the w21.
                 // We know a priori that the first element of a21 is one.
-                const C* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
                 C myDotProduct = Dot
-                    ( localHeight, &reduceToOneRecvBuffer[0], 1, 
-                                   &a21_MC_Star_LocalBuffer[0], 1 );
+                    ( a21LocalHeight, &reduceToOneRecvBuffer[0], 1,
+                                      a21_MC_Star.LocalBuffer(), 1 );
                 C sendBuffer[2];
                 C recvBuffer[2];
                 sendBuffer[0] = myDotProduct;
-                sendBuffer[1] = ( g.MCRank()==nextProcessRow ? 
+                sendBuffer[1] = ( g.MCRank()==nextProcessRow ?
                                   reduceToOneRecvBuffer[0] : 0 );
                 AllReduce( sendBuffer, recvBuffer, 2, MPI_SUM, g.MCComm() );
                 C dotProduct = recvBuffer[0];
@@ -1399,7 +1248,8 @@ elemental::lapack::internal::PanelTridiagL
                 // - w21LastLocalBuffer
                 // - w21LastFirstEntry
                 C scale = static_cast<C>(0.5)*dotProduct*Conj(tau);
-                for( int i=0; i<localHeight; ++i )
+                const C* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
+                for( int i=0; i<a21LocalHeight; ++i )
                     w21LastLocalBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
                           scale*a21_MC_Star_LocalBuffer[i] );
@@ -1408,96 +1258,23 @@ elemental::lapack::internal::PanelTridiagL
         }
         else
         {
-            // This is the last iteration, our last task is to finish forming
-            // w21[MC,* ] and w21[MR,* ] so that we may place them into W[MC,* ]
-            // and W[MR,* ]
-            int localHeight = p21_MC_Star.LocalHeight();
-            vector<C> allReduceSendBuffer(2*localHeight);
-            vector<C> allReduceRecvBuffer(2*localHeight);
+            // This is the last iteration, so we just need to form w21[MC,* ]
+            // and w21[MR,* ]. 
+            int a21LocalHeight = a21.LocalHeight();
 
-            // Pack p21[MC,* ]
-            memcpy
-            ( &allReduceSendBuffer[0], 
-              p21_MC_Star.LocalBuffer(),
-              localHeight*sizeof(C) );
-
-            // Fill in contributions to q21[MC,* ] from q21[MR,* ]
-            bool contributing = 
-                ( q21_MR_Star.ColShift() % g.GCD() ==
-                  p21_MC_Star.ColShift() % g.GCD() );
-            if( contributing )
-            {
-                if( r == c )
-                {
-                    memcpy
-                    ( &allReduceSendBuffer[localHeight],
-                      q21_MR_Star.LocalBuffer(), 
-                      localHeight*sizeof(C) );
-                }
-                else
-                {
-                    // Zero the entire buffer first
-                    memset
-                    ( &allReduceSendBuffer[localHeight], 0, 
-                      localHeight*sizeof(C) );
-                    // Fill in the entries that we contribute to.
-                    // We seek to find the minimum s in N such that
-                    //   s*c = a0-b0 (mod r)
-                    // where a0 is the column shift of MC, b0 is the row shift
-                    // of MR, and s is our first local entry of MR that will 
-                    // contribute to MC. I cannot think of an O(1) method, so
-                    // I will instead use the worst-case O(lcm(c,r)/c) method.
-                    int sourcePeriod = g.LCM() / c;
-                    int targetPeriod = g.LCM() / r;
-                    int a0 = p21_MC_Star.ColShift();
-                    int b0 = q21_MR_Star.ColShift();
-
-                    int sourceStart = 0;
-                    int f = (r+a0-b0) % r;
-                    for( int s=0; s<sourcePeriod; ++s )
-                    {
-                        if( (s*c) % r == f )
-                        {
-                            sourceStart = s;
-                            break;
-                        }
-                    }
-
-                    int globalShift = b0+sourceStart*c;
-                    int targetStart = (globalShift-a0)/r;
-                    int localLength = 
-                        LocalLength(localHeight,targetStart,targetPeriod);
-                    const C* q21_MR_Star_LocalBuffer = 
-                        q21_MR_Star.LocalBuffer();
-                    int offset = localHeight + targetStart;
-                    for( int i=0; i<localLength; ++i )
-                        allReduceSendBuffer[offset+i*targetPeriod] = 
-                            q21_MR_Star_LocalBuffer[sourceStart+i*sourcePeriod];
-                }
-            }
-            else
-            {
-                memset
-                ( &allReduceSendBuffer[localHeight], 0, 
-                  localHeight*sizeof(C) );
-            }
-
+            // AllReduce sum p21[MC,* ] over process rows
+            vector<C> allReduceRecvBuffer(a21LocalHeight);
             AllReduce
-            ( &allReduceSendBuffer[0], 
+            ( p21_MC_Star.LocalBuffer(),
               &allReduceRecvBuffer[0],
-              2*localHeight, MPI_SUM, g.MRComm() );
+              a21LocalHeight, MPI_SUM, g.MRComm() );
 
-            // Combine the second half into the first half        
-            for( int i=0; i<localHeight; ++i )
-                allReduceRecvBuffer[i] += allReduceRecvBuffer[i+localHeight];
- 
             // Finish computing w21. During its computation, ensure that 
             // every process has a copy of the first element of the w21.
             // We know a priori that the first element of a21 is one.
-            const C* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
             C myDotProduct = Dot
-                ( localHeight, &allReduceRecvBuffer[0], 1, 
-                               a21_MC_Star_LocalBuffer, 1 );
+                ( a21LocalHeight, &allReduceRecvBuffer[0],   1,
+                                  a21_MC_Star.LocalBuffer(), 1 );
             C dotProduct;
             AllReduce( &myDotProduct, &dotProduct, 1, MPI_SUM, g.MCComm() );
 
@@ -1512,20 +1289,36 @@ elemental::lapack::internal::PanelTridiagL
             // Store w21[MC,* ]
             C scale = static_cast<C>(0.5)*dotProduct*Conj(tau);
             C* w21_MC_Star_LocalBuffer = w21_MC_Star.LocalBuffer();
-            for( int i=0; i<localHeight; ++i )
+            const C* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
+            for( int i=0; i<a21LocalHeight; ++i )
                 w21_MC_Star_LocalBuffer[i] = tau*
                     ( allReduceRecvBuffer[i]-
                       scale*a21_MC_Star_LocalBuffer[i] );
 
-            // Form w21[MR,* ]
-            w21_MR_Star = w21_MC_Star;
+            // Fast transpose w21[MC,* ] -> w21[MR,* ]
+            if( onDiagonal )
+            {
+                memcpy
+                ( w21_MR_Star.LocalBuffer(),
+                  w21_MC_Star.LocalBuffer(),
+                  a21LocalHeight*sizeof(C) );
+            }
+            else
+            {
+                // Pairwise exchange with the transpose process
+                int sendSize = A22.LocalHeight();
+                int recvSize = A22.LocalWidth();
+                SendRecv
+                ( w21_MC_Star.LocalBuffer(), sendSize, transposeRank, 0,
+                  w21_MR_Star.LocalBuffer(), recvSize, transposeRank, 0,
+                  g.VCComm() );
+            }
         }
         //--------------------------------------------------------------------//
         a21_MC_Star.FreeAlignments();
         a21_MR_Star.FreeAlignments();
         p21_MC_Star.FreeAlignments();
         p21_MR_Star.FreeAlignments();
-        q21_MC_Star.FreeAlignments();
         q21_MR_Star.FreeAlignments();
         x01B_MR_Star.FreeAlignments();
         y01B_MR_Star.FreeAlignments();
@@ -1568,16 +1361,16 @@ elemental::lapack::internal::PanelTridiagL
 
 #endif // WITHOUT_COMPLEX
 
-template void elemental::lapack::internal::PanelTridiagL
-( DistMatrix<float,MC,MR  >& A,
+template void elemental::lapack::internal::PanelTridiagLSquare
+( DistMatrix<float,MC,MR  >& paddedA,
   DistMatrix<float,MC,MR  >& W,
   DistMatrix<float,MC,Star>& APan_MC_Star,
   DistMatrix<float,MR,Star>& APan_MR_Star,
   DistMatrix<float,MC,Star>& W_MC_Star,
   DistMatrix<float,MR,Star>& W_MR_Star );
 
-template void elemental::lapack::internal::PanelTridiagL
-( DistMatrix<double,MC,MR  >& A,
+template void elemental::lapack::internal::PanelTridiagLSquare
+( DistMatrix<double,MC,MR  >& paddedA,
   DistMatrix<double,MC,MR  >& W,
   DistMatrix<double,MC,Star>& APan_MC_Star,
   DistMatrix<double,MR,Star>& APan_MR_Star,
@@ -1585,8 +1378,8 @@ template void elemental::lapack::internal::PanelTridiagL
   DistMatrix<double,MR,Star>& W_MR_Star );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::PanelTridiagL
-( DistMatrix<scomplex,MC,MR  >& A,
+template void elemental::lapack::internal::PanelTridiagLSquare
+( DistMatrix<scomplex,MC,MR  >& paddedA,
   DistMatrix<scomplex,MC,MR  >& W,
   DistMatrix<scomplex,MD,Star>& t,
   DistMatrix<scomplex,MC,Star>& APan_MC_Star,
@@ -1594,8 +1387,8 @@ template void elemental::lapack::internal::PanelTridiagL
   DistMatrix<scomplex,MC,Star>& W_MC_Star,
   DistMatrix<scomplex,MR,Star>& W_MR_Star );
 
-template void elemental::lapack::internal::PanelTridiagL
-( DistMatrix<dcomplex,MC,MR  >& A,
+template void elemental::lapack::internal::PanelTridiagLSquare
+( DistMatrix<dcomplex,MC,MR  >& paddedA,
   DistMatrix<dcomplex,MC,MR  >& W,
   DistMatrix<dcomplex,MD,Star>& t,
   DistMatrix<dcomplex,MC,Star>& APan_MC_Star,

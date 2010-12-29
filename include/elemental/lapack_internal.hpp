@@ -365,11 +365,30 @@ PanelTridiagL
   DistMatrix<R,MR,Star>& APan_MR_Star,
   DistMatrix<R,MC,Star>& WPan_MC_Star,
   DistMatrix<R,MR,Star>& WPan_MR_Star );
+template<typename R>
+void
+PanelTridiagLSquare
+( DistMatrix<R,MC,MR  >& paddedA, 
+  DistMatrix<R,MC,MR  >& W,
+  DistMatrix<R,MC,Star>& APan_MC_Star,
+  DistMatrix<R,MR,Star>& APan_MR_Star,
+  DistMatrix<R,MC,Star>& WPan_MC_Star,
+  DistMatrix<R,MR,Star>& WPan_MR_Star );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 PanelTridiagL
+( DistMatrix<std::complex<R>,MC,MR  >& A,
+  DistMatrix<std::complex<R>,MC,MR  >& W,
+  DistMatrix<std::complex<R>,MD,Star>& t,
+  DistMatrix<std::complex<R>,MC,Star>& APan_MC_Star,
+  DistMatrix<std::complex<R>,MR,Star>& APan_MR_Star,
+  DistMatrix<std::complex<R>,MC,Star>& WPan_MC_Star,
+  DistMatrix<std::complex<R>,MR,Star>& WPan_MR_Star );
+template<typename R>
+void
+PanelTridiagLSquare
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<std::complex<R>,MD,Star>& t,
@@ -418,20 +437,12 @@ TridiagLSquare
 template<typename R>
 void
 TridiagU( DistMatrix<R,MC,MR>& A );
-template<typename R>
-void
-TridiagUSquare( DistMatrix<R,MC,MR>& paddedA );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
 TridiagU
 ( DistMatrix<std::complex<R>,MC,  MR  >& A,
-  DistMatrix<std::complex<R>,Star,Star>& t );
-template<typename R>
-void
-TridiagUSquare
-( DistMatrix<std::complex<R>,MC,  MR  >& paddedA,
   DistMatrix<std::complex<R>,Star,Star>& t );
 #endif
 
