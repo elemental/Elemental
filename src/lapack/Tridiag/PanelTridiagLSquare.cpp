@@ -41,7 +41,7 @@ using namespace elemental::wrappers::mpi;
 template<typename R>
 void
 elemental::lapack::internal::PanelTridiagLSquare
-( DistMatrix<R,MC,MR  >& paddedA,
+( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star, 
   DistMatrix<R,MR,Star>& APan_MR_Star,
@@ -51,14 +51,8 @@ elemental::lapack::internal::PanelTridiagLSquare
     const int panelSize = W.Width();
     const int bottomSize = W.Height()-panelSize;
     
-    const Grid& g = paddedA.Grid();
-    const int padding = g.Height();
+    const Grid& g = A.Grid();
 
-    DistMatrix<R,MC,MR> A(g),         paddedATR(g),
-                        paddedABL(g), paddedABR(g);
-    PartitionUpLeftDiagonal
-    ( paddedA, A,         paddedATR,
-               paddedABL, paddedABR, padding );
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagLSquare");
     if( A.Grid() != W.Grid() )
@@ -207,7 +201,6 @@ elemental::lapack::internal::PanelTridiagLSquare
         p21B_MC_Star.View
         ( p21_MC_Star, p21_MC_Star.Height()-bottomSize, 0, bottomSize, 1 );
         //--------------------------------------------------------------------//
-        const bool thisIsMyRow = ( g.MCRank() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.MRRank() == alpha11.RowAlignment() );
         if( thisIsMyCol )
         {
@@ -457,13 +450,108 @@ elemental::lapack::internal::PanelTridiagLSquare
 
         // Form the local portions of (A22 a21) into p21[MC,* ] and q21[MR,* ]:
         //   p21[MC,* ] := tril(A22)[MC,MR] a21[MR,* ]
-        //   q21[MR,* ] := tril(A22,1)'[MR,MC] a21[MC,* ]
-        PopBlocksizeStack();
-        p21_MC_Star.SetToZero();
-        q21_MR_Star.SetToZero();
-        blas::internal::LocalSymvColAccumulateL
-        ( (R)1, A22, a21_MC_Star, a21_MR_Star, p21_MC_Star, q21_MR_Star );
-        PushBlocksizeStack( 1 );
+        //   q21[MR,* ] := tril(A22,-1)'[MR,MC] a21[MC,* ]
+        if( A22.ColShift() > A22.RowShift() )
+        {
+            // We are below the diagonal, so we can multiply without an 
+            // offset for tril(A22)[MC,MR] and tril(A22,-1)'[MR,MC]
+            if( A22.LocalHeight() != 0 )
+            {
+                memcpy
+                ( p21_MC_Star.LocalBuffer(),
+                  a21_MR_Star.LocalBuffer(),
+                  A22.LocalHeight()*sizeof(R) );
+                Trmv
+                ( 'L', 'N', 'N', A22.LocalHeight(), 
+                  A22.LocalBuffer(), A22.LocalLDim(), 
+                  p21_MC_Star.LocalBuffer(), 1 );
+            }
+            if( A22.LocalWidth() != 0 )
+            {
+                // Our local portion of q21[MR,* ] might be one entry longer 
+                // than A22.LocalHeight(), so go ahead and set the last entry 
+                // to 0.
+                R* q21_MR_Star_LocalBuffer = q21_MR_Star.LocalBuffer();
+                q21_MR_Star_LocalBuffer[A22.LocalWidth()-1] = 0;
+                memcpy
+                ( q21_MR_Star_LocalBuffer,
+                  a21_MC_Star.LocalBuffer(),
+                  A22.LocalHeight()*sizeof(R) );
+                Trmv
+                ( 'L', 'T', 'N', A22.LocalHeight(),
+                  A22.LocalBuffer(), A22.LocalLDim(),
+                  q21_MR_Star_LocalBuffer, 1 );
+            }
+        }
+        else if( A22.ColShift() < A22.RowShift() )
+        {
+            // We are above the diagonal, so we need to use an offset of +1
+            // for both tril(A22)[MC,MR] and tril(A22,-1)'[MR,MC]
+            const R* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
+            const R* a21_MR_Star_LocalBuffer = a21_MR_Star.LocalBuffer();
+            const R* A22LocalBuffer = A22.LocalBuffer();
+            if( A22.LocalHeight() != 0 )
+            {
+                // The first entry of p21[MC,* ] will always be zero due to 
+                // the forced offset.
+                R* p21_MC_Star_LocalBuffer = p21_MC_Star.LocalBuffer();
+                p21_MC_Star_LocalBuffer[0] = 0;
+                memcpy
+                ( &p21_MC_Star_LocalBuffer[1],
+                  a21_MR_Star_LocalBuffer,
+                  (A22.LocalHeight()-1)*sizeof(R) );
+                Trmv
+                ( 'L', 'N', 'N', A22.LocalHeight()-1,
+                  &A22LocalBuffer[1], A22.LocalLDim(), 
+                  &p21_MC_Star_LocalBuffer[1], 1 );
+             }
+             if( A22.LocalWidth() != 0 )
+             {
+                // The last entry of q21[MR,* ] must be zero due to the forced
+                // offset.
+                R* q21_MR_Star_LocalBuffer = q21_MR_Star.LocalBuffer();
+                q21_MR_Star_LocalBuffer[A22.LocalWidth()-1] = 0;
+                memcpy
+                ( q21_MR_Star_LocalBuffer,
+                  &a21_MC_Star_LocalBuffer[1],
+                  (A22.LocalHeight()-1)*sizeof(R) );
+                Trmv
+                ( 'L', 'T', 'N', A22.LocalHeight()-1,
+                  &A22LocalBuffer[1], A22.LocalLDim(),
+                  q21_MR_Star_LocalBuffer, 1 );
+            }
+        }
+        else
+        {
+            // We are on the diagonal, so we only need an offset of +1 for
+            // tril(A22,-1)'[MR,MC]
+            if( A22.LocalHeight() != 0 )
+            {
+                memcpy
+                ( p21_MC_Star.LocalBuffer(),
+                  a21_MR_Star.LocalBuffer(),
+                  A22.LocalHeight()*sizeof(R) );
+                Trmv
+                ( 'L', 'N', 'N', A22.LocalHeight(), 
+                  A22.LocalBuffer(), A22.LocalLDim(), 
+                  p21_MC_Star.LocalBuffer(), 1 );
+ 
+                // The last entry of q21[MR,* ] must be zero due to the forced
+                // offset.
+                const R* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
+                const R* A22LocalBuffer = A22.LocalBuffer();
+                R* q21_MR_Star_LocalBuffer = q21_MR_Star.LocalBuffer();
+                q21_MR_Star_LocalBuffer[A22.LocalWidth()-1] = 0;
+                memcpy
+                ( q21_MR_Star_LocalBuffer,
+                  &a21_MC_Star_LocalBuffer[1],
+                  (A22.LocalHeight()-1)*sizeof(R) );
+                Trmv
+                ( 'L', 'T', 'N', A22.LocalHeight()-1,
+                  &A22LocalBuffer[1], A22.LocalLDim(),
+                  q21_MR_Star_LocalBuffer, 1 );
+            }
+        }
 
         blas::Gemv
         ( Transpose, 
@@ -686,7 +774,7 @@ elemental::lapack::internal::PanelTridiagLSquare
 template<typename R>
 void
 elemental::lapack::internal::PanelTridiagLSquare
-( DistMatrix<complex<R>,MC,MR  >& paddedA,
+( DistMatrix<complex<R>,MC,MR  >& A,
   DistMatrix<complex<R>,MC,MR  >& W,
   DistMatrix<complex<R>,MD,Star>& t,
   DistMatrix<complex<R>,MC,Star>& APan_MC_Star, 
@@ -699,14 +787,7 @@ elemental::lapack::internal::PanelTridiagLSquare
     const int panelSize = W.Width();
     const int bottomSize = W.Height()-panelSize;
 
-    const Grid& g = paddedA.Grid();
-    const int padding = g.Height();
-
-    DistMatrix<C,MC,MR> A(g),         paddedATR(g),
-                        paddedABL(g), paddedABR(g);
-    PartitionUpLeftDiagonal
-    ( paddedA, A,         paddedATR,
-               paddedABL, paddedABR, padding );
+    const Grid& g = A.Grid();
 
 #ifndef RELEASE
     PushCallStack("lapack::internal::PanelTridiagLSquare");
@@ -874,7 +955,6 @@ elemental::lapack::internal::PanelTridiagLSquare
         p21B_MC_Star.View
         ( p21_MC_Star, p21_MC_Star.Height()-bottomSize, 0, bottomSize, 1 );
         //--------------------------------------------------------------------//
-        const bool thisIsMyRow = ( g.MCRank() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.MRRank() == alpha11.RowAlignment() );
         if( thisIsMyCol )
         {
@@ -1128,13 +1208,108 @@ elemental::lapack::internal::PanelTridiagLSquare
 
         // Form the local portions of (A22 a21) into p21[MC,* ] and q21[MR,* ]:
         //   p21[MC,* ] := tril(A22)[MC,MR] a21[MR,* ]
-        //   q21[MR,* ] := tril(A22,1)'[MR,MC] a21[MC,* ]
-        PopBlocksizeStack();
-        p21_MC_Star.SetToZero();
-        q21_MR_Star.SetToZero();
-        blas::internal::LocalHemvColAccumulateL
-        ( (C)1, A22, a21_MC_Star, a21_MR_Star, p21_MC_Star, q21_MR_Star );
-        PushBlocksizeStack( 1 );
+        //   q21[MR,* ] := tril(A22,-1)'[MR,MC] a21[MC,* ]
+        if( A22.ColShift() > A22.RowShift() )
+        {
+            // We are below the diagonal, so we can multiply without an 
+            // offset for tril(A22)[MC,MR] and tril(A22,-1)'[MR,MC]
+            if( A22.LocalHeight() != 0 )
+            {
+                memcpy
+                ( p21_MC_Star.LocalBuffer(),
+                  a21_MR_Star.LocalBuffer(),
+                  A22.LocalHeight()*sizeof(C) );
+                Trmv
+                ( 'L', 'N', 'N', A22.LocalHeight(), 
+                  A22.LocalBuffer(), A22.LocalLDim(), 
+                  p21_MC_Star.LocalBuffer(), 1 );
+            }
+            if( A22.LocalWidth() != 0 )
+            {
+                // Our local portion of q21[MR,* ] might be one entry longer 
+                // than A22.LocalHeight(), so go ahead and set the last entry 
+                // to 0.
+                C* q21_MR_Star_LocalBuffer = q21_MR_Star.LocalBuffer();
+                q21_MR_Star_LocalBuffer[A22.LocalWidth()-1] = 0;
+                memcpy
+                ( q21_MR_Star_LocalBuffer,
+                  a21_MC_Star.LocalBuffer(),
+                  A22.LocalHeight()*sizeof(C) );
+                Trmv
+                ( 'L', 'C', 'N', A22.LocalHeight(),
+                  A22.LocalBuffer(), A22.LocalLDim(),
+                  q21_MR_Star_LocalBuffer, 1 );
+            }
+        }
+        else if( A22.ColShift() < A22.RowShift() )
+        {
+            // We are above the diagonal, so we need to use an offset of +1
+            // for both tril(A22)[MC,MR] and tril(A22,-1)'[MR,MC]
+            const C* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
+            const C* a21_MR_Star_LocalBuffer = a21_MR_Star.LocalBuffer();
+            const C* A22LocalBuffer = A22.LocalBuffer();
+            if( A22.LocalHeight() != 0 )
+            {
+                // The first entry of p21[MC,* ] will always be zero due to 
+                // the forced offset.
+                C* p21_MC_Star_LocalBuffer = p21_MC_Star.LocalBuffer();
+                p21_MC_Star_LocalBuffer[0] = 0;
+                memcpy
+                ( &p21_MC_Star_LocalBuffer[1],
+                  a21_MR_Star_LocalBuffer,
+                  (A22.LocalHeight()-1)*sizeof(C) );
+                Trmv
+                ( 'L', 'N', 'N', A22.LocalHeight()-1,
+                  &A22LocalBuffer[1], A22.LocalLDim(), 
+                  &p21_MC_Star_LocalBuffer[1], 1 );
+            }
+            if( A22.LocalWidth() != 0 )
+            {
+                // The last entry of q21[MR,* ] will be zero if the local
+                // height and width are equal.
+                C* q21_MR_Star_LocalBuffer = q21_MR_Star.LocalBuffer();
+                q21_MR_Star_LocalBuffer[A22.LocalWidth()-1] = 0;
+                memcpy
+                ( q21_MR_Star_LocalBuffer,
+                  &a21_MC_Star_LocalBuffer[1],
+                  (A22.LocalHeight()-1)*sizeof(C) );
+                Trmv
+                ( 'L', 'C', 'N', A22.LocalHeight()-1,
+                  &A22LocalBuffer[1], A22.LocalLDim(),
+                  q21_MR_Star_LocalBuffer, 1 );
+            }
+        }
+        else
+        {
+            // We are on the diagonal, so we only need an offset of +1 for
+            // tril(A22,-1)'[MR,MC]
+            if( A22.LocalHeight() != 0 )
+            {
+                memcpy
+                ( p21_MC_Star.LocalBuffer(),
+                  a21_MR_Star.LocalBuffer(),
+                  A22.LocalHeight()*sizeof(C) );
+                Trmv
+                ( 'L', 'N', 'N', A22.LocalHeight(), 
+                  A22.LocalBuffer(), A22.LocalLDim(), 
+                  p21_MC_Star.LocalBuffer(), 1 );
+
+                // The last entry of q21[MR,* ] will be zero if the local 
+                // height and width are equal.
+                const C* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
+                const C* A22LocalBuffer = A22.LocalBuffer();
+                C* q21_MR_Star_LocalBuffer = q21_MR_Star.LocalBuffer();
+                q21_MR_Star_LocalBuffer[A22.LocalWidth()-1] = 0;
+                memcpy
+                ( q21_MR_Star_LocalBuffer,
+                  &a21_MC_Star_LocalBuffer[1],
+                  (A22.LocalHeight()-1)*sizeof(C) );
+                Trmv
+                ( 'L', 'C', 'N', A22.LocalHeight()-1,
+                  &A22LocalBuffer[1], A22.LocalLDim(),
+                  q21_MR_Star_LocalBuffer, 1 );
+            }
+        }
 
         blas::Gemv
         ( ConjugateTranspose, 
@@ -1362,7 +1537,7 @@ elemental::lapack::internal::PanelTridiagLSquare
 #endif // WITHOUT_COMPLEX
 
 template void elemental::lapack::internal::PanelTridiagLSquare
-( DistMatrix<float,MC,MR  >& paddedA,
+( DistMatrix<float,MC,MR  >& A,
   DistMatrix<float,MC,MR  >& W,
   DistMatrix<float,MC,Star>& APan_MC_Star,
   DistMatrix<float,MR,Star>& APan_MR_Star,
@@ -1370,7 +1545,7 @@ template void elemental::lapack::internal::PanelTridiagLSquare
   DistMatrix<float,MR,Star>& W_MR_Star );
 
 template void elemental::lapack::internal::PanelTridiagLSquare
-( DistMatrix<double,MC,MR  >& paddedA,
+( DistMatrix<double,MC,MR  >& A,
   DistMatrix<double,MC,MR  >& W,
   DistMatrix<double,MC,Star>& APan_MC_Star,
   DistMatrix<double,MR,Star>& APan_MR_Star,
@@ -1379,7 +1554,7 @@ template void elemental::lapack::internal::PanelTridiagLSquare
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::internal::PanelTridiagLSquare
-( DistMatrix<scomplex,MC,MR  >& paddedA,
+( DistMatrix<scomplex,MC,MR  >& A,
   DistMatrix<scomplex,MC,MR  >& W,
   DistMatrix<scomplex,MD,Star>& t,
   DistMatrix<scomplex,MC,Star>& APan_MC_Star,
@@ -1388,7 +1563,7 @@ template void elemental::lapack::internal::PanelTridiagLSquare
   DistMatrix<scomplex,MR,Star>& W_MR_Star );
 
 template void elemental::lapack::internal::PanelTridiagLSquare
-( DistMatrix<dcomplex,MC,MR  >& paddedA,
+( DistMatrix<dcomplex,MC,MR  >& A,
   DistMatrix<dcomplex,MC,MR  >& W,
   DistMatrix<dcomplex,MD,Star>& t,
   DistMatrix<dcomplex,MC,Star>& APan_MC_Star,

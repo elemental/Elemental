@@ -190,7 +190,6 @@ elemental::lapack::internal::PanelTridiagL
         p21B_MC_Star.View
         ( p21_MC_Star, p21_MC_Star.Height()-bottomSize, 0, bottomSize, 1 );
         //--------------------------------------------------------------------//
-        const bool thisIsMyRow = ( g.MCRank() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.MRRank() == alpha11.RowAlignment() );
         if( thisIsMyCol )
         {
@@ -451,7 +450,7 @@ elemental::lapack::internal::PanelTridiagL
 
         // Form the local portions of (A22 a21) into p21[MC,* ] and q21[MR,* ]:
         //   p21[MC,* ] := tril(A22)[MC,MR] a21[MR,* ]
-        //   q21[MR,* ] := tril(A22,1)'[MR,MC] a21[MC,* ]
+        //   q21[MR,* ] := tril(A22,-1)'[MR,MC] a21[MC,* ]
         PopBlocksizeStack();
         p21_MC_Star.SetToZero();
         q21_MR_Star.SetToZero();
@@ -960,7 +959,6 @@ elemental::lapack::internal::PanelTridiagL
         p21B_MC_Star.View
         ( p21_MC_Star, p21_MC_Star.Height()-bottomSize, 0, bottomSize, 1 );
         //--------------------------------------------------------------------//
-        const bool thisIsMyRow = ( g.MCRank() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.MRRank() == alpha11.RowAlignment() );
         if( thisIsMyCol )
         {
@@ -1225,7 +1223,7 @@ elemental::lapack::internal::PanelTridiagL
 
         // Form the local portions of (A22 a21) into p21[MC,* ] and q21[MR,* ]:
         //   p21[MC,* ] := tril(A22)[MC,MR] a21[MR,* ]
-        //   q21[MR,* ] := tril(A22,1)'[MR,MC] a21[MC,* ]
+        //   q21[MR,* ] := tril(A22,-1)'[MR,MC] a21[MC,* ]
         PopBlocksizeStack();
         p21_MC_Star.SetToZero();
         q21_MR_Star.SetToZero();

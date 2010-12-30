@@ -34,6 +34,22 @@
 using namespace elemental;
 using namespace std;
 
+// Algorithmic controls
+namespace {
+lapack::internal::TridiagApproach tridiagApproach = 
+    lapack::internal::TRIDIAG_NORMAL;
+lapack::internal::GridOrder gridOrder = 
+    lapack::internal::ROW_MAJOR;
+}
+void 
+elemental::lapack::internal::SetTridiagApproach
+( lapack::internal::TridiagApproach approach )
+{ ::tridiagApproach = approach; }
+void 
+elemental::lapack::internal::SetTridiagSquareGridOrder
+( lapack::internal::GridOrder order )
+{ ::gridOrder = order; }
+
 template<typename R>
 void
 elemental::lapack::Tridiag
@@ -42,83 +58,73 @@ elemental::lapack::Tridiag
 #ifndef RELEASE
     PushCallStack("lapack::Tridiag");
 #endif
-    // The old approach was to use a general (i.e., nonsquare) process grid,
-    // but it is usually significantly faster to redistribute to a (smaller)
-    // square process grid, tridiagonalize, and then redistribute back to the
-    // full grid.
-    /*
-    if( shape == Lower )
-        lapack::internal::TridiagL( A );
-    else
-        lapack::internal::TridiagU( A );
-    */
-
+    const Grid& g = A.Grid();
     if( shape == Lower )
     {
-        const Grid& g = A.Grid();
-        if( g.InGrid() )
+        if( ::tridiagApproach == lapack::internal::TRIDIAG_NORMAL )
         {
+            // Use the pipelined algorithm for nonsquare meshes
+            lapack::internal::TridiagL( A );
+        }
+        else if( ::tridiagApproach == lapack::internal::TRIDIAG_SQUARE )
+        {
+            // Drop down to a square mesh
             int p = g.Size();
             int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
             std::vector<int> squareRanks(pSqrt*pSqrt);
-            for( int i=0; i<squareRanks.size(); ++i )
-                squareRanks[i] = i;
+            if( ::gridOrder == lapack::internal::COL_MAJOR )
+            {
+                for( int j=0; j<pSqrt; ++j )
+                    for( int i=0; i<pSqrt; ++i )
+                        squareRanks[i+j*pSqrt] = i+j*pSqrt;
+            }
+            else
+            {
+                for( int j=0; j<pSqrt; ++j )
+                    for( int i=0; i<pSqrt; ++i )
+                        squareRanks[i+j*pSqrt] = j+i*pSqrt;
+            }
 
             MPI_Group owningGroup = g.OwningGroup();
             MPI_Group squareGroup;
             MPI_Group_incl
-            ( owningGroup, squareRanks.size(), &squareRanks[0], &squareGroup );
+            ( owningGroup, squareRanks.size(), &squareRanks[0], 
+              &squareGroup );
 
-            MPI_Comm owningComm = g.OwningComm();
-            const Grid squareGrid( owningComm, squareGroup, pSqrt, pSqrt );
-            const bool inSquareGroup = squareGrid.InGrid();
-
-            // Determine padding size
-            const int height = A.Height();
-            const int padding = pSqrt;
-            const int paddedHeight = height + padding;
-
-            DistMatrix<R,MC,MR> paddedASquare(squareGrid);
+            MPI_Comm viewingComm = g.ViewingComm();
+            const Grid squareGrid( viewingComm, squareGroup, pSqrt, pSqrt );
             DistMatrix<R,MC,MR> ASquare(squareGrid);
 
-            // The padding goes in the bottom-right, so redistribute into the 
-            // upper-left portion of paddedASquare 
-            // (copy the whole matrix for now)
-            paddedASquare.Align( 0, 0 );
-            paddedASquare.ResizeTo( paddedHeight, paddedHeight );
-            ASquare.View( paddedASquare, 0, 0, height, height ); 
-            ASquare = A;
-
             // Perform the fast tridiagonalization on the square grid
-            lapack::internal::TridiagLSquare( paddedASquare );
-
-            // Redistribute back (copy the whole matrix for now)
+            ASquare = A;
+            lapack::internal::TridiagLSquare( ASquare );
             A = ASquare;
+
+            MPI_Group_free( &squareGroup );
+        }
+        else
+        {
+            // Use the normal approach unless we're already on a square 
+            // grid, in which case we use the fast square method.
+            if( g.Height() == g.Width() )
+                lapack::internal::TridiagLSquare( A );
+            else
+                lapack::internal::TridiagL( A );
         }
     }
     else
     {
+        if( ::tridiagApproach == lapack::internal::TRIDIAG_SQUARE )
+        {
+            if( g.VCRank() == 0 )
+            {
+                cerr << "Upper tridiagonalization currently only supports "
+                        "the standard algorithm." << endl;
+            }
+        }
         lapack::internal::TridiagU( A );
     }
-        /*
-        else
-        {
-            // The padding goes in the top-left, so redistribute into the 
-            // lower-right portion of paddedASquare 
-            // (copy the whole matrix for now)
-            paddedASquare.Align( 0, 0 );
-            paddedASquare.ResizeTo( paddedHeight, paddedHeight );
-            ASquare.View( paddedASquare, padding, padding, height, height );
-            ASquare = A;
-
-            // Perform the fast tridiagonalization on the square grid
-            lapack::internal::TridiagUSquare( paddedASquare );
-
-            // Redistribute back (copy the whole matrix for now)
-            A = ASquare;
-        }
-        */
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -137,86 +143,75 @@ elemental::lapack::Tridiag
 #endif
     typedef complex<R> C;
 
-    // The old approach was to use a general (i.e., nonsquare) process grid,
-    // but it is usually significantly faster to redistribute to a (smaller)
-    // square process grid, tridiagonalize, and then redistribute back to the
-    // full grid.
-    /*
-    if( shape == Lower )
-        lapack::internal::TridiagL( A, t );
-    else
-        lapack::internal::TridiagU( A, t );
-    */
-
+    const Grid& g = A.Grid();
     if( shape == Lower )
     {
-        const Grid& g = A.Grid();
-        if( g.InGrid() )
+        if( ::tridiagApproach == lapack::internal::TRIDIAG_NORMAL )
         {
+            // Use the pipelined algorithm for nonsquare meshes
+            lapack::internal::TridiagL( A, t );
+        }
+        else if( ::tridiagApproach == lapack::internal::TRIDIAG_SQUARE )
+        {
+            // Drop down to a square mesh 
             int p = g.Size();
             int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
             std::vector<int> squareRanks(pSqrt*pSqrt);
-            for( int i=0; i<squareRanks.size(); ++i )
-                squareRanks[i] = i;
+            if( ::gridOrder == lapack::internal::COL_MAJOR )
+            {
+                for( int j=0; j<pSqrt; ++j )
+                    for( int i=0; i<pSqrt; ++i )
+                        squareRanks[i+j*pSqrt] = i+j*pSqrt;
+            }
+            else
+            {
+                for( int j=0; j<pSqrt; ++j )
+                    for( int i=0; i<pSqrt; ++i )
+                        squareRanks[i+j*pSqrt] = j+i*pSqrt;
+            }
 
             MPI_Group owningGroup = g.OwningGroup();
             MPI_Group squareGroup;
             MPI_Group_incl
-            ( owningGroup, squareRanks.size(), &squareRanks[0], &squareGroup );
+            ( owningGroup, squareRanks.size(), &squareRanks[0], 
+              &squareGroup );
 
-            MPI_Comm owningComm = g.OwningComm();
-            const Grid squareGrid( owningComm, squareGroup, pSqrt, pSqrt );
-            const bool inSquareGroup = squareGrid.InGrid();
-
-            // Determine padding size
-            const int height = A.Height();
-            const int padding = pSqrt;
-            const int paddedHeight = height + padding;
-
-            DistMatrix<C,MC,MR> paddedASquare(squareGrid);
+            MPI_Comm viewingComm = g.ViewingComm();
+            const Grid squareGrid( viewingComm, squareGroup, pSqrt, pSqrt );
             DistMatrix<C,MC,MR> ASquare(squareGrid);
             DistMatrix<C,Star,Star> tSquare(squareGrid);
 
-            // The padding goes in the bottom-right, so redistribute into the 
-            // upper-left portion of paddedASquare 
-            // (copy the whole matrix for now)
-            paddedASquare.Align( 0, 0 );
-            paddedASquare.ResizeTo( paddedHeight, paddedHeight );
-            ASquare.View( paddedASquare, 0, 0, height, height );
-            ASquare = A;
-            
             // Perform the fast tridiagonalization on the square grid
-            lapack::internal::TridiagLSquare( paddedASquare, tSquare );
-
-            // Redistribute back (copy the whole matrix for now)
+            ASquare = A;
+            lapack::internal::TridiagLSquare( ASquare, tSquare );
             A = ASquare;
             t = tSquare;
+
+            MPI_Group_free( &squareGroup );
+        }
+        else
+        {
+            // Use the normal approach unless we're already on a square 
+            // grid, in which case we use the fast square method.
+            if( g.Height() == g.Width() )
+                lapack::internal::TridiagLSquare( A, t );
+            else
+                lapack::internal::TridiagL( A, t );
         }
     }
     else
     {
+        if( ::tridiagApproach == lapack::internal::TRIDIAG_SQUARE )
+        {
+            if( g.VCRank() == 0 )
+            {
+                cerr << "Upper tridiagonalization currently only supports "
+                        "the standard algorithm." << endl;
+            }
+        }
         lapack::internal::TridiagU( A, t );
     }
-        /*
-        else
-        {
-            // The padding goes in the top-left, so redistribute into the 
-            // lower-right portion of paddedASquare 
-            // (copy the whole matrix for now)
-            paddedASquare.Align( 0, 0 );
-            paddedASquare.ResizeTo( paddedHeight, paddedHeight );
-            ASquare.View( paddedASquare, padding, padding, height, height );
-            ASquare = A;
-
-            // Perform the fast tridiagonalization on the square grid
-            lapack::internal::TridiagUSquare( paddedASquare, tSquare );
-
-            // Redistribute back (copy the whole matrix for now)
-            A = ASquare;
-            t = tSquare;
-        }
-        */
 #ifndef RELEASE
     PopCallStack();
 #endif

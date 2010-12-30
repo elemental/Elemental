@@ -78,7 +78,7 @@ int main( int argc, char* argv[] )
         int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
         std::vector<int> sqrtRanks(pSqrt*pSqrt);
-        for( int i=0; i<sqrtRanks.size(); ++i )
+        for( int i=0; i<pSqrt*pSqrt; ++i )
             sqrtRanks[i] = i;
 
         MPI_Group group, sqrtGroup;

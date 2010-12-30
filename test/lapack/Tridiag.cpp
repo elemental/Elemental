@@ -336,20 +336,81 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
+            cout << "----------------------------------\n"
+                 << "Double-precision normal algorithm:\n"
+                 << "----------------------------------" << endl;
         }
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_NORMAL );
+        TestTridiag<double>( testCorrectness, printMatrices, shape, m, g );
+
+        if( rank == 0 )
+        {
+            cout << "--------------------------------------------------\n"
+                 << "Double-precision square algorithm, row-major grid:\n"
+                 << "--------------------------------------------------" 
+                 << endl;
+        }
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_SQUARE );
+        lapack::internal::SetTridiagSquareGridOrder
+        ( lapack::internal::ROW_MAJOR );
+        TestTridiag<double>( testCorrectness, printMatrices, shape, m, g );
+
+        if( rank == 0 )
+        {
+            cout << "--------------------------------------------------\n"
+                 << "Double-precision square algorithm, col-major grid:\n"
+                 << "--------------------------------------------------" 
+                 << endl;
+        }
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_SQUARE );
+        lapack::internal::SetTridiagSquareGridOrder
+        ( lapack::internal::COL_MAJOR );
         TestTridiag<double>( testCorrectness, printMatrices, shape, m, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
-            cout << "----------------------------\n"
-                 << "Testing with double-complex:\n"
-                 << "----------------------------" << endl;
+            cout << "------------------------------------------\n"
+                 << "Double-precision complex normal algorithm:\n"
+                 << "------------------------------------------" << endl;
         }
-        TestTridiag<dcomplex>( testCorrectness, printMatrices, shape, m, g );
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_NORMAL );
+        TestTridiag< complex<double> >
+        ( testCorrectness, printMatrices, shape, m, g );
+
+        if( rank == 0 )
+        {
+            cout << "-------------------------------------------\n"
+                 << "Double-precision complex square algorithm, \n"
+                 << "row-major grid:\n"
+                 << "-------------------------------------------" 
+                 << endl;
+        }
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_SQUARE );
+        lapack::internal::SetTridiagSquareGridOrder
+        ( lapack::internal::ROW_MAJOR );
+        TestTridiag< complex<double> >
+        ( testCorrectness, printMatrices, shape, m, g );
+
+        if( rank == 0 )
+        {
+            cout << "-------------------------------------------\n"
+                 << "Double-precision complex square algorithm, \n"
+                 << "col-major grid:\n"
+                 << "-------------------------------------------" 
+                 << endl;
+        }
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_SQUARE );
+        lapack::internal::SetTridiagSquareGridOrder
+        ( lapack::internal::COL_MAJOR );
+        TestTridiag< complex<double> >
+        ( testCorrectness, printMatrices, shape, m, g );
 #endif
     }
     catch( exception& e )

@@ -38,35 +38,24 @@ using namespace elemental;
 template<typename R>
 void
 elemental::lapack::internal::TridiagLSquare
-( DistMatrix<R,MC,MR>& paddedA )
+( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TridiagLSquare");
-    if( paddedA.Height() != paddedA.Width() )
-        throw logic_error( "A must be square." );
+    if( A.Height() != A.Width() )
+        throw logic_error("A must be square.");
+    if( A.Grid().Height() != A.Grid().Width() )
+        throw logic_error("The process grid must be square.");
 #endif
-    const Grid& g = paddedA.Grid();
-    const int padding = g.Height();
-
-    // Separate off the padded parts of A and ensure that they are zero
-    DistMatrix<R,MC,MR>
-        A(g),         paddedATR(g),
-        paddedABL(g), paddedABR(g);
-    PartitionUpLeftDiagonal
-    ( paddedA, A,         paddedATR,
-               paddedABL, paddedABR, padding );
-    paddedATR.SetToZero();
-    paddedABL.SetToZero();
-    paddedABR.SetToZero();
+    const Grid& g = A.Grid();
 
     if( g.InGrid() )
     {
         // Matrix views 
         DistMatrix<R,MC,MR> 
-            ATL(g), A00(g),       A01(g),       paddedA02(g), 
-                    A10(g),       A11(g),       paddedA12(g),
-                    paddedA20(g), paddedA21(g), paddedA22(g),
-            ABR(g), A21(g), A22(g);
+            ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
+            ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                             A20(g), A21(g), A22(g);
 
         // Temporary distributions
         DistMatrix<R,Star,Star> A11_Star_Star(g);
@@ -85,28 +74,15 @@ elemental::lapack::internal::TridiagLSquare
         DistMatrix<R,MR,  Star> W21_MR_Star(g);
 
         PartitionDownDiagonal
-        ( paddedA, ATL,       paddedATR,
-                   paddedABL, paddedABR, 0 );
-        while( ATL.Height()+padding < paddedA.Height() )
+        ( A, ATL, ATR,
+             ABL, ABR, 0 );
+        while( ATL.Height() < A.Height() )
         {
-            int bsize = 
-                min( Blocksize(), paddedA.Height()-(ATL.Height()+padding) );
             RepartitionDownDiagonal
-            ( ATL,       /**/ paddedATR,  A00,       /**/ A01,       paddedA02,
-             /*************************/ /************************************/
-                         /**/             A10,       /**/ A11,       paddedA12,
-              paddedABL, /**/ paddedABR,  paddedA20, /**/ paddedA21, paddedA22,
-              bsize );
-
-            ABR.View
-            ( paddedABR, 0, 0,
-              paddedABR.Height()-padding, paddedABR.Width()-padding );
-            A21.View
-            ( paddedA21, 0, 0,
-              paddedA21.Height()-padding, paddedA21.Width() );
-            A22.View
-            ( paddedA22, 0, 0,
-              paddedA22.Height()-padding, paddedA22.Width()-padding );
+            ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+             /*************/ /******************/
+                   /**/       A10, /**/ A11, A12,
+              ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
             if( A22.Height() > 0 )
             {
@@ -133,15 +109,15 @@ elemental::lapack::internal::TridiagLSquare
                 ( WPan_MR_Star, W11_MR_Star,
                                 W21_MR_Star, A11.Height() );
                 //------------------------------------------------------------//
-                // Accumulate the Householder vectors into A21 and form W21 such
-                // that subtracting (A21 W21' + W21 A21') is equal to 
+                // Accumulate the Householder vectors into A21 and form W21 
+                // such that subtracting (A21 W21' + W21 A21') is equal to 
                 // successively applying the similarity transformations 
                 // (I-tau h h')A22(I-tau h h') for each (tau,h).
                 //
                 // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are 
-                // formed  during the panel factorization.
+                // formed during the panel factorization.
                 lapack::internal::PanelTridiagLSquare
-                ( paddedABR, WPan, 
+                ( ABR, WPan, 
                   APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
                 blas::internal::LocalTriangularRank2K
                 ( Lower, Transpose, Transpose,
@@ -162,10 +138,10 @@ elemental::lapack::internal::TridiagLSquare
             }
 
             SlidePartitionDownDiagonal
-            ( ATL,       /**/ paddedATR,  A00, A01,             /**/ paddedA02,
-                         /**/             A10, A11,             /**/ paddedA12,
-             /*************************/ /************************************/
-              paddedABL, /**/ paddedABR,  paddedA20, paddedA21, /**/ paddedA22);
+            ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+                   /**/       A10, A11, /**/ A12,
+             /*************/ /******************/
+              ABL, /**/ ABR,  A20, A21, /**/ A22 );
         }
     }
 #ifndef RELEASE
@@ -177,34 +153,24 @@ elemental::lapack::internal::TridiagLSquare
 template<typename R>
 void
 elemental::lapack::internal::TridiagLSquare
-( DistMatrix<complex<R>,MC,  MR  >& paddedA,
+( DistMatrix<complex<R>,MC,  MR  >& A,
   DistMatrix<complex<R>,Star,Star>& t )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TridiagLSquare");
-    if( paddedA.Grid() != t.Grid() )
+    if( A.Grid() != t.Grid() )
         throw logic_error( "A and t must be distributed over the same grid." );
 #endif
-    const Grid& g = paddedA.Grid();
+    const Grid& g = A.Grid();
 #ifndef RELEASE
-    if( paddedA.Height() != paddedA.Width() )
+    if( g.Height() != g.Width() )
+        throw logic_error("The process grid must be square.");
+    if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( t.Viewing() )
         throw logic_error( "t must not be a view." );
 #endif
     typedef complex<R> C;
-    const int padding = g.Height();
-
-    // Separate off the padded parts of A and ensure that they are zero
-    DistMatrix<C,MC,MR>
-        A(g),         paddedATR(g),
-        paddedABL(g), paddedABR(g);
-    PartitionUpLeftDiagonal
-    ( paddedA, A,         paddedATR,
-               paddedABL, paddedABR, padding );
-    paddedATR.SetToZero();
-    paddedABL.SetToZero();
-    paddedABR.SetToZero();
 
     DistMatrix<C,MD,Star> tDiag(g);
     tDiag.AlignWithDiag( A, -1 );
@@ -213,11 +179,10 @@ elemental::lapack::internal::TridiagLSquare
     if( g.InGrid() )
     {
         // Matrix views 
-        DistMatrix<C,MC,MR>
-            ATL(g), A00(g),       A01(g),       paddedA02(g),
-                    A10(g),       A11(g),       paddedA12(g),
-                    paddedA20(g), paddedA21(g), paddedA22(g),
-            ABR(g), A21(g), A22(g);
+        DistMatrix<C,MC,MR> 
+            ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
+            ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                             A20(g), A21(g), A22(g);
         DistMatrix<C,MD,Star> tT(g),  t0(g), 
                               tB(g),  t1(g),
                                       t2(g);
@@ -240,38 +205,25 @@ elemental::lapack::internal::TridiagLSquare
         DistMatrix<C,Star,Star> t1_Star_Star(g);
 
         PartitionDownDiagonal
-        ( paddedA, ATL,       paddedATR,
-                   paddedABL, paddedABR, 0 );
+        ( A, ATL, ATR,
+             ABL, ABR, 0 );
         PartitionDown
         ( tDiag, tT,
                  tB, 0 );
-        while( ATL.Height()+padding < paddedA.Height() )
+        while( ATL.Height() < A.Height() )
         {
-            int bsize =
-                min( Blocksize(), paddedA.Height()-(ATL.Height()+padding) );
             RepartitionDownDiagonal
-            ( ATL,       /**/ paddedATR,  A00,       /**/ A01,       paddedA02,
-             /*************************/ /************************************/
-                         /**/             A10,       /**/ A11,       paddedA12,
-              paddedABL, /**/ paddedABR,  paddedA20, /**/ paddedA21, paddedA22,
-              bsize );
+            ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+             /*************/ /******************/
+                   /**/       A10, /**/ A11, A12,
+              ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
             RepartitionDown
             ( tT,  t0,
              /**/ /**/
                    t1,
               tB,  t2 );
-
-            ABR.View
-            ( paddedABR, 0, 0,
-              paddedABR.Height()-padding, paddedABR.Width()-padding );
-            A21.View
-            ( paddedA21, 0, 0,
-              paddedA21.Height()-padding, paddedA21.Width() );
-            A22.View
-            ( paddedA22, 0, 0,
-              paddedA22.Height()-padding, paddedA22.Width()-padding );
-
+            
             if( A22.Height() > 0 )
             {
                 APan_MC_Star.AlignWith( A11 );
@@ -297,15 +249,15 @@ elemental::lapack::internal::TridiagLSquare
                 ( WPan_MR_Star, W11_MR_Star,
                                 W21_MR_Star, A11.Height() );
                 //------------------------------------------------------------//
-                // Accumulate the Householder vectors into A21 and form W21 such
-                // that subtracting (A21 W21' + W21 A21') is equal to 
+                // Accumulate the Householder vectors into A21 and form W21 
+                // such that subtracting (A21 W21' + W21 A21') is equal to 
                 // successively applying the similarity transformations 
                 // (I-conj(tau) h h')A22(I-tau h h') for each (tau,h).
                 //
                 // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are 
                 // formed during the panel factorization.
                 lapack::internal::PanelTridiagLSquare
-                ( paddedABR, WPan, t1,
+                ( ABR, WPan, t1,
                   APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
                 blas::internal::LocalTriangularRank2K
                 ( Lower, ConjugateTranspose, ConjugateTranspose,
@@ -332,10 +284,10 @@ elemental::lapack::internal::TridiagLSquare
             }
 
             SlidePartitionDownDiagonal
-            ( ATL,       /**/ paddedATR,  A00, A01,             /**/ paddedA02,
-                         /**/             A10, A11,             /**/ paddedA12,
-             /*************************/ /************************************/
-              paddedABL, /**/ paddedABR,  paddedA20, paddedA21, /**/ paddedA22);
+            ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+                   /**/       A10, A11, /**/ A12,
+             /*************/ /******************/
+              ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
             SlidePartitionDown
             ( tT,  t0,
@@ -353,18 +305,18 @@ elemental::lapack::internal::TridiagLSquare
 #endif // WITHOUT_COMPLEX
 
 template void elemental::lapack::internal::TridiagLSquare
-( DistMatrix<float,MC,MR>& paddedA );
+( DistMatrix<float,MC,MR>& A );
 
 template void elemental::lapack::internal::TridiagLSquare
-( DistMatrix<double,MC,MR>& paddedA );
+( DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::internal::TridiagLSquare
-( DistMatrix<scomplex,MC,  MR  >& paddedA, 
+( DistMatrix<scomplex,MC,  MR  >& A, 
   DistMatrix<scomplex,Star,Star>& t );
 
 template void elemental::lapack::internal::TridiagLSquare
-( DistMatrix<dcomplex,MC,  MR  >& paddedA, 
+( DistMatrix<dcomplex,MC,  MR  >& A, 
   DistMatrix<dcomplex,Star,Star>& t );
 #endif
 

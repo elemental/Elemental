@@ -47,97 +47,100 @@ elemental::lapack::internal::TridiagL
 #endif
     const Grid& g = A.Grid();
 
-    // Matrix views 
-    DistMatrix<R,MC,MR> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-
-    // Temporary distributions
-    DistMatrix<R,Star,Star> A11_Star_Star(g);
-    DistMatrix<R,MC,  Star> APan_MC_Star(g);
-    DistMatrix<R,MR,  Star> APan_MR_Star(g);
-    DistMatrix<R,MC,  Star> A11_MC_Star(g);
-    DistMatrix<R,MR,  Star> A11_MR_Star(g);
-    DistMatrix<R,MC,  Star> A21_MC_Star(g);
-    DistMatrix<R,MR,  Star> A21_MR_Star(g);
-    DistMatrix<R,MC,  MR  > WPan(g);
-    DistMatrix<R,MC,  Star> WPan_MC_Star(g);
-    DistMatrix<R,MR,  Star> WPan_MR_Star(g);
-    DistMatrix<R,MC,  Star> W11_MC_Star(g);
-    DistMatrix<R,MR,  Star> W11_MR_Star(g);
-    DistMatrix<R,MC,  Star> W21_MC_Star(g);
-    DistMatrix<R,MR,  Star> W21_MR_Star(g);
-
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() )
+    if( g.InGrid() )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        // Matrix views 
+        DistMatrix<R,MC,MR> 
+            ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
+            ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                             A20(g), A21(g), A22(g);
 
-        if( A22.Height() > 0 )
-        {
-            APan_MC_Star.AlignWith( A11 );
-            APan_MR_Star.AlignWith( A11 );
-            APan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
-            APan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
-            WPan.AlignWith( A11 );
-            WPan_MC_Star.AlignWith( A11 );
-            WPan_MR_Star.AlignWith( A11 );
-            WPan.ResizeTo( ABR.Height(), A11.Width() );
-            WPan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
-            WPan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
-            PartitionDown
-            ( APan_MC_Star, A11_MC_Star,
-                            A21_MC_Star, A11.Height() );
-            PartitionDown
-            ( APan_MR_Star, A11_MR_Star,
-                            A21_MR_Star, A11.Height() );
-            PartitionDown
-            ( WPan_MC_Star, W11_MC_Star,
-                            W21_MC_Star, A11.Height() );
-            PartitionDown
-            ( WPan_MR_Star, W11_MR_Star,
-                            W21_MR_Star, A11.Height() );
-            //----------------------------------------------------------------//
-            // Accumulate the Householder vectors into A21 and form W21 such 
-            // that subtracting (A21 W21' + W21 A21') is equal to successively
-            // applying the similarity transformations 
-            // (I-tau h h')A22(I-tau h h') for each (tau,h).
-            //
-            // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are formed
-            // during the panel factorization.
-            lapack::internal::PanelTridiagL
-            ( ABR, WPan, 
-              APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
-            blas::internal::LocalTriangularRank2K
-            ( Lower, Transpose, Transpose,
-              (R)-1, A21_MC_Star, W21_MC_Star, A21_MR_Star, W21_MR_Star,
-              (R)1, A22 );
-            //----------------------------------------------------------------//
-            APan_MC_Star.FreeAlignments();
-            APan_MR_Star.FreeAlignments();
-            WPan.FreeAlignments();
-            WPan_MC_Star.FreeAlignments();
-            WPan_MR_Star.FreeAlignments();
-        }
-        else
-        {
-            A11_Star_Star = A11;
-            lapack::Tridiag( Lower, A11_Star_Star.LocalMatrix() );
-            A11 = A11_Star_Star;
-        }
+        // Temporary distributions
+        DistMatrix<R,Star,Star> A11_Star_Star(g);
+        DistMatrix<R,MC,  Star> APan_MC_Star(g);
+        DistMatrix<R,MR,  Star> APan_MR_Star(g);
+        DistMatrix<R,MC,  Star> A11_MC_Star(g);
+        DistMatrix<R,MR,  Star> A11_MR_Star(g);
+        DistMatrix<R,MC,  Star> A21_MC_Star(g);
+        DistMatrix<R,MR,  Star> A21_MR_Star(g);
+        DistMatrix<R,MC,  MR  > WPan(g);
+        DistMatrix<R,MC,  Star> WPan_MC_Star(g);
+        DistMatrix<R,MR,  Star> WPan_MR_Star(g);
+        DistMatrix<R,MC,  Star> W11_MC_Star(g);
+        DistMatrix<R,MR,  Star> W11_MR_Star(g);
+        DistMatrix<R,MC,  Star> W21_MC_Star(g);
+        DistMatrix<R,MR,  Star> W21_MR_Star(g);
 
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        PartitionDownDiagonal
+        ( A, ATL, ATR,
+             ABL, ABR, 0 );
+        while( ATL.Height() < A.Height() )
+        {
+            RepartitionDownDiagonal
+            ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+             /*************/ /******************/
+                   /**/       A10, /**/ A11, A12,
+              ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+            if( A22.Height() > 0 )
+            {
+                APan_MC_Star.AlignWith( A11 );
+                APan_MR_Star.AlignWith( A11 );
+                APan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
+                APan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
+                WPan.AlignWith( A11 );
+                WPan_MC_Star.AlignWith( A11 );
+                WPan_MR_Star.AlignWith( A11 );
+                WPan.ResizeTo( ABR.Height(), A11.Width() );
+                WPan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
+                WPan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
+                PartitionDown
+                ( APan_MC_Star, A11_MC_Star,
+                                A21_MC_Star, A11.Height() );
+                PartitionDown
+                ( APan_MR_Star, A11_MR_Star,
+                                A21_MR_Star, A11.Height() );
+                PartitionDown
+                ( WPan_MC_Star, W11_MC_Star,
+                                W21_MC_Star, A11.Height() );
+                PartitionDown
+                ( WPan_MR_Star, W11_MR_Star,
+                                W21_MR_Star, A11.Height() );
+                //------------------------------------------------------------//
+                // Accumulate the Householder vectors into A21 and form W21 
+                // such that subtracting (A21 W21' + W21 A21') is equal to 
+                // successively applying the similarity transformations 
+                // (I-tau h h')A22(I-tau h h') for each (tau,h).
+                //
+                // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are 
+                // formed during the panel factorization.
+                lapack::internal::PanelTridiagL
+                ( ABR, WPan, 
+                  APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
+                blas::internal::LocalTriangularRank2K
+                ( Lower, Transpose, Transpose,
+                  (R)-1, A21_MC_Star, W21_MC_Star, A21_MR_Star, W21_MR_Star,
+                  (R)1, A22 );
+                //------------------------------------------------------------//
+                APan_MC_Star.FreeAlignments();
+                APan_MR_Star.FreeAlignments();
+                WPan.FreeAlignments();
+                WPan_MC_Star.FreeAlignments();
+                WPan_MR_Star.FreeAlignments();
+            }
+            else
+            {
+                A11_Star_Star = A11;
+                lapack::Tridiag( Lower, A11_Star_Star.LocalMatrix() );
+                A11 = A11_Star_Star;
+            }
+
+            SlidePartitionDownDiagonal
+            ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+                   /**/       A10, A11, /**/ A12,
+             /*************/ /******************/
+              ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        }
     }
 #ifndef RELEASE
     PopCallStack();
@@ -169,121 +172,125 @@ elemental::lapack::internal::TridiagL
     tDiag.AlignWithDiag( A, -1 );
     tDiag.ResizeTo( A.Height()-1, 1 );
 
-    // Matrix views 
-    DistMatrix<C,MC,MR> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<C,MD,Star> tT(g),  t0(g), 
-                          tB(g),  t1(g),
-                                  t2(g);
-
-    // Temporary distributions
-    DistMatrix<C,Star,Star> A11_Star_Star(g);
-    DistMatrix<C,MC,  Star> APan_MC_Star(g);
-    DistMatrix<C,MR,  Star> APan_MR_Star(g);
-    DistMatrix<C,MC,  Star> A11_MC_Star(g);
-    DistMatrix<C,MR,  Star> A11_MR_Star(g);
-    DistMatrix<C,MC,  Star> A21_MC_Star(g);
-    DistMatrix<C,MR,  Star> A21_MR_Star(g);
-    DistMatrix<C,MC,  MR  > WPan(g);
-    DistMatrix<C,MC,  Star> WPan_MC_Star(g);
-    DistMatrix<C,MR,  Star> WPan_MR_Star(g);
-    DistMatrix<C,MC,  Star> W11_MC_Star(g);
-    DistMatrix<C,MR,  Star> W11_MR_Star(g);
-    DistMatrix<C,MC,  Star> W21_MC_Star(g);
-    DistMatrix<C,MR,  Star> W21_MR_Star(g);
-    DistMatrix<C,Star,Star> t1_Star_Star(g);
-
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( tDiag, tT,
-             tB, 0 );
-    while( ATL.Height() < A.Height() )
+    if( g.InGrid() )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        // Matrix views 
+        DistMatrix<C,MC,MR> 
+            ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
+            ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                             A20(g), A21(g), A22(g);
+        DistMatrix<C,MD,Star> tT(g),  t0(g), 
+                              tB(g),  t1(g),
+                                      t2(g);
 
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
+        // Temporary distributions
+        DistMatrix<C,Star,Star> A11_Star_Star(g);
+        DistMatrix<C,MC,  Star> APan_MC_Star(g);
+        DistMatrix<C,MR,  Star> APan_MR_Star(g);
+        DistMatrix<C,MC,  Star> A11_MC_Star(g);
+        DistMatrix<C,MR,  Star> A11_MR_Star(g);
+        DistMatrix<C,MC,  Star> A21_MC_Star(g);
+        DistMatrix<C,MR,  Star> A21_MR_Star(g);
+        DistMatrix<C,MC,  MR  > WPan(g);
+        DistMatrix<C,MC,  Star> WPan_MC_Star(g);
+        DistMatrix<C,MR,  Star> WPan_MR_Star(g);
+        DistMatrix<C,MC,  Star> W11_MC_Star(g);
+        DistMatrix<C,MR,  Star> W11_MR_Star(g);
+        DistMatrix<C,MC,  Star> W21_MC_Star(g);
+        DistMatrix<C,MR,  Star> W21_MR_Star(g);
+        DistMatrix<C,Star,Star> t1_Star_Star(g);
+
+        PartitionDownDiagonal
+        ( A, ATL, ATR,
+             ABL, ABR, 0 );
+        PartitionDown
+        ( tDiag, tT,
+                 tB, 0 );
+        while( ATL.Height() < A.Height() )
+        {
+            RepartitionDownDiagonal
+            ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+             /*************/ /******************/
+                   /**/       A10, /**/ A11, A12,
+              ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+            RepartitionDown
+            ( tT,  t0,
+             /**/ /**/
+                   t1,
+              tB,  t2 );
             
-        if( A22.Height() > 0 )
-        {
-            APan_MC_Star.AlignWith( A11 );
-            APan_MR_Star.AlignWith( A11 );
-            APan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
-            APan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
-            WPan.AlignWith( A11 );
-            WPan_MC_Star.AlignWith( A11 );
-            WPan_MR_Star.AlignWith( A11 );
-            WPan.ResizeTo( ABR.Height(), A11.Width() );
-            WPan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
-            WPan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
-            PartitionDown
-            ( APan_MC_Star, A11_MC_Star,
-                            A21_MC_Star, A11.Height() );
-            PartitionDown
-            ( APan_MR_Star, A11_MR_Star,
-                            A21_MR_Star, A11.Height() );
-            PartitionDown
-            ( WPan_MC_Star, W11_MC_Star,
-                            W21_MC_Star, A11.Height() );
-            PartitionDown
-            ( WPan_MR_Star, W11_MR_Star,
-                            W21_MR_Star, A11.Height() );
-            //----------------------------------------------------------------//
-            // Accumulate the Householder vectors into A21 and form W21 such 
-            // that subtracting (A21 W21' + W21 A21') is equal to successively
-            // applying the similarity transformations 
-            // (I-conj(tau) h h')A22(I-tau h h') for each (tau,h).
-            //
-            // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are formed
-            // during the panel factorization.
-            lapack::internal::PanelTridiagL
-            ( ABR, WPan, t1,
-              APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
-            blas::internal::LocalTriangularRank2K
-            ( Lower, ConjugateTranspose, ConjugateTranspose,
-              (C)-1, A21_MC_Star, W21_MC_Star, A21_MR_Star, W21_MR_Star,
-              (C)1, A22 );
-            //----------------------------------------------------------------//
-            APan_MC_Star.FreeAlignments();
-            APan_MR_Star.FreeAlignments();
-            WPan.FreeAlignments();
-            WPan_MC_Star.FreeAlignments();
-            WPan_MR_Star.FreeAlignments();
+            if( A22.Height() > 0 )
+            {
+                APan_MC_Star.AlignWith( A11 );
+                APan_MR_Star.AlignWith( A11 );
+                APan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
+                APan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
+                WPan.AlignWith( A11 );
+                WPan_MC_Star.AlignWith( A11 );
+                WPan_MR_Star.AlignWith( A11 );
+                WPan.ResizeTo( ABR.Height(), A11.Width() );
+                WPan_MC_Star.ResizeTo( ABR.Height(), A11.Width() );
+                WPan_MR_Star.ResizeTo( ABR.Height(), A11.Width() );
+                PartitionDown
+                ( APan_MC_Star, A11_MC_Star,
+                                A21_MC_Star, A11.Height() );
+                PartitionDown
+                ( APan_MR_Star, A11_MR_Star,
+                                A21_MR_Star, A11.Height() );
+                PartitionDown
+                ( WPan_MC_Star, W11_MC_Star,
+                                W21_MC_Star, A11.Height() );
+                PartitionDown
+                ( WPan_MR_Star, W11_MR_Star,
+                                W21_MR_Star, A11.Height() );
+                //------------------------------------------------------------//
+                // Accumulate the Householder vectors into A21 and form W21 such
+                // that subtracting (A21 W21' + W21 A21') is equal to 
+                // successively applying the similarity transformations 
+                // (I-conj(tau) h h')A22(I-tau h h') for each (tau,h).
+                //
+                // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are 
+                // formed during the panel factorization.
+                lapack::internal::PanelTridiagL
+                ( ABR, WPan, t1,
+                  APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
+                blas::internal::LocalTriangularRank2K
+                ( Lower, ConjugateTranspose, ConjugateTranspose,
+                  (C)-1, A21_MC_Star, W21_MC_Star, A21_MR_Star, W21_MR_Star,
+                  (C)1, A22 );
+                //------------------------------------------------------------//
+                APan_MC_Star.FreeAlignments();
+                APan_MR_Star.FreeAlignments();
+                WPan.FreeAlignments();
+                WPan_MC_Star.FreeAlignments();
+                WPan_MR_Star.FreeAlignments();
+            }
+            else
+            {
+                A11_Star_Star = A11;
+                t1_Star_Star.ResizeTo( t1.Height(), 1 );
+
+                lapack::Tridiag
+                ( Lower, A11_Star_Star.LocalMatrix(), 
+                  t1_Star_Star.LocalMatrix() );
+
+                A11 = A11_Star_Star;
+                t1 = t1_Star_Star;
+            }
+
+            SlidePartitionDownDiagonal
+            ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+                   /**/       A10, A11, /**/ A12,
+             /*************/ /******************/
+              ABL, /**/ ABR,  A20, A21, /**/ A22 );
+
+            SlidePartitionDown
+            ( tT,  t0,
+                   t1,
+             /**/ /**/
+              tB,  t2 );
         }
-        else
-        {
-            A11_Star_Star = A11;
-            t1_Star_Star.ResizeTo( t1.Height(), 1 );
-
-            lapack::Tridiag
-            ( Lower, A11_Star_Star.LocalMatrix(), t1_Star_Star.LocalMatrix() );
-
-            A11 = A11_Star_Star;
-            t1 = t1_Star_Star;
-        }
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlidePartitionDown
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2 );
     }
     // Redistribute from matrix-diagonal form to fully replicated
     t = tDiag;

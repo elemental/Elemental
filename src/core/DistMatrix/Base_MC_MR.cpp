@@ -2026,6 +2026,9 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
                   ("Redistributing between nonmatching grids currently requires"
                    " the viewing communicators to match.");
                      
+        if( !this->Viewing() )
+            this->ResizeTo( A.Height(), A.Width() );
+
         // Compute the number of process rows and columns that each process 
         // needs to send to.
         const int r0 = this->Grid().Height();

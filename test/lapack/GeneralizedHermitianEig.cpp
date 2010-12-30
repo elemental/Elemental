@@ -902,10 +902,46 @@ int main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
+            cout << "------------------------------------------\n"
+                 << "Double-precision normal tridiag algorithm:\n"
+                 << "------------------------------------------" << endl;
         }
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_NORMAL );
+        TestGeneralizedHermitianEigDouble
+        ( testCorrectness, printMatrices, 
+          genEigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,
+          tryForHighAccuracy, g );
+
+        if( rank == 0 )
+        {
+            cout << "-------------------------------------------\n"
+                 << "Double-precision square tridiag algorithm, \n"
+                 << "row-major grid:\n"
+                 << "-------------------------------------------"
+                 << endl;
+        }
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_SQUARE );
+        lapack::internal::SetTridiagSquareGridOrder
+        ( lapack::internal::ROW_MAJOR );
+        TestGeneralizedHermitianEigDouble
+        ( testCorrectness, printMatrices, 
+          genEigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,
+          tryForHighAccuracy, g );
+
+        if( rank == 0 )
+        {
+            cout << "-------------------------------------------\n"
+                 << "Double-precision square tridiag algorithm, \n"
+                 << "col-major grid:\n"
+                 << "-------------------------------------------"
+                 << endl;
+        }
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_SQUARE );
+        lapack::internal::SetTridiagSquareGridOrder
+        ( lapack::internal::COL_MAJOR );
         TestGeneralizedHermitianEigDouble
         ( testCorrectness, printMatrices, 
           genEigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,
@@ -914,10 +950,45 @@ int main( int argc, char* argv[] )
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
+            cout << "-------------------------------------------------------\n"
+                 << "Testing with double-precision complex normal algorithm:\n"
+                 << "-------------------------------------------------------" 
+                 << endl;
         }
+        TestGeneralizedHermitianEigDoubleComplex
+        ( testCorrectness, printMatrices, 
+          genEigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, 
+          tryForHighAccuracy, g );
+
+        if( rank == 0 )
+        {
+            cout << "---------------------------------------------------\n"
+                 << "Double-precision complex square tridiag algorithm, \n"
+                 << "row-major grid:\n"
+                 << "---------------------------------------------------"
+                 << endl;
+        }
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_SQUARE );
+        lapack::internal::SetTridiagSquareGridOrder
+        ( lapack::internal::ROW_MAJOR );
+        TestGeneralizedHermitianEigDoubleComplex
+        ( testCorrectness, printMatrices, 
+          genEigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, 
+          tryForHighAccuracy, g );
+
+        if( rank == 0 )
+        {
+            cout << "---------------------------------------------------\n"
+                 << "Double-precision complex square tridiag algorithm, \n"
+                 << "col-major grid:\n"
+                 << "---------------------------------------------------"
+                 << endl;
+        }
+        lapack::internal::SetTridiagApproach
+        ( lapack::internal::TRIDIAG_SQUARE );
+        lapack::internal::SetTridiagSquareGridOrder
+        ( lapack::internal::COL_MAJOR );
         TestGeneralizedHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
           genEigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, 

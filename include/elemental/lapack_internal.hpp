@@ -356,6 +356,23 @@ RowReflector
 //----------------------------------------------------------------------------//
 // Tridiag                                                                    //
 //----------------------------------------------------------------------------//
+
+// Controls for which tridiagonalization method to use. 
+//   TRIDIAG_NORMAL: 
+//     Pipelined algorithm for nonsquare grids
+//   TRIDIAG_SQUARE: 
+//     Pipelined algorithm for square grids, drops down to a subset of processes
+//     if necessary by redistributing the matrix.
+//   TRIDIAG_DEFAULT:
+//     Uses the TRIDIAG_NORMAL algorithm unless we are already on a square grid,
+//     in which case the TRIDIAG_SQUARE algorithm is used.
+//          
+enum TridiagApproach { TRIDIAG_NORMAL, TRIDIAG_SQUARE, TRIDIAG_DEFAULT };
+void SetTridiagApproach( TridiagApproach approach );
+
+enum GridOrder { ROW_MAJOR, COL_MAJOR };
+void SetTridiagSquareGridOrder( GridOrder order );
+
 template<typename R>
 void
 PanelTridiagL
@@ -363,17 +380,17 @@ PanelTridiagL
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star,
   DistMatrix<R,MR,Star>& APan_MR_Star,
-  DistMatrix<R,MC,Star>& WPan_MC_Star,
-  DistMatrix<R,MR,Star>& WPan_MR_Star );
+  DistMatrix<R,MC,Star>& W_MC_Star,
+  DistMatrix<R,MR,Star>& W_MR_Star );
 template<typename R>
 void
 PanelTridiagLSquare
-( DistMatrix<R,MC,MR  >& paddedA, 
+( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star,
   DistMatrix<R,MR,Star>& APan_MR_Star,
-  DistMatrix<R,MC,Star>& WPan_MC_Star,
-  DistMatrix<R,MR,Star>& WPan_MR_Star );
+  DistMatrix<R,MC,Star>& W_MC_Star,
+  DistMatrix<R,MR,Star>& W_MR_Star );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -384,8 +401,8 @@ PanelTridiagL
   DistMatrix<std::complex<R>,MD,Star>& t,
   DistMatrix<std::complex<R>,MC,Star>& APan_MC_Star,
   DistMatrix<std::complex<R>,MR,Star>& APan_MR_Star,
-  DistMatrix<std::complex<R>,MC,Star>& WPan_MC_Star,
-  DistMatrix<std::complex<R>,MR,Star>& WPan_MR_Star );
+  DistMatrix<std::complex<R>,MC,Star>& W_MC_Star,
+  DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
 template<typename R>
 void
 PanelTridiagLSquare
@@ -394,8 +411,8 @@ PanelTridiagLSquare
   DistMatrix<std::complex<R>,MD,Star>& t,
   DistMatrix<std::complex<R>,MC,Star>& APan_MC_Star,
   DistMatrix<std::complex<R>,MR,Star>& APan_MR_Star,
-  DistMatrix<std::complex<R>,MC,Star>& WPan_MC_Star,
-  DistMatrix<std::complex<R>,MR,Star>& WPan_MR_Star );
+  DistMatrix<std::complex<R>,MC,Star>& W_MC_Star,
+  DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
 #endif
  
 template<typename R>
@@ -419,7 +436,7 @@ void
 TridiagL( DistMatrix<R,MC,MR>& A );
 template<typename R>
 void
-TridiagLSquare( DistMatrix<R,MC,MR>& paddedA );
+TridiagLSquare( DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -430,7 +447,7 @@ TridiagL
 template<typename R>
 void
 TridiagLSquare
-( DistMatrix<std::complex<R>,MC,  MR  >& paddedA, 
+( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,Star,Star>& t );
 #endif
 
