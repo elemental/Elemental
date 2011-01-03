@@ -70,7 +70,7 @@ elemental::lapack::internal::PanelTridiagLSquare
 #endif
     const int r = g.Height();
 
-    // Find the process holding the our transposed data
+    // Find the process holding our transposed data
     int transposeRank;
     {
         int colAlignment = A.ColAlignment();
@@ -111,8 +111,8 @@ elemental::lapack::internal::PanelTridiagLSquare
     DistMatrix<R,MC,Star> p21B_MC_Star(g);
     DistMatrix<R,MR,Star> p21_MR_Star(g);
     DistMatrix<R,MR,Star> q21_MR_Star(g);
-    DistMatrix<R,MR,Star> x01B_MR_Star(g);
-    DistMatrix<R,MR,Star> y01B_MR_Star(g);
+    DistMatrix<R,MR,Star> x01_MR_Star(g);
+    DistMatrix<R,MR,Star> y01_MR_Star(g);
     DistMatrix<R,MC,Star> a21Last_MC_Star(g);
     DistMatrix<R,MR,Star> a21Last_MR_Star(g);
     DistMatrix<R,MC,Star> w21Last_MC_Star(g);
@@ -189,10 +189,10 @@ elemental::lapack::internal::PanelTridiagLSquare
         p21_MC_Star.ResizeTo( a21.Height(), 1 );
         p21_MR_Star.ResizeTo( a21.Height(), 1 );
         q21_MR_Star.ResizeTo( a21.Height(), 1 );
-        x01B_MR_Star.AlignWith( W20B );
-        y01B_MR_Star.AlignWith( W20B );
-        x01B_MR_Star.ResizeTo( W20B.Width(), 1 );
-        y01B_MR_Star.ResizeTo( W20B.Width(), 1 );
+        x01_MR_Star.AlignWith( W20B );
+        y01_MR_Star.AlignWith( W20B );
+        x01_MR_Star.ResizeTo( W20B.Width(), 1 );
+        y01_MR_Star.ResizeTo( W20B.Width(), 1 );
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
         // panel's square
@@ -331,7 +331,7 @@ elemental::lapack::internal::PanelTridiagLSquare
               &rowBroadcastBuffer[a21LocalHeight], 
               w21LastLocalHeight*sizeof(R) );
             // Store the bottom part of w21Last[MC,* ] into WB[MC,* ] and, 
-            // if necessary, W21.
+            // if necessary, w21.
             int W_MC_Star_Offset = W_MC_Star.LocalHeight()-w21LastLocalHeight;
             memcpy
             ( W_MC_Star.LocalBuffer(W_MC_Star_Offset,A00.Width()-1),
@@ -557,49 +557,48 @@ elemental::lapack::internal::PanelTridiagLSquare
         ( Transpose, 
           (R)1, W20B.LockedLocalMatrix(),
                 a21B_MC_Star.LockedLocalMatrix(),
-          (R)0, x01B_MR_Star.LocalMatrix() );
+          (R)0, x01_MR_Star.LocalMatrix() );
         blas::Gemv
         ( Transpose, 
           (R)1, A20B.LockedLocalMatrix(),
                 a21B_MC_Star.LockedLocalMatrix(),
-          (R)0, y01B_MR_Star.LocalMatrix() );
-        // Combine the AllReduce column summations of x01B[MR,* ] and 
-        // y01B[MR,* ]
+          (R)0, y01_MR_Star.LocalMatrix() );
+        // Combine the AllReduce column summations of x01[MR,* ] and y01[MR,* ]
         {
-            int x01BLocalHeight = x01B_MR_Star.LocalHeight();
-            vector<R> colSummationSendBuffer(2*x01BLocalHeight);
-            vector<R> colSummationRecvBuffer(2*x01BLocalHeight);
+            int x01LocalHeight = x01_MR_Star.LocalHeight();
+            vector<R> colSummationSendBuffer(2*x01LocalHeight);
+            vector<R> colSummationRecvBuffer(2*x01LocalHeight);
             memcpy
             ( &colSummationSendBuffer[0], 
-              x01B_MR_Star.LocalBuffer(), 
-              x01BLocalHeight*sizeof(R) );
+              x01_MR_Star.LocalBuffer(), 
+              x01LocalHeight*sizeof(R) );
             memcpy
-            ( &colSummationSendBuffer[x01BLocalHeight],
-              y01B_MR_Star.LocalBuffer(), 
-              x01BLocalHeight*sizeof(R) );
+            ( &colSummationSendBuffer[x01LocalHeight],
+              y01_MR_Star.LocalBuffer(), 
+              x01LocalHeight*sizeof(R) );
             AllReduce
             ( &colSummationSendBuffer[0], 
               &colSummationRecvBuffer[0],
-              2*x01BLocalHeight, MPI_SUM, g.MCComm() );
+              2*x01LocalHeight, MPI_SUM, g.MCComm() );
             memcpy
-            ( x01B_MR_Star.LocalBuffer(), 
+            ( x01_MR_Star.LocalBuffer(), 
               &colSummationRecvBuffer[0], 
-              x01BLocalHeight*sizeof(R) );
+              x01LocalHeight*sizeof(R) );
             memcpy
-            ( y01B_MR_Star.LocalBuffer(), 
-              &colSummationRecvBuffer[x01BLocalHeight], 
-              x01BLocalHeight*sizeof(R) );
+            ( y01_MR_Star.LocalBuffer(), 
+              &colSummationRecvBuffer[x01LocalHeight], 
+              x01LocalHeight*sizeof(R) );
         }
 
         blas::Gemv
         ( Normal, 
           (R)-1, A20B.LockedLocalMatrix(),
-                 x01B_MR_Star.LockedLocalMatrix(),
+                 x01_MR_Star.LockedLocalMatrix(),
           (R)+1, p21B_MC_Star.LocalMatrix() );
         blas::Gemv
         ( Normal, 
           (R)-1, W20B.LockedLocalMatrix(),
-                 y01B_MR_Star.LockedLocalMatrix(),
+                 y01_MR_Star.LockedLocalMatrix(),
           (R)+1, p21B_MC_Star.LocalMatrix() );
 
         // Fast transpose the unsummed q21[MR,* ] -> q21[MC,* ], so that
@@ -686,9 +685,7 @@ elemental::lapack::internal::PanelTridiagLSquare
               &allReduceRecvBuffer[0],
               a21LocalHeight, MPI_SUM, g.MRComm() );
 
-            // Finish computing w21. During its computation, ensure that 
-            // every process has a copy of the first element of the w21.
-            // We know a priori that the first element of a21 is one.
+            // Finish computing w21.
             R myDotProduct = Dot
                 ( a21LocalHeight, &allReduceRecvBuffer[0],   1, 
                                   a21_MC_Star.LocalBuffer(), 1 );
@@ -737,8 +734,8 @@ elemental::lapack::internal::PanelTridiagLSquare
         p21_MC_Star.FreeAlignments();
         p21_MR_Star.FreeAlignments();
         q21_MR_Star.FreeAlignments();
-        x01B_MR_Star.FreeAlignments();
-        y01B_MR_Star.FreeAlignments();
+        x01_MR_Star.FreeAlignments();
+        y01_MR_Star.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
@@ -856,8 +853,8 @@ elemental::lapack::internal::PanelTridiagLSquare
     DistMatrix<C,MC,Star> p21B_MC_Star(g);
     DistMatrix<C,MR,Star> p21_MR_Star(g);
     DistMatrix<C,MR,Star> q21_MR_Star(g);
-    DistMatrix<C,MR,Star> x01B_MR_Star(g);
-    DistMatrix<C,MR,Star> y01B_MR_Star(g);
+    DistMatrix<C,MR,Star> x01_MR_Star(g);
+    DistMatrix<C,MR,Star> y01_MR_Star(g);
     DistMatrix<C,MC,Star> a21Last_MC_Star(g);
     DistMatrix<C,MR,Star> a21Last_MR_Star(g);
     DistMatrix<C,MC,Star> w21Last_MC_Star(g);
@@ -943,10 +940,10 @@ elemental::lapack::internal::PanelTridiagLSquare
         p21_MC_Star.ResizeTo( a21.Height(), 1 );
         p21_MR_Star.ResizeTo( a21.Height(), 1 );
         q21_MR_Star.ResizeTo( a21.Height(), 1 );
-        x01B_MR_Star.AlignWith( W20B );
-        y01B_MR_Star.AlignWith( W20B );
-        x01B_MR_Star.ResizeTo( W20B.Width(), 1 );
-        y01B_MR_Star.ResizeTo( W20B.Width(), 1 );
+        x01_MR_Star.AlignWith( W20B );
+        y01_MR_Star.AlignWith( W20B );
+        x01_MR_Star.ResizeTo( W20B.Width(), 1 );
+        y01_MR_Star.ResizeTo( W20B.Width(), 1 );
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
         // panel's square
@@ -1087,7 +1084,7 @@ elemental::lapack::internal::PanelTridiagLSquare
               &rowBroadcastBuffer[a21LocalHeight], 
               w21LastLocalHeight*sizeof(C) );
             // Store the bottom part of w21Last[MC,* ] into WB[MC,* ] and, 
-            // if necessary, W21.
+            // if necessary, w21.
             int W_MC_Star_Offset = W_MC_Star.LocalHeight()-w21LastLocalHeight;
             memcpy
             ( W_MC_Star.LocalBuffer(W_MC_Star_Offset,A00.Width()-1),
@@ -1315,49 +1312,49 @@ elemental::lapack::internal::PanelTridiagLSquare
         ( ConjugateTranspose, 
           (C)1, W20B.LockedLocalMatrix(),
                 a21B_MC_Star.LockedLocalMatrix(),
-          (C)0, x01B_MR_Star.LocalMatrix() );
+          (C)0, x01_MR_Star.LocalMatrix() );
         blas::Gemv
         ( ConjugateTranspose, 
           (C)1, A20B.LockedLocalMatrix(),
                 a21B_MC_Star.LockedLocalMatrix(),
-          (C)0, y01B_MR_Star.LocalMatrix() );
-        // Combine the AllReduce column summations of x01B[MR,* ] and 
-        // y01B[MR,* ]
+          (C)0, y01_MR_Star.LocalMatrix() );
+        // Combine the AllReduce column summations of x01[MR,* ] and 
+        // y01[MR,* ]
         {
-            int x01BLocalHeight = x01B_MR_Star.LocalHeight();
-            vector<C> colSummationSendBuffer(2*x01BLocalHeight);
-            vector<C> colSummationRecvBuffer(2*x01BLocalHeight);
+            int x01LocalHeight = x01_MR_Star.LocalHeight();
+            vector<C> colSummationSendBuffer(2*x01LocalHeight);
+            vector<C> colSummationRecvBuffer(2*x01LocalHeight);
             memcpy
             ( &colSummationSendBuffer[0], 
-              x01B_MR_Star.LocalBuffer(), 
-              x01BLocalHeight*sizeof(C) );
+              x01_MR_Star.LocalBuffer(), 
+              x01LocalHeight*sizeof(C) );
             memcpy
-            ( &colSummationSendBuffer[x01BLocalHeight],
-              y01B_MR_Star.LocalBuffer(), 
-              x01BLocalHeight*sizeof(C) );
+            ( &colSummationSendBuffer[x01LocalHeight],
+              y01_MR_Star.LocalBuffer(), 
+              x01LocalHeight*sizeof(C) );
             AllReduce
             ( &colSummationSendBuffer[0], 
               &colSummationRecvBuffer[0],
-              2*x01BLocalHeight, MPI_SUM, g.MCComm() );
+              2*x01LocalHeight, MPI_SUM, g.MCComm() );
             memcpy
-            ( x01B_MR_Star.LocalBuffer(), 
+            ( x01_MR_Star.LocalBuffer(), 
               &colSummationRecvBuffer[0], 
-              x01BLocalHeight*sizeof(C) );
+              x01LocalHeight*sizeof(C) );
             memcpy
-            ( y01B_MR_Star.LocalBuffer(), 
-              &colSummationRecvBuffer[x01BLocalHeight], 
-              x01BLocalHeight*sizeof(C) );
+            ( y01_MR_Star.LocalBuffer(), 
+              &colSummationRecvBuffer[x01LocalHeight], 
+              x01LocalHeight*sizeof(C) );
         }
 
         blas::Gemv
         ( Normal, 
           (C)-1, A20B.LockedLocalMatrix(),
-                 x01B_MR_Star.LockedLocalMatrix(),
+                 x01_MR_Star.LockedLocalMatrix(),
           (C)+1, p21B_MC_Star.LocalMatrix() );
         blas::Gemv
         ( Normal, 
           (C)-1, W20B.LockedLocalMatrix(),
-                 y01B_MR_Star.LockedLocalMatrix(),
+                 y01_MR_Star.LockedLocalMatrix(),
           (C)+1, p21B_MC_Star.LocalMatrix() );
 
         // Fast transpose the unsummed q21[MR,* ] -> q21[MC,* ], so that
@@ -1408,9 +1405,10 @@ elemental::lapack::internal::PanelTridiagLSquare
                 // Finish computing w21. During its computation, ensure that 
                 // every process has a copy of the first element of the w21.
                 // We know a priori that the first element of a21 is one.
+                const C* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
                 C myDotProduct = Dot
-                    ( a21LocalHeight, &reduceToOneRecvBuffer[0], 1,
-                                      a21_MC_Star.LocalBuffer(), 1 );
+                    ( a21LocalHeight, &reduceToOneRecvBuffer[0],   1,
+                                      &a21_MC_Star_LocalBuffer[0], 1 );
                 C sendBuffer[2];
                 C recvBuffer[2];
                 sendBuffer[0] = myDotProduct;
@@ -1423,7 +1421,6 @@ elemental::lapack::internal::PanelTridiagLSquare
                 // - w21LastLocalBuffer
                 // - w21LastFirstEntry
                 C scale = static_cast<C>(0.5)*dotProduct*Conj(tau);
-                const C* a21_MC_Star_LocalBuffer = a21_MC_Star.LocalBuffer();
                 for( int i=0; i<a21LocalHeight; ++i )
                     w21LastLocalBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
@@ -1444,9 +1441,7 @@ elemental::lapack::internal::PanelTridiagLSquare
               &allReduceRecvBuffer[0],
               a21LocalHeight, MPI_SUM, g.MRComm() );
 
-            // Finish computing w21. During its computation, ensure that 
-            // every process has a copy of the first element of the w21.
-            // We know a priori that the first element of a21 is one.
+            // Finish computing w21.
             C myDotProduct = Dot
                 ( a21LocalHeight, &allReduceRecvBuffer[0],   1,
                                   a21_MC_Star.LocalBuffer(), 1 );
@@ -1495,8 +1490,8 @@ elemental::lapack::internal::PanelTridiagLSquare
         p21_MC_Star.FreeAlignments();
         p21_MR_Star.FreeAlignments();
         q21_MR_Star.FreeAlignments();
-        x01B_MR_Star.FreeAlignments();
-        y01B_MR_Star.FreeAlignments();
+        x01_MR_Star.FreeAlignments();
+        y01_MR_Star.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,

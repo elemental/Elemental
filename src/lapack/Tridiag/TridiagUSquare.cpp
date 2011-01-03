@@ -37,11 +37,11 @@ using namespace elemental;
 
 template<typename R>
 void
-elemental::lapack::internal::TridiagU
+elemental::lapack::internal::TridiagUSquare
 ( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::TridiagU");
+    PushCallStack("lapack::internal::TridiagUSquare");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
 #endif
@@ -114,7 +114,7 @@ elemental::lapack::internal::TridiagU
                 //
                 // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are 
                 // formed during the panel factorization.
-                lapack::internal::PanelTridiagU
+                lapack::internal::PanelTridiagUSquare
                 ( ATL, WPan, 
                   APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
                 blas::internal::LocalTriangularRank2K
@@ -150,12 +150,12 @@ elemental::lapack::internal::TridiagU
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
-elemental::lapack::internal::TridiagU
+elemental::lapack::internal::TridiagUSquare
 ( DistMatrix<complex<R>,MC,  MR  >& A,
   DistMatrix<complex<R>,Star,Star>& t )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::TridiagU");
+    PushCallStack("lapack::internal::TridiagUSquare");
     if( A.Grid() != t.Grid() )
         throw logic_error( "A and t must be distributed over the same grid." );
 #endif
@@ -252,7 +252,7 @@ elemental::lapack::internal::TridiagU
                 //
                 // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are 
                 // formed during the panel factorization.
-                lapack::internal::PanelTridiagU
+                lapack::internal::PanelTridiagUSquare
                 ( ATL, WPan, t1,
                   APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
                 blas::internal::LocalTriangularRank2K
@@ -300,18 +300,18 @@ elemental::lapack::internal::TridiagU
 }
 #endif // WITHOUT_COMPLEX
 
-template void elemental::lapack::internal::TridiagU
+template void elemental::lapack::internal::TridiagUSquare
 ( DistMatrix<float,MC,MR>& A );
 
-template void elemental::lapack::internal::TridiagU
+template void elemental::lapack::internal::TridiagUSquare
 ( DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::TridiagU
+template void elemental::lapack::internal::TridiagUSquare
 ( DistMatrix<scomplex,MC,  MR  >& A, 
   DistMatrix<scomplex,Star,Star>& t );
 
-template void elemental::lapack::internal::TridiagU
+template void elemental::lapack::internal::TridiagUSquare
 ( DistMatrix<dcomplex,MC,  MR  >& A, 
   DistMatrix<dcomplex,Star,Star>& t );
 #endif
