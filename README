@@ -34,27 +34,26 @@ configurations. The four build-modes are:
 - PureDebug
 - PureRelease
 Each should be built within its own separate build directory. For instance, 
-to build the pure-MPI release library with the C++ MPI compiler /usr/bin/mpicxx
-and the C MPI compiler /usr/bin/mpicc:
+to build the pure-MPI release library with the C++ MPI compiler mpicxx 
+and the C MPI compiler mpicc:
       cd elemental
-      mkdir build
-      cd build
-      mkdir PureRelease
-      cd PureRelease
+      mkdir -p build/PureRelease
+      cd build/PureRelease
       cmake -DCMAKE_BUILD_TYPE=PureRelease \
-            -DCMAKE_CXX_COMPILER=/usr/bin/mpicxx \
-            -DCMAKE_C_COMPILER=/usr/bin/mpicc ../..
+            -DCMAKE_CXX_COMPILER=`which mpicxx` \
+            -DCMAKE_C_COMPILER=`which mpicc` ../..
       make
-If the correct BLAS/LAPACK libraries are not found, instead run:
-      cmake -i ../..
-in order to manually configure the compilation flags. Afterwards, just run make.
+If the correct BLAS/LAPACK libraries are not found, try specifying them using
+by appending the additional cmake flags of the form:
+  -DPURE_MATH_LIBS="-L/path/to/first/lib -lfirst_lib etc."
+  -DHYBRID_MATH_LIBS="-L/path/to/first/lib -lfirst_lib etc."
+where the pure math libs should be optimized for single code usage and the 
+hybrid math libs should be threaded if possible.
 
 On BlueGene/P, one should instead run
       cd elemental
-      mkdir build
-      cd build
-      mkdir PureRelease
-      cd PureRelease
+      mkdir -p build/PureRelease
+      cd build/PureRelease
       cmake -DCMAKE_BUILD_TYPE=PureRelease \
             -DCMAKE_TOOLCHAIN_FILE=../../cmake/Toolchain-BlueGeneP-xl.cmake \
             ../..
@@ -76,6 +75,33 @@ performance:
   constructor:
 
   elemental::Grid::Grid( MPI_Comm comm, int r, int c );
+
+- The Householder tridiagonalization approach may be chosen using the routine:
+
+    void elemental::lapack::internal::SetTridiagApproach
+    ( elemental::lapack::internal::TridiagApproach approach );
+
+  The choices are:
+    elemental::lapack::internal::TRIDIAG_NORMAL
+    elemental::lapack::internal::TRIDIAG_SQUARE
+    elemental::lapack::internal::TRIDIAG_DEFAULT
+  The first always uses the general nonsquare grid algorithm, even when
+  running on a square grid. The second drops down to the largest perfect square
+  number of processors less than or equal to the number available in order to
+  lower communication costs. However, in order to do so, we must choose how to
+  order the perfect square number of processes into a grid, and the choice is
+  often important for performance. One can choose between row-major and 
+  column-major ordering via the routine
+
+    void elemental::lapack::internal::SetTridiagSquareGridOrder
+    ( elemental::lapack::internal::GridOrder order );
+
+  The choices are:
+    elemental::lapack::internal::COL_MAJOR
+    elemental::lapack::internal::ROW_MAJOR
+  Finally, the default option uses the square grid algorithm if the input matrix
+  is already distributed over a square grid, otherwise, the normal nonsquare 
+  grid algorithm is used.
 
 - The local blocksizes for Hemv and Symv may be set for single-precision, 
   double-precision, single-precision complex, and double-precision complex 
