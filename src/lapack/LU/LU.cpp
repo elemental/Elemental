@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -106,10 +106,10 @@ elemental::lapack::lu::PrintTimings()
 }
 #endif // TIMING
 
-template<typename T>
+template<typename F> // represents a real or complex number
 void
 elemental::lapack::LU
-( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p )
+( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,Star>& p )
 {
 #ifndef RELEASE
     PushCallStack("lapack::LU");
@@ -125,7 +125,7 @@ elemental::lapack::LU
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<F,MC,MR>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AB(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),  
                          A20(g), A21(g), A22(g);
@@ -136,11 +136,11 @@ elemental::lapack::LU
                 p2(g);
 
     // Temporary distributions
-    DistMatrix<T,  Star,Star> A11_Star_Star(g);
-    DistMatrix<T,  Star,VR  > A12_Star_VR(g);
-    DistMatrix<T,  Star,MR  > A12_Star_MR(g);
-    DistMatrix<T,  VC,  Star> A21_VC_Star(g);
-    DistMatrix<T,  Star,MC  > A21Trans_Star_MC(g);
+    DistMatrix<F,  Star,Star> A11_Star_Star(g);
+    DistMatrix<F,  Star,VR  > A12_Star_VR(g);
+    DistMatrix<F,  Star,MR  > A12_Star_MR(g);
+    DistMatrix<F,  VC,  Star> A21_VC_Star(g);
+    DistMatrix<F,  Star,MC  > A21Trans_Star_MC(g);
     DistMatrix<int,Star,Star> p1_Star_Star(g);
 
     // Pivot composition
@@ -215,7 +215,7 @@ elemental::lapack::LU
         ::localTrsmTimer.Start();
 #endif
         blas::internal::LocalTrsm
-        ( Left, Lower, Normal, Unit, (T)1, A11_Star_Star, A12_Star_VR );
+        ( Left, Lower, Normal, Unit, (F)1, A11_Star_Star, A12_Star_VR );
 #ifdef TIMING
         ::localTrsmTimer.Stop();
         ::getA21Trans_Star_MC_Timer.Start();
@@ -231,7 +231,7 @@ elemental::lapack::LU
         ::localGemmTimer.Start();
 #endif
         blas::internal::LocalGemm
-        ( Transpose, Normal, (T)-1, A21Trans_Star_MC, A12_Star_MR, (T)1, A22 );
+        ( Transpose, Normal, (F)-1, A21Trans_Star_MC, A12_Star_MR, (F)1, A22 );
 #ifdef TIMING
         ::localGemmTimer.Stop();
         ::storeResultsTimer.Start();

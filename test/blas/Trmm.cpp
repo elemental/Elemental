@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -54,7 +54,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename T>
+template<typename T> // represents a real or complex ring
 void TestTrmm
 ( bool printMatrices, 
   Side side, Shape shape, Orientation orientation, Diagonal diagonal,

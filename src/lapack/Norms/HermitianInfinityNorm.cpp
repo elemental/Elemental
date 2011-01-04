@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -37,7 +37,7 @@ using namespace elemental;
 // former is the maximum column L1 norm and the latter is the maximum row L1 
 // norm. Hermiticity implies their equivalence.
 
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::HermitianInfinityNorm
 ( Shape shape, const Matrix<R>& A )
@@ -53,7 +53,7 @@ lapack::HermitianInfinityNorm
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::HermitianInfinityNorm
 ( Shape shape, const Matrix< std::complex<R> >& A )
@@ -69,7 +69,7 @@ lapack::HermitianInfinityNorm
 }
 #endif
 
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::HermitianInfinityNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A )
@@ -85,7 +85,7 @@ lapack::HermitianInfinityNorm
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::HermitianInfinityNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A )

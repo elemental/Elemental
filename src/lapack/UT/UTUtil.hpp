@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -33,7 +33,7 @@
 
 namespace {
 
-template<typename T>
+template<typename T> // represents a real or complex ring
 void
 SetDiagonalToOne( Side side, int offset, DistMatrix<T,MC,MR>& H )
 {
@@ -79,7 +79,7 @@ SetDiagonalToOne( Side side, int offset, DistMatrix<T,MC,MR>& H )
 #endif
 }
 
-template<typename R>
+template<typename R> // representation of a real number
 void 
 HalveMainDiagonal( DistMatrix<R,Star,Star>& SInv )
 {
@@ -97,7 +97,7 @@ HalveMainDiagonal( DistMatrix<R,Star,Star>& SInv )
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 void
 FixDiagonal
 ( const DistMatrix<complex<R>,Star,Star>& t,
@@ -116,7 +116,7 @@ FixDiagonal
 #endif
 }
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 FixDiagonalConj
 ( const DistMatrix<complex<R>,Star,Star>& t,

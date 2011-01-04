@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -54,7 +54,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename R>
+template<typename R> // represents a real number
 void TestCorrectness
 ( Side side, 
   Shape shape,
@@ -127,7 +127,7 @@ void TestCorrectness
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // represents a real number
 void TestCorrectness
 ( Side side,
   Shape shape,
@@ -204,7 +204,7 @@ void TestCorrectness
 }
 #endif // WITHOUT_COMPLEX
 
-template<typename T>
+template<typename F> // represents a real or complex number
 void TestUT
 ( Side side, Shape shape, Orientation orientation, 
   int m, int offset, bool testCorrectness, bool printMatrices,

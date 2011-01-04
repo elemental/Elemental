@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -51,7 +51,7 @@ void Usage()
          << "  print?: false iff 0\n" << endl;
 }
 
-template<typename T>
+template<typename T> // represents a real or complex ring
 void TestHer2k
 ( bool printMatrices, Shape shape, Orientation orientation,
   int m, int k, T alpha, T beta, const Grid& g )

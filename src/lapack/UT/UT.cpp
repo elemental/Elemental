@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -34,7 +34,7 @@
 using namespace elemental;
 using namespace std;
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::UT
 ( Side side,
@@ -91,7 +91,7 @@ elemental::lapack::UT
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::UT
 ( Side side,
@@ -148,7 +148,7 @@ elemental::lapack::UT
 #endif
 }
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::UT
 ( Side side,

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2010, Jack Poulson
+#  Copyright (c) 2009-2011, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental.
@@ -34,7 +34,7 @@ cmake_minimum_required(VERSION 2.8)
 project(Elemental)
 
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 54)
+set(Elemental_VERSION_MINOR 55)
 
 # Elemental supports four build modes:
 #   HybridDebug, HybridRelease, PureDebug, and PureRelease

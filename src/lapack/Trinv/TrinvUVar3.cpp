@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -35,24 +35,10 @@
 using namespace std;
 using namespace elemental;
 
-template<typename T>
-void
-elemental::lapack::internal::TrinvU
-( Diagonal diagonal, DistMatrix<T,MC,MR>& U )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::internal::TrinvU");
-#endif
-    TrinvUVar3( diagonal, U );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
+template<typename F> // represents a real or complex number
 void
 elemental::lapack::internal::TrinvUVar3
-( Diagonal diagonal, DistMatrix<T,MC,MR>& U )
+( Diagonal diagonal, DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TrinvUVar3");
@@ -62,18 +48,18 @@ elemental::lapack::internal::TrinvUVar3
     const Grid& g = U.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<F,MC,MR> 
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);
 
     // Temporary distributions
 
-    DistMatrix<T,VC,  Star> U01_VC_Star(g);
-    DistMatrix<T,Star,Star> U11_Star_Star(g);
-    DistMatrix<T,Star,VR  > U12_Star_VR(g);
-    DistMatrix<T,Star,MC  > U01Trans_Star_MC(g);
-    DistMatrix<T,MR,  Star> U12Trans_MR_Star(g);
+    DistMatrix<F,VC,  Star> U01_VC_Star(g);
+    DistMatrix<F,Star,Star> U11_Star_Star(g);
+    DistMatrix<F,Star,VR  > U12_Star_VR(g);
+    DistMatrix<F,Star,MC  > U01Trans_Star_MC(g);
+    DistMatrix<F,MR,  Star> U12Trans_MR_Star(g);
 
     // Start the algorithm
     PartitionUpDiagonal
@@ -96,7 +82,7 @@ elemental::lapack::internal::TrinvUVar3
 
         U01_VC_Star = U01;
         blas::internal::LocalTrmm
-        ( Right, Upper, Normal, diagonal, (T)-1, U11_Star_Star, U01_VC_Star );
+        ( Right, Upper, Normal, diagonal, (F)-1, U11_Star_Star, U01_VC_Star );
 
         // We transpose before the communication to avoid cache-thrashing
         // in the unpacking stage.
@@ -105,12 +91,12 @@ elemental::lapack::internal::TrinvUVar3
 
         blas::internal::LocalGemm
         ( Transpose, Transpose, 
-          (T)1, U01Trans_Star_MC, U12Trans_MR_Star, (T)1, U02 );
+          (F)1, U01Trans_Star_MC, U12Trans_MR_Star, (F)1, U02 );
         U01.TransposeFrom( U01Trans_Star_MC );
 
         U12_Star_VR.TransposeFrom( U12Trans_MR_Star );
         blas::internal::LocalTrmm
-        ( Left, Upper, Normal, diagonal, (T)1, U11_Star_Star, U12_Star_VR );
+        ( Left, Upper, Normal, diagonal, (F)1, U11_Star_Star, U12_Star_VR );
         U12 = U12_Star_VR;
         //--------------------------------------------------------------------//
         U01Trans_Star_MC.FreeAlignments();
@@ -127,27 +113,15 @@ elemental::lapack::internal::TrinvUVar3
 #endif
 }
 
-template void elemental::lapack::internal::TrinvU
-( Diagonal diagonal, DistMatrix<float,MC,MR>& U );
-
 template void elemental::lapack::internal::TrinvUVar3
 ( Diagonal diagonal, DistMatrix<float,MC,MR>& U );
-
-template void elemental::lapack::internal::TrinvU
-( Diagonal diagonal, DistMatrix<double,MC,MR>& U );
 
 template void elemental::lapack::internal::TrinvUVar3
 ( Diagonal diagonal, DistMatrix<double,MC,MR>& U );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::TrinvU
-( Diagonal diagonal, DistMatrix<scomplex,MC,MR>& U );
-
 template void elemental::lapack::internal::TrinvUVar3
 ( Diagonal diagonal, DistMatrix<scomplex,MC,MR>& U );
-
-template void elemental::lapack::internal::TrinvU
-( Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& U );
 
 template void elemental::lapack::internal::TrinvUVar3
 ( Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& U );

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -36,9 +36,21 @@ using namespace elemental;
 using namespace elemental::utilities;
 using namespace elemental::wrappers::mpi;
 
-template<typename R>
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
+template<typename Z>
 void
-elemental::DistMatrix<R,Star,VR>::SetToRandomHPD()
+elemental::DistMatrix<Z,Star,VR>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::SetToRandomHPD");
@@ -61,7 +73,7 @@ elemental::DistMatrix<R,Star,VR>::SetToRandomHPD()
         const int j = rowShift + jLoc*p;
         if( j < height )
         {
-            const R value = this->GetLocalEntry(j,jLoc);
+            const Z value = this->GetLocalEntry(j,jLoc);
             this->SetLocalEntry(j,jLoc,value+this->Width());
         }
     }
@@ -71,9 +83,9 @@ elemental::DistMatrix<R,Star,VR>::SetToRandomHPD()
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,Star,VR>::SetToRandomHPD()
+elemental::DistMatrix<complex<Z>,Star,VR>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::SetToRandomHPD");
@@ -96,7 +108,7 @@ elemental::DistMatrix<complex<R>,Star,VR>::SetToRandomHPD()
         const int j = rowShift + jLoc*p;
         if( j < height )
         {
-            const R value = real(this->GetLocalEntry(j,jLoc));
+            const Z value = real(this->GetLocalEntry(j,jLoc));
             this->SetLocalEntry(j,jLoc,value+this->Width());
         }
     }
@@ -105,9 +117,9 @@ elemental::DistMatrix<complex<R>,Star,VR>::SetToRandomHPD()
 #endif
 }
 
-template<typename R>
-R
-elemental::DistMatrix<complex<R>,Star,VR>::GetReal
+template<typename Z>
+Z
+elemental::DistMatrix<complex<Z>,Star,VR>::GetReal
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -119,7 +131,7 @@ elemental::DistMatrix<complex<R>,Star,VR>::GetReal
     const Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
-    R u;
+    Z u;
     if( g.VRRank() == ownerRank )
     {
         const int jLoc = (j-this->RowShift()) / g.Size();
@@ -133,9 +145,9 @@ elemental::DistMatrix<complex<R>,Star,VR>::GetReal
     return u;
 }
 
-template<typename R>
-R
-elemental::DistMatrix<complex<R>,Star,VR>::GetImag
+template<typename Z>
+Z
+elemental::DistMatrix<complex<Z>,Star,VR>::GetImag
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -147,7 +159,7 @@ elemental::DistMatrix<complex<R>,Star,VR>::GetImag
     const Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
-    R u;
+    Z u;
     if( g.VRRank() == ownerRank )
     {
         const int jLoc = (j-this->RowShift()) / g.Size();
@@ -161,10 +173,10 @@ elemental::DistMatrix<complex<R>,Star,VR>::GetImag
     return u;
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,Star,VR>::SetReal
-( int i, int j, R u )
+elemental::DistMatrix<complex<Z>,Star,VR>::SetReal
+( int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::SetReal");
@@ -176,18 +188,18 @@ elemental::DistMatrix<complex<R>,Star,VR>::SetReal
     if( g.VRRank() == ownerRank )
     {
         const int jLoc = (j-this->RowShift()) / g.Size();
-        const R v = imag(this->GetLocalEntry(i,jLoc));
-        this->SetLocalEntry(i,jLoc,complex<R>(u,v));
+        const Z v = imag(this->GetLocalEntry(i,jLoc));
+        this->SetLocalEntry(i,jLoc,complex<Z>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,Star,VR>::SetImag
-( int i, int j, R v )
+elemental::DistMatrix<complex<Z>,Star,VR>::SetImag
+( int i, int j, Z v )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::SetImag");
@@ -199,8 +211,8 @@ elemental::DistMatrix<complex<R>,Star,VR>::SetImag
     if( g.VRRank() == ownerRank )
     {
         const int jLoc = (j-this->RowShift()) / g.Size();
-        const R u = real(this->GetLocalEntry(i,jLoc));
-        this->SetLocalEntry(i,jLoc,complex<R>(u,v));
+        const Z u = real(this->GetLocalEntry(i,jLoc));
+        this->SetLocalEntry(i,jLoc,complex<Z>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();

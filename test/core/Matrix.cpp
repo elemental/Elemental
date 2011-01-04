@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -43,7 +43,7 @@ void Usage()
          << "    ldim: leading dimension of matrix" << endl;
 }
 
-template<typename T>
+template<typename T> // represents an a real or complex ring
 void TestMatrix( int m, int n, int ldim )
 {
     if( m > ldim || ldim == 0 )

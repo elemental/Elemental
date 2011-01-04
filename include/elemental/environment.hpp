@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -74,6 +74,18 @@ void DumpCallStack();
 #include "elemental/utilities.hpp"
 #include "elemental/wrappers.hpp"
 
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
 namespace elemental {
 
 void Init( int* argc, char** argv[] );
@@ -86,34 +98,34 @@ void SetBlocksize( int blocksize );
 void PushBlocksizeStack( int blocksize );
 void PopBlocksizeStack();
 
-template<typename R>
-R
-Abs( R alpha );
+template<typename Z>
+Z
+Abs( Z alpha );
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
-R
-Abs( std::complex<R> alpha );
+template<typename Z>
+Z
+Abs( std::complex<Z> alpha );
 #endif
 
-template<typename R>
-R
-FastAbs( R alpha );
+template<typename Z>
+Z
+FastAbs( Z alpha );
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
-R
-FastAbs( std::complex<R> alpha );
+template<typename Z>
+Z
+FastAbs( std::complex<Z> alpha );
 #endif
 
-template<typename R>
-R
-Conj( R alpha );
+template<typename Z>
+Z
+Conj( Z alpha );
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
-std::complex<R>
-Conj( std::complex<R> alpha );
+template<typename Z>
+std::complex<Z>
+Conj( std::complex<Z> alpha );
 #endif
 
 } // elemental
@@ -122,45 +134,45 @@ Conj( std::complex<R> alpha );
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-template<typename R>
-inline R
+template<typename Z>
+inline Z 
 elemental::Abs
-( R alpha )
-{ return fabs(alpha); }
+( Z alpha )
+{ return std::abs(alpha); }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
-inline R
+template<typename Z>
+inline Z
 elemental::Abs
-( std::complex<R> alpha )
+( std::complex<Z> alpha )
 { return std::abs( alpha ); }
 #endif
 
-template<typename R>
-inline R
+template<typename Z>
+inline Z
 elemental::FastAbs
-( R alpha )
-{ return fabs(alpha); }
+( Z alpha )
+{ return std::abs(alpha); }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
-inline R
+template<typename Z>
+inline Z
 elemental::FastAbs
-( std::complex<R> alpha )
-{ return fabs( std::real(alpha) ) + fabs( std::imag(alpha) ); }
+( std::complex<Z> alpha )
+{ return std::abs( std::real(alpha) ) + std::abs( std::imag(alpha) ); }
 #endif
 
-template<typename R>
-inline R
+template<typename Z>
+inline Z
 elemental::Conj
-( R alpha )
+( Z alpha )
 { return alpha; }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
-inline std::complex<R>
+template<typename Z>
+inline std::complex<Z>
 elemental::Conj
-( std::complex<R> alpha )
+( std::complex<Z> alpha )
 { return std::conj( alpha ); }
 #endif
 

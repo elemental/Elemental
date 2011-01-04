@@ -2,7 +2,7 @@
    Copyright (c) 1992-2008 The University of Tennessee.
    All rights reserved.
 
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is partially based upon the LAPACK 
@@ -39,7 +39,7 @@ using namespace std;
 using namespace elemental;
 using namespace elemental::wrappers::mpi;
 
-template<typename R>
+template<typename R> // representation of a real number
 R
 elemental::lapack::internal::ColReflector
 ( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
@@ -125,7 +125,7 @@ elemental::lapack::internal::ColReflector
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 complex<R>
 elemental::lapack::internal::ColReflector
 ( DistMatrix<complex<R>,MC,MR>& chi, DistMatrix<complex<R>,MC,MR>& x )

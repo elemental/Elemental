@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -33,9 +33,21 @@
 #ifndef ELEMENTAL_DIST_MATRIX_ABSTRACT_HPP
 #define ELEMENTAL_DIST_MATRIX_ABSTRACT_HPP 1
 
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
 namespace elemental {
 
-template<typename T>
+template<typename T> // T represents any ring
 class AbstractDistMatrixBase
 {
 protected:
@@ -287,12 +299,11 @@ public:
     virtual void SetToRandomHPD() = 0;
 };
 
-template<typename R>
-class AbstractDistMatrix 
-: public AbstractDistMatrixBase<R>
+template<typename Z> // Z represents any real ring
+class AbstractDistMatrix : public AbstractDistMatrixBase<Z>
 {
 protected:
-    typedef AbstractDistMatrixBase<R> ADMB;
+    typedef AbstractDistMatrixBase<Z> ADMB;
 
     // Initialize with particular local dimensions
     AbstractDistMatrix
@@ -333,7 +344,7 @@ protected:
       int rowShift,
       int localHeight,
       int localWidth,
-      const R* buffer,
+      const Z* buffer,
       int ldim,
       const elemental::Grid& g );
 
@@ -347,7 +358,7 @@ protected:
       int rowShift,
       int localHeight,
       int localWidth,
-      R* buffer,
+      Z* buffer,
       int ldim,
       const elemental::Grid& g );
 
@@ -355,12 +366,12 @@ protected:
 };
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
-class AbstractDistMatrix< std::complex<R> > 
-: public AbstractDistMatrixBase< std::complex<R> >
+template<typename Z> // Z represents any real ring
+class AbstractDistMatrix< std::complex<Z> > 
+: public AbstractDistMatrixBase< std::complex<Z> >
 {
 protected:
-    typedef AbstractDistMatrixBase< std::complex<R> > ADMB;
+    typedef AbstractDistMatrixBase< std::complex<Z> > ADMB;
 
     // Initialize with particular local dimensions
     AbstractDistMatrix
@@ -401,7 +412,7 @@ protected:
       int rowShift,
       int localHeight,
       int localWidth,
-      const std::complex<R>* buffer,
+      const std::complex<Z>* buffer,
       int ldim,
       const elemental::Grid& g );
 
@@ -415,7 +426,7 @@ protected:
       int rowShift,
       int localHeight,
       int localWidth,
-      std::complex<R>* buffer,
+      std::complex<Z>* buffer,
       int ldim,
       const elemental::Grid& g );
 
@@ -425,10 +436,10 @@ public:
     //------------------------------------------------------------------------//
     // Operations that should be collectively performed                       //
     //------------------------------------------------------------------------//
-    virtual R GetReal( int i, int j ) const = 0;
-    virtual R GetImag( int i, int j ) const = 0;
-    virtual void SetReal( int i, int j, R alpha ) = 0;
-    virtual void SetImag( int i, int j, R alpha ) = 0;
+    virtual Z GetReal( int i, int j ) const = 0;
+    virtual Z GetImag( int i, int j ) const = 0;
+    virtual void SetReal( int i, int j, Z alpha ) = 0;
+    virtual void SetImag( int i, int j, Z alpha ) = 0;
 };
 #endif // WITHOUT_COMPLEX
 
@@ -891,9 +902,9 @@ AbstractDistMatrixBase<T>::Empty()
 // Real AbstractDistMatrix
 //
 
-template<typename R>
+template<typename Z>
 inline
-AbstractDistMatrix<R>::AbstractDistMatrix
+AbstractDistMatrix<Z>::AbstractDistMatrix
 ( int height,
   int width,
   bool constrainedColAlignment,
@@ -910,9 +921,9 @@ AbstractDistMatrix<R>::AbstractDistMatrix
        localHeight,localWidth,g)
 { }
 
-template<typename R>
+template<typename Z>
 inline
-AbstractDistMatrix<R>::AbstractDistMatrix
+AbstractDistMatrix<Z>::AbstractDistMatrix
 ( int height,
   int width,
   bool constrainedColAlignment,
@@ -930,9 +941,9 @@ AbstractDistMatrix<R>::AbstractDistMatrix
        localHeight,localWidth,ldim,g)
 { }
 
-template<typename R>
+template<typename Z>
 inline
-AbstractDistMatrix<R>::AbstractDistMatrix
+AbstractDistMatrix<Z>::AbstractDistMatrix
 ( int height,
   int width,
   int colAlignment,
@@ -941,16 +952,16 @@ AbstractDistMatrix<R>::AbstractDistMatrix
   int rowShift,
   int localHeight,
   int localWidth,
-  const R* buffer,
+  const Z* buffer,
   int ldim,
   const elemental::Grid& g )
 : ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,buffer,ldim,g)
 { }
 
-template<typename R>
+template<typename Z>
 inline
-AbstractDistMatrix<R>::AbstractDistMatrix
+AbstractDistMatrix<Z>::AbstractDistMatrix
 ( int height,
   int width,
   int colAlignment,
@@ -959,16 +970,16 @@ AbstractDistMatrix<R>::AbstractDistMatrix
   int rowShift,
   int localHeight,
   int localWidth,
-  R* buffer,
+  Z* buffer,
   int ldim,
   const elemental::Grid& g )
 : ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,buffer,ldim,g)
 { }
 
-template<typename R>
+template<typename Z>
 inline
-AbstractDistMatrix<R>::~AbstractDistMatrix()
+AbstractDistMatrix<Z>::~AbstractDistMatrix()
 { }
 
 //
@@ -976,9 +987,9 @@ AbstractDistMatrix<R>::~AbstractDistMatrix()
 //
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename Z>
 inline
-AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
+AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
 ( int height,
   int width,
   bool constrainedColAlignment,
@@ -995,9 +1006,9 @@ AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
        localHeight,localWidth,g)
 { }
 
-template<typename R>
+template<typename Z>
 inline
-AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
+AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
 ( int height,
   int width,
   bool constrainedColAlignment,
@@ -1015,9 +1026,9 @@ AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
        localHeight,localWidth,ldim,g)
 { }
 
-template<typename R>
+template<typename Z>
 inline
-AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
+AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
 ( int height,
   int width,
   int colAlignment,
@@ -1026,16 +1037,16 @@ AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
   int rowShift,
   int localHeight,
   int localWidth,
-  const std::complex<R>* buffer,
+  const std::complex<Z>* buffer,
   int ldim,
   const elemental::Grid& g )
 : ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,buffer,ldim,g)
 { }
 
-template<typename R>
+template<typename Z>
 inline
-AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
+AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
 ( int height,
   int width,
   int colAlignment,
@@ -1044,16 +1055,16 @@ AbstractDistMatrix< std::complex<R> >::AbstractDistMatrix
   int rowShift,
   int localHeight,
   int localWidth,
-  std::complex<R>* buffer,
+  std::complex<Z>* buffer,
   int ldim,
   const elemental::Grid& g )
 : ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
        localHeight,localWidth,buffer,ldim,g)
 { }
 
-template<typename R>
+template<typename Z>
 inline
-AbstractDistMatrix< std::complex<R> >::~AbstractDistMatrix()
+AbstractDistMatrix< std::complex<Z> >::~AbstractDistMatrix()
 { }
 #endif // WITHOUT_COMPLEX
 

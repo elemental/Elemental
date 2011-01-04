@@ -2,7 +2,7 @@
    Copyright (C) 1992-2008 The University of Tennessee
    All rights reserved.
 
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is partially based upon the LAPACK 
@@ -38,7 +38,7 @@
 using namespace std;
 using namespace elemental;
 
-template<typename R>
+template<typename R> // representation of a real number
 R
 elemental::lapack::Reflector
 ( Matrix<R>& chi, Matrix<R>& x )
@@ -97,7 +97,7 @@ elemental::lapack::Reflector
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 complex<R>
 elemental::lapack::Reflector
 ( Matrix< complex<R> >& chi, Matrix< complex<R> >& x )
@@ -160,10 +160,10 @@ elemental::lapack::Reflector
 }
 #endif // WITHOUT_COMPLEX
 
-template<typename T>
-T
+template<typename F> // represents a real or complex number
+F
 elemental::lapack::Reflector
-( DistMatrix<T,MC,MR>& chi, DistMatrix<T,MC,MR>& x )
+( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Reflector");
@@ -175,10 +175,10 @@ elemental::lapack::Reflector
         throw logic_error( "x must be a vector." );
 #endif
     if( max( x.Height(), x.Width() ) == 0 )
-        return (T)0;
+        return (F)0;
 
     const Grid& g = x.Grid();
-    T tau;
+    F tau;
     if( x.Width() == 1 )
     {
         const bool thisIsMyColumn = ( g.MRRank() == x.RowAlignment() );

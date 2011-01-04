@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -35,6 +35,18 @@
 
 #include "elemental/blas.hpp"
 
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
 namespace elemental {
 namespace blas {
 namespace internal {
@@ -60,12 +72,12 @@ LocalTrmm
   T alpha, const DistMatrix<T,Star,Star>& A,
                  DistMatrix<T,BColDist,BRowDist>& B );
 
-template<typename T, Distribution XColDist, Distribution XRowDist>
+template<typename F, Distribution XColDist, Distribution XRowDist>
 void
 LocalTrsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
-  T alpha, const DistMatrix<T,Star,Star>& A, 
-                 DistMatrix<T,XColDist,XRowDist>& X );
+  F alpha, const DistMatrix<F,Star,Star>& A, 
+                 DistMatrix<F,XColDist,XRowDist>& X );
 
 // TODO: Finish adding wrappers for Local BLAS
 
@@ -338,27 +350,27 @@ LocalSymvRowAccumulateU
         DistMatrix<T,Star,MR>& z_Star_MR
 );
 
-template<typename T>
+template<typename F>
 void
 TrsvLN
-( Diagonal diagonal, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& x );
+( Diagonal diagonal, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& x );
 
-template<typename T>
+template<typename F>
 void
 TrsvLT
 ( Orientation orientation, Diagonal diagonal,
-  const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& x );
+  const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& x );
 
-template<typename T>
+template<typename F>
 void
 TrsvUN
-( Diagonal diagonal, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& x );
+( Diagonal diagonal, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& x );
 
-template<typename T>
+template<typename F>
 void
 TrsvUT
 ( Orientation orientation, Diagonal diagonal,
-  const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& x );
+  const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& x );
 
 //----------------------------------------------------------------------------//
 // Distributed BLAS helpers: Level 3                                          //
@@ -1240,60 +1252,60 @@ TrmmRUT
   T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
 
 // Left, Lower, Normal Trsm
-template<typename T>
+template<typename F>
 void
 TrsmLLN
 ( Diagonal diagonal,
-  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X );
 
 // Left, Lower, (Conjugate)Transpose Trsm
-template<typename T>
+template<typename F>
 void
 TrsmLLT
 ( Orientation orientation, Diagonal diagonal,
-  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X );
 
 // Left, Upper, Normal Trsm
-template<typename T>
+template<typename F>
 void
 TrsmLUN
 ( Diagonal diagonal,
-  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X );
 
 // Left, Upper, (Conjugate)Transpose Trsm
-template<typename T>
+template<typename F>
 void
 TrsmLUT
 ( Orientation orientation, Diagonal diagonal,
-  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X );
 
 // Right, Lower, Normal Trsm
-template<typename T>
+template<typename F>
 void
 TrsmRLN
 ( Diagonal diagonal,
-  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X );
 
 // Right, Lower, (Conjugate)Transpose Trsm
-template<typename T>
+template<typename F>
 void
 TrsmRLT
 ( Orientation orientation, Diagonal diagonal,
-  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X );
 
 // Right, Upper, Normal Trsm
-template<typename T>
+template<typename F>
 void
 TrsmRUN
 ( Diagonal diagonal,
-  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X );
 
 // Right, Upper, (Conjugate)Transpose Trsm
-template<typename T>
+template<typename F>
 void
 TrsmRUT
 ( Orientation orientation, Diagonal diagonal,
-  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X );
 
 //----------------------------------------------------------------------------//
 // Level 2 BLAS Utility Functions                                             //
@@ -1346,7 +1358,7 @@ double
 TrmmGFlops
 ( Side side, int m, int n, double seconds );
             
-template<typename T>
+template<typename F>
 double
 TrsmGFlops
 ( Side side, int m, int n, double seconds );
@@ -1463,12 +1475,12 @@ LocalTrmm
 #endif
 }
 
-template<typename T, Distribution XColDist, Distribution XRowDist>
+template<typename F, Distribution XColDist, Distribution XRowDist>
 void
 LocalTrsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
-  T alpha, const DistMatrix<T,Star,Star>& A, 
-                 DistMatrix<T,XColDist,XRowDist>& X )
+  F alpha, const DistMatrix<F,Star,Star>& A, 
+                 DistMatrix<F,XColDist,XRowDist>& X )
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::LocalTrsm");

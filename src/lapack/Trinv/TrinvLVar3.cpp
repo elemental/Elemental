@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -35,24 +35,10 @@
 using namespace std;
 using namespace elemental;
 
-template<typename T>
-void
-elemental::lapack::internal::TrinvL
-( Diagonal diagonal, DistMatrix<T,MC,MR>& L )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::internal::TrinvL");
-#endif
-    TrinvLVar3( diagonal, L );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
+template<typename F> // represents a real or complex number
 void
 elemental::lapack::internal::TrinvLVar3
-( Diagonal diagonal, DistMatrix<T,MC,MR>& L )
+( Diagonal diagonal, DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TrinvLVar3");
@@ -62,17 +48,17 @@ elemental::lapack::internal::TrinvLVar3
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<F,MC,MR> 
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
 
     // Temporary distributions
-    DistMatrix<T,Star,MR  > L10_Star_MR(g);
-    DistMatrix<T,Star,VR  > L10_Star_VR(g);
-    DistMatrix<T,Star,Star> L11_Star_Star(g);
-    DistMatrix<T,MC,  Star> L21_MC_Star(g);
-    DistMatrix<T,VC,  Star> L21_VC_Star(g);
+    DistMatrix<F,Star,MR  > L10_Star_MR(g);
+    DistMatrix<F,Star,VR  > L10_Star_VR(g);
+    DistMatrix<F,Star,Star> L11_Star_Star(g);
+    DistMatrix<F,MC,  Star> L21_MC_Star(g);
+    DistMatrix<F,VC,  Star> L21_VC_Star(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -95,17 +81,17 @@ elemental::lapack::internal::TrinvLVar3
 
         L10_Star_VR = L10;
         blas::internal::LocalTrmm
-        ( Left, Lower, Normal, diagonal, (T)-1, L11_Star_Star, L10_Star_VR );
+        ( Left, Lower, Normal, diagonal, (F)-1, L11_Star_Star, L10_Star_VR );
 
         L21_MC_Star = L21;
         L10_Star_MR = L10_Star_VR;
         blas::internal::LocalGemm
-        ( Normal, Normal, (T)1, L21_MC_Star, L10_Star_MR, (T)1, L20 );
+        ( Normal, Normal, (F)1, L21_MC_Star, L10_Star_MR, (F)1, L20 );
         L10 = L10_Star_MR;
 
         L21_VC_Star = L21_MC_Star;
         blas::internal::LocalTrmm
-        ( Right, Lower, Normal, diagonal, (T)1, L11_Star_Star, L21_VC_Star );
+        ( Right, Lower, Normal, diagonal, (F)1, L11_Star_Star, L21_VC_Star );
         L21 = L21_VC_Star;
         //--------------------------------------------------------------------//
         L10_Star_MR.FreeAlignments();
@@ -122,27 +108,15 @@ elemental::lapack::internal::TrinvLVar3
 #endif
 }
 
-template void elemental::lapack::internal::TrinvL
-( Diagonal diagonal, DistMatrix<float,MC,MR>& L );
-
 template void elemental::lapack::internal::TrinvLVar3
 ( Diagonal diagonal, DistMatrix<float,MC,MR>& L );
-
-template void elemental::lapack::internal::TrinvL
-( Diagonal diagonal, DistMatrix<double,MC,MR>& L );
 
 template void elemental::lapack::internal::TrinvLVar3
 ( Diagonal diagonal, DistMatrix<double,MC,MR>& L );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::TrinvL
-( Diagonal diagonal, DistMatrix<scomplex,MC,MR>& L );
-
 template void elemental::lapack::internal::TrinvLVar3
 ( Diagonal diagonal, DistMatrix<scomplex,MC,MR>& L );
-
-template void elemental::lapack::internal::TrinvL
-( Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& L );
 
 template void elemental::lapack::internal::TrinvLVar3
 ( Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& L );

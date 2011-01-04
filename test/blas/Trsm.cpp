@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -54,16 +54,16 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename T>
+template<typename F> // represents a real or complex field
 void TestTrsm
 ( bool printMatrices,
   Side side, Shape shape, 
   Orientation orientation, Diagonal diagonal,
-  int m, int n, T alpha, const Grid& g )
+  int m, int n, F alpha, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,MC,MR> X(g);
+    DistMatrix<F,MC,MR> A(g);
+    DistMatrix<F,MC,MR> X(g);
 
     if( side == Left )
         A.ResizeTo( m, m );
@@ -89,7 +89,7 @@ void TestTrsm
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = blas::internal::TrsmGFlops<T>(side,m,n,runTime);
+    gFlops = blas::internal::TrsmGFlops<F>(side,m,n,runTime);
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl

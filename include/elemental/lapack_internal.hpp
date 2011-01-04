@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -35,6 +35,18 @@
 
 #include "elemental/lapack.hpp"
 
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
 namespace elemental {
 namespace lapack {
 namespace internal {
@@ -43,179 +55,151 @@ namespace internal {
 // Local LAPACK                                                               //
 //----------------------------------------------------------------------------//
 
-template<typename T>
+template<typename F>
 void
 LocalChol
-( Shape shape, DistMatrix<T,Star,Star>& A );
+( Shape shape, DistMatrix<F,Star,Star>& A );
 
-template<typename T>
+template<typename F>
 void
 LocalHegst
 ( Side side, Shape shape, 
-  DistMatrix<T,Star,Star>& A, const DistMatrix<T,Star,Star>& B );
+  DistMatrix<F,Star,Star>& A, const DistMatrix<F,Star,Star>& B );
 
-template<typename T>
+template<typename F>
 void
 LocalTrinv
-( Shape shape, Diagonal diagonal, DistMatrix<T,Star,Star>& A );
+( Shape shape, Diagonal diagonal, DistMatrix<F,Star,Star>& A );
 
 //----------------------------------------------------------------------------//
 // Chol helpers                                                               //
 //----------------------------------------------------------------------------//
 
-template<typename T>
+template<typename F>
 void
 CholVar2
-( Shape shape, DistMatrix<T,MC,MR>& A );
+( Shape shape, DistMatrix<F,MC,MR>& A );
 
-template<typename T>
+template<typename F>
 void
 CholVar2Naive
-( Shape shape, DistMatrix<T,MC,MR>& A );
+( Shape shape, DistMatrix<F,MC,MR>& A );
 
-template<typename T>
+template<typename F>
 void
 CholVar3
-( Shape shape, DistMatrix<T,MC,MR>& A );
+( Shape shape, DistMatrix<F,MC,MR>& A );
 
-template<typename T>
+template<typename F>
 void
 CholVar3Naive
-( Shape shape, DistMatrix<T,MC,MR>& A );
+( Shape shape, DistMatrix<F,MC,MR>& A );
 
-template<typename T>
+template<typename F>
 void
-CholL( DistMatrix<T,MC,MR>& A );
+CholLVar2( DistMatrix<F,MC,MR>& A );
 
-template<typename T>
+template<typename F>
 void
-CholU( DistMatrix<T,MC,MR>& A );
+CholLVar2Naive( DistMatrix<F,MC,MR>& A );
 
-template<typename T>
+template<typename F>
 void
-CholLVar2( DistMatrix<T,MC,MR>& A );
+CholLVar3( DistMatrix<F,MC,MR>& A );
 
-template<typename T>
+template<typename F>
 void
-CholLVar2Naive( DistMatrix<T,MC,MR>& A );
+CholLVar3Naive( DistMatrix<F,MC,MR>& A );
 
-template<typename T>
+template<typename F>
 void
-CholLVar3( DistMatrix<T,MC,MR>& A );
+CholUVar2( DistMatrix<F,MC,MR>& A );
 
-template<typename T>
+template<typename F>
 void
-CholLVar3Naive( DistMatrix<T,MC,MR>& A );
-
-template<typename T>
-void
-CholUVar2( DistMatrix<T,MC,MR>& A );
-
-template<typename T>
-void
-CholUVar2Naive( DistMatrix<T,MC,MR>& A );
+CholUVar2Naive( DistMatrix<F,MC,MR>& A );
  
-template<typename T>
+template<typename F>
 void
-CholUVar3( DistMatrix<T,MC,MR>& A );
+CholUVar3( DistMatrix<F,MC,MR>& A );
 
-template<typename T>
+template<typename F>
 void
-CholUVar3Naive( DistMatrix<T,MC,MR>& A );
+CholUVar3Naive( DistMatrix<F,MC,MR>& A );
             
 //----------------------------------------------------------------------------//
 // GaussElim                                                                  //
 //----------------------------------------------------------------------------//
             
-template<typename T>
+template<typename F>
 void
 ReduceToRowEchelon
-( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
+( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
 // Hegst                                                                      //
 //----------------------------------------------------------------------------//
 
-template<typename T>
+template<typename F>
 void
-HegstOld
-( Side side, Shape shape,
-  DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
-
-template<typename T>
-void
-HegstNaive
+HegstVar2
 ( Side side, Shape shape, 
-  DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
+  DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B );
 
-template<typename T>
+template<typename F>
 void
-HegstLL
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+HegstVar4
+( Side side, Shape shape, 
+  DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B );
 
-template<typename T>
+template<typename F>
 void
-HegstLLNaive
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+HegstLLVar2
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
-template<typename T>
+template<typename F>
 void
-HegstLLOld
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+HegstLLVar4
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
-template<typename T>
+template<typename F>
 void
-HegstLU
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
+HegstLUVar2
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
-template<typename T>
+template<typename F>
 void
-HegstLUNaive
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
+HegstLUVar4
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
-template<typename T>
+template<typename F>
 void
-HegstLUOld
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
+HegstRLVar2
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
-template<typename T>
+template<typename F>
 void
-HegstRL
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+HegstRLVar4
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
-template<typename T>
+template<typename F>
 void
-HegstRLNaive
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
+HegstRUVar2
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
-template<typename T>
+template<typename F>
 void
-HegstRLOld
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& L );
-
-template<typename T>
-void
-HegstRU
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
-
-template<typename T>
-void
-HegstRUNaive
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
-
-template<typename T>
-void
-HegstRUOld
-( DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& U );
+HegstRUVar4
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 //----------------------------------------------------------------------------//
 // LU                                                                         //
 //----------------------------------------------------------------------------//
 
-template<typename T>
+template<typename F>
 void
 ApplyRowPivots
-(       DistMatrix<T,MC,MR>& A, 
+(       DistMatrix<F,MC,MR>& A, 
   const std::vector<int>& image,
   const std::vector<int>& preimage,
         int pivotOffset=0 );
@@ -227,7 +211,7 @@ ComposePivots
         std::vector<int>& preimage,
         int pivotOffset = 0 );
 
-template<typename T>
+template<typename F>
 void
 CreatePivotOp();
 
@@ -271,19 +255,19 @@ void
 DestroyPivotOp<dcomplex>();
 #endif
 
-template<typename T>
+template<typename F>
 void
-LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,Star,Star>& p );
+LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,Star,Star>& p );
 
-template<typename T>
+template<typename F>
 void
 PanelLU
-( DistMatrix<T,Star,Star>& A, 
-  DistMatrix<T,VC,  Star>& B, 
+( DistMatrix<F,Star,Star>& A, 
+  DistMatrix<F,VC,  Star>& B, 
   DistMatrix<int,Star,Star>& p, 
   int pivotOffset=0 );
 
-template<typename T>
+template<typename F>
 MPI_Op
 PivotOp();
 
@@ -305,7 +289,7 @@ MPI_Op
 PivotOp<dcomplex>();
 #endif
             
-template<typename T>
+template<typename F>
 void
 PivotFunc
 ( void* inData, void* outData, 
@@ -496,30 +480,20 @@ TridiagUSquare
 // Trinv                                                                      //
 //----------------------------------------------------------------------------//
 
-template<typename T>
+template<typename F>
 void
 TrinvVar3
-( Shape shape, Diagonal diagonal, DistMatrix<T,MC,MR>& A  );
+( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
-template<typename T>
-void
-TrinvL
-( Diagonal diagonal, DistMatrix<T,MC,MR>& L );
-
-template<typename T>
-void
-TrinvU
-( Diagonal diagonal, DistMatrix<T,MC,MR>& U );
-
-template<typename T>
+template<typename F>
 void
 TrinvLVar3
-( Diagonal diagonal, DistMatrix<T,MC,MR>& L );
+( Diagonal diagonal, DistMatrix<F,MC,MR>& L );
 
-template<typename T>
+template<typename F>
 void
 TrinvUVar3
-( Diagonal diagonal, DistMatrix<T,MC,MR>& U );
+( Diagonal diagonal, DistMatrix<F,MC,MR>& U );
 
 //----------------------------------------------------------------------------//
 // UT Transform                                                               //
@@ -664,31 +638,31 @@ UTRUC
 //----------------------------------------------------------------------------//
 // LAPACK Utility Functions                                                   //
 //----------------------------------------------------------------------------//
-template<typename T>
+template<typename F>
 double
 CholGFlops( int m, double seconds );
 
-template<typename T>
+template<typename F>
 double
 HegstGFlops( int m, double seconds );
 
-template<typename T>
+template<typename F>
 double
 LUGFlops( int m, double seconds );
 
-template<typename T>
+template<typename F>
 double
 QRGFlops( int m, int n, double seconds );
 
-template<typename T>
+template<typename F>
 double
 TridiagGFlops( int m, double seconds );
 
-template<typename T>
+template<typename F>
 double
 TrinvGFlops( int m, double seconds );
 
-template<typename T>
+template<typename F>
 double
 UTGFlops( int m, double seconds );
 
@@ -708,10 +682,10 @@ namespace internal {
 // Local LAPACK
 //
 
-template<typename T>
+template<typename F>
 inline void
 LocalChol
-( Shape shape, DistMatrix<T,Star,Star>& A )
+( Shape shape, DistMatrix<F,Star,Star>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::LocalChol");
@@ -722,11 +696,11 @@ LocalChol
 #endif
 }
 
-template<typename T>
+template<typename F>
 inline void
 LocalHegst
 ( Side side, Shape shape,
-  DistMatrix<T,Star,Star>& A, const DistMatrix<T,Star,Star>& B )
+  DistMatrix<F,Star,Star>& A, const DistMatrix<F,Star,Star>& B )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::LocalHegst");
@@ -737,10 +711,10 @@ LocalHegst
 #endif
 }
 
-template<typename T>
+template<typename F>
 inline void
 LocalTrinv
-( Shape shape, Diagonal diagonal, DistMatrix<T,Star,Star>& A )
+( Shape shape, Diagonal diagonal, DistMatrix<F,Star,Star>& A )
 { 
 #ifndef RELEASE
     PushCallStack("lapack::internal::LocalTrinv");

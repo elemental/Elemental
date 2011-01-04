@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -51,7 +51,7 @@ void Usage()
          << "  print?: [0/1]\n" << endl;
 }
 
-template<typename T>
+template<typename T> // represents a real or complex ring
 void TestSymm
 ( const Side side, const Shape shape,
   const int m, const int n, const T alpha, const T beta,

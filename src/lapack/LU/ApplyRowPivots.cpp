@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -36,10 +36,10 @@ using namespace elemental;
 using namespace elemental::utilities;
 using namespace elemental::wrappers::mpi;
 
-template<typename T>
+template<typename F> // represents a real or complex number
 void
 elemental::lapack::internal::ApplyRowPivots
-(       DistMatrix<T,MC,MR>& A, 
+(       DistMatrix<F,MC,MR>& A, 
   const vector<int>& image,
   const vector<int>& preimage,
   int pivotOffset )
@@ -135,7 +135,7 @@ elemental::lapack::internal::ApplyRowPivots
 #endif
 
     // Fill vectors with the send data
-    vector<T> sendData(max(1,totalSendCount));
+    vector<F> sendData(max(1,totalSendCount));
     vector<int> offsets(r,0);
     const int localHeight = LocalLength( b, colShift, r );
     for( int i=0; i<localHeight; ++i )
@@ -166,12 +166,12 @@ elemental::lapack::internal::ApplyRowPivots
     }
 
     // Communicate all pivot rows
-    vector<T> recvData(max(1,totalRecvCount));
+    vector<F> recvData(max(1,totalRecvCount));
     {
-        T* sbuf = &sendData[0];
+        F* sbuf = &sendData[0];
         int* scs = &sendCounts[0];
         int* sds = &sendDispls[0];
-        T* rbuf = &recvData[0];
+        F* rbuf = &recvData[0];
         int* rcs = &recvCounts[0];
         int* rds = &recvDispls[0];
 

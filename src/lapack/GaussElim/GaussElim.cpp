@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -35,10 +35,10 @@ using namespace std;
 using namespace elemental;
 using namespace elemental::lapack::internal;
 
-template<typename T>
+template<typename F> // representation of a real or complex number
 void
 elemental::lapack::GaussElim
-( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 {
 #ifndef RELEASE
     PushCallStack("lapack::GaussElim");
@@ -53,7 +53,7 @@ elemental::lapack::GaussElim
     if( B.Width() == 1 )
         blas::Trsv( Upper, Normal, NonUnit, A, B );
     else
-        blas::Trsm( Left, Upper, Normal, NonUnit, (T)1, A, B );
+        blas::Trsm( Left, Upper, Normal, NonUnit, (F)1, A, B );
 #ifndef RELEASE
     PopCallStack();
 #endif

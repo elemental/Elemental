@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -35,6 +35,18 @@
 
 #include "elemental/blas.hpp"
 
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
 namespace elemental {
 namespace lapack {
 
@@ -46,16 +58,16 @@ namespace lapack {
 //----------------------------------------------------------------------------//
 
 // Serial version
-template<typename T>
+template<typename F>
 void
 Chol
-( Shape shape, Matrix<T>& A );
+( Shape shape, Matrix<F>& A );
 
 // Parallel version
-template<typename T>
+template<typename F>
 void
 Chol
-( Shape shape, DistMatrix<T,MC,MR>& A );
+( Shape shape, DistMatrix<F,MC,MR>& A );
 
 //----------------------------------------------------------------------------//
 // GaussElim (Gaussian Elimination):                                          //
@@ -66,10 +78,10 @@ Chol
 // TODO: Add a serial version
 
 // Parallel version
-template<typename T>
+template<typename F>
 void
 GaussElim
-( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
+( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
 // GeneralizedHermitianEig (Hermitian Eigensolver)                            //
@@ -230,18 +242,18 @@ GeneralizedHermitianEig
 //----------------------------------------------------------------------------//
 
 // Serial version
-template<typename T>
+template<typename F>
 void
 Hegst
 ( Side side, Shape shape, 
-  Matrix<T>& A, const Matrix<T>& B );
+  Matrix<F>& A, const Matrix<F>& B );
 
 // Parallel version
-template<typename T>
+template<typename F>
 void
 Hegst
 ( Side side, Shape shape, 
-  DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B );
+  DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
 // HermitianEig (Hermitian Eigensolver)                                       //
@@ -367,13 +379,13 @@ HermitianEig
 // element of each row.                                                       //
 //----------------------------------------------------------------------------//
 
-template<typename T>
+template<typename F>
 void
-LU( Matrix<T>& A, Matrix<int>& p );
+LU( Matrix<F>& A, Matrix<int>& p );
 
-template<typename T>
+template<typename F>
 void
-LU( DistMatrix<T,MC,MR>& A, DistMatrix<int,VC,Star>& p );
+LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 
 #ifdef TIMING
 namespace lu {
@@ -637,9 +649,9 @@ Reflector( Matrix< std::complex<R> >& chi, Matrix< std::complex<R> >& x );
 #endif
 
 // Parallel version
-template<typename T>
-T
-Reflector( DistMatrix<T,MC,MR>& chi, DistMatrix<T,MC,MR>& x );
+template<typename F>
+F
+Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x );
 
 //----------------------------------------------------------------------------//
 // SVD (Singular Value Decomposition):                                        //
@@ -736,16 +748,16 @@ Tridiag
 //----------------------------------------------------------------------------//
 
 // Serial version
-template<typename T>
+template<typename F>
 void
 Trinv
-( Shape shape, Diagonal diagonal, Matrix<T>& A );
+( Shape shape, Diagonal diagonal, Matrix<F>& A );
 
 // Parallel version
-template<typename T>
+template<typename F>
 void
 Trinv
-( Shape shape, Diagonal diagonal, DistMatrix<T,MC,MR>& A  );
+( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
 //----------------------------------------------------------------------------//
 // UT (UT transform):                                                         //
@@ -798,10 +810,10 @@ UT( Side side, Shape shape, Orientation orientation, int offset,
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-template<typename T>
+template<typename F>
 inline void
 elemental::lapack::Chol
-( Shape shape, Matrix<T>& A )
+( Shape shape, Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Chol");
@@ -815,10 +827,10 @@ elemental::lapack::Chol
 #endif
 }
 
-template<typename T>
+template<typename F>
 inline void
 elemental::lapack::Hegst
-( Side side, Shape shape, Matrix<T>& A, const Matrix<T>& B )
+( Side side, Shape shape, Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Hegst");
@@ -839,10 +851,10 @@ elemental::lapack::Hegst
 #endif
 }
 
-template<typename T>
+template<typename F>
 inline void
 elemental::lapack::LU
-( Matrix<T>& A, Matrix<int>& p )
+( Matrix<F>& A, Matrix<int>& p )
 {
 #ifndef RELEASE
     PushCallStack("lapack::LU");
@@ -982,10 +994,10 @@ elemental::lapack::SVD
 }
 #endif
 
-template<typename T>
+template<typename F>
 inline void
 elemental::lapack::Trinv
-( Shape shape, Diagonal diagonal, Matrix<T>& A )
+( Shape shape, Diagonal diagonal, Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Trinv");

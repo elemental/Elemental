@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -36,9 +36,21 @@ using namespace elemental;
 using namespace elemental::utilities;
 using namespace elemental::wrappers::mpi;
 
-template<typename R>
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
+template<typename Z>
 void
-elemental::DistMatrix<R,Star,Star>::SetToRandomHPD()
+elemental::DistMatrix<Z,Star,Star>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHPD");
@@ -57,7 +69,7 @@ elemental::DistMatrix<R,Star,Star>::SetToRandomHPD()
 #endif
         for( int j=0; j<min(height,width); ++j )
         {
-            const R value = this->GetLocalEntry(j,j);
+            const Z value = this->GetLocalEntry(j,j);
             this->SetLocalEntry(j,j,value+this->Width());
         }
     }
@@ -67,9 +79,9 @@ elemental::DistMatrix<R,Star,Star>::SetToRandomHPD()
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,Star,Star>::SetToRandomHPD()
+elemental::DistMatrix<complex<Z>,Star,Star>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHPD");
@@ -88,7 +100,7 @@ elemental::DistMatrix<complex<R>,Star,Star>::SetToRandomHPD()
 #endif
         for( int j=0; j<min(height,width); ++j )
         {
-            const R value = real(this->GetLocalEntry(j,j));
+            const Z value = real(this->GetLocalEntry(j,j));
             this->SetLocalEntry(j,j,value+this->Width());
         }
     }
@@ -97,9 +109,9 @@ elemental::DistMatrix<complex<R>,Star,Star>::SetToRandomHPD()
 #endif
 }
 
-template<typename R>
-R
-elemental::DistMatrix<complex<R>,Star,Star>::GetReal
+template<typename Z>
+Z
+elemental::DistMatrix<complex<Z>,Star,Star>::GetReal
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -109,7 +121,7 @@ elemental::DistMatrix<complex<R>,Star,Star>::GetReal
     int viewingSize, owningSize;
     MPI_Comm_size( this->Grid().ViewingComm(), &viewingSize );
     MPI_Group_size( this->Grid().OwningGroup(), &owningSize );
-    R u;
+    Z u;
     if( viewingSize == owningSize )
     {
         // Everyone can just grab their own copy of the data
@@ -130,9 +142,9 @@ elemental::DistMatrix<complex<R>,Star,Star>::GetReal
     return u;
 }
 
-template<typename R>
-R
-elemental::DistMatrix<complex<R>,Star,Star>::GetImag
+template<typename Z>
+Z
+elemental::DistMatrix<complex<Z>,Star,Star>::GetImag
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -142,7 +154,7 @@ elemental::DistMatrix<complex<R>,Star,Star>::GetImag
     int viewingSize, owningSize;
     MPI_Comm_size( this->Grid().ViewingComm(), &viewingSize );
     MPI_Group_size( this->Grid().OwningGroup(), &owningSize );
-    R u;
+    Z u;
     if( viewingSize == owningSize )
     {
         // Everyone can just grab their own copy of the data
@@ -163,10 +175,10 @@ elemental::DistMatrix<complex<R>,Star,Star>::GetImag
     return u;
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,Star,Star>::SetReal
-( int i, int j, R u )
+elemental::DistMatrix<complex<Z>,Star,Star>::SetReal
+( int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetReal");
@@ -174,18 +186,18 @@ elemental::DistMatrix<complex<R>,Star,Star>::SetReal
 #endif
     if( this->Grid().InGrid() )
     {
-        const R v = imag(this->GetLocalEntry(i,j));
-        this->SetLocalEntry(i,j,complex<R>(u,v));
+        const Z v = imag(this->GetLocalEntry(i,j));
+        this->SetLocalEntry(i,j,complex<Z>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,Star,Star>::SetImag
-( int i, int j, R v )
+elemental::DistMatrix<complex<Z>,Star,Star>::SetImag
+( int i, int j, Z v )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetImag");
@@ -193,8 +205,8 @@ elemental::DistMatrix<complex<R>,Star,Star>::SetImag
 #endif
     if( this->Grid().InGrid() )
     {
-        const R u = real(this->GetLocalEntry(i,j));
-        this->SetLocalEntry(i,j,complex<R>(u,v));
+        const Z u = real(this->GetLocalEntry(i,j));
+        this->SetLocalEntry(i,j,complex<Z>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();

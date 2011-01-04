@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -38,7 +38,7 @@ using namespace elemental::utilities;
 using namespace elemental::wrappers::blas;
 using namespace elemental::wrappers::mpi;
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::internal::PanelTridiagLSquare
 ( DistMatrix<R,MC,MR  >& A,
@@ -768,7 +768,7 @@ elemental::lapack::internal::PanelTridiagLSquare
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::internal::PanelTridiagLSquare
 ( DistMatrix<complex<R>,MC,MR  >& A,

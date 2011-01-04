@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -34,19 +34,31 @@
 using namespace std;
 using namespace elemental;
 
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
 // Right Upper (Conjugate)Transpose (Non)Unit Trsm
 //   X := X triu(U)^-T, 
 //   X := X triu(U)^-H,
 //   X := X triuu(U)^-T, or
 //   X := X triuu(U)^-H
-template<typename T>
+template<typename F>
 void
 elemental::blas::internal::TrsmRUT
 ( Orientation orientation, 
   Diagonal diagonal,
-  T alpha, 
-  const DistMatrix<T,MC,MR>& U,
-        DistMatrix<T,MC,MR>& X )
+  F alpha, 
+  const DistMatrix<F,MC,MR>& U,
+        DistMatrix<F,MC,MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsmRUT");
@@ -66,19 +78,19 @@ elemental::blas::internal::TrsmRUT
     const Grid& g = U.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<F,MC,MR> 
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);
 
-    DistMatrix<T,MC,MR> XL(g), XR(g),
+    DistMatrix<F,MC,MR> XL(g), XR(g),
                         X0(g), X1(g), X2(g);
 
     // Temporary distributions
-    DistMatrix<T,MR,  Star> U01_MR_Star(g);
-    DistMatrix<T,Star,Star> U11_Star_Star(g);
-    DistMatrix<T,MC,  Star> X1_MC_Star(g);
-    DistMatrix<T,VC,  Star> X1_VC_Star(g);
+    DistMatrix<F,MR,  Star> U01_MR_Star(g);
+    DistMatrix<F,Star,Star> U11_Star_Star(g);
+    DistMatrix<F,MC,  Star> X1_MC_Star(g);
+    DistMatrix<F,VC,  Star> X1_VC_Star(g);
     
     // Start the algorithm
     blas::Scal( alpha, X );
@@ -107,7 +119,7 @@ elemental::blas::internal::TrsmRUT
         // X1[VC,*] := X1[VC,*] (U11[*,*])^-(T/H)
         blas::internal::LocalTrsm
         ( Right, Upper, orientation, diagonal, 
-          (T)1, U11_Star_Star, X1_VC_Star );
+          (F)1, U11_Star_Star, X1_VC_Star );
 
         X1_MC_Star  = X1_VC_Star; // X1[MC,*]  <- X1[VC,*]
         X1          = X1_MC_Star; // X1[MC,MR] <- X1[MC,*]
@@ -116,7 +128,7 @@ elemental::blas::internal::TrsmRUT
         // X0[MC,MR] -= X1[MC,*] (U01[MR,*])^(T/H)
         //            = X1[MC,*] (U01^(T/H))[*,MR]
         blas::internal::LocalGemm
-        ( Normal, orientation, (T)-1, X1_MC_Star, U01_MR_Star, (T)1, X0 );
+        ( Normal, orientation, (F)-1, X1_MC_Star, U01_MR_Star, (F)1, X0 );
         //--------------------------------------------------------------------//
         X1_MC_Star.FreeAlignments();
         U01_MR_Star.FreeAlignments();

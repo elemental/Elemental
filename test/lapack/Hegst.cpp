@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -53,19 +53,19 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename T>
+template<typename F> // represents a real or complex field
 void TestCorrectness
 ( bool printMatrices, Side side, Shape shape,
-  const DistMatrix<T,MC,MR>& A,
-  const DistMatrix<T,MC,MR>& B,
-  const DistMatrix<T,MC,MR>& AOrig )
+  const DistMatrix<F,MC,MR>& A,
+  const DistMatrix<F,MC,MR>& B,
+  const DistMatrix<F,MC,MR>& AOrig )
 {
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    DistMatrix<T,MC,MR> X(m,100,g);
-    DistMatrix<T,MC,MR> Y(m,100,g);
-    DistMatrix<T,MC,MR> Z(m,100,g);
+    DistMatrix<F,MC,MR> X(m,100,g);
+    DistMatrix<F,MC,MR> Y(m,100,g);
+    DistMatrix<F,MC,MR> Z(m,100,g);
     X.SetToRandom();
     Y = X;
 
@@ -76,17 +76,17 @@ void TestCorrectness
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // tril(B)^-1 AOrig tril(B)^-H
-            blas::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (T)1, B, Y );
-            blas::Hemm( Left, Lower, (T)1, AOrig, Y, (T)0, Z );
-            blas::Trsm( Left, Lower, Normal, NonUnit, (T)1, B, Z );
-            blas::Hemm( Left, Lower, (T)-1, A, X, (T)1, Z );
-            T infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
-            T frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
-            T infNormOfA = lapack::HermitianInfinityNorm( shape, A );
-            T frobNormOfA = lapack::HermitianFrobeniusNorm( shape, A );
-            T oneNormOfError = lapack::OneNorm( Z );
-            T infNormOfError = lapack::InfinityNorm( Z );
-            T frobNormOfError = lapack::FrobeniusNorm( Z );
+            blas::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (F)1, B, Y );
+            blas::Hemm( Left, Lower, (F)1, AOrig, Y, (F)0, Z );
+            blas::Trsm( Left, Lower, Normal, NonUnit, (F)1, B, Z );
+            blas::Hemm( Left, Lower, (F)-1, A, X, (F)1, Z );
+            F infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
+            F frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            F infNormOfA = lapack::HermitianInfinityNorm( shape, A );
+            F frobNormOfA = lapack::HermitianFrobeniusNorm( shape, A );
+            F oneNormOfError = lapack::OneNorm( Z );
+            F infNormOfError = lapack::InfinityNorm( Z );
+            F frobNormOfError = lapack::FrobeniusNorm( Z );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo     = "
@@ -110,17 +110,17 @@ void TestCorrectness
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // triu(B)^-H AOrig triu(B)^-1
-            blas::Trsm( Left, Upper, Normal, NonUnit, (T)1, B, Y );
-            blas::Hemm( Left, Upper, (T)1, AOrig, Y, (T)0, Z );
-            blas::Trsm( Left, Upper, ConjugateTranspose, NonUnit, (T)1, B, Z );
-            blas::Hemm( Left, Upper, (T)-1, A, X, (T)1, Z );
-            T infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
-            T frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
-            T infNormOfA = lapack::HermitianInfinityNorm( shape, A );
-            T frobNormOfA = lapack::HermitianFrobeniusNorm( shape, A );
-            T oneNormOfError = lapack::OneNorm( Z );
-            T infNormOfError = lapack::InfinityNorm( Z );
-            T frobNormOfError = lapack::FrobeniusNorm( Z );
+            blas::Trsm( Left, Upper, Normal, NonUnit, (F)1, B, Y );
+            blas::Hemm( Left, Upper, (F)1, AOrig, Y, (F)0, Z );
+            blas::Trsm( Left, Upper, ConjugateTranspose, NonUnit, (F)1, B, Z );
+            blas::Hemm( Left, Upper, (F)-1, A, X, (F)1, Z );
+            F infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
+            F frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            F infNormOfA = lapack::HermitianInfinityNorm( shape, A );
+            F frobNormOfA = lapack::HermitianFrobeniusNorm( shape, A );
+            F oneNormOfError = lapack::OneNorm( Z );
+            F infNormOfError = lapack::InfinityNorm( Z );
+            F frobNormOfError = lapack::FrobeniusNorm( Z );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo     = "
@@ -147,17 +147,17 @@ void TestCorrectness
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // tril(B)^H AOrig tril(B)
-            blas::Trmm( Left, Lower, Normal, NonUnit, (T)1, B, Y );
-            blas::Hemm( Left, Lower, (T)1, AOrig, Y, (T)0, Z );
-            blas::Trmm( Left, Lower, ConjugateTranspose, NonUnit, (T)1, B, Z );
-            blas::Hemm( Left, Lower, (T)-1, A, X, (T)1, Z );
-            T infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
-            T frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
-            T infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
-            T frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
-            T oneNormOfError = lapack::OneNorm( Z );
-            T infNormOfError = lapack::InfinityNorm( Z );
-            T frobNormOfError = lapack::FrobeniusNorm( Z );
+            blas::Trmm( Left, Lower, Normal, NonUnit, (F)1, B, Y );
+            blas::Hemm( Left, Lower, (F)1, AOrig, Y, (F)0, Z );
+            blas::Trmm( Left, Lower, ConjugateTranspose, NonUnit, (F)1, B, Z );
+            blas::Hemm( Left, Lower, (F)-1, A, X, (F)1, Z );
+            F infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
+            F frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            F infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+            F frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            F oneNormOfError = lapack::OneNorm( Z );
+            F infNormOfError = lapack::InfinityNorm( Z );
+            F frobNormOfError = lapack::FrobeniusNorm( Z );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo = "
@@ -181,17 +181,17 @@ void TestCorrectness
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // triu(B) AOrig triu(B)^H
-            blas::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (T)1, B, Y );
-            blas::Hemm( Left, Upper, (T)1, AOrig, Y, (T)0, Z );
-            blas::Trmm( Left, Upper, Normal, NonUnit, (T)1, B, Z );
-            blas::Hemm( Left, Upper, (T)-1, A, X, (T)1, Z );
-            T infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
-            T frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
-            T infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
-            T frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
-            T oneNormOfError = lapack::OneNorm( Z );
-            T infNormOfError = lapack::InfinityNorm( Z );
-            T frobNormOfError = lapack::FrobeniusNorm( Z );
+            blas::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (F)1, B, Y );
+            blas::Hemm( Left, Upper, (F)1, AOrig, Y, (F)0, Z );
+            blas::Trmm( Left, Upper, Normal, NonUnit, (F)1, B, Z );
+            blas::Hemm( Left, Upper, (F)-1, A, X, (F)1, Z );
+            F infNormOfAOrig = lapack::HermitianInfinityNorm( shape, AOrig );
+            F frobNormOfAOrig = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            F infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+            F frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+            F oneNormOfError = lapack::OneNorm( Z );
+            F infNormOfError = lapack::InfinityNorm( Z );
+            F frobNormOfError = lapack::FrobeniusNorm( Z );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo = "
@@ -213,15 +213,15 @@ void TestCorrectness
     }
 }
 
-template<typename T>
+template<typename F> // represents a real or complex field
 void TestHegst
 ( bool testCorrectness, bool printMatrices,
   Side side, Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,MC,MR> B(g);
-    DistMatrix<T,MC,MR> AOrig(g);
+    DistMatrix<F,MC,MR> A(g);
+    DistMatrix<F,MC,MR> B(g);
+    DistMatrix<F,MC,MR> AOrig(g);
 
     A.ResizeTo( m, m );
     B.ResizeTo( m, m );
@@ -257,7 +257,7 @@ void TestHegst
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = lapack::internal::HegstGFlops<T>( m, runTime );
+    gFlops = lapack::internal::HegstGFlops<F>( m, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl

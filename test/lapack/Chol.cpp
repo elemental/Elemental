@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -50,17 +50,17 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename T>
+template<typename F> // represents a real or complex field
 void TestCorrectness
 ( bool printMatrices, Shape shape,
-  const DistMatrix<T,MC,MR>& A,
-  const DistMatrix<T,MC,MR>& AOrig )
+  const DistMatrix<F,MC,MR>& A,
+  const DistMatrix<F,MC,MR>& AOrig )
 {
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    DistMatrix<T,MC,MR> X(m,100,g);
-    DistMatrix<T,MC,MR> Y(m,100,g);
+    DistMatrix<F,MC,MR> X(m,100,g);
+    DistMatrix<F,MC,MR> Y(m,100,g);
     X.SetToRandom();
     Y = X;
 
@@ -68,17 +68,17 @@ void TestCorrectness
     {
         // Test correctness by comparing the application of AOrig against a 
         // random set of 100 vectors to the application of tril(A) tril(A)^H
-        blas::Trmm( Left, Lower, ConjugateTranspose, NonUnit, (T)1, A, Y );
-        blas::Trmm( Left, Lower, Normal, NonUnit, (T)1, A, Y );
-        blas::Hemm( Left, Lower, (T)-1, AOrig, X, (T)1, Y );
-        T oneNormOfError = lapack::OneNorm( Y );
-        T infNormOfError = lapack::InfinityNorm( Y );
-        T frobNormOfError = lapack::FrobeniusNorm( Y );
-        T infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
-        T frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
-        T oneNormOfX = lapack::OneNorm( X );
-        T infNormOfX = lapack::InfinityNorm( X );
-        T frobNormOfX = lapack::FrobeniusNorm( X );
+        blas::Trmm( Left, Lower, ConjugateTranspose, NonUnit, (F)1, A, Y );
+        blas::Trmm( Left, Lower, Normal, NonUnit, (F)1, A, Y );
+        blas::Hemm( Left, Lower, (F)-1, AOrig, X, (F)1, Y );
+        F oneNormOfError = lapack::OneNorm( Y );
+        F infNormOfError = lapack::InfinityNorm( Y );
+        F frobNormOfError = lapack::FrobeniusNorm( Y );
+        F infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+        F frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+        F oneNormOfX = lapack::OneNorm( X );
+        F infNormOfX = lapack::InfinityNorm( X );
+        F frobNormOfX = lapack::FrobeniusNorm( X );
         if( g.VCRank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << Abs(infNormOfA) << "\n"
@@ -95,17 +95,17 @@ void TestCorrectness
     {
         // Test correctness by comparing the application of AOrig against a 
         // random set of 100 vectors to the application of triu(A)^H triu(A)
-        blas::Trmm( Left, Upper, Normal, NonUnit, (T)1, A, Y );
-        blas::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (T)1, A, Y );
-        blas::Hemm( Left, Upper, (T)-1, AOrig, X, (T)1, Y );
-        T oneNormOfError = lapack::OneNorm( Y );
-        T infNormOfError = lapack::InfinityNorm( Y );
-        T frobNormOfError = lapack::FrobeniusNorm( Y );
-        T infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
-        T frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
-        T oneNormOfX = lapack::OneNorm( X );
-        T infNormOfX = lapack::InfinityNorm( X );
-        T frobNormOfX = lapack::FrobeniusNorm( X );
+        blas::Trmm( Left, Upper, Normal, NonUnit, (F)1, A, Y );
+        blas::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (F)1, A, Y );
+        blas::Hemm( Left, Upper, (F)-1, AOrig, X, (F)1, Y );
+        F oneNormOfError = lapack::OneNorm( Y );
+        F infNormOfError = lapack::InfinityNorm( Y );
+        F frobNormOfError = lapack::FrobeniusNorm( Y );
+        F infNormOfA = lapack::HermitianInfinityNorm( shape, AOrig );
+        F frobNormOfA = lapack::HermitianFrobeniusNorm( shape, AOrig );
+        F oneNormOfX = lapack::OneNorm( X );
+        F infNormOfX = lapack::InfinityNorm( X );
+        F frobNormOfX = lapack::FrobeniusNorm( X );
         if( g.VCRank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << Abs(infNormOfA) << "\n"
@@ -120,14 +120,14 @@ void TestCorrectness
     }
 }
 
-template<typename T>
+template<typename F> // represents a real or complex field
 void TestChol
 ( bool testCorrectness, bool printMatrices, 
   Shape shape, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,MC,MR> AOrig(g);
+    DistMatrix<F,MC,MR> A(g);
+    DistMatrix<F,MC,MR> AOrig(g);
 
     A.ResizeTo( m, m );
 
@@ -157,7 +157,7 @@ void TestChol
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = lapack::internal::CholGFlops<T>( m, runTime );
+    gFlops = lapack::internal::CholGFlops<F>( m, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE.\n"

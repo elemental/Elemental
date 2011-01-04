@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -36,33 +36,45 @@ using namespace elemental;
 using namespace elemental::utilities;
 using namespace elemental::wrappers::mpi;
 
-template<typename R>
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
+template<typename Z>
 bool
-elemental::DistMatrix<R,Star,MD>::AlignedWithDiag
-( const DistMatrixBase<R,MC,MR>& A, int offset ) const
+elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
+( const DistMatrixBase<Z,MC,MR>& A, int offset ) const
 { return DMB::AlignedWithDiag( A, offset ); }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<R,Star,MD>::AlignWithDiag
-( const DistMatrixBase<R,MC,MR>& A, int offset )
+elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
+( const DistMatrixBase<Z,MC,MR>& A, int offset )
 { DMB::AlignWithDiag( A, offset ); }
 
-template<typename R>
+template<typename Z>
 bool
-elemental::DistMatrix<R,Star,MD>::AlignedWithDiag
-( const DistMatrixBase<R,MR,MC>& A, int offset ) const
+elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
+( const DistMatrixBase<Z,MR,MC>& A, int offset ) const
 { return DMB::AlignedWithDiag( A, offset ); }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<R,Star,MD>::AlignWithDiag
-( const DistMatrixBase<R,MR,MC>& A, int offset )
+elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
+( const DistMatrixBase<Z,MR,MC>& A, int offset )
 { DMB::AlignWithDiag( A, offset ); }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<R,Star,MD>::SetToRandomHPD()
+elemental::DistMatrix<Z,Star,MD>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::SetToRandomHPD");
@@ -87,7 +99,7 @@ elemental::DistMatrix<R,Star,MD>::SetToRandomHPD()
             const int j = rowShift + jLoc*lcm;
             if( j < height )
             {
-                const R value = this->GetLocalEntry(j,jLoc);
+                const Z value = this->GetLocalEntry(j,jLoc);
                 this->SetLocalEntry(j,jLoc,value+this->Width());
             }
         }
@@ -98,9 +110,9 @@ elemental::DistMatrix<R,Star,MD>::SetToRandomHPD()
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,Star,MD>::SetToRandomHPD()
+elemental::DistMatrix<complex<Z>,Star,MD>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::SetToRandomHPD");
@@ -125,7 +137,7 @@ elemental::DistMatrix<complex<R>,Star,MD>::SetToRandomHPD()
             const int j = rowShift + jLoc*lcm;
             if( j < height )
             {
-                const R value = real(this->GetLocalEntry(j,jLoc));
+                const Z value = real(this->GetLocalEntry(j,jLoc));
                 this->SetLocalEntry(j,jLoc,value+this->Width());
             }
         }
@@ -135,9 +147,9 @@ elemental::DistMatrix<complex<R>,Star,MD>::SetToRandomHPD()
 #endif
 }
 
-template<typename R>
-R
-elemental::DistMatrix<complex<R>,Star,MD>::GetReal
+template<typename Z>
+Z
+elemental::DistMatrix<complex<Z>,Star,MD>::GetReal
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -158,7 +170,7 @@ elemental::DistMatrix<complex<R>,Star,MD>::GetReal
         ownerRank = ownerRow + r*ownerCol;
     }
 
-    R u;
+    Z u;
     if( g.VCRank() == ownerRank )
     {
         const int jLoc = (j-this->RowShift()) / g.LCM();
@@ -172,9 +184,9 @@ elemental::DistMatrix<complex<R>,Star,MD>::GetReal
     return u;
 }
 
-template<typename R>
-R
-elemental::DistMatrix<complex<R>,Star,MD>::GetImag
+template<typename Z>
+Z
+elemental::DistMatrix<complex<Z>,Star,MD>::GetImag
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -195,7 +207,7 @@ elemental::DistMatrix<complex<R>,Star,MD>::GetImag
         ownerRank = ownerRow + r*ownerCol;
     }
 
-    R u;
+    Z u;
     if( g.VCRank() == ownerRank )
     {
         const int jLoc = (j-this->RowShift()) / g.LCM();
@@ -209,10 +221,10 @@ elemental::DistMatrix<complex<R>,Star,MD>::GetImag
     return u;
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,Star,MD>::SetReal
-( int i, int j, R u )
+elemental::DistMatrix<complex<Z>,Star,MD>::SetReal
+( int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::SetReal");
@@ -234,18 +246,18 @@ elemental::DistMatrix<complex<R>,Star,MD>::SetReal
     if( g.VCRank() == ownerRank )
     {
         const int jLoc = (j-this->RowShift()) / g.LCM();
-        const R v = imag(this->GetLocalEntry(i,jLoc));
-        this->SetLocalEntry(i,jLoc,complex<R>(u,v));
+        const Z v = imag(this->GetLocalEntry(i,jLoc));
+        this->SetLocalEntry(i,jLoc,complex<Z>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,Star,MD>::SetImag
-( int i, int j, R v )
+elemental::DistMatrix<complex<Z>,Star,MD>::SetImag
+( int i, int j, Z v )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::SetImag");
@@ -267,18 +279,18 @@ elemental::DistMatrix<complex<R>,Star,MD>::SetImag
     if( g.VCRank() == ownerRank )
     {
         const int jLoc = (j-this->RowShift()) / g.LCM();
-        const R u = real(this->GetLocalEntry(i,jLoc));
-        this->SetLocalEntry(i,jLoc,complex<R>(u,v));
+        const Z u = real(this->GetLocalEntry(i,jLoc));
+        this->SetLocalEntry(i,jLoc,complex<Z>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename R>
+template<typename Z>
 bool
-elemental::DistMatrix<R,Star,MD>::AlignedWithDiag
-( const DistMatrixBase<complex<R>,MC,MR>& A, int offset ) const
+elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
+( const DistMatrixBase<complex<Z>,MC,MR>& A, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::AlignWithedDiag([MC,MR])");
@@ -309,10 +321,10 @@ elemental::DistMatrix<R,Star,MD>::AlignedWithDiag
     return aligned;
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<R,Star,MD>::AlignWithDiag
-( const DistMatrixBase<complex<R>,MC,MR>& A, int offset )
+elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
+( const DistMatrixBase<complex<Z>,MC,MR>& A, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::AlignWithDiag([MC,MR])");
@@ -353,10 +365,10 @@ elemental::DistMatrix<R,Star,MD>::AlignWithDiag
 #endif
 }
 
-template<typename R>
+template<typename Z>
 bool
-elemental::DistMatrix<R,Star,MD>::AlignedWithDiag
-( const DistMatrixBase<complex<R>,MR,MC>& A, int offset ) const
+elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
+( const DistMatrixBase<complex<Z>,MR,MC>& A, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::AlignedWithDiag([MR,MC])");
@@ -387,10 +399,10 @@ elemental::DistMatrix<R,Star,MD>::AlignedWithDiag
     return aligned;
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<R,Star,MD>::AlignWithDiag
-( const DistMatrixBase<complex<R>,MR,MC>& A, int offset )
+elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
+( const DistMatrixBase<complex<Z>,MR,MC>& A, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::AlignWithDiag([MR,MC])");

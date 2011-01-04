@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -41,7 +41,7 @@ using namespace std;
 // in the portion of H below the diagonal marked by 'offset'. It is assumed 
 // that the Householder transforms were accumulated left-to-right.
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::internal::UTRLC
 ( int offset, 
@@ -151,7 +151,7 @@ elemental::lapack::internal::UTRLC
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::internal::UTRLC
 ( int offset, 

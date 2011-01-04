@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -37,10 +37,22 @@
 #include <complex>
 #endif
 
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
 namespace elemental {
 
-// Generate a sample from a uniform PDF over the unit ball about the origin 
-// of the vector space implied by the type T
+// Generate a sample from a uniform PDF over the (closed) unit ball about the 
+// origin of the ring implied by the type T using the most natural metric.
 template<typename T> T Random();
 
 } // elemental
@@ -65,6 +77,11 @@ Random<int>()
     else
         return +1;
 }
+
+template<>
+inline std::complex<int>
+Random< std::complex<int> >()
+{ return std::complex<int>( Random<int>(), Random<int>() ); }
 
 template<>
 inline float

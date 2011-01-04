@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -47,6 +47,7 @@ void Usage()
          << "  n: width of matrices\n" << endl;
 }
 
+// represents a real or complex ring
 template<typename T, Distribution AColDist, Distribution ARowDist,
                      Distribution BColDist, Distribution BRowDist>
 void
@@ -110,7 +111,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
 #endif
 }
 
-template<typename T>
+template<typename T> // represents a real or complex ring
 void
 DistMatrixTest( int m, int n, const Grid& g )
 {

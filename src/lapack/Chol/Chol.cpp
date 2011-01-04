@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -33,10 +33,10 @@
 #include "elemental/lapack_internal.hpp"
 using namespace elemental;
 
-template<typename T>
+template<typename F> // F represents a real or complex field
 void
 elemental::lapack::Chol
-( Shape shape, DistMatrix<T,MC,MR>& A )
+( Shape shape, DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Chol");
@@ -47,10 +47,10 @@ elemental::lapack::Chol
 #endif
 }
 
-template<typename T>
+template<typename F> // F represents a real or complex field
 void
 elemental::lapack::internal::CholVar2
-( Shape shape, DistMatrix<T,MC,MR>& A )
+( Shape shape, DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::CholVar2");
@@ -64,10 +64,10 @@ elemental::lapack::internal::CholVar2
 #endif
 }
 
-template<typename T>
+template<typename F> // F represents a real or complex field
 void
 elemental::lapack::internal::CholVar2Naive
-( Shape shape, DistMatrix<T,MC,MR>& A )
+( Shape shape, DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::CholVar2Naive");
@@ -81,10 +81,10 @@ elemental::lapack::internal::CholVar2Naive
 #endif
 }
 
-template<typename T>
+template<typename F> // F represents a real or complex field
 void
 elemental::lapack::internal::CholVar3
-( Shape shape, DistMatrix<T,MC,MR>& A )
+( Shape shape, DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::CholVar3");
@@ -98,10 +98,10 @@ elemental::lapack::internal::CholVar3
 #endif
 }
 
-template<typename T>
+template<typename F> // F represents a real or complex field
 void
 elemental::lapack::internal::CholVar3Naive
-( Shape shape, DistMatrix<T,MC,MR>& A )
+( Shape shape, DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::CholVar3Naive");

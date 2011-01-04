@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -34,19 +34,31 @@
 using namespace std;
 using namespace elemental;
 
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
 // Left Lower (Conjugate)Transpose (Non)Unit Trsm
 //   X := tril(L)^-T,
 //   X := tril(L)^-H,
 //   X := trilu(L)^-T, or
 //   X := trilu(L)^-H
-template<typename T>
+template<typename F>
 void
 elemental::blas::internal::TrsmLLT
 ( Orientation orientation, 
   Diagonal diagonal,
-  T alpha, 
-  const DistMatrix<T,MC,MR>& L,
-        DistMatrix<T,MC,MR>& X )
+  F alpha, 
+  const DistMatrix<F,MC,MR>& L,
+        DistMatrix<F,MC,MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsmLLT");
@@ -66,20 +78,20 @@ elemental::blas::internal::TrsmLLT
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<F,MC,MR> 
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
 
-    DistMatrix<T,MC,MR> XT(g),  X0(g),
+    DistMatrix<F,MC,MR> XT(g),  X0(g),
                         XB(g),  X1(g),
                                 X2(g);
 
     // Temporary distributions
-    DistMatrix<T,Star,MC  > L10_Star_MC(g);
-    DistMatrix<T,Star,Star> L11_Star_Star(g);
-    DistMatrix<T,Star,MR  > X1_Star_MR(g);
-    DistMatrix<T,Star,VR  > X1_Star_VR(g);
+    DistMatrix<F,Star,MC  > L10_Star_MC(g);
+    DistMatrix<F,Star,Star> L11_Star_Star(g);
+    DistMatrix<F,Star,MR  > X1_Star_MR(g);
+    DistMatrix<F,Star,VR  > X1_Star_VR(g);
 
     // Start the algorithm
     blas::Scal( alpha, X );
@@ -111,7 +123,7 @@ elemental::blas::internal::TrsmLLT
 
         // X1[*,VR] := (L11[*,*])^-(T/H) X1[*,VR]
         blas::internal::LocalTrsm
-        ( Left, Lower, orientation, diagonal, (T)1, L11_Star_Star, X1_Star_VR );
+        ( Left, Lower, orientation, diagonal, (F)1, L11_Star_Star, X1_Star_VR );
 
         X1_Star_MR  = X1_Star_VR; // X1[*,MR] <- X1[*,VR]
         X1          = X1_Star_MR; // X1[MC,MR] <- X1[*,MR]
@@ -120,7 +132,7 @@ elemental::blas::internal::TrsmLLT
         // X0[MC,MR] -= (L10[*,MC])^(T/H) X1[*,MR]
         //            = (L10^(T/H))[MC,*] X1[*,MR]
         blas::internal::LocalGemm
-        ( orientation, Normal, (T)-1, L10_Star_MC, X1_Star_MR, (T)1, X0 );
+        ( orientation, Normal, (F)-1, L10_Star_MC, X1_Star_MR, (F)1, X0 );
         //--------------------------------------------------------------------//
         L10_Star_MC.FreeAlignments();
         X1_Star_MR.FreeAlignments();

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -35,7 +35,7 @@
 using namespace std;
 using namespace elemental;
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::internal::PanelQR
 ( DistMatrix<R,MC,MR>& A )
@@ -124,7 +124,7 @@ elemental::lapack::internal::PanelQR
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::internal::PanelQR
 ( DistMatrix<complex<R>,MC,MR  >& A,

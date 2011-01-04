@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -33,12 +33,12 @@
 #include "elemental/lapack_internal.hpp"
 using namespace elemental;
 
-template<typename T>
+template<typename F> // represents a real or complex number
 void
 elemental::lapack::Trinv
 ( Shape shape, 
   Diagonal diagonal, 
-  DistMatrix<T,MC,MR>& A  )
+  DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
     PushCallStack("lapack::Trinv");
@@ -49,12 +49,12 @@ elemental::lapack::Trinv
 #endif
 }
 
-template<typename T>
+template<typename F>
 void
 elemental::lapack::internal::TrinvVar3
 ( Shape shape, 
   Diagonal diagonal, 
-  DistMatrix<T,MC,MR>& A  )
+  DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::TrinvVar3");

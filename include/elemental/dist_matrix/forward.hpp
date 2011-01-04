@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -33,18 +33,35 @@
 #ifndef ELEMENTAL_DIST_MATRIX_FORWARD_HPP
 #define ELEMENTAL_DIST_MATRIX_FORWARD_HPP 1
 
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
 namespace elemental {
 
+// The foundation for the DistMatrix class that works for arbitrary rings
 template<typename T>
 class AbstractDistMatrixBase;
 
-template<typename T>
+// Specialization of the foundation for real and complex rings
+template<typename Z> 
 class AbstractDistMatrix;
 
+// Specialization of the foundation to each distribution, but for both
+// real and complex rings
 template<typename T, Distribution ColDist, Distribution RowDist>
 class DistMatrixBase;
 
-template<typename T, Distribution ColDist, Distribution RowDist>
+// Specialization of ecah distribution to real and complex rings
+template<typename Z, Distribution ColDist, Distribution RowDist>
 class DistMatrix;
 
 }

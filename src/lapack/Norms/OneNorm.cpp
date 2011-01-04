@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -33,7 +33,7 @@
 #include "elemental/lapack.hpp"
 using namespace elemental;
 
-template<typename R>
+template<typename R> // represents a real number
 R
 lapack::OneNorm( const Matrix<R>& A )
 {
@@ -55,7 +55,7 @@ lapack::OneNorm( const Matrix<R>& A )
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::OneNorm( const Matrix< std::complex<R> >& A )
 {
@@ -77,7 +77,7 @@ lapack::OneNorm( const Matrix< std::complex<R> >& A )
 }
 #endif
 
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::OneNorm( const DistMatrix<R,MC,MR>& A )
 {
@@ -115,7 +115,7 @@ lapack::OneNorm( const DistMatrix<R,MC,MR>& A )
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 {

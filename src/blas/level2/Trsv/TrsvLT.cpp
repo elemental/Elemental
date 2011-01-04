@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -34,13 +34,25 @@
 using namespace std;
 using namespace elemental;
 
-template<typename T>
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
+template<typename F>
 void
 elemental::blas::internal::TrsvLT
 ( Orientation orientation,
   Diagonal diagonal, 
-  const DistMatrix<T,MC,MR>& L, 
-        DistMatrix<T,MC,MR>& x )
+  const DistMatrix<F,MC,MR>& L, 
+        DistMatrix<F,MC,MR>& x )
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TrsvLT");
@@ -61,23 +73,23 @@ elemental::blas::internal::TrsvLT
     if( x.Width() == 1 )
     {
         // Matrix views 
-        DistMatrix<T,MC,MR> 
+        DistMatrix<F,MC,MR> 
             LTL(g), LTR(g),  L00(g), L01(g), L02(g),
             LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                              L20(g), L21(g), L22(g);
 
-        DistMatrix<T,MC,MR> 
+        DistMatrix<F,MC,MR> 
             xT(g),  x0(g),
             xB(g),  x1(g),
                     x2(g);
 
         // Temporary distributions
-        DistMatrix<T,Star,Star> L11_Star_Star(g);
-        DistMatrix<T,Star,Star> x1_Star_Star(g);
-        DistMatrix<T,MC,  Star> x1_MC_Star(g);
-        DistMatrix<T,MR,  Star> z0_MR_Star(g);
-        DistMatrix<T,MR,  MC  > z0_MR_MC(g);
-        DistMatrix<T,MC,  MR  > z0(g);
+        DistMatrix<F,Star,Star> L11_Star_Star(g);
+        DistMatrix<F,Star,Star> x1_Star_Star(g);
+        DistMatrix<F,MC,  Star> x1_MC_Star(g);
+        DistMatrix<F,MR,  Star> z0_MR_Star(g);
+        DistMatrix<F,MR,  MC  > z0_MR_MC(g);
+        DistMatrix<F,MC,  MR  > z0(g);
 
         // Start the algorithm
         LockedPartitionUpDiagonal
@@ -115,13 +127,13 @@ elemental::blas::internal::TrsvLT
 
             x1_MC_Star = x1_Star_Star;
             blas::Gemv
-            ( orientation, (T)-1, 
+            ( orientation, (F)-1, 
               L10.LockedLocalMatrix(), 
               x1_MC_Star.LockedLocalMatrix(),
-              (T)0, z0_MR_Star.LocalMatrix() );
+              (F)0, z0_MR_Star.LocalMatrix() );
             z0_MR_MC.SumScatterFrom( z0_MR_Star );
             z0 = z0_MR_MC;
-            blas::Axpy( (T)1, z0, x0 );
+            blas::Axpy( (F)1, z0, x0 );
             //----------------------------------------------------------------//
             x1_MC_Star.FreeAlignments();
             z0_MR_Star.FreeAlignments();
@@ -143,20 +155,20 @@ elemental::blas::internal::TrsvLT
     else
     {
         // Matrix views 
-        DistMatrix<T,MC,MR> 
+        DistMatrix<F,MC,MR> 
             LTL(g), LTR(g),  L00(g), L01(g), L02(g),
             LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                              L20(g), L21(g), L22(g);
 
-        DistMatrix<T,MC,MR> 
+        DistMatrix<F,MC,MR> 
             xL(g), xR(g),
             x0(g), x1(g), x2(g);
 
         // Temporary distributions
-        DistMatrix<T,Star,Star> L11_Star_Star(g);
-        DistMatrix<T,Star,Star> x1_Star_Star(g);
-        DistMatrix<T,Star,MC  > x1_Star_MC(g);
-        DistMatrix<T,Star,MR  > z0_Star_MR(g);
+        DistMatrix<F,Star,Star> L11_Star_Star(g);
+        DistMatrix<F,Star,Star> x1_Star_Star(g);
+        DistMatrix<F,Star,MC  > x1_Star_MC(g);
+        DistMatrix<F,Star,MR  > z0_Star_MR(g);
 
         // Start the algorithm
         LockedPartitionUpDiagonal
@@ -188,11 +200,11 @@ elemental::blas::internal::TrsvLT
 
             x1_Star_MC = x1_Star_Star;
             blas::Gemv
-            ( orientation, (T)-1, 
+            ( orientation, (F)-1, 
               L10.LockedLocalMatrix(), 
               x1_Star_MC.LockedLocalMatrix(),
-              (T)0, z0_Star_MR.LocalMatrix() );
-            x0.SumScatterUpdate( (T)1, z0_Star_MR );
+              (F)0, z0_Star_MR.LocalMatrix() );
+            x0.SumScatterUpdate( (F)1, z0_Star_MR );
             //----------------------------------------------------------------//
             x1_Star_MC.FreeAlignments();
             z0_Star_MR.FreeAlignments();

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -46,7 +46,7 @@ using namespace elemental;
 // where psi_j is the j'th entry of s and u_j is the j'th unscaled Householder
 // reflector.
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::QR
 ( DistMatrix<R,MC,MR>& A )
@@ -98,7 +98,7 @@ elemental::lapack::QR
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::QR
 ( DistMatrix<complex<R>,MC,  MR  >& A, 

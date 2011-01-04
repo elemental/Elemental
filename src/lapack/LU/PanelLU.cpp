@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -36,11 +36,11 @@ using namespace elemental;
 using namespace elemental::blas;
 using namespace elemental::wrappers::mpi;
 
-template<typename T>
+template<typename F> // represents a real or complex number
 void
 elemental::lapack::internal::PanelLU
-( DistMatrix<T,Star,Star>& A, 
-  DistMatrix<T,VC,  Star>& B, 
+( DistMatrix<F,Star,Star>& A, 
+  DistMatrix<F,VC,  Star>& B, 
   DistMatrix<int,Star,Star>& p, 
   int pivotOffset )
 {
@@ -59,12 +59,12 @@ elemental::lapack::internal::PanelLU
     const int colAlignment = B.ColAlignment();
 
     // Matrix views
-    DistMatrix<T,Star,Star> 
+    DistMatrix<F,Star,Star> 
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),  
                          A20(g), a21(g),     A22(g);
 
-    DistMatrix<T,VC,Star>
+    DistMatrix<F,VC,Star>
         BL(g), BR(g),
         B0(g), b1(g), B2(g);
 
@@ -74,7 +74,7 @@ elemental::lapack::internal::PanelLU
                 p2(g);
 
     const int width = A.Width();
-    const int numBytes = (width+1)*sizeof(T)+sizeof(int);
+    const int numBytes = (width+1)*sizeof(F)+sizeof(int);
     vector<char> sendData(numBytes);
     vector<char> recvData(numBytes);
 
@@ -112,11 +112,11 @@ elemental::lapack::internal::PanelLU
         //--------------------------------------------------------------------//
         
         // Store the index/value of the pivot candidate in A
-        T pivotValue = alpha11.GetLocalEntry(0,0);
+        F pivotValue = alpha11.GetLocalEntry(0,0);
         int pivotIndex = a01.Height();
         for( int i=0; i<a21.Height(); ++i )
         {
-            T value = a21.GetLocalEntry(i,0);
+            F value = a21.GetLocalEntry(i,0);
             if( FastAbs(value) > FastAbs(pivotValue) )
             {
                 pivotValue = value;
@@ -127,7 +127,7 @@ elemental::lapack::internal::PanelLU
         // Update the pivot candidate to include local data from B
         for( int i=0; i<B.LocalHeight(); ++i )
         {
-            T value = b1.GetLocalEntry(i,0);
+            F value = b1.GetLocalEntry(i,0);
             if( FastAbs(value) > FastAbs(pivotValue) )
             {
                 pivotValue = value;
@@ -139,25 +139,25 @@ elemental::lapack::internal::PanelLU
         // [ pivotValue | pivotRow | pivotIndex ]
         if( pivotIndex < A.Height() )
         {
-            ((T*)sendBuf)[0] = A.GetLocalEntry(pivotIndex,a10.Width());
+            ((F*)sendBuf)[0] = A.GetLocalEntry(pivotIndex,a10.Width());
             for( int j=0; j<width; ++j )
-                ((T*)sendBuf)[j+1] = A.GetLocalEntry(pivotIndex,j);
+                ((F*)sendBuf)[j+1] = A.GetLocalEntry(pivotIndex,j);
         }
         else
         {
             const int localIndex = ((pivotIndex-A.Height())-colShift)/np;
-            ((T*)sendBuf)[0] = b1.GetLocalEntry(localIndex,0);
+            ((F*)sendBuf)[0] = b1.GetLocalEntry(localIndex,0);
             for( int j=0; j<width; ++j )
-                ((T*)sendBuf)[j+1] = B.GetLocalEntry(localIndex,j);
+                ((F*)sendBuf)[j+1] = B.GetLocalEntry(localIndex,j);
         }
-        ((int*)(((T*)sendBuf)+width+1))[0] = pivotIndex;
+        ((int*)(((F*)sendBuf)+width+1))[0] = pivotIndex;
 
         // Communicate to establish the pivot information
         AllReduce
-        ( sendBuf, recvBuf, numBytes, PivotOp<T>(), g.VCComm() );
+        ( sendBuf, recvBuf, numBytes, PivotOp<F>(), g.VCComm() );
 
         // Update the pivot vector
-        const int maxIndex = ((int*)(((T*)recvBuf)+width+1))[0];
+        const int maxIndex = ((int*)(((F*)recvBuf)+width+1))[0];
         p.SetLocalEntry(a01.Height(),0,maxIndex + pivotOffset);
 
         // Copy the current row into the pivot row
@@ -180,14 +180,14 @@ elemental::lapack::internal::PanelLU
 
         // Copy the pivot row into the current row
         for( int j=0; j<width; ++j )
-            A.SetLocalEntry(A00.Height(),j,((T*)recvBuf)[j+1]);
+            A.SetLocalEntry(A00.Height(),j,((F*)recvBuf)[j+1]);
 
         // Now we can perform the update
-        T alpha11Inv = ((T)1) / alpha11.GetLocalEntry(0,0);
+        F alpha11Inv = ((F)1) / alpha11.GetLocalEntry(0,0);
         Scal( alpha11Inv, a21.LocalMatrix() );
         Scal( alpha11Inv, b1.LocalMatrix()  );
-        Geru( (T)-1, a21.LocalMatrix(), a12.LocalMatrix(), A22.LocalMatrix() );
-        Geru( (T)-1, b1.LocalMatrix(), a12.LocalMatrix(), B2.LocalMatrix() );
+        Geru( (F)-1, a21.LocalMatrix(), a12.LocalMatrix(), A22.LocalMatrix() );
+        Geru( (F)-1, b1.LocalMatrix(), a12.LocalMatrix(), B2.LocalMatrix() );
 
         //--------------------------------------------------------------------//
 

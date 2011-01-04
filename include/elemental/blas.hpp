@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -34,6 +34,18 @@
 #define ELEMENTAL_BLAS_HPP 1
 
 #include "elemental/partitioning.hpp"
+
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
 
 namespace elemental {
 namespace blas {
@@ -236,15 +248,15 @@ Scal
 
 // In-place serial version for real datatypes. 
 // Note: this is a no-op.
-template<typename R>
+template<typename Z>
 void
-Conj( Matrix<R>& A );
+Conj( Matrix<Z>& A );
 
 #ifndef WITHOUT_COMPLEX
 // In-place serial version for complex datatypes.
-template<typename R>
+template<typename Z>
 void
-Conj( Matrix< std::complex<R> >& A );
+Conj( Matrix< std::complex<Z> >& A );
 #endif
 
 // In-place parallel version
@@ -256,7 +268,6 @@ Conj( DistMatrix<T,U,V>& A );
 template<typename T>
 void
 Conj( const Matrix<T>& A, Matrix<T>& B );
-
 
 // Out-of-place parallel version.
 template<typename T, 
@@ -548,18 +559,18 @@ Trmv
 //
 
 // Serial version
-template<typename T>
+template<typename F>
 void
 Trsv
 ( Shape shape, Orientation orientation, Diagonal diagonal,
-  const Matrix<T>& A, Matrix<T>& x );
+  const Matrix<F>& A, Matrix<F>& x );
 
 // Parallel version
-template<typename T>
+template<typename F>
 void
 Trsv
 ( Shape shape, Orientation orientation, Diagonal diagonal,
-  const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& x );
+  const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& x );
 
 //----------------------------------------------------------------------------//
 // Level 3 BLAS                                                               //
@@ -775,18 +786,18 @@ Trmm
 //
 
 // Serial version
-template<typename T>
+template<typename F>
 void
 Trsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
-  T alpha, const Matrix<T>& A, Matrix<T>& B ); 
+  F alpha, const Matrix<F>& A, Matrix<F>& B ); 
         
 // Parallel version
-template<typename T>
+template<typename F>
 void
 Trsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
-  T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
+  F alpha, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 
 } // blas
 } // elemental
@@ -1111,18 +1122,18 @@ elemental::blas::Scal
 //----------------------------------------------------------------------------//
 
 // Default case is for real datatypes
-template<typename R>
+template<typename Z>
 inline void
 elemental::blas::Conj
-( Matrix<R>& A )
+( Matrix<Z>& A )
 { }
 
 #ifndef WITHOUT_COMPLEX
 // Specialization is to complex datatypes
-template<typename R>
+template<typename Z>
 inline void
 elemental::blas::Conj
-( Matrix< std::complex<R> >& A )
+( Matrix< std::complex<Z> >& A )
 {
 #ifndef RELEASE
     PushCallStack("blas::Conj (in-place)");
@@ -1557,11 +1568,11 @@ elemental::blas::Trmv
 #endif
 }
 
-template<typename T>
+template<typename F>
 inline void
 elemental::blas::Trsv
 ( Shape shape, Orientation orientation, Diagonal diagonal,
-  const Matrix<T>& A, Matrix<T>& x )
+  const Matrix<F>& A, Matrix<F>& x )
 {
 #ifndef RELEASE
     PushCallStack("blas::Trsv");
@@ -1866,12 +1877,12 @@ elemental::blas::Trmm
 #endif
 }
 
-template<typename T>
+template<typename F>
 inline void
 elemental::blas::Trsm
 ( Side side, Shape shape,
   Orientation orientation,Diagonal diagonal,
-  T alpha, const Matrix<T>& A, Matrix<T>& B )
+  F alpha, const Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("blas::Trsm");

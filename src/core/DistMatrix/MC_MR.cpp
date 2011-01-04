@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -36,9 +36,21 @@ using namespace elemental;
 using namespace elemental::utilities;
 using namespace elemental::wrappers::mpi;
 
-template<typename R>
+// Template conventions:
+//   G: general datatype
+//
+//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
+//   Z: representation of a real ring, e.g., the integers or real numbers
+//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
+//                    or complex numbers
+//
+//   F: representation of real or complex number
+//   R: representation of real number
+//   std::complex<R>: representation of complex number
+
+template<typename Z>
 void
-elemental::DistMatrix<R,MC,MR>::SetToRandomHPD()
+elemental::DistMatrix<Z,MC,MR>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetToRandomHPD");
@@ -66,7 +78,7 @@ elemental::DistMatrix<R,MC,MR>::SetToRandomHPD()
             const int jLocal = (i-rowShift) / c;
             if( jLocal < localWidth )
             {
-                const R value = this->GetLocalEntry(iLocal,jLocal);
+                const Z value = this->GetLocalEntry(iLocal,jLocal);
                 this->SetLocalEntry(iLocal,jLocal,value+this->Width());
             }
         }
@@ -77,9 +89,9 @@ elemental::DistMatrix<R,MC,MR>::SetToRandomHPD()
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::SetToRandomHPD()
+elemental::DistMatrix<complex<Z>,MC,MR>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetToRandomHPD");
@@ -107,7 +119,7 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetToRandomHPD()
             const int jLocal = (i-rowShift) / c;
             if( jLocal < localWidth )
             {
-                const R value = real(this->GetLocalEntry(iLocal,jLocal));
+                const Z value = real(this->GetLocalEntry(iLocal,jLocal));
                 this->SetLocalEntry(iLocal,jLocal,value+this->Width());
             }
         }
@@ -117,9 +129,9 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetToRandomHPD()
 #endif
 }
 
-template<typename R>
-R
-elemental::DistMatrix<complex<R>,MC,MR>::GetReal
+template<typename Z>
+Z
+elemental::DistMatrix<complex<Z>,MC,MR>::GetReal
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -133,7 +145,7 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetReal
     const int ownerCol = (j + this->RowAlignment()) % g.Width();
     const int ownerRank = ownerRow + ownerCol * g.Height();
 
-    R u;
+    Z u;
     if( g.VCRank() == ownerRank )
     {
         const int iLocal = (i-this->ColShift()) / g.Height();
@@ -148,9 +160,9 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetReal
     return u;
 }
 
-template<typename R>
-R
-elemental::DistMatrix<complex<R>,MC,MR>::GetImag
+template<typename Z>
+Z
+elemental::DistMatrix<complex<Z>,MC,MR>::GetImag
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -164,7 +176,7 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImag
     const int ownerCol = (j + this->RowAlignment()) % g.Width();
     const int ownerRank = ownerRow + ownerCol * g.Height();
 
-    R u;
+    Z u;
     if( g.VCRank() == ownerRank )
     {
         const int iLocal = (i-this->ColShift()) / g.Height();
@@ -179,10 +191,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImag
     return u;
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::SetReal
-( int i, int j, R u )
+elemental::DistMatrix<complex<Z>,MC,MR>::SetReal
+( int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetReal");
@@ -197,18 +209,18 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetReal
     {
         const int iLocal = (i-this->ColShift()) / g.Height();
         const int jLocal = (j-this->RowShift()) / g.Width();
-        const R v = imag(this->GetLocalEntry(iLocal,jLocal));
-        this->SetLocalEntry(iLocal,jLocal,complex<R>(u,v));
+        const Z v = imag(this->GetLocalEntry(iLocal,jLocal));
+        this->SetLocalEntry(iLocal,jLocal,complex<Z>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::SetImag
-( int i, int j, R v )
+elemental::DistMatrix<complex<Z>,MC,MR>::SetImag
+( int i, int j, Z v )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImag");
@@ -223,18 +235,18 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetImag
     {
         const int iLocal = (i-this->ColShift()) / g.Height();
         const int jLocal = (j-this->RowShift()) / g.Width();
-        R u = real(this->GetLocalEntry(iLocal,jLocal));
-        this->SetLocalEntry(iLocal,jLocal,complex<R>(u,v));
+        Z u = real(this->GetLocalEntry(iLocal,jLocal));
+        this->SetLocalEntry(iLocal,jLocal,complex<Z>(u,v));
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::GetRealDiagonal
-( DistMatrix<R,MD,Star>& d, int offset ) const
+elemental::DistMatrix<complex<Z>,MC,MR>::GetRealDiagonal
+( DistMatrix<Z,MD,Star>& d, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetRealDiagonal");
@@ -305,7 +317,7 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetRealDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+            const Z u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
                                                  jLocalStart+k*(lcm/c)));
             d.SetLocalEntry(k,0,u);
         }
@@ -315,10 +327,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetRealDiagonal
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::GetImagDiagonal
-( DistMatrix<R,MD,Star>& d, int offset ) const
+elemental::DistMatrix<complex<Z>,MC,MR>::GetImagDiagonal
+( DistMatrix<Z,MD,Star>& d, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetImagDiagonal");
@@ -389,7 +401,7 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImagDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+            const Z v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
                                                  jLocalStart+k*(lcm/c)));
             d.SetLocalEntry(k,0,v);
         }
@@ -399,10 +411,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImagDiagonal
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::GetRealDiagonal
-( DistMatrix<R,Star,MD>& d, int offset ) const
+elemental::DistMatrix<complex<Z>,MC,MR>::GetRealDiagonal
+( DistMatrix<Z,Star,MD>& d, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetRealDiagonal");
@@ -473,7 +485,7 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetRealDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+            const Z u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
                                                  jLocalStart+k*(lcm/c)));
             d.SetLocalEntry(0,k,u);
         }
@@ -483,10 +495,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetRealDiagonal
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::GetImagDiagonal
-( DistMatrix<R,Star,MD>& d, int offset ) const
+elemental::DistMatrix<complex<Z>,MC,MR>::GetImagDiagonal
+( DistMatrix<Z,Star,MD>& d, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetImagDiagonal");
@@ -557,7 +569,7 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImagDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+            const Z v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
                                                  jLocalStart+k*(lcm/c)));
             d.SetLocalEntry(0,k,v);
         }
@@ -567,10 +579,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::GetImagDiagonal
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::SetDiagonal
-( const DistMatrixBase<R,MD,Star>& d, int offset )
+elemental::DistMatrix<complex<Z>,MC,MR>::SetDiagonal
+( const DistMatrixBase<Z,MD,Star>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetDiagonal");
@@ -640,10 +652,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetDiagonal
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
-( const DistMatrixBase<R,MD,Star>& d, int offset )
+elemental::DistMatrix<complex<Z>,MC,MR>::SetRealDiagonal
+( const DistMatrixBase<Z,MD,Star>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetRealDiagonal");
@@ -705,11 +717,11 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+            const Z v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
                                                  jLocalStart+k*(lcm/c)));
             this->SetLocalEntry
                 (iLocalStart+k*(lcm/r),jLocalStart+k*(lcm/c),
-                 complex<R>(d.GetLocalEntry(k,0),v));
+                 complex<Z>(d.GetLocalEntry(k,0),v));
         }
     }
 #ifndef RELEASE
@@ -717,10 +729,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::SetImagDiagonal
-( const DistMatrixBase<R,MD,Star>& d, int offset )
+elemental::DistMatrix<complex<Z>,MC,MR>::SetImagDiagonal
+( const DistMatrixBase<Z,MD,Star>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImagDiagonal");
@@ -782,11 +794,11 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetImagDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+            const Z u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
                                                  jLocalStart+k*(lcm/c)));
             this->SetLocalEntry
                 (iLocalStart+k*(lcm/r),jLocalStart+k*(lcm/c),
-                 complex<R>(u,d.GetLocalEntry(k,0)));
+                 complex<Z>(u,d.GetLocalEntry(k,0)));
         }
     }
 #ifndef RELEASE
@@ -794,10 +806,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetImagDiagonal
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::SetDiagonal
-( const DistMatrixBase<R,Star,MD>& d, int offset )
+elemental::DistMatrix<complex<Z>,MC,MR>::SetDiagonal
+( const DistMatrixBase<Z,Star,MD>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetDiagonal");
@@ -868,10 +880,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetDiagonal
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
-( const DistMatrixBase<R,Star,MD>& d, int offset )
+elemental::DistMatrix<complex<Z>,MC,MR>::SetRealDiagonal
+( const DistMatrixBase<Z,Star,MD>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetRealDiagonal");
@@ -934,11 +946,11 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+            const Z v = imag(this->GetLocalEntry(iLocalStart+k*(lcm/r),
                                                  jLocalStart+k*(lcm/c)));
             this->SetLocalEntry
                 (iLocalStart+k*(lcm/r),jLocalStart+k*(lcm/c),
-                 complex<R>(d.GetLocalEntry(0,k),v));
+                 complex<Z>(d.GetLocalEntry(0,k),v));
         }
     }
 #ifndef RELEASE
@@ -946,10 +958,10 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetRealDiagonal
 #endif
 }
 
-template<typename R>
+template<typename Z>
 void
-elemental::DistMatrix<complex<R>,MC,MR>::SetImagDiagonal
-( const DistMatrixBase<R,Star,MD>& d, int offset )
+elemental::DistMatrix<complex<Z>,MC,MR>::SetImagDiagonal
+( const DistMatrixBase<Z,Star,MD>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImagDiagonal");
@@ -1012,11 +1024,11 @@ elemental::DistMatrix<complex<R>,MC,MR>::SetImagDiagonal
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const R u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
+            const Z u = real(this->GetLocalEntry(iLocalStart+k*(lcm/r),
                                                  jLocalStart+k*(lcm/c)));
             this->SetLocalEntry
                 (iLocalStart+k*(lcm/r),jLocalStart+k*(lcm/c),
-                 complex<R>(u,d.GetLocalEntry(0,k)));
+                 complex<Z>(u,d.GetLocalEntry(0,k)));
         }
     }
 #ifndef RELEASE

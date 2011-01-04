@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -49,12 +49,12 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename T>
+template<typename F> // represents a real or complex field
 void TestCorrectness
 ( bool printMatrices,
-  const DistMatrix<T,MC,MR>& A,
+  const DistMatrix<F,MC,MR>& A,
   const DistMatrix<int,VC,Star>& p,
-  const DistMatrix<T,MC,MR>& AOrig )
+  const DistMatrix<F,MC,MR>& AOrig )
 {
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
@@ -70,27 +70,27 @@ void TestCorrectness
     lapack::internal::ComposePivots( p_Star_Star, image, preimage, 0 );
 
     // Apply the pivots to our random right-hand sides
-    DistMatrix<T,MC,MR> X(m,100,g);
-    DistMatrix<T,MC,MR> Y(g);
+    DistMatrix<F,MC,MR> X(m,100,g);
+    DistMatrix<F,MC,MR> Y(g);
     X.SetToRandom();
-    T oneNormOfX = lapack::OneNorm( X );
-    T infNormOfX = lapack::InfinityNorm( X );
-    T frobNormOfX = lapack::FrobeniusNorm( X );
+    F oneNormOfX = lapack::OneNorm( X );
+    F infNormOfX = lapack::InfinityNorm( X );
+    F frobNormOfX = lapack::FrobeniusNorm( X );
     Y = X;
     lapack::internal::ApplyRowPivots( Y, image, preimage, 0 );
 
     // Solve against the pivoted right-hand sides
-    blas::Trsm( Left, Lower, Normal, Unit, (T)1, A, Y );
-    blas::Trsm( Left, Upper, Normal, NonUnit, (T)1, A, Y );
+    blas::Trsm( Left, Lower, Normal, Unit, (F)1, A, Y );
+    blas::Trsm( Left, Upper, Normal, NonUnit, (F)1, A, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
-    blas::Gemm( Normal, Normal, (T)-1, AOrig, Y, (T)1, X );
-    T oneNormOfError = lapack::OneNorm( X );
-    T infNormOfError = lapack::InfinityNorm( X );
-    T frobNormOfError = lapack::FrobeniusNorm( X );
-    T oneNormOfA = lapack::OneNorm( AOrig );
-    T infNormOfA = lapack::InfinityNorm( AOrig );
-    T frobNormOfA = lapack::FrobeniusNorm( AOrig );
+    blas::Gemm( Normal, Normal, (F)-1, AOrig, Y, (F)1, X );
+    F oneNormOfError = lapack::OneNorm( X );
+    F infNormOfError = lapack::InfinityNorm( X );
+    F frobNormOfError = lapack::FrobeniusNorm( X );
+    F oneNormOfA = lapack::OneNorm( AOrig );
+    F infNormOfA = lapack::InfinityNorm( AOrig );
+    F frobNormOfA = lapack::FrobeniusNorm( AOrig );
 
     if( g.VCRank() == 0 )
     {
@@ -106,14 +106,14 @@ void TestCorrectness
     }
 }
 
-template<typename T>
+template<typename F> // represents a real or complex field
 void TestLU
 ( bool testCorrectness, bool printMatrices,
   int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,MC,MR> ARef(g);
+    DistMatrix<F,MC,MR> A(g);
+    DistMatrix<F,MC,MR> ARef(g);
     DistMatrix<int,VC,Star> p(g);
 
     A.ResizeTo( m, m );
@@ -145,7 +145,7 @@ void TestLU
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = lapack::internal::LUGFlops<T>( m, runTime );
+    gFlops = lapack::internal::LUGFlops<F>( m, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl

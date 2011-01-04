@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -37,7 +37,7 @@ using namespace elemental;
 
 namespace {
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 TridiagL
 ( Matrix<R>& A )
@@ -99,7 +99,7 @@ TridiagL
 #endif
 }
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 TridiagU
 ( Matrix<R>& A )
@@ -162,7 +162,7 @@ TridiagU
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 void
 TridiagL
 ( Matrix< complex<R> >& A, Matrix< complex<R> >& t )
@@ -252,7 +252,7 @@ TridiagL
 #endif
 }
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 TridiagU
 ( Matrix< complex<R> >& A, Matrix< complex<R> >& t )
@@ -345,7 +345,7 @@ TridiagU
 
 } // anonymous namespace
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::Tridiag
 ( Shape shape, Matrix<R>& A )
@@ -363,7 +363,7 @@ elemental::lapack::Tridiag
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::Tridiag
 ( Shape shape, Matrix< complex<R> >& A, Matrix< complex<R> >& t )

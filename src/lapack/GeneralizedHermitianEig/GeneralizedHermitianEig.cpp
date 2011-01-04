@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -35,7 +35,7 @@
 using namespace elemental;
 
 // Grab the full set of eigenpairs.
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -79,7 +79,7 @@ elemental::lapack::GeneralizedHermitianEig
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -121,7 +121,7 @@ elemental::lapack::GeneralizedHermitianEig
 
 // Grab a partial set of eigenpairs.
 // The partial set is determined by the half-open interval (a,b]
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -162,7 +162,7 @@ elemental::lapack::GeneralizedHermitianEig
 }
 
 // Grab the full set of eigenvalues
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -191,7 +191,7 @@ elemental::lapack::GeneralizedHermitianEig
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -218,7 +218,7 @@ elemental::lapack::GeneralizedHermitianEig
 
 // Grab a partial set of eigenvalues.
 // The partial set is determined by the half-open interval (a,b]
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -245,7 +245,7 @@ elemental::lapack::GeneralizedHermitianEig
 
 #ifndef WITHOUT_COMPLEX
 // Grab the full set of eigenpairs
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -305,7 +305,7 @@ elemental::lapack::GeneralizedHermitianEig
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -363,7 +363,7 @@ elemental::lapack::GeneralizedHermitianEig
 
 // Grab a partial set of eigenpairs.
 // The partial set is determined by the half-open interval (a,b]
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -420,7 +420,7 @@ elemental::lapack::GeneralizedHermitianEig
 }
 
 // Grab a full set of eigenvalues
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -449,7 +449,7 @@ elemental::lapack::GeneralizedHermitianEig
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 
@@ -476,7 +476,7 @@ elemental::lapack::GeneralizedHermitianEig
 
 // Grab a partial set of eigenvalues.
 // The partial set is determined by the half-open interval (a,b]
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::GeneralizedHermitianEig
 ( GenEigType genEigType, Shape shape, 

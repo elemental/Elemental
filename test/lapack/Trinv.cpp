@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -52,29 +52,29 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename T>
+template<typename F> // represents a real or complex number
 void TestCorrectness
 ( bool printMatrices,
   Shape shape, Diagonal diagonal,
-  const DistMatrix<T,MC,MR>& A,
-  const DistMatrix<T,MC,MR>& AOrig )
+  const DistMatrix<F,MC,MR>& A,
+  const DistMatrix<F,MC,MR>& AOrig )
 {
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    DistMatrix<T,MC,MR> X(m,100,g);
-    DistMatrix<T,MC,MR> Y(g);
+    DistMatrix<F,MC,MR> X(m,100,g);
+    DistMatrix<F,MC,MR> Y(g);
     X.SetToRandom();
     Y = X;
 
     // Since A o A^-1 = I, test the change introduced by the approximate comp.
-    blas::Trmm( Left, shape, Normal, NonUnit, (T)1, A, Y );
-    blas::Trmm( Left, shape, Normal, NonUnit, (T)1, AOrig, Y );
-    blas::Axpy( (T)-1, Y, X );
+    blas::Trmm( Left, shape, Normal, NonUnit, (F)1, A, Y );
+    blas::Trmm( Left, shape, Normal, NonUnit, (F)1, AOrig, Y );
+    blas::Axpy( (F)-1, Y, X );
 
-    T oneNormOfError = lapack::OneNorm( Y );
-    T infNormOfError = lapack::InfinityNorm( Y );
-    T frobNormOfError = lapack::FrobeniusNorm( Y );
+    F oneNormOfError = lapack::OneNorm( Y );
+    F infNormOfError = lapack::InfinityNorm( Y );
+    F frobNormOfError = lapack::FrobeniusNorm( Y );
     if( g.VCRank() == 0 )
     {
         cout << "||A A^-1 - I||_1  = " << Abs(oneNormOfError) << "\n"
@@ -83,14 +83,14 @@ void TestCorrectness
     }
 }
 
-template<typename T>
+template<typename F> // represents a real or complex number
 void TestTrinv
 ( bool testCorrectness, bool printMatrices,
   Shape shape, Diagonal diagonal, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,MC,MR> AOrig(g);
+    DistMatrix<F,MC,MR> A(g);
+    DistMatrix<F,MC,MR> AOrig(g);
 
     A.ResizeTo( m, m );
 
@@ -121,7 +121,7 @@ void TestTrinv
     Barrier( MPI_COMM_WORLD );
     endTime = Time();
     runTime = endTime - startTime;
-    gFlops = lapack::internal::TrinvGFlops<T>( m, runTime );
+    gFlops = lapack::internal::TrinvGFlops<F>( m, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl

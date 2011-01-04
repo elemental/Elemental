@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -50,7 +50,7 @@ elemental::lapack::internal::SetTridiagSquareGridOrder
 ( lapack::internal::GridOrder order )
 { ::gridOrder = order; }
 
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::Tridiag
 ( Shape shape, DistMatrix<R,MC,MR>& A )
@@ -132,7 +132,7 @@ elemental::lapack::Tridiag
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 void
 elemental::lapack::Tridiag
 ( Shape shape, 

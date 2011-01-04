@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -35,10 +35,10 @@
 using namespace std;
 using namespace elemental;
 
-template<typename T>
+template<typename F> // representation of a real or complex number
 void
 elemental::lapack::internal::ReduceToRowEchelon
-( DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 {
 #ifndef RELEASE
     PushCallStack("lapack::internal::ReduceToRowEchelon");
@@ -50,29 +50,29 @@ elemental::lapack::internal::ReduceToRowEchelon
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<F,MC,MR>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  APan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<T,MC,MR>
+    DistMatrix<F,MC,MR>
         BT(g),  B0(g),
         BB(g),  B1(g),
                 B2(g);
 
     // Temporary distributions
-    DistMatrix<T,Star,Star> A11_Star_Star(g);
-    DistMatrix<T,Star,VR  > A12_Star_VR(g);
-    DistMatrix<T,Star,MR  > A12_Star_MR(g);
-    DistMatrix<T,VC,  Star> A21_VC_Star(g);
-    DistMatrix<T,Star,MC  > A21Trans_Star_MC(g);
-    DistMatrix<T,Star,VR  > B1_Star_VR(g);
-    DistMatrix<T,Star,MR  > B1_Star_MR(g);
+    DistMatrix<F,Star,Star> A11_Star_Star(g);
+    DistMatrix<F,Star,VR  > A12_Star_VR(g);
+    DistMatrix<F,Star,MR  > A12_Star_MR(g);
+    DistMatrix<F,VC,  Star> A21_VC_Star(g);
+    DistMatrix<F,Star,MC  > A21Trans_Star_MC(g);
+    DistMatrix<F,Star,VR  > B1_Star_VR(g);
+    DistMatrix<F,Star,MR  > B1_Star_MR(g);
     DistMatrix<int,Star,Star> p1_Star_Star(g);
 
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
-    DistMatrix<T,Star,MC> A21Trans_Star_MC_B(g);
+    DistMatrix<F,Star,MC> A21Trans_Star_MC_B(g);
 
     // Pivot composition
     vector<int> image;
@@ -129,27 +129,27 @@ elemental::lapack::internal::ReduceToRowEchelon
         A12_Star_VR = A12;
         B1_Star_VR = B1;
         blas::internal::LocalTrsm
-        ( Left, Lower, Normal, Unit, (T)1, A11_Star_Star, A12_Star_VR );
+        ( Left, Lower, Normal, Unit, (F)1, A11_Star_Star, A12_Star_VR );
         blas::internal::LocalTrsm
-        ( Left, Lower, Normal, Unit, (T)1, A11_Star_Star, B1_Star_VR );
+        ( Left, Lower, Normal, Unit, (F)1, A11_Star_Star, B1_Star_VR );
 
         A21Trans_Star_MC.TransposeFrom( A21_VC_Star );
         A12_Star_MR = A12_Star_VR;
         B1_Star_MR = B1_Star_VR;
         blas::internal::LocalGemm
-        ( Transpose, Normal, (T)-1, A21Trans_Star_MC, A12_Star_MR, (T)1, A22 );
+        ( Transpose, Normal, (F)-1, A21Trans_Star_MC, A12_Star_MR, (F)1, A22 );
         if( BAligned )
         {
             blas::internal::LocalGemm
             ( Transpose, Normal, 
-              (T)-1, A21Trans_Star_MC, B1_Star_MR, (T)1, B2 );
+              (F)-1, A21Trans_Star_MC, B1_Star_MR, (F)1, B2 );
         }
         else
         {
             A21Trans_Star_MC_B = A21Trans_Star_MC;
             blas::internal::LocalGemm
             ( Transpose, Normal, 
-              (T)-1, A21Trans_Star_MC_B, B1_Star_MR, (T)1, B2 );
+              (F)-1, A21Trans_Star_MC_B, B1_Star_MR, (F)1, B2 );
         }
 
         A11 = A11_Star_Star;

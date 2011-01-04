@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -53,7 +53,7 @@ MPI_Op pivotOpScomplex;
 MPI_Op pivotOpDcomplex;
 #endif
 }
-template<typename T>
+template<typename T> // represents a real or complex ring
 void
 elemental::lapack::internal::PivotFunc
 ( void* inData, void* outData, int* length, MPI_Datatype* datatype )

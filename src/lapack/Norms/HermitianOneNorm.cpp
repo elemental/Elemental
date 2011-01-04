@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2010, Jack Poulson
+   Copyright (c) 2009-2011, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental.
@@ -33,7 +33,7 @@
 #include "elemental/lapack.hpp"
 using namespace elemental;
 
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::HermitianOneNorm
 ( Shape shape, const Matrix<R>& A )
@@ -75,7 +75,7 @@ lapack::HermitianOneNorm
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::HermitianOneNorm
 ( Shape shape, const Matrix< std::complex<R> >& A )
@@ -118,7 +118,7 @@ lapack::HermitianOneNorm
 }
 #endif
 
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::HermitianOneNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A )
@@ -239,7 +239,7 @@ lapack::HermitianOneNorm
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+template<typename R> // representation of a real number
 R
 lapack::HermitianOneNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A )
