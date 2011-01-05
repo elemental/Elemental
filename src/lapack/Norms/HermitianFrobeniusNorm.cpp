@@ -91,10 +91,7 @@ lapack::HermitianFrobeniusNorm
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    // Proof that C++ was not defined by mathematicians:
-    //   'norm' actually returns the square of a norm and,
-    //   in fact, is not a norm, as it does not satisfy 
-    //   the triangle inequality
+    // The std::norm function is a field norm rather than a vector norm.
 
     R normSquared = 0;
     if( shape == Upper )
@@ -214,10 +211,7 @@ lapack::HermitianFrobeniusNorm
     const int colShift = A.ColShift();
     const int rowShift = A.RowShift();
 
-    // Proof that C++ was not defined by mathematicians:
-    //   'norm' actually returns the square of a norm and,
-    //   in fact, is not a norm, as it does not satisfy 
-    //   the triangle inequality
+    // The std::norm function is a field norm rather than a vector norm.
 
     R localNormSquared = 0;
     if( shape == Upper )

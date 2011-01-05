@@ -70,10 +70,7 @@ lapack::FrobeniusNorm( const Matrix< std::complex<R> >& A )
         for( int i=0; i<A.Height(); ++i )
         {
             std::complex<R> alpha = A.Get(i,j);
-            // Proof that C++ was not defined by mathematicians:
-            //   'norm' actually returns the square of a norm and,
-            //   in fact, is not a norm, as it does not satisfy 
-            //   the triangle inequality
+            // The std::norm function is a field norm rather than a vector norm.
             normSquared += norm(alpha);
         }
     }
@@ -128,10 +125,7 @@ lapack::FrobeniusNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
         for( int i=0; i<A.LocalHeight(); ++i )
         {
             std::complex<R> alpha = A.GetLocalEntry(i,j);
-            // Proof that C++ was not defined by mathematicians:
-            //   'norm' actually returns the square of a norm and,
-            //   in fact, is not a norm, as it does not satisfy 
-            //   the triangle inequality
+            // The std::norm function is a field norm rather than a vector norm.
             localNormSquared += norm(alpha);
         }
     }
