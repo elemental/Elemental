@@ -226,19 +226,7 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
  * 
  * The macros for determining underscore convention were added by 
  * Jack Poulson to ease integration into Elemental */
-#if defined(LAPACK_PRE) && defined(LAPACK_POST)
-# if defined(PREPEND_X)
-#  define LAPACK(name) _x ## name _
-# else
-#  define LAPACK(name) _ ## name _
-# endif
-#elif defined(LAPACK_PRE)
-# if defined(PREPEND_X)
-#  define LAPACK(name) _x ## name
-# else
-#  define LAPACK(name) _ ## name
-# endif
-#elif defined(LAPACK_POST)
+#if defined(LAPACK_POST)
 # if defined(PREPEND_X)
 #  define LAPACK(name) x ## name ## _
 # else
@@ -295,19 +283,7 @@ extern void   LAPACK(dstemr)(char*, char*, int*, double*, double*, double*,
 * 
  * The macros for determining underscore convention were added by 
  * Jack Poulson to ease integration into Elemental */
-#if defined(BLAS_PRE) && defined(BLAS_POST)
-# if defined(PREPEND_X)
-#  define BLAS(name) _x ## name _
-# else
-#  define BLAS(name) _ ## name _
-# endif
-#elif defined(BLAS_PRE)
-# if defined(PREPEND_X)
-#  define BLAS(name) _x ## name
-# else
-#  define BLAS(name) _ ## name
-# endif
-#elif defined(BLAS_POST)
+#if defined(BLAS_POST)
 # if defined(PREPEND_X)
 #  define BLAS(name) x ## name ## _
 # else

@@ -33,6 +33,18 @@
 #ifndef ELEMENTAL_WRAPPERS_HPP
 #define ELEMENTAL_WRAPPERS_HPP 1
 
+#if defined(BLAS_POST)
+#define BLAS(name) name ## _
+#else
+#define BLAS(name) name
+#endif
+
+#if defined(LAPACK_POST)
+#define LAPACK(name) name ## _
+#else
+#define LAPACK(name) name
+#endif
+
 #include "elemental/wrappers/blas.hpp"
 #include "elemental/wrappers/lapack.hpp"
 #include "elemental/wrappers/mpi.hpp"

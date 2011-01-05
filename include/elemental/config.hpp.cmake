@@ -39,9 +39,7 @@
 #define Elemental_VERSION_MAJOR @Elemental_VERSION_MAJOR@
 #define Elemental_VERSION_MINOR @Elemental_VERSION_MINOR@
 #cmakedefine RELEASE
-#cmakedefine BLAS_PRE
 #cmakedefine BLAS_POST
-#cmakedefine LAPACK_PRE
 #cmakedefine LAPACK_POST
 #cmakedefine WITHOUT_PMRRR
 #cmakedefine WITHOUT_COMPLEX
