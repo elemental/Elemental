@@ -263,7 +263,7 @@ template<typename F>
 void
 PanelLU
 ( DistMatrix<F,Star,Star>& A, 
-  DistMatrix<F,VC,  Star>& B, 
+  DistMatrix<F,MC,  Star>& B, 
   DistMatrix<int,Star,Star>& p, 
   int pivotOffset=0 );
 

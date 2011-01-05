@@ -59,13 +59,12 @@ option(WITHOUT_COMPLEX "Avoid all usage of complex numbers" OFF)
 if(NOT WITHOUT_COMPLEX)
   option(AVOID_COMPLEX_MPI "Avoid complex MPI routines for robustness" ON)
 endif(NOT WITHOUT_COMPLEX)
-option(TIMING "If defined, some routines will accumulate statistics"        ON)
 option(CACHE_WARNINGS "Warns when using cache-unfriendly routines"          OFF)
 option(UNALIGNED_WARNINGS "Warn when performing unaligned redistributions"  OFF)
 option(VECTOR_WARNINGS "Warn when vector redistribution chances are missed" OFF)
 option(ENABLE_ALL_DISTRIBUTED_DOT "Build every parallel dot product."       OFF)
 option(POOL_MEMORY "Make Memory class accumulate memory until destruction"  OFF)
-mark_as_advanced(AVOID_COMPLEX_MPI TIMING CACHE_WARNINGS UNALIGNED_WARNINGS 
+mark_as_advanced(AVOID_COMPLEX_MPI CACHE_WARNINGS UNALIGNED_WARNINGS 
                  VECTOR_WARNINGS ENABLE_ALL_DISTRIBUTED_DOT POOL_MEMORY)
 
 if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")

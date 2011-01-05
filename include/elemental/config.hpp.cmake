@@ -48,7 +48,6 @@
 #cmakedefine AVOID_COMPLEX_MPI
 
 // Advanced variables
-#cmakedefine TIMING
 #cmakedefine CACHE_WARNINGS
 #cmakedefine UNALIGNED_WARNINGS
 #cmakedefine VECTOR_WARNINGS

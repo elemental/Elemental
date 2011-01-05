@@ -39,8 +39,8 @@ using namespace elemental::wrappers::mpi;
 template<typename F> // represents a real or complex number
 void
 elemental::lapack::internal::PanelLU
-( DistMatrix<F,Star,Star>& A, 
-  DistMatrix<F,VC,  Star>& B, 
+( DistMatrix<F,  Star,Star>& A, 
+  DistMatrix<F,  MC,  Star>& B, 
   DistMatrix<int,Star,Star>& p, 
   int pivotOffset )
 {
@@ -54,7 +54,7 @@ elemental::lapack::internal::PanelLU
         throw logic_error( "p must be a vector that conforms with A." );
 #endif
     const Grid& g = A.Grid();
-    const int np = g.Size();
+    const int r = g.Height();
     const int colShift = B.ColShift();
     const int colAlignment = B.ColAlignment();
 
@@ -64,7 +64,7 @@ elemental::lapack::internal::PanelLU
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),  
                          A20(g), a21(g),     A22(g);
 
-    DistMatrix<F,VC,Star>
+    DistMatrix<F,MC,Star>
         BL(g), BR(g),
         B0(g), b1(g), B2(g);
 
@@ -79,8 +79,10 @@ elemental::lapack::internal::PanelLU
     vector<char> recvData(numBytes);
 
     // Extract pointers to send and recv data
-    char* sendBuf = &sendData[0];
-    char* recvBuf = &recvData[0];
+    F* sendBufFloat = (F*) &sendData[0];
+    F* recvBufFloat = (F*) &recvData[0];
+    int* sendBufInt = (int*) &sendData[(width+1)*sizeof(F)];
+    int* recvBufInt = (int*) &recvData[(width+1)*sizeof(F)];
 
     // Start the algorithm
     PushBlocksizeStack( 1 );
@@ -131,7 +133,7 @@ elemental::lapack::internal::PanelLU
             if( FastAbs(value) > FastAbs(pivotValue) )
             {
                 pivotValue = value;
-                pivotIndex = A.Height() + colShift + i*np;
+                pivotIndex = A.Height() + colShift + i*r;
             }
         }
 
@@ -139,56 +141,72 @@ elemental::lapack::internal::PanelLU
         // [ pivotValue | pivotRow | pivotIndex ]
         if( pivotIndex < A.Height() )
         {
-            ((F*)sendBuf)[0] = A.GetLocalEntry(pivotIndex,a10.Width());
+            sendBufFloat[0] = A.GetLocalEntry(pivotIndex,a10.Width());
+
+            const int ALDim = A.LocalLDim();
+            const F* ABuffer = A.LocalBuffer(pivotIndex,0);
             for( int j=0; j<width; ++j )
-                ((F*)sendBuf)[j+1] = A.GetLocalEntry(pivotIndex,j);
+                sendBufFloat[j+1] = ABuffer[j*ALDim];
         }
         else
         {
-            const int localIndex = ((pivotIndex-A.Height())-colShift)/np;
-            ((F*)sendBuf)[0] = b1.GetLocalEntry(localIndex,0);
+            const int localIndex = ((pivotIndex-A.Height())-colShift)/r;
+            sendBufFloat[0] = b1.GetLocalEntry(localIndex,0);
+
+            const int BLDim = B.LocalLDim();
+            const F* BBuffer = B.LocalBuffer(localIndex,0);
             for( int j=0; j<width; ++j )
-                ((F*)sendBuf)[j+1] = B.GetLocalEntry(localIndex,j);
+                sendBufFloat[j+1] = BBuffer[j*BLDim];
         }
-        ((int*)(((F*)sendBuf)+width+1))[0] = pivotIndex;
+        *sendBufInt = pivotIndex;
 
         // Communicate to establish the pivot information
         AllReduce
-        ( sendBuf, recvBuf, numBytes, PivotOp<F>(), g.VCComm() );
+        ( &sendData[0], &recvData[0], numBytes, PivotOp<F>(), g.MCComm() );
 
         // Update the pivot vector
-        const int maxIndex = ((int*)(((F*)recvBuf)+width+1))[0];
-        p.SetLocalEntry(a01.Height(),0,maxIndex + pivotOffset);
+        const int maxIndex = *recvBufInt;
+        p.SetLocalEntry(a01.Height(),0,maxIndex+pivotOffset);
 
         // Copy the current row into the pivot row
         if( maxIndex < A.Height() )
         {
+            const int ALDim = A.LocalLDim();
+            F* ASetBuffer = A.LocalBuffer(maxIndex,0);
+            const F* AGetBuffer = A.LocalBuffer(A00.Height(),0);
             for( int j=0; j<width; ++j )
-                A.SetLocalEntry(maxIndex,j,A.GetLocalEntry(A00.Height(),j));
+                ASetBuffer[j*ALDim] = AGetBuffer[j*ALDim];
         }
         else
         {
-            const int ownerRank = (colAlignment+(maxIndex-A.Height())) % np;
-            if( g.VCRank() == ownerRank )
+            const int ownerRank = (colAlignment+(maxIndex-A.Height())) % r;
+            if( g.MCRank() == ownerRank )
             {
-                const int localIndex = ((maxIndex-A.Height())-colShift) / np;
+                const int localIndex = ((maxIndex-A.Height())-colShift) / r;
+
+                const int ALDim = A.LocalLDim();
+                const int BLDim = B.LocalLDim();
+                F* BBuffer = B.LocalBuffer(localIndex,0);
+                const F* ABuffer = A.LocalBuffer(A00.Height(),0);
                 for( int j=0; j<width; ++j )
-                    B.SetLocalEntry
-                    (localIndex,j,A.GetLocalEntry(A00.Height(),j));
+                    BBuffer[j*BLDim] = ABuffer[j*ALDim];
             }
         }
 
         // Copy the pivot row into the current row
-        for( int j=0; j<width; ++j )
-            A.SetLocalEntry(A00.Height(),j,((F*)recvBuf)[j+1]);
+        {
+            F* ABuffer = A.LocalBuffer(A00.Height(),0);
+            const int ALDim = A.LocalLDim();
+            for( int j=0; j<width; ++j )
+                ABuffer[j*ALDim] = recvBufFloat[j+1];
+        }
 
-        // Now we can perform the update
+        // Now we can perform the update of the current panel
         F alpha11Inv = ((F)1) / alpha11.GetLocalEntry(0,0);
         Scal( alpha11Inv, a21.LocalMatrix() );
         Scal( alpha11Inv, b1.LocalMatrix()  );
         Geru( (F)-1, a21.LocalMatrix(), a12.LocalMatrix(), A22.LocalMatrix() );
         Geru( (F)-1, b1.LocalMatrix(), a12.LocalMatrix(), B2.LocalMatrix() );
-
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -217,14 +235,14 @@ elemental::lapack::internal::PanelLU
 template void
 elemental::lapack::internal::PanelLU
 ( DistMatrix<float,Star,Star>& A, 
-  DistMatrix<float,VC,  Star>& B, 
+  DistMatrix<float,MC,  Star>& B, 
   DistMatrix<int,  Star,Star>& p,
   int pivotOffset );
 
 template void
 elemental::lapack::internal::PanelLU
 ( DistMatrix<double,Star,Star>& A, 
-  DistMatrix<double,VC,  Star>& B, 
+  DistMatrix<double,MC,  Star>& B, 
   DistMatrix<int,   Star,Star>& p,
   int pivotOffset );
 
@@ -232,14 +250,14 @@ elemental::lapack::internal::PanelLU
 template void
 elemental::lapack::internal::PanelLU
 ( DistMatrix<scomplex,Star,Star>& A,
-  DistMatrix<scomplex,VC,  Star>& B,
+  DistMatrix<scomplex,MC,  Star>& B,
   DistMatrix<int,     Star,Star>& p,
   int pivotOffset );
 
 template void
 elemental::lapack::internal::PanelLU
 ( DistMatrix<dcomplex,Star,Star>& A,
-  DistMatrix<dcomplex,VC,  Star>& B,
+  DistMatrix<dcomplex,MC,  Star>& B,
   DistMatrix<int,     Star,Star>& p,
   int pivotOffset );
 #endif

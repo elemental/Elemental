@@ -143,8 +143,10 @@ elemental::lapack::internal::ApplyRowPivots
         const int sendLocation = image[colShift+i*r];
         const int sendTo = ( colAlignment + sendLocation ) % r;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
+        const int ALDim = A.LocalLDim();
+        const F* ABuffer = A.LocalBuffer(i,0);
         for( int j=0; j<localWidth; ++j )     
-            sendData[offset+j] = A.GetLocalEntry(i,j);
+            sendData[offset+j] = ABuffer[j*ALDim];
         offsets[sendTo] += localWidth;
     }
     for( int i=0; i<b; ++i )
@@ -158,8 +160,10 @@ elemental::lapack::internal::ApplyRowPivots
                 const int recvTo = ( colAlignment + i ) % r;
                 const int iLocal = ( recvLocation - colShift ) / r;
                 const int offset = sendDispls[recvTo]+offsets[recvTo];
+                const int ALDim = A.LocalLDim();
+                const F* ABuffer = A.LocalBuffer(iLocal,0);
                 for( int j=0; j<localWidth; ++j )
-                    sendData[offset+j] = A.GetLocalEntry(iLocal,j);
+                    sendData[offset+j] = ABuffer[j*ALDim];
                 offsets[recvTo] += localWidth;
             }
         }
@@ -167,16 +171,9 @@ elemental::lapack::internal::ApplyRowPivots
 
     // Communicate all pivot rows
     vector<F> recvData(max(1,totalRecvCount));
-    {
-        F* sbuf = &sendData[0];
-        int* scs = &sendCounts[0];
-        int* sds = &sendDispls[0];
-        F* rbuf = &recvData[0];
-        int* rcs = &recvCounts[0];
-        int* rds = &recvDispls[0];
-
-        AllToAll( sbuf, scs, sds, rbuf, rcs, rds, g.MCComm() );
-    }
+    AllToAll
+    ( &sendData[0], &sendCounts[0], &sendDispls[0],
+      &recvData[0], &recvCounts[0], &recvDispls[0], g.MCComm() );
 
     // Unpack the recv data
     for( int k=0; k<r; ++k )
@@ -191,8 +188,10 @@ elemental::lapack::internal::ApplyRowPivots
             {
                 const int offset = recvDispls[k]+offsets[k];
                 const int iLocal = ( sendLocation - colShift ) / r;
+                const int ALDim = A.LocalLDim();
+                F* ABuffer = A.LocalBuffer(iLocal,0);
                 for( int j=0; j<localWidth; ++j )
-                    A.SetLocalEntry(iLocal,j,recvData[offset+j]);
+                    ABuffer[j*ALDim] = recvData[offset+j];
                 offsets[k] += localWidth;
             }
         }
@@ -208,8 +207,10 @@ elemental::lapack::internal::ApplyRowPivots
                 const int recvFrom = ( colAlignment + recvLocation ) % r; 
                 const int iLocal = ( i - colShift ) / r;
                 const int offset = recvDispls[recvFrom]+offsets[recvFrom];
+                const int ALDim = A.LocalLDim();
+                F* ABuffer = A.LocalBuffer(iLocal,0);
                 for( int j=0; j<localWidth; ++j )
-                    A.SetLocalEntry(iLocal,j,recvData[offset+j]);
+                    ABuffer[j*ALDim] = recvData[offset+j];
                 offsets[recvFrom] += localWidth;
             }
         }

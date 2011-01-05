@@ -152,10 +152,6 @@ void TestLU
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-#ifdef TIMING
-    if( g.VCRank() == 0 )
-        elemental::lapack::lu::PrintTimings();
-#endif
     if( printMatrices )
     {
         A.Print("A after factorization");

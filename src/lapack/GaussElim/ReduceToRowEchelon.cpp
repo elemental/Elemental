@@ -64,15 +64,14 @@ elemental::lapack::internal::ReduceToRowEchelon
     DistMatrix<F,Star,Star> A11_Star_Star(g);
     DistMatrix<F,Star,VR  > A12_Star_VR(g);
     DistMatrix<F,Star,MR  > A12_Star_MR(g);
-    DistMatrix<F,VC,  Star> A21_VC_Star(g);
-    DistMatrix<F,Star,MC  > A21Trans_Star_MC(g);
+    DistMatrix<F,MC,  Star> A21_MC_Star(g);
     DistMatrix<F,Star,VR  > B1_Star_VR(g);
     DistMatrix<F,Star,MR  > B1_Star_MR(g);
     DistMatrix<int,Star,Star> p1_Star_Star(g);
 
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
-    DistMatrix<F,Star,MC> A21Trans_Star_MC_B(g);
+    DistMatrix<F,MC,Star> A21_MC_Star_B(g);
 
     // Pivot composition
     vector<int> image;
@@ -103,24 +102,20 @@ elemental::lapack::internal::ReduceToRowEchelon
         ( A12,
           A22 );
 
-
         A12_Star_VR.AlignWith( A22 );
         A12_Star_MR.AlignWith( A22 );
-        A21_VC_Star.AlignWith( A22 );
-        A21Trans_Star_MC.AlignWith( A22 );
+        A21_MC_Star.AlignWith( A22 );
         B1_Star_VR.AlignWith( B1 );
         B1_Star_MR.AlignWith( B1 );
         if( ! BAligned )
-            A21Trans_Star_MC_B.AlignWith( B2 );
+            A21_MC_Star_B.AlignWith( B2 );
         A11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
         p1_Star_Star.ResizeTo( A11.Height(), 1 );
         //--------------------------------------------------------------------//
-        A21_VC_Star = A21;
         A11_Star_Star = A11;
-
+        A21_MC_Star = A21;
         lapack::internal::PanelLU
-        ( A11_Star_Star,
-          A21_VC_Star, p1_Star_Star, A00.Height() );
+        ( A11_Star_Star, A21_MC_Star, p1_Star_Star, A00.Height() );
         lapack::internal::ComposePivots
         ( p1_Star_Star, image, preimage, A00.Height() );
         lapack::internal::ApplyRowPivots( APan, image, preimage, A00.Height() );
@@ -133,23 +128,22 @@ elemental::lapack::internal::ReduceToRowEchelon
         blas::internal::LocalTrsm
         ( Left, Lower, Normal, Unit, (F)1, A11_Star_Star, B1_Star_VR );
 
-        A21Trans_Star_MC.TransposeFrom( A21_VC_Star );
         A12_Star_MR = A12_Star_VR;
         B1_Star_MR = B1_Star_VR;
         blas::internal::LocalGemm
-        ( Transpose, Normal, (F)-1, A21Trans_Star_MC, A12_Star_MR, (F)1, A22 );
+        ( Normal, Normal, (F)-1, A21_MC_Star, A12_Star_MR, (F)1, A22 );
         if( BAligned )
         {
             blas::internal::LocalGemm
-            ( Transpose, Normal, 
-              (F)-1, A21Trans_Star_MC, B1_Star_MR, (F)1, B2 );
+            ( Normal, Normal, 
+              (F)-1, A21_MC_Star, B1_Star_MR, (F)1, B2 );
         }
         else
         {
-            A21Trans_Star_MC_B = A21Trans_Star_MC;
+            A21_MC_Star_B = A21_MC_Star;
             blas::internal::LocalGemm
-            ( Transpose, Normal, 
-              (F)-1, A21Trans_Star_MC_B, B1_Star_MR, (F)1, B2 );
+            ( Normal, Normal, 
+              (F)-1, A21_MC_Star_B, B1_Star_MR, (F)1, B2 );
         }
 
         A11 = A11_Star_Star;
@@ -158,12 +152,11 @@ elemental::lapack::internal::ReduceToRowEchelon
         //--------------------------------------------------------------------//
         A12_Star_VR.FreeAlignments();
         A12_Star_MR.FreeAlignments();
-        A21_VC_Star.FreeAlignments();
-        A21Trans_Star_MC.FreeAlignments();
+        A21_MC_Star.FreeAlignments();
         B1_Star_VR.FreeAlignments();
         B1_Star_MR.FreeAlignments();
         if( ! BAligned )
-            A21Trans_Star_MC_B.FreeAlignments();
+            A21_MC_Star_B.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

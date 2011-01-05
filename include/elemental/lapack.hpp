@@ -387,12 +387,6 @@ template<typename F>
 void
 LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 
-#ifdef TIMING
-namespace lu {
-void PrintTimings();
-}
-#endif
-
 //----------------------------------------------------------------------------//
 // FrobeniusNorm                                                              //
 //                                                                            //
