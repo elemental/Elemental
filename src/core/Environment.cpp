@@ -58,7 +58,12 @@ elemental::Init
             throw logic_error
             ( "Cannot initialize elemental after MPI_Finalize." );
         }
+#ifdef _OPENMP
+        int provided;
+        MPI_Init_thread( argc, argv, MPI_THREAD_MULTIPLE, &provided );
+#else
         MPI_Init( argc, argv );
+#endif
         ::elementalInitializedMPI = true;
     }
     else
@@ -78,6 +83,7 @@ elemental::Init
 #endif
 
     // Seed the random number generator with out rank
+    // plus a perturbation given by the current time
     int rank;
     MPI_Comm_rank( MPI_COMM_WORLD, &rank );
     srand( rank+time(0) );
