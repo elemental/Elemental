@@ -70,10 +70,11 @@ elemental::lapack::internal::HegstRLVar3
     DistMatrix<F,Star,MR  > A11_Star_MR(g);
     DistMatrix<F,Star,Star> A11_Star_Star(g);
     DistMatrix<F,VC,  Star> A21_VC_Star(g);
-    DistMatrix<F,MR,  Star> A10Herm_MR_Star(g);
-    DistMatrix<F,MR,  MC  > A10Herm_MR_MC(g);
+    DistMatrix<F,Star,VR  > A10_Star_VR(g);
+    DistMatrix<F,Star,MR  > A10_Star_MR(g);
     DistMatrix<F,Star,Star> L11_Star_Star(g);
-    DistMatrix<F,MR,  Star> L10Herm_MR_Star(g);
+    DistMatrix<F,Star,VR  > L10_Star_VR(g);
+    DistMatrix<F,Star,MR  > L10_Star_MR(g);
     DistMatrix<F,MC,  Star> L21_MC_Star(g);
     DistMatrix<F,Star,Star> X11_Star_Star(g);
     DistMatrix<F,MC,  Star> X21_MC_Star(g);
@@ -116,9 +117,10 @@ elemental::lapack::internal::HegstRLVar3
 
         A11_Star_MR.AlignWith( Y21 );
         A21_VC_Star.AlignWith( A21 );
-        A10Herm_MR_Star.AlignWith( A10 );
-        A10Herm_MR_MC.AlignWith( A10 );
-        L10Herm_MR_Star.AlignWith( A20 );
+	A10_Star_VR.AlignWith( A10 );
+	A10_Star_MR.AlignWith( A10 );
+	L10_Star_VR.AlignWith( A10 );
+	L10_Star_MR.AlignWith( A10 );
         L21_MC_Star.AlignWith( Y21 );
         X21_MC_Star.AlignWith( A20 );
         Z21_MC_Star.AlignWith( L20 );
@@ -128,13 +130,13 @@ elemental::lapack::internal::HegstRLVar3
         //--------------------------------------------------------------------//
         blas::Axpy( (F)-0.5, Y10, A10 );
 
-        A10Herm_MR_Star.ConjugateTransposeFrom( A10 );
-        L10Herm_MR_Star.ConjugateTransposeFrom( L10 );
+	A10_Star_VR = A10;
+	L10_Star_VR = L10;
         blas::Her2k
-        ( Lower, ConjugateTranspose, 
-          (F)1, A10Herm_MR_Star.LocalMatrix(), L10Herm_MR_Star.LocalMatrix(),
+        ( Lower, Normal, 
+	  (F)1, A10_Star_VR.LocalMatrix(), L10_Star_VR.LocalMatrix(),
           (F)0, X11_Star_Star.LocalMatrix() );
-        X11_Star_Star.SumOverRow();
+	X11_Star_Star.SumOverGrid();
 
         A11_Star_Star = A11;
         L11_Star_Star = L11;
@@ -153,8 +155,10 @@ elemental::lapack::internal::HegstRLVar3
         ( Right, Lower, A11_Star_Star, L11_Star_Star );
         A11 = A11_Star_Star;
 
+	L10_Star_MR = L10_Star_VR;
         blas::internal::LocalGemm
-        ( Normal, Normal, (F)1, A20, L10Herm_MR_Star, (F)0, X21_MC_Star );
+        ( Normal, ConjugateTranspose, 
+	  (F)1, A20, L10_Star_MR, (F)0, X21_MC_Star );
         A21.SumScatterUpdate( (F)-1, X21_MC_Star );
 
         A21_VC_Star = A21;
@@ -164,17 +168,17 @@ elemental::lapack::internal::HegstRLVar3
         A21 = A21_VC_Star;
 
         blas::Axpy( (F)-0.5, Y10, A10 );
-        A10Herm_MR_Star.ConjugateTransposeFrom( A10 );
-        blas::internal::LocalTrsm
-        ( Right, Lower, ConjugateTranspose, NonUnit,
-          (F)1, L11_Star_Star, A10Herm_MR_Star );
-        A10Herm_MR_MC = A10Herm_MR_Star;
-        blas::ConjTrans( A10Herm_MR_MC.LocalMatrix(), A10.LocalMatrix() );
+	A10_Star_VR = A10;
+	blas::internal::LocalTrsm
+        ( Left, Lower, Normal, NonUnit,
+          (F)1, L11_Star_Star, A10_Star_VR );
 
+	A10_Star_MR = A10_Star_VR;
+	A10 = A10_Star_MR;
         L21_MC_Star = L21;
         blas::internal::LocalGemm
-        ( Normal, ConjugateTranspose, 
-          (F)1, L21_MC_Star, A10Herm_MR_Star, (F)1, Y20 );
+        ( Normal, Normal,
+          (F)1, L21_MC_Star, A10_Star_MR, (F)1, Y20 );
 
         // Symmetrize A11[* ,* ] by copying the lower triangle into the upper
         // so that we can call a local gemm instead of worrying about
@@ -192,14 +196,16 @@ elemental::lapack::internal::HegstRLVar3
         ( Normal, Normal, (F)1, L21_MC_Star, A11_Star_MR, (F)0, Y21 );
 
         blas::internal::LocalGemm
-        ( Normal, Normal, (F)1, L20, A10Herm_MR_Star, (F)0, Z21_MC_Star );
+        ( Normal, ConjugateTranspose, 
+	  (F)1, L20, A10_Star_MR, (F)0, Z21_MC_Star );
         Y21.SumScatterUpdate( (F)1, Z21_MC_Star );
         //--------------------------------------------------------------------//
         A11_Star_MR.FreeAlignments();
         A21_VC_Star.FreeAlignments();
-        A10Herm_MR_Star.FreeAlignments();
-        A10Herm_MR_MC.FreeAlignments();
-        L10Herm_MR_Star.FreeAlignments();
+	A10_Star_VR.FreeAlignments();
+        A10_Star_MR.FreeAlignments();
+	L10_Star_VR.FreeAlignments();
+	L10_Star_MR.FreeAlignments();
         L21_MC_Star.FreeAlignments();
         X21_MC_Star.FreeAlignments();
         Z21_MC_Star.FreeAlignments();

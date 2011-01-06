@@ -70,8 +70,10 @@ elemental::lapack::internal::HegstRUVar3
     DistMatrix<F,MC,  Star> A11_MC_Star(g);
     DistMatrix<F,Star,Star> A11_Star_Star(g);
     DistMatrix<F,Star,VR  > A12_Star_VR(g);
+    DistMatrix<F,VC,  Star> A01_VC_Star(g);
     DistMatrix<F,MC,  Star> A01_MC_Star(g);
     DistMatrix<F,Star,Star> U11_Star_Star(g);
+    DistMatrix<F,VC,  Star> U01_VC_Star(g);
     DistMatrix<F,MC,  Star> U01_MC_Star(g);
     DistMatrix<F,MR,  Star> U12Herm_MR_Star(g);
     DistMatrix<F,Star,Star> X11_Star_Star(g);
@@ -115,8 +117,10 @@ elemental::lapack::internal::HegstRUVar3
 
         A11_MC_Star.AlignWith( Y12 );
         A12_Star_VR.AlignWith( A12 );
+        A01_VC_Star.AlignWith( A01 );
         A01_MC_Star.AlignWith( A01 );
-        U01_MC_Star.AlignWith( A02 );
+        U01_VC_Star.AlignWith( A01 );
+        U01_MC_Star.AlignWith( A01 );
         U12Herm_MR_Star.AlignWith( Y12 );
         X12_Star_MR.AlignWith( A02 );
         Z12_Star_MR.AlignWith( U02 );
@@ -126,13 +130,13 @@ elemental::lapack::internal::HegstRUVar3
         //--------------------------------------------------------------------//
         blas::Axpy( (F)-0.5, Y01, A01 );
 
-        A01_MC_Star = A01;
-        U01_MC_Star = U01;
+        A01_VC_Star = A01;
+        U01_VC_Star = U01;
         blas::Her2k
         ( Upper, ConjugateTranspose, 
-          (F)1, A01_MC_Star.LocalMatrix(), U01_MC_Star.LocalMatrix(),
+          (F)1, A01_VC_Star.LocalMatrix(), U01_VC_Star.LocalMatrix(),
           (F)0, X11_Star_Star.LocalMatrix() );
-        X11_Star_Star.SumOverCol();
+        X11_Star_Star.SumOverGrid();
 
         A11_Star_Star = A11;
         U11_Star_Star = U11;
@@ -151,6 +155,7 @@ elemental::lapack::internal::HegstRUVar3
         ( Right, Upper, A11_Star_Star, U11_Star_Star );
         A11 = A11_Star_Star;
 
+        U01_MC_Star = U01;
         blas::internal::LocalGemm
         ( ConjugateTranspose, Normal, 
           (F)1, U01_MC_Star, A02, (F)0, X12_Star_MR );
@@ -163,12 +168,13 @@ elemental::lapack::internal::HegstRUVar3
         A12 = A12_Star_VR;
 
         blas::Axpy( (F)-0.5, Y01, A01 );
-        A01_MC_Star = A01;
+        A01_VC_Star = A01;
         blas::internal::LocalTrsm
         ( Right, Upper, Normal, NonUnit,
-          (F)1, U11_Star_Star, A01_MC_Star );
-        A01 = A01_MC_Star;
+          (F)1, U11_Star_Star, A01_VC_Star );
+        A01 = A01_VC_Star;
 
+        A01_MC_Star = A01;
         U12Herm_MR_Star.ConjugateTransposeFrom( U12 );
         blas::internal::LocalGemm
         ( Normal, ConjugateTranspose, 
@@ -197,7 +203,9 @@ elemental::lapack::internal::HegstRUVar3
         //--------------------------------------------------------------------//
         A11_MC_Star.FreeAlignments();
         A12_Star_VR.FreeAlignments();
+        A01_VC_Star.FreeAlignments();
         A01_MC_Star.FreeAlignments();
+        U01_VC_Star.FreeAlignments();
         U01_MC_Star.FreeAlignments();
         U12Herm_MR_Star.FreeAlignments();
         X12_Star_MR.FreeAlignments();
