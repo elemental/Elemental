@@ -236,7 +236,9 @@ public:
     const DistMatrixBase<T,Star,Star>&
     operator=( const DistMatrixBase<T,Star,Star>& A );
 
-    void AllSum(); 
+    void SumOverCol();
+    void SumOverRow();
+    void SumOverGrid(); 
 };
 
 // Partial specialization to A[* ,* ] for real rings.

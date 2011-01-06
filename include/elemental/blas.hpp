@@ -1178,7 +1178,15 @@ elemental::blas::ConjTrans
 #endif
     const int m = A.Height();
     const int n = A.Width();
-    B.ResizeTo( n, m );
+    if( !B.Viewing() )
+    {
+        B.ResizeTo( n, m );
+    }
+    else if( B.Height() != n || B.Width() != m )
+    {
+        throw std::logic_error
+              ("If ConjTrans'ing into a view, it must be the right size.");
+    }
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             B.Set(j,i,elemental::Conj(A.Get(i,j)));
@@ -1197,7 +1205,15 @@ elemental::blas::Trans
 #endif
     const int m = A.Height();
     const int n = A.Width();
-    B.ResizeTo( n, m );
+    if( !B.Viewing() )
+    {
+        B.ResizeTo( n, m );
+    }
+    else if( B.Height() != n || B.Width() != m )
+    {
+        throw std::logic_error
+              ("If Transposing into a view, it must be the right size.");
+    }
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             B.Set(j,i,A.Get(i,j));
@@ -2033,12 +2049,20 @@ elemental::blas::ConjTrans
 
     C = A;
 
-    if( !B.ConstrainedColAlignment() )
-        B.AlignColsWith( C );
-    if( !B.ConstrainedRowAlignment() )
-        B.AlignRowsWith( C );
+    if( !B.Viewing() )
+    {
+        if( !B.ConstrainedColAlignment() )
+            B.AlignColsWith( C );
+        if( !B.ConstrainedRowAlignment() )
+            B.AlignRowsWith( C );
 
-    B.ResizeTo( A.Width(), A.Height() );
+        B.ResizeTo( A.Width(), A.Height() );
+    }
+    else if( B.Height() != A.Width() || B.Width() != A.Height() )
+    {
+        throw std::logic_error
+              ("If ConjTrans'ing into a view, it must be the right size.");
+    }
     blas::ConjTrans( C.LockedLocalMatrix(), B.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
@@ -2062,12 +2086,20 @@ elemental::blas::Trans
 
     C = A;
 
-    if( !B.ConstrainedColAlignment() )
-        B.AlignColsWith( C );
-    if( !B.ConstrainedRowAlignment() )
-        B.AlignRowsWith( C );
+    if( !B.Viewing() )
+    {
+        if( !B.ConstrainedColAlignment() )
+            B.AlignColsWith( C );
+        if( !B.ConstrainedRowAlignment() )
+            B.AlignRowsWith( C );
 
-    B.ResizeTo( A.Width(), A.Height() );
+        B.ResizeTo( A.Width(), A.Height() );
+    }
+    else if( B.Height() != A.Width() || B.Width() != A.Height() )
+    {
+        throw std::logic_error
+              ("If Transposing into a view, it must be the right size.");
+    }
     blas::Trans( C.LockedLocalMatrix(), B.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();

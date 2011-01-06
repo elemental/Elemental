@@ -947,7 +947,7 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
 # endif
             for( int j=0; j<thisLocalWidth; ++j )
             {
-                const T* dataCol = &(data[j*localHeight]);
+                const T* dataCol = &data[j*localHeight];
                 T* thisCol = this->LocalBuffer(0,thisRowShift+j*c);
                 memcpy( thisCol, dataCol, localHeight*sizeof(T) );
             }
@@ -1046,7 +1046,7 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
 # endif
             for( int j=0; j<thisLocalWidth; ++j )
             {
-                const T* dataCol = &(data[j*localHeight]);
+                const T* dataCol = &data[j*localHeight];
                 T* thisCol = this->LocalBuffer(0,thisRowShift+j*c);
                 memcpy( thisCol, dataCol, localHeight*sizeof(T) );
             }
@@ -1169,7 +1169,7 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
 # endif
         for( int j=0; j<width; ++j )
         {
-            const T* recvBufferCol = &(recvBuffer[j*localHeight]);
+            const T* recvBufferCol = &recvBuffer[j*localHeight];
             T* thisCol = this->LocalBuffer(0,j);
             memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
         }
@@ -1389,7 +1389,7 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
         for( int j=0; j<width; ++j )
         {
             const T* ACol = A.LockedLocalBuffer(0,j);
-            T* sendBufferCol = &(sendBuffer[j*localHeightOfA]);
+            T* sendBufferCol = &sendBuffer[j*localHeightOfA];
             memcpy( sendBufferCol, ACol, localHeightOfA*sizeof(T) );
         }
 #else
@@ -1413,7 +1413,7 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
 # endif
         for( int j=0; j<width; ++j )
         {
-            const T* recvBufferCol = &(recvBuffer[j*localHeight]);
+            const T* recvBufferCol = &recvBuffer[j*localHeight];
             T* thisCol = this->LocalBuffer(0,j);
             memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
         }
@@ -1516,7 +1516,7 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
     for( int j=0; j<width; ++j )
     {
         const T* ACol = A.LockedLocalBuffer(0,j);
-        T* sendBufferCol = &(sendBuffer[j*localHeightOfA]);
+        T* sendBufferCol = &sendBuffer[j*localHeightOfA];
         memcpy( sendBufferCol, ACol, localHeightOfA*sizeof(T) );
     }
 #else
@@ -1540,7 +1540,7 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
 # endif
     for( int j=0; j<width; ++j )
     {
-        const T* recvBufferCol = &(recvBuffer[j*localHeight]);
+        const T* recvBufferCol = &recvBuffer[j*localHeight];
         T* thisCol = this->LocalBuffer(0,j);
         memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
     }
@@ -1706,7 +1706,7 @@ elemental::DistMatrixBase<T,VC,Star>::SumScatterFrom
 # endif
         for( int j=0; j<localWidth; ++j )
         {
-            const T* recvBufferCol = &(recvBuffer[j*localHeight]);
+            const T* recvBufferCol = &recvBuffer[j*localHeight];
             T* thisCol = this->LocalBuffer(0,j);
             memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
         }
@@ -1811,7 +1811,7 @@ elemental::DistMatrixBase<T,VC,Star>::SumScatterUpdate
 # endif
         for( int j=0; j<localWidth; ++j )
         {
-            const T* recvBufferCol = &(recvBuffer[j*localHeight]);
+            const T* recvBufferCol = &recvBuffer[j*localHeight];
             T* thisCol = this->LocalBuffer(0,j);
             for( int i=0; i<localHeight; ++i )
                 thisCol[i] += alpha*recvBufferCol[i];

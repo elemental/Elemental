@@ -122,7 +122,7 @@ elemental::lapack::internal::UTLUN
         ( Upper, Transpose, 
           (R)1, HPan_VC_Star.LockedLocalMatrix(),
           (R)0, SInv_Star_Star.LocalMatrix() );     
-        SInv_Star_Star.AllSum();
+        SInv_Star_Star.SumOverGrid();
         HalveMainDiagonal( SInv_Star_Star );
 
         HPan_MC_Star = HPanCopy;
@@ -262,7 +262,7 @@ elemental::lapack::internal::UTLUN
         ( Upper, ConjugateTranspose, 
           (C)1, HPan_VC_Star.LockedLocalMatrix(),
           (C)0, SInv_Star_Star.LocalMatrix() );
-        SInv_Star_Star.AllSum();
+        SInv_Star_Star.SumOverGrid();
         t1_Star_Star = t1;
         FixDiagonal( t1_Star_Star, SInv_Star_Star );
 

@@ -93,6 +93,34 @@ elemental::lapack::internal::HegstVar2
 /*
 template<typename F> // F represents a real or complex field
 void
+elemental::lapack::internal::HegstVar3
+( Side side, Shape shape,
+  DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::internal::HegstVar3");
+#endif
+    if( side==Left )
+    {
+        if( shape == Lower )
+            lapack::internal::HegstLLVar3( A, B );
+        else
+            lapack::internal::HegstLUVar3( A, B );
+    }
+    else
+    {
+        if( shape == Lower )
+            lapack::internal::HegstRLVar3( A, B );
+        else
+            lapack::internal::HegstRUVar3( A, B );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F> // F represents a real or complex field
+void
 elemental::lapack::internal::HegstVar4
 ( Side side, Shape shape,
   DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B )
@@ -127,6 +155,9 @@ template void elemental::lapack::internal::HegstVar2
 ( Side side, Shape shape, 
   DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& B );
 /*
+template void elemental::lapack::internal::HegstVar3
+( Side side, Shape shape, 
+  DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& B );
 template void elemental::lapack::internal::HegstVar4
 ( Side side, Shape shape, 
   DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& B );
@@ -139,6 +170,9 @@ template void elemental::lapack::internal::HegstVar2
 ( Side side, Shape shape,
   DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& B );
 /*
+template void elemental::lapack::internal::HegstVar3
+( Side side, Shape shape,
+  DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& B );
 template void elemental::lapack::internal::HegstVar4
 ( Side side, Shape shape,
   DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& B );
@@ -152,6 +186,9 @@ template void elemental::lapack::internal::HegstVar2
 ( Side side, Shape shape,
   DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& B );
 /*
+template void elemental::lapack::internal::HegstVar3
+( Side side, Shape shape,
+  DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& B );
 template void elemental::lapack::internal::HegstVar4
 ( Side side, Shape shape,
   DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& B );
@@ -164,6 +201,9 @@ template void elemental::lapack::internal::HegstVar2
 ( Side side, Shape shape,
   DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& B );
 /*
+template void elemental::lapack::internal::HegstVar3
+( Side side, Shape shape,
+  DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& B );
 template void elemental::lapack::internal::HegstVar4
 ( Side side, Shape shape,
   DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& B );

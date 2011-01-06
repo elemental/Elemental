@@ -148,6 +148,12 @@ HegstVar2
 
 template<typename F>
 void
+HegstVar3
+( Side side, Shape shape,
+  DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B );
+
+template<typename F>
+void
 HegstVar4
 ( Side side, Shape shape, 
   DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B );
@@ -155,6 +161,11 @@ HegstVar4
 template<typename F>
 void
 HegstLLVar2
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+
+template<typename F>
+void
+HegstLLVar3
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
@@ -169,6 +180,11 @@ HegstLUVar2
 
 template<typename F>
 void
+HegstLUVar3
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+
+template<typename F>
+void
 HegstLUVar4
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
@@ -179,12 +195,22 @@ HegstRLVar2
 
 template<typename F>
 void
+HegstRLVar3
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+
+template<typename F>
+void
 HegstRLVar4
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
 void
 HegstRUVar2
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+
+template<typename F>
+void
+HegstRUVar3
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
