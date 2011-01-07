@@ -648,6 +648,123 @@ F
 Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x );
 
 //----------------------------------------------------------------------------//
+// SkewHermitianEig (Skew-Hermitian Eigensolver)                              //
+//                                                                            //
+//----------------------------------------------------------------------------//
+
+#ifndef WITHOUT_COMPLEX
+#ifndef WITHOUT_PMRRR
+// Grab the full set of eigenpairs of the real, skew-symmetric matrix G
+void
+SkewHermitianEig
+( Shape shape, 
+  DistMatrix<double,              MC,  MR>& G, 
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  bool tryForHighAccuracy = false );
+// Grab a partial set of eigenpairs of the real, skew-symmetric n x n matrix G. 
+// The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
+void
+SkewHermitianEig
+( Shape shape,
+  DistMatrix<double,              MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  int a, int b, bool tryForHighAccuracy = false );
+// Grab a partial set of eigenpairs of the real, skew-symmetric n x n matrix G. 
+// The partial set is determined by the half-open imaginary interval (a,b]
+void
+SkewHermitianEig
+( Shape shape,
+  DistMatrix<double,              MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  double a, double b, bool tryForHighAccuracy = false );
+// Grab the full set of eigenvalues of the real, skew-symmetric matrix G 
+void
+SkewHermitianEig
+( Shape shape,
+  DistMatrix<double,              MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  bool tryForHighAccuracy = false );
+// Grab a partial set of eigenvalues of the real, skew-symmetric n x n matrix G.
+// The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
+void
+SkewHermitianEig
+( Shape shape,
+  DistMatrix<double,              MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  int a, int b, bool tryForHighAccuracy = false );
+// Grab a partial set of eigenvalues of the real, skew-symmetric n x n matrix G.
+// The partial set is determined by the half-open imaginary interval (a,b]
+void
+SkewHermitianEig
+( Shape shape,
+  DistMatrix<double,              MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  double a, double b, bool tryForHighAccuracy = false );
+
+// Grab the full set of eigenpairs of the complex, skew-Hermitian matrix G 
+void
+SkewHermitianEig    
+( Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  bool tryForHighAccuracy = false );
+// Grab a partial set of eigenpairs of the complex, skew-Hermitian n x n matrix
+// G. The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
+void
+SkewHermitianEig
+( Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  int a, int b, bool tryForHighAccuracy = false );
+// Grab a partial set of eigenpairs of the complex, skew-Hermitian n x n matrix
+// G. The partial set is determined by the half-open interval (a,b]
+void
+SkewHermitianEig
+( Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  double a, double b, bool tryForHighAccuracy = false );
+// Grab the full set of eigenvalues of the complex, skew-Hermitian matrix G 
+void
+SkewHermitianEig
+( Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  bool tryForHighAccuracy = false );
+// Grab a partial set of eigenvalues of the complex, skew-Hermitian n x n matrix
+// G. The partial set is determined by the inclusive zero-indexed range 
+//   a,a+1,...,b    ; a >= 0, b < n  
+// of the n eigenpairs sorted from smallest to largest eigenvalues.  
+void
+SkewHermitianEig
+( Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  int a, int b, bool tryForHighAccuracy = false );
+// Grab a partial set of eigenvalues of the complex, skew-Hermitian n x n matrix
+// G. The partial set is determined by the half-open imaginary interval (a,b]
+void
+SkewHermitianEig
+( Shape shape,
+  DistMatrix<std::complex<double>,MC,  MR>& G,
+  DistMatrix<std::complex<double>,Star,VR>& w,
+  double a, double b, bool tryForHighAccuracy = false );
+#endif // WITHOUT_PMRRR
+#endif // WITHOUT_COMPLEX
+
+//----------------------------------------------------------------------------//
 // SVD (Singular Value Decomposition):                                        //
 //                                                                            //
 // Two approaches:                                                            //

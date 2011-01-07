@@ -1,5 +1,6 @@
 Relatively trivial but important 
 ================================
+- Make the support for manipulating complex data more consistent
 - Unit tests for unaligned DistMatrix redistributions and summations
 - Finish adding dot product gemm algorithms for NT, TN, and TT options
 

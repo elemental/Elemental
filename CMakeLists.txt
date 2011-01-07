@@ -327,6 +327,8 @@ if(WITHOUT_PMRRR)
   list(REMOVE_ITEM ELEMENTAL_CPP
        "src/lapack/HermitianEig/HermitianEig.cpp")
   list(REMOVE_ITEM ELEMENTAL_CPP
+       "src/lapack/SkewHermitianEig/SkewHermitianEig.cpp")
+  list(REMOVE_ITEM ELEMENTAL_CPP
        "src/lapack/GeneralizedHermitianEig/GeneralizedHermitianEig.cpp")
 endif(WITHOUT_PMRRR)
 set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
