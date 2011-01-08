@@ -34,6 +34,11 @@
 #include "elemental/lapack.hpp"
 using namespace elemental;
 
+// The targeted number of pieces to break the eigenvectors into during the
+// redistribution from the [* ,VR] distribution after PMRRR to the [MC,MR]
+// distribution needed for backtransformation.
+#define TARGET_CHUNKS 20
+
 extern "C" {
 
 int pmrrr
@@ -58,98 +63,11 @@ int pmrrr
 
 } // extern "C"
 
+#ifndef WITHOUT_COMPLEX
 // We create specialized redistribution routines for redistributing the 
 // real eigenvectors of the symmetric tridiagonal matrix at the core of our 
 // eigensolver in order to minimize the temporary memory usage.
 namespace {
-
-void
-RealToRealRedistribution
-( DistMatrix<double,MC,  MR>& Z,
-  DistMatrix<double,Star,VR>& Z_Star_VR )
-{
-    const Grid& g = Z.Grid();
-
-    const int r = g.Height();
-    const int c = g.Width();
-    const int p = r * c;
-    const int col = g.MRRank();
-    const int rowShift = Z.RowShift();
-    const int colAlignment = Z.ColAlignment();
-    const int rowAlignmentOfInput = Z_Star_VR.RowAlignment();
-
-    const int height = Z_Star_VR.Height();
-    const int width = Z_Star_VR.Width();
-
-    const int localWidthOfInput = Z_Star_VR.LocalWidth();
-
-    const int maxHeight = utilities::MaxLocalLength(height,r);
-    const int maxWidth = utilities::MaxLocalLength(width,p);
-    const int portionSize = 
-    std::max(maxHeight*maxWidth,wrappers::mpi::MinCollectContrib);
-    
-    // Carefully allocate our temporary space, as it might be quite large
-    double* buffer = new double[2*r*portionSize];
-    double* sendBuffer = &buffer[0];
-    double* recvBuffer = &buffer[r*portionSize];
-
-    // Pack
-#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( int k=0; k<r; ++k )
-    {
-        double* data = &sendBuffer[k*portionSize];
-
-        const int thisColShift = utilities::Shift(k,colAlignment,r);
-        const int thisLocalHeight = 
-        utilities::LocalLength(height,thisColShift,r);
-
-#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-            #pragma omp parallel for COLLAPSE(2)
-#endif
-        for( int j=0; j<localWidthOfInput; ++j )
-            for( int i=0; i<thisLocalHeight; ++i )
-                data[i+j*thisLocalHeight] =
-                      Z_Star_VR.GetLocalEntry(thisColShift+i*r,j);
-    }
-    Z_Star_VR.Empty();
-
-    // Communicate
-    wrappers::mpi::AllToAll
-    ( sendBuffer, portionSize,
-      recvBuffer, portionSize, g.MCComm() );
-
-    // Unpack the double-precision buffer into the complex buffer
-    Z.ResizeTo( height, width );
-    const int localHeight = Z.LocalHeight();
-#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( int k=0; k<r; ++k )
-    {
-        const double* data = &recvBuffer[k*portionSize];
-
-        const int thisRank = col+k*c;
-        const int thisRowShift = 
-        utilities::Shift(thisRank,rowAlignmentOfInput,p);
-        const int thisRowOffset = (thisRowShift-rowShift) / c;
-        const int thisLocalWidth = utilities::LocalLength(width,thisRowShift,p);
-
-#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-        #pragma omp parallel for
-#endif
-        for( int j=0; j<thisLocalWidth; ++j )
-        {
-            const double* dataCol = &(data[j*localHeight]);
-            double* thisCol = Z.LocalBuffer(0,thisRowOffset+j*r);
-            std::memcpy( thisCol, dataCol, localHeight*sizeof(double) );
-        }
-    }
-    delete[] buffer;
-}
-
-#ifndef WITHOUT_COMPLEX
 void
 RealToComplexRedistribution
 ( DistMatrix<std::complex<double>,MC,  MR>& Z,
@@ -176,7 +94,7 @@ RealToComplexRedistribution
     std::max(maxHeight*maxWidth,wrappers::mpi::MinCollectContrib);
     
     // Carefully allocate our temporary space, as it might be quite large
-    double* buffer = new double[2*r*portionSize];
+    std::vector<double> buffer(2*r*portionSize);
     double* sendBuffer = &buffer[0];
     double* recvBuffer = &buffer[r*portionSize];
 
@@ -200,7 +118,6 @@ RealToComplexRedistribution
                 data[i+j*thisLocalHeight] =
                       Z_Star_VR.GetLocalEntry(thisColShift+i*r,j);
     }
-    Z_Star_VR.Empty();
 
     // Communicate
     wrappers::mpi::AllToAll
@@ -208,7 +125,6 @@ RealToComplexRedistribution
       recvBuffer, portionSize, g.MCComm() );
 
     // Unpack the double-precision buffer into the complex buffer
-    Z.ResizeTo( height, width );
     const int localHeight = Z.LocalHeight();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
     #pragma omp parallel for
@@ -237,11 +153,9 @@ RealToComplexRedistribution
             }
         }
     }
-    delete[] buffer;
 }
-#endif // WITHOUT_COMPLEX
-
 } // anonymous namespace
+#endif // WITHOUT_COMPLEX
 
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs of the real, symmetric matrix A            //
@@ -328,7 +242,39 @@ elemental::lapack::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        RealToRealRedistribution( Z, Z_Star_VR );
+        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
+        // usage low.
+        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        PushBlocksizeStack( redistBlocksize );
+        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
+        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
+        DistMatrix<double,MC,MR> 
+            ZL(g), ZR(g),  
+            Z0(g), Z1(g), Z2(g);
+        DistMatrix<double,Star,VR> 
+            ZL_Star_VR(g), ZR_Star_VR(g),  
+            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
+        PartitionRight( Z, ZL, ZR, 0 );
+        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
+        while( ZL.Width() < Z.Width() )
+        {
+            RepartitionRight
+            ( ZL, /**/ ZR,  
+              Z0, /**/ Z1, Z2 );
+            RepartitionRight
+            ( ZL_Star_VR, /**/ ZR_Star_VR,  
+              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+
+            Z1 = Z1_Star_VR;
+
+            SlidePartitionRight
+            ( ZL,     /**/ ZR,  
+              Z0, Z1, /**/ Z2 );
+            SlidePartitionRight
+            ( ZL_Star_VR,             /**/ ZR_Star_VR,  
+              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+        }
+        PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
@@ -430,7 +376,39 @@ elemental::lapack::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        RealToRealRedistribution( Z, Z_Star_VR );
+        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
+        // usage low.
+        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        PushBlocksizeStack( redistBlocksize );
+        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
+        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
+        DistMatrix<double,MC,MR> 
+            ZL(g), ZR(g),
+            Z0(g), Z1(g), Z2(g);
+        DistMatrix<double,Star,VR> 
+            ZL_Star_VR(g), ZR_Star_VR(g),
+            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
+        PartitionRight( Z, ZL, ZR, 0 );
+        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
+        while( ZL.Width() < Z.Width() )
+        {
+            RepartitionRight
+            ( ZL, /**/ ZR,
+              Z0, /**/ Z1, Z2 );
+            RepartitionRight
+            ( ZL_Star_VR, /**/ ZR_Star_VR,
+              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+
+            Z1 = Z1_Star_VR;
+
+            SlidePartitionRight
+            ( ZL,     /**/ ZR,
+              Z0, Z1, /**/ Z2 );
+            SlidePartitionRight
+            ( ZL_Star_VR,             /**/ ZR_Star_VR,
+              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+        }
+        PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
@@ -563,7 +541,39 @@ elemental::lapack::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        RealToRealRedistribution( Z, Z_Star_VR );
+        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
+        // usage low.
+        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        PushBlocksizeStack( redistBlocksize );
+        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
+        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
+        DistMatrix<double,MC,MR> 
+            ZL(g), ZR(g),
+            Z0(g), Z1(g), Z2(g);
+        DistMatrix<double,Star,VR> 
+            ZL_Star_VR(g), ZR_Star_VR(g),
+            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
+        PartitionRight( Z, ZL, ZR, 0 );
+        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
+        while( ZL.Width() < Z.Width() )
+        {
+            RepartitionRight
+            ( ZL, /**/ ZR,
+              Z0, /**/ Z1, Z2 );
+            RepartitionRight
+            ( ZL_Star_VR, /**/ ZR_Star_VR,
+              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+
+            Z1 = Z1_Star_VR;
+
+            SlidePartitionRight
+            ( ZL,     /**/ ZR,
+              Z0, Z1, /**/ Z2 );
+            SlidePartitionRight
+            ( ZL_Star_VR,             /**/ ZR_Star_VR,
+              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+        }
+        PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
@@ -934,7 +944,40 @@ elemental::lapack::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        RealToComplexRedistribution( Z, Z_Star_VR );
+        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
+        // usage low.
+        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        PushBlocksizeStack( redistBlocksize );
+        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
+        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
+        DistMatrix<std::complex<double>,MC,MR> 
+            ZL(g), ZR(g),
+            Z0(g), Z1(g), Z2(g); 
+        DistMatrix<double,Star,VR> 
+            ZL_Star_VR(g), ZR_Star_VR(g),
+            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
+        PartitionRight( Z, ZL, ZR, 0 );
+        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
+        while( ZL.Width() < Z.Width() )
+        {
+            RepartitionRight
+            ( ZL, /**/ ZR,
+              Z0, /**/ Z1, Z2 );
+            RepartitionRight
+            ( ZL_Star_VR, /**/ ZR_Star_VR,
+              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+
+            // Z1[MC,MR] <- Z1[* ,VR]
+            RealToComplexRedistribution( Z1, Z1_Star_VR );
+
+            SlidePartitionRight
+            ( ZL,     /**/ ZR,
+              Z0, Z1, /**/ Z2 );
+            SlidePartitionRight
+            ( ZL_Star_VR,             /**/ ZR_Star_VR,
+              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+        }
+        PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
@@ -1037,7 +1080,40 @@ elemental::lapack::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        RealToComplexRedistribution( Z, Z_Star_VR );
+        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
+        // usage low.
+        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        PushBlocksizeStack( redistBlocksize );
+        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
+        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
+        DistMatrix<std::complex<double>,MC,MR> 
+            ZL(g), ZR(g),
+            Z0(g), Z1(g), Z2(g);
+        DistMatrix<double,Star,VR> 
+            ZL_Star_VR(g), ZR_Star_VR(g),
+            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
+        PartitionRight( Z, ZL, ZR, 0 );
+        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
+        while( ZL.Width() < Z.Width() )
+        {
+            RepartitionRight
+            ( ZL, /**/ ZR,
+              Z0, /**/ Z1, Z2 );
+            RepartitionRight
+            ( ZL_Star_VR, /**/ ZR_Star_VR,
+              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+
+            // Z1[MC,MR] <- Z1[* ,VR]
+            RealToComplexRedistribution( Z1, Z1_Star_VR );
+
+            SlidePartitionRight
+            ( ZL,     /**/ ZR,
+              Z0, Z1, /**/ Z2 );
+            SlidePartitionRight
+            ( ZL_Star_VR,             /**/ ZR_Star_VR,
+              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+        }
+        PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
@@ -1170,7 +1246,40 @@ elemental::lapack::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        RealToComplexRedistribution( Z, Z_Star_VR );
+        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
+        // usage low.
+        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        PushBlocksizeStack( redistBlocksize );
+        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
+        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
+        DistMatrix<std::complex<double>,MC,MR> 
+            ZL(g), ZR(g),
+            Z0(g), Z1(g), Z2(g);
+        DistMatrix<double,Star,VR> 
+            ZL_Star_VR(g), ZR_Star_VR(g),
+            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
+        PartitionRight( Z, ZL, ZR, 0 );
+        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
+        while( ZL.Width() < Z.Width() )
+        {
+            RepartitionRight
+            ( ZL, /**/ ZR,
+              Z0, /**/ Z1, Z2 );
+            RepartitionRight
+            ( ZL_Star_VR, /**/ ZR_Star_VR,
+              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+
+            // Z1[MC,MR] <- Z1[* ,VR]
+            RealToComplexRedistribution( Z1, Z1_Star_VR );
+
+            SlidePartitionRight
+            ( ZL,     /**/ ZR,
+              Z0, Z1, /**/ Z2 );
+            SlidePartitionRight
+            ( ZL_Star_VR,             /**/ ZR_Star_VR,
+              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+        }
+        PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
