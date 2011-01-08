@@ -142,51 +142,13 @@ ReduceToRowEchelon
 
 template<typename F>
 void
-HegstVar2
-( Side side, Shape shape, 
-  DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B );
-
-template<typename F>
-void
-HegstVar3
-( Side side, Shape shape,
-  DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B );
-
-template<typename F>
-void
-HegstVar4
-( Side side, Shape shape, 
-  DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B );
-
-template<typename F>
-void
 HegstLLVar2
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
-
-template<typename F>
-void
-HegstLLVar3
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
-
-template<typename F>
-void
-HegstLLVar4
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
 void
 HegstLUVar2
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
-
-template<typename F>
-void
-HegstLUVar3
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
-
-template<typename F>
-void
-HegstLUVar4
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
 void
