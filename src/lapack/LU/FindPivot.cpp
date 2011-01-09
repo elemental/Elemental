@@ -35,7 +35,7 @@ using namespace std;
 using namespace elemental;
 using namespace elemental::blas;
 using namespace elemental::lapack::internal;
-using namespace elemental::wrappers::mpi;
+using namespace elemental::import::mpi;
 
 namespace {
 #ifndef RELEASE

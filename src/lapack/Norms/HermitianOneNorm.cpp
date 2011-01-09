@@ -177,7 +177,7 @@ lapack::HermitianOneNorm
             partialColSums[i] += myPartialStrictlyUpperRowSums[iLocal];
         }
         std::vector<R> colSums(A.Width());
-        wrappers::mpi::AllReduce
+        import::mpi::AllReduce
         ( &partialColSums[0], &colSums[0], A.Width(), MPI_SUM, 
           A.Grid().VCComm() );
 
@@ -224,7 +224,7 @@ lapack::HermitianOneNorm
             partialColSums[i] += myPartialStrictlyLowerRowSums[iLocal];
         }
         std::vector<R> colSums(A.Width());
-        wrappers::mpi::AllReduce
+        import::mpi::AllReduce
         ( &partialColSums[0], &colSums[0], A.Width(), MPI_SUM, 
           A.Grid().VCComm() );
 
@@ -297,7 +297,7 @@ lapack::HermitianOneNorm
             partialColSums[i] += myPartialStrictlyUpperRowSums[iLocal];
         }
         std::vector<R> colSums(A.Width());
-        wrappers::mpi::AllReduce
+        import::mpi::AllReduce
         ( &partialColSums[0], &colSums[0], A.Width(), MPI_SUM, 
           A.Grid().VCComm() );
 
@@ -344,7 +344,7 @@ lapack::HermitianOneNorm
             partialColSums[i] += myPartialStrictlyLowerRowSums[iLocal];
         }
         std::vector<R> colSums(A.Width());
-        wrappers::mpi::AllReduce
+        import::mpi::AllReduce
         ( &partialColSums[0], &colSums[0], A.Height(), MPI_SUM, 
           A.Grid().VCComm() );
 

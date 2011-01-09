@@ -272,7 +272,7 @@ elemental::Grid::SetUpGrid()
                 ++diagPathRank;
             }
         }
-        wrappers::mpi::AllGather
+        import::mpi::AllGather
         ( &myDiagPathAndRank[0], 2, &_diagPathsAndRanks[0], 2, _vectorColComm );
 
 #ifndef RELEASE

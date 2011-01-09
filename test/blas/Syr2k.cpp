@@ -35,7 +35,7 @@
 #include "elemental/blas_internal.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::wrappers::mpi;
+using namespace elemental::import::mpi;
 
 void Usage()
 {

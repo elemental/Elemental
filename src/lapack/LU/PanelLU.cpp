@@ -34,7 +34,7 @@
 using namespace std;
 using namespace elemental;
 using namespace elemental::blas;
-using namespace elemental::wrappers::mpi;
+using namespace elemental::import::mpi;
 
 template<typename F> // represents a real or complex number
 void

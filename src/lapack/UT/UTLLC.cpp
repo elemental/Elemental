@@ -83,7 +83,7 @@ elemental::lapack::internal::UTLLC
          HBL, HBR, 0 );
     PartitionUp
     ( A, AT,
-         AB, 0 );
+         AB, max(0,A.Height()-A.Width()) );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -216,7 +216,7 @@ elemental::lapack::internal::UTLLC
          tB, 0 );
     PartitionUp
     ( A, AT,
-         AB, 0 );
+         AB, max(0,A.Height()-A.Width()) );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal

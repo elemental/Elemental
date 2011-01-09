@@ -30,11 +30,11 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_WRAPPERS_LAPACK_HPP
-#define ELEMENTAL_WRAPPERS_LAPACK_HPP 1
+#ifndef ELEMENTAL_IMPORT_LAPACK_HPP
+#define ELEMENTAL_IMPORT_LAPACK_HPP 1
 
 namespace elemental {
-namespace wrappers {
+namespace import {
 namespace lapack {
 
 void
@@ -188,7 +188,7 @@ Trinv
 #endif
 
 } // lapack
-} // wrappers
+} // import
 } // elemental
 
 extern "C" {
@@ -359,5 +359,5 @@ void LAPACK(zhetrd)
 
 } // extern "C"
 
-#endif /* ELEMENTAL_WRAPPERS_LAPACK_HPP */
+#endif /* ELEMENTAL_IMPORT_LAPACK_HPP */
 

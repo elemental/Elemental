@@ -30,11 +30,11 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_WRAPPERS_MPI_HPP
-#define ELEMENTAL_WRAPPERS_MPI_HPP 1
+#ifndef ELEMENTAL_IMPORT_MPI_HPP
+#define ELEMENTAL_IMPORT_MPI_HPP 1
 
 namespace elemental {
-namespace wrappers {
+namespace import {
 namespace mpi {
 
 // Minimum number of elements that each process must contribute
@@ -393,8 +393,8 @@ ReduceScatter
 #endif
 
 } // mpi
-} // wrapppers
+} // import
 } // elemental
 
-#endif /* ELEMENTAL_WRAPPERS_MPI_HPP */
+#endif /* ELEMENTAL_IMPORT_MPI_HPP */
 

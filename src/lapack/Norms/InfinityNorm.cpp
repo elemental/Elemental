@@ -95,7 +95,7 @@ lapack::InfinityNorm( const DistMatrix<R,MC,MR>& A )
 
     // Sum our partial row sums to get the row sums over A[MC,* ]
     std::vector<R> myRowSums(A.LocalHeight());
-    wrappers::mpi::AllReduce
+    import::mpi::AllReduce
     ( &myPartialRowSums[0], &myRowSums[0], A.LocalHeight(), MPI_SUM,
       A.Grid().MRComm() );
 
@@ -106,7 +106,7 @@ lapack::InfinityNorm( const DistMatrix<R,MC,MR>& A )
 
     // Find the global maximum row sum by searching over the MC team
     R maxRowSum = 0;
-    wrappers::mpi::AllReduce
+    import::mpi::AllReduce
     ( &myMaxRowSum, &maxRowSum, 1, MPI_MAX, A.Grid().MCComm() );
 #ifndef RELEASE
     PopCallStack();
@@ -133,7 +133,7 @@ lapack::InfinityNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 
     // Sum our partial row sums to get the row sums over A[MC,* ]
     std::vector<R> myRowSums(A.LocalHeight());
-    wrappers::mpi::AllReduce
+    import::mpi::AllReduce
     ( &myPartialRowSums[0], &myRowSums[0], A.LocalHeight(), MPI_SUM,
       A.Grid().MRComm() );
 
@@ -144,7 +144,7 @@ lapack::InfinityNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 
     // Find the global maximum row sum by searching over the MC team
     R maxRowSum = 0;
-    wrappers::mpi::AllReduce
+    import::mpi::AllReduce
     ( &myMaxRowSum, &maxRowSum, 1, MPI_MAX, A.Grid().MCComm() );
 #ifndef RELEASE
     PopCallStack();

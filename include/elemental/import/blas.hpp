@@ -30,11 +30,11 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_WRAPPERS_BLAS_HPP
-#define ELEMENTAL_WRAPPERS_BLAS_HPP 1
+#ifndef ELEMENTAL_IMPORT_BLAS_HPP
+#define ELEMENTAL_IMPORT_BLAS_HPP 1
 
 namespace elemental {
-namespace wrappers {
+namespace import {
 namespace blas {
 //----------------------------------------------------------------//
 // Level 1 BLAS                                                   //
@@ -677,7 +677,7 @@ Trsm
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* X, int ldb );
 #endif
 } // blas
-} // wrappers
+} // import
 } // elemental
 
 extern "C" {
@@ -1258,5 +1258,5 @@ void BLAS(ztrsm)
 #endif
 } // extern "C"
 
-#endif /* ELEMENTAL_WRAPPERS_BLAS_HPP */
+#endif /* ELEMENTAL_IMPORT_BLAS_HPP */
 

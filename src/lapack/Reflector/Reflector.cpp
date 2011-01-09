@@ -60,9 +60,9 @@ elemental::lapack::Reflector
 
     R beta;
     if( alpha <= 0 )
-        beta = wrappers::lapack::SafeNorm( alpha, norm );
+        beta = import::lapack::SafeNorm( alpha, norm );
     else
-        beta = -wrappers::lapack::SafeNorm( alpha, norm );
+        beta = -import::lapack::SafeNorm( alpha, norm );
 
     R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
     int count = 0;
@@ -79,9 +79,9 @@ elemental::lapack::Reflector
 
         norm = blas::Nrm2( x );
         if( alpha <= 0 )
-            beta = wrappers::lapack::SafeNorm( alpha, norm );
+            beta = import::lapack::SafeNorm( alpha, norm );
         else
-            beta = -wrappers::lapack::SafeNorm( alpha, norm );
+            beta = -import::lapack::SafeNorm( alpha, norm );
     }
 
     R tau = ( beta - alpha ) / beta;
@@ -121,9 +121,9 @@ elemental::lapack::Reflector
 
     R beta;
     if( real(alpha) <= 0 )
-        beta = wrappers::lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        beta = import::lapack::SafeNorm( real(alpha), imag(alpha), norm );
     else
-        beta = -wrappers::lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        beta = -import::lapack::SafeNorm( real(alpha), imag(alpha), norm );
 
     R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
     int count = 0;
@@ -140,10 +140,10 @@ elemental::lapack::Reflector
 
         norm = blas::Nrm2( x );
         if( real(alpha) <= 0 )
-            beta = wrappers::lapack::SafeNorm
+            beta = import::lapack::SafeNorm
                    ( real(alpha), imag(alpha), norm );
         else
-            beta = -wrappers::lapack::SafeNorm
+            beta = -import::lapack::SafeNorm
                     ( real(alpha), imag(alpha), norm );
     }
 
@@ -184,14 +184,14 @@ elemental::lapack::Reflector
         const bool thisIsMyColumn = ( g.MRRank() == x.RowAlignment() );
         if( thisIsMyColumn )
             tau = lapack::internal::ColReflector( chi, x );
-        wrappers::mpi::Broadcast( &tau, 1, x.RowAlignment(), g.MRComm() );
+        import::mpi::Broadcast( &tau, 1, x.RowAlignment(), g.MRComm() );
     }
     else
     {
         const bool thisIsMyRow = ( g.MCRank() == x.ColAlignment() );
         if( thisIsMyRow )
             tau = lapack::internal::RowReflector( chi, x );
-        wrappers::mpi::Broadcast( &tau, 1, x.ColAlignment(), g.MCComm() );
+        import::mpi::Broadcast( &tau, 1, x.ColAlignment(), g.MCComm() );
     }
 #ifndef RELEASE
     PopCallStack();

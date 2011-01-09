@@ -95,7 +95,7 @@ lapack::OneNorm( const DistMatrix<R,MC,MR>& A )
 
     // Sum our partial column sums to get the column sums over A[* ,MR]
     std::vector<R> myColSums(A.LocalWidth());
-    wrappers::mpi::AllReduce
+    import::mpi::AllReduce
     ( &myPartialColSums[0], &myColSums[0], A.LocalWidth(), MPI_SUM,
       A.Grid().MCComm() );
 
@@ -106,7 +106,7 @@ lapack::OneNorm( const DistMatrix<R,MC,MR>& A )
 
     // Find the global maximum column sum by searching over the MR team
     R maxColSum = 0;
-    wrappers::mpi::AllReduce
+    import::mpi::AllReduce
     ( &myMaxColSum, &maxColSum, 1, MPI_MAX, A.Grid().MRComm() );
 #ifndef RELEASE
     PopCallStack();
@@ -133,7 +133,7 @@ lapack::OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 
     // Sum our partial column sums to get the column sums over A[* ,MR]
     std::vector<R> myColSums(A.LocalWidth());
-    wrappers::mpi::AllReduce
+    import::mpi::AllReduce
     ( &myPartialColSums[0], &myColSums[0], A.LocalWidth(), MPI_SUM,
       A.Grid().MCComm() );
 
@@ -144,7 +144,7 @@ lapack::OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 
     // Find the global maximum column sum by searching over the MR team
     R maxColSum = 0;
-    wrappers::mpi::AllReduce
+    import::mpi::AllReduce
     ( &myMaxColSum, &maxColSum, 1, MPI_MAX, A.Grid().MRComm() );
 #ifndef RELEASE
     PopCallStack();

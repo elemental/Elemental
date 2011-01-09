@@ -830,22 +830,22 @@ elemental::blas::Axpy
 #endif
         if( X.Width()==1 && Y.Width()==1 )
         {
-            elemental::wrappers::blas::Axpy
+            elemental::import::blas::Axpy
             ( XLength, alpha, X.LockedBuffer(0,0), 1, Y.Buffer(0,0), 1 );
         }
         else if( X.Width()==1 )
         {
-            elemental::wrappers::blas::Axpy
+            elemental::import::blas::Axpy
             ( XLength, alpha, X.LockedBuffer(0,0), 1, Y.Buffer(0,0), Y.LDim() );
         }
         else if( Y.Width()==1 )
         {
-            elemental::wrappers::blas::Axpy
+            elemental::import::blas::Axpy
             ( XLength, alpha, X.LockedBuffer(0,0), X.LDim(), Y.Buffer(0,0), 1 );
         }
         else
         {
-            elemental::wrappers::blas::Axpy
+            elemental::import::blas::Axpy
             ( XLength, alpha, 
               X.LockedBuffer(0,0), X.LDim(), Y.Buffer(0,0), Y.LDim() );
         }
@@ -860,7 +860,7 @@ elemental::blas::Axpy
         {
             for( int j=0; j<X.Width(); ++j )
             {
-                elemental::wrappers::blas::Axpy
+                elemental::import::blas::Axpy
                 ( X.Height(), alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
             }
         }
@@ -868,7 +868,7 @@ elemental::blas::Axpy
         {
             for( int i=0; i<X.Height(); ++i )
             {
-                elemental::wrappers::blas::Axpy
+                elemental::import::blas::Axpy
                 ( X.Width(), alpha, X.LockedBuffer(i,0), X.LDim(),
                                     Y.Buffer(i,0),       Y.LDim() );
             }
@@ -911,25 +911,25 @@ elemental::blas::Dot
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        dotProduct = wrappers::blas::Dot
+        dotProduct = import::blas::Dot
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), 1 );
     }
     else if( x.Width() == 1 )
     {
-        dotProduct = wrappers::blas::Dot
+        dotProduct = import::blas::Dot
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), y.LDim() );
     }
     else if( y.Width() == 1 )
     {
-        dotProduct = wrappers::blas::Dot
+        dotProduct = import::blas::Dot
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), 1        );
     }
     else
     {
-        dotProduct = wrappers::blas::Dot
+        dotProduct = import::blas::Dot
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), y.LDim() );
     }
@@ -957,25 +957,25 @@ elemental::blas::Dotc
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        dotProduct = wrappers::blas::Dotc
+        dotProduct = import::blas::Dotc
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), 1 );
     }
     else if( x.Width() == 1 )
     {
-        dotProduct = wrappers::blas::Dotc
+        dotProduct = import::blas::Dotc
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), y.LDim() );
     }
     else if( y.Width() == 1 )
     {
-        dotProduct = wrappers::blas::Dotc
+        dotProduct = import::blas::Dotc
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), 1        );
     }
     else
     {
-        dotProduct = wrappers::blas::Dotc
+        dotProduct = import::blas::Dotc
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), y.LDim() );
     }
@@ -1003,25 +1003,25 @@ elemental::blas::Dotu
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        dotProduct = wrappers::blas::Dotu
+        dotProduct = import::blas::Dotu
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), 1 );
     }
     else if( x.Width() == 1 )
     {
-        dotProduct = wrappers::blas::Dotu
+        dotProduct = import::blas::Dotu
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), y.LDim() );
     }
     else if( y.Width() == 1 )
     {
-        dotProduct = wrappers::blas::Dotu
+        dotProduct = import::blas::Dotu
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), 1        );
     }
     else
     {
-        dotProduct = wrappers::blas::Dotu
+        dotProduct = import::blas::Dotu
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), y.LDim() );
     }
@@ -1044,12 +1044,12 @@ elemental::blas::Nrm2
     R norm;
     if( x.Width() == 1 )
     {
-        norm = wrappers::blas::Nrm2
+        norm = import::blas::Nrm2
                ( x.Height(), x.LockedBuffer(), 1 );
     }
     else
     {
-        norm = wrappers::blas::Nrm2
+        norm = import::blas::Nrm2
                ( x.Width(), x.LockedBuffer(), x.LDim() );
     }
 #ifndef RELEASE
@@ -1072,12 +1072,12 @@ elemental::blas::Nrm2
     R norm;
     if( x.Width() == 1 )
     {
-        norm = wrappers::blas::Nrm2
+        norm = import::blas::Nrm2
                ( x.Height(), x.LockedBuffer(), 1 );
     }
     else
     {
-        norm = wrappers::blas::Nrm2
+        norm = import::blas::Nrm2
                ( x.Width(), x.LockedBuffer(), x.LDim() );
     }
 #ifndef RELEASE
@@ -1107,7 +1107,7 @@ elemental::blas::Scal
         {
             for( int j=0; j<X.Width(); ++j )
             {
-                wrappers::blas::Scal
+                import::blas::Scal
                 ( X.Height(), alpha, X.Buffer(0,j), 1 );
             }
         }
@@ -1278,7 +1278,7 @@ elemental::blas::Gemv
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
     if( k != 0 )
     {
-        wrappers::blas::Gemv
+        import::blas::Gemv
         ( transChar, m, n, 
           alpha, A.LockedBuffer(), A.LDim(), x.LockedBuffer(), incx, 
           beta,  y.Buffer(), incy );
@@ -1318,7 +1318,7 @@ elemental::blas::Ger
     const int n = A.Width();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    wrappers::blas::Ger
+    import::blas::Ger
     ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy, 
                    A.Buffer(), A.LDim() );
 #ifndef RELEASE
@@ -1345,7 +1345,7 @@ elemental::blas::Gerc
     const int n = A.Width();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    wrappers::blas::Gerc
+    import::blas::Gerc
     ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy, 
                    A.Buffer(), A.LDim() );
 #ifndef RELEASE
@@ -1372,7 +1372,7 @@ elemental::blas::Geru
     const int n = A.Width();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    wrappers::blas::Geru
+    import::blas::Geru
     ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy, 
                    A.Buffer(), A.LDim() );
 #ifndef RELEASE
@@ -1402,7 +1402,7 @@ elemental::blas::Hemv
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    wrappers::blas::Hemv
+    import::blas::Hemv
     ( uploChar, m,
       alpha, A.LockedBuffer(), A.LDim(), x.LockedBuffer(), incx,
       beta,  y.Buffer(), incy );
@@ -1429,7 +1429,7 @@ elemental::blas::Her
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    wrappers::blas::Her
+    import::blas::Her
     ( uploChar, m,
       alpha, x.LockedBuffer(), incx, A.Buffer(), A.LDim() );
 #ifndef RELEASE
@@ -1459,7 +1459,7 @@ elemental::blas::Her2
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    wrappers::blas::Her2
+    import::blas::Her2
     ( uploChar, m,
       alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
              A.Buffer(), A.LDim() );
@@ -1490,7 +1490,7 @@ elemental::blas::Symv
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    wrappers::blas::Symv
+    import::blas::Symv
     ( uploChar, m, 
       alpha, A.LockedBuffer(), A.LDim(), x.LockedBuffer(), incx, 
       beta,  y.Buffer(), incy );
@@ -1517,7 +1517,7 @@ elemental::blas::Syr
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    wrappers::blas::Syr
+    import::blas::Syr
     ( uploChar, m,
       alpha, x.LockedBuffer(), incx, A.Buffer(), A.LDim() );
 #ifndef RELEASE
@@ -1546,7 +1546,7 @@ elemental::blas::Syr2
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    wrappers::blas::Syr2
+    import::blas::Syr2
     ( uploChar, m,
       alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
              A.Buffer(), A.LDim() );
@@ -1576,7 +1576,7 @@ elemental::blas::Trmv
     const char diagChar = DiagonalToChar( diagonal );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    wrappers::blas::Trmv
+    import::blas::Trmv
     ( uploChar, transChar, diagChar, m,
       A.LockedBuffer(), A.LDim(), x.Buffer(), incx );
 #ifndef RELEASE
@@ -1605,7 +1605,7 @@ elemental::blas::Trsv
     const char diagChar = DiagonalToChar( diagonal );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    wrappers::blas::Trsv
+    import::blas::Trsv
     ( uploChar, transChar, diagChar, m,
       A.LockedBuffer(), A.LDim(), x.Buffer(), incx );
 #ifndef RELEASE
@@ -1661,7 +1661,7 @@ elemental::blas::Gemm
     const int k = ( orientationOfA == Normal ? A.Width() : A.Height() );
     if( k != 0 )
     {
-        wrappers::blas::Gemm
+        import::blas::Gemm
         ( transA, transB, m, n, k, 
           alpha, A.LockedBuffer(), A.LDim(), B.LockedBuffer(), B.LDim(),
           beta,  C.Buffer(),       C.LDim() );
@@ -1686,7 +1686,7 @@ elemental::blas::Hemm
 #endif
     const char sideChar = SideToChar( side );
     const char shapeChar = ShapeToChar( shape );
-    wrappers::blas::Hemm
+    import::blas::Hemm
     ( sideChar, shapeChar, C.Height(), C.Width(),
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
@@ -1723,7 +1723,7 @@ elemental::blas::Her2k
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
     const int k = ( orientation == Normal ? A.Width() : A.Height() );
-    wrappers::blas::Her2k
+    import::blas::Her2k
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
@@ -1758,7 +1758,7 @@ elemental::blas::Herk
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
     const int k = ( orientation == Normal ? A.Width() : A.Height() );
-    wrappers::blas::Herk
+    import::blas::Herk
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
       beta,  C.Buffer(),       C.LDim() );
@@ -1778,7 +1778,7 @@ elemental::blas::Symm
 #endif
     const char sideChar = SideToChar( side );
     const char shapeChar = ShapeToChar( shape );
-    wrappers::blas::Symm
+    import::blas::Symm
     ( sideChar, shapeChar, C.Height(), C.Width(),
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
@@ -1815,7 +1815,7 @@ elemental::blas::Syr2k
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
     const int k = ( orientation == Normal ? A.Width() : A.Height() );
-    wrappers::blas::Syr2k
+    import::blas::Syr2k
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
@@ -1850,7 +1850,7 @@ elemental::blas::Syrk
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
     const int k = ( orientation == Normal ? A.Width() : A.Height() );
-    wrappers::blas::Syrk
+    import::blas::Syrk
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
       beta,  C.Buffer(),       C.LDim() );
@@ -1885,7 +1885,7 @@ elemental::blas::Trmm
     const char uploChar = ShapeToChar( shape );
     const char transChar = OrientationToChar( orientation );
     const char diagChar = DiagonalToChar( diagonal );
-    wrappers::blas::Trmm
+    import::blas::Trmm
     ( sideChar, uploChar, transChar, diagChar, B.Height(), B.Width(),
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 #ifndef RELEASE
@@ -1919,7 +1919,7 @@ elemental::blas::Trsm
     const char uploChar = ShapeToChar( shape );
     const char transChar = OrientationToChar( orientation );
     const char diagChar = DiagonalToChar( diagonal );
-    wrappers::blas::Trsm
+    import::blas::Trsm
     ( sideChar, uploChar, transChar, diagChar, B.Height(), B.Width(),
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 #ifndef RELEASE

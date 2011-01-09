@@ -34,7 +34,7 @@
 using namespace std;
 using namespace elemental;
 using namespace elemental::utilities;
-using namespace elemental::wrappers::mpi;
+using namespace elemental::import::mpi;
 
 void
 elemental::lapack::internal::ComposePivots

@@ -72,7 +72,7 @@ void DumpCallStack();
 #include "elemental/timer.hpp"
 #include "elemental/types.hpp"
 #include "elemental/utilities.hpp"
-#include "elemental/wrappers.hpp"
+#include "elemental/import.hpp"
 
 // Template conventions:
 //   G: general datatype

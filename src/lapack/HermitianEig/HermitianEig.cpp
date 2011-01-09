@@ -91,7 +91,7 @@ RealToComplexRedistribution
     const int maxHeight = utilities::MaxLocalLength(height,r);
     const int maxWidth = utilities::MaxLocalLength(width,p);
     const int portionSize = 
-    std::max(maxHeight*maxWidth,wrappers::mpi::MinCollectContrib);
+    std::max(maxHeight*maxWidth,import::mpi::MinCollectContrib);
     
     // Carefully allocate our temporary space, as it might be quite large
     std::vector<double> buffer(2*r*portionSize);
@@ -120,7 +120,7 @@ RealToComplexRedistribution
     }
 
     // Communicate
-    wrappers::mpi::AllToAll
+    import::mpi::AllToAll
     ( sendBuffer, portionSize,
       recvBuffer, portionSize, g.MCComm() );
 
@@ -495,7 +495,7 @@ elemental::lapack::HermitianEig
         // Perform an Allreduce summation to get the number of eigenvectors, 
         // then create Z[* ,VR] 
         int k;
-        wrappers::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
         DistMatrix<double,Star,VR> Z_Star_VR( n, k, g );
         
         // Now perform the actual computation
@@ -532,7 +532,7 @@ elemental::lapack::HermitianEig
 
         // Sum the local sizes to get the true number of eigenvectors and then
         // shrink Z[* ,VR] as necessary
-        wrappers::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
         Z_Star_VR.ResizeTo( n, k );
 
         // Copy wBuffer into the distributed matrix 
@@ -843,7 +843,7 @@ elemental::lapack::HermitianEig
 
         // Get the total number of eigenvalues computed
         int k;
-        wrappers::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         w.Align( 0 ); // PMRRR requires a zero alignment, though we could
@@ -1200,7 +1200,7 @@ elemental::lapack::HermitianEig
         // Perform an AllReduce summation to get the number of eigenvectors,
         // then create Z[* ,VR]
         int k;
-        wrappers::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
         DistMatrix<double,Star,VR> Z_Star_VR( n, k, g );
 
         // Now perform the actual computation
@@ -1237,7 +1237,7 @@ elemental::lapack::HermitianEig
 
         // Sum the local sizes to get the true number of eigenvectors and then
         // resize Z[* ,VR]
-        wrappers::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
         Z_Star_VR.ResizeTo( n, k );
 
         // Copy wBuffer into the distributed matrix
@@ -1552,7 +1552,7 @@ elemental::lapack::HermitianEig
 
         // Get the total number of eigenvalues computed 
         int k;
-        wrappers::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         w.Align( 0 ); // PMRRR expects an alignment of 0, though we could 

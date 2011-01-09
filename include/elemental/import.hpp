@@ -30,8 +30,8 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_WRAPPERS_HPP
-#define ELEMENTAL_WRAPPERS_HPP 1
+#ifndef ELEMENTAL_IMPORT_HPP
+#define ELEMENTAL_IMPORT_HPP 1
 
 #if defined(BLAS_POST)
 #define BLAS(name) name ## _
@@ -45,9 +45,9 @@
 #define LAPACK(name) name
 #endif
 
-#include "elemental/wrappers/blas.hpp"
-#include "elemental/wrappers/lapack.hpp"
-#include "elemental/wrappers/mpi.hpp"
+#include "elemental/import/blas.hpp"
+#include "elemental/import/lapack.hpp"
+#include "elemental/import/mpi.hpp"
 
-#endif /* ELEMENTAL_WRAPPERS_HPP */
+#endif /* ELEMENTAL_IMPORT_HPP */
 
