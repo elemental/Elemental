@@ -42,58 +42,58 @@ using namespace elemental;
 extern "C" {
 
 int pmrrr
-( char* jobz,    // 'N' ~ only eigenvalues, 'V' ~ also eigenvectors
-  char* range,   // 'A' ~ all eigenpairs, 'V' ~ interval (vl,vu], 'I' ~ il-iu
-  int* n,        // size of matrix
-  double* d,     // full diagonal of tridiagonal matrix [length n]
-  double* e,     // full subdiagonal in first n-1 entries [length n]
-  double* vl,    // if range=='V', compute eigenpairs in (vl,vu]
-  double* vu,
-  int* il,       // if range=='I', compute il-iu eigenpairs
-  int* iu,
-  int* tryrac,   // if nonzero, try for high relative accuracy
+( const char* jobz,  // 'N' ~ only eigenvalues, 'V' ~ also eigenvectors
+  const char* range, // 'A'~all eigenpairs, 'V'~interval (vl,vu], 'I'~il-iu
+  const int* n,      // size of matrix
+  const double* d,   // full diagonal of tridiagonal matrix [length n]
+  const double* e,   // full subdiagonal in first n-1 entries [length n]
+  const double* vl,  // if range=='V', compute eigenpairs in (vl,vu]
+  const double* vu,
+  const int* il, // if range=='I', compute il-iu eigenpairs
+  const int* iu,
+  int* tryrac, // if nonzero, try for high relative accuracy
   MPI_Comm comm, 
-  int* nz,       // number of locally computed eigenvectors
-  int* offset,   // the first eigenpair computed by our process
-  double* w,     // eigenvalues corresponding to local eigenvectors [length nz]
-  double* Z,     // local eigenvectors [size ldz x nz]
-  int* ldz,      // leading dimension of Z
-  int* ZSupp     // support of eigenvectors [length 2n]
+  int* nz,        // number of locally computed eigenvectors
+  int* offset,    // the first eigenpair computed by our process
+  double* w,      // eigenvalues corresponding to local eigenvectors [length nz]
+  double* Z,      // local eigenvectors [size ldz x nz]
+  const int* ldz, // leading dimension of Z
+  int* ZSupp      // support of eigenvectors [length 2n]
 );
 
 } // extern "C"
 
-#ifndef WITHOUT_COMPLEX
 // We create specialized redistribution routines for redistributing the 
 // real eigenvectors of the symmetric tridiagonal matrix at the core of our 
 // eigensolver in order to minimize the temporary memory usage.
 namespace {
 void
-RealToComplexRedistribution
-( DistMatrix<std::complex<double>,MC,  MR>& Z,
-  DistMatrix<             double, Star,VR>& Z_Star_VR )
+RealToRealInPlaceRedist
+( DistMatrix<double,MC,MR>& paddedZ,
+  int height,
+  int width,
+  int rowAlignmentOfInput,
+  const double* readBuffer )
 {
-    const Grid& g = Z.Grid();
+    const Grid& g = paddedZ.Grid();
 
     const int r = g.Height();
     const int c = g.Width();
     const int p = r * c;
+    const int row = g.MCRank();
     const int col = g.MRRank();
-    const int rowShift = Z.RowShift();
-    const int colAlignment = Z.ColAlignment();
-    const int rowAlignmentOfInput = Z_Star_VR.RowAlignment();
+    const int rowShift = paddedZ.RowShift();
+    const int colAlignment = paddedZ.ColAlignment();
 
-    const int height = Z_Star_VR.Height();
-    const int width = Z_Star_VR.Width();
-
-    const int localWidthOfInput = Z_Star_VR.LocalWidth();
+    const int localWidthOfInput = 
+        utilities::LocalLength(width,g.VRRank(),rowAlignmentOfInput,p);
 
     const int maxHeight = utilities::MaxLocalLength(height,r);
     const int maxWidth = utilities::MaxLocalLength(width,p);
     const int portionSize = 
-    std::max(maxHeight*maxWidth,import::mpi::MinCollectContrib);
+        std::max(maxHeight*maxWidth,import::mpi::MinCollectContrib);
     
-    // Carefully allocate our temporary space, as it might be quite large
+    // Allocate our send/recv buffers
     std::vector<double> buffer(2*r*portionSize);
     double* sendBuffer = &buffer[0];
     double* recvBuffer = &buffer[r*portionSize];
@@ -108,15 +108,15 @@ RealToComplexRedistribution
 
         const int thisColShift = utilities::Shift(k,colAlignment,r);
         const int thisLocalHeight = 
-        utilities::LocalLength(height,thisColShift,r);
+            utilities::LocalLength(height,thisColShift,r);
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-            #pragma omp parallel for COLLAPSE(2)
+        #pragma omp parallel for COLLAPSE(2)
 #endif
         for( int j=0; j<localWidthOfInput; ++j )
             for( int i=0; i<thisLocalHeight; ++i )
-                data[i+j*thisLocalHeight] =
-                      Z_Star_VR.GetLocalEntry(thisColShift+i*r,j);
+                data[i+j*thisLocalHeight] = 
+                    readBuffer[thisColShift+i*r+j*height];
     }
 
     // Communicate
@@ -124,8 +124,8 @@ RealToComplexRedistribution
     ( sendBuffer, portionSize,
       recvBuffer, portionSize, g.MCComm() );
 
-    // Unpack the double-precision buffer into the complex buffer
-    const int localHeight = Z.LocalHeight();
+    // Unpack
+    const int localHeight = utilities::LocalLength(height,row,colAlignment,r);
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
     #pragma omp parallel for
 #endif
@@ -135,9 +135,10 @@ RealToComplexRedistribution
 
         const int thisRank = col+k*c;
         const int thisRowShift = 
-        utilities::Shift(thisRank,rowAlignmentOfInput,p);
+            utilities::Shift(thisRank,rowAlignmentOfInput,p);
         const int thisRowOffset = (thisRowShift-rowShift) / c;
-        const int thisLocalWidth = utilities::LocalLength(width,thisRowShift,p);
+        const int thisLocalWidth = 
+            utilities::LocalLength(width,thisRowShift,p);
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
@@ -145,7 +146,93 @@ RealToComplexRedistribution
         for( int j=0; j<thisLocalWidth; ++j )
         {
             const double* dataCol = &(data[j*localHeight]);
-            double* thisCol = (double*)Z.LocalBuffer(0,thisRowOffset+j*r);
+            double* thisCol = paddedZ.LocalBuffer(0,thisRowOffset+j*r);
+            memcpy( thisCol, dataCol, localHeight*sizeof(double) );
+        }
+    }
+}
+
+#ifndef WITHOUT_COMPLEX
+void
+RealToComplexInPlaceRedist
+( DistMatrix<std::complex<double>,MC,MR>& paddedZ,
+  int height,
+  int width,
+  int rowAlignmentOfInput,
+  const double* readBuffer )
+{
+    const Grid& g = paddedZ.Grid();
+
+    const int r = g.Height();
+    const int c = g.Width();
+    const int p = r * c;
+    const int row = g.MCRank();
+    const int col = g.MRRank();
+    const int rowShift = paddedZ.RowShift();
+    const int colAlignment = paddedZ.ColAlignment();
+
+    const int localWidthOfInput = 
+        utilities::LocalLength(width,g.VRRank(),rowAlignmentOfInput,p);
+
+    const int maxHeight = utilities::MaxLocalLength(height,r);
+    const int maxWidth = utilities::MaxLocalLength(width,p);
+    const int portionSize = 
+        std::max(maxHeight*maxWidth,import::mpi::MinCollectContrib);
+    
+    // Allocate our send/recv buffers
+    std::vector<double> buffer(2*r*portionSize);
+    double* sendBuffer = &buffer[0];
+    double* recvBuffer = &buffer[r*portionSize];
+
+    // Pack
+#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+    #pragma omp parallel for
+#endif
+    for( int k=0; k<r; ++k )
+    {
+        double* data = &sendBuffer[k*portionSize];
+
+        const int thisColShift = utilities::Shift(k,colAlignment,r);
+        const int thisLocalHeight = 
+            utilities::LocalLength(height,thisColShift,r);
+
+#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for COLLAPSE(2)
+#endif
+        for( int j=0; j<localWidthOfInput; ++j )
+            for( int i=0; i<thisLocalHeight; ++i )
+                data[i+j*thisLocalHeight] = 
+                    readBuffer[thisColShift+i*r+j*height];
+    }
+
+    // Communicate
+    import::mpi::AllToAll
+    ( sendBuffer, portionSize,
+      recvBuffer, portionSize, g.MCComm() );
+
+    // Unpack
+    const int localHeight = utilities::LocalLength(height,row,colAlignment,r);
+#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+    #pragma omp parallel for
+#endif
+    for( int k=0; k<r; ++k )
+    {
+        const double* data = &recvBuffer[k*portionSize];
+
+        const int thisRank = col+k*c;
+        const int thisRowShift = 
+            utilities::Shift(thisRank,rowAlignmentOfInput,p);
+        const int thisRowOffset = (thisRowShift-rowShift) / c;
+        const int thisLocalWidth = 
+            utilities::LocalLength(width,thisRowShift,p);
+
+#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for
+#endif
+        for( int j=0; j<thisLocalWidth; ++j )
+        {
+            const double* dataCol = &(data[j*localHeight]);
+            double* thisCol = (double*)paddedZ.LocalBuffer(0,thisRowOffset+j*r);
             for( int i=0; i<localHeight; ++i )
             {
                 thisCol[2*i] = dataCol[i];
@@ -154,8 +241,9 @@ RealToComplexRedistribution
         }
     }
 }
-} // anonymous namespace
 #endif // WITHOUT_COMPLEX
+} // anonymous namespace
+
 
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs of the real, symmetric matrix A            //
@@ -165,7 +253,7 @@ elemental::lapack::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,Star,VR>& w,
-  DistMatrix<double,MC,  MR>& Z,
+  DistMatrix<double,MC,  MR>& paddedZ,
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -174,10 +262,46 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
+    const int k = n; // full set of eigenpairs
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    // We will use the same buffer for Z in the vector distribution used by 
+    // PMRRR as for the matrix distribution used by Elemental. In order to 
+    // do so, we must pad Z's dimensions slightly.
+    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
+    const int K = utilities::MaxLocalLength(k,g.Size())*g.Size(); 
+    if( paddedZ.Viewing() )
+    {
+        if( paddedZ.Height() != N || paddedZ.Width() != K )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly padded.");
+        if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly aligned.");
+    }
+    else
+    {
+        paddedZ.Align( 0, 0 );
+        paddedZ.ResizeTo( N, K );
+    }
+
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != k )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+        w.ResizeTo( 1, k );
+    }
 
     // Tridiagonalize A
     lapack::Tridiag( shape, A );
@@ -197,9 +321,20 @@ elemental::lapack::HermitianEig
     e_Star_Star = e_MD_Star;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
-    // then redistribute into Z[MC,MR]
+    // then redistribute into Z[MC,MR] in place, panel by panel
     {
-        DistMatrix<double,Star,VR> Z_Star_VR( n, n, g );
+        // Grab a pointer into the paddedZ local matrix
+        double* paddedZBuffer = paddedZ.LocalBuffer();
+
+        // Grab a slice of size Z_Star_VR_BufferSize from the very end
+        // of paddedZBuffer so that we can later redistribute in place
+        const int paddedZBufferSize = 
+            paddedZ.LocalLDim()*paddedZ.LocalWidth();
+        const int Z_Star_VR_LocalWidth = 
+            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
+        double* Z_Star_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
 
         char jobz = 'V'; // compute the eigenvalues and eigenvectors
         char range = 'A'; // compute all eigenpairs
@@ -208,7 +343,7 @@ elemental::lapack::HermitianEig
         int tryrac = tryForHighAccuracy;
         int nz;
         int offset;
-        int ldz = Z_Star_VR.LocalLDim();
+        int ldz = n;
         std::vector<int> ZSupp(2*n);
         std::vector<double> wBuffer(n);
         int retval = 
@@ -224,7 +359,7 @@ elemental::lapack::HermitianEig
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR.LocalBuffer(),
+              Z_Star_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -237,49 +372,58 @@ elemental::lapack::HermitianEig
             std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
-        w.AlignWith( Z_Star_VR );
-        w.ResizeTo( 1, n );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
-        // usage low.
-        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        // Redistribute Z piece-by-piece in place. This is to keep the 
+        // send/recv buffer memory usage low.
+        const int p = g.Size();
+        const int numEqualPanels = K/p;
+        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const int redistBlocksize = numPanelsPerComm*p;
+
         PushBlocksizeStack( redistBlocksize );
-        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
-        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
         DistMatrix<double,MC,MR> 
-            ZL(g), ZR(g),  
-            Z0(g), Z1(g), Z2(g);
-        DistMatrix<double,Star,VR> 
-            ZL_Star_VR(g), ZR_Star_VR(g),  
-            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
-        PartitionRight( Z, ZL, ZR, 0 );
-        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
-        while( ZL.Width() < Z.Width() )
+            paddedZL(g), paddedZR(g),  
+            paddedZ0(g), paddedZ1(g), paddedZ2(g);
+        PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
+        // Manually maintain information about the implicit Z[* ,VR] stored 
+        // at the end of the paddedZ[MC,MR] buffers.
+        int alignment = 0;
+        const double* readBuffer = Z_Star_VR_Buffer;
+        while( paddedZL.Width() < k )
         {
             RepartitionRight
-            ( ZL, /**/ ZR,  
-              Z0, /**/ Z1, Z2 );
-            RepartitionRight
-            ( ZL_Star_VR, /**/ ZR_Star_VR,  
-              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+            ( paddedZL, /**/ paddedZR,  
+              paddedZ0, /**/ paddedZ1, paddedZ2 );
 
-            Z1 = Z1_Star_VR;
+            const int b = paddedZ1.Width();
+            const int width = std::min(b,k-paddedZL.Width());
+
+            //----------------------------------------------------------------//
+
+            // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
+            RealToRealInPlaceRedist
+            ( paddedZ1, n, width, alignment, readBuffer );
+
+            //----------------------------------------------------------------//
 
             SlidePartitionRight
-            ( ZL,     /**/ ZR,  
-              Z0, Z1, /**/ Z2 );
-            SlidePartitionRight
-            ( ZL_Star_VR,             /**/ ZR_Star_VR,  
-              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+            ( paddedZL,           /**/ paddedZR,  
+              paddedZ0, paddedZ1, /**/ paddedZ2 );
+            
+            // Update the Z1[* ,VR] information
+            const int localWidth = b/p;
+            readBuffer = &readBuffer[localWidth*n];
+            alignment = (alignment+b) % p;
         }
         PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
+    paddedZ.ResizeTo( A.Height(), w.Width() ); // We can simply shrink matrices
     lapack::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, Z );
+    ( Left, shape, ConjugateTranspose, subdiagonal, A, paddedZ );
 
 #ifndef RELEASE
     PopCallStack();
@@ -297,7 +441,7 @@ elemental::lapack::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,Star,VR>& w,
-  DistMatrix<double,MC,  MR>& Z,
+  DistMatrix<double,MC,  MR>& paddedZ,
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -306,11 +450,46 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
+    const int k = (b - a) + 1;
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
-    const int k = (b - a) + 1;
+    // We will use the same buffer for Z in the vector distribution used by 
+    // PMRRR as for the matrix distribution used by Elemental. In order to 
+    // do so, we must pad Z's dimensions slightly.
+    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
+    const int K = utilities::MaxLocalLength(k,g.Size())*g.Size(); 
+    if( paddedZ.Viewing() )
+    {
+        if( paddedZ.Height() != N || paddedZ.Width() != K )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly padded.");
+        if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly aligned.");
+    }
+    else
+    {
+        paddedZ.Align( 0, 0 );
+        paddedZ.ResizeTo( N, K );
+    }
+
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != k )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+        w.ResizeTo( 1, k );
+    }
 
     // Tridiagonalize A
     lapack::Tridiag( shape, A );
@@ -330,9 +509,20 @@ elemental::lapack::HermitianEig
     e_Star_Star = e_MD_Star;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
-    // then redistribute into Z[MC,MR]
+    // then redistribute into Z[MC,MR] in place, panel by panel
     {
-        DistMatrix<double,Star,VR> Z_Star_VR( n, k, g );
+        // Grab a pointer into the paddedZ local matrix 
+        double* paddedZBuffer = paddedZ.LocalBuffer();
+
+        // Grab a slice of size Z_Star_VR_BufferSize from the very end 
+        // of paddedZBuffer so that we can later redistribute in place
+        const int paddedZBufferSize = 
+            paddedZ.LocalLDim()*paddedZ.LocalWidth();
+        const int Z_Star_VR_LocalWidth = 
+            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
+        double* Z_Star_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
 
         char jobz = 'V'; // compute the eigenvalues and eigenvectors
         char range = 'I'; // use an integer range
@@ -340,9 +530,9 @@ elemental::lapack::HermitianEig
         int il = a+1; // convert from 0 to 1 indexing for Fortran
         int iu = b+1; // convert from 0 to 1 indexing for Fortran
         int tryrac = tryForHighAccuracy;
-        int nz = Z_Star_VR.LocalWidth();
+        int nz;
         int offset;
-        int ldz = Z_Star_VR.LocalLDim();
+        int ldz = n;
         std::vector<int> ZSupp(2*n);
         std::vector<double> wBuffer(n);
         int retval = 
@@ -358,7 +548,7 @@ elemental::lapack::HermitianEig
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR.LocalBuffer(),
+              Z_Star_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -371,49 +561,58 @@ elemental::lapack::HermitianEig
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
-        w.AlignWith( Z_Star_VR );
-        w.ResizeTo( 1, k );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
-        // usage low.
-        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        // Redistribute Z piece-by-piece in place. This is to keep the 
+        // send/recv buffer memory usage low.
+        const int p = g.Size();
+        const int numEqualPanels = K/p;
+        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const int redistBlocksize = numPanelsPerComm*p;
+
         PushBlocksizeStack( redistBlocksize );
-        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
-        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
         DistMatrix<double,MC,MR> 
-            ZL(g), ZR(g),
-            Z0(g), Z1(g), Z2(g);
-        DistMatrix<double,Star,VR> 
-            ZL_Star_VR(g), ZR_Star_VR(g),
-            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
-        PartitionRight( Z, ZL, ZR, 0 );
-        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
-        while( ZL.Width() < Z.Width() )
+            paddedZL(g), paddedZR(g),
+            paddedZ0(g), paddedZ1(g), paddedZ2(g);
+        PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
+        // Manually maintain information about the implicit Z[* ,VR] stored
+        // at the end of the paddedZ[MC,MR] buffer
+        int alignment = 0;
+        const double* readBuffer = Z_Star_VR_Buffer;
+        while( paddedZL.Width() < k )
         {
             RepartitionRight
-            ( ZL, /**/ ZR,
-              Z0, /**/ Z1, Z2 );
-            RepartitionRight
-            ( ZL_Star_VR, /**/ ZR_Star_VR,
-              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+            ( paddedZL, /**/ paddedZR,
+              paddedZ0, /**/ paddedZ1, paddedZ2 );
 
-            Z1 = Z1_Star_VR;
+            const int b = paddedZ1.Width();
+            const int width = std::min(b,k-paddedZL.Width());
+
+            //----------------------------------------------------------------//
+
+            // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
+            RealToRealInPlaceRedist
+            ( paddedZ1, n, width, alignment, readBuffer );
+
+            //----------------------------------------------------------------//
 
             SlidePartitionRight
-            ( ZL,     /**/ ZR,
-              Z0, Z1, /**/ Z2 );
-            SlidePartitionRight
-            ( ZL_Star_VR,             /**/ ZR_Star_VR,
-              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+            ( paddedZL,           /**/ paddedZR,
+              paddedZ0, paddedZ1, /**/ paddedZ2 );
+
+            // Update the Z1[* ,VR] information
+            const int localWidth = b/p;
+            readBuffer = &readBuffer[localWidth*n];
+            alignment = (alignment+b) % p; 
         }
         PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
+    paddedZ.ResizeTo( A.Height(), w.Width() );
     lapack::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, Z );
+    ( Left, shape, ConjugateTranspose, subdiagonal, A, paddedZ );
 
 #ifndef RELEASE
     PopCallStack();
@@ -429,7 +628,7 @@ elemental::lapack::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,Star,VR>& w,
-  DistMatrix<double,MC,  MR>& Z,
+  DistMatrix<double,MC,  MR>& paddedZ,
   double a, double b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -438,10 +637,41 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    // We will use the same buffer for Z in the vector distribution used by 
+    // PMRRR as for the matrix distribution used by Elemental. In order to 
+    // do so, we must pad Z's dimensions slightly.
+    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
+    // we don't know k yet, but if a buffer is passed in then it must be able
+    // to account for the case where k=n.
+    if( paddedZ.Viewing() )
+    {
+        const int K = utilities::MaxLocalLength(n,g.Size())*g.Size();
+        if( paddedZ.Height() != N || paddedZ.Width() != K )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly padded.");
+        if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly aligned.");
+    }
+
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != n )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+    }
 
     // Tridiagonalize A
     lapack::Tridiag( shape, A );
@@ -496,15 +726,34 @@ elemental::lapack::HermitianEig
         // then create Z[* ,VR] 
         int k;
         import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
-        DistMatrix<double,Star,VR> Z_Star_VR( n, k, g );
-        
+
+        if( !paddedZ.Viewing() )
+        {
+            const int K = utilities::MaxLocalLength(k,g.Size())*g.Size(); 
+            paddedZ.Align( 0, 0 );
+            paddedZ.ResizeTo( N, K );
+        }
+
+        // Grab a pointer into the paddedZ local matrix
+        double* paddedZBuffer = paddedZ.LocalBuffer();
+
+        // Grab a slice of size Z_Star_VR_BufferSize from the very end
+        // of paddedZBuffer so that we can later redistribute in place
+        const int paddedZBufferSize = 
+            paddedZ.LocalLDim()*paddedZ.LocalWidth();
+        const int Z_Star_VR_LocalWidth = 
+            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
+        double* Z_Star_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
+
         // Now perform the actual computation
         jobz = 'V'; // compute the eigenvalues and eigenvectors
         range = 'V'; // use a floating-point range
         vl = a;
         vu = b;
         tryrac = tryForHighAccuracy;
-        ldz = Z_Star_VR.LocalLDim();
+        ldz = n;
         retval = 
             pmrrr
             ( &jobz, 
@@ -518,7 +767,7 @@ elemental::lapack::HermitianEig
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR.LocalBuffer(),
+              Z_Star_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -530,55 +779,63 @@ elemental::lapack::HermitianEig
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
-        // Sum the local sizes to get the true number of eigenvectors and then
-        // shrink Z[* ,VR] as necessary
+        // Sum the local sizes to get the true number of eigenvectors 
         import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
-        Z_Star_VR.ResizeTo( n, k );
 
         // Copy wBuffer into the distributed matrix 
-        w.AlignWith( Z_Star_VR );
         w.ResizeTo( 1, k );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
-        // usage low.
-        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        // Redistribute Z piece-by-piece in place. This is to keep the 
+        // send/recv buffer memory usage low.
+        const int p = g.Size();
+        const int numEqualPanels = paddedZ.Width()/p;
+        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const int redistBlocksize = numPanelsPerComm*p;
+
         PushBlocksizeStack( redistBlocksize );
-        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
-        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
         DistMatrix<double,MC,MR> 
-            ZL(g), ZR(g),
-            Z0(g), Z1(g), Z2(g);
-        DistMatrix<double,Star,VR> 
-            ZL_Star_VR(g), ZR_Star_VR(g),
-            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
-        PartitionRight( Z, ZL, ZR, 0 );
-        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
-        while( ZL.Width() < Z.Width() )
+            paddedZL(g), paddedZR(g),
+            paddedZ0(g), paddedZ1(g), paddedZ2(g);
+        PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
+        // Manually maintain information about the implicit Z[* ,VR] stored
+        // at the end of paddedZ[MC,MR] buffers.
+        int alignment = 0;
+        const double* readBuffer = Z_Star_VR_Buffer;
+        while( paddedZL.Width() < k )
         {
             RepartitionRight
-            ( ZL, /**/ ZR,
-              Z0, /**/ Z1, Z2 );
-            RepartitionRight
-            ( ZL_Star_VR, /**/ ZR_Star_VR,
-              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+            ( paddedZL, /**/ paddedZR,
+              paddedZ0, /**/ paddedZ1, paddedZ2 );
 
-            Z1 = Z1_Star_VR;
+            const int b = paddedZ1.Width();
+            const int width = std::min(b,k-paddedZL.Width());
+
+            //----------------------------------------------------------------//
+
+            // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
+            RealToRealInPlaceRedist
+            ( paddedZ1, n, width, alignment, readBuffer );
+
+            //----------------------------------------------------------------//
 
             SlidePartitionRight
-            ( ZL,     /**/ ZR,
-              Z0, Z1, /**/ Z2 );
-            SlidePartitionRight
-            ( ZL_Star_VR,             /**/ ZR_Star_VR,
-              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+            ( paddedZL,           /**/ paddedZR,
+              paddedZ0, paddedZ1, /**/ paddedZ2 );
+
+            // Update the Z1[* ,VR] information
+            const int localWidth = b/p;
+            readBuffer = &readBuffer[localWidth*n];
+            alignment = (alignment+b) % p;
         }
         PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
+    paddedZ.ResizeTo( A.Height(), w.Width() );
     lapack::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, Z );
+    ( Left, shape, ConjugateTranspose, subdiagonal, A, paddedZ );
 
 #ifndef RELEASE
     PopCallStack();
@@ -601,10 +858,26 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int n = A.Height();
+    const int k = n;
     const Grid& g = A.Grid();
 
     const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != k )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+        w.ResizeTo( 1, k );
+    }
 
     // Tridiagonalize A
     lapack::Tridiag( shape, A );
@@ -661,9 +934,6 @@ elemental::lapack::HermitianEig
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
-        w.Align( 0 ); // PMRRR requires a zero alignment, though we could
-                      // have arbitrary alignments if we shift the communicator
-        w.ResizeTo( 1, n );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
     }
@@ -691,11 +961,26 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
+    const int k = (b - a) + 1;
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
-    const int k = (b - a) + 1;
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != k )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+        w.ResizeTo( 1, k );
+    }
 
     // Tridiagonalize A
     lapack::Tridiag( shape, A );
@@ -753,9 +1038,6 @@ elemental::lapack::HermitianEig
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
-        w.Align( 0 ); // PMRRR requires a zero alignment, though we could
-                      // have arbitrary alignments if we shift the communicator
-        w.ResizeTo( 1, k );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
     }
@@ -781,10 +1063,24 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != n )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+    }
 
     // Tridiagonalize A
     lapack::Tridiag( shape, A );
@@ -846,8 +1142,6 @@ elemental::lapack::HermitianEig
         import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
-        w.Align( 0 ); // PMRRR requires a zero alignment, though we could
-                      // have arbitrary alignments if we shift the communicator
         w.ResizeTo( 1, k );
         for( int j=0; j<nz; ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
@@ -866,7 +1160,7 @@ elemental::lapack::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, Star,VR>& w,
-  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -875,10 +1169,46 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
+    const int k = n; // full set of eigenpairs
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    // We will use the same buffer for Z in the vector distribution used by 
+    // PMRRR as for the matrix distribution used by Elemental. In order to 
+    // do so, we must pad Z's dimensions slightly.
+    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
+    const int K = utilities::MaxLocalLength(k,g.Size())*g.Size();
+    if( paddedZ.Viewing() )
+    {
+        if( paddedZ.Height() != N || paddedZ.Width() != K )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly padded.");
+        if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly aligned.");
+    }
+    else
+    {
+        paddedZ.Align( 0, 0 );
+        paddedZ.ResizeTo( N, K );
+    }
+
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != k )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+        w.ResizeTo( 1, k );
+    }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
@@ -899,9 +1229,20 @@ elemental::lapack::HermitianEig
     e_Star_Star = e_MD_Star;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
-    // then redistribute into Z[MC,MR]
+    // then redistribute into Z[MC,MR] in place, panel by panel
     {
-        DistMatrix<double,Star,VR> Z_Star_VR( n, n, g );
+        // Grab a pointer into the paddedZ local matrix
+        double* paddedZBuffer = (double*)paddedZ.LocalBuffer();
+
+        // Grab a slice of size Z_Star_VR_BufferSize from the very end 
+        // of paddedZBuffer so that we can later redistribute in place
+        const int paddedZBufferSize = 
+            2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
+        const int Z_Star_VR_LocalWidth = 
+            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
+        double* Z_Star_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
 
         char jobz = 'V'; // compute the eigenvalues and eigenvectors
         char range = 'A'; // compute all of them
@@ -910,7 +1251,7 @@ elemental::lapack::HermitianEig
         int tryrac = tryForHighAccuracy;
         int nz;
         int offset;
-        int ldz = Z_Star_VR.LocalLDim();
+        int ldz = n;
         std::vector<int> ZSupp(2*n);
         std::vector<double> wBuffer(n);
         int retval = 
@@ -926,7 +1267,7 @@ elemental::lapack::HermitianEig
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR.LocalBuffer(),
+              Z_Star_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -939,50 +1280,58 @@ elemental::lapack::HermitianEig
             std::cerr << "PMRRR could not achieve high accuracy." << std::endl;
         
         // Copy wBuffer into the distributed matrix w[* ,VR]
-        w.AlignWith( Z_Star_VR );
-        w.ResizeTo( 1, n );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
-        // usage low.
-        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        // Redistribute Z piece-by-piece in place. This is to keep the
+        // send/recv buffer memory usage low.
+        const int p = g.Size();
+        const int numEqualPanels = K/p;
+        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const int redistBlocksize = numPanelsPerComm*p;
+
         PushBlocksizeStack( redistBlocksize );
-        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
-        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
         DistMatrix<std::complex<double>,MC,MR> 
-            ZL(g), ZR(g),
-            Z0(g), Z1(g), Z2(g); 
-        DistMatrix<double,Star,VR> 
-            ZL_Star_VR(g), ZR_Star_VR(g),
-            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
-        PartitionRight( Z, ZL, ZR, 0 );
-        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
-        while( ZL.Width() < Z.Width() )
+            paddedZL(g), paddedZR(g),
+            paddedZ0(g), paddedZ1(g), paddedZ2(g); 
+        PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
+        // Manually maintain information about the implicit Z[* ,VR] stored
+        // at the end of the paddedZ[MC,MR] buffers.
+        int alignment = 0;
+        const double* readBuffer = Z_Star_VR_Buffer;
+        while( paddedZL.Width() < k )
         {
             RepartitionRight
-            ( ZL, /**/ ZR,
-              Z0, /**/ Z1, Z2 );
-            RepartitionRight
-            ( ZL_Star_VR, /**/ ZR_Star_VR,
-              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+            ( paddedZL, /**/ paddedZR,
+              paddedZ0, /**/ paddedZ1, paddedZ2 );
+
+            const int b = paddedZ1.Width();
+            const int width = std::min(b,k-paddedZL.Width());
+
+            //----------------------------------------------------------------//
 
             // Z1[MC,MR] <- Z1[* ,VR]
-            RealToComplexRedistribution( Z1, Z1_Star_VR );
+            RealToComplexInPlaceRedist
+            ( paddedZ1, n, width, alignment, readBuffer );
+
+            //----------------------------------------------------------------//
 
             SlidePartitionRight
-            ( ZL,     /**/ ZR,
-              Z0, Z1, /**/ Z2 );
-            SlidePartitionRight
-            ( ZL_Star_VR,             /**/ ZR_Star_VR,
-              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+            ( paddedZL,           /**/ paddedZR,
+              paddedZ0, paddedZ1, /**/ paddedZ2 );
+
+            // Update the Z1[* ,VR] information
+            const int localWidth = b/p;
+            readBuffer = &readBuffer[localWidth*n];
+            alignment = (alignment+b) % p;
         }
         PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
+    paddedZ.ResizeTo( A.Height(), w.Width() ); 
     lapack::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, t, Z );
+    ( Left, shape, ConjugateTranspose, subdiagonal, A, t, paddedZ );
 
 #ifndef RELEASE
     PopCallStack();
@@ -1000,7 +1349,7 @@ elemental::lapack::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, Star,VR>& w,
-  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -1009,11 +1358,46 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
+    const int k = (b - a) + 1;
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
-    const int k = (b - a) + 1;
+    // We will use the same buffer for Z in the vector distribution used by 
+    // PMRRR as for the matrix distribution used by Elemental. In order to 
+    // do so, we must pad Z's dimensions slightly.
+    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
+    const int K = utilities::MaxLocalLength(k,g.Size())*g.Size();
+    if( paddedZ.Viewing() )
+    {
+        if( paddedZ.Height() != N || paddedZ.Width() != K )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly padded.");
+        if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly aligned.");
+    }
+    else
+    {
+        paddedZ.Align( 0, 0 );
+        paddedZ.ResizeTo( N, K );
+    }
+
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != k )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+        w.ResizeTo( 1, k );
+    }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
@@ -1036,7 +1420,18 @@ elemental::lapack::HermitianEig
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR]
     {
-        DistMatrix<double,Star,VR> Z_Star_VR( n, k, g );
+        // Grab a pointer into the paddedZ local matrix
+        double* paddedZBuffer = (double*)paddedZ.LocalBuffer();
+
+        // Grab a slice of size Z_Star_VR_BufferSize from the very end
+        // of paddedZBuffer so that we can later redistribute in place
+        const int paddedZBufferSize = 
+            2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
+        const int Z_Star_VR_LocalWidth = 
+            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
+        double* Z_Star_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
 
         char jobz = 'V'; // compute the eigenvalues and eigenvectors
         char range = 'I'; // use an integer range
@@ -1046,7 +1441,7 @@ elemental::lapack::HermitianEig
         int tryrac = tryForHighAccuracy;
         int nz;
         int offset;
-        int ldz = Z_Star_VR.LocalLDim();
+        int ldz = n;
         std::vector<int> ZSupp(2*n);
         std::vector<double> wBuffer(n);
         int retval = 
@@ -1062,7 +1457,7 @@ elemental::lapack::HermitianEig
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR.LocalBuffer(),
+              Z_Star_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -1075,50 +1470,58 @@ elemental::lapack::HermitianEig
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
-        w.AlignWith( Z_Star_VR );
-        w.ResizeTo( 1, k );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
-        // usage low.
-        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        // Redistribute Z piece-by-piece in place. This is to keep the 
+        // send/recv buffer memory usage low.
+        const int p = g.Size();
+        const int numEqualPanels = K/p;
+        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const int redistBlocksize = numPanelsPerComm*p;
+
         PushBlocksizeStack( redistBlocksize );
-        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
-        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
         DistMatrix<std::complex<double>,MC,MR> 
-            ZL(g), ZR(g),
-            Z0(g), Z1(g), Z2(g);
-        DistMatrix<double,Star,VR> 
-            ZL_Star_VR(g), ZR_Star_VR(g),
-            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
-        PartitionRight( Z, ZL, ZR, 0 );
-        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
-        while( ZL.Width() < Z.Width() )
+            paddedZL(g), paddedZR(g),
+            paddedZ0(g), paddedZ1(g), paddedZ2(g);
+        PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
+        // Manually maintain information about the implicit Z[* ,VR] stored
+        // at the end of the padded Z[MC,MR] buffer
+        int alignment = 0;
+        const double* readBuffer = Z_Star_VR_Buffer;
+        while( paddedZL.Width() < k )
         {
             RepartitionRight
-            ( ZL, /**/ ZR,
-              Z0, /**/ Z1, Z2 );
-            RepartitionRight
-            ( ZL_Star_VR, /**/ ZR_Star_VR,
-              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+            ( paddedZL, /**/ paddedZR,
+              paddedZ0, /**/ paddedZ1, paddedZ2 );
+
+            const int b = paddedZ1.Width();
+            const int width = std::min(b,k-paddedZL.Width());
+
+            //----------------------------------------------------------------//
 
             // Z1[MC,MR] <- Z1[* ,VR]
-            RealToComplexRedistribution( Z1, Z1_Star_VR );
+            RealToComplexInPlaceRedist
+            ( paddedZ1, n, width, alignment, readBuffer );
+
+            //----------------------------------------------------------------//
 
             SlidePartitionRight
-            ( ZL,     /**/ ZR,
-              Z0, Z1, /**/ Z2 );
-            SlidePartitionRight
-            ( ZL_Star_VR,             /**/ ZR_Star_VR,
-              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+            ( paddedZL,           /**/ paddedZR,
+              paddedZ0, paddedZ1, /**/ paddedZ2 );
+
+            // Update the Z1[* ,VR] information
+            const int localWidth = b/p;
+            readBuffer = &readBuffer[localWidth*n];
+            alignment = (alignment+b) % p;
         }
         PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
+    paddedZ.ResizeTo( A.Height(), w.Width() );
     lapack::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, t, Z );
+    ( Left, shape, ConjugateTranspose, subdiagonal, A, t, paddedZ );
 
 #ifndef RELEASE
     PopCallStack();
@@ -1134,7 +1537,7 @@ elemental::lapack::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, Star,VR>& w,
-  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   double a, double b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -1143,10 +1546,41 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    // We will use the same buffer for Z in the vector distribution used by 
+    // PMRRR as for the matrix distribution used by Elemental. In order to 
+    // do so, we must pad Z's dimensions slightly.
+    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
+    // we don't know k yet, but if a buffer is passed in then it must be able
+    // to account for the case where k=n.
+    if( paddedZ.Viewing() )
+    {
+        const int K = utilities::MaxLocalLength(n,g.Size())*g.Size();
+        if( paddedZ.Height() != N || paddedZ.Width() != K )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly padded.");
+        if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("paddedZ was a view but was not properly aligned.");
+    }
+
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != n )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+    }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
@@ -1203,13 +1637,33 @@ elemental::lapack::HermitianEig
         import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
         DistMatrix<double,Star,VR> Z_Star_VR( n, k, g );
 
+        if( !paddedZ.Viewing() )
+        {
+            const int K = utilities::MaxLocalLength(k,g.Size())*g.Size();
+            paddedZ.Align( 0, 0 );
+            paddedZ.ResizeTo( N, K );
+        }
+
+        // Grab a pointer into the paddedZ local matrix
+        double* paddedZBuffer = (double*)paddedZ.LocalBuffer();
+
+        // Grab a slice of size Z_Star_VR_BufferSize from the very end
+        // of paddedZBuffer so that we can later redistribute in place
+        const int paddedZBufferSize = 
+            2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
+        const int Z_Star_VR_LocalWidth = 
+            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
+        double* Z_Star_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
+
         // Now perform the actual computation
         jobz = 'V'; // compute the eigenvalues and eigenvectors
         range = 'V'; // use a floating-point range
         vl = a;
         vu = b;
         tryrac = tryForHighAccuracy;
-        ldz = Z_Star_VR.LocalLDim();
+        ldz = n;
         retval = 
             pmrrr
             ( &jobz, 
@@ -1223,7 +1677,7 @@ elemental::lapack::HermitianEig
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR.LocalBuffer(),
+              Z_Star_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -1235,56 +1689,63 @@ elemental::lapack::HermitianEig
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
-        // Sum the local sizes to get the true number of eigenvectors and then
-        // resize Z[* ,VR]
+        // Sum the local sizes to get the true number of eigenvectors 
         import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
-        Z_Star_VR.ResizeTo( n, k );
 
         // Copy wBuffer into the distributed matrix
-        w.AlignWith( Z_Star_VR );
         w.ResizeTo( 1, k );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
 
-        // Redistribute Z piece-by-piece to keep the send/recv buffer memory
-        // usage low.
-        int redistBlocksize = (Z_Star_VR.Width() / TARGET_CHUNKS) + 1;
+        // Redistribute Z piece-by-piece in place. This is to keep the 
+        // send/recv buffer memory usage low.
+        const int p = g.Size();
+        const int numEqualPanels = paddedZ.Width()/p;
+        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const int redistBlocksize = numPanelsPerComm*p;
+
         PushBlocksizeStack( redistBlocksize );
-        Z.AlignRows( Z_Star_VR.RowAlignment() % g.Width() );
-        Z.ResizeTo( Z_Star_VR.Height(), Z_Star_VR.Width() );
         DistMatrix<std::complex<double>,MC,MR> 
-            ZL(g), ZR(g),
-            Z0(g), Z1(g), Z2(g);
-        DistMatrix<double,Star,VR> 
-            ZL_Star_VR(g), ZR_Star_VR(g),
-            Z0_Star_VR(g), Z1_Star_VR(g), Z2_Star_VR(g);
-        PartitionRight( Z, ZL, ZR, 0 );
-        PartitionRight( Z_Star_VR, ZL_Star_VR, ZR_Star_VR, 0 );
-        while( ZL.Width() < Z.Width() )
+            paddedZL(g), paddedZR(g),
+            paddedZ0(g), paddedZ1(g), paddedZ2(g);
+        PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
+        // Manually maintain information about the implicit Z[* ,VR] stored
+        // at the end of paddedZ[MC,MR] buffers.
+        int alignment = 0;
+        const double* readBuffer = Z_Star_VR_Buffer;
+        while( paddedZL.Width() < k )
         {
             RepartitionRight
-            ( ZL, /**/ ZR,
-              Z0, /**/ Z1, Z2 );
-            RepartitionRight
-            ( ZL_Star_VR, /**/ ZR_Star_VR,
-              Z0_Star_VR, /**/ Z1_Star_VR, Z2_Star_VR );
+            ( paddedZL, /**/ paddedZR,
+              paddedZ0, /**/ paddedZ1, paddedZ2 );
+
+            const int b = paddedZ1.Width();
+            const int width = std::min(b,k-paddedZL.Width());
+
+            //----------------------------------------------------------------//
 
             // Z1[MC,MR] <- Z1[* ,VR]
-            RealToComplexRedistribution( Z1, Z1_Star_VR );
+            RealToComplexInPlaceRedist
+            ( paddedZ1, n, width, alignment, readBuffer );
+
+            //----------------------------------------------------------------//
 
             SlidePartitionRight
-            ( ZL,     /**/ ZR,
-              Z0, Z1, /**/ Z2 );
-            SlidePartitionRight
-            ( ZL_Star_VR,             /**/ ZR_Star_VR,
-              Z0_Star_VR, Z1_Star_VR, /**/ Z2_Star_VR );
+            ( paddedZL,           /**/ paddedZR,
+              paddedZ0, paddedZ1, /**/ paddedZ2 );
+
+            // Update the Z1[* ,VR] information
+            const int localWidth = b/p;
+            readBuffer = &readBuffer[localWidth*n];
+            alignment = (alignment+b) % p;
         }
         PopBlocksizeStack();
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
+    paddedZ.ResizeTo( A.Height(), w.Width() );
     lapack::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, t, Z );
+    ( Left, shape, ConjugateTranspose, subdiagonal, A, t, paddedZ );
 
 #ifndef RELEASE
     PopCallStack();
@@ -1307,10 +1768,26 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
+    const int k = n;
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != k )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+        w.ResizeTo( 1, k );
+    }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
@@ -1368,9 +1845,6 @@ elemental::lapack::HermitianEig
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
-        w.Align( 0 ); // PMRRR expects an alignment of 0, though we could 
-                      // handle arbitrary alignments by shifting the comm.
-        w.ResizeTo( 1, n );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
     }
@@ -1398,11 +1872,26 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
+    const int k = (b - a) + 1;
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
-    const int k = (b - a) + 1;
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != k )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+        w.ResizeTo( 1, k );
+    }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
@@ -1461,9 +1950,6 @@ elemental::lapack::HermitianEig
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
-        w.Align( 0 ); // PMRRR expects an alignment of 0, though we could 
-                      // handle arbitrary alignments by shifting the comm.
-        w.ResizeTo( 1, k );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
     }
@@ -1489,10 +1975,24 @@ elemental::lapack::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    int n = A.Height();
+    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+
+    const int n = A.Height();
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    if( w.Viewing() )
+    {
+        if( w.RowAlignment() != 0 )
+            throw std::logic_error
+                  ("w was a view but was not properly aligned.");
+        if( w.Height() != 1 || w.Width() != n )
+            throw std::logic_error
+                  ("w was a view but was not the proper size.");
+    }
+    else
+    {
+        w.Align( 0 );
+    }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
@@ -1555,8 +2055,6 @@ elemental::lapack::HermitianEig
         import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
-        w.Align( 0 ); // PMRRR expects an alignment of 0, though we could 
-                      // handle arbitrary alignments by shifting the comm.
         w.ResizeTo( 1, k );
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);

@@ -81,14 +81,17 @@ elemental::Matrix<T>::ResizeTo
     PushCallStack("Matrix::ResizeTo(height,width)");
     if( height < 0 || width < 0 )
         throw logic_error( "Height and width must be non-negative." );
-    if( _viewing )
-        throw logic_error
-        ( "Does not make sense to resize matrix when viewing other data." );
+    if( _viewing && (height>_height || width>_width) )
+        throw logic_error("Cannot increase the size of a view.");
 #endif
+    // Only change the ldim when necessary. Simply 'shrink' our view if 
+    // possible.
     const int minLDim = 1;
+    if( height > _height || width > _width )
+        _ldim = max( height, minLDim );
+
     _height = height;
-    _width  = width;
-    _ldim   = max( height, minLDim );
+    _width = width;
 
     _memory.Require(_ldim*width);
     _data = _memory.Buffer();
@@ -106,9 +109,8 @@ elemental::Matrix<T>::ResizeTo
     PushCallStack("Matrix::ResizeTo(height,width,ldim)");
     if( height < 0 || width < 0 )
         throw logic_error( "Height and width must be non-negative." );
-    if( _viewing )
-        throw logic_error
-        ( "Does not make sense to resize matrix when viewing other data." );
+    if( _viewing && (height > _height || width > _width || ldim != _ldim) )
+        throw logic_error("Illogical ResizeTo on viewed data.");
     if( ldim < height )
     {
         ostringstream msg;
@@ -118,8 +120,8 @@ elemental::Matrix<T>::ResizeTo
     }
 #endif
     _height = height;
-    _width  = width;
-    _ldim   = ldim;
+    _width = width;
+    _ldim = ldim;
 
     _memory.Require(ldim*width);
     _data = _memory.Buffer();

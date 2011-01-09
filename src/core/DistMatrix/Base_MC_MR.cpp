@@ -1131,7 +1131,7 @@ elemental::DistMatrixBase<T,MC,MR>::ResizeTo
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::ResizeTo");
-    this->AssertNotLockedView();
+    this->AssertNotLockedView(); // this should be relaxed...
 #endif
     this->_height = height;
     this->_width = width;
