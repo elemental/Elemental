@@ -13,17 +13,6 @@ License
 =======
 New BSD License
 
-Currently Supported Routines
-============================
-- Dense level 3 BLAS
-- Cholesky factorization
-- Gaussian elimination
-- Generalized Hermitian eigenvalue problems
-- Hermitian eigenvalue problems
-- LU factorization
-- QR factorization
-- UT transform application
-
 Build
 =====
 There is now a CMake [http://www.cmake.org] build script which supports building
