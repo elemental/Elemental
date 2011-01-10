@@ -34,7 +34,7 @@
 using namespace std;
 using namespace elemental;
 using namespace elemental::utilities;
-using namespace elemental::import::mpi;
+using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype

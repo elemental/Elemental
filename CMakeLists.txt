@@ -34,7 +34,7 @@ cmake_minimum_required(VERSION 2.8)
 project(Elemental)
 
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 57)
+set(Elemental_VERSION_MINOR 58)
 
 # Elemental supports four build modes:
 #   HybridDebug, HybridRelease, PureDebug, and PureRelease
@@ -317,11 +317,11 @@ endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 configure_file( ${CMAKE_SOURCE_DIR}/include/elemental/config.hpp.cmake
                 ${CMAKE_BINARY_DIR}/include/elemental/config.hpp ) 
 
-# Grab all of the .cpp and .hpp Elemental files
+# Grab all of the .c, .cpp, .h, and .hpp Elemental files
 file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
-     "src/*.cpp")
+     "src/*.c" "src/*.cpp")
 file(GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
-     "include/*.hpp")
+     "include/*.h" "include/*.hpp")
 if(WITHOUT_PMRRR)
   message(STATUS "Removing eigensolver source from Elemental")
   list(REMOVE_ITEM ELEMENTAL_CPP
@@ -337,9 +337,12 @@ set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 # for the various build modes
 if(BUILD_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
+
   set(CORE_TESTS DifferentGrids DistMatrix Matrix)
   set(BLAS_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
   set(LAPACK_TESTS Chol Hegst LU QR Tridiag Trinv UT)
+
+  set(C_TESTS BasicTest)
 
   set(CMAKE_CXX_FLAGS_HYBRIDDEBUG
       "${CXX_HYBRID_DEBUG_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -390,29 +393,38 @@ endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 # Build the test drivers if necessary
 if(BUILD_TESTS)
   # Build the core tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/core")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/cxx/core")
   foreach(TEST ${CORE_TESTS})
-    add_executable(core-${TEST} ${TEST_DIR}/core/${TEST}.cpp)
-    target_link_libraries(core-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(core-${TEST} 
+    add_executable(cxx-core-${TEST} ${TEST_DIR}/cxx/core/${TEST}.cpp)
+    target_link_libraries(cxx-core-${TEST} elemental cmake-dummy-lib)
+    set_target_properties(cxx-core-${TEST} 
                           PROPERTIES OUTPUT_NAME ${TEST}
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
   endforeach(TEST)
   # Build the blas tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/blas")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/cxx/blas")
   foreach(TEST ${BLAS_TESTS})
-    add_executable(blas-${TEST} ${TEST_DIR}/blas/${TEST}.cpp)
-    target_link_libraries(blas-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(blas-${TEST} 
+    add_executable(cxx-blas-${TEST} ${TEST_DIR}/cxx/blas/${TEST}.cpp)
+    target_link_libraries(cxx-blas-${TEST} elemental cmake-dummy-lib)
+    set_target_properties(cxx-blas-${TEST} 
                           PROPERTIES OUTPUT_NAME ${TEST}
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
   endforeach(TEST)
   # Build the lapack tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/lapack")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/cxx/lapack")
   foreach(TEST ${LAPACK_TESTS})
-    add_executable(lapack-${TEST} ${TEST_DIR}/lapack/${TEST}.cpp)
-    target_link_libraries(lapack-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(lapack-${TEST} 
+    add_executable(cxx-lapack-${TEST} ${TEST_DIR}/cxx/lapack/${TEST}.cpp)
+    target_link_libraries(cxx-lapack-${TEST} elemental cmake-dummy-lib)
+    set_target_properties(cxx-lapack-${TEST} 
+                          PROPERTIES OUTPUT_NAME ${TEST}
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+  endforeach(TEST)
+  # Build the C tests
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/c")
+  foreach(TEST ${C_TESTS})
+    add_executable(c-${TEST} ${TEST_DIR}/c/${TEST}.c)
+    target_link_libraries(c-${TEST} elemental cmake-dummy-lib)
+    set_target_properties(c-${TEST}
                           PROPERTIES OUTPUT_NAME ${TEST}
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
   endforeach(TEST)

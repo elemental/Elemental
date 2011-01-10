@@ -932,7 +932,7 @@ elemental::lapack::Chol
         throw std::logic_error( "A must be square." );
 #endif
     const char uplo = ShapeToChar( shape );
-    import::lapack::Chol( uplo, A.Height(), A.Buffer(), A.LDim() );
+    imports::lapack::Chol( uplo, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -954,7 +954,7 @@ elemental::lapack::Hegst
 #endif
     const int itype = ( side==Left ? 2 : 1 );
     const char uplo = ShapeToChar( shape );
-    import::lapack::Hegst
+    imports::lapack::Hegst
     ( itype, uplo, A.Height(), 
       A.Buffer(), A.LDim(), B.LockedBuffer(), B.LDim() );
 #ifndef RELEASE
@@ -972,7 +972,7 @@ elemental::lapack::LU
     if( p.Height() != A.Height() )
         throw std::logic_error( "A and p must be the same height." );
 #endif
-    import::lapack::LU
+    imports::lapack::LU
     ( A.Height(), A.Width(), A.Buffer(), A.LDim(), p.Buffer() );
 #ifndef RELEASE
     PopCallStack();
@@ -987,7 +987,7 @@ elemental::lapack::QR
 #ifndef RELEASE
     PushCallStack("lapack::QR");
 #endif
-    import::lapack::QR
+    imports::lapack::QR
     ( A.Height(), A.Width(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
@@ -1009,7 +1009,7 @@ elemental::lapack::QR
 #endif
     if( !t.Viewing() )
         t.ResizeTo( A.Height(), 1 );
-    import::lapack::QR
+    imports::lapack::QR
     ( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
 #ifndef RELEASE
     PopCallStack();
@@ -1029,7 +1029,7 @@ elemental::lapack::SVD
     const int n = A.Width();
     SigmaDiag.resize( std::min(m,n) );
     VT.ResizeTo( std::min(m,n), n );
-    import::lapack::SVD
+    imports::lapack::SVD
     ( 'O', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], 0, 0, 
       VT.Buffer(), VT.LDim() );
 #ifndef RELEASE
@@ -1051,7 +1051,7 @@ elemental::lapack::SVD
     const int n = A.Width();
     SigmaDiag.resize( std::min(m,n) );
     VT.ResizeTo( std::min(m,n), n );
-    import::lapack::SVD
+    imports::lapack::SVD
     ( 'O', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], 0, 0, 
       VT.Buffer(), VT.LDim() );
 #ifndef RELEASE
@@ -1073,7 +1073,7 @@ elemental::lapack::SVD
     SigmaDiag.resize( std::min(m,n) );
     U.ResizeTo( m, std::min(m,n) );
     VT.ResizeTo( std::min(m,n), n );
-    import::lapack::SVD
+    imports::lapack::SVD
     ( 'S', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], U.Buffer(), U.LDim(),
       VT.Buffer(), VT.LDim() );
 #ifndef RELEASE
@@ -1096,7 +1096,7 @@ elemental::lapack::SVD
     SigmaDiag.resize( std::min(m,n) );
     U.ResizeTo( m, std::min(m,n) );
     VT.ResizeTo( std::min(m,n), n );
-    import::lapack::SVD
+    imports::lapack::SVD
     ( 'S', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], U.Buffer(), U.LDim(),
       VT.Buffer(), VT.LDim() );
 #ifndef RELEASE
@@ -1117,7 +1117,7 @@ elemental::lapack::Trinv
 #endif
     const char uplo = ShapeToChar( shape );
     const char diag = DiagonalToChar( diagonal );
-    import::lapack::Trinv
+    imports::lapack::Trinv
     ( uplo, diag, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();

@@ -184,7 +184,7 @@ lapack::HermitianFrobeniusNorm
 
     // Sum the local contributions
     R normSquared;
-    import::mpi::AllReduce
+    imports::mpi::AllReduce
     ( &localNormSquared, &normSquared, 1, MPI_SUM, A.Grid().VCComm() );
 
     R norm = sqrt(normSquared);
@@ -252,7 +252,7 @@ lapack::HermitianFrobeniusNorm
 
     // Sum the local contributions
     R normSquared;
-    import::mpi::AllReduce
+    imports::mpi::AllReduce
     ( &localNormSquared, &normSquared, 1, MPI_SUM, A.Grid().VCComm() );
 
     R norm = sqrt(normSquared);

@@ -37,7 +37,7 @@
 #include "elemental/lapack_internal.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::import::mpi;
+using namespace elemental::imports::mpi;
 
 template<typename R> // representation of a real number
 R
@@ -75,7 +75,7 @@ elemental::lapack::internal::ColReflector
     vector<R> localNorms(r);
     R localNorm = blas::Nrm2( x.LockedLocalMatrix() ); 
     AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
-    R norm = import::blas::Nrm2( r, &localNorms[0], 1 );
+    R norm = imports::blas::Nrm2( r, &localNorms[0], 1 );
 
     R alpha;
     if( myRow == chi.ColAlignment() )
@@ -84,9 +84,9 @@ elemental::lapack::internal::ColReflector
 
     R beta;
     if( alpha <= 0 )
-        beta = import::lapack::SafeNorm( alpha, norm );
+        beta = imports::lapack::SafeNorm( alpha, norm );
     else
-        beta = -import::lapack::SafeNorm( alpha, norm );
+        beta = -imports::lapack::SafeNorm( alpha, norm );
 
     R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
     int count = 0;
@@ -103,11 +103,11 @@ elemental::lapack::internal::ColReflector
 
         localNorm = blas::Nrm2( x.LockedLocalMatrix() );
         AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
-        norm = import::blas::Nrm2( r, &localNorms[0], 1 );
+        norm = imports::blas::Nrm2( r, &localNorms[0], 1 );
         if( alpha <= 0 )
-            beta = import::lapack::SafeNorm( alpha, norm );
+            beta = imports::lapack::SafeNorm( alpha, norm );
         else
-            beta = -import::lapack::SafeNorm( alpha, norm );
+            beta = -imports::lapack::SafeNorm( alpha, norm );
     }
 
     R tau = ( beta-alpha ) / beta;
@@ -152,7 +152,7 @@ elemental::lapack::internal::ColReflector
     vector<R> localNorms(r);
     R localNorm = blas::Nrm2( x.LockedLocalMatrix() ); 
     AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
-    R norm = import::blas::Nrm2( r, &localNorms[0], 1 );
+    R norm = imports::blas::Nrm2( r, &localNorms[0], 1 );
 
     C alpha;
     if( myRow == chi.ColAlignment() )
@@ -171,9 +171,9 @@ elemental::lapack::internal::ColReflector
 
     R beta;
     if( real(alpha) <= 0 )
-        beta = import::lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        beta = imports::lapack::SafeNorm( real(alpha), imag(alpha), norm );
     else
-        beta = -import::lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        beta = -imports::lapack::SafeNorm( real(alpha), imag(alpha), norm );
 
     R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
     int count = 0;
@@ -190,15 +190,15 @@ elemental::lapack::internal::ColReflector
 
         localNorm = blas::Nrm2( x.LockedLocalMatrix() );
         AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
-        norm = import::blas::Nrm2( r, &localNorms[0], 1 );
+        norm = imports::blas::Nrm2( r, &localNorms[0], 1 );
         if( real(alpha) <= 0 )
         {
-            beta = import::lapack::SafeNorm
+            beta = imports::lapack::SafeNorm
                    ( real(alpha), imag(alpha), norm );
         }
         else
         {
-            beta = -import::lapack::SafeNorm
+            beta = -imports::lapack::SafeNorm
                    ( real(alpha), imag(alpha), norm );
         }
     }

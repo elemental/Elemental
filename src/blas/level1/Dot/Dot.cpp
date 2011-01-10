@@ -33,7 +33,7 @@
 #include "elemental/blas_internal.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::import::mpi;
+using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype

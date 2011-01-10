@@ -35,8 +35,8 @@
 using namespace std;
 using namespace elemental;
 using namespace elemental::utilities;
-using namespace elemental::import::blas;
-using namespace elemental::import::mpi;
+using namespace elemental::imports::blas;
+using namespace elemental::imports::mpi;
 
 template<typename R> // representation of a real number
 void

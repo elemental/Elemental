@@ -33,6 +33,7 @@
 #ifndef ELEMENTAL_ENVIRONMENT_HPP
 #define ELEMENTAL_ENVIRONMENT_HPP 1
 
+#include "mpi.h"
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -72,7 +73,7 @@ void DumpCallStack();
 #include "elemental/timer.hpp"
 #include "elemental/types.hpp"
 #include "elemental/utilities.hpp"
-#include "elemental/import.hpp"
+#include "elemental/imports.hpp"
 
 // Template conventions:
 //   G: general datatype

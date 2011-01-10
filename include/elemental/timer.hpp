@@ -33,9 +33,6 @@
 #ifndef ELEMENTAL_TIMER_HPP
 #define ELEMENTAL_TIMER_HPP 1
 
-#include <stdexcept>
-#include "mpi.h"
-
 namespace elemental {
 
 class Timer

@@ -33,9 +33,6 @@
 #ifndef ELEMENTAL_PROCESSGRID_HPP
 #define ELEMENTAL_PROCESSGRID_HPP 1
 
-#include <iostream>
-#include "mpi.h"
-
 namespace elemental {
 
 class Grid
@@ -80,6 +77,12 @@ class Grid
     MPI_Comm _vectorRowComm;
 
     void SetUpGrid();
+
+    // Disable copying this class due to MPI_Comm/MPI_Group ownership issues
+    // and potential performance loss from duplicating MPI communicators, e.g.,
+    // on Blue Gene/P there is supposedly a performance loss
+    void operator=(Grid&);
+    Grid(const Grid&);
 
     public:
 

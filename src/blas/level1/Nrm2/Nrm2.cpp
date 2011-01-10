@@ -33,7 +33,7 @@
 #include "elemental/blas_internal.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::import::mpi;
+using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype
@@ -71,7 +71,7 @@ elemental::blas::Nrm2
             vector<R> localNorms(r);
             R* localNormsPtr = &localNorms[0];
             AllGather( &localNorm, 1, localNormsPtr, 1, g.MCComm() );
-            norm = import::blas::Nrm2( r, localNormsPtr, 1 );
+            norm = imports::blas::Nrm2( r, localNormsPtr, 1 );
         }
         Broadcast( &norm, 1, ownerCol, g.MRComm() );
     }
@@ -86,7 +86,7 @@ elemental::blas::Nrm2
             vector<R> localNorms(c);
             R* localNormsPtr = &localNorms[0];
             AllGather( &localNorm, 1, localNormsPtr, 1, g.MRComm() );
-            norm = import::blas::Nrm2( c, localNormsPtr, 1 );
+            norm = imports::blas::Nrm2( c, localNormsPtr, 1 );
         }
         Broadcast( &norm, 1, ownerRow, g.MCComm() );
     }
@@ -121,7 +121,7 @@ elemental::blas::Nrm2
             vector<R> localNorms(r);
             R* localNormsPtr = &localNorms[0];
             AllGather( &localNorm, 1, localNormsPtr, 1, g.MCComm() );
-            norm = import::blas::Nrm2( r, localNormsPtr, 1 );
+            norm = imports::blas::Nrm2( r, localNormsPtr, 1 );
         }
         Broadcast( &norm, 1, ownerCol, g.MRComm() );
     }
@@ -136,7 +136,7 @@ elemental::blas::Nrm2
             vector<R> localNorms(c);
             R* localNormsPtr = &localNorms[0];
             AllGather( &localNorm, 1, localNormsPtr, 1, g.MRComm() );
-            norm = import::blas::Nrm2( c, localNormsPtr, 1 );
+            norm = imports::blas::Nrm2( c, localNormsPtr, 1 );
         }
         Broadcast( &norm, 1, ownerRow, g.MCComm() );
     }

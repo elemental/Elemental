@@ -101,7 +101,7 @@ lapack::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
 
     // The norm squared is simply the sum of the local contributions
     R normSquared;
-    import::mpi::AllReduce
+    imports::mpi::AllReduce
     ( &localNormSquared, &normSquared, 1, MPI_SUM, A.Grid().VCComm() );
 
     R norm = sqrt(normSquared);
@@ -132,7 +132,7 @@ lapack::FrobeniusNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 
     // The norm squared is simply the sum of the local contributions
     R normSquared;
-    import::mpi::AllReduce
+    imports::mpi::AllReduce
     ( &localNormSquared, &normSquared, 1, MPI_SUM, A.Grid().VCComm() );
 
     R norm = sqrt(normSquared);

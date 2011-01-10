@@ -91,7 +91,7 @@ RealToRealInPlaceRedist
     const int maxHeight = utilities::MaxLocalLength(height,r);
     const int maxWidth = utilities::MaxLocalLength(width,p);
     const int portionSize = 
-        std::max(maxHeight*maxWidth,import::mpi::MinCollectContrib);
+        std::max(maxHeight*maxWidth,imports::mpi::MinCollectContrib);
     
     // Allocate our send/recv buffers
     std::vector<double> buffer(2*r*portionSize);
@@ -120,7 +120,7 @@ RealToRealInPlaceRedist
     }
 
     // Communicate
-    import::mpi::AllToAll
+    imports::mpi::AllToAll
     ( sendBuffer, portionSize,
       recvBuffer, portionSize, g.MCComm() );
 
@@ -177,7 +177,7 @@ RealToComplexInPlaceRedist
     const int maxHeight = utilities::MaxLocalLength(height,r);
     const int maxWidth = utilities::MaxLocalLength(width,p);
     const int portionSize = 
-        std::max(maxHeight*maxWidth,import::mpi::MinCollectContrib);
+        std::max(maxHeight*maxWidth,imports::mpi::MinCollectContrib);
     
     // Allocate our send/recv buffers
     std::vector<double> buffer(2*r*portionSize);
@@ -206,7 +206,7 @@ RealToComplexInPlaceRedist
     }
 
     // Communicate
-    import::mpi::AllToAll
+    imports::mpi::AllToAll
     ( sendBuffer, portionSize,
       recvBuffer, portionSize, g.MCComm() );
 
@@ -725,7 +725,7 @@ elemental::lapack::HermitianEig
         // Perform an Allreduce summation to get the number of eigenvectors, 
         // then create Z[* ,VR] 
         int k;
-        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        imports::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
 
         if( !paddedZ.Viewing() )
         {
@@ -780,7 +780,7 @@ elemental::lapack::HermitianEig
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Sum the local sizes to get the true number of eigenvectors 
-        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        imports::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
 
         // Copy wBuffer into the distributed matrix 
         w.ResizeTo( 1, k );
@@ -1139,7 +1139,7 @@ elemental::lapack::HermitianEig
 
         // Get the total number of eigenvalues computed
         int k;
-        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        imports::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         w.ResizeTo( 1, k );
@@ -1634,7 +1634,7 @@ elemental::lapack::HermitianEig
         // Perform an AllReduce summation to get the number of eigenvectors,
         // then create Z[* ,VR]
         int k;
-        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        imports::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
         DistMatrix<double,Star,VR> Z_Star_VR( n, k, g );
 
         if( !paddedZ.Viewing() )
@@ -1690,7 +1690,7 @@ elemental::lapack::HermitianEig
             std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
 
         // Sum the local sizes to get the true number of eigenvectors 
-        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        imports::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
 
         // Copy wBuffer into the distributed matrix
         w.ResizeTo( 1, k );
@@ -2052,7 +2052,7 @@ elemental::lapack::HermitianEig
 
         // Get the total number of eigenvalues computed 
         int k;
-        import::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
+        imports::mpi::AllReduce( &nz, &k, 1, MPI_SUM, g.VRComm() );
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         w.ResizeTo( 1, k );

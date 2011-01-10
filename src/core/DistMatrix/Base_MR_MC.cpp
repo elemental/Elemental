@@ -34,7 +34,7 @@
 using namespace std;
 using namespace elemental;
 using namespace elemental::utilities;
-using namespace elemental::import::mpi;
+using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype
@@ -3992,7 +3992,7 @@ elemental::DistMatrixBase<T,MR,MC>::SumScatterUpdate
     {
         const T* recvBufferCol = &recvBuffer[j*localHeight];
         T* thisCol = this->LocalBuffer(0,j);
-        import::blas::Axpy
+        imports::blas::Axpy
         ( localHeight, alpha, recvBufferCol, 1, thisCol, 1 );
     }
 #else
