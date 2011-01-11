@@ -115,12 +115,12 @@ elemental::blas::internal::HemmLLA
         Z1.AlignWith( C1 );
         Z1_MC_Star.ResizeTo( C1.Height(), C1.Width() );
         Z1_MR_Star.ResizeTo( C1.Height(), C1.Width() );
-        Z1_MC_Star.SetToZero();
-        Z1_MR_Star.SetToZero();
         //--------------------------------------------------------------------//
         B1_MC_Star = B1;
         B1_VR_Star = B1_MC_Star;
         B1Herm_Star_MR.ConjugateTransposeFrom( B1_VR_Star );
+        Z1_MC_Star.SetToZero();
+        Z1_MR_Star.SetToZero();
         blas::internal::LocalHemmAccumulateLL
         ( alpha, A, B1_MC_Star, B1Herm_Star_MR, Z1_MC_Star, Z1_MR_Star );
 

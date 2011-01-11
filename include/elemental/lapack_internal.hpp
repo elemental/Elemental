@@ -142,13 +142,38 @@ ReduceToRowEchelon
 
 template<typename F>
 void
+HegstLLVar1
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+
+template<typename F>
+void
 HegstLLVar2
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
 void
+HegstLLVar3
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+
+template<typename F>
+void
+HegstLUVar1
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+
+template<typename F>
+void
 HegstLUVar2
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+
+template<typename F>
+void
+HegstLUVar3
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+
+template<typename F>
+void
+HegstRLVar1
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
 void
@@ -167,6 +192,16 @@ HegstRLVar4
 
 template<typename F>
 void
+HegstRLVar5
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+
+template<typename F>
+void
+HegstRUVar1
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+
+template<typename F>
+void
 HegstRUVar2
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
@@ -178,6 +213,11 @@ HegstRUVar3
 template<typename F>
 void
 HegstRUVar4
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+
+template<typename F>
+void
+HegstRUVar5
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 //----------------------------------------------------------------------------//
