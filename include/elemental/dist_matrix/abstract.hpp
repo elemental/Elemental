@@ -123,9 +123,9 @@ protected:
       int ldim,
       const elemental::Grid& g );
 
+public:
     virtual ~AbstractDistMatrixBase();
 
-public:
     //-----------------------------------------------------------------------//
     // Routines that do NOT need to be implemented in derived classes        //
     //-----------------------------------------------------------------------//
@@ -362,7 +362,8 @@ protected:
       int ldim,
       const elemental::Grid& g );
 
-    ~AbstractDistMatrix();
+public:
+    virtual ~AbstractDistMatrix();
 };
 
 #ifndef WITHOUT_COMPLEX
@@ -430,9 +431,9 @@ protected:
       int ldim,
       const elemental::Grid& g );
 
-    ~AbstractDistMatrix();
-
 public:
+    virtual ~AbstractDistMatrix();
+
     //------------------------------------------------------------------------//
     // Operations that should be collectively performed                       //
     //------------------------------------------------------------------------//

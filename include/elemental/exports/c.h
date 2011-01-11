@@ -39,6 +39,10 @@
 extern "C" {
 #endif
 
+// We should not assume C99 support and use <complex.h>
+typedef struct { float real; float imag; } ElementalSComplex;
+typedef struct { double real; double imag; } ElementalDComplex;
+
 void ElementalInit( int* argc, char** argv[] );
 void ElementalFinalize();
 int ElementalBlocksize();
@@ -46,7 +50,7 @@ void ElementalSetBlocksize( int blocksize );
 void ElementalPushBlocksizeStack( int blocksize );
 void ElementalPopBlocksizeStack();
 
-void ElementalClearGridList();
+void ElementalClearGrids();
 int ElementalDefaultGrid( MPI_Comm comm );
 int ElementalGrid( MPI_Comm comm, int r, int c );
 
@@ -58,6 +62,25 @@ int ElementalGridVCRank( int gridHandle );
 int ElementalGridVRRank( int gridHandle );
 int ElementalGridMCRank( int gridHandle );
 int ElementalGridMRRank( int gridHandle );
+MPI_Comm ElementalGridVCComm( int gridHandle );
+MPI_Comm ElementalGridVRComm( int gridHandle );
+MPI_Comm ElementalGridMCComm( int gridHandle );
+MPI_Comm ElementalGridMRComm( int gridHandle );
+
+void ElementalClearDistMatrices();
+
+int ElementalDistMatrix_MC_MR_Double
+( int height, int width, int colAlignment, int rowAlignment,
+  double* buffer, int ldim, int gridHandle );
+
+int ElementalDistMatrix_MC_MR_DComplex
+( int height, int width, int colAlignment, int rowAlignment,
+  ElementalDComplex* buffer, int ldim, int gridHandle );  
+
+void ElementalDistMatrixPrint( char* msg, int distMatrixHandle );
+
+int ElementalLocalLength
+( int globalLength, int myIndex, int alignment, int modulus );
 
 #ifdef __cplusplus
 } /* extern "C" */
