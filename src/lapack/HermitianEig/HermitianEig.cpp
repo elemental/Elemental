@@ -613,7 +613,6 @@ elemental::lapack::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() );
     lapack::UT
     ( Left, shape, ConjugateTranspose, subdiagonal, A, paddedZ );
-
 #ifndef RELEASE
     PopCallStack();
 #endif
