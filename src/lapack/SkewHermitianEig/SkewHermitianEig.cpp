@@ -375,7 +375,6 @@ elemental::lapack::SkewHermitianEig
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square.");
 
-    int n = G.Height();
     const Grid& grid = G.Grid();
 
     // Make G Hermitian by scaling by -i
@@ -420,7 +419,6 @@ elemental::lapack::SkewHermitianEig
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square.");
     
-    int n = G.Height();
     const Grid& grid = G.Grid();
 
     // Make G Hermitian by scaling by -i
@@ -463,7 +461,6 @@ elemental::lapack::SkewHermitianEig
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square.");
     
-    int n = G.Height();
     const Grid& grid = G.Grid();
 
     // Make G Hermitian by scaling by -i
@@ -503,7 +500,6 @@ elemental::lapack::SkewHermitianEig
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square.");
     
-    int n = G.Height();
     const Grid& grid = G.Grid();
 
     // Make G Hermitian by scaling by -i
@@ -547,7 +543,6 @@ elemental::lapack::SkewHermitianEig
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square.");
     
-    int n = G.Height();
     const Grid& grid = G.Grid();
 
     // Make G Hermitian by scaling by -i
@@ -589,7 +584,6 @@ elemental::lapack::SkewHermitianEig
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square.");
     
-    int n = G.Height();
     const Grid& grid = G.Grid();
 
     // Make G Hermitian by scaling by -i

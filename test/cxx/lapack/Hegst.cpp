@@ -226,8 +226,20 @@ void TestHegst
     A.ResizeTo( m, m );
     B.ResizeTo( m, m );
 
-    A.SetToRandomHPD();
-    B.SetToRandomHPD();
+    if( testCorrectness )
+    {
+        DistMatrix<F,MC,MR> C( m, m, g );
+        C.SetToRandom();
+        blas::Herk( shape, Normal, (F)1, C, (F)0, A );
+        C.SetToRandom();
+        blas::Herk( shape, Normal, (F)1, C, (F)0, B );
+        lapack::Chol( shape, B );
+    }
+    else
+    {
+        A.SetToRandomHPD();
+        B.SetToRandomHPD();
+    }
     B.MakeTrapezoidal( Left, shape );
     if( testCorrectness )
     {
