@@ -48,7 +48,7 @@ typedef struct { float real; float imag; } SComplex;
 typedef struct { double real; double imag; } DComplex;
 #endif /* WITHOUT_COMPLEX */
 
-/* Grid handle */
+/* Grid A */
 typedef int Grid;
 
 /* Handles for real distributed matrices */
@@ -152,28 +152,28 @@ Star_VR_Double ElementalRegister_Star_VR_Double
 ( int height, int width, int rowAlignment, 
   double* buffer, int ldim, Grid g );
 
-void ElementalPrint_MC_MR_Single( char* msg, MC_MR_Single handle );
-void ElementalPrint_MC_MR_Double( char* msg, MC_MR_Double handle );
-void ElementalPrint_MC_Star_Single( char* msg, MC_Star_Single handle );
-void ElementalPrint_MC_Star_Double( char* msg, MC_Star_Double handle );
-void ElementalPrint_MD_Star_Single( char* msg, MD_Star_Single handle );
-void ElementalPrint_MD_Star_Double( char* msg, MD_Star_Double handle );
-void ElementalPrint_MR_Star_Single( char* msg, MR_Star_Single handle );
-void ElementalPrint_MR_Star_Double( char* msg, MR_Star_Double handle );
-void ElementalPrint_Star_MC_Single( char* msg, Star_MC_Single handle );
-void ElementalPrint_Star_MC_Double( char* msg, Star_MC_Double handle );
-void ElementalPrint_Star_MR_Single( char* msg, Star_MR_Single handle );
-void ElementalPrint_Star_MR_Double( char* msg, Star_MR_Double handle );
-void ElementalPrint_Star_Star_Single( char* msg, Star_Star_Single handle );
-void ElementalPrint_Star_Star_Double( char* msg, Star_Star_Double handle );
-void ElementalPrint_Star_VC_Single( char* msg, Star_VC_Single handle );
-void ElementalPrint_Star_VC_Double( char* msg, Star_VC_Double handle );
-void ElementalPrint_Star_VR_Single( char* msg, Star_VR_Single handle );
-void ElementalPrint_Star_VR_Double( char* msg, Star_VR_Double handle );
-void ElementalPrint_VC_Star_Single( char* msg, VC_Star_Single handle );
-void ElementalPrint_VC_Star_Double( char* msg, VC_Star_Double handle );
-void ElementalPrint_VR_Star_Single( char* msg, VR_Star_Single handle );
-void ElementalPrint_VR_Star_Double( char* msg, VR_Star_Double handle );
+void ElementalPrint_MC_MR_Single( char* msg, MC_MR_Single A );
+void ElementalPrint_MC_MR_Double( char* msg, MC_MR_Double A );
+void ElementalPrint_MC_Star_Single( char* msg, MC_Star_Single A );
+void ElementalPrint_MC_Star_Double( char* msg, MC_Star_Double A );
+void ElementalPrint_MD_Star_Single( char* msg, MD_Star_Single A );
+void ElementalPrint_MD_Star_Double( char* msg, MD_Star_Double A );
+void ElementalPrint_MR_Star_Single( char* msg, MR_Star_Single A );
+void ElementalPrint_MR_Star_Double( char* msg, MR_Star_Double A );
+void ElementalPrint_Star_MC_Single( char* msg, Star_MC_Single A );
+void ElementalPrint_Star_MC_Double( char* msg, Star_MC_Double A );
+void ElementalPrint_Star_MR_Single( char* msg, Star_MR_Single A );
+void ElementalPrint_Star_MR_Double( char* msg, Star_MR_Double A );
+void ElementalPrint_Star_Star_Single( char* msg, Star_Star_Single A );
+void ElementalPrint_Star_Star_Double( char* msg, Star_Star_Double A );
+void ElementalPrint_Star_VC_Single( char* msg, Star_VC_Single A );
+void ElementalPrint_Star_VC_Double( char* msg, Star_VC_Double A );
+void ElementalPrint_Star_VR_Single( char* msg, Star_VR_Single A );
+void ElementalPrint_Star_VR_Double( char* msg, Star_VR_Double A );
+void ElementalPrint_VC_Star_Single( char* msg, VC_Star_Single A );
+void ElementalPrint_VC_Star_Double( char* msg, VC_Star_Double A );
+void ElementalPrint_VR_Star_Single( char* msg, VR_Star_Single A );
+void ElementalPrint_VR_Star_Double( char* msg, VR_Star_Double A );
 
 #ifndef WITHOUT_COMPLEX
 /* Complex double-precision distributed matrices */
@@ -196,30 +196,31 @@ Star_VR_DComplex ElementalRegister_Star_VR_DComplex
 ( int height, int width, int rowAlignment, 
   DComplex* buffer, int ldim, Grid g );
 
-void ElementalPrint_MC_MR_SComplex( char* msg, MC_MR_SComplex handle );
-void ElementalPrint_MC_MR_DComplex( char* msg, MC_MR_DComplex handle );
-void ElementalPrint_MC_Star_SComplex( char* msg, MC_Star_SComplex handle );
-void ElementalPrint_MC_Star_DComplex( char* msg, MC_Star_DComplex handle );
-void ElementalPrint_MD_Star_SComplex( char* msg, MD_Star_SComplex handle );
-void ElementalPrint_MD_Star_DComplex( char* msg, MD_Star_DComplex handle );
-void ElementalPrint_MR_Star_SComplex( char* msg, MR_Star_SComplex handle );
-void ElementalPrint_MR_Star_DComplex( char* msg, MR_Star_DComplex handle );
-void ElementalPrint_Star_MC_SComplex( char* msg, Star_MC_SComplex handle );
-void ElementalPrint_Star_MC_DComplex( char* msg, Star_MC_DComplex handle );
-void ElementalPrint_Star_MR_SComplex( char* msg, Star_MR_SComplex handle );
-void ElementalPrint_Star_MR_DComplex( char* msg, Star_MR_DComplex handle );
-void ElementalPrint_Star_Star_SComplex( char* msg, Star_Star_SComplex handle );
-void ElementalPrint_Star_Star_DComplex( char* msg, Star_Star_DComplex handle );
-void ElementalPrint_Star_VC_SComplex( char* msg, Star_VC_SComplex handle );
-void ElementalPrint_Star_VC_DComplex( char* msg, Star_VC_DComplex handle );
-void ElementalPrint_Star_VR_SComplex( char* msg, Star_VR_SComplex handle );
-void ElementalPrint_Star_VR_DComplex( char* msg, Star_VR_DComplex handle );
-void ElementalPrint_VC_Star_SComplex( char* msg, VC_Star_SComplex handle );
-void ElementalPrint_VC_Star_DComplex( char* msg, VC_Star_DComplex handle );
-void ElementalPrint_VR_Star_SComplex( char* msg, VR_Star_SComplex handle );
-void ElementalPrint_VR_Star_DComplex( char* msg, VR_Star_DComplex handle );
+void ElementalPrint_MC_MR_SComplex( char* msg, MC_MR_SComplex A );
+void ElementalPrint_MC_MR_DComplex( char* msg, MC_MR_DComplex A );
+void ElementalPrint_MC_Star_SComplex( char* msg, MC_Star_SComplex A );
+void ElementalPrint_MC_Star_DComplex( char* msg, MC_Star_DComplex A );
+void ElementalPrint_MD_Star_SComplex( char* msg, MD_Star_SComplex A );
+void ElementalPrint_MD_Star_DComplex( char* msg, MD_Star_DComplex A );
+void ElementalPrint_MR_Star_SComplex( char* msg, MR_Star_SComplex A );
+void ElementalPrint_MR_Star_DComplex( char* msg, MR_Star_DComplex A );
+void ElementalPrint_Star_MC_SComplex( char* msg, Star_MC_SComplex A );
+void ElementalPrint_Star_MC_DComplex( char* msg, Star_MC_DComplex A );
+void ElementalPrint_Star_MR_SComplex( char* msg, Star_MR_SComplex A );
+void ElementalPrint_Star_MR_DComplex( char* msg, Star_MR_DComplex A );
+void ElementalPrint_Star_Star_SComplex( char* msg, Star_Star_SComplex A );
+void ElementalPrint_Star_Star_DComplex( char* msg, Star_Star_DComplex A );
+void ElementalPrint_Star_VC_SComplex( char* msg, Star_VC_SComplex A );
+void ElementalPrint_Star_VC_DComplex( char* msg, Star_VC_DComplex A );
+void ElementalPrint_Star_VR_SComplex( char* msg, Star_VR_SComplex A );
+void ElementalPrint_Star_VR_DComplex( char* msg, Star_VR_DComplex A );
+void ElementalPrint_VC_Star_SComplex( char* msg, VC_Star_SComplex A );
+void ElementalPrint_VC_Star_DComplex( char* msg, VC_Star_DComplex A );
+void ElementalPrint_VR_Star_SComplex( char* msg, VR_Star_SComplex A );
+void ElementalPrint_VR_Star_DComplex( char* msg, VR_Star_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 
+/* Utilities */
 int ElementalLocalLength
 ( int globalLength, int myIndex, int alignment, int modulus );
 
@@ -227,13 +228,11 @@ int ElementalLocalLength
 #ifndef WITHOUT_PMRRR
 void
 ElementalHermitianEigDouble
-( char uplo,
-  MC_MR_Double AHandle, Star_VR_Double wHandle, MC_MR_Double ZHandle,
+( char uplo, MC_MR_Double A, Star_VR_Double w, MC_MR_Double Z,
   int tryForHighAccuracy );
 void
 ElementalHermitianEigDComplex
-( char uplo, 
-  MC_MR_DComplex AHandle, Star_VR_Double wHandle, MC_MR_DComplex ZHandle, 
+( char uplo, MC_MR_DComplex A, Star_VR_Double w, MC_MR_DComplex Z, 
   int tryForHighAccuracy );
 #endif /* WITHOUT_PMRRR */
 
