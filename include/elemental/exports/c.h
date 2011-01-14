@@ -35,7 +35,7 @@
 
 #include "mpi.h"
 
-// Make sure that all of our configuration definitions are pulled in
+/* Make sure that all of our configuration definitions are pulled in */
 #include "elemental/config.h"
 
 #ifdef __cplusplus
@@ -43,11 +43,69 @@ extern "C" {
 #endif
 
 #ifndef WITHOUT_COMPLEX
-// We should not assume C99 support and use <complex.h>
-typedef struct { float real; float imag; } ElementalSComplex;
-typedef struct { double real; double imag; } ElementalDComplex;
-#endif // WITHOUT_COMPLEX
+/* We should not assume C99 support and use <complex.h> */
+typedef struct { float real; float imag; } SComplex;
+typedef struct { double real; double imag; } DComplex;
+#endif /* WITHOUT_COMPLEX */
 
+/* Grid handle */
+typedef int Grid;
+
+/* Handles for real distributed matrices */
+typedef int MC_MR_Single;
+typedef int MC_MR_Double;
+typedef int MC_Star_Single;
+typedef int MC_Star_Double;
+typedef int MD_Star_Single;
+typedef int MD_Star_Double;
+typedef int MR_Star_Single;
+typedef int MR_Star_Double;
+typedef int Star_MC_Single;
+typedef int Star_MC_Double;
+typedef int Star_MD_Single;
+typedef int Star_MD_Double;
+typedef int Star_MR_Single;
+typedef int Star_MR_Double;
+typedef int Star_Star_Single;
+typedef int Star_Star_Double;
+typedef int Star_VC_Single;
+typedef int Star_VC_Double;
+typedef int Star_VR_Single;
+typedef int Star_VR_Double;
+typedef int VC_Star_Single;
+typedef int VC_Star_Double;
+typedef int VR_Star_Single;
+typedef int VR_Star_Double;
+
+#ifndef WITHOUT_COMPLEX
+/* Handles for complex distributed matrices */
+typedef int MC_MR_SComplex;
+typedef int MC_MR_DComplex;
+typedef int MC_Star_SComplex;
+typedef int MC_Star_DComplex;
+typedef int MD_Star_SComplex;
+typedef int MD_Star_DComplex;
+typedef int MR_Star_SComplex;
+typedef int MR_Star_DComplex;
+typedef int Star_MC_SComplex;
+typedef int Star_MC_DComplex;
+typedef int Star_MD_SComplex;
+typedef int Star_MD_DComplex;
+typedef int Star_MR_SComplex;
+typedef int Star_MR_DComplex;
+typedef int Star_Star_SComplex;
+typedef int Star_Star_DComplex;
+typedef int Star_VC_SComplex;
+typedef int Star_VC_DComplex;
+typedef int Star_VR_SComplex;
+typedef int Star_VR_DComplex;
+typedef int VC_Star_SComplex;
+typedef int VC_Star_DComplex;
+typedef int VR_Star_SComplex;
+typedef int VR_Star_DComplex;
+#endif /* WITHOUT_COMPLEX */
+
+/* Elemental's environment */
 void ElementalInit( int* argc, char** argv[] );
 void ElementalFinalize();
 int ElementalBlocksize();
@@ -55,45 +113,129 @@ void ElementalSetBlocksize( int blocksize );
 void ElementalPushBlocksizeStack( int blocksize );
 void ElementalPopBlocksizeStack();
 
+/* Grid manipulation */
+Grid ElementalDefaultGrid( MPI_Comm comm );
+Grid ElementalGrid( MPI_Comm comm, int r, int c );
+Grid ElementalGridHeight( Grid g );
+Grid ElementalGridWidth( Grid g );
+Grid ElementalGridSize( Grid g );
+Grid ElementalInGrid( Grid g );
+Grid ElementalGridVCRank( Grid g );
+Grid ElementalGridVRRank( Grid g );
+Grid ElementalGridMCRank( Grid g );
+Grid ElementalGridMRRank( Grid g );
+MPI_Comm ElementalGridVCComm( Grid g );
+MPI_Comm ElementalGridVRComm( Grid g );
+MPI_Comm ElementalGridMCComm( Grid g );
+MPI_Comm ElementalGridMRComm( Grid g );
+
+/* Clean up */
 void ElementalClearGrids();
-int ElementalDefaultGrid( MPI_Comm comm );
-int ElementalGrid( MPI_Comm comm, int r, int c );
-
-int ElementalGridHeight( int gridHandle );
-int ElementalGridWidth( int gridHandle );
-int ElementalGridSize( int gridHandle );
-int ElementalInGrid( int gridHandle );
-int ElementalGridVCRank( int gridHandle );
-int ElementalGridVRRank( int gridHandle );
-int ElementalGridMCRank( int gridHandle );
-int ElementalGridMRRank( int gridHandle );
-MPI_Comm ElementalGridVCComm( int gridHandle );
-MPI_Comm ElementalGridVRComm( int gridHandle );
-MPI_Comm ElementalGridMCComm( int gridHandle );
-MPI_Comm ElementalGridMRComm( int gridHandle );
-
 void ElementalClearDistMatrices();
 
-int ElementalDistMatrixDouble // Default to [MC,MR]
+/* Real double-precision distributed matrices */
+MC_MR_Single ElementalCreateEmpty_MC_MR_Single( Grid g );
+MC_MR_Double ElementalCreateEmpty_MC_MR_Double( Grid g );
+Star_VR_Single ElementalCreateEmpty_Star_VR_Single( Grid g );
+Star_VR_Double ElementalCreateEmpty_Star_VR_Double( Grid g );
+
+MC_MR_Single ElementalRegister_MC_MR_Single
 ( int height, int width, int colAlignment, int rowAlignment,
-  double* buffer, int ldim, int gridHandle );
-int ElementalDistMatrix_MC_MR_Double
+  float* buffer, int ldim, Grid g );
+MC_MR_Double ElementalRegister_MC_MR_Double
 ( int height, int width, int colAlignment, int rowAlignment,
-  double* buffer, int ldim, int gridHandle );
-void ElementalDistMatrixDoublePrint( char* msg, int distMatrixDoubleHandle );
+  double* buffer, int ldim, Grid g );
+Star_VR_Single ElementalRegister_Star_VR_Single
+( int height, int width, int rowAlignment, 
+  float* buffer, int ldim, Grid g);
+Star_VR_Double ElementalRegister_Star_VR_Double
+( int height, int width, int rowAlignment, 
+  double* buffer, int ldim, Grid g );
+
+void ElementalPrint_MC_MR_Single( char* msg, MC_MR_Single handle );
+void ElementalPrint_MC_MR_Double( char* msg, MC_MR_Double handle );
+void ElementalPrint_MC_Star_Single( char* msg, MC_Star_Single handle );
+void ElementalPrint_MC_Star_Double( char* msg, MC_Star_Double handle );
+void ElementalPrint_MD_Star_Single( char* msg, MD_Star_Single handle );
+void ElementalPrint_MD_Star_Double( char* msg, MD_Star_Double handle );
+void ElementalPrint_MR_Star_Single( char* msg, MR_Star_Single handle );
+void ElementalPrint_MR_Star_Double( char* msg, MR_Star_Double handle );
+void ElementalPrint_Star_MC_Single( char* msg, Star_MC_Single handle );
+void ElementalPrint_Star_MC_Double( char* msg, Star_MC_Double handle );
+void ElementalPrint_Star_MR_Single( char* msg, Star_MR_Single handle );
+void ElementalPrint_Star_MR_Double( char* msg, Star_MR_Double handle );
+void ElementalPrint_Star_Star_Single( char* msg, Star_Star_Single handle );
+void ElementalPrint_Star_Star_Double( char* msg, Star_Star_Double handle );
+void ElementalPrint_Star_VC_Single( char* msg, Star_VC_Single handle );
+void ElementalPrint_Star_VC_Double( char* msg, Star_VC_Double handle );
+void ElementalPrint_Star_VR_Single( char* msg, Star_VR_Single handle );
+void ElementalPrint_Star_VR_Double( char* msg, Star_VR_Double handle );
+void ElementalPrint_VC_Star_Single( char* msg, VC_Star_Single handle );
+void ElementalPrint_VC_Star_Double( char* msg, VC_Star_Double handle );
+void ElementalPrint_VR_Star_Single( char* msg, VR_Star_Single handle );
+void ElementalPrint_VR_Star_Double( char* msg, VR_Star_Double handle );
 
 #ifndef WITHOUT_COMPLEX
-int ElementalDistMatrixDComplex // Default to [MC,MR]
+/* Complex double-precision distributed matrices */
+MC_MR_SComplex ElementalCreateEmpty_MC_MR_SComplex( Grid g );
+MC_MR_DComplex ElementalCreateEmpty_MC_MR_DComplex( Grid g );
+Star_VR_SComplex ElementalCreateEmpty_Star_VR_SComplex( Grid g );
+Star_VR_DComplex ElementalCreateEmpty_Star_VR_DComplex( Grid g );
+
+MC_MR_SComplex ElementalRegister_MC_MR_SComplex
 ( int height, int width, int colAlignment, int rowAlignment,
-  ElementalDComplex* buffer, int ldim, int gridHandle );  
-int ElementalDistMatrix_MC_MR_DComplex
+  SComplex* buffer, int ldim, Grid g );
+MC_MR_DComplex ElementalRegister_MC_MR_DComplex
 ( int height, int width, int colAlignment, int rowAlignment,
-  ElementalDComplex* buffer, int ldim, int gridHandle );  
-void ElementalDistMatrixDComplexPrint( char* msg, int distMatrixDComplexHandle );
-#endif // WITHOUT_COMPLEX
+  DComplex* buffer, int ldim, Grid g );  
+
+Star_VR_SComplex ElementalRegister_Star_VR_SComplex
+( int height, int width, int rowAlignment,
+  SComplex* buffer, int ldim, Grid g );
+Star_VR_DComplex ElementalRegister_Star_VR_DComplex
+( int height, int width, int rowAlignment, 
+  DComplex* buffer, int ldim, Grid g );
+
+void ElementalPrint_MC_MR_SComplex( char* msg, MC_MR_SComplex handle );
+void ElementalPrint_MC_MR_DComplex( char* msg, MC_MR_DComplex handle );
+void ElementalPrint_MC_Star_SComplex( char* msg, MC_Star_SComplex handle );
+void ElementalPrint_MC_Star_DComplex( char* msg, MC_Star_DComplex handle );
+void ElementalPrint_MD_Star_SComplex( char* msg, MD_Star_SComplex handle );
+void ElementalPrint_MD_Star_DComplex( char* msg, MD_Star_DComplex handle );
+void ElementalPrint_MR_Star_SComplex( char* msg, MR_Star_SComplex handle );
+void ElementalPrint_MR_Star_DComplex( char* msg, MR_Star_DComplex handle );
+void ElementalPrint_Star_MC_SComplex( char* msg, Star_MC_SComplex handle );
+void ElementalPrint_Star_MC_DComplex( char* msg, Star_MC_DComplex handle );
+void ElementalPrint_Star_MR_SComplex( char* msg, Star_MR_SComplex handle );
+void ElementalPrint_Star_MR_DComplex( char* msg, Star_MR_DComplex handle );
+void ElementalPrint_Star_Star_SComplex( char* msg, Star_Star_SComplex handle );
+void ElementalPrint_Star_Star_DComplex( char* msg, Star_Star_DComplex handle );
+void ElementalPrint_Star_VC_SComplex( char* msg, Star_VC_SComplex handle );
+void ElementalPrint_Star_VC_DComplex( char* msg, Star_VC_DComplex handle );
+void ElementalPrint_Star_VR_SComplex( char* msg, Star_VR_SComplex handle );
+void ElementalPrint_Star_VR_DComplex( char* msg, Star_VR_DComplex handle );
+void ElementalPrint_VC_Star_SComplex( char* msg, VC_Star_SComplex handle );
+void ElementalPrint_VC_Star_DComplex( char* msg, VC_Star_DComplex handle );
+void ElementalPrint_VR_Star_SComplex( char* msg, VR_Star_SComplex handle );
+void ElementalPrint_VR_Star_DComplex( char* msg, VR_Star_DComplex handle );
+#endif /* WITHOUT_COMPLEX */
 
 int ElementalLocalLength
 ( int globalLength, int myIndex, int alignment, int modulus );
+
+/* LAPACK-level interface */
+#ifndef WITHOUT_PMRRR
+void
+ElementalHermitianEigDouble
+( char uplo,
+  MC_MR_Double AHandle, Star_VR_Double wHandle, MC_MR_Double ZHandle,
+  int tryForHighAccuracy );
+void
+ElementalHermitianEigDComplex
+( char uplo, 
+  MC_MR_DComplex AHandle, Star_VR_Double wHandle, MC_MR_DComplex ZHandle, 
+  int tryForHighAccuracy );
+#endif /* WITHOUT_PMRRR */
 
 #ifdef __cplusplus
 } /* extern "C" */

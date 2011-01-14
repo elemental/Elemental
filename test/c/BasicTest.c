@@ -4,7 +4,7 @@
 
 int main( int argc, char* argv[] )
 {
-    int gridHandle;
+    Grid g;
     int r, c;
     int VCRank, MCRank, MRRank;
     int m, n;
@@ -12,18 +12,18 @@ int main( int argc, char* argv[] )
     int localHeight, localWidth, ldim;
     double* A;
 #ifndef WITHOUT_COMPLEX
-    ElementalDComplex* B;
+    DComplex* B;
 #endif // WITHOUT_COMPLEX
 
     ElementalInit( &argc, &argv );
 
-    gridHandle = ElementalDefaultGrid( MPI_COMM_WORLD );
+    g = ElementalDefaultGrid( MPI_COMM_WORLD );
 
-    r = ElementalGridHeight( gridHandle );
-    c = ElementalGridWidth( gridHandle );
-    VCRank = ElementalGridVCRank( gridHandle );
-    MCRank = ElementalGridMCRank( gridHandle );
-    MRRank = ElementalGridMRRank( gridHandle );
+    r = ElementalGridHeight( g );
+    c = ElementalGridWidth( g );
+    VCRank = ElementalGridVCRank( g );
+    MCRank = ElementalGridMCRank( g );
+    MRRank = ElementalGridMRRank( g );
 
     if( VCRank == 0 )
         fprintf( stdout, "Grid is %d x %d.\n", r, c );
@@ -38,8 +38,8 @@ int main( int argc, char* argv[] )
 
     A = (double*)malloc(ldim*localWidth*sizeof(double));
 #ifndef WITHOUT_COMPLEX
-    B = (ElementalDComplex*)malloc(ldim*localWidth*sizeof(ElementalDComplex));
-#endif // WITHOUT_COMPLEX
+    B = (DComplex*)malloc(ldim*localWidth*sizeof(DComplex));
+#endif /* WITHOUT_COMPLEX */
 
     /* Mark the entries owned by each process */
     {
@@ -52,32 +52,45 @@ int main( int argc, char* argv[] )
 #ifndef WITHOUT_COMPLEX
                 B[iLocal+jLocal*ldim].real = MCRank;
                 B[iLocal+jLocal*ldim].imag = MRRank;
-#endif // WITHOUT_COMPLEX
+#endif /* WITHOUT_COMPLEX */
             }
         }
     }
 
-    /* Print the real distributed matrix */
+    /* Attempt to solve a real Hermitian EVP */
     {
-        int AHandle = ElementalDistMatrixDouble
-            ( m, n, colAlignment, rowAlignment, A, ldim, gridHandle );
-        ElementalDistMatrixDoublePrint( "A", AHandle );
+        MC_MR_Double AHandle = ElementalRegister_MC_MR_Double
+            ( m, n, colAlignment, rowAlignment, A, ldim, g );
+        Star_VR_Double wHandle = ElementalCreateEmpty_Star_VR_Double( g );
+        MC_MR_Double ZHandle = ElementalCreateEmpty_MC_MR_Double( g );
+        ElementalPrint_MC_MR_Double( "A", AHandle );
+#ifndef WITHOUT_PMRRR
+        ElementalHermitianEigDouble( 'L', AHandle, wHandle, ZHandle, 1 );
+        ElementalPrint_Star_VR_Double( "eigenvalues", wHandle );
+        ElementalPrint_MC_MR_Double( "eigenvectors", ZHandle );
+#endif /* WITHOUT_PMRRR */
     }
 
 #ifndef WITHOUT_COMPLEX
-    /* Print the complex distributed matrix */
+    /* Attempt to solve a complex Hermitian EVP */
     {
-        int BHandle = 
-            ElementalDistMatrixDComplex
-            ( m, n, colAlignment, rowAlignment, B, ldim, gridHandle );
-        ElementalDistMatrixDComplexPrint( "B", BHandle );
+        MC_MR_DComplex BHandle = ElementalRegister_MC_MR_DComplex
+            ( m, n, colAlignment, rowAlignment, B, ldim, g );
+        Star_VR_Double wHandle = ElementalCreateEmpty_Star_VR_Double( g );
+        MC_MR_DComplex ZHandle = ElementalCreateEmpty_MC_MR_DComplex( g );
+        ElementalPrint_MC_MR_DComplex( "B", BHandle );
+#ifndef WITHOUT_PMRRR
+        ElementalHermitianEigDComplex( 'L', BHandle, wHandle, ZHandle, 1 );
+        ElementalPrint_Star_VR_Double( "eigenvalues", wHandle );
+        ElementalPrint_MC_MR_DComplex( "eigenvectors", ZHandle );
+#endif /* WITHOUT_PMRRR */
     }
-#endif // WITHOUT_COMPLEX
+#endif /* WITHOUT_COMPLEX */
 
     free( A );
 #ifndef WITHOUT_COMPLEX
     free( B );
-#endif // WITHOUT_COMPLEX
+#endif /* WITHOUT_COMPLEX */
     ElementalFinalize();
     return 0;
 }
