@@ -30,10 +30,11 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef WITHOUT_COMPLEX
-#ifndef WITHOUT_PMRRR
 #include "elemental/lapack.hpp"
 using namespace elemental;
+
+#ifndef WITHOUT_COMPLEX
+#ifndef WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs of the real, skew-symmetric matrix G       //

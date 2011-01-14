@@ -11,7 +11,9 @@ int main( int argc, char* argv[] )
     int colAlignment, rowAlignment;
     int localHeight, localWidth, ldim;
     double* A;
+#ifndef WITHOUT_COMPLEX
     ElementalDComplex* B;
+#endif // WITHOUT_COMPLEX
 
     ElementalInit( &argc, &argv );
 
@@ -35,7 +37,9 @@ int main( int argc, char* argv[] )
     ldim = localHeight;
 
     A = (double*)malloc(ldim*localWidth*sizeof(double));
+#ifndef WITHOUT_COMPLEX
     B = (ElementalDComplex*)malloc(ldim*localWidth*sizeof(ElementalDComplex));
+#endif // WITHOUT_COMPLEX
 
     /* Mark the entries owned by each process */
     {
@@ -45,28 +49,35 @@ int main( int argc, char* argv[] )
             for( iLocal=0; iLocal<localHeight; ++iLocal )
             {
                 A[iLocal+jLocal*ldim] = VCRank;
+#ifndef WITHOUT_COMPLEX
                 B[iLocal+jLocal*ldim].real = MCRank;
                 B[iLocal+jLocal*ldim].imag = MRRank;
+#endif // WITHOUT_COMPLEX
             }
         }
     }
 
-    /* Print the distributed matrices */
+    /* Print the real distributed matrix */
     {
-        int AHandle, BHandle;
-        AHandle = 
-            ElementalDistMatrix_MC_MR_Double
+        int AHandle = ElementalDistMatrixDouble
             ( m, n, colAlignment, rowAlignment, A, ldim, gridHandle );
-        BHandle = 
-            ElementalDistMatrix_MC_MR_DComplex
-            ( m, n, colAlignment, rowAlignment, B, ldim, gridHandle );
-
         ElementalDistMatrixDoublePrint( "A", AHandle );
-        ElementalDistMatrixDComplexPrint( "B", BHandle );
     }
 
+#ifndef WITHOUT_COMPLEX
+    /* Print the complex distributed matrix */
+    {
+        int BHandle = 
+            ElementalDistMatrixDComplex
+            ( m, n, colAlignment, rowAlignment, B, ldim, gridHandle );
+        ElementalDistMatrixDComplexPrint( "B", BHandle );
+    }
+#endif // WITHOUT_COMPLEX
+
     free( A );
+#ifndef WITHOUT_COMPLEX
     free( B );
+#endif // WITHOUT_COMPLEX
     ElementalFinalize();
     return 0;
 }

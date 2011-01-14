@@ -38,8 +38,10 @@ std::vector<elemental::Grid*>
     gridList;
 std::vector<elemental::AbstractDistMatrix<double>*> 
     distMatrixDoubleList;
+#ifndef WITHOUT_COMPLEX
 std::vector<elemental::AbstractDistMatrix<elemental::dcomplex>*> 
     distMatrixDComplexList;
+#endif // WITHOUT_COMPLEX
 }
 
 extern "C" {
@@ -163,10 +165,21 @@ void ElementalClearDistMatrices()
 {
     for( int j=0; j< ::distMatrixDoubleList.size(); ++j )
         delete ::distMatrixDoubleList[j];
+    ::distMatrixDoubleList.clear();
+#ifndef WITHOUT_COMPLEX
     for( int j=0; j< ::distMatrixDComplexList.size(); ++j )
         delete ::distMatrixDComplexList[j];
-    ::distMatrixDoubleList.clear();
     ::distMatrixDComplexList.clear();
+#endif // WITHOUT_COMPLEX
+}
+
+int
+ElementalDistMatrixDouble
+( int height, int width, int colAlignment, int rowAlignment,
+  double* buffer, int ldim, int gridHandle )
+{
+    return ElementalDistMatrix_MC_MR_Double
+        ( height, width, colAlignment, rowAlignment, buffer, ldim, gridHandle );
 }
 
 int 
@@ -180,6 +193,22 @@ ElementalDistMatrix_MC_MR_Double
             ( height, width, colAlignment, rowAlignment, buffer, ldim, 
               *::gridList[gridHandle] ) );
     return distMatrixDoubleHandle;
+}
+
+void ElementalDistMatrixDoublePrint( char* msg, int distMatrixDoubleHandle )
+{
+    std::string s( msg );
+    ::distMatrixDoubleList[distMatrixDoubleHandle]->Print( s );
+}
+
+#ifndef WITHOUT_COMPLEX
+int
+ElementalDistMatrixDComplex
+( int height, int width, int colAlignment, int rowAlignment,
+  ElementalDComplex* buffer, int ldim, int gridHandle )
+{
+    return ElementalDistMatrixDComplex
+        ( height, width, colAlignment, rowAlignment, buffer, ldim, gridHandle );
 }
 
 int
@@ -196,17 +225,12 @@ ElementalDistMatrix_MC_MR_DComplex
     return distMatrixDComplexHandle;
 }
 
-void ElementalDistMatrixDoublePrint( char* msg, int distMatrixDoubleHandle )
-{
-    std::string s( msg );
-    ::distMatrixDoubleList[distMatrixDoubleHandle]->Print( s );
-}
-
 void ElementalDistMatrixDComplexPrint( char* msg, int distMatrixDComplexHandle )
 {
     std::string s( msg );
     ::distMatrixDComplexList[distMatrixDComplexHandle]->Print( s );
 }
+#endif // WITHOUT_COMPLEX
 
 int
 ElementalLocalLength

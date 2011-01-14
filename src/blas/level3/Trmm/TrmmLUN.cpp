@@ -257,8 +257,8 @@ elemental::blas::internal::LocalTrmmAccumulateLUN
                                << Z_MC_Star.Width() << endl;
         throw logic_error( msg.str() );
     }
-    if( XHermOrTrans_Star_MR.RowAlignment() != A.RowAlignment() ||
-        Z_MC_Star.ColAlignment() != A.ColAlignment() )
+    if( XHermOrTrans_Star_MR.RowAlignment() != U.RowAlignment() ||
+        Z_MC_Star.ColAlignment() != U.ColAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
     const Grid& g = U.Grid();

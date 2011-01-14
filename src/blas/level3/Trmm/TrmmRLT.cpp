@@ -259,7 +259,7 @@ elemental::blas::internal::LocalTrmmAccumulateRLT
     if( L.Height() != L.Width() ||
         L.Height() != XHermOrTrans_MR_Star.Height() ||
         L.Height() != ZHermOrTrans_MC_Star.Height() ||
-        BHermOrTrans_MR_Star.Width() != ZHermOrTrans_MC_Star.Width() )
+        XHermOrTrans_MR_Star.Width() != ZHermOrTrans_MC_Star.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal LocalTrmmAccumulateRLT: \n"

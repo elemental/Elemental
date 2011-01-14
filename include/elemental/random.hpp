@@ -78,10 +78,12 @@ Random<int>()
         return +1;
 }
 
+#ifndef WITHOUT_COMPLEX
 template<>
 inline std::complex<int>
 Random< std::complex<int> >()
 { return std::complex<int>( Random<int>(), Random<int>() ); }
+#endif // WITHOUT_COMPLEX
 
 template<>
 inline float

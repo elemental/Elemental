@@ -34,7 +34,7 @@
 #ifndef ELEMENTAL_CONFIG_H
 #define ELEMENTAL_CONFIG_H 1
 
-// Basic variables
+/* Basic variables */
 #define CMAKE_BUILD_TYPE @CMAKE_BUILD_TYPE@
 #define Elemental_VERSION_MAJOR @Elemental_VERSION_MAJOR@
 #define Elemental_VERSION_MINOR @Elemental_VERSION_MINOR@
@@ -45,7 +45,7 @@
 #cmakedefine WITHOUT_COMPLEX
 #cmakedefine AVOID_COMPLEX_MPI
 
-// Advanced variables
+/* Advanced variables */
 #cmakedefine CACHE_WARNINGS
 #cmakedefine UNALIGNED_WARNINGS
 #cmakedefine VECTOR_WARNINGS

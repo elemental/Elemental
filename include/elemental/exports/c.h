@@ -35,13 +35,18 @@
 
 #include "mpi.h"
 
+// Make sure that all of our configuration definitions are pulled in
+#include "elemental/config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#ifndef WITHOUT_COMPLEX
 // We should not assume C99 support and use <complex.h>
 typedef struct { float real; float imag; } ElementalSComplex;
 typedef struct { double real; double imag; } ElementalDComplex;
+#endif // WITHOUT_COMPLEX
 
 void ElementalInit( int* argc, char** argv[] );
 void ElementalFinalize();
@@ -69,15 +74,23 @@ MPI_Comm ElementalGridMRComm( int gridHandle );
 
 void ElementalClearDistMatrices();
 
+int ElementalDistMatrixDouble // Default to [MC,MR]
+( int height, int width, int colAlignment, int rowAlignment,
+  double* buffer, int ldim, int gridHandle );
 int ElementalDistMatrix_MC_MR_Double
 ( int height, int width, int colAlignment, int rowAlignment,
   double* buffer, int ldim, int gridHandle );
+void ElementalDistMatrixDoublePrint( char* msg, int distMatrixDoubleHandle );
 
+#ifndef WITHOUT_COMPLEX
+int ElementalDistMatrixDComplex // Default to [MC,MR]
+( int height, int width, int colAlignment, int rowAlignment,
+  ElementalDComplex* buffer, int ldim, int gridHandle );  
 int ElementalDistMatrix_MC_MR_DComplex
 ( int height, int width, int colAlignment, int rowAlignment,
   ElementalDComplex* buffer, int ldim, int gridHandle );  
-
-void ElementalDistMatrixPrint( char* msg, int distMatrixHandle );
+void ElementalDistMatrixDComplexPrint( char* msg, int distMatrixDComplexHandle );
+#endif // WITHOUT_COMPLEX
 
 int ElementalLocalLength
 ( int globalLength, int myIndex, int alignment, int modulus );
