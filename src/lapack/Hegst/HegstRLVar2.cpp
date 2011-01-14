@@ -125,8 +125,9 @@ elemental::lapack::internal::HegstRLVar2
         L10Herm_MR_Star.ConjugateTransposeFrom( L10 );
         L10Herm_VC_Star = L10Herm_MR_Star;
         L10_Star_MC.ConjugateTransposeFrom( L10Herm_VC_Star );
-        blas::internal::LocalHemmAccumulateRL
-        ( (F)1, A00, L10_Star_MC, L10Herm_MR_Star, 
+        blas::internal::LocalSymmetricAccumulateRL
+        ( ConjugateTranspose,
+          (F)1, A00, L10_Star_MC, L10Herm_MR_Star, 
           E10Herm_MC_Star, F10Herm_MR_Star );
         E10Herm.SumScatterFrom( E10Herm_MC_Star );
         E10Herm_MR_MC = E10Herm;

@@ -117,8 +117,9 @@ elemental::lapack::internal::HegstLUVar3
         U12_Star_MC.ConjugateTransposeFrom( U12Herm_VC_Star );
         Z12Herm_MC_Star.SetToZero();
         Z12Herm_MR_Star.SetToZero();
-        blas::internal::LocalHemmAccumulateRU
-        ( (F)1, A22, U12_Star_MC, U12Herm_MR_Star, 
+        blas::internal::LocalSymmetricAccumulateRU
+        ( ConjugateTranspose, 
+          (F)1, A22, U12_Star_MC, U12Herm_MR_Star, 
           Z12Herm_MC_Star, Z12Herm_MR_Star );
         Z12Herm.SumScatterFrom( Z12Herm_MC_Star );
         Z12Herm_MR_MC = Z12Herm;
@@ -148,7 +149,6 @@ elemental::lapack::internal::HegstLUVar3
 
         blas::Axpy( (F)0.5, Y12, A12 );
 
-        // This is the bottleneck because of A12 having only blocksize rows
         blas::Trmm
         ( Right, Upper, ConjugateTranspose, NonUnit, (F)1, U22, A12 );
         //--------------------------------------------------------------------//

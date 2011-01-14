@@ -137,7 +137,7 @@ elemental::lapack::internal::HegstRUVar3
           (F)1, A01_VC_Star.LocalMatrix(), U01_VC_Star.LocalMatrix(),
           (F)0, X11_Star_Star.LocalMatrix() );
         X11_Star_Star.MakeTrapezoidal( Left, Upper );
-        A11.SumScatterUpdate( (F)1, X11_Star_Star );
+        A11.SumScatterUpdate( (F)-1, X11_Star_Star );
 
         A11_Star_Star = A11;
         U11_Star_Star = U11;

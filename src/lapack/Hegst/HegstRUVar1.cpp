@@ -115,8 +115,9 @@ elemental::lapack::internal::HegstRUVar1
         U01Herm_Star_MR.ConjugateTransposeFrom( U01_VR_Star );
         Z01_MC_Star.SetToZero();
         Z01_MR_Star.SetToZero();
-        blas::internal::LocalHemmAccumulateLU
-        ( (F)1, A00, U01_MC_Star, U01Herm_Star_MR, Z01_MC_Star, Z01_MR_Star );
+        blas::internal::LocalSymmetricAccumulateLU
+        ( ConjugateTranspose, 
+          (F)1, A00, U01_MC_Star, U01Herm_Star_MR, Z01_MC_Star, Z01_MR_Star );
         Z01_MR_MC.SumScatterFrom( Z01_MR_Star );
         Y01 = Z01_MR_MC;
         Y01.SumScatterUpdate( (F)1, Z01_MC_Star );

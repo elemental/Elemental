@@ -34,6 +34,8 @@
 using namespace std;
 using namespace elemental;
 
+#include "./TrmmUtil.hpp"
+
 // Template conventions:
 //   G: general datatype
 //
@@ -58,10 +60,104 @@ elemental::blas::internal::TrmmLLT
   Diagonal diagonal,
   T alpha, 
   const DistMatrix<T,MC,MR>& L,
-        DistMatrix<T,MC,MR>& X   )
+        DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("blas::internal::TrmmLLT");
+#endif
+    // TODO: Come up with a better routing mechanism
+    if( L.Height() > 5*X.Width() )
+        blas::internal::TrmmLLTA( orientation, diagonal, alpha, L, X );
+    else
+        blas::internal::TrmmLLTC( orientation, diagonal, alpha, L, X );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+ 
+template<typename T>
+void
+elemental::blas::internal::TrmmLLTA
+( Orientation orientation, 
+  Diagonal diagonal,
+  T alpha, 
+  const DistMatrix<T,MC,MR>& L,
+        DistMatrix<T,MC,MR>& X )
+{
+#ifndef RELEASE
+    PushCallStack("blas::internal::TrmmLLTA");
+    if( L.Grid() != X.Grid() )
+        throw logic_error( "L and X must be distributed over the same grid." );
+    if( orientation == Normal )
+        throw logic_error( "TrmmLLTA expects a (Conjugate)Transpose option." );
+    if( L.Height() != L.Width() || L.Height() != X.Height() )
+    {
+        ostringstream msg;
+        msg << "Nonconformal TrmmLLTA: \n"
+            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
+            << "  X ~ " << X.Height() << " x " << X.Width() << endl;
+        throw logic_error( msg.str() );
+    }
+#endif
+    const Grid& g = L.Grid();
+
+    // Matrix views
+    DistMatrix<T,MC,MR> 
+        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
+        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
+                         L20(g), L21(g), L22(g);
+
+    DistMatrix<T,MC,MR>
+        XL(g), XR(g),
+        X0(g), X1(g), X2(g);
+
+    DistMatrix<T,MC,Star> X1_MC_Star(g);
+    DistMatrix<T,MR,Star> Z1_MR_Star(g);
+    DistMatrix<T,MR,MC  > Z1_MR_MC(g);
+
+    PartitionRight
+    ( X, XL, XR, 0 );
+    while( XL.Width() < X.Width() )
+    {
+        RepartitionRight
+        ( XL, /**/ XR,
+          X0, /**/ X1, X2 );
+
+        X1_MC_Star.AlignWith( L );
+        Z1_MR_Star.AlignWith( L );
+        Z1_MR_Star.ResizeTo( X1.Height(), X1.Width() );
+        //--------------------------------------------------------------------//
+        X1_MC_Star = X1;
+        Z1_MR_Star.SetToZero();
+        blas::internal::LocalTrmmAccumulateLLT
+        ( orientation, diagonal, alpha, L, X1_MC_Star, Z1_MR_Star );
+
+        Z1_MR_MC.SumScatterFrom( Z1_MR_Star );
+        X1 = Z1_MR_MC;
+        //--------------------------------------------------------------------//
+        X1_MC_Star.FreeAlignments();
+        Z1_MR_Star.FreeAlignments();
+
+        SlidePartitionRight
+        ( XL,     /**/ XR,
+          X0, X1, /**/ X2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+   
+template<typename T>
+void
+elemental::blas::internal::TrmmLLTC
+( Orientation orientation, 
+  Diagonal diagonal,
+  T alpha, 
+  const DistMatrix<T,MC,MR>& L,
+        DistMatrix<T,MC,MR>& X )
+{
+#ifndef RELEASE
+    PushCallStack("blas::internal::TrmmLLTC");
     if( L.Grid() != X.Grid() )
         throw logic_error( "L and X must be distributed over the same grid." );
     if( orientation == Normal )
@@ -69,8 +165,8 @@ elemental::blas::internal::TrmmLLT
     if( L.Height() != L.Width() || L.Height() != X.Height() )
     {
         ostringstream msg;
-        msg << "Nonconformal TrmmLLT: " << endl
-            << "  L ~ " << L.Height() << " x " << L.Width() << endl
+        msg << "Nonconformal TrmmLLTC: \n"
+            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << endl;
         throw logic_error( msg.str() );
     }
@@ -145,6 +241,128 @@ elemental::blas::internal::TrmmLLT
          /**/ /**/
           XB,  X2 );
     }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+elemental::blas::internal::LocalTrmmAccumulateLLT
+( Orientation orientation, Diagonal diagonal, T alpha,
+  const DistMatrix<T,MC,MR  >& L,
+  const DistMatrix<T,MC,Star>& X_MC_Star,
+        DistMatrix<T,MR,Star>& Z_MR_Star )
+{
+#ifndef RELEASE
+    PushCallStack("blas::internal::LocalTrmmAccumulateLLT");
+    if( L.Grid() != X_MC_Star.Grid() ||
+        X_MC_Star.Grid() != Z_MR_Star.Grid() )
+        throw logic_error( "{L,X,Z} must be distributed over the same grid." );
+    if( L.Height() != L.Width() ||
+        L.Height() != X_MC_Star.Height() ||
+        L.Height() != Z_MR_Star.Height() )
+    {
+        ostringstream msg;
+        msg << "Nonconformal LocalTrmmAccumulateLLT: " << "\n"
+            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
+            << "  X[MC,* ] ~ " << X_MC_Star.Height() << " x "
+                               << X_MC_Star.Width() << "\n"
+            << "  Z[MR,* ] ` " << Z_MR_Star.Height() << " x "
+                               << Z_MR_Star.Width() << endl;
+        throw logic_error( msg.str() );
+    }
+    if( X_MC_Star.ColAlignment() != L.ColAlignment() ||
+        Z_MR_Star.ColAlignment() != L.RowAlignment() )
+        throw logic_error( "Partial matrix distributions are misaligned." );
+#endif
+    const Grid& g = L.Grid();
+    
+    // Matrix views
+    DistMatrix<T,MC,MR>
+        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
+        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
+                         L20(g), L21(g), L22(g);
+
+    DistMatrix<T,MC,MR> D11(g);
+
+    DistMatrix<T,MC,Star>
+        XT_MC_Star(g),  X0_MC_Star(g),
+        XB_MC_Star(g),  X1_MC_Star(g),
+                        X2_MC_Star(g);
+
+    DistMatrix<T,MR,Star>
+        ZT_MR_Star(g),  Z0_MR_Star(g),
+        ZB_MR_Star(g),  Z1_MR_Star(g),
+                        Z2_MR_Star(g);
+
+    const int ratio = max( g.Height(), g.Width() );
+    PushBlocksizeStack( ratio*Blocksize() );
+
+    LockedPartitionDownDiagonal
+    ( L, LTL, LTR,
+         LBL, LBR, 0 );
+    LockedPartitionDown
+    ( X_MC_Star, XT_MC_Star,
+                 XB_MC_Star, 0 );
+    PartitionDown
+    ( Z_MR_Star, ZT_MR_Star,
+                 ZB_MR_Star, 0 );
+    while( LTL.Height() < L.Height() )
+    {
+        LockedRepartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
+         /*************/ /******************/
+               /**/       L10, /**/ L11, L12,
+          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+
+        LockedRepartitionDown
+        ( XT_MC_Star,  X0_MC_Star,
+         /**********/ /**********/
+                       X1_MC_Star,
+          XB_MC_Star,  X2_MC_Star );
+
+        RepartitionDown
+        ( ZT_MR_Star,  Z0_MR_Star,
+         /**********/ /**********/
+                       Z1_MR_Star,
+          ZB_MR_Star,  Z2_MR_Star );
+
+        D11.AlignWith( L11 );
+        //--------------------------------------------------------------------//
+        D11 = L11;
+        D11.MakeTrapezoidal( Left, Lower );
+        if( diagonal == Unit )
+            SetDiagonalToOne( D11 );
+        blas::internal::LocalGemm
+        ( orientation, Normal,
+          alpha, D11, X1_MC_Star, (T)1, Z1_MR_Star );
+
+        blas::internal::LocalGemm
+        ( orientation, Normal,
+          alpha, L21, X2_MC_Star, (T)1, Z1_MR_Star );
+        //--------------------------------------------------------------------//
+        D11.FreeAlignments();
+
+        SlideLockedPartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
+               /**/       L10, L11, /**/ L12,
+         /*************/ /******************/
+          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+
+        SlideLockedPartitionDown
+        ( XT_MC_Star,  X0_MC_Star,
+                       X1_MC_Star,
+         /**********/ /**********/
+          XB_MC_Star,  X2_MC_Star );
+
+        SlidePartitionDown
+        ( ZT_MR_Star,  Z0_MR_Star,
+                       Z1_MR_Star,
+         /**********/ /**********/
+          ZB_MR_Star,  Z2_MR_Star );
+    }
+    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

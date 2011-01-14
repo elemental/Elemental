@@ -596,28 +596,15 @@ HemmLLC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-// Careful version
 template<typename T>
 void
-LocalHemmAccumulateLL
-( T alpha, 
+LocalSymmetricAccumulateLL
+( Orientation orientation, T alpha, 
   const DistMatrix<T,MC,  MR  >& A,
   const DistMatrix<T,MC,  Star>& B_MC_Star,
-  const DistMatrix<T,Star,MR  >& BHerm_Star_MR,
+  const DistMatrix<T,Star,MR  >& BHermOrTrans_Star_MR,
         DistMatrix<T,MC,  Star>& Z_MC_Star,
         DistMatrix<T,MR,  Star>& Z_MR_Star
-);
-
-// Naive version
-template<typename T>
-void
-LocalHemmAccumulateLL
-( T alpha, 
-  const DistMatrix<T,MC,MR  >& A,
-  const DistMatrix<T,MC,Star>& B_MC_Star,
-  const DistMatrix<T,MR,Star>& B_MR_Star,
-        DistMatrix<T,MC,Star>& Z_MC_Star,
-        DistMatrix<T,MR,Star>& Z_MR_Star
 );
 
 // Left Upper Hemm
@@ -641,26 +628,13 @@ HemmLUC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-// Careful version
 template<typename T>
 void
-LocalHemmAccumulateLU
-( T alpha, 
+LocalSymmetricAccumulateLU
+( Orientation orientation, T alpha, 
   const DistMatrix<T,MC,  MR  >& A,
   const DistMatrix<T,MC,  Star>& B_MC_Star,
-  const DistMatrix<T,Star,MR  >& BHerm_Star_MR,
-        DistMatrix<T,MC,  Star>& Z_MC_Star,
-        DistMatrix<T,MR,  Star>& Z_MR_Star
-);
-
-// Naive version
-template<typename T>
-void
-LocalHemmAccumulateLU
-( T alpha, 
-  const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,MC,  Star>& B_MC_Star,
-  const DistMatrix<T,MR,  Star>& B_MR_Star,
+  const DistMatrix<T,Star,MR  >& BHermOrTrans_Star_MR,
         DistMatrix<T,MC,  Star>& Z_MC_Star,
         DistMatrix<T,MR,  Star>& Z_MR_Star
 );
@@ -686,28 +660,15 @@ HemmRLC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-// Careful version
 template<typename T>
 void
-LocalHemmAccumulateRL
-( T alpha, 
+LocalSymmetricAccumulateRL
+( Orientation orientation, T alpha, 
   const DistMatrix<T,MC,  MR  >& A,
   const DistMatrix<T,Star,MC  >& B_Star_MC,
-  const DistMatrix<T,MR,  Star>& BHerm_MR_Star,
-        DistMatrix<T,MC,  Star>& ZHerm_MC_Star,
-        DistMatrix<T,MR,  Star>& ZHerm_MR_Star
-);
-
-// Naive version
-template<typename T>
-void
-LocalHemmAccumulateRL
-( T alpha, 
-  const DistMatrix<T,MC,  MR>& A,
-  const DistMatrix<T,Star,MC>& B_Star_MC,
-  const DistMatrix<T,Star,MR>& B_Star_MR,
-        DistMatrix<T,Star,MC>& Z_Star_MC,
-        DistMatrix<T,Star,MR>& Z_Star_MR
+  const DistMatrix<T,MR,  Star>& BHermOrTrans_MR_Star,
+        DistMatrix<T,MC,  Star>& ZHermOrTrans_MC_Star,
+        DistMatrix<T,MR,  Star>& ZHermOrTrans_MR_Star
 );
 
 // Right Upper Hemm
@@ -731,28 +692,15 @@ HemmRUC
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-// Careful version
 template<typename T>
 void
-LocalHemmAccumulateRU
-( T alpha, 
+LocalSymmetricAccumulateRU
+( Orientation orientation, T alpha, 
   const DistMatrix<T,MC,  MR  >& A,
   const DistMatrix<T,Star,MC  >& B_Star_MC,
-  const DistMatrix<T,MR,  Star>& BHerm_MR_Star,
-        DistMatrix<T,MC,  Star>& ZHerm_MC_Star,
-        DistMatrix<T,MR,  Star>& ZHerm_MR_Star
-);
-
-// Naive version
-template<typename T>
-void
-LocalHemmAccumulateRU
-( T alpha, 
-  const DistMatrix<T,MC,  MR>& A,
-  const DistMatrix<T,Star,MC>& B_Star_MC,
-  const DistMatrix<T,Star,MR>& B_Star_MR,
-        DistMatrix<T,Star,MC>& Z_Star_MC,
-        DistMatrix<T,Star,MR>& Z_Star_MR
+  const DistMatrix<T,MR,  Star>& BHermOrTrans_MR_Star,
+        DistMatrix<T,MC,  Star>& ZHermOrTrans_MC_Star,
+        DistMatrix<T,MR,  Star>& ZHermOrTrans_MR_Star
 );
 
 // Lower, Normal Her2k
@@ -822,6 +770,13 @@ SymmLL
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
+// Left Lower Symm where we avoid redistributing A
+template<typename T>
+void
+SymmLLA
+( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C );
+
 // Left Lower Symm where we avoid redistributing C
 template<typename T>
 void
@@ -833,6 +788,13 @@ SymmLLC
 template<typename T>
 void
 SymmLU
+( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C );
+
+// Left Upper Symm where we avoid redistributing A
+template<typename T>
+void
+SymmLUA
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
@@ -850,6 +812,13 @@ SymmRL
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
+// Right Lower Symm where we avoid redistributing A
+template<typename T>
+void
+SymmRLA
+( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C );
+
 // Right Lower Symm where we avoid redistributing C
 template<typename T>
 void
@@ -861,6 +830,13 @@ SymmRLC
 template<typename T>
 void
 SymmRU
+( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C );
+
+// Right Upper Symm where we avoid redistributing A
+template<typename T>
+void
+SymmRUA
 ( T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
@@ -1202,12 +1178,52 @@ TrmmLLN
 ( Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
 
+template<typename T>
+void
+TrmmLLNA
+( Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmLLNC
+( Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+LocalTrmmAccumulateLLN
+( Orientation orientation, Diagonal diagonal, T alpha, 
+  const DistMatrix<T,MC,  MR  >& L,
+  const DistMatrix<T,Star,MR  >& XHermOrTrans_Star_MR,
+        DistMatrix<T,MC,  Star>& Z_MC_Star );
+
 // Left, Lower, (Conjugate)Transpose Trmm
 template<typename T>
 void
 TrmmLLT
 ( Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmLLTA
+( Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmLLTC
+( Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+LocalTrmmAccumulateLLT
+( Orientation orientation, Diagonal diagonal, T alpha, 
+  const DistMatrix<T,MC,  MR  >& L,
+  const DistMatrix<T,MC,  Star>& X_MC_Star,
+        DistMatrix<T,MR,  Star>& Z_MR_Star );
 
 // Left, Upper, Normal Trmm
 template<typename T>
@@ -1216,12 +1232,52 @@ TrmmLUN
 ( Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
 
+template<typename T>
+void
+TrmmLUNA
+( Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmLUNC
+( Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+LocalTrmmAccumulateLUN
+( Orientation orientation, Diagonal diagonal, T alpha, 
+  const DistMatrix<T,MC,  MR  >& U,
+  const DistMatrix<T,Star,MR  >& XHermOrTrans_Star_MR,
+        DistMatrix<T,MC,  Star>& Z_MC_Star );
+
 // Left, Upper, (Conjugate)Transpose Trmm
 template<typename T>
 void
 TrmmLUT
 ( Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmLUTA
+( Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmLUTC
+( Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+LocalTrmmAccumulateLUT
+( Orientation orientation, Diagonal diagonal, T alpha, 
+  const DistMatrix<T,MC,  MR  >& U,
+  const DistMatrix<T,MC,  Star>& X_MC_Star,
+        DistMatrix<T,MR,  Star>& Z_MR_Star );
 
 // Right, Lower, Normal Trmm
 template<typename T>
@@ -1230,12 +1286,52 @@ TrmmRLN
 ( Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
 
+template<typename T>
+void
+TrmmRLNA
+( Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmRLNC
+( Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+LocalTrmmAccumulateRLN
+( Orientation orientation, Diagonal diagonal, T alpha, 
+  const DistMatrix<T,MC,  MR  >& L,
+  const DistMatrix<T,Star,MC  >& X_Star_MC,
+        DistMatrix<T,MR,  Star>& ZHermOrTrans_MR_Star );
+
 // Right, Lower, (Conjugate)Transpose Trmm
 template<typename T>
 void
 TrmmRLT
 ( Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmRLTA
+( Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmRLTC
+( Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& L, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+LocalTrmmAccumulateRLT
+( Orientation orientation, Diagonal diagonal, T alpha, 
+  const DistMatrix<T,MC,  MR  >& L,
+  const DistMatrix<T,MR,  Star>& XHermOrTrans_MR_Star,
+        DistMatrix<T,MC,  Star>& ZHermOrTrans_MC_Star );
 
 // Right, Upper, Normal Trmm
 template<typename T>
@@ -1244,12 +1340,52 @@ TrmmRUN
 ( Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
 
+template<typename T>
+void
+TrmmRUNA
+( Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmRUNC
+( Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+LocalTrmmAccumulateRUN
+( Orientation orientation, Diagonal diagonal, T alpha, 
+  const DistMatrix<T,MC,  MR  >& U,
+  const DistMatrix<T,Star,MC  >& X_Star_MC,
+        DistMatrix<T,MR,  Star>& ZHermOrTrans_MR_Star );
+
 // Right, Upper, (Conjugate)Transpose Trmm
 template<typename T>
 void
 TrmmRUT
 ( Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmRUTA
+( Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+TrmmRUTC
+( Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& U, DistMatrix<T,MC,MR>& X );
+
+template<typename T>
+void
+LocalTrmmAccumulateRUT
+( Orientation orientation, Diagonal diagonal, T alpha, 
+  const DistMatrix<T,MC,  MR  >& U,
+  const DistMatrix<T,MR,  Star>& XHermOrTrans_MR_Star,
+        DistMatrix<T,MC,  Star>& ZHermOrTrans_MC_Star );
 
 // Left, Lower, Normal Trsm
 template<typename F>

@@ -116,8 +116,9 @@ elemental::lapack::internal::HegstLLVar3
         L21Herm_Star_MR.ConjugateTransposeFrom( L21_VR_Star );
         Z21_MC_Star.SetToZero();
         Z21_MR_Star.SetToZero();
-        blas::internal::LocalHemmAccumulateLL
-        ( (F)1, A22, L21_MC_Star, L21Herm_Star_MR, Z21_MC_Star, Z21_MR_Star );
+        blas::internal::LocalSymmetricAccumulateLL
+        ( ConjugateTranspose, 
+          (F)1, A22, L21_MC_Star, L21Herm_Star_MR, Z21_MC_Star, Z21_MR_Star );
         Z21_MR_MC.SumScatterFrom( Z21_MR_Star );
         Y21 = Z21_MR_MC;
         Y21.SumScatterUpdate( (F)1, Z21_MC_Star ); 
@@ -144,7 +145,6 @@ elemental::lapack::internal::HegstLLVar3
 
         blas::Axpy( (F)0.5, Y21, A21 );
 
-        // This is the bottleneck because of A21 having only blocksize columns
         blas::Trmm
         ( Left, Lower, ConjugateTranspose, NonUnit, (F)1, L22, A21 );
         //--------------------------------------------------------------------//

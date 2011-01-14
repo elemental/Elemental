@@ -56,7 +56,114 @@ elemental::blas::internal::SymmRU
 #ifndef RELEASE
     PushCallStack("blas::internal::SymmRU");
 #endif
-    blas::internal::SymmRUC( alpha, A, B, beta, C );
+    // TODO: Come up with a better routing mechanism
+    if( A.Height() > 5*B.Height() )
+        blas::internal::SymmRUA( alpha, A, B, beta, C );
+    else
+        blas::internal::SymmRUC( alpha, A, B, beta, C );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+elemental::blas::internal::SymmRUA
+( T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
+{
+#ifndef RELEASE
+    PushCallStack("blas::internal::SymmRUA");
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
+#endif
+    const Grid& g = A.Grid();
+
+    DistMatrix<T,MC,MR>
+        BT(g),  B0(g),
+        BB(g),  B1(g),
+                B2(g);
+
+    DistMatrix<T,MC,MR>
+        CT(g),  C0(g),
+        CB(g),  C1(g),
+                C2(g);
+
+    DistMatrix<T,MR,  Star> B1Trans_MR_Star(g);
+    DistMatrix<T,VC,  Star> B1Trans_VC_Star(g);
+    DistMatrix<T,Star,MC  > B1_Star_MC(g);
+    DistMatrix<T,MC,  Star> Z1Trans_MC_Star(g);
+    DistMatrix<T,MR,  Star> Z1Trans_MR_Star(g);
+    DistMatrix<T,MC,  MR  > Z1Trans(g);
+    DistMatrix<T,MR,  MC  > Z1Trans_MR_MC(g);
+
+    Matrix<T> Z1Local;
+
+    blas::Scal( beta, C );
+    LockedPartitionDown
+    ( B, BT,
+         BB, 0 );
+    PartitionDown
+    ( C, CT,
+         CB, 0 );
+    while( CT.Height() < C.Height() )
+    {
+        LockedRepartitionDown
+        ( BT,  B0, 
+         /**/ /**/
+               B1,
+          BB,  B2 );
+
+        RepartitionDown
+        ( CT,  C0,
+         /**/ /**/
+               C1,
+          CB,  C2 );
+
+        B1Trans_MR_Star.AlignWith( A );
+        B1Trans_VC_Star.AlignWith( A );
+        B1_Star_MC.AlignWith( A );
+        Z1Trans_MC_Star.AlignWith( A );
+        Z1Trans_MR_Star.AlignWith( A );
+        Z1Trans_MR_MC.AlignWith( C1 );
+        Z1Trans_MC_Star.ResizeTo( C1.Width(), C1.Height() );
+        Z1Trans_MR_Star.ResizeTo( C1.Width(), C1.Height() );
+        //--------------------------------------------------------------------//
+        B1Trans_MR_Star.TransposeFrom( B1 );
+        B1Trans_VC_Star = B1Trans_MR_Star;
+        B1_Star_MC.TransposeFrom( B1Trans_VC_Star );
+        Z1Trans_MC_Star.SetToZero();
+        Z1Trans_MR_Star.SetToZero();
+        blas::internal::LocalSymmetricAccumulateRU
+        ( Transpose, alpha, A, B1_Star_MC, B1Trans_MR_Star, 
+          Z1Trans_MC_Star, Z1Trans_MR_Star );
+
+        Z1Trans.SumScatterFrom( Z1Trans_MC_Star );
+        Z1Trans_MR_MC = Z1Trans;
+        Z1Trans_MR_MC.SumScatterUpdate( (T)1, Z1Trans_MR_Star );
+        blas::Trans( Z1Trans_MR_MC.LockedLocalMatrix(), Z1Local );
+        blas::Axpy( (T)1, Z1Local, C1.LocalMatrix() );
+        //--------------------------------------------------------------------//
+        B1Trans_MR_Star.FreeAlignments();
+        B1Trans_VC_Star.FreeAlignments();
+        B1_Star_MC.FreeAlignments();
+        Z1Trans_MC_Star.FreeAlignments();
+        Z1Trans_MR_Star.FreeAlignments();
+        Z1Trans_MR_MC.FreeAlignments();
+
+        SlideLockedPartitionDown
+        ( BT,  B0,
+               B1,
+         /**/ /**/
+          BB,  B2 );
+
+        SlidePartitionDown
+        ( CT,  C0,
+               C1,
+         /**/ /**/
+          CB,  C2 );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -72,7 +179,7 @@ elemental::blas::internal::SymmRUC
 #ifndef RELEASE
     PushCallStack("blas::internal::SymmRUC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw logic_error( "{A,B,C} must be distributed over the same grid." );
+        throw logic_error( "{A,B,C} must be distributed on the same grid." );
 #endif
     const Grid& g = A.Grid();
 
@@ -91,8 +198,9 @@ elemental::blas::internal::SymmRUC
 
     // Temporary distributions
     DistMatrix<T,MC,Star> B1_MC_Star(g);
-    DistMatrix<T,MR,Star> AColPan_MR_Star(g);
-    DistMatrix<T,Star,MR> ARowPan_Star_MR(g);
+    DistMatrix<T,VR,  Star> AColPan_VR_Star(g);
+    DistMatrix<T,Star,MR  > AColPanTrans_Star_MR(g);
+    DistMatrix<T,MR,  Star> ARowPanTrans_MR_Star(g);
 
     // Start the algorithm
     blas::Scal( beta, C );
@@ -128,25 +236,30 @@ elemental::blas::internal::SymmRUC
         CRight.View1x2( C1, C2 );
 
         B1_MC_Star.AlignWith( C );
-        AColPan_MR_Star.AlignWith( CLeft );
-        ARowPan_Star_MR.AlignWith( CRight );
+        AColPan_VR_Star.AlignWith( CLeft );
+        AColPanTrans_Star_MR.AlignWith( CLeft );
+        ARowPanTrans_MR_Star.AlignWith( CRight );
         //--------------------------------------------------------------------//
         B1_MC_Star = B1;
 
-        ARowPan_Star_MR = ARowPan;
-        AColPan_MR_Star = AColPan;
-        ARowPan_Star_MR.MakeTrapezoidal( Left, Upper );
-        AColPan_MR_Star.MakeTrapezoidal( Right, Upper, 1 );
+        AColPan_VR_Star = AColPan;
+        AColPanTrans_Star_MR.TransposeFrom( AColPan_VR_Star );
+        ARowPanTrans_MR_Star.TransposeFrom( ARowPan );
+        ARowPanTrans_MR_Star.MakeTrapezoidal( Left, Lower );
+        AColPanTrans_Star_MR.MakeTrapezoidal( Right, Lower, -1 );
 
         blas::internal::LocalGemm
-        ( Normal, Normal, alpha, B1_MC_Star, ARowPan_Star_MR, (T)1, CRight );
+        ( Normal, Transpose, 
+          alpha, B1_MC_Star, ARowPanTrans_MR_Star, (T)1, CRight );
 
         blas::internal::LocalGemm
-        ( Normal, Transpose, alpha, B1_MC_Star, AColPan_MR_Star, (T)1, CLeft );
+        ( Normal, Normal,
+          alpha, B1_MC_Star, AColPanTrans_Star_MR, (T)1, CLeft );
         //--------------------------------------------------------------------//
         B1_MC_Star.FreeAlignments();
-        AColPan_MR_Star.FreeAlignments();
-        ARowPan_Star_MR.FreeAlignments();
+        AColPan_VR_Star.FreeAlignments();
+        AColPanTrans_Star_MR.FreeAlignments();
+        ARowPanTrans_MR_Star.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

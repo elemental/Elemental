@@ -112,7 +112,6 @@ elemental::lapack::internal::HegstLUVar1
           (F)0, Y01_VC_Star.LocalMatrix() );
         Y01 = Y01_VC_Star;
 
-        // This is the bottleneck due to having only blocksize cols of A01
         blas::Trmm
         ( Left, Upper, Normal, NonUnit, (F)1, U00, A01 );
 

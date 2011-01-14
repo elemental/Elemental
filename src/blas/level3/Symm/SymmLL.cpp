@@ -56,7 +56,99 @@ elemental::blas::internal::SymmLL
 #ifndef RELEASE
     PushCallStack("blas::internal::SymmLL");
 #endif
-    blas::internal::SymmLLC( alpha, A, B, beta, C );
+    // TODO: Come up with a better routing mechanism
+    if( A.Height() > 5*B.Width() )
+        blas::internal::SymmLLA( alpha, A, B, beta, C );
+    else
+        blas::internal::SymmLLC( alpha, A, B, beta, C );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+elemental::blas::internal::SymmLLA
+( T alpha, const DistMatrix<T,MC,MR>& A, 
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
+{
+#ifndef RELEASE
+    PushCallStack("blas::internal::SymmLLA");
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        throw logic_error( "{A,B,C} must be distributed over the same grid." );
+#endif
+    const Grid& g = A.Grid();
+
+    DistMatrix<T,MC,MR> 
+        BL(g), BR(g),
+        B0(g), B1(g), B2(g);
+
+    DistMatrix<T,MC,MR>
+        CL(g), CR(g),
+        C0(g), C1(g), C2(g);
+
+    DistMatrix<T,MC,Star> B1_MC_Star(g);
+    DistMatrix<T,VR,Star> B1_VR_Star(g);
+    DistMatrix<T,Star,MR> B1Trans_Star_MR(g);
+    DistMatrix<T,MC,MR  > Z1(g);
+    DistMatrix<T,MC,Star> Z1_MC_Star(g);
+    DistMatrix<T,MR,Star> Z1_MR_Star(g);
+    DistMatrix<T,MR,MC  > Z1_MR_MC(g);
+
+    blas::Scal( beta, C );
+    LockedPartitionRight
+    ( B, BL, BR, 0 );
+    PartitionRight
+    ( C, CL, CR, 0 );
+    while( CL.Width() < C.Width() )
+    {
+        LockedRepartitionRight 
+        ( BL, /**/ BR,
+          B0, /**/ B1, B2 );
+
+        RepartitionRight
+        ( CL, /**/ CR,
+          C0, /**/ C1, C2 );
+
+        B1_MC_Star.AlignWith( A );
+        B1_VR_Star.AlignWith( A );
+        B1Trans_Star_MR.AlignWith( A );
+        Z1_MC_Star.AlignWith( A );
+        Z1_MR_Star.AlignWith( A );
+        Z1.AlignWith( C1 );
+        Z1_MC_Star.ResizeTo( C1.Height(), C1.Width() );
+        Z1_MR_Star.ResizeTo( C1.Height(), C1.Width() );
+        //--------------------------------------------------------------------//
+        B1_MC_Star = B1;
+        B1_VR_Star = B1_MC_Star;
+        B1Trans_Star_MR.TransposeFrom( B1_VR_Star );
+        Z1_MC_Star.SetToZero();
+        Z1_MR_Star.SetToZero();
+        blas::internal::LocalSymmetricAccumulateLL
+        ( Transpose, 
+          alpha, A, B1_MC_Star, B1Trans_Star_MR, Z1_MC_Star, Z1_MR_Star );
+
+        Z1_MR_MC.SumScatterFrom( Z1_MR_Star );
+        Z1 = Z1_MR_MC;
+        Z1.SumScatterUpdate( (T)1, Z1_MC_Star );
+        blas::Axpy( (T)1, Z1, C1 );
+        //--------------------------------------------------------------------//
+        B1_MC_Star.FreeAlignments();
+        B1_VR_Star.FreeAlignments();
+        B1Trans_Star_MR.FreeAlignments();
+        Z1_MC_Star.FreeAlignments();
+        Z1_MR_Star.FreeAlignments();
+        Z1.FreeAlignments();
+
+        SlideLockedPartitionRight
+        ( BL,     /**/ BR,
+          B0, B1, /**/ B2 );
+
+        SlidePartitionRight
+        ( CL,     /**/ CR,
+          C0, C1, /**/ C2 );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -82,18 +174,20 @@ elemental::blas::internal::SymmLLC
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),  ARowPan(g),
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<T,MC,MR> BT(g),  B0(g),
-                        BB(g),  B1(g),
-                                B2(g);
+    DistMatrix<T,MC,MR> 
+        BT(g),  B0(g),
+        BB(g),  B1(g),
+                B2(g);
 
-    DistMatrix<T,MC,MR> CT(g),  C0(g),  CAbove(g),
-                        CB(g),  C1(g),  CBelow(g),
-                                C2(g);
+    DistMatrix<T,MC,MR> 
+        CT(g),  C0(g),  CAbove(g),
+        CB(g),  C1(g),  CBelow(g),
+                C2(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,Star> AColPan_MC_Star(g);
-    DistMatrix<T,Star,MC> ARowPan_Star_MC(g);
-    DistMatrix<T,Star,MR> B1_Star_MR(g);
+    DistMatrix<T,MC,  Star> AColPan_MC_Star(g);
+    DistMatrix<T,Star,MC  > ARowPan_Star_MC(g);
+    DistMatrix<T,MR,  Star> B1Trans_MR_Star(g);
 
     // Start the algorithm
     blas::Scal( beta, C );
@@ -142,24 +236,26 @@ elemental::blas::internal::SymmLLC
 
         AColPan_MC_Star.AlignWith( CBelow );
         ARowPan_Star_MC.AlignWith( CAbove );
-        B1_Star_MR.AlignWith( C );
+        B1Trans_MR_Star.AlignWith( C );
         //--------------------------------------------------------------------//
         AColPan_MC_Star = AColPan;
         ARowPan_Star_MC = ARowPan;
         AColPan_MC_Star.MakeTrapezoidal( Left, Lower );
         ARowPan_Star_MC.MakeTrapezoidal( Right, Lower, -1 );
 
-        B1_Star_MR = B1;
+        B1Trans_MR_Star.TransposeFrom( B1 );
 
         blas::internal::LocalGemm
-        ( Normal, Normal, alpha, AColPan_MC_Star, B1_Star_MR, (T)1, CBelow );
+        ( Normal, Transpose, 
+          alpha, AColPan_MC_Star, B1Trans_MR_Star, (T)1, CBelow );
 
         blas::internal::LocalGemm
-        ( Transpose, Normal, alpha, ARowPan_Star_MC, B1_Star_MR, (T)1, CAbove );
+        ( Transpose, Transpose, 
+          alpha, ARowPan_Star_MC, B1Trans_MR_Star, (T)1, CAbove );
         //--------------------------------------------------------------------//
         AColPan_MC_Star.FreeAlignments();
         ARowPan_Star_MC.FreeAlignments();
-        B1_Star_MR.FreeAlignments();
+        B1Trans_MR_Star.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

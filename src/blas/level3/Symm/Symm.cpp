@@ -48,10 +48,10 @@ using namespace elemental;
 template<typename T>
 void
 elemental::blas::Symm
-( Side side, Shape shape,
-  T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+(  Side side, Shape shape,
+   T alpha, const DistMatrix<T,MC,MR>& A,
+            const DistMatrix<T,MC,MR>& B,
+   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
     PushCallStack("blas::Symm");
@@ -102,3 +102,4 @@ template void elemental::blas::Symm
                   const DistMatrix<dcomplex,MC,MR>& B,
   dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
 #endif
+
