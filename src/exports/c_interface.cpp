@@ -57,6 +57,21 @@ std::vector<DistMatrix<dcomplex,Star,VR>*> Star_VR_DComplexList;
 #endif // WITHOUT_COMPLEX
 }
 
+#ifndef RELEASE
+#define CATCH(expr) try { expr; } catch( std::exception& e ) \
+{ \
+    elemental::DumpCallStack(); \
+    std::cerr << "Caught error message:\n" << e.what() << std::endl; \
+    ElementalFinalize(); \
+}
+#else
+#define CATCH(expr) try { expr; } catch( std::exception& e ) \
+{ \
+    std::cerr << "Caught error message:\n" << e.what() << std::endl; \
+    ElementalFinalize(); \
+}
+#endif
+
 extern "C" {
 
 /* TODO: Add wrapper macro for handling exceptions. */
@@ -94,326 +109,535 @@ void ElementalFinalize()
     elemental::Finalize();
 }
 
-int ElementalBlocksize()
+int Blocksize()
 { return elemental::Blocksize(); }
 
-void ElementalSetBlocksize( int blocksize )
+void SetBlocksize( int blocksize )
 { elemental::SetBlocksize( blocksize ); }
 
-void ElementalPushBlocksizeStack( int blocksize )
+void PushBlocksizeStack( int blocksize )
 { elemental::PushBlocksizeStack( blocksize ); }
 
-void ElementalPopBlocksizeStack()
-{ elemental::PopBlocksizeStack(); }
+void PopBlocksizeStack()
+{ CATCH(elemental::PopBlocksizeStack()); }
 
-Grid ElementalDefaultGrid( MPI_Comm comm )
+Grid CreateDefaultGrid( MPI_Comm comm )
 {
-    Grid g = ::gridList.size();
-    ::gridList.push_back( new elemental::Grid( comm ) );
+    Grid g;
+    CATCH(
+        g = ::gridList.size();
+        ::gridList.push_back( new elemental::Grid( comm ) );
+    );
     return g;
 }
 
-Grid ElementalGrid( MPI_Comm comm, int r, int c )
+Grid CreateGrid( MPI_Comm comm, int r, int c )
 {
-    Grid g = ::gridList.size();
-    ::gridList.push_back( new elemental::Grid( comm, r, c ) );
+    Grid g;
+    CATCH(
+        g = ::gridList.size();
+        ::gridList.push_back( new elemental::Grid( comm, r, c ) );
+    );
     return g;
 }
 
 // Don't yet export the viewingComm/owningGroup constructors.
 
-int ElementalGridHeight( Grid g )
-{ return gridList[g]->Height(); }
+int GridHeight( Grid g )
+{ int r; CATCH(r=gridList[g]->Height()); return r; }
 
-int ElementalGridWidth( Grid g )
-{ return gridList[g]->Width(); }
+int GridWidth( Grid g )
+{ int c; CATCH(c=gridList[g]->Width()); return c; }
 
-int ElementalGridSize( Grid g )
-{ return gridList[g]->Size(); }
+int GridSize( Grid g )
+{ int p; CATCH(p=gridList[g]->Size()); return p; }
 
-int ElementalInGrid( Grid g )
-{ return gridList[g]->InGrid(); }
+int InGrid( Grid g )
+{ int inGrid; CATCH(inGrid=gridList[g]->InGrid()); return inGrid; }
 
-int ElementalGridVCRank( Grid g )
-{ return gridList[g]->VCRank(); }
+int GridVCRank( Grid g )
+{ int VCRank; CATCH(VCRank=gridList[g]->VCRank()); return VCRank; }
 
-int ElementalGridVRRank( Grid g )
-{ return gridList[g]->VRRank(); }
+int GridVRRank( Grid g )
+{ int VRRank; CATCH(VRRank=gridList[g]->VRRank()); return VRRank; }
 
-int ElementalGridMCRank( Grid g )
-{ return gridList[g]->MCRank(); }
+int GridMCRank( Grid g )
+{ int MCRank; CATCH(MCRank=gridList[g]->MCRank()); return MCRank; }
 
-int ElementalGridMRRank( Grid g )
-{ return gridList[g]->MRRank(); }
+int GridMRRank( Grid g )
+{ int MRRank; CATCH(MRRank=gridList[g]->MRRank()); return MRRank; }
 
-MPI_Comm ElementalGridVCComm( Grid g )
-{ return gridList[g]->VCComm(); }
+MPI_Comm GridVCComm( Grid g )
+{ MPI_Comm VCComm; CATCH(VCComm=gridList[g]->VCComm()); return VCComm; }
 
-MPI_Comm ElementalGridVRComm( Grid g )
-{ return gridList[g]->VRComm(); }
+MPI_Comm GridVRComm( Grid g )
+{ MPI_Comm VRComm; CATCH(VRComm=gridList[g]->VRComm()); return VRComm; }
 
-MPI_Comm ElementalGridMCComm( Grid g )
-{ return gridList[g]->MCComm(); }
+MPI_Comm GridMCComm( Grid g )
+{ MPI_Comm MCComm; CATCH(MCComm=gridList[g]->MCComm()); return MCComm; }
 
-MPI_Comm ElementalGridMRComm( Grid g )
-{ return gridList[g]->MRComm(); }
+MPI_Comm GridMRComm( Grid g )
+{ MPI_Comm MRComm; CATCH(MRComm=gridList[g]->MRComm()); return MRComm; }
 
 MC_MR_Single
-ElementalCreateEmpty_MC_MR_Single( Grid g )
+CreateEmpty_MC_MR_Single( Grid g )
 {
-    MC_MR_Single A = ::MC_MR_SingleList.size();
-    ::MC_MR_SingleList.push_back
-        ( new elemental::DistMatrix<float,elemental::MC,elemental::MR>
-          ( *::gridList[g] ) );
+    MC_MR_Single A;
+    CATCH(
+        A = ::MC_MR_SingleList.size();
+        ::MC_MR_SingleList.push_back
+            ( new elemental::DistMatrix<float,elemental::MC,elemental::MR>
+              ( *::gridList[g] ) );
+    );
     return A;
 }
 
 MC_MR_Double
-ElementalCreateEmpty_MC_MR_Double( Grid g )
+CreateEmpty_MC_MR_Double( Grid g )
 {
-    MC_MR_Double A = ::MC_MR_DoubleList.size();
-    ::MC_MR_DoubleList.push_back
-        ( new elemental::DistMatrix<double,elemental::MC,elemental::MR>
-          ( *::gridList[g] ) );
+    MC_MR_Double A;
+    CATCH(
+        A = ::MC_MR_DoubleList.size();
+        ::MC_MR_DoubleList.push_back
+            ( new elemental::DistMatrix<double,elemental::MC,elemental::MR>
+              ( *::gridList[g] ) );
+    );
     return A;
 }
 
 Star_VR_Single
-ElementalCreateEmpty_Star_VR_Single( Grid g )
+CreateEmpty_Star_VR_Single( Grid g )
 {
-    Star_VR_Single A = ::Star_VR_SingleList.size();
-    ::Star_VR_SingleList.push_back
-        ( new elemental::DistMatrix<float,elemental::Star,elemental::VR>
-          ( *::gridList[g] ) );
+    Star_VR_Single A;
+    CATCH(
+        A = ::Star_VR_SingleList.size();
+        ::Star_VR_SingleList.push_back
+            ( new elemental::DistMatrix<float,elemental::Star,elemental::VR>
+              ( *::gridList[g] ) );
+    );
     return A;
 }
 
 Star_VR_Double
-ElementalCreateEmpty_Star_VR_Double( Grid g )
+CreateEmpty_Star_VR_Double( Grid g )
 {
-    Star_VR_Double A = ::Star_VR_DoubleList.size();
-    ::Star_VR_DoubleList.push_back
-        ( new elemental::DistMatrix<double,elemental::Star,elemental::VR>
-          ( *::gridList[g] ) );
+    Star_VR_Double A;
+    CATCH(
+        A = ::Star_VR_DoubleList.size();
+        ::Star_VR_DoubleList.push_back
+            ( new elemental::DistMatrix<double,elemental::Star,elemental::VR>
+              ( *::gridList[g] ) );
+    );
     return A;
 }
 
 MC_MR_Single
-ElementalRegister_MC_MR_Single
+Register_MC_MR_Single
 ( int height, int width, int colAlignment, int rowAlignment,
   float* buffer, int ldim, Grid g )
 {
-    MC_MR_Single A = ::MC_MR_SingleList.size();
-    ::MC_MR_SingleList.push_back
-        ( new elemental::DistMatrix<float,elemental::MC,elemental::MR>
-            ( height, width, colAlignment, rowAlignment, buffer, ldim, 
-              *::gridList[g] ) );
+    MC_MR_Single A;
+    CATCH(
+        A = ::MC_MR_SingleList.size();
+        ::MC_MR_SingleList.push_back
+            ( new elemental::DistMatrix<float,elemental::MC,elemental::MR>
+                ( height, width, colAlignment, rowAlignment, buffer, ldim, 
+                  *::gridList[g] ) );
+    );
     return A;
 }
 
 MC_MR_Double
-ElementalRegister_MC_MR_Double
+Register_MC_MR_Double
 ( int height, int width, int colAlignment, int rowAlignment,
   double* buffer, int ldim, Grid g )
 {
-    MC_MR_Double A = ::MC_MR_DoubleList.size();
-    ::MC_MR_DoubleList.push_back
-        ( new elemental::DistMatrix<double,elemental::MC,elemental::MR>
-            ( height, width, colAlignment, rowAlignment, buffer, ldim, 
-              *::gridList[g] ) );
+    MC_MR_Double A;
+    CATCH(
+        A = ::MC_MR_DoubleList.size();
+        ::MC_MR_DoubleList.push_back
+            ( new elemental::DistMatrix<double,elemental::MC,elemental::MR>
+                ( height, width, colAlignment, rowAlignment, buffer, ldim, 
+                  *::gridList[g] ) );
+    );
     return A;
 }
 
 void 
-ElementalPrint_MC_MR_Single( char* msg, MC_MR_Single A )
+Print_MC_MR_Single( char* msg, MC_MR_Single A )
 {
-    std::string s( msg );
-    ::MC_MR_SingleList[A]->Print( s );
+    CATCH(
+        std::string s( msg );
+        ::MC_MR_SingleList[A]->Print( s );
+    );
 }
 
 void 
-ElementalPrint_MC_MR_Double( char* msg, MC_MR_Double A )
+Print_MC_MR_Double( char* msg, MC_MR_Double A )
 {
-    std::string s( msg );
-    ::MC_MR_DoubleList[A]->Print( s );
+    CATCH(
+        std::string s( msg );
+        ::MC_MR_DoubleList[A]->Print( s );
+    );
 }
 
 void 
-ElementalPrint_Star_VR_Single( char* msg, Star_VR_Single A )
+Print_Star_VR_Single( char* msg, Star_VR_Single A )
 {
-    std::string s( msg );
-    ::Star_VR_SingleList[A]->Print( s );
+    CATCH(
+        std::string s( msg );
+        ::Star_VR_SingleList[A]->Print( s );
+    );
 }
 
 void 
-ElementalPrint_Star_VR_Double( char* msg, Star_VR_Double A )
+Print_Star_VR_Double( char* msg, Star_VR_Double A )
 {
-    std::string s( msg );
-    ::Star_VR_DoubleList[A]->Print( s );
+    CATCH(
+        std::string s( msg );
+        ::Star_VR_DoubleList[A]->Print( s );
+    );
 }
 
 #ifndef WITHOUT_COMPLEX
 MC_MR_SComplex
-ElementalCreateEmpty_MC_MR_SComplex( Grid g )
+CreateEmpty_MC_MR_SComplex( Grid g )
 {
-    MC_MR_SComplex A = ::MC_MR_SComplexList.size();
-    ::MC_MR_SComplexList.push_back
-        ( new elemental::DistMatrix<elemental::scomplex,
-                                    elemental::MC,elemental::MR>
-          ( *::gridList[g] ) );
+    MC_MR_SComplex A;
+    CATCH(
+        A = ::MC_MR_SComplexList.size();
+        ::MC_MR_SComplexList.push_back
+            ( new elemental::DistMatrix<elemental::scomplex,
+                                        elemental::MC,elemental::MR>
+              ( *::gridList[g] ) );
+    );
     return A;
 }
 
 MC_MR_DComplex
-ElementalCreateEmpty_MC_MR_DComplex( Grid g )
+CreateEmpty_MC_MR_DComplex( Grid g )
 {
-    MC_MR_DComplex A = ::MC_MR_DComplexList.size();
-    ::MC_MR_DComplexList.push_back
-        ( new elemental::DistMatrix<elemental::dcomplex,
-                                    elemental::MC,elemental::MR>
-          ( *::gridList[g] ) );
+    MC_MR_DComplex A;
+    CATCH(
+        A = ::MC_MR_DComplexList.size();
+        ::MC_MR_DComplexList.push_back
+            ( new elemental::DistMatrix<elemental::dcomplex,
+                                        elemental::MC,elemental::MR>
+              ( *::gridList[g] ) );
+    );
     return A;
 }
 
 Star_VR_SComplex
-ElementalCreateEmpty_Star_VR_SComplex( Grid g )
+CreateEmpty_Star_VR_SComplex( Grid g )
 {
-    Star_VR_SComplex A = ::Star_VR_SComplexList.size();
-    ::Star_VR_SComplexList.push_back
-        ( new elemental::DistMatrix<elemental::scomplex,
-                                    elemental::Star,elemental::VR>
-          ( *::gridList[g] ) );
+    Star_VR_SComplex A;
+    CATCH(
+        A = ::Star_VR_SComplexList.size();
+        ::Star_VR_SComplexList.push_back
+            ( new elemental::DistMatrix<elemental::scomplex,
+                                        elemental::Star,elemental::VR>
+              ( *::gridList[g] ) );
+    );
     return A;
 }
 
 Star_VR_DComplex
-ElementalCreateEmpty_Star_VR_DComplex( Grid g )
+CreateEmpty_Star_VR_DComplex( Grid g )
 {
-    Star_VR_DComplex A = ::Star_VR_DComplexList.size();
-    ::Star_VR_DComplexList.push_back
-        ( new elemental::DistMatrix<elemental::dcomplex,
-                                    elemental::Star,elemental::VR>
-          ( *::gridList[g] ) );
+    Star_VR_DComplex A;
+    CATCH(
+        A = ::Star_VR_DComplexList.size();
+        ::Star_VR_DComplexList.push_back
+            ( new elemental::DistMatrix<elemental::dcomplex,
+                                        elemental::Star,elemental::VR>
+              ( *::gridList[g] ) );
+    );
     return A;
 }
 
 MC_MR_SComplex
-ElementalRegister_MC_MR_SComplex
+Register_MC_MR_SComplex
 ( int height, int width, int colAlignment, int rowAlignment,
   SComplex* buffer, int ldim, Grid g )
 {
-    MC_MR_SComplex A = ::MC_MR_SComplexList.size();
-    ::MC_MR_SComplexList.push_back
-        ( new elemental::DistMatrix<elemental::scomplex,
-                                    elemental::MC,elemental::MR>
-            ( height, width, colAlignment, rowAlignment, 
-              (elemental::scomplex*)buffer, ldim, *::gridList[g] ) );
+    MC_MR_SComplex A;
+    CATCH(
+        A = ::MC_MR_SComplexList.size();
+        ::MC_MR_SComplexList.push_back
+            ( new elemental::DistMatrix<elemental::scomplex,
+                                        elemental::MC,elemental::MR>
+                ( height, width, colAlignment, rowAlignment, 
+                  (elemental::scomplex*)buffer, ldim, *::gridList[g] ) );
+    );
     return A;
 }
 
 MC_MR_DComplex
-ElementalRegister_MC_MR_DComplex
+Register_MC_MR_DComplex
 ( int height, int width, int colAlignment, int rowAlignment,
   DComplex* buffer, int ldim, Grid g )
 {
-    MC_MR_DComplex A = ::MC_MR_DComplexList.size();
-    ::MC_MR_DComplexList.push_back
-        ( new elemental::DistMatrix<elemental::dcomplex,
-                                    elemental::MC,elemental::MR>
-            ( height, width, colAlignment, rowAlignment, 
-              (elemental::dcomplex*)buffer, ldim, *::gridList[g] ) );
+    MC_MR_DComplex A;
+    CATCH(
+        A = ::MC_MR_DComplexList.size();
+        ::MC_MR_DComplexList.push_back
+            ( new elemental::DistMatrix<elemental::dcomplex,
+                                        elemental::MC,elemental::MR>
+                ( height, width, colAlignment, rowAlignment, 
+                  (elemental::dcomplex*)buffer, ldim, *::gridList[g] ) );
+    );
     return A;
 }
 
 Star_VR_SComplex
-ElementalRegister_Star_VR_SComplex
+Register_Star_VR_SComplex
 ( int height, int width, int rowAlignment,
   SComplex* buffer, int ldim, Grid g )
 {
-    Star_VR_SComplex A = ::Star_VR_SComplexList.size();
-    ::Star_VR_SComplexList.push_back
-        ( new elemental::DistMatrix<elemental::scomplex,
-                                    elemental::Star,elemental::VR>
-            ( height, width, rowAlignment, 
-              (elemental::scomplex*)buffer, ldim, *::gridList[g] ) );
+    Star_VR_SComplex A;
+    CATCH(
+        A = ::Star_VR_SComplexList.size();
+        ::Star_VR_SComplexList.push_back
+            ( new elemental::DistMatrix<elemental::scomplex,
+                                        elemental::Star,elemental::VR>
+                ( height, width, rowAlignment, 
+                  (elemental::scomplex*)buffer, ldim, *::gridList[g] ) );
+    );
     return A;
 }
 
 Star_VR_DComplex
-ElementalRegister_Star_VR_DComplex
+Register_Star_VR_DComplex
 ( int height, int width, int rowAlignment,
   DComplex* buffer, int ldim, Grid g )
 {
-    Star_VR_DComplex A = ::Star_VR_DComplexList.size();
-    ::Star_VR_DComplexList.push_back
-        ( new elemental::DistMatrix<elemental::dcomplex,
-                                    elemental::Star,elemental::VR>
-            ( height, width, rowAlignment, 
-              (elemental::dcomplex*)buffer, ldim, *::gridList[g] ) );
+    Star_VR_DComplex A;
+    CATCH(
+        A = ::Star_VR_DComplexList.size();
+        ::Star_VR_DComplexList.push_back
+            ( new elemental::DistMatrix<elemental::dcomplex,
+                                        elemental::Star,elemental::VR>
+                ( height, width, rowAlignment, 
+                  (elemental::dcomplex*)buffer, ldim, *::gridList[g] ) );
+    );
     return A;
 }
 
 void 
-ElementalPrint_MC_MR_SComplex( char* msg, MC_MR_SComplex A )
+Print_MC_MR_SComplex( char* msg, MC_MR_SComplex A )
 {
-    std::string s( msg );
-    ::MC_MR_SComplexList[A]->Print( s );
+    CATCH(
+        std::string s( msg );
+        ::MC_MR_SComplexList[A]->Print( s );
+    );
 }
 
 void 
-ElementalPrint_MC_MR_DComplex( char* msg, MC_MR_DComplex A )
+Print_MC_MR_DComplex( char* msg, MC_MR_DComplex A )
 {
-    std::string s( msg );
-    ::MC_MR_DComplexList[A]->Print( s );
+    CATCH(
+        std::string s( msg );
+        ::MC_MR_DComplexList[A]->Print( s );
+    );
 }
 
 void 
-ElementalPrint_Star_VR_SComplex( char* msg, Star_VR_SComplex A )
+Print_Star_VR_SComplex( char* msg, Star_VR_SComplex A )
 {
-    std::string s( msg );
-    ::Star_VR_SComplexList[A]->Print( s );
+    CATCH(
+        std::string s( msg );
+        ::Star_VR_SComplexList[A]->Print( s );
+    );
 }
 
 void 
-ElementalPrint_Star_VR_DComplex( char* msg, Star_VR_DComplex A )
+Print_Star_VR_DComplex( char* msg, Star_VR_DComplex A )
 {
-    std::string s( msg );
-    ::Star_VR_DComplexList[A]->Print( s );
+    CATCH(
+        std::string s( msg );
+        ::Star_VR_DComplexList[A]->Print( s );
+    );
 }
 #endif // WITHOUT_COMPLEX
 
 int
-ElementalLocalLength
+LocalLength
 ( int globalLength, int myIndex, int alignment, int modulus )
 { 
-    return elemental::utilities::LocalLength
+    int localLength;
+    CATCH(
+        localLength = elemental::utilities::LocalLength
         ( globalLength, myIndex, alignment, modulus );
+    );
+    return localLength;
 }
 
 /* LAPACK-level interface */
 #ifndef WITHOUT_PMRRR
 void
-ElementalHermitianEigDouble
+HermitianEigDouble
 ( char uplo, MC_MR_Double A, Star_VR_Double w, MC_MR_Double Z,
   int tryForHighAccuracy )
 {
-    elemental::Shape shape = elemental::CharToShape( uplo );
-    elemental::lapack::HermitianEig
-    ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
-      *::MC_MR_DoubleList[Z], tryForHighAccuracy );
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+          *::MC_MR_DoubleList[Z], tryForHighAccuracy );
+    );
 }
 
 void
-ElementalHermitianEigDComplex
+HermitianEigDouble_IntegerSubset
+( char uplo, MC_MR_Double A, Star_VR_Double w, MC_MR_Double Z,
+  int a, int b, int tryForHighAccuracy )
+{
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+          *::MC_MR_DoubleList[Z], a, b, tryForHighAccuracy );
+    );
+}
+
+void
+HermitianEigDouble_IntervalSubset
+( char uplo, MC_MR_Double A, Star_VR_Double w, MC_MR_Double Z,
+  double a, double b, int tryForHighAccuracy )
+{
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+          *::MC_MR_DoubleList[Z], a, b, tryForHighAccuracy );
+    );
+}
+
+void
+HermitianEigDouble_OnlyEigvals
+( char uplo, MC_MR_Double A, Star_VR_Double w, 
+  int tryForHighAccuracy )
+{
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+          tryForHighAccuracy );
+    );
+}
+
+void
+HermitianEigDouble_OnlyEigvals_IntegerSubset
+( char uplo, MC_MR_Double A, Star_VR_Double w, 
+  int a, int b, int tryForHighAccuracy )
+{
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+          a, b, tryForHighAccuracy );
+    );
+}
+
+void
+HermitianEigDouble_OnlyEigvals_IntervalSubset
+( char uplo, MC_MR_Double A, Star_VR_Double w, 
+  double a, double b, int tryForHighAccuracy )
+{
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+          a, b, tryForHighAccuracy );
+    );
+}
+
+#ifndef WITHOUT_COMPLEX
+void
+HermitianEigDComplex
 ( char uplo,
   MC_MR_DComplex A, Star_VR_Double w, MC_MR_DComplex Z,
   int tryForHighAccuracy )
 {
-    elemental::Shape shape = elemental::CharToShape( uplo );
-    elemental::lapack::HermitianEig
-    ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
-      *::MC_MR_DComplexList[Z], tryForHighAccuracy );
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+          *::MC_MR_DComplexList[Z], tryForHighAccuracy );
+    );
 }
+
+void
+HermitianEigDComplex_IntegerSubset
+( char uplo,
+  MC_MR_DComplex A, Star_VR_Double w, MC_MR_DComplex Z,
+  int a, int b, int tryForHighAccuracy )
+{
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+          *::MC_MR_DComplexList[Z], a, b, tryForHighAccuracy );
+    );
+}
+
+void
+HermitianEigDComplex_IntervalSubset
+( char uplo,
+  MC_MR_DComplex A, Star_VR_Double w, MC_MR_DComplex Z,
+  double a, double b, int tryForHighAccuracy )
+{
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+          *::MC_MR_DComplexList[Z], a, b, tryForHighAccuracy );
+    );
+}
+
+void
+HermitianEigDComplex_OnlyEigvals
+( char uplo,
+  MC_MR_DComplex A, Star_VR_Double w, 
+  int tryForHighAccuracy )
+{
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+          tryForHighAccuracy );
+    );
+}
+
+void
+HermitianEigDComplex_OnlyEigvals_IntegerSubset
+( char uplo,
+  MC_MR_DComplex A, Star_VR_Double w, 
+  int a, int b, int tryForHighAccuracy )
+{
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+          tryForHighAccuracy );
+    );
+}
+
+void
+HermitianEigDComplex_OnlyEigvals_IntervalSubset
+( char uplo,
+  MC_MR_DComplex A, Star_VR_Double w, 
+  double a, double b, int tryForHighAccuracy )
+{
+    CATCH(
+        elemental::Shape shape = elemental::CharToShape( uplo );
+        elemental::lapack::HermitianEig
+        ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+          tryForHighAccuracy );
+    );
+}
+#endif /* WITHOUT_COMPLEX */
 #endif /* WITHOUT_PMRRR */
 
 } // extern "C"

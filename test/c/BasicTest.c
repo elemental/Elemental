@@ -19,13 +19,13 @@ int main( int argc, char* argv[] )
 
     ElementalInit( &argc, &argv );
 
-    g = ElementalDefaultGrid( MPI_COMM_WORLD );
+    g = CreateDefaultGrid( MPI_COMM_WORLD );
 
-    r = ElementalGridHeight( g );
-    c = ElementalGridWidth( g );
-    VCRank = ElementalGridVCRank( g );
-    MCRank = ElementalGridMCRank( g );
-    MRRank = ElementalGridMRRank( g );
+    r = GridHeight( g );
+    c = GridWidth( g );
+    VCRank = GridVCRank( g );
+    MCRank = GridMCRank( g );
+    MRRank = GridMRRank( g );
 
     if( VCRank == 0 )
         fprintf( stdout, "Grid is %d x %d.\n", r, c );
@@ -34,16 +34,16 @@ int main( int argc, char* argv[] )
     n = 6;
     colAlignment = 0;
     rowAlignment = 0;
-    localHeight = ElementalLocalLength( m, MCRank, colAlignment, r );
-    localWidth = ElementalLocalLength( n, MRRank, rowAlignment, c );
+    localHeight = LocalLength( m, MCRank, colAlignment, r );
+    localWidth = LocalLength( n, MRRank, rowAlignment, c );
     ldim = localHeight;
 
     ABuffer = (double*)malloc(ldim*localWidth*sizeof(double));
-    A = ElementalRegister_MC_MR_Double
+    A = Register_MC_MR_Double
         ( m, n, colAlignment, rowAlignment, ABuffer, ldim, g );
 #ifndef WITHOUT_COMPLEX
     BBuffer = (DComplex*)malloc(ldim*localWidth*sizeof(DComplex));
-    B = ElementalRegister_MC_MR_DComplex
+    B = Register_MC_MR_DComplex
         ( m, n, colAlignment, rowAlignment, BBuffer, ldim, g );
 #endif /* WITHOUT_COMPLEX */
 
@@ -74,26 +74,26 @@ int main( int argc, char* argv[] )
 
     /* Attempt to solve a real Hermitian EVP */
     {
-        Star_VR_Double w = ElementalCreateEmpty_Star_VR_Double( g );
-        MC_MR_Double Z = ElementalCreateEmpty_MC_MR_Double( g );
-        ElementalPrint_MC_MR_Double( "A", A );
+        Star_VR_Double w = CreateEmpty_Star_VR_Double( g );
+        MC_MR_Double Z = CreateEmpty_MC_MR_Double( g );
+        Print_MC_MR_Double( "A", A );
 #ifndef WITHOUT_PMRRR
-        ElementalHermitianEigDouble( 'L', A, w, Z, 1 );
-        ElementalPrint_Star_VR_Double( "eigenvalues", w );
-        ElementalPrint_MC_MR_Double( "eigenvectors", Z );
+        HermitianEigDouble( 'L', A, w, Z, 1 );
+        Print_Star_VR_Double( "eigenvalues of A", w );
+        Print_MC_MR_Double( "eigenvectors of A", Z );
 #endif /* WITHOUT_PMRRR */
     }
 
 #ifndef WITHOUT_COMPLEX
     /* Attempt to solve a complex Hermitian EVP */
     {
-        Star_VR_Double w = ElementalCreateEmpty_Star_VR_Double( g );
-        MC_MR_DComplex Z = ElementalCreateEmpty_MC_MR_DComplex( g );
-        ElementalPrint_MC_MR_DComplex( "B", B );
+        Star_VR_Double w = CreateEmpty_Star_VR_Double( g );
+        MC_MR_DComplex Z = CreateEmpty_MC_MR_DComplex( g );
+        Print_MC_MR_DComplex( "B", B );
 #ifndef WITHOUT_PMRRR
-        ElementalHermitianEigDComplex( 'L', B, w, Z, 1 );
-        ElementalPrint_Star_VR_Double( "eigenvalues of (lower) Hermitian B", w );
-        ElementalPrint_MC_MR_DComplex( "eigenvectors of (lower) Hermitian B", Z );
+        HermitianEigDComplex( 'L', B, w, Z, 1 );
+        Print_Star_VR_Double( "eigenvalues of B", w );
+        Print_MC_MR_DComplex( "eigenvectors of B", Z );
 #endif /* WITHOUT_PMRRR */
     }
 #endif /* WITHOUT_COMPLEX */
