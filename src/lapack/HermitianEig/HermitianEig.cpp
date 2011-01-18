@@ -30,9 +30,10 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef WITHOUT_PMRRR
 #include "elemental/lapack.hpp"
 using namespace elemental;
+
+#ifndef WITHOUT_PMRRR
 
 // The targeted number of pieces to break the eigenvectors into during the
 // redistribution from the [* ,VR] distribution after PMRRR to the [MC,MR]
