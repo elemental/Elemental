@@ -41,75 +41,23 @@ elemental::lapack::Chol
 #ifndef RELEASE
     PushCallStack("lapack::Chol");
 #endif
-    lapack::internal::CholVar3( shape, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+    const Grid& g = A.Grid();
 
-template<typename F> // F represents a real or complex field
-void
-elemental::lapack::internal::CholVar2
-( Shape shape, DistMatrix<F,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::internal::CholVar2");
-#endif
-    if( shape == Lower )
-        lapack::internal::CholLVar2( A );
+    // TODO: Come up with a better routing mechanism
+    if( g.Height() == g.Width() )
+    {
+        if( shape == Lower )
+            lapack::internal::CholLVar3Square( A );
+        else
+            lapack::internal::CholUVar3Square( A );
+    }
     else
-        lapack::internal::CholUVar2( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F> // F represents a real or complex field
-void
-elemental::lapack::internal::CholVar2Naive
-( Shape shape, DistMatrix<F,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::internal::CholVar2Naive");
-#endif
-    if( shape == Lower )
-        lapack::internal::CholLVar2Naive( A );
-    else
-        lapack::internal::CholUVar2Naive( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F> // F represents a real or complex field
-void
-elemental::lapack::internal::CholVar3
-( Shape shape, DistMatrix<F,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::internal::CholVar3");
-#endif
-    if( shape == Lower )
-        lapack::internal::CholLVar3( A );
-    else
-        lapack::internal::CholUVar3( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F> // F represents a real or complex field
-void
-elemental::lapack::internal::CholVar3Naive
-( Shape shape, DistMatrix<F,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::internal::CholVar3Naive");
-#endif
-    if( shape == Lower )
-        lapack::internal::CholLVar3Naive( A );
-    else
-        lapack::internal::CholUVar3Naive( A );
+    {
+        if( shape == Lower )
+            lapack::internal::CholLVar3( A );
+        else
+            lapack::internal::CholUVar3( A );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -118,62 +66,14 @@ elemental::lapack::internal::CholVar3Naive
 template void elemental::lapack::Chol
 ( Shape shape, DistMatrix<float,MC,MR>& A );
 
-template void elemental::lapack::internal::CholVar2
-( Shape shape, DistMatrix<float,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar2Naive
-( Shape shape, DistMatrix<float,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar3
-( Shape shape, DistMatrix<float,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar3Naive
-( Shape shape, DistMatrix<float,MC,MR>& A );
-
 template void elemental::lapack::Chol
-( Shape shape, DistMatrix<double,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar2
-( Shape shape, DistMatrix<double,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar2Naive
-( Shape shape, DistMatrix<double,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar3
-( Shape shape, DistMatrix<double,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar3Naive
 ( Shape shape, DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::lapack::Chol
 ( Shape shape, DistMatrix<scomplex,MC,MR>& A );
 
-template void elemental::lapack::internal::CholVar2
-( Shape shape, DistMatrix<scomplex,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar2Naive
-( Shape shape, DistMatrix<scomplex,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar3
-( Shape shape, DistMatrix<scomplex,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar3Naive
-( Shape shape, DistMatrix<scomplex,MC,MR>& A );
-
 template void elemental::lapack::Chol
-( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar2
-( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar2Naive
-( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar3
-( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
-
-template void elemental::lapack::internal::CholVar3Naive
 ( Shape shape, DistMatrix<dcomplex,MC,MR>& A );
 #endif
 

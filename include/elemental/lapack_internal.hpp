@@ -77,26 +77,6 @@ LocalTrinv
 
 template<typename F>
 void
-CholVar2
-( Shape shape, DistMatrix<F,MC,MR>& A );
-
-template<typename F>
-void
-CholVar2Naive
-( Shape shape, DistMatrix<F,MC,MR>& A );
-
-template<typename F>
-void
-CholVar3
-( Shape shape, DistMatrix<F,MC,MR>& A );
-
-template<typename F>
-void
-CholVar3Naive
-( Shape shape, DistMatrix<F,MC,MR>& A );
-
-template<typename F>
-void
 CholLVar2( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
@@ -113,6 +93,10 @@ CholLVar3Naive( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
 void
+CholLVar3Square( DistMatrix<F,MC,MR>& A );
+
+template<typename F>
+void
 CholUVar2( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
@@ -126,6 +110,10 @@ CholUVar3( DistMatrix<F,MC,MR>& A );
 template<typename F>
 void
 CholUVar3Naive( DistMatrix<F,MC,MR>& A );
+
+template<typename F>
+void
+CholUVar3Square( DistMatrix<F,MC,MR>& A );
             
 //----------------------------------------------------------------------------//
 // GaussElim                                                                  //
