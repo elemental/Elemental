@@ -291,30 +291,30 @@ DistMatrixTest( int m, int n, const Grid& g )
 int main( int argc, char* argv[] )
 {
     int rank;
-    Init( &argc, &argv );
-    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 5 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    int argNum = 0;
-    const int r = atoi(argv[++argNum]);
-    const int c = atoi(argv[++argNum]);
-    const int m = atoi(argv[++argNum]);
-    const int n = atoi(argv[++argNum]);
-#ifndef RELEASE
-    if( rank == 0 )
-    {
-        cout << "==========================================\n"
-             << " In debug mode! Performance will be poor! \n"
-             << "==========================================" << endl;
-    }
-#endif
     try
     {
+        Init( &argc, &argv );
+        MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+        if( argc != 5 )
+        {
+            if( rank == 0 )
+                Usage();
+            Finalize();
+            return 0;
+        }
+        int argNum = 0;
+        const int r = atoi(argv[++argNum]);
+        const int c = atoi(argv[++argNum]);
+        const int m = atoi(argv[++argNum]);
+        const int n = atoi(argv[++argNum]);
+#ifndef RELEASE
+        if( rank == 0 )
+        {
+            cout << "==========================================\n"
+                 << " In debug mode! Performance will be poor! \n"
+                 << "==========================================" << endl;
+        }
+#endif
         const Grid g( MPI_COMM_WORLD, r, c );
 
         if( rank == 0 )

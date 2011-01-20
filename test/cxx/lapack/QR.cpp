@@ -306,17 +306,17 @@ void TestQR< complex<double> >
 int main( int argc, char* argv[] )
 {
     int rank;
-    Init( &argc, &argv );
-    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    if( argc != 8 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
     try
     {
+        Init( &argc, &argv );
+        MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+        if( argc != 8 )
+        {
+            if( rank == 0 )
+                Usage();
+            Finalize();
+            return 0;
+        }
         int argNum = 0;
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);

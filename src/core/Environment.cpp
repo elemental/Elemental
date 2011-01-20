@@ -56,11 +56,16 @@ elemental::Init
         if( finalized != 0 )
         {
             throw logic_error
-            ( "Cannot initialize elemental after MPI_Finalize." );
+            ("Cannot initialize elemental after MPI_Finalize.");
         }
 #ifdef _OPENMP
         int provided;
         MPI_Init_thread( argc, argv, MPI_THREAD_MULTIPLE, &provided );
+        if( provided != MPI_THREAD_MULTIPLE )
+        {
+            cerr << "Could not initialize MPI with MPI_THREAD_MULTIPLE." 
+                 << endl;
+        }
 #else
         MPI_Init( argc, argv );
 #endif
@@ -103,14 +108,16 @@ elemental::Finalize()
     if( finalized != 0 )
         cerr << "Warning: MPI was finalized before Elemental." << endl;
 
-    lapack::internal::DestroyPivotOp<float>();
-    lapack::internal::DestroyPivotOp<double>();
-#ifndef WITHOUT_COMPLEX
-    lapack::internal::DestroyPivotOp<scomplex>();
-    lapack::internal::DestroyPivotOp<dcomplex>();
-#endif
     if( ::elementalInitializedMPI && finalized == 0 )
+    {
+        lapack::internal::DestroyPivotOp<float>();
+        lapack::internal::DestroyPivotOp<double>();
+#ifndef WITHOUT_COMPLEX
+        lapack::internal::DestroyPivotOp<scomplex>();
+        lapack::internal::DestroyPivotOp<dcomplex>();
+#endif
         MPI_Finalize();
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
