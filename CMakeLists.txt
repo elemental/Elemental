@@ -213,10 +213,10 @@ if(NEED_MATH)
       # Look for default BLAS and LAPACK
       set(REFERENCE_REQUIRED LAPACK BLAS)
       find_library(BLAS_LIB
-                   NAMES libblas.a blas.a libblas.so blas.so blas.lib
+                   NAMES blas
                    PATHS ${REFERENCE_ROOT})
       find_library(LAPACK_LIB
-                   NAMES liblapack.a lapack.a liblapack.so lapack.so lapack.lib
+                   NAMES lapack reflapack
                    PATHS ${REFERENCE_ROOT}) 
       set(REFERENCE_FOUND TRUE)
       foreach(NAME ${REFERENCE_REQUIRED})
