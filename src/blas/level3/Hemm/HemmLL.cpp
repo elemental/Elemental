@@ -467,10 +467,28 @@ template void elemental::blas::internal::HemmLL
                const DistMatrix<float,MC,MR>& B,
   float beta,        DistMatrix<float,MC,MR>& C );
 
+template void
+elemental::blas::internal::LocalSymmetricAccumulateLL
+( Orientation orientation, float alpha,  
+  const DistMatrix<float,MC,  MR  >& A,
+  const DistMatrix<float,MC,  Star>& B_MC_Star,
+  const DistMatrix<float,Star,MR  >& BHermOrTrans_Star_MR,
+        DistMatrix<float,MC,  Star>& Z_MC_Star,
+        DistMatrix<float,MR,  Star>& Z_MR_Star );
+
 template void elemental::blas::internal::HemmLL
 ( double alpha, const DistMatrix<double,MC,MR>& A,
                 const DistMatrix<double,MC,MR>& B,
   double beta,        DistMatrix<double,MC,MR>& C );
+
+template void
+elemental::blas::internal::LocalSymmetricAccumulateLL
+( Orientation orientation, double alpha,  
+  const DistMatrix<double,MC,  MR  >& A,
+  const DistMatrix<double,MC,  Star>& B_MC_Star,
+  const DistMatrix<double,Star,MR  >& BHermOrTrans_Star_MR,
+        DistMatrix<double,MC,  Star>& Z_MC_Star,
+        DistMatrix<double,MR,  Star>& Z_MR_Star );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::blas::internal::HemmLL
@@ -478,9 +496,27 @@ template void elemental::blas::internal::HemmLL
                   const DistMatrix<scomplex,MC,MR>& B,
   scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
+template void
+elemental::blas::internal::LocalSymmetricAccumulateLL
+( Orientation orientation, scomplex alpha,  
+  const DistMatrix<scomplex,MC,  MR  >& A,
+  const DistMatrix<scomplex,MC,  Star>& B_MC_Star,
+  const DistMatrix<scomplex,Star,MR  >& BHermOrTrans_Star_MR,
+        DistMatrix<scomplex,MC,  Star>& Z_MC_Star,
+        DistMatrix<scomplex,MR,  Star>& Z_MR_Star );
+
 template void elemental::blas::internal::HemmLL
 ( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                   const DistMatrix<dcomplex,MC,MR>& B,
   dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void
+elemental::blas::internal::LocalSymmetricAccumulateLL
+( Orientation orientation, dcomplex alpha,  
+  const DistMatrix<dcomplex,MC,  MR  >& A,
+  const DistMatrix<dcomplex,MC,  Star>& B_MC_Star,
+  const DistMatrix<dcomplex,Star,MR  >& BHermOrTrans_Star_MR,
+        DistMatrix<dcomplex,MC,  Star>& Z_MC_Star,
+        DistMatrix<dcomplex,MR,  Star>& Z_MR_Star );
 #endif
 

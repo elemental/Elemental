@@ -81,29 +81,29 @@ void ElementalInit( int* argc, char** argv[] )
 
 void ElementalFinalize()
 {
-    for( int j=0; j< ::MC_MR_SingleList.size(); ++j )
+    for( unsigned j=0; j< ::MC_MR_SingleList.size(); ++j )
         delete ::MC_MR_SingleList[j];
-    for( int j=0; j< ::MC_MR_DoubleList.size(); ++j )
+    for( unsigned j=0; j< ::MC_MR_DoubleList.size(); ++j )
         delete ::MC_MR_DoubleList[j];
-    for( int j=0; j< ::Star_VR_SingleList.size(); ++j )
+    for( unsigned j=0; j< ::Star_VR_SingleList.size(); ++j )
         delete ::Star_VR_SingleList[j];
-    for( int j=0; j< ::Star_VR_DoubleList.size(); ++j )
+    for( unsigned j=0; j< ::Star_VR_DoubleList.size(); ++j )
         delete ::Star_VR_DoubleList[j];
     /* TODO: Add other distributions */
 
 #ifndef WITHOUT_COMPLEX
-    for( int j=0; j< ::MC_MR_SComplexList.size(); ++j )
+    for( unsigned j=0; j< ::MC_MR_SComplexList.size(); ++j )
         delete ::MC_MR_SComplexList[j];
-    for( int j=0; j< ::MC_MR_DComplexList.size(); ++j )
+    for( unsigned j=0; j< ::MC_MR_DComplexList.size(); ++j )
         delete ::MC_MR_DComplexList[j];
-    for( int j=0; j< ::Star_VR_SComplexList.size(); ++j )
+    for( unsigned j=0; j< ::Star_VR_SComplexList.size(); ++j )
         delete ::Star_VR_SComplexList[j];
-    for( int j=0; j< ::Star_VR_DComplexList.size(); ++j )
+    for( unsigned j=0; j< ::Star_VR_DComplexList.size(); ++j )
         delete ::Star_VR_DComplexList[j];
     /* TODO: Add other distributions */
 #endif
 
-    for( int j=0; j< ::gridList.size(); ++j )
+    for( unsigned j=0; j< ::gridList.size(); ++j )
         delete ::gridList[j];
 
     elemental::Finalize();

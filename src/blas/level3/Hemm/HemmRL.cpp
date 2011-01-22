@@ -462,10 +462,28 @@ template void elemental::blas::internal::HemmRL
                const DistMatrix<float,MC,MR>& B,
   float beta,        DistMatrix<float,MC,MR>& C );
 
+template void
+elemental::blas::internal::LocalSymmetricAccumulateRL
+( Orientation orientation, float alpha,
+  const DistMatrix<float,MC,  MR  >& A,
+  const DistMatrix<float,Star,MC  >& B_Star_MC,
+  const DistMatrix<float,MR,  Star>& BHermOrTrans_MR_Star,
+        DistMatrix<float,MC,  Star>& ZHermOrTrans_MC_Star,
+        DistMatrix<float,MR,  Star>& ZHermOrTrans_MR_Star );
+
 template void elemental::blas::internal::HemmRL
 ( double alpha, const DistMatrix<double,MC,MR>& A,
                 const DistMatrix<double,MC,MR>& B,
   double beta,        DistMatrix<double,MC,MR>& C );
+
+template void
+elemental::blas::internal::LocalSymmetricAccumulateRL
+( Orientation orientation, double alpha,
+  const DistMatrix<double,MC,  MR  >& A,
+  const DistMatrix<double,Star,MC  >& B_Star_MC,
+  const DistMatrix<double,MR,  Star>& BHermOrTrans_MR_Star,
+        DistMatrix<double,MC,  Star>& ZHermOrTrans_MC_Star,
+        DistMatrix<double,MR,  Star>& ZHermOrTrans_MR_Star );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::blas::internal::HemmRL
@@ -473,9 +491,27 @@ template void elemental::blas::internal::HemmRL
                   const DistMatrix<scomplex,MC,MR>& B,
   scomplex beta,        DistMatrix<scomplex,MC,MR>& C );
 
+template void
+elemental::blas::internal::LocalSymmetricAccumulateRL
+( Orientation orientation, scomplex alpha,
+  const DistMatrix<scomplex,MC,  MR  >& A,
+  const DistMatrix<scomplex,Star,MC  >& B_Star_MC,
+  const DistMatrix<scomplex,MR,  Star>& BHermOrTrans_MR_Star,
+        DistMatrix<scomplex,MC,  Star>& ZHermOrTrans_MC_Star,
+        DistMatrix<scomplex,MR,  Star>& ZHermOrTrans_MR_Star );
+
 template void elemental::blas::internal::HemmRL
 ( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
                   const DistMatrix<dcomplex,MC,MR>& B,
   dcomplex beta,        DistMatrix<dcomplex,MC,MR>& C );
+
+template void
+elemental::blas::internal::LocalSymmetricAccumulateRL
+( Orientation orientation, dcomplex alpha,
+  const DistMatrix<dcomplex,MC,  MR  >& A,
+  const DistMatrix<dcomplex,Star,MC  >& B_Star_MC,
+  const DistMatrix<dcomplex,MR,  Star>& BHermOrTrans_MR_Star,
+        DistMatrix<dcomplex,MC,  Star>& ZHermOrTrans_MC_Star,
+        DistMatrix<dcomplex,MR,  Star>& ZHermOrTrans_MR_Star );
 #endif
 
