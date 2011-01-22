@@ -34,10 +34,9 @@ and the C MPI compiler mpicc:
       make
 If the correct BLAS/LAPACK libraries are not found, try specifying them using
 by appending the additional cmake flags of the form:
-  -DPURE_MATH_LIBS="-L/path/to/first/lib -lfirst_lib etc."
-  -DHYBRID_MATH_LIBS="-L/path/to/first/lib -lfirst_lib etc."
-where the pure math libs should be optimized for single code usage and the 
-hybrid math libs should be threaded if possible.
+  -DMATH_LIBS="-L/path/to/first/lib -lfirst_lib etc."
+where the math libs should be optimized for single core usage for pure-MPI builds and 
+threaded for the hybrid builds. 
 
 On BlueGene/P, one should instead run
       cd elemental
