@@ -34,7 +34,7 @@ cmake_minimum_required(VERSION 2.8)
 project(Elemental)
 
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 59)
+set(Elemental_VERSION_MINOR 60)
 
 # Elemental supports four build modes:
 #   HybridDebug, HybridRelease, PureDebug, and PureRelease

@@ -49,7 +49,7 @@ lapack::HermitianFrobeniusNorm
     {
         for( int j=0; j<A.Width(); ++j )
         {
-            for( int i=0; i<j; ++j )
+            for( int i=0; i<j; ++i )
             {
                 R alpha = A.Get(i,j);
                 normSquared += 2*alpha*alpha;
@@ -98,7 +98,7 @@ lapack::HermitianFrobeniusNorm
     {
         for( int j=0; j<A.Width(); ++j )
         {
-            for( int i=0; i<j; ++j )
+            for( int i=0; i<j; ++i )
             {
                 std::complex<R> alpha = A.Get(i,j);
                 normSquared += 2*norm(alpha);
