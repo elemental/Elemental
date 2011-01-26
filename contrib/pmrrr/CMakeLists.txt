@@ -63,7 +63,7 @@ endif(PURE_RELEASE)
 # if the version is >= 3.3.
 include(CheckFunctionExists)
 
-set(CMAKE_REQUIRED_LIBRARIES ${BLAS_LAPACK_LIBS})
+set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
 if(HAVE_DPOTRF)
   check_function_exists(claqr0 LAPACK_3_1)
   check_function_exists(cuncsd LAPACK_3_3)
