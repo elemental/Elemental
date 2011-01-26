@@ -40,7 +40,7 @@ On BlueGene/P, one should instead run
       mkdir -p build/PureRelease
       cd build/PureRelease
       cmake -DCMAKE_BUILD_TYPE=PureRelease \
-            -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchains/BGP-xl_aug2010-ESSL_4.3.1-1.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchains/BGP-xl_aug2010-essl_4.3.1-1.cmake \
             ../..
       make
 
