@@ -1259,10 +1259,13 @@ elemental::imports::mpi::Reduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::Reduce");
 #endif
-    SafeMpi( 
-        MPI_Reduce
-        ( const_cast<int*>(sbuf), rbuf, count, MPI_INT, op, root, comm ) 
-    );
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Reduce
+            ( const_cast<int*>(sbuf), rbuf, count, MPI_INT, op, root, comm ) 
+        );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1276,10 +1279,13 @@ elemental::imports::mpi::Reduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::Reduce");
 #endif
-    SafeMpi( 
-        MPI_Reduce
-        ( const_cast<float*>(sbuf), rbuf, count, MPI_FLOAT, op, root, comm ) 
-    );
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Reduce
+            ( const_cast<float*>(sbuf), rbuf, count, MPI_FLOAT, op, root, comm ) 
+        );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1293,10 +1299,13 @@ elemental::imports::mpi::Reduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::Reduce");
 #endif
-    SafeMpi( 
-        MPI_Reduce
-        ( const_cast<double*>(sbuf), rbuf, count, MPI_DOUBLE, op, root, comm ) 
-    );
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Reduce
+            ( const_cast<double*>(sbuf), rbuf, count, MPI_DOUBLE, op, root, comm ) 
+        );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1311,30 +1320,33 @@ elemental::imports::mpi::Reduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::Reduce");
 #endif
+    if( count != 0 )
+    {
 #ifdef AVOID_COMPLEX_MPI
-    if( op == MPI_SUM )
-    {
-        SafeMpi(
-            MPI_Reduce
-            ( const_cast<scomplex*>(sbuf),
-              rbuf, 2*count, MPI_FLOAT, op, root, comm )
-        );
-    }
-    else
-    {
-        SafeMpi(
-            MPI_Reduce
-            ( const_cast<scomplex*>(sbuf),
-              rbuf, count, MPI_COMPLEX, op, root, comm )
-        );
-    }
+        if( op == MPI_SUM )
+        {
+            SafeMpi(
+                MPI_Reduce
+                ( const_cast<scomplex*>(sbuf),
+                  rbuf, 2*count, MPI_FLOAT, op, root, comm )
+            );
+        }
+        else
+        {
+            SafeMpi(
+                MPI_Reduce
+                ( const_cast<scomplex*>(sbuf),
+                  rbuf, count, MPI_COMPLEX, op, root, comm )
+            );
+        }
 #else
-    SafeMpi( 
-        MPI_Reduce
-        ( const_cast<scomplex*>(sbuf), 
-          rbuf, count, MPI_COMPLEX, op, root, comm ) 
-    );
+        SafeMpi( 
+            MPI_Reduce
+            ( const_cast<scomplex*>(sbuf), 
+              rbuf, count, MPI_COMPLEX, op, root, comm ) 
+        );
 #endif
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1348,30 +1360,33 @@ elemental::imports::mpi::Reduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::Reduce");
 #endif
+    if( count != 0 )
+    {
 #ifdef AVOID_COMPLEX_MPI
-    if( op == MPI_SUM )
-    {
-        SafeMpi(
-            MPI_Reduce
-            ( const_cast<dcomplex*>(sbuf),
-              rbuf, 2*count, MPI_DOUBLE, op, root, comm )
-        );
-    }
-    else
-    {
-        SafeMpi(
-            MPI_Reduce
-            ( const_cast<dcomplex*>(sbuf),
-              rbuf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
-        );
-    }
+        if( op == MPI_SUM )
+        {
+            SafeMpi(
+                MPI_Reduce
+                ( const_cast<dcomplex*>(sbuf),
+                  rbuf, 2*count, MPI_DOUBLE, op, root, comm )
+            );
+        }
+        else
+        {
+            SafeMpi(
+                MPI_Reduce
+                ( const_cast<dcomplex*>(sbuf),
+                  rbuf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
+            );
+        }
 #else
-    SafeMpi( 
-        MPI_Reduce
-        ( const_cast<dcomplex*>(sbuf), 
-          rbuf, count, MPI_DOUBLE_COMPLEX, op, root, comm ) 
-    );
+        SafeMpi( 
+            MPI_Reduce
+            ( const_cast<dcomplex*>(sbuf), 
+              rbuf, count, MPI_DOUBLE_COMPLEX, op, root, comm ) 
+        );
 #endif
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1385,10 +1400,13 @@ elemental::imports::mpi::AllReduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllReduce");
 #endif
-    SafeMpi( 
-        MPI_Allreduce
-        ( const_cast<char*>(sbuf), rbuf, count, MPI_CHAR, op, comm ) 
-    );
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Allreduce
+            ( const_cast<char*>(sbuf), rbuf, count, MPI_CHAR, op, comm ) 
+        );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1401,10 +1419,13 @@ elemental::imports::mpi::AllReduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllReduce");
 #endif
-    SafeMpi( 
-        MPI_Allreduce
-        ( const_cast<int*>(sbuf), rbuf, count, MPI_INT, op, comm ) 
-    );
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Allreduce
+            ( const_cast<int*>(sbuf), rbuf, count, MPI_INT, op, comm ) 
+        );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1417,10 +1438,13 @@ elemental::imports::mpi::AllReduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllReduce");
 #endif
-    SafeMpi( 
-        MPI_Allreduce
-        ( const_cast<float*>(sbuf), rbuf, count, MPI_FLOAT, op, comm ) 
-    );
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Allreduce
+            ( const_cast<float*>(sbuf), rbuf, count, MPI_FLOAT, op, comm ) 
+        );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1433,10 +1457,13 @@ elemental::imports::mpi::AllReduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllReduce");
 #endif
-    SafeMpi( 
-        MPI_Allreduce
-        ( const_cast<double*>(sbuf), rbuf, count, MPI_DOUBLE, op, comm ) 
-    );
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Allreduce
+            ( const_cast<double*>(sbuf), rbuf, count, MPI_DOUBLE, op, comm ) 
+        );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1450,30 +1477,33 @@ elemental::imports::mpi::AllReduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllReduce");
 #endif
+    if( count != 0 )
+    {
 #ifdef AVOID_COMPLEX_MPI
-    if( op == MPI_SUM )
-    {
-        SafeMpi(
-            MPI_Allreduce
-            ( const_cast<scomplex*>(sbuf),
-              rbuf, 2*count, MPI_FLOAT, op, comm )
-        );
-    }
-    else
-    {
-        SafeMpi(
-            MPI_Allreduce
-            ( const_cast<scomplex*>(sbuf),
-              rbuf, count, MPI_COMPLEX, op, comm )
-        );
-    }
+        if( op == MPI_SUM )
+        {
+            SafeMpi(
+                MPI_Allreduce
+                ( const_cast<scomplex*>(sbuf),
+                  rbuf, 2*count, MPI_FLOAT, op, comm )
+            );
+        }
+        else
+        {
+            SafeMpi(
+                MPI_Allreduce
+                ( const_cast<scomplex*>(sbuf),
+                  rbuf, count, MPI_COMPLEX, op, comm )
+            );
+        }
 #else
-    SafeMpi( 
-        MPI_Allreduce
-        ( const_cast<scomplex*>(sbuf), 
-          rbuf, count, MPI_COMPLEX, op, comm ) 
-    );
+        SafeMpi( 
+            MPI_Allreduce
+            ( const_cast<scomplex*>(sbuf), 
+              rbuf, count, MPI_COMPLEX, op, comm ) 
+        );
 #endif
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1486,30 +1516,33 @@ elemental::imports::mpi::AllReduce
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllReduce");
 #endif
+    if( count != 0 )
+    {
 #ifdef AVOID_COMPLEX_MPI
-    if( op == MPI_SUM )
-    {
-        SafeMpi(
+        if( op == MPI_SUM )
+        {
+            SafeMpi(
+                MPI_Allreduce
+                ( const_cast<dcomplex*>(sbuf),
+                  rbuf, 2*count, MPI_DOUBLE, op, comm )
+            );
+        }
+        else
+        {
+            SafeMpi(
+                MPI_Allreduce
+                ( const_cast<dcomplex*>(sbuf),
+                  rbuf, count, MPI_DOUBLE_COMPLEX, op, comm )
+            );
+        }
+#else
+        SafeMpi( 
             MPI_Allreduce
-            ( const_cast<dcomplex*>(sbuf),
-              rbuf, 2*count, MPI_DOUBLE, op, comm )
-        );
-    }
-    else
-    {
-        SafeMpi(
-            MPI_Allreduce
-            ( const_cast<dcomplex*>(sbuf),
+            ( const_cast<dcomplex*>(sbuf), 
               rbuf, count, MPI_DOUBLE_COMPLEX, op, comm )
         );
-    }
-#else
-    SafeMpi( 
-        MPI_Allreduce
-        ( const_cast<dcomplex*>(sbuf), 
-          rbuf, count, MPI_DOUBLE_COMPLEX, op, comm )
-    );
 #endif
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

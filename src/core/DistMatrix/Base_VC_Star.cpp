@@ -705,13 +705,8 @@ elemental::DistMatrixBase<T,VC,Star>::MakeTrapezoidal
             {
                 int boundary = min( lastZeroRow+1, height );
                 int numZeroRows = LocalLength( boundary, colShift, p );
-#ifdef RELEASE
                 T* thisCol = this->LocalBuffer(0,j);
                 memset( thisCol, 0, numZeroRows*sizeof(T) );
-#else
-                for( int iLoc=0; iLoc<numZeroRows; ++iLoc )
-                    this->SetLocalEntry(iLoc,j,0);
-#endif
             }
         }
     }
@@ -725,16 +720,11 @@ elemental::DistMatrixBase<T,VC,Star>::MakeTrapezoidal
             int firstZeroRow = ( side==Left ? max(j-offset+1,0)
                                             : max(j-offset+height-width+1,0) );
             int numNonzeroRows = LocalLength(firstZeroRow,colShift,p);
-#ifdef RELEASE
             if( numNonzeroRows < localHeight ) 
             {
                 T* thisCol = this->LocalBuffer(numNonzeroRows,j);
                 memset( thisCol, 0, (localHeight-numNonzeroRows)*sizeof(T) );
             }
-#else
-            for( int iLoc=numNonzeroRows; iLoc<localHeight; ++iLoc )
-                this->SetLocalEntry(iLoc,j,0);
-#endif
         }
     }
 #ifndef RELEASE
@@ -941,27 +931,16 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
             const int thisRowShift = Shift(k,rowAlignmentOfA,c);
             const int thisLocalWidth = LocalLength(width,thisRowShift,c);
 
-#ifdef RELEASE
-# if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
-# endif
+#endif
             for( int j=0; j<thisLocalWidth; ++j )
             {
                 const T* dataCol = &data[j*localHeight];
                 T* thisCol = this->LocalBuffer(0,thisRowShift+j*c);
                 memcpy( thisCol, dataCol, localHeight*sizeof(T) );
             }
-#else
-# if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-            #pragma omp parallel for COLLAPSE(2)
-# endif
-            for( int j=0; j<thisLocalWidth; ++j )
-                for( int i=0; i<localHeight; ++i )
-                    this->SetLocalEntry
-                        (i,thisRowShift+j*c,data[i+j*localHeight]);
-#endif
         }
-
         this->_auxMemory.Release();
     }
     else
@@ -1040,27 +1019,16 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
             const int thisRowShift = Shift(k,rowAlignmentOfA,c);
             const int thisLocalWidth = LocalLength(width,thisRowShift,c);
 
-#ifdef RELEASE
-# if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
-# endif
+#endif
             for( int j=0; j<thisLocalWidth; ++j )
             {
                 const T* dataCol = &data[j*localHeight];
                 T* thisCol = this->LocalBuffer(0,thisRowShift+j*c);
                 memcpy( thisCol, dataCol, localHeight*sizeof(T) );
             }
-#else
-# if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-            #pragma omp parallel for COLLAPSE(2)
-# endif
-            for( int j=0; j<thisLocalWidth; ++j )
-                for( int i=0; i<localHeight; ++i )
-                    this->SetLocalEntry
-                        (i,thisRowShift+j*c,data[i+j*localHeight]);
-#endif
         }
-
         this->_auxMemory.Release();
     }
 #ifndef RELEASE
@@ -1163,25 +1131,15 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
           recvBuffer, recvSize, recvRow, MPI_ANY_TAG, g.MCComm() );
 
         // Unpack
-#ifdef RELEASE
-# ifdef _OPENMP
+#ifdef _OPENMP
         #pragma omp parallel for
-# endif
+#endif
         for( int j=0; j<width; ++j )
         {
             const T* recvBufferCol = &recvBuffer[j*localHeight];
             T* thisCol = this->LocalBuffer(0,j);
             memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
         }
-#else
-# ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
-# endif
-        for( int j=0; j<width; ++j )
-            for( int i=0; i<localHeight; ++i )
-                this->SetLocalEntry(i,j,recvBuffer[i+j*localHeight]);
-#endif
-
         this->_auxMemory.Release();
     }
 #ifndef RELEASE
@@ -1382,24 +1340,15 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
         T* recvBuffer = &buffer[sendSize];
 
         // Pack
-#ifdef RELEASE
-# ifdef _OPENMP
+#ifdef _OPENMP
         #pragma omp parallel for
-# endif
+#endif
         for( int j=0; j<width; ++j )
         {
             const T* ACol = A.LockedLocalBuffer(0,j);
             T* sendBufferCol = &sendBuffer[j*localHeightOfA];
             memcpy( sendBufferCol, ACol, localHeightOfA*sizeof(T) );
         }
-#else
-# ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
-# endif
-        for( int j=0; j<width; ++j )
-            for( int i=0; i<localHeightOfA; ++i )
-                sendBuffer[i+j*localHeightOfA] = A.GetLocalEntry(i,j);
-#endif
 
         // Communicate
         SendRecv
@@ -1407,25 +1356,15 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
           recvBuffer, recvSize, recvRank, MPI_ANY_TAG, g.VCComm() );
 
         // Unpack
-#ifdef RELEASE
-# ifdef _OPENMP
+#ifdef _OPENMP
         #pragma omp parallel for
-# endif
+#endif
         for( int j=0; j<width; ++j )
         {
             const T* recvBufferCol = &recvBuffer[j*localHeight];
             T* thisCol = this->LocalBuffer(0,j);
             memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
         }
-#else
-# ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
-# endif
-        for( int j=0; j<width; ++j )
-            for( int i=0; i<localHeight; ++i )
-                this->SetLocalEntry(i,j,recvBuffer[i+j*localHeight]);
-#endif
-
         this->_auxMemory.Release();
     }
 #ifndef RELEASE
@@ -1509,24 +1448,15 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
     T* recvBuffer = &buffer[sendSize];
 
     // Pack
-#ifdef RELEASE
-# ifdef _OPENMP
+#ifdef _OPENMP
     #pragma omp parallel for
-# endif
+#endif
     for( int j=0; j<width; ++j )
     {
         const T* ACol = A.LockedLocalBuffer(0,j);
         T* sendBufferCol = &sendBuffer[j*localHeightOfA];
         memcpy( sendBufferCol, ACol, localHeightOfA*sizeof(T) );
     }
-#else
-# ifdef _OPENMP
-    #pragma omp parallel for COLLAPSE(2)
-# endif
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<localHeightOfA; ++i )
-            sendBuffer[i+j*localHeightOfA] = A.GetLocalEntry(i,j);
-#endif
 
     // Communicate
     SendRecv
@@ -1534,24 +1464,15 @@ elemental::DistMatrixBase<T,VC,Star>::operator=
       recvBuffer, recvSize, recvRankCM, MPI_ANY_TAG, g.VCComm() );
 
     // Unpack
-#ifdef RELEASE
-# ifdef _OPENMP
+#ifdef _OPENMP
     #pragma omp parallel for
-# endif
+#endif
     for( int j=0; j<width; ++j )
     {
         const T* recvBufferCol = &recvBuffer[j*localHeight];
         T* thisCol = this->LocalBuffer(0,j);
         memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
     }
-#else
-# ifdef _OPENMP
-    #pragma omp parallel for COLLAPSE(2)
-# endif
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<localHeight; ++i )
-            this->SetLocalEntry(i,j,recvBuffer[i+j*localHeight]);
-#endif
 
     this->_auxMemory.Release();
 #ifndef RELEASE
@@ -1700,25 +1621,15 @@ elemental::DistMatrixBase<T,VC,Star>::SumScatterFrom
         ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
 
         // Unpack our received data
-#ifdef RELEASE
-# ifdef _OPENMP
+#ifdef _OPENMP
         #pragma omp parallel for
-# endif
+#endif
         for( int j=0; j<localWidth; ++j )
         {
             const T* recvBufferCol = &recvBuffer[j*localHeight];
             T* thisCol = this->LocalBuffer(0,j);
             memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
         }
-#else
-# ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
-# endif
-        for( int j=0; j<localWidth; ++j )
-            for( int i=0; i<localHeight; ++i )
-                this->SetLocalEntry(i,j,recvBuffer[i+j*localHeight]);
-#endif
-
         this->_auxMemory.Release();
     }
     else

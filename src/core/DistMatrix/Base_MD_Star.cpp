@@ -886,13 +886,8 @@ elemental::DistMatrixBase<T,MD,Star>::MakeTrapezoidal
                 {
                     int boundary = min( lastZeroRow+1, height );
                     int numZeroRows = LocalLength( boundary, colShift, lcm );
-#ifdef RELEASE
                     T* thisCol = this->LocalBuffer(0,j);
                     memset( thisCol, 0, numZeroRows*sizeof(T) );
-#else
-                    for( int iLoc=0; iLoc<numZeroRows; ++iLoc )
-                        this->SetLocalEntry(iLoc,j,0);
-#endif
                 }
             }
         }
@@ -907,17 +902,12 @@ elemental::DistMatrixBase<T,MD,Star>::MakeTrapezoidal
                     ( side==Left ? max(j-offset+1,0)
                                  : max(j-offset+height-width+1,0) );
                 int numNonzeroRows = LocalLength(firstZeroRow,colShift,lcm);
-#ifdef RELEASE
                 if( numNonzeroRows < localHeight )
                 {
                     T* thisCol = this->LocalBuffer(numNonzeroRows,j);
                     memset
                     ( thisCol, 0, (localHeight-numNonzeroRows)*sizeof(T) );
                 }
-#else
-                for( int iLoc=numNonzeroRows; iLoc<localHeight; ++iLoc )
-                    this->SetLocalEntry(iLoc,j,0);
-#endif
             }
         }
     }
