@@ -395,7 +395,7 @@ elemental::DistMatrixBase<T,Star,Star>::Get
         if( this->Grid().VCRank() == 0 )
             u = this->GetLocalEntry(i,j);
         Broadcast
-        ( &u, 1, this->Grid().OwningToViewingMap(0), 
+        ( &u, 1, this->Grid().VCToViewingMap(0), 
           this->Grid().ViewingComm() );
     }
 #ifndef RELEASE
@@ -1628,7 +1628,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
             for( int j=0; j<A.Width(); ++j ) 
                 for( int i=0; i<A.Height(); ++i )
                     sendBuffer[i+j*A.Height()] = A.GetLocalEntry(i,j);
-            const int recvViewingRank = this->Grid().OwningToViewingMap(0);
+            const int recvViewingRank = this->Grid().VCToViewingMap(0);
             ISend
             ( sendBuffer, A.Height()*A.Width(), recvViewingRank, 0,
               this->Grid().ViewingComm(), sendRequest );
@@ -1640,7 +1640,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         {
             if( this->Grid().VCRank() == 0 )
             {
-                const int sendViewingRank = A.Grid().OwningToViewingMap(0);
+                const int sendViewingRank = A.Grid().VCToViewingMap(0);
                 Recv
                 ( bcastBuffer, A.Height()*A.Width(), sendViewingRank, 0,
                   this->Grid().ViewingComm() );

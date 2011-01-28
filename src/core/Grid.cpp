@@ -53,11 +53,6 @@ elemental::Grid::Grid
     _notOwningGroup = MPI_GROUP_EMPTY;
     _owningRank = _viewingRank;
 
-    // Set up the map from the owning to viewing ranks.
-    _owningToViewingMap.resize(_p);
-    for( int i=0; i<_p; ++i )
-        _owningToViewingMap[i] = i;
-
     // Factor p
     _r = static_cast<int>(sqrt(static_cast<double>(_p)));
     while( _p % _r != 0 )
@@ -89,11 +84,6 @@ elemental::Grid::Grid
     _owningGroup = _viewingGroup;
     _notOwningGroup = MPI_GROUP_EMPTY;
     _owningRank = _viewingRank;
-
-    // Set up the map from the owning to viewing ranks.
-    _owningToViewingMap.resize(_p);
-    for( int i=0; i<_p; ++i )
-        _owningToViewingMap[i] = i;
 
     _r = r;
     _c = c;
@@ -127,14 +117,6 @@ elemental::Grid::Grid
 
     // Create the complement of the owning group
     MPI_Group_difference( _viewingGroup, _owningGroup, &_notOwningGroup );
-
-    // Set up the map from the owning to viewing ranks
-    std::vector<int> ranks(_p);
-    for( int i=0; i<_p; ++i )
-        ranks[i] = i;
-    _owningToViewingMap.resize(_p);
-    MPI_Group_translate_ranks
-    ( _owningGroup, _p, &ranks[0], _viewingGroup, &_owningToViewingMap[0] );
 
     // Factor p
     _r = static_cast<int>(sqrt(static_cast<double>(_p)));
@@ -170,14 +152,6 @@ elemental::Grid::Grid
 
     // Create the complement of the owning group
     MPI_Group_difference( _viewingGroup, _owningGroup, &_notOwningGroup );
-
-    // Set up the map from the owning to viewing ranks
-    std::vector<int> ranks(_p);
-    for( int i=0; i<_p; ++i )
-        ranks[i] = i;
-    _owningToViewingMap.resize(_p);
-    MPI_Group_translate_ranks
-    ( _owningGroup, _p, &ranks[0], _viewingGroup, &_owningToViewingMap[0] );
 
     _r = r;
     _c = c;
@@ -290,6 +264,17 @@ elemental::Grid::SetUpGrid()
         _vectorColRank = MPI_UNDEFINED;
         _vectorRowRank = MPI_UNDEFINED;
     }
+    
+    // Set up the map from the VC group to the _viewingGroup ranks.
+    // Since the VC communicator preserves the ordering of the _owningGroup
+    // ranks, we can simply translate from _owningGroup.
+    std::vector<int> ranks(_p);
+    for( int i=0; i<_p; ++i )
+        ranks[i] = i;
+    _VCToViewingMap.resize(_p);
+    MPI_Group_translate_ranks
+    ( _owningGroup, _p, &ranks[0], _viewingGroup, &_VCToViewingMap[0] );
+
 #ifndef RELEASE
     PopCallStack();
 #endif

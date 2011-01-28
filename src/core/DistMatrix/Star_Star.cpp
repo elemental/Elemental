@@ -133,7 +133,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::GetReal
         if( this->Grid().VCRank() == 0 )
             u = real(this->GetLocalEntry(i,j));
         Broadcast
-        ( &u, 1, this->Grid().OwningToViewingMap(0),
+        ( &u, 1, this->Grid().VCToViewingMap(0),
           this->Grid().ViewingComm() );
     }
 #ifndef RELEASE
@@ -166,7 +166,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::GetImag
         if( this->Grid().VCRank() == 0 )
             u = imag(this->GetLocalEntry(i,j));
         Broadcast
-        ( &u, 1, this->Grid().OwningToViewingMap(0),
+        ( &u, 1, this->Grid().VCToViewingMap(0),
           this->Grid().ViewingComm() );
     }
 #ifndef RELEASE

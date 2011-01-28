@@ -1170,7 +1170,7 @@ elemental::DistMatrixBase<T,MC,MR>::Get
         u = this->GetLocalEntry(iLocal,jLocal);
     }
     Broadcast
-    ( &u, 1, g.OwningToViewingMap(ownerRank), g.ViewingComm() );
+    ( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -2073,7 +2073,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
                     // Send data
                     int recvVCRank = recvRow + recvCol*r0;
                     int recvViewingRank = 
-                        this->Grid().OwningToViewingMap( recvVCRank );
+                        this->Grid().VCToViewingMap( recvVCRank );
                     ISend
                     ( sendBuffer, sendHeight*sendWidth, recvViewingRank,
                       0, this->Grid().ViewingComm(), sendRequest );
@@ -2125,7 +2125,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 
                             const int sendVCRank = sendRow+sendCol*rA;
                             const int sendViewingRank = 
-                                A.Grid().OwningToViewingMap( sendVCRank );
+                                A.Grid().VCToViewingMap( sendVCRank );
 
                             Recv
                             ( recvBuffer, sendHeight*sendWidth, sendViewingRank,

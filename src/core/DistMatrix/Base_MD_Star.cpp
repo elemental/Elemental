@@ -812,7 +812,7 @@ elemental::DistMatrixBase<T,MD,Star>::Get
         const int iLoc = (i-this->ColShift()) / g.LCM();
         u = this->GetLocalEntry(iLoc,j);
     }
-    Broadcast( &u, 1, g.OwningToViewingMap(ownerRank), g.ViewingComm() );
+    Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
 
 #ifndef RELEASE
     PopCallStack();

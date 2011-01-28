@@ -701,7 +701,7 @@ elemental::DistMatrixBase<T,MC,Star>::Get
         const int iLoc = (i-this->ColShift()) / g.Height();
         u = this->GetLocalEntry(iLoc,j);
     }
-    Broadcast( &u, 1, g.OwningToViewingMap(ownerRow), g.ViewingComm() );
+    Broadcast( &u, 1, g.VCToViewingMap(ownerRow), g.ViewingComm() );
 
 #ifndef RELEASE
     PopCallStack();

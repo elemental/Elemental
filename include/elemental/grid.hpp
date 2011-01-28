@@ -56,7 +56,7 @@ class Grid
     MPI_Group _owningGroup; // contains the processes that are in the grid
     MPI_Group _notOwningGroup; // contains the remaining processes
 
-    std::vector<int> _owningToViewingMap;
+    std::vector<int> _VCToViewingMap;
 
     // Keep track of whether or not our process is in the grid. This is 
     // necessary to avoid calls like MPI_Comm_size when we're not in the
@@ -115,7 +115,7 @@ class Grid
     int VRRank() const;
     int OwningRank() const;
     int ViewingRank() const;
-    int OwningToViewingMap( int owningRank ) const;
+    int VCToViewingMap( int VCRank ) const;
     MPI_Group OwningGroup() const;
     MPI_Comm OwningComm() const;
     MPI_Comm ViewingComm() const;
@@ -219,8 +219,8 @@ elemental::Grid::ViewingRank() const
 { return _viewingRank; }
 
 inline int
-elemental::Grid::OwningToViewingMap( int owningRank ) const
-{ return _owningToViewingMap[owningRank]; }
+elemental::Grid::VCToViewingMap( int VCRank ) const
+{ return _VCToViewingMap[VCRank]; }
 
 inline MPI_Group
 elemental::Grid::OwningGroup() const
