@@ -72,31 +72,30 @@ int main( int argc, char* argv[] )
         }
     }
 
+    /* Print A and B */
+    Print_MC_MR_Double( "A", A );
+    Print_MC_MR_DComplex( "B", B );
+
+#ifndef WITHOUT_PMRRR
     /* Attempt to solve a real Hermitian EVP */
     {
         Star_VR_Double w = CreateEmpty_Star_VR_Double( g );
         MC_MR_Double Z = CreateEmpty_MC_MR_Double( g );
-        Print_MC_MR_Double( "A", A );
-#ifndef WITHOUT_PMRRR
-        HermitianEigDouble( 'L', A, w, Z, 1 );
+        HermitianEigDouble( 'L', 1, 'A', 0, 0, 0, 0, A, w, Z );
         Print_Star_VR_Double( "eigenvalues of A", w );
         Print_MC_MR_Double( "eigenvectors of A", Z );
-#endif /* WITHOUT_PMRRR */
     }
-
 #ifndef WITHOUT_COMPLEX
     /* Attempt to solve a complex Hermitian EVP */
     {
         Star_VR_Double w = CreateEmpty_Star_VR_Double( g );
         MC_MR_DComplex Z = CreateEmpty_MC_MR_DComplex( g );
-        Print_MC_MR_DComplex( "B", B );
-#ifndef WITHOUT_PMRRR
-        HermitianEigDComplex( 'L', B, w, Z, 1 );
+        HermitianEigDComplex( 'L', 1, 'A', 0, 0, 0, 0, B, w, Z );
         Print_Star_VR_Double( "eigenvalues of B", w );
         Print_MC_MR_DComplex( "eigenvectors of B", Z );
-#endif /* WITHOUT_PMRRR */
     }
 #endif /* WITHOUT_COMPLEX */
+#endif /* WITHOUT_PMRRR */
 
     free( ABuffer );
 #ifndef WITHOUT_COMPLEX
