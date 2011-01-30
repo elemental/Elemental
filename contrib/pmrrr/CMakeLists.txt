@@ -134,45 +134,73 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
     get_filename_component(Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
     set(LAPACK_ADDONS_LINK_LIBS "")
     if(Fortran_COMPILER_NAME STREQUAL "gfortran")
-      if(NOT F_FROM_C_DEFS)
+      if(F_FROM_C_DEFS)
+        message(STATUS "Using user-defined F_FROM_C_DEFS=${F_FROM_C_DEFS}")
+      else(F_FROM_C_DEFS)
         # gfortran should append an underscore by default
         set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
-      endif(NOT F_FROM_C_DEFS)
-      if(APPLE)
-        string(REGEX REPLACE "bin/gfortran" "lib" GFORTRAN_LIB_DIR
+      endif(F_FROM_C_DEFS)
+      # This library should be in your LD_LIBRARY_PATH. CMake does not appear
+      # to find it in cases where it is a shared library with extensions, e.g.,
+      # if /usr/lib/libgfortran.so.1 exists, but /usr/lib/libgfortran.so 
+      # does not exist. 
+      if(GFORTRAN_LIB)
+        set(LAPACK_ADDONS_LINK_LIBS ${GFORTRAN_LIB})
+        message(STATUS "Using user-defined GFORTRAN_LIB=${GFORTRAN_LIB}")
+      else(GFORTRAN_LIB)
+        string(REGEX REPLACE "bin/gfortran" "lib" GFORTRAN_LIB_DIR_HINT
                "${CMAKE_Fortran_COMPILER}")
-        find_library(GFORTRAN_LIB gfortran HINTS ${GFORTRAN_LIB_DIR})
+        message(STATUS 
+                "Will also search ${GFORTRAN_LIB_DIR_HINT} for gfortran lib.")
+        find_library(GFORTRAN_LIB 
+                     NAMES gfortran libgfortran.a libgfortran.so 
+                           libgfortran.so.1 libgfortran.so.2 libgfortran.so.3
+                     HINTS ${GFORTRAN_LIB_DIR_HINT})
         if(GFORTRAN_LIB)
-          set(LAPACK_ADDONS_LINK_LIBS ${GFORTRAN_LIB})
+          message(STATUS "Found gfortran lib at ${GFORTRAN_LIB}")
         else(GFORTRAN_LIB)
-          message(FATAL_ERROR "Could not find gfortran library")
+          message(FATAL_ERROR "Could not find gfortran library. Please specify it by defining GFORTRAN_LIB.")
         endif(GFORTRAN_LIB)
-      endif(APPLE)
+      endif(GFORTRAN_LIB)
+      set(LAPACK_ADDONS_LINK_LIBS ${GFORTRAN_LIB})
     elseif(Fortran_COMPILER_NAME STREQUAL "bgxlf_r" OR
            Fortran_COMPILER_NAME STREQUAL "bgxlf" OR
            Fortran_COMPILER_NAME STREQUAL "xlf" OR
            Fortran_COMPILER_NAME STREQUAL "xlf_r")
-      if(NOT F_FROM_C_DEFS)
+      if(F_FROM_C_DEFS)
+        message(STATUS "Using user-defined F_FROM_C_DEFS=${F_FROM_C_DEFS}")
+      else(F_FROM_C_DEFS)
         set(F_FROM_C_DEFS "")
-      endif(NOT F_FROM_C_DEFS)
+      endif(F_FROM_C_DEFS)
     elseif(Fortran_COMPILER_NAME STREQUAL "ifort")
-      if(NOT F_FROM_C_DEFS)
+      if(F_FROM_C_DEFS)
+        message(STATUS "Using user-defined F_FROM_C_DEFS=${F_FROM_C_DEFS}")
+      else(F_FROM_C_DEFS)
         set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
-      endif(NOT F_FROM_C_DEFS)
-      string(REGEX REPLACE "/bin/([^/]*)/?ifort" "/lib/\\1" IFORT_LIB_DIR
-             "${CMAKE_Fortran_COMPILER}")
-      find_library(IFCORE_LIB ifcore HINTS ${IFORT_LIB_DIR})
+      endif(F_FROM_C_DEFS)
       if(IFCORE_LIB)
+        message(STATUS "Using user-defined IFCORE_LIB=${IFCORE_LIB}")
         set(LAPACK_ADDONS_LINK_LIBS ${IFCORE_LIB})
       else(IFCORE_LIB)
-        message(FATAL_ERROR "Could not find ifort library")
+        string(REGEX REPLACE "/bin/([^/]*)/?ifort" "/lib/\\1" 
+               IFCORE_LIB_DIR_HINT "${CMAKE_Fortran_COMPILER}")
+        message(STATUS "Will also search ${IFCORE_LIB_DIR_HINT} for ifcore lib")
+        find_library(IFCORE_LIB ifcore HINTS ${IFCORE_LIB_DIR_HINT})
+        if(IFCORE_LIB)
+          set(LAPACK_ADDONS_LINK_LIBS ${IFCORE_LIB})
+          message("Found ifcore lib at ${IFCORE_LIB}")
+        else(IFCORE_LIB)
+          message(FATAL_ERROR "Could not find ifcore library")
+        endif(IFCORE_LIB)
       endif(IFCORE_LIB)
     else(Fortran_COMPILER_NAME STREQUAL "gfortran")
       # The list of other compiler options should grow quickly. It is best      
       # to default to assuming an appended underscore.
-      if(NOT F_FROM_C_DEFS) 
+      if(F_FROM_C_DEFS)
+        message(STATUS "Using user-defined F_FROM_C_DEFS=${F_FROM_C_DEFS}")
+      else(F_FROM_C_DEFS) 
         set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
-      endif(NOT F_FROM_C_DEFS)
+      endif(F_FROM_C_DEFS)
     endif(Fortran_COMPILER_NAME STREQUAL "gfortran")
     set(F_FROM_C_DEFS "${F_FROM_C_DEFS} -DPREPEND_X")
     
