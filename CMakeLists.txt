@@ -162,6 +162,7 @@ if(NEED_MATH)
     endif(32_BIT_SYSTEM)
     # There is a cyclic dependency between MKL_CORE and 
     # MKL_SEQUENTIAL/MKL_INTEL_THREAD with some versions of MKL
+    find_library(CMATH_LIB m DOC "C math library")
     find_library(PTHREAD_LIB pthread DOC "Pthreads library")
     find_library(IOMP5_LIB
                  NAMES libiomp5.a iomp5.lib 
@@ -185,13 +186,13 @@ if(NEED_MATH)
                    PATHS ${INTEL_ROOT} ${MKL_ROOT}
                    PATH_SUFFIXES ${MKL_ARCH_SUBDIRS})
       set(MKL_REQUIRED MKL_INTEL MKL_SEQUENTIAL MKL_CORE MKL_SEQUENTIAL 
-          GUIDE IOMP5 PTHREAD) 
+          GUIDE IOMP5 PTHREAD CMATH) 
     else(PURE)
       find_library(MKL_INTEL_THREAD_LIB
                    NAMES libmkl_intel_thread.a mkl_intel_thread.lib
                    PATH_SUFFIXES ${MKL_ARCH_SUBDIRS})
       set(MKL_REQUIRED MKL_INTEL MKL_INTEL_THREAD MKL_CORE 
-          MKL_INTEL_THREAD GUIDE IOMP5 PTHREAD)
+          MKL_INTEL_THREAD GUIDE IOMP5 PTHREAD CMATH)
     endif(PURE)
     set(MKL_FOUND TRUE)
     set(MATH_LIBS "")
