@@ -962,9 +962,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,MR  >& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^(T/H)*B1^(T/H) + A2*B2^(T/H) ) + beta tril(C)
+// tril(C) := alpha tril( A1^(T/H)*B2^(T/H) + A2*B1^(T/H) ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1^(T/H)*B1^(T/H) + A2*B2^(T/H) ) + beta triu(C)
+// triu(C) := alpha triu( A1^(T/H)*B2^(T/H) + A2*B1^(T/H) ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -977,9 +977,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,MR  >& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1*B1^(T/H) + A2^(T/H)*B2^(T/H) ) + beta tril(C)
+// tril(C) := alpha tril( A1*B2^(T/H) + A2^(T/H)*B1^(T/H) ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1*B1^(T/H) + A2^(T/H)*B2^(T/H) ) + beta triu(C)
+// triu(C) := alpha triu( A1*B2^(T/H) + A2^(T/H)*B1^(T/H) ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -992,9 +992,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,MR  >& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1*B1 + A2*B2^(T/H) ) + beta tril(C)
+// tril(C) := alpha tril( A1*B2 + A2*B1^(T/H) ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1*B1 + A2*B2^(T/H) ) + beta triu(C)
+// triu(C) := alpha triu( A1*B2 + A2*B1^(T/H) ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1005,9 +1005,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,MR  >& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1*B1^(T/H) + A2*B2 ) + beta tril(C)
+// tril(C) := alpha tril( A1*B2^(T/H) + A2*B1 ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1*B1^(T/H) + A2*B2 ) + beta triu(C)
+// triu(C) := alpha triu( A1*B2^(T/H) + A2*B1 ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1018,9 +1018,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,MR  >& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^(T/H)*B1^(T/H) + A2^(T/H)*B2^(T/H) ) + beta tril(C)
+// tril(C) := alpha tril( A1^(T/H)*B2^(T/H) + A2^(T/H)*B1^(T/H) ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1^(T/H)*B1^(T/H) + A2^(T/H)*B2^(T/H) ) + beta triu(C)
+// triu(C) := alpha triu( A1^(T/H)*B2^(T/H) + A2^(T/H)*B1^(T/H) ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1034,9 +1034,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^(T/H)*B1 + A2*B2^(T/H) ) + beta tril(C)
+// tril(C) := alpha tril( A1^(T/H)*B2 + A2*B1^(T/H) ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1^(T/H)*B1 + A2*B2^(T/H) ) + beta triu(C)
+// triu(C) := alpha triu( A1^(T/H)*B2 + A2*B1^(T/H) ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1048,9 +1048,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^(T/H)*B1^(T/H) + A2*B2 ) + beta tril(C)
+// tril(C) := alpha tril( A1^(T/H)*B2^(T/H) + A2*B1 ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1^(T/H)*B1^(T/H) + A2*B2 ) + beta triu(C)
+// triu(C) := alpha triu( A1^(T/H)*B2^(T/H) + A2*B1 ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1062,9 +1062,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1*B1 + A2^(T/H)*B2^(T/H) ) + beta tril(C)
+// tril(C) := alpha tril( A1*B2 + A2^(T/H)*B1^(T/H) ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1*B1 + A2^(T/H)*B2^(T/H) ) + beta triu(C)
+// triu(C) := alpha triu( A1*B2 + A2^(T/H)*B1^(T/H) ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1076,9 +1076,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1*B1^(T/H) + A2^(T/H)*B2 ) + beta tril(C)
+// tril(C) := alpha tril( A1*B2^(T/H) + A2^(T/H)*B1 ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1*B1^(T/H) + A2^(T/H)*B2 ) + beta triu(C)
+// triu(C) := alpha triu( A1*B2^(T/H) + A2^(T/H)*B1 ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1090,9 +1090,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1*B1 + A2*B2 ) + beta tril(C)
+// tril(C) := alpha tril( A1*B2 + A2*B1 ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1*B1 + A2*B2 ) + beta triu(C)
+// triu(C) := alpha triu( A1*B2 + A2*B1 ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1102,9 +1102,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^(T/H)*B1 + A2^(T/H)*B2^(T/H) ) + beta tril(C)
+// tril(C) := alpha tril( A1^(T/H)*B2 + A2^(T/H)*B1^(T/H) ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1^(T/H)*B1 + A2^(T/H)*B2^(T/H) ) + beta triu(C)
+// triu(C) := alpha triu( A1^(T/H)*B2 + A2^(T/H)*B1^(T/H) ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1117,9 +1117,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^(T/H)*B1^(T/H) + A2^(T/H)*B2 ) + beta tril(C)
+// tril(C) := alpha tril( A1^(T/H)*B2^(T/H) + A2^(T/H)*B1 ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1^(T/H)*B1^(T/H) + A2^(T/H)*B2 ) + beta triu(C)
+// triu(C) := alpha triu( A1^(T/H)*B2^(T/H) + A2^(T/H)*B1 ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1132,9 +1132,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^(T/H)*B1 + A2*B2 ) + beta tril(C)
+// tril(C) := alpha tril( A1^(T/H)*B2 + A2*B1 ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1^(T/H)*B1 + A2*B2 ) + beta triu(C)
+// triu(C) := alpha triu( A1^(T/H)*B2 + A2*B1 ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1145,9 +1145,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1*B1 + A2^(T/H)*B2 ) + beta tril(C)
+// tril(C) := alpha tril( A1*B2 + A2^(T/H)*B1 ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1*B1 + A2^(T/H)*B2 ) + beta triu(C)
+// triu(C) := alpha triu( A1*B2 + A2^(T/H)*B1 ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
@@ -1158,9 +1158,9 @@ LocalTriangularRank2K
   T beta,        DistMatrix<T,MC,  MR>& C );
 
 // Triangular Rank-2K Update:
-// tril(C) := alpha tril( A1^(T/H)*B1 + A2^(T/H)*B2 ) + beta tril(C)
+// tril(C) := alpha tril( A1^(T/H)*B2 + A2^(T/H)*B1 ) + beta tril(C)
 //   or
-// triu(C) := alpha triu( A1^(T/H)*B1 + A2^(T/H)*B2 ) + beta triu(C)
+// triu(C) := alpha triu( A1^(T/H)*B2 + A2^(T/H)*B1 ) + beta triu(C)
 template<typename T>
 void
 LocalTriangularRank2K
