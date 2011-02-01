@@ -49,9 +49,11 @@
 
 namespace elemental {
 
+// Matrix base for arbitrary rings
 template<typename T>
-class Matrix
+class MatrixBase
 {
+protected:
     bool      _viewing;
     bool      _lockedView;
     int       _height;
@@ -61,30 +63,32 @@ class Matrix
     int       _ldim;
     Memory<T> _memory;
 
+    MatrixBase(); 
+
+    MatrixBase( int height, int width );
+
+    MatrixBase( int height, int width, int ldim );
+
+    MatrixBase( int height, int width, const T* buffer, int ldim );
+
+    MatrixBase( int height, int width, T* buffer, int ldim );
+
+    MatrixBase( const MatrixBase<T>& A );
+
 public:    
-
-    Matrix();                
-
-    Matrix( int height, int width );
-
-    Matrix( int height, int width, int ldim );
-
-    Matrix( int height, int width, const T* buffer, int ldim );
-
-    Matrix( int height, int width, T* buffer, int ldim );
-
-    Matrix( const Matrix<T>& A );
-
-    ~Matrix();
+    virtual ~MatrixBase();
     
     void Print() const;
-    void Print(std::string msg) const;
+    void Print( std::string msg ) const;
 
     void SetToRandom();
 
-    T& operator() ( int i, int j );
+    // Return the value of entry (i,j)
     const T& Get( int i, int j ) const;
-    void Set( int i, int j, T value );
+    // Set the new value of entry (i,j)
+    void Set( int i, int j, T alpha );
+    // Update entry (i,j), i.e., A(i,j) += alpha
+    void Update( int i, int j, T alpha );
 
     bool Viewing() const;
     bool LockedView() const;
@@ -115,48 +119,104 @@ public:
     // Empty the contents (frees all memory)
     void Empty();
 
-    void View( Matrix<T>& A);
+    void View( MatrixBase<T>& A);
 
-    void View( Matrix<T>& A, int i, int j, int height, int width );
+    void View( MatrixBase<T>& A, int i, int j, int height, int width );
 
-    void View1x2( Matrix<T>& AL, Matrix<T>& AR );
+    void View1x2( MatrixBase<T>& AL, MatrixBase<T>& AR );
 
-    void View2x1( Matrix<T>& AT, 
-                  Matrix<T>& AB );
+    void View2x1( MatrixBase<T>& AT, 
+                  MatrixBase<T>& AB );
 
-    void View2x2( Matrix<T>& ATL, Matrix<T>& ATR,
-                  Matrix<T>& ABL, Matrix<T>& ABR );
+    void View2x2( MatrixBase<T>& ATL, MatrixBase<T>& ATR,
+                  MatrixBase<T>& ABL, MatrixBase<T>& ABR );
         
-    void LockedView( const Matrix<T>& A );
+    void LockedView( const MatrixBase<T>& A );
 
     void LockedView
-    ( const Matrix<T>& A, int i, int j, int height, int width );
+    ( const MatrixBase<T>& A, int i, int j, int height, int width );
 
-    void LockedView1x2( const Matrix<T>& AL, const Matrix<T>& AR );
+    void LockedView1x2( const MatrixBase<T>& AL, const MatrixBase<T>& AR );
 
-    void LockedView2x1( const Matrix<T>& AT, 
-                        const Matrix<T>& AB );
+    void LockedView2x1( const MatrixBase<T>& AT, 
+                        const MatrixBase<T>& AB );
 
-    void LockedView2x2( const Matrix<T>& ATL, const Matrix<T>& ATR,
-                        const Matrix<T>& ABL, const Matrix<T>& ABR );
+    void LockedView2x2( const MatrixBase<T>& ATL, const MatrixBase<T>& ATR,
+                        const MatrixBase<T>& ABL, const MatrixBase<T>& ABR );
 
     void SetToIdentity();
 
     void SetToZero();
 
-    T operator=( T alpha );
-    const Matrix<T>& operator=( const Matrix<T>& A );
+    const MatrixBase<T>& operator=( const MatrixBase<T>& A );
 };
 
-} // elemental
+// Partial specialization of Matrix for real rings.
+template<typename Z>
+class Matrix : public MatrixBase<Z>
+{
+public:
+    Matrix(); 
+
+    Matrix( int height, int width );
+
+    Matrix( int height, int width, int ldim );
+
+    Matrix( int height, int width, const Z* buffer, int ldim );
+
+    Matrix( int height, int width, Z* buffer, int ldim );
+
+    Matrix( const MatrixBase<Z>& A );
+
+    ~Matrix();
+
+    const Matrix<Z>& operator=( const MatrixBase<Z>& A );
+};
+
+// Partial specialization of Matrix for complex rings.
+template<typename Z>
+class Matrix< std::complex<Z> > : public MatrixBase< std::complex<Z> >
+{
+public:
+    Matrix(); 
+
+    Matrix( int height, int width );
+
+    Matrix( int height, int width, int ldim );
+
+    Matrix( int height, int width, const std::complex<Z>* buffer, int ldim );
+
+    Matrix( int height, int width, std::complex<Z>* buffer, int ldim );
+
+    Matrix( const MatrixBase< std::complex<Z> >& A );
+
+    ~Matrix();
+
+    // Return the real part of entry (i,j)
+    const Z& GetReal( int i, int j ) const;
+    // Return the imag part of entry (i,j)
+    const Z& GetImag( int i, int j ) const;
+    // Set the new value of the real part of entry (i,j)
+    void SetReal( int i, int j, Z alpha );
+    // Set the new value of the real part of entry (i,j)
+    void SetImag( int i, int j, Z alpha );
+    // Update the real part of entry (i,j), i.e., real(A(i,j)) += alpha
+    void UpdateReal( int i, int j, Z alpha );
+    // Update the imag part of entry (i,j), i.e., imag(A(i,j)) += alpha
+    void UpdateImag( int i, int j, Z alpha );
+
+    const Matrix< std::complex<Z> >& 
+    operator=( const MatrixBase< std::complex<Z> >& A );
+};
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
+// MatrixBase
 template<typename T>
 inline
-elemental::Matrix<T>::Matrix()
+MatrixBase<T>::MatrixBase()
 : _viewing(false), _lockedView(false),
   _height(0), _width(0), _data(0), _lockedData(0), _ldim(0),
   _memory()
@@ -164,14 +224,14 @@ elemental::Matrix<T>::Matrix()
 
 template<typename T>
 inline
-elemental::Matrix<T>::Matrix( int height, int width )
+MatrixBase<T>::MatrixBase( int height, int width )
 : _viewing(false), _lockedView(false),
   _height(height), _width(width), _lockedData(0), _ldim(std::max(height,1))
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix");
+    PushCallStack("MatrixBase::MatrixBase");
     if( height < 0 || width < 0 )
-        throw std::logic_error( "Height and width must be non-negative." );
+        throw std::logic_error("Height and width must be non-negative");
 #endif
     _memory.Require( _ldim*width );
     _data = _memory.Buffer();
@@ -182,15 +242,15 @@ elemental::Matrix<T>::Matrix( int height, int width )
 
 template<typename T>
 inline 
-elemental::Matrix<T>::Matrix
+MatrixBase<T>::MatrixBase
 ( int height, int width, int ldim )
 : _viewing(false), _lockedView(false),
   _height(height), _width(width), _lockedData(0), _ldim(ldim)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix");
+    PushCallStack("MatrixBase::MatrixBase");
     if( height < 0 || width < 0 )
-        throw std::logic_error( "Height and width must be non-negative." );
+        throw std::logic_error("Height and width must be non-negative");
     if( ldim < height )
     {
         std::ostringstream msg;
@@ -200,7 +260,7 @@ elemental::Matrix<T>::Matrix
     }
     if( ldim == 0 )
         throw std::logic_error
-        ( "Leading dimensions cannot be zero (for BLAS compatibility)." );
+        ("Leading dimensions cannot be zero (for BLAS compatibility)");
 #endif
     _memory.Require( ldim*width );
     _data = _memory.Buffer();
@@ -211,15 +271,15 @@ elemental::Matrix<T>::Matrix
 
 template<typename T>
 inline
-elemental::Matrix<T>::Matrix
+MatrixBase<T>::MatrixBase
 ( int height, int width, const T* buffer, int ldim )
 : _viewing(true), _lockedView(true),
   _height(height), _width(width), _data(0), _lockedData(buffer), _ldim(ldim)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix");
+    PushCallStack("MatrixBase::MatrixBase");
     if( height < 0 || width < 0 )
-        throw std::logic_error( "Height and width must be non-negative." );
+        throw std::logic_error("Height and width must be non-negative");
     if( ldim < height )
     {
         std::ostringstream msg;
@@ -236,15 +296,15 @@ elemental::Matrix<T>::Matrix
 
 template<typename T>
 inline
-elemental::Matrix<T>::Matrix
+MatrixBase<T>::MatrixBase
 ( int height, int width, T* buffer, int ldim )
 : _viewing(true), _lockedView(false),
   _height(height), _width(width), _data(buffer), _lockedData(0), _ldim(ldim)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix");
+    PushCallStack("MatrixBase::MatrixBase");
     if( height < 0 || width < 0 )
-        throw std::logic_error( "Height and width must be non-negative." );
+        throw std::logic_error("Height and width must be non-negative");
     if( ldim < height )
     {
         std::ostringstream msg;
@@ -254,25 +314,25 @@ elemental::Matrix<T>::Matrix
     }
     if( ldim == 0 )
         throw std::logic_error
-        ( "Leading dimensions cannot be zero (for BLAS compatibility)." );
+        ("Leading dimensions cannot be zero (for BLAS compatibility)");
     PopCallStack();
 #endif
 }
 
 template<typename T>
 inline
-elemental::Matrix<T>::Matrix
-( const Matrix<T>& A )
+MatrixBase<T>::MatrixBase
+( const MatrixBase<T>& A )
 : _viewing(false), _lockedView(false), _lockedData(false)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix( const Matrix& )");
+    PushCallStack("MatrixBase::MatrixBase( const MatrixBase& )");
 #endif
     if( &A != this )
         *this = A;
     else
         throw std::logic_error
-        ( "You just tried to construct a Matrix with itself!" );
+        ("You just tried to construct a MatrixBase with itself!");
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -280,12 +340,12 @@ elemental::Matrix<T>::Matrix
 
 template<typename T>
 inline
-elemental::Matrix<T>::~Matrix()
+MatrixBase<T>::~MatrixBase()
 { }
 
 template<typename T>
 inline void
-elemental::Matrix<T>::Empty()
+MatrixBase<T>::Empty()
 {
     _memory.Empty();
     _height = 0;
@@ -298,46 +358,20 @@ elemental::Matrix<T>::Empty()
 }
 
 template<typename T>
-inline T& 
-elemental::Matrix<T>::operator()
-( int i, int j )
-{
-#ifndef RELEASE
-    PushCallStack("Matrix::operator");
-    if( i < 0 || j < 0 )
-        throw std::logic_error( "Indices must be non-negative." );
-    if( i > Height() || j > Width() )
-    {
-        std::ostringstream msg;
-        msg << "Out of bounds: "
-            << "(" << i << "," << j << ") of " << Height() 
-            << " x " << Width() << " Matrix.";
-        throw std::logic_error( msg.str() );
-    }
-    PopCallStack();
-#endif
-    if( !_lockedData )
-        return _data[i+j*_ldim];
-    else
-        throw std::logic_error
-        ("Locked matrices cannot return modifiable references to their data.");
-}
-
-template<typename T>
 inline const T&
-elemental::Matrix<T>::Get
+MatrixBase<T>::Get
 ( int i, int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Get");
+    PushCallStack("MatrixBase::Get");
     if( i < 0 || j < 0 )
-        throw std::logic_error( "Indices must be non-negative." );
+        throw std::logic_error("Indices must be non-negative");
     if( i > Height() || j > Width() )
     {
         std::ostringstream msg;
         msg << "Out of bounds: "
             << "(" << i << "," << j << ") of " << Height()
-            << " x " << Width() << " Matrix.";
+            << " x " << Width() << " MatrixBase.";
         throw std::logic_error( msg.str() );
     }
     PopCallStack();
@@ -349,14 +383,365 @@ elemental::Matrix<T>::Get
 }
 
 template<typename T>
-void
-elemental::Matrix<T>::Set
-( int i, int j, T value ) 
+inline void
+MatrixBase<T>::Set
+( int i, int j, T alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Set");
+    PushCallStack("MatrixBase::Set");
+    if( i < 0 || j < 0 )
+        throw std::logic_error("Indices must be non-negative");
+    if( i > Height() || j > Width() )
+    {
+        std::ostringstream msg;
+        msg << "Out of bounds: "
+            << "(" << i << "," << j << ") of " << Height()
+            << " x " << Width() << " MatrixBase.";
+        throw std::logic_error( msg.str() );
+    }
+    if( _lockedData )
+        throw std::logic_error("Cannot modify data of locked matrices");
+#endif
+    _data[i+j*_ldim] = alpha;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+MatrixBase<T>::Update
+( int i, int j, T alpha ) 
+{
+#ifndef RELEASE
+    PushCallStack("MatrixBase::Update");
+    if( i < 0 || j < 0 )
+        throw std::logic_error("Indices must be non-negative");
+    if( i > Height() || j > Width() )
+    {
+        std::ostringstream msg;
+        msg << "Out of bounds: "
+            << "(" << i << "," << j << ") of " << Height()
+            << " x " << Width() << " MatrixBase.";
+        throw std::logic_error( msg.str() );
+    }
+    if( _lockedData )
+        throw std::logic_error("Cannot modify data of locked matrices");
+#endif
+    _data[i+j*_ldim] += alpha;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline bool
+MatrixBase<T>::Viewing() const
+{ return _viewing; }
+
+template<typename T>
+inline bool
+MatrixBase<T>::LockedView() const
+{ return _lockedView; }
+
+template<typename T>
+inline int
+MatrixBase<T>::Height() const
+{ return _height; }
+
+template<typename T>
+inline int
+MatrixBase<T>::Width() const
+{ return _width; }
+
+template<typename T>
+inline int
+MatrixBase<T>::LDim() const
+{ return _ldim; }
+
+template<typename T>
+inline int
+MatrixBase<T>::MemorySize() const
+{ return _memory.Size(); }
+
+template<typename T>
+inline T*
+MatrixBase<T>::Buffer()
+{
+#ifndef RELEASE
+    PushCallStack("MatrixBase::Buffer");
+    if( _lockedView )
+        throw std::logic_error
+        ("Cannot return non-const buffer of locked MatrixBase");
+    PopCallStack();
+#endif
+    return _data;
+}
+
+template<typename T>
+inline const T*
+MatrixBase<T>::LockedBuffer() const
+{
+    if( _lockedView )
+        return _lockedData;
+    else
+        return _data;
+}
+
+template<typename T>
+inline T*
+MatrixBase<T>::Buffer
+( int i, int j )
+{
+#ifndef RELEASE
+    PushCallStack("MatrixBase::Buffer");
     if( i < 0 || j < 0 )
         throw std::logic_error( "Indices must be non-negative." );
+    if( _lockedView )
+        throw std::logic_error
+        ("Cannot return non-const buffer of locked MatrixBase");
+    PopCallStack();
+#endif
+    return &_data[i+j*_ldim];
+}
+
+template<typename T>
+inline const T*
+MatrixBase<T>::LockedBuffer
+( int i, int j ) const
+{
+#ifndef RELEASE
+    PushCallStack("MatrixBase::LockedBuffer");
+    if( i < 0 || j < 0 )
+        throw std::logic_error("Indices must be non-negative");
+    PopCallStack();
+#endif
+    if( _lockedView )
+        return &_lockedData[i+j*_ldim];
+    else
+        return &_data[i+j*_ldim];
+}
+
+template<typename T>
+inline T*
+MatrixBase<T>::Buffer
+( int i, int j, int height, int width )
+{
+#ifndef RELEASE
+    PushCallStack("MatrixBase::Buffer");
+    if( i < 0 || j < 0 )
+        throw std::logic_error("Indices must be non-negative");
+    if( _lockedView )
+        throw std::logic_error
+        ("Cannot return non-const buffer of locked MatrixBase");
+    if( (height>0 && (i+height)>_height) || (width>0 && (j+width)>_width) )
+        throw std::logic_error("Requested out-of-bounds buffer of MatrixBase");
+    PopCallStack();
+#endif
+    return &_data[i+j*_ldim];
+}
+
+template<typename T>
+inline const T*
+MatrixBase<T>::LockedBuffer
+( int i, int j, int height, int width ) const
+{
+#ifndef RELEASE
+    PushCallStack("MatrixBase::LockedBuffer");
+    if( i < 0 || j < 0 )
+        throw std::logic_error("Indices must be non-negative");
+    if( height < 0 || width < 0 )
+        throw std::logic_error("Height and width must be non-negative");
+    if( (height>0 && (i+height)>_height) || (width>0 && (j+width)>_width) )
+        throw std::logic_error("Requested out-of-bounds buffer of MatrixBase");
+    PopCallStack();
+#endif
+    if( _lockedView )
+        return &_lockedData[i+j*_ldim];
+    else
+        return &_data[i+j*_ldim];
+}
+
+template<typename T>
+inline T*
+MatrixBase<T>::Pointer()
+{
+#ifndef RELEASE
+    PushCallStack("MatrixBase::Pointer");
+    if( _lockedView )
+        throw std::logic_error
+        ("Cannot return non-const pointer to locked MatrixBase");
+    if( _height == 0 || _width == 0 )
+        throw std::logic_error("Requested pointer to empty MatrixBase");
+    PopCallStack();
+#endif
+    return _data;
+}
+
+template<typename T>
+inline const T*
+MatrixBase<T>::LockedPointer() const
+{
+#ifndef RELEASE
+    PushCallStack("MatrixBase::LockedPointer");
+    if( _height == 0 || _width == 0 )
+        throw std::logic_error("Requested locked pointer to empty MatrixBase");
+    PopCallStack();
+#endif
+    if( _lockedView )
+        return _lockedData;
+    else
+        return _data;
+}
+
+template<typename T>
+inline T*
+MatrixBase<T>::Pointer
+( int i, int j )
+{
+#ifndef RELEASE
+    PushCallStack("MatrixBase::Pointer");
+    if( i < 0 || j < 0 )
+        throw std::logic_error("indices must be non-negative");
+    if( _lockedView )
+        throw std::logic_error
+        ("Cannot return non-const pointer to locked MatrixBase");
+    if( i >= _height || j >= _width )
+        throw std::logic_error("Requested out-of-bounds pointer to MatrixBase");
+    PopCallStack();
+#endif
+    return &_data[i+j*_ldim];
+}
+
+template<typename T>
+inline const T*
+MatrixBase<T>::LockedPointer
+( int i, int j ) const
+{
+#ifndef RELEASE
+    PushCallStack("MatrixBase::LockedPointer");
+    if( i < 0 || j < 0 )
+        throw std::logic_error("Indices must be non-negative");
+    if( i >= _height || j >= _width )
+        throw std::logic_error
+        ("Requested out-of-bounds locked pointer to MatrixBase");
+    PopCallStack();
+#endif
+    if( _lockedView )
+        return &_lockedData[i+j*_ldim];
+    else
+        return &_data[i+j*_ldim];
+}
+
+// Matrix for real rings
+
+template<typename Z>
+inline
+Matrix<Z>::Matrix()
+: MatrixBase<Z>()
+{ }
+
+template<typename Z>
+inline
+Matrix<Z>::Matrix
+( int height, int width )
+: MatrixBase<Z>(height,width)
+{ }
+
+template<typename Z>
+inline
+Matrix<Z>::Matrix
+( int height, int width, int ldim )
+: MatrixBase<Z>(height,width,ldim)
+{ }
+
+template<typename Z>
+inline
+Matrix<Z>::Matrix
+( int height, int width, const Z* buffer, int ldim )
+: MatrixBase<Z>(height,width,buffer,ldim)
+{ }
+
+template<typename Z>
+inline
+Matrix<Z>::Matrix
+( int height, int width, Z* buffer, int ldim )
+: MatrixBase<Z>(height,width,buffer,ldim)
+{ }
+
+template<typename Z>
+inline
+Matrix<Z>::Matrix
+( const MatrixBase<Z>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::Matrix");
+#endif
+    if( &A != this )
+        *this = A;
+    else
+        throw std::logic_error("Attempted to construct a Matrix with itself");
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Z>
+inline
+Matrix<Z>::~Matrix()
+{ }
+
+template<typename Z>
+inline const Matrix<Z>&
+Matrix<Z>::operator=
+( const MatrixBase<Z>& A )
+{ MatrixBase<Z>::operator=( A ); return *this; }
+
+// Matrix for complex rings
+
+template<typename Z>
+inline
+Matrix< std::complex<Z> >::Matrix()
+: MatrixBase< std::complex<Z> >()
+{ }
+
+template<typename Z>
+inline
+Matrix< std::complex<Z> >::Matrix
+( int height, int width )
+: MatrixBase< std::complex<Z> >(height,width)
+{ }
+
+template<typename Z>
+inline
+Matrix< std::complex<Z> >::Matrix
+( int height, int width, int ldim )
+: MatrixBase< std::complex<Z> >(height,width,ldim)
+{ }
+
+template<typename Z>
+inline
+Matrix< std::complex<Z> >::Matrix
+( int height, int width, const std::complex<Z>* buffer, int ldim )
+: MatrixBase< std::complex<Z> >(height,width,buffer,ldim)
+{ }
+
+template<typename Z>
+inline
+Matrix< std::complex<Z> >::Matrix
+( int height, int width, std::complex<Z>* buffer, int ldim )
+: MatrixBase< std::complex<Z> >(height,width,buffer,ldim)
+{ }
+
+template<typename Z>
+inline const Z&
+Matrix< std::complex<Z> >::GetReal
+( int i, int j ) const
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::GetReal");
+    if( i < 0 || j < 0 )
+        throw std::logic_error("Indices must be non-negative");
     if( i > Height() || j > Width() )
     {
         std::ostringstream msg;
@@ -365,231 +750,178 @@ elemental::Matrix<T>::Set
             << " x " << Width() << " Matrix.";
         throw std::logic_error( msg.str() );
     }
+    PopCallStack();
 #endif
-    if( !_lockedData )
-        _data[i+j*_ldim] = value;
+    if( this->_lockedData )
+        return std::real(this->_lockedData[i+j*this->_ldim]);
     else
-        throw std::logic_error( "Cannot modify data of locked matrices." );
-#ifndef RELEASE
-    PopCallStack();
-#endif
+        return std::real(this->_data[i+j*this->_ldim]);
 }
 
-template<typename T>
-inline bool
-elemental::Matrix<T>::Viewing() const
-{ return _viewing; }
-
-template<typename T>
-inline bool
-elemental::Matrix<T>::LockedView() const
-{ return _lockedView; }
-
-template<typename T>
-inline int
-elemental::Matrix<T>::Height() const
-{ return _height; }
-
-template<typename T>
-inline int
-elemental::Matrix<T>::Width() const
-{ return _width; }
-
-template<typename T>
-inline int
-elemental::Matrix<T>::LDim() const
-{ return _ldim; }
-
-template<typename T>
-inline int
-elemental::Matrix<T>::MemorySize() const
-{ return _memory.Size(); }
-
-template<typename T>
-inline T*
-elemental::Matrix<T>::Buffer()
-{
-#ifndef RELEASE
-    PushCallStack("Matrix::Buffer");
-    if( _lockedView )
-        throw std::logic_error
-        ( "Cannot return non-const buffer of locked Matrix." );
-    PopCallStack();
-#endif
-    return _data;
-}
-
-template<typename T>
-inline const T*
-elemental::Matrix<T>::LockedBuffer() const
-{
-    if( _lockedView )
-        return _lockedData;
-    else
-        return _data;
-}
-
-template<typename T>
-inline T*
-elemental::Matrix<T>::Buffer
-( int i, int j )
-{
-#ifndef RELEASE
-    PushCallStack("Matrix::Buffer");
-    if( i < 0 || j < 0 )
-        throw std::logic_error( "Indices must be non-negative." );
-    if( _lockedView )
-        throw std::logic_error
-        ( "Cannot return non-const buffer of locked Matrix." );
-    PopCallStack();
-#endif
-    return &_data[i+j*_ldim];
-}
-
-template<typename T>
-inline const T*
-elemental::Matrix<T>::LockedBuffer
+template<typename Z>
+inline const Z&
+Matrix< std::complex<Z> >::GetImag
 ( int i, int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::LockedBuffer");
+    PushCallStack("Matrix::GetImag");
     if( i < 0 || j < 0 )
-        throw std::logic_error( "Indices must be non-negative." );
+        throw std::logic_error("Indices must be non-negative");
+    if( i > Height() || j > Width() )
+    {
+        std::ostringstream msg;
+        msg << "Out of bounds: "
+            << "(" << i << "," << j << ") of " << Height()
+            << " x " << Width() << " Matrix.";
+        throw std::logic_error( msg.str() );
+    }
     PopCallStack();
 #endif
-    if( _lockedView )
-        return &_lockedData[i+j*_ldim];
+    if( this->_lockedData )
+        return std::imag(this->_lockedData[i+j*this->_ldim]);
     else
-        return &_data[i+j*_ldim];
+        return std::imag(this->_data[i+j*this->_ldim]);
 }
 
-template<typename T>
-inline T*
-elemental::Matrix<T>::Buffer
-( int i, int j, int height, int width )
+template<typename Z>
+void
+Matrix< std::complex<Z> >::SetReal
+( int i, int j, Z alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Buffer");
+    PushCallStack("Matrix::SetReal");
     if( i < 0 || j < 0 )
-        throw std::logic_error( "Indices must be non-negative." );
-    if( _lockedView )
-        throw std::logic_error
-        ( "Cannot return non-const buffer of locked Matrix." );
-    if( (height>0 && (i+height)>_height) || (width>0 && (j+width)>_width) )
-        throw std::logic_error( "Requested out-of-bounds buffer of Matrix." );
+        throw std::logic_error("Indices must be non-negative");
+    if( i > Height() || j > Width() )
+    {
+        std::ostringstream msg;
+        msg << "Out of bounds: "
+            << "(" << i << "," << j << ") of " << Height()
+            << " x " << Width() << " Matrix.";
+        throw std::logic_error( msg.str() );
+    }
+    if( this->_lockedData )
+        throw std::logic_error("Cannot modify data of locked matrices");
+#endif
+    const Z beta = std::imag(this->_data[i+j*this->_ldim]);
+    this->_data[i+j*this->_ldim] = std::complex<Z>( alpha, beta );
+#ifndef RELEASE
     PopCallStack();
 #endif
-    return &_data[i+j*_ldim];
 }
 
-template<typename T>
-inline const T*
-elemental::Matrix<T>::LockedBuffer
-( int i, int j, int height, int width ) const
+template<typename Z>
+inline void
+Matrix< std::complex<Z> >::SetImag
+( int i, int j, Z alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::LockedBuffer");
+    PushCallStack("Matrix::SetImag");
     if( i < 0 || j < 0 )
-        throw std::logic_error( "Indices must be non-negative." );
-    if( height < 0 || width < 0 )
-        throw std::logic_error( "Height and width must be non-negative." );
-    if( (height>0 && (i+height)>_height) || (width>0 && (j+width)>_width) )
-        throw std::logic_error( "Requested out-of-bounds buffer of Matrix." );
+        throw std::logic_error("Indices must be non-negative");
+    if( i > Height() || j > Width() )
+    {
+        std::ostringstream msg;
+        msg << "Out of bounds: "
+            << "(" << i << "," << j << ") of " << Height()
+            << " x " << Width() << " Matrix.";
+        throw std::logic_error( msg.str() );
+    }
+    if( this->_lockedData )
+        throw std::logic_error("Cannot modify data of locked matrices");
+#endif
+    const Z beta = std::real(this->_data[i+j*this->_ldim]);
+    this->_data[i+j*this->_ldim] = std::complex<Z>( beta, alpha );
+#ifndef RELEASE
     PopCallStack();
 #endif
-    if( _lockedView )
-        return &_lockedData[i+j*_ldim];
-    else
-        return &_data[i+j*_ldim];
 }
 
-template<typename T>
-inline T*
-elemental::Matrix<T>::Pointer()
+template<typename Z>
+inline void
+Matrix< std::complex<Z> >::UpdateReal
+( int i, int j, Z alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Pointer");
-    if( _lockedView )
-        throw std::logic_error
-        ( "Cannot return non-const pointer to locked Matrix." );
-    if( _height == 0 || _width == 0 )
-        throw std::logic_error( "Requested pointer to empty Matrix." );
-    PopCallStack();
-#endif
-    return _data;
-}
-
-template<typename T>
-inline const T*
-elemental::Matrix<T>::LockedPointer() const
-{
-#ifndef RELEASE
-    PushCallStack("Matrix::LockedPointer");
-    if( _height == 0 || _width == 0 )
-        throw std::logic_error( "Requested locked pointer to empty Matrix." );
-    PopCallStack();
-#endif
-    if( _lockedView )
-        return _lockedData;
-    else
-        return _data;
-}
-
-template<typename T>
-inline T*
-elemental::Matrix<T>::Pointer
-( int i, int j )
-{
-#ifndef RELEASE
-    PushCallStack("Matrix::Pointer");
+    PushCallStack("Matrix::UpdateReal");
     if( i < 0 || j < 0 )
-        throw std::logic_error( "indices must be non-negative." );
-    if( _lockedView )
-        throw std::logic_error
-        ( "Cannot return non-const pointer to locked Matrix." );
-    if( i >= _height || j >= _width )
-        throw std::logic_error( "Requested out-of-bounds pointer to Matrix." );
+        throw std::logic_error("Indices must be non-negative");
+    if( i > Height() || j > Width() )
+    {
+        std::ostringstream msg;
+        msg << "Out of bounds: "
+            << "(" << i << "," << j << ") of " << Height()
+            << " x " << Width() << " Matrix.";
+        throw std::logic_error( msg.str() );
+    }
+    if( this->_lockedData )
+        throw std::logic_error("Cannot modify data of locked matrices");
+#endif
+    const std::complex<Z> beta = this->_data[i+j*this->_ldim];
+    this->_data[i+j*this->_ldim] = 
+        std::complex<Z>( std::real(beta)+alpha, std::imag(beta) );
+#ifndef RELEASE
     PopCallStack();
 #endif
-    return &_data[i+j*_ldim];
 }
 
-template<typename T>
-inline const T*
-elemental::Matrix<T>::LockedPointer
-( int i, int j ) const
+template<typename Z>
+inline void
+Matrix< std::complex<Z> >::UpdateImag
+( int i, int j, Z alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::LockedPointer");
+    PushCallStack("Matrix::UpdateImag");
     if( i < 0 || j < 0 )
-        throw std::logic_error( "Indices must be non-negative." );
-    if( i >= _height || j >= _width )
-        throw std::logic_error
-        ( "Requested out-of-bounds locked pointer to Matrix." );
+        throw std::logic_error("Indices must be non-negative");
+    if( i > Height() || j > Width() )
+    {
+        std::ostringstream msg;
+        msg << "Out of bounds: "
+            << "(" << i << "," << j << ") of " << Height()
+            << " x " << Width() << " Matrix.";
+        throw std::logic_error( msg.str() );
+    }
+    if( this->_lockedData )
+        throw std::logic_error("Cannot modify data of locked matrices");
+#endif
+    const std::complex<Z> beta = this->_data[i+j*this->_ldim];
+    this->_data[i+j*this->_ldim] = 
+        std::complex<Z>( std::real(beta), std::imag(beta)+alpha );
+#ifndef RELEASE
     PopCallStack();
 #endif
-    if( _lockedView )
-        return &_lockedData[i+j*_ldim];
-    else
-        return &_data[i+j*_ldim];
 }
 
-template<typename T>
-inline T
-elemental::Matrix<T>::operator=( T alpha )
+template<typename Z>
+inline
+Matrix< std::complex<Z> >::Matrix
+( const MatrixBase< std::complex<Z> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::operator=");
+    PushCallStack("Matrix::Matrix");
 #endif
-    if( this->Height() == 1 && this->Width() == 1 )
-        _data[0] = alpha;
+    if( &A != this )
+        *this = A;
     else
-        throw std::logic_error("Scalars can only be assigned to 1x1 matrices.");
+        throw std::logic_error("Attempted to construct a Matrix with itself");
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return alpha;
 }
+
+template<typename Z>
+inline
+Matrix< std::complex<Z> >::~Matrix()
+{ }
+
+template<typename Z>
+inline const Matrix< std::complex<Z> >&
+Matrix< std::complex<Z> >::operator=
+( const MatrixBase< std::complex<Z> >& A )
+{ MatrixBase< std::complex<Z> >::operator=( A ); return *this; }
+
+} // namespace elemental
 
 #endif /* ELEMENTAL_MATRIX_HPP */
 

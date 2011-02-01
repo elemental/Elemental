@@ -76,15 +76,15 @@ TridiagL
         //--------------------------------------------------------------------//
         R tau = lapack::Reflector( alpha21T, a21B );
 
-        R epsilon1 = alpha21T(0,0);
-        alpha21T(0,0) = (R)1;
+        R epsilon1 = alpha21T.Get(0,0);
+        alpha21T.Set(0,0,(R)1);
 
         blas::Symv( Lower, tau, A22, a21, (R)0, w21 );
         R alpha = -static_cast<R>(0.5)*tau*blas::Dot( w21, a21 );
         blas::Axpy( alpha, a21, w21 );
         blas::Syr2( Lower, (R)-1, a21, w21, A22 );
 
-        alpha21T(0,0) = epsilon1;
+        alpha21T.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -138,15 +138,15 @@ TridiagU
         //--------------------------------------------------------------------//
         R tau = lapack::Reflector( alpha01B, a01T );
 
-        R epsilon1 = alpha01B(0,0);
-        alpha01B(0,0) = (R)1;
+        R epsilon1 = alpha01B.Get(0,0);
+        alpha01B.Set(0,0,(R)1);
 
         blas::Symv( Upper, tau, A00, a01, (R)0, w01 );
         R alpha = -static_cast<R>(0.5)*tau*blas::Dot( w01, a01 );
         blas::Axpy( alpha, a01, w01 );
         blas::Syr2( Upper, (R)-1, a01, w01, A00 );
 
-        alpha01B(0,0) = epsilon1;
+        alpha01B.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
         SlidePartitionUpDiagonal
@@ -221,17 +221,17 @@ TridiagL
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
         C tau = lapack::Reflector( alpha21T, a21B );
-        tau1(0,0) = tau;
+        tau1.Set(0,0,tau);
 
-        R epsilon1 = real(alpha21T(0,0));
-        alpha21T(0,0) = (C)1;
+        R epsilon1 = alpha21T.GetReal(0,0);
+        alpha21T.Set(0,0,(C)1);
 
         blas::Hemv( Lower, tau, A22, a21, (C)0, w21 );
         C alpha = -static_cast<C>(0.5)*tau*blas::Dot( w21, a21 );
         blas::Axpy( alpha, a21, w21 );
         blas::Her2( Lower, (C)-1, a21, w21, A22 );
 
-        alpha21T(0,0) = epsilon1;
+        alpha21T.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -311,17 +311,17 @@ TridiagU
         w01.ResizeTo( a01.Height(), 1 );
         //--------------------------------------------------------------------//
         C tau = lapack::Reflector( alpha01B, a01T );
-        tau1(0,0) = tau;
+        tau1.Set(0,0,tau);
 
-        R epsilon1 = real(alpha01B(0,0));
-        alpha01B(0,0) = (C)1;
+        R epsilon1 = alpha01B.GetReal(0,0);
+        alpha01B.Set(0,0,(C)1);
 
         blas::Hemv( Upper, tau, A00, a01, (C)0, w01 );
         C alpha = -static_cast<C>(0.5)*tau*blas::Dot( w01, a01 );
         blas::Axpy( alpha, a01, w01 );
         blas::Her2( Upper, (C)-1, a01, w01, A00 );
 
-        alpha01B(0,0) = epsilon1;
+        alpha01B.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
         SlidePartitionUpDiagonal

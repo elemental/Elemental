@@ -820,6 +820,38 @@ elemental::DistMatrixBase<T,Star,MD>::Set
 #endif
 }
 
+template<typename T>
+void
+elemental::DistMatrixBase<T,Star,MD>::Update
+( int i, int j, T u )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MD]::Update");
+    this->AssertValidEntry( i, j );
+#endif
+    int ownerRank;
+    const Grid& g = this->Grid();
+    {
+        const int r = g.Height();
+        const int c = g.Width();
+        const int alignmentRank = this->RowAlignment();
+        const int alignmentRow = alignmentRank % r;
+        const int alignmentCol = alignmentRank / r;
+        const int ownerRow = (alignmentRow + j) % r;
+        const int ownerCol = (alignmentCol + j) % c;
+        ownerRank = ownerRow + r*ownerCol;
+    }
+
+    if( g.VCRank() == ownerRank )
+    {
+        const int jLoc = (j-this->RowShift()) / g.LCM();
+        this->UpdateLocalEntry(i,jLoc,u);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 //
 // Utility functions, e.g., SetToIdentity and MakeTrapezoidal
 //

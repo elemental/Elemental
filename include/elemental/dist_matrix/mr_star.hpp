@@ -96,8 +96,13 @@ public:
     // Collective routines
     //
 
+    // Every process receives a copy of global entry (i,j)
     virtual T Get( int i, int j ) const;
+    // Every process contributes the new value of global entry (i,j)
     virtual void Set( int i, int j, T alpha );
+    // Every process contributes the update to global entry (i,j),
+    // i.e., A(i,j) += alpha
+    virtual void Update( int i, int j, T alpha );
 
     virtual void MakeTrapezoidal
     ( Side side, Shape shape, int offset = 0 );
@@ -492,10 +497,20 @@ public:
     // Collective routines
     //
 
-    Z GetReal( int i, int j ) const;
-    Z GetImag( int i, int j ) const;
-    void SetReal( int i, int j, Z u );
-    void SetImag( int i, int j, Z u );
+    // Every process receives the real part of global entry (i,j)
+    virtual Z GetReal( int i, int j ) const;
+    // Every process receives the imag part of global entry (i,j)
+    virtual Z GetImag( int i, int j ) const;
+    // Every process contributes the new real part of global entry (i,j)
+    virtual void SetReal( int i, int j, Z u );
+    // Every process contributes the new imag part of global entry (i,j)
+    virtual void SetImag( int i, int j, Z u );
+    // Every process contributes the update to the real part of entry (i,j),
+    // i.e., real(A(i,j)) += u
+    virtual void UpdateReal( int i, int j, Z u ); 
+    // Every process contributes the update to the imag part of entry (i,j),
+    // i.e., imag(A(i,j)) += u
+    virtual void UpdateImag( int i, int j, Z u );
 };
 #endif
 

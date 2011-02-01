@@ -133,7 +133,7 @@ elemental::DistMatrix<complex<Z>,Star,MC>::GetReal
     if( g.MCRank() == ownerRow )
     {
         const int jLoc = (j-this->RowShift()) / g.Height();
-        u = real(this->GetLocalEntry(i,jLoc));
+        u = this->GetRealLocalEntry(i,jLoc);
     }
     Broadcast( &u, 1, ownerRow, g.MCComm() );
 
@@ -161,7 +161,7 @@ elemental::DistMatrix<complex<Z>,Star,MC>::GetImag
     if( g.MCRank() == ownerRow )
     {
         const int jLoc = (j-this->RowShift()) / g.Height();
-        u = imag(this->GetLocalEntry(i,jLoc));
+        u = this->GetImagLocalEntry(i,jLoc);
     }
     Broadcast( &u, 1, ownerRow, g.MCComm() );
 
@@ -186,8 +186,7 @@ elemental::DistMatrix<complex<Z>,Star,MC>::SetReal
     if( g.MCRank() == ownerRow )
     {
         const int jLoc = (j-this->RowShift()) / g.Height();
-        const Z v = imag(this->GetLocalEntry(i,jLoc));
-        this->SetLocalEntry(i,jLoc,complex<Z>(u,v));
+        this->SetRealLocalEntry(i,jLoc,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -197,7 +196,7 @@ elemental::DistMatrix<complex<Z>,Star,MC>::SetReal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,Star,MC>::SetImag
-( int i, int j, Z v )
+( int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MC]::SetImag");
@@ -209,8 +208,51 @@ elemental::DistMatrix<complex<Z>,Star,MC>::SetImag
     if( g.MCRank() == ownerRow )
     {
         const int jLoc = (j-this->RowShift()) / g.Height();
-        const Z u = real(this->GetLocalEntry(i,jLoc));
-        this->SetLocalEntry(i,jLoc,complex<Z>(u,v));
+        this->SetImagLocalEntry(i,jLoc,u);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Z>
+void
+elemental::DistMatrix<complex<Z>,Star,MC>::UpdateReal
+( int i, int j, Z u )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MC]::UpdateReal");
+    this->AssertValidEntry( i, j );
+#endif
+    const Grid& g = this->Grid();
+    const int ownerRow = (j + this->RowAlignment()) % g.Height();
+
+    if( g.MCRank() == ownerRow )
+    {
+        const int jLoc = (j-this->RowShift()) / g.Height();
+        this->UpdateRealLocalEntry(i,jLoc,u);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Z>
+void
+elemental::DistMatrix<complex<Z>,Star,MC>::UpdateImag
+( int i, int j, Z u )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MC]::UpdateImag");
+    this->AssertValidEntry( i, j );
+#endif
+    const Grid& g = this->Grid();
+    const int ownerRow = (j + this->RowAlignment()) % g.Height();
+
+    if( g.MCRank() == ownerRow )
+    {
+        const int jLoc = (j-this->RowShift()) / g.Height();
+        this->UpdateImagLocalEntry(i,jLoc,u);
     }
 #ifndef RELEASE
     PopCallStack();

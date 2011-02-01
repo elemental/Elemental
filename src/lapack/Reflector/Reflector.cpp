@@ -48,7 +48,7 @@ elemental::lapack::Reflector
 #endif
     if( x.Height() == 0 )
     {
-        chi(0,0) *= (R)-1;
+        chi.Set(0,0,-chi.Get(0,0));
 #ifndef RELEASE
         PopCallStack();
 #endif
@@ -56,7 +56,7 @@ elemental::lapack::Reflector
     }
 
     R norm = blas::Nrm2( x );
-    R alpha = chi(0,0);
+    R alpha = chi.Get(0,0);
 
     R beta;
     if( alpha <= 0 )
@@ -89,7 +89,7 @@ elemental::lapack::Reflector
 
     for( int j=0; j<count; ++j )
         beta *= safeMin;
-    chi(0,0) = beta;
+    chi.Set(0,0,beta);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -108,11 +108,11 @@ elemental::lapack::Reflector
     typedef complex<R> C;
 
     R norm = blas::Nrm2( x );
-    C alpha = chi(0,0);
+    C alpha = chi.Get(0,0);
 
     if( norm == 0 && imag(alpha) == (R)0 )
     {
-        chi(0,0) *= (R)-1;
+        chi.Set(0,0,-chi.Get(0,0));
 #ifndef RELEASE
         PopCallStack();
 #endif
@@ -152,7 +152,7 @@ elemental::lapack::Reflector
 
     for( int j=0; j<count; ++j )
         beta *= safeMin;
-    chi(0,0) = beta;
+    chi.Set(0,0,beta);
 #ifndef RELEASE
     PopCallStack();
 #endif

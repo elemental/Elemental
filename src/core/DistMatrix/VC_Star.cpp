@@ -133,7 +133,7 @@ elemental::DistMatrix<complex<Z>,VC,Star>::GetReal
     if( g.VCRank() == ownerRank )
     {
         const int iLoc = (i-this->ColShift()) / g.Size();
-        u = real(this->GetLocalEntry(iLoc,j));
+        u = this->GetRealLocalEntry(iLoc,j);
     }
     Broadcast( &u, 1, ownerRank, g.VCComm() );
 
@@ -161,7 +161,7 @@ elemental::DistMatrix<complex<Z>,VC,Star>::GetImag
     if( g.VCRank() == ownerRank )
     {
         const int iLoc = (i-this->ColShift()) / g.Size();
-        u = imag(this->GetLocalEntry(iLoc,j));
+        u = this->GetImagLocalEntry(iLoc,j);
     }
     Broadcast( &u, 1, ownerRank, g.VCComm() );
 
@@ -186,8 +186,7 @@ elemental::DistMatrix<complex<Z>,VC,Star>::SetReal
     if( g.VCRank() == ownerRank )
     {
         const int iLoc = (i-this->ColShift()) / g.Size();
-        const Z v = imag(this->GetLocalEntry(iLoc,j));
-        this->SetLocalEntry(iLoc,j,complex<Z>(u,v));
+        this->SetRealLocalEntry(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -197,7 +196,7 @@ elemental::DistMatrix<complex<Z>,VC,Star>::SetReal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,VC,Star>::SetImag
-( int i, int j, Z v )
+( int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[VC,* ]::SetImag");
@@ -209,14 +208,57 @@ elemental::DistMatrix<complex<Z>,VC,Star>::SetImag
     if( g.VCRank() == ownerRank )
     {
         const int iLoc = (i-this->ColShift()) / g.Size();
-        const Z u = real(this->GetLocalEntry(iLoc,j));
-        this->SetLocalEntry(iLoc,j,complex<Z>(u,v));
+        this->SetImagLocalEntry(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+template<typename Z>
+void
+elemental::DistMatrix<complex<Z>,VC,Star>::UpdateReal
+( int i, int j, Z u )
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::UpdateReal");
+    this->AssertValidEntry( i, j );
 #endif
+    const Grid& g = this->Grid();
+    const int ownerRank = (i + this->ColAlignment()) % g.Size();
+
+    if( g.VCRank() == ownerRank )
+    {
+        const int iLoc = (i-this->ColShift()) / g.Size();
+        this->UpdateRealLocalEntry(iLoc,j,u);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Z>
+void
+elemental::DistMatrix<complex<Z>,VC,Star>::UpdateImag
+( int i, int j, Z u )
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::UpdateImag");
+    this->AssertValidEntry( i, j );
+#endif
+    const Grid& g = this->Grid();
+    const int ownerRank = (i + this->ColAlignment()) % g.Size();
+
+    if( g.VCRank() == ownerRank )
+    {
+        const int iLoc = (i-this->ColShift()) / g.Size();
+        this->UpdateImagLocalEntry(iLoc,j,u);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // WITHOUT_COMPLEX
 
 template class elemental::DistMatrix<int,   VC,Star>;
 template class elemental::DistMatrix<float, VC,Star>;

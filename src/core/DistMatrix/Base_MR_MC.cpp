@@ -1094,6 +1094,31 @@ elemental::DistMatrixBase<T,MR,MC>::Set
 
 template<typename T>
 void
+elemental::DistMatrixBase<T,MR,MC>::Update
+( int i, int j, T u )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::Update");
+    this->AssertValidEntry( i, j );
+#endif
+    const Grid& g = this->Grid();
+    const int ownerRow = (j + this->RowAlignment()) % g.Height();
+    const int ownerCol = (i + this->ColAlignment()) % g.Width();
+    const int ownerRank = ownerRow + ownerCol * g.Height();
+
+    if( g.VCRank() == ownerRank )
+    {
+        const int iLoc = (i-this->ColShift()) / g.Width();
+        const int jLoc = (j-this->RowShift()) / g.Height();
+        this->UpdateLocalEntry(iLoc,jLoc,u);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
 elemental::DistMatrixBase<T,MR,MC>::GetDiagonal
 ( DistMatrixBase<T,MD,Star>& d, int offset ) const
 {

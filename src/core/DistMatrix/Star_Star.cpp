@@ -125,13 +125,13 @@ elemental::DistMatrix<complex<Z>,Star,Star>::GetReal
     if( viewingSize == owningSize )
     {
         // Everyone can just grab their own copy of the data
-        u = real(this->GetLocalEntry(i,j));
+        u = this->GetRealLocalEntry(i,j);
     }
     else
     {
         // Have the root broadcast its data
         if( this->Grid().VCRank() == 0 )
-            u = real(this->GetLocalEntry(i,j));
+            u = this->GetRealLocalEntry(i,j);
         Broadcast
         ( &u, 1, this->Grid().VCToViewingMap(0),
           this->Grid().ViewingComm() );
@@ -158,13 +158,13 @@ elemental::DistMatrix<complex<Z>,Star,Star>::GetImag
     if( viewingSize == owningSize )
     {
         // Everyone can just grab their own copy of the data
-        u = imag(this->GetLocalEntry(i,j));
+        u = this->GetImagLocalEntry(i,j);
     }
     else
     { 
         // Have the root broadcast its data
         if( this->Grid().VCRank() == 0 )
-            u = imag(this->GetLocalEntry(i,j));
+            u = this->GetImagLocalEntry(i,j);
         Broadcast
         ( &u, 1, this->Grid().VCToViewingMap(0),
           this->Grid().ViewingComm() );
@@ -185,10 +185,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::SetReal
     this->AssertValidEntry( i, j );
 #endif
     if( this->Grid().InGrid() )
-    {
-        const Z v = imag(this->GetLocalEntry(i,j));
-        this->SetLocalEntry(i,j,complex<Z>(u,v));
-    }
+        this->SetRealLocalEntry(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -197,17 +194,46 @@ elemental::DistMatrix<complex<Z>,Star,Star>::SetReal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,Star,Star>::SetImag
-( int i, int j, Z v )
+( int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
     if( this->Grid().InGrid() )
-    {
-        const Z u = real(this->GetLocalEntry(i,j));
-        this->SetLocalEntry(i,j,complex<Z>(u,v));
-    }
+        this->SetImagLocalEntry(i,j,u);
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Z>
+void
+elemental::DistMatrix<complex<Z>,Star,Star>::UpdateReal
+( int i, int j, Z u )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,* ]::UpdateReal");
+    this->AssertValidEntry( i, j );
+#endif
+    if( this->Grid().InGrid() )
+        this->UpdateRealLocalEntry(i,j,u);
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Z>
+void
+elemental::DistMatrix<complex<Z>,Star,Star>::UpdateImag
+( int i, int j, Z u )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,* ]::UpdateImag");
+    this->AssertValidEntry( i, j );
+#endif
+    if( this->Grid().InGrid() )
+        this->UpdateImagLocalEntry(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif

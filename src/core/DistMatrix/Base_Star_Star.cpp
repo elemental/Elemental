@@ -420,6 +420,24 @@ elemental::DistMatrixBase<T,Star,Star>::Set
 #endif
 }
 
+template<typename T>
+void
+elemental::DistMatrixBase<T,Star,Star>::Update
+( int i, int j, T u )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,* ]::Update");
+    this->AssertValidEntry( i, j );
+#endif
+    if( this->Grid().InGrid() )
+    {
+        this->UpdateLocalEntry(i,j,u);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 //
 // Utility functions, e.g., SetToIdentity and MakeTrapezoidal
 //

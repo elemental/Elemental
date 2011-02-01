@@ -99,8 +99,13 @@ public:
     // Collective routines
     //
 
+    // Give every process a copy of global entry (i,j)
     virtual T Get( int i, int j ) const;
+    // Every process provides the new value of global entry (i,j)
     virtual void Set( int i, int j, T alpha );
+    // Every process provides the update to global entry (i,j),
+    // i.e., A(i,j) += alpha
+    virtual void Update( int i, int j, T alpha );
     
     virtual void MakeTrapezoidal
     ( Side side, Shape shape, int offset = 0 );
@@ -529,10 +534,20 @@ public:
     // Collective routines
     //
 
+    // Every process receives a copy of the real part of global entry (i,j)
     virtual Z GetReal( int i, int j ) const;
+    // Every process receives a copy of the imaginary part of global entry (i,j)
     virtual Z GetImag( int i, int j ) const;
+    // Every proces provides the new value for the real part of entry (i,j)
     virtual void SetReal( int i, int j, Z u );
+    // Every proces provides the new value for the imaginary part of entry (i,j)
     virtual void SetImag( int i, int j, Z u );
+    // Every process provides the update for the real part of global entry (i,j)
+    // i.e., real(A(i,j)) += u
+    virtual void UpdateReal( int i, int j, Z u );
+    // Every process provides the update for the imag part of global entry (i,j)
+    // i.e., imag(A(i,j)) += u
+    virtual void UpdateImag( int i, int j, Z u );
 
     //------------------------------------------------------------------------//
     // Routines specific to complex [MC,MR] distribution                      //

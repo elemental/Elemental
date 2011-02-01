@@ -199,11 +199,15 @@ public:
     int LocalWidth() const;
     int LocalLDim() const;
 
-    const T& GetLocalEntry( int i, int j ) const;
-    void SetLocalEntry( int i, int j, T value );
+    // This process receives a copy of local entry (iLocal,jLocal)
+    const T& GetLocalEntry( int iLocal, int jLocal ) const;
+    // This process sets the new value for local entry (iLocal,jLocal)
+    void SetLocalEntry( int iLocal, int jLocal, T alpha );
+    // This process updates local entry A(iLocal,jLocal) += alpha
+    void UpdateLocalEntry( int iLocal, int jLocal, T alpha );
 
-    T* LocalBuffer( int i=0, int j=0 );
-    const T* LockedLocalBuffer( int i=0, int j=0 ) const;
+    T* LocalBuffer( int iLocal=0, int jLocal=0 );
+    const T* LockedLocalBuffer( int iLocal=0, int jLocal=0 ) const;
 
           Matrix<T>& LocalMatrix();
     const Matrix<T>& LockedLocalMatrix() const;
@@ -256,8 +260,13 @@ public:
     //
     //virtual void Resync();
 
+    // Each process receives a copy of the global entry (i,j)
     virtual T Get( int i, int j ) const = 0;
+    // Each process provides the new value of global entry (i,j)
     virtual void Set( int i, int j, T alpha ) = 0;
+    // Each process provides the update to global entry (i,j)
+    // i.e., A(i,j) += alpha
+    virtual void Update( int i, int j, T alpha ) = 0;
     
     // Zero out necessary entries to make distributed matrix trapezoidal:
     //
@@ -437,10 +446,39 @@ public:
     //------------------------------------------------------------------------//
     // Operations that should be collectively performed                       //
     //------------------------------------------------------------------------//
+    // Each process receives the real part of global entry (i,j)
     virtual Z GetReal( int i, int j ) const = 0;
+    // Each process receives the imaginary part of global entry (i,j)
     virtual Z GetImag( int i, int j ) const = 0;
+    // Each process provides the new value for global entry (i,j)
     virtual void SetReal( int i, int j, Z alpha ) = 0;
+    // Each process provides the new value for global entry (i,j)
     virtual void SetImag( int i, int j, Z alpha ) = 0;
+    // Each process provides the update to the real part of global entry (i,j)
+    // i.e., real(A(i,j)) += alpha
+    virtual void UpdateReal( int i, int j, Z alpha ) = 0;
+    // Each process provides the update to the imag part of global entry (i,j)
+    // i.e., imag(A(i,j)) += alpha
+    virtual void UpdateImag( int i, int j, Z alpha ) = 0;
+    
+    //-----------------------------------------------------------------------//
+    // Operations that can be performed on a single process                  //
+    //-----------------------------------------------------------------------//
+    // This process receives a copy of the real part of local entry 
+    // (iLocal,jLocal)
+    const Z& GetRealLocalEntry( int iLocal, int jLocal ) const;
+    // This process receives a copy of the imag part of local entry (i,j)
+    const Z& GetImagLocalEntry( int iLocal, int jLocal ) const;
+    // This process sets the new value for real part of local entry 
+    // (iLocal,jLocal)
+    void SetRealLocalEntry( int iLocal, int jLocal, Z alpha );
+    // This process sets the new value for imag part of local entry 
+    // (iLocal,jLocal)
+    void SetImagLocalEntry( int iLocal, int jLocal, Z alpha );
+    // This process updates local entry real(ALocal(iLocal,jLocal)) += alpha
+    void UpdateRealLocalEntry( int iLocal, int jLocal, Z alpha );
+    // This process updates local entry imag(ALocal(iLocal,jLocal)) += alpha
+    void UpdateImagLocalEntry( int iLocal, int jLocal, Z alpha );
 };
 #endif // WITHOUT_COMPLEX
 
@@ -851,20 +889,26 @@ AbstractDistMatrixBase<T>::GetLocalEntry
 template<typename T>
 void
 AbstractDistMatrixBase<T>::SetLocalEntry
-( int i, int j, T value )
-{ _localMatrix.Set(i,j,value); }
+( int iLocal, int jLocal, T alpha )
+{ _localMatrix.Set(iLocal,jLocal,alpha); }
+
+template<typename T>
+void
+AbstractDistMatrixBase<T>::UpdateLocalEntry
+( int iLocal, int jLocal, T alpha )
+{ _localMatrix.Update(iLocal,jLocal,alpha); }
 
 template<typename T>
 inline T*
 AbstractDistMatrixBase<T>::LocalBuffer
-( int i, int j )
-{ return _localMatrix.Buffer(i,j); }
+( int iLocal, int jLocal )
+{ return _localMatrix.Buffer(iLocal,jLocal); }
 
 template<typename T>
 inline const T*
 AbstractDistMatrixBase<T>::LockedLocalBuffer
-( int i, int j ) const
-{ return _localMatrix.LockedBuffer(i,j); }
+( int iLocal, int jLocal ) const
+{ return _localMatrix.LockedBuffer(iLocal,jLocal); }
 
 template<typename T>
 inline Matrix<T>&
@@ -1067,6 +1111,42 @@ template<typename Z>
 inline
 AbstractDistMatrix< std::complex<Z> >::~AbstractDistMatrix()
 { }
+
+template<typename Z>
+inline const Z&
+AbstractDistMatrix< std::complex<Z> >::GetRealLocalEntry
+( int iLocal, int jLocal ) const
+{ return this->_localMatrix.GetReal(iLocal,jLocal); }
+
+template<typename Z>
+inline const Z&
+AbstractDistMatrix< std::complex<Z> >::GetImagLocalEntry
+( int iLocal, int jLocal ) const
+{ return this->_localMatrix.GetImag(iLocal,jLocal); }
+
+template<typename Z>
+inline void
+AbstractDistMatrix< std::complex<Z> >::SetRealLocalEntry
+( int iLocal, int jLocal, Z alpha )
+{ this->_localMatrix.SetReal(iLocal,jLocal,alpha); }
+
+template<typename Z>
+inline void
+AbstractDistMatrix< std::complex<Z> >::SetImagLocalEntry
+( int iLocal, int jLocal, Z alpha )
+{ this->_localMatrix.SetImag(iLocal,jLocal,alpha); }
+
+template<typename Z>
+inline void
+AbstractDistMatrix< std::complex<Z> >::UpdateRealLocalEntry
+( int iLocal, int jLocal, Z alpha )
+{ this->_localMatrix.UpdateReal(iLocal,jLocal,alpha); }
+
+template<typename Z>
+inline void
+AbstractDistMatrix< std::complex<Z> >::UpdateImagLocalEntry
+( int iLocal, int jLocal, Z alpha )
+{ this->_localMatrix.UpdateImag(iLocal,jLocal,alpha); }
 #endif // WITHOUT_COMPLEX
 
 } // elemental

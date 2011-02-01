@@ -1101,7 +1101,7 @@ elemental::blas::Scal
         {
             for( int j=0; j<X.Width(); ++j )
                 for( int i=0; i<X.Height(); ++i )
-                    X(i,j) = 0;
+                    X.Set(i,j,0);
         }
         else
         {
