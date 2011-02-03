@@ -779,17 +779,9 @@ elemental::DistMatrixBase<T,VC,Star>::ScaleTrapezoidal
             int lastRow = ( side==Left ? j-offset : j-offset+height-width );
             int boundary = min( lastRow+1, height );
             int numRows = LocalLength( boundary, colShift, p );
-#ifdef RELEASE
             T* thisCol = this->LocalBuffer(0,j);
             for( int iLoc=0; iLoc<numRows; ++iLoc )
                 thisCol[iLoc] *= alpha;
-#else
-            for( int iLoc=0; iLoc<numRows; ++iLoc )
-            {
-                const T value = this->GetLocalEntry(iLoc,j);
-                this->SetLocalEntry(iLoc,j,alpha*value);
-            }
-#endif
         }
     }
     else
@@ -802,17 +794,9 @@ elemental::DistMatrixBase<T,VC,Star>::ScaleTrapezoidal
             int firstRow = ( side==Left ? max(j-offset,0)
                                         : max(j-offset+height-width,0) );
             int numZeroRows = LocalLength(firstRow,colShift,p);
-#ifdef RELEASE
             T* thisCol = this->LocalBuffer(numZeroRows,j);
             for( int iLoc=0; iLoc<(localHeight-numZeroRows); ++iLoc )
                 thisCol[iLoc] *= alpha;
-#else
-            for( int iLoc=numZeroRows; iLoc<localHeight; ++iLoc )
-            {
-                const T value = this->GetLocalEntry(iLoc,j);
-                this->SetLocalEntry(iLoc,j,alpha*value);
-            }
-#endif
         }
     }
 #ifndef RELEASE
@@ -1738,10 +1722,9 @@ elemental::DistMatrixBase<T,VC,Star>::SumScatterUpdate
         ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
 
         // Unpack our received data
-#ifdef RELEASE
-# ifdef _OPENMP
+#ifdef _OPENMP
         #pragma omp parallel for
-# endif
+#endif
         for( int j=0; j<localWidth; ++j )
         {
             const T* recvBufferCol = &recvBuffer[j*localHeight];
@@ -1749,21 +1732,6 @@ elemental::DistMatrixBase<T,VC,Star>::SumScatterUpdate
             for( int i=0; i<localHeight; ++i )
                 thisCol[i] += alpha*recvBufferCol[i];
         }
-#else
-# ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
-# endif
-        for( int j=0; j<localWidth; ++j )
-        {
-            for( int i=0; i<localHeight; ++i )
-            {
-                const T value = this->GetLocalEntry(i,j);
-                this->SetLocalEntry
-                    (i,j,value+alpha*recvBuffer[i+j*localHeight]);
-            }
-        }
-#endif
-
         this->_auxMemory.Release();
     }
     else

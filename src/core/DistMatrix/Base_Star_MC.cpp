@@ -726,17 +726,9 @@ elemental::DistMatrixBase<T,Star,MC>::ScaleTrapezoidal
             int j = rowShift + jLoc*r;
             int lastRow = ( side==Left ? j-offset : j-offset+height-width );
             int boundary = min( lastRow+1, height );
-#ifdef RELEASE
             T* thisCol = this->LocalBuffer(0,jLoc);
             for( int i=0; i<boundary; ++i )
                 thisCol[i] *= alpha;
-#else
-            for( int i=0; i<boundary; ++i )
-            {
-                const T value = this->GetLocalEntry(i,jLoc);
-                this->SetLocalEntry(i,jLoc,alpha*value);
-            }
-#endif
         }
     }
     else
@@ -749,17 +741,9 @@ elemental::DistMatrixBase<T,Star,MC>::ScaleTrapezoidal
             int j = rowShift + jLoc*r;
             int firstRow = ( side==Left ? max(j-offset,0)
                                         : max(j-offset+height-width,0) );
-#ifdef RELEASE
             T* thisCol = this->LocalBuffer(firstRow,jLoc);
             for( int i=0; i<(height-firstRow); ++i )
                 thisCol[i] *= alpha;
-#else
-            for( int i=firstRow; i<height; ++i )
-            {
-                const T value = this->GetLocalEntry(i,jLoc);
-                this->SetLocalEntry(i,jLoc,alpha*value);
-            }
-#endif
         }
     }
 #ifndef RELEASE

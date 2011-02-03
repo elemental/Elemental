@@ -778,17 +778,9 @@ elemental::DistMatrixBase<T,Star,VC>::ScaleTrapezoidal
             int j = rowShift + jLoc*p;
             int lastRow = ( side==Left ? j-offset : j-offset+height-width );
             int boundary = min( lastRow+1, height );
-#ifdef RELEASE
             T* thisCol = this->LocalBuffer(0,jLoc);
             for( int i=0; i<boundary; ++i )
                 thisCol[i] *= alpha;
-#else
-            for( int i=0; i<boundary; ++i )
-            {
-                const T value = this->GetLocalEntry(i,jLoc);
-                this->SetLocalEntry(i,jLoc,alpha*value);
-            }
-#endif
         }
     }
     else
@@ -801,17 +793,9 @@ elemental::DistMatrixBase<T,Star,VC>::ScaleTrapezoidal
             int j = rowShift + jLoc*p;
             int firstRow = ( side==Left ? max(j-offset,0)
                                         : max(j-offset+height-width,0) );
-#ifdef RELEASE
             T* thisCol = this->LocalBuffer(firstRow,jLoc);
             for( int i=0; i<(height-firstRow); ++i )
                 thisCol[i] *= alpha;
-#else
-            for( int i=firstRow; i<height; ++i )
-            {
-                const T value = this->GetLocalEntry(i,jLoc);
-                this->SetLocalEntry(i,jLoc,alpha*value);
-            }
-#endif
         }
     }
 #ifndef RELEASE
@@ -1733,10 +1717,9 @@ elemental::DistMatrixBase<T,Star,VC>::SumScatterUpdate
         ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
 
         // Unpack our received data
-#ifdef RELEASE
-# ifdef _OPENMP
+#ifdef _OPENMP
         #pragma omp parallel for
-# endif
+#endif
         for( int j=0; j<localWidth; ++j )
         {
             const T* recvBufferCol = &recvBuffer[j*localHeight];
@@ -1744,21 +1727,6 @@ elemental::DistMatrixBase<T,Star,VC>::SumScatterUpdate
             for( int i=0; i<localHeight; ++i )
                 thisCol[i] += alpha*recvBufferCol[i];
         }
-#else
-# ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
-# endif
-        for( int j=0; j<localWidth; ++j )
-        {
-            for( int i=0; i<localHeight; ++i )
-            {
-                const T value = this->GetLocalEntry(i,j);
-                this->SetLocalEntry
-                    (i,j,value+alpha*recvBuffer[i+j*localHeight]);
-            }
-        }
-#endif
-
         this->_auxMemory.Release();
     }
     else
