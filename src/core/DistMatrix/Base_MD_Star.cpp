@@ -79,12 +79,15 @@ elemental::DistMatrixBase<T,MD,Star>::Print( const string& s ) const
         if( inDiagonal )
         {
             const int colShift = this->ColShift();
+            const T* thisLocalBuffer = this->LockedLocalBuffer();
+            const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
             #pragma omp parallel for COLLAPSE(2)
 #endif
-            for( int i=0; i<localHeight; ++i )
+            for( int iLocal=0; iLocal<localHeight; ++iLocal )
                 for( int j=0; j<width; ++j )
-                    sendBuf[colShift+i*lcm+j*height] = this->GetLocalEntry(i,j);
+                    sendBuf[(colShift+iLocal*lcm)+j*height] = 
+                        thisLocalBuffer[iLocal+j*thisLDim];
         }
 
         // If we are the root, allocate a receive buffer
@@ -907,6 +910,8 @@ elemental::DistMatrixBase<T,MD,Star>::MakeTrapezoidal
 
         if( shape == Lower )
         {
+            T* thisLocalBuffer = this->LocalBuffer();
+            const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
             #pragma omp parallel for
 #endif
@@ -917,14 +922,16 @@ elemental::DistMatrixBase<T,MD,Star>::MakeTrapezoidal
                 if( lastZeroRow >= 0 )
                 {
                     int boundary = min( lastZeroRow+1, height );
-                    int numZeroRows = LocalLength( boundary, colShift, lcm );
-                    T* thisCol = this->LocalBuffer(0,j);
+                    int numZeroRows = RawLocalLength( boundary, colShift, lcm );
+                    T* thisCol = &thisLocalBuffer[j*thisLDim];
                     memset( thisCol, 0, numZeroRows*sizeof(T) );
                 }
             }
         }
         else
         {
+            T* thisLocalBuffer = this->LocalBuffer();
+            const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
             #pragma omp parallel for
 #endif
@@ -933,10 +940,10 @@ elemental::DistMatrixBase<T,MD,Star>::MakeTrapezoidal
                 int firstZeroRow = 
                     ( side==Left ? max(j-offset+1,0)
                                  : max(j-offset+height-width+1,0) );
-                int numNonzeroRows = LocalLength(firstZeroRow,colShift,lcm);
+                int numNonzeroRows = RawLocalLength(firstZeroRow,colShift,lcm);
                 if( numNonzeroRows < localHeight )
                 {
-                    T* thisCol = this->LocalBuffer(numNonzeroRows,j);
+                    T* thisCol = &thisLocalBuffer[numNonzeroRows+j*thisLDim];
                     memset
                     ( thisCol, 0, (localHeight-numNonzeroRows)*sizeof(T) );
                 }
@@ -967,6 +974,8 @@ elemental::DistMatrixBase<T,MD,Star>::ScaleTrapezoidal
 
         if( shape == Upper )
         {
+            T* thisLocalBuffer = this->LocalBuffer();
+            const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
             #pragma omp parallel for
 #endif
@@ -974,14 +983,16 @@ elemental::DistMatrixBase<T,MD,Star>::ScaleTrapezoidal
             {
                 int lastRow = ( side==Left ? j-offset : j-offset+height-width );
                 int boundary = min( lastRow+1, height );
-                int numRows = LocalLength( boundary, colShift, lcm );
-                T* thisCol = this->LocalBuffer(0,j);
-                for( int iLoc=0; iLoc<numRows; ++iLoc )
-                    thisCol[iLoc] *= alpha;
+                int numRows = RawLocalLength( boundary, colShift, lcm );
+                T* thisCol = &thisLocalBuffer[j*thisLDim];
+                for( int iLocal=0; iLocal<numRows; ++iLocal )
+                    thisCol[iLocal] *= alpha;
             }
         }
         else
         {
+            T* thisLocalBuffer = this->LocalBuffer();
+            const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
             #pragma omp parallel for
 #endif
@@ -989,10 +1000,10 @@ elemental::DistMatrixBase<T,MD,Star>::ScaleTrapezoidal
             {
                 int firstRow = ( side==Left ? max(j-offset,0)
                                             : max(j+height-width-offset,0) );
-                int numZeroRows = LocalLength( firstRow, colShift, lcm );
-                T* thisCol = this->LocalBuffer(numZeroRows,j);
-                for( int iLoc=0; iLoc<(localHeight-numZeroRows); ++iLoc )
-                    thisCol[iLoc] *= alpha;
+                int numZeroRows = RawLocalLength( firstRow, colShift, lcm );
+                T* thisCol = &thisLocalBuffer[numZeroRows+j*thisLDim];
+                for( int iLocal=0; iLocal<(localHeight-numZeroRows); ++iLocal )
+                    thisCol[iLocal] *= alpha;
             }
         }
     }
@@ -1017,14 +1028,17 @@ elemental::DistMatrixBase<T,MD,Star>::SetToIdentity()
         const int colShift = this->ColShift();
 
         this->_localMatrix.SetToZero();
+
+        T* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
-            const int i = colShift + iLoc*lcm;
+            const int i = colShift + iLocal*lcm;
             if( i < width )
-                this->SetLocalEntry(iLoc,i,1);
+                thisLocalBuffer[iLocal+i*thisLDim] = 1;
         }
     }
 #ifndef RELEASE
@@ -1326,12 +1340,18 @@ elemental::DistMatrixBase<T,MD,Star>::operator=
 
         const int width = this->Width();
         const int localHeight = this->LocalHeight();
+
+        const T* ALocalBuffer = A.LockedLocalBuffer();
+        const int ALDim = A.LocalLDim();
+        T* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for COLLAPSE(2)
 #endif
         for( int j=0; j<width; ++j )
-            for( int i=0; i<localHeight; ++i )
-                this->SetLocalEntry(i,j,A.GetLocalEntry(colShift+i*lcm,j));
+            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+                thisLocalBuffer[iLocal+j*thisLDim] = 
+                    ALocalBuffer[(colShift+iLocal*lcm)+j*ALDim];
     }
 #ifndef RELEASE
     PopCallStack();
