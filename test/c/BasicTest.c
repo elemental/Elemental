@@ -15,7 +15,7 @@ int main( int argc, char* argv[] )
 #ifndef WITHOUT_COMPLEX
     DComplex* BBuffer;
     MC_MR_DComplex B;
-#endif // WITHOUT_COMPLEX
+#endif /* WITHOUT_COMPLEX */
 
     ElementalInit( &argc, &argv );
 

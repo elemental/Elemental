@@ -36,12 +36,23 @@
 namespace elemental {
 namespace utilities {
 
+// The 'Raw' versions of the below routines do not check for errors and can
+// be used within threaded regions.
+
 int
 GCD
 ( int a, int b ); 
 
 int
+RawGCD
+( int a, int b );
+
+int
 LocalLength
+( int n, int shift, int modulus );
+
+int
+RawLocalLength
 ( int n, int shift, int modulus );
 
 int
@@ -49,11 +60,23 @@ LocalLength
 ( int n, int index, int alignment, int modulus );
 
 int
+RawLocalLength
+( int n, int index, int alignment, int modulus );
+
+int
 MaxLocalLength
 ( int n, int modulus );
 
 int
+RawMaxLocalLength
+( int n, int modulus );
+
+int
 Shift
+( int index, int alignment, int modulus );
+
+int
+RawShift
 ( int index, int alignment, int modulus );
 
 } // utilities
@@ -71,6 +94,12 @@ elemental::utilities::GCD
     if( a < 0 || b < 0 )
         throw std::logic_error( "GCD called with negative argument." );
 #endif
+    return elemental::utilities::RawGCD( a, b );
+}
+
+inline int
+elemental::utilities::RawGCD( int a, int b )
+{
     if( b == 0 )
         return a;
     else
@@ -96,6 +125,13 @@ elemental::utilities::LocalLength
         throw std::logic_error( "Modulus must be positive." );
     PopCallStack();
 #endif
+    return elemental::utilities::RawLocalLength( n, shift, modulus );
+}
+
+inline int
+elemental::utilities::RawLocalLength
+( int n, int shift, int modulus )
+{
     return ( n > shift ? (n - shift - 1)/modulus + 1 : 0 );
 }
 
@@ -115,6 +151,15 @@ elemental::utilities::LocalLength
 }
 
 inline int
+elemental::utilities::RawLocalLength
+( int n, int index, int alignment, int modulus )
+{
+    int shift = RawShift( index, alignment, modulus );
+    int localLength = RawLocalLength( n, shift, modulus );
+    return localLength;
+}
+
+inline int
 elemental::utilities::MaxLocalLength
 ( int n, int modulus )
 {
@@ -126,6 +171,13 @@ elemental::utilities::MaxLocalLength
         throw std::logic_error( "Modulus must be positive." );
     PopCallStack();
 #endif
+    return elemental::utilities::RawMaxLocalLength( n, modulus );
+}
+
+inline int
+elemental::utilities::RawMaxLocalLength
+( int n, int modulus )
+{
     return ( n > 0 ? (n - 1)/modulus + 1 : 0 );
 }
 
@@ -156,6 +208,13 @@ elemental::utilities::Shift
         throw std::logic_error( "Modulus must be positive." );
     PopCallStack();
 #endif
+    return elemental::utilities::RawShift( index, alignment, modulus );
+}
+
+inline int
+elemental::utilities::RawShift
+( int index, int alignment, int modulus )
+{
     return (index + modulus - alignment) % modulus;
 }
 
