@@ -64,17 +64,17 @@ elemental::DistMatrix<Z,MR,Star>::SetToRandomHPD()
     const int colShift = this->ColShift();
 
     this->SetToRandom();
+
+    Z* thisLocalBuffer = this->LocalBuffer();
+    const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int i = colShift + iLoc*c;
+        const int i = colShift + iLocal*c;
         if( i < width )
-        {
-            const Z value = this->GetLocalEntry(iLoc,i);
-            this->SetLocalEntry(iLoc,i,value+this->Width());
-        }
+            thisLocalBuffer[iLocal+i*thisLDim] += width;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -98,16 +98,19 @@ elemental::DistMatrix<complex<Z>,MR,Star>::SetToRandomHPD()
     const int colShift = this->ColShift();
 
     this->SetToRandom();
+
+    complex<Z>* thisLocalBuffer = this->LocalBuffer();
+    const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int i = colShift + iLoc*c;
+        const int i = colShift + iLocal*c;
         if( i < width )
         {
-            const Z value = real(this->GetLocalEntry(iLoc,i));
-            this->SetLocalEntry(iLoc,i,value+this->Width());
+            const Z value = real(thisLocalBuffer[iLocal+i*thisLDim]);
+            thisLocalBuffer[iLocal+i*thisLDim] = value + width;
         }
     }
 #ifndef RELEASE
