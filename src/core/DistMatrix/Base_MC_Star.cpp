@@ -934,8 +934,8 @@ elemental::DistMatrixBase<T,MC,Star>::SetToRandom()
         if( this->_g->MRRank() == 0 )
         {
             for( int j=0; j<width; ++j )
-                for( int i=0; i<localHeight; ++i )
-                    buffer[i+j*localHeight] = Random<T>();
+                for( int iLocal=0; iLocal<localHeight; ++iLocal )
+                    buffer[iLocal+j*localHeight] = Random<T>();
         }
         Broadcast( buffer, bufSize, 0, this->Grid().MRComm() );
 

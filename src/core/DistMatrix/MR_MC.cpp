@@ -59,6 +59,8 @@ elemental::DistMatrix<Z,MR,MC>::SetToRandomHPD()
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
     const Grid& g = this->Grid();
+
+    const int width = this->Width();
     const int localHeight = this->LocalHeight();
     const int localWidth = this->LocalWidth();
     const int r = g.Height();
@@ -67,20 +69,20 @@ elemental::DistMatrix<Z,MR,MC>::SetToRandomHPD()
     const int rowShift = this->RowShift();
 
     this->SetToRandom();
+
+    Z* thisLocalBuffer = this->LocalBuffer();
+    const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int i = colShift + iLoc*c;
+        const int i = colShift + iLocal*c;
         if( i % r == rowShift )
         {
-            const int jLoc = (i-rowShift) / r;
-            if( jLoc < localWidth )
-            {
-                const Z value = this->GetLocalEntry(iLoc,jLoc);
-                this->SetLocalEntry(iLoc,jLoc,value+this->Width());
-            }
+            const int jLocal = (i-rowShift) / r;
+            if( jLocal < localWidth )
+                thisLocalBuffer[iLocal+jLocal*thisLDim] += width;
         }
     }
 #ifndef RELEASE
@@ -100,6 +102,8 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetToRandomHPD()
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
     const Grid& g = this->Grid();
+
+    const int width = this->Width();
     const int localHeight = this->LocalHeight();
     const int localWidth = this->LocalWidth();
     const int r = g.Height();
@@ -108,19 +112,22 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetToRandomHPD()
     const int rowShift = this->RowShift();
 
     this->SetToRandom();
+
+    complex<Z>* thisLocalBuffer = this->LocalBuffer();
+    const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int i = colShift + iLoc*c;
+        const int i = colShift + iLocal*c;
         if( i % r == rowShift )
         {
-            const int jLoc = (i-rowShift) / r;
-            if( jLoc < localWidth )
+            const int jLocal = (i-rowShift) / r;
+            if( jLocal < localWidth )
             {
-                const Z value = real(this->GetLocalEntry(iLoc,jLoc));
-                this->SetLocalEntry(iLoc,jLoc,value+this->Width());
+                const Z value = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+                thisLocalBuffer[iLocal+jLocal*thisLDim] = value + width;
             }
         }
     }
@@ -348,18 +355,23 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetRealDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / c;
-        const int jLocStart = (jStart-rowShift) / r;
+        const int iLocalStart = (iStart-colShift) / c;
+        const int jLocalStart = (jStart-rowShift) / r;
 
         const int localDiagLength = d.LocalHeight();
+
+        Z* dLocalBuffer = d.LocalBuffer();
+        const int dLDim = d.LocalLDim();
+        const complex<Z>* thisLocalBuffer = this->LockedLocalBuffer();
+        const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const Z value = real(this->GetLocalEntry(iLocStart+k*(lcm/c),
-                                                     jLocStart+k*(lcm/r)));
-            d.SetLocalEntry(k,0,value);
+            const int iLocal = iLocalStart + k*(lcm/c);
+            const int jLocal = jLocalStart + k*(lcm/r);
+            dLocalBuffer[k] = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
     }
 #ifndef RELEASE
@@ -424,18 +436,23 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetImagDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / c;
-        const int jLocStart = (jStart-rowShift) / r;
+        const int iLocalStart = (iStart-colShift) / c;
+        const int jLocalStart = (jStart-rowShift) / r;
 
         const int localDiagLength = d.LocalHeight();
+
+        Z* dLocalBuffer = d.LocalBuffer();
+        const int dLDim = d.LocalLDim();
+        const complex<Z>* thisLocalBuffer = this->LockedLocalBuffer();
+        const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const Z value = imag(this->GetLocalEntry(iLocStart+k*(lcm/c),
-                                                     jLocStart+k*(lcm/r)));
-            d.SetLocalEntry(k,0,value);
+            const int iLocal = iLocalStart + k*(lcm/c);
+            const int jLocal = jLocalStart + k*(lcm/r);
+            dLocalBuffer[k] = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
     }
 #ifndef RELEASE
@@ -501,18 +518,24 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetRealDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / c;
-        const int jLocStart = (jStart-rowShift) / r;
+        const int iLocalStart = (iStart-colShift) / c;
+        const int jLocalStart = (jStart-rowShift) / r;
 
         const int localDiagLength = d.LocalWidth();
+
+        Z* dLocalBuffer = d.LocalBuffer();
+        const int dLDim = d.LocalLDim();
+        const complex<Z>* thisLocalBuffer = this->LockedLocalBuffer();
+        const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const Z value = real(this->GetLocalEntry(iLocStart+k*(lcm/c),
-                                                     jLocStart+k*(lcm/r)));
-            d.SetLocalEntry(0,k,value);
+            const int iLocal = iLocalStart + k*(lcm/c);
+            const int jLocal = jLocalStart + k*(lcm/r);
+            dLocalBuffer[k*dLDim] = 
+                real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
     }
 #ifndef RELEASE
@@ -578,18 +601,24 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetImagDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / c;
-        const int jLocStart = (jStart-rowShift) / r;
+        const int iLocalStart = (iStart-colShift) / c;
+        const int jLocalStart = (jStart-rowShift) / r;
 
         const int localDiagLength = d.LocalWidth();
+
+        Z* dLocalBuffer = d.LocalBuffer();
+        const int dLDim = d.LocalLDim();
+        const complex<Z>* thisLocalBuffer = this->LockedLocalBuffer();
+        const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const Z value = imag(this->GetLocalEntry(iLocStart+k*(lcm/c),
-                                                     jLocStart+k*(lcm/r)));
-            d.SetLocalEntry(0,k,value);
+            const int iLocal = iLocalStart + k*(lcm/c);
+            const int jLocal = jLocalStart + k*(lcm/r);
+            dLocalBuffer[k*dLDim] = 
+                imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
     }
 #ifndef RELEASE
@@ -653,17 +682,23 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / c;
-        const int jLocStart = (jStart-rowShift) / r;
+        const int iLocalStart = (iStart-colShift) / c;
+        const int jLocalStart = (jStart-rowShift) / r;
 
         const int localDiagLength = d.LocalHeight();
+
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        const int dLDim = d.LocalLDim();
+        complex<Z>* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            this->SetLocalEntry
-                (iLocStart+k*(lcm/c),jLocStart+k*(lcm/r),d.GetLocalEntry(k,0));
+            const int iLocal = iLocalStart + k*(lcm/c);
+            const int jLocal = jLocalStart + k*(lcm/r);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = dLocalBuffer[k];
         }
     }
 #ifndef RELEASE
@@ -727,20 +762,25 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetRealDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / c;
-        const int jLocStart = (jStart-rowShift) / r;
+        const int iLocalStart = (iStart-colShift) / c;
+        const int jLocalStart = (jStart-rowShift) / r;
 
         const int localDiagLength = d.LocalHeight();
+
+        complex<Z>* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        const int dLDim = d.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const Z v = imag(this->GetLocalEntry(iLocStart+k*(lcm/c),
-                                                 jLocStart+k*(lcm/r)));
-            this->SetLocalEntry
-                (iLocStart+k*(lcm/c),jLocStart+k*(lcm/r),
-                 complex<Z>(d.GetLocalEntry(k,0),v));
+            const int iLocal = iLocalStart + k*(lcm/c);
+            const int jLocal = jLocalStart + k*(lcm/r);
+            const Z u = dLocalBuffer[k];
+            const Z v = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
         }
     }
 #ifndef RELEASE
@@ -804,20 +844,25 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetImagDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / c;
-        const int jLocStart = (jStart-rowShift) / r;
+        const int iLocalStart = (iStart-colShift) / c;
+        const int jLocalStart = (jStart-rowShift) / r;
 
         const int localDiagLength = d.LocalHeight();
+
+        complex<Z>* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        const int dLDim = d.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const Z u = real(this->GetLocalEntry(iLocStart+k*(lcm/c),
-                                                 jLocStart+k*(lcm/r)));
-            this->SetLocalEntry
-                (iLocStart+k*(lcm/c),jLocStart+k*(lcm/r),
-                 complex<Z>(u,d.GetLocalEntry(k,0)));
+            const int iLocal = iLocalStart + k*(lcm/c);
+            const int jLocal = jLocalStart + k*(lcm/r);
+            const Z u = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            const Z v = dLocalBuffer[k];
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
         }
     }
 #ifndef RELEASE
@@ -881,16 +926,24 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / c;
-        const int jLocStart = (jStart-rowShift) / r;
+        const int iLocalStart = (iStart-colShift) / c;
+        const int jLocalStart = (jStart-rowShift) / r;
 
         const int localDiagLength = d.LocalWidth();
+
+        complex<Z>* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        const int dLDim = d.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int k=0; k<localDiagLength; ++k )
-            this->SetLocalEntry
-                (iLocStart+k*(lcm/c),jLocStart+k*(lcm/r),d.GetLocalEntry(0,k));
+        {
+            const int iLocal = iLocalStart + k*(lcm/c);
+            const int jLocal = jLocalStart + k*(lcm/r);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = dLocalBuffer[k*dLDim];
+        }
     }
 #ifndef RELEASE
     PopCallStack();
@@ -953,20 +1006,25 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetRealDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / c;
-        const int jLocStart = (jStart-rowShift) / r;
+        const int iLocalStart = (iStart-colShift) / c;
+        const int jLocalStart = (jStart-rowShift) / r;
 
         const int localDiagLength = d.LocalWidth();
+
+        complex<Z>* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        const int dLDim = d.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const Z v = imag(this->GetLocalEntry(iLocStart+k*(lcm/c),
-                                                 jLocStart+k*(lcm/r)));
-            this->SetLocalEntry
-                (iLocStart+k*(lcm/c),jLocStart+k*(lcm/r),
-                 complex<Z>(d.GetLocalEntry(0,k),v));
+            const int iLocal = iLocalStart + k*(lcm/c);
+            const int jLocal = jLocalStart + k*(lcm/r);
+            const Z u = dLocalBuffer[k*dLDim];
+            const Z v = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
         }
     }
 #ifndef RELEASE
@@ -1030,20 +1088,25 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetImagDiagonal
             jStart = diagShift;
         }
 
-        const int iLocStart = (iStart-colShift) / c;
-        const int jLocStart = (jStart-rowShift) / r;
+        const int iLocalStart = (iStart-colShift) / c;
+        const int jLocalStart = (jStart-rowShift) / r;
 
         const int localDiagLength = d.LocalWidth();
+
+        complex<Z>* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        const int dLDim = d.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int k=0; k<localDiagLength; ++k )
         {
-            const Z u = real(this->GetLocalEntry(iLocStart+k*(lcm/c),
-                                                 jLocStart+k*(lcm/r)));
-            this->SetLocalEntry
-                (iLocStart+k*(lcm/c),jLocStart+k*(lcm/r),
-                 complex<Z>(u,d.GetLocalEntry(0,k)));
+            const int iLocal = iLocalStart + k*(lcm/c);
+            const int jLocal = jLocalStart + k*(lcm/r);
+            const Z u = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            const Z v = dLocalBuffer[k*dLDim];
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
         }
     }
 #ifndef RELEASE
