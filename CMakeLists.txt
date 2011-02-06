@@ -72,6 +72,10 @@ mark_as_advanced(AVOID_COMPLEX_MPI CACHE_WARNINGS UNALIGNED_WARNINGS
 option(AVOID_OMP_FMA "Avoid a bug in the IBM compilers." ON)
 mark_as_advanced(AVOID_OMP_FMA)
 
+# Choose whether or not to build the prototype for the C interface
+option(BUILD_C_INTERFACE "Build the prototype for the C interface" OFF)
+mark_as_advanced(BUILD_C_INTERFACE)
+
 if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
   set(HYBRID TRUE)
   set(DEBUG TRUE)
@@ -322,6 +326,11 @@ if(WITHOUT_PMRRR)
   list(REMOVE_ITEM ELEMENTAL_CPP
        "src/lapack/GeneralizedHermitianEig/GeneralizedHermitianEig.cpp")
 endif(WITHOUT_PMRRR)
+if(NOT BUILD_C_INTERFACE)
+    message(STATUS "Removing prototype C interface from Elemental")
+    list(REMOVE_ITEM ELEMENTAL_CPP "src/exports/c_interface.cpp")
+    list(REMOVE_ITEM ELEMENTAL_HEADERS "include/elemental/exports/c.h")
+endif(NOT BUILD_C_INTERFACE)
 set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
 # Create the lists of test executables and configure the compile flags
@@ -333,7 +342,14 @@ if(BUILD_TESTS)
   set(BLAS_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
   set(LAPACK_TESTS Chol Hegst LU QR Tridiag Trinv UT)
 
-  set(C_TESTS BasicTest)
+  if(BUILD_C_INTERFACE)
+    set(C_TESTS BasicTest)
+  endif(BUILD_C_INTERFACE)
+
+  if(BUILD_PMRRR AND NOT FAILED_PMRRR)
+    list(APPEND LAPACK_TESTS GeneralizedHermitianEig)
+    list(APPEND LAPACK_TESTS HermitianEig)
+  endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
   set(CMAKE_CXX_FLAGS_HYBRIDDEBUG
       "${CXX_HYBRID_DEBUG_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -343,10 +359,6 @@ if(BUILD_TESTS)
       "${CXX_PURE_DEBUG_FLAGS}")
   set(CMAKE_CXX_FLAGS_PURERELEASE
       "${CXX_PURE_RELEASE_FLAGS}")
-  if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-    list(APPEND LAPACK_TESTS GeneralizedHermitianEig)
-    list(APPEND LAPACK_TESTS HermitianEig)
-  endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 endif(BUILD_TESTS)
 
 # Create a dummy library in order to be able to force the math libraries
