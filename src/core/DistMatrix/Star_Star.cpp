@@ -64,14 +64,14 @@ elemental::DistMatrix<Z,Star,Star>::SetToRandomHPD()
         const int width = this->Width();
 
         this->SetToRandom();
+
+        Z* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int j=0; j<min(height,width); ++j )
-        {
-            const Z value = this->GetLocalEntry(j,j);
-            this->SetLocalEntry(j,j,value+this->Width());
-        }
+            thisLocalBuffer[j+j*thisLDim] += width;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -95,13 +95,16 @@ elemental::DistMatrix<complex<Z>,Star,Star>::SetToRandomHPD()
         const int width = this->Width();
 
         this->SetToRandom();
+
+        complex<Z>* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( int j=0; j<min(height,width); ++j )
         {
-            const Z value = real(this->GetLocalEntry(j,j));
-            this->SetLocalEntry(j,j,value+this->Width());
+            const Z value = real(thisLocalBuffer[j+j*thisLDim]);
+            thisLocalBuffer[j+j*thisLDim] = value + width;
         }
     }
 #ifndef RELEASE
