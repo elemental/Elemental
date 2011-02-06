@@ -67,6 +67,11 @@ option(POOL_MEMORY "Make Memory class accumulate memory until destruction"  OFF)
 mark_as_advanced(AVOID_COMPLEX_MPI CACHE_WARNINGS UNALIGNED_WARNINGS 
                  VECTOR_WARNINGS ENABLE_ALL_DISTRIBUTED_DOT POOL_MEMORY)
 
+# Bug fix for IBM's compiler miscompiling OpenMP a[i] += alpha b[i] statements
+# for complex datatypes
+option(AVOID_OMP_FMA "Avoid a bug in the IBM compilers." ON)
+mark_as_advanced(AVOID_OMP_FMA)
+
 if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
   set(HYBRID TRUE)
   set(DEBUG TRUE)

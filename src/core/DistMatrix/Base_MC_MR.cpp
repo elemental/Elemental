@@ -3962,7 +3962,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
                 if( myCol == rowAlignment )
                 {
                     T* thisCol = this->LocalBuffer(0,0);
-#ifdef _OPENMP
+#if defined(_OPENMP) && !defined(AVOID_OMP_FMA)
                     #pragma omp parallel for
 #endif
                     for( int iLocal=0; iLocal<localHeight; ++iLocal )
@@ -4089,7 +4089,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
                       sendBuffer, portionSize, recvRow, 0, g.MCComm() );
 
                     T* thisCol = this->LocalBuffer(0,0);
-#ifdef _OPENMP
+#if defined(_OPENMP) && !defined(AVOID_OMP_FMA)
                     #pragma omp parallel for
 #endif
                     for( int iLocal=0; iLocal<localHeight; ++iLocal )
@@ -4169,7 +4169,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
                 // Update with our received data
                 T* thisLocalBuffer = this->LocalBuffer();
                 const int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
+#if defined(_OPENMP) && !defined(AVOID_OMP_FMA)
                 #pragma omp parallel for
 #endif
                 for( int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -4274,7 +4274,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
             // Update with our received data
             T* thisLocalBuffer = this->LocalBuffer();
             const int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
+#if defined(_OPENMP) && !defined(AVOID_OMP_FMA)
             #pragma omp parallel for
 #endif
             for( int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -4361,7 +4361,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
             // Update with our received data
             T* thisLocalBuffer = this->LocalBuffer();
             const int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
+#if defined(_OPENMP) && !defined(AVOID_OMP_FMA)
             #pragma omp parallel for
 #endif
             for( int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -4458,7 +4458,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
         // Unpack our received data
         T* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
+#if defined(_OPENMP) && !defined(AVOID_OMP_FMA)
         #pragma omp parallel for
 #endif
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
