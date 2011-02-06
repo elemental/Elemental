@@ -60,22 +60,23 @@ elemental::DistMatrix<Z,Star,VR>::SetToRandomHPD()
 #endif
     const Grid& g = this->Grid();
     const int height = this->Height();
+    const int width = this->Width();
     const int localWidth = this->LocalWidth();
     const int p = g.Size();
     const int rowShift = this->RowShift();
 
     this->SetToRandom();
+
+    Z* thisLocalBuffer = this->LocalBuffer();
+    const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
-        const int j = rowShift + jLoc*p;
+        const int j = rowShift + jLocal*p;
         if( j < height )
-        {
-            const Z value = this->GetLocalEntry(j,jLoc);
-            this->SetLocalEntry(j,jLoc,value+this->Width());
-        }
+            thisLocalBuffer[j+jLocal*thisLDim] += width;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -95,21 +96,25 @@ elemental::DistMatrix<complex<Z>,Star,VR>::SetToRandomHPD()
 #endif
     const Grid& g = this->Grid();
     const int height = this->Height();
+    const int width = this->Width();
     const int localWidth = this->LocalWidth();
     const int p = g.Size();
     const int rowShift = this->RowShift();
 
     this->SetToRandom();
+
+    complex<Z>* thisLocalBuffer = this->LocalBuffer();
+    const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
-        const int j = rowShift + jLoc*p;
+        const int j = rowShift + jLocal*p;
         if( j < height )
         {
-            const Z value = real(this->GetLocalEntry(j,jLoc));
-            this->SetLocalEntry(j,jLoc,value+this->Width());
+            const Z value = real(thisLocalBuffer[j+jLocal*thisLDim]);
+            thisLocalBuffer[j+jLocal*thisLDim] = value + width;
         }
     }
 #ifndef RELEASE

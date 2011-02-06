@@ -74,12 +74,15 @@ elemental::DistMatrixBase<T,VC,Star>::Print( const string& s ) const
     }
 
     vector<T> sendBuf(height*width,0);
+    const T* thisLocalBuffer = this->LockedLocalBuffer();
+    const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for COLLAPSE(2)
 #endif
-    for( int i=0; i<localHeight; ++i )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
         for( int j=0; j<width; ++j )
-            sendBuf[colShift+i*p+j*height] = this->GetLocalEntry(i,j);
+            sendBuf[(colShift+iLocal*p)+j*height] = 
+                thisLocalBuffer[iLocal+j*thisLDim];
 
     // If we are the root, allocate a receive buffer
     vector<T> recvBuf;
@@ -716,6 +719,7 @@ elemental::DistMatrixBase<T,VC,Star>::MakeTrapezoidal
 
     if( shape == Lower )
     {
+        // HERE
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
