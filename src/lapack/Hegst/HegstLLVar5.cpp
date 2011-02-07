@@ -37,11 +37,11 @@ using namespace elemental;
 
 template<typename F> // F represents a real or complex field
 void
-elemental::lapack::internal::HegstLLVar2
+elemental::lapack::internal::HegstLLVar5
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::HegstLLVar2");
+    PushCallStack("lapack::internal::HegstLLVar5");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( L.Height() != L.Width() )
@@ -50,7 +50,7 @@ elemental::lapack::internal::HegstLLVar2
         throw logic_error( "A and L must be the same size." );
 #endif
     const Grid& g = A.Grid();
-
+    
     // Matrix views
     DistMatrix<F,MC,MR>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
@@ -63,17 +63,16 @@ elemental::lapack::internal::HegstLLVar2
                          L20(g), L21(g), L22(g);
 
     // Temporary distributions
-    DistMatrix<F,Star,VR  > A10_Star_VR(g);
-    DistMatrix<F,Star,MR  > A10_Star_MR(g);
-    DistMatrix<F,Star,MC  > A10_Star_MC(g);
     DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,VC,  Star> A21_VC_Star(g);
-    DistMatrix<F,MC,  Star> A21_MC_Star(g);
-    DistMatrix<F,Star,VR  > L10_Star_VR(g);
-    DistMatrix<F,Star,MR  > L10_Star_MR(g);
-    DistMatrix<F,Star,MC  > L10_Star_MC(g);
+    DistMatrix<F,Star,MC  > A10_Star_MC(g);
+    DistMatrix<F,MR,  Star> A10Trans_MR_Star(g);
+    DistMatrix<F,Star,VR  > A10_Star_VR(g);
     DistMatrix<F,Star,Star> L11_Star_Star(g);
-    DistMatrix<F,Star,VR  > X10_Star_VR(g);
+    DistMatrix<F,Star,MC  > L10_Star_MC(g);
+    DistMatrix<F,Star,MR  > L10_Star_MR(g);
+    DistMatrix<F,Star,VR  > L10_Star_VR(g);
+    DistMatrix<F,MC,  MR  > Y10(g);
+    DistMatrix<F,Star,VR  > Y10_Star_VR(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -95,64 +94,66 @@ elemental::lapack::internal::HegstLLVar2
                /**/       L10, /**/ L11, L12,
           LBL, /**/ LBR,  L20, /**/ L21, L22 );
 
-        A10_Star_VR.AlignWith( A00 );
-        A10_Star_MR.AlignWith( A00 );
         A10_Star_MC.AlignWith( A00 );
-        A21_MC_Star.AlignWith( A20 );
-        L10_Star_VR.AlignWith( A00 );
-        L10_Star_MR.AlignWith( A00 );
+        A10Trans_MR_Star.AlignWith( A00 );
+        A10_Star_VR.AlignWith( A10 );
         L10_Star_MC.AlignWith( A00 );
-        X10_Star_VR.AlignWith( A10 );
-        X10_Star_VR.ResizeTo( A10.Height(), A10.Width() );
-        X10_Star_VR.SetToZero();
+        L10_Star_MR.AlignWith( A00 );
+        L10_Star_VR.AlignWith( A00 );
+        Y10.AlignWith( A10 );
+        Y10_Star_VR.AlignWith( A10 );
         //--------------------------------------------------------------------//
+        // Y10 := A11 L10
         A11_Star_Star = A11;
         L10_Star_VR = L10;
+        Y10_Star_VR.ResizeTo( A10.Height(), A10.Width() );
         blas::Hemm
-        ( Left, Lower,
-          (F)0.5, A11_Star_Star.LockedLocalMatrix(),
-                  L10_Star_VR.LockedLocalMatrix(),
-          (F)0,   X10_Star_VR.LocalMatrix() );
+        ( Left, Lower, 
+          (F)1, A11_Star_Star.LocalMatrix(), L10_Star_VR.LocalMatrix(),
+          (F)0, Y10_Star_VR.LocalMatrix() );
+        Y10 = Y10_Star_VR;
 
-        A10_Star_VR = A10;
-        blas::Axpy( (F)1, X10_Star_VR, A10_Star_VR );
+        // A10 := A10 L00
+        blas::Trmm
+        ( Right, Lower, Normal, NonUnit, (F)1, L00, A10 );
 
-        A10_Star_MR = A10_Star_VR;
-        A10_Star_MC = A10_Star_VR;
+        // A10 := A10 + 1/2 Y10
+        blas::Axpy( (F)0.5, Y10, A10 );
+
+        // A00 := A00 + (A10' L10 + L10' A10)
+        A10Trans_MR_Star.TransposeFrom( A10 );
         L10_Star_MR = L10_Star_VR;
+        A10_Star_VR = A10;
+        A10_Star_MC = A10_Star_VR;
         L10_Star_MC = L10_Star_VR;
         blas::internal::LocalTriangularRank2K
-        ( Lower, ConjugateTranspose, ConjugateTranspose,
-          (F)1, A10_Star_MC, L10_Star_MC, A10_Star_MR, L10_Star_MR, (F)1, A00 );
+        ( Lower, ConjugateTranspose, ConjugateTranspose, Transpose,
+          (F)1, L10_Star_MC, A10_Star_MC, L10_Star_MR, A10Trans_MR_Star, 
+          (F)1, A00 );
 
-        blas::Axpy( (F)1, X10_Star_VR, A10_Star_VR );
+        // A10 := A10 + 1/2 Y10
+        blas::Axpy( (F)0.5, Y10_Star_VR, A10_Star_VR );
+
+        // A10 := L11' A10
         L11_Star_Star = L11;
         blas::internal::LocalTrmm
         ( Left, Lower, ConjugateTranspose, NonUnit,
           (F)1, L11_Star_Star, A10_Star_VR );
         A10 = A10_Star_VR;
 
-        A21_MC_Star = A21;
-        blas::internal::LocalGemm
-        ( Normal, Normal, (F)1, A21_MC_Star, L10_Star_MR, (F)1, A20 );
-
+        // A11 := L11' A11 L11
         lapack::internal::LocalHegst
         ( Left, Lower, A11_Star_Star, L11_Star_Star );
         A11 = A11_Star_Star;
-
-        A21_VC_Star = A21_MC_Star;
-        blas::internal::LocalTrmm
-        ( Right, Lower, Normal, NonUnit, (F)1, L11_Star_Star, A21_VC_Star );
-        A21 = A21_VC_Star;
         //--------------------------------------------------------------------//
-        A10_Star_VR.FreeAlignments();
-        A10_Star_MR.FreeAlignments();
         A10_Star_MC.FreeAlignments();
-        A21_MC_Star.FreeAlignments();
-        L10_Star_VR.FreeAlignments();
-        L10_Star_MR.FreeAlignments();
+        A10Trans_MR_Star.FreeAlignments();
+        A10_Star_VR.FreeAlignments();
         L10_Star_MC.FreeAlignments();
-        X10_Star_VR.FreeAlignments();
+        L10_Star_MR.FreeAlignments();
+        L10_Star_VR.FreeAlignments();
+        Y10.FreeAlignments();
+        Y10_Star_VR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
@@ -163,7 +164,7 @@ elemental::lapack::internal::HegstLLVar2
         SlideLockedPartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,
                /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
+         /**********************************/
           LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
 #ifndef RELEASE
@@ -171,17 +172,17 @@ elemental::lapack::internal::HegstLLVar2
 #endif
 }
 
-template void elemental::lapack::internal::HegstLLVar2
+template void elemental::lapack::internal::HegstLLVar5
 ( DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstLLVar2
+template void elemental::lapack::internal::HegstLLVar5
 ( DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& L );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::HegstLLVar2
+template void elemental::lapack::internal::HegstLLVar5
 ( DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& L );
 
-template void elemental::lapack::internal::HegstLLVar2
+template void elemental::lapack::internal::HegstLLVar5
 ( DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& L );
 #endif
 

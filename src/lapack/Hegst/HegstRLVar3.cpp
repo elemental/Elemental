@@ -66,7 +66,6 @@ elemental::lapack::internal::HegstRLVar3
                          L20(g), L21(g), L22(g);
 
     // Temporary distributions
-    DistMatrix<F,MC,  MR  > Y(g);
     DistMatrix<F,Star,MR  > A11_Star_MR(g);
     DistMatrix<F,Star,Star> A11_Star_Star(g);
     DistMatrix<F,VC,  Star> A21_VC_Star(g);
@@ -82,6 +81,7 @@ elemental::lapack::internal::HegstRLVar3
 
     // We will use an entire extra matrix as temporary storage. If this is not
     // acceptable, use HegstRLVar4 instead.
+    DistMatrix<F,MC,MR> Y(g);
     Y.AlignWith( A );
     Y.ResizeTo( A.Height(), A.Width() );
     Y.SetToZero();
@@ -124,14 +124,14 @@ elemental::lapack::internal::HegstRLVar3
         L21_MC_Star.AlignWith( Y21 );
         X21_MC_Star.AlignWith( A20 );
         Z21_MC_Star.AlignWith( L20 );
-        X11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
-        X21_MC_Star.ResizeTo( A21.Height(), A21.Width() );
-        Z21_MC_Star.ResizeTo( A21.Height(), A21.Width() );
         //--------------------------------------------------------------------//
+        // A10 := A10 - 1/2 Y10
         blas::Axpy( (F)-0.5, Y10, A10 );
 
+        // A11 := A11 - (A10 L10' + L10 A10')
 	A10_Star_VR = A10;
 	L10_Star_VR = L10;
+        X11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
         blas::Her2k
         ( Lower, Normal, 
 	  (F)1, A10_Star_VR.LocalMatrix(), L10_Star_VR.LocalMatrix(),
@@ -139,30 +139,38 @@ elemental::lapack::internal::HegstRLVar3
         X11_Star_Star.MakeTrapezoidal( Left, Lower );
         A11.SumScatterUpdate( (F)-1, X11_Star_Star );
 
+        // A11 := inv(L11) A11 inv(L11)'
         A11_Star_Star = A11;
         L11_Star_Star = L11;
         lapack::internal::LocalHegst
         ( Right, Lower, A11_Star_Star, L11_Star_Star );
         A11 = A11_Star_Star;
 
+        // A21 := A21 - A20 L10'
 	L10_Star_MR = L10_Star_VR;
+        X21_MC_Star.ResizeTo( A21.Height(), A21.Width() );
         blas::internal::LocalGemm
         ( Normal, ConjugateTranspose, 
 	  (F)1, A20, L10_Star_MR, (F)0, X21_MC_Star );
         A21.SumScatterUpdate( (F)-1, X21_MC_Star );
 
+        // A21 := A21 inv(L11)'
         A21_VC_Star = A21;
         blas::internal::LocalTrsm
         ( Right, Lower, ConjugateTranspose, NonUnit,
           (F)1, L11_Star_Star, A21_VC_Star );
         A21 = A21_VC_Star;
 
+        // A10 := A10 - 1/2 Y10
         blas::Axpy( (F)-0.5, Y10, A10 );
+
+        // A10 := inv(L11) A10
 	A10_Star_VR = A10;
 	blas::internal::LocalTrsm
         ( Left, Lower, Normal, NonUnit,
           (F)1, L11_Star_Star, A10_Star_VR );
 
+        // Y20 := Y20 + L21 A10
 	A10_Star_MR = A10_Star_VR;
 	A10 = A10_Star_MR;
         L21_MC_Star = L21;
@@ -170,6 +178,8 @@ elemental::lapack::internal::HegstRLVar3
         ( Normal, Normal,
           (F)1, L21_MC_Star, A10_Star_MR, (F)1, Y20 );
 
+        // Y21 := L21 A11
+        //
         // Symmetrize A11[* ,* ] by copying the lower triangle into the upper
         // so that we can call a local gemm instead of worrying about
         // reproducing a hemm with nonsymmetric local matrices.
@@ -185,6 +195,8 @@ elemental::lapack::internal::HegstRLVar3
         blas::internal::LocalGemm
         ( Normal, Normal, (F)1, L21_MC_Star, A11_Star_MR, (F)0, Y21 );
 
+        // Y21 := Y21 + L20 A10'
+        Z21_MC_Star.ResizeTo( A21.Height(), A21.Width() );
         blas::internal::LocalGemm
         ( Normal, ConjugateTranspose, 
 	  (F)1, L20, A10_Star_MR, (F)0, Z21_MC_Star );

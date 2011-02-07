@@ -70,11 +70,11 @@ elemental::lapack::internal::HegstRUVar1
     DistMatrix<F,VC,  Star> U01_VC_Star(g);
     DistMatrix<F,VR,  Star> U01_VR_Star(g);
     DistMatrix<F,Star,MR  > U01Herm_Star_MR(g);
+    DistMatrix<F,Star,Star> X11_Star_Star(g);
+    DistMatrix<F,MC,  MR  > Y01(g);
     DistMatrix<F,MR,  MC  > Z01_MR_MC(g);
     DistMatrix<F,MC,  Star> Z01_MC_Star(g);
     DistMatrix<F,MR,  Star> Z01_MR_Star(g);
-    DistMatrix<F,MC,  MR  > Y01(g);
-    DistMatrix<F,Star,Star> X11_Star_Star(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -101,18 +101,17 @@ elemental::lapack::internal::HegstRUVar1
         U01_VR_Star.AlignWith( A00 );
         U01_VC_Star.AlignWith( A00 );
         U01Herm_Star_MR.AlignWith( A00 );
+        Y01.AlignWith( A01 );
         Z01_MR_MC.AlignWith( A01 );
         Z01_MC_Star.AlignWith( A00 );
         Z01_MR_Star.AlignWith( A00 );
-        Y01.AlignWith( A01 );
-        Z01_MC_Star.ResizeTo( A01.Height(), A01.Width() );
-        Z01_MR_Star.ResizeTo( A01.Height(), A01.Width() );
-        Y01.ResizeTo( A01.Height(), A01.Width() );
-        X11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
         //--------------------------------------------------------------------//
+        // Y01 := A00 U01
         U01_MC_Star = U01;
         U01_VR_Star = U01_MC_Star;
         U01Herm_Star_MR.ConjugateTransposeFrom( U01_VR_Star );
+        Z01_MC_Star.ResizeTo( A01.Height(), A01.Width() );
+        Z01_MR_Star.ResizeTo( A01.Height(), A01.Width() );
         Z01_MC_Star.SetToZero();
         Z01_MR_Star.SetToZero();
         blas::internal::LocalSymmetricAccumulateLU
@@ -122,28 +121,36 @@ elemental::lapack::internal::HegstRUVar1
         Y01 = Z01_MR_MC;
         Y01.SumScatterUpdate( (F)1, Z01_MC_Star );
 
+        // A01 := inv(U00)' A01
+        //
         // This is the bottleneck because A01 only has blocksize columns
         blas::Trsm
         ( Left, Upper, ConjugateTranspose, NonUnit, (F)1, U00, A01 );
 
+        // A01 := A01 - 1/2 Y01
         blas::Axpy( (F)-0.5, Y01, A01 );
 
+        // A11 := A11 - (U01' A01 + A01' U01)
         A01_VC_Star = A01;
         U01_VC_Star = U01_MC_Star;
+        X11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
         blas::Her2k
         ( Upper, ConjugateTranspose,
           (F)-1, A01_VC_Star.LocalMatrix(), U01_VC_Star.LocalMatrix(),
           (F)0, X11_Star_Star.LocalMatrix() );
         A11.SumScatterUpdate( (F)1, X11_Star_Star );
 
+        // A11 := inv(U11)' A11 inv(U11)
         A11_Star_Star = A11;
         U11_Star_Star = U11;
         lapack::internal::LocalHegst
         ( Right, Upper, A11_Star_Star, U11_Star_Star );
         A11 = A11_Star_Star;
 
+        // A01 := A01 - 1/2 Y01
         blas::Axpy( (F)-0.5, Y01, A01 );
 
+        // A01 := A01 inv(U11)
         A01_VC_Star = A01;
         blas::internal::LocalTrsm
         ( Right, Upper, Normal, NonUnit, (F)1, U11_Star_Star, A01_VC_Star );
@@ -154,10 +161,10 @@ elemental::lapack::internal::HegstRUVar1
         U01_VR_Star.FreeAlignments();
         U01_VC_Star.FreeAlignments();
         U01Herm_Star_MR.FreeAlignments();
+        Y01.FreeAlignments();
         Z01_MR_MC.FreeAlignments();
         Z01_MC_Star.FreeAlignments();
         Z01_MR_Star.FreeAlignments();
-        Y01.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

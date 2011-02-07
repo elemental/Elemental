@@ -37,11 +37,11 @@ using namespace elemental;
 
 template<typename F> // F represents a real or complex field
 void
-elemental::lapack::internal::HegstLUVar3
+elemental::lapack::internal::HegstLUVar4
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::internal::HegstLUVar3");
+    PushCallStack("lapack::internal::HegstLUVar4");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( U.Height() != U.Width() )
@@ -63,19 +63,19 @@ elemental::lapack::internal::HegstLUVar3
                          U20(g), U21(g), U22(g);
 
     // Temporary distributions
+    DistMatrix<F,VC,  Star> A01_VC_Star(g);
+    DistMatrix<F,VR,  Star> A01_VR_Star(g);
+    DistMatrix<F,Star,MC  > A01Herm_Star_MC(g);
+    DistMatrix<F,Star,MR  > A01Herm_Star_MR(g);
     DistMatrix<F,Star,Star> A11_Star_Star(g);
     DistMatrix<F,Star,VR  > A12_Star_VR(g);
+    DistMatrix<F,MR,  Star> A12Herm_MR_Star(g);
+    DistMatrix<F,VC,  Star> U01_VC_Star(g);
+    DistMatrix<F,VR,  Star> U01_VR_Star(g);
+    DistMatrix<F,Star,MC  > U01Herm_Star_MC(g);
+    DistMatrix<F,Star,MR  > U01Herm_Star_MR(g);
     DistMatrix<F,Star,Star> U11_Star_Star(g);
-    DistMatrix<F,Star,MC  > U12_Star_MC(g);
-    DistMatrix<F,Star,VR  > U12_Star_VR(g);
-    DistMatrix<F,MR,  Star> U12Herm_MR_Star(g);
-    DistMatrix<F,VC,  Star> U12Herm_VC_Star(g);
-    DistMatrix<F,MC,  MR  > Z12Herm(g);
-    DistMatrix<F,MR,  MC  > Z12Herm_MR_MC(g);
-    DistMatrix<F,MC,  Star> Z12Herm_MC_Star(g);
-    DistMatrix<F,MR,  Star> Z12Herm_MR_Star(g);
-    DistMatrix<F,MC,  MR  > Y12(g);
-    DistMatrix<F,Star,Star> X11_Star_Star(g);
+    DistMatrix<F,VC,  Star> Y01_VC_Star(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -97,71 +97,82 @@ elemental::lapack::internal::HegstLUVar3
                /**/       U10, /**/ U11, U12,
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
-        A12_Star_VR.AlignWith( A12 );
-        U12_Star_MC.AlignWith( A22 );
-        U12_Star_VR.AlignWith( A12 );
-        U12Herm_MR_Star.AlignWith( A22 );
-        U12Herm_VC_Star.AlignWith( A22 );
-        Z12Herm.AlignWith( A12 );
-        Z12Herm_MR_MC.AlignWith( A12 );
-        Z12Herm_MC_Star.AlignWith( A22 );
-        Z12Herm_MR_Star.AlignWith( A22 );
-        Y12.AlignWith( A12 );
-        Z12Herm_MC_Star.ResizeTo( A12.Width(), A12.Height() );
-        Z12Herm_MR_Star.ResizeTo( A12.Width(), A12.Height() );
-        Y12.ResizeTo( A12.Height(), A12.Width() );
-        X11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
+        A01_VC_Star.AlignWith( A00 );
+        A01_VR_Star.AlignWith( A00 );
+        A01Herm_Star_MC.AlignWith( A00 );
+        A01Herm_Star_MR.AlignWith( A00 );
+        A12Herm_MR_Star.AlignWith( A02 );
+        U01_VC_Star.AlignWith( A00 );
+        U01_VR_Star.AlignWith( A00 );
+        U01Herm_Star_MC.AlignWith( A00 );
+        U01Herm_Star_MR.AlignWith( A00 );
+        Y01_VC_Star.AlignWith( A01 );
         //--------------------------------------------------------------------//
-        U12Herm_MR_Star.ConjugateTransposeFrom( U12 );
-        U12Herm_VC_Star = U12Herm_MR_Star;
-        U12_Star_MC.ConjugateTransposeFrom( U12Herm_VC_Star );
-        Z12Herm_MC_Star.SetToZero();
-        Z12Herm_MR_Star.SetToZero();
-        blas::internal::LocalSymmetricAccumulateRU
-        ( ConjugateTranspose, 
-          (F)1, A22, U12_Star_MC, U12Herm_MR_Star, 
-          Z12Herm_MC_Star, Z12Herm_MR_Star );
-        Z12Herm.SumScatterFrom( Z12Herm_MC_Star );
-        Z12Herm_MR_MC = Z12Herm;
-        Z12Herm_MR_MC.SumScatterUpdate( (F)1, Z12Herm_MR_Star );
-        blas::ConjTrans( Z12Herm_MR_MC.LockedLocalMatrix(), Y12.LocalMatrix() );
+        // Y01 := U01 A11
+        A11_Star_Star = A11;
+        U01_VC_Star = U01;
+        Y01_VC_Star.ResizeTo( A01.Height(), A01.Width() );
+        Y01_VC_Star.SetToZero();
+        blas::Hemm
+        ( Right, Upper, 
+          (F)0.5, A11_Star_Star.LockedLocalMatrix(), 
+                  U01_VC_Star.LockedLocalMatrix(), 
+          (F)0, Y01_VC_Star.LocalMatrix() );
 
-        A12_Star_VR = A12;
+        // A01 := A01 + 1/2 Y01
+        A01_VC_Star = A01;
+        blas::Axpy( (F)1, Y01_VC_Star, A01_VC_Star );
+
+        // A00 := A00 + (U01 A01' + A01 U01')
+        A01Herm_Star_MC.ConjugateTransposeFrom( A01_VC_Star );
+        U01Herm_Star_MC.ConjugateTransposeFrom( U01_VC_Star );
+        A01_VR_Star = A01_VC_Star;
+        U01_VR_Star = U01_VC_Star;
+        A01Herm_Star_MR.ConjugateTransposeFrom( A01_VR_Star );
+        U01Herm_Star_MR.ConjugateTransposeFrom( U01_VR_Star );
+        blas::internal::LocalTriangularRank2K
+        ( Upper, ConjugateTranspose, ConjugateTranspose, 
+          (F)1, A01Herm_Star_MC, U01Herm_Star_MC, 
+                A01Herm_Star_MR, U01Herm_Star_MR,
+          (F)1, A00 );
+
+        // A01 := A01 + 1/2 Y01
+        blas::Axpy( (F)1, Y01_VC_Star, A01_VC_Star );
+
+        // A01 := A01 U11'
         U11_Star_Star = U11;
         blas::internal::LocalTrmm
-        ( Left, Upper, Normal, NonUnit, (F)1, U11_Star_Star, A12_Star_VR );
-        A12 = A12_Star_VR;
+        ( Right, Upper, ConjugateTranspose, NonUnit,
+          (F)1, U11_Star_Star, A01_VC_Star );
+        A01 = A01_VC_Star;
 
-        blas::Axpy( (F)0.5, Y12, A12 );
+        // A02 := A02 + U01 A12
+        A12Herm_MR_Star.ConjugateTransposeFrom( A12 );
+        blas::internal::LocalGemm
+        ( ConjugateTranspose, ConjugateTranspose, 
+          (F)1, U01Herm_Star_MC, A12Herm_MR_Star, (F)1, A02 );
 
-        A11_Star_Star = A11;
+        // A11 := U11 A11 U11'
         lapack::internal::LocalHegst
         ( Left, Upper, A11_Star_Star, U11_Star_Star );
         A11 = A11_Star_Star;
 
-        A12_Star_VR = A12;
-        U12_Star_VR = U12;
-        blas::Her2k
-        ( Upper, Normal,
-          (F)1, A12_Star_VR.LocalMatrix(), U12_Star_VR.LocalMatrix(),
-          (F)0, X11_Star_Star.LocalMatrix() );
-        A11.SumScatterUpdate( (F)1, X11_Star_Star );
-
-        blas::Axpy( (F)0.5, Y12, A12 );
-
-        blas::Trmm
-        ( Right, Upper, ConjugateTranspose, NonUnit, (F)1, U22, A12 );
+        // A12 := U11 A12
+        A12_Star_VR.ConjugateTransposeFrom( A12Herm_MR_Star );
+        blas::internal::LocalTrmm
+        ( Left, Upper, Normal, NonUnit, (F)1, U11_Star_Star, A12_Star_VR );
+        A12 = A12_Star_VR;
         //--------------------------------------------------------------------//
-        A12_Star_VR.FreeAlignments();
-        U12_Star_MC.FreeAlignments();
-        U12_Star_VR.FreeAlignments();
-        U12Herm_MR_Star.FreeAlignments();
-        U12Herm_VC_Star.FreeAlignments();
-        Z12Herm.FreeAlignments();
-        Z12Herm_MR_MC.FreeAlignments(); 
-        Z12Herm_MC_Star.FreeAlignments();
-        Z12Herm_MR_Star.FreeAlignments();
-        Y12.FreeAlignments();
+        A01_VC_Star.FreeAlignments();
+        A01_VR_Star.FreeAlignments();
+        A01Herm_Star_MC.FreeAlignments();
+        A01Herm_Star_MR.FreeAlignments();
+        A12Herm_MR_Star.FreeAlignments();
+        U01_VC_Star.FreeAlignments();
+        U01_VR_Star.FreeAlignments();
+        U01Herm_Star_MC.FreeAlignments();
+        U01Herm_Star_MR.FreeAlignments();
+        Y01_VC_Star.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
@@ -180,17 +191,17 @@ elemental::lapack::internal::HegstLUVar3
 #endif
 }
 
-template void elemental::lapack::internal::HegstLUVar3
+template void elemental::lapack::internal::HegstLUVar4
 ( DistMatrix<float,MC,MR>& A, const DistMatrix<float,MC,MR>& U );
 
-template void elemental::lapack::internal::HegstLUVar3
+template void elemental::lapack::internal::HegstLUVar4
 ( DistMatrix<double,MC,MR>& A, const DistMatrix<double,MC,MR>& U );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::lapack::internal::HegstLUVar3
+template void elemental::lapack::internal::HegstLUVar4
 ( DistMatrix<scomplex,MC,MR>& A, const DistMatrix<scomplex,MC,MR>& U );
 
-template void elemental::lapack::internal::HegstLUVar3
+template void elemental::lapack::internal::HegstLUVar4
 ( DistMatrix<dcomplex,MC,MR>& A, const DistMatrix<dcomplex,MC,MR>& U );
 #endif
 

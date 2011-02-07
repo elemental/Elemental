@@ -69,21 +69,20 @@ elemental::lapack::internal::HegstRUVar2
     DistMatrix<F,VC,  Star> A01_VC_Star(g);
     DistMatrix<F,Star,Star> A11_Star_Star(g);
     DistMatrix<F,Star,VR  > A12_Star_VR(g);
+    DistMatrix<F,MC,  Star> F01_MC_Star(g);
     DistMatrix<F,MC,  Star> U01_MC_Star(g);
     DistMatrix<F,VR,  Star> U01_VR_Star(g);
     DistMatrix<F,Star,MR  > U01Herm_Star_MR(g);
     DistMatrix<F,Star,Star> U11_Star_Star(g);
-    DistMatrix<F,MR,  Star> E01_MR_Star(g);
-    DistMatrix<F,MC,  Star> F01_MC_Star(g);
-    DistMatrix<F,MR,  MC  > E01_MR_MC(g);
-    DistMatrix<F,MC,  MR  > E01(g);
-    DistMatrix<F,Star,MR  > G11_Star_MR(g);
-    DistMatrix<F,MC,  MR  > G11(g);
-    DistMatrix<F,MR,  Star> H12Herm_MR_Star(g);
-    DistMatrix<F,MR,  MC  > H12Herm_MR_MC(g);
+    DistMatrix<F,MC,  MR  > X11(g);
+    DistMatrix<F,Star,MR  > X11_Star_MR(g);
+    DistMatrix<F,MR,  Star> X12Herm_MR_Star(g);
+    DistMatrix<F,MR,  MC  > X12Herm_MR_MC(g);
+    DistMatrix<F,MC,  MR  > Y01(g);
+    DistMatrix<F,MR,  MC  > Y01_MR_MC(g);
+    DistMatrix<F,MR,  Star> Y01_MR_Star(g);
 
-    Matrix<F> H12Local;
-
+    Matrix<F> X12Local;
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -106,67 +105,73 @@ elemental::lapack::internal::HegstRUVar2
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
         A01_MC_Star.AlignWith( U01 );
+        Y01.AlignWith( A01 );
+        Y01_MR_Star.AlignWith( A00 );
         U01_MC_Star.AlignWith( A00 );
         U01_VR_Star.AlignWith( A00 );
         U01Herm_Star_MR.AlignWith( A00 );
-        E01_MR_Star.AlignWith( A00 );
+        X11_Star_MR.AlignWith( U01 );
+        X11.AlignWith( A11 );
+        X12Herm_MR_Star.AlignWith( A02 );
+        X12Herm_MR_MC.AlignWith( A12 );
         F01_MC_Star.AlignWith( A00 );
-        E01.AlignWith( A01 );
-        G11_Star_MR.AlignWith( U01 );
-        G11.AlignWith( A11 );
-        H12Herm_MR_Star.AlignWith( A02 );
-        H12Herm_MR_MC.AlignWith( A12 );
-        E01_MR_Star.ResizeTo( A01.Height(), A01.Width() ); 
-        F01_MC_Star.ResizeTo( A01.Height(), A01.Width() );
-        G11_Star_MR.ResizeTo( A11.Height(), A11.Width() );
-        H12Herm_MR_Star.ResizeTo( A12.Width(), A12.Height() );
-        E01_MR_Star.SetToZero();
-        F01_MC_Star.SetToZero();
-        G11_Star_MR.SetToZero();
-        H12Herm_MR_Star.SetToZero();
         //--------------------------------------------------------------------//
+        // Y01 := A00 U01
         U01_MC_Star = U01;
         U01_VR_Star = U01_MC_Star;
         U01Herm_Star_MR.ConjugateTransposeFrom( U01_VR_Star );
+        Y01_MR_Star.ResizeTo( A01.Height(), A01.Width() ); 
+        F01_MC_Star.ResizeTo( A01.Height(), A01.Width() );
+        Y01_MR_Star.SetToZero();
+        F01_MC_Star.SetToZero();
         blas::internal::LocalSymmetricAccumulateLU
         ( ConjugateTranspose, 
-          (F)1, A00, U01_MC_Star, U01Herm_Star_MR, F01_MC_Star, E01_MR_Star );
-        E01_MR_MC.SumScatterFrom( E01_MR_Star );
-        E01 = E01_MR_MC;
-        E01.SumScatterUpdate( (F)1, F01_MC_Star );
+          (F)1, A00, U01_MC_Star, U01Herm_Star_MR, F01_MC_Star, Y01_MR_Star );
+        Y01_MR_MC.SumScatterFrom( Y01_MR_Star );
+        Y01 = Y01_MR_MC;
+        Y01.SumScatterUpdate( (F)1, F01_MC_Star );
 
+        // X11 := U01' A01
+        X11_Star_MR.ResizeTo( A11.Height(), A11.Width() );
         blas::internal::LocalGemm
         ( ConjugateTranspose, Normal,
-          (F)1, U01_MC_Star, A01, (F)0, G11_Star_MR );
+          (F)1, U01_MC_Star, A01, (F)0, X11_Star_MR );
 
-        blas::Axpy( (F)-1, E01, A01 );
+        // A01 := A01 - Y01
+        blas::Axpy( (F)-1, Y01, A01 );
         A01_MC_Star = A01;
         
+        // A11 := A11 - triu(X11 + A01' U01) = A11 - (U01 A01 + A01' U01)
         blas::internal::LocalGemm
         ( ConjugateTranspose, Normal,
-          (F)1, A01_MC_Star, U01, (F)1, G11_Star_MR );
-        G11.SumScatterFrom( G11_Star_MR );
-        G11.MakeTrapezoidal( Left, Upper );
-        blas::Axpy( (F)-1, G11, A11 );
+          (F)1, A01_MC_Star, U01, (F)1, X11_Star_MR );
+        X11.SumScatterFrom( X11_Star_MR );
+        X11.MakeTrapezoidal( Left, Upper );
+        blas::Axpy( (F)-1, X11, A11 );
 
+        // A01 := A01 inv(U11)
         U11_Star_Star = U11;
         A01_VC_Star = A01_MC_Star;
         blas::internal::LocalTrsm
         ( Right, Upper, Normal, NonUnit, (F)1, U11_Star_Star, A01_VC_Star );
         A01 = A01_VC_Star;
 
+        // A11 := inv(U11)' A11 inv(U11)
         A11_Star_Star = A11;
         lapack::internal::LocalHegst
         ( Right, Upper, A11_Star_Star, U11_Star_Star );
         A11 = A11_Star_Star;
 
+        // A12 := A12 - A02' U01
+        X12Herm_MR_Star.ResizeTo( A12.Width(), A12.Height() );
         blas::internal::LocalGemm
         ( ConjugateTranspose, Normal,
-          (F)1, A02, U01_MC_Star, (F)0, H12Herm_MR_Star );
-        H12Herm_MR_MC.SumScatterFrom( H12Herm_MR_Star );
-        blas::ConjTrans( H12Herm_MR_MC.LockedLocalMatrix(), H12Local );
-        blas::Axpy( (F)-1, H12Local, A12.LocalMatrix() );
+          (F)1, A02, U01_MC_Star, (F)0, X12Herm_MR_Star );
+        X12Herm_MR_MC.SumScatterFrom( X12Herm_MR_Star );
+        blas::ConjTrans( X12Herm_MR_MC.LockedLocalMatrix(), X12Local );
+        blas::Axpy( (F)-1, X12Local, A12.LocalMatrix() );
 
+        // A12 := inv(U11)' A12
         A12_Star_VR = A12;
         blas::internal::LocalTrsm
         ( Left, Upper, ConjugateTranspose, NonUnit,
@@ -174,16 +179,16 @@ elemental::lapack::internal::HegstRUVar2
         A12 = A12_Star_VR;
         //--------------------------------------------------------------------//
         A01_MC_Star.FreeAlignments();
+        F01_MC_Star.FreeAlignments();
         U01_MC_Star.FreeAlignments();
         U01_VR_Star.FreeAlignments();
         U01Herm_Star_MR.FreeAlignments();
-        E01_MR_Star.FreeAlignments();
-        F01_MC_Star.FreeAlignments();
-        E01.FreeAlignments();
-        G11_Star_MR.FreeAlignments();
-        G11.FreeAlignments();
-        H12Herm_MR_Star.FreeAlignments();
-        H12Herm_MR_MC.FreeAlignments();
+        X11.FreeAlignments();
+        X11_Star_MR.FreeAlignments();
+        X12Herm_MR_Star.FreeAlignments();
+        X12Herm_MR_MC.FreeAlignments();
+        Y01.FreeAlignments();
+        Y01_MR_Star.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

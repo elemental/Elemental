@@ -108,8 +108,8 @@ elemental::lapack::internal::HegstRLVar4
         L21_MC_Star.AlignWith( A22 );
         L21Herm_Star_MR.AlignWith( A22 );
         Y21_VC_Star.AlignWith( A22 );
-        Y21_VC_Star.ResizeTo( A21.Height(), A21.Width() );
         //--------------------------------------------------------------------//
+        // A10 := inv(L11) A10
         L11_Star_Star = L11;
         A10_Star_VR = A10;
         blas::internal::LocalTrsm
@@ -117,28 +117,36 @@ elemental::lapack::internal::HegstRLVar4
           (F)1, L11_Star_Star, A10_Star_VR );
         A10 = A10_Star_VR;
 
+        // A11 := inv(L11) A11 inv(L11)'
         A11_Star_Star = A11; 
         lapack::internal::LocalHegst
         ( Right, Lower, A11_Star_Star, L11_Star_Star );
         A11 = A11_Star_Star;
 
+        // A20 := A20 - L21 A10
         L21_MC_Star = L21;
         A10_Star_MR = A10_Star_VR;
         blas::internal::LocalGemm
         ( Normal, Normal, (F)-1, L21_MC_Star, A10_Star_MR, (F)1, A20 );
 
+        // Y21 := L21 A11
         L21_VC_Star = L21_MC_Star;
+        Y21_VC_Star.ResizeTo( A21.Height(), A21.Width() );
         blas::Hemm
         ( Right, Lower, 
-          (F)-0.5, A11_Star_Star.LocalMatrix(), L21_VC_Star.LocalMatrix(), 
+          (F)1, A11_Star_Star.LocalMatrix(), L21_VC_Star.LocalMatrix(), 
           (F)0, Y21_VC_Star.LocalMatrix() );
 
+        // A21 := A21 inv(L11)'
         A21_VC_Star = A21;
         blas::internal::LocalTrsm
         ( Right, Lower, ConjugateTranspose, NonUnit,
           (F)1, L11_Star_Star, A21_VC_Star );
-        blas::Axpy( (F)1, Y21_VC_Star, A21_VC_Star );
 
+        // A21 := A21 - 1/2 Y21
+        blas::Axpy( (F)-0.5, Y21_VC_Star, A21_VC_Star );
+
+        // A22 := A22 - (L21 A21' + A21 L21')
         A21Trans_Star_MC.TransposeFrom( A21_VC_Star );
         A21_VR_Star = A21_VC_Star;
         L21_VR_Star = L21_VC_Star;
@@ -150,7 +158,8 @@ elemental::lapack::internal::HegstRLVar4
                  L21Herm_Star_MR, A21Herm_Star_MR,
           (F)1, A22 );
 
-        blas::Axpy( (F)1, Y21_VC_Star, A21_VC_Star );
+        // A21 := A21 - 1/2 Y21
+        blas::Axpy( (F)-0.5, Y21_VC_Star, A21_VC_Star );
         A21 = A21_VC_Star;
         //--------------------------------------------------------------------//
         A10_Star_MR.FreeAlignments();

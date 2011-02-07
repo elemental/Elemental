@@ -106,29 +106,34 @@ elemental::lapack::internal::HegstRUVar5
         U12_Star_VR.AlignWith( A22 );
         Y12.AlignWith( A12 );
         Y12_Star_VR.AlignWith( A12 );
-        Y12_Star_VR.ResizeTo( A12.Height(), A12.Width() );
         //--------------------------------------------------------------------//
+        // A11 := inv(U11)' A11 inv(U11)
         U11_Star_Star = U11;
         A11_Star_Star = A11;
         lapack::internal::LocalHegst
         ( Right, Upper, A11_Star_Star, U11_Star_Star );
         A11 = A11_Star_Star;
 
+        // Y12 := A11 U12
         U12_Star_VR = U12;
+        Y12_Star_VR.ResizeTo( A12.Height(), A12.Width() );
         blas::Hemm
         ( Left, Upper,
           (F)1, A11_Star_Star.LocalMatrix(), U12_Star_VR.LocalMatrix(),
           (F)0, Y12_Star_VR.LocalMatrix() );
         Y12 = Y12_Star_VR;
 
+        // A12 := inv(U11)' A12
         A12_Star_VR = A12;
         blas::internal::LocalTrsm
         ( Left, Upper, ConjugateTranspose, NonUnit,
           (F)1, U11_Star_Star, A12_Star_VR );
         A12 = A12_Star_VR;
 
+        // A12 := A12 - 1/2 Y12
         blas::Axpy( (F)-0.5, Y12, A12 );
 
+        // A22 := A22 - (A12' U12 + U12' A12)
         A12_Star_VR = A12;
         A12_Star_VC = A12_Star_VR;
         U12_Star_VC = U12_Star_VR;
@@ -141,8 +146,11 @@ elemental::lapack::internal::HegstRUVar5
           (F)-1, U12_Star_MC, A12_Star_MC, U12_Star_MR, A12_Star_MR, 
           (F)1, A22 );
 
+        // A12 := A12 - 1/2 Y12
         blas::Axpy( (F)-0.5, Y12, A12 );
 
+        // A12 := A12 inv(U22)
+        //
         // This is the bottleneck because A12 only has blocksize rows
         blas::Trsm
         ( Right, Upper, Normal, NonUnit, (F)1, U22, A12 );

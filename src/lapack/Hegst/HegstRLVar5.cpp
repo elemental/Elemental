@@ -106,29 +106,34 @@ elemental::lapack::internal::HegstRLVar5
         L21Herm_Star_MR.AlignWith( A22 );
         Y21.AlignWith( A21 );
         Y21_VC_Star.AlignWith( A22 );
-        Y21_VC_Star.ResizeTo( A21.Height(), A21.Width() );
         //--------------------------------------------------------------------//
+        // A11 := inv(L11) A11 inv(L11)'
         L11_Star_Star = L11;
         A11_Star_Star = A11;
         lapack::internal::LocalHegst
         ( Right, Lower, A11_Star_Star, L11_Star_Star );
         A11 = A11_Star_Star;
 
+        // Y21 := L21 A11
         L21_VC_Star = L21;
+        Y21_VC_Star.ResizeTo( A21.Height(), A21.Width() );
         blas::Hemm
         ( Right, Lower, 
           (F)1, A11_Star_Star.LocalMatrix(), L21_VC_Star.LocalMatrix(), 
           (F)0, Y21_VC_Star.LocalMatrix() );
         Y21 = Y21_VC_Star;
 
+        // A21 := A21 inv(L11)'
         A21_VC_Star = A21;
         blas::internal::LocalTrsm
         ( Right, Lower, ConjugateTranspose, NonUnit, 
           (F)1, L11_Star_Star, A21_VC_Star );
         A21 = A21_VC_Star;
 
+        // A21 := A21 - 1/2 Y21
         blas::Axpy( (F)-0.5, Y21, A21 );
 
+        // A22 := A22 - (L21 A21' + A21 L21')
         A21_MC_Star = A21;
         L21_MC_Star = L21;
         A21_VC_Star = A21_MC_Star;
@@ -142,8 +147,11 @@ elemental::lapack::internal::HegstRLVar5
                  L21Herm_Star_MR, A21Herm_Star_MR,
           (F)1, A22 );
 
+        // A21 := A21 - 1/2 Y21
         blas::Axpy( (F)-0.5, Y21, A21 );
 
+        // A21 := inv(L22) A21
+        //
         // This is the bottleneck because A21 only has blocksize columns
         blas::Trsm
         ( Left, Lower, Normal, NonUnit, (F)1, L22, A21 );

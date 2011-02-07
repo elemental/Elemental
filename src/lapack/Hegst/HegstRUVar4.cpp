@@ -110,9 +110,8 @@ elemental::lapack::internal::HegstRUVar4
         U12_Star_VC.AlignWith( A22 );
         U12_Star_MC.AlignWith( A22 );
         Y12_Star_VR.AlignWith( A12 );
-        U12_Star_VR.ResizeTo( A12.Height(), A12.Width() );
-        Y12_Star_VR.ResizeTo( A12.Height(), A12.Width() );
         //--------------------------------------------------------------------//
+        // A01 := A01 inv(U11)
         A01_VC_Star = A01;
         U11_Star_Star = U11;
         blas::internal::LocalTrsm
@@ -120,31 +119,40 @@ elemental::lapack::internal::HegstRUVar4
           (F)1, U11_Star_Star, A01_VC_Star );
         A01 = A01_VC_Star;
 
+        // A11 := inv(U11)' A11 inv(U11)
         A11_Star_Star = A11;
         lapack::internal::LocalHegst
         ( Right, Upper, A11_Star_Star, U11_Star_Star );
         A11 = A11_Star_Star;
 
+        // A02 := A02 - A01 U12
         A01Trans_Star_MC.TransposeFrom( A01_VC_Star );
         U12Trans_MR_Star.TransposeFrom( U12 );
         blas::internal::LocalGemm
         ( Transpose, Transpose, 
           (F)-1, A01Trans_Star_MC, U12Trans_MR_Star, (F)1, A02 );
 
+        // Y12 := A11 U12
         U12Trans_VR_Star = U12Trans_MR_Star;
+        U12_Star_VR.ResizeTo( A12.Height(), A12.Width() );
         blas::Trans
         ( U12Trans_VR_Star.LocalMatrix(), U12_Star_VR.LocalMatrix() );
+        Y12_Star_VR.ResizeTo( A12.Height(), A12.Width() );
         blas::Hemm
         ( Left, Upper, 
-          (F)-0.5, A11_Star_Star.LocalMatrix(), U12_Star_VR.LocalMatrix(), 
+          (F)1, A11_Star_Star.LocalMatrix(), U12_Star_VR.LocalMatrix(), 
           (F)0, Y12_Star_VR.LocalMatrix() );
 
+        // A12 := inv(U11)' A12
         A12_Star_VR = A12;
         blas::internal::LocalTrsm
         ( Left, Upper, ConjugateTranspose, NonUnit,
           (F)1, U11_Star_Star, A12_Star_VR );
-        blas::Axpy( (F)1, Y12_Star_VR, A12_Star_VR );
 
+        // A12 := A12 - 1/2 Y12
+        blas::Axpy( (F)-0.5, Y12_Star_VR, A12_Star_VR );
+
+        // A22 := A22 - (A12 U12' + U12 A12')
         A12_Star_MR = A12_Star_VR;
         A12_Star_VC = A12_Star_VR;
         U12_Star_VC = U12_Star_VR;
@@ -155,7 +163,8 @@ elemental::lapack::internal::HegstRUVar4
           (F)-1, A12_Star_MC, U12_Star_MC, A12_Star_MR, U12Trans_MR_Star,
           (F)1, A22 );
 
-        blas::Axpy( (F)1, Y12_Star_VR, A12_Star_VR );
+        // A12 := A12 - 1/2 Y12
+        blas::Axpy( (F)-0.5, Y12_Star_VR, A12_Star_VR );
         A12 = A12_Star_VR;
         //--------------------------------------------------------------------//
         A01_VC_Star.FreeAlignments();

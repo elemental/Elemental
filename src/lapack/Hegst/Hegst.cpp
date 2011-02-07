@@ -46,9 +46,9 @@ elemental::lapack::Hegst
     if( side==Left )
     {
         if( shape == Lower )
-            lapack::internal::HegstLLVar2( A, B );
+            lapack::internal::HegstLLVar4( A, B );
         else
-            lapack::internal::HegstLUVar2( A, B );
+            lapack::internal::HegstLUVar4( A, B );
     }
     else
     {

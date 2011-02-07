@@ -138,9 +138,16 @@ void
 HegstLLVar2
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
+// HegstLLVar3 would redundantly compute too much data
+
 template<typename F>
 void
-HegstLLVar3
+HegstLLVar4
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+
+template<typename F>
+void
+HegstLLVar5
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
@@ -153,9 +160,16 @@ void
 HegstLUVar2
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
+// HegstLUVar3 would redundantly compute too much data
+
 template<typename F>
 void
-HegstLUVar3
+HegstLUVar4
+( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+
+template<typename F>
+void
+HegstLUVar5
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
