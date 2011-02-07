@@ -103,7 +103,7 @@ elemental::utilities::RawGCD( int a, int b )
     if( b == 0 )
         return a;
     else
-        return GCD( b, a-b*(a/b) );
+        return RawGCD( b, a-b*(a/b) );
 }
 
 inline int
