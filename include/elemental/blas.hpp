@@ -54,18 +54,40 @@ namespace blas {
 // Tuning parameters                                                          //
 //----------------------------------------------------------------------------//
 
-void SetLocalHemvFloatBlocksize( int blocksize );
-void SetLocalHemvDoubleBlocksize( int blocksize );
+template<typename T> void SetLocalHemvBlocksize( int blocksize );
+template<> void SetLocalHemvBlocksize<float>( int blocksize );
+template<> void SetLocalHemvBlocksize<double>( int blocksize );
 #ifndef WITHOUT_COMPLEX
-void SetLocalHemvComplexFloatBlocksize( int blocksize );
-void SetLocalHemvComplexDoubleBlocksize( int blocksize );
+template<> void SetLocalHemvBlocksize< std::complex<float> >( int blocksize );
+template<> void SetLocalHemvBlocksize< std::complex<double> >( int blocksize );
 #endif // WITHOUT_COMPLEX
 
-void SetLocalSymvFloatBlocksize( int blocksize );
-void SetLocalSymvDoubleBlocksize( int blocksize );
+template<typename T> void SetLocalSymvBlocksize( int blocksize );
+template<> void SetLocalSymvBlocksize<float>( int blocksize );
+template<> void SetLocalSymvBlocksize<double>( int blocksize );
 #ifndef WITHOUT_COMPLEX
-void SetLocalSymvComplexFloatBlocksize( int blocksize );
-void SetLocalSymvComplexDoubleBlocksize( int blocksize );
+template<> void SetLocalSymvBlocksize< std::complex<float> >( int blocksize );
+template<> void SetLocalSymvBlocksize< std::complex<double> >( int blocksize );
+#endif // WITHOUT_COMPLEX
+
+template<typename T> void SetLocalTriangularRankKBlocksize( int blocksize );
+template<> void SetLocalTriangularRankKBlocksize<float>( int blocksize );
+template<> void SetLocalTriangularRankKBlocksize<double>( int blocksize );
+#ifndef WITHOUT_COMPLEX
+template<> void 
+SetLocalTriangularRankKBlocksize< std::complex<float> >( int blocksize );
+template<> void 
+SetLocalTriangularRankKBlocksize< std::complex<double> >( int blocksize );
+#endif // WITHOUT_COMPLEX
+
+template<typename T> void SetLocalTriangularRank2KBlocksize( int blocksize );
+template<> void SetLocalTriangularRank2KBlocksize<float>( int blocksize );
+template<> void SetLocalTriangularRank2KBlocksize<double>( int blocksize );
+#ifndef WITHOUT_COMPLEX
+template<> void 
+SetLocalTriangularRank2KBlocksize< std::complex<float> >( int blocksize );
+template<> void 
+SetLocalTriangularRank2KBlocksize< std::complex<double> >( int blocksize );
 #endif // WITHOUT_COMPLEX
 
 template<typename T> int LocalHemvBlocksize();
@@ -82,6 +104,22 @@ template<> int LocalSymvBlocksize<double>();
 #ifndef WITHOUT_COMPLEX
 template<> int LocalSymvBlocksize<scomplex>();
 template<> int LocalSymvBlocksize<dcomplex>();
+#endif // WITHOUT_COMPLEX
+
+template<typename T> int LocalTriangularRankKBlocksize();
+template<> int LocalTriangularRankKBlocksize<float>();
+template<> int LocalTriangularRankKBlocksize<double>();
+#ifndef WITHOUT_COMPLEX
+template<> int LocalTriangularRankKBlocksize<scomplex>();
+template<> int LocalTriangularRankKBlocksize<dcomplex>();
+#endif // WITHOUT_COMPLEX
+
+template<typename T> int LocalTriangularRank2KBlocksize();
+template<> int LocalTriangularRank2KBlocksize<float>();
+template<> int LocalTriangularRank2KBlocksize<double>();
+#ifndef WITHOUT_COMPLEX
+template<> int LocalTriangularRank2KBlocksize<scomplex>();
+template<> int LocalTriangularRank2KBlocksize<dcomplex>();
 #endif // WITHOUT_COMPLEX
 
 //----------------------------------------------------------------------------//

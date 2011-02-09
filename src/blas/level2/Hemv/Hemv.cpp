@@ -44,17 +44,29 @@ int localHemvComplexDoubleBlocksize = 64;
 #endif // WITHOUT_COMPLEX
 } 
 
-void elemental::blas::SetLocalHemvFloatBlocksize( int blocksize )
+template<>
+void
+elemental::blas::SetLocalHemvBlocksize<float>
+( int blocksize )
 { ::localHemvFloatBlocksize = blocksize; }
 
-void elemental::blas::SetLocalHemvDoubleBlocksize( int blocksize )
+template<>
+void
+elemental::blas::SetLocalHemvBlocksize<double>
+( int blocksize )
 { ::localHemvDoubleBlocksize = blocksize; }
 
 #ifndef WITHOUT_COMPLEX
-void elemental::blas::SetLocalHemvComplexFloatBlocksize( int blocksize )
+template<>
+void
+elemental::blas::SetLocalHemvBlocksize< std::complex<float> >
+( int blocksize )
 { ::localHemvComplexFloatBlocksize = blocksize; }
 
-void elemental::blas::SetLocalHemvComplexDoubleBlocksize( int blocksize )
+template<>
+void
+elemental::blas::SetLocalHemvBlocksize< std::complex<double> >
+( int blocksize )
 { ::localHemvComplexDoubleBlocksize = blocksize; }
 #endif // WITHOUT_COMPLEX
 

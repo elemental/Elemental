@@ -44,17 +44,29 @@ int localSymvComplexDoubleBlocksize = 64;
 #endif // WITHOUT_COMPLEX
 } 
 
-void elemental::blas::SetLocalSymvFloatBlocksize( int blocksize )
+template<>
+void
+elemental::blas::SetLocalSymvBlocksize<float>
+( int blocksize )
 { ::localSymvFloatBlocksize = blocksize; }
 
-void elemental::blas::SetLocalSymvDoubleBlocksize( int blocksize )
+template<>
+void
+elemental::blas::SetLocalSymvBlocksize<double>
+( int blocksize )
 { ::localSymvDoubleBlocksize = blocksize; }
 
 #ifndef WITHOUT_COMPLEX
-void elemental::blas::SetLocalSymvComplexFloatBlocksize( int blocksize )
+template<>
+void
+elemental::blas::SetLocalSymvBlocksize< std::complex<float> >
+( int blocksize )
 { ::localSymvComplexFloatBlocksize = blocksize; }
 
-void elemental::blas::SetLocalSymvComplexDoubleBlocksize( int blocksize )
+template<>
+void
+elemental::blas::SetLocalSymvBlocksize< std::complex<double> >
+( int blocksize )
 { ::localSymvComplexDoubleBlocksize = blocksize; }
 #endif // WITHOUT_COMPLEX
 

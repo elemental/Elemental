@@ -142,9 +142,10 @@ int main( int argc, char* argv[] )
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
-        blas::SetLocalSymvDoubleBlocksize( nbLocalDouble );
+        blas::SetLocalSymvBlocksize<double>( nbLocalDouble );
 #ifndef WITHOUT_COMPLEX
-        blas::SetLocalSymvComplexDoubleBlocksize( nbLocalComplexDouble );
+        blas::SetLocalSymvBlocksize< std::complex<double> >
+        ( nbLocalComplexDouble );
 #endif
 
         if( rank == 0 )

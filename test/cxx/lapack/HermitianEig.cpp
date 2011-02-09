@@ -423,9 +423,9 @@ int main( int argc, char* argv[] )
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
-        blas::SetLocalSymvDoubleBlocksize( nbLocalSymv );
+        blas::SetLocalSymvBlocksize<double>( nbLocalSymv );
 #ifndef WITHOUT_COMPLEX
-        blas::SetLocalHemvComplexDoubleBlocksize( nbLocalSymv );
+        blas::SetLocalHemvBlocksize< std::complex<double> >( nbLocalSymv );
 #endif
 
         if( rank == 0 )

@@ -34,6 +34,64 @@
 using namespace std;
 using namespace elemental;
 
+// Set up interface for managing tuning parameters
+namespace {
+int localTriangularRank2KFloatBlocksize = 64;
+int localTriangularRank2KDoubleBlocksize = 64;
+#ifndef WITHOUT_COMPLEX
+int localTriangularRank2KComplexFloatBlocksize = 64;
+int localTriangularRank2KComplexDoubleBlocksize = 64;
+#endif // WITHOUT_COMPLEX
+}
+
+template<>
+void 
+elemental::blas::SetLocalTriangularRank2KBlocksize<float>
+( int blocksize )
+{ ::localTriangularRank2KFloatBlocksize = blocksize; }
+
+template<>
+void 
+elemental::blas::SetLocalTriangularRank2KBlocksize<double>
+( int blocksize )
+{ ::localTriangularRank2KDoubleBlocksize = blocksize; }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+void 
+elemental::blas::SetLocalTriangularRank2KBlocksize< std::complex<float> >
+( int blocksize )
+{ ::localTriangularRank2KComplexFloatBlocksize = blocksize; }
+
+template<>
+void 
+elemental::blas::SetLocalTriangularRank2KBlocksize< std::complex<double> >
+( int blocksize )
+{ ::localTriangularRank2KComplexDoubleBlocksize = blocksize; }
+#endif // WITHOUT_COMPLEX
+
+template<>
+int
+elemental::blas::LocalTriangularRank2KBlocksize<float>()
+{ return ::localTriangularRank2KFloatBlocksize; }
+
+template<>
+int
+elemental::blas::LocalTriangularRank2KBlocksize<double>()
+{ return ::localTriangularRank2KDoubleBlocksize; }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+int
+elemental::blas::LocalTriangularRank2KBlocksize<scomplex>()
+{ return ::localTriangularRank2KComplexFloatBlocksize; }
+
+template<>
+int
+elemental::blas::LocalTriangularRank2KBlocksize<dcomplex>()
+{ return ::localTriangularRank2KComplexDoubleBlocksize; }
+#endif // WITHOUT_COMPLEX
+
 // Template conventions:
 //   G: general datatype
 //
@@ -2454,7 +2512,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfB1, orientationOfB2, 
@@ -2545,7 +2603,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA1, orientationOfB1, orientationOfB2, 
@@ -2636,7 +2694,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA2, orientationOfB1, orientationOfB2, 
@@ -2724,7 +2782,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfB2, alpha, A1, A2, B1, B2, beta, C );
@@ -2809,7 +2867,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfB1, alpha, A1, A2, B1, B2, beta, C );
@@ -2899,7 +2957,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, 
@@ -2991,7 +3049,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA1, orientationOfB2, 
@@ -3081,7 +3139,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA1, orientationOfB1,  
@@ -3171,7 +3229,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA2, orientationOfB2, 
@@ -3261,7 +3319,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA2, orientationOfB1, 
@@ -3348,7 +3406,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, alpha, A1, A2, B1, B2, beta, C );
@@ -3432,7 +3490,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA1, orientationOfA2, orientationOfB2,
@@ -3519,7 +3577,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA1, orientationOfA2, orientationOfB1,
@@ -3603,7 +3661,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA1, alpha, A1, A2, B1, B2, beta, C );
@@ -3684,7 +3742,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA2, alpha, A1, A2, B1, B2, beta, C );
@@ -3766,7 +3824,7 @@ elemental::blas::internal::LocalTriangularRank2K
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRank2KBlocksize<T>() )
     {
         LocalTriangularRank2KKernel
         ( shape, orientationOfA1, orientationOfA2, 

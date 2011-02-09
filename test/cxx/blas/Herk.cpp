@@ -40,7 +40,8 @@ using namespace elemental::imports::mpi;
 void Usage()
 {
     cout << "HErmitian Rank-K update.\n\n"
-         << "  Herk <r> <c> <shape> <trans?> <m> <k> <nb> <print?>\n\n"
+         << "  Herk <r> <c> <shape> <trans?> <m> <k> <nb> <nbLocal> "
+            "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n" 
          << "  shape?: {L,U}\n"
@@ -48,6 +49,7 @@ void Usage()
          << "  m: height of C\n"
          << "  k: inner dimension\n"
          << "  nb: algorithmic blocksize\n"
+         << "  nbLocal: local blocksize for rank-k update\n"
          << "  print?: false iff 0\n" << endl;
 }
 
@@ -103,14 +105,15 @@ void TestHerk
     }
 }
 
-int main( int argc, char* argv[] )
+int 
+main( int argc, char* argv[] )
 {
     int rank;
     try
     {
         Init( &argc, &argv );
         MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-        if( argc != 9 )
+        if( argc != 10 )
         {
             if( rank == 0 )
                 Usage();
@@ -125,6 +128,7 @@ int main( int argc, char* argv[] )
         const int m = atoi(argv[++argNum]);
         const int k = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
+        const int nbLocal = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
         if( rank == 0 )
@@ -136,6 +140,9 @@ int main( int argc, char* argv[] )
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
+        blas::SetLocalTriangularRankKBlocksize<double>( nbLocal );
+        blas::SetLocalTriangularRankKBlocksize< std::complex<double> >
+        ( nbLocal );
 
         if( rank == 0 )
         {

@@ -40,12 +40,14 @@ using namespace elemental::imports::mpi;
 void Usage()
 {
     cout << "Generates SPD matrix then solves for its Cholesky factor.\n\n"
-         << "  Chol <r> <c> <shape> <m> <nb> <correctness?> <print?>\n\n"
+         << "  Chol <r> <c> <shape> <m> <nb> <rankK local nb> <correctness?> "
+            "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  shape: {L,U}\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
+         << "  rankK local nb: local blocksize for triangular rank-k update\n"
          << "  test correctness?: false iff 0\n"
          << "  print matrices?: false iff 0\n" << endl;
 }
@@ -170,14 +172,15 @@ void TestChol
         TestCorrectness( printMatrices, shape, A, AOrig );
 }
 
-int main( int argc, char* argv[] )
+int 
+main( int argc, char* argv[] )
 {
     int rank;
     try
     {
         Init( &argc, &argv );
         MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-        if( argc != 8 )
+        if( argc != 9 )
         {
             if( rank == 0 )
                 Usage();
@@ -190,6 +193,7 @@ int main( int argc, char* argv[] )
         const Shape shape = CharToShape(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
+        const int nbLocal = atoi(argv[++argNum]);
         const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
@@ -202,6 +206,9 @@ int main( int argc, char* argv[] )
 #endif
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
+        blas::SetLocalTriangularRankKBlocksize<double>( nbLocal );
+        blas::SetLocalTriangularRankKBlocksize< std::complex<double> >
+        ( nbLocal );
 
         if( rank == 0 )
             cout << "Will test Chol" << ShapeToChar(shape) << endl;

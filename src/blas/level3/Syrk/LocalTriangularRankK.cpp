@@ -34,6 +34,64 @@
 using namespace std;
 using namespace elemental;
 
+// Set up interface for managing tuning parameters
+namespace {
+int localTriangularRankKFloatBlocksize = 64;
+int localTriangularRankKDoubleBlocksize = 64;
+#ifndef WITHOUT_COMPLEX
+int localTriangularRankKComplexFloatBlocksize = 64;
+int localTriangularRankKComplexDoubleBlocksize = 64;
+#endif // WITHOUT_COMPLEX
+}
+
+template<>
+void
+elemental::blas::SetLocalTriangularRankKBlocksize<float>
+( int blocksize )
+{ ::localTriangularRankKFloatBlocksize = blocksize; }
+
+template<>
+void
+elemental::blas::SetLocalTriangularRankKBlocksize<double>
+( int blocksize )
+{ ::localTriangularRankKDoubleBlocksize = blocksize; }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+void
+elemental::blas::SetLocalTriangularRankKBlocksize< std::complex<float> >
+( int blocksize )
+{ ::localTriangularRankKComplexFloatBlocksize = blocksize; }
+
+template<>
+void
+elemental::blas::SetLocalTriangularRankKBlocksize< std::complex<double> >
+( int blocksize )
+{ ::localTriangularRankKComplexDoubleBlocksize = blocksize; }
+#endif // WITHOUT_COMPLEX
+
+template<>
+int
+elemental::blas::LocalTriangularRankKBlocksize<float>()
+{ return ::localTriangularRankKFloatBlocksize; }
+
+template<>
+int
+elemental::blas::LocalTriangularRankKBlocksize<double>()
+{ return ::localTriangularRankKDoubleBlocksize; }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+int
+elemental::blas::LocalTriangularRankKBlocksize<scomplex>()
+{ return ::localTriangularRankKComplexFloatBlocksize; }
+
+template<>
+int
+elemental::blas::LocalTriangularRankKBlocksize<dcomplex>()
+{ return ::localTriangularRankKComplexDoubleBlocksize; }
+#endif // WITHOUT_COMPLEX
+
 // Template conventions:
 //   G: general datatype
 //
@@ -263,12 +321,14 @@ LocalTriangularRankKKernel
     blas::internal::LocalGemm
     ( Normal, orientationOfB, alpha, AT, BT, (T)0, DTL );
 
+    // TODO: AxpyTrapezoidal?
     DTL.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DTL, CTL );
 
     blas::internal::LocalGemm
     ( Normal, orientationOfB, alpha, AB, BB, (T)0, DBR );
 
+    // TODO: AxpyTrapezoidal?
     DBR.MakeTrapezoidal( Left, shape );
     blas::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
@@ -506,7 +566,7 @@ elemental::blas::internal::LocalTriangularRankK
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRankKBlocksize<T>() )
     {
         LocalTriangularRankKKernel
         ( shape, orientationOfB, alpha, A, B, beta, C );
@@ -578,7 +638,7 @@ elemental::blas::internal::LocalTriangularRankK
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRankKBlocksize<T>() )
     {
         LocalTriangularRankKKernel
         ( shape, orientationOfA, orientationOfB, alpha, A, B, beta, C );
@@ -645,7 +705,7 @@ elemental::blas::internal::LocalTriangularRankK
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRankKBlocksize<T>() )
     {
         LocalTriangularRankKKernel
         ( shape, alpha, A, B, beta, C );
@@ -713,7 +773,7 @@ elemental::blas::internal::LocalTriangularRankK
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < 2*g.Width()*Blocksize() )
+    if( C.Height() < g.Width()*LocalTriangularRankKBlocksize<T>() )
     {
         LocalTriangularRankKKernel
         ( shape, orientationOfA, alpha, A, B, beta, C );

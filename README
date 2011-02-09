@@ -99,19 +99,23 @@ performance:
   double-precision, single-precision complex, and double-precision complex 
   using:
 
-  void elemental::blas::SetLocalHemvFloatBlocksize( int blocksize ); 
-  void elemental::blas::SetLocalHemvDoubleBlocksize( int blocksize );
-  void elemental::blas::SetLocalHemvComplexFloatBlocksize( int blocksize );
-  void elemental::blas::SetLocalHemvComplexDoubleBlocksize( int blocksize );
-
-  void elemental::blas::SetLocalSymvFloatBlocksize( int blocksize );
-  void elemental::blas::SetLocalSymvDoubleBlocksize( int blocksize );
-  void elemental::blas::SetLocalSymvComplexFloatBlocksize( int blocksize );
-  void elemental::blas::SetLocalSymvComplexDoubleBlocksize( int blocksize );
+  void elemental::blas::SetLocalHemvBlocksize<T>( int blocksize ); 
+  void elemental::blas::SetLocalSymvBlocksize<T>( int blocksize ); 
 
   These interfaces were exposed because they play an important role in the 
   speed of the parallel Householder tridiagonalization routine, 
-  elemental::lapack::Tridiag.
+  elemental::lapack::Tridiag on non-square process grids.
+
+- The local blocksizes for local triangular rank-k and rank-2k updates may be 
+  set using:
+
+  void elemental::blas::SetLocalTriangularRankKBlocksize<T>( int blocksize );
+  void elemental::blas::SetLocalTriangularRank2KBlocksize<T>( int blocksize );
+
+  These blocksizes are not nearly as important, but they do effect the 
+  performance of parallel Syrk/Herk, Syr2k/Her2k, and Cholesky. The generalized
+  Hermitian eigensolvers do perform a Cholesky factorization, but it is only a 
+  small part of the overall runtime.
 
 [1]: http://www.cs.utexas.edu/users/plapack/new/using.html
 [2]: http://z.cs.utexas.edu/wiki/flame.wiki/FrontPage
