@@ -151,8 +151,10 @@ main( int argc, char* argv[] )
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
         blas::SetLocalTriangularRank2KBlocksize<double>( nbLocal );
+#ifndef WITHOUT_COMPLEX
         blas::SetLocalTriangularRank2KBlocksize< std::complex<double> >
         ( nbLocal );
+#endif
 
         if( rank == 0 )
         {

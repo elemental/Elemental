@@ -207,8 +207,10 @@ main( int argc, char* argv[] )
         const Grid g( MPI_COMM_WORLD, r, c );
         SetBlocksize( nb );
         blas::SetLocalTriangularRankKBlocksize<double>( nbLocal );
+#ifndef WITHOUT_COMPLEX
         blas::SetLocalTriangularRankKBlocksize< std::complex<double> >
         ( nbLocal );
+#endif
 
         if( rank == 0 )
             cout << "Will test Chol" << ShapeToChar(shape) << endl;

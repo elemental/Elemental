@@ -173,6 +173,7 @@ public:
     const Matrix<Z>& operator=( const MatrixBase<Z>& A );
 };
 
+#ifndef WITHOUT_COMPLEX
 // Partial specialization of Matrix for complex rings.
 template<typename Z>
 class Matrix< std::complex<Z> > : public MatrixBase< std::complex<Z> >
@@ -208,6 +209,7 @@ public:
     const Matrix< std::complex<Z> >& 
     operator=( const MatrixBase< std::complex<Z> >& A );
 };
+#endif // WITHOUT_COMPLEX
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
@@ -697,6 +699,7 @@ Matrix<Z>::operator=
 ( const MatrixBase<Z>& A )
 { MatrixBase<Z>::operator=( A ); return *this; }
 
+#ifndef WITHOUT_COMPLEX
 // Matrix for complex rings
 
 template<typename Z>
@@ -920,6 +923,7 @@ inline const Matrix< std::complex<Z> >&
 Matrix< std::complex<Z> >::operator=
 ( const MatrixBase< std::complex<Z> >& A )
 { MatrixBase< std::complex<Z> >::operator=( A ); return *this; }
+#endif // WITHOUT_COMPLEX
 
 } // namespace elemental
 

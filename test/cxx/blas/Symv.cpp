@@ -105,7 +105,8 @@ void TestSymv
     }
 }
 
-int main( int argc, char* argv[] )
+int 
+main( int argc, char* argv[] )
 {
     int rank;
     try
