@@ -42,17 +42,22 @@ if(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
    NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
    NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
    NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
-  message(FATAL_ERROR 
-          "CMAKE_BUILD_TYPE must be one of: HybridDebug, HybridRelease, PureDebug, PureRelease")
+  message(
+    FATAL_ERROR 
+    "CMAKE_BUILD_TYPE must be one of: HybridDebug, HybridRelease, PureDebug, PureRelease"
+  )
 endif(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
       NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
       NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
       NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
-set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING 
-    "Choose the build type, options are: HybridDebug, HybridRelease, PureDebug, and PureRelease" 
-    FORCE)
+set(
+  CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING 
+  "Choose the build type, options are: HybridDebug, HybridRelease, PureDebug, and PureRelease" 
+  FORCE
+)
 
 option(BUILD_TESTS   "Build a collection of test executables"             ON)
+option(BUILD_EXAMPLES "Build the example(s)"                              ON)
 option(BUILD_PMRRR   "Build and link against eigensolver PMRRR"           ON)
 
 option(WITHOUT_COMPLEX "Avoid all usage of complex numbers" OFF)
@@ -64,8 +69,10 @@ option(UNALIGNED_WARNINGS "Warn when performing unaligned redistributions"  OFF)
 option(VECTOR_WARNINGS "Warn when vector redistribution chances are missed" OFF)
 option(ENABLE_ALL_DISTRIBUTED_DOT "Build every parallel dot product."       OFF)
 option(POOL_MEMORY "Make Memory class accumulate memory until destruction"  OFF)
-mark_as_advanced(AVOID_COMPLEX_MPI CACHE_WARNINGS UNALIGNED_WARNINGS 
-                 VECTOR_WARNINGS ENABLE_ALL_DISTRIBUTED_DOT POOL_MEMORY)
+mark_as_advanced(
+  AVOID_COMPLEX_MPI CACHE_WARNINGS UNALIGNED_WARNINGS VECTOR_WARNINGS 
+  ENABLE_ALL_DISTRIBUTED_DOT POOL_MEMORY
+)
 
 # Bug fix for IBM's compiler miscompiling OpenMP a[i] += alpha b[i] statements
 # for complex datatypes
@@ -98,24 +105,35 @@ if(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
 endif(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
 
 if(HYBRID_DEBUG)
-  set(CXX_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
-      "CXX optimization/debug flags for hybrid OpenMP/MPI debug build")
+  set(
+    CXX_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
+    "CXX optimization/debug flags for hybrid OpenMP/MPI debug build"
+  )
 endif(HYBRID_DEBUG)
 if(HYBRID_RELEASE)
-  set(CXX_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
-      "CXX optimization flags for hybrid OpenMP/MPI release build")
+  set(
+    CXX_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
+    "CXX optimization flags for hybrid OpenMP/MPI release build"
+  )
 endif(HYBRID_RELEASE)
 if(PURE_DEBUG)
-  set(CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
-      "CXX optimization/debugging flags for pure MPI debug build")
+  set(
+    CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
+    "CXX optimization/debugging flags for pure MPI debug build"
+  )
 endif(PURE_DEBUG)
 if(PURE_RELEASE)
-  set(CXX_PURE_RELEASE_FLAGS "-O3" CACHE STRING
-      "CXX optimization flags for pure MPI release build")
+  set(
+    CXX_PURE_RELEASE_FLAGS "-O3" CACHE STRING
+    "CXX optimization flags for pure MPI release build"
+  )
 endif(PURE_RELEASE)
 
 if(NOT (CMAKE_CXX_COMPILER MATCHES "mpi"))
-  message(WARNING "CXX compiler, ${CMAKE_CXX_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CXX or through the '-DCMAKE_CXX_COMPILER' cmake flag. You should probably also clean this build folder first.")
+  message(
+    WARNING 
+    "CXX compiler, ${CMAKE_CXX_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CXX or through the '-DCMAKE_CXX_COMPILER' cmake flag. You should probably also clean this build folder first."
+  )
 endif(NOT (CMAKE_CXX_COMPILER MATCHES "mpi"))
 
 if(HYBRID)
@@ -129,11 +147,24 @@ if(HYBRID)
       set(HAVE_OPENMP TRUE)
     else(OPENMP_FOUND)
       set(OpenMP_CXX_FLAGS "" CACHE STRING "OpenMP CXX FLAGS")
-      message(FATAL_ERROR
-              "${CMAKE_BUILD_TYPE} failed because OpenMP support was not found. If your system supports OpenMP, please manually specify OpenMP_CXX_FLAGS.")
+      message(
+        FATAL_ERROR
+        "${CMAKE_BUILD_TYPE} failed because OpenMP support was not found. If your system supports OpenMP, please manually specify OpenMP_CXX_FLAGS."
+      )
     endif(OPENMP_FOUND)
   endif(OpenMP_CXX_FLAGS)
 endif(HYBRID)
+
+set(
+  CMAKE_CXX_FLAGS_HYBRIDDEBUG 
+  "${CXX_HYBRID_DEBUG_FLAGS} ${OpenMP_CXX_FLAGS}"
+)
+set(
+  CMAKE_CXX_FLAGS_HYBRIDRELEASE 
+  "${CXX_HYBRID_RELEASE_FLAGS} ${OpenMP_CXX_FLAGS}"
+)
+set(CMAKE_CXX_FLAGS_PUREDEBUG "${CXX_PURE_DEBUG_FLAGS}")
+set(CMAKE_CXX_FLAGS_PURERELEASE "${CXX_PURE_RELEASE_FLAGS}")
 
 # Query the size of a void pointer in order to determine whether or not this is
 # a 32-bit system
@@ -173,46 +204,66 @@ if(NEED_MATH)
       set(MKL_ARCH_SUBDIRS lib/em64t lib/intel64 mkl/lib/em64t)
     endif(32_BIT_SYSTEM)
     if(INTEL_ROOT)
-      message(STATUS 
-              "Will also search user-defined INTEL_ROOT=${INTEL_ROOT} for MKL")
+      message(
+        STATUS 
+        "Will also search user-defined INTEL_ROOT=${INTEL_ROOT} for MKL"
+      )
     endif(INTEL_ROOT)
     if(MKL_ROOT)
-      message(STATUS
-              "Will also search user-defined MKL_ROOT=${MKL_ROOT} for MKL")
+      message(
+        STATUS
+        "Will also search user-defined MKL_ROOT=${MKL_ROOT} for MKL"
+      )
     endif(MKL_ROOT)
     # There is a cyclic dependency between MKL_CORE and 
     # MKL_SEQUENTIAL/MKL_INTEL_THREAD with some versions of MKL
     find_library(CMATH_LIB m DOC "C math library")
     find_library(PTHREAD_LIB pthread DOC "Pthreads library")
-    find_library(IOMP5_LIB
-                 NAMES libiomp5.a iomp5.lib 
-                 PATHS ${INTEL_ROOT} ${MKL_ROOT}
-                 PATH_SUFFIXES ${INTEL_ARCH_SUBDIRS}) 
-    find_library(GUIDE_LIB
-                 NAMES libguide.a guide.lib 
-                 PATHS ${INTEL_ROOT} ${MKL_ROOT}
-                 PATH_SUFFIXES ${INTEL_ARCH_SUBDIRS})
-    find_library(MKL_CORE_LIB
-                 NAMES libmkl_core.a mkl_core.lib 
-                 PATHS ${INTEL_ROOT} ${MKL_ROOT}
-                 PATH_SUFFIXES ${MKL_ARCH_SUBDIRS})
-    find_library(MKL_INTEL_LIB
-                 NAMES libmkl_intel_lp64.a mkl_intel_lp64.lib 
-                 PATHS ${INTEL_ROOT} ${MKL_ROOT}
-                 PATH_SUFFIXES ${MKL_ARCH_SUBDIRS})
+    find_library(
+      IOMP5_LIB
+      NAMES libiomp5.a iomp5.lib 
+      PATHS ${INTEL_ROOT} ${MKL_ROOT}
+      PATH_SUFFIXES ${INTEL_ARCH_SUBDIRS}
+    )
+    find_library(
+      GUIDE_LIB
+      NAMES libguide.a guide.lib 
+      PATHS ${INTEL_ROOT} ${MKL_ROOT}
+      PATH_SUFFIXES ${INTEL_ARCH_SUBDIRS}
+    )
+    find_library(
+      MKL_CORE_LIB
+      NAMES libmkl_core.a mkl_core.lib 
+      PATHS ${INTEL_ROOT} ${MKL_ROOT}
+      PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
+    )
+    find_library(
+      MKL_INTEL_LIB
+      NAMES libmkl_intel_lp64.a mkl_intel_lp64.lib 
+      PATHS ${INTEL_ROOT} ${MKL_ROOT}
+      PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
+    )
     if(PURE)
-      find_library(MKL_SEQUENTIAL_LIB
-                   NAMES libmkl_sequential.a mkl_sequential.lib
-                   PATHS ${INTEL_ROOT} ${MKL_ROOT}
-                   PATH_SUFFIXES ${MKL_ARCH_SUBDIRS})
-      set(MKL_REQUIRED MKL_INTEL MKL_SEQUENTIAL MKL_CORE MKL_SEQUENTIAL 
-          GUIDE IOMP5 PTHREAD CMATH) 
+      find_library(
+        MKL_SEQUENTIAL_LIB
+        NAMES libmkl_sequential.a mkl_sequential.lib
+        PATHS ${INTEL_ROOT} ${MKL_ROOT}
+        PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
+      )
+      set(
+        MKL_REQUIRED MKL_INTEL MKL_SEQUENTIAL MKL_CORE MKL_SEQUENTIAL 
+        GUIDE IOMP5 PTHREAD CMATH
+      ) 
     else(PURE)
-      find_library(MKL_INTEL_THREAD_LIB
-                   NAMES libmkl_intel_thread.a mkl_intel_thread.lib
-                   PATH_SUFFIXES ${MKL_ARCH_SUBDIRS})
-      set(MKL_REQUIRED MKL_INTEL MKL_INTEL_THREAD MKL_CORE 
-          MKL_INTEL_THREAD GUIDE IOMP5 PTHREAD CMATH)
+      find_library(
+        MKL_INTEL_THREAD_LIB
+        NAMES libmkl_intel_thread.a mkl_intel_thread.lib
+        PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
+      )
+      set(
+        MKL_REQUIRED MKL_INTEL MKL_INTEL_THREAD MKL_CORE 
+        MKL_INTEL_THREAD GUIDE IOMP5 PTHREAD CMATH
+      )
     endif(PURE)
     set(MKL_FOUND TRUE)
     set(MATH_LIBS "")
@@ -233,15 +284,14 @@ if(NEED_MATH)
     if(NEED_MATH)
       # Look for default BLAS and LAPACK
       if(REFERENCE_ROOT)
-        message(STATUS "Will also search REFERENCE_ROOT=${REFERENCE_ROOT} for reference math libs")
+        message(
+          STATUS 
+          "Will also search REFERENCE_ROOT=${REFERENCE_ROOT} for reference math libs"
+        )
       endif(REFERENCE_ROOT)
       set(REFERENCE_REQUIRED LAPACK BLAS)
-      find_library(BLAS_LIB
-                   NAMES blas
-                   PATHS ${REFERENCE_ROOT})
-      find_library(LAPACK_LIB
-                   NAMES lapack reflapack
-                   PATHS ${REFERENCE_ROOT}) 
+      find_library(BLAS_LIB NAMES blas PATHS ${REFERENCE_ROOT})
+      find_library(LAPACK_LIB NAMES lapack reflapack PATHS ${REFERENCE_ROOT}) 
       set(REFERENCE_FOUND TRUE)
       foreach(NAME ${REFERENCE_REQUIRED})
         if(${NAME}_LIB)
@@ -256,8 +306,10 @@ if(NEED_MATH)
       if(REFERENCE_FOUND)
         message(STATUS "WARNING: Using reference BLAS/LAPACK.")
       else(REFERENCE_FOUND) 
-        message(FATAL_ERROR 
-                "Could not find BLAS/LAPACK libraries. Please manually specify MATH_LIBS")
+        message(
+          FATAL_ERROR 
+          "Could not find BLAS/LAPACK libraries. Please manually specify MATH_LIBS"
+        )
       endif(REFERENCE_FOUND)
     endif(NEED_MATH)
   endif(APPLE)
@@ -309,22 +361,34 @@ else(BUILD_PMRRR AND NOT FAILED_PMRRR)
   set(WITHOUT_PMRRR TRUE)
 endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
-configure_file( ${CMAKE_SOURCE_DIR}/include/elemental/config.h.cmake
-                ${CMAKE_BINARY_DIR}/include/elemental/config.h ) 
+configure_file( 
+  ${CMAKE_SOURCE_DIR}/include/elemental/config.h.cmake
+  ${CMAKE_BINARY_DIR}/include/elemental/config.h 
+) 
 
 # Grab all of the .c, .cpp, .h, and .hpp Elemental files
-file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
-     "src/*.c" "src/*.cpp")
-file(GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
-     "include/*.h" "include/*.hpp")
+file(
+  GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
+  "src/*.c" "src/*.cpp"
+)
+file(
+  GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
+  "include/*.h" "include/*.hpp"
+)
 if(WITHOUT_PMRRR)
   message(STATUS "Removing eigensolver source from Elemental")
-  list(REMOVE_ITEM ELEMENTAL_CPP
-       "src/lapack/HermitianEig/HermitianEig.cpp")
-  list(REMOVE_ITEM ELEMENTAL_CPP
-       "src/lapack/SkewHermitianEig/SkewHermitianEig.cpp")
-  list(REMOVE_ITEM ELEMENTAL_CPP
-       "src/lapack/GeneralizedHermitianEig/GeneralizedHermitianEig.cpp")
+  list(
+    REMOVE_ITEM ELEMENTAL_CPP
+    "src/lapack/HermitianEig/HermitianEig.cpp"
+  )
+  list(
+    REMOVE_ITEM ELEMENTAL_CPP
+   "src/lapack/SkewHermitianEig/SkewHermitianEig.cpp"
+  )
+  list(
+    REMOVE_ITEM ELEMENTAL_CPP
+    "src/lapack/GeneralizedHermitianEig/GeneralizedHermitianEig.cpp"
+  )
 endif(WITHOUT_PMRRR)
 if(NOT BUILD_C_INTERFACE)
     message(STATUS "Removing prototype C interface from Elemental")
@@ -333,8 +397,7 @@ if(NOT BUILD_C_INTERFACE)
 endif(NOT BUILD_C_INTERFACE)
 set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
-# Create the lists of test executables and configure the compile flags
-# for the various build modes
+# Create the lists of test executables 
 if(BUILD_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 
@@ -350,16 +413,21 @@ if(BUILD_TESTS)
     list(APPEND LAPACK_TESTS GeneralizedHermitianEig)
     list(APPEND LAPACK_TESTS HermitianEig)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
-
-  set(CMAKE_CXX_FLAGS_HYBRIDDEBUG
-      "${CXX_HYBRID_DEBUG_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set(CMAKE_CXX_FLAGS_HYBRIDRELEASE
-      "${CXX_HYBRID_RELEASE_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set(CMAKE_CXX_FLAGS_PUREDEBUG 
-      "${CXX_PURE_DEBUG_FLAGS}")
-  set(CMAKE_CXX_FLAGS_PURERELEASE
-      "${CXX_PURE_RELEASE_FLAGS}")
 endif(BUILD_TESTS)
+
+# Create the lists of example executables. There is currently only one.
+if(BUILD_EXAMPLES)
+  set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
+
+  set(LAPACK_EXAMPLES)
+
+  if(BUILD_PMRRR AND NOT FAILED_PMRRR)
+    if(NOT WITHOUT_COMPLEX)
+      list(APPEND LAPACK_EXAMPLES HermitianEig)
+    endif(NOT WITHOUT_COMPLEX)
+    list(APPEND LAPACK_EXAMPLES SymmetricEig)
+  endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
+endif(BUILD_EXAMPLES)
 
 # Create a dummy library in order to be able to force the math libraries
 # to be linked last
@@ -389,40 +457,69 @@ endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 # Build the test drivers if necessary
 if(BUILD_TESTS)
   # Build the core tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/cxx/core")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/core")
   foreach(TEST ${CORE_TESTS})
-    add_executable(cxx-core-${TEST} ${TEST_DIR}/cxx/core/${TEST}.cpp)
-    target_link_libraries(cxx-core-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(cxx-core-${TEST} 
-                          PROPERTIES OUTPUT_NAME ${TEST}
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    add_executable(tests-cxx-core-${TEST} ${TEST_DIR}/cxx/core/${TEST}.cpp)
+    target_link_libraries(tests-cxx-core-${TEST} elemental cmake-dummy-lib)
+    set_target_properties(
+      tests-cxx-core-${TEST} 
+      PROPERTIES OUTPUT_NAME ${TEST}
+      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+    )
   endforeach(TEST)
   # Build the blas tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/cxx/blas")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/blas")
   foreach(TEST ${BLAS_TESTS})
-    add_executable(cxx-blas-${TEST} ${TEST_DIR}/cxx/blas/${TEST}.cpp)
-    target_link_libraries(cxx-blas-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(cxx-blas-${TEST} 
-                          PROPERTIES OUTPUT_NAME ${TEST}
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    add_executable(tests-cxx-blas-${TEST} ${TEST_DIR}/cxx/blas/${TEST}.cpp)
+    target_link_libraries(tests-cxx-blas-${TEST} elemental cmake-dummy-lib)
+    set_target_properties(
+      tests-cxx-blas-${TEST} 
+      PROPERTIES OUTPUT_NAME ${TEST}
+      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+    )
   endforeach(TEST)
   # Build the lapack tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/cxx/lapack")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/lapack")
   foreach(TEST ${LAPACK_TESTS})
-    add_executable(cxx-lapack-${TEST} ${TEST_DIR}/cxx/lapack/${TEST}.cpp)
-    target_link_libraries(cxx-lapack-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(cxx-lapack-${TEST} 
-                          PROPERTIES OUTPUT_NAME ${TEST}
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    add_executable(tests-cxx-lapack-${TEST} ${TEST_DIR}/cxx/lapack/${TEST}.cpp)
+    target_link_libraries(tests-cxx-lapack-${TEST} elemental cmake-dummy-lib)
+    set_target_properties(
+      tests-cxx-lapack-${TEST} 
+      PROPERTIES OUTPUT_NAME ${TEST}
+      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+    )
   endforeach(TEST)
   # Build the C tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/c")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/c")
   foreach(TEST ${C_TESTS})
-    add_executable(c-${TEST} ${TEST_DIR}/c/${TEST}.c)
-    target_link_libraries(c-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(c-${TEST}
-                          PROPERTIES OUTPUT_NAME ${TEST}
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    add_executable(tests-c-${TEST} ${TEST_DIR}/c/${TEST}.c)
+    target_link_libraries(tests-c-${TEST} elemental cmake-dummy-lib)
+    set_target_properties(
+      tests-c-${TEST}
+      PROPERTIES OUTPUT_NAME ${TEST}
+      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+    )
   endforeach(TEST)
 endif(BUILD_TESTS)
+
+# Build the example drivers if necessary
+if(BUILD_EXAMPLES)
+  # Build the lapack test(s)
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/cxx/lapack")
+  foreach(EXAMPLE ${LAPACK_EXAMPLES})
+    add_executable(
+      examples-cxx-lapack-${EXAMPLE} 
+      ${EXAMPLE_DIR}/cxx/lapack/${EXAMPLE}.cpp
+    )
+    target_link_libraries(
+      examples-cxx-lapack-${EXAMPLE} 
+      elemental cmake-dummy-lib
+    )
+    set_target_properties(
+      examples-cxx-lapack-${EXAMPLE} 
+      PROPERTIES OUTPUT_NAME ${EXAMPLE}
+      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+    )
+  endforeach(EXAMPLE)
+endif(BUILD_EXAMPLES)
 

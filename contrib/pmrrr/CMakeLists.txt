@@ -35,20 +35,28 @@ option(HAVE_SPINLOCKS "Enable if pthread lib supports spinlocks" OFF)
 MARK_AS_ADVANCED(HAVE_SPINLOCKS)
 
 if(HYBRID_DEBUG)
-  set(C_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
-      "C optimization/debug flags for hybrid OpenMP/MPI debug build")
+  set(
+    C_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
+    "C optimization/debug flags for hybrid OpenMP/MPI debug build"
+  )
 endif(HYBRID_DEBUG)
 if(HYBRID_RELEASE)
-  set(C_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
-      "C optimization flags for hybrid OpenMP/MPI release build")
+  set(
+    C_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
+    "C optimization flags for hybrid OpenMP/MPI release build"
+  )
 endif(HYBRID_RELEASE)
 if(PURE_DEBUG)
-  set(C_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
-      "C optimization/debugging flags for pure MPI debug build")
+  set(
+    C_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
+    "C optimization/debugging flags for pure MPI debug build"
+  )
 endif(PURE_DEBUG)
 if(PURE_RELEASE)
-  set(C_PURE_RELEASE_FLAGS "-O3" CACHE STRING
-      "C optimization flags for pure MPI release build")
+  set(
+    C_PURE_RELEASE_FLAGS "-O3" CACHE STRING
+    "C optimization flags for pure MPI release build"
+  )
 endif(PURE_RELEASE)
 
 # Search the BLAS/LAPACK libs for  to test whether it is a new enough version
@@ -102,27 +110,37 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
     # For some reason enable_language( ... OPTIONAL) causes an error, so we 
     # should instead manually probe for a Fortran compiler first
     #enable_language(Fortran OPTIONAL)
-    find_program(FORTRAN_COMPILER NAMES gfortran g77 ifort xlf_r xlf xlf90_r 
-                 xlf90 xlf95_r xlf95 xlf2003_r xlf2003)
+    find_program(
+      FORTRAN_COMPILER 
+      NAMES gfortran g77 ifort xlf_r xlf
+    )
   endif(NOT CMAKE_Fortran_COMPILER)
   if(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
     enable_language(Fortran)
 
     if(HYBRID_DEBUG)
-      set(Fortran_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
-          "Fortran optimization/debug flags for hybrid threaded/MPI debug build")
+      set(
+        Fortran_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
+        "Fortran optimization/debug flags for hybrid threaded/MPI debug build"
+      )
     endif(HYBRID_DEBUG)
     if(HYBRID_RELEASE)
-      set(Fortran_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
-          "Fortran optimization flags for hybrid threaded/MPI release build")
+      set(
+        Fortran_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
+        "Fortran optimization flags for hybrid threaded/MPI release build"
+      )
     endif(HYBRID_RELEASE)
     if(PURE_DEBUG)
-      set(Fortran_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
-          "Fortran optimization/debugging flags for pure MPI debug build")
+      set(
+        Fortran_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
+        "Fortran optimization/debugging flags for pure MPI debug build"
+      )
     endif(PURE_DEBUG)
     if(PURE_RELEASE)
-      set(Fortran_PURE_RELEASE_FLAGS "-O3" CACHE STRING
-          "Fortran optimization flags for pure MPI release build")
+      set(
+        Fortran_PURE_RELEASE_FLAGS "-O3" CACHE STRING
+        "Fortran optimization flags for pure MPI release build"
+      )
     endif(PURE_RELEASE)
 
     set(CMAKE_Fortran_FLAGS_HYBRIDDEBUG ${Fortran_HYBRID_DEBUG_FLAGS})
@@ -148,18 +166,27 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
         set(LAPACK_ADDONS_LINK_LIBS ${GFORTRAN_LIB})
         message(STATUS "Using user-defined GFORTRAN_LIB=${GFORTRAN_LIB}")
       else(GFORTRAN_LIB)
-        string(REGEX REPLACE "bin/gfortran" "lib" GFORTRAN_LIB_DIR_HINT
-               "${CMAKE_Fortran_COMPILER}")
-        message(STATUS 
-                "Will also search ${GFORTRAN_LIB_DIR_HINT} for gfortran lib.")
-        find_library(GFORTRAN_LIB 
-                     NAMES gfortran libgfortran.a libgfortran.so 
-                           libgfortran.so.1 libgfortran.so.2 libgfortran.so.3
-                     HINTS ${GFORTRAN_LIB_DIR_HINT})
+        string(
+          REGEX REPLACE "bin/gfortran" "lib" GFORTRAN_LIB_DIR_HINT
+          "${CMAKE_Fortran_COMPILER}"
+        )
+        message(
+          STATUS 
+          "Will also search ${GFORTRAN_LIB_DIR_HINT} for gfortran lib."
+        )
+        find_library(
+          GFORTRAN_LIB 
+          NAMES gfortran libgfortran.a libgfortran.so libgfortran.so.1 
+                libgfortran.so.2 libgfortran.so.3
+          HINTS ${GFORTRAN_LIB_DIR_HINT}
+        )
         if(GFORTRAN_LIB)
           message(STATUS "Found gfortran lib at ${GFORTRAN_LIB}")
         else(GFORTRAN_LIB)
-          message(FATAL_ERROR "Could not find gfortran library. Please specify it by defining GFORTRAN_LIB.")
+          message(
+            FATAL_ERROR 
+            "Could not find gfortran library. Please specify it by defining GFORTRAN_LIB."
+          )
         endif(GFORTRAN_LIB)
       endif(GFORTRAN_LIB)
       set(LAPACK_ADDONS_LINK_LIBS ${GFORTRAN_LIB})
@@ -182,8 +209,10 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
         message(STATUS "Using user-defined IFCORE_LIB=${IFCORE_LIB}")
         set(LAPACK_ADDONS_LINK_LIBS ${IFCORE_LIB})
       else(IFCORE_LIB)
-        string(REGEX REPLACE "/bin/([^/]*)/?ifort" "/lib/\\1" 
-               IFCORE_LIB_DIR_HINT "${CMAKE_Fortran_COMPILER}")
+        string(
+          REGEX REPLACE "/bin/([^/]*)/?ifort" "/lib/\\1" 
+          IFCORE_LIB_DIR_HINT "${CMAKE_Fortran_COMPILER}"
+        )
         message(STATUS "Will also search ${IFCORE_LIB_DIR_HINT} for ifcore lib")
         find_library(IFCORE_LIB ifcore HINTS ${IFCORE_LIB_DIR_HINT})
         if(IFCORE_LIB)
@@ -204,8 +233,9 @@ if(MISSING_LAPACK_3_1 OR MISSING_LAPACK_3_3)
     endif(Fortran_COMPILER_NAME STREQUAL "gfortran")
     set(F_FROM_C_DEFS "${F_FROM_C_DEFS} -DPREPEND_X")
     
-    file(GLOB_RECURSE LAPACK_ADDON_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
-         "*.f")
+    file(
+      GLOB_RECURSE LAPACK_ADDON_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.f"
+    )
     add_library(lapack-addons STATIC ${LAPACK_ADDON_SRC})
     target_link_libraries(lapack-addons ${LAPACK_ADDONS_LINK_LIBS})
   else(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
@@ -241,7 +271,10 @@ else(FAILED_PMRRR)
 
   # Try to check if we have an MPI C compiler specified
   if(NOT (CMAKE_C_COMPILER MATCHES "mpi"))
-    message(WARNING "C compiler, ${CMAKE_C_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CC or through the '-DCMAKE_C_COMPILER' cmake flag. You should probably also clean this build folder first.")
+    message(
+      WARNING 
+      "C compiler, ${CMAKE_C_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CC or through the '-DCMAKE_C_COMPILER' cmake flag. You should probably also clean this build folder first."
+    )
   endif(NOT (CMAKE_C_COMPILER MATCHES "mpi"))
     
   # Findpthreads.cmake does not seem to be standard
@@ -254,8 +287,10 @@ else(FAILED_PMRRR)
   if(NOT PTHREADS_C_FLAGS)
     # TODO: Make this section more robust by checking a longer list of compile
     #       flags using CMake's builtin routines.
-    set(PTHREADS_C_FLAGS "-pthread" CACHE STRING
-        "C compilation flags for pthreads support.")
+    set(
+      PTHREADS_C_FLAGS "-pthread" CACHE STRING 
+      "C compilation flags for pthreads support."
+    )
   endif(NOT PTHREADS_C_FLAGS)
   set(C_BASE_FLAGS "${C_BASE_FLAGS} ${PTHREADS_C_FLAGS}")
 

@@ -35,12 +35,12 @@ by appending the additional cmake flags of the form:
 where the math libs should be optimized for single core usage for pure-MPI 
 builds and threaded for the hybrid builds.
 
-On BlueGene/P, one should instead run
+On BlueGene/P, one should instead run (after loading the dec2010 compiler)
       cd elemental
       mkdir -p build/PureRelease
       cd build/PureRelease
       cmake -DCMAKE_BUILD_TYPE=PureRelease \
-            -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchains/BGP-xl_aug2010-essl_4.3.1-1.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchains/BGP-xl_dec2010-essl_4.3.1-1.cmake \
             ../..
       make
 

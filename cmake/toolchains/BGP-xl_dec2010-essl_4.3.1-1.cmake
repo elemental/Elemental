@@ -3,7 +3,7 @@ set(CMAKE_SYSTEM_NAME BlueGeneP-static)
 # We need MPI C and CXX compilers, but only a serial Fortran compiler
 set(CMAKE_C_COMPILER /bgsys/drivers/ppcfloor/comm/bin/mpixlc_r)
 set(CMAKE_CXX_COMPILER /bgsys/drivers/ppcfloor/comm/bin/mpixlcxx_r)
-set(CMAKE_Fortran_COMPILER /soft/apps/ibmcmp-aug2010/xlf/bg/11.1/bin/bgxlf_r) 
+set(CMAKE_Fortran_COMPILER /soft/apps/ibmcmp-dec2010/xlf/bg/11.1/bin/bgxlf_r) 
 
 set(CXX_PURE_DEBUG_FLAGS "-g")
 set(CXX_PURE_RELEASE_FLAGS "-g -O4")
@@ -15,7 +15,7 @@ set(OpenMP_CXX_FLAGS "-qsmp=omp:noauto -qthreaded")
 
 # The remainder of the file is for linking BLAS/LAPACK functionality
 set(ESSL_BASE "/soft/apps/ESSL-4.3.1-1")
-set(IBMCMP_BASE "/soft/apps/ibmcmp-aug2010")
+set(IBMCMP_BASE "/soft/apps/ibmcmp-dec2010")
 set(XLF_BASE "${IBMCMP_BASE}/xlf/bg/11.1/bglib")
 set(XLSMP_BASE "${IBMCMP_BASE}/xlsmp/bg/1.7/bglib")
 
