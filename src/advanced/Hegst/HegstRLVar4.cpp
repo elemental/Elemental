@@ -115,7 +115,6 @@ elemental::advanced::internal::HegstRLVar4
         basic::internal::LocalTrsm
         ( Left, Lower, Normal, NonUnit,
           (F)1, L11_Star_Star, A10_Star_VR );
-        A10 = A10_Star_VR;
 
         // A11 := inv(L11) A11 inv(L11)'
         A11_Star_Star = A11; 
@@ -128,6 +127,7 @@ elemental::advanced::internal::HegstRLVar4
         A10_Star_MR = A10_Star_VR;
         basic::internal::LocalGemm
         ( Normal, Normal, (F)-1, L21_MC_Star, A10_Star_MR, (F)1, A20 );
+        A10 = A10_Star_MR; // delayed write from  A10 := inv(L11) A10
 
         // Y21 := L21 A11
         L21_VC_Star = L21_MC_Star;
