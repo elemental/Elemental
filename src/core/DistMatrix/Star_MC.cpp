@@ -33,8 +33,8 @@
 #include "elemental/dist_matrix.hpp"
 using namespace std;
 using namespace elemental;
+using namespace elemental::imports;
 using namespace elemental::utilities;
-using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype
@@ -140,7 +140,7 @@ elemental::DistMatrix<complex<Z>,Star,MC>::GetReal
         const int jLoc = (j-this->RowShift()) / g.Height();
         u = this->GetRealLocalEntry(i,jLoc);
     }
-    Broadcast( &u, 1, ownerRow, g.MCComm() );
+    mpi::Broadcast( &u, 1, ownerRow, g.MCComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -168,7 +168,7 @@ elemental::DistMatrix<complex<Z>,Star,MC>::GetImag
         const int jLoc = (j-this->RowShift()) / g.Height();
         u = this->GetImagLocalEntry(i,jLoc);
     }
-    Broadcast( &u, 1, ownerRow, g.MCComm() );
+    mpi::Broadcast( &u, 1, ownerRow, g.MCComm() );
 
 #ifndef RELEASE
     PopCallStack();

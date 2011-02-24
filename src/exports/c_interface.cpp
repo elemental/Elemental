@@ -326,7 +326,7 @@ void PushBlocksizeStack( int blocksize )
 void PopBlocksizeStack()
 { CATCH(elemental::PopBlocksizeStack()); }
 
-Grid CreateDefaultGrid( MPI_Comm comm )
+Grid CreateDefaultGrid( ElementalComm comm )
 {
     Grid g;
     CATCH(
@@ -336,7 +336,7 @@ Grid CreateDefaultGrid( MPI_Comm comm )
     return g;
 }
 
-Grid CreateGrid( MPI_Comm comm, int r, int c )
+Grid CreateGrid( ElementalComm comm, int r, int c )
 {
     Grid g;
     CATCH(
@@ -378,17 +378,17 @@ int GridMCRank( Grid g )
 int GridMRRank( Grid g )
 { int MRRank; CATCH(MRRank=gridList[g]->MRRank()); return MRRank; }
 
-MPI_Comm GridVCComm( Grid g )
-{ MPI_Comm VCComm; CATCH(VCComm=gridList[g]->VCComm()); return VCComm; }
+ElementalComm GridVCComm( Grid g )
+{ ElementalComm VCComm; CATCH(VCComm=gridList[g]->VCComm()); return VCComm; }
 
-MPI_Comm GridVRComm( Grid g )
-{ MPI_Comm VRComm; CATCH(VRComm=gridList[g]->VRComm()); return VRComm; }
+ElementalComm GridVRComm( Grid g )
+{ ElementalComm VRComm; CATCH(VRComm=gridList[g]->VRComm()); return VRComm; }
 
-MPI_Comm GridMCComm( Grid g )
-{ MPI_Comm MCComm; CATCH(MCComm=gridList[g]->MCComm()); return MCComm; }
+ElementalComm GridMCComm( Grid g )
+{ ElementalComm MCComm; CATCH(MCComm=gridList[g]->MCComm()); return MCComm; }
 
-MPI_Comm GridMRComm( Grid g )
-{ MPI_Comm MRComm; CATCH(MRComm=gridList[g]->MRComm()); return MRComm; }
+ElementalComm GridMRComm( Grid g )
+{ ElementalComm MRComm; CATCH(MRComm=gridList[g]->MRComm()); return MRComm; }
 
 //----------------------------------------------------------------------------//
 // [MC,MR] manipulation routines                                              //

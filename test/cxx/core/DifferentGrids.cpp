@@ -35,7 +35,7 @@
 #include "elemental.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::imports::mpi;
+using namespace elemental::imports;
 
 void Usage()
 {
@@ -45,20 +45,23 @@ void Usage()
          << "  n: width of matrices\n" << endl;
 }
 
-int main( int argc, char* argv[] )
+int 
+main( int argc, char* argv[] )
 {
-    int rank;
+    Init( argc, argv );
+    mpi::Comm comm = mpi::COMM_WORLD;
+    int rank = mpi::CommRank( comm );
+    
+    if( argc < 3 )
+    {
+        if( rank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+
     try
     {
-        Init( &argc, &argv );
-        MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-        if( argc != 3 )
-        {
-            if( rank == 0 )
-                Usage();
-            Finalize();
-            return 0;
-        }
         int argNum = 0;
         const int m = atoi(argv[++argNum]);
         const int n = atoi(argv[++argNum]);
@@ -70,9 +73,7 @@ int main( int argc, char* argv[] )
                  << "==========================================" << endl;
         }
 #endif
-        int p;
-        MPI_Comm comm = MPI_COMM_WORLD;
-        MPI_Comm_size( comm, &p );
+        int p = mpi::CommSize( comm );
 
         // Drop down to a square grid, change the matrix, and redistribute back
         int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
@@ -81,9 +82,10 @@ int main( int argc, char* argv[] )
         for( int i=0; i<pSqrt*pSqrt; ++i )
             sqrtRanks[i] = i;
 
-        MPI_Group group, sqrtGroup;
-        MPI_Comm_group( comm, &group );
-        MPI_Group_incl( group, sqrtRanks.size(), &sqrtRanks[0], &sqrtGroup );
+        mpi::Group group, sqrtGroup;
+        
+        mpi::CommGroup( comm, group );
+        mpi::GroupIncl( group, sqrtRanks.size(), &sqrtRanks[0], sqrtGroup );
 
         const Grid grid( comm );
         const Grid sqrtGrid( comm, sqrtGroup );
@@ -97,7 +99,7 @@ int main( int argc, char* argv[] )
         ASqrt = A;
         ASqrt.Print("ASqrt := A");
 
-        blas::Scal( 2.0, ASqrt );
+        basic::Scal( 2.0, ASqrt );
         ASqrt.Print("ASqrt := 2 ASqrt");
 
         A = ASqrt;

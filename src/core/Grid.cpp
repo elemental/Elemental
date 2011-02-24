@@ -31,11 +31,12 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 #include "elemental/environment.hpp"
-using namespace elemental;
 using namespace std;
+using namespace elemental;
+using namespace elemental::imports;
 
 elemental::Grid::Grid
-( MPI_Comm comm )
+( mpi::Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
@@ -43,14 +44,14 @@ elemental::Grid::Grid
     _inGrid = true; // this is true by assumption for this constructor
 
     // Extract our rank, the underlying group, and the number of processes
-    MPI_Comm_dup( comm, &_viewingComm );
-    MPI_Comm_group( _viewingComm, &_viewingGroup );
-    MPI_Comm_rank( _viewingComm, &_viewingRank );
-    MPI_Comm_size( _viewingComm, &_p );
+    mpi::CommDup( comm, _viewingComm );
+    mpi::CommGroup( _viewingComm, _viewingGroup );
+    _viewingRank = mpi::CommRank( _viewingComm );
+    _p = mpi::CommSize( _viewingComm );
 
     // All processes own the grid, so we have to trivially split _viewingGroup
     _owningGroup = _viewingGroup;
-    _notOwningGroup = MPI_GROUP_EMPTY;
+    _notOwningGroup = mpi::GROUP_EMPTY;
     _owningRank = _viewingRank;
 
     // Factor p
@@ -67,7 +68,7 @@ elemental::Grid::Grid
 }
 
 elemental::Grid::Grid
-( MPI_Comm comm, int r, int c )
+( mpi::Comm comm, int r, int c )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
@@ -75,14 +76,14 @@ elemental::Grid::Grid
     _inGrid = true; // this is true by assumption for this constructor
 
     // Extract our rank, the underlying group, and the number of processes
-    MPI_Comm_dup( comm, &_viewingComm );
-    MPI_Comm_group( _viewingComm, &_viewingGroup );
-    MPI_Comm_rank( _viewingComm, &_viewingRank );
-    MPI_Comm_size( _viewingComm, &_p );
+    mpi::CommDup( comm, _viewingComm );
+    mpi::CommGroup( _viewingComm, _viewingGroup );
+    _viewingRank = mpi::CommRank( _viewingComm );
+    _p = mpi::CommSize( _viewingComm );
 
     // All processes own the grid, so we have to trivially split _viewingGroup
     _owningGroup = _viewingGroup;
-    _notOwningGroup = MPI_GROUP_EMPTY;
+    _notOwningGroup = mpi::GROUP_EMPTY;
     _owningRank = _viewingRank;
 
     _r = r;
@@ -98,25 +99,25 @@ elemental::Grid::Grid
 }
 
 elemental::Grid::Grid
-( MPI_Comm viewingComm, MPI_Group owningGroup )
+( mpi::Comm viewingComm, mpi::Group owningGroup )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
 #endif
 
     // Extract our rank and the underlying group from the viewing comm
-    MPI_Comm_dup( viewingComm, &_viewingComm );
-    MPI_Comm_group( _viewingComm, &_viewingGroup );
-    MPI_Comm_rank( _viewingComm, &_viewingRank );
+    mpi::CommDup( viewingComm, _viewingComm );
+    mpi::CommGroup( _viewingComm, _viewingGroup );
+    _viewingRank = mpi::CommRank( _viewingComm );
 
     // Extract our rank and the number of processes from the owning group
     _owningGroup = owningGroup;
-    MPI_Group_size( _owningGroup, &_p );
-    MPI_Group_rank( _owningGroup, &_owningRank );
-    _inGrid = ( _owningRank != MPI_UNDEFINED );
+    _p = mpi::GroupSize( _owningGroup );
+    _owningRank = mpi::GroupRank( _owningGroup );
+    _inGrid = ( _owningRank != mpi::UNDEFINED );
 
     // Create the complement of the owning group
-    MPI_Group_difference( _viewingGroup, _owningGroup, &_notOwningGroup );
+    mpi::GroupDifference( _viewingGroup, _owningGroup, _notOwningGroup );
 
     // Factor p
     _r = static_cast<int>(sqrt(static_cast<double>(_p)));
@@ -133,25 +134,25 @@ elemental::Grid::Grid
 
 // Currently forces a columnMajor absolute rank on the grid
 elemental::Grid::Grid
-( MPI_Comm viewingComm, MPI_Group owningGroup, int r, int c )
+( mpi::Comm viewingComm, mpi::Group owningGroup, int r, int c )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
 #endif
 
     // Extract our rank and the underlying group from the viewing comm
-    MPI_Comm_dup( viewingComm, &_viewingComm );
-    MPI_Comm_group( _viewingComm, &_viewingGroup );
-    MPI_Comm_rank( _viewingComm, &_viewingRank );
+    mpi::CommDup( viewingComm, _viewingComm );
+    mpi::CommGroup( _viewingComm, _viewingGroup );
+    _viewingRank = mpi::CommRank( _viewingComm );
 
     // Extract our rank and the number of processes from the owning group
     _owningGroup = owningGroup;
-    MPI_Group_size( _owningGroup, &_p );
-    MPI_Group_rank( _owningGroup, &_owningRank );
-    _inGrid = ( _owningRank != MPI_UNDEFINED );
+    _p = mpi::GroupSize( _owningGroup );
+    _owningRank = mpi::GroupRank( _owningGroup );
+    _inGrid = ( _owningRank != mpi::UNDEFINED );
 
     // Create the complement of the owning group
-    MPI_Group_difference( _viewingGroup, _owningGroup, &_notOwningGroup );
+    mpi::GroupDifference( _viewingGroup, _owningGroup, _notOwningGroup );
 
     _r = r;
     _c = c;
@@ -194,9 +195,9 @@ elemental::Grid::SetUpGrid()
 
     // Split the viewing comm into the owning and not owning subsets
     if( _inGrid )
-        MPI_Comm_create( _viewingComm, _owningGroup, &_owningComm );    
+        mpi::CommCreate( _viewingComm, _owningGroup, _owningComm );
     else
-        MPI_Comm_create( _viewingComm, _notOwningGroup, &_notOwningComm );
+        mpi::CommCreate( _viewingComm, _notOwningGroup, _notOwningComm );
 
     if( _inGrid )
     {
@@ -204,25 +205,25 @@ elemental::Grid::SetUpGrid()
         int dimensions[2] = { _c, _r };
         int periods[2] = { true, true };
         int reorder = false;
-        MPI_Cart_create
-        ( _owningComm, 2, dimensions, periods, reorder, &_cartComm );
+        mpi::CartCreate
+        ( _owningComm, 2, dimensions, periods, reorder, _cartComm );
 
         // Set up the MatrixCol and MatrixRow communicators
         int remainingDimensions[2];
         remainingDimensions[0] = false;
         remainingDimensions[1] = true;
-        MPI_Cart_sub( _cartComm, remainingDimensions, &_matrixColComm );
+        mpi::CartSub( _cartComm, remainingDimensions, _matrixColComm );
         remainingDimensions[0] = true;
         remainingDimensions[1] = false;
-        MPI_Cart_sub( _cartComm, remainingDimensions, &_matrixRowComm );
-        MPI_Comm_rank( _matrixColComm, &_matrixColRank );
-        MPI_Comm_rank( _matrixRowComm, &_matrixRowRank );
+        mpi::CartSub( _cartComm, remainingDimensions, _matrixRowComm );
+        _matrixColRank = mpi::CommRank( _matrixColComm );
+        _matrixRowRank = mpi::CommRank( _matrixRowComm );
 
         // Set up the VectorCol and VectorRow communicators
         _vectorColRank = _matrixColRank + _r*_matrixRowRank;
         _vectorRowRank = _matrixRowRank + _c*_matrixColRank;
-        MPI_Comm_split( _cartComm, 0, _vectorColRank, &_vectorColComm );
-        MPI_Comm_split( _cartComm, 0, _vectorRowRank, &_vectorRowComm );
+        mpi::CommSplit( _cartComm, 0, _vectorColRank, _vectorColComm );
+        mpi::CommSplit( _cartComm, 0, _vectorRowRank, _vectorRowComm );
 
         // Compute which diagonal 'path' we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
@@ -246,23 +247,23 @@ elemental::Grid::SetUpGrid()
                 ++diagPathRank;
             }
         }
-        imports::mpi::AllGather
+        mpi::AllGather
         ( &myDiagPathAndRank[0], 2, &_diagPathsAndRanks[0], 2, _vectorColComm );
 
 #ifndef RELEASE
-        MPI_Errhandler_set( _matrixColComm, MPI_ERRORS_RETURN );
-        MPI_Errhandler_set( _matrixRowComm, MPI_ERRORS_RETURN );
-        MPI_Errhandler_set( _vectorColComm, MPI_ERRORS_RETURN );
-        MPI_Errhandler_set( _vectorRowComm, MPI_ERRORS_RETURN );
+        mpi::ErrorHandlerSet( _matrixColComm, mpi::ERRORS_RETURN );
+        mpi::ErrorHandlerSet( _matrixRowComm, mpi::ERRORS_RETURN );
+        mpi::ErrorHandlerSet( _vectorColComm, mpi::ERRORS_RETURN );
+        mpi::ErrorHandlerSet( _vectorRowComm, mpi::ERRORS_RETURN );
 #endif
     }
     else
     {
         // diag paths and ranks are implicitly set to undefined
-        _matrixColRank = MPI_UNDEFINED;
-        _matrixRowRank = MPI_UNDEFINED;
-        _vectorColRank = MPI_UNDEFINED;
-        _vectorRowRank = MPI_UNDEFINED;
+        _matrixColRank = mpi::UNDEFINED;
+        _matrixRowRank = mpi::UNDEFINED;
+        _vectorColRank = mpi::UNDEFINED;
+        _vectorRowRank = mpi::UNDEFINED;
     }
     
     // Set up the map from the VC group to the _viewingGroup ranks.
@@ -272,7 +273,7 @@ elemental::Grid::SetUpGrid()
     for( int i=0; i<_p; ++i )
         ranks[i] = i;
     _VCToViewingMap.resize(_p);
-    MPI_Group_translate_ranks
+    mpi::GroupTranslateRanks
     ( _owningGroup, _p, &ranks[0], _viewingGroup, &_VCToViewingMap[0] );
 
 #ifndef RELEASE
@@ -282,29 +283,26 @@ elemental::Grid::SetUpGrid()
 
 elemental::Grid::~Grid()
 {
-    int finalized;
-    MPI_Finalized( &finalized );
-    if( !finalized )
+    if( !mpi::Finalized() )
     {
         if( _inGrid )
         {
-            MPI_Comm_free( &_matrixColComm );
-            MPI_Comm_free( &_matrixRowComm );
-            MPI_Comm_free( &_vectorColComm );
-            MPI_Comm_free( &_vectorRowComm );
-            MPI_Comm_free( &_cartComm );
+            mpi::CommFree( _matrixColComm );
+            mpi::CommFree( _matrixRowComm );
+            mpi::CommFree( _vectorColComm );
+            mpi::CommFree( _vectorRowComm );
+            mpi::CommFree( _cartComm );
         }
 
         if( _inGrid )
-            MPI_Comm_free( &_owningComm );
+            mpi::CommFree( _owningComm );
         else
-            MPI_Comm_free( &_notOwningComm );
+            mpi::CommFree( _notOwningComm );
 
-        if( _notOwningGroup != MPI_GROUP_EMPTY )
-            MPI_Group_free( &_notOwningGroup );
+        if( _notOwningGroup != mpi::GROUP_EMPTY )
+            mpi::GroupFree( _notOwningGroup );
 
-        MPI_Comm_free( &_viewingComm );
+        mpi::CommFree( _viewingComm );
     }
 }
-
 

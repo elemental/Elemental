@@ -70,13 +70,13 @@ performance:
 
 - The Householder tridiagonalization approach may be chosen using the routine:
 
-    void elemental::lapack::internal::SetTridiagApproach
-    ( elemental::lapack::internal::TridiagApproach approach );
+    void elemental::advanced::internal::SetTridiagApproach
+    ( elemental::advanced::internal::TridiagApproach approach );
 
   The choices are:
-    elemental::lapack::internal::TRIDIAG_NORMAL
-    elemental::lapack::internal::TRIDIAG_SQUARE
-    elemental::lapack::internal::TRIDIAG_DEFAULT
+    elemental::advanced::internal::TRIDIAG_NORMAL
+    elemental::advanced::internal::TRIDIAG_SQUARE
+    elemental::advanced::internal::TRIDIAG_DEFAULT
   The first always uses the general nonsquare grid algorithm, even when
   running on a square grid. The second drops down to the largest perfect square
   number of processors less than or equal to the number available in order to
@@ -85,12 +85,12 @@ performance:
   often important for performance. One can choose between row-major and 
   column-major ordering via the routine
 
-    void elemental::lapack::internal::SetTridiagSquareGridOrder
-    ( elemental::lapack::internal::GridOrder order );
+    void elemental::advanced::internal::SetTridiagSquareGridOrder
+    ( elemental::advanced::internal::GridOrder order );
 
   The choices are:
-    elemental::lapack::internal::COL_MAJOR
-    elemental::lapack::internal::ROW_MAJOR
+    elemental::advanced::internal::COL_MAJOR
+    elemental::advanced::internal::ROW_MAJOR
   Finally, the default option uses the square grid algorithm if the input matrix
   is already distributed over a square grid, otherwise, the normal nonsquare 
   grid algorithm is used.
@@ -99,18 +99,18 @@ performance:
   double-precision, single-precision complex, and double-precision complex 
   using:
 
-  void elemental::blas::SetLocalHemvBlocksize<T>( int blocksize ); 
-  void elemental::blas::SetLocalSymvBlocksize<T>( int blocksize ); 
+  void elemental::basic::SetLocalHemvBlocksize<T>( int blocksize ); 
+  void elemental::basic::SetLocalSymvBlocksize<T>( int blocksize ); 
 
   These interfaces were exposed because they play an important role in the 
   speed of the parallel Householder tridiagonalization routine, 
-  elemental::lapack::Tridiag on non-square process grids.
+  elemental::advanced::Tridiag on non-square process grids.
 
 - The local blocksizes for local triangular rank-k and rank-2k updates may be 
   set using:
 
-  void elemental::blas::SetLocalTriangularRankKBlocksize<T>( int blocksize );
-  void elemental::blas::SetLocalTriangularRank2KBlocksize<T>( int blocksize );
+  void elemental::basic::SetLocalTriangularRankKBlocksize<T>( int blocksize );
+  void elemental::basic::SetLocalTriangularRank2KBlocksize<T>( int blocksize );
 
   These blocksizes are not nearly as important, but they do effect the 
   performance of parallel Syrk/Herk, Syr2k/Her2k, and Cholesky. The generalized

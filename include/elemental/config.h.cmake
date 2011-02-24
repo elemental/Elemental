@@ -36,8 +36,8 @@
 
 /* Basic variables */
 #define CMAKE_BUILD_TYPE @CMAKE_BUILD_TYPE@
-#define Elemental_VERSION_MAJOR @Elemental_VERSION_MAJOR@
-#define Elemental_VERSION_MINOR @Elemental_VERSION_MINOR@
+#define Elemental_FLAME_VERSION_MAJOR @Elemental_FLAME_VERSION_MAJOR@
+#define Elemental_FLAME_VERSION_MINOR @Elemental_FLAME_VERSION_MINOR@
 #cmakedefine RELEASE
 #cmakedefine BLAS_POST
 #cmakedefine LAPACK_POST

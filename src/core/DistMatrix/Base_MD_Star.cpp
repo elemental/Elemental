@@ -33,8 +33,8 @@
 #include "elemental/dist_matrix.hpp"
 using namespace std;
 using namespace elemental;
+using namespace elemental::imports;
 using namespace elemental::utilities;
-using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype
@@ -96,8 +96,8 @@ elemental::DistMatrixBase<T,MD,Star>::Print( const string& s ) const
             recvBuf.resize( height*width );
 
         // Sum the contributions and send to the root
-        Reduce
-        ( &sendBuf[0], &recvBuf[0], height*width, MPI_SUM, 0, g.VCComm() );
+        mpi::Reduce
+        ( &sendBuf[0], &recvBuf[0], height*width, mpi::SUM, 0, g.VCComm() );
 
         if( g.VCRank() == 0 )
         {
@@ -815,7 +815,7 @@ elemental::DistMatrixBase<T,MD,Star>::Get
         const int iLoc = (i-this->ColShift()) / g.LCM();
         u = this->GetLocalEntry(iLoc,j);
     }
-    Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
+    mpi::Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
 
 #ifndef RELEASE
     PopCallStack();

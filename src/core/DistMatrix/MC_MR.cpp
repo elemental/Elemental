@@ -33,8 +33,8 @@
 #include "elemental/dist_matrix.hpp"
 using namespace std;
 using namespace elemental;
+using namespace elemental::imports;
 using namespace elemental::utilities;
-using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype
@@ -157,7 +157,7 @@ elemental::DistMatrix<complex<Z>,MC,MR>::GetReal
         const int jLocal = (j-this->RowShift()) / g.Width();
         u = this->GetRealLocalEntry(iLocal,jLocal);
     }
-    Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
+    mpi::Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -188,7 +188,7 @@ elemental::DistMatrix<complex<Z>,MC,MR>::GetImag
         const int jLocal = (j-this->RowShift()) / g.Width();
         u = this->GetImagLocalEntry(iLocal,jLocal);
     }
-    Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
+    mpi::Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -714,7 +714,6 @@ elemental::DistMatrix<complex<Z>,MC,MR>::SetDiagonal
         const int localDiagLength = d.LocalHeight();
 
         const Z* dLocalBuffer = d.LockedLocalBuffer();
-        const int dLDim = d.LocalLDim();
         complex<Z>* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
@@ -794,7 +793,6 @@ elemental::DistMatrix<complex<Z>,MC,MR>::SetRealDiagonal
         const int localDiagLength = d.LocalHeight();
 
         const Z* dLocalBuffer = d.LockedLocalBuffer(); 
-        const int dLDim = d.LocalLDim();
         complex<Z>* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
@@ -876,7 +874,6 @@ elemental::DistMatrix<complex<Z>,MC,MR>::SetImagDiagonal
         const int localDiagLength = d.LocalHeight();
 
         const Z* dLocalBuffer = d.LockedLocalBuffer();
-        const int dLDim = d.LocalLDim();
         complex<Z>* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP

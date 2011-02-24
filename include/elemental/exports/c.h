@@ -48,6 +48,9 @@ typedef struct { float real; float imag; } SComplex;
 typedef struct { double real; double imag; } DComplex;
 #endif /* WITHOUT_COMPLEX */
 
+typedef MPI_Comm ElementalComm;
+const ElementalComm ELEMENTAL_COMM_WORLD = MPI_COMM_WORLD;
+
 /* Grid A */
 typedef int Grid;
 
@@ -117,8 +120,8 @@ void PushBlocksizeStack( int blocksize );
 void PopBlocksizeStack();
 
 /* Grid manipulation */
-Grid CreateDefaultGrid( MPI_Comm comm );
-Grid CreateGrid( MPI_Comm comm, int r, int c );
+Grid CreateDefaultGrid( ElementalComm comm );
+Grid CreateGrid( ElementalComm comm, int r, int c );
 void DestroyGrid( Grid g );
 Grid GridHeight( Grid g );
 Grid GridWidth( Grid g );
@@ -128,10 +131,10 @@ Grid GridVCRank( Grid g );
 Grid GridVRRank( Grid g );
 Grid GridMCRank( Grid g );
 Grid GridMRRank( Grid g );
-MPI_Comm GridVCComm( Grid g );
-MPI_Comm GridVRComm( Grid g );
-MPI_Comm GridMCComm( Grid g );
-MPI_Comm GridMRComm( Grid g );
+ElementalComm GridVCComm( Grid g );
+ElementalComm GridVRComm( Grid g );
+ElementalComm GridMCComm( Grid g );
+ElementalComm GridMRComm( Grid g );
 
 /* Clean up */
 void ClearGrids();

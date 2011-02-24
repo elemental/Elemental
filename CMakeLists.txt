@@ -34,7 +34,7 @@ cmake_minimum_required(VERSION 2.8)
 project(Elemental)
 
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 62)
+set(Elemental_VERSION_MINOR 63)
 
 # Elemental supports four build modes:
 #   HybridDebug, HybridRelease, PureDebug, and PureRelease
@@ -56,9 +56,9 @@ set(
   FORCE
 )
 
-option(BUILD_TESTS   "Build a collection of test executables"             ON)
-option(BUILD_EXAMPLES "Build the example(s)"                              ON)
-option(BUILD_PMRRR   "Build and link against eigensolver PMRRR"           ON)
+option(BUILD_TESTS   "Build a collection of test executables"   ON)
+option(BUILD_EXAMPLES "Build the example(s)"                    ON)
+option(BUILD_PMRRR   "Build and link against eigensolver PMRRR" ON)
 
 option(WITHOUT_COMPLEX "Avoid all usage of complex numbers" OFF)
 if(NOT WITHOUT_COMPLEX)
@@ -401,17 +401,17 @@ set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 if(BUILD_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 
-  set(CORE_TESTS DifferentGrids DistMatrix Matrix)
-  set(BLAS_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
-  set(LAPACK_TESTS Chol Hegst LU QR Tridiag Trinv UT)
+  set(CORE_TESTS AxpyInterface DifferentGrids DistMatrix Matrix)
+  set(BASIC_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
+  set(ADVANCED_TESTS Chol Hegst LU QR Tridiag Trinv UT)
 
   if(BUILD_C_INTERFACE)
     set(C_TESTS BasicTest)
   endif(BUILD_C_INTERFACE)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-    list(APPEND LAPACK_TESTS GeneralizedHermitianEig)
-    list(APPEND LAPACK_TESTS HermitianEig)
+    list(APPEND ADVANCED_TESTS GeneralizedHermitianEig)
+    list(APPEND ADVANCED_TESTS HermitianEig)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 endif(BUILD_TESTS)
 
@@ -419,13 +419,13 @@ endif(BUILD_TESTS)
 if(BUILD_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
 
-  set(LAPACK_EXAMPLES)
+  set(ADVANCED_EXAMPLES)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     if(NOT WITHOUT_COMPLEX)
-      list(APPEND LAPACK_EXAMPLES HermitianEig)
+      list(APPEND ADVANCED_EXAMPLES HermitianEig)
     endif(NOT WITHOUT_COMPLEX)
-    list(APPEND LAPACK_EXAMPLES SymmetricEig)
+    list(APPEND ADVANCED_EXAMPLES SymmetricEig)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 endif(BUILD_EXAMPLES)
 
@@ -467,24 +467,27 @@ if(BUILD_TESTS)
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
     )
   endforeach(TEST)
-  # Build the blas tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/blas")
-  foreach(TEST ${BLAS_TESTS})
-    add_executable(tests-cxx-blas-${TEST} ${TEST_DIR}/cxx/blas/${TEST}.cpp)
-    target_link_libraries(tests-cxx-blas-${TEST} elemental cmake-dummy-lib)
+  # Build the basic tests
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/basic")
+  foreach(TEST ${BASIC_TESTS})
+    add_executable(tests-cxx-basic-${TEST} ${TEST_DIR}/cxx/basic/${TEST}.cpp)
+    target_link_libraries(tests-cxx-basic-${TEST} elemental cmake-dummy-lib)
     set_target_properties(
-      tests-cxx-blas-${TEST} 
+      tests-cxx-basic-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
     )
   endforeach(TEST)
-  # Build the lapack tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/lapack")
-  foreach(TEST ${LAPACK_TESTS})
-    add_executable(tests-cxx-lapack-${TEST} ${TEST_DIR}/cxx/lapack/${TEST}.cpp)
-    target_link_libraries(tests-cxx-lapack-${TEST} elemental cmake-dummy-lib)
+  # Build the advanced tests
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/advanced")
+  foreach(TEST ${ADVANCED_TESTS})
+    add_executable(
+      tests-cxx-advanced-${TEST} 
+      ${TEST_DIR}/cxx/advanced/${TEST}.cpp
+    )
+    target_link_libraries(tests-cxx-advanced-${TEST} elemental cmake-dummy-lib)
     set_target_properties(
-      tests-cxx-lapack-${TEST} 
+      tests-cxx-advanced-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
     )
@@ -504,19 +507,19 @@ endif(BUILD_TESTS)
 
 # Build the example drivers if necessary
 if(BUILD_EXAMPLES)
-  # Build the lapack test(s)
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/cxx/lapack")
-  foreach(EXAMPLE ${LAPACK_EXAMPLES})
+  # Build the advanced test(s)
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/cxx/advanced")
+  foreach(EXAMPLE ${ADVANCED_EXAMPLES})
     add_executable(
-      examples-cxx-lapack-${EXAMPLE} 
-      ${EXAMPLE_DIR}/cxx/lapack/${EXAMPLE}.cpp
+      examples-cxx-advanced-${EXAMPLE} 
+      ${EXAMPLE_DIR}/cxx/advanced/${EXAMPLE}.cpp
     )
     target_link_libraries(
-      examples-cxx-lapack-${EXAMPLE} 
+      examples-cxx-advanced-${EXAMPLE} 
       elemental cmake-dummy-lib
     )
     set_target_properties(
-      examples-cxx-lapack-${EXAMPLE} 
+      examples-cxx-advanced-${EXAMPLE} 
       PROPERTIES OUTPUT_NAME ${EXAMPLE}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
     )

@@ -33,8 +33,8 @@
 #include "elemental/dist_matrix.hpp"
 using namespace std;
 using namespace elemental;
+using namespace elemental::imports;
 using namespace elemental::utilities;
-using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype
@@ -82,7 +82,7 @@ elemental::DistMatrixBase<T,Star,Star>::Print( const string& s ) const
             }
             cout << endl;
         }
-        Barrier( g.VCComm() );
+        mpi::Barrier( g.VCComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -380,9 +380,8 @@ elemental::DistMatrixBase<T,Star,Star>::Get
     PushCallStack("[* ,* ]::Get");
     this->AssertValidEntry( i, j );
 #endif
-    int viewingSize, owningSize;
-    MPI_Comm_size( this->Grid().ViewingComm(), &viewingSize );
-    MPI_Group_size( this->Grid().OwningGroup(), &owningSize );
+    const int viewingSize = mpi::CommSize( this->Grid().ViewingComm() );
+    const int owningSize = mpi::GroupSize( this->Grid().OwningGroup() );
     T u;
     if( viewingSize == owningSize )
     {
@@ -394,7 +393,7 @@ elemental::DistMatrixBase<T,Star,Star>::Get
         // Have the root broadcast its data
         if( this->Grid().VCRank() == 0 )
             u = this->GetLocalEntry(i,j);
-        Broadcast
+        mpi::Broadcast
         ( &u, 1, this->Grid().VCToViewingMap(0), 
           this->Grid().ViewingComm() );
     }
@@ -606,7 +605,7 @@ elemental::DistMatrixBase<T,Star,Star>::SetToRandom()
                 for( int i=0; i<height; ++i )
                     buffer[i+j*height] = Random<T>();
         }
-        Broadcast( buffer, bufSize, 0, g.VCComm() );
+        mpi::Broadcast( buffer, bufSize, 0, g.VCComm() );
 
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
@@ -657,7 +656,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int maxLocalWidth = MaxLocalLength(width,c);
 
         const int portionSize = 
-            max(maxLocalHeight*maxLocalWidth,MinCollectContrib);
+            max(maxLocalHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
 
         this->_auxMemory.Require( (p+1)*portionSize );
 
@@ -679,7 +678,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( originalData, portionSize,
           gatheredData, portionSize, g.VCComm() );
 
@@ -745,7 +744,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int localHeightOfA = A.LocalHeight();
         const int maxLocalHeight = MaxLocalLength(height,r);
 
-        const int portionSize = max(maxLocalHeight*width,MinCollectContrib);
+        const int portionSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
 
         this->_auxMemory.Require( (r+1)*portionSize );
 
@@ -767,7 +766,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( originalData, portionSize,
           gatheredData, portionSize, g.MCComm() );
 
@@ -825,7 +824,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int localWidthOfA = A.LocalWidth();
         const int maxLocalWidth = MaxLocalLength(width,c);
 
-        const int portionSize = max(height*maxLocalWidth,MinCollectContrib);
+        const int portionSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
 
         this->_auxMemory.Require( (c+1)*portionSize );
 
@@ -847,7 +846,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( originalData, portionSize,
           gatheredData, portionSize, g.MRComm() );
 
@@ -910,7 +909,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int width = this->Width();
         const int localHeight = A.LocalHeight();
         const int maxLocalHeight = MaxLocalLength( height, lcm );
-        const int portionSize = max( maxLocalHeight*width, MinCollectContrib );
+        const int portionSize = max( maxLocalHeight*width, mpi::MIN_COLL_MSG );
 
         // Since a MD communicator has not been implemented, we will take
         // the suboptimal route of 'rounding up' everyone's contribution over 
@@ -937,7 +936,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( sendBuf, portionSize,
           recvBuf, portionSize, g.VCComm() );
 
@@ -1003,7 +1002,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int width = this->Width();
         const int localWidth = A.LocalWidth();
         const int maxLocalWidth = MaxLocalLength( width, lcm );
-        const int portionSize = max( height*maxLocalWidth, MinCollectContrib );
+        const int portionSize = max( height*maxLocalWidth, mpi::MIN_COLL_MSG );
 
         // Since a MD communicator has not been implemented, we will take
         // the suboptimal route of 'rounding up' everyone's contribution over 
@@ -1030,7 +1029,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( sendBuf, portionSize,
           recvBuf, portionSize, g.VCComm() );
 
@@ -1102,7 +1101,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int maxLocalWidth = MaxLocalLength(width,r);
 
         const int portionSize = 
-            max(maxLocalHeight*maxLocalWidth,MinCollectContrib);
+            max(maxLocalHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
 
         this->_auxMemory.Require( (p+1)*portionSize );
 
@@ -1124,7 +1123,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( originalData, portionSize,
           gatheredData, portionSize, g.VRComm() );
 
@@ -1190,7 +1189,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int localHeightOfA = A.LocalHeight();
         const int maxLocalHeight = MaxLocalLength(height,c);
 
-        const int portionSize = max(maxLocalHeight*width,MinCollectContrib);
+        const int portionSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
 
         this->_auxMemory.Require( (c+1)*portionSize );
 
@@ -1212,7 +1211,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( originalData, portionSize,
           gatheredData, portionSize, g.MRComm() );
 
@@ -1270,7 +1269,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int localWidthOfA = A.LocalWidth();
         const int maxLocalWidth = MaxLocalLength(width,r);
 
-        const int portionSize = max(height*maxLocalWidth,MinCollectContrib);
+        const int portionSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
 
         this->_auxMemory.Require( (r+1)*portionSize );
 
@@ -1292,7 +1291,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( originalData, portionSize,
           gatheredData, portionSize, g.MCComm() );
 
@@ -1352,7 +1351,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int localHeightOfA = A.LocalHeight();
         const int maxLocalHeight = MaxLocalLength(height,p);
 
-        const int portionSize = max(maxLocalHeight*width,MinCollectContrib);
+        const int portionSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
 
         this->_auxMemory.Require( (p+1)*portionSize );
 
@@ -1374,7 +1373,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( originalData, portionSize,
           gatheredData, portionSize, g.VCComm() );
 
@@ -1432,7 +1431,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int localWidthOfA = A.LocalWidth();
         const int maxLocalWidth = MaxLocalLength(width,p);
 
-        const int portionSize = max(height*maxLocalWidth,MinCollectContrib);
+        const int portionSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
 
         this->_auxMemory.Require( (p+1)*portionSize );
 
@@ -1454,7 +1453,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( originalData, portionSize,
           gatheredData, portionSize, g.VCComm() );
 
@@ -1514,7 +1513,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int localHeightOfA = A.LocalHeight();
         const int maxLocalHeight = MaxLocalLength(height,p);
 
-        const int portionSize = max(maxLocalHeight*width,MinCollectContrib);
+        const int portionSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
 
         this->_auxMemory.Require( (p+1)*portionSize );
 
@@ -1536,7 +1535,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( originalData, portionSize,
           gatheredData, portionSize, g.VRComm() );
 
@@ -1594,7 +1593,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         const int localWidthOfA = A.LocalWidth();
         const int maxLocalWidth = MaxLocalLength(width,p);
 
-        const int portionSize = max(height*maxLocalWidth,MinCollectContrib);
+        const int portionSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
 
         this->_auxMemory.Require( (p+1)*portionSize );
 
@@ -1616,7 +1615,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         // Communicate
-        AllGather
+        mpi::AllGather
         ( originalData, portionSize,
           gatheredData, portionSize, g.VRComm() );
 
@@ -1671,8 +1670,8 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     }
     else
     {
-        if( !CongruentComms( A.Grid().ViewingComm(),
-                             this->Grid().ViewingComm() ) )
+        if( !mpi::CongruentComms( A.Grid().ViewingComm(),
+                                  this->Grid().ViewingComm() ) )
             throw logic_error
                 ("Redistributing between nonmatching grids currently requires"
                  " the viewing communicators to match.");
@@ -1692,14 +1691,14 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         T* bcastBuffer = &buffer[offset];
 
         // Send from the root of A to the root of this matrix's grid
-        MPI_Request sendRequest;
+        mpi::Request sendRequest;
         if( A.Grid().VCRank() == 0 )
         {
             for( int j=0; j<A.Width(); ++j ) 
                 for( int i=0; i<A.Height(); ++i )
                     sendBuffer[i+j*A.Height()] = A.GetLocalEntry(i,j);
             const int recvViewingRank = this->Grid().VCToViewingMap(0);
-            ISend
+            mpi::ISend
             ( sendBuffer, A.Height()*A.Width(), recvViewingRank, 0,
               this->Grid().ViewingComm(), sendRequest );
         }
@@ -1711,12 +1710,12 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
             if( this->Grid().VCRank() == 0 )
             {
                 const int sendViewingRank = A.Grid().VCToViewingMap(0);
-                Recv
+                mpi::Recv
                 ( bcastBuffer, A.Height()*A.Width(), sendViewingRank, 0,
                   this->Grid().ViewingComm() );
             }
 
-            Broadcast
+            mpi::Broadcast
             ( bcastBuffer, A.Height()*A.Width(), 0, this->Grid().VCComm() );
 
             for( int j=0; j<A.Width(); ++j )
@@ -1725,7 +1724,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
         }
 
         if( A.Grid().VCRank() == 0 )
-            Wait( sendRequest );
+            mpi::Wait( sendRequest );
         this->_auxMemory.Release();
     }
 #ifndef RELEASE
@@ -1766,8 +1765,8 @@ elemental::DistMatrixBase<T,Star,Star>::SumOverCol()
         }
 
         // Sum
-        AllReduce
-        ( sendBuf, recvBuf, localSize, MPI_SUM, this->Grid().MCComm() );
+        mpi::AllReduce
+        ( sendBuf, recvBuf, localSize, mpi::SUM, this->Grid().MCComm() );
 
         // Unpack
 #ifdef _OPENMP
@@ -1818,8 +1817,8 @@ elemental::DistMatrixBase<T,Star,Star>::SumOverRow()
         }
 
         // Sum
-        AllReduce
-        ( sendBuf, recvBuf, localSize, MPI_SUM, this->Grid().MRComm() );
+        mpi::AllReduce
+        ( sendBuf, recvBuf, localSize, mpi::SUM, this->Grid().MRComm() );
 
         // Unpack
 #ifdef _OPENMP
@@ -1870,8 +1869,8 @@ elemental::DistMatrixBase<T,Star,Star>::SumOverGrid()
         }
 
         // Sum
-        AllReduce
-        ( sendBuf, recvBuf, localSize, MPI_SUM, this->Grid().VCComm() );
+        mpi::AllReduce
+        ( sendBuf, recvBuf, localSize, mpi::SUM, this->Grid().VCComm() );
 
         // Unpack
 #ifdef _OPENMP

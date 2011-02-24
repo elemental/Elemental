@@ -33,8 +33,8 @@
 #include "elemental/dist_matrix.hpp"
 using namespace std;
 using namespace elemental;
+using namespace elemental::imports;
 using namespace elemental::utilities;
-using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype
@@ -159,7 +159,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetReal
         const int jLoc = (j-this->RowShift()) / g.Height();
         u = this->GetRealLocalEntry(iLoc,jLoc);
     }
-    Broadcast( &u, 1, ownerRank, g.VCComm() );
+    mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -190,7 +190,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetImag
         const int jLoc = (j-this->RowShift()) / g.Height();
         u = this->GetImagLocalEntry(iLoc,jLoc);
     }
-    Broadcast( &u, 1, ownerRank, g.VCComm() );
+    mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -361,7 +361,6 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetRealDiagonal
         const int localDiagLength = d.LocalHeight();
 
         Z* dLocalBuffer = d.LocalBuffer();
-        const int dLDim = d.LocalLDim();
         const complex<Z>* thisLocalBuffer = this->LockedLocalBuffer();
         const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
@@ -442,7 +441,6 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetImagDiagonal
         const int localDiagLength = d.LocalHeight();
 
         Z* dLocalBuffer = d.LocalBuffer();
-        const int dLDim = d.LocalLDim();
         const complex<Z>* thisLocalBuffer = this->LockedLocalBuffer();
         const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
@@ -688,7 +686,6 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetDiagonal
         const int localDiagLength = d.LocalHeight();
 
         const Z* dLocalBuffer = d.LockedLocalBuffer();
-        const int dLDim = d.LocalLDim();
         complex<Z>* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
@@ -770,7 +767,6 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetRealDiagonal
         complex<Z>* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
         const Z* dLocalBuffer = d.LockedLocalBuffer();
-        const int dLDim = d.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
@@ -852,7 +848,6 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetImagDiagonal
         complex<Z>* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
         const Z* dLocalBuffer = d.LockedLocalBuffer();
-        const int dLDim = d.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif

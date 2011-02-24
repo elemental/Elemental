@@ -33,6 +33,7 @@
 #ifndef ELEMENTAL_H
 #define ELEMENTAL_H 1
 
-#include "elemental/lapack.hpp"
+#include "elemental/advanced.hpp"
+#include "elemental/axpy_interface.hpp"
 
-#endif
+#endif // ELEMENTAL_H

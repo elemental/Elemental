@@ -35,7 +35,7 @@
 #include "elemental.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::imports::mpi;
+using namespace elemental::imports;
 
 void Usage()
 {
@@ -95,7 +95,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     }
 
     int summedErrorFlag;
-    AllReduce( &myErrorFlag, &summedErrorFlag, 1, MPI_SUM, g.VCComm() );
+    mpi::AllReduce( &myErrorFlag, &summedErrorFlag, 1, mpi::SUM, g.VCComm() );
 
     if( summedErrorFlag == 0 )
     {
@@ -288,20 +288,23 @@ DistMatrixTest( int m, int n, const Grid& g )
 #endif
 }
 
-int main( int argc, char* argv[] )
+int 
+main( int argc, char* argv[] )
 {
-    int rank;
+    Init( argc, argv );
+    mpi::Comm comm = mpi::COMM_WORLD;
+    int rank = mpi::CommRank( comm );
+
+    if( argc < 5 )
+    {
+        if( rank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+
     try
     {
-        Init( &argc, &argv );
-        MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-        if( argc != 5 )
-        {
-            if( rank == 0 )
-                Usage();
-            Finalize();
-            return 0;
-        }
         int argNum = 0;
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);

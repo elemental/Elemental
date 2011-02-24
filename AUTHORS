@@ -5,12 +5,16 @@ Jack Poulson <jack.poulson@gmail.com>:
   1) Elemental now optionally builds and links the PMRRR library located in 
      the contrib/ folder. PMRRR was written by Matthias Petschow and Paolo 
      Bientinesi.
-  2) The safe inversion portion of the files ColReflector.cpp, RowReflector.cpp,
+  2) Martin Schatz's Axpy interface.
+  3) The safe inversion portion of the files ColReflector.cpp, RowReflector.cpp,
      and Reflector.cpp were partially based on the LAPACK source for real and 
      complex Householder reflectors, dlarfg.f and zlarfg.f.
 
 Matthias Petschow and Paolo Bientinesi:
   The PMRRR library for hybrid symmetric tridiagonal eigensolutions.
+
+Martin Schatz:
+  The AxpyInterface class for easily filling distributed matrices.
 
 Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd.:
   The serial code for the safe inversion process during the calculation of 

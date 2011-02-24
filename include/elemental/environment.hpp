@@ -67,13 +67,14 @@ void DumpCallStack();
 }
 #endif
 
+#include "elemental/types.hpp"
+#include "elemental/imports.hpp"
+#include "elemental/utilities.hpp"
+
 #include "elemental/memory.hpp"
 #include "elemental/grid.hpp"
 #include "elemental/random.hpp"
 #include "elemental/timer.hpp"
-#include "elemental/types.hpp"
-#include "elemental/utilities.hpp"
-#include "elemental/imports.hpp"
 
 // Template conventions:
 //   G: general datatype
@@ -89,7 +90,7 @@ void DumpCallStack();
 
 namespace elemental {
 
-void Init( int* argc, char** argv[] );
+void Init( int& argc, char**& argv );
 void Finalize();
 
 // Naive blocksize set and get

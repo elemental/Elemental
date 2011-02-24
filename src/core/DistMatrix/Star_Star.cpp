@@ -33,8 +33,8 @@
 #include "elemental/dist_matrix.hpp"
 using namespace std;
 using namespace elemental;
+using namespace elemental::imports;
 using namespace elemental::utilities;
-using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype
@@ -121,9 +121,8 @@ elemental::DistMatrix<complex<Z>,Star,Star>::GetReal
     PushCallStack("[* ,* ]::GetReal");
     this->AssertValidEntry( i, j );
 #endif
-    int viewingSize, owningSize;
-    MPI_Comm_size( this->Grid().ViewingComm(), &viewingSize );
-    MPI_Group_size( this->Grid().OwningGroup(), &owningSize );
+    const int viewingSize = mpi::CommSize( this->Grid().ViewingComm() );
+    const int owningSize = mpi::GroupSize( this->Grid().OwningGroup() );
     Z u;
     if( viewingSize == owningSize )
     {
@@ -135,7 +134,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::GetReal
         // Have the root broadcast its data
         if( this->Grid().VCRank() == 0 )
             u = this->GetRealLocalEntry(i,j);
-        Broadcast
+        mpi::Broadcast
         ( &u, 1, this->Grid().VCToViewingMap(0),
           this->Grid().ViewingComm() );
     }
@@ -154,9 +153,8 @@ elemental::DistMatrix<complex<Z>,Star,Star>::GetImag
     PushCallStack("[* ,* ]::GetImag");
     this->AssertValidEntry( i, j );
 #endif
-    int viewingSize, owningSize;
-    MPI_Comm_size( this->Grid().ViewingComm(), &viewingSize );
-    MPI_Group_size( this->Grid().OwningGroup(), &owningSize );
+    const int viewingSize = mpi::CommSize( this->Grid().ViewingComm() );
+    const int owningSize = mpi::GroupSize( this->Grid().OwningGroup() );
     Z u;
     if( viewingSize == owningSize )
     {
@@ -168,7 +166,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::GetImag
         // Have the root broadcast its data
         if( this->Grid().VCRank() == 0 )
             u = this->GetImagLocalEntry(i,j);
-        Broadcast
+        mpi::Broadcast
         ( &u, 1, this->Grid().VCToViewingMap(0),
           this->Grid().ViewingComm() );
     }

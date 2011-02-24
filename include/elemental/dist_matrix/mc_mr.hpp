@@ -106,7 +106,7 @@ public:
     // Every process provides the update to global entry (i,j),
     // i.e., A(i,j) += alpha
     virtual void Update( int i, int j, T alpha );
-    
+
     virtual void MakeTrapezoidal
     ( Side side, Shape shape, int offset = 0 );
 
@@ -121,6 +121,11 @@ public:
     //-----------------------------------------------------------------------//
     // Routines specific to [MC,MR] distribution                             //
     //-----------------------------------------------------------------------//
+
+    // Axpy interface
+    bool AxpyGlobalMatrix( Matrix<T>& m, int r, int c );
+    void SetupAxpyInterface();
+    void FinalizeAxpyInterface();
 
     //
     // Non-collective routines
@@ -296,6 +301,15 @@ public:
 
     const DistMatrixBase<T,MC,MR>& 
     operator=( const DistMatrixBase<T,Star,Star>& A );
+
+private:
+    void RecvGlobalMatrix();
+    bool SendAxpyInterfaceEOM();
+    void HandleAxpyInterfaceACK();
+    void HandleAxpyInterfaceData();
+    void HandleAxpyInterfaceEOM();
+    bool AxpyInterfaceIsDone();
+    bool ReceivedAxpyInterfaceACKs();
 };
 
 // Partial specialization to A[MC,MR] for real rings.

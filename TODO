@@ -1,14 +1,12 @@
 Relatively trivial but important 
 ================================
 - Add scaling into generalized eigensolvers
-- Make the support for manipulating complex data more consistent
 - Unit tests for unaligned DistMatrix redistributions and summations
-- Finish adding dot product gemm algorithms for NT, TN, and TT options
 
 Relatively trivial but not important
 ====================================
-- Add local versions of more routines
-- Add shortcuts for square process grids and diagonally-aligned matrices
+- Add local versions of more blas/lapack-level routines
+- Finish adding dot product gemm algorithms for NT, TN, and TT options
 
 Substantial effort and important
 ================================

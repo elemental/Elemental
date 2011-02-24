@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main( int argc, char* argv[] )
+int 
+main( int argc, char* argv[] )
 {
     Grid g;
     int r, c;
@@ -19,7 +20,7 @@ int main( int argc, char* argv[] )
 
     ElementalInit( &argc, &argv );
 
-    g = CreateDefaultGrid( MPI_COMM_WORLD );
+    g = CreateDefaultGrid( ELEMENTAL_COMM_WORLD );
 
     r = GridHeight( g );
     c = GridWidth( g );

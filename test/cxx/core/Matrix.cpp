@@ -33,6 +33,7 @@
 #include "elemental.hpp"
 using namespace std;
 using namespace elemental;
+using namespace elemental::imports;
 
 void Usage()
 {
@@ -69,27 +70,28 @@ void TestMatrix( int m, int n, int ldim )
                 throw logic_error
                 ( "Matrix class was not properly filled with const buffer." );
 
-    int rank;
-    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+    int rank = mpi::CommRank( mpi::COMM_WORLD );
     if( rank == 0 )
         cout << "passed" << endl;
 }
 
-int main( int argc, char* argv[] )
+int 
+main( int argc, char* argv[] )
 {
-    int rank;
-    try
-    {
-        Init( &argc, &argv );
-        MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+    Init( argc, argv );
+    mpi::Comm comm = mpi::COMM_WORLD;
+    int rank = mpi::CommRank( comm );
 
-        if( argc != 4 )
-        {
-            if( rank == 0 )
-                Usage();
-            Finalize();
-            return 0;
-        }
+    if( argc < 4 )
+    {
+        if( rank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+
+    try 
+    {
         int argNum = 0;
         int m = atoi(argv[++argNum]);
         int n = atoi(argv[++argNum]);

@@ -33,8 +33,8 @@
 #include "elemental/dist_matrix.hpp"
 using namespace std;
 using namespace elemental;
+using namespace elemental::imports;
 using namespace elemental::utilities;
-using namespace elemental::imports::mpi;
 
 // Template conventions:
 //   G: general datatype
@@ -99,8 +99,8 @@ elemental::DistMatrixBase<T,MC,MR>::Print( const string& s ) const
             recvBuf.resize( height*width );
 
         // Sum the contributions and send to the root
-        Reduce
-        ( &sendBuf[0], &recvBuf[0], height*width, MPI_SUM, 0, g.VCComm() );
+        mpi::Reduce
+        ( &sendBuf[0], &recvBuf[0], height*width, mpi::SUM, 0, g.VCComm() );
 
         if( g.VCRank() == 0 )
         {
@@ -113,7 +113,7 @@ elemental::DistMatrixBase<T,MC,MR>::Print( const string& s ) const
             }
             cout << endl;
         }
-        Barrier( g.VCComm() );
+        mpi::Barrier( g.VCComm() );
     }
 
 #ifndef RELEASE
@@ -1171,7 +1171,7 @@ elemental::DistMatrixBase<T,MC,MR>::Get
         const int jLocal = (j-this->RowShift()) / g.Width();
         u = this->GetLocalEntry(iLocal,jLocal);
     }
-    Broadcast
+    mpi::Broadcast
     ( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
 
 #ifndef RELEASE
@@ -1789,9 +1789,9 @@ elemental::DistMatrixBase<T,MC,MR>::ConjugateTransposeFrom
                         Conj( ALocalBuffer[(rowShift+jLocal*c)+iLocal*ALDim] );
 
             // Communicate
-            SendRecv
+            mpi::SendRecv
             ( sendBuffer, sendSize, sendRank, 0,
-              recvBuffer, recvSize, recvRank, MPI_ANY_TAG, g.MCComm() );
+              recvBuffer, recvSize, recvRank, mpi::ANY_TAG, g.MCComm() );
 
             // Unpack
             T* thisLocalBuffer = this->LocalBuffer();
@@ -1903,9 +1903,9 @@ elemental::DistMatrixBase<T,MC,MR>::TransposeFrom
                         ALocalBuffer[(rowShift+jLocal*c)+iLocal*ALDim];
 
             // Communicate
-            SendRecv
+            mpi::SendRecv
             ( sendBuffer, sendSize, sendRank, 0,
-              recvBuffer, recvSize, recvRank, MPI_ANY_TAG, g.MCComm() );
+              recvBuffer, recvSize, recvRank, mpi::ANY_TAG, g.MCComm() );
 
             // Unpack
             T* thisLocalBuffer = this->LocalBuffer();
@@ -2016,9 +2016,9 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
                 }
 
                 // Communicate
-                SendRecv
+                mpi::SendRecv
                 ( sendBuffer, sendSize, sendRank, 0,
-                  recvBuffer, recvSize, recvRank, MPI_ANY_TAG, g.VCComm() );
+                  recvBuffer, recvSize, recvRank, mpi::ANY_TAG, g.VCComm() );
 
                 // Unpack
                 T* thisLocalBuffer = this->LocalBuffer();
@@ -2038,8 +2038,8 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
     }
     else // the grids don't match
     {
-        if( !CongruentComms( A.Grid().ViewingComm(), 
-                             this->Grid().ViewingComm() ) )
+        if( !mpi::CongruentComms( A.Grid().ViewingComm(), 
+                                  this->Grid().ViewingComm() ) )
             throw logic_error
                   ("Redistributing between nonmatching grids currently requires"
                    " the viewing communicators to match.");
@@ -2057,8 +2057,8 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
         const int myCol0 = this->Grid().MRRank();
         const int myRowA = A.Grid().MCRank();
         const int myColA = A.Grid().MRRank();
-        const int rowGCD = utilities::GCD( r0, rA );
-        const int colGCD = utilities::GCD( c0, cA );
+        const int rowGCD = GCD( r0, rA );
+        const int colGCD = GCD( c0, cA );
         const int rowLCM = r0*rA / rowGCD;
         const int colLCM = c0*cA / colGCD;
         const int numRowSends = r0 / rowGCD;
@@ -2107,15 +2107,15 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 
             for( int colSendCycle=0; colSendCycle<numColSends; ++colSendCycle )
             {
-                MPI_Request sendRequest;
+                mpi::Request sendRequest;
 
                 // Fire off this round of non-blocking sends
                 if( inAGrid )
                 {
                     // Pack the data
-                    int sendHeight = utilities::LocalLength
+                    int sendHeight = LocalLength
                         ( A.LocalHeight(), rowSendCycle, numRowSends );
-                    int sendWidth = utilities::LocalLength
+                    int sendWidth = LocalLength
                         ( A.LocalWidth(), colSendCycle, numColSends );
                     const T* ALocalBuffer = A.LockedLocalBuffer();
                     const int ALDim = A.LocalLDim();
@@ -2136,7 +2136,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
                     int recvVCRank = recvRow + recvCol*r0;
                     int recvViewingRank = 
                         this->Grid().VCToViewingMap( recvVCRank );
-                    ISend
+                    mpi::ISend
                     ( sendBuffer, sendHeight*sendWidth, recvViewingRank,
                       0, this->Grid().ViewingComm(), sendRequest );
                 }
@@ -2154,10 +2154,8 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 
                     const int rowShift = (myRow0+r0-recvRowOffset)%r0;
                     const int colShift = (myCol0+c0-recvColOffset)%c0;
-                    const int numRowRecvs = 
-                        utilities::LocalLength( rA, rowShift, r0 ); 
-                    const int numColRecvs = 
-                        utilities::LocalLength( cA, colShift, c0 );
+                    const int numRowRecvs = LocalLength( rA, rowShift, r0 ); 
+                    const int numColRecvs = LocalLength( cA, colShift, c0 );
 
                     // Recv data
                     // For now, simply receive sequentially. Until we switch to 
@@ -2167,10 +2165,10 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
                     for( int rowRecvCycle=0; rowRecvCycle<numRowRecvs; 
                          ++rowRecvCycle )
                     {
-                        const int sendRowShift = utilities::Shift
-                            ( sendRow, colAlignA, rA ) + rowSendCycle*rA;
-                        const int sendHeight = utilities::LocalLength
-                            ( A.Height(), sendRowShift, rowLCM );
+                        const int sendRowShift = 
+                            Shift( sendRow, colAlignA, rA ) + rowSendCycle*rA;
+                        const int sendHeight = 
+                            LocalLength( A.Height(), sendRowShift, rowLCM );
                         const int localColOffset = 
                             (sendRowShift-this->ColShift()) / r0;
 
@@ -2178,10 +2176,11 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
                         for( int colRecvCycle=0; 
                              colRecvCycle<numColRecvs;  ++colRecvCycle )
                         {
-                            const int sendColShift = utilities::Shift
-                                ( sendCol, rowAlignA, cA ) + colSendCycle*cA;
-                            const int sendWidth = utilities::LocalLength
-                                ( A.Width(), sendColShift, colLCM );
+                            const int sendColShift = 
+                                Shift( sendCol, rowAlignA, cA ) + 
+                                colSendCycle*cA;
+                            const int sendWidth = 
+                                LocalLength( A.Width(), sendColShift, colLCM );
                             const int localRowOffset = 
                                 (sendColShift-this->RowShift()) / c0;
 
@@ -2189,7 +2188,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
                             const int sendViewingRank = 
                                 A.Grid().VCToViewingMap( sendVCRank );
 
-                            Recv
+                            mpi::Recv
                             ( recvBuffer, sendHeight*sendWidth, sendViewingRank,
                               0, this->Grid().ViewingComm() );
                             
@@ -2221,7 +2220,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
                 // Ensure that this round of non-blocking sends completes
                 if( inAGrid )
                 {
-                    Wait( sendRequest );
+                    mpi::Wait( sendRequest );
                     recvCol = (recvCol + cA) % c0;
                 }
             }
@@ -2330,9 +2329,9 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             }
 
             // Communicate
-            SendRecv
+            mpi::SendRecv
             ( sendBuffer, sendSize, sendRank, 0,
-              recvBuffer, recvSize, recvRank, MPI_ANY_TAG, g.MCComm() );
+              recvBuffer, recvSize, recvRank, mpi::ANY_TAG, g.MCComm() );
     
             // Unpack
             T* thisLocalBuffer = this->LocalBuffer();
@@ -2445,9 +2444,9 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
                         ALocalBuffer[(colShift+iLocal*r)+jLocal*ALDim];
 
             // Communicate
-            SendRecv
+            mpi::SendRecv
             ( sendBuffer, sendSize, sendCol, 0,
-              recvBuffer, recvSize, recvCol, MPI_ANY_TAG, g.MRComm() );
+              recvBuffer, recvSize, recvCol, mpi::ANY_TAG, g.MRComm() );
 
             // Unpack
             T* thisLocalBuffer = this->LocalBuffer();
@@ -2545,7 +2544,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             const int height = A.Height();
             const int maxLocalHeight = MaxLocalLength(height,p);
 
-            const int portionSize = max(maxLocalHeight,MinCollectContrib);
+            const int portionSize = max(maxLocalHeight,mpi::MIN_COLL_MSG);
 
             const int colShiftVC = Shift(rankCM,colAlignment,p);
             const int colShiftVROfA = Shift(rankRM,colAlignmentOfA,p);
@@ -2579,17 +2578,17 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             }
 
             // A[VR,* ] <- A[MR,MC]
-            Scatter
+            mpi::Scatter
             ( recvBuf, portionSize, 
               sendBuf, portionSize, ownerRow, g.MCComm() );
 
             // A[VC,* ] <- A[VR,* ]
-            SendRecv
+            mpi::SendRecv
             ( sendBuf, portionSize, sendRankCM, 0,
-              recvBuf, portionSize, recvRankCM, MPI_ANY_TAG, g.VCComm() );
+              recvBuf, portionSize, recvRankCM, mpi::ANY_TAG, g.VCComm() );
 
             // A[MC,MR] <- A[VC,* ]
-            Gather
+            mpi::Gather
             ( recvBuf, portionSize, 
               sendBuf, portionSize, ownerCol, g.MRComm() );
 
@@ -2636,7 +2635,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             const int width = A.Width();
             const int maxLocalWidth = MaxLocalLength(width,p);
 
-            const int portionSize = max(maxLocalWidth,MinCollectContrib);
+            const int portionSize = max(maxLocalWidth,mpi::MIN_COLL_MSG);
 
             const int rowShiftVR = Shift(rankRM,rowAlignment,p);
             const int rowShiftVCOfA = Shift(rankCM,rowAlignmentOfA,p);
@@ -2671,17 +2670,17 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             }
 
             // A[* ,VC] <- A[MR,MC]
-            Scatter
+            mpi::Scatter
             ( recvBuf, portionSize, 
               sendBuf, portionSize, ownerCol, g.MRComm() );
 
             // A[* ,VR] <- A[* ,VC]
-            SendRecv
+            mpi::SendRecv
             ( sendBuf, portionSize, sendRankRM, 0,
-              recvBuf, portionSize, recvRankRM, MPI_ANY_TAG, g.VRComm() );
+              recvBuf, portionSize, recvRankRM, mpi::ANY_TAG, g.VRComm() );
 
             // A[MC,MR] <- A[* ,VR]
-            Gather
+            mpi::Gather
             ( recvBuf, portionSize, 
               sendBuf, portionSize, ownerRow, g.MCComm() );
     
@@ -2858,7 +2857,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 
             const int maxHeight = MaxLocalLength(height,p);
             const int maxWidth = MaxLocalLength(width,c);
-            const int portionSize = max(maxHeight*maxWidth,MinCollectContrib);
+            const int portionSize = max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
 
             this->_auxMemory.Require( 2*c*portionSize );
 
@@ -2892,7 +2891,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             }
 
             // Communicate
-            AllToAll
+            mpi::AllToAll
             ( sendBuffer, portionSize,
               recvBuffer, portionSize, g.MRComm() );
 
@@ -2952,7 +2951,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 
             const int maxHeight = MaxLocalLength(height,p);
             const int maxWidth = MaxLocalLength(width,c);
-            const int portionSize = max(maxHeight*maxWidth,MinCollectContrib);
+            const int portionSize = max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
 
             this->_auxMemory.Require( 2*c*portionSize );
 
@@ -2986,13 +2985,13 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             }
 
             // SendRecv: properly align A[VC,*] via a trade in the column
-            SendRecv
+            mpi::SendRecv
             ( secondBuffer, c*portionSize, sendRow, 0,
               firstBuffer,  c*portionSize, recvRow, 0, g.MCComm() );
 
             // AllToAll to gather all of the aligned A[VC,*] data into 
             // secondBuff.
-            AllToAll
+            mpi::AllToAll
             ( firstBuffer,  portionSize,
               secondBuffer, portionSize, g.MRComm() );
 
@@ -3126,7 +3125,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 
             const int maxHeight = MaxLocalLength(height,r);
             const int maxWidth = MaxLocalLength(width,p);
-            const int portionSize = max(maxHeight*maxWidth,MinCollectContrib);
+            const int portionSize = max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
 
             this->_auxMemory.Require( 2*r*portionSize );
 
@@ -3163,7 +3162,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             }
 
             // Communicate
-            AllToAll
+            mpi::AllToAll
             ( sendBuffer, portionSize,
               recvBuffer, portionSize, g.MCComm() );
 
@@ -3220,7 +3219,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             
             const int maxHeight = MaxLocalLength(height,r);
             const int maxWidth = MaxLocalLength(width,p);
-            const int portionSize = max(maxHeight*maxWidth,MinCollectContrib);
+            const int portionSize = max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
 
             this->_auxMemory.Require( 2*r*portionSize );
 
@@ -3257,13 +3256,13 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
             }
 
             // SendRecv: properly align A[*,VR] via a trade in the column
-            SendRecv
+            mpi::SendRecv
             ( secondBuffer, r*portionSize, sendCol, 0,
               firstBuffer,  r*portionSize, recvCol, 0, g.MRComm() );
 
             // AllToAll to gather all of the aligned [*,VR] data into 
             // secondBuffer
-            AllToAll
+            mpi::AllToAll
             ( firstBuffer,  portionSize,
               secondBuffer, portionSize, g.MCComm() );
 
@@ -3380,7 +3379,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
 
                 const int localHeight = this->LocalHeight();
 
-                const int recvSize = max(localHeight,MinCollectContrib);
+                const int recvSize = max(localHeight,mpi::MIN_COLL_MSG);
                 const int sendSize = recvSize;
 
                 this->_auxMemory.Require( sendSize + recvSize );
@@ -3394,9 +3393,9 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
                 memcpy( sendBuffer, ACol, localHeight*sizeof(T) );
 
                 // Reduce to rowAlignment
-                Reduce
+                mpi::Reduce
                 ( sendBuffer, recvBuffer, sendSize, 
-                  MPI_SUM, rowAlignment, g.MRComm() );
+                  mpi::SUM, rowAlignment, g.MRComm() );
 
                 if( myCol == rowAlignment )
                 {
@@ -3417,7 +3416,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
                 const int maxLocalWidth = MaxLocalLength(width,c);
 
                 const int recvSize = 
-                    max(localHeight*maxLocalWidth,MinCollectContrib);
+                    max(localHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
                 const int sendSize = c * recvSize;
 
                 this->_auxMemory.Require( sendSize + recvSize );
@@ -3455,8 +3454,8 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
                 }
 
                 // Reduce-scatter over each process row
-                ReduceScatter
-                ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
+                mpi::ReduceScatter
+                ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.MRComm() );
 
                 // Unpack our received data
                 T* thisLocalBuffer = this->LocalBuffer();
@@ -3491,7 +3490,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
                 const int localHeightOfA = A.LocalHeight();
                 const int maxLocalHeight = MaxLocalLength(height,r);
 
-                const int portionSize = max(maxLocalHeight,MinCollectContrib);
+                const int portionSize = max(maxLocalHeight,mpi::MIN_COLL_MSG);
 
                 const int colAlignment = this->ColAlignment();
                 const int colAlignmentOfA = A.ColAlignment();
@@ -3509,14 +3508,14 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
                 memcpy( sendBuffer, ACol, localHeightOfA*sizeof(T) );
             
                 // Reduce to rowAlignment
-                Reduce
+                mpi::Reduce
                 ( sendBuffer, recvBuffer, portionSize, 
-                  MPI_SUM, rowAlignment, g.MRComm() );
+                  mpi::SUM, rowAlignment, g.MRComm() );
 
                 if( myCol == rowAlignment )
                 {
                     // Perform the realignment
-                    SendRecv
+                    mpi::SendRecv
                     ( recvBuffer, portionSize, sendRow, 0,
                       sendBuffer, portionSize, recvRow, 0, g.MCComm() );
 
@@ -3545,7 +3544,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
                 const int maxLocalWidth = MaxLocalLength(width,c);
 
                 const int recvSize_RS = 
-                    max(localHeightOfA*maxLocalWidth,MinCollectContrib);
+                    max(localHeightOfA*maxLocalWidth,mpi::MIN_COLL_MSG);
                 const int sendSize_RS = c * recvSize_RS;
                 const int recvSize_SR = localHeight * localWidth;
 
@@ -3583,12 +3582,12 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
                 }
 
                 // Reduce-scatter over each process row
-                ReduceScatter
-                ( secondBuffer, firstBuffer, &recvSizes[0], MPI_SUM, 
+                mpi::ReduceScatter
+                ( secondBuffer, firstBuffer, &recvSizes[0], mpi::SUM, 
                   g.MRComm() );
 
                 // Trade reduced data with the appropriate process row
-                SendRecv
+                mpi::SendRecv
                 ( firstBuffer,  localHeightOfA*localWidth, sendRow, 0,
                   secondBuffer, localHeight*localWidth,    recvRow, 0, 
                   g.MCComm() );
@@ -3674,7 +3673,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
             const int maxLocalHeight = MaxLocalLength(height,r);
 
             const int recvSize = 
-                max(maxLocalHeight*localWidth,MinCollectContrib);
+                max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
             const int sendSize = r * recvSize;
 
             this->_auxMemory.Require( sendSize + recvSize );
@@ -3714,8 +3713,8 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
             }
 
             // Reduce-scatter over each process col
-            ReduceScatter
-            ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MCComm() );
+            mpi::ReduceScatter
+            ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.MCComm() );
 
             // Unpack our received data
             T* thisLocalBuffer = this->LocalBuffer();
@@ -3754,7 +3753,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
             const int maxLocalHeight = MaxLocalLength(height,r);
 
             const int recvSize_RS = 
-                max(maxLocalHeight*localWidthOfA,MinCollectContrib);
+                max(maxLocalHeight*localWidthOfA,mpi::MIN_COLL_MSG);
             const int sendSize_RS = r * recvSize_RS;
             const int recvSize_SR = localHeight * localWidth;
 
@@ -3796,11 +3795,11 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
             }
 
             // Reduce-scatter over each process col
-            ReduceScatter
-            ( secondBuffer, firstBuffer, &recvSizes[0], MPI_SUM, g.MCComm() );
+            mpi::ReduceScatter
+            ( secondBuffer, firstBuffer, &recvSizes[0], mpi::SUM, g.MCComm() );
 
             // Trade reduced data with the appropriate process col
-            SendRecv
+            mpi::SendRecv
             ( firstBuffer,  localHeight*localWidthOfA, sendCol, 0,
               secondBuffer, localHeight*localWidth,    recvCol, 0, g.MRComm() );
 
@@ -3855,7 +3854,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
         const int maxLocalWidth = MaxLocalLength(width,c);
 
         const int recvSize = 
-            max(maxLocalHeight*maxLocalWidth,MinCollectContrib);
+            max(maxLocalHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
         const int sendSize = r*c*recvSize;
 
         this->_auxMemory.Require( sendSize + recvSize );
@@ -3897,8 +3896,8 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
         }
 
         // Reduce-scatter over each process col
-        ReduceScatter
-        ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.VCComm() );
+        mpi::ReduceScatter
+        ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.VCComm() );
 
         // Unpack our received data
         T* thisLocalBuffer = this->LocalBuffer();
@@ -3942,7 +3941,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
 
                 const int localHeight = this->LocalHeight();
 
-                const int portionSize = max(localHeight,MinCollectContrib);
+                const int portionSize = max(localHeight,mpi::MIN_COLL_MSG);
 
                 this->_auxMemory.Require( 2*portionSize );
 
@@ -3955,9 +3954,9 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
                 memcpy( sendBuffer, ACol, localHeight*sizeof(T) );
             
                 // Reduce to rowAlignment
-                Reduce
+                mpi::Reduce
                 ( sendBuffer, recvBuffer, portionSize, 
-                  MPI_SUM, rowAlignment, g.MRComm() );
+                  mpi::SUM, rowAlignment, g.MRComm() );
 
                 if( myCol == rowAlignment )
                 {
@@ -3982,7 +3981,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
                 const int maxLocalWidth = MaxLocalLength(width,c);
 
                 const int portionSize = 
-                    max(localHeight*maxLocalWidth,MinCollectContrib);
+                    max(localHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
 
                 this->_auxMemory.Require( (c+1)*portionSize );
 
@@ -4019,8 +4018,8 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
                 }
             
                 // Reduce-scatter over each process row
-                ReduceScatter
-                ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MRComm() );
+                mpi::ReduceScatter
+                ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.MRComm() );
 
                 // Update with our received data
                 T* thisLocalBuffer = this->LocalBuffer();
@@ -4059,7 +4058,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
                 const int localHeightOfA = A.LocalHeight();
                 const int maxLocalHeight = MaxLocalLength(height,r);
 
-                const int portionSize = max(maxLocalHeight,MinCollectContrib);
+                const int portionSize = max(maxLocalHeight,mpi::MIN_COLL_MSG);
 
                 const int colAlignment = this->ColAlignment();
                 const int colAlignmentOfA = A.ColAlignment();
@@ -4077,14 +4076,14 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
                 memcpy( sendBuffer, ACol, localHeightOfA*sizeof(T) );
             
                 // Reduce to rowAlignment
-                Reduce
+                mpi::Reduce
                 ( sendBuffer, recvBuffer, portionSize, 
-                  MPI_SUM, rowAlignment, g.MRComm() );
+                  mpi::SUM, rowAlignment, g.MRComm() );
 
                 if( myCol == rowAlignment )
                 {
                     // Perform the realignment
-                    SendRecv
+                    mpi::SendRecv
                     ( recvBuffer, portionSize, sendRow, 0,
                       sendBuffer, portionSize, recvRow, 0, g.MCComm() );
 
@@ -4116,7 +4115,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
                 const int maxLocalWidth = MaxLocalLength(width,c);
 
                 const int recvSize_RS = 
-                    max(localHeightOfA*maxLocalWidth,MinCollectContrib);
+                    max(localHeightOfA*maxLocalWidth,mpi::MIN_COLL_MSG);
                 const int sendSize_RS = c * recvSize_RS;
                 const int recvSize_SR = localHeight * localWidth;
 
@@ -4156,12 +4155,12 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
                 }
 
                 // Reduce-scatter over each process row
-                ReduceScatter
-                ( secondBuffer, firstBuffer, &recvSizes[0], MPI_SUM, 
+                mpi::ReduceScatter
+                ( secondBuffer, firstBuffer, &recvSizes[0], mpi::SUM, 
                   g.MRComm() );
 
                 // Trade reduced data with the appropriate process row
-                SendRecv
+                mpi::SendRecv
                 ( firstBuffer,  localHeightOfA*localWidth, sendRow, 0,
                   secondBuffer, localHeight*localWidth,    recvRow, 0, 
                   g.MCComm() );
@@ -4233,7 +4232,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
             const int maxLocalHeight = MaxLocalLength(height,r);
 
             const int recvSize = 
-                max(maxLocalHeight*localWidth,MinCollectContrib);
+                max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
             const int sendSize = r*recvSize;
 
             this->_auxMemory.Require( sendSize + recvSize );
@@ -4268,8 +4267,8 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
             }
 
             // Reduce-scatter over each process col
-            ReduceScatter
-            ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.MCComm() );
+            mpi::ReduceScatter
+            ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.MCComm() );
 
             // Update with our received data
             T* thisLocalBuffer = this->LocalBuffer();
@@ -4312,7 +4311,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
             const int maxLocalHeight = MaxLocalLength(height,r);
 
             const int recvSize_RS = 
-                max(maxLocalHeight*localWidthOfA,MinCollectContrib);
+                max(maxLocalHeight*localWidthOfA,mpi::MIN_COLL_MSG);
             const int sendSize_RS = r * recvSize_RS;
             const int recvSize_SR = localHeight * localWidth;
 
@@ -4349,13 +4348,13 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
             }
 
             // Reduce-scatter over each process col
-            ReduceScatter
-            ( secondBuffer, firstBuffer, &recvSizes[0], MPI_SUM, g.MCComm() );
+            mpi::ReduceScatter
+            ( secondBuffer, firstBuffer, &recvSizes[0], mpi::SUM, g.MCComm() );
 
             // Trade reduced data with the appropriate process col
-            SendRecv
+            mpi::SendRecv
             ( firstBuffer,  localHeight*localWidthOfA, sendCol, 0,
-              secondBuffer, localHeight*localWidth,    recvCol, MPI_ANY_TAG,
+              secondBuffer, localHeight*localWidth,    recvCol, mpi::ANY_TAG,
               g.MRComm() );
 
             // Update with our received data
@@ -4410,7 +4409,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
         const int maxLocalWidth = MaxLocalLength(width,c);
 
         const int recvSize = 
-            max(maxLocalHeight*maxLocalWidth,MinCollectContrib);
+            max(maxLocalHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
         const int sendSize = r * c * recvSize;
 
         this->_auxMemory.Require( sendSize + recvSize );
@@ -4452,8 +4451,8 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
         }
 
         // Reduce-scatter over each process col
-        ReduceScatter
-        ( sendBuffer, recvBuffer, &recvSizes[0], MPI_SUM, g.VCComm() );
+        mpi::ReduceScatter
+        ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.VCComm() );
 
         // Unpack our received data
         T* thisLocalBuffer = this->LocalBuffer();

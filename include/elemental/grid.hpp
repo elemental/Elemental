@@ -49,12 +49,12 @@ class Grid
     int _vectorRowRank;
     std::vector<int> _diagPathsAndRanks;
 
-    MPI_Comm _viewingComm; // contains all processes that create the grid
-    MPI_Group _viewingGroup;
+    imports::mpi::Comm _viewingComm; // all processes that create the grid
+    imports::mpi::Group _viewingGroup;
     int _viewingRank; // our rank in the viewing communicator
 
-    MPI_Group _owningGroup; // contains the processes that are in the grid
-    MPI_Group _notOwningGroup; // contains the remaining processes
+    imports::mpi::Group _owningGroup; // the processes that can own data
+    imports::mpi::Group _notOwningGroup; // contains the remaining processes
 
     std::vector<int> _VCToViewingMap;
 
@@ -65,36 +65,37 @@ class Grid
     bool _inGrid;
 
     // Create a communicator for the processes that are in the process grid
-    MPI_Comm _owningComm;
-    MPI_Comm _notOwningComm; // necessary complimentary communicator
+    imports::mpi::Comm _owningComm;
+    imports::mpi::Comm _notOwningComm; // necessary complimentary communicator
     int _owningRank;
 
     // These will only be valid if we are in the grid
-    MPI_Comm _cartComm;  // contains the processes that are in the grid
-    MPI_Comm _matrixColComm;
-    MPI_Comm _matrixRowComm;
-    MPI_Comm _vectorColComm;
-    MPI_Comm _vectorRowComm;
+    imports::mpi::Comm _cartComm;  // the processes that are in the grid
+    imports::mpi::Comm _matrixColComm;
+    imports::mpi::Comm _matrixRowComm;
+    imports::mpi::Comm _vectorColComm;
+    imports::mpi::Comm _vectorRowComm;
 
     void SetUpGrid();
 
     // Disable copying this class due to MPI_Comm/MPI_Group ownership issues
     // and potential performance loss from duplicating MPI communicators, e.g.,
     // on Blue Gene/P there is supposedly a performance loss
-    void operator=(Grid&);
-    Grid(const Grid&);
+    void operator=( Grid& );
+    Grid( const Grid& );
 
     public:
 
     // For constructing grids where every process is a member
-    Grid( MPI_Comm comm );
-    Grid( MPI_Comm comm, int r, int c );
+    Grid( imports::mpi::Comm comm );
+    Grid( imports::mpi::Comm comm, int r, int c );
     
     // For constructing grids where only the 'owningGroup' processes are in the
     // grid. viewingComm must be valid for all processes creating the 
     // grid, not just those in the owning group.
-    Grid( MPI_Comm viewingComm, MPI_Group owningGroup );
-    Grid( MPI_Comm viewingComm, MPI_Group owningGroup, int r, int c );
+    Grid( imports::mpi::Comm viewingComm, imports::mpi::Group owningGroup );
+    Grid( imports::mpi::Comm viewingComm, imports::mpi::Group owningGroup, 
+          int r, int c );
 
     ~Grid();
 
@@ -116,13 +117,13 @@ class Grid
     int OwningRank() const;
     int ViewingRank() const;
     int VCToViewingMap( int VCRank ) const;
-    MPI_Group OwningGroup() const;
-    MPI_Comm OwningComm() const;
-    MPI_Comm ViewingComm() const;
-    MPI_Comm MCComm() const;
-    MPI_Comm MRComm() const;
-    MPI_Comm VCComm() const;
-    MPI_Comm VRComm() const;
+    imports::mpi::Group OwningGroup() const;
+    imports::mpi::Comm OwningComm() const;
+    imports::mpi::Comm ViewingComm() const;
+    imports::mpi::Comm MCComm() const;
+    imports::mpi::Comm MRComm() const;
+    imports::mpi::Comm VCComm() const;
+    imports::mpi::Comm VRComm() const;
 };
 
 bool operator== ( const Grid& A, const Grid& B );
@@ -164,16 +165,16 @@ elemental::Grid::DiagPath() const
     if( _inGrid )
         return _diagPathsAndRanks[2*_vectorColRank]; 
     else
-        return MPI_UNDEFINED;
+        return imports::mpi::UNDEFINED;
 }
 
 inline int
 elemental::Grid::DiagPath( int vectorColRank ) const
 { 
-    if( vectorColRank != MPI_UNDEFINED )
+    if( vectorColRank != imports::mpi::UNDEFINED )
         return _diagPathsAndRanks[2*vectorColRank]; 
     else
-        return MPI_UNDEFINED;
+        return imports::mpi::UNDEFINED;
 }
 
 inline int
@@ -182,16 +183,16 @@ elemental::Grid::DiagPathRank() const
     if( _inGrid )
         return _diagPathsAndRanks[2*_vectorColRank+1];
     else
-        return MPI_UNDEFINED;
+        return imports::mpi::UNDEFINED;
 }
 
 inline int
 elemental::Grid::DiagPathRank( int vectorColRank ) const
 { 
-    if( vectorColRank != MPI_UNDEFINED )
+    if( vectorColRank != imports::mpi::UNDEFINED )
         return _diagPathsAndRanks[2*vectorColRank+1]; 
     else
-        return MPI_UNDEFINED;
+        return imports::mpi::UNDEFINED;
 }
 
 inline int
@@ -222,31 +223,31 @@ inline int
 elemental::Grid::VCToViewingMap( int VCRank ) const
 { return _VCToViewingMap[VCRank]; }
 
-inline MPI_Group
+inline elemental::imports::mpi::Group
 elemental::Grid::OwningGroup() const
 { return _owningGroup; }
 
-inline MPI_Comm
+inline elemental::imports::mpi::Comm
 elemental::Grid::OwningComm() const
 { return _owningComm; }
 
-inline MPI_Comm
+inline elemental::imports::mpi::Comm
 elemental::Grid::ViewingComm() const
 { return _viewingComm; }
 
-inline MPI_Comm
+inline elemental::imports::mpi::Comm
 elemental::Grid::MCComm() const
 { return _matrixColComm; }
 
-inline MPI_Comm
+inline elemental::imports::mpi::Comm
 elemental::Grid::MRComm() const
 { return _matrixRowComm; }
 
-inline MPI_Comm
+inline elemental::imports::mpi::Comm
 elemental::Grid::VCComm() const
 { return _vectorColComm; }
 
-inline MPI_Comm
+inline elemental::imports::mpi::Comm
 elemental::Grid::VRComm() const
 { return _vectorRowComm; }
 

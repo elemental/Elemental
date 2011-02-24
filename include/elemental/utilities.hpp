@@ -36,16 +36,13 @@
 namespace elemental {
 namespace utilities {
 
-// The 'Raw' versions of the below routines do not check for errors and can
-// be used within threaded regions.
-
 int
 GCD
 ( int a, int b ); 
 
 int
 RawGCD
-( int a, int b );
+( int a, int b ); 
 
 int
 LocalLength
@@ -98,7 +95,8 @@ elemental::utilities::GCD
 }
 
 inline int
-elemental::utilities::RawGCD( int a, int b )
+elemental::utilities::RawGCD
+( int a, int b )
 {
     if( b == 0 )
         return a;

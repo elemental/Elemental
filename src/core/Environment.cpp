@@ -31,70 +31,60 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 #include "elemental/environment.hpp"
-#include "elemental/lapack_internal.hpp"
+#include "elemental/advanced_internal.hpp"
 using namespace std;
 using namespace elemental;
+using namespace elemental::imports;
 
 namespace {
-bool elementalInitializedMPI;
+bool elementalInitializedMpi;
 stack<int> blocksizeStack;
 }
 
 void
 elemental::Init
-( int* argc, char** argv[] )
+( int& argc, char**& argv )
 {
-#ifndef RELEASE
-    PushCallStack("Init");
-#endif
-    int initialized;
-    MPI_Initialized( &initialized );
-    if( initialized == 0 )
+    if( !mpi::Initialized() )
     {
-        int finalized; 
-        MPI_Finalized( &finalized );
-        if( finalized != 0 )
+        if( mpi::Finalized() )
         {
             throw logic_error
-            ("Cannot initialize elemental after MPI_Finalize.");
+            ("Cannot initialize elemental after finalizing MPI.");
         }
 #ifdef _OPENMP
-        int provided;
-        MPI_Init_thread( argc, argv, MPI_THREAD_MULTIPLE, &provided );
-        if( provided != MPI_THREAD_MULTIPLE )
+        mpi::ThreadSupport provided = 
+            mpi::InitThread( argc, argv, mpi::THREAD_MULTIPLE );
+        if( required != provided )
         {
-            cerr << "Could not initialize MPI with MPI_THREAD_MULTIPLE." 
-                 << endl;
+            std::cerr << "WARNING: Could not achieve THREAD_MULTIPLE support."
+                      << std::endl;
         }
 #else
-        MPI_Init( argc, argv );
+        mpi::Init( argc, argv );
 #endif
-        ::elementalInitializedMPI = true;
+        ::elementalInitializedMpi = true;
     }
     else
     {
-        ::elementalInitializedMPI = false;
+        ::elementalInitializedMpi = false;
     }
 
     while( ! ::blocksizeStack.empty() )
         ::blocksizeStack.pop();
     ::blocksizeStack.push( 128 );
 
-    lapack::internal::CreatePivotOp<float>();
-    lapack::internal::CreatePivotOp<double>();
+    advanced::internal::CreatePivotOp<float>();
+    advanced::internal::CreatePivotOp<double>();
 #ifndef WITHOUT_COMPLEX
-    lapack::internal::CreatePivotOp<scomplex>();
-    lapack::internal::CreatePivotOp<dcomplex>();
+    advanced::internal::CreatePivotOp<scomplex>();
+    advanced::internal::CreatePivotOp<dcomplex>();
 #endif
 
     // Seed the random number generator with out rank
     // plus a perturbation given by the current time
-    int rank;
-    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+    int rank = mpi::CommRank( mpi::COMM_WORLD );
     srand( rank+time(0) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void
@@ -103,20 +93,17 @@ elemental::Finalize()
 #ifndef RELEASE
     PushCallStack("Finalize");
 #endif
-    int finalized;
-    MPI_Finalized( &finalized );
-    if( finalized != 0 )
+    if( mpi::Finalized() )
         cerr << "Warning: MPI was finalized before Elemental." << endl;
-
-    if( ::elementalInitializedMPI && finalized == 0 )
+    else if( ::elementalInitializedMpi )
     {
-        lapack::internal::DestroyPivotOp<float>();
-        lapack::internal::DestroyPivotOp<double>();
+        advanced::internal::DestroyPivotOp<float>();
+        advanced::internal::DestroyPivotOp<double>();
 #ifndef WITHOUT_COMPLEX
-        lapack::internal::DestroyPivotOp<scomplex>();
-        lapack::internal::DestroyPivotOp<dcomplex>();
+        advanced::internal::DestroyPivotOp<scomplex>();
+        advanced::internal::DestroyPivotOp<dcomplex>();
 #endif
-        MPI_Finalize();
+        mpi::Finalize();
     }
 #ifndef RELEASE
     PopCallStack();

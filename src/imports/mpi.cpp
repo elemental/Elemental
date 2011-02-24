@@ -31,6 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 #include "elemental/environment.hpp"
+using namespace elemental;
+using namespace elemental::imports;
 
 namespace {
 
@@ -50,12 +52,320 @@ SafeMpi( int mpiError )
 
 } // anonymous namespace
 
+//----------------------------//
+// MPI environmental routines //
+//----------------------------//
+
+void
+elemental::imports::mpi::Init
+( int& argc, char**& argv )
+{ MPI_Init( &argc, &argv ); }
+
+int
+elemental::imports::mpi::InitThread
+( int& argc, char**& argv, int required )
+{ 
+    int provided; 
+    MPI_Init_thread( &argc, &argv, required, &provided ); 
+    return provided;
+}
+
+void
+elemental::imports::mpi::Finalize()
+{ MPI_Finalize(); }
+
+int
+elemental::imports::mpi::Initialized()
+{ 
+    int initialized;
+    MPI_Initialized( &initialized );
+    return initialized;
+}
+
+int
+elemental::imports::mpi::Finalized()
+{
+    int finalized;
+    MPI_Finalized( &finalized );
+    return finalized;
+}
+
 double
 elemental::imports::mpi::Time()
 { return MPI_Wtime(); }
 
+
 void
-elemental::imports::mpi::Barrier( MPI_Comm comm )
+elemental::imports::mpi::OpCreate
+( mpi::UserFunction* func, int commutes, mpi::Op& op )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::OpCreate");
+#endif
+    SafeMpi( MPI_Op_create( func, commutes, &op ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::OpFree( mpi::Op& op )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::OpFree");
+#endif
+    SafeMpi( MPI_Op_free( &op ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//---------------------------//
+// Communicator manipulation //
+//---------------------------//
+
+int
+elemental::imports::mpi::CommRank( mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::CommRank");
+#endif
+    int rank;
+    SafeMpi( MPI_Comm_rank( comm, &rank ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return rank;
+}
+
+int
+elemental::imports::mpi::CommSize( mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::CommSize");
+#endif
+    int size;
+    SafeMpi( MPI_Comm_size( comm, &size ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return size;
+}
+
+void
+elemental::imports::mpi::CommCreate
+( mpi::Comm parentComm, mpi::Group subsetGroup, mpi::Comm& subsetComm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::CommCreate");
+#endif
+    SafeMpi( MPI_Comm_create( parentComm, subsetGroup, &subsetComm ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::CommDup( mpi::Comm original, mpi::Comm& duplicate )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::CommDup");
+#endif
+    SafeMpi( MPI_Comm_dup( original, &duplicate ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::CommSplit
+( mpi::Comm comm, int color, int key, mpi::Comm& newComm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::CommSplit");
+#endif
+    SafeMpi( MPI_Comm_split( comm, color, key, &newComm ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::CommFree( mpi::Comm& comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::CommFree");
+#endif
+    SafeMpi( MPI_Comm_free( &comm ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+bool
+elemental::imports::mpi::CongruentComms( mpi::Comm comm1, mpi::Comm comm2 )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::CongruentComms");
+#endif
+    int result;
+    SafeMpi( MPI_Comm_compare( comm1, comm2, &result ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return ( result == MPI_IDENT || result == MPI_CONGRUENT );
+}
+
+void
+elemental::imports::mpi::ErrorHandlerSet
+( mpi::Comm comm, mpi::ErrorHandler errorHandler )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::ErrorHandlerSet");
+#endif
+    SafeMpi( MPI_Errhandler_set( comm, errorHandler ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//---------------------------------//
+// Cartesian communicator routines //
+//---------------------------------//
+
+void
+elemental::imports::mpi::CartCreate
+( mpi::Comm comm, int numDims, const int* dimensions, const int* periods, 
+  int reorder, mpi::Comm& cartComm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::CartCreate");
+#endif
+    SafeMpi( 
+        MPI_Cart_create
+        ( comm, numDims, const_cast<int*>(dimensions), 
+          const_cast<int*>(periods), reorder, &cartComm ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::CartSub
+( mpi::Comm comm, const int* remainingDims, mpi::Comm& subComm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::CartSub");
+#endif
+    SafeMpi( MPI_Cart_sub( comm, const_cast<int*>(remainingDims), &subComm ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//--------------------//
+// Group manipulation //
+//--------------------//
+
+int
+elemental::imports::mpi::GroupRank( mpi::Group group )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GroupRank");
+#endif
+    int rank;
+    SafeMpi( MPI_Group_rank( group, &rank ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return rank;
+}
+
+int
+elemental::imports::mpi::GroupSize( mpi::Group group )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GroupSize");
+#endif
+    int size;
+    SafeMpi( MPI_Group_size( group, &size ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return size;
+}
+
+void
+elemental::imports::mpi::CommGroup( mpi::Comm comm, mpi::Group& group )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::CommGroup");
+#endif
+    SafeMpi( MPI_Comm_group( comm, &group ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::GroupIncl
+( mpi::Group group, int n, const int* ranks, mpi::Group& subGroup )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GroupIncl");
+#endif
+    SafeMpi( MPI_Group_incl( group, n, const_cast<int*>(ranks), &subGroup ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::GroupDifference
+( mpi::Group parent, mpi::Group subset, mpi::Group& complement )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GroupDifference");
+#endif
+    SafeMpi( MPI_Group_difference( parent, subset, &complement ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::GroupFree( mpi::Group& group )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GroupFree");
+#endif
+    SafeMpi( MPI_Group_free( &group ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::GroupTranslateRanks
+( mpi::Group origGroup, int size, const int* origRanks, 
+  mpi::Group newGroup,                  int* newRanks )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GroupTranslateRanks");
+#endif
+    SafeMpi( 
+        MPI_Group_translate_ranks
+        ( origGroup, size, const_cast<int*>(origRanks), newGroup, newRanks ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Wait until every process in comm reaches this statement
+void
+elemental::imports::mpi::Barrier( mpi::Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::Barrier");
@@ -66,8 +376,9 @@ elemental::imports::mpi::Barrier( MPI_Comm comm )
 #endif
 }
 
+// Ensure that the request finishes before continuing
 void
-elemental::imports::mpi::Wait( MPI_Request& request )
+elemental::imports::mpi::Wait( mpi::Request& request )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::Wait");
@@ -79,18 +390,159 @@ elemental::imports::mpi::Wait( MPI_Request& request )
 #endif
 }
 
-bool
-elemental::imports::mpi::CongruentComms( MPI_Comm comm1, MPI_Comm comm2 )
+// Nonblocking test for message completion
+void
+elemental::imports::mpi::IProbe
+( int source, int tag, MPI_Comm comm, int& flag, MPI_Status& status )
 {
 #ifndef RELEASE
-    PushCallStack("imports::mpi::CongruentComms");
+    PushCallStack("imports::mpi::IProbe");
 #endif
-    int result;
-    SafeMpi( MPI_Comm_compare( comm1, comm2, &result ) );
+    SafeMpi( MPI_Iprobe( source, tag, comm, &flag, &status ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return ( result == MPI_IDENT || result == MPI_CONGRUENT );
+}
+
+template<>
+int
+elemental::imports::mpi::GetCount<char>( MPI_Status& status )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GetCount");
+#endif
+    int count;
+    SafeMpi( MPI_Get_count( &status, MPI_CHAR, &count ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return count;
+}
+
+template<>
+int
+elemental::imports::mpi::GetCount<int>( MPI_Status& status )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GetCount");
+#endif
+    int count;
+    SafeMpi( MPI_Get_count( &status, MPI_INT, &count ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return count;
+}
+
+template<>
+int
+elemental::imports::mpi::GetCount<float>( MPI_Status& status )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GetCount");
+#endif
+    int count;
+    SafeMpi( MPI_Get_count( &status, MPI_FLOAT, &count ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return count;
+}
+
+template<>
+int
+elemental::imports::mpi::GetCount<double>( MPI_Status& status )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GetCount");
+#endif
+    int count;
+    SafeMpi( MPI_Get_count( &status, MPI_DOUBLE, &count ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return count;
+}
+
+#ifndef WITHOUT_COMPLEX
+template<>
+int
+elemental::imports::mpi::GetCount<elemental::scomplex>( MPI_Status& status )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GetCount");
+#endif
+    int count;
+    SafeMpi( MPI_Get_count( &status, MPI_COMPLEX, &count ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return count;
+}
+
+template<>
+int
+elemental::imports::mpi::GetCount<elemental::dcomplex>( MPI_Status& status )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::GetCount");
+#endif
+    int count;
+    SafeMpi( MPI_Get_count( &status, MPI_DOUBLE_COMPLEX, &count ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return count;
+}
+#endif // WITHOUT_COMPLEX
+
+void
+elemental::imports::mpi::Send
+( const char* buf, int count, int to, int tag, MPI_Comm comm )
+{ 
+#ifndef RELEASE
+    PushCallStack("imports::mpi::Send");
+#endif
+    SafeMpi( 
+        MPI_Send( const_cast<char*>(buf), count, MPI_CHAR, to, tag, comm ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::ISend
+( const char* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{ 
+#ifndef RELEASE
+    PushCallStack("imports::mpi::ISend");
+#endif
+    SafeMpi( 
+        MPI_Isend
+        ( const_cast<char*>(buf), count, MPI_CHAR, to, tag, comm, &request ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::ISSend
+( const char* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::ISSend");
+#endif
+    SafeMpi(
+        MPI_Issend
+        ( const_cast<char*>(buf), count, MPI_CHAR, to, tag, comm, &request )
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
 }
 
 void
@@ -119,6 +571,23 @@ elemental::imports::mpi::ISend
     SafeMpi( 
         MPI_Isend
         ( const_cast<int*>(buf), count, MPI_INT, to, tag, comm, &request ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::ISSend
+( const int* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::ISSend");
+#endif
+    SafeMpi(
+        MPI_Issend
+        ( const_cast<int*>(buf), count, MPI_INT, to, tag, comm, &request )
     );
 #ifndef RELEASE
     PopCallStack();
@@ -158,6 +627,23 @@ elemental::imports::mpi::ISend
 }
 
 void
+elemental::imports::mpi::ISSend
+( const float* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::ISSend");
+#endif
+    SafeMpi(
+        MPI_Issend
+        ( const_cast<float*>(buf), count, MPI_FLOAT, to, tag, comm, &request )
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
 elemental::imports::mpi::Send
 ( const double* buf, int count, int to, int tag, MPI_Comm comm )
 {
@@ -182,6 +668,23 @@ elemental::imports::mpi::ISend
 #endif
     SafeMpi( 
         MPI_Isend
+        ( const_cast<double*>(buf), count, MPI_DOUBLE, to, tag, comm, &request )
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::ISSend
+( const double* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::ISSend");
+#endif
+    SafeMpi(
+        MPI_Issend
         ( const_cast<double*>(buf), count, MPI_DOUBLE, to, tag, comm, &request )
     );
 #ifndef RELEASE
@@ -240,6 +743,32 @@ elemental::imports::mpi::ISend
 }
 
 void
+elemental::imports::mpi::ISSend
+( const scomplex* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::ISSend");
+#endif
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Issend
+        ( const_cast<scomplex*>(buf), 2*count, MPI_FLOAT, to, tag, comm,
+          &request )
+    );
+#else
+    SafeMpi(
+        MPI_Issend
+        ( const_cast<scomplex*>(buf), count, MPI_COMPLEX, to, tag, comm,
+          &request )
+    );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
 elemental::imports::mpi::Send
 ( const dcomplex* buf, int count, int to, int tag, MPI_Comm comm )
 {
@@ -287,7 +816,61 @@ elemental::imports::mpi::ISend
     PopCallStack();
 #endif
 }
+
+void
+elemental::imports::mpi::ISSend
+( const dcomplex* buf, int count, int to, int tag, MPI_Comm comm,
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::ISSend");
+#endif
+#ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Issend
+        ( const_cast<dcomplex*>(buf), 2*count, MPI_DOUBLE, to, tag, comm,
+          &request )
+    );
+#else
+    SafeMpi(
+        MPI_Issend
+        ( const_cast<dcomplex*>(buf), count, MPI_DOUBLE_COMPLEX, to, tag, comm,
+          &request )
+    );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 #endif // WITHOUT_COMPLEX
+
+void
+elemental::imports::mpi::Recv
+( char* buf, int count, int from, int tag, MPI_Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::Recv");
+#endif
+    MPI_Status status;
+    SafeMpi( MPI_Recv( buf, count, MPI_CHAR, from, tag, comm, &status ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::IRecv
+( char* buf, int count, int from, int tag, MPI_Comm comm, 
+  MPI_Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::IRecv");
+#endif
+    SafeMpi( MPI_Irecv( buf, count, MPI_CHAR, from, tag, comm, &request ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 void
 elemental::imports::mpi::Recv
@@ -457,6 +1040,25 @@ elemental::imports::mpi::IRecv
 
 void
 elemental::imports::mpi::SendRecv
+( const char* sbuf, int sc, int to,   int stag,
+        char* rbuf, int rc, int from, int rtag, MPI_Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::SendRecv");
+#endif
+    MPI_Status status;
+    SafeMpi( 
+        MPI_Sendrecv
+        ( const_cast<char*>(sbuf), sc, MPI_CHAR, to, stag,
+          rbuf, rc, MPI_CHAR, from, rtag, comm, &status ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::SendRecv
 ( const int* sbuf, int sc, int to,   int stag,
         int* rbuf, int rc, int from, int rtag, MPI_Comm comm )
 {
@@ -574,6 +1176,19 @@ elemental::imports::mpi::SendRecv
 
 void
 elemental::imports::mpi::Broadcast
+( char* buf, int count, int root, MPI_Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::Broadcast");
+#endif
+    SafeMpi( MPI_Bcast( buf, count, MPI_CHAR, root, comm ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::Broadcast
 ( int* buf, int count, int root, MPI_Comm comm )
 {
 #ifndef RELEASE
@@ -646,6 +1261,24 @@ elemental::imports::mpi::Broadcast
 #endif
 }
 #endif // WITHOUT_COMPLEX
+
+void
+elemental::imports::mpi::Gather
+( const char* sbuf, int sc,
+        char* rbuf, int rc, int root, MPI_Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::Gather");
+#endif
+    SafeMpi( 
+        MPI_Gather
+        ( const_cast<char*>(sbuf), sc, MPI_CHAR,
+          rbuf,                    rc, MPI_CHAR, root, comm ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 void
 elemental::imports::mpi::Gather
@@ -757,6 +1390,24 @@ elemental::imports::mpi::Gather
 
 void
 elemental::imports::mpi::AllGather
+( const char* sbuf, int sc,
+        char* rbuf, int rc, MPI_Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::AllGather");
+#endif
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<char*>(sbuf), sc, MPI_CHAR, 
+          rbuf,                    rc, MPI_CHAR, comm ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::AllGather
 ( const int* sbuf, int sc,
         int* rbuf, int rc, MPI_Comm comm )
 {
@@ -862,6 +1513,24 @@ elemental::imports::mpi::AllGather
 #endif
 }
 #endif // WITHOUT_COMPLEX
+
+void
+elemental::imports::mpi::Scatter
+( const char* sbuf, int sc,
+        char* rbuf, int rc, int root, MPI_Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::Scatter");
+#endif
+    SafeMpi( 
+        MPI_Scatter
+        ( const_cast<char*>(sbuf), sc, MPI_CHAR,
+          rbuf,                    rc, MPI_CHAR, root, comm ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 void
 elemental::imports::mpi::Scatter
@@ -973,6 +1642,24 @@ elemental::imports::mpi::Scatter
 
 void
 elemental::imports::mpi::AllToAll
+( const char* sbuf, int sc,
+        char* rbuf, int rc, MPI_Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::AllToAll");
+#endif
+    SafeMpi( 
+        MPI_Alltoall
+        ( const_cast<char*>(sbuf), sc, MPI_CHAR,
+          rbuf,                    rc, MPI_CHAR, comm ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::mpi::AllToAll
 ( const int* sbuf, int sc,
         int* rbuf, int rc, MPI_Comm comm )
 {
@@ -1078,6 +1765,31 @@ elemental::imports::mpi::AllToAll
 #endif
 }
 #endif // WITHOUT_COMPLEX
+
+void
+elemental::imports::mpi::AllToAll
+( const char* sbuf, const int* scs, const int* sds, 
+        char* rbuf, const int* rcs, const int* rds, MPI_Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::AllToAll");
+#endif
+    SafeMpi( 
+        MPI_Alltoallv
+        ( const_cast<char*>(sbuf), 
+          const_cast<int*>(scs), 
+          const_cast<int*>(sds), 
+          MPI_CHAR,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_CHAR, 
+          comm ) 
+    ); 
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 void
 elemental::imports::mpi::AllToAll
@@ -1251,6 +1963,25 @@ elemental::imports::mpi::AllToAll
 #endif
 }
 #endif // WITHOUT_COMPLEX
+
+void
+elemental::imports::mpi::Reduce
+( const char* sbuf, char* rbuf, int count, MPI_Op op, int root, MPI_Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::Reduce");
+#endif
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Reduce
+            ( const_cast<char*>(sbuf), rbuf, count, MPI_CHAR, op, root, comm ) 
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 void
 elemental::imports::mpi::Reduce
@@ -1548,6 +2279,23 @@ elemental::imports::mpi::AllReduce
 #endif
 }
 #endif // WITHOUT_COMPLEX
+
+void
+elemental::imports::mpi::ReduceScatter
+( const char* sbuf, char* rbuf, const int* rcs, MPI_Op op, MPI_Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::ReduceScatter");
+#endif
+    SafeMpi( 
+        MPI_Reduce_scatter
+        ( const_cast<char*>(sbuf), 
+          rbuf, const_cast<int*>(rcs), MPI_CHAR, op, comm ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 void
 elemental::imports::mpi::ReduceScatter
