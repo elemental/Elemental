@@ -53,9 +53,9 @@ elemental::Init
             ("Cannot initialize elemental after finalizing MPI.");
         }
 #ifdef _OPENMP
-        mpi::ThreadSupport provided = 
+        const int provided = 
             mpi::InitThread( argc, argv, mpi::THREAD_MULTIPLE );
-        if( required != provided )
+        if( provided != mpi::THREAD_MULTIPLE )
         {
             std::cerr << "WARNING: Could not achieve THREAD_MULTIPLE support."
                       << std::endl;
