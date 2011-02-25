@@ -210,12 +210,14 @@ if(NEED_MATH)
         STATUS 
         "Will also search user-defined INTEL_ROOT=${INTEL_ROOT} for MKL"
       )
+      message(STATUS "INTEL_ARCH_SUBDIRS=${INTEL_ARCH_SUBDIRS}")
     endif(INTEL_ROOT)
     if(MKL_ROOT)
       message(
         STATUS
         "Will also search user-defined MKL_ROOT=${MKL_ROOT} for MKL"
       )
+      message(STATUS "MKL_ARCH_SUBDIRS=${INTEL_ARCH_SUBDIRS}")
     endif(MKL_ROOT)
     # There is a cyclic dependency between MKL_CORE and 
     # MKL_SEQUENTIAL/MKL_INTEL_THREAD with some versions of MKL
