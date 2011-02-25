@@ -129,12 +129,14 @@ if(PURE_RELEASE)
   )
 endif(PURE_RELEASE)
 
-if(NOT (CMAKE_CXX_COMPILER MATCHES "mpi"))
-  message(
-    WARNING 
-    "CXX compiler, ${CMAKE_CXX_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CXX or through the '-DCMAKE_CXX_COMPILER' cmake flag. You should probably also clean this build folder first."
-  )
-endif(NOT (CMAKE_CXX_COMPILER MATCHES "mpi"))
+if(NOT MPI_LINK_LIBS)
+  if(NOT (CMAKE_CXX_COMPILER MATCHES "mpi"))
+    message(
+      WARNING 
+      "CXX compiler, ${CMAKE_CXX_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CXX or through the '-DCMAKE_CXX_COMPILER' cmake flag. You should probably also clean this build folder first."
+    )
+  endif(NOT (CMAKE_CXX_COMPILER MATCHES "mpi"))
+endif(NOT MPI_LINK_LIBS)
 
 if(HYBRID)
   if(OpenMP_CXX_FLAGS)
@@ -429,10 +431,15 @@ if(BUILD_EXAMPLES)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 endif(BUILD_EXAMPLES)
 
-# Create a dummy library in order to be able to force the math libraries
-# to be linked last
+# Create a dummy library in order to be able to force the math (and potentially
+# MPI libraries) to be linked last
 add_library(cmake-dummy-lib STATIC cmake/CMakeDummyFunction.cpp)
-target_link_libraries(cmake-dummy-lib ${MATH_LIBS})
+target_link_libraries(cmake-dummy-lib ${MATH_LIBS} ${MPI_LINK_LIBS})
+
+# If we specified an MPI include directory, make sure it's in our include path
+if(MPI_INCLUDE_DIR)
+  include_directories("${MPI_INCLUDE_DIR}")
+endif(MPI_INCLUDE_DIR)
 
 # Copy the headers into the build directory
 foreach(HEADER ${ELEMENTAL_HEADERS})

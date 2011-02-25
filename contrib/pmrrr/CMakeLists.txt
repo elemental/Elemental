@@ -270,12 +270,14 @@ else(FAILED_PMRRR)
   set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
 
   # Try to check if we have an MPI C compiler specified
-  if(NOT (CMAKE_C_COMPILER MATCHES "mpi"))
-    message(
-      WARNING 
-      "C compiler, ${CMAKE_C_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CC or through the '-DCMAKE_C_COMPILER' cmake flag. You should probably also clean this build folder first."
-    )
-  endif(NOT (CMAKE_C_COMPILER MATCHES "mpi"))
+  if(NOT MPI_LINK_LIBS)
+    if(NOT (CMAKE_C_COMPILER MATCHES "mpi"))
+      message(
+        WARNING 
+        "C compiler, ${CMAKE_C_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CC or through the '-DCMAKE_C_COMPILER' cmake flag. You should probably also clean this build folder first."
+      )
+    endif(NOT (CMAKE_C_COMPILER MATCHES "mpi"))
+  endif(NOT MPI_LINK_LIBS)
     
   # Findpthreads.cmake does not seem to be standard
   #
