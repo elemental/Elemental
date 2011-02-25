@@ -195,7 +195,7 @@ if(NEED_MATH)
       set(MATH_LIBS "-framework vecLib" CACHE STRING ${MATH_DESC})
       message(STATUS "Using Apple vecLib framework.")
     endif(NEED_MATH)
-  elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  else(APPLE)
     set(FOUND_MATH_LIBS FALSE)
     # Look for MKL first
     if(32_BIT_SYSTEM)
