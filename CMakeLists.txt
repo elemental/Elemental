@@ -172,8 +172,16 @@ set(CMAKE_CXX_FLAGS_PURERELEASE "${CXX_PURE_RELEASE_FLAGS}")
 # a 32-bit system
 if(${CMAKE_SIZEOF_VOID_P} MATCHES 4)
   set(32_BIT_SYSTEM TRUE)
+  message(
+    STATUS 
+    "CMAKE_SIZEOF_VOID_P=${CMAKE_SIZEOF_VOID_P} matched 4, assuming 32-bit"
+  )
 else(${CMAKE_SIZEOF_VOID_P} MATCHES 4)
   set(32_BIT_SYSTEM FALSE)    
+  message(
+    STATUS 
+    "CMAKE_SIZEOF_VOID_P=${CMAKE_SIZEOF_VOID_P} didn't match 4, assuming 64-bit"
+  )
 endif(${CMAKE_SIZEOF_VOID_P} MATCHES 4)
 
 # Since the CMake find_blas for some reason requires a Fortran compiler, we
