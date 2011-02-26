@@ -200,7 +200,7 @@ public:
     int LocalLDim() const;
 
     // This process receives a copy of local entry (iLocal,jLocal)
-    const T& GetLocalEntry( int iLocal, int jLocal ) const;
+    const T GetLocalEntry( int iLocal, int jLocal ) const;
     // This process sets the new value for local entry (iLocal,jLocal)
     void SetLocalEntry( int iLocal, int jLocal, T alpha );
     // This process updates local entry A(iLocal,jLocal) += alpha
@@ -466,9 +466,9 @@ public:
     //-----------------------------------------------------------------------//
     // This process receives a copy of the real part of local entry 
     // (iLocal,jLocal)
-    const Z& GetRealLocalEntry( int iLocal, int jLocal ) const;
+    const Z GetRealLocalEntry( int iLocal, int jLocal ) const;
     // This process receives a copy of the imag part of local entry (i,j)
-    const Z& GetImagLocalEntry( int iLocal, int jLocal ) const;
+    const Z GetImagLocalEntry( int iLocal, int jLocal ) const;
     // This process sets the new value for real part of local entry 
     // (iLocal,jLocal)
     void SetRealLocalEntry( int iLocal, int jLocal, Z alpha );
@@ -881,7 +881,7 @@ AbstractDistMatrixBase<T>::LocalLDim() const
 { return _localMatrix.LDim(); }
 
 template<typename T>
-inline const T&
+inline const T
 AbstractDistMatrixBase<T>::GetLocalEntry
 ( int i, int j ) const
 { return _localMatrix.Get(i,j); }
@@ -1113,13 +1113,13 @@ AbstractDistMatrix< std::complex<Z> >::~AbstractDistMatrix()
 { }
 
 template<typename Z>
-inline const Z&
+inline const Z
 AbstractDistMatrix< std::complex<Z> >::GetRealLocalEntry
 ( int iLocal, int jLocal ) const
 { return this->_localMatrix.GetReal(iLocal,jLocal); }
 
 template<typename Z>
-inline const Z&
+inline const Z
 AbstractDistMatrix< std::complex<Z> >::GetImagLocalEntry
 ( int iLocal, int jLocal ) const
 { return this->_localMatrix.GetImag(iLocal,jLocal); }

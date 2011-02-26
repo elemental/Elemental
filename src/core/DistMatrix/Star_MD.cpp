@@ -161,7 +161,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::GetReal
 #endif
     // We will determine the owner of entry (i,j) and broadcast from it
     int ownerRank;
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     {
         const int r = g.Height();
         const int c = g.Width();
@@ -198,7 +198,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::GetImag
 #endif
     // We will determine the owner of entry (i,j) and broadcast from it
     int ownerRank;
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     {
         const int r = g.Height();
         const int c = g.Width();
@@ -234,7 +234,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::SetReal
     this->AssertValidEntry( i, j );
 #endif
     int ownerRank;
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     {
         const int r = g.Height();
         const int c = g.Width();
@@ -266,7 +266,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::SetImag
     this->AssertValidEntry( i, j );
 #endif
     int ownerRank;
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     {
         const int r = g.Height();
         const int c = g.Width();
@@ -298,7 +298,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::UpdateReal
     this->AssertValidEntry( i, j );
 #endif
     int ownerRank;
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     {
         const int r = g.Height();
         const int c = g.Width();
@@ -330,7 +330,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::UpdateImag
     this->AssertValidEntry( i, j );
 #endif
     int ownerRank;
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     {
         const int r = g.Height();
         const int c = g.Width();
@@ -361,7 +361,7 @@ elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
     PushCallStack("[* ,MD]::AlignWithedDiag([MC,MR])");
     this->AssertSameGrid( A );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int r = g.Height();
     const int c = g.Width();
     const int colAlignment = A.ColAlignment();
@@ -396,7 +396,7 @@ elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int r = g.Height();
     const int c = g.Width();
     const int lcm = g.LCM();
@@ -439,7 +439,7 @@ elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
     PushCallStack("[* ,MD]::AlignedWithDiag([MR,MC])");
     this->AssertSameGrid( A );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int r = g.Height();
     const int c = g.Width();
     const int colAlignment = A.ColAlignment();
@@ -474,7 +474,7 @@ elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int r = g.Height();
     const int c = g.Width();
     const int lcm = g.LCM();

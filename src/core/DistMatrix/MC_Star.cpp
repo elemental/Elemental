@@ -129,7 +129,7 @@ elemental::DistMatrix<complex<Z>,MC,Star>::GetReal
 #endif
     // We will determine the owner row of entry (i,j) and broadcast from that 
     // row within each process column
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRow = (i + this->ColAlignment()) % g.Height();
 
     Z u;
@@ -157,7 +157,7 @@ elemental::DistMatrix<complex<Z>,MC,Star>::GetImag
 #endif
     // We will determine the owner row of entry (i,j) and broadcast from that 
     // row within each process column
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRow = (i + this->ColAlignment()) % g.Height();
 
     Z u;
@@ -183,7 +183,7 @@ elemental::DistMatrix<complex<Z>,MC,Star>::SetReal
     PushCallStack("[MC,* ]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRow = (i + this->ColAlignment()) % g.Height();
 
     if( g.MCRank() == ownerRow )
@@ -205,7 +205,7 @@ elemental::DistMatrix<complex<Z>,MC,Star>::SetImag
     PushCallStack("[MC,* ]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRow = (i + this->ColAlignment()) % g.Height();
 
     if( g.MCRank() == ownerRow )
@@ -227,7 +227,7 @@ elemental::DistMatrix<complex<Z>,MC,Star>::UpdateReal
     PushCallStack("[MC,* ]::UpdateReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRow = (i + this->ColAlignment()) % g.Height();
 
     if( g.MCRank() == ownerRow )
@@ -249,7 +249,7 @@ elemental::DistMatrix<complex<Z>,MC,Star>::UpdateImag
     PushCallStack("[MC,* ]::UpdateImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRow = (i + this->ColAlignment()) % g.Height();
 
     if( g.MCRank() == ownerRow )

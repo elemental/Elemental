@@ -129,7 +129,7 @@ elemental::DistMatrix<complex<Z>,VC,Star>::GetReal
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     Z u;
@@ -157,7 +157,7 @@ elemental::DistMatrix<complex<Z>,VC,Star>::GetImag
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     Z u;
@@ -183,7 +183,7 @@ elemental::DistMatrix<complex<Z>,VC,Star>::SetReal
     PushCallStack("[VC,* ]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     if( g.VCRank() == ownerRank )
@@ -205,7 +205,7 @@ elemental::DistMatrix<complex<Z>,VC,Star>::SetImag
     PushCallStack("[VC,* ]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     if( g.VCRank() == ownerRank )
@@ -227,7 +227,7 @@ elemental::DistMatrix<complex<Z>,VC,Star>::UpdateReal
     PushCallStack("[VC,* ]::UpdateReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     if( g.VCRank() == ownerRank )
@@ -249,7 +249,7 @@ elemental::DistMatrix<complex<Z>,VC,Star>::UpdateImag
     PushCallStack("[VC,* ]::UpdateImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     if( g.VCRank() == ownerRank )

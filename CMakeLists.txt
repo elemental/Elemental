@@ -58,7 +58,11 @@ set(
 
 option(BUILD_TESTS   "Build a collection of test executables"   ON)
 option(BUILD_EXAMPLES "Build the example(s)"                    ON)
-option(BUILD_PMRRR   "Build and link against eigensolver PMRRR" ON)
+if(WIN32)
+  option(BUILD_PMRRR "Build and link against eigensolver PMRRR" OFF)
+else(WIN32)
+  option(BUILD_PMRRR   "Build and link against eigensolver PMRRR" ON)
+endif(WIN32)
 
 option(WITHOUT_COMPLEX "Avoid all usage of complex numbers" OFF)
 if(NOT WITHOUT_COMPLEX)
@@ -104,30 +108,32 @@ if(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
   set(PURE_RELEASE TRUE)   
 endif(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
 
-if(HYBRID_DEBUG)
-  set(
-    CXX_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
-    "CXX optimization/debug flags for hybrid OpenMP/MPI debug build"
-  )
-endif(HYBRID_DEBUG)
-if(HYBRID_RELEASE)
-  set(
-    CXX_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
-    "CXX optimization flags for hybrid OpenMP/MPI release build"
-  )
-endif(HYBRID_RELEASE)
-if(PURE_DEBUG)
-  set(
-    CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
-    "CXX optimization/debugging flags for pure MPI debug build"
-  )
-endif(PURE_DEBUG)
-if(PURE_RELEASE)
-  set(
-    CXX_PURE_RELEASE_FLAGS "-O3" CACHE STRING
-    "CXX optimization flags for pure MPI release build"
-  )
-endif(PURE_RELEASE)
+if(NOT WIN32)
+  if(HYBRID_DEBUG)
+    set(
+      CXX_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
+      "CXX optimization/debug flags for hybrid OpenMP/MPI debug build"
+    )
+  endif(HYBRID_DEBUG)
+  if(HYBRID_RELEASE)
+    set(
+      CXX_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
+      "CXX optimization flags for hybrid OpenMP/MPI release build"
+    )
+  endif(HYBRID_RELEASE)
+  if(PURE_DEBUG)
+    set(
+      CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
+      "CXX optimization/debugging flags for pure MPI debug build"
+    )
+  endif(PURE_DEBUG)
+  if(PURE_RELEASE)
+    set(
+      CXX_PURE_RELEASE_FLAGS "-O3" CACHE STRING
+      "CXX optimization flags for pure MPI release build"
+    )
+  endif(PURE_RELEASE)
+endif(NOT WIN32)
 
 if(NOT MPI_LINK_LIBS)
   if(NOT (CMAKE_CXX_COMPILER MATCHES "mpi"))
@@ -169,20 +175,18 @@ set(CMAKE_CXX_FLAGS_PUREDEBUG "${CXX_PURE_DEBUG_FLAGS}")
 set(CMAKE_CXX_FLAGS_PURERELEASE "${CXX_PURE_RELEASE_FLAGS}")
 
 # Query the size of a void pointer in order to determine whether or not this is
-# a 32-bit system
-if(${CMAKE_SIZEOF_VOID_P} MATCHES 4)
-  set(32_BIT_SYSTEM TRUE)
-  message(
-    STATUS 
-    "CMAKE_SIZEOF_VOID_P=${CMAKE_SIZEOF_VOID_P} matched 4, assuming 32-bit"
-  )
-else(${CMAKE_SIZEOF_VOID_P} MATCHES 4)
-  set(32_BIT_SYSTEM FALSE)    
-  message(
-    STATUS 
-    "CMAKE_SIZEOF_VOID_P=${CMAKE_SIZEOF_VOID_P} didn't match 4, assuming 64-bit"
-  )
-endif(${CMAKE_SIZEOF_VOID_P} MATCHES 4)
+# a 32-bit system.
+# Unfortunately, CMAKE_SIZEOF_VOID_P seems to be incorrect on some Windows 
+# platforms, so I am switching to directly checking the size of void*
+include(CheckTypeSize)
+if(NOT SIZEOF_VOID_P)
+  check_type_size("void*" SIZEOF_VOID_P)
+  if(${SIZEOF_VOID_P} EQUAL 4)
+    set(32_BIT_SYSTEM TRUE)
+  else(${SIZEOF_VOID_P} EQUAL 4)
+    set(32_BIT_SYSTEM FALSE)    
+  endif(${SIZEOF_VOID_P} EQUAL 4)
+endif(NOT SIZEOF_VOID_P)
 
 # Since the CMake find_blas for some reason requires a Fortran compiler, we
 # must build our own.
@@ -207,11 +211,12 @@ if(NEED_MATH)
     set(FOUND_MATH_LIBS FALSE)
     # Look for MKL first
     if(32_BIT_SYSTEM)
-      set(INTEL_ARCH_SUBDIRS lib/32)
-      set(MKL_ARCH_SUBDIRS lib/32)
+      set(INTEL_ARCH_SUBDIRS 32/lib lib/32)
+      set(MKL_ARCH_SUBDIRS 32/lib lib/32)
     else(32_BIT_SYSTEM)
-      set(INTEL_ARCH_SUBDIRS lib/em64t lib/intel64)
-      set(MKL_ARCH_SUBDIRS lib/em64t lib/intel64 mkl/lib/em64t)
+      set(INTEL_ARCH_SUBDIRS em64t/lib intel64/lib lib/em64t lib/intel64)
+      set(MKL_ARCH_SUBDIRS em64t/lib intel64/lib lib/em64t lib/intel64 
+          mkl/em64t/lib mkl/intel64/lib mkl/lib/em64t mkl/lib/intel64)
     endif(32_BIT_SYSTEM)
     if(INTEL_ROOT)
       message(
@@ -229,54 +234,66 @@ if(NEED_MATH)
     endif(MKL_ROOT)
     # There is a cyclic dependency between MKL_CORE and 
     # MKL_SEQUENTIAL/MKL_INTEL_THREAD with some versions of MKL
-    find_library(CMATH_LIB m DOC "C math library")
-    find_library(PTHREAD_LIB pthread DOC "Pthreads library")
+    if(NOT WIN32)
+      find_library(PTHREAD_LIB pthread DOC "Pthreads library")
+    endif(NOT WIN32)
+    find_library(
+      CMATH_LIB
+      NAMES m libmmd.lib
+      PATHS ${INTEL_ROOT} 
+      PATH_SUFFIXES ${INTEL_ARCH_SUBDIRS}
+      DOC "C math library"
+    )
     find_library(
       IOMP5_LIB
-      NAMES libiomp5.a iomp5.lib 
-      PATHS ${INTEL_ROOT} ${MKL_ROOT}
+      NAMES libiomp5.a libiomp5md.lib
+      PATHS ${INTEL_ROOT} 
       PATH_SUFFIXES ${INTEL_ARCH_SUBDIRS}
     )
     find_library(
       GUIDE_LIB
-      NAMES libguide.a guide.lib 
-      PATHS ${INTEL_ROOT} ${MKL_ROOT}
+      NAMES libguide.a libguide.lib
+      PATHS ${INTEL_ROOT}
       PATH_SUFFIXES ${INTEL_ARCH_SUBDIRS}
     )
     find_library(
       MKL_CORE_LIB
       NAMES libmkl_core.a mkl_core.lib 
-      PATHS ${INTEL_ROOT} ${MKL_ROOT}
+      PATHS ${MKL_ROOT}
       PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
     )
     find_library(
       MKL_INTEL_LIB
       NAMES libmkl_intel_lp64.a mkl_intel_lp64.lib 
-      PATHS ${INTEL_ROOT} ${MKL_ROOT}
+      PATHS ${MKL_ROOT}
       PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
     )
     if(PURE)
       find_library(
         MKL_SEQUENTIAL_LIB
         NAMES libmkl_sequential.a mkl_sequential.lib
-        PATHS ${INTEL_ROOT} ${MKL_ROOT}
+        PATHS ${MKL_ROOT}
         PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
       )
       set(
         MKL_REQUIRED MKL_INTEL MKL_SEQUENTIAL MKL_CORE MKL_SEQUENTIAL 
-        GUIDE IOMP5 PTHREAD CMATH
+	CMATH GUIDE IOMP5
       ) 
     else(PURE)
       find_library(
         MKL_INTEL_THREAD_LIB
         NAMES libmkl_intel_thread.a mkl_intel_thread.lib
+	PATHS ${MKL_ROOT}
         PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
       )
       set(
         MKL_REQUIRED MKL_INTEL MKL_INTEL_THREAD MKL_CORE 
-        MKL_INTEL_THREAD GUIDE IOMP5 PTHREAD CMATH
+	MKL_INTEL_THREAD CMATH GUIDE IOMP5
       )
     endif(PURE)
+    if(NOT WIN32)
+      list(APPEND MKL_REQUIRED PTHREAD)
+    endif(NOT WIN32)
     set(MKL_FOUND TRUE)
     set(MATH_LIBS "")
     foreach(NAME ${MKL_REQUIRED})
@@ -291,6 +308,7 @@ if(NEED_MATH)
     endforeach(NAME)
     if(MKL_FOUND)
       message(STATUS "Using MKL's math libraries.")
+      message(STATUS "MATH_LIBS=${MATH_LIBS}")
       set(NEED_MATH FALSE)
     endif(MKL_FOUND)
     if(NEED_MATH)

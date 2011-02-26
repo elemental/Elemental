@@ -58,7 +58,7 @@ elemental::DistMatrix<Z,Star,VR>::SetToRandomHPD()
     if( this->Height() != this->Width() )
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int height = this->Height();
     const int width = this->Width();
     const int localWidth = this->LocalWidth();
@@ -94,7 +94,7 @@ elemental::DistMatrix<complex<Z>,Star,VR>::SetToRandomHPD()
     if( this->Height() != this->Width() )
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int height = this->Height();
     const int width = this->Width();
     const int localWidth = this->LocalWidth();
@@ -133,7 +133,7 @@ elemental::DistMatrix<complex<Z>,Star,VR>::GetReal
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     Z u;
@@ -161,7 +161,7 @@ elemental::DistMatrix<complex<Z>,Star,VR>::GetImag
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     Z u;
@@ -187,7 +187,7 @@ elemental::DistMatrix<complex<Z>,Star,VR>::SetReal
     PushCallStack("[* ,VR]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -209,7 +209,7 @@ elemental::DistMatrix<complex<Z>,Star,VR>::SetImag
     PushCallStack("[* ,VR]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -231,7 +231,7 @@ elemental::DistMatrix<complex<Z>,Star,VR>::UpdateReal
     PushCallStack("[* ,VR]::UpdateReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -253,7 +253,7 @@ elemental::DistMatrix<complex<Z>,Star,VR>::UpdateImag
     PushCallStack("[* ,VR]::UpdateImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )

@@ -129,7 +129,7 @@ elemental::DistMatrix<complex<Z>,MR,Star>::GetReal
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // columns within each process row
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerCol = (i + this->ColAlignment()) % g.Width();
 
     Z u;
@@ -157,7 +157,7 @@ elemental::DistMatrix<complex<Z>,MR,Star>::GetImag
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // columns within each process row
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerCol = (i + this->ColAlignment()) % g.Width();
 
     Z u;
@@ -184,7 +184,7 @@ elemental::DistMatrix<complex<Z>,MR,Star>::SetReal
     PushCallStack("[MR,* ]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerCol = (i + this->ColAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )
@@ -206,7 +206,7 @@ elemental::DistMatrix<complex<Z>,MR,Star>::SetImag
     PushCallStack("[MR,* ]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerCol = (i + this->ColAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )
@@ -228,7 +228,7 @@ elemental::DistMatrix<complex<Z>,MR,Star>::UpdateReal
     PushCallStack("[MR,* ]::UpdateReal");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerCol = (i + this->ColAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )
@@ -250,7 +250,7 @@ elemental::DistMatrix<complex<Z>,MR,Star>::UpdateImag
     PushCallStack("[MR,* ]::UpdateImag");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int ownerCol = (i + this->ColAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )

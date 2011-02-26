@@ -55,7 +55,7 @@ elemental::DistMatrixBase<T,Star,Star>::Print( const string& s ) const
 #ifndef RELEASE
     PushCallStack("[* ,* ]::Print");
 #endif
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.VCRank() == 0 && s != "" )
         cout << s << endl;
 
@@ -589,7 +589,7 @@ elemental::DistMatrixBase<T,Star,Star>::SetToRandom()
     this->AssertNotLockedView();
 #endif
     // Create random matrix on process 0 and then broadcast
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     const int height = this->Height();
     const int width = this->Width();
     const int bufSize = height*width;
@@ -641,7 +641,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int r = g.Height();
@@ -735,7 +735,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int r = g.Height();
@@ -815,7 +815,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int c = g.Width();
@@ -897,7 +897,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int p = g.Size();
@@ -990,7 +990,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int p = g.Size();
@@ -1086,7 +1086,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int r = g.Height();
@@ -1180,7 +1180,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int c = g.Width();
@@ -1260,7 +1260,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int r = g.Height();
@@ -1342,7 +1342,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int p = g.Size();
@@ -1422,7 +1422,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int p = g.Size();
@@ -1504,7 +1504,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int p = g.Size();
@@ -1584,7 +1584,7 @@ elemental::DistMatrixBase<T,Star,Star>::operator=
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const Grid& g = this->Grid();
+    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int p = g.Size();

@@ -58,19 +58,19 @@ protected:
 
     // The basic constructor
     DistMatrixBase
-    ( int height, int width, const Grid& g );
+    ( int height, int width, const elemental::Grid& g );
 
     // The basic constructor, but with a supplied leading dimension
     DistMatrixBase
-    ( int height, int width, int ldim, const Grid& g );
+    ( int height, int width, int ldim, const elemental::Grid& g );
 
     // View a constant distributed matrix's buffer
     DistMatrixBase
-    ( int height, int width, const T* buffer, int ldim, const Grid& g );
+    ( int height, int width, const T* buffer, int ldim, const elemental::Grid& g );
 
     // View a mutable distributed matrix's buffer
     DistMatrixBase
-    ( int height, int width, T* buffer, int ldim, const Grid& g );
+    ( int height, int width, T* buffer, int ldim, const elemental::Grid& g );
 
     ~DistMatrixBase();
 
@@ -258,23 +258,23 @@ protected:
 public:
     // Create a 0 x 0 matrix
     DistMatrix
-    ( const Grid& g );
+    ( const elemental::Grid& g );
 
     // Create a height x width matrix
     DistMatrix
-    ( int height, int width, const Grid& g );
+    ( int height, int width, const elemental::Grid& g );
 
     // Create a height x width matrix with specified leading dim.
     DistMatrix
-    ( int height, int width, int ldim, const Grid& g );
+    ( int height, int width, int ldim, const elemental::Grid& g );
 
     // View a constant matrix's buffer
     DistMatrix
-    ( int height, int width, const Z* buffer, int ldim, const Grid& g );
+    ( int height, int width, const Z* buffer, int ldim, const elemental::Grid& g );
 
     // View a mutable matrix's buffer
     DistMatrix
-    ( int height, int width, Z* buffer, int ldim, const Grid& g );
+    ( int height, int width, Z* buffer, int ldim, const elemental::Grid& g );
 
     // Create a copy of A
     DistMatrix( const DistMatrix<Z,Star,Star>& A );
@@ -348,24 +348,24 @@ protected:
 public:
     // Create a 0 x 0 matrix
     DistMatrix
-    ( const Grid& g );
+    ( const elemental::Grid& g );
     
     // Create a height x width matrix
     DistMatrix
-    ( int height, int width, const Grid& g ); 
+    ( int height, int width, const elemental::Grid& g ); 
 
     // Create a height x width matrix with specified leading dim.
     DistMatrix 
-    ( int height, int width, int ldim, const Grid& g );
+    ( int height, int width, int ldim, const elemental::Grid& g );
 
     // View a constant matrix's buffer
     DistMatrix
     ( int height, int width, 
-      const std::complex<Z>* buffer, int ldim, const Grid& g );
+      const std::complex<Z>* buffer, int ldim, const elemental::Grid& g );
 
     // View a mutable matrix's buffer
     DistMatrix
-    ( int height, int width, std::complex<Z>* buffer, int ldim, const Grid& g );
+    ( int height, int width, std::complex<Z>* buffer, int ldim, const elemental::Grid& g );
 
     // Create a copy of A
     DistMatrix( const DistMatrix<std::complex<Z>,Star,Star>& A );
@@ -469,14 +469,14 @@ public:
 template<typename T>
 inline
 DistMatrixBase<T,Star,Star>::DistMatrixBase
-( int height, int width, const Grid& g )
+( int height, int width, const elemental::Grid& g )
 : ADM(height,width,false,false,0,0,0,0,height,width,g)
 { }
 
 template<typename T>
 inline
 DistMatrixBase<T,Star,Star>::DistMatrixBase
-( int height, int width, int ldim, const Grid& g )
+( int height, int width, int ldim, const elemental::Grid& g )
 : ADM(height,width,false,false,0,0,0,0,height,width,ldim,g)
 { }
 
@@ -484,7 +484,7 @@ template<typename T>
 inline
 DistMatrixBase<T,Star,Star>::DistMatrixBase
 ( int height, int width, 
-  const T* buffer, int ldim, const Grid& g )
+  const T* buffer, int ldim, const elemental::Grid& g )
 : ADM(height,width,0,0,0,0,height,width,buffer,ldim,g)
 { }
 
@@ -492,7 +492,7 @@ template<typename T>
 inline
 DistMatrixBase<T,Star,Star>::DistMatrixBase
 ( int height, int width, 
-  T* buffer, int ldim, const Grid& g )
+  T* buffer, int ldim, const elemental::Grid& g )
 : ADM(height,width,0,0,0,0,height,width,buffer,ldim,g)
 { }
 
@@ -508,35 +508,35 @@ DistMatrixBase<T,Star,Star>::~DistMatrixBase()
 template<typename Z>
 inline
 DistMatrix<Z,Star,Star>::DistMatrix
-( const Grid& g )
+( const elemental::Grid& g )
 : DMB(0,0,g)
 { }
 
 template<typename Z>
 inline
 DistMatrix<Z,Star,Star>::DistMatrix
-( int height, int width, const Grid& g ) 
+( int height, int width, const elemental::Grid& g ) 
 : DMB(height,width,g)
 { }
 
 template<typename Z>
 inline
 DistMatrix<Z,Star,Star>::DistMatrix
-( int height, int width, int ldim, const Grid& g ) 
+( int height, int width, int ldim, const elemental::Grid& g ) 
 : DMB(height,width,ldim,g)
 { }
 
 template<typename Z>
 inline
 DistMatrix<Z,Star,Star>::DistMatrix
-( int height, int width, const Z* buffer, int ldim, const Grid& g )
+( int height, int width, const Z* buffer, int ldim, const elemental::Grid& g )
 : DMB(height,width,buffer,ldim,g)
 { }
 
 template<typename Z>
 inline
 DistMatrix<Z,Star,Star>::DistMatrix
-( int height, int width, Z* buffer, int ldim, const Grid& g )
+( int height, int width, Z* buffer, int ldim, const elemental::Grid& g )
 : DMB(height,width,buffer,ldim,g)
 { }
 
@@ -650,21 +650,21 @@ DistMatrix<Z,Star,Star>::operator=
 template<typename Z>
 inline
 DistMatrix<std::complex<Z>,Star,Star>::DistMatrix
-( const Grid& g )
+( const elemental::Grid& g )
 : DMB(0,0,g)
 { }
 
 template<typename Z>
 inline
 DistMatrix<std::complex<Z>,Star,Star>::DistMatrix
-( int height, int width, const Grid& g ) 
+( int height, int width, const elemental::Grid& g ) 
 : DMB(height,width,g)
 { }
 
 template<typename Z>
 inline
 DistMatrix<std::complex<Z>,Star,Star>::DistMatrix
-( int height, int width, int ldim, const Grid& g ) 
+( int height, int width, int ldim, const elemental::Grid& g ) 
 : DMB(height,width,ldim,g)
 { }
 
@@ -672,7 +672,7 @@ template<typename Z>
 inline
 DistMatrix<std::complex<Z>,Star,Star>::DistMatrix
 ( int height, int width, 
-  const std::complex<Z>* buffer, int ldim, const Grid& g ) 
+  const std::complex<Z>* buffer, int ldim, const elemental::Grid& g ) 
 : DMB(height,width,buffer,ldim,g)
 { }
 
@@ -680,7 +680,7 @@ template<typename Z>
 inline
 DistMatrix<std::complex<Z>,Star,Star>::DistMatrix
 ( int height, int width, 
-  std::complex<Z>* buffer, int ldim, const Grid& g ) 
+  std::complex<Z>* buffer, int ldim, const elemental::Grid& g ) 
 : DMB(height,width,buffer,ldim,g)
 { }
 

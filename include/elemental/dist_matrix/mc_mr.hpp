@@ -64,23 +64,23 @@ protected:
     DistMatrixBase
     ( int height, int width,
       bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, const Grid& g );
+      int colAlignment, int rowAlignment, const elemental::Grid& g );
 
     // The basic constructor, but with a supplied leading dimension
     DistMatrixBase
     ( int height, int width,
       bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, int ldim, const Grid& g );
+      int colAlignment, int rowAlignment, int ldim, const elemental::Grid& g );
 
     // View a constant distributed matrix's buffer
     DistMatrixBase
     ( int height, int width, int colAlignment, int rowAlignment,
-      const T* buffer, int ldim, const Grid& g );
+      const T* buffer, int ldim, const elemental::Grid& g );
 
     // View a mutable distributed matrix's buffer
     DistMatrixBase
     ( int height, int width, int colAlignment, int rowAlignment,
-      T* buffer, int ldim, const Grid& g );
+      T* buffer, int ldim, const elemental::Grid& g );
 
     ~DistMatrixBase();
 
@@ -327,39 +327,39 @@ protected:
 public:
     // Create a 0 x 0 distributed matrix
     DistMatrix
-    ( const Grid& g );            
+    ( const elemental::Grid& g );            
 
     // Create a height x width distributed matrix
     DistMatrix
-    ( int height, int width, const Grid& g );
+    ( int height, int width, const elemental::Grid& g );
 
     // Create a 0 x 0 distributed matrix with specified alignments
     DistMatrix
     ( bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, const Grid& g );
+      int colAlignment, int rowAlignment, const elemental::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     DistMatrix
     ( int height, int width, 
       bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, const Grid& g );
+      int colAlignment, int rowAlignment, const elemental::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension
     DistMatrix
     ( int height, int width, 
       bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, int ldim, const Grid& g );
+      int colAlignment, int rowAlignment, int ldim, const elemental::Grid& g );
 
     // View a constant distributed matrix's buffer
     DistMatrix
     ( int height, int width, int colAlignment, int rowAlignment,
-      const Z* buffer, int ldim, const Grid& g );
+      const Z* buffer, int ldim, const elemental::Grid& g );
 
     // View a mutable distributed matrix's buffer
     DistMatrix
     ( int height, int width, int colAlignment, int rowAlignment,
-      Z* buffer, int ldim, const Grid& g );
+      Z* buffer, int ldim, const elemental::Grid& g );
 
     // Create a copy of distributed matrix A
     DistMatrix
@@ -439,39 +439,39 @@ protected:
 public:
     // Create a 0 x 0 distributed matrix
     DistMatrix
-    ( const Grid& g );            
+    ( const elemental::Grid& g );            
 
     // Create a height x width distributed matrix
     DistMatrix
-    ( int height, int width, const Grid& g );
+    ( int height, int width, const elemental::Grid& g );
 
     // Create a 0 x 0 distributed matrix with particular alignments
     DistMatrix
     ( bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, const Grid& g );
+      int colAlignment, int rowAlignment, const elemental::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     DistMatrix
     ( int height, int width, 
       bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, const Grid& g );
+      int colAlignment, int rowAlignment, const elemental::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension
     DistMatrix
     ( int height, int width, 
       bool constrainedColAlignment, bool constrainedRowAlignment,
-      int colAlignment, int rowAlignment, int ldim, const Grid& g );
+      int colAlignment, int rowAlignment, int ldim, const elemental::Grid& g );
 
     // View a constant distributed matrix's buffer
     DistMatrix
     ( int height, int width, int colAlignment, int rowAlignment,
-      const std::complex<Z>* buffer, int ldim, const Grid& g );
+      const std::complex<Z>* buffer, int ldim, const elemental::Grid& g );
 
     // View a mutable distributed matrix's buffer
     DistMatrix
     ( int height, int width, int colAlignment, int rowAlignment,
-      std::complex<Z>* buffer, int ldim, const Grid& g );
+      std::complex<Z>* buffer, int ldim, const elemental::Grid& g );
 
     // Create a copy of distributed matrix A
     DistMatrix
@@ -612,7 +612,7 @@ inline
 DistMatrixBase<T,MC,MR>::DistMatrixBase
 ( int height, int width,
   bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, const Grid& g )
+  int colAlignment, int rowAlignment, const elemental::Grid& g )
 : ADM(height,width,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,
       // column shift
@@ -633,7 +633,7 @@ inline
 DistMatrixBase<T,MC,MR>::DistMatrixBase
 ( int height, int width,
   bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, int ldim, const Grid& g )
+  int colAlignment, int rowAlignment, int ldim, const elemental::Grid& g )
 : ADM(height,width,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,
       // column shift
@@ -653,7 +653,7 @@ template<typename T>
 inline
 DistMatrixBase<T,MC,MR>::DistMatrixBase
 ( int height, int width, int colAlignment, int rowAlignment,
-  const T* buffer, int ldim, const Grid& g )
+  const T* buffer, int ldim, const elemental::Grid& g )
 : ADM(height,width,colAlignment,rowAlignment,
       // column shift
       ( g.InGrid() ? utilities::Shift(g.MCRank(),colAlignment,g.Height()) : 0 ),
@@ -672,7 +672,7 @@ template<typename T>
 inline
 DistMatrixBase<T,MC,MR>::DistMatrixBase
 ( int height, int width, int colAlignment, int rowAlignment,
-  T* buffer, int ldim, const Grid& g )
+  T* buffer, int ldim, const elemental::Grid& g )
 : ADM(height,width,colAlignment,rowAlignment,
       // column shift
       ( g.InGrid() ? utilities::Shift(g.MCRank(),colAlignment,g.Height()) : 0 ),
@@ -699,14 +699,14 @@ DistMatrixBase<T,MC,MR>::~DistMatrixBase()
 template<typename Z>
 inline
 DistMatrix<Z,MC,MR>::DistMatrix
-( const Grid& g )
+( const elemental::Grid& g )
 : DMB(0,0,false,false,0,0,g)
 { }
 
 template<typename Z>
 inline
 DistMatrix<Z,MC,MR>::DistMatrix
-( int height, int width, const Grid& g )
+( int height, int width, const elemental::Grid& g )
 : DMB(height,width,false,false,0,0,g)
 { }
 
@@ -714,7 +714,7 @@ template<typename Z>
 inline
 DistMatrix<Z,MC,MR>::DistMatrix
 ( bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, const Grid& g )
+  int colAlignment, int rowAlignment, const elemental::Grid& g )
 : DMB(0,0,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,g)
 { }
@@ -724,7 +724,7 @@ inline
 DistMatrix<Z,MC,MR>::DistMatrix
 ( int height, int width,
   bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, const Grid& g )
+  int colAlignment, int rowAlignment, const elemental::Grid& g )
 : DMB(height,width,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,g)
 { }
@@ -734,7 +734,7 @@ inline
 DistMatrix<Z,MC,MR>::DistMatrix
 ( int height, int width,
   bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, int ldim, const Grid& g )
+  int colAlignment, int rowAlignment, int ldim, const elemental::Grid& g )
 : DMB(height,width,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,ldim,g)
 { }
@@ -743,7 +743,7 @@ template<typename Z>
 inline
 DistMatrix<Z,MC,MR>::DistMatrix
 ( int height, int width, int colAlignment, int rowAlignment,
-  const Z* buffer, int ldim, const Grid& g )
+  const Z* buffer, int ldim, const elemental::Grid& g )
 : DMB(height,width,colAlignment,rowAlignment,buffer,ldim,g)
 { }
 
@@ -751,7 +751,7 @@ template<typename Z>
 inline
 DistMatrix<Z,MC,MR>::DistMatrix
 ( int height, int width, int colAlignment, int rowAlignment,
-  Z* buffer, int ldim, const Grid& g )
+  Z* buffer, int ldim, const elemental::Grid& g )
 : DMB(height,width,colAlignment,rowAlignment,buffer,ldim,g)
 { }
 
@@ -865,14 +865,14 @@ DistMatrix<Z,MC,MR>::operator=
 template<typename Z>
 inline
 DistMatrix<std::complex<Z>,MC,MR>::DistMatrix
-( const Grid& g )
+( const elemental::Grid& g )
 : DMB(0,0,false,false,0,0,g)
 { }
 
 template<typename Z>
 inline
 DistMatrix<std::complex<Z>,MC,MR>::DistMatrix
-( int height, int width, const Grid& g )
+( int height, int width, const elemental::Grid& g )
 : DMB(height,width,false,false,0,0,g)
 { }
 
@@ -880,7 +880,7 @@ template<typename Z>
 inline
 DistMatrix<std::complex<Z>,MC,MR>::DistMatrix
 ( bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, const Grid& g )
+  int colAlignment, int rowAlignment, const elemental::Grid& g )
 : DMB(0,0,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,g)
 { }
@@ -890,7 +890,7 @@ inline
 DistMatrix<std::complex<Z>,MC,MR>::DistMatrix
 ( int height, int width,
   bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, const Grid& g )
+  int colAlignment, int rowAlignment, const elemental::Grid& g )
 : DMB(height,width,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,g)
 { }
@@ -900,7 +900,7 @@ inline
 DistMatrix<std::complex<Z>,MC,MR>::DistMatrix
 ( int height, int width,
   bool constrainedColAlignment, bool constrainedRowAlignment,
-  int colAlignment, int rowAlignment, int ldim, const Grid& g )
+  int colAlignment, int rowAlignment, int ldim, const elemental::Grid& g )
 : DMB(height,width,constrainedColAlignment,constrainedRowAlignment,
       colAlignment,rowAlignment,ldim,g)
 { }
@@ -909,7 +909,7 @@ template<typename Z>
 inline
 DistMatrix<std::complex<Z>,MC,MR>::DistMatrix
 ( int height, int width, int colAlignment, int rowAlignment, 
-  const std::complex<Z>* buffer, int ldim, const Grid& g )
+  const std::complex<Z>* buffer, int ldim, const elemental::Grid& g )
 : DMB(height,width,colAlignment,rowAlignment,buffer,ldim,g)
 { }
 
@@ -917,7 +917,7 @@ template<typename Z>
 inline
 DistMatrix<std::complex<Z>,MC,MR>::DistMatrix
 ( int height, int width, int colAlignment, int rowAlignment, 
-  std::complex<Z>* buffer, int ldim, const Grid& g )
+  std::complex<Z>* buffer, int ldim, const elemental::Grid& g )
 : DMB(height,width,colAlignment,rowAlignment,buffer,ldim,g)
 { }
 

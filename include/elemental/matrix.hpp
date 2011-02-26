@@ -84,7 +84,7 @@ public:
     void SetToRandom();
 
     // Return the value of entry (i,j)
-    const T& Get( int i, int j ) const;
+    const T Get( int i, int j ) const;
     // Set the new value of entry (i,j)
     void Set( int i, int j, T alpha );
     // Update entry (i,j), i.e., A(i,j) += alpha
@@ -194,9 +194,9 @@ public:
     ~Matrix();
 
     // Return the real part of entry (i,j)
-    const Z& GetReal( int i, int j ) const;
+    const Z GetReal( int i, int j ) const;
     // Return the imag part of entry (i,j)
-    const Z& GetImag( int i, int j ) const;
+    const Z GetImag( int i, int j ) const;
     // Set the new value of the real part of entry (i,j)
     void SetReal( int i, int j, Z alpha );
     // Set the new value of the real part of entry (i,j)
@@ -360,7 +360,7 @@ MatrixBase<T>::Empty()
 }
 
 template<typename T>
-inline const T&
+inline const T
 MatrixBase<T>::Get
 ( int i, int j ) const
 {
@@ -737,7 +737,7 @@ Matrix< std::complex<Z> >::Matrix
 { }
 
 template<typename Z>
-inline const Z&
+inline const Z
 Matrix< std::complex<Z> >::GetReal
 ( int i, int j ) const
 {
@@ -762,7 +762,7 @@ Matrix< std::complex<Z> >::GetReal
 }
 
 template<typename Z>
-inline const Z&
+inline const Z
 Matrix< std::complex<Z> >::GetImag
 ( int i, int j ) const
 {
