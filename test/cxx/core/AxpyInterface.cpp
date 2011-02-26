@@ -12,20 +12,6 @@ void Usage()
          << std::endl;
 }
 
-// TODO: Make this more interesting
-void
-FormDistributedMatrix( DistMatrix<double,MC,MR>& A )
-{
-    const int m = A.Height();
-    const int n = A.Width();
-    Matrix<double> X( m, n );
-    X.SetToRandom();
-
-    AxpyInterface<double> interface( A );
-    if( A.Grid().VCRank() == 0 )
-        interface.Axpy( 1.0, X, 0, 0 );
-}
-
 int
 main( int argc, char* argv[] )
 {
@@ -48,35 +34,36 @@ main( int argc, char* argv[] )
         Grid g( comm );
 
         DistMatrix<double,MC,MR> A( n, n, g );
-        A.SetToRandom();
-        FormDistributedMatrix( A );
-        A.Print("A");
+        A.SetToZero();
 
-        DistMatrix<int,VC,Star> p_VC_Star( n, 1, g );
-        DistMatrix<double,MC,MR> LUOfA( A );
-        advanced::LU( LUOfA, p_VC_Star );
-        LUOfA.Print("LU(A)");
+        AxpyInterface<double> interface;
+        interface.Attach( A );
+        Matrix<double> X( n, n );
+        const int rank = A.Grid().VCRank();
+        for( int j=0; j<n; ++j )
+            for( int i=0; i<n; ++i )
+                X.Set(i,j,rank);
+        interface.Axpy( 1.0, X, 0, 0 );
+        interface.Detach();
 
-        DistMatrix<int,Star,Star> p_Star_Star( g );
-        p_Star_Star = p_VC_Star;
-        vector<int> image, preimage;
-        advanced::internal::ComposePivots( p_Star_Star, image, preimage, 0 );
-        advanced::internal::ApplyRowPivots( A, image, preimage, 0 );
-        A.Print("A after pivoting");
+        // Ensure that our local matrix is the sum of all the ranks
+        const int p = mpi::CommSize( mpi::COMM_WORLD );
+        const double sumOfRanks = ((p-1)*(p-1)+(p-1))/2;
+        // Check that our local matrix is equal to sumOfRanks everywhere
+        double myMaxError = 0.;
+        for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
+            for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
+                myMaxError = 
+                    std::max( myMaxError, 
+                              Abs(sumOfRanks-A.GetLocalEntry(iLocal,jLocal)) );
+        double maxError; 
+        mpi::AllReduce
+        ( &myMaxError, &maxError, 1, mpi::SUM, g.VCComm() );
 
-        DistMatrix<double,MC,MR> b( n, 1, g );
-        b.SetToRandom();
-        b.Print("b");
-
-        basic::Trsm
-        ( Left, Lower, Normal, Unit, 1.0, LUOfA, b );
-        basic::Trsm
-        ( Left, Upper, Normal, NonUnit, 1.0, LUOfA, b );
-        b.Print("x");
-
-        DistMatrix<double,MC,MR> z( n, 1, g );
-        basic::Gemm( Normal, Normal, 1.0, A, b, 0.0, z );
-        z.Print("PAx ?= b");
+        if( rank == 0 )
+            std::cout << "max error = " << maxError << std::endl;
+        if( maxError > 0.000001 )
+            A.Print("A");
     }
     catch( exception& e )
     {
