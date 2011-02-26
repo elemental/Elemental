@@ -277,18 +277,18 @@ if(NEED_MATH)
       )
       set(
         MKL_REQUIRED MKL_INTEL MKL_SEQUENTIAL MKL_CORE MKL_SEQUENTIAL 
-	CMATH GUIDE IOMP5
+        CMATH GUIDE IOMP5
       ) 
     else(PURE)
       find_library(
         MKL_INTEL_THREAD_LIB
         NAMES libmkl_intel_thread.a mkl_intel_thread.lib
-	PATHS ${MKL_ROOT}
+        PATHS ${MKL_ROOT}
         PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
       )
       set(
         MKL_REQUIRED MKL_INTEL MKL_INTEL_THREAD MKL_CORE 
-	MKL_INTEL_THREAD CMATH GUIDE IOMP5
+        MKL_INTEL_THREAD CMATH GUIDE IOMP5
       )
     endif(PURE)
     if(NOT WIN32)
@@ -409,15 +409,15 @@ if(WITHOUT_PMRRR)
   message(STATUS "Removing eigensolver source from Elemental")
   list(
     REMOVE_ITEM ELEMENTAL_CPP
-    "src/lapack/HermitianEig/HermitianEig.cpp"
+    "src/advanced/HermitianEig/HermitianEig.cpp"
   )
   list(
     REMOVE_ITEM ELEMENTAL_CPP
-   "src/lapack/SkewHermitianEig/SkewHermitianEig.cpp"
+   "src/advanced/SkewHermitianEig/SkewHermitianEig.cpp"
   )
   list(
     REMOVE_ITEM ELEMENTAL_CPP
-    "src/lapack/GeneralizedHermitianEig/GeneralizedHermitianEig.cpp"
+    "src/advanced/GeneralizedHermitianEig/GeneralizedHermitianEig.cpp"
   )
 endif(WITHOUT_PMRRR)
 if(NOT BUILD_C_INTERFACE)
