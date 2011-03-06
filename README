@@ -35,7 +35,7 @@ by appending the additional cmake flags of the form:
 where the math libs should be optimized for single core usage for pure-MPI 
 builds and threaded for the hybrid builds.
 
-On BlueGene/P, one should instead run (after loading the dec2010 compiler)
+On BlueGene/P, one should instead run (after loading the dec2010 compilers)
       cd elemental
       mkdir -p build/PureRelease
       cd build/PureRelease
@@ -49,9 +49,6 @@ On Ranger, one can similarly pick from the toolchain files:
       cmake/toolchains/Ranger-gcc_4.4-mvapich2_1.2-mkl_10.0.1.014.cmake
       cmake/toolchains/Ranger-intel_10.1-mvapich_1.0.1-mkl_10.0.1.014.cmake
       cmake/toolchains/Ranger-intel_10.1-mvapich2_1.2-mkl_10.0.1.014.cmake
-
-The CMake build system is still new, so please email jack.poulson@gmail.com with
-any build problems or comments.
 
 Tuning
 ======

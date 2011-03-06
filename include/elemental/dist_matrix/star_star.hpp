@@ -66,7 +66,8 @@ protected:
 
     // View a constant distributed matrix's buffer
     DistMatrixBase
-    ( int height, int width, const T* buffer, int ldim, const elemental::Grid& g );
+    ( int height, int width, const T* buffer, int ldim, 
+      const elemental::Grid& g );
 
     // View a mutable distributed matrix's buffer
     DistMatrixBase

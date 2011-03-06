@@ -308,7 +308,7 @@ main( int argc, char* argv[] )
 {
     Init( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    int rank = mpi::CommRank( comm );
+    const int rank = mpi::CommRank( comm );
 
     if( argc < 8 )
     {

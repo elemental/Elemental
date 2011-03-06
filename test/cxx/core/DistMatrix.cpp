@@ -318,7 +318,7 @@ main( int argc, char* argv[] )
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( MPI_COMM_WORLD, r, c );
+        const Grid g( comm, r, c );
 
         if( rank == 0 )
         {
