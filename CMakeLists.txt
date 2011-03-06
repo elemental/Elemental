@@ -429,7 +429,7 @@ set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
 # Create the lists of test executables 
 if(BUILD_TESTS)
-  set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
+  set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
 
   set(CORE_TESTS AxpyInterface DifferentGrids DistMatrix Matrix)
   set(BASIC_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
