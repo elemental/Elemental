@@ -122,11 +122,6 @@ public:
     // Routines specific to [MC,MR] distribution                             //
     //-----------------------------------------------------------------------//
 
-    // Axpy interface
-    bool AxpyGlobalMatrix( Matrix<T>& m, int r, int c );
-    void SetupAxpyInterface();
-    void FinalizeAxpyInterface();
-
     //
     // Non-collective routines
     //
@@ -301,15 +296,6 @@ public:
 
     const DistMatrixBase<T,MC,MR>& 
     operator=( const DistMatrixBase<T,Star,Star>& A );
-
-private:
-    void RecvGlobalMatrix();
-    bool SendAxpyInterfaceEOM();
-    void HandleAxpyInterfaceACK();
-    void HandleAxpyInterfaceData();
-    void HandleAxpyInterfaceEOM();
-    bool AxpyInterfaceIsDone();
-    bool ReceivedAxpyInterfaceACKs();
 };
 
 // Partial specialization to A[MC,MR] for real rings.

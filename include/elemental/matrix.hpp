@@ -745,12 +745,12 @@ Matrix< std::complex<Z> >::GetReal
     PushCallStack("Matrix::GetReal");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
-    if( i > Height() || j > Width() )
+    if( i > this->Height() || j > this->Width() )
     {
         std::ostringstream msg;
         msg << "Out of bounds: "
-            << "(" << i << "," << j << ") of " << Height()
-            << " x " << Width() << " Matrix.";
+            << "(" << i << "," << j << ") of " << this->Height()
+            << " x " << this->Width() << " Matrix.";
         throw std::logic_error( msg.str() );
     }
     PopCallStack();
@@ -770,12 +770,12 @@ Matrix< std::complex<Z> >::GetImag
     PushCallStack("Matrix::GetImag");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
-    if( i > Height() || j > Width() )
+    if( i > this->Height() || j > this->Width() )
     {
         std::ostringstream msg;
         msg << "Out of bounds: "
-            << "(" << i << "," << j << ") of " << Height()
-            << " x " << Width() << " Matrix.";
+            << "(" << i << "," << j << ") of " << this->Height()
+            << " x " << this->Width() << " Matrix.";
         throw std::logic_error( msg.str() );
     }
     PopCallStack();
@@ -795,12 +795,12 @@ Matrix< std::complex<Z> >::SetReal
     PushCallStack("Matrix::SetReal");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
-    if( i > Height() || j > Width() )
+    if( i > this->Height() || j > this->Width() )
     {
         std::ostringstream msg;
         msg << "Out of bounds: "
-            << "(" << i << "," << j << ") of " << Height()
-            << " x " << Width() << " Matrix.";
+            << "(" << i << "," << j << ") of " << this->Height()
+            << " x " << this->Width() << " Matrix.";
         throw std::logic_error( msg.str() );
     }
     if( this->_lockedData )
@@ -822,12 +822,12 @@ Matrix< std::complex<Z> >::SetImag
     PushCallStack("Matrix::SetImag");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
-    if( i > Height() || j > Width() )
+    if( i > this->Height() || j > this->Width() )
     {
         std::ostringstream msg;
         msg << "Out of bounds: "
-            << "(" << i << "," << j << ") of " << Height()
-            << " x " << Width() << " Matrix.";
+            << "(" << i << "," << j << ") of " << this->Height()
+            << " x " << this->Width() << " Matrix.";
         throw std::logic_error( msg.str() );
     }
     if( this->_lockedData )
@@ -849,12 +849,12 @@ Matrix< std::complex<Z> >::UpdateReal
     PushCallStack("Matrix::UpdateReal");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
-    if( i > Height() || j > Width() )
+    if( i > this->Height() || j > this->Width() )
     {
         std::ostringstream msg;
         msg << "Out of bounds: "
-            << "(" << i << "," << j << ") of " << Height()
-            << " x " << Width() << " Matrix.";
+            << "(" << i << "," << j << ") of " << this->Height()
+            << " x " << this->Width() << " Matrix.";
         throw std::logic_error( msg.str() );
     }
     if( this->_lockedData )
@@ -877,12 +877,12 @@ Matrix< std::complex<Z> >::UpdateImag
     PushCallStack("Matrix::UpdateImag");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
-    if( i > Height() || j > Width() )
+    if( i > this->Height() || j > this->Width() )
     {
         std::ostringstream msg;
         msg << "Out of bounds: "
-            << "(" << i << "," << j << ") of " << Height()
-            << " x " << Width() << " Matrix.";
+            << "(" << i << "," << j << ") of " << this->Height()
+            << " x " << this->Width() << " Matrix.";
         throw std::logic_error( msg.str() );
     }
     if( this->_lockedData )
