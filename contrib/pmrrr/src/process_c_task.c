@@ -238,10 +238,10 @@ rrr_t* compute_new_rrr(cluster_t *cl, int tid, proc_t *procinfo,
     
     offset  = Windex[cl_begin] - 1;
 
-    LAPACK(dlarrb)(&bl_size, D_parent, DLL_parent, &p, &p, &RQtol,
-	    &RQtol, &offset, &Wshifted[cl_begin], &Wgap[cl_begin],
-	    &Werr[cl_begin], work, iwork, &pivmin, &bl_spdiam,
-	    &bl_size, &info);
+    LAPACK(dlarrb)
+    (&bl_size, D_parent, DLL_parent, &p, &p, &RQtol, &RQtol, &offset, 
+     &Wshifted[cl_begin], &Wgap[cl_begin], &Werr[cl_begin], work, iwork, 
+     &pivmin, &bl_spdiam, &bl_size, &info);
     assert( info == 0 );
 
     if (k == 0) {
@@ -256,10 +256,10 @@ rrr_t* compute_new_rrr(cluster_t *cl, int tid, proc_t *procinfo,
   right_gap = Wgap[cl_end];
 
   /* Compute new RRR and store it in D and L */
-  LAPACK(dlarrf)(&bl_size, D_parent, L_parent, DL_parent,
-	  &IONE, &cl_size, &Wshifted[cl_begin], &Wgap[cl_begin],
-	  &Werr[cl_begin], &bl_spdiam, &left_gap, &right_gap,
-	  &pivmin, &tau, D, L, work, &info);
+  LAPACK(dlarrf)
+  (&bl_size, D_parent, L_parent, DL_parent, &IONE, &cl_size, 
+   &Wshifted[cl_begin], &Wgap[cl_begin], &Werr[cl_begin], &bl_spdiam, &left_gap,
+   &right_gap, &pivmin, &tau, D, L, work, &info);
   assert(info == 0);
 
   /* Update shift and store it */
@@ -380,9 +380,10 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
 
     /* Call bisection routine to refine the values */
     if (ts_begin <= ts_end) {
-      LAPACK(dlarrb)(&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
-	      &Wshifted[ts_begin], &Wgap[ts_begin], &Werr[ts_begin],
-	      work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
+      LAPACK(dlarrb)
+      (&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, &Wshifted[ts_begin], 
+       &Wgap[ts_begin], &Werr[ts_begin], work, iwork, &pivmin, &bl_spdiam, 
+       &bl_size, &info);
       assert( info == 0 );
     }
 
@@ -436,9 +437,10 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
     }  
     
     /* Bisection routine to refine the values */
-    LAPACK(dlarrb)(&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
-	    &Wshifted[rf_begin], &Wgap[rf_begin], &Werr[rf_begin],
-	    work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
+    LAPACK(dlarrb)
+    (&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, &Wshifted[rf_begin], 
+     &Wgap[rf_begin], &Werr[rf_begin], work, iwork, &pivmin, &bl_spdiam, 
+     &bl_size, &info);
     assert( info == 0 );
     
     if (p == q) {

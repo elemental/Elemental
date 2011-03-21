@@ -444,6 +444,58 @@ HermitianFrobeniusNorm
 #endif
 
 //----------------------------------------------------------------------------//
+// MaxNorm                                                                    //
+//                                                                            //
+// Computes the elementwise infinity norm of the matrix.                      //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R
+MaxNorm( const Matrix<R>& A );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+R
+MaxNorm( const Matrix< std::complex<R> >& A );
+#endif
+
+template<typename R>
+R
+MaxNorm( const DistMatrix<R,MC,MR>& A );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+R
+MaxNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+#endif
+
+//----------------------------------------------------------------------------//
+// HermitianMaxNorm                                                           //
+//                                                                            //
+// Computes the elementwise infinity norm of the matrix.                      //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R
+HermitianMaxNorm( Shape shape, const Matrix<R>& A );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+R
+HermitianMaxNorm( Shape shape, const Matrix< std::complex<R> >& A );
+#endif
+
+template<typename R>
+R
+HermitianMaxNorm( Shape shape, const DistMatrix<R,MC,MR>& A );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+R
+HermitianMaxNorm( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+#endif
+
+//----------------------------------------------------------------------------//
 // InfinityNorm                                                               //
 //                                                                            //
 // Computes the operator L infinity norm of a matrix,                         //

@@ -51,6 +51,7 @@
 #include <pthread.h>
 #include "mpi.h"
 #include "pmrrr.h" 
+#include "plarre.h"
 #include "global.h"
 #include "structs.h" 
 
@@ -192,8 +193,9 @@ int plarre(proc_t *procinfo, char *jobz, char *range, in_t *Dstruct,
   Dstruct->spdiam = gu - gl;
 
   /* compute splitting points with threshold "split" */
-  LAPACK(dlarra)(&n, D, E, E2, &tolstruct->split, &Dstruct->spdiam,
-	  &Dstruct->nsplit, isplit, &info);
+  LAPACK(dlarra)
+  (&n, D, E, E2, &tolstruct->split, &Dstruct->spdiam, &Dstruct->nsplit, 
+   isplit, &info);
   assert(info == 0);
 
   if (irange == allrng || irange == indrng) {
@@ -212,10 +214,10 @@ int plarre(proc_t *procinfo, char *jobz, char *range, in_t *Dstruct,
     
     /* find negcount at boundaries 'vl' and 'vu'; 
      * needs work of dim(n) and iwork of dim(n) */
-    LAPACK(dlaebz)(&IONE, &IZERO, &n, &IONE, &IONE, &IZERO,
-	    &DZERO, &DZERO, &tolstruct->pivmin, D, E, E2, &idummy,
-	    intervals, &dummy, &idummy, negcounts, work,
-	    iwork, &info);
+    LAPACK(dlaebz)
+    (&IONE, &IZERO, &n, &IONE, &IONE, &IZERO, &DZERO, &DZERO, 
+     &tolstruct->pivmin, D, E, E2, &idummy, intervals, &dummy, &idummy, 
+     negcounts, work, iwork, &info);
     assert(info == 0);
     
     /* update negcounts of whole matrix with negcounts found for block */
@@ -453,9 +455,10 @@ int eigval_subset_proc(proc_t *procinfo, char *range, in_t *Dstruct,
 
   /* compute approximations of the eigenvalues with muliple threads
    * equivalent to:
-   * LAPACK(dlarrd)("I", "B", &n, &dummy, &dummy, &ifirst, &ilast, gersch,
-   *         &bsrtol, D, E, E2, &pivmin, &nsplit, isplit, &m, W, Werr,
-   *         &wl, &wu, iblock, Windex, work, iwork, &info);
+   * LAPACK(dlarrd)
+   * ("I", "B", &n, &dummy, &dummy, &ifirst, &ilast, gersch,
+   *  &bsrtol, D, E, E2, &pivmin, &nsplit, isplit, &m, W, Werr,
+   *  &wl, &wu, iblock, Windex, work, iwork, &info);
    * assert(info == 0);
    * assert(m == ilast-ifirst+1); */
 
@@ -518,9 +521,10 @@ int eigval_subset_proc(proc_t *procinfo, char *range, in_t *Dstruct,
 
   } else {
     /* no multithreaded computation */
-    LAPACK(dlarrd)("I", "B", &n, &dummy, &dummy, &ifirst, &ilast, gersch,
-	    &bsrtol, D, E, E2, &pivmin, &nsplit, isplit, &m, W, Werr,
-	    &wl, &wu, iblock, Windex, work, iwork, &info);
+    LAPACK(dlarrd)
+    ("I", "B", &n, &dummy, &dummy, &ifirst, &ilast, gersch, &bsrtol, D, E, E2,
+     &pivmin, &nsplit, isplit, &m, W, Werr, &wl, &wu, iblock, Windex, work, 
+     iwork, &info);
     assert(info == 0);
     assert(m == ilast-ifirst+1);
   }
@@ -572,15 +576,15 @@ int eigval_subset_proc(proc_t *procinfo, char *range, in_t *Dstruct,
     /* find approximation of extremal eigenvalues of the block
      * dlarrk computes one eigenvalue of tridiagonal matrix T
      * tmp1 and tmp2 one hold the eigenvalue and error, respectively */
-    LAPACK(dlarrk)(&bl_size, &IONE, &gl, &gu, &D[bl_begin], &E2[bl_begin],
-	    &pivmin, &rtl, &tmp1, &tmp2, &info);
+    LAPACK(dlarrk)
+    (&bl_size, &IONE, &gl, &gu, &D[bl_begin], &E2[bl_begin], &pivmin, &rtl, 
+     &tmp1, &tmp2, &info);
     assert(info == 0);  /* if info=-1 => eigenvalue did not converge */
     
     isleft = fmax(gl, tmp1-tmp2 - HUNDRED*DBL_EPSILON*fabs(tmp1-tmp2) );
     
-    
-    LAPACK(dlarrk)(&bl_size, &bl_size, &gl, &gu, &D[bl_begin], &E2[bl_begin],
-	    &pivmin, &rtl, &tmp1, &tmp2, &info);
+    LAPACK(dlarrk)
+    (&bl_size, &bl_size, &gl, &gu, &D[bl_begin], &E2[bl_begin], &pivmin, &rtl,     &tmp1, &tmp2, &info);
     assert(info == 0);  /* if info=-1 => eigenvalue did not converge */
     
     isright = fmin(gu, tmp1+tmp2 + HUNDRED*DBL_EPSILON*fabs(tmp1+tmp2) );
@@ -595,8 +599,9 @@ int eigval_subset_proc(proc_t *procinfo, char *range, in_t *Dstruct,
     /* cnt = number of eigenvalues in (s1,s2] = count_right - count_left
      * negcnt_lft = number of eigenvalues smaller equals than s1
      * negcnt_rgt = number of eigenvalues smaller equals than s2 */
-    LAPACK(dlarrc)("T", &bl_size, &s1, &s2, &D[bl_begin], &E[bl_begin], 
-            &pivmin, &cnt, &negcnt_lft, &negcnt_rgt, &info);
+    LAPACK(dlarrc)
+    ("T", &bl_size, &s1, &s2, &D[bl_begin], &E[bl_begin], &pivmin, &cnt, 
+     &negcnt_lft, &negcnt_rgt, &info);
     assert(info == 0);
 
     /* if more of the desired eigenvectors are in the left part shift left
@@ -797,11 +802,11 @@ int eigval_subset_proc(proc_t *procinfo, char *range, in_t *Dstruct,
       offset = i_low-1;
       
       /* refine eigenvalues found by dlarrd for i_low:i_upp */
-      LAPACK(dlarrb)(&bl_size, &D[bl_begin], &work[bl_begin+off_DE2], &i_low,
-	      &i_upp, &tolstruct->rtol1,
-	      &tolstruct->rtol2, &offset, &W[bl_Wbegin], &Wgap[bl_Wbegin],
-	      &Werr[bl_Wbegin], work, iwork, &pivmin, &spdiam, &bl_size,
-	      &info);
+      LAPACK(dlarrb)
+      (&bl_size, &D[bl_begin], &work[bl_begin+off_DE2], &i_low, &i_upp, 
+       &tolstruct->rtol1, &tolstruct->rtol2, &offset, &W[bl_Wbegin], 
+       &Wgap[bl_Wbegin], &Werr[bl_Wbegin], work, iwork, &pivmin, &spdiam, 
+       &bl_size, &info);
       assert(info == 0);
       /* needs work of dim(2*n) and iwork of dim(2*n) */
     }
@@ -877,10 +882,10 @@ void *eigval_subset_thread_a(void *argin)
   assert (iwork != NULL);
 
   /* compute eigenvalues 'my_il' to 'my_iu', put into temporary arrays */
-  LAPACK(dlarrd)("I", "B", &n, &dummy1, &dummy2, &my_il, &my_iu, gersch,
-	  &bsrtol, D, E, E2, &pivmin, &nsplit, isplit, &num_vals,
-	  W_tmp, Werr_tmp, &dummy1, &dummy2, iblock_tmp, Windex_tmp,
-	  work, iwork, &info);
+  LAPACK(dlarrd)
+  ("I", "B", &n, &dummy1, &dummy2, &my_il, &my_iu, gersch, &bsrtol, D, E, E2, 
+   &pivmin, &nsplit, isplit, &num_vals, W_tmp, Werr_tmp, &dummy1, &dummy2, 
+   iblock_tmp, Windex_tmp, work, iwork, &info);
   assert(info == 0);
 
   /* copy computed values in W, Werr, Windex, iblock (which are work space) */
@@ -1010,10 +1015,10 @@ void *eigval_subset_thread_r(void *argin)
   offset = Windex[rf_begin] - 1;
 
   /* call bisection routine to refine the eigenvalues */
-  LAPACK(dlarrb)(&bl_size, D, DE2, &Windex[rf_begin], &Windex[rf_end],
-	  &rtol1, &rtol2, &offset, &W[rf_begin], &Wgap[rf_begin],
-	  &Werr[rf_begin], work, iwork, &pivmin, &bl_spdiam,
-	  &bl_size, &info);
+  LAPACK(dlarrb)
+  (&bl_size, D, DE2, &Windex[rf_begin], &Windex[rf_end], &rtol1, &rtol2, 
+   &offset, &W[rf_begin], &Wgap[rf_begin], &Werr[rf_begin], work, iwork, 
+   &pivmin, &bl_spdiam, &bl_size, &info);
   assert(info == 0);
 
   /* clean up */

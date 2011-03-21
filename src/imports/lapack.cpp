@@ -32,6 +32,119 @@
 */
 #include "elemental/environment.hpp"
 
+// Machine constants
+template<> float 
+elemental::imports::lapack::MachineEpsilon<float>()
+{
+    const char cmach = 'E';
+    return LAPACK(slamch)( &cmach );
+}
+
+template<> double 
+elemental::imports::lapack::MachineEpsilon<double>()
+{
+    const char cmach = 'E';
+    return LAPACK(dlamch)( &cmach );
+}
+
+template<> float 
+elemental::imports::lapack::MachineSafeMin<float>()
+{
+    const char cmach = 'S';
+    return LAPACK(slamch)( &cmach );
+}
+
+template<> double 
+elemental::imports::lapack::MachineSafeMin<double>()
+{
+    const char cmach = 'S';
+    return LAPACK(dlamch)( &cmach );
+}
+
+template<> float 
+elemental::imports::lapack::MachineBase<float>()
+{
+    const char cmach = 'B';
+    return LAPACK(slamch)( &cmach );
+}
+
+template<> double 
+elemental::imports::lapack::MachineBase<double>()
+{
+    const char cmach = 'B';
+    return LAPACK(dlamch)( &cmach );
+}
+
+template<> float 
+elemental::imports::lapack::MachinePrecision<float>()
+{
+    const char cmach = 'P';
+    return LAPACK(slamch)( &cmach );
+}
+
+template<> double 
+elemental::imports::lapack::MachinePrecision<double>()
+{
+    const char cmach = 'P';
+    return LAPACK(dlamch)( &cmach );
+}
+
+template<> float 
+elemental::imports::lapack::MachineUnderflowExponent<float>()
+{
+    const char cmach = 'M';
+    return LAPACK(slamch)( &cmach );
+}
+
+template<> double 
+elemental::imports::lapack::MachineUnderflowExponent<double>()
+{
+    const char cmach = 'M';
+    return LAPACK(dlamch)( &cmach );
+}
+
+template<> float 
+elemental::imports::lapack::MachineUnderflowThreshold<float>()
+{
+    const char cmach = 'U';
+    return LAPACK(slamch)( &cmach );
+}
+
+template<> double 
+elemental::imports::lapack::MachineUnderflowThreshold<double>()
+{
+    const char cmach = 'U';
+    return LAPACK(dlamch)( &cmach );
+}
+
+template<> float 
+elemental::imports::lapack::MachineOverflowExponent<float>()
+{
+    const char cmach = 'L';
+    return LAPACK(slamch)( &cmach );
+}
+
+template<> double 
+elemental::imports::lapack::MachineOverflowExponent<double>()
+{
+    const char cmach = 'L';
+    return LAPACK(dlamch)( &cmach );
+}
+
+template<> float 
+elemental::imports::lapack::MachineOverflowThreshold<float>()
+{
+    const char cmach = 'O';
+    return LAPACK(slamch)( &cmach );
+}
+
+template<> double 
+elemental::imports::lapack::MachineOverflowThreshold<double>()
+{
+    const char cmach = 'O';
+    return LAPACK(dlamch)( &cmach );
+}
+
 void
 elemental::imports::lapack::Chol
 ( char uplo, int n, const float* A, int lda )

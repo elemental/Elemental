@@ -246,7 +246,6 @@ RealToComplexInPlaceRedist
 #endif // WITHOUT_COMPLEX
 } // anonymous namespace
 
-
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs of the real, symmetric matrix A            //
 //----------------------------------------------------------------------------//
@@ -303,6 +302,27 @@ elemental::advanced::HermitianEig
     {
         w.Align( 0 );
         w.ResizeTo( 1, k );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -427,6 +447,10 @@ elemental::advanced::HermitianEig
     advanced::UT
     ( Left, shape, ConjugateTranspose, subdiagonal, A, paddedZ );
 
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w );
+
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -491,6 +515,27 @@ elemental::advanced::HermitianEig
     {
         w.Align( 0 );
         w.ResizeTo( 1, k );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -615,6 +660,10 @@ elemental::advanced::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() );
     advanced::UT
     ( Left, shape, ConjugateTranspose, subdiagonal, A, paddedZ );
+
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -672,6 +721,27 @@ elemental::advanced::HermitianEig
     else
     {
         w.Align( 0 );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -838,6 +908,9 @@ elemental::advanced::HermitianEig
     advanced::UT
     ( Left, shape, ConjugateTranspose, subdiagonal, A, paddedZ );
 
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -878,6 +951,27 @@ elemental::advanced::HermitianEig
     {
         w.Align( 0 );
         w.ResizeTo( 1, k );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -938,6 +1032,10 @@ elemental::advanced::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
     }
+
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -981,6 +1079,27 @@ elemental::advanced::HermitianEig
     {
         w.Align( 0 );
         w.ResizeTo( 1, k );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -1042,6 +1161,10 @@ elemental::advanced::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
     }
+
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1081,6 +1204,27 @@ elemental::advanced::HermitianEig
     else
     {
         w.Align( 0 );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -1147,6 +1291,10 @@ elemental::advanced::HermitianEig
         for( int j=0; j<nz; ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
     }
+
+    // Rescale the eigenvalues if necessary
+    if( neededScaling ) 
+        basic::Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1209,6 +1357,27 @@ elemental::advanced::HermitianEig
     {
         w.Align( 0 );
         w.ResizeTo( 1, k );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -1334,6 +1503,9 @@ elemental::advanced::HermitianEig
     advanced::UT
     ( Left, shape, ConjugateTranspose, subdiagonal, A, t, paddedZ );
 
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1398,6 +1570,27 @@ elemental::advanced::HermitianEig
     {
         w.Align( 0 );
         w.ResizeTo( 1, k );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -1524,6 +1717,9 @@ elemental::advanced::HermitianEig
     advanced::UT
     ( Left, shape, ConjugateTranspose, subdiagonal, A, t, paddedZ );
 
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1581,6 +1777,27 @@ elemental::advanced::HermitianEig
     else
     {
         w.Align( 0 );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -1748,6 +1965,9 @@ elemental::advanced::HermitianEig
     advanced::UT
     ( Left, shape, ConjugateTranspose, subdiagonal, A, t, paddedZ );
 
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1788,6 +2008,27 @@ elemental::advanced::HermitianEig
     {
         w.Align( 0 );
         w.ResizeTo( 1, k );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -1849,6 +2090,10 @@ elemental::advanced::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
     }
+
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1892,6 +2137,27 @@ elemental::advanced::HermitianEig
     {
         w.Align( 0 );
         w.ResizeTo( 1, k );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -1954,6 +2220,10 @@ elemental::advanced::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
     }
+
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w ); 
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1993,6 +2263,27 @@ elemental::advanced::HermitianEig
     else
     {
         w.Align( 0 );
+    }
+
+    // Check if we need to scale the matrix, and do so if necessary
+    double scale = 1;
+    bool neededScaling = false;
+    const double maxNormOfA = advanced::HermitianMaxNorm( shape, A );
+    const double underflowThreshold = 
+        imports::lapack::MachineUnderflowThreshold<double>();
+    const double overflowThreshold = 
+        imports::lapack::MachineOverflowThreshold<double>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        neededScaling = true;
+        scale = underflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        neededScaling = true;
+        scale = overflowThreshold / maxNormOfA;
+        A.ScaleTrapezoidal( scale, Left, shape, 0 );
     }
 
     // Tridiagonalize A
@@ -2060,6 +2351,10 @@ elemental::advanced::HermitianEig
         for( int j=0; j<w.LocalWidth(); ++j )
             w.SetLocalEntry(0,j,wBuffer[j]);
     }
+
+    // Rescale the eigenvalues if necessary
+    if( neededScaling )
+        basic::Scal( 1/scale, w ); 
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -36,7 +36,6 @@
 #ifndef WITHOUT_COMPLEX
 #include <complex>
 #endif
-#include <limits>
 #include <string>
 
 namespace elemental {

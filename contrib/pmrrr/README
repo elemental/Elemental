@@ -1,8 +1,3 @@
-Notice: The PMRRR Fortran dependencies were stripped out by Jack Poulson in 
-        order to ease integration with Elemental. The old Makefiles and 
-        examples were therefore removed because they would no longer 
-        function properly.
-
 These files provide the routine 'pmrrr'. Its purpose is to compute all 
 or a subset of eigenvalues and optionally eigenvectors of a symmetric 
 tridiagonal matrix. 'pmrrr' is based on the algorithm of Multiple 
@@ -11,19 +6,6 @@ hybrid architectures consisting of multiple SMP nodes. It also runs in
 fully distributed mode, with each node having only one processor, and 
 fully SMP mode, in which case no message passing is required. The 
 implementation is based on LAPACK's routine 'dstemr'.
-
-
-Building the archive libpmrrr.a:
---------------------------------
-1) In the folder INSTALL, depending on the compiler used, 
-   replace the file 'make.inc' (which assumes GNU gcc) 
-   with the corresponding file. 
-   For example if you want to use Intel's compilers: 
-   $cp ./INSTALL/make.inc.intel ./make.inc
-   If you do not find a file matching your compiler, then use any of 
-   the files as a basis to edit.
-2) Edit the file 'make.inc' according to your system.
-3) Run make.
 
 
 Using libmrrr.a:

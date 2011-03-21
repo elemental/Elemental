@@ -32,9 +32,6 @@
  * Coded by Matthias Petschow (petschow@aices.rwth-aachen.de),
  * August 2010, Version 0.6
  *
- * BLAS/LAPACK macros added by Jack Poulson (jack.poulson@gmail.com),
- * December 2010
- *
  * This code was the result of a collaboration between 
  * Matthias Petschow and Paolo Bientinesi. When you use this 
  * code, kindly reference a paper related to this work.
@@ -172,17 +169,42 @@ int pmrrr(char *jobz, char *range, int *n, double  *D,
  */
 
 
+/* Set the number of threads in case PMR_NUM_THREADS is not 
+ * specified */
+#define DEFAULT_NUM_THREADS 4
 
-#define DEFAULT_NUM_THREADS 4   /* ifndef PMR_NUM_THREADS          */
-#define MAX_GROWTH         64.0 /* Dmax<MAX_GROWTH*spdiam=>rrr OK  */
-#define MAX_TRY_RRRR       10   /* max. # of trys to get root rrr  */
-#define FUDGE_FACTOR        2.0 /* fudge of shift, to get root rrr */
-#define RAND_FACTOR         8.0 /* pert. by (1 + eps*FACTOR*rand)  */
-#define MIN_RELGAP       1e-3   /* min. relative gap               */
-#define TRY_RQC          true   /* try Rayleigh Quotient Iteration */
-#define MAXITER            10   /* min. relative gap               */
-#define DSTEMR_IF_SMALLER   4   /* call dstemr if n smaller; >= 4  */
+/* Call LAPACK's dstemr in every process to compute all desiered 
+ * eigenpairs redundantly (and discard the once that would usually 
+ * not be computed by the process) if n < DSTEMR_IF_SMALLER; 
+ * default: 4 */ 
+#define DSTEMR_IF_SMALLER   4
 
+/* Make sure that eigenpairs are sorted globally; if set to false
+ * they are in most cases sorted, but it is not double checked and 
+ * can therefore not be guaranteed; default: true */
+#define ASSERT_SORTED_EIGENPAIRS true
+
+/* Set flag if Rayleigh Quotient Correction should be used, 
+ * which is usually faster; default: true */
+#define TRY_RQC          true
+
+/* Maximum numver of iterations of inverse iteration;
+ * default: 10 */
+#define MAXITER            10
+
+/* Set the min. relative gap for an eigenvalue to be considered 
+ * well separated, that is a singleton; this is a very important 
+ * parameter of the computation; default: 10e-3 */
+#define MIN_RELGAP       1e-3
+
+/* Set the maximal allowed element growth for being accepted as 
+ * an RRR, that is if max. pivot < MAX_GROWTH * 'spectral diameter'
+ * the RRR is accepted; default: 64.0 */
+#define MAX_GROWTH         64.0
+
+/* Set how many iterations should be executed to find the root 
+ * representation; default: 6 */
+#define MAX_TRY_RRRR       10
 
 
 /*
@@ -219,6 +241,25 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
  *
  */
 
+/* BLAS function prototypes
+ * 
+ * These macros were added by Jack Poulson for easing integration into 
+ * Elemental */
+#if defined(BLAS_POST)
+# if defined(PREPEND_X)
+#  define BLAS(name) x ## name ## _
+# else
+#  define BLAS(name) name ## _
+# endif
+#else
+# if defined(PREPEND_X)
+#  define BLAS(name) x ## name
+# else
+#  define BLAS(name) name
+# endif
+#endif
+void pmrrr_dscal(int*, double*, double*, int*);
+void BLAS(dscal)(int*, double*, double*, int*);
 
 /* LAPACK function prototypes
  * Note: type specifier 'extern' does not matter in declaration
@@ -239,65 +280,54 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
 #  define LAPACK(name) name
 # endif
 #endif
-extern double LAPACK(dlamch)(char*);
-extern double LAPACK(dlanst)(char*, int*, double*, double*);
-extern void   LAPACK(dlarrr)(int*, double*, double*, int*);
-extern void   LAPACK(dlarra)(int*, double*, double*, double*, double*, 
-		      double*, int*, int*, int*);
-extern void   LAPACK(dlarrc)(char*, int*, double*, double*, double*, double*,
-		      double*, int*, int*, int*, int*);
-extern void   LAPACK(dlarrd)(char*, char*, int*, double*, double*, int*, 
-		      int*, double*, double*, double*, double*, 
-		      double*, double*, int*, int*, int*, double*, 
-		      double*, double*, double*, int*, int*, double*, 
-		      int*, int*);
-extern void   LAPACK(dlarrb)(int*, double*, double*, int*, int*, double*,
-		      double*, int*, double*, double*, double*, double*,
-		      int*, double*, double*, int*, int*);
-extern void   LAPACK(dlarrk)(int*, int*, double*, double*, double*, double*,
-		      double*, double*, double*, double*, int*);
-extern void   LAPACK(dlaebz)(int*, int*, int*, int*, int*, int*, double*, 
-		      double*, double*, double*, double*, double*,
-		      int*, double*, double*, int*, int*, double*,
-		      int*, int*);
-extern void   LAPACK(dlarnv)(int*, int*, int*, double*);
-extern void   LAPACK(dlarrf)(int*, double*, double*, double*, int*, int*, 
-		      double*, double*, double*, double*, double*, 
-		      double*, double*, double*, double*, double*, 
-		      double*, int*);
-extern void   LAPACK(dlar1v)(int*, int*, int*, double*, double*, double*, 
-		      double*, double*, double*, double*, double*, 
-		      bool*, int*, double*, double*, int*, int*, 
-		      double*, double*, double*, double*);
-extern void   LAPACK(dlarrj)(int*, double*, double*, int*, int*, double*, 
-		      int*, double*, double*, double*, int*, double*, 
-		      double*, int*);
-extern void   LAPACK(dstemr)(char*, char*, int*, double*, double*, double*, 
-		      double*, int*, int*, int*, double*, double*, 
-		      int*, int*, int*, int*, double*, int*, int*, 
-		      int*, int*);
+double LAPACK(dlamch)(char*);
 
+double LAPACK(dlanst)(char*, int*, double*, double*);
 
-/* BLAS function prototypes - renamed version for prevending
- * use of multithreaded version 
-* 
- * The macros for determining underscore convention were added by 
- * Jack Poulson to ease integration into Elemental */
-#if defined(BLAS_POST)
-# if defined(PREPEND_X)
-#  define BLAS(name) x ## name ## _
-# else
-#  define BLAS(name) name ## _
-# endif
-#else
-# if defined(PREPEND_X)
-#  define BLAS(name) x ## name
-# else
-#  define BLAS(name) name
-# endif
-#endif
+void LAPACK(dlarrr)(int*, double*, double*, int*);
 
-void odscal(int*, double*, double*, int*);
-extern void BLAS(dscal)(int*, double*, double*, int*);
+void LAPACK(dlarra)
+(int*, double*, double*, double*, double*,double*, int*, int*, int*);
+
+void LAPACK(dlarrc)
+(char*, int*, double*, double*, double*, double*, double*, int*, int*, int*,
+ int*);
+
+void LAPACK(dlarrd)
+(char*, char*, int*, double*, double*, int*, int*, double*, double*, double*,
+ double*, double*, double*, int*, int*, int*, double*, double*, double*, 
+ double*, int*, int*, double*, int*, int*);
+
+void LAPACK(dlarrb)
+(int*, double*, double*, int*, int*, double*, double*, int*, double*, double*,
+ double*, double*, int*, double*, double*, int*, int*);
+
+void LAPACK(dlarrk)
+(int*, int*, double*, double*, double*, double*, double*, double*, double*, 
+ double*, int*);
+
+void LAPACK(dlaebz)
+(int*, int*, int*, int*, int*, int*, double*, double*, double*, double*, 
+ double*, double*, int*, double*, double*, int*, int*, double*, int*, int*);
+
+void LAPACK(dlarnv)(int*, int*, int*, double*);
+
+void LAPACK(dlarrf)
+(int*, double*, double*, double*, int*, int*, double*, double*, double*, 
+ double*, double*, double*, double*, double*, double*, double*, double*, 
+ int*);
+
+void LAPACK(dlar1v)
+(int*, int*, int*, double*, double*, double*, double*, double*, double*, 
+ double*, double*, bool*, int*, double*, double*, int*, int*, double*, 
+ double*, double*, double*);
+
+void LAPACK(dlarrj)
+(int*, double*, double*, int*, int*, double*, int*, double*, double*, double*,
+ int*, double*, double*, int*);
+
+void LAPACK(dstemr)
+(char*, char*, int*, double*, double*, double*, double*, int*, int*, int*, 
+ double*, double*, int*, int*, int*, int*, double*, int*, int*, int*, int*);
 
 #endif /* End of header file */

@@ -36,133 +36,125 @@ using namespace elemental::imports;
 
 template<typename R> // representation of a real number
 R
-advanced::FrobeniusNorm( const Matrix<R>& A )
+advanced::MaxNorm( const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::FrobeniusNorm");
+    PushCallStack("advanced::MaxNorm");
 #endif
-    R normSquared = 0;
+    R maxAbs = 0;
     for( int j=0; j<A.Width(); ++j )
     {
         for( int i=0; i<A.Height(); ++i )
         {
-            const R alpha = A.Get(i,j);
-            normSquared += alpha*alpha;
+            const R thisAbs = Abs(A.Get(i,j));
+            maxAbs = std::max( maxAbs, thisAbs );
         }
     }
-    R norm = sqrt(normSquared);
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return norm;
+    return maxAbs;
 }
 
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::FrobeniusNorm( const Matrix< std::complex<R> >& A )
+advanced::MaxNorm( const Matrix< std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::FrobeniusNorm");
+    PushCallStack("advanced::MaxNorm");
 #endif
-    R normSquared = 0;
+    R maxAbs = 0;
     for( int j=0; j<A.Width(); ++j )
     {
         for( int i=0; i<A.Height(); ++i )
         {
-            const std::complex<R> alpha = A.Get(i,j);
-            // The std::norm function is a field norm rather than a vector norm.
-            normSquared += norm(alpha);
+            const R thisAbs = Abs(A.Get(i,j));
+            maxAbs = std::max( maxAbs, thisAbs );
         }
     }
-    R norm = sqrt(normSquared);
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return norm;
+    return maxAbs;
 }
 #endif
 
 template<typename R> // representation of a real number
 R
-advanced::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
+advanced::MaxNorm( const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::FrobeniusNorm");
+    PushCallStack("advanced::MaxNorm");
 #endif
-    R localNormSquared = 0;
+    R localMaxAbs = 0;
     for( int j=0; j<A.LocalWidth(); ++j )
     {
         for( int i=0; i<A.LocalHeight(); ++i )
         {
-            const R alpha = A.GetLocalEntry(i,j);
-            localNormSquared += alpha*alpha;
+            const R thisAbs = Abs(A.GetLocalEntry(i,j));
+            localMaxAbs = std::max( localMaxAbs, thisAbs );
         }
     }
 
-    // The norm squared is simply the sum of the local contributions
-    R normSquared;
+    R maxAbs;
     mpi::AllReduce
-    ( &localNormSquared, &normSquared, 1, mpi::SUM, A.Grid().VCComm() );
+    ( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
 
-    R norm = sqrt(normSquared);
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return norm;
+    return maxAbs;
 }
 
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::FrobeniusNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
+advanced::MaxNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::FrobeniusNorm");
+    PushCallStack("advanced::MaxNorm");
 #endif
-    R localNormSquared = 0;
+    R localMaxAbs = 0;
     for( int j=0; j<A.LocalWidth(); ++j )
     {
         for( int i=0; i<A.LocalHeight(); ++i )
         {
-            const std::complex<R> alpha = A.GetLocalEntry(i,j);
-            // The std::norm function is a field norm rather than a vector norm.
-            localNormSquared += norm(alpha);
+            const R thisAbs = Abs(A.GetLocalEntry(i,j));
+            localMaxAbs = std::max( localMaxAbs, thisAbs );
         }
     }
 
-    // The norm squared is simply the sum of the local contributions
-    R normSquared;
+    R maxAbs;
     mpi::AllReduce
-    ( &localNormSquared, &normSquared, 1, mpi::SUM, A.Grid().VCComm() );
+    ( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
 
-    R norm = sqrt(normSquared);
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return norm;
+    return maxAbs;
 }
 #endif
 
-template float elemental::advanced::FrobeniusNorm
+template float elemental::advanced::MaxNorm
 ( const Matrix<float>& A );
-template double elemental::advanced::FrobeniusNorm
+template double elemental::advanced::MaxNorm
 ( const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::FrobeniusNorm
+template float elemental::advanced::MaxNorm
 ( const Matrix< std::complex<float> >& A );
-template double elemental::advanced::FrobeniusNorm
+template double elemental::advanced::MaxNorm
 ( const Matrix< std::complex<double> >& A );
 #endif
 
-template float elemental::advanced::FrobeniusNorm
+template float elemental::advanced::MaxNorm
 ( const DistMatrix<float,MC,MR>& A );
-template double elemental::advanced::FrobeniusNorm
+template double elemental::advanced::MaxNorm
 ( const DistMatrix<double,MC,MR>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::FrobeniusNorm
+template float elemental::advanced::MaxNorm
 ( const DistMatrix<std::complex<float>,MC,MR>& A );
-template double elemental::advanced::FrobeniusNorm
+template double elemental::advanced::MaxNorm
 ( const DistMatrix<std::complex<double>,MC,MR>& A );
 #endif
 

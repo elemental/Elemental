@@ -55,5 +55,12 @@
 int plarre(proc_t *procinfo, char *jobz, char *range, in_t *Dstruct, 
 	   val_t *Wstruct, tol_t *tolstruct, int *nzp, int *myfirstp);
 
+/* Perturb the initial root representation by "1 + eps*RAND_FACTOR*rand"; 
+ * default: 8.0 */ 
+#define RAND_FACTOR         8.0 
+
+/* Fudge of shift, to get root rrr; default: 2.0 */
+#define FUDGE_FACTOR        2.0 
+
 #endif
 

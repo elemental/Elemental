@@ -88,7 +88,8 @@ elemental::advanced::internal::RowReflector
     else
         beta = -imports::lapack::SafeNorm( alpha, norm );
 
-    R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
+    const R safeMin = imports::lapack::MachineSafeMin<R>() /
+                      imports::lapack::MachineEpsilon<R>();
     int count = 0;
     if( Abs( beta ) < safeMin )
     {
@@ -175,7 +176,8 @@ elemental::advanced::internal::RowReflector
     else
         beta = -imports::lapack::SafeNorm( real(alpha), imag(alpha), norm );
 
-    R safeMin = numeric_limits<R>::min() / numeric_limits<R>::epsilon();
+    const R safeMin = imports::lapack::MachineSafeMin<R>() /
+                      imports::lapack::MachineEpsilon<R>();
     int count = 0;
     if( Abs( beta ) < safeMin )
     {
