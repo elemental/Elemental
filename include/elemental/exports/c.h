@@ -38,6 +38,12 @@
 /* Make sure that all of our configuration definitions are pulled in */
 #include "elemental/config.h"
 
+/*
+ * NOTE: The C interfaces to Elemental are still just experimental and contain 
+ *       only a minimal subset of routines necessary to run a few of the library
+ *       routines, like the eigensolvers.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -150,7 +156,7 @@ MC_MR_Double CreateEmpty_MC_MR_Double( Grid g );
 MC_MR_SComplex CreateEmpty_MC_MR_SComplex( Grid g );
 MC_MR_DComplex CreateEmpty_MC_MR_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 MC_MR_Single Register_MC_MR_Single
 ( int height, int width, int colAlignment, int rowAlignment, 
   float* buffer, int ldim, Grid g );
@@ -164,6 +170,17 @@ MC_MR_SComplex Register_MC_MR_SComplex
 MC_MR_DComplex Register_MC_MR_DComplex
 ( int height, int width, int colAlignment, int rowAlignment,
   DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the row/col alignments */
+int ColAlignment_MC_MR_Single( MC_MR_Single A );
+int RowAlignment_MC_MR_Single( MC_MR_Single A );
+int ColAlignment_MC_MR_Double( MC_MR_Double A );
+int RowAlignment_MC_MR_Double( MC_MR_Double A );
+#ifndef WITHOUT_COMPLEX
+int ColAlignment_MC_MR_SComplex( MC_MR_SComplex A );
+int RowAlignment_MC_MR_SComplex( MC_MR_SComplex A );
+int ColAlignment_MC_MR_DComplex( MC_MR_DComplex A );
+int RowAlignment_MC_MR_DComplex( MC_MR_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_MC_MR_Single( char* msg, MC_MR_Single A );
@@ -183,7 +200,7 @@ MC_Star_Double CreateEmpty_MC_Star_Double( Grid g );
 MC_Star_SComplex CreateEmpty_MC_Star_SComplex( Grid g );
 MC_Star_DComplex CreateEmpty_MC_Star_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 MC_Star_Single Register_MC_Star_Single
 ( int height, int width, int colAlignment, float* buffer, int ldim, Grid g );
 MC_Star_Double Register_MC_Star_Double
@@ -193,6 +210,13 @@ MC_Star_SComplex Register_MC_Star_SComplex
 ( int height, int width, int colAlignment, SComplex* buffer, int ldim, Grid g );
 MC_Star_DComplex Register_MC_Star_DComplex
 ( int height, int width, int colAlignment, DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the col alignments */
+int ColAlignment_MC_Star_Single( MC_Star_Single A );
+int ColAlignment_MC_Star_Double( MC_Star_Double A );
+#ifndef WITHOUT_COMPLEX
+int ColAlignment_MC_Star_SComplex( MC_Star_SComplex A );
+int ColAlignment_MC_Star_DComplex( MC_Star_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_MC_Star_Single( char* msg, MC_Star_Single A );
@@ -212,7 +236,7 @@ MD_Star_Double CreateEmpty_MD_Star_Double( Grid g );
 MD_Star_SComplex CreateEmpty_MD_Star_SComplex( Grid g );
 MD_Star_DComplex CreateEmpty_MD_Star_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 MD_Star_Single Register_MD_Star_Single
 ( int height, int width, int colAlignment, float* buffer, int ldim, Grid g );
 MD_Star_Double Register_MD_Star_Double
@@ -222,6 +246,13 @@ MD_Star_SComplex Register_MD_Star_SComplex
 ( int height, int width, int colAlignment, SComplex* buffer, int ldim, Grid g );
 MD_Star_DComplex Register_MD_Star_DComplex
 ( int height, int width, int colAlignment, DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the col alignments */
+int ColAlignment_MD_Star_Single( MD_Star_Single A );
+int ColAlignment_MD_Star_Double( MD_Star_Double A );
+#ifndef WITHOUT_COMPLEX
+int ColAlignment_MD_Star_SComplex( MD_Star_SComplex A );
+int ColAlignment_MD_Star_DComplex( MD_Star_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_MD_Star_Single( char* msg, MD_Star_Single A );
@@ -241,7 +272,7 @@ MR_MC_Double CreateEmpty_MR_MC_Double( Grid g );
 MR_MC_SComplex CreateEmpty_MR_MC_SComplex( Grid g );
 MR_MC_DComplex CreateEmpty_MR_MC_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 MR_MC_Single Register_MR_MC_Single
 ( int height, int width, int colAlignment, int rowAlignment, 
   float* buffer, int ldim, Grid g );
@@ -255,6 +286,17 @@ MR_MC_SComplex Register_MR_MC_SComplex
 MR_MC_DComplex Register_MR_MC_DComplex
 ( int height, int width, int colAlignment, int rowAlignment,
   DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the row/col alignments */
+int ColAlignment_MR_MC_Single( MR_MC_Single A );
+int RowAlignment_MR_MC_Single( MR_MC_Single A );
+int ColAlignment_MR_MC_Double( MR_MC_Double A );
+int RowAlignment_MR_MC_Double( MR_MC_Double A );
+#ifndef WITHOUT_COMPLEX
+int ColAlignment_MR_MC_SComplex( MR_MC_SComplex A );
+int RowAlignment_MR_MC_SComplex( MR_MC_SComplex A );
+int ColAlignment_MR_MC_DComplex( MR_MC_DComplex A );
+int RowAlignment_MR_MC_DComplex( MR_MC_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_MR_MC_Single( char* msg, MR_MC_Single A );
@@ -274,7 +316,7 @@ MR_Star_Double CreateEmpty_MR_Star_Double( Grid g );
 MR_Star_SComplex CreateEmpty_MR_Star_SComplex( Grid g );
 MR_Star_DComplex CreateEmpty_MR_Star_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 MR_Star_Single Register_MR_Star_Single
 ( int height, int width, int colAlignment, float* buffer, int ldim, Grid g );
 MR_Star_Double Register_MR_Star_Double
@@ -284,6 +326,13 @@ MR_Star_SComplex Register_MR_Star_SComplex
 ( int height, int width, int colAlignment, SComplex* buffer, int ldim, Grid g );
 MR_Star_DComplex Register_MR_Star_DComplex
 ( int height, int width, int colAlignment, DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the col alignments */
+int ColAlignment_MR_Star_Single( MR_Star_Single A );
+int ColAlignment_MR_Star_Double( MR_Star_Double A );
+#ifndef WITHOUT_COMPLEX
+int ColAlignment_MR_Star_SComplex( MR_Star_SComplex A );
+int ColAlignment_MR_Star_DComplex( MR_Star_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_MR_Star_Single( char* msg, MR_Star_Single A );
@@ -303,7 +352,7 @@ Star_MC_Double CreateEmpty_Star_MC_Double( Grid g );
 Star_MC_SComplex CreateEmpty_Star_MC_SComplex( Grid g );
 Star_MC_DComplex CreateEmpty_Star_MC_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 Star_MC_Single Register_Star_MC_Single
 ( int height, int width, int rowAlignment, float* buffer, int ldim, Grid g );
 Star_MC_Double Register_Star_MC_Double
@@ -313,6 +362,13 @@ Star_MC_SComplex Register_Star_MC_SComplex
 ( int height, int width, int rowAlignment, SComplex* buffer, int ldim, Grid g );
 Star_MC_DComplex Register_Star_MC_DComplex
 ( int height, int width, int rowAlignment, DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the row alignments */
+int RowAlignment_Star_MC_Single( Star_MC_Single A );
+int RowAlignment_Star_MC_Double( Star_MC_Double A );
+#ifndef WITHOUT_COMPLEX
+int RowAlignment_Star_MC_SComplex( Star_MC_SComplex A );
+int RowAlignment_Star_MC_DComplex( Star_MC_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_Star_MC_Single( char* msg, Star_MC_Single A );
@@ -332,7 +388,7 @@ Star_MD_Double CreateEmpty_Star_MD_Double( Grid g );
 Star_MD_SComplex CreateEmpty_Star_MD_SComplex( Grid g );
 Star_MD_DComplex CreateEmpty_Star_MD_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 Star_MD_Single Register_Star_MD_Single
 ( int height, int width, int rowAlignment, float* buffer, int ldim, Grid g );
 Star_MD_Double Register_Star_MD_Double
@@ -342,6 +398,13 @@ Star_MD_SComplex Register_Star_MD_SComplex
 ( int height, int width, int rowAlignment, SComplex* buffer, int ldim, Grid g );
 Star_MD_DComplex Register_Star_MD_DComplex
 ( int height, int width, int rowAlignment, DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the row alignments */
+int RowAlignment_Star_MD_Single( Star_MD_Single A );
+int RowAlignment_Star_MD_Double( Star_MD_Double A );
+#ifndef WITHOUT_COMPLEX
+int RowAlignment_Star_MD_SComplex( Star_MD_SComplex A );
+int RowAlignment_Star_MD_DComplex( Star_MD_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_Star_MD_Single( char* msg, Star_MD_Single A );
@@ -361,7 +424,7 @@ Star_MR_Double CreateEmpty_Star_MR_Double( Grid g );
 Star_MR_SComplex CreateEmpty_Star_MR_SComplex( Grid g );
 Star_MR_DComplex CreateEmpty_Star_MR_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 Star_MR_Single Register_Star_MR_Single
 ( int height, int width, int rowAlignment, float* buffer, int ldim, Grid g );
 Star_MR_Double Register_Star_MR_Double
@@ -371,6 +434,13 @@ Star_MR_SComplex Register_Star_MR_SComplex
 ( int height, int width, int rowAlignment, SComplex* buffer, int ldim, Grid g );
 Star_MR_DComplex Register_Star_MR_DComplex
 ( int height, int width, int rowAlignment, DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the row alignments */
+int RowAlignment_Star_MR_Single( Star_MR_Single A );
+int RowAlignment_Star_MR_Double( Star_MR_Double A );
+#ifndef WITHOUT_COMPLEX
+int RowAlignment_Star_MR_SComplex( Star_MR_SComplex A );
+int RowAlignment_Star_MR_DComplex( Star_MR_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_Star_MR_Single( char* msg, Star_MR_Single A );
@@ -390,7 +460,7 @@ Star_Star_Double CreateEmpty_Star_Star_Double( Grid g );
 Star_Star_SComplex CreateEmpty_Star_Star_SComplex( Grid g );
 Star_Star_DComplex CreateEmpty_Star_Star_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 Star_Star_Single Register_Star_Star_Single
 ( int height, int width, float* buffer, int ldim, Grid g );
 Star_Star_Double Register_Star_Star_Double
@@ -419,7 +489,7 @@ Star_VC_Double CreateEmpty_Star_VC_Double( Grid g );
 Star_VC_SComplex CreateEmpty_Star_VC_SComplex( Grid g );
 Star_VC_DComplex CreateEmpty_Star_VC_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 Star_VC_Single Register_Star_VC_Single
 ( int height, int width, int rowAlignment, float* buffer, int ldim, Grid g );
 Star_VC_Double Register_Star_VC_Double
@@ -429,6 +499,13 @@ Star_VC_SComplex Register_Star_VC_SComplex
 ( int height, int width, int rowAlignment, SComplex* buffer, int ldim, Grid g );
 Star_VC_DComplex Register_Star_VC_DComplex
 ( int height, int width, int rowAlignment, DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the row alignments */
+int RowAlignment_Star_VC_Single( Star_VC_Single A );
+int RowAlignment_Star_VC_Double( Star_VC_Double A );
+#ifndef WITHOUT_COMPLEX
+int RowAlignment_Star_VC_SComplex( Star_VC_SComplex A );
+int RowAlignment_Star_VC_DComplex( Star_VC_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_Star_VC_Single( char* msg, Star_VC_Single A );
@@ -448,7 +525,7 @@ Star_VR_Double CreateEmpty_Star_VR_Double( Grid g );
 Star_VR_SComplex CreateEmpty_Star_VR_SComplex( Grid g );
 Star_VR_DComplex CreateEmpty_Star_VR_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 Star_VR_Single Register_Star_VR_Single
 ( int height, int width, int rowAlignment, float* buffer, int ldim, Grid g );
 Star_VR_Double Register_Star_VR_Double
@@ -458,6 +535,13 @@ Star_VR_SComplex Register_Star_VR_SComplex
 ( int height, int width, int rowAlignment, SComplex* buffer, int ldim, Grid g );
 Star_VR_DComplex Register_Star_VR_DComplex
 ( int height, int width, int rowAlignment, DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the row alignments */
+int RowAlignment_Star_VR_Single( Star_VR_Single A );
+int RowAlignment_Star_VR_Double( Star_VR_Double A );
+#ifndef WITHOUT_COMPLEX
+int RowAlignment_Star_VR_SComplex( Star_VR_SComplex A );
+int RowAlignment_Star_VR_DComplex( Star_VR_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_Star_VR_Single( char* msg, Star_VR_Single A );
@@ -477,7 +561,7 @@ VC_Star_Double CreateEmpty_VC_Star_Double( Grid g );
 VC_Star_SComplex CreateEmpty_VC_Star_SComplex( Grid g );
 VC_Star_DComplex CreateEmpty_VC_Star_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 VC_Star_Single Register_VC_Star_Single
 ( int height, int width, int colAlignment, float* buffer, int ldim, Grid g );
 VC_Star_Double Register_VC_Star_Double
@@ -487,6 +571,13 @@ VC_Star_SComplex Register_VC_Star_SComplex
 ( int height, int width, int colAlignment, SComplex* buffer, int ldim, Grid g );
 VC_Star_DComplex Register_VC_Star_DComplex
 ( int height, int width, int colAlignment, DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the col alignments */
+int ColAlignment_VC_Star_Single( VC_Star_Single A );
+int ColAlignment_VC_Star_Double( VC_Star_Double A );
+#ifndef WITHOUT_COMPLEX
+int ColAlignment_VC_Star_SComplex( VC_Star_SComplex A );
+int ColAlignment_VC_Star_DComplex( VC_Star_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_VC_Star_Single( char* msg, VC_Star_Single A );
@@ -506,7 +597,7 @@ VR_Star_Double CreateEmpty_VR_Star_Double( Grid g );
 VR_Star_SComplex CreateEmpty_VR_Star_SComplex( Grid g );
 VR_Star_DComplex CreateEmpty_VR_Star_DComplex( Grid g );
 #endif /* WITHOUT_COMPLEX */
-/* Create from exiting buffer */
+/* Create from existing buffer */
 VR_Star_Single Register_VR_Star_Single
 ( int height, int width, int colAlignment, float* buffer, int ldim, Grid g );
 VR_Star_Double Register_VR_Star_Double
@@ -516,6 +607,13 @@ VR_Star_SComplex Register_VR_Star_SComplex
 ( int height, int width, int colAlignment, SComplex* buffer, int ldim, Grid g );
 VR_Star_DComplex Register_VR_Star_DComplex
 ( int height, int width, int colAlignment, DComplex* buffer, int ldim, Grid g );
+#endif /* WITHOUT_COMPLEX */
+/* Return the col alignments */
+int ColAlignment_VR_Star_Single( VR_Star_Single A );
+int ColAlignment_VR_Star_Double( VR_Star_Double A );
+#ifndef WITHOUT_COMPLEX
+int ColAlignment_VR_Star_SComplex( VR_Star_SComplex A );
+int ColAlignment_VR_Star_DComplex( VR_Star_DComplex A );
 #endif /* WITHOUT_COMPLEX */
 /* Print */
 void Print_VR_Star_Single( char* msg, VR_Star_Single A );

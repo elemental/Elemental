@@ -99,7 +99,7 @@ std::vector<DistMatrix<dcomplex,VC,  Star>*> VC_Star_DComplexList;
 std::vector<DistMatrix<scomplex,VR,  Star>*> VR_Star_SComplexList;
 std::vector<DistMatrix<dcomplex,VR,  Star>*> VR_Star_DComplexList;
 #endif // WITHOUT_COMPLEX
-}
+} // anonymous namespace
 
 #ifndef RELEASE
 #define CATCH(expr) try { expr; } catch( std::exception& e ) \
@@ -119,7 +119,7 @@ std::vector<DistMatrix<dcomplex,VR,  Star>*> VR_Star_DComplexList;
 extern "C" {
 
 void ElementalInit( int* argc, char** argv[] )
-{ elemental::Init( argc, argv ); }
+{ elemental::Init( *argc, *argv ); }
 
 void ElementalFinalize()
 {
@@ -503,6 +503,33 @@ Register_MC_MR_DComplex
     return A;
 }
 #endif // WITHOUT_COMPLEX
+// Get the row/col alignments
+int
+ColAlignment_MC_MR_Single( MC_MR_Single A )
+{ return ::MC_MR_SingleList[A]->ColAlignment(); }
+int
+RowAlignment_MC_MR_Single( MC_MR_Single A )
+{ return ::MC_MR_SingleList[A]->RowAlignment(); }
+int
+ColAlignment_MC_MR_Double( MC_MR_Double A )
+{ return ::MC_MR_DoubleList[A]->ColAlignment(); }
+int
+RowAlignment_MC_MR_Double( MC_MR_Double A )
+{ return ::MC_MR_DoubleList[A]->RowAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+ColAlignment_MC_MR_SComplex( MC_MR_SComplex A )
+{ return ::MC_MR_SComplexList[A]->ColAlignment(); }
+int
+RowAlignment_MC_MR_SComplex( MC_MR_SComplex A )
+{ return ::MC_MR_SComplexList[A]->RowAlignment(); }
+int
+ColAlignment_MC_MR_DComplex( MC_MR_DComplex A )
+{ return ::MC_MR_DComplexList[A]->ColAlignment(); }
+int
+RowAlignment_MC_MR_DComplex( MC_MR_DComplex A )
+{ return ::MC_MR_DComplexList[A]->RowAlignment(); }
+#endif // WITHOUT_COMPLEX
 // Print
 void 
 Print_MC_MR_Single( char* msg, MC_MR_Single A )
@@ -645,6 +672,21 @@ Register_MC_Star_DComplex
     return A;
 }
 #endif // WITHOUT_COMPLEX
+// Get the col alignments
+int
+ColAlignment_MC_Star_Single( MC_Star_Single A )
+{ return ::MC_Star_SingleList[A]->ColAlignment(); }
+int
+ColAlignment_MC_Star_Double( MC_Star_Double A )
+{ return ::MC_Star_DoubleList[A]->ColAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+ColAlignment_MC_Star_SComplex( MC_Star_SComplex A )
+{ return ::MC_Star_SComplexList[A]->ColAlignment(); }
+int
+ColAlignment_MC_Star_DComplex( MC_Star_DComplex A )
+{ return ::MC_Star_DComplexList[A]->ColAlignment(); }
+#endif // WITHOUT_COMPLEX
 // Print
 void 
 Print_MC_Star_Single( char* msg, MC_Star_Single A )
@@ -786,6 +828,21 @@ Register_MD_Star_DComplex
     );
     return A;
 }
+#endif // WITHOUT_COMPLEX
+// Get the col alignments
+int
+ColAlignment_MD_Star_Single( MD_Star_Single A )
+{ return ::MD_Star_SingleList[A]->ColAlignment(); }
+int
+ColAlignment_MD_Star_Double( MD_Star_Double A )
+{ return ::MD_Star_DoubleList[A]->ColAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+ColAlignment_MD_Star_SComplex( MD_Star_SComplex A )
+{ return ::MD_Star_SComplexList[A]->ColAlignment(); }
+int
+ColAlignment_MD_Star_DComplex( MD_Star_DComplex A )
+{ return ::MD_Star_DComplexList[A]->ColAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
@@ -935,6 +992,33 @@ Register_MR_MC_DComplex
     return A;
 }
 #endif // WITHOUT_COMPLEX
+// Get the row/col alignments
+int
+ColAlignment_MR_MC_Single( MR_MC_Single A )
+{ return ::MR_MC_SingleList[A]->ColAlignment(); }
+int
+RowAlignment_MR_MC_Single( MR_MC_Single A )
+{ return ::MR_MC_SingleList[A]->RowAlignment(); }
+int
+ColAlignment_MR_MC_Double( MR_MC_Double A )
+{ return ::MR_MC_DoubleList[A]->ColAlignment(); }
+int
+RowAlignment_MR_MC_Double( MR_MC_Double A )
+{ return ::MR_MC_DoubleList[A]->RowAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+ColAlignment_MR_MC_SComplex( MR_MC_SComplex A )
+{ return ::MR_MC_SComplexList[A]->ColAlignment(); }
+int
+RowAlignment_MR_MC_SComplex( MR_MC_SComplex A )
+{ return ::MR_MC_SComplexList[A]->RowAlignment(); }
+int
+ColAlignment_MR_MC_DComplex( MR_MC_DComplex A )
+{ return ::MR_MC_DComplexList[A]->ColAlignment(); }
+int
+RowAlignment_MR_MC_DComplex( MR_MC_DComplex A )
+{ return ::MR_MC_DComplexList[A]->RowAlignment(); }
+#endif // WITHOUT_COMPLEX
 // Print
 void 
 Print_MR_MC_Single( char* msg, MR_MC_Single A )
@@ -1076,6 +1160,21 @@ Register_MR_Star_DComplex
     );
     return A;
 }
+#endif // WITHOUT_COMPLEX
+// Get the col alignments
+int
+ColAlignment_MR_Star_Single( MR_Star_Single A )
+{ return ::MR_Star_SingleList[A]->ColAlignment(); }
+int
+ColAlignment_MR_Star_Double( MR_Star_Double A )
+{ return ::MR_Star_DoubleList[A]->ColAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+ColAlignment_MR_Star_SComplex( MR_Star_SComplex A )
+{ return ::MR_Star_SComplexList[A]->ColAlignment(); }
+int
+ColAlignment_MR_Star_DComplex( MR_Star_DComplex A )
+{ return ::MR_Star_DComplexList[A]->ColAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
@@ -1219,6 +1318,21 @@ Register_Star_MC_DComplex
     return A;
 }
 #endif // WITHOUT_COMPLEX
+// Get the row alignments
+int
+RowAlignment_Star_MC_Single( Star_MC_Single A )
+{ return ::Star_MC_SingleList[A]->RowAlignment(); }
+int
+RowAlignment_Star_MC_Double( Star_MC_Double A )
+{ return ::Star_MC_DoubleList[A]->RowAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+RowAlignment_Star_MC_SComplex( Star_MC_SComplex A )
+{ return ::Star_MC_SComplexList[A]->RowAlignment(); }
+int
+RowAlignment_Star_MC_DComplex( Star_MC_DComplex A )
+{ return ::Star_MC_DComplexList[A]->RowAlignment(); }
+#endif // WITHOUT_COMPLEX
 // Print
 void 
 Print_Star_MC_Single( char* msg, Star_MC_Single A )
@@ -1361,6 +1475,21 @@ Register_Star_MD_DComplex
     return A;
 }
 #endif // WITHOUT_COMPLEX
+// Get the row alignments
+int
+RowAlignment_MD_Star_Single( MD_Star_Single A )
+{ return ::MD_Star_SingleList[A]->RowAlignment(); }
+int
+RowAlignment_MD_Star_Double( MD_Star_Double A )
+{ return ::MD_Star_DoubleList[A]->RowAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+RowAlignment_MD_Star_SComplex( MD_Star_SComplex A )
+{ return ::MD_Star_SComplexList[A]->RowAlignment(); }
+int
+RowAlignment_MD_Star_DComplex( MD_Star_DComplex A )
+{ return ::MD_Star_DComplexList[A]->RowAlignment(); }
+#endif // WITHOUT_COMPLEX
 // Print
 void 
 Print_Star_MD_Single( char* msg, Star_MD_Single A )
@@ -1502,6 +1631,21 @@ Register_Star_MR_DComplex
     );
     return A;
 }
+#endif // WITHOUT_COMPLEX
+// Get the row alignments
+int
+RowAlignment_Star_MR_Single( Star_MR_Single A )
+{ return ::Star_MR_SingleList[A]->RowAlignment(); }
+int
+RowAlignment_Star_MR_Double( Star_MR_Double A )
+{ return ::Star_MR_DoubleList[A]->RowAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+RowAlignment_Star_MR_SComplex( Star_MR_SComplex A )
+{ return ::Star_MR_SComplexList[A]->RowAlignment(); }
+int
+RowAlignment_Star_MR_DComplex( Star_MR_DComplex A )
+{ return ::Star_MR_DComplexList[A]->RowAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
@@ -1785,6 +1929,21 @@ Register_Star_VC_DComplex
     return A;
 }
 #endif // WITHOUT_COMPLEX
+// Get the row alignments
+int
+RowAlignment_Star_VC_Single( Star_VC_Single A )
+{ return ::Star_VC_SingleList[A]->RowAlignment(); }
+int
+RowAlignment_Star_VC_Double( Star_VC_Double A )
+{ return ::Star_VC_DoubleList[A]->RowAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+RowAlignment_Star_VC_SComplex( Star_VC_SComplex A )
+{ return ::Star_VC_SComplexList[A]->RowAlignment(); }
+int
+RowAlignment_Star_VC_DComplex( Star_VC_DComplex A )
+{ return ::Star_VC_DComplexList[A]->RowAlignment(); }
+#endif // WITHOUT_COMPLEX
 // Print
 void 
 Print_Star_VC_Single( char* msg, Star_VC_Single A )
@@ -1926,6 +2085,21 @@ Register_Star_VR_DComplex
     );
     return A;
 }
+#endif // WITHOUT_COMPLEX
+// Get the row alignments
+int
+RowAlignment_Star_VR_Single( Star_VR_Single A )
+{ return ::Star_VR_SingleList[A]->RowAlignment(); }
+int
+RowAlignment_Star_VR_Double( Star_VR_Double A )
+{ return ::Star_VR_DoubleList[A]->RowAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+RowAlignment_Star_VR_SComplex( Star_VR_SComplex A )
+{ return ::Star_VR_SComplexList[A]->RowAlignment(); }
+int
+RowAlignment_Star_VR_DComplex( Star_VR_DComplex A )
+{ return ::Star_VR_DComplexList[A]->RowAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
@@ -2069,6 +2243,21 @@ Register_VC_Star_DComplex
     return A;
 }
 #endif // WITHOUT_COMPLEX
+// Get the col alignments
+int
+ColAlignment_VC_Star_Single( VC_Star_Single A )
+{ return ::VC_Star_SingleList[A]->ColAlignment(); }
+int
+ColAlignment_VC_Star_Double( VC_Star_Double A )
+{ return ::VC_Star_DoubleList[A]->ColAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+ColAlignment_VC_Star_SComplex( VC_Star_SComplex A )
+{ return ::VC_Star_SComplexList[A]->ColAlignment(); }
+int
+ColAlignment_VC_Star_DComplex( VC_Star_DComplex A )
+{ return ::VC_Star_DComplexList[A]->ColAlignment(); }
+#endif // WITHOUT_COMPLEX
 // Print
 void 
 Print_VC_Star_Single( char* msg, VC_Star_Single A )
@@ -2211,6 +2400,21 @@ Register_VR_Star_DComplex
     return A;
 }
 #endif // WITHOUT_COMPLEX
+// Get the col alignments
+int
+ColAlignment_VR_Star_Single( VR_Star_Single A )
+{ return ::VR_Star_SingleList[A]->ColAlignment(); }
+int
+ColAlignment_VR_Star_Double( VR_Star_Double A )
+{ return ::VR_Star_DoubleList[A]->ColAlignment(); }
+#ifndef WITHOUT_COMPLEX
+int
+ColAlignment_VR_Star_SComplex( VR_Star_SComplex A )
+{ return ::VR_Star_SComplexList[A]->ColAlignment(); }
+int
+ColAlignment_VR_Star_DComplex( VR_Star_DComplex A )
+{ return ::VR_Star_DComplexList[A]->ColAlignment(); }
+#endif // WITHOUT_COMPLEX
 // Print
 void 
 Print_VR_Star_Single( char* msg, VR_Star_Single A )
@@ -2268,14 +2472,14 @@ void CholSingle( char uplo, MC_MR_Single A )
 {
     CATCH(
         elemental::Shape shape = elemental::CharToShape( uplo );
-        elemental::lapack::Chol( shape, *::MC_MR_SingleList[A] );
+        elemental::advanced::Chol( shape, *::MC_MR_SingleList[A] );
     );
 }
 void CholDouble( char uplo, MC_MR_Double A )
 {
     CATCH(
         elemental::Shape shape = elemental::CharToShape( uplo );
-        elemental::lapack::Chol( shape, *::MC_MR_DoubleList[A] );
+        elemental::advanced::Chol( shape, *::MC_MR_DoubleList[A] );
     );
 }
 #ifndef WITHOUT_COMPLEX
@@ -2283,14 +2487,14 @@ void CholSComplex( char uplo, MC_MR_SComplex A )
 {
     CATCH(
         elemental::Shape shape = elemental::CharToShape( uplo );
-        elemental::lapack::Chol( shape, *::MC_MR_SComplexList[A] );
+        elemental::advanced::Chol( shape, *::MC_MR_SComplexList[A] );
     );
 }
 void CholDComplex( char uplo, MC_MR_DComplex A )
 {
     CATCH(
         elemental::Shape shape = elemental::CharToShape( uplo );
-        elemental::lapack::Chol( shape, *::MC_MR_DComplexList[A] );
+        elemental::advanced::Chol( shape, *::MC_MR_DComplexList[A] );
     );
 }
 #endif
@@ -2308,7 +2512,7 @@ HermitianEigDouble
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
               *::MC_MR_DoubleList[Z], tryForHighAccuracy );
         );
@@ -2316,7 +2520,7 @@ HermitianEigDouble
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
               *::MC_MR_DoubleList[Z], a, b, tryForHighAccuracy );
         );
@@ -2324,7 +2528,7 @@ HermitianEigDouble
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
               *::MC_MR_DoubleList[Z], u, v, tryForHighAccuracy );
         );
@@ -2346,7 +2550,7 @@ HermitianEigDouble_OnlyEigvals
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
               tryForHighAccuracy );
         );
@@ -2354,7 +2558,7 @@ HermitianEigDouble_OnlyEigvals
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
               a, b, tryForHighAccuracy );
         );
@@ -2362,7 +2566,7 @@ HermitianEigDouble_OnlyEigvals
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
               u, v, tryForHighAccuracy );
         );
@@ -2385,7 +2589,7 @@ HermitianEigDComplex
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
               *::MC_MR_DComplexList[Z], tryForHighAccuracy );
         );
@@ -2393,7 +2597,7 @@ HermitianEigDComplex
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
               *::MC_MR_DComplexList[Z], a, b, tryForHighAccuracy );
         );
@@ -2401,7 +2605,7 @@ HermitianEigDComplex
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
               *::MC_MR_DComplexList[Z], u, v, tryForHighAccuracy );
         );
@@ -2423,7 +2627,7 @@ HermitianEigDComplex_OnlyEigvals
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
               tryForHighAccuracy );
         );
@@ -2431,7 +2635,7 @@ HermitianEigDComplex_OnlyEigvals
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
               a, b, tryForHighAccuracy );
         );
@@ -2439,7 +2643,7 @@ HermitianEigDComplex_OnlyEigvals
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::lapack::HermitianEig
+            elemental::advanced::HermitianEig
             ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
               u, v, tryForHighAccuracy );
         );
@@ -2458,18 +2662,18 @@ GeneralizedHermitianEigDouble
   char job, int a, int b, double u, double v,
   MC_MR_Double A, MC_MR_Double B, Star_VR_Double w, MC_MR_Double Z )
 {
-    elemental::lapack::GenEigType genEigType;
+    elemental::advanced::GenEigType genEigType;
     if( genEigInt == 1 )
     {
-        genEigType = elemental::lapack::AXBX;
+        genEigType = elemental::advanced::AXBX;
     }
     else if( genEigInt == 2 )
     {
-        genEigType = elemental::lapack::ABX;
+        genEigType = elemental::advanced::ABX;
     }
     else if( genEigInt == 3 )
     {
-        genEigType = elemental::lapack::BAX;
+        genEigType = elemental::advanced::BAX;
     }
     else
     {
@@ -2481,7 +2685,7 @@ GeneralizedHermitianEigDouble
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
@@ -2491,7 +2695,7 @@ GeneralizedHermitianEigDouble
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
@@ -2501,7 +2705,7 @@ GeneralizedHermitianEigDouble
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
@@ -2520,18 +2724,18 @@ GeneralizedHermitianEigDouble_OnlyEigvals
   char job, int a, int b, double u, double v,
   MC_MR_Double A, MC_MR_Double B, Star_VR_Double w )
 {
-    elemental::lapack::GenEigType genEigType;
+    elemental::advanced::GenEigType genEigType;
     if( genEigInt == 1 )
     {
-        genEigType = elemental::lapack::AXBX;
+        genEigType = elemental::advanced::AXBX;
     }
     else if( genEigInt == 2 )
     {
-        genEigType = elemental::lapack::ABX;
+        genEigType = elemental::advanced::ABX;
     }
     else if( genEigInt == 3 )
     {
-        genEigType = elemental::lapack::BAX;
+        genEigType = elemental::advanced::BAX;
     }
     else
     {
@@ -2543,7 +2747,7 @@ GeneralizedHermitianEigDouble_OnlyEigvals
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], tryForHighAccuracy );
@@ -2552,7 +2756,7 @@ GeneralizedHermitianEigDouble_OnlyEigvals
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], a, b, tryForHighAccuracy );
@@ -2561,7 +2765,7 @@ GeneralizedHermitianEigDouble_OnlyEigvals
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], u, v, tryForHighAccuracy );
@@ -2580,18 +2784,18 @@ GeneralizedHermitianEigDComplex
   char job, int a, int b, double u, double v,
   MC_MR_DComplex A, MC_MR_DComplex B, Star_VR_Double w, MC_MR_DComplex Z )
 {
-    elemental::lapack::GenEigType genEigType;
+    elemental::advanced::GenEigType genEigType;
     if( genEigInt == 1 )
     {
-        genEigType = elemental::lapack::AXBX;
+        genEigType = elemental::advanced::AXBX;
     }
     else if( genEigInt == 2 )
     {
-        genEigType = elemental::lapack::ABX;
+        genEigType = elemental::advanced::ABX;
     }
     else if( genEigInt == 3 )
     {
-        genEigType = elemental::lapack::BAX;
+        genEigType = elemental::advanced::BAX;
     }
     else
     {
@@ -2603,7 +2807,7 @@ GeneralizedHermitianEigDComplex
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
@@ -2613,7 +2817,7 @@ GeneralizedHermitianEigDComplex
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
@@ -2623,7 +2827,7 @@ GeneralizedHermitianEigDComplex
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
@@ -2642,18 +2846,18 @@ GeneralizedHermitianEigDComplex_OnlyEigvals
   char job, int a, int b, double u, double v,
   MC_MR_DComplex A, MC_MR_DComplex B, Star_VR_Double w )
 {
-    elemental::lapack::GenEigType genEigType;
+    elemental::advanced::GenEigType genEigType;
     if( genEigInt == 1 )
     {
-        genEigType = elemental::lapack::AXBX;
+        genEigType = elemental::advanced::AXBX;
     }
     else if( genEigInt == 2 )
     {
-        genEigType = elemental::lapack::ABX;
+        genEigType = elemental::advanced::ABX;
     }
     else if( genEigInt == 3 )
     {
-        genEigType = elemental::lapack::BAX;
+        genEigType = elemental::advanced::BAX;
     }
     else
     {
@@ -2665,7 +2869,7 @@ GeneralizedHermitianEigDComplex_OnlyEigvals
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], tryForHighAccuracy );
@@ -2674,7 +2878,7 @@ GeneralizedHermitianEigDComplex_OnlyEigvals
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], a, b, tryForHighAccuracy );
@@ -2683,7 +2887,7 @@ GeneralizedHermitianEigDComplex_OnlyEigvals
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::lapack::GeneralizedHermitianEig
+            elemental::advanced::GeneralizedHermitianEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], u, v, tryForHighAccuracy );

@@ -605,7 +605,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         for( int j=0; j<w.LocalWidth(); ++j )
@@ -848,7 +848,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Sum the local sizes to get the true number of eigenvectors 
         mpi::AllReduce( &nz, &k, 1, mpi::SUM, g.VRComm() );
@@ -1026,7 +1026,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         for( int j=0; j<w.LocalWidth(); ++j )
@@ -1155,7 +1155,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         for( int j=0; j<w.LocalWidth(); ++j )
@@ -1280,7 +1280,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Get the total number of eigenvalues computed
         int k;
@@ -1447,7 +1447,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy." << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy." << std::endl;
         
         // Copy wBuffer into the distributed matrix w[* ,VR]
         for( int j=0; j<w.LocalWidth(); ++j )
@@ -1661,7 +1661,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         for( int j=0; j<w.LocalWidth(); ++j )
@@ -1905,7 +1905,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Sum the local sizes to get the true number of eigenvectors 
         mpi::AllReduce( &nz, &k, 1, mpi::SUM, g.VRComm() );
@@ -2084,7 +2084,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         for( int j=0; j<w.LocalWidth(); ++j )
@@ -2214,7 +2214,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Copy wBuffer into the distributed matrix w[* ,VR]
         for( int j=0; j<w.LocalWidth(); ++j )
@@ -2340,7 +2340,7 @@ elemental::advanced::HermitianEig
             throw std::runtime_error( msg.str() );
         }
         if( tryForHighAccuracy && tryrac==0 && g.VCRank() == 0 )
-            std::cerr << "PMRRR could not achieve high accuracy" << std::endl;
+            std::cerr << "PMRRR did not achieve high accuracy" << std::endl;
 
         // Get the total number of eigenvalues computed 
         int k;

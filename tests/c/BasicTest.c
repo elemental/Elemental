@@ -57,9 +57,25 @@ main( int argc, char* argv[] )
         int iLocal, jLocal;
         for( jLocal=0; jLocal<localWidth; ++jLocal )
         {
+            /* In general, the global j index is related to jLocal with the 
+             * mapping   jLocal -> rowAlignment + jLocal*c,
+             * but, in our case, rowAlignment = MRRank.
+             *
+             * rowAlignment can always be retrieved with
+             *      int RowAlignment_MC_MR_Double( MC_MR_Double A );
+             * for double-precision real [MC,MR]-distributed matrices.
+             */
             int j = MRRank + jLocal*c;
             for( iLocal=0; iLocal<localHeight; ++iLocal )
             {
+                /* In general, the global i index is related to iLocal with the
+                 * mapping   iLocal -> colAlignment + iLocal*r,
+                 * but, in our case, colAlignment = MCRank.
+                 *
+                 * colAlignment can always be retrieved with 
+                 *     int ColAlignment_MC_MR_Double( MC_MR_Double A );
+                 * for double-precision real [MC,MR]-distributed matrices.
+                 */
                 int i = MCRank + iLocal*r;
                 /* We can actually easily generate a Hermitian matrix in 
                  * parallel by setting entry (i,j) to (i+j,i-j)
