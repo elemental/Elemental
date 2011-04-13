@@ -59,6 +59,7 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const int m = A.Height();
     const int n = A.Width();
+    const int minDim = std::min(m,n);
 
     if( g.VCRank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
@@ -70,10 +71,10 @@ void TestCorrectness
     advanced::UT( Left, Lower, Normal, 0, A, Z );
 
     DistMatrix<R,MC,MR> ZUpper(g);
-    ZUpper.View( Z, 0, 0, n, n );
+    ZUpper.View( Z, 0, 0, minDim, minDim );
 
     // Form Identity
-    DistMatrix<R,MC,MR> X(n,n,g);
+    DistMatrix<R,MC,MR> X(minDim,minDim,g);
     X.SetToIdentity();
 
     // Form X := I - Q^H Q
@@ -132,6 +133,7 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const int m = A.Height();
     const int n = A.Width();
+    const int minDim = std::min(m,n);
 
     if( g.VCRank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
@@ -143,10 +145,10 @@ void TestCorrectness
     advanced::UT( Left, Lower, Normal, 0, A, t, Z );
     
     DistMatrix<C,MC,MR> ZUpper(g);
-    ZUpper.View( Z, 0, 0, n, n );
+    ZUpper.View( Z, 0, 0, minDim, minDim );
 
     // Form Identity
-    DistMatrix<C,MC,MR> X(n,n,g);
+    DistMatrix<C,MC,MR> X(minDim,minDim,g);
     X.SetToIdentity();
 
     // Form X := I - Q^H Q
@@ -336,8 +338,6 @@ main( int argc, char* argv[] )
                  << "==========================================" << endl;
         }
 #endif
-        if( n > m )
-            throw logic_error( "QR only supported when height >= width." );
         const Grid g( comm, r, c );
         SetBlocksize( nb );
 
