@@ -195,9 +195,9 @@ elemental::Grid::SetUpGrid()
 
     // Split the viewing comm into the owning and not owning subsets
     if( _inGrid )
-        mpi::CommCreate( _viewingComm, _owningGroup, _owningComm );
+        mpi::CommSplit( _viewingComm, true, _owningRank, _owningComm );
     else
-        mpi::CommCreate( _viewingComm, _notOwningGroup, _notOwningComm );
+        mpi::CommSplit( _viewingComm, false, 0, _notOwningComm );
 
     if( _inGrid )
     {
