@@ -70,12 +70,8 @@ class AxpyInterface
 
     struct Header
     {
-        int iStart;    
-        int jStart;
-        int processRow;
-        int processCol;
-        int localHeight;
-        int localWidth;
+        int iStart, jStart;
+        int localHeight, localWidth;
         T alpha;
     };
 
@@ -339,56 +335,51 @@ AxpyInterface<T>::Axpy
     const int p = g.Size();
     const int myProcessRow = g.MCRank();
     const int myProcessCol = g.MRRank();
-    const int colAlignment = _Y->ColAlignment();
-    const int rowAlignment = _Y->RowAlignment();
+    const int colAlignment = (_Y->ColAlignment() + i) % r;
+    const int rowAlignment = (_Y->RowAlignment() + j) % c;
 
     const int height = X.Height();
     const int width = X.Width();
 
     std::vector<imports::mpi::Request> requests(p);
-    int processRow = g.MCRank();
-    int processCol = g.MRRank();
+    int receivingRow = myProcessRow;
+    int receivingCol = myProcessCol;
     do
     {
         HandleAcks();
         HandleEoms();
         HandleData();
 
-        const int iStart = i + processRow;
-        const int jStart = j + processCol;
-        const int ownerProcessRow = (processRow+colAlignment) % r;
-        const int ownerProcessCol = (processCol+rowAlignment) % c;
-        const int recvRank = ownerProcessCol*r + ownerProcessRow;
+        const int colShift = utilities::Shift( receivingRow, colAlignment, r );
+        const int rowShift = utilities::Shift( receivingCol, rowAlignment, c );
 
-        const int localHeight =
-            utilities::LocalLength( height, ownerProcessRow, colAlignment, r );
-        const int localWidth =
-            utilities::LocalLength( width, ownerProcessCol, rowAlignment, c );
+        const int localHeight = utilities::LocalLength( height, colShift, r );
+        const int localWidth = utilities::LocalLength( width, rowShift, c );
+
+        const int destination = receivingRow + r*receivingCol;
 
         // Initialize this as false, but change if necessary
         bool mustRetry = false;
 
-        if( _canSendTo[recvRank] )
+        if( _canSendTo[destination] )
         {
             const int numEntries = localHeight*localWidth;
             const int bufferSize = sizeof(Header) + numEntries*sizeof(T);
             if( numEntries > 0 )
             {
                 // Make sure we have a big enough buffer
-                _sendVectors[recvRank].resize( bufferSize );
+                _sendVectors[destination].resize( bufferSize );
 
                 // Fill the header
                 Header header;
-                header.iStart = iStart;
-                header.jStart = jStart;
-                header.processRow = processRow;
-                header.processCol = processCol;
+                header.iStart = i + colShift;
+                header.jStart = j + rowShift;
                 header.localHeight = localHeight;
                 header.localWidth = localWidth;
                 header.alpha = alpha;
 
                 // Pack the header
-                char* sendBuffer = &_sendVectors[recvRank][0];
+                char* sendBuffer = &_sendVectors[destination][0];
                 memcpy( sendBuffer, &header, sizeof(Header) );
 
                 // Pack the payload
@@ -398,22 +389,23 @@ AxpyInterface<T>::Axpy
                 for( int t=0; t<localWidth; ++t )
                 {
                     T* thisSendCol = &sendData[t*localHeight];
-                    const T* thisXCol = &XBuffer[t*XLDim];
-                    memcpy( thisSendCol, thisXCol, localHeight*sizeof(T) );
+                    const T* thisXCol = &XBuffer[(rowShift+t*c)*XLDim];
+                    for( int s=0; s<localHeight; ++s )
+                        thisSendCol[s] = thisXCol[colShift+s*r];
                 }
 
                 // Fire off the non-blocking send
                 imports::mpi::ISSend
-                ( &_sendVectors[recvRank][0], bufferSize,
-                  recvRank, DATA_TAG, g.VCComm(), requests[recvRank] );
+                ( &_sendVectors[destination][0], bufferSize,
+                  destination, DATA_TAG, g.VCComm(), requests[destination] );
 
                 // Mark that we are already interacting with this process
-                _canSendTo[recvRank] = false;
+                _canSendTo[destination] = false;
             }
         }
         else
         {
-            while( !_canSendTo[recvRank] )
+            while( !_canSendTo[destination] )
             {
                 HandleAcks();
                 HandleEoms();
@@ -424,12 +416,12 @@ AxpyInterface<T>::Axpy
 
         if( !mustRetry )
         {
-            processRow = (processRow + 1) % r;
-            if( processRow == 0 )
-                processCol = (processCol + 1) % c;
+            receivingRow = (receivingRow + 1) % r;
+            if( receivingRow == 0 )
+                receivingCol = (receivingCol + 1) % c;
         }
     }
-    while( processRow != myProcessRow || processCol != myProcessCol );
+    while( receivingRow != myProcessRow || receivingCol != myProcessCol );
 #ifndef RELEASE
     PopCallStack();
 #endif

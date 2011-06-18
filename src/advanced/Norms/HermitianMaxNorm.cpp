@@ -141,7 +141,6 @@ advanced::HermitianMaxNorm
             int numUpperRows = utilities::LocalLength(j+1,colShift,r);
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
-                int i = colShift + iLocal*r;
                 const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
                 localMaxAbs = std::max( localMaxAbs, thisAbs );
             }
@@ -156,7 +155,6 @@ advanced::HermitianMaxNorm
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
             {
-                int i = colShift + iLocal*r;
                 const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
                 localMaxAbs = std::max( localMaxAbs, thisAbs );
             }
@@ -198,7 +196,6 @@ advanced::HermitianMaxNorm
             int numUpperRows = utilities::LocalLength(j+1,colShift,r);
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
-                int i = colShift + iLocal*r;
                 const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
                 localMaxAbs = std::max( localMaxAbs, thisAbs );
             }
@@ -213,7 +210,6 @@ advanced::HermitianMaxNorm
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
             {
-                int i = colShift + iLocal*r;
                 const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
                 localMaxAbs = std::max( localMaxAbs, thisAbs );
             }
