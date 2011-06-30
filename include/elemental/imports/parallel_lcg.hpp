@@ -1,0 +1,363 @@
+/*
+   A simple parallel Linear Congruential Generator (LCG)
+
+   Copyright (C) 2011 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin
+
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions are met:
+
+    - Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+
+    - Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+
+    - Neither the name of the owner nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   POSSIBILITY OF SUCH DAMAGE.
+*/
+#ifndef PARALLEL_LCG_HPP
+#define PARALLEL_LCG_HPP 1
+
+#include <complex>
+
+namespace plcg {
+
+// C++98 does not have 64-bit integer support. We instead store each 16-bits
+// as a 32-bit unsigned integer in order to allow for multiplication and 
+// addition without overflow.
+typedef unsigned UInt32;
+struct UInt64 
+{ 
+    UInt32 d[2]; 
+    UInt32& operator[]( int i ) { return d[i]; }
+    const UInt32& operator[]( int i ) const { return d[i]; }
+};
+struct ExpandedUInt64 
+{ 
+    UInt32 d[4]; 
+    UInt32& operator[]( int i ) { return d[i]; }
+    const UInt32& operator[]( int i ) const { return d[i]; }
+};
+
+UInt32 Lower16Bits( UInt32 a );
+UInt32 Upper16Bits( UInt32 a );
+
+ExpandedUInt64 Expand( UInt32 a );
+ExpandedUInt64 Expand( UInt64 a );
+UInt64 Deflate( ExpandedUInt64 a );
+
+// Carry the upper 16 bits in each of the four 32-bit UInt32's used in the
+// expanded representation of a UInt64. The topmost 16 bits are simply zeroed.
+void CarryUpper16Bits( ExpandedUInt64& a );
+
+// Add/multiply two expanded UInt64's mod 2^64
+ExpandedUInt64 AddWith64BitMod( ExpandedUInt64 a, ExpandedUInt64 b );
+ExpandedUInt64 MultiplyWith64BitMod( ExpandedUInt64 a, ExpandedUInt64 b );
+ExpandedUInt64 IntegerPowerWith64BitMod( ExpandedUInt64 x, ExpandedUInt64 n );
+void Halve( ExpandedUInt64& a );
+
+void SeedSerialLcg( UInt64 globalSeed );
+void SeedParallelLcg( UInt32 rank, UInt32 commSize, UInt64 globalSeed );
+
+UInt64 SerialLcg();
+UInt64 ParallelLcg();
+void ManualLcg( ExpandedUInt64 a, ExpandedUInt64 c, ExpandedUInt64& X );
+
+// For grabbing uniform samples from [0,1]
+template<typename R> R SerialUniform();
+template<> float SerialUniform<float>();
+template<> double SerialUniform<double>();
+template<typename R> R ParallelUniform();
+template<> float ParallelUniform<float>();
+template<> double ParallelUniform<double>();
+
+// For generating Gaussian random variables/vectors
+template<typename Real>
+void SerialBoxMuller( Real& X, Real& Y );
+template<typename Real>
+void ParallelBoxMuller( Real& X, Real& Y );
+template<typename Real>
+void SerialGaussianRandomVariable( Real& X );
+template<typename Real>
+void ParallelGaussianRandomVariable( Real& X );
+template<typename Real>
+void SerialGaussianRandomVariable( std::complex<Real>& X );
+template<typename Real>
+void ParallelGaussianRandomVariable( std::complex<Real>& X );
+
+} // namespace plcg
+
+//----------------------------------------------------------------------------//
+// Header implementations                                                     //
+//----------------------------------------------------------------------------//
+
+inline plcg::UInt32
+plcg::Lower16Bits( UInt32 a )
+{
+    return a & 0xFFFF;
+}
+
+inline plcg::UInt32
+plcg::Upper16Bits( UInt32 a )
+{
+    return (a >> 16) & 0xFFFF;
+}
+
+inline plcg::ExpandedUInt64
+plcg::Expand( UInt32 a )
+{
+    ExpandedUInt64 b;
+    b[0] = Lower16Bits( a );
+    b[1] = Upper16Bits( a );
+    b[2] = 0U;
+    b[3] = 0U;
+
+    return b;
+}
+
+inline plcg::ExpandedUInt64
+plcg::Expand( UInt64 a )
+{
+    ExpandedUInt64 b;
+    b[0] = Lower16Bits( a[0] );
+    b[1] = Upper16Bits( a[0] );
+    b[2] = Lower16Bits( a[1] );
+    b[3] = Upper16Bits( a[1] );
+
+    return b;
+}
+
+inline plcg::UInt64
+plcg::Deflate( ExpandedUInt64 a )
+{
+    UInt64 b;
+    b[0] = a[0] + ( a[1] << 16 );
+    b[1] = a[2] + ( a[3] << 16 );
+
+    return b;
+}
+
+inline void
+plcg::CarryUpper16Bits( ExpandedUInt64& c )
+{
+    c[1] += Upper16Bits(c[0]);
+    c[0] = Lower16Bits(c[0]);
+    c[2] += Upper16Bits(c[1]);
+    c[1] = Lower16Bits(c[1]);
+    c[3] += Upper16Bits(c[2]);
+    c[2] = Lower16Bits(c[2]);
+    c[3] = Lower16Bits(c[3]);
+}
+
+// Multiply two expanded UInt64's (mod 2^64)
+//
+// We do so by breaking the 64-bit integers into 16-bit pieces so that
+// products can be safely be computed with 32-bit unsigned integers.
+//
+// a = 2^48 a3 + 2^32 a2 + 2^16 a1 + 2^0 a0,
+// b = 2^48 b3 + 2^32 b2 + 2^16 b1 + 2^0 b0,
+// where a_j, b_j < 2^16.
+//
+// Then,
+// a b = 
+//   2^96 ( a3 b3 ) + 
+//   2^80 ( a3 b2 + b3 a2 ) + 
+//   2^64 ( a3 b1 + a2 b2 + a1 b3 ) +
+//   2^48 ( a3 b0 + a2 b1 + a1 b2 + a0 b3 ) +
+//   2^32 ( a2 b0 + a1 b1 + a0 b2 ) + 
+//   2^16 ( a1 b0 + a0 b1 ) +
+//   2^0  ( a0 b0 )
+//
+// Since c := a b (mod 2^64), only the last four terms must be computed.
+inline plcg::ExpandedUInt64 
+plcg::MultiplyWith64BitMod( ExpandedUInt64 a, ExpandedUInt64 b )
+{
+    UInt32 temp;
+    ExpandedUInt64 c;
+
+    // c = 2^0 a0 b0
+    temp = a[0]*b[0];
+    c[0] = Lower16Bits( temp );
+    c[1] = Upper16Bits( temp );
+
+    // c += 2^16 ( a1 b0 + a0 b1 )
+    temp = a[1]*b[0];
+    c[1] += Lower16Bits( temp );
+    c[2] =  Upper16Bits( temp );
+    temp = a[0]*b[1];
+    c[1] += Lower16Bits( temp );
+    c[2] += Upper16Bits( temp );
+
+    // c += 2^32 ( a2 b0 + a1 b1 + a0 b2 )
+    temp = a[2]*b[0];
+    c[2] += Lower16Bits( temp );
+    c[3] =  Upper16Bits( temp );
+    temp = a[1]*b[1];
+    c[2] += Lower16Bits( temp );
+    c[3] += Upper16Bits( temp );
+    temp = a[0]*b[2];
+    c[2] += Lower16Bits( temp );
+    c[3] += Upper16Bits( temp );
+
+    // c += 2^48 ( a3 b0 + a2 b1 + a1 b2 + a0 b3 )
+    temp = a[3]*b[0];
+    c[3] += Lower16Bits( temp );
+    temp = a[2]*b[1];
+    c[3] += Lower16Bits( temp );
+    temp = a[1]*b[2];
+    c[3] += Lower16Bits( temp );
+    temp = a[0]*b[3];
+    c[3] += Lower16Bits( temp );
+
+    CarryUpper16Bits( c );
+    return c;
+}
+
+inline plcg::ExpandedUInt64 
+plcg::AddWith64BitMod( ExpandedUInt64 a, ExpandedUInt64 b )
+{
+    ExpandedUInt64 c;
+    c[0] = a[0] + b[0];
+    c[1] = a[1] + b[1];
+    c[2] = a[2] + b[2];
+    c[3] = a[3] + b[3];
+
+    CarryUpper16Bits( c );
+    return c;
+}
+
+inline void
+plcg::ManualLcg( ExpandedUInt64 a, ExpandedUInt64 c, ExpandedUInt64& X )
+{
+    X = MultiplyWith64BitMod( a, X );
+    X = AddWith64BitMod( c, X );
+}
+
+// Provide a uniform sample from (0,1]
+template<>
+inline float plcg::SerialUniform<float>()
+{
+    const UInt64 state = SerialLcg();
+    // Use the upper 32-bits of the LCG since they are the most random.
+    return (static_cast<float>(state[1])+1.f) / 4294967296.f;
+}
+
+// Provide a uniform sample from (0,1]
+template<>
+inline double plcg::SerialUniform<double>()
+{
+    const UInt64 state = SerialLcg();
+    // Use the upper 32-bits of the LCG since they are the most random
+    // and we cannot rely on the existence of 64-bit integers in C++.
+    return (static_cast<double>(state[1])+1.) / 4294967296.;
+}
+
+// Provide a uniform sample from (0,1]
+template<>
+inline float plcg::ParallelUniform<float>()
+{
+    const UInt64 state = ParallelLcg();
+    // Use the upper 32-bits of the LCG since they are the most random.
+    return (static_cast<float>(state[1])+1.f) / 4294967296.f;
+}
+
+// Provide a uniform sample from (0,1]
+template<>
+inline double plcg::ParallelUniform<double>()
+{
+    const UInt64 state = ParallelLcg();
+    // Use the upper 32-bits of the LCG since they are the most random
+    // and we cannot rely on the existence of 64-bit integers in C++.
+    return (static_cast<double>(state[1])+1.) / 4294967296.;
+}
+
+/*
+ *  For generating Gaussian random variables/vectors
+ */
+
+template<typename Real>
+inline void
+plcg::SerialBoxMuller
+( Real& X, Real& Y )
+{
+    const Real U = SerialUniform<Real>();
+    const Real V = SerialUniform<Real>();
+    const Real A = sqrt(-2*log(U));
+    const Real c = cos(2*M_PI*V);
+    const Real s = sin(2*M_PI*V);
+    X = A*c;
+    Y = A*s;
+}
+
+template<typename Real>
+inline void
+plcg::ParallelBoxMuller
+( Real& X, Real& Y )
+{
+    const Real U = ParallelUniform<Real>();
+    const Real V = ParallelUniform<Real>();
+    const Real A = sqrt(-2*log(U));
+    const Real c = cos(2*M_PI*V);
+    const Real s = sin(2*M_PI*V);
+    X = A*c;
+    Y = A*s;
+}
+
+template<typename Real>
+inline void
+plcg::SerialGaussianRandomVariable
+( Real& X )
+{
+    // Use half of Box-Muller
+    const Real U = SerialUniform<Real>();
+    const Real V = SerialUniform<Real>();
+    X = sqrt(-2*log(U)) * cos(2*M_PI*V);
+}
+
+template<typename Real>
+inline void
+plcg::ParallelGaussianRandomVariable
+( Real& X )
+{
+    // Use half of Box-Muller
+    const Real U = ParallelUniform<Real>();
+    const Real V = ParallelUniform<Real>();
+    X = sqrt(-2*log(U)) * cos(2*M_PI*V);
+}
+
+template<typename Real>
+inline void
+plcg::SerialGaussianRandomVariable
+( std::complex<Real>& X )
+{
+    Real Y, Z;
+    SerialBoxMuller( Y, Z );
+    X = std::complex<Real>( Y, Z );
+}
+
+template<typename Real>
+inline void
+plcg::ParallelGaussianRandomVariable
+( std::complex<Real>& X )
+{
+    Real Y, Z;
+    ParallelBoxMuller( Y, Z );
+    X = std::complex<Real>( Y, Z );
+}
+
+#endif // PARALLEL_LCG_HPP

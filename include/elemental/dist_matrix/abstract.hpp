@@ -301,10 +301,9 @@ public:
     virtual void ResizeTo( int height, int width ) = 0;
     virtual void SetToIdentity() = 0;
     virtual void SetToRandom() = 0;
-
+    // Forces a matrix to be random with a real diagonal.
+    virtual void SetToRandomHermitian() = 0;
     // Forces matrix to be row diagonally dominant and to have a real diagonal.
-    // It is then _implicitly_ Hermitian, and therefore _implicitly_ Hermitian
-    // Positive Definite (HPD).
     virtual void SetToRandomHPD() = 0;
 };
 

@@ -194,7 +194,7 @@ void TestTridiag<double>
 
     A.ResizeTo( m, m );
 
-    A.SetToRandomHPD();
+    A.SetToRandomHermitian();
     if( testCorrectness )
     {
         if( g.VCRank() == 0 )
@@ -249,8 +249,7 @@ void TestTridiag< complex<double> >
 
     A.ResizeTo( m, m );
 
-    // Make A diagonally dominant
-    A.SetToRandomHPD();
+    A.SetToRandomHermitian();
     if( testCorrectness )
     {
         if( g.VCRank() == 0 )

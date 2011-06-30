@@ -50,6 +50,22 @@ using namespace elemental::utilities;
 
 template<typename Z>
 void
+elemental::DistMatrix<Z,VC,Star>::SetToRandomHermitian()
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::SetToRandomHermitian");
+    this->AssertNotLockedView();
+    if( this->Height() != this->Width() )
+        throw logic_error( "Hermitian matrices must be square." );
+#endif
+    this->SetToRandom();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Z>
+void
 elemental::DistMatrix<Z,VC,Star>::SetToRandomHPD()
 {
 #ifndef RELEASE
@@ -82,6 +98,42 @@ elemental::DistMatrix<Z,VC,Star>::SetToRandomHPD()
 }
 
 #ifndef WITHOUT_COMPLEX
+template<typename Z>
+void
+elemental::DistMatrix<complex<Z>,VC,Star>::SetToRandomHermitian()
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::SetToRandomHermitian");
+    this->AssertNotLockedView();
+    if( this->Height() != this->Width() )
+        throw logic_error( "Hermitian matrices must be square." );
+#endif
+    const int width       = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int p           = this->Grid().Size();
+    const int colShift    = this->ColShift();
+
+    this->SetToRandom();
+
+    complex<Z>* thisLocalBuffer = this->LocalBuffer();
+    const int thisLDim = this->LocalLDim();
+#ifdef _OPENMP
+    #pragma omp parallel for
+#endif
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
+    {
+        const int i = colShift + iLocal*p;
+        if( i < width )
+        {
+            const Z value = real(thisLocalBuffer[iLocal+i*thisLDim]);
+            thisLocalBuffer[iLocal+i*thisLDim] = value;
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,VC,Star>::SetToRandomHPD()

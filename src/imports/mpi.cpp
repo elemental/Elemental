@@ -1414,11 +1414,19 @@ elemental::imports::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
+#ifdef USE_CHAR_ALLGATHERS
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<int*>(sbuf), sizeof(int)*sc, MPI_CHAR, 
+          rbuf,                   sizeof(int)*rc, MPI_CHAR, comm ) 
+    );
+#else
     SafeMpi( 
         MPI_Allgather
         ( const_cast<int*>(sbuf), sc, MPI_INT, 
           rbuf,                   rc, MPI_INT, comm ) 
     );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1432,11 +1440,19 @@ elemental::imports::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
+#ifdef USE_CHAR_ALLGATHERS
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<float*>(sbuf), sizeof(float)*sc, MPI_CHAR, 
+          rbuf,                     sizeof(float)*rc, MPI_CHAR, comm ) 
+    );
+#else
     SafeMpi( 
         MPI_Allgather
         ( const_cast<float*>(sbuf), sc, MPI_FLOAT, 
           rbuf,                     rc, MPI_FLOAT, comm ) 
     );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1450,11 +1466,19 @@ elemental::imports::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
+#ifdef USE_CHAR_ALLGATHERS
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<double*>(sbuf), sizeof(double)*sc, MPI_CHAR, 
+          rbuf,                      sizeof(double)*rc, MPI_CHAR, comm ) 
+    );
+#else
     SafeMpi( 
         MPI_Allgather
         ( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
           rbuf,                      rc, MPI_DOUBLE, comm ) 
     );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1469,18 +1493,26 @@ elemental::imports::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
-#ifdef AVOID_COMPLEX_MPI
+#ifdef USE_CHAR_ALLGATHERS
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<scomplex*>(sbuf), 2*sizeof(float)*sc, MPI_CHAR, 
+          rbuf,                        2*sizeof(float)*rc, MPI_CHAR, comm ) 
+    );
+#else
+ #ifdef AVOID_COMPLEX_MPI
     SafeMpi(
         MPI_Allgather
         ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
           rbuf,                        2*rc, MPI_FLOAT, comm )
     );
-#else
+ #else
     SafeMpi( 
         MPI_Allgather
         ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
           rbuf,                        rc, MPI_COMPLEX, comm ) 
     );
+ #endif
 #endif
 #ifndef RELEASE
     PopCallStack();
@@ -1495,18 +1527,26 @@ elemental::imports::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
-#ifdef AVOID_COMPLEX_MPI
+#ifdef USE_CHAR_ALLGATHERS
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<dcomplex*>(sbuf), 2*sizeof(double)*sc, MPI_CHAR, 
+          rbuf,                        2*sizeof(double)*rc, MPI_CHAR, comm ) 
+    );
+#else
+ #ifdef AVOID_COMPLEX_MPI
     SafeMpi(
         MPI_Allgather
         ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
           rbuf,                        2*rc, MPI_DOUBLE, comm )
     );
-#else
+ #else
     SafeMpi( 
         MPI_Allgather
         ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
           rbuf,                        rc, MPI_DOUBLE_COMPLEX, comm ) 
     );
+ #endif
 #endif
 #ifndef RELEASE
     PopCallStack();

@@ -474,7 +474,7 @@ elemental::MatrixBase<T>::SetToRandom()
     const int width = Width();
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
-            _data[i+j*_ldim] = Random<T>();
+            _data[i+j*_ldim] = SampleUnitBall<T>();
 #ifndef RELEASE
     PopCallStack();
 #endif

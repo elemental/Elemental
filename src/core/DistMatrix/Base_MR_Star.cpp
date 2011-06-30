@@ -871,7 +871,7 @@ elemental::DistMatrixBase<T,MR,Star>::SetToRandom()
     {
         for( int j=0; j<width; ++j )
             for( int i=0; i<localHeight; ++i )
-                buffer[i+j*localHeight] = Random<T>();
+                buffer[i+j*localHeight] = SampleUnitBall<T>();
     }
     mpi::Broadcast( buffer, bufSize, 0, g.MCComm() );
 

@@ -1693,7 +1693,7 @@ elemental::DistMatrixBase<T,MC,MR>::SetToRandom()
     const int localWidth = this->LocalWidth();
     for( int iLocal=0; iLocal<localHeight; ++iLocal )
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
-            this->SetLocalEntry(iLocal,jLocal,Random<T>());
+            this->SetLocalEntry(iLocal,jLocal,SampleUnitBall<T>());
 #ifndef RELEASE
     PopCallStack();
 #endif

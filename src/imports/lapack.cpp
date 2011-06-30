@@ -154,13 +154,13 @@ elemental::imports::lapack::Chol
 #endif
     int info;
     LAPACK(spotrf)( &uplo, &n, A, &lda, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "spotrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -174,13 +174,13 @@ elemental::imports::lapack::Chol
 #endif
     int info;
     LAPACK(dpotrf)( &uplo, &n, A, &lda, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "dpotrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -195,13 +195,13 @@ elemental::imports::lapack::Chol
 #endif
     int info;
     LAPACK(cpotrf)( &uplo, &n, A, &lda, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "cpotrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -215,13 +215,13 @@ elemental::imports::lapack::Chol
 #endif
     int info;
     LAPACK(zpotrf)( &uplo, &n, A, &lda, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "zpotrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -237,13 +237,13 @@ elemental::imports::lapack::Hegst
 #endif
     int info;
     LAPACK(ssygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "ssygst returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -258,13 +258,13 @@ elemental::imports::lapack::Hegst
 #endif
     int info;
     LAPACK(dsygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "dsygst returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -280,13 +280,13 @@ elemental::imports::lapack::Hegst
 #endif
     int info;
     LAPACK(chegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "chegst returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -301,13 +301,13 @@ elemental::imports::lapack::Hegst
 #endif
     int info;
     LAPACK(zhegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "zhegst returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -322,13 +322,13 @@ elemental::imports::lapack::LU
 #endif
     int info;
     LAPACK(sgetrf)( &m, &n, A, &lda, p, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "sgetrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -342,13 +342,13 @@ elemental::imports::lapack::LU
 #endif
     int info;
     LAPACK(dgetrf)( &m, &n, A, &lda, p, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "dgetrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -363,13 +363,13 @@ elemental::imports::lapack::LU
 #endif
     int info;
     LAPACK(cgetrf)( &m, &n, A, &lda, p, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "cgetrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -383,13 +383,13 @@ elemental::imports::lapack::LU
 #endif
     int info;
     LAPACK(zgetrf)( &m, &n, A, &lda, p, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "zgetrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -416,13 +416,13 @@ elemental::imports::lapack::QR
     lwork = (int)workSize;
     std::vector<float> work(lwork); 
     LAPACK(sgeqrf)( &m, &n, A, &lda, &t[0], &work[0], &lwork, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "sgeqrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -448,13 +448,13 @@ elemental::imports::lapack::QR
     lwork = (int)workSize;
     std::vector<double> work(lwork); 
     LAPACK(dgeqrf)( &m, &n, A, &lda, &t[0], &work[0], &lwork, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "dgeqrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -479,13 +479,13 @@ elemental::imports::lapack::QR
     lwork = (int)std::real(workSize);
     std::vector<scomplex> work(lwork); 
     LAPACK(cgeqrf)( &m, &n, A, &lda, t, &work[0], &lwork, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "cgeqrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -509,13 +509,13 @@ elemental::imports::lapack::QR
     lwork = (int)std::real(workSize);
     std::vector<dcomplex> work(lwork); 
     LAPACK(zgeqrf)( &m, &n, A, &lda, t, &work[0], &lwork, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "zgeqrf returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -601,13 +601,13 @@ elemental::imports::lapack::SVD
     LAPACK(sgesvd)
     ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
       &work[0], &lwork, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "sgesvd returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -636,13 +636,13 @@ elemental::imports::lapack::SVD
     LAPACK(dgesvd)
     ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
       &work[0], &lwork, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "dgesvd returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -673,13 +673,13 @@ elemental::imports::lapack::SVD
     LAPACK(cgesvd)
     ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
       &work[0], &lwork, &realWork[0], &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "cgesvd returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -709,13 +709,13 @@ elemental::imports::lapack::SVD
     LAPACK(zgesvd)
     ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
       &work[0], &lwork, &realWork[0], &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "zgesvd returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -746,13 +746,13 @@ elemental::imports::lapack::Tridiag
     std::vector<float> work(lwork); 
     LAPACK(ssytrd)
     ( &uplo, &n, A, &lda, &d[0], &e[0], &t[0], &work[0], &lwork, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "ssytrd returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -782,13 +782,13 @@ elemental::imports::lapack::Tridiag
     std::vector<double> work(lwork); 
     LAPACK(dsytrd)
     ( &uplo, &n, A, &lda, &d[0], &e[0], &t[0], &work[0], &lwork, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "dsytrd returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -818,13 +818,13 @@ elemental::imports::lapack::Tridiag
     std::vector<scomplex> work(lwork); 
     LAPACK(chetrd)
     ( &uplo, &n, A, &lda, &d[0], &e[0], t, &work[0], &lwork, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "chetrd returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -853,13 +853,13 @@ elemental::imports::lapack::Tridiag
     std::vector<dcomplex> work(lwork); 
     LAPACK(zhetrd)
     ( &uplo, &n, A, &lda, &d[0], &e[0], t, &work[0], &lwork, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "zhetrd returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -874,13 +874,13 @@ elemental::imports::lapack::Trinv
 #endif
     int info;
     LAPACK(strtri)( &uplo, &diag, &n, A, &lda, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "strtri returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -894,13 +894,13 @@ elemental::imports::lapack::Trinv
 #endif
     int info;
     LAPACK(dtrtri)( &uplo, &diag, &n, A, &lda, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "dtrtri returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -915,13 +915,13 @@ elemental::imports::lapack::Trinv
 #endif
     int info;
     LAPACK(ctrtri)( &uplo, &diag, &n, A, &lda, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "ctrtri returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }
@@ -935,13 +935,13 @@ elemental::imports::lapack::Trinv
 #endif
     int info;
     LAPACK(ztrtri)( &uplo, &diag, &n, A, &lda, &info );
-#ifndef RELEASE
     if( info != 0 )
     {
         std::ostringstream msg;
         msg << "ztrtri returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
+#ifndef RELEASE
     PopCallStack();
 #endif
 }

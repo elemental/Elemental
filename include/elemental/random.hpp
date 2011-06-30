@@ -53,7 +53,7 @@ namespace elemental {
 
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 
 // origin of the ring implied by the type T using the most natural metric.
-template<typename T> T Random();
+template<typename T> T SampleUnitBall();
 
 } // elemental
 
@@ -67,12 +67,12 @@ const double Pi = 3.141592653589793;
 
 template<>
 inline int
-Random<int>()
+SampleUnitBall<int>()
 {
-    int sample = rand();
-    if( sample <= RAND_MAX/3 )
+    const double u = plcg::ParallelUniform<double>();
+    if( u <= 1./3. )
         return -1;
-    else if( sample <= (RAND_MAX/3)*2 )
+    else if( u <= 2./3. )
         return 0;
     else
         return +1;
@@ -81,27 +81,27 @@ Random<int>()
 #ifndef WITHOUT_COMPLEX
 template<>
 inline std::complex<int>
-Random< std::complex<int> >()
-{ return std::complex<int>( Random<int>(), Random<int>() ); }
+SampleUnitBall< std::complex<int> >()
+{ return std::complex<int>( SampleUnitBall<int>(), SampleUnitBall<int>() ); }
 #endif // WITHOUT_COMPLEX
 
 template<>
 inline float
-Random<float>()
-{ return ( 2*static_cast<float>(rand())/RAND_MAX-1 ); }
+SampleUnitBall<float>()
+{ return 2*plcg::ParallelUniform<float>()-1.0f; }
 
 template<>
 inline double
-Random<double>()
-{ return ( 2*static_cast<double>(rand())/RAND_MAX-1 ); }
+SampleUnitBall<double>()
+{ return 2*plcg::ParallelUniform<double>()-1.0; }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 inline std::complex<float>
-Random< std::complex<float> >()
+SampleUnitBall< std::complex<float> >()
 {
-    float r = Random<float>();
-    float angle = Pi * Random<float>();
+    const float r = plcg::ParallelUniform<float>();
+    const float angle = 2*Pi*plcg::ParallelUniform<float>();
 
     std::complex<float> u = std::polar(r,angle);
 
@@ -110,10 +110,10 @@ Random< std::complex<float> >()
 
 template<>
 inline std::complex<double>
-Random< std::complex<double> >()
+SampleUnitBall< std::complex<double> >()
 {
-    double r = Random<double>();
-    double angle = Pi * Random<double>();
+    const double r = plcg::ParallelUniform<double>();
+    const double angle = 2*Pi*plcg::ParallelUniform<double>();
 
     std::complex<double> u = std::polar(r,angle);
 

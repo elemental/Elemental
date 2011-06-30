@@ -83,6 +83,11 @@ mark_as_advanced(
 option(AVOID_OMP_FMA "Avoid a bug in the IBM compilers." ON)
 mark_as_advanced(AVOID_OMP_FMA)
 
+# Treat the data for MPI_Allgather as char's in order to avoid known performance
+# bugs
+option(USE_CHAR_ALLGATHERS "Avoid BG/P Allgather performance bug." ON)
+mark_as_advanced(USE_CHAR_ALLGATHERS)
+
 # Choose whether or not to build the prototype for the C interface
 option(BUILD_C_INTERFACE "Build the prototype for the C interface" OFF)
 mark_as_advanced(BUILD_C_INTERFACE)
@@ -381,6 +386,7 @@ endif(HAVE_DPOTRF)
 set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
 check_function_exists(mkl_set_num_threads MATH_HAS_MKL)
 
+add_subdirectory(contrib/parallel_lcg)
 if(BUILD_PMRRR)
   add_subdirectory(contrib/pmrrr)
 endif(BUILD_PMRRR)
@@ -484,9 +490,10 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 # Build the main library
 if(BUILD_PMRRR AND NOT FAILED_PMRRR)
   add_library(elemental STATIC ${ELEMENTAL_SRC})
-  target_link_libraries(elemental pmrrr)
+  target_link_libraries(elemental pmrrr plcg)
 else(BUILD_PMRRR AND NOT FAILED_PMRRR)
   add_library(elemental STATIC ${ELEMENTAL_SRC})
+  target_link_libraries(elemental plcg)
 endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
 # Build the test drivers if necessary

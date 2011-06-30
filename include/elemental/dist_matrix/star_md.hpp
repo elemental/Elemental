@@ -363,6 +363,7 @@ public:
     // Collective routines
     //
 
+    virtual void SetToRandomHermitian();
     virtual void SetToRandomHPD();
 
     //------------------------------------------------------------------------//
@@ -503,6 +504,7 @@ public:
     // Collective routines
     //
 
+    virtual void SetToRandomHermitian();
     virtual void SetToRandomHPD();
 
     //------------------------------------------------------------------------//

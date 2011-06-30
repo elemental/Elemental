@@ -81,10 +81,14 @@ elemental::Init
     advanced::internal::CreatePivotOp<dcomplex>();
 #endif
 
-    // Seed the random number generator with out rank
-    // plus a perturbation given by the current time
-    int rank = mpi::CommRank( mpi::COMM_WORLD );
-    srand( rank+time(0) );
+    // Seed the parallel LCG
+    plcg::UInt64 seed;
+    seed.d[0] = time(0);
+    seed.d[1] = time(0);
+    const unsigned rank = mpi::CommRank( mpi::COMM_WORLD );
+    const unsigned size = mpi::CommSize( mpi::COMM_WORLD );
+    mpi::Broadcast( (char*)seed.d, 2*sizeof(unsigned), 0, mpi::COMM_WORLD );
+    plcg::SeedParallelLcg( rank, size, seed );
 }
 
 void

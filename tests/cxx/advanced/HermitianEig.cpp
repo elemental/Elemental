@@ -208,6 +208,7 @@ void TestCorrectnessDoubleComplex
              << "    ||Z||_1            = " << oneNormOfZ << "\n"
              << "    ||Z||_oo           = " << infNormOfZ << "\n"
              << "    ||Z||_F            = " << frobNormOfZ << "\n"
+             << "    ||A Z - Z W||_1    = " << oneNormOfError << "\n"
              << "    ||A Z - Z W||_oo   = " << infNormOfError << "\n"
              << "    ||A Z - Z W||_F    = " << frobNormOfError << endl;
     }
@@ -226,7 +227,7 @@ void TestHermitianEigDouble
     DistMatrix<double,Star,VR> w(g);
     DistMatrix<double,MC,MR> Z(g);
 
-    A.SetToRandomHPD();
+    A.SetToRandomHermitian();
     if( testCorrectness )
     {
         if( g.VCRank() == 0 )
@@ -299,7 +300,7 @@ void TestHermitianEigDoubleComplex
     DistMatrix<             double, Star,VR> w(g);
     DistMatrix<std::complex<double>,MC,  MR> Z(g);
 
-    A.SetToRandomHPD();
+    A.SetToRandomHermitian();
     if( testCorrectness )
     {
         if( g.VCRank() == 0 )
