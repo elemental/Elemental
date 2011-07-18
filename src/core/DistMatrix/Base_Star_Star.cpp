@@ -50,14 +50,15 @@ using namespace elemental::utilities;
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,Star,Star>::Print( const string& s ) const
+elemental::DistMatrixBase<T,Star,Star>::Print
+( ostream& os, const string& msg ) const
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::Print");
 #endif
     const elemental::Grid& g = this->Grid();
-    if( g.VCRank() == 0 && s != "" )
-        cout << s << endl;
+    if( g.VCRank() == 0 && msg != "" )
+        os << msg << endl;
 
     const int height = this->Height();
     const int width  = this->Width();
@@ -77,16 +78,23 @@ elemental::DistMatrixBase<T,Star,Star>::Print( const string& s ) const
             for( int i=0; i<height; ++i )
             {
                 for( int j=0; j<width; ++j )
-                    cout << this->GetLocalEntry(i,j) << " ";
-                cout << "\n";
+                    os << this->GetLocalEntry(i,j) << " ";
+                os << "\n";
             }
-            cout << endl;
+            os << endl;
         }
         mpi::Barrier( g.VCComm() );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+void
+elemental::DistMatrixBase<T,Star,Star>::Print( const string& msg ) const
+{
+    Print( cout, msg );
 }
 
 template<typename T>

@@ -297,7 +297,8 @@ public:
     virtual void ScaleTrapezoidal
     ( T alpha, Side side, Shape shape, int offset = 0 ) = 0;
 
-    virtual void Print( const std::string& s ) const = 0;
+    virtual void Print( const std::string& msg="" ) const = 0;
+    virtual void Print( std::ostream& os, const std::string& msg="" ) const = 0;
     virtual void ResizeTo( int height, int width ) = 0;
     virtual void SetToIdentity() = 0;
     virtual void SetToRandom() = 0;

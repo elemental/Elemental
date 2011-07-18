@@ -50,13 +50,14 @@ using namespace elemental::utilities;
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,Star,MD>::Print( const string& s ) const
+elemental::DistMatrixBase<T,Star,MD>::Print
+( ostream& os, const string& msg ) const
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::Print");
 #endif
-    if( this->Grid().VCRank() == 0 && s != "" )
-        cout << s << endl;
+    if( this->Grid().VCRank() == 0 && msg != "" )
+        os << msg << endl;
         
     const int height     = this->Height();
     const int width      = this->Width();
@@ -103,15 +104,21 @@ elemental::DistMatrixBase<T,Star,MD>::Print( const string& s ) const
         for( int i=0; i<height; ++i )
         {
             for( int j=0; j<width; ++j )
-                cout << recvBuf[i+j*height] << " ";
-            cout << "\n";
+                os << recvBuf[i+j*height] << " ";
+            os << "\n";
         }
-        cout << endl;
+        os << endl;
     }
-
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+void
+elemental::DistMatrixBase<T,Star,MD>::Print( const string& msg ) const
+{
+    Print( cout, msg );
 }
 
 template<typename T>
@@ -141,7 +148,7 @@ elemental::DistMatrixBase<T,Star,MD>::AlignRows
     const elemental::Grid& g = this->Grid();
 #ifndef RELEASE
     if( rowAlignment < 0 || rowAlignment >= g.Size() )
-        throw std::runtime_error( "Invalid row alignment for [Star,MD]" );
+        throw runtime_error( "Invalid row alignment for [Star,MD]" );
 #endif
     this->_rowAlignment = rowAlignment;
     this->_inDiagonal = ( g.DiagPath() == g.DiagPath(rowAlignment) );

@@ -49,13 +49,13 @@ using namespace elemental;
 
 template<typename T>
 void
-elemental::MatrixBase<T>::Print( string msg ) const
+elemental::MatrixBase<T>::Print( ostream& os, const string& msg ) const
 {
 #ifndef RELEASE
     PushCallStack("MatrixBase::Print");
 #endif
     if( msg != "" )
-        cout << msg << endl;
+        os << msg << endl;
 
     const int height = Height();
     const int width = Width();
@@ -63,13 +63,20 @@ elemental::MatrixBase<T>::Print( string msg ) const
     for( int i=0; i<height; ++i )
     {
         for( int j=0; j<width; ++j )
-            cout << Get(i,j) << " ";
-        cout << endl;
+            os << Get(i,j) << " ";
+        os << endl;
     }
-    cout << endl;
+    os << endl;
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+void
+elemental::MatrixBase<T>::Print( const string& msg ) const
+{
+    Print( cout, msg );
 }
 
 template<typename T>

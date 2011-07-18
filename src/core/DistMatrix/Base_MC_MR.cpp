@@ -50,7 +50,8 @@ using namespace elemental::utilities;
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,MR>::Print( const string& s ) const
+elemental::DistMatrixBase<T,MC,MR>::Print
+( ostream& os, const string& msg ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::Print");
@@ -60,8 +61,8 @@ elemental::DistMatrixBase<T,MC,MR>::Print( const string& s ) const
     const int r = g.Height();
     const int c = g.Width();
 
-    if( g.VCRank() == 0 && s != "" )
-        cout << s << endl;
+    if( g.VCRank() == 0 && msg != "" )
+        os << msg << endl;
 
     const int height = this->Height();
     const int width  = this->Width();
@@ -108,17 +109,23 @@ elemental::DistMatrixBase<T,MC,MR>::Print( const string& s ) const
             for( int i=0; i<height; ++i )
             {
                 for( int j=0; j<width; ++j )
-                    cout << recvBuf[i+j*height] << " ";
-                cout << "\n";
+                    os << recvBuf[i+j*height] << " ";
+                os << "\n";
             }
-            cout << endl;
+            os << endl;
         }
         mpi::Barrier( g.VCComm() );
     }
-
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T>
+void
+elemental::DistMatrixBase<T,MC,MR>::Print( const string& msg ) const
+{
+    Print( cout, msg );
 }
 
 template<typename T>
@@ -134,9 +141,9 @@ elemental::DistMatrixBase<T,MC,MR>::Align
     const elemental::Grid& g = this->Grid();
 #ifndef RELEASE
     if( colAlignment < 0 || colAlignment >= g.Height() )
-        throw std::runtime_error( "Invalid column alignment for [MC,MR]" );
+        throw runtime_error( "Invalid column alignment for [MC,MR]" );
     if( rowAlignment < 0 || rowAlignment >= g.Width() )
-        throw std::runtime_error( "Invalid row alignment for [MC,MR]" );
+        throw runtime_error( "Invalid row alignment for [MC,MR]" );
 #endif
     this->_colAlignment = colAlignment;
     this->_rowAlignment = rowAlignment;
@@ -167,7 +174,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignCols
     const elemental::Grid& g = this->Grid();
 #ifndef RELEASE
     if( colAlignment < 0 || colAlignment >= g.Height() )
-        throw std::runtime_error( "Invalid column alignment for [MC,MR]" );
+        throw runtime_error( "Invalid column alignment for [MC,MR]" );
 #endif
     this->_colAlignment = colAlignment;
     this->_constrainedColAlignment = true;
@@ -195,7 +202,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRows
     const elemental::Grid& g = this->Grid();
 #ifndef RELEASE
     if( rowAlignment < 0 || rowAlignment >= g.Width() )
-        throw std::runtime_error( "Invalid row alignment for [MC,MR]" );
+        throw runtime_error( "Invalid row alignment for [MC,MR]" );
 #endif
     this->_rowAlignment = rowAlignment;
     this->_constrainedRowAlignment = true;
