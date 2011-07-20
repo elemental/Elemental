@@ -62,11 +62,12 @@ main( int argc, char* argv[] )
 
         AxpyInterface<double> interface;
         interface.Attach( A );
-        Matrix<double> X( p, 2 );
-        for( int j=0; j<2; ++j )
+        Matrix<double> X( p, 1 );
+        for( int j=0; j<X.Width(); ++j )
             for( int i=0; i<p; ++i )
                 X.Set(i,j,rank+1);
         interface.Axpy( 1.0, X, 2*rank, rank );
+        interface.Axpy( 1.0, X, 2*rank, rank+1 );
         interface.Detach();
 
         A.Print("A");

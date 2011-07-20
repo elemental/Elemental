@@ -344,6 +344,8 @@ AxpyInterface<T>::Axpy
     std::vector<imports::mpi::Request> requests(p);
     int receivingRow = myProcessRow;
     int receivingCol = myProcessCol;
+
+    bool mustRetry;
     do
     {
         HandleAcks();
@@ -358,9 +360,7 @@ AxpyInterface<T>::Axpy
 
         const int destination = receivingRow + r*receivingCol;
 
-        // Initialize this as false, but change if necessary
-        bool mustRetry = false;
-
+        mustRetry = false;
         if( _canSendTo[destination] )
         {
             const int numEntries = localHeight*localWidth;
@@ -421,7 +421,8 @@ AxpyInterface<T>::Axpy
                 receivingCol = (receivingCol + 1) % c;
         }
     }
-    while( receivingRow != myProcessRow || receivingCol != myProcessCol );
+    while( mustRetry || 
+           receivingRow != myProcessRow || receivingCol != myProcessCol );
 #ifndef RELEASE
     PopCallStack();
 #endif
