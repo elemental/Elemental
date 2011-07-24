@@ -587,6 +587,14 @@ AxpyInterface<T>::AxpyLocalToGlobal
     const int height = X.Height();
     const int width = X.Width();
 
+    // Fill the header
+    LocalToGlobalHeader header;
+    header.i = i;
+    header.j = j;
+    header.height = height;
+    header.width = width;
+    header.alpha = alpha;
+
     std::vector<mpi::Request> requests(p);
     int receivingRow = myProcessRow;
     int receivingCol = myProcessCol;
@@ -613,14 +621,6 @@ AxpyInterface<T>::AxpyLocalToGlobal
 
             // Make sure we have a big enough buffer
             _sendVectors[destination].resize( bufferSize );
-
-            // Fill the header
-            LocalToGlobalHeader header;
-            header.i = i;
-            header.j = j;
-            header.height = height;
-            header.width = width;
-            header.alpha = alpha;
 
             // Pack the header
             char* sendBuffer = &_sendVectors[destination][0];
