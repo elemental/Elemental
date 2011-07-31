@@ -78,8 +78,8 @@ protected:
 public:    
     virtual ~MatrixBase();
     
-    void Print( const std::string& msg="" ) const;
-    void Print( std::ostream& os, const std::string& msg="" ) const;
+    void Print( const std::string msg="" ) const;
+    void Print( std::ostream& os, const std::string msg="" ) const;
 
     void SetToRandom();
 

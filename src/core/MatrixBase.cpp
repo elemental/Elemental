@@ -49,7 +49,7 @@ using namespace elemental;
 
 template<typename T>
 void
-elemental::MatrixBase<T>::Print( ostream& os, const string& msg ) const
+elemental::MatrixBase<T>::Print( ostream& os, const string msg ) const
 {
 #ifndef RELEASE
     PushCallStack("MatrixBase::Print");
@@ -74,7 +74,7 @@ elemental::MatrixBase<T>::Print( ostream& os, const string& msg ) const
 
 template<typename T>
 void
-elemental::MatrixBase<T>::Print( const string& msg ) const
+elemental::MatrixBase<T>::Print( const string msg ) const
 {
     Print( cout, msg );
 }

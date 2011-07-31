@@ -1,6 +1,5 @@
 Relatively trivial but important 
 ================================
-- Add scaling into generalized eigensolvers
 - Unit tests for unaligned DistMatrix redistributions and summations
 
 Relatively trivial but not important

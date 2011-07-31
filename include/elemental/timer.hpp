@@ -43,13 +43,13 @@ class Timer
     const std::string _name;
 public:
     Timer();
-    Timer( const std::string& name );
+    Timer( const std::string name );
 
     void Start();
     void Stop();
     void Reset();
 
-    const std::string& Name() const;
+    const std::string Name() const;
     double Time() const;
 };
 
@@ -60,7 +60,7 @@ inline elemental::Timer::Timer()
 : _running(false), _time(0), _name("[blank]")
 { }
 
-inline elemental::Timer::Timer( const std::string& name )
+inline elemental::Timer::Timer( const std::string name )
 : _running(false), _time(0), _name(name)
 { }
 
@@ -99,7 +99,7 @@ inline void
 elemental::Timer::Reset()
 { _time = 0; }
 
-inline const std::string&
+inline const std::string
 elemental::Timer::Name() const
 { return _name; }
 

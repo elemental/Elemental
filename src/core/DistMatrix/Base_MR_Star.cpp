@@ -51,7 +51,7 @@ using namespace elemental::utilities;
 template<typename T>
 void
 elemental::DistMatrixBase<T,MR,Star>::Print
-( ostream& os, const string& msg ) const
+( ostream& os, const string msg ) const
 {
 #ifndef RELEASE
     PushCallStack("[MR,* ]::Print");
@@ -117,7 +117,7 @@ elemental::DistMatrixBase<T,MR,Star>::Print
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MR,Star>::Print( const string& msg ) const
+elemental::DistMatrixBase<T,MR,Star>::Print( const string msg ) const
 {
     Print( cout, msg );
 }
