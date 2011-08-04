@@ -63,6 +63,7 @@ class AxpyInterface
                      DATA_REQUEST_TAG=4, DATA_REPLY_TAG=5;
 
     bool _attachedForLocalToGlobal, _attachedForGlobalToLocal;
+    char _sendDummy, _recvDummy;
     DistMatrix<T,MC,MR>* _Y;
     const DistMatrix<T,MC,MR>* _X;
 
@@ -168,8 +169,7 @@ AxpyInterface<T>::HandleAck()
     if( haveAck )
     {
         const int source = status.MPI_SOURCE;
-        int dummy;
-        imports::mpi::Recv( &dummy, 1, source, ACK_TAG, g.VCComm() );
+        imports::mpi::Recv( &_recvDummy, 1, source, ACK_TAG, g.VCComm() );
         _canSendTo[source] = true;
         _sendVectors[source].clear();
     }
@@ -195,8 +195,7 @@ AxpyInterface<T>::HandleEom()
     if( haveEom )
     {
         const int source = status.MPI_SOURCE;
-        int dummy;
-        imports::mpi::Recv( &dummy, 1, source, EOM_TAG, g.VCComm() );
+        imports::mpi::Recv( &_recvDummy, 1, source, EOM_TAG, g.VCComm() );
         _haveEomFrom[source] = true;
     }
 #ifndef RELEASE
@@ -268,9 +267,8 @@ AxpyInterface<T>::HandleLocalToGlobalData()
         _recvVectors[source].clear();
 
         // Send an ACK to the source
-        int dummy;
         mpi::Request r;
-        mpi::ISSend( &dummy, 1, source, ACK_TAG, g.VCComm(), r );
+        mpi::ISSend( &_sendDummy, 1, source, ACK_TAG, g.VCComm(), r );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -309,9 +307,8 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
           source, DATA_REQUEST_TAG, g.VCComm() );
 
         // Send ACK to let source know messages can be sent
-        int dummy;
         mpi::Request request;
-        mpi::ISSend( &dummy, 1, source, ACK_TAG, g.VCComm(), request );
+        mpi::ISSend( &_sendDummy, 1, source, ACK_TAG, g.VCComm(), request );
 
         // Extract the header
         const char* recvBuffer = &_recvVectors[source][0];
@@ -378,13 +375,12 @@ AxpyInterface<T>::SendEoms()
 #endif
     const Grid& g = ( _attachedForLocalToGlobal ? _Y->Grid() : _X->Grid() );
     const int p = g.Size();
-    const int myRank = g.VCRank();
 
     for( int rank=0; rank<p; ++rank )
     {
-        int dummy;
         imports::mpi::Request request;
-        imports::mpi::ISSend( &dummy, 1, rank, EOM_TAG, g.VCComm(), request );
+        imports::mpi::ISSend
+        ( &_sendDummy, 1, rank, EOM_TAG, g.VCComm(), request );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -741,9 +737,8 @@ AxpyInterface<T>::AxpyGlobalToLocal
             mpi::Recv( recvBuffer, count, source, DATA_REPLY_TAG, g.VCComm() );
 
             // Send an ACK to the source
-            int dummy;
             mpi::Request request;
-            mpi::ISSend( &dummy, 1, source, ACK_TAG, g.VCComm(), request );
+            mpi::ISSend( &_sendDummy, 1, source, ACK_TAG, g.VCComm(), request );
 
             // Unpack the reply header
             GlobalToLocalReplyHeader replyHeader;

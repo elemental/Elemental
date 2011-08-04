@@ -119,7 +119,6 @@ elemental::DistMatrix<complex<Z>,MC,MR>::SetToRandomHermitian()
     const int r = this->Grid().Height();
     const int c = this->Grid().Width();
 
-    const int width = this->Width();
     const int localHeight = this->LocalHeight();
     const int localWidth = this->LocalWidth();
     const int colShift = this->ColShift();
