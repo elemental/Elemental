@@ -39,7 +39,7 @@ using namespace elemental::utilities;
 
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::PanelTridiagUSquare
+elemental::advanced::internal::HermitianPanelTridiagU
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star, 
@@ -50,7 +50,7 @@ elemental::advanced::internal::PanelTridiagUSquare
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelTridiagUSquare");
+    PushCallStack("advanced::internal::HermitianPanelTridiagU");
     if( A.Grid() != W.Grid() )
         throw logic_error
         ( "A and W must be distributed over the same grid." );
@@ -63,20 +63,8 @@ elemental::advanced::internal::PanelTridiagUSquare
 #endif
     const Grid& g = A.Grid();
     const int r = g.Height();
-
-    // Find the process holding our transposed data
-    int transposeRank;
-    {
-        int colAlignment = A.ColAlignment();
-        int rowAlignment = A.RowAlignment();
-        int colShift = A.ColShift();
-        int rowShift = A.RowShift();
-
-        int transposeRow = (colAlignment+rowShift) % r;
-        int transposeCol = (rowAlignment+colShift) % r;
-        transposeRank = transposeRow + r*transposeCol;
-    }
-    bool onDiagonal = ( transposeRank == g.VCRank() );
+    const int c = g.Width();
+    const int p = g.Size();
 
     // Create a distributed matrix for storing the superdiagonal
     DistMatrix<R,MD,Star> e(g);
@@ -106,6 +94,7 @@ elemental::advanced::internal::PanelTridiagUSquare
     DistMatrix<R,MC,Star> p01_MC_Star(g);
     DistMatrix<R,MC,Star> p01T_MC_Star(g);
     DistMatrix<R,MR,Star> p01_MR_Star(g);
+    DistMatrix<R,MC,Star> q01_MC_Star(g);
     DistMatrix<R,MR,Star> q01_MR_Star(g);
     DistMatrix<R,MR,Star> x21_MR_Star(g);
     DistMatrix<R,MR,Star> y21_MR_Star(g);
@@ -182,11 +171,13 @@ elemental::advanced::internal::PanelTridiagUSquare
         a01_MR_Star.AlignWith( A00 );
         p01_MC_Star.AlignWith( A00 );
         p01_MR_Star.AlignWith( A00 );
+        q01_MC_Star.AlignWith( A00 );
         q01_MR_Star.AlignWith( A00 );
         a01_MC_Star.ResizeTo( a01.Height(), 1 );
         a01_MR_Star.ResizeTo( a01.Height(), 1 );
         p01_MC_Star.ResizeTo( a01.Height(), 1 );
         p01_MR_Star.ResizeTo( a01.Height(), 1 );
+        q01_MC_Star.ResizeTo( a01.Height(), 1 );
         q01_MR_Star.ResizeTo( a01.Height(), 1 );
         x21_MR_Star.AlignWith( A02T );
         y21_MR_Star.AlignWith( A02T );
@@ -258,25 +249,7 @@ elemental::advanced::internal::PanelTridiagUSquare
             // Store tau
             tau = rowBroadcastBuffer[a01LocalHeight];
             
-            // Take advantage of the square process grid in order to form
-            // a01[MR,* ] from a01[MC,* ]
-            if( onDiagonal )
-            {
-                memcpy
-                ( a01_MR_Star.LocalBuffer(),
-                  a01_MC_Star.LocalBuffer(),
-                  a01LocalHeight*sizeof(R) );
-            }
-            else
-            {
-                // Pairwise exchange
-                int sendSize = A00.LocalHeight();
-                int recvSize = A00.LocalWidth();
-                mpi::SendRecv
-                ( a01_MC_Star.LocalBuffer(), sendSize, transposeRank, 0,
-                  a01_MR_Star.LocalBuffer(), recvSize, transposeRank, 0,
-                  g.VCComm() );
-            }
+            a01_MR_Star = a01_MC_Star;
             // Store a01[MR,* ]
             memcpy
             ( APan_MR_Star.LocalBuffer(0,W00.Width()),
@@ -339,56 +312,81 @@ elemental::advanced::internal::PanelTridiagUSquare
             // Store tau
             tau = rowBroadcastBuffer[a01LocalHeight+w01LastLocalHeight];
 
-            // Take advantage of the square process grid in order to quickly
-            // form a01[MR,* ] and w01Last[MR,* ] from their [MC,* ] 
-            // counterparts
+            // Form a01[MR,* ] and w01Last[MR,* ] by combining the 
+            // communications needed for taking a vector from 
+            // [MC,* ] -> [MR,* ]: 
+            //   local copy to [VC,* ], 
+            //   Send/Recv to [VR,* ], 
+            //   AllGather to [MR,* ]
+            // We can combine the two by treating a01 as [a01; 0].
+
+            int colAlignSource = A00.ColAlignment();
+            int colAlignDest = A00.RowAlignment();
+            int colShiftSource = A00.ColShift();
+            int colShiftDest = A00.RowShift();
+
+            int height = a01.Height()+1;
+            int portionSize = max(2*MaxLocalLength(height,p),mpi::MIN_COLL_MSG);
+
+            int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
+            int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);
+            int sendRankRM = (g.VRRank()+(p+colShiftVCSource-colShiftVRDest))%p;
+            int recvRankCM = (g.VCRank()+(p+colShiftVRDest-colShiftVCSource))%p;
+            int recvRankRM = (recvRankCM/r)+c*(recvRankCM%r);
+
+            vector<R> transposeBuffer( (r+1)*portionSize );
+            R* sendBuf = &transposeBuffer[0];
+            R* recvBuf = &transposeBuffer[r*portionSize];
+
+            // (w01Last[VC,* ] <- w01Last[MC,* ]) and
+            // ([a01; 0][VC,* ] <- [a01; 0][MC,* ])
+            {
+                // Pack the necessary portion of w01Last[MC,* ]
+                int shift = Shift(g.VCRank(),colAlignSource,p);
+                int offset = (shift-colShiftSource)/r;
+                int w01LocalHeight = LocalLength(height,shift,p);
+                const R* w01LastBuffer = w01Last_MC_Star.LocalBuffer(offset,0);
+                for( int i=0; i<w01LocalHeight; ++i )
+                    sendBuf[i] = w01LastBuffer[i*c];
+                
+                // Pack the necessary portion of a01[MC,* ]
+                int a01LocalHeight = LocalLength(height-1,shift,p);
+                const R* a01Buffer = a01_MC_Star.LocalBuffer(offset,0);
+                for( int i=0; i<a01LocalHeight; ++i )
+                    sendBuf[w01LocalHeight+i] = a01Buffer[i*c];
+            }
+
+            // [VR,* ] <- [VC,* ]
+            mpi::SendRecv
+            ( sendBuf, portionSize, sendRankRM, 0,
+              recvBuf, portionSize, recvRankRM, mpi::ANY_TAG, g.VRComm() );
+
+            // [MR,* ] <- [VR,* ]
+            mpi::AllGather
+            ( recvBuf, portionSize,
+              sendBuf, portionSize, g.MCComm() );
+
+            // Unpack
             w01Last_MR_Star.AlignWith( A00 );
-            w01Last_MR_Star.ResizeTo( w01Last.Height(), 1 );
-            if( onDiagonal )
+            w01Last_MR_Star.ResizeTo( a01.Height()+1, 1 );
+            for( int k=0; k<r; ++k )
             {
-                memcpy
-                ( a01_MR_Star.LocalBuffer(),
-                  a01_MC_Star.LocalBuffer(),
-                  a01LocalHeight*sizeof(R) );
-                memcpy
-                ( w01Last_MR_Star.LocalBuffer(),
-                  w01Last_MC_Star.LocalBuffer(),
-                  w01LastLocalHeight*sizeof(R) );
+                // Unpack into w01Last[MR,* ]
+                const R* w01Data = &sendBuf[k*portionSize];
+                int shift = Shift(g.MRRank()+c*k,colAlignDest,p);
+                int offset = (shift-colShiftDest) / c;
+                int w01LocalHeight = LocalLength(height,shift,p);
+                R* w01LastBuffer = w01Last_MR_Star.LocalBuffer(offset,0);
+                for( int i=0; i<w01LocalHeight; ++i )
+                    w01LastBuffer[i*r] = w01Data[i];
+
+                // Unpack into a01[MR,* ]
+                const R* a01Data = &sendBuf[k*portionSize+w01LocalHeight];
+                int a01LocalHeight = LocalLength(height-1,shift,p);
+                R* a01Buffer = a01_MR_Star.LocalBuffer(offset,0);
+                for( int i=0; i<a01LocalHeight; ++i )
+                    a01Buffer[i*r] = a01Data[i];
             }
-            else
-            {
-                int sendSize = A00.LocalHeight()+ATL.LocalHeight();
-                int recvSize = A00.LocalWidth()+ATL.LocalWidth();
-                vector<R> sendBuffer(sendSize);
-                vector<R> recvBuffer(recvSize);
-
-                // Pack the send buffer
-                memcpy
-                ( &sendBuffer[0],
-                  a01_MC_Star.LocalBuffer(),
-                  A00.LocalHeight()*sizeof(R) );
-                memcpy
-                ( &sendBuffer[A00.LocalHeight()],
-                  w01Last_MC_Star.LocalBuffer(),
-                  ATL.LocalHeight()*sizeof(R) );
-
-                // Pairwise exchange
-                mpi::SendRecv
-                ( &sendBuffer[0], sendSize, transposeRank, 0,
-                  &recvBuffer[0], recvSize, transposeRank, 0,
-                  g.VCComm() );
-
-                // Unpack the recv buffer
-                memcpy
-                ( a01_MR_Star.LocalBuffer(),
-                  &recvBuffer[0],
-                  A00.LocalWidth()*sizeof(R) );
-                memcpy
-                ( w01Last_MR_Star.LocalBuffer(),
-                  &recvBuffer[A00.LocalWidth()],
-                  ATL.LocalWidth()*sizeof(R) );
-            }
-
             // Store w01Last[MR,* ]
             memcpy
             ( W_MR_Star.LocalBuffer(0,W00.Width()+1),
@@ -439,107 +437,12 @@ elemental::advanced::internal::PanelTridiagUSquare
         // Form the local portions of (A00 a01) into p01[MC,* ] and q01[MR,* ]:
         //   p01[MC,* ] := triu(A00)[MC,MR] a01[MR,* ]
         //   q01[MR,* ] := triu(A00,+1)'[MR,MC] a01[MC,* ]
-        if( A00.ColShift() < A00.RowShift() )
-        {
-            // We are above the diagonal, so we can multiply without an 
-            // offset for triu(A00)[MC,MR] and triu(A00,1)'[MR,MC]
-            if( A00.LocalHeight() != 0 )
-            {
-                // Our local portion of p01[MC,* ] might be one entry longer
-                // than A00.LocalWidth(), so go ahead and set the last entry
-                // to 0.
-                R* p01_MC_Star_LocalBuffer = p01_MC_Star.LocalBuffer();
-                p01_MC_Star_LocalBuffer[A00.LocalHeight()-1] = 0;
-                memcpy
-                ( p01_MC_Star.LocalBuffer(),
-                  a01_MR_Star.LocalBuffer(),
-                  A00.LocalWidth()*sizeof(R) );
-                blas::Trmv
-                ( 'U', 'N', 'N', A00.LocalWidth(),
-                  A00.LocalBuffer(), A00.LocalLDim(),
-                  p01_MC_Star.LocalBuffer(), 1 );
-            }
-            if( A00.LocalWidth() != 0 )
-            {
-                memcpy
-                ( q01_MR_Star.LocalBuffer(),
-                  a01_MC_Star.LocalBuffer(),
-                  A00.LocalWidth()*sizeof(R) );
-                blas::Trmv
-                ( 'U', 'T', 'N', A00.LocalWidth(),
-                  A00.LocalBuffer(), A00.LocalLDim(),
-                  q01_MR_Star.LocalBuffer(), 1 );
-            }
-        }
-        else if( A00.ColShift() > A00.RowShift() )
-        {
-            // We are below the diagonal, so we need to use an offset 
-            // for both triu(A00)[MC,MR] and triu(A00,+1)'[MR,MC]
-            const R* a01_MC_Star_LocalBuffer = a01_MC_Star.LocalBuffer();
-            const R* a01_MR_Star_LocalBuffer = a01_MR_Star.LocalBuffer();
-            const R* A00LocalBuffer = A00.LocalBuffer();
-            if( A00.LocalHeight() != 0 )
-            {
-                // The last entry of p01[MC,* ] will be zero due to the forced
-                // offset
-                R* p01_MC_Star_LocalBuffer = p01_MC_Star.LocalBuffer();
-                p01_MC_Star_LocalBuffer[A00.LocalHeight()-1] = 0;
-                memcpy
-                ( &p01_MC_Star_LocalBuffer[0],
-                  &a01_MR_Star_LocalBuffer[1],
-                  (A00.LocalWidth()-1)*sizeof(R) );
-                blas::Trmv
-                ( 'U', 'N', 'N', A00.LocalWidth()-1,
-                  &A00LocalBuffer[A00.LocalLDim()], A00.LocalLDim(),
-                  &p01_MC_Star_LocalBuffer[0], 1 );
-            }
-            if( A00.LocalWidth() != 0 )
-            {
-                // The first entry of q01[MR,* ] will be zero due to the forced
-                // offset
-                R* q01_MR_Star_LocalBuffer = q01_MR_Star.LocalBuffer();
-                q01_MR_Star_LocalBuffer[0] = 0;
-                memcpy
-                ( &q01_MR_Star_LocalBuffer[1],
-                  &a01_MC_Star_LocalBuffer[0],
-                  (A00.LocalWidth()-1)*sizeof(R) );
-                blas::Trmv
-                ( 'U', 'T', 'N', A00.LocalWidth()-1,
-                  &A00LocalBuffer[A00.LocalLDim()], A00.LocalLDim(),
-                  &q01_MR_Star_LocalBuffer[1], 1 );
-            }
-        }
-        else
-        {
-            // We are on the diagonal, so we only need an offset for
-            // triu(A00,+1)'[MR,MC]
-            if( A00.LocalWidth() != 0 )
-            {
-                memcpy
-                ( p01_MC_Star.LocalBuffer(),
-                  a01_MR_Star.LocalBuffer(),
-                  A00.LocalHeight()*sizeof(R) );
-                blas::Trmv
-                ( 'U', 'N', 'N', A00.LocalHeight(),
-                  A00.LocalBuffer(), A00.LocalLDim(),
-                  p01_MC_Star.LocalBuffer(), 1 );
-
-                // The first entry of q01[MR,* ] must be zero due to the forced
-                // offset
-                const R* a01_MC_Star_LocalBuffer = a01_MC_Star.LocalBuffer();
-                const R* A00LocalBuffer = A00.LocalBuffer();
-                R* q01_MR_Star_LocalBuffer = q01_MR_Star.LocalBuffer();
-                q01_MR_Star_LocalBuffer[0] = 0;
-                memcpy
-                ( &q01_MR_Star_LocalBuffer[1],
-                  &a01_MC_Star_LocalBuffer[0],
-                  (A00.LocalWidth()-1)*sizeof(R) );
-                blas::Trmv
-                ( 'U', 'T', 'N', A00.LocalWidth()-1,
-                  &A00LocalBuffer[A00.LocalLDim()], A00.LocalLDim(),
-                  &q01_MR_Star_LocalBuffer[1], 1 );
-            }
-        }
+        PopBlocksizeStack();
+        p01_MC_Star.SetToZero();
+        q01_MR_Star.SetToZero();
+        basic::internal::LocalSymvColAccumulateU
+        ( (R)1, A00, a01_MC_Star, a01_MR_Star, p01_MC_Star, q01_MR_Star );
+        PushBlocksizeStack( 1 );
 
         basic::Gemv
         ( Transpose, 
@@ -551,11 +454,13 @@ elemental::advanced::internal::PanelTridiagUSquare
           (R)1, A02T.LockedLocalMatrix(),
                 a01T_MC_Star.LockedLocalMatrix(),
           (R)0, y21_MR_Star.LocalMatrix() );
-        // Combine the AllReduce column summations of x21[MR,* ] and y21[MR,* ]
+        // Combine the AllReduce column summations of x21[MR,* ], y21[MR,* ],
+        // and q01[MR,* ]
         {
             int x21LocalHeight = x21_MR_Star.LocalHeight();
             int y21LocalHeight = y21_MR_Star.LocalHeight();
-            int reduceSize = x21LocalHeight+y21LocalHeight;
+            int q01LocalHeight = q01_MR_Star.LocalHeight();
+            int reduceSize = x21LocalHeight+y21LocalHeight+q01LocalHeight;
             vector<R> colSummationSendBuffer(reduceSize);
             vector<R> colSummationRecvBuffer(reduceSize);
             memcpy
@@ -566,6 +471,10 @@ elemental::advanced::internal::PanelTridiagUSquare
             ( &colSummationSendBuffer[x21LocalHeight],
               y21_MR_Star.LocalBuffer(), 
               y21LocalHeight*sizeof(R) );
+            memcpy
+            ( &colSummationSendBuffer[x21LocalHeight+y21LocalHeight],
+              q01_MR_Star.LocalBuffer(), 
+              q01LocalHeight*sizeof(R) );
             mpi::AllReduce
             ( &colSummationSendBuffer[0], 
               &colSummationRecvBuffer[0],
@@ -578,6 +487,10 @@ elemental::advanced::internal::PanelTridiagUSquare
             ( y21_MR_Star.LocalBuffer(), 
               &colSummationRecvBuffer[x21LocalHeight], 
               y21LocalHeight*sizeof(R) );
+            memcpy
+            ( q01_MR_Star.LocalBuffer(), 
+              &colSummationRecvBuffer[x21LocalHeight+y21LocalHeight], 
+              q01LocalHeight*sizeof(R) );
         }
 
         basic::Gemv
@@ -591,63 +504,107 @@ elemental::advanced::internal::PanelTridiagUSquare
                  y21_MR_Star.LockedLocalMatrix(),
           (R)+1, p01T_MC_Star.LocalMatrix() );
 
-        // Fast transpose the unsummed q01[MR,* ] -> q01[MC,* ], so that
-        // it needs to be summed over process rows instead of process
-        // columns. We immediately add it onto p01[MC,* ], which also needs to
-        // be summed within process rows.
-        if( onDiagonal )
-        {
-            int a01LocalHeight = a01.LocalHeight();
-            R* p01_MC_Star_LocalBuffer = p01_MC_Star.LocalBuffer();
-            const R* q01_MR_Star_LocalBuffer = q01_MR_Star.LocalBuffer();
-            for( int i=0; i<a01LocalHeight; ++i )
-                p01_MC_Star_LocalBuffer[i] += q01_MR_Star_LocalBuffer[i];
-        }
-        else
-        {
-            // Pairwise exchange with the transpose process
-            int sendSize = A00.LocalWidth();
-            int recvSize = A00.LocalHeight();
-            vector<R> recvBuffer(recvSize);
-            mpi::SendRecv
-            ( q01_MR_Star.LocalBuffer(), sendSize, transposeRank, 0,
-              &recvBuffer[0],            recvSize, transposeRank, 0,
-              g.VCComm() );
-
-            // Unpack the recv buffer directly onto p01[MC,* ]
-            R* p01_MC_Star_LocalBuffer = p01_MC_Star.LocalBuffer();
-            for( int i=0; i<recvSize; ++i )
-                p01_MC_Star_LocalBuffer[i] += recvBuffer[i];
-        }
-
         if( W00.Width() > 0 )
         {
             // This is not the last iteration of the panel factorization, 
-            // Reduce to one p01[MC,* ] to the next process column.
-            int a01LocalHeight = a01.LocalHeight();
+            // combine the Reduce to one of p01[MC,* ] with the redistribution 
+            // of q01[MR,* ] -> q01[MC,MR] to the next process column.
+            int localHeight = p01_MC_Star.LocalHeight();
+            vector<R> reduceToOneSendBuffer(2*localHeight);
+            vector<R> reduceToOneRecvBuffer(2*localHeight);
+
+            // Pack p01[MC,* ]
+            memcpy
+            ( &reduceToOneSendBuffer[0], 
+              p01_MC_Star.LocalBuffer(),
+              localHeight*sizeof(R) );
+
+            // Fill in contributions to q01[MC,MR] from q01[MR,* ]
+            bool contributing = 
+                ( q01_MR_Star.ColShift() % g.GCD() ==
+                  p01_MC_Star.ColShift() % g.GCD() );
+            if( contributing )
+            {
+                if( r == c )
+                {
+                    memcpy
+                    ( &reduceToOneSendBuffer[localHeight],
+                      q01_MR_Star.LocalBuffer(), 
+                      localHeight*sizeof(R) );
+                }
+                else
+                {
+                    // Zero the entire buffer first
+                    memset
+                    ( &reduceToOneSendBuffer[localHeight], 0,
+                      localHeight*sizeof(R) );
+                    // Fill in the entries that we contribute to.
+                    // We seek to find the minimum s in N such that
+                    //   s*c = a0-b0 (mod r)
+                    // where a0 is the column shift of MC, b0 is the row shift
+                    // of MR, and s is our first local entry of MR that will 
+                    // contribute to MC. I cannot think of an O(1) method, so
+                    // I will instead use the worst-case O(lcm(c,r)/c) method.
+                    int sourcePeriod = g.LCM() / c;
+                    int targetPeriod = g.LCM() / r;
+                    int a0 = p01_MC_Star.ColShift();
+                    int b0 = q01_MR_Star.ColShift();
+
+                    int sourceStart = 0;
+                    int f = (r+a0-b0) % r;
+                    for( int s=0; s<sourcePeriod; ++s )
+                    {
+                        if( (s*c) % r == f )
+                        {
+                            sourceStart = s;
+                            break;
+                        }
+                    }
+
+                    int globalShift = b0+sourceStart*c;
+                    int targetStart = (globalShift-a0)/r;
+                    int localLength =
+                        LocalLength(localHeight,targetStart,targetPeriod);
+                    const R* q01_MR_Star_LocalBuffer = 
+                        q01_MR_Star.LocalBuffer();
+                    int offset = localHeight + targetStart;
+                    for( int i=0; i<localLength; ++i )                        
+                        reduceToOneSendBuffer[offset+i*targetPeriod] = 
+                            q01_MR_Star_LocalBuffer[sourceStart+i*sourcePeriod];
+                }
+            }
+            else
+            {
+                memset
+                ( &reduceToOneSendBuffer[localHeight], 0, 
+                  localHeight*sizeof(R) );
+            }
 
             int nextProcessRow = (alpha11.ColAlignment()+r-1) % r;
-            int nextProcessCol = (alpha11.RowAlignment()+r-1) % r;
-
-            vector<R> reduceToOneRecvBuffer(a01LocalHeight);
+            int nextProcessCol = (alpha11.RowAlignment()+c-1) % c;
             mpi::Reduce
-            ( p01_MC_Star.LocalBuffer(),
+            ( &reduceToOneSendBuffer[0], 
               &reduceToOneRecvBuffer[0],
-              a01LocalHeight, mpi::SUM, nextProcessCol, g.MRComm() );
+              2*localHeight, mpi::SUM, nextProcessCol, g.MRComm() );
             if( g.MRRank() == nextProcessCol )
             {
+                // Combine the second half into the first half        
+                for( int i=0; i<localHeight; ++i )
+                    reduceToOneRecvBuffer[i] +=
+                        reduceToOneRecvBuffer[i+localHeight];
+
                 // Finish computing w01. During its computation, ensure that 
                 // every process has a copy of the bottom element of the w01.
                 // We know a priori that the bottom element of a01 is one.
                 const R* a01_MC_Star_LocalBuffer = a01_MC_Star.LocalBuffer();
                 R myDotProduct = blas::Dot
-                    ( a01LocalHeight, &reduceToOneRecvBuffer[0],   1, 
-                                      &a01_MC_Star_LocalBuffer[0], 1 );
+                    ( localHeight, &reduceToOneRecvBuffer[0], 1, 
+                                   a01_MC_Star_LocalBuffer,   1 );
                 R sendBuffer[2];
                 R recvBuffer[2];
                 sendBuffer[0] = myDotProduct;
                 sendBuffer[1] = ( g.MCRank()==nextProcessRow ? 
-                                  reduceToOneRecvBuffer[a01LocalHeight-1] : 0 );
+                                  reduceToOneRecvBuffer[localHeight-1] : 0 );
                 mpi::AllReduce
                 ( sendBuffer, recvBuffer, 2, mpi::SUM, g.MCComm() );
                 R dotProduct = recvBuffer[0];
@@ -656,7 +613,7 @@ elemental::advanced::internal::PanelTridiagUSquare
                 // - w01LastLocalBuffer
                 // - w01LastBottomEntry
                 R scale = 0.5*dotProduct*tau;
-                for( int i=0; i<a01LocalHeight; ++i )
+                for( int i=0; i<localHeight; ++i )
                     w01LastLocalBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
                           scale*a01_MC_Star_LocalBuffer[i] );
@@ -665,22 +622,94 @@ elemental::advanced::internal::PanelTridiagUSquare
         }
         else
         {
-            // This is the last iteration, so we just need to form w01[MC,* ]
-            // and w01[MR,* ].
-            int a01LocalHeight = a01.LocalHeight();
+            // This is the last iteration, our last task is to finish forming
+            // w01[MC,* ] and w01[MR,* ] so that we may place them into W[MC,* ]
+            // and W[MR,* ]
+            int localHeight = p01_MC_Star.LocalHeight();
+            vector<R> allReduceSendBuffer(2*localHeight);
+            vector<R> allReduceRecvBuffer(2*localHeight);
 
-            // AllReduce sum p01[MC,* ] over process rows
-            vector<R> allReduceRecvBuffer(a01LocalHeight);
+            // Pack p01[MC,* ]
+            memcpy
+            ( &allReduceSendBuffer[0], 
+              p01_MC_Star.LocalBuffer(),
+              localHeight*sizeof(R) );
+
+            // Fill in contributions to q01[MC,* ] from q01[MR,* ]
+            bool contributing = 
+                ( q01_MR_Star.ColShift() % g.GCD() ==
+                  p01_MC_Star.ColShift() % g.GCD() );
+            if( contributing )
+            {
+                if( r == c )
+                {
+                    memcpy
+                    ( &allReduceSendBuffer[localHeight],
+                      q01_MR_Star.LocalBuffer(), 
+                      localHeight*sizeof(R) );
+                }
+                else
+                {
+                    // Zero the entire buffer first
+                    memset
+                    ( &allReduceSendBuffer[localHeight], 0, 
+                      localHeight*sizeof(R) );
+                    // Fill in the entries that we contribute to.
+                    // We seek to find the minimum s in N such that
+                    //   s*c = a0-b0 (mod r)
+                    // where a0 is the column shift of MC, b0 is the row shift
+                    // of MR, and s is our first local entry of MR that will 
+                    // contribute to MC. I cannot think of an O(1) method, so
+                    // I will instead use the worst-case O(lcm(c,r)/c) method.
+                    int sourcePeriod = g.LCM() / c;
+                    int targetPeriod = g.LCM() / r;
+                    int a0 = p01_MC_Star.ColShift();
+                    int b0 = q01_MR_Star.ColShift();
+
+                    int sourceStart = 0;
+                    int f = (r+a0-b0) % r;
+                    for( int s=0; s<sourcePeriod; ++s )
+                    {
+                        if( (s*c) % r == f )
+                        {
+                            sourceStart = s;
+                            break;
+                        }
+                    }
+
+                    int globalShift = b0+sourceStart*c;
+                    int targetStart = (globalShift-a0)/r;
+                    int localLength = 
+                        LocalLength(localHeight,targetStart,targetPeriod);
+                    const R* q01_MR_Star_LocalBuffer = 
+                        q01_MR_Star.LocalBuffer();
+                    int offset = localHeight + targetStart;
+                    for( int i=0; i<localLength; ++i )
+                        allReduceSendBuffer[offset+i*targetPeriod] = 
+                            q01_MR_Star_LocalBuffer[sourceStart+i*sourcePeriod];
+                }
+            }
+            else
+            {
+                memset
+                ( &allReduceSendBuffer[localHeight], 0, 
+                  localHeight*sizeof(R) );
+            }
+
             mpi::AllReduce
-            ( p01_MC_Star.LocalBuffer(),
+            ( &allReduceSendBuffer[0], 
               &allReduceRecvBuffer[0],
-              a01LocalHeight, mpi::SUM, g.MRComm() );
+              2*localHeight, mpi::SUM, g.MRComm() );
 
+            // Combine the second half into the first half        
+            for( int i=0; i<localHeight; ++i )
+                allReduceRecvBuffer[i] += allReduceRecvBuffer[i+localHeight];
+ 
             // Finish computing w01. 
             const R* a01_MC_Star_LocalBuffer = a01_MC_Star.LocalBuffer();
             R myDotProduct = blas::Dot
-                ( a01LocalHeight, &allReduceRecvBuffer[0],     1, 
-                                  &a01_MC_Star_LocalBuffer[0], 1 );
+                ( localHeight, &allReduceRecvBuffer[0], 1, 
+                               a01_MC_Star_LocalBuffer, 1 );
             R dotProduct;
             mpi::AllReduce
             ( &myDotProduct, &dotProduct, 1, mpi::SUM, g.MCComm() );
@@ -694,35 +723,20 @@ elemental::advanced::internal::PanelTridiagUSquare
             // Store w01[MC,* ]
             R scale = 0.5*dotProduct*tau;
             R* w01_MC_Star_LocalBuffer = w01_MC_Star.LocalBuffer();
-            for( int i=0; i<a01LocalHeight; ++i )
+            for( int i=0; i<localHeight; ++i )
                 w01_MC_Star_LocalBuffer[i] = tau*
                     ( allReduceRecvBuffer[i]-
                       scale*a01_MC_Star_LocalBuffer[i] );
 
-            // Fast transpose w01[MC,* ] -> w01[MR,* ]
-            if( onDiagonal )
-            {
-                memcpy
-                ( w01_MR_Star.LocalBuffer(),
-                  w01_MC_Star.LocalBuffer(),
-                  a01LocalHeight*sizeof(R) );
-            }
-            else
-            {
-                // Pairwise exchange with the transpose process
-                int sendSize = A00.LocalHeight();
-                int recvSize = A00.LocalWidth();
-                mpi::SendRecv
-                ( w01_MC_Star.LocalBuffer(), sendSize, transposeRank, 0,
-                  w01_MR_Star.LocalBuffer(), recvSize, transposeRank, 0,
-                  g.VCComm() );
-            }
+            // Form w01[MR,* ]
+            w01_MR_Star = w01_MC_Star;
         }
         //--------------------------------------------------------------------//
         a01_MC_Star.FreeAlignments();
         a01_MR_Star.FreeAlignments();
         p01_MC_Star.FreeAlignments();
         p01_MR_Star.FreeAlignments();
+        q01_MC_Star.FreeAlignments();
         q01_MR_Star.FreeAlignments();
         x21_MR_Star.FreeAlignments();
         y21_MR_Star.FreeAlignments();
@@ -757,7 +771,7 @@ elemental::advanced::internal::PanelTridiagUSquare
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::PanelTridiagUSquare
+elemental::advanced::internal::HermitianPanelTridiagU
 ( DistMatrix<complex<R>,MC,MR  >& A,
   DistMatrix<complex<R>,MC,MR  >& W,
   DistMatrix<complex<R>,MD,Star>& t,
@@ -769,7 +783,7 @@ elemental::advanced::internal::PanelTridiagUSquare
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelTridiagUSquare");
+    PushCallStack("advanced::internal::HermitianPanelTridiagU");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         throw logic_error
         ("A, W, and t must be distributed over the same grid.");
@@ -787,20 +801,8 @@ elemental::advanced::internal::PanelTridiagUSquare
 
     const Grid& g = A.Grid();
     const int r = g.Height();
-
-    // Find the process holding our transposed data
-    int transposeRank;
-    {
-        int colAlignment = A.ColAlignment();
-        int rowAlignment = A.RowAlignment();
-        int colShift = A.ColShift();
-        int rowShift = A.RowShift();
-
-        int transposeRow = (colAlignment+rowShift) % r;
-        int transposeCol = (rowAlignment+colShift) % r;
-        transposeRank = transposeRow + r*transposeCol;
-    }
-    bool onDiagonal = ( transposeRank == g.VCRank() );
+    const int c = g.Width();
+    const int p = g.Size();
 
     // Create a distributed matrix for storing the superdiagonal
     DistMatrix<R,MD,Star> e(g);
@@ -834,6 +836,7 @@ elemental::advanced::internal::PanelTridiagUSquare
     DistMatrix<C,MC,Star> p01_MC_Star(g);
     DistMatrix<C,MC,Star> p01T_MC_Star(g);
     DistMatrix<C,MR,Star> p01_MR_Star(g);
+    DistMatrix<C,MC,Star> q01_MC_Star(g);
     DistMatrix<C,MR,Star> q01_MR_Star(g);
     DistMatrix<C,MR,Star> x21_MR_Star(g);
     DistMatrix<C,MR,Star> y21_MR_Star(g);
@@ -919,11 +922,13 @@ elemental::advanced::internal::PanelTridiagUSquare
         a01_MR_Star.AlignWith( A00 );
         p01_MC_Star.AlignWith( A00 );
         p01_MR_Star.AlignWith( A00 );
+        q01_MC_Star.AlignWith( A00 );
         q01_MR_Star.AlignWith( A00 );
         a01_MC_Star.ResizeTo( a01.Height(), 1 );
         a01_MR_Star.ResizeTo( a01.Height(), 1 );
         p01_MC_Star.ResizeTo( a01.Height(), 1 );
         p01_MR_Star.ResizeTo( a01.Height(), 1 );
+        q01_MC_Star.ResizeTo( a01.Height(), 1 );
         q01_MR_Star.ResizeTo( a01.Height(), 1 );
         x21_MR_Star.AlignWith( A02T );
         y21_MR_Star.AlignWith( A02T );
@@ -997,25 +1002,7 @@ elemental::advanced::internal::PanelTridiagUSquare
             // Store tau
             tau = rowBroadcastBuffer[a01LocalHeight];
             
-            // Take advantage of the square process grid in order to form
-            // a01[MR,* ] from a01[MC,* ]
-            if( onDiagonal )
-            {
-                memcpy
-                ( a01_MR_Star.LocalBuffer(),
-                  a01_MC_Star.LocalBuffer(),
-                  a01LocalHeight*sizeof(C) );
-            }
-            else
-            {
-                // Pairwise exchange
-                int sendSize = A00.LocalHeight();
-                int recvSize = A00.LocalWidth();
-                mpi::SendRecv
-                ( a01_MC_Star.LocalBuffer(), sendSize, transposeRank, 0,
-                  a01_MR_Star.LocalBuffer(), recvSize, transposeRank, 0,
-                  g.VCComm() );
-            }
+            a01_MR_Star = a01_MC_Star;
             // Store a01[MR,* ]
             memcpy
             ( APan_MR_Star.LocalBuffer(0,W00.Width()),
@@ -1078,56 +1065,81 @@ elemental::advanced::internal::PanelTridiagUSquare
             // Store tau
             tau = rowBroadcastBuffer[a01LocalHeight+w01LastLocalHeight];
 
-            // Take advantage of the square process grid in order to quickly
-            // form a01[MR,* ] and w01Last[MR,* ] from their [MC,* ]
-            // counterparts
+            // Form a01[MR,* ] and w01Last[MR,* ] by combining the 
+            // communications needed for taking a vector from 
+            // [MC,* ] -> [MR,* ]: 
+            //   local copy to [VC,* ], 
+            //   Send/Recv to [VR,* ], 
+            //   AllGather to [MR,* ]
+            // We can combine the two by treating a01 as [a01; 0] 
+
+            int colAlignSource = A00.ColAlignment();
+            int colAlignDest = A00.RowAlignment();
+            int colShiftSource = A00.ColShift();
+            int colShiftDest = A00.RowShift();
+
+            int height = a01.Height()+1;
+            int portionSize = max(2*MaxLocalLength(height,p),mpi::MIN_COLL_MSG);
+
+            int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
+            int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);
+            int sendRankRM = (g.VRRank()+(p+colShiftVCSource-colShiftVRDest))%p;
+            int recvRankCM = (g.VCRank()+(p+colShiftVRDest-colShiftVCSource))%p;
+            int recvRankRM = (recvRankCM/r)+c*(recvRankCM%r);
+
+            vector<C> transposeBuffer( (r+1)*portionSize );
+            C* sendBuf = &transposeBuffer[0];
+            C* recvBuf = &transposeBuffer[r*portionSize];
+
+            // (w01Last[VC,* ] <- w01Last[MC,* ]) and
+            // ([a01; 0][VC,* ] <- [a01; 0][MC,* ])
+            {
+                // Pack the necessary portion of w01Last[MC,* ]
+                int shift = Shift(g.VCRank(),colAlignSource,p);
+                int offset = (shift-colShiftSource)/r;
+                int w01LocalHeight = LocalLength(height,shift,p);
+                const C* w01LastBuffer = w01Last_MC_Star.LocalBuffer(offset,0);
+                for( int i=0; i<w01LocalHeight; ++i )
+                    sendBuf[i] = w01LastBuffer[i*c];
+                
+                // Pack the necessary portion of a01[MC,* ]
+                int a01LocalHeight = LocalLength(height-1,shift,p);
+                const C* a01Buffer = a01_MC_Star.LocalBuffer(offset,0);
+                for( int i=0; i<a01LocalHeight; ++i )
+                    sendBuf[w01LocalHeight+i] = a01Buffer[i*c];
+            }
+
+            // [VR,* ] <- [VC,* ]
+            mpi::SendRecv
+            ( sendBuf, portionSize, sendRankRM, 0,
+              recvBuf, portionSize, recvRankRM, mpi::ANY_TAG, g.VRComm() );
+
+            // [MR,* ] <- [VR,* ]
+            mpi::AllGather
+            ( recvBuf, portionSize,
+              sendBuf, portionSize, g.MCComm() );
+
+            // Unpack
             w01Last_MR_Star.AlignWith( A00 );
-            w01Last_MR_Star.ResizeTo( w01Last.Height(), 1 );
-            if( onDiagonal )
+            w01Last_MR_Star.ResizeTo( a01.Height()+1, 1 );
+            for( int k=0; k<r; ++k )
             {
-                memcpy
-                ( a01_MR_Star.LocalBuffer(),
-                  a01_MC_Star.LocalBuffer(),
-                  a01LocalHeight*sizeof(C) );
-                memcpy
-                ( w01Last_MR_Star.LocalBuffer(),
-                  w01Last_MC_Star.LocalBuffer(),
-                  w01LastLocalHeight*sizeof(C) );
+                // Unpack into w01Last[MR,* ]
+                const C* w01Data = &sendBuf[k*portionSize];
+                int shift = Shift(g.MRRank()+c*k,colAlignDest,p);
+                int offset = (shift-colShiftDest) / c;
+                int w01LocalHeight = LocalLength(height,shift,p);
+                C* w01LastBuffer = w01Last_MR_Star.LocalBuffer(offset,0);
+                for( int i=0; i<w01LocalHeight; ++i )
+                    w01LastBuffer[i*r] = w01Data[i];
+
+                // Unpack into a01[MR,* ]
+                const C* a01Data = &sendBuf[k*portionSize+w01LocalHeight];
+                int a01LocalHeight = LocalLength(height-1,shift,p);
+                C* a01Buffer = a01_MR_Star.LocalBuffer(offset,0);
+                for( int i=0; i<a01LocalHeight; ++i )
+                    a01Buffer[i*r] = a01Data[i];
             }
-            else
-            {
-                int sendSize = A00.LocalHeight()+ATL.LocalHeight();
-                int recvSize = A00.LocalWidth()+ATL.LocalWidth();
-                vector<C> sendBuffer(sendSize);
-                vector<C> recvBuffer(recvSize);
-
-                // Pack the send buffer
-                memcpy
-                ( &sendBuffer[0],
-                  a01_MC_Star.LocalBuffer(),
-                  A00.LocalHeight()*sizeof(C) );
-                memcpy
-                ( &sendBuffer[A00.LocalHeight()],
-                  w01Last_MC_Star.LocalBuffer(),
-                  ATL.LocalHeight()*sizeof(C) );
-
-                // Pairwise exchange
-                mpi::SendRecv
-                ( &sendBuffer[0], sendSize, transposeRank, 0,
-                  &recvBuffer[0], recvSize, transposeRank, 0,
-                  g.VCComm() );
-
-                // Unpack the recv buffer
-                memcpy
-                ( a01_MR_Star.LocalBuffer(),
-                  &recvBuffer[0],
-                  A00.LocalWidth()*sizeof(C) );
-                memcpy
-                ( w01Last_MR_Star.LocalBuffer(),
-                  &recvBuffer[A00.LocalWidth()],
-                  ATL.LocalWidth()*sizeof(C) );
-            }
-
             // Store w01Last[MR,* ]
             memcpy
             ( W_MR_Star.LocalBuffer(0,W00.Width()+1),
@@ -1180,108 +1192,12 @@ elemental::advanced::internal::PanelTridiagUSquare
         // Form the local portions of (A00 a01) into p01[MC,* ] and q01[MR,* ]:
         //   p01[MC,* ] := triu(A00)[MC,MR] a01[MR,* ]
         //   q01[MR,* ] := triu(A00,+1)'[MR,MC] a01[MC,* ]
-        if( A00.ColShift() < A00.RowShift() )
-        {
-            // We are above the diagonal, so we can multiply without an 
-            // offset for triu(A00)[MC,MR] and triu(A00,1)'[MR,MC]
-            if( A00.LocalHeight() != 0 )
-            {
-                // Our local portion of p01[MC,* ] might be one entry longer
-                // than A00.LocalWidth(), so go ahead and set the last entry
-                // to 0.
-                C* p01_MC_Star_LocalBuffer = p01_MC_Star.LocalBuffer();
-                p01_MC_Star_LocalBuffer[A00.LocalHeight()-1] = 0;
-                memcpy
-                ( p01_MC_Star.LocalBuffer(),
-                  a01_MR_Star.LocalBuffer(),
-                  A00.LocalWidth()*sizeof(C) );
-                blas::Trmv
-                ( 'U', 'N', 'N', A00.LocalWidth(),
-                  A00.LocalBuffer(), A00.LocalLDim(),
-                  p01_MC_Star.LocalBuffer(), 1 );
-            }
-            if( A00.LocalWidth() != 0 )
-            {
-                memcpy
-                ( q01_MR_Star.LocalBuffer(),
-                  a01_MC_Star.LocalBuffer(),
-                  A00.LocalWidth()*sizeof(C) );
-                blas::Trmv
-                ( 'U', 'C', 'N', A00.LocalWidth(),
-                  A00.LocalBuffer(), A00.LocalLDim(),
-                  q01_MR_Star.LocalBuffer(), 1 );
-            }
-        }
-        else if( A00.ColShift() > A00.RowShift() )
-        {
-            // We are below the diagonal, so we need to use an offset 
-            // for both triu(A00)[MC,MR] and triu(A00,+1)'[MR,MC]
-            const C* a01_MC_Star_LocalBuffer = a01_MC_Star.LocalBuffer();
-            const C* a01_MR_Star_LocalBuffer = a01_MR_Star.LocalBuffer();
-            const C* A00LocalBuffer = A00.LocalBuffer();
-            if( A00.LocalHeight() != 0 )
-            {
-                // The last entry of p01[MC,* ] will be zero due to the forced
-                // offset
-                C* p01_MC_Star_LocalBuffer = p01_MC_Star.LocalBuffer();
-                p01_MC_Star_LocalBuffer[A00.LocalHeight()-1] = 0;
-                memcpy
-                ( &p01_MC_Star_LocalBuffer[0],
-                  &a01_MR_Star_LocalBuffer[1],
-                  (A00.LocalWidth()-1)*sizeof(C) );
-                blas::Trmv
-                ( 'U', 'N', 'N', A00.LocalWidth()-1,
-                  &A00LocalBuffer[A00.LocalLDim()], A00.LocalLDim(),
-                  &p01_MC_Star_LocalBuffer[0], 1 );
-            }
-            if( A00.LocalWidth() != 0 )
-            {
-                // The first entry of q01[MR,* ] will be zero due to the forced
-                // offset
-                C* q01_MR_Star_LocalBuffer = q01_MR_Star.LocalBuffer();
-                q01_MR_Star_LocalBuffer[0] = 0;
-                memcpy
-                ( &q01_MR_Star_LocalBuffer[1],
-                  &a01_MC_Star_LocalBuffer[0],
-                  (A00.LocalWidth()-1)*sizeof(C) );
-                blas::Trmv
-                ( 'U', 'C', 'N', A00.LocalWidth()-1,
-                  &A00LocalBuffer[A00.LocalLDim()], A00.LocalLDim(),
-                  &q01_MR_Star_LocalBuffer[1], 1 );
-            }
-        }
-        else
-        {
-            // We are on the diagonal, so we only need an offset for
-            // triu(A00,+1)'[MR,MC]
-            if( A00.LocalWidth() != 0 )
-            {
-                memcpy
-                ( p01_MC_Star.LocalBuffer(),
-                  a01_MR_Star.LocalBuffer(),
-                  A00.LocalHeight()*sizeof(C) );
-                blas::Trmv
-                ( 'U', 'N', 'N', A00.LocalHeight(),
-                  A00.LocalBuffer(), A00.LocalLDim(),
-                  p01_MC_Star.LocalBuffer(), 1 );
-
-                // The first entry of q01[MR,* ] must be zero due to the forced
-                // offset
-                const C* a01_MC_Star_LocalBuffer = a01_MC_Star.LocalBuffer();
-                const C* A00LocalBuffer = A00.LocalBuffer();
-                C* q01_MR_Star_LocalBuffer = q01_MR_Star.LocalBuffer();
-                q01_MR_Star_LocalBuffer[0] = 0;
-                memcpy
-                ( &q01_MR_Star_LocalBuffer[1],
-                  &a01_MC_Star_LocalBuffer[0],
-                  (A00.LocalWidth()-1)*sizeof(C) );
-                blas::Trmv
-                ( 'U', 'C', 'N', A00.LocalWidth()-1,
-                  &A00LocalBuffer[A00.LocalLDim()], A00.LocalLDim(),
-                  &q01_MR_Star_LocalBuffer[1], 1 );
-            }
-        }
-
+        PopBlocksizeStack();
+        p01_MC_Star.SetToZero();
+        q01_MR_Star.SetToZero();
+        basic::internal::LocalHemvColAccumulateU
+        ( (C)1, A00, a01_MC_Star, a01_MR_Star, p01_MC_Star, q01_MR_Star );
+        PushBlocksizeStack( 1 );
 
         basic::Gemv
         ( ConjugateTranspose, 
@@ -1293,11 +1209,13 @@ elemental::advanced::internal::PanelTridiagUSquare
           (C)1, A02T.LockedLocalMatrix(),
                 a01T_MC_Star.LockedLocalMatrix(),
           (C)0, y21_MR_Star.LocalMatrix() );
-        // Combine the AllReduce column summations of x21[MR,* ] and y21[MR,* ]
+        // Combine the AllReduce column summations of x21[MR,* ], y21[MR,* ],
+        // and q01[MR,* ]
         {
             int x21LocalHeight = x21_MR_Star.LocalHeight();
             int y21LocalHeight = y21_MR_Star.LocalHeight();
-            int reduceSize = x21LocalHeight+y21LocalHeight;
+            int q01LocalHeight = q01_MR_Star.LocalHeight();
+            int reduceSize = x21LocalHeight+y21LocalHeight+q01LocalHeight;
             vector<C> colSummationSendBuffer(reduceSize);
             vector<C> colSummationRecvBuffer(reduceSize);
             memcpy
@@ -1308,6 +1226,10 @@ elemental::advanced::internal::PanelTridiagUSquare
             ( &colSummationSendBuffer[x21LocalHeight],
               y21_MR_Star.LocalBuffer(), 
               y21LocalHeight*sizeof(C) );
+            memcpy
+            ( &colSummationSendBuffer[x21LocalHeight+y21LocalHeight],
+              q01_MR_Star.LocalBuffer(), 
+              q01LocalHeight*sizeof(C) );
             mpi::AllReduce
             ( &colSummationSendBuffer[0], 
               &colSummationRecvBuffer[0],
@@ -1320,6 +1242,10 @@ elemental::advanced::internal::PanelTridiagUSquare
             ( y21_MR_Star.LocalBuffer(), 
               &colSummationRecvBuffer[x21LocalHeight], 
               y21LocalHeight*sizeof(C) );
+            memcpy
+            ( q01_MR_Star.LocalBuffer(), 
+              &colSummationRecvBuffer[x21LocalHeight+y21LocalHeight], 
+              q01LocalHeight*sizeof(C) );
         }
 
         basic::Gemv
@@ -1333,63 +1259,107 @@ elemental::advanced::internal::PanelTridiagUSquare
                  y21_MR_Star.LockedLocalMatrix(),
           (C)+1, p01T_MC_Star.LocalMatrix() );
 
-        // Fast transpose the unsummed q01[MR,* ] -> q01[MC,* ], so that
-        // it needs to be summed over process rows instead of process 
-        // columns. We immediately add it onto p01[MC,* ], which also needs
-        // to be summed within process rows.
-        if( onDiagonal )
-        {
-            int a01LocalHeight = a01.LocalHeight();
-            C* p01_MC_Star_LocalBuffer = p01_MC_Star.LocalBuffer();
-            const C* q01_MR_Star_LocalBuffer = q01_MR_Star.LocalBuffer();
-            for( int i=0; i<a01LocalHeight; ++i )
-                p01_MC_Star_LocalBuffer[i] += q01_MR_Star_LocalBuffer[i];
-        }
-        else
-        {
-            // Pairwise exchange with the transpose process
-            int sendSize = A00.LocalWidth();
-            int recvSize = A00.LocalHeight();
-            vector<C> recvBuffer(recvSize);
-            mpi::SendRecv
-            ( q01_MR_Star.LocalBuffer(), sendSize, transposeRank, 0,
-              &recvBuffer[0],            recvSize, transposeRank, 0,
-              g.VCComm() );
-
-            // Unpack the recv buffer directly onto p01[MC,* ]
-            C* p01_MC_Star_LocalBuffer = p01_MC_Star.LocalBuffer();
-            for( int i=0; i<recvSize; ++i )
-                p01_MC_Star_LocalBuffer[i] += recvBuffer[i];
-        }
-
         if( W00.Width() > 0 )
         {
             // This is not the last iteration of the panel factorization, 
-            // Reduce to one p01[MC,* ] to the next process column.
-            int a01LocalHeight = a01.LocalHeight();
+            // combine the Reduce to one of p01[MC,* ] with the redistribution 
+            // of q01[MR,* ] -> q01[MC,MR] to the next process column.
+            int localHeight = p01_MC_Star.LocalHeight();
+            vector<C> reduceToOneSendBuffer(2*localHeight);
+            vector<C> reduceToOneRecvBuffer(2*localHeight);
+
+            // Pack p01[MC,* ]
+            memcpy
+            ( &reduceToOneSendBuffer[0], 
+              p01_MC_Star.LocalBuffer(),
+              localHeight*sizeof(C) );
+
+            // Fill in contributions to q01[MC,MR] from q01[MR,* ]
+            bool contributing = 
+                ( q01_MR_Star.ColShift() % g.GCD() ==
+                  p01_MC_Star.ColShift() % g.GCD() );
+            if( contributing )
+            {
+                if( r == c )
+                {
+                    memcpy
+                    ( &reduceToOneSendBuffer[localHeight],
+                      q01_MR_Star.LocalBuffer(), 
+                      localHeight*sizeof(C) );
+                }
+                else
+                {
+                    // Zero the entire buffer first
+                    memset
+                    ( &reduceToOneSendBuffer[localHeight], 0,
+                      localHeight*sizeof(C) );
+                    // Fill in the entries that we contribute to.
+                    // We seek to find the minimum s in N such that
+                    //   s*c = a0-b0 (mod r)
+                    // where a0 is the column shift of MC, b0 is the row shift
+                    // of MR, and s is our first local entry of MR that will 
+                    // contribute to MC. I cannot think of an O(1) method, so
+                    // I will instead use the worst-case O(lcm(c,r)/c) method.
+                    int sourcePeriod = g.LCM() / c;
+                    int targetPeriod = g.LCM() / r;
+                    int a0 = p01_MC_Star.ColShift();
+                    int b0 = q01_MR_Star.ColShift();
+
+                    int sourceStart = 0;
+                    int f = (r+a0-b0) % r;
+                    for( int s=0; s<sourcePeriod; ++s )
+                    {
+                        if( (s*c) % r == f )
+                        {
+                            sourceStart = s;
+                            break;
+                        }
+                    }
+
+                    int globalShift = b0+sourceStart*c;
+                    int targetStart = (globalShift-a0)/r;
+                    int localLength =
+                        LocalLength(localHeight,targetStart,targetPeriod);
+                    const C* q01_MR_Star_LocalBuffer = 
+                        q01_MR_Star.LocalBuffer();
+                    int offset = localHeight + targetStart;
+                    for( int i=0; i<localLength; ++i )                        
+                        reduceToOneSendBuffer[offset+i*targetPeriod] = 
+                            q01_MR_Star_LocalBuffer[sourceStart+i*sourcePeriod];
+                }
+            }
+            else
+            {
+                memset
+                ( &reduceToOneSendBuffer[localHeight], 0, 
+                  localHeight*sizeof(C) );
+            }
 
             int nextProcessRow = (alpha11.ColAlignment()+r-1) % r;
-            int nextProcessCol = (alpha11.RowAlignment()+r-1) % r;
-
-            vector<C> reduceToOneRecvBuffer(a01LocalHeight);
+            int nextProcessCol = (alpha11.RowAlignment()+c-1) % c;
             mpi::Reduce
-            ( p01_MC_Star.LocalBuffer(),
+            ( &reduceToOneSendBuffer[0], 
               &reduceToOneRecvBuffer[0],
-              a01LocalHeight, mpi::SUM, nextProcessCol, g.MRComm() );
+              2*localHeight, mpi::SUM, nextProcessCol, g.MRComm() );
             if( g.MRRank() == nextProcessCol )
             {
+                // Combine the second half into the first half        
+                for( int i=0; i<localHeight; ++i )
+                    reduceToOneRecvBuffer[i] +=
+                        reduceToOneRecvBuffer[i+localHeight];
+
                 // Finish computing w01. During its computation, ensure that 
                 // every process has a copy of the last element of the w01.
                 // We know a priori that the last element of a01 is one.
                 const C* a01_MC_Star_LocalBuffer = a01_MC_Star.LocalBuffer();
                 C myDotProduct = blas::Dot
-                    ( a01LocalHeight, &reduceToOneRecvBuffer[0],   1, 
-                                      &a01_MC_Star_LocalBuffer[0], 1 );
+                    ( localHeight, &reduceToOneRecvBuffer[0], 1, 
+                                   &a01_MC_Star_LocalBuffer[0], 1 );
                 C sendBuffer[2];
                 C recvBuffer[2];
                 sendBuffer[0] = myDotProduct;
                 sendBuffer[1] = ( g.MCRank()==nextProcessRow ? 
-                                  reduceToOneRecvBuffer[a01LocalHeight-1] : 0 );
+                                  reduceToOneRecvBuffer[localHeight-1] : 0 );
                 mpi::AllReduce
                 ( sendBuffer, recvBuffer, 2, mpi::SUM, g.MCComm() );
                 C dotProduct = recvBuffer[0];
@@ -1398,7 +1368,7 @@ elemental::advanced::internal::PanelTridiagUSquare
                 // - w01LastLocalBuffer
                 // - w01LastBottomEntry
                 C scale = static_cast<C>(0.5)*dotProduct*Conj(tau);
-                for( int i=0; i<a01LocalHeight; ++i )
+                for( int i=0; i<localHeight; ++i )
                     w01LastLocalBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
                           scale*a01_MC_Star_LocalBuffer[i] );
@@ -1408,23 +1378,95 @@ elemental::advanced::internal::PanelTridiagUSquare
         else
         {
             // This is the last iteration, our last task is to finish forming
-            // w01[MC,* ] and w01[MR,* ]
-            int a01LocalHeight = a01.LocalHeight();
+            // w01[MC,* ] and w01[MR,* ] so that we may place them into W[MC,* ]
+            // and W[MR,* ]
+            int localHeight = p01_MC_Star.LocalHeight();
+            vector<C> allReduceSendBuffer(2*localHeight);
+            vector<C> allReduceRecvBuffer(2*localHeight);
 
-            // AllReduce sum p01[MC,* ] over process rows
-            vector<C> allReduceRecvBuffer(a01LocalHeight);
+            // Pack p01[MC,* ]
+            memcpy
+            ( &allReduceSendBuffer[0], 
+              p01_MC_Star.LocalBuffer(),
+              localHeight*sizeof(C) );
+
+            // Fill in contributions to q01[MC,* ] from q01[MR,* ]
+            bool contributing = 
+                ( q01_MR_Star.ColShift() % g.GCD() ==
+                  p01_MC_Star.ColShift() % g.GCD() );
+            if( contributing )
+            {
+                if( r == c )
+                {
+                    memcpy
+                    ( &allReduceSendBuffer[localHeight],
+                      q01_MR_Star.LocalBuffer(), 
+                      localHeight*sizeof(C) );
+                }
+                else
+                {
+                    // Zero the entire buffer first
+                    memset
+                    ( &allReduceSendBuffer[localHeight], 0, 
+                      localHeight*sizeof(C) );
+                    // Fill in the entries that we contribute to.
+                    // We seek to find the minimum s in N such that
+                    //   s*c = a0-b0 (mod r)
+                    // where a0 is the column shift of MC, b0 is the row shift
+                    // of MR, and s is our first local entry of MR that will 
+                    // contribute to MC. I cannot think of an O(1) method, so
+                    // I will instead use the worst-case O(lcm(c,r)/c) method.
+                    int sourcePeriod = g.LCM() / c;
+                    int targetPeriod = g.LCM() / r;
+                    int a0 = p01_MC_Star.ColShift();
+                    int b0 = q01_MR_Star.ColShift();
+
+                    int sourceStart = 0;
+                    int f = (r+a0-b0) % r;
+                    for( int s=0; s<sourcePeriod; ++s )
+                    {
+                        if( (s*c) % r == f )
+                        {
+                            sourceStart = s;
+                            break;
+                        }
+                    }
+
+                    int globalShift = b0+sourceStart*c;
+                    int targetStart = (globalShift-a0)/r;
+                    int localLength = 
+                        LocalLength(localHeight,targetStart,targetPeriod);
+                    const C* q01_MR_Star_LocalBuffer = 
+                        q01_MR_Star.LocalBuffer();
+                    int offset = localHeight + targetStart;
+                    for( int i=0; i<localLength; ++i )
+                        allReduceSendBuffer[offset+i*targetPeriod] = 
+                            q01_MR_Star_LocalBuffer[sourceStart+i*sourcePeriod];
+                }
+            }
+            else
+            {
+                memset
+                ( &allReduceSendBuffer[localHeight], 0, 
+                  localHeight*sizeof(C) );
+            }
+
             mpi::AllReduce
-            ( p01_MC_Star.LocalBuffer(),
+            ( &allReduceSendBuffer[0], 
               &allReduceRecvBuffer[0],
-              a01LocalHeight, mpi::SUM, g.MRComm() );
+              2*localHeight, mpi::SUM, g.MRComm() );
 
+            // Combine the second half into the first half        
+            for( int i=0; i<localHeight; ++i )
+                allReduceRecvBuffer[i] += allReduceRecvBuffer[i+localHeight];
+ 
             // Finish computing w01. During its computation, ensure that 
             // every process has a copy of the last element of the w01.
             // We know a priori that the last element of a01 is one.
             const C* a01_MC_Star_LocalBuffer = a01_MC_Star.LocalBuffer();
             C myDotProduct = blas::Dot
-                ( a01LocalHeight, &allReduceRecvBuffer[0],     1, 
-                                  &a01_MC_Star_LocalBuffer[0], 1 );
+                ( localHeight, &allReduceRecvBuffer[0], 1, 
+                               a01_MC_Star_LocalBuffer, 1 );
             C dotProduct;
             mpi::AllReduce
             ( &myDotProduct, &dotProduct, 1, mpi::SUM, g.MCComm() );
@@ -1438,35 +1480,20 @@ elemental::advanced::internal::PanelTridiagUSquare
             // Store w01[MC,* ]
             C scale = static_cast<C>(0.5)*dotProduct*Conj(tau);
             C* w01_MC_Star_LocalBuffer = w01_MC_Star.LocalBuffer();
-            for( int i=0; i<a01LocalHeight; ++i )
+            for( int i=0; i<localHeight; ++i )
                 w01_MC_Star_LocalBuffer[i] = tau*
                     ( allReduceRecvBuffer[i]-
                       scale*a01_MC_Star_LocalBuffer[i] );
 
-            // Fast transpose w01[MC,* ] -> w01[MR,* ]
-            if( onDiagonal )
-            {
-                memcpy
-                ( w01_MR_Star.LocalBuffer(),
-                  w01_MC_Star.LocalBuffer(),
-                  a01LocalHeight*sizeof(C) );
-            }
-            else
-            {
-                // Pairwise exchange with the transpose process
-                int sendSize = A00.LocalHeight();
-                int recvSize = A00.LocalWidth();
-                mpi::SendRecv
-                ( w01_MC_Star.LocalBuffer(), sendSize, transposeRank, 0,
-                  w01_MR_Star.LocalBuffer(), recvSize, transposeRank, 0,
-                  g.VCComm() );
-            }
+            // Form w01[MR,* ]
+            w01_MR_Star = w01_MC_Star;
         }
         //--------------------------------------------------------------------//
         a01_MC_Star.FreeAlignments();
         a01_MR_Star.FreeAlignments();
         p01_MC_Star.FreeAlignments();
         p01_MR_Star.FreeAlignments();
+        q01_MC_Star.FreeAlignments();
         q01_MR_Star.FreeAlignments();
         x21_MR_Star.FreeAlignments();
         y21_MR_Star.FreeAlignments();
@@ -1505,7 +1532,7 @@ elemental::advanced::internal::PanelTridiagUSquare
 }
 #endif // WITHOUT_COMPLEX
 
-template void elemental::advanced::internal::PanelTridiagUSquare
+template void elemental::advanced::internal::HermitianPanelTridiagU
 ( DistMatrix<float,MC,MR  >& A,
   DistMatrix<float,MC,MR  >& W,
   DistMatrix<float,MC,Star>& APan_MC_Star,
@@ -1513,7 +1540,7 @@ template void elemental::advanced::internal::PanelTridiagUSquare
   DistMatrix<float,MC,Star>& W_MC_Star,
   DistMatrix<float,MR,Star>& W_MR_Star );
 
-template void elemental::advanced::internal::PanelTridiagUSquare
+template void elemental::advanced::internal::HermitianPanelTridiagU
 ( DistMatrix<double,MC,MR  >& A,
   DistMatrix<double,MC,MR  >& W,
   DistMatrix<double,MC,Star>& APan_MC_Star,
@@ -1522,7 +1549,7 @@ template void elemental::advanced::internal::PanelTridiagUSquare
   DistMatrix<double,MR,Star>& W_MR_Star );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::internal::PanelTridiagUSquare
+template void elemental::advanced::internal::HermitianPanelTridiagU
 ( DistMatrix<scomplex,MC,MR  >& A,
   DistMatrix<scomplex,MC,MR  >& W,
   DistMatrix<scomplex,MD,Star>& t,
@@ -1531,7 +1558,7 @@ template void elemental::advanced::internal::PanelTridiagUSquare
   DistMatrix<scomplex,MC,Star>& W_MC_Star,
   DistMatrix<scomplex,MR,Star>& W_MR_Star );
 
-template void elemental::advanced::internal::PanelTridiagUSquare
+template void elemental::advanced::internal::HermitianPanelTridiagU
 ( DistMatrix<dcomplex,MC,MR  >& A,
   DistMatrix<dcomplex,MC,MR  >& W,
   DistMatrix<dcomplex,MD,Star>& t,

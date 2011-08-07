@@ -326,7 +326,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::Tridiag( shape, A );
+    advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -539,7 +539,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::Tridiag( shape, A );
+    advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -745,7 +745,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::Tridiag( shape, A );
+    advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -975,7 +975,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::Tridiag( shape, A );
+    advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -1103,7 +1103,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::Tridiag( shape, A );
+    advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -1228,7 +1228,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::Tridiag( shape, A );
+    advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -1382,7 +1382,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
-    advanced::Tridiag( shape, A, t );
+    advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -1595,7 +1595,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
-    advanced::Tridiag( shape, A, t );
+    advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -1802,7 +1802,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
-    advanced::Tridiag( shape, A, t );
+    advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -2033,7 +2033,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
-    advanced::Tridiag( shape, A, t );
+    advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -2162,7 +2162,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
-    advanced::Tridiag( shape, A, t );
+    advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
@@ -2288,7 +2288,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,Star,Star> t(g);
-    advanced::Tridiag( shape, A, t );
+    advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );

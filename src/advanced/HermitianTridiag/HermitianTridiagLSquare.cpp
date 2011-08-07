@@ -35,15 +35,17 @@
 using namespace std;
 using namespace elemental;
 
-template<typename R> // representation of a real number
+template<typename R> // representation of a real number 
 void
-elemental::advanced::internal::TridiagL
+elemental::advanced::internal::HermitianTridiagLSquare
 ( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::TridiagL");
+    PushCallStack("advanced::internal::HermitianTridiagLSquare");
     if( A.Height() != A.Width() )
-        throw logic_error( "A must be square." );
+        throw logic_error("A must be square.");
+    if( A.Grid().Height() != A.Grid().Width() )
+        throw logic_error("The process grid must be square.");
 #endif
     const Grid& g = A.Grid();
 
@@ -114,7 +116,7 @@ elemental::advanced::internal::TridiagL
                 //
                 // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are 
                 // formed during the panel factorization.
-                advanced::internal::PanelTridiagL
+                advanced::internal::HermitianPanelTridiagLSquare
                 ( ABR, WPan, 
                   APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
                 basic::internal::LocalTriangularRank2K
@@ -131,7 +133,8 @@ elemental::advanced::internal::TridiagL
             else
             {
                 A11_Star_Star = A11;
-                advanced::Tridiag( Lower, A11_Star_Star.LocalMatrix() );
+                advanced::HermitianTridiag
+                ( Lower, A11_Star_Star.LocalMatrix() );
                 A11 = A11_Star_Star;
             }
 
@@ -150,17 +153,19 @@ elemental::advanced::internal::TridiagL
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::TridiagL
+elemental::advanced::internal::HermitianTridiagLSquare
 ( DistMatrix<complex<R>,MC,  MR  >& A,
   DistMatrix<complex<R>,Star,Star>& t )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::TridiagL");
+    PushCallStack("advanced::internal::HermitianTridiagLSquare");
     if( A.Grid() != t.Grid() )
         throw logic_error( "A and t must be distributed over the same grid." );
 #endif
     const Grid& g = A.Grid();
 #ifndef RELEASE
+    if( g.Height() != g.Width() )
+        throw logic_error("The process grid must be square.");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( t.Viewing() )
@@ -245,14 +250,14 @@ elemental::advanced::internal::TridiagL
                 ( WPan_MR_Star, W11_MR_Star,
                                 W21_MR_Star, A11.Height() );
                 //------------------------------------------------------------//
-                // Accumulate the Householder vectors into A21 and form W21 such
-                // that subtracting (A21 W21' + W21 A21') is equal to 
+                // Accumulate the Householder vectors into A21 and form W21 
+                // such that subtracting (A21 W21' + W21 A21') is equal to 
                 // successively applying the similarity transformations 
                 // (I-conj(tau) h h')A22(I-tau h h') for each (tau,h).
                 //
                 // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are 
                 // formed during the panel factorization.
-                advanced::internal::PanelTridiagL
+                advanced::internal::HermitianPanelTridiagLSquare
                 ( ABR, WPan, t1,
                   APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
                 basic::internal::LocalTriangularRank2K
@@ -271,7 +276,7 @@ elemental::advanced::internal::TridiagL
                 A11_Star_Star = A11;
                 t1_Star_Star.ResizeTo( t1.Height(), 1 );
 
-                advanced::Tridiag
+                advanced::HermitianTridiag
                 ( Lower, A11_Star_Star.LocalMatrix(), 
                   t1_Star_Star.LocalMatrix() );
 
@@ -300,18 +305,18 @@ elemental::advanced::internal::TridiagL
 }
 #endif // WITHOUT_COMPLEX
 
-template void elemental::advanced::internal::TridiagL
+template void elemental::advanced::internal::HermitianTridiagLSquare
 ( DistMatrix<float,MC,MR>& A );
 
-template void elemental::advanced::internal::TridiagL
+template void elemental::advanced::internal::HermitianTridiagLSquare
 ( DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::internal::TridiagL
+template void elemental::advanced::internal::HermitianTridiagLSquare
 ( DistMatrix<scomplex,MC,  MR  >& A, 
   DistMatrix<scomplex,Star,Star>& t );
 
-template void elemental::advanced::internal::TridiagL
+template void elemental::advanced::internal::HermitianTridiagLSquare
 ( DistMatrix<dcomplex,MC,  MR  >& A, 
   DistMatrix<dcomplex,Star,Star>& t );
 #endif

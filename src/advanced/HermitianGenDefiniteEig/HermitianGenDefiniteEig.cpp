@@ -38,8 +38,8 @@ using namespace elemental;
 // Grab the full set of eigenpairs.
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
@@ -47,24 +47,24 @@ elemental::advanced::GeneralizedHermitianEig
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, tryForHighAccuracy );
-    if( genEigType == AXBX || genEigType == ABX )
+    if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
             basic::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (R)1, B, X );
         else
             basic::Trsm( Left, Upper, Normal, NonUnit, (R)1, B, X );
     }
-    else /* genEigType == BAX */
+    else /* type == BAX */
     {
         if( shape == Lower )
             basic::Trmm( Left, Lower, Normal, NonUnit, (R)1, B, X );
@@ -82,8 +82,8 @@ elemental::advanced::GeneralizedHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
@@ -91,24 +91,24 @@ elemental::advanced::GeneralizedHermitianEig
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
-    if( genEigType == AXBX || genEigType == ABX )
+    if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
             basic::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (R)1, B, X );
         else
             basic::Trsm( Left, Upper, Normal, NonUnit, (R)1, B, X );
     }
-    else /* genEigType == BAX */
+    else /* type == BAX */
     {
         if( shape == Lower )
             basic::Trmm( Left, Lower, Normal, NonUnit, (R)1, B, X );
@@ -124,8 +124,8 @@ elemental::advanced::GeneralizedHermitianEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
@@ -133,24 +133,24 @@ elemental::advanced::GeneralizedHermitianEig
   R a, R b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
-    if( genEigType == AXBX || genEigType == ABX )
+    if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
             basic::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (R)1, B, X );
         else
             basic::Trsm( Left, Upper, Normal, NonUnit, (R)1, B, X );
     }
-    else /* genEigType == BAX */
+    else /* type == BAX */
     {
         if( shape == Lower )
             basic::Trmm( Left, Lower, Normal, NonUnit, (R)1, B, X );
@@ -165,20 +165,20 @@ elemental::advanced::GeneralizedHermitianEig
 // Grab the full set of eigenvalues
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -194,20 +194,20 @@ elemental::advanced::GeneralizedHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -221,20 +221,20 @@ elemental::advanced::GeneralizedHermitianEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
   R a, R b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -248,8 +248,8 @@ elemental::advanced::GeneralizedHermitianEig
 // Grab the full set of eigenpairs
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
@@ -257,17 +257,17 @@ elemental::advanced::GeneralizedHermitianEig
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, tryForHighAccuracy );
-    if( genEigType == AXBX || genEigType == ABX )
+    if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
         {
@@ -282,7 +282,7 @@ elemental::advanced::GeneralizedHermitianEig
               std::complex<R>(1), B, X );
         }
     }
-    else /* genEigType == BAX */
+    else /* type == BAX */
     {
         if( shape == Lower )
         {
@@ -308,8 +308,8 @@ elemental::advanced::GeneralizedHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
@@ -317,17 +317,17 @@ elemental::advanced::GeneralizedHermitianEig
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
-    if( genEigType == AXBX || genEigType == ABX )
+    if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
         {
@@ -342,7 +342,7 @@ elemental::advanced::GeneralizedHermitianEig
               std::complex<R>(1), B, X );
         }
     }
-    else /* genEigType == BAX */
+    else /* type == BAX */
     {
         if( shape == Lower )
         {
@@ -366,8 +366,8 @@ elemental::advanced::GeneralizedHermitianEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
@@ -375,17 +375,17 @@ elemental::advanced::GeneralizedHermitianEig
   R a, R b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
-    if( genEigType == AXBX || genEigType == ABX )
+    if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
         {
@@ -400,7 +400,7 @@ elemental::advanced::GeneralizedHermitianEig
               std::complex<R>(1), B, X );
         }
     }
-    else /* genEigType == BAX */
+    else /* type == BAX */
     {
         if( shape == Lower )
         {
@@ -423,20 +423,20 @@ elemental::advanced::GeneralizedHermitianEig
 // Grab a full set of eigenvalues
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -452,20 +452,20 @@ elemental::advanced::GeneralizedHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -479,20 +479,20 @@ elemental::advanced::GeneralizedHermitianEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R> // representation of a real number
 void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
   R a, R b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GeneralizedHermitianEig");
+    PushCallStack("advanced::HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( genEigType==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? Right : Left );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -504,8 +504,8 @@ elemental::advanced::GeneralizedHermitianEig
 #endif // WITHOUT_COMPLEX
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
   DistMatrix<double,Star,VR>& w,
@@ -513,8 +513,8 @@ elemental::advanced::GeneralizedHermitianEig
   bool tryForHighAccuracy );
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
   DistMatrix<double,Star,VR>& w,
@@ -522,8 +522,8 @@ elemental::advanced::GeneralizedHermitianEig
   int a, int b, bool tryForHighAccuracy );
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
   DistMatrix<double,Star,VR>& w,
@@ -531,24 +531,24 @@ elemental::advanced::GeneralizedHermitianEig
   double a, double b, bool tryForHighAccuracy );
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
   DistMatrix<double,Star,VR>& w,
   bool tryForHighAccuracy );
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
   DistMatrix<double,Star,VR>& w,
   int a, int b, bool tryForHighAccuracy );
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
   DistMatrix<double,Star,VR>& w,
@@ -556,8 +556,8 @@ elemental::advanced::GeneralizedHermitianEig
 
 #ifndef WITHOUT_COMPLEX
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
   DistMatrix<             double, Star,VR>& w,
@@ -565,8 +565,8 @@ elemental::advanced::GeneralizedHermitianEig
   bool tryForHighAccuracy );
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
   DistMatrix<             double, Star,VR>& w,
@@ -574,8 +574,8 @@ elemental::advanced::GeneralizedHermitianEig
   int a, int b, bool tryForHighAccuracy );
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
   DistMatrix<             double, Star,VR>& w,
@@ -583,24 +583,24 @@ elemental::advanced::GeneralizedHermitianEig
   double a, double b, bool tryForHighAccuracy );
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
   DistMatrix<             double, Star,VR>& w,
   bool tryForHighAccuracy );
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
   DistMatrix<             double, Star,VR>& w,
   int a, int b, bool tryForHighAccuracy );
 
 template void
-elemental::advanced::GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+elemental::advanced::HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
   DistMatrix<             double, Star,VR>& w,

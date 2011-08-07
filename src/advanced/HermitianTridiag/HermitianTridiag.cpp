@@ -37,38 +37,38 @@ using namespace elemental::imports;
 
 // Algorithmic controls
 namespace {
-advanced::internal::TridiagApproach tridiagApproach = 
-    advanced::internal::TRIDIAG_NORMAL;
+advanced::internal::HermitianTridiagApproach tridiagApproach = 
+    advanced::internal::HERMITIAN_TRIDIAG_NORMAL;
 advanced::internal::GridOrder gridOrder = 
     advanced::internal::ROW_MAJOR;
 }
 void 
-elemental::advanced::internal::SetTridiagApproach
-( advanced::internal::TridiagApproach approach )
+elemental::advanced::internal::SetHermitianTridiagApproach
+( advanced::internal::HermitianTridiagApproach approach )
 { ::tridiagApproach = approach; }
 void 
-elemental::advanced::internal::SetTridiagSquareGridOrder
+elemental::advanced::internal::SetHermitianTridiagGridOrder
 ( advanced::internal::GridOrder order )
 { ::gridOrder = order; }
 
 template<typename R> // representation of a real number
 void
-elemental::advanced::Tridiag
+elemental::advanced::HermitianTridiag
 ( Shape shape, DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Tridiag");
+    PushCallStack("advanced::HermitianTridiag");
 #endif
     const Grid& g = A.Grid();
-    if( ::tridiagApproach == advanced::internal::TRIDIAG_NORMAL )
+    if( ::tridiagApproach == advanced::internal::HERMITIAN_TRIDIAG_NORMAL )
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( shape == Lower )
-            advanced::internal::TridiagL( A );
+            advanced::internal::HermitianTridiagL( A );
         else 
-            advanced::internal::TridiagU( A );
+            advanced::internal::HermitianTridiagU( A );
     }
-    else if( ::tridiagApproach == advanced::internal::TRIDIAG_SQUARE )
+    else if( ::tridiagApproach == advanced::internal::HERMITIAN_TRIDIAG_SQUARE )
     {
         // Drop down to a square mesh
         int p = g.Size();
@@ -76,17 +76,13 @@ elemental::advanced::Tridiag
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
         if( ::gridOrder == advanced::internal::COL_MAJOR )
-        {
             for( int j=0; j<pSqrt; ++j )
                 for( int i=0; i<pSqrt; ++i )
                     squareRanks[i+j*pSqrt] = i+j*pSqrt;
-        }
         else
-        {
             for( int j=0; j<pSqrt; ++j )
                 for( int i=0; i<pSqrt; ++i )
                     squareRanks[i+j*pSqrt] = j+i*pSqrt;
-        }
 
         mpi::Group owningGroup = g.OwningGroup();
         mpi::Group squareGroup;
@@ -100,9 +96,9 @@ elemental::advanced::Tridiag
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
         if( shape == Lower )
-            advanced::internal::TridiagLSquare( ASquare );
+            advanced::internal::HermitianTridiagLSquare( ASquare );
         else
-            advanced::internal::TridiagUSquare( ASquare ); 
+            advanced::internal::HermitianTridiagUSquare( ASquare ); 
         A = ASquare;
 
         mpi::GroupFree( squareGroup );
@@ -114,16 +110,16 @@ elemental::advanced::Tridiag
         if( g.Height() == g.Width() )
         {
             if( shape == Lower )
-                advanced::internal::TridiagLSquare( A );
+                advanced::internal::HermitianTridiagLSquare( A );
             else
-                advanced::internal::TridiagUSquare( A );
+                advanced::internal::HermitianTridiagUSquare( A );
         }
         else
         {
             if( shape == Lower )
-                advanced::internal::TridiagL( A );
+                advanced::internal::HermitianTridiagL( A );
             else
-                advanced::internal::TridiagU( A );
+                advanced::internal::HermitianTridiagU( A );
         }
     }
 #ifndef RELEASE
@@ -134,26 +130,26 @@ elemental::advanced::Tridiag
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 void
-elemental::advanced::Tridiag
+elemental::advanced::HermitianTridiag
 ( Shape shape, 
   DistMatrix<complex<R>,MC,  MR  >& A,
   DistMatrix<complex<R>,Star,Star>& t )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Tridiag");
+    PushCallStack("advanced::HermitianTridiag");
 #endif
     typedef complex<R> C;
 
     const Grid& g = A.Grid();
-    if( ::tridiagApproach == advanced::internal::TRIDIAG_NORMAL )
+    if( ::tridiagApproach == advanced::internal::HERMITIAN_TRIDIAG_NORMAL )
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( shape == Lower )
-            advanced::internal::TridiagL( A, t );
+            advanced::internal::HermitianTridiagL( A, t );
         else
-            advanced::internal::TridiagU( A, t );
+            advanced::internal::HermitianTridiagU( A, t );
     }
-    else if( ::tridiagApproach == advanced::internal::TRIDIAG_SQUARE )
+    else if( ::tridiagApproach == advanced::internal::HERMITIAN_TRIDIAG_SQUARE )
     {
         // Drop down to a square mesh 
         int p = g.Size();
@@ -161,17 +157,13 @@ elemental::advanced::Tridiag
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
         if( ::gridOrder == advanced::internal::COL_MAJOR )
-        {
             for( int j=0; j<pSqrt; ++j )
                 for( int i=0; i<pSqrt; ++i )
                     squareRanks[i+j*pSqrt] = i+j*pSqrt;
-        }
         else
-        {
             for( int j=0; j<pSqrt; ++j )
                 for( int i=0; i<pSqrt; ++i )
                     squareRanks[i+j*pSqrt] = j+i*pSqrt;
-        }
 
         mpi::Group owningGroup = g.OwningGroup();
         mpi::Group squareGroup;
@@ -186,9 +178,9 @@ elemental::advanced::Tridiag
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
         if( shape == Lower )
-            advanced::internal::TridiagLSquare( ASquare, tSquare );
+            advanced::internal::HermitianTridiagLSquare( ASquare, tSquare );
         else
-            advanced::internal::TridiagUSquare( ASquare, tSquare ); 
+            advanced::internal::HermitianTridiagUSquare( ASquare, tSquare ); 
         A = ASquare;
         t = tSquare;
 
@@ -201,16 +193,16 @@ elemental::advanced::Tridiag
         if( g.Height() == g.Width() )
         {
             if( shape == Lower )
-                advanced::internal::TridiagLSquare( A, t );
+                advanced::internal::HermitianTridiagLSquare( A, t );
             else
-                advanced::internal::TridiagUSquare( A, t ); 
+                advanced::internal::HermitianTridiagUSquare( A, t ); 
         }
         else
         {
             if( shape == Lower )
-                advanced::internal::TridiagL( A, t );
+                advanced::internal::HermitianTridiagL( A, t );
             else
-                advanced::internal::TridiagU( A, t );
+                advanced::internal::HermitianTridiagU( A, t );
         }
     }
 #ifndef RELEASE
@@ -219,21 +211,21 @@ elemental::advanced::Tridiag
 }
 #endif // WITHOUT_COMPLEX
 
-template void elemental::advanced::Tridiag
+template void elemental::advanced::HermitianTridiag
 ( Shape shape, 
   DistMatrix<float,MC,MR>& A );
 
-template void elemental::advanced::Tridiag
+template void elemental::advanced::HermitianTridiag
 ( Shape shape, 
   DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::Tridiag
+template void elemental::advanced::HermitianTridiag
 ( Shape shape,
   DistMatrix<scomplex,MC,  MR  >& A,
   DistMatrix<scomplex,Star,Star>& t );
 
-template void elemental::advanced::Tridiag
+template void elemental::advanced::HermitianTridiag
 ( Shape shape,
   DistMatrix<dcomplex,MC,  MR  >& A,
   DistMatrix<dcomplex,Star,Star>& t );

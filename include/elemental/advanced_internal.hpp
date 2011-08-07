@@ -68,7 +68,7 @@ LocalHegst
 
 template<typename F>
 void
-LocalTrinv
+LocalTriangularInversion
 ( Shape shape, Diagonal diagonal, DistMatrix<F,Star,Star>& A );
 
 //----------------------------------------------------------------------------//
@@ -368,28 +368,27 @@ RowReflector
 #endif
 
 //----------------------------------------------------------------------------//
-// Tridiag                                                                    //
+// HermitianTridiag                                                           //
 //----------------------------------------------------------------------------//
 
-// Controls for which tridiagonalization method to use. 
-//   TRIDIAG_NORMAL: 
-//     Pipelined algorithm for nonsquare grids
-//   TRIDIAG_SQUARE: 
-//     Pipelined algorithm for square grids, drops down to a subset of processes
-//     if necessary by redistributing the matrix.
-//   TRIDIAG_DEFAULT:
-//     Uses the TRIDIAG_NORMAL algorithm unless we are already on a square grid,
-//     in which case the TRIDIAG_SQUARE algorithm is used.
-//          
-enum TridiagApproach { TRIDIAG_NORMAL, TRIDIAG_SQUARE, TRIDIAG_DEFAULT };
-void SetTridiagApproach( TridiagApproach approach );
+enum HermitianTridiagApproach 
+{ HERMITIAN_TRIDIAG_NORMAL,  // Pipelined algorithm for (potentially) nonsquare grids
+  HERMITIAN_TRIDIAG_SQUARE,  // Pipelined algorithm for square grids. Drop down 
+                   // from a rectangular grid if necessary.
+  HERMITIAN_TRIDIAG_DEFAULT  // Use TRIDIAG_NORMAL approach unless on a square grid.
+};
 
+void SetHermitianTridiagApproach( HermitianTridiagApproach approach );
+
+// If dropping down to a square grid, the two simplest approaches are to take 
+// the first r^2 processes from the original grid (for an r x r grid) and to
+// either order them column-major or row-major to form the square grid.
 enum GridOrder { ROW_MAJOR, COL_MAJOR };
-void SetTridiagSquareGridOrder( GridOrder order );
+void SetHermitianTridiagGridOrder( GridOrder order );
 
 template<typename R>
 void
-PanelTridiagL
+HermitianPanelTridiagL
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star,
@@ -398,7 +397,7 @@ PanelTridiagL
   DistMatrix<R,MR,Star>& W_MR_Star );
 template<typename R>
 void
-PanelTridiagU
+HermitianPanelTridiagU
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star,
@@ -407,7 +406,7 @@ PanelTridiagU
   DistMatrix<R,MR,Star>& W_MR_Star );
 template<typename R>
 void
-PanelTridiagLSquare
+HermitianPanelTridiagLSquare
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star,
@@ -416,7 +415,7 @@ PanelTridiagLSquare
   DistMatrix<R,MR,Star>& W_MR_Star );
 template<typename R>
 void
-PanelTridiagUSquare
+HermitianPanelTridiagUSquare
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star,
@@ -427,7 +426,7 @@ PanelTridiagUSquare
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
-PanelTridiagL
+HermitianPanelTridiagL
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<std::complex<R>,MD,Star>& t,
@@ -437,7 +436,7 @@ PanelTridiagL
   DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
 template<typename R>
 void
-PanelTridiagU
+HermitianPanelTridiagU
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<std::complex<R>,MD,Star>& t,
@@ -448,7 +447,7 @@ PanelTridiagU
 
 template<typename R>
 void
-PanelTridiagLSquare
+HermitianPanelTridiagLSquare
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<std::complex<R>,MD,Star>& t,
@@ -458,7 +457,7 @@ PanelTridiagLSquare
   DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
 template<typename R>
 void
-PanelTridiagUSquare
+HermitianPanelTridiagUSquare
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<std::complex<R>,MD,Star>& t,
@@ -470,59 +469,59 @@ PanelTridiagUSquare
  
 template<typename R>
 void
-TridiagL( DistMatrix<R,MC,MR>& A );
+HermitianTridiagL( DistMatrix<R,MC,MR>& A );
 template<typename R>
 void
-TridiagU( DistMatrix<R,MC,MR>& A );
+HermitianTridiagU( DistMatrix<R,MC,MR>& A );
 
 template<typename R>
 void
-TridiagLSquare( DistMatrix<R,MC,MR>& A );
+HermitianTridiagLSquare( DistMatrix<R,MC,MR>& A );
 template<typename R>
 void
-TridiagUSquare( DistMatrix<R,MC,MR>& A );
+HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void
-TridiagL
+HermitianTridiagL
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,Star,Star>& t );
 template<typename R>
 void
-TridiagU
+HermitianTridiagU
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,Star,Star>& t );
 
 template<typename R>
 void
-TridiagLSquare
+HermitianTridiagLSquare
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,Star,Star>& t );
 template<typename R>
 void
-TridiagUSquare
+HermitianTridiagUSquare
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,Star,Star>& t );
 #endif
 
 //----------------------------------------------------------------------------//
-// Trinv                                                                      //
+// Triangular Inversion                                                       //
 //----------------------------------------------------------------------------//
 
 template<typename F>
 void
-TrinvVar3
+TriangularInversionVar3
 ( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
 template<typename F>
 void
-TrinvLVar3
+TriangularInversionLVar3
 ( Diagonal diagonal, DistMatrix<F,MC,MR>& L );
 
 template<typename F>
 void
-TrinvUVar3
+TriangularInversionUVar3
 ( Diagonal diagonal, DistMatrix<F,MC,MR>& U );
 
 //----------------------------------------------------------------------------//
@@ -686,11 +685,11 @@ QRGFlops( int m, int n, double seconds );
 
 template<typename F>
 double
-TridiagGFlops( int m, double seconds );
+HermitianTridiagGFlops( int m, double seconds );
 
 template<typename F>
 double
-TrinvGFlops( int m, double seconds );
+TriangularInversionGFlops( int m, double seconds );
 
 template<typename F>
 double
@@ -743,13 +742,13 @@ LocalHegst
 
 template<typename F>
 inline void
-LocalTrinv
+LocalTriangularInversion
 ( Shape shape, Diagonal diagonal, DistMatrix<F,Star,Star>& A )
 { 
 #ifndef RELEASE
-    PushCallStack("advanced::internal::LocalTrinv");
+    PushCallStack("advanced::internal::LocalTriangularInversion");
 #endif
-    Trinv( shape, diagonal, A.LocalMatrix() );
+    TriangularInversion( shape, diagonal, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -865,54 +864,54 @@ QRGFlops<dcomplex>
 
 template<>
 inline double
-TridiagGFlops<float>
+HermitianTridiagGFlops<float>
 ( int m, double seconds )
 { return (4./3.*m*m*m)/(1.e9*seconds); }
 
 template<>
 inline double
-TridiagGFlops<double>
+HermitianTridiagGFlops<double>
 ( int m, double seconds )
-{ return TridiagGFlops<float>(m,seconds); }
+{ return HermitianTridiagGFlops<float>(m,seconds); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 inline double
-TridiagGFlops<scomplex>
+HermitianTridiagGFlops<scomplex>
 ( int m, double seconds )
-{ return 4.*TridiagGFlops<float>(m,seconds); }
+{ return 4.*HermitianTridiagGFlops<float>(m,seconds); }
 
 template<>
 inline double
-TridiagGFlops<dcomplex>
+HermitianTridiagGFlops<dcomplex>
 ( int m, double seconds )
-{ return 4.*TridiagGFlops<float>(m,seconds); }
+{ return 4.*HermitianTridiagGFlops<float>(m,seconds); }
 #endif
 
 template<>
 inline double
-TrinvGFlops<float>
+TriangularInversionGFlops<float>
 ( int m, double seconds )
 { return (1./3.*m*m*m)/(1.e9*seconds); }
 
 template<>
 inline double
-TrinvGFlops<double>
+TriangularInversionGFlops<double>
 ( int m, double seconds )
-{ return TrinvGFlops<float>(m,seconds); }
+{ return TriangularInversionGFlops<float>(m,seconds); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 inline double
-TrinvGFlops<scomplex>
+TriangularInversionGFlops<scomplex>
 ( int m, double seconds )
-{ return 4.*TrinvGFlops<float>(m,seconds); }
+{ return 4.*TriangularInversionGFlops<float>(m,seconds); }
 
 template<>
 inline double
-TrinvGFlops<dcomplex>
+TriangularInversionGFlops<dcomplex>
 ( int m, double seconds )
-{ return 4.*TrinvGFlops<float>(m,seconds); }
+{ return 4.*TriangularInversionGFlops<float>(m,seconds); }
 #endif
 
 template<>

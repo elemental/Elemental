@@ -84,19 +84,19 @@ GaussElim
 ( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
-// GeneralizedHermitianEig (Hermitian Eigensolver)                            //
+// HermitianGenDefiniteEig (Hermitian Generalized-Definite Eigensolver)       //
 //                                                                            //
 //----------------------------------------------------------------------------//
 
 #ifndef WITHOUT_PMRRR
 
-enum GenEigType { AXBX=1, ABX=2, BAX=3 };
+enum HermitianGenDefiniteEigType { AXBX=1, ABX=2, BAX=3 };
 
 // Grab the full set of eigenpairs of real symmetric A and SPD B
 template<typename R>
 void
-GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A, 
   DistMatrix<R,MC,  MR>& B, 
   DistMatrix<R,Star,VR>& w,
@@ -108,8 +108,8 @@ GeneralizedHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void
-GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
@@ -119,8 +119,8 @@ GeneralizedHermitianEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R>
 void
-GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
@@ -129,8 +129,8 @@ GeneralizedHermitianEig
 // Grab the full set of eigenvalues of real symmetric A and SPD B
 template<typename R>
 void
-GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape, 
+HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A, 
   DistMatrix<R,MC,  MR>& B, 
   DistMatrix<R,Star,VR>& w,
@@ -141,8 +141,8 @@ GeneralizedHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void
-GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
@@ -151,8 +151,8 @@ GeneralizedHermitianEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R>
 void
-GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,Star,VR>& w,
@@ -162,8 +162,8 @@ GeneralizedHermitianEig
 // Grab the full set of eigenpairs of complex Hermitian A and HPD B
 template<typename R>
 void
-GeneralizedHermitianEig    
-( GenEigType genEigType, Shape shape,
+HermitianGenDefiniteEig    
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
@@ -175,8 +175,8 @@ GeneralizedHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void
-GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
@@ -186,8 +186,8 @@ GeneralizedHermitianEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R>
 void
-GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
@@ -196,8 +196,8 @@ GeneralizedHermitianEig
 // Grab the full set of eigenvalues of complex Hermitian A and HPD B
 template<typename R>
 void
-GeneralizedHermitianEig    
-( GenEigType genEigType, Shape shape,
+HermitianGenDefiniteEig    
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
@@ -208,8 +208,8 @@ GeneralizedHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void
-GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
@@ -218,8 +218,8 @@ GeneralizedHermitianEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R>
 void
-GeneralizedHermitianEig
-( GenEigType genEigType, Shape shape,
+HermitianGenDefiniteEig
+( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, Star,VR>& w,
@@ -857,7 +857,7 @@ SVD
 #endif
 
 //----------------------------------------------------------------------------//
-// Tridiag (Householder tridiagonalization):                                  //
+// HermitianTridiag (Reduce Hermitian matrix to tridiagonal form):            //
 //                                                                            //
 // The diagonal and sub/super-diagonal of A are overwritten with a similar    //
 // tridiagonal matrix that is found by successively applying Householder      //
@@ -875,35 +875,35 @@ SVD
 // Serial version for real datatypes
 template<typename R>
 void
-Tridiag
+HermitianTridiag
 ( Shape shape, Matrix<R>& A );
 
 #ifndef WITHOUT_COMPLEX
 // Serial version for complex datatypes
 template<typename R>
 void
-Tridiag
-( Shape shape, Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& t );
+HermitianTridiag
+( Shape shape, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t );
 #endif
 
 // Parallel version for real datatypes
 template<typename R>
 void
-Tridiag
+HermitianTridiag
 ( Shape shape, DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 // Parallel version for complex datatypes
 template<typename R>
 void
-Tridiag
+HermitianTridiag
 ( Shape shape,
   DistMatrix<std::complex<R>,MC,  MR  >& A,
   DistMatrix<std::complex<R>,Star,Star>& t );
 #endif
 
 //----------------------------------------------------------------------------//
-// Trinv (TRiangular INVersion):                                              //
+// TriangularInversion                                                        //
 //                                                                            //
 // Inverts a triangular matrix. 'shape' determines whether A is assumed to be //
 // upper or lower triangular, and 'diagonal' determines whether or not A is   //
@@ -913,13 +913,13 @@ Tridiag
 // Serial version
 template<typename F>
 void
-Trinv
+TriangularInversion
 ( Shape shape, Diagonal diagonal, Matrix<F>& A );
 
 // Parallel version
 template<typename F>
 void
-Trinv
+TriangularInversion
 ( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
 //----------------------------------------------------------------------------//
@@ -1159,17 +1159,17 @@ elemental::advanced::SVD
 
 template<typename F>
 inline void
-elemental::advanced::Trinv
+elemental::advanced::TriangularInversion
 ( Shape shape, Diagonal diagonal, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Trinv");
+    PushCallStack("advanced::TriangularInversion");
     if( A.Height() != A.Width() )
         throw std::logic_error( "A must be square." );
 #endif
     const char uplo = ShapeToChar( shape );
     const char diag = DiagonalToChar( diagonal );
-    imports::lapack::Trinv
+    imports::lapack::TriangularInversion
     ( uplo, diag, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();

@@ -444,8 +444,8 @@ main( int argc, char* argv[] )
                  << "Double-precision normal tridiag algorithm:\n"
                  << "------------------------------------------" << endl;
         }
-        advanced::internal::SetTridiagApproach
-        ( advanced::internal::TRIDIAG_NORMAL );
+        advanced::internal::SetHermitianTridiagApproach
+        ( advanced::internal::HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
           onlyEigenvalues, range, shape, m, vl, vu, il, iu, 
@@ -458,9 +458,9 @@ main( int argc, char* argv[] )
                  << "row-major grid:\n"
                  << "------------------------------------------" << endl;
         }
-        advanced::internal::SetTridiagApproach
-        ( advanced::internal::TRIDIAG_SQUARE );
-        advanced::internal::SetTridiagSquareGridOrder
+        advanced::internal::SetHermitianTridiagApproach
+        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
+        advanced::internal::SetHermitianTridiagGridOrder
         ( advanced::internal::ROW_MAJOR );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
@@ -474,9 +474,9 @@ main( int argc, char* argv[] )
                  << "col-major grid:\n"
                  << "------------------------------------------" << endl;
         }
-        advanced::internal::SetTridiagApproach
-        ( advanced::internal::TRIDIAG_SQUARE );
-        advanced::internal::SetTridiagSquareGridOrder
+        advanced::internal::SetHermitianTridiagApproach
+        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
+        advanced::internal::SetHermitianTridiagGridOrder
         ( advanced::internal::COL_MAJOR );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
@@ -491,8 +491,8 @@ main( int argc, char* argv[] )
                  << "--------------------------------------------------" 
                  << endl;
         }
-        advanced::internal::SetTridiagApproach
-        ( advanced::internal::TRIDIAG_NORMAL );
+        advanced::internal::SetHermitianTridiagApproach
+        ( advanced::internal::HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
           onlyEigenvalues, range, shape, m, vl, vu, il, iu, 
@@ -506,9 +506,9 @@ main( int argc, char* argv[] )
                  << "---------------------------------------------------"
                  << endl;
         }
-        advanced::internal::SetTridiagApproach
-        ( advanced::internal::TRIDIAG_SQUARE );
-        advanced::internal::SetTridiagSquareGridOrder
+        advanced::internal::SetHermitianTridiagApproach
+        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
+        advanced::internal::SetHermitianTridiagGridOrder
         ( advanced::internal::ROW_MAJOR );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
@@ -523,9 +523,9 @@ main( int argc, char* argv[] )
                  << "---------------------------------------------------"
                  << endl;
         }
-        advanced::internal::SetTridiagApproach
-        ( advanced::internal::TRIDIAG_SQUARE );
-        advanced::internal::SetTridiagSquareGridOrder
+        advanced::internal::SetHermitianTridiagApproach
+        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
+        advanced::internal::SetHermitianTridiagGridOrder
         ( advanced::internal::COL_MAJOR );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 

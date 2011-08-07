@@ -67,13 +67,13 @@ performance:
 
 - The Householder tridiagonalization approach may be chosen using the routine:
 
-    void elemental::advanced::internal::SetTridiagApproach
-    ( elemental::advanced::internal::TridiagApproach approach );
+    void elemental::advanced::internal::SetHermitianTridiagApproach
+    ( elemental::advanced::internal::HermitianTridiagApproach approach );
 
   The choices are:
-    elemental::advanced::internal::TRIDIAG_NORMAL
-    elemental::advanced::internal::TRIDIAG_SQUARE
-    elemental::advanced::internal::TRIDIAG_DEFAULT
+    elemental::advanced::internal::HERMITIAN_TRIDIAG_NORMAL
+    elemental::advanced::internal::HERMITIAN_TRIDIAG_SQUARE
+    elemental::advanced::internal::HERMITIAN_TRIDIAG_DEFAULT
   The first always uses the general nonsquare grid algorithm, even when
   running on a square grid. The second drops down to the largest perfect square
   number of processors less than or equal to the number available in order to
@@ -82,7 +82,7 @@ performance:
   often important for performance. One can choose between row-major and 
   column-major ordering via the routine
 
-    void elemental::advanced::internal::SetTridiagSquareGridOrder
+    void elemental::advanced::internal::SetHermitianTridiagGridOrder
     ( elemental::advanced::internal::GridOrder order );
 
   The choices are:

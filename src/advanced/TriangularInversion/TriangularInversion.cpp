@@ -35,15 +35,15 @@ using namespace elemental;
 
 template<typename F> // represents a real or complex number
 void
-elemental::advanced::Trinv
+elemental::advanced::TriangularInversion
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Trinv");
+    PushCallStack("advanced::TriangularInversion");
 #endif
-    advanced::internal::TrinvVar3( shape, diagonal, A );
+    advanced::internal::TriangularInversionVar3( shape, diagonal, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -51,60 +51,60 @@ elemental::advanced::Trinv
 
 template<typename F>
 void
-elemental::advanced::internal::TrinvVar3
+elemental::advanced::internal::TriangularInversionVar3
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::TrinvVar3");
+    PushCallStack("advanced::internal::TriangularInversionVar3");
 #endif
     if( shape == Lower )
-        advanced::internal::TrinvLVar3( diagonal, A );
+        advanced::internal::TriangularInversionLVar3( diagonal, A );
     else
-        advanced::internal::TrinvUVar3( diagonal, A );
+        advanced::internal::TriangularInversionUVar3( diagonal, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template void elemental::advanced::Trinv
+template void elemental::advanced::TriangularInversion
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<float,MC,MR>& A );
 
-template void elemental::advanced::internal::TrinvVar3
+template void elemental::advanced::internal::TriangularInversionVar3
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<float,MC,MR>& A );
 
-template void elemental::advanced::Trinv
+template void elemental::advanced::TriangularInversion
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<double,MC,MR>& A );
 
-template void elemental::advanced::internal::TrinvVar3
+template void elemental::advanced::internal::TriangularInversionVar3
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::Trinv
+template void elemental::advanced::TriangularInversion
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<scomplex,MC,MR>& A );
 
-template void elemental::advanced::internal::TrinvVar3
+template void elemental::advanced::internal::TriangularInversionVar3
 ( Shape shape, 
   Diagonal diagonal,
   DistMatrix<scomplex,MC,MR>& A );
 
-template void elemental::advanced::Trinv
+template void elemental::advanced::TriangularInversion
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<dcomplex,MC,MR>& A );
 
-template void elemental::advanced::internal::TrinvVar3
+template void elemental::advanced::internal::TriangularInversionVar3
 ( Shape shape, 
   Diagonal diagonal,
   DistMatrix<dcomplex,MC,MR>& A );

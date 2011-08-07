@@ -39,11 +39,11 @@ namespace {
 
 template<typename R> // representation of a real number
 void
-TridiagL
+HermitianTridiagL
 ( Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TridiagL");
+    PushCallStack("HermitianTridiagL");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
 #endif
@@ -101,11 +101,11 @@ TridiagL
 
 template<typename R> // representation of a real number
 void
-TridiagU
+HermitianTridiagU
 ( Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TridiagU");
+    PushCallStack("HermitianTridiagU");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
 #endif
@@ -164,11 +164,11 @@ TridiagU
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 void
-TridiagL
+HermitianTridiagL
 ( Matrix< complex<R> >& A, Matrix< complex<R> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("TridiagL");
+    PushCallStack("HermitianTridiagL");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( t.Viewing() && (t.Height() != A.Height()-1 || t.Width() != 1) )
@@ -254,11 +254,11 @@ TridiagL
 
 template<typename R> // representation of a real number
 void
-TridiagU
+HermitianTridiagU
 ( Matrix< complex<R> >& A, Matrix< complex<R> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("TridiagU");
+    PushCallStack("HermitianTridiagU");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
     if( t.Viewing() && (t.Height() != A.Height()-1 || t.Width() != 1) )
@@ -347,16 +347,16 @@ TridiagU
 
 template<typename R> // representation of a real number
 void
-elemental::advanced::Tridiag
+elemental::advanced::HermitianTridiag
 ( Shape shape, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Tridiag");
+    PushCallStack("HermitianTridiag");
 #endif
     if( shape == Lower )
-        TridiagL( A );
+        HermitianTridiagL( A );
     else
-        TridiagU( A );
+        HermitianTridiagU( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -365,33 +365,33 @@ elemental::advanced::Tridiag
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 void
-elemental::advanced::Tridiag
+elemental::advanced::HermitianTridiag
 ( Shape shape, Matrix< complex<R> >& A, Matrix< complex<R> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("Tridiag");
+    PushCallStack("HermitianTridiag");
 #endif
     if( shape == Lower )
-        TridiagL( A, t );
+        HermitianTridiagL( A, t );
     else
-        TridiagU( A, t );
+        HermitianTridiagU( A, t );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 #endif // WITHOUT_COMPLEX
 
-template void elemental::advanced::Tridiag
+template void elemental::advanced::HermitianTridiag
 ( Shape shape, Matrix<float>& A );
 
-template void elemental::advanced::Tridiag
+template void elemental::advanced::HermitianTridiag
 ( Shape shape, Matrix<double>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::Tridiag
+template void elemental::advanced::HermitianTridiag
 ( Shape shape, Matrix<scomplex>& A, Matrix<scomplex>& t );
 
-template void elemental::advanced::Tridiag
+template void elemental::advanced::HermitianTridiag
 ( Shape shape, Matrix<dcomplex>& A, Matrix<dcomplex>& t );
 #endif
 

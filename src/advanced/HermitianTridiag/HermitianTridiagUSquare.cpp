@@ -37,11 +37,11 @@ using namespace elemental;
 
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::TridiagU
+elemental::advanced::internal::HermitianTridiagUSquare
 ( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::TridiagU");
+    PushCallStack("advanced::internal::HermitianTridiagUSquare");
     if( A.Height() != A.Width() )
         throw logic_error( "A must be square." );
 #endif
@@ -114,7 +114,7 @@ elemental::advanced::internal::TridiagU
                 //
                 // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are 
                 // formed during the panel factorization.
-                advanced::internal::PanelTridiagU
+                advanced::internal::HermitianPanelTridiagUSquare
                 ( ATL, WPan, 
                   APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
                 basic::internal::LocalTriangularRank2K
@@ -131,7 +131,8 @@ elemental::advanced::internal::TridiagU
             else
             {
                 A11_Star_Star = A11;
-                advanced::Tridiag( Upper, A11_Star_Star.LocalMatrix() );
+                advanced::HermitianTridiag
+                ( Upper, A11_Star_Star.LocalMatrix() );
                 A11 = A11_Star_Star;
             }
 
@@ -150,12 +151,12 @@ elemental::advanced::internal::TridiagU
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::TridiagU
+elemental::advanced::internal::HermitianTridiagUSquare
 ( DistMatrix<complex<R>,MC,  MR  >& A,
   DistMatrix<complex<R>,Star,Star>& t )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::TridiagU");
+    PushCallStack("advanced::internal::HermitianTridiagUSquare");
     if( A.Grid() != t.Grid() )
         throw logic_error( "A and t must be distributed over the same grid." );
 #endif
@@ -252,7 +253,7 @@ elemental::advanced::internal::TridiagU
                 //
                 // APan[MC,* ], APan[MR,* ], WPan[MC,* ], and WPan[MR,* ] are 
                 // formed during the panel factorization.
-                advanced::internal::PanelTridiagU
+                advanced::internal::HermitianPanelTridiagUSquare
                 ( ATL, WPan, t1,
                   APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
                 basic::internal::LocalTriangularRank2K
@@ -271,7 +272,7 @@ elemental::advanced::internal::TridiagU
                 A11_Star_Star = A11;
                 t1_Star_Star.ResizeTo( t1.Height(), 1 );
 
-                advanced::Tridiag
+                advanced::HermitianTridiag
                 ( Upper, A11_Star_Star.LocalMatrix(), 
                   t1_Star_Star.LocalMatrix() );
 
@@ -300,18 +301,18 @@ elemental::advanced::internal::TridiagU
 }
 #endif // WITHOUT_COMPLEX
 
-template void elemental::advanced::internal::TridiagU
+template void elemental::advanced::internal::HermitianTridiagUSquare
 ( DistMatrix<float,MC,MR>& A );
 
-template void elemental::advanced::internal::TridiagU
+template void elemental::advanced::internal::HermitianTridiagUSquare
 ( DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::internal::TridiagU
+template void elemental::advanced::internal::HermitianTridiagUSquare
 ( DistMatrix<scomplex,MC,  MR  >& A, 
   DistMatrix<scomplex,Star,Star>& t );
 
-template void elemental::advanced::internal::TridiagU
+template void elemental::advanced::internal::HermitianTridiagUSquare
 ( DistMatrix<dcomplex,MC,  MR  >& A, 
   DistMatrix<dcomplex,Star,Star>& t );
 #endif

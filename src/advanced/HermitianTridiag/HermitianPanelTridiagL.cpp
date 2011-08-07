@@ -39,7 +39,7 @@ using namespace elemental::utilities;
 
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::PanelTridiagL
+elemental::advanced::internal::HermitianPanelTridiagL
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star, 
@@ -50,7 +50,7 @@ elemental::advanced::internal::PanelTridiagL
     const int panelSize = W.Width();
     const int bottomSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelTridiagL");
+    PushCallStack("advanced::internal::HermitianPanelTridiagL");
     if( A.Grid() != W.Grid() )
         throw logic_error
         ( "A and W must be distributed over the same grid." );
@@ -791,7 +791,7 @@ elemental::advanced::internal::PanelTridiagL
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::PanelTridiagL
+elemental::advanced::internal::HermitianPanelTridiagL
 ( DistMatrix<complex<R>,MC,MR  >& A,
   DistMatrix<complex<R>,MC,MR  >& W,
   DistMatrix<complex<R>,MD,Star>& t,
@@ -803,7 +803,7 @@ elemental::advanced::internal::PanelTridiagL
     const int panelSize = W.Width();
     const int bottomSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelTridiagL");
+    PushCallStack("advanced::internal::HermitianPanelTridiagL");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         throw logic_error
         ("A, W, and t must be distributed over the same grid.");
@@ -1573,7 +1573,7 @@ elemental::advanced::internal::PanelTridiagL
 
 #endif // WITHOUT_COMPLEX
 
-template void elemental::advanced::internal::PanelTridiagL
+template void elemental::advanced::internal::HermitianPanelTridiagL
 ( DistMatrix<float,MC,MR  >& A,
   DistMatrix<float,MC,MR  >& W,
   DistMatrix<float,MC,Star>& APan_MC_Star,
@@ -1581,7 +1581,7 @@ template void elemental::advanced::internal::PanelTridiagL
   DistMatrix<float,MC,Star>& W_MC_Star,
   DistMatrix<float,MR,Star>& W_MR_Star );
 
-template void elemental::advanced::internal::PanelTridiagL
+template void elemental::advanced::internal::HermitianPanelTridiagL
 ( DistMatrix<double,MC,MR  >& A,
   DistMatrix<double,MC,MR  >& W,
   DistMatrix<double,MC,Star>& APan_MC_Star,
@@ -1590,7 +1590,7 @@ template void elemental::advanced::internal::PanelTridiagL
   DistMatrix<double,MR,Star>& W_MR_Star );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::internal::PanelTridiagL
+template void elemental::advanced::internal::HermitianPanelTridiagL
 ( DistMatrix<scomplex,MC,MR  >& A,
   DistMatrix<scomplex,MC,MR  >& W,
   DistMatrix<scomplex,MD,Star>& t,
@@ -1599,7 +1599,7 @@ template void elemental::advanced::internal::PanelTridiagL
   DistMatrix<scomplex,MC,Star>& W_MC_Star,
   DistMatrix<scomplex,MR,Star>& W_MR_Star );
 
-template void elemental::advanced::internal::PanelTridiagL
+template void elemental::advanced::internal::HermitianPanelTridiagL
 ( DistMatrix<dcomplex,MC,MR  >& A,
   DistMatrix<dcomplex,MC,MR  >& W,
   DistMatrix<dcomplex,MD,Star>& t,

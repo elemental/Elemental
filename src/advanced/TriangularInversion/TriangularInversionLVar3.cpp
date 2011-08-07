@@ -37,11 +37,11 @@ using namespace elemental;
 
 template<typename F> // represents a real or complex number
 void
-elemental::advanced::internal::TrinvLVar3
+elemental::advanced::internal::TriangularInversionLVar3
 ( Diagonal diagonal, DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::TrinvLVar3");
+    PushCallStack("advanced::internal::TriangularInversionLVar3");
     if( L.Height() != L.Width() )
         throw logic_error( "Nonsquare matrices cannot be triangular." );
 #endif
@@ -76,7 +76,7 @@ elemental::advanced::internal::TrinvLVar3
         L21_MC_Star.AlignWith( L20 );
         //--------------------------------------------------------------------//
         L11_Star_Star = L11;
-        advanced::internal::LocalTrinv( Lower, diagonal, L11_Star_Star );
+        advanced::internal::LocalTriangularInversion( Lower, diagonal, L11_Star_Star );
         L11 = L11_Star_Star;
 
         L10_Star_VR = L10;
@@ -108,17 +108,17 @@ elemental::advanced::internal::TrinvLVar3
 #endif
 }
 
-template void elemental::advanced::internal::TrinvLVar3
+template void elemental::advanced::internal::TriangularInversionLVar3
 ( Diagonal diagonal, DistMatrix<float,MC,MR>& L );
 
-template void elemental::advanced::internal::TrinvLVar3
+template void elemental::advanced::internal::TriangularInversionLVar3
 ( Diagonal diagonal, DistMatrix<double,MC,MR>& L );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::internal::TrinvLVar3
+template void elemental::advanced::internal::TriangularInversionLVar3
 ( Diagonal diagonal, DistMatrix<scomplex,MC,MR>& L );
 
-template void elemental::advanced::internal::TrinvLVar3
+template void elemental::advanced::internal::TriangularInversionLVar3
 ( Diagonal diagonal, DistMatrix<dcomplex,MC,MR>& L );
 #endif
 

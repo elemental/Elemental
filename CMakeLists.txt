@@ -439,14 +439,14 @@ if(BUILD_TESTS)
 
   set(CORE_TESTS AxpyInterface DifferentGrids DistMatrix Matrix)
   set(BASIC_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
-  set(ADVANCED_TESTS Chol Hegst LU QR Tridiag Trinv UT)
+  set(ADVANCED_TESTS Chol Hegst HermitianTridiag LU QR TriangularInversion UT)
 
   if(BUILD_C_INTERFACE)
     set(C_TESTS BasicTest)
   endif(BUILD_C_INTERFACE)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-    list(APPEND ADVANCED_TESTS GeneralizedHermitianEig)
+    list(APPEND ADVANCED_TESTS HermitianGenDefiniteEig)
     list(APPEND ADVANCED_TESTS HermitianEig)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 endif(BUILD_TESTS)
