@@ -3,49 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-************
-Introduction
-************
-
 .. toctree::
    :maxdepth: 2
 
    intro
-
-******************
-Building Elemental
-******************
-
-.. toctree::
-   :maxdepth: 2
-
    build
-
-******************
-Core functionality
-******************
-
-.. toctree::
-   :maxdepth: 2
-
    core
-
-******************
-BLAS-like routines
-******************
-
-.. toctree::
-   :maxdepth: 2
-
    basic
-
-********************
-LAPACK-like routines
-********************
-
-.. toctree::
-   :maxdepth: 2
-
    advanced 
 
 Indices and tables
