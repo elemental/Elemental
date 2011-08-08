@@ -58,7 +58,8 @@ elemental::basic::internal::TrsmRLT
   Diagonal diagonal,
   F alpha, 
   const DistMatrix<F,MC,MR>& L,
-        DistMatrix<F,MC,MR>& X )
+        DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::TrsmRLT");
@@ -119,7 +120,7 @@ elemental::basic::internal::TrsmRLT
         // X1[VC,*] := X1[VC,*] (L11[*,*])^-(T/H)
         basic::internal::LocalTrsm
         ( Right, Lower, orientation, diagonal, 
-          (F)1, L11_Star_Star, X1_VC_Star );
+          (F)1, L11_Star_Star, X1_VC_Star, checkIfSingular );
 
         X1_MC_Star  = X1_VC_Star; // X1[MC,*]  <- X1[VC,*]
         X1          = X1_MC_Star; // X1[MC,MR] <- X1[MC,*]
@@ -153,14 +154,16 @@ template void elemental::basic::internal::TrsmRLT
   Diagonal diagonal,
   float alpha, 
   const DistMatrix<float,MC,MR>& L,
-        DistMatrix<float,MC,MR>& X );
+        DistMatrix<float,MC,MR>& X,
+  bool checkIfSingular );
 
 template void elemental::basic::internal::TrsmRLT
 ( Orientation orientation, 
   Diagonal diagonal,
   double alpha, 
   const DistMatrix<double,MC,MR>& L,
-        DistMatrix<double,MC,MR>& X );
+        DistMatrix<double,MC,MR>& X,
+  bool checkIfSingular );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::basic::internal::TrsmRLT
@@ -168,13 +171,15 @@ template void elemental::basic::internal::TrsmRLT
   Diagonal diagonal,
   scomplex alpha, 
   const DistMatrix<scomplex,MC,MR>& L,
-        DistMatrix<scomplex,MC,MR>& X );
+        DistMatrix<scomplex,MC,MR>& X,
+  bool checkIfSingular );
 
 template void elemental::basic::internal::TrsmRLT
 ( Orientation orientation, 
   Diagonal diagonal,
   dcomplex alpha, 
   const DistMatrix<dcomplex,MC,MR>& L,
-        DistMatrix<dcomplex,MC,MR>& X );
+        DistMatrix<dcomplex,MC,MR>& X,
+  bool checkIfSingular );
 #endif
 

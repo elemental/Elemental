@@ -108,16 +108,16 @@ Side CharToSide( char c );
 
 enum GridOrder
 {
-    ROW_MAJOR,
-    COL_MAJOR
+    RowMajor,
+    ColMajor
 };
 
 enum NormType
 {
-    FROBENIUS_NORM, // Compute the "vector" L_2 norm of the matrix
-    INFINITY_NORM,  // Compute the L_oo norm of the matrix
-    MAX_NORM,       // Compute the "vector" L_oo norm of the matrix
-    ONE_NORM,       // Compute the L_1 norm of the matrix
+    FrobeniusNorm, // Compute the "vector" L_2 norm of the matrix
+    InfinityNorm,  // Compute the L_oo norm of the matrix
+    MaxNorm,       // Compute the "vector" L_oo norm of the matrix
+    OneNorm,       // Compute the L_1 norm of the matrix
 };
 
 enum HermitianGenDefiniteEigType
@@ -129,9 +129,9 @@ enum HermitianGenDefiniteEigType
 
 enum HermitianTridiagApproach
 {
-    HERMITIAN_TRIDIAG_NORMAL, // Keep the current grid
-    HERMITIAN_TRIDIAG_SQUARE, // Drop to a square process grid
-    HERMITIAN_TRIDIAG_DEFAULT // Square grid algorithm only if already square
+    HermitianTridiagNormal, // Keep the current grid
+    HermitianTridiagSquare, // Drop to a square process grid
+    HermitianTridiagDefault // Square grid algorithm only if already square
 };
 
 } // elemental

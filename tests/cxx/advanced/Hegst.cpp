@@ -81,14 +81,14 @@ void TestCorrectness
             basic::Trsm( Left, Lower, Normal, NonUnit, (F)1, B, Z );
             basic::Hemm( Left, Lower, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
-            F infNormOfA = advanced::HermitianNorm( shape, A, INFINITY_NORM );
-            F frobNormOfA = advanced::HermitianNorm( shape, A, FROBENIUS_NORM );
-            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
-            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
-            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
+                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
+            F infNormOfA = advanced::HermitianNorm( shape, A, InfinityNorm );
+            F frobNormOfA = advanced::HermitianNorm( shape, A, FrobeniusNorm );
+            F oneNormOfError = advanced::Norm( Z, OneNorm );
+            F infNormOfError = advanced::Norm( Z, InfinityNorm );
+            F frobNormOfError = advanced::Norm( Z, FrobeniusNorm );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo     = "
@@ -117,14 +117,14 @@ void TestCorrectness
             basic::Trsm( Left, Upper, ConjugateTranspose, NonUnit, (F)1, B, Z );
             basic::Hemm( Left, Upper, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
-            F infNormOfA = advanced::HermitianNorm( shape, A, INFINITY_NORM );
-            F frobNormOfA = advanced::HermitianNorm( shape, A, FROBENIUS_NORM );
-            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
-            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
-            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
+                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
+            F infNormOfA = advanced::HermitianNorm( shape, A, InfinityNorm );
+            F frobNormOfA = advanced::HermitianNorm( shape, A, FrobeniusNorm );
+            F oneNormOfError = advanced::Norm( Z, OneNorm );
+            F infNormOfError = advanced::Norm( Z, InfinityNorm );
+            F frobNormOfError = advanced::Norm( Z, FrobeniusNorm );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo     = "
@@ -156,16 +156,16 @@ void TestCorrectness
             basic::Trmm( Left, Lower, ConjugateTranspose, NonUnit, (F)1, B, Z );
             basic::Hemm( Left, Lower, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
             F infNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
             F frobNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
-            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
-            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
-            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
+                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
+            F oneNormOfError = advanced::Norm( Z, OneNorm );
+            F infNormOfError = advanced::Norm( Z, InfinityNorm );
+            F frobNormOfError = advanced::Norm( Z, FrobeniusNorm );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo = "
@@ -194,16 +194,16 @@ void TestCorrectness
             basic::Trmm( Left, Upper, Normal, NonUnit, (F)1, B, Z );
             basic::Hemm( Left, Upper, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
             F infNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
             F frobNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
-            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
-            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
-            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
+                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
+            F oneNormOfError = advanced::Norm( Z, OneNorm );
+            F infNormOfError = advanced::Norm( Z, InfinityNorm );
+            F frobNormOfError = advanced::Norm( Z, FrobeniusNorm );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo = "

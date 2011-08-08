@@ -391,20 +391,20 @@ LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 
 template<typename R>
 R Norm
-( const Matrix<R>& A, NormType type=FROBENIUS_NORM );
+( const Matrix<R>& A, NormType type=FrobeniusNorm );
 
 template<typename R>
 R Norm
-( const DistMatrix<R,MC,MR>& A, NormType type=FROBENIUS_NORM );
+( const DistMatrix<R,MC,MR>& A, NormType type=FrobeniusNorm );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 R Norm
-( const Matrix<std::complex<R> >& A, NormType type=FROBENIUS_NORM );
+( const Matrix<std::complex<R> >& A, NormType type=FrobeniusNorm );
 
 template<typename R>
 R Norm
-( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type=FROBENIUS_NORM );
+( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type=FrobeniusNorm );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -414,23 +414,23 @@ R Norm
 template<typename R>
 R HermitianNorm
 ( Shape shape, const Matrix<R>& A, 
-  NormType type=FROBENIUS_NORM );
+  NormType type=FrobeniusNorm );
 
 template<typename R>
 R HermitianNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A, 
-  NormType type=FROBENIUS_NORM );
+  NormType type=FrobeniusNorm );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 R HermitianNorm
 ( Shape shape, const Matrix<std::complex<R> >& A, 
-  NormType type=FROBENIUS_NORM );
+  NormType type=FrobeniusNorm );
 
 template<typename R>
 R HermitianNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A, 
-  NormType type=FROBENIUS_NORM );
+  NormType type=FrobeniusNorm );
 #endif
 
 //----------------------------------------------------------------------------//

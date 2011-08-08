@@ -828,14 +828,16 @@ template<typename F>
 void
 Trsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
-  F alpha, const Matrix<F>& A, Matrix<F>& B ); 
+  F alpha, const Matrix<F>& A, Matrix<F>& B, 
+  bool checkIfSingular=false ); 
         
 // Parallel version
 template<typename F>
 void
 Trsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
-  F alpha, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
+  F alpha, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B,
+  bool checkIfSingular=false );
 
 } // basic
 } // elemental
@@ -1936,7 +1938,8 @@ inline void
 elemental::basic::Trsm
 ( Side side, Shape shape,
   Orientation orientation,Diagonal diagonal,
-  F alpha, const Matrix<F>& A, Matrix<F>& B )
+  F alpha, const Matrix<F>& A, Matrix<F>& B,
+  bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("basic::Trsm");
@@ -1957,6 +1960,13 @@ elemental::basic::Trsm
     const char uploChar = ShapeToChar( shape );
     const char transChar = OrientationToChar( orientation );
     const char diagChar = DiagonalToChar( diagonal );
+    if( checkIfSingular && diagonal != Unit )
+    {
+        const int n = A.Height();
+        for( int j=0; j<n; ++j )
+            if( A.Get(j,j) == (F)0 )
+                throw std::runtime_error("Triangular matrix was singular");
+    }
     imports::blas::Trsm
     ( sideChar, uploChar, transChar, diagChar, B.Height(), B.Width(),
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );

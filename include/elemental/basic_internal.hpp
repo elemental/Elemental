@@ -77,7 +77,8 @@ void
 LocalTrsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,Star,Star>& A, 
-                 DistMatrix<F,XColDist,XRowDist>& X );
+                 DistMatrix<F,XColDist,XRowDist>& X,
+  bool checkIfSingular=false );
 
 // TODO: Finish adding wrappers for Local BLAS-like routines
 
@@ -1392,56 +1393,64 @@ template<typename F>
 void
 TrsmLLN
 ( Diagonal diagonal,
-  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
 
 // Left, Lower, (Conjugate)Transpose Trsm
 template<typename F>
 void
 TrsmLLT
 ( Orientation orientation, Diagonal diagonal,
-  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
 
 // Left, Upper, Normal Trsm
 template<typename F>
 void
 TrsmLUN
 ( Diagonal diagonal,
-  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
 
 // Left, Upper, (Conjugate)Transpose Trsm
 template<typename F>
 void
 TrsmLUT
 ( Orientation orientation, Diagonal diagonal,
-  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
 
 // Right, Lower, Normal Trsm
 template<typename F>
 void
 TrsmRLN
 ( Diagonal diagonal,
-  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
 
 // Right, Lower, (Conjugate)Transpose Trsm
 template<typename F>
 void
 TrsmRLT
 ( Orientation orientation, Diagonal diagonal,
-  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
 
 // Right, Upper, Normal Trsm
 template<typename F>
 void
 TrsmRUN
 ( Diagonal diagonal,
-  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
 
 // Right, Upper, (Conjugate)Transpose Trsm
 template<typename F>
 void
 TrsmRUT
 ( Orientation orientation, Diagonal diagonal,
-  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X );
+  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
 
 //----------------------------------------------------------------------------//
 // Level 2 BLAS-like Utility Functions                                        //
@@ -1616,7 +1625,8 @@ void
 LocalTrsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,Star,Star>& A, 
-                 DistMatrix<F,XColDist,XRowDist>& X )
+                 DistMatrix<F,XColDist,XRowDist>& X,
+  bool checkIfSingular=false )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrsm");
@@ -1627,7 +1637,7 @@ LocalTrsm
 #endif
     basic::Trsm
     ( side, shape, orientation, diagonal,
-      alpha, A.LockedLocalMatrix(), X.LocalMatrix() );
+      alpha, A.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
 #ifndef RELEASE
     PopCallStack();
 #endif

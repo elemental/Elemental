@@ -45,16 +45,16 @@ advanced::HermitianNorm
     R norm = 0;
     switch( type )
     {
-    case INFINITY_NORM:
+    case InfinityNorm:
         norm = advanced::internal::HermitianInfinityNorm( shape, A );
         break;
-    case FROBENIUS_NORM: 
+    case FrobeniusNorm: 
         norm = advanced::internal::HermitianFrobeniusNorm( shape, A );
         break;
-    case MAX_NORM:
+    case MaxNorm:
         norm = advanced::internal::HermitianMaxNorm( shape, A );
         break;
-    case ONE_NORM:
+    case OneNorm:
         norm = advanced::internal::HermitianOneNorm( shape, A );
         break;
     }
@@ -76,16 +76,16 @@ advanced::HermitianNorm
     R norm = 0;
     switch( type )
     {
-    case INFINITY_NORM:
+    case InfinityNorm:
         norm = advanced::internal::HermitianInfinityNorm( shape, A );
         break;
-    case FROBENIUS_NORM: 
+    case FrobeniusNorm: 
         norm = advanced::internal::HermitianFrobeniusNorm( shape, A );
         break;
-    case MAX_NORM:
+    case MaxNorm:
         norm = advanced::internal::HermitianMaxNorm( shape, A );
         break;
-    case ONE_NORM:
+    case OneNorm:
         norm = advanced::internal::HermitianOneNorm( shape, A );
         break;
     }
@@ -107,16 +107,16 @@ advanced::HermitianNorm
     R norm = 0;
     switch( type )
     {
-    case INFINITY_NORM:
+    case InfinityNorm:
         norm = advanced::internal::HermitianInfinityNorm( shape, A );
         break;
-    case FROBENIUS_NORM: 
+    case FrobeniusNorm: 
         norm = advanced::internal::HermitianFrobeniusNorm( shape, A );
         break;
-    case MAX_NORM:
+    case MaxNorm:
         norm = advanced::internal::HermitianMaxNorm( shape, A );
         break;
-    case ONE_NORM:
+    case OneNorm:
         norm = advanced::internal::HermitianOneNorm( shape, A );
         break;
     }
@@ -138,16 +138,16 @@ advanced::HermitianNorm
     R norm = 0;
     switch( type )
     {
-    case INFINITY_NORM:
+    case InfinityNorm:
         norm = advanced::internal::HermitianInfinityNorm( shape, A );
         break;
-    case FROBENIUS_NORM: 
+    case FrobeniusNorm: 
         norm = advanced::internal::HermitianFrobeniusNorm( shape, A );
         break;
-    case MAX_NORM:
+    case MaxNorm:
         norm = advanced::internal::HermitianMaxNorm( shape, A );
         break;
-    case ONE_NORM:
+    case OneNorm:
         norm = advanced::internal::HermitianOneNorm( shape, A );
         break;
     }

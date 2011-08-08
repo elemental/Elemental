@@ -80,9 +80,9 @@ void TestCorrectness
     // Form X := I - Q^H Q
     basic::Axpy( (R)-1, ZUpper, X );
 
-    R oneNormOfError = advanced::Norm( X, ONE_NORM );
-    R infNormOfError = advanced::Norm( X, INFINITY_NORM );
-    R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    R oneNormOfError = advanced::Norm( X, OneNorm );
+    R infNormOfError = advanced::Norm( X, InfinityNorm );
+    R frobNormOfError = advanced::Norm( X, FrobeniusNorm );
     if( g.VCRank() == 0 )
     {
         cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
@@ -103,12 +103,12 @@ void TestCorrectness
     // Form Q R - A
     basic::Axpy( (R)-1, AOrig, U );
     
-    R oneNormOfA = advanced::Norm( AOrig, ONE_NORM );
-    R infNormOfA = advanced::Norm( AOrig, INFINITY_NORM );
-    R frobNormOfA = advanced::Norm( AOrig, FROBENIUS_NORM );
-    oneNormOfError = advanced::Norm( U, ONE_NORM );
-    infNormOfError = advanced::Norm( U, INFINITY_NORM );
-    frobNormOfError = advanced::Norm( U, FROBENIUS_NORM );
+    R oneNormOfA = advanced::Norm( AOrig, OneNorm );
+    R infNormOfA = advanced::Norm( AOrig, InfinityNorm );
+    R frobNormOfA = advanced::Norm( AOrig, FrobeniusNorm );
+    oneNormOfError = advanced::Norm( U, OneNorm );
+    infNormOfError = advanced::Norm( U, InfinityNorm );
+    frobNormOfError = advanced::Norm( U, FrobeniusNorm );
     if( g.VCRank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"
@@ -154,9 +154,9 @@ void TestCorrectness
     // Form X := I - Q^H Q
     basic::Axpy( (C)-1, ZUpper, X );
 
-    R oneNormOfError = advanced::Norm( X, ONE_NORM );
-    R infNormOfError = advanced::Norm( X, INFINITY_NORM );
-    R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    R oneNormOfError = advanced::Norm( X, OneNorm );
+    R infNormOfError = advanced::Norm( X, InfinityNorm );
+    R frobNormOfError = advanced::Norm( X, FrobeniusNorm );
     if( g.VCRank() == 0 )
     {
         cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
@@ -175,12 +175,12 @@ void TestCorrectness
     // Form Q R - A
     basic::Axpy( (C)-1, AOrig, U );
     
-    R oneNormOfA = advanced::Norm( AOrig, ONE_NORM );
-    R infNormOfA = advanced::Norm( AOrig, INFINITY_NORM );
-    R frobNormOfA = advanced::Norm( AOrig, FROBENIUS_NORM );
-    oneNormOfError = advanced::Norm( U, ONE_NORM );
-    infNormOfError = advanced::Norm( U, INFINITY_NORM );
-    frobNormOfError = advanced::Norm( U, FROBENIUS_NORM );
+    R oneNormOfA = advanced::Norm( AOrig, OneNorm );
+    R infNormOfA = advanced::Norm( AOrig, InfinityNorm );
+    R frobNormOfA = advanced::Norm( AOrig, FrobeniusNorm );
+    oneNormOfError = advanced::Norm( U, OneNorm );
+    infNormOfError = advanced::Norm( U, InfinityNorm );
+    frobNormOfError = advanced::Norm( U, FrobeniusNorm );
     if( g.VCRank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"

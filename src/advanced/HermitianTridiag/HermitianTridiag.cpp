@@ -37,8 +37,8 @@ using namespace elemental::imports;
 
 // Algorithmic controls
 namespace {
-HermitianTridiagApproach tridiagApproach = HERMITIAN_TRIDIAG_NORMAL;
-GridOrder gridOrder = ROW_MAJOR;
+HermitianTridiagApproach tridiagApproach = HermitianTridiagDefault;
+GridOrder gridOrder = RowMajor;
 }
 
 void 
@@ -59,7 +59,7 @@ elemental::advanced::HermitianTridiag
     PushCallStack("advanced::HermitianTridiag");
 #endif
     const Grid& g = A.Grid();
-    if( ::tridiagApproach == HERMITIAN_TRIDIAG_NORMAL )
+    if( ::tridiagApproach == HermitianTridiagNormal )
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( shape == Lower )
@@ -67,14 +67,14 @@ elemental::advanced::HermitianTridiag
         else 
             advanced::internal::HermitianTridiagU( A );
     }
-    else if( ::tridiagApproach == HERMITIAN_TRIDIAG_SQUARE )
+    else if( ::tridiagApproach == HermitianTridiagSquare )
     {
         // Drop down to a square mesh
         int p = g.Size();
         int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
-        if( ::gridOrder == COL_MAJOR )
+        if( ::gridOrder == ColMajor )
         {
             for( int j=0; j<pSqrt; ++j )
                 for( int i=0; i<pSqrt; ++i )
@@ -144,7 +144,7 @@ elemental::advanced::HermitianTridiag
     typedef complex<R> C;
 
     const Grid& g = A.Grid();
-    if( ::tridiagApproach == HERMITIAN_TRIDIAG_NORMAL )
+    if( ::tridiagApproach == HermitianTridiagNormal )
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( shape == Lower )
@@ -152,14 +152,14 @@ elemental::advanced::HermitianTridiag
         else
             advanced::internal::HermitianTridiagU( A, t );
     }
-    else if( ::tridiagApproach == HERMITIAN_TRIDIAG_SQUARE )
+    else if( ::tridiagApproach == HermitianTridiagSquare )
     {
         // Drop down to a square mesh 
         int p = g.Size();
         int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
-        if( ::gridOrder == COL_MAJOR )
+        if( ::gridOrder == ColMajor )
         {
             for( int j=0; j<pSqrt; ++j )
                 for( int i=0; i<pSqrt; ++i )

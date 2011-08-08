@@ -72,9 +72,9 @@ void TestCorrectness
     basic::Trmm( Left, shape, Normal, NonUnit, (F)1, AOrig, Y );
     basic::Axpy( (F)-1, Y, X );
 
-    F oneNormOfError = advanced::Norm( Y, ONE_NORM );
-    F infNormOfError = advanced::Norm( Y, INFINITY_NORM );
-    F frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
+    F oneNormOfError = advanced::Norm( Y, OneNorm );
+    F infNormOfError = advanced::Norm( Y, InfinityNorm );
+    F frobNormOfError = advanced::Norm( Y, FrobeniusNorm );
     if( g.VCRank() == 0 )
     {
         cout << "||A A^-1 - I||_1  = " << Abs(oneNormOfError) << "\n"

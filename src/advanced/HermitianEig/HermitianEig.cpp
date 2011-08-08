@@ -307,7 +307,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -520,7 +520,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -726,7 +726,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -956,7 +956,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1084,7 +1084,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1209,7 +1209,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1362,7 +1362,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1575,7 +1575,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1782,7 +1782,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -2013,7 +2013,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -2142,7 +2142,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -2268,7 +2268,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 

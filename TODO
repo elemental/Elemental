@@ -10,8 +10,8 @@ Relatively trivial but not important
 Substantial effort and important
 ================================
 - SVD
-- RQ, LQ, and QL factorizations
-- Complete parallel Level2 BLAS (e.g., Trmv)
+- LQ factorization and then QR/LQ solves for AX=B
+- Complete parallel Level2 BLAS (i.e., Trmv)
 
 Substantial effort but not terribly important 
 =============================================

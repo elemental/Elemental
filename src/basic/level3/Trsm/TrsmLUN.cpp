@@ -54,7 +54,8 @@ void
 basic::internal::TrsmLUN
 ( Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& U,
-                 DistMatrix<F,MC,MR>& X )
+                 DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::TrsmLUN");
@@ -117,7 +118,8 @@ basic::internal::TrsmLUN
         
         // X1[*,VR] := (U11[*,*])^-1 X1[*,VR]
         basic::internal::LocalTrsm
-        ( Left, Upper, Normal, diagonal, (F)1, U11_Star_Star, X1_Star_VR );
+        ( Left, Upper, Normal, diagonal, (F)1, U11_Star_Star, X1_Star_VR,
+          checkIfSingular );
 
         X1_Star_MR  = X1_Star_VR; // X1[*,MR]  <- X1[*,VR]
         X1          = X1_Star_MR; // X1[MC,MR] <- X1[*,MR]
@@ -151,25 +153,29 @@ template void elemental::basic::internal::TrsmLUN
 ( Diagonal diagonal,
   float alpha, 
   const DistMatrix<float,MC,MR>& U,
-        DistMatrix<float,MC,MR>& X );
+        DistMatrix<float,MC,MR>& X,
+  bool checkIfSingular );
 
 template void elemental::basic::internal::TrsmLUN
 ( Diagonal diagonal,
   double alpha, 
   const DistMatrix<double,MC,MR>& U,
-        DistMatrix<double,MC,MR>& X );
+        DistMatrix<double,MC,MR>& X,
+  bool checkIfSingular );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::basic::internal::TrsmLUN
 ( Diagonal diagonal,
   scomplex alpha, 
   const DistMatrix<scomplex,MC,MR>& U,
-        DistMatrix<scomplex,MC,MR>& X );
+        DistMatrix<scomplex,MC,MR>& X,
+  bool checkIfSingular );
 
 template void elemental::basic::internal::TrsmLUN
 ( Diagonal diagonal,
   dcomplex alpha, 
   const DistMatrix<dcomplex,MC,MR>& U,
-        DistMatrix<dcomplex,MC,MR>& X );
+        DistMatrix<dcomplex,MC,MR>& X,
+  bool checkIfSingular );
 #endif
 

@@ -54,7 +54,8 @@ elemental::basic::Trsm
   Diagonal diagonal,
   F alpha, 
   const DistMatrix<F,MC,MR>& A,
-        DistMatrix<F,MC,MR>& X   )
+        DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("basic::Trsm");
@@ -62,30 +63,38 @@ elemental::basic::Trsm
     if( side == Left && shape == Lower )
     {
         if( orientation == Normal )
-            basic::internal::TrsmLLN( diagonal, alpha, A, X );
+            basic::internal::TrsmLLN
+            ( diagonal, alpha, A, X, checkIfSingular );
         else
-            basic::internal::TrsmLLT( orientation, diagonal, alpha, A, X );
+            basic::internal::TrsmLLT
+            ( orientation, diagonal, alpha, A, X, checkIfSingular );
     }
     else if( side == Left && shape == Upper )
     {
         if( orientation == Normal )
-            basic::internal::TrsmLUN( diagonal, alpha, A, X );
+            basic::internal::TrsmLUN
+            ( diagonal, alpha, A, X, checkIfSingular );
         else
-            basic::internal::TrsmLUT( orientation, diagonal, alpha, A, X );
+            basic::internal::TrsmLUT
+            ( orientation, diagonal, alpha, A, X, checkIfSingular );
     }
     else if( side == Right && shape == Lower )
     {
         if( orientation == Normal )
-            basic::internal::TrsmRLN( diagonal, alpha, A, X );
+            basic::internal::TrsmRLN
+            ( diagonal, alpha, A, X, checkIfSingular );
         else
-            basic::internal::TrsmRLT( orientation, diagonal, alpha, A, X );
+            basic::internal::TrsmRLT
+            ( orientation, diagonal, alpha, A, X, checkIfSingular );
     }
     else if( side == Right && shape == Upper )
     {
         if( orientation == Normal )
-            basic::internal::TrsmRUN( diagonal, alpha, A, X );
+            basic::internal::TrsmRUN
+            ( diagonal, alpha, A, X, checkIfSingular );
         else
-            basic::internal::TrsmRUT( orientation, diagonal, alpha, A, X );
+            basic::internal::TrsmRUT
+            ( orientation, diagonal, alpha, A, X, checkIfSingular );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -99,7 +108,8 @@ template void elemental::basic::Trsm
   Diagonal diagonal,
   float alpha, 
   const DistMatrix<float,MC,MR>& A,
-        DistMatrix<float,MC,MR>& X );
+        DistMatrix<float,MC,MR>& X,
+  bool checkIfSingular );
 
 template void elemental::basic::Trsm
 ( Side side, 
@@ -108,7 +118,8 @@ template void elemental::basic::Trsm
   Diagonal diagonal,
   double alpha, 
   const DistMatrix<double,MC,MR>& A,
-        DistMatrix<double,MC,MR>& X );
+        DistMatrix<double,MC,MR>& X,
+  bool checkIfSingular );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::basic::Trsm
@@ -118,7 +129,8 @@ template void elemental::basic::Trsm
   Diagonal diagonal,
   scomplex alpha, 
   const DistMatrix<scomplex,MC,MR>& A,
-        DistMatrix<scomplex,MC,MR>& X );
+        DistMatrix<scomplex,MC,MR>& X,
+  bool checkIfSingular );
 
 template void elemental::basic::Trsm
 ( Side side, 
@@ -127,6 +139,7 @@ template void elemental::basic::Trsm
   Diagonal diagonal,
   dcomplex alpha, 
   const DistMatrix<dcomplex,MC,MR>& A,
-        DistMatrix<dcomplex,MC,MR>& X );
+        DistMatrix<dcomplex,MC,MR>& X,
+  bool checkIfSingular );
 #endif
 
