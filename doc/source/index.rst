@@ -12,41 +12,41 @@ Introduction
 
    intro
 
-***********************
-The core of the library
-***********************
+******************
+Building Elemental
+******************
+
+.. toctree::
+   :maxdepth: 2
+
+   build
+
+******************
+Core functionality
+******************
 
 .. toctree::
    :maxdepth: 2
 
    core
 
-****************
-Distributed BLAS
-****************
-
-.. toctree::
-   :maxdepth: 2
-
-   blas
-
 ******************
-Distributed LAPACK
+BLAS-like routines
 ******************
 
 .. toctree::
    :maxdepth: 2
 
-   lapack
+   basic
 
-*******************
-Exported interfaces
-*******************
+********************
+LAPACK-like routines
+********************
 
 .. toctree::
    :maxdepth: 2
 
-   exports
+   advanced 
 
 Indices and tables
 ==================
