@@ -66,7 +66,7 @@ void Usage()
 
 void TestCorrectnessDouble
 ( bool printMatrices,
-  advanced::HermitianGenDefiniteEigType eigType,
+  HermitianGenDefiniteEigType eigType,
   Shape shape,
   const DistMatrix<double,MC,  MR>& A,
   const DistMatrix<double,MC,  MR>& B,
@@ -90,7 +90,7 @@ void TestCorrectnessDouble
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( eigType == advanced::AXBX )
+    if( eigType == AXBX )
     {
         if( g.VCRank() == 0 )
             cout << "  Testing for deviation of AX from BXW..." << endl;
@@ -108,19 +108,22 @@ void TestCorrectnessDouble
         // Y := Y - AX = BXW - AX
         basic::Hemm( Left, shape, (double)-1, AOrig, X, (double)1, Y );
         // Find the infinity norms of A, B, and X, and ||BXW-AX||
-        double infNormOfA = advanced::HermitianInfinityNorm( shape, AOrig );
-        double frobNormOfA = advanced::HermitianFrobeniusNorm( shape, AOrig );
-        double infNormOfB = advanced::HermitianInfinityNorm( shape, BOrig );
-        double frobNormOfB = advanced::HermitianFrobeniusNorm( shape, BOrig );
-        double oneNormOfX = advanced::OneNorm( X );
-        double infNormOfX = advanced::InfinityNorm( X );
-        double frobNormOfX = advanced::FrobeniusNorm( X );
-        double oneNormOfError = advanced::OneNorm( Y );
-        double infNormOfError = advanced::InfinityNorm( Y );
-        double frobNormOfError = advanced::FrobeniusNorm( Y );
+        double infNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+        double frobNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+        double infNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+        double frobNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+        double oneNormOfX = advanced::Norm( X, ONE_NORM );
+        double infNormOfX = advanced::Norm( X, INFINITY_NORM );
+        double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
+        double oneNormOfError = advanced::Norm( Y, ONE_NORM );
+        double infNormOfError = advanced::Norm( Y, INFINITY_NORM );
+        double frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
-        {            
-
+        {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
                  << "    ||A||_F            = " << frobNormOfA << "\n"
                  << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"       
@@ -130,32 +133,24 @@ void TestCorrectnessDouble
                  << "    ||X||_F            = " << frobNormOfX << "\n"
                  << "    ||A B X - X W||_1  = " << oneNormOfError << "\n"
                  << "    ||A B X - X W||_oo = " << infNormOfError << "\n"
-                 << "    ||A B X - X W||_F  = " << frobNormOfError << endl;
-        }
-
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B..." 
+                 << "    ||A B X - X W||_F  = " << frobNormOfError << "\n\n"
+                 << "  Testing orthonormality of eigenvectors w.r.t. B..." 
                  << endl; 
         }
         DistMatrix<double,MC,MR> Z(g);
         Z = X;
         if( shape == Lower )
-        {
             basic::Trmm
             ( Left, Lower, ConjugateTranspose, NonUnit, (double)1, B, Z );
-        }
         else
-        {
             basic::Trmm
             ( Left, Upper, Normal, NonUnit, (double)1, B, Z );
-        }
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, Y );
-        oneNormOfError = advanced::OneNorm( Y );
-        infNormOfError = advanced::InfinityNorm( Y );
-        frobNormOfError = advanced::FrobeniusNorm( Y );
+        oneNormOfError = advanced::Norm( Y, ONE_NORM );
+        infNormOfError = advanced::Norm( Y, INFINITY_NORM );
+        frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
         {
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
@@ -163,7 +158,7 @@ void TestCorrectnessDouble
                  << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
         }
     }
-    else if( eigType == advanced::ABX )
+    else if( eigType == ABX )
     {
         if( g.VCRank() == 0 )
             cout << "  Testing for deviation of ABX from XW..." << endl;
@@ -184,16 +179,20 @@ void TestCorrectnessDouble
                     Z.GetLocalEntry(i,j)-omega*X.GetLocalEntry(i,j));
         }
         // Find the infinity norms of A, B, X, and ABX-XW
-        double infNormOfA = advanced::HermitianInfinityNorm( shape, AOrig );
-        double frobNormOfA = advanced::HermitianFrobeniusNorm( shape, AOrig );
-        double infNormOfB = advanced::HermitianInfinityNorm( shape, BOrig );
-        double frobNormOfB = advanced::HermitianFrobeniusNorm( shape, BOrig );
-        double oneNormOfX = advanced::OneNorm( X );
-        double infNormOfX = advanced::InfinityNorm( X );
-        double frobNormOfX = advanced::FrobeniusNorm( X );
-        double oneNormOfError = advanced::OneNorm( Z );
-        double infNormOfError = advanced::InfinityNorm( Z );
-        double frobNormOfError = advanced::FrobeniusNorm( Z );
+        double infNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+        double frobNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+        double infNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+        double frobNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+        double oneNormOfX = advanced::Norm( X, ONE_NORM );
+        double infNormOfX = advanced::Norm( X, INFINITY_NORM );
+        double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
+        double oneNormOfError = advanced::Norm( Z, ONE_NORM );
+        double infNormOfError = advanced::Norm( Z, INFINITY_NORM );
+        double frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -205,39 +204,29 @@ void TestCorrectnessDouble
                  << "    ||X||_F            = " << frobNormOfX << "\n"
                  << "    ||A B X - X W||_1  = " << oneNormOfError << "\n"
                  << "    ||A B X - X W||_oo = " << infNormOfError << "\n"
-                 << "    ||A B X - X W||_F  = " << frobNormOfError << endl;
-        }
-        
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B..." 
+                 << "    ||A B X - X W||_F  = " << frobNormOfError << "\n\n"
+                 << "  Testing orthonormality of eigenvectors w.r.t. B..." 
                  << endl;
         }
         Z = X;
         if( shape == Lower )
-        {
             basic::Trmm
             ( Left, Lower, ConjugateTranspose, NonUnit, (double)1, B, Z );
-        }
         else
-        {
             basic::Trmm
             ( Left, Upper, Normal, NonUnit, (double)1, B, Z );
-        }
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, Y );
-        oneNormOfError = advanced::OneNorm( Y );
-        infNormOfError = advanced::InfinityNorm( Y );
-        frobNormOfError = advanced::FrobeniusNorm( Y );
+        oneNormOfError = advanced::Norm( Y, ONE_NORM );
+        infNormOfError = advanced::Norm( Y, INFINITY_NORM );
+        frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
-        {
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
-        }
     }
-    else /* eigType == advanced::BAX */
+    else /* eigType == BAX */
     {
         if( g.VCRank() == 0 )
             cout << "  Testing for deviation of BAX from XW..." << endl;
@@ -258,16 +247,20 @@ void TestCorrectnessDouble
                     Z.GetLocalEntry(i,j)-omega*X.GetLocalEntry(i,j));
         }
         // Find the infinity norms of A, B, X, and BAX-XW
-        double infNormOfA = advanced::HermitianInfinityNorm( shape, AOrig );
-        double frobNormOfA = advanced::HermitianFrobeniusNorm( shape, AOrig );
-        double infNormOfB = advanced::HermitianInfinityNorm( shape, BOrig );
-        double frobNormOfB = advanced::HermitianFrobeniusNorm( shape, BOrig );
-        double oneNormOfX = advanced::OneNorm( X );
-        double infNormOfX = advanced::InfinityNorm( X );
-        double frobNormOfX = advanced::FrobeniusNorm( X );
-        double oneNormOfError = advanced::OneNorm( Z );
-        double infNormOfError = advanced::InfinityNorm( Z );
-        double frobNormOfError = advanced::FrobeniusNorm( Z );
+        double infNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+        double frobNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+        double infNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+        double frobNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+        double oneNormOfX = advanced::Norm( X, ONE_NORM );
+        double infNormOfX = advanced::Norm( X, INFINITY_NORM );
+        double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
+        double oneNormOfError = advanced::Norm( Z, ONE_NORM );
+        double infNormOfError = advanced::Norm( Z, INFINITY_NORM );
+        double frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -279,44 +272,33 @@ void TestCorrectnessDouble
                  << "    ||X||_F            = " << frobNormOfX << "\n"
                  << "    ||B A X - X W||_1  = " << oneNormOfError << "\n"
                  << "    ||B A X - X W||_oo = " << infNormOfError << "\n"
-                 << "    ||B A X - X W||_F  = " << frobNormOfError << endl;
-        }
-        
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B^-1..."
+                 << "    ||B A X - X W||_F  = " << frobNormOfError << "\n\n"
+                 << "  Testing orthonormality of eigenvectors w.r.t. B^-1..."
                  << endl;
         }
         Z = X;
         if( shape == Lower )
-        {
-            basic::Trsm
-            ( Left, Lower, Normal, NonUnit, (double)1, B, Z );
-        }
+            basic::Trsm( Left, Lower, Normal, NonUnit, (double)1, B, Z );
         else
-        {
             basic::Trsm
             ( Left, Upper, ConjugateTranspose, NonUnit, (double)1, B, Z );
-        }
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk( shape, ConjugateTranspose, (double)-1, Z, (double)1, Y );
-        oneNormOfError = advanced::OneNorm( Y );
-        infNormOfError = advanced::InfinityNorm( Y );
-        frobNormOfError = advanced::FrobeniusNorm( Y );
+        oneNormOfError = advanced::Norm( Y, ONE_NORM );
+        infNormOfError = advanced::Norm( Y, INFINITY_NORM );
+        frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
-        {
             cout << "    ||X^H B^-1 X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B^-1 X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B^-1 X - I||_F  = " << frobNormOfError << endl;
-        }
     }
 }
 
 #ifndef WITHOUT_COMPLEX
 void TestCorrectnessDoubleComplex
 ( bool printMatrices,
-  advanced::HermitianGenDefiniteEigType eigType,
+  HermitianGenDefiniteEigType eigType,
   Shape shape,
   const DistMatrix<std::complex<double>,MC,  MR>& A,
   const DistMatrix<std::complex<double>,MC,  MR>& B,
@@ -339,7 +321,7 @@ void TestCorrectnessDoubleComplex
     if( g.VCRank() == 0 )
         cout << "DONE" << endl;
 
-    if( eigType == advanced::AXBX )
+    if( eigType == AXBX )
     {
         if( g.VCRank() == 0 )
             cout << "  Testing for deviation of AX from BXW..." << endl;
@@ -361,16 +343,20 @@ void TestCorrectnessDoubleComplex
         ( Left, shape, std::complex<double>(-1), AOrig, X, 
         std::complex<double>(1), Y );
         // Find the infinity norms of A, B, X, and AX-BXW
-        double infNormOfA = advanced::HermitianInfinityNorm( shape, AOrig );
-        double frobNormOfA = advanced::HermitianFrobeniusNorm( shape, AOrig );
-        double infNormOfB = advanced::HermitianInfinityNorm( shape, BOrig );
-        double frobNormOfB = advanced::HermitianFrobeniusNorm( shape, BOrig );
-        double oneNormOfX = advanced::OneNorm( X );
-        double infNormOfX = advanced::InfinityNorm( X );
-        double frobNormOfX = advanced::FrobeniusNorm( X );
-        double oneNormOfError = advanced::OneNorm( Y );
-        double infNormOfError = advanced::InfinityNorm( Y );
-        double frobNormOfError = advanced::FrobeniusNorm( Y );
+        double infNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+        double frobNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+        double infNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+        double frobNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+        double oneNormOfX = advanced::Norm( X, ONE_NORM );
+        double infNormOfX = advanced::Norm( X, INFINITY_NORM );
+        double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
+        double oneNormOfError = advanced::Norm( Y, ONE_NORM );
+        double infNormOfError = advanced::Norm( Y, INFINITY_NORM );
+        double frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -382,44 +368,34 @@ void TestCorrectnessDoubleComplex
                  << "    ||X||_F            = " << frobNormOfX << "\n"
                  << "    ||A X - B X W||_1  = " << oneNormOfError << "\n"
                  << "    ||A X - B X W||_oo = " << infNormOfError << "\n"
-                 << "    ||A X - B X W||_F  = " << frobNormOfError << endl;
-        }
-        
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B..."
+                 << "    ||A X - B X W||_F  = " << frobNormOfError << "\n\n"
+                 << "  Testing orthonormality of eigenvectors w.r.t. B..."
                  << endl;
         }
         DistMatrix<std::complex<double>,MC,MR> Z(g);
         Z = X;
         if( shape == Lower )
-        {
             basic::Trmm
             ( Left, Lower, ConjugateTranspose, NonUnit, 
               std::complex<double>(1), B, Z );
-        }
         else
-        {
             basic::Trmm
             ( Left, Upper, Normal, NonUnit,
               std::complex<double>(1), B, Z );
-        }
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk
         ( shape, ConjugateTranspose, std::complex<double>(-1), Z, 
           std::complex<double>(1), Y );
-        oneNormOfError = advanced::OneNorm( Y );
-        infNormOfError = advanced::InfinityNorm( Y );
-        frobNormOfError = advanced::FrobeniusNorm( Y );
+        oneNormOfError = advanced::Norm( Y, ONE_NORM );
+        infNormOfError = advanced::Norm( Y, INFINITY_NORM );
+        frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
-        {
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
-        }
     }
-    else if( eigType == advanced::ABX )
+    else if( eigType == ABX )
     {
         if( g.VCRank() == 0 )
             cout << "  Testing for deviation of ABX from XW..." << endl;
@@ -444,16 +420,20 @@ void TestCorrectnessDoubleComplex
                     Z.GetLocalEntry(i,j)-omega*X.GetLocalEntry(i,j));
         }
         // Find the infinity norms of A, B, X, and ABX-XW
-        double infNormOfA = advanced::HermitianInfinityNorm( shape, AOrig );
-        double frobNormOfA = advanced::HermitianFrobeniusNorm( shape, AOrig );
-        double infNormOfB = advanced::HermitianInfinityNorm( shape, BOrig );
-        double frobNormOfB = advanced::HermitianFrobeniusNorm( shape, BOrig );
-        double oneNormOfX = advanced::OneNorm( X );
-        double infNormOfX = advanced::InfinityNorm( X );
-        double frobNormOfX = advanced::FrobeniusNorm( X );
-        double oneNormOfError = advanced::OneNorm( Z );
-        double infNormOfError = advanced::InfinityNorm( Z );
-        double frobNormOfError = advanced::FrobeniusNorm( Z );
+        double infNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+        double frobNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+        double infNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+        double frobNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+        double oneNormOfX = advanced::Norm( X, ONE_NORM );
+        double infNormOfX = advanced::Norm( X, INFINITY_NORM );
+        double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
+        double oneNormOfError = advanced::Norm( Z, ONE_NORM );
+        double infNormOfError = advanced::Norm( Z, INFINITY_NORM );
+        double frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -465,43 +445,33 @@ void TestCorrectnessDoubleComplex
                  << "    ||X||_F            = " << frobNormOfX << "\n"
                  << "    ||A B X - X W||_1  = " << oneNormOfError << "\n"
                  << "    ||A B X - X W||_oo = " << infNormOfError << "\n"
-                 << "    ||A B X - X W||_F  = " << frobNormOfError << endl;
-        }
-        
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B..."
+                 << "    ||A B X - X W||_F  = " << frobNormOfError << "\n\n"
+                 << "  Testing orthonormality of eigenvectors w.r.t. B..."
                  << endl;
         }
         Z = X;
         if( shape == Lower )
-        {
             basic::Trmm
             ( Left, Lower, ConjugateTranspose, NonUnit, 
               std::complex<double>(1), B, Z );
-        }
         else
-        {
             basic::Trmm
             ( Left, Upper, Normal, NonUnit, 
               std::complex<double>(1), B, Z );
-        }
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk
         ( shape, ConjugateTranspose, std::complex<double>(-1), Z, 
           std::complex<double>(1), Y );
-        oneNormOfError = advanced::OneNorm( Y );
-        infNormOfError = advanced::InfinityNorm( Y );
-        frobNormOfError = advanced::FrobeniusNorm( Y );
+        oneNormOfError = advanced::Norm( Y, ONE_NORM );
+        infNormOfError = advanced::Norm( Y, INFINITY_NORM );
+        frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
-        {
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
-        }
     }
-    else /* eigType == advanced::BAX */
+    else /* eigType == BAX */
     {
         if( g.VCRank() == 0 )
             cout << "  Testing for deviation of BAX from XW..." << endl;
@@ -526,16 +496,20 @@ void TestCorrectnessDoubleComplex
                     Z.GetLocalEntry(i,j)-omega*X.GetLocalEntry(i,j));
         }
         // Find the infinity norms of A, B, X, and BAX-XW
-        double infNormOfA = advanced::HermitianInfinityNorm( shape, AOrig );
-        double frobNormOfA = advanced::HermitianFrobeniusNorm( shape, AOrig );
-        double infNormOfB = advanced::HermitianInfinityNorm( shape, BOrig );
-        double frobNormOfB = advanced::HermitianFrobeniusNorm( shape, BOrig );
-        double oneNormOfX = advanced::OneNorm( X );
-        double infNormOfX = advanced::InfinityNorm( X );
-        double frobNormOfX = advanced::FrobeniusNorm( X );
-        double oneNormOfError = advanced::OneNorm( Z );
-        double infNormOfError = advanced::InfinityNorm( Z );
-        double frobNormOfError = advanced::FrobeniusNorm( Z );
+        double infNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+        double frobNormOfA = 
+            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+        double infNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+        double frobNormOfB = 
+            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+        double oneNormOfX = advanced::Norm( X, ONE_NORM );
+        double infNormOfX = advanced::Norm( X, INFINITY_NORM );
+        double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
+        double oneNormOfError = advanced::Norm( Z, ONE_NORM );
+        double infNormOfError = advanced::Norm( Z, INFINITY_NORM );
+        double frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -547,47 +521,37 @@ void TestCorrectnessDoubleComplex
                  << "    ||X||_F            = " << frobNormOfX << "\n"
                  << "    ||B A X - X W||_1  = " << oneNormOfError << "\n"
                  << "    ||B A X - X W||_oo = " << infNormOfError << "\n"
-                 << "    ||B A X - X W||_F  = " << frobNormOfError << endl;
-        }
-        
-        if( g.VCRank() == 0 )
-        {
-            cout << "  Testing orthonormality of eigenvectors w.r.t. B^-1..."
+                 << "    ||B A X - X W||_F  = " << frobNormOfError << "\n\n"
+                 << "  Testing orthonormality of eigenvectors w.r.t. B^-1..."
                  << endl;
         }
         Z = X;
         if( shape == Lower )
-        {
             basic::Trsm
             ( Left, Lower, Normal, NonUnit, std::complex<double>(1), B, Z );
-        }
         else
-        {
             basic::Trsm
             ( Left, Upper, ConjugateTranspose, NonUnit, 
               std::complex<double>(1), B, Z );
-        }
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk
         ( shape, ConjugateTranspose, std::complex<double>(-1), Z, 
           std::complex<double>(1), Y );
-        oneNormOfError = advanced::OneNorm( Y );
-        infNormOfError = advanced::InfinityNorm( Y );
-        frobNormOfError = advanced::FrobeniusNorm( Y );
+        oneNormOfError = advanced::Norm( Y, ONE_NORM );
+        infNormOfError = advanced::Norm( Y, INFINITY_NORM );
+        frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
         if( g.VCRank() == 0 )
-        {
             cout << "    ||X^H B^-1 X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B^-1 X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B^-1 X - I||_F  = " << frobNormOfError << endl;
-        }
     }
 }
 #endif // WITHOUT_COMPLEX
 
 void TestHermitianGenDefiniteEigDouble
 ( bool testCorrectness, bool printMatrices,
-  advanced::HermitianGenDefiniteEigType eigType, 
+  HermitianGenDefiniteEigType eigType, 
   bool onlyEigenvalues, Shape shape, 
   int m, char range, double vl, double vu, int il, int iu,
   bool tryForHighAccuracy, const Grid& g )
@@ -601,7 +565,7 @@ void TestHermitianGenDefiniteEigDouble
     DistMatrix<double,MC,MR> X(g);
 
     A.SetToRandomHPD();
-    if( eigType == advanced::BAX )
+    if( eigType == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
@@ -610,9 +574,7 @@ void TestHermitianGenDefiniteEigDouble
         basic::Herk( shape, ConjugateTranspose, (double)1, C, (double)0, B );
     }
     else
-    {
         B.SetToRandomHPD();
-    }
 
     if( testCorrectness )
     {
@@ -642,38 +604,26 @@ void TestHermitianGenDefiniteEigDouble
     if( onlyEigenvalues )
     {
         if( range == 'A' )
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, tryForHighAccuracy );
-        }
         else if( range == 'I' )
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, il, iu, tryForHighAccuracy );
-        }
         else
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, vl, vu, tryForHighAccuracy );
-        }
     }
     else
     {
         if( range == 'A' )
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, X, tryForHighAccuracy );
-        }
         else if( range == 'I' )
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, X, il, iu, tryForHighAccuracy );
-        }
         else
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, X, vl, vu, tryForHighAccuracy );
-        }
     }
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
@@ -699,7 +649,7 @@ void TestHermitianGenDefiniteEigDouble
 #ifndef WITHOUT_COMPLEX
 void TestHermitianGenDefiniteEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
-  advanced::HermitianGenDefiniteEigType eigType, 
+  HermitianGenDefiniteEigType eigType, 
   bool onlyEigenvalues, Shape shape, 
   int m, char range, double vl, double vu, int il, int iu, 
   bool tryForHighAccuracy, const Grid& g )
@@ -713,7 +663,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
     DistMatrix<std::complex<double>,MC,  MR> X(g);
 
     A.SetToRandomHPD();
-    if( eigType == advanced::BAX )
+    if( eigType == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
@@ -756,38 +706,26 @@ void TestHermitianGenDefiniteEigDoubleComplex
     if( onlyEigenvalues )
     {
         if( range == 'A' )
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, tryForHighAccuracy );
-        }
         else if( range == 'I' )
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, il, iu, tryForHighAccuracy );
-        }
         else
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, vl, vu, tryForHighAccuracy );
-        }
     }
     else
     {
         if( range == 'A' )
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, X, tryForHighAccuracy );
-        }
         else if( range == 'I' )
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, X, il, iu, tryForHighAccuracy );
-        }
         else
-        {
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, X, vl, vu, tryForHighAccuracy );
-        }
     }
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
@@ -863,21 +801,21 @@ main( int argc, char* argv[] )
         if( testCorrectness && onlyEigenvalues && rank==0 )
             cout << "Cannot test correctness with only eigenvalues." << endl;
 
-        advanced::HermitianGenDefiniteEigType eigType;
+        HermitianGenDefiniteEigType eigType;
         std::string eigTypeString;
         if( eigInt == 1 )
         {
-            eigType = advanced::AXBX;
+            eigType = AXBX;
             eigTypeString = "AXBX";
         }
         else if( eigInt == 2 )
         {
-            eigType = advanced::ABX;
+            eigType = ABX;
             eigTypeString = "ABX";
         }
         else if( eigInt == 3 )
         {
-            eigType = advanced::BAX;
+            eigType = BAX;
             eigTypeString = "BAX";
         }
         else
@@ -911,8 +849,7 @@ main( int argc, char* argv[] )
                  << "Double-precision normal tridiag algorithm:\n"
                  << "------------------------------------------" << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_NORMAL );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianGenDefiniteEigDouble
         ( testCorrectness, printMatrices, 
           eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,
@@ -926,10 +863,8 @@ main( int argc, char* argv[] )
                  << "-------------------------------------------"
                  << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
-        advanced::internal::SetHermitianTridiagGridOrder
-        ( advanced::internal::ROW_MAJOR );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianGenDefiniteEigDouble
         ( testCorrectness, printMatrices, 
           eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,
@@ -943,10 +878,8 @@ main( int argc, char* argv[] )
                  << "-------------------------------------------"
                  << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
-        advanced::internal::SetHermitianTridiagGridOrder
-        ( advanced::internal::COL_MAJOR );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( COL_MAJOR );
         TestHermitianGenDefiniteEigDouble
         ( testCorrectness, printMatrices, 
           eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,
@@ -973,10 +906,8 @@ main( int argc, char* argv[] )
                  << "---------------------------------------------------"
                  << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
-        advanced::internal::SetHermitianTridiagGridOrder
-        ( advanced::internal::ROW_MAJOR );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianGenDefiniteEigDoubleComplex
         ( testCorrectness, printMatrices, 
           eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, 
@@ -990,10 +921,8 @@ main( int argc, char* argv[] )
                  << "---------------------------------------------------"
                  << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
-        advanced::internal::SetHermitianTridiagGridOrder
-        ( advanced::internal::COL_MAJOR );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( COL_MAJOR );
         TestHermitianGenDefiniteEigDoubleComplex
         ( testCorrectness, printMatrices, 
           eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, 

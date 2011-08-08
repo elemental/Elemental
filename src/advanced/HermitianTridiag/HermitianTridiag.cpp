@@ -37,18 +37,17 @@ using namespace elemental::imports;
 
 // Algorithmic controls
 namespace {
-advanced::internal::HermitianTridiagApproach tridiagApproach = 
-    advanced::internal::HERMITIAN_TRIDIAG_NORMAL;
-advanced::internal::GridOrder gridOrder = 
-    advanced::internal::ROW_MAJOR;
+HermitianTridiagApproach tridiagApproach = HERMITIAN_TRIDIAG_NORMAL;
+GridOrder gridOrder = ROW_MAJOR;
 }
+
 void 
-elemental::advanced::internal::SetHermitianTridiagApproach
-( advanced::internal::HermitianTridiagApproach approach )
+elemental::advanced::SetHermitianTridiagApproach
+( HermitianTridiagApproach approach )
 { ::tridiagApproach = approach; }
+
 void 
-elemental::advanced::internal::SetHermitianTridiagGridOrder
-( advanced::internal::GridOrder order )
+elemental::advanced::SetHermitianTridiagGridOrder( GridOrder order )
 { ::gridOrder = order; }
 
 template<typename R> // representation of a real number
@@ -60,7 +59,7 @@ elemental::advanced::HermitianTridiag
     PushCallStack("advanced::HermitianTridiag");
 #endif
     const Grid& g = A.Grid();
-    if( ::tridiagApproach == advanced::internal::HERMITIAN_TRIDIAG_NORMAL )
+    if( ::tridiagApproach == HERMITIAN_TRIDIAG_NORMAL )
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( shape == Lower )
@@ -68,21 +67,25 @@ elemental::advanced::HermitianTridiag
         else 
             advanced::internal::HermitianTridiagU( A );
     }
-    else if( ::tridiagApproach == advanced::internal::HERMITIAN_TRIDIAG_SQUARE )
+    else if( ::tridiagApproach == HERMITIAN_TRIDIAG_SQUARE )
     {
         // Drop down to a square mesh
         int p = g.Size();
         int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
-        if( ::gridOrder == advanced::internal::COL_MAJOR )
+        if( ::gridOrder == COL_MAJOR )
+        {
             for( int j=0; j<pSqrt; ++j )
                 for( int i=0; i<pSqrt; ++i )
                     squareRanks[i+j*pSqrt] = i+j*pSqrt;
+        }
         else
+        {
             for( int j=0; j<pSqrt; ++j )
                 for( int i=0; i<pSqrt; ++i )
                     squareRanks[i+j*pSqrt] = j+i*pSqrt;
+        }
 
         mpi::Group owningGroup = g.OwningGroup();
         mpi::Group squareGroup;
@@ -141,7 +144,7 @@ elemental::advanced::HermitianTridiag
     typedef complex<R> C;
 
     const Grid& g = A.Grid();
-    if( ::tridiagApproach == advanced::internal::HERMITIAN_TRIDIAG_NORMAL )
+    if( ::tridiagApproach == HERMITIAN_TRIDIAG_NORMAL )
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( shape == Lower )
@@ -149,21 +152,25 @@ elemental::advanced::HermitianTridiag
         else
             advanced::internal::HermitianTridiagU( A, t );
     }
-    else if( ::tridiagApproach == advanced::internal::HERMITIAN_TRIDIAG_SQUARE )
+    else if( ::tridiagApproach == HERMITIAN_TRIDIAG_SQUARE )
     {
         // Drop down to a square mesh 
         int p = g.Size();
         int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
-        if( ::gridOrder == advanced::internal::COL_MAJOR )
+        if( ::gridOrder == COL_MAJOR )
+        {
             for( int j=0; j<pSqrt; ++j )
                 for( int i=0; i<pSqrt; ++i )
                     squareRanks[i+j*pSqrt] = i+j*pSqrt;
+        }
         else
+        {
             for( int j=0; j<pSqrt; ++j )
                 for( int i=0; i<pSqrt; ++i )
                     squareRanks[i+j*pSqrt] = j+i*pSqrt;
+        }
 
         mpi::Group owningGroup = g.OwningGroup();
         mpi::Group squareGroup;

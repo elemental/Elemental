@@ -30,17 +30,17 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include "elemental/advanced.hpp"
+#include "elemental/advanced_internal.hpp"
 using namespace elemental;
 using namespace elemental::imports;
 
 template<typename R> // representation of a real number
 R
-advanced::HermitianMaxNorm
+advanced::internal::HermitianMaxNorm
 ( Shape shape, const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianMaxNorm");
+    PushCallStack("advanced::internal::HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -77,11 +77,11 @@ advanced::HermitianMaxNorm
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::HermitianMaxNorm
+advanced::internal::HermitianMaxNorm
 ( Shape shape, const Matrix< std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianMaxNorm");
+    PushCallStack("advanced::internal::HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -118,11 +118,11 @@ advanced::HermitianMaxNorm
 
 template<typename R> // representation of a real number
 R
-advanced::HermitianMaxNorm
+advanced::internal::HermitianMaxNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianMaxNorm");
+    PushCallStack("advanced::internal::HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -173,11 +173,11 @@ advanced::HermitianMaxNorm
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::HermitianMaxNorm
+advanced::internal::HermitianMaxNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianMaxNorm");
+    PushCallStack("advanced::internal::HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -226,24 +226,24 @@ advanced::HermitianMaxNorm
 }
 #endif // WITHOUT_COMPLEX
 
-template float elemental::advanced::HermitianMaxNorm
+template float elemental::advanced::internal::HermitianMaxNorm
 ( Shape shape, const Matrix<float>& A );
-template double elemental::advanced::HermitianMaxNorm
+template double elemental::advanced::internal::HermitianMaxNorm
 ( Shape shape, const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::HermitianMaxNorm
+template float elemental::advanced::internal::HermitianMaxNorm
 ( Shape shape, const Matrix< std::complex<float> >& A );
-template double elemental::advanced::HermitianMaxNorm
+template double elemental::advanced::internal::HermitianMaxNorm
 ( Shape shape, const Matrix< std::complex<double> >& A );
 #endif
 
-template float elemental::advanced::HermitianMaxNorm
+template float elemental::advanced::internal::HermitianMaxNorm
 ( Shape shape, const DistMatrix<float,MC,MR>& A );
-template double elemental::advanced::HermitianMaxNorm
+template double elemental::advanced::internal::HermitianMaxNorm
 ( Shape shape, const DistMatrix<double,MC,MR>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::HermitianMaxNorm
+template float elemental::advanced::internal::HermitianMaxNorm
 ( Shape shape, const DistMatrix<std::complex<float>,MC,MR>& A );
-template double elemental::advanced::HermitianMaxNorm
+template double elemental::advanced::internal::HermitianMaxNorm
 ( Shape shape, const DistMatrix<std::complex<double>,MC,MR>& A );
 #endif

@@ -2655,26 +2655,19 @@ HermitianEigDComplex_OnlyEigvals
 }
 #endif // WITHOUT_COMPLEX 
 
-// GeneralizedHermitianEig
 void
-GeneralizedHermitianEigDouble
+HermitianGenDefiniteEigDouble
 ( int genEigInt, char uplo, int tryForHighAccuracy, 
   char job, int a, int b, double u, double v,
   MC_MR_Double A, MC_MR_Double B, Star_VR_Double w, MC_MR_Double Z )
 {
-    elemental::advanced::GenEigType genEigType;
+    elemental::HermitianGenDefiniteEigType genEigType;
     if( genEigInt == 1 )
-    {
-        genEigType = elemental::advanced::AXBX;
-    }
+        genEigType = elemental::AXBX;
     else if( genEigInt == 2 )
-    {
-        genEigType = elemental::advanced::ABX;
-    }
+        genEigType = elemental::ABX;
     else if( genEigInt == 3 )
-    {
-        genEigType = elemental::advanced::BAX;
-    }
+        genEigType = elemental::BAX;
     else
     {
         std::cerr << "Invalid genEigType, choose from {1,2,3}" << std::endl;
@@ -2685,7 +2678,7 @@ GeneralizedHermitianEigDouble
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
@@ -2695,7 +2688,7 @@ GeneralizedHermitianEigDouble
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
@@ -2705,7 +2698,7 @@ GeneralizedHermitianEigDouble
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
@@ -2719,7 +2712,7 @@ GeneralizedHermitianEigDouble
 }
 
 void
-GeneralizedHermitianEigDouble_OnlyEigvals
+HermitianGenDefiniteEigDouble_OnlyEigvals
 ( int genEigInt, char uplo, int tryForHighAccuracy, 
   char job, int a, int b, double u, double v,
   MC_MR_Double A, MC_MR_Double B, Star_VR_Double w )
@@ -2747,7 +2740,7 @@ GeneralizedHermitianEigDouble_OnlyEigvals
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], tryForHighAccuracy );
@@ -2756,7 +2749,7 @@ GeneralizedHermitianEigDouble_OnlyEigvals
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], a, b, tryForHighAccuracy );
@@ -2765,7 +2758,7 @@ GeneralizedHermitianEigDouble_OnlyEigvals
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
               *::Star_VR_DoubleList[w], u, v, tryForHighAccuracy );
@@ -2779,7 +2772,7 @@ GeneralizedHermitianEigDouble_OnlyEigvals
 
 #ifndef WITHOUT_COMPLEX
 void
-GeneralizedHermitianEigDComplex
+HermitianGenDefiniteEigDComplex
 ( int genEigInt, char uplo, int tryForHighAccuracy, 
   char job, int a, int b, double u, double v,
   MC_MR_DComplex A, MC_MR_DComplex B, Star_VR_Double w, MC_MR_DComplex Z )
@@ -2807,7 +2800,7 @@ GeneralizedHermitianEigDComplex
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
@@ -2817,7 +2810,7 @@ GeneralizedHermitianEigDComplex
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
@@ -2827,7 +2820,7 @@ GeneralizedHermitianEigDComplex
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
@@ -2841,7 +2834,7 @@ GeneralizedHermitianEigDComplex
 }
 
 void
-GeneralizedHermitianEigDComplex_OnlyEigvals
+HermitianGenDefiniteEigDComplex_OnlyEigvals
 ( int genEigInt, char uplo, int tryForHighAccuracy, 
   char job, int a, int b, double u, double v,
   MC_MR_DComplex A, MC_MR_DComplex B, Star_VR_Double w )
@@ -2869,7 +2862,7 @@ GeneralizedHermitianEigDComplex_OnlyEigvals
     if( job == 'a' || job == 'A' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], tryForHighAccuracy );
@@ -2878,7 +2871,7 @@ GeneralizedHermitianEigDComplex_OnlyEigvals
     else if( job == 'i' || job == 'I' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], a, b, tryForHighAccuracy );
@@ -2887,7 +2880,7 @@ GeneralizedHermitianEigDComplex_OnlyEigvals
     else if( job == 'v' || job == 'V' )
     {
         CATCH(
-            elemental::advanced::GeneralizedHermitianEig
+            elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
               *::Star_VR_DoubleList[w], u, v, tryForHighAccuracy );

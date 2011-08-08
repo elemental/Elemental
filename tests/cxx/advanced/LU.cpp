@@ -73,9 +73,9 @@ void TestCorrectness
     DistMatrix<F,MC,MR> X(m,100,g);
     DistMatrix<F,MC,MR> Y(g);
     X.SetToRandom();
-    F oneNormOfX = advanced::OneNorm( X );
-    F infNormOfX = advanced::InfinityNorm( X );
-    F frobNormOfX = advanced::FrobeniusNorm( X );
+    F oneNormOfX = advanced::Norm( X, ONE_NORM );
+    F infNormOfX = advanced::Norm( X, INFINITY_NORM );
+    F frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
     Y = X;
     advanced::internal::ApplyRowPivots( Y, image, preimage, 0 );
 
@@ -85,12 +85,12 @@ void TestCorrectness
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     basic::Gemm( Normal, Normal, (F)-1, AOrig, Y, (F)1, X );
-    F oneNormOfError = advanced::OneNorm( X );
-    F infNormOfError = advanced::InfinityNorm( X );
-    F frobNormOfError = advanced::FrobeniusNorm( X );
-    F oneNormOfA = advanced::OneNorm( AOrig );
-    F infNormOfA = advanced::InfinityNorm( AOrig );
-    F frobNormOfA = advanced::FrobeniusNorm( AOrig );
+    F oneNormOfError = advanced::Norm( X, ONE_NORM );
+    F infNormOfError = advanced::Norm( X, INFINITY_NORM );
+    F frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    F oneNormOfA = advanced::Norm( AOrig, ONE_NORM );
+    F infNormOfA = advanced::Norm( AOrig, INFINITY_NORM );
+    F frobNormOfA = advanced::Norm( AOrig, FROBENIUS_NORM );
 
     if( g.VCRank() == 0 )
     {

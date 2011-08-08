@@ -30,7 +30,7 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include "elemental/advanced.hpp"
+#include "elemental/advanced_internal.hpp"
 using namespace elemental;
 
 // The operator L1 and Linf norms for Hermitian matrices are identical. The 
@@ -39,13 +39,13 @@ using namespace elemental;
 
 template<typename R> // representation of a real number
 R
-advanced::HermitianInfinityNorm
+advanced::internal::HermitianInfinityNorm
 ( Shape shape, const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianInfinityNorm");
+    PushCallStack("advanced::internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::HermitianOneNorm( shape, A );
+    R maxRowSum = advanced::internal::HermitianOneNorm( shape, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -55,13 +55,13 @@ advanced::HermitianInfinityNorm
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::HermitianInfinityNorm
+advanced::internal::HermitianInfinityNorm
 ( Shape shape, const Matrix< std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianInfinityNorm");
+    PushCallStack("advanced::internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::HermitianOneNorm( shape, A );
+    R maxRowSum = advanced::internal::HermitianOneNorm( shape, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -71,13 +71,13 @@ advanced::HermitianInfinityNorm
 
 template<typename R> // representation of a real number
 R
-advanced::HermitianInfinityNorm
+advanced::internal::HermitianInfinityNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianInfinityNorm");
+    PushCallStack("advanced::internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::HermitianOneNorm( shape, A );
+    R maxRowSum = advanced::internal::HermitianOneNorm( shape, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -87,13 +87,13 @@ advanced::HermitianInfinityNorm
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::HermitianInfinityNorm
+advanced::internal::HermitianInfinityNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianInfinityNorm");
+    PushCallStack("advanced::internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::HermitianOneNorm( shape, A );
+    R maxRowSum = advanced::internal::HermitianOneNorm( shape, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -101,24 +101,24 @@ advanced::HermitianInfinityNorm
 }
 #endif
 
-template float elemental::advanced::HermitianInfinityNorm
+template float elemental::advanced::internal::HermitianInfinityNorm
 ( Shape shape, const Matrix<float>& A );
-template double elemental::advanced::HermitianInfinityNorm
+template double elemental::advanced::internal::HermitianInfinityNorm
 ( Shape shape, const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::HermitianInfinityNorm
+template float elemental::advanced::internal::HermitianInfinityNorm
 ( Shape shape, const Matrix< std::complex<float> >& A );
-template double elemental::advanced::HermitianInfinityNorm
+template double elemental::advanced::internal::HermitianInfinityNorm
 ( Shape shape, const Matrix< std::complex<double> >& A );
 #endif
 
-template float elemental::advanced::HermitianInfinityNorm
+template float elemental::advanced::internal::HermitianInfinityNorm
 ( Shape shape, const DistMatrix<float,MC,MR>& A );
-template double elemental::advanced::HermitianInfinityNorm
+template double elemental::advanced::internal::HermitianInfinityNorm
 ( Shape shape, const DistMatrix<double,MC,MR>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::HermitianInfinityNorm
+template float elemental::advanced::internal::HermitianInfinityNorm
 ( Shape shape, const DistMatrix<std::complex<float>,MC,MR>& A );
-template double elemental::advanced::HermitianInfinityNorm
+template double elemental::advanced::internal::HermitianInfinityNorm
 ( Shape shape, const DistMatrix<std::complex<double>,MC,MR>& A );
 #endif

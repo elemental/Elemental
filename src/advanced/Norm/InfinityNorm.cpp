@@ -30,16 +30,16 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include "elemental/advanced.hpp"
+#include "elemental/advanced_internal.hpp"
 using namespace elemental;
 using namespace elemental::imports;
 
 template<typename R> // representation of a real number
 R
-advanced::InfinityNorm( const Matrix<R>& A )
+advanced::internal::InfinityNorm( const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::InfinityNorm");
+    PushCallStack("advanced::internal::InfinityNorm");
 #endif
     R maxRowSum = 0;
     for( int i=0; i<A.Height(); ++i )
@@ -58,10 +58,10 @@ advanced::InfinityNorm( const Matrix<R>& A )
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::InfinityNorm( const Matrix< std::complex<R> >& A )
+advanced::internal::InfinityNorm( const Matrix< std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::InfinityNorm");
+    PushCallStack("advanced::internal::InfinityNorm");
 #endif
     R maxRowSum = 0;
     for( int i=0; i<A.Height(); ++i )
@@ -80,10 +80,10 @@ advanced::InfinityNorm( const Matrix< std::complex<R> >& A )
 
 template<typename R> // representation of a real number
 R
-advanced::InfinityNorm( const DistMatrix<R,MC,MR>& A )
+advanced::internal::InfinityNorm( const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::InfinityNorm");
+    PushCallStack("advanced::internal::InfinityNorm");
 #endif
     // Compute the partial row sums defined by our local matrix, A[MC,MR]
     std::vector<R> myPartialRowSums(A.LocalHeight());
@@ -118,10 +118,10 @@ advanced::InfinityNorm( const DistMatrix<R,MC,MR>& A )
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::InfinityNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
+advanced::internal::InfinityNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::InfinityNorm");
+    PushCallStack("advanced::internal::InfinityNorm");
 #endif
     // Compute the partial row sums defined by our local matrix, A[MC,MR]
     std::vector<R> myPartialRowSums(A.LocalHeight());
@@ -154,25 +154,25 @@ advanced::InfinityNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 }
 #endif
 
-template float elemental::advanced::InfinityNorm
+template float elemental::advanced::internal::InfinityNorm
 ( const Matrix<float>& A );
-template double elemental::advanced::InfinityNorm
+template double elemental::advanced::internal::InfinityNorm
 ( const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::InfinityNorm
+template float elemental::advanced::internal::InfinityNorm
 ( const Matrix< std::complex<float> >& A );
-template double elemental::advanced::InfinityNorm
+template double elemental::advanced::internal::InfinityNorm
 ( const Matrix< std::complex<double> >& A );
 #endif
 
-template float elemental::advanced::InfinityNorm
+template float elemental::advanced::internal::InfinityNorm
 ( const DistMatrix<float,MC,MR>& A );
-template double elemental::advanced::InfinityNorm
+template double elemental::advanced::internal::InfinityNorm
 ( const DistMatrix<double,MC,MR>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::InfinityNorm
+template float elemental::advanced::internal::InfinityNorm
 ( const DistMatrix<std::complex<float>,MC,MR>& A );
-template double elemental::advanced::InfinityNorm
+template double elemental::advanced::internal::InfinityNorm
 ( const DistMatrix<std::complex<double>,MC,MR>& A );
 #endif
 

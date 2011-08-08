@@ -326,6 +326,106 @@ PivotFunc
   int* length, imports::mpi::Datatype* datatype );
 
 //----------------------------------------------------------------------------//
+// Norm                                                                       //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R FrobeniusNorm( const Matrix<R>& A );
+template<typename R>
+R InfinityNorm( const Matrix<R>& A );
+template<typename R>
+R MaxNorm( const Matrix<R>& A );
+template<typename R>
+R OneNorm( const Matrix<R>& A );
+
+template<typename R>
+R FrobeniusNorm( const DistMatrix<R,MC,MR>& A );
+template<typename R>
+R InfinityNorm( const DistMatrix<R,MC,MR>& A );
+template<typename R>
+R MaxNorm( const DistMatrix<R,MC,MR>& A );
+template<typename R>
+R OneNorm( const DistMatrix<R,MC,MR>& A );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+R FrobeniusNorm( const Matrix< std::complex<R> >& A );
+template<typename R>
+R InfinityNorm( const Matrix< std::complex<R> >& A );
+template<typename R>
+R MaxNorm( const Matrix< std::complex<R> >& A );
+template<typename R>
+R OneNorm( const Matrix< std::complex<R> >& A );
+
+template<typename R>
+R FrobeniusNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+template<typename R>
+R InfinityNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+template<typename R>
+R MaxNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+template<typename R>
+R OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
+#endif
+
+//----------------------------------------------------------------------------//
+// HermitianNorm                                                              //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R HermitianFrobeniusNorm
+( Shape shape, const Matrix<R>& A );
+template<typename R>
+R HermitianInfinityNorm
+( Shape shape, const Matrix<R>& A );
+template<typename R>
+R HermitianMaxNorm
+( Shape shape, const Matrix<R>& A );
+template<typename R>
+R HermitianOneNorm
+( Shape shape, const Matrix<R>& A );
+
+template<typename R>
+R HermitianFrobeniusNorm
+( Shape shape, const DistMatrix<R,MC,MR>& A );
+template<typename R>
+R HermitianInfinityNorm
+( Shape shape, const DistMatrix<R,MC,MR>& A );
+template<typename R>
+R HermitianMaxNorm
+( Shape shape, const DistMatrix<R,MC,MR>& A );
+template<typename R>
+R HermitianOneNorm
+( Shape shape, const DistMatrix<R,MC,MR>& A );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+R HermitianFrobeniusNorm
+( Shape shape, const Matrix< std::complex<R> >& A );
+template<typename R>
+R HermitianInfinityNorm
+( Shape shape, const Matrix< std::complex<R> >& A );
+template<typename R>
+R HermitianMaxNorm
+( Shape shape, const Matrix< std::complex<R> >& A );
+template<typename R>
+R HermitianOneNorm
+( Shape shape, const Matrix< std::complex<R> >& A );
+
+template<typename R>
+R HermitianFrobeniusNorm
+( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+template<typename R>
+R HermitianInfinityNorm
+( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+template<typename R>
+R HermitianMaxNorm
+( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+template<typename R>
+R HermitianOneNorm
+( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+#endif
+
+//----------------------------------------------------------------------------//
 // QR                                                                         //
 //----------------------------------------------------------------------------//
 
@@ -370,21 +470,6 @@ RowReflector
 //----------------------------------------------------------------------------//
 // HermitianTridiag                                                           //
 //----------------------------------------------------------------------------//
-
-enum HermitianTridiagApproach 
-{ HERMITIAN_TRIDIAG_NORMAL,  // Pipelined algorithm for (potentially) nonsquare grids
-  HERMITIAN_TRIDIAG_SQUARE,  // Pipelined algorithm for square grids. Drop down 
-                   // from a rectangular grid if necessary.
-  HERMITIAN_TRIDIAG_DEFAULT  // Use TRIDIAG_NORMAL approach unless on a square grid.
-};
-
-void SetHermitianTridiagApproach( HermitianTridiagApproach approach );
-
-// If dropping down to a square grid, the two simplest approaches are to take 
-// the first r^2 processes from the original grid (for an r x r grid) and to
-// either order them column-major or row-major to form the square grid.
-enum GridOrder { ROW_MAJOR, COL_MAJOR };
-void SetHermitianTridiagGridOrder( GridOrder order );
 
 template<typename R>
 void

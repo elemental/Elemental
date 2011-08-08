@@ -100,10 +100,10 @@ void TestCorrectness
     B.MakeTrapezoidal( Left, shape );
     basic::Axpy( (R)-1, AOrig, B );
 
-    R infNormOfAOrig = advanced::HermitianInfinityNorm( shape, AOrig );
-    R frobNormOfAOrig = advanced::HermitianFrobeniusNorm( shape, AOrig );
-    R infNormOfError = advanced::HermitianInfinityNorm( shape, B );
-    R frobNormOfError = advanced::HermitianFrobeniusNorm( shape, B );
+    R infNormOfAOrig = advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+    R frobNormOfAOrig = advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+    R infNormOfError = advanced::HermitianNorm( shape, B, INFINITY_NORM );
+    R frobNormOfError = advanced::HermitianNorm( shape, B, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -162,10 +162,10 @@ void TestCorrectness
     B.MakeTrapezoidal( Left, shape );
     basic::Axpy( (C)-1, AOrig, B );
 
-    R infNormOfAOrig = advanced::HermitianInfinityNorm( shape, AOrig );
-    R frobNormOfAOrig = advanced::HermitianFrobeniusNorm( shape, AOrig );
-    R infNormOfError = advanced::HermitianInfinityNorm( shape, B );
-    R frobNormOfError = advanced::HermitianFrobeniusNorm( shape, B );
+    R infNormOfAOrig = advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+    R frobNormOfAOrig = advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+    R infNormOfError = advanced::HermitianNorm( shape, B, INFINITY_NORM );
+    R frobNormOfError = advanced::HermitianNorm( shape, B, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -343,8 +343,7 @@ main( int argc, char* argv[] )
                  << "Double-precision normal algorithm:\n"
                  << "----------------------------------" << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_NORMAL );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianTridiag<double>
         ( testCorrectness, printMatrices, shape, m, g );
 
@@ -355,10 +354,8 @@ main( int argc, char* argv[] )
                  << "--------------------------------------------------" 
                  << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
-        advanced::internal::SetHermitianTridiagGridOrder
-        ( advanced::internal::ROW_MAJOR );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianTridiag<double>
         ( testCorrectness, printMatrices, shape, m, g );
 
@@ -369,10 +366,8 @@ main( int argc, char* argv[] )
                  << "--------------------------------------------------" 
                  << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
-        advanced::internal::SetHermitianTridiagGridOrder
-        ( advanced::internal::COL_MAJOR );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( COL_MAJOR );
         TestHermitianTridiag<double>
         ( testCorrectness, printMatrices, shape, m, g );
 
@@ -383,8 +378,7 @@ main( int argc, char* argv[] )
                  << "Double-precision complex normal algorithm:\n"
                  << "------------------------------------------" << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_NORMAL );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianTridiag< complex<double> >
         ( testCorrectness, printMatrices, shape, m, g );
 
@@ -396,10 +390,8 @@ main( int argc, char* argv[] )
                  << "-------------------------------------------" 
                  << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
-        advanced::internal::SetHermitianTridiagGridOrder
-        ( advanced::internal::ROW_MAJOR );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianTridiag<complex<double> >
         ( testCorrectness, printMatrices, shape, m, g );
 
@@ -411,10 +403,8 @@ main( int argc, char* argv[] )
                  << "-------------------------------------------" 
                  << endl;
         }
-        advanced::internal::SetHermitianTridiagApproach
-        ( advanced::internal::HERMITIAN_TRIDIAG_SQUARE );
-        advanced::internal::SetHermitianTridiagGridOrder
-        ( advanced::internal::COL_MAJOR );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( COL_MAJOR );
         TestHermitianTridiag<complex<double> >
         ( testCorrectness, printMatrices, shape, m, g );
 #endif

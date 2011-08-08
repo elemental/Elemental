@@ -106,9 +106,9 @@ void TestCorrectness
             X.Print("I - Q^H Q");
     }
 
-    R oneNormOfError = advanced::OneNorm( X );
-    R infNormOfError = advanced::InfinityNorm( X );
-    R frobNormOfError = advanced::FrobeniusNorm( X );
+    R oneNormOfError = advanced::Norm( X, ONE_NORM );
+    R infNormOfError = advanced::Norm( X, INFINITY_NORM );
+    R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         if( orientation == Normal )
@@ -183,9 +183,9 @@ void TestCorrectness
     }
 
     // Compute the maximum deviance
-    R oneNormOfError = advanced::OneNorm( X );
-    R infNormOfError = advanced::InfinityNorm( X );
-    R frobNormOfError = advanced::FrobeniusNorm( X );
+    R oneNormOfError = advanced::Norm( X, ONE_NORM );
+    R infNormOfError = advanced::Norm( X, INFINITY_NORM );
+    R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         if( orientation == Normal )

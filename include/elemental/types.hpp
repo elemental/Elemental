@@ -51,7 +51,96 @@ enum Diagonal
     Unit
 };
 
-inline char DiagonalToChar( Diagonal diagonal )
+char DiagonalToChar( Diagonal diagonal );
+Diagonal CharToDiagonal( char c );
+
+enum Distribution
+{
+    MC,  // Col of a matrix distribution
+    MD,  // Diagonal of a matrix distribution
+    MR,  // Row of a matrix distribution
+    VC,  // Col-major vector distribution
+    VR,  // Row-major vector distribution
+    Star // Do not distribute
+};
+
+std::string DistToString( Distribution distribution );
+Distribution StringToDist( std::string s );
+
+enum Orientation
+{
+    Normal,
+    Transpose,
+    ConjugateTranspose
+};
+
+char OrientationToChar( Orientation orientation );
+Orientation CharToOrientation( char c );
+
+enum Shape
+{
+    Lower,
+    Upper
+};
+
+char ShapeToChar( Shape shape );
+Shape CharToShape( char c );
+
+enum Side
+{
+    Left,
+    Right
+};
+
+char SideToChar( Side side );
+Side CharToSide( char c );
+
+
+//
+// We ensure that all enums are lifted into the elemental namespace so that
+// they can be conveniently used as function arguments, e.g., 
+//
+// using namespace elemental;
+// Matrix<double> A;
+// ...
+// double norm = advanced::Norm( A, ONE_NORM );
+//
+
+enum GridOrder
+{
+    ROW_MAJOR,
+    COL_MAJOR
+};
+
+enum NormType
+{
+    FROBENIUS_NORM, // Compute the "vector" L_2 norm of the matrix
+    INFINITY_NORM,  // Compute the L_oo norm of the matrix
+    MAX_NORM,       // Compute the "vector" L_oo norm of the matrix
+    ONE_NORM,       // Compute the L_1 norm of the matrix
+};
+
+enum HermitianGenDefiniteEigType
+{
+    AXBX=1,
+    ABX=2,
+    BAX=3
+};
+
+enum HermitianTridiagApproach
+{
+    HERMITIAN_TRIDIAG_NORMAL, // Keep the current grid
+    HERMITIAN_TRIDIAG_SQUARE, // Drop to a square process grid
+    HERMITIAN_TRIDIAG_DEFAULT // Square grid algorithm only if already square
+};
+
+} // elemental
+
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
+
+inline char elemental::DiagonalToChar( elemental::Diagonal diagonal )
 {
     char diagonalChar;
     switch( diagonal )
@@ -62,7 +151,7 @@ inline char DiagonalToChar( Diagonal diagonal )
     return diagonalChar;
 }
 
-inline Diagonal CharToDiagonal( char c )
+inline elemental::Diagonal elemental::CharToDiagonal( char c )
 {
     Diagonal diagonal;
     switch( c )
@@ -75,17 +164,8 @@ inline Diagonal CharToDiagonal( char c )
     return diagonal;
 }
 
-enum Distribution
-{
-    MC,  // Col of a matrix distribution
-    MD,  // Diagonal of a matrix distribution
-    MR,  // Row of a matrix distribution
-    VC,  // Col-major vector distribution
-    VR,  // Row-major vector distribution
-    Star // Do not distribute
-};
-
-inline std::string DistToString( Distribution distribution )
+inline std::string elemental::DistToString
+( elemental::Distribution distribution )
 {
     std::string distString;
     switch( distribution )
@@ -100,7 +180,7 @@ inline std::string DistToString( Distribution distribution )
     return distString;
 }
 
-inline Distribution StringToDist( std::string s )
+inline elemental::Distribution elemental::StringToDist( std::string s )
 {
     Distribution distribution;
     if( s == "MC" )
@@ -123,14 +203,7 @@ inline Distribution StringToDist( std::string s )
     return distribution;
 }
 
-enum Orientation
-{
-    Normal,
-    Transpose,
-    ConjugateTranspose
-};
-
-inline char OrientationToChar( Orientation orientation )
+inline char elemental::OrientationToChar( elemental::Orientation orientation )
 {
     char orientationChar;
     switch( orientation )
@@ -142,7 +215,7 @@ inline char OrientationToChar( Orientation orientation )
     return orientationChar;
 }
 
-inline Orientation CharToOrientation( char c )
+inline elemental::Orientation elemental::CharToOrientation( char c )
 {
     Orientation orientation;
     switch( c )
@@ -157,13 +230,7 @@ inline Orientation CharToOrientation( char c )
     return orientation;
 }
 
-enum Shape
-{
-    Lower,
-    Upper
-};
-
-inline char ShapeToChar( Shape shape )
+inline char elemental::ShapeToChar( elemental::Shape shape )
 {
     char shapeChar;
     switch( shape )
@@ -174,7 +241,7 @@ inline char ShapeToChar( Shape shape )
     return shapeChar;
 }
 
-inline Shape CharToShape( char c )
+inline elemental::Shape elemental::CharToShape( char c )
 {
     Shape shape;
     switch( c )
@@ -187,13 +254,7 @@ inline Shape CharToShape( char c )
     return shape;
 }
 
-enum Side
-{
-    Left,
-    Right
-};
-
-inline char SideToChar( Side side )
+inline char elemental::SideToChar( elemental::Side side )
 {
     char sideChar;
     switch( side )
@@ -204,7 +265,7 @@ inline char SideToChar( Side side )
     return sideChar;
 }
     
-inline Side CharToSide( char c )
+inline elemental::Side elemental::CharToSide( char c )
 {
     Side side;
     switch( c )
@@ -216,8 +277,6 @@ inline Side CharToSide( char c )
     }
     return side;
 }
-
-} // elemental
 
 #endif /* ELEMENTAL_TYPES_HPP */
 

@@ -30,131 +30,149 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include "elemental/advanced.hpp"
+#include "elemental/advanced_internal.hpp"
 using namespace elemental;
 using namespace elemental::imports;
 
-template<typename R> // representation of a real number
+template<typename R> // represents a real number
 R
-advanced::MaxNorm( const Matrix<R>& A )
+advanced::internal::OneNorm( const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::MaxNorm");
+    PushCallStack("advanced::internal::OneNorm");
 #endif
-    R maxAbs = 0;
+    R maxColSum = 0;
     for( int j=0; j<A.Width(); ++j )
     {
+        R colSum = 0;
         for( int i=0; i<A.Height(); ++i )
-        {
-            const R thisAbs = Abs(A.Get(i,j));
-            maxAbs = std::max( maxAbs, thisAbs );
-        }
+            colSum += Abs(A.Get(i,j));
+        maxColSum = std::max( maxColSum, colSum );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxAbs;
+    return maxColSum;
 }
 
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::MaxNorm( const Matrix< std::complex<R> >& A )
+advanced::internal::OneNorm( const Matrix< std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::MaxNorm");
+    PushCallStack("advanced::internal::OneNorm");
 #endif
-    R maxAbs = 0;
+    R maxColSum = 0;
     for( int j=0; j<A.Width(); ++j )
     {
+        R colSum = 0;
         for( int i=0; i<A.Height(); ++i )
-        {
-            const R thisAbs = Abs(A.Get(i,j));
-            maxAbs = std::max( maxAbs, thisAbs );
-        }
+            colSum += Abs(A.Get(i,j));
+        maxColSum = std::max( maxColSum, colSum );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxAbs;
+    return maxColSum;
 }
 #endif
 
 template<typename R> // representation of a real number
 R
-advanced::MaxNorm( const DistMatrix<R,MC,MR>& A )
+advanced::internal::OneNorm( const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::MaxNorm");
+    PushCallStack("advanced::internal::OneNorm");
 #endif
-    R localMaxAbs = 0;
+    // Compute the partial column sums defined by our local matrix, A[MC,MR]
+    std::vector<R> myPartialColSums(A.LocalWidth());
     for( int j=0; j<A.LocalWidth(); ++j )
     {
+        myPartialColSums[j] = 0;
         for( int i=0; i<A.LocalHeight(); ++i )
-        {
-            const R thisAbs = Abs(A.GetLocalEntry(i,j));
-            localMaxAbs = std::max( localMaxAbs, thisAbs );
-        }
+            myPartialColSums[j] += Abs(A.GetLocalEntry(i,j));
     }
 
-    R maxAbs;
+    // Sum our partial column sums to get the column sums over A[* ,MR]
+    std::vector<R> myColSums(A.LocalWidth());
     mpi::AllReduce
-    ( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
+    ( &myPartialColSums[0], &myColSums[0], A.LocalWidth(), mpi::SUM,
+      A.Grid().MCComm() );
 
+    // Find the maximum out of the column sums
+    R myMaxColSum = 0;
+    for( int j=0; j<A.LocalWidth(); ++j )
+        myMaxColSum = std::max( myMaxColSum, myColSums[j] );
+
+    // Find the global maximum column sum by searching over the MR team
+    R maxColSum = 0;
+    mpi::AllReduce
+    ( &myMaxColSum, &maxColSum, 1, mpi::MAX, A.Grid().MRComm() );
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxAbs;
+    return maxColSum;
 }
 
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::MaxNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
+advanced::internal::OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::MaxNorm");
+    PushCallStack("advanced::internal::OneNorm");
 #endif
-    R localMaxAbs = 0;
+    // Compute the partial column sums defined by our local matrix, A[MC,MR]
+    std::vector<R> myPartialColSums(A.LocalWidth());
     for( int j=0; j<A.LocalWidth(); ++j )
     {
+        myPartialColSums[j] = 0;
         for( int i=0; i<A.LocalHeight(); ++i )
-        {
-            const R thisAbs = Abs(A.GetLocalEntry(i,j));
-            localMaxAbs = std::max( localMaxAbs, thisAbs );
-        }
+            myPartialColSums[j] += Abs(A.GetLocalEntry(i,j));
     }
 
-    R maxAbs;
+    // Sum our partial column sums to get the column sums over A[* ,MR]
+    std::vector<R> myColSums(A.LocalWidth());
     mpi::AllReduce
-    ( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
+    ( &myPartialColSums[0], &myColSums[0], A.LocalWidth(), mpi::SUM,
+      A.Grid().MCComm() );
 
+    // Find the maximum out of the column sums
+    R myMaxColSum = 0;
+    for( int j=0; j<A.LocalWidth(); ++j )
+        myMaxColSum = std::max( myMaxColSum, myColSums[j] );
+
+    // Find the global maximum column sum by searching over the MR team
+    R maxColSum = 0;
+    mpi::AllReduce
+    ( &myMaxColSum, &maxColSum, 1, mpi::MAX, A.Grid().MRComm() );
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxAbs;
+    return maxColSum;
 }
 #endif
 
-template float elemental::advanced::MaxNorm
+template float elemental::advanced::internal::OneNorm
 ( const Matrix<float>& A );
-template double elemental::advanced::MaxNorm
+template double elemental::advanced::internal::OneNorm
 ( const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::MaxNorm
+template float elemental::advanced::internal::OneNorm
 ( const Matrix< std::complex<float> >& A );
-template double elemental::advanced::MaxNorm
+template double elemental::advanced::internal::OneNorm
 ( const Matrix< std::complex<double> >& A );
 #endif
 
-template float elemental::advanced::MaxNorm
+template float elemental::advanced::internal::OneNorm
 ( const DistMatrix<float,MC,MR>& A );
-template double elemental::advanced::MaxNorm
+template double elemental::advanced::internal::OneNorm
 ( const DistMatrix<double,MC,MR>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::MaxNorm
+template float elemental::advanced::internal::OneNorm
 ( const DistMatrix<std::complex<float>,MC,MR>& A );
-template double elemental::advanced::MaxNorm
+template double elemental::advanced::internal::OneNorm
 ( const DistMatrix<std::complex<double>,MC,MR>& A );
 #endif
 

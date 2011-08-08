@@ -30,149 +30,139 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include "elemental/advanced.hpp"
+#include "elemental/advanced_internal.hpp"
 using namespace elemental;
 using namespace elemental::imports;
 
-template<typename R> // represents a real number
+template<typename R> // representation of a real number
 R
-advanced::OneNorm( const Matrix<R>& A )
+advanced::internal::FrobeniusNorm( const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::OneNorm");
+    PushCallStack("advanced::internal::FrobeniusNorm");
 #endif
-    R maxColSum = 0;
+    R normSquared = 0;
     for( int j=0; j<A.Width(); ++j )
     {
-        R colSum = 0;
         for( int i=0; i<A.Height(); ++i )
-            colSum += Abs(A.Get(i,j));
-        maxColSum = std::max( maxColSum, colSum );
+        {
+            const R alpha = A.Get(i,j);
+            normSquared += alpha*alpha;
+        }
     }
+    R norm = sqrt(normSquared);
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxColSum;
+    return norm;
 }
 
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::OneNorm( const Matrix< std::complex<R> >& A )
+advanced::internal::FrobeniusNorm( const Matrix< std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::OneNorm");
+    PushCallStack("advanced::internal::FrobeniusNorm");
 #endif
-    R maxColSum = 0;
+    R normSquared = 0;
     for( int j=0; j<A.Width(); ++j )
     {
-        R colSum = 0;
         for( int i=0; i<A.Height(); ++i )
-            colSum += Abs(A.Get(i,j));
-        maxColSum = std::max( maxColSum, colSum );
+        {
+            const std::complex<R> alpha = A.Get(i,j);
+            // The std::norm function is a field norm rather than a vector norm.
+            normSquared += norm(alpha);
+        }
     }
+    R norm = sqrt(normSquared);
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxColSum;
+    return norm;
 }
 #endif
 
 template<typename R> // representation of a real number
 R
-advanced::OneNorm( const DistMatrix<R,MC,MR>& A )
+advanced::internal::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::OneNorm");
+    PushCallStack("advanced::internal::FrobeniusNorm");
 #endif
-    // Compute the partial column sums defined by our local matrix, A[MC,MR]
-    std::vector<R> myPartialColSums(A.LocalWidth());
+    R localNormSquared = 0;
     for( int j=0; j<A.LocalWidth(); ++j )
     {
-        myPartialColSums[j] = 0;
         for( int i=0; i<A.LocalHeight(); ++i )
-            myPartialColSums[j] += Abs(A.GetLocalEntry(i,j));
+        {
+            const R alpha = A.GetLocalEntry(i,j);
+            localNormSquared += alpha*alpha;
+        }
     }
 
-    // Sum our partial column sums to get the column sums over A[* ,MR]
-    std::vector<R> myColSums(A.LocalWidth());
+    // The norm squared is simply the sum of the local contributions
+    R normSquared;
     mpi::AllReduce
-    ( &myPartialColSums[0], &myColSums[0], A.LocalWidth(), mpi::SUM,
-      A.Grid().MCComm() );
+    ( &localNormSquared, &normSquared, 1, mpi::SUM, A.Grid().VCComm() );
 
-    // Find the maximum out of the column sums
-    R myMaxColSum = 0;
-    for( int j=0; j<A.LocalWidth(); ++j )
-        myMaxColSum = std::max( myMaxColSum, myColSums[j] );
-
-    // Find the global maximum column sum by searching over the MR team
-    R maxColSum = 0;
-    mpi::AllReduce
-    ( &myMaxColSum, &maxColSum, 1, mpi::MAX, A.Grid().MRComm() );
+    R norm = sqrt(normSquared);
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxColSum;
+    return norm;
 }
 
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
+advanced::internal::FrobeniusNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::OneNorm");
+    PushCallStack("advanced::internal::FrobeniusNorm");
 #endif
-    // Compute the partial column sums defined by our local matrix, A[MC,MR]
-    std::vector<R> myPartialColSums(A.LocalWidth());
+    R localNormSquared = 0;
     for( int j=0; j<A.LocalWidth(); ++j )
     {
-        myPartialColSums[j] = 0;
         for( int i=0; i<A.LocalHeight(); ++i )
-            myPartialColSums[j] += Abs(A.GetLocalEntry(i,j));
+        {
+            const std::complex<R> alpha = A.GetLocalEntry(i,j);
+            // The std::norm function is a field norm rather than a vector norm.
+            localNormSquared += norm(alpha);
+        }
     }
 
-    // Sum our partial column sums to get the column sums over A[* ,MR]
-    std::vector<R> myColSums(A.LocalWidth());
+    // The norm squared is simply the sum of the local contributions
+    R normSquared;
     mpi::AllReduce
-    ( &myPartialColSums[0], &myColSums[0], A.LocalWidth(), mpi::SUM,
-      A.Grid().MCComm() );
+    ( &localNormSquared, &normSquared, 1, mpi::SUM, A.Grid().VCComm() );
 
-    // Find the maximum out of the column sums
-    R myMaxColSum = 0;
-    for( int j=0; j<A.LocalWidth(); ++j )
-        myMaxColSum = std::max( myMaxColSum, myColSums[j] );
-
-    // Find the global maximum column sum by searching over the MR team
-    R maxColSum = 0;
-    mpi::AllReduce
-    ( &myMaxColSum, &maxColSum, 1, mpi::MAX, A.Grid().MRComm() );
+    R norm = sqrt(normSquared);
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxColSum;
+    return norm;
 }
 #endif
 
-template float elemental::advanced::OneNorm
+template float elemental::advanced::internal::FrobeniusNorm
 ( const Matrix<float>& A );
-template double elemental::advanced::OneNorm
+template double elemental::advanced::internal::FrobeniusNorm
 ( const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::OneNorm
+template float elemental::advanced::internal::FrobeniusNorm
 ( const Matrix< std::complex<float> >& A );
-template double elemental::advanced::OneNorm
+template double elemental::advanced::internal::FrobeniusNorm
 ( const Matrix< std::complex<double> >& A );
 #endif
 
-template float elemental::advanced::OneNorm
+template float elemental::advanced::internal::FrobeniusNorm
 ( const DistMatrix<float,MC,MR>& A );
-template double elemental::advanced::OneNorm
+template double elemental::advanced::internal::FrobeniusNorm
 ( const DistMatrix<double,MC,MR>& A );
 #ifndef WITHOUT_COMPLEX
-template float elemental::advanced::OneNorm
+template float elemental::advanced::internal::FrobeniusNorm
 ( const DistMatrix<std::complex<float>,MC,MR>& A );
-template double elemental::advanced::OneNorm
+template double elemental::advanced::internal::FrobeniusNorm
 ( const DistMatrix<std::complex<double>,MC,MR>& A );
 #endif
 
