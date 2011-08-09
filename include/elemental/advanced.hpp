@@ -386,6 +386,39 @@ void
 LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,Star>& p );
 
 //----------------------------------------------------------------------------//
+// LQ (LQ factorization):                                                     //
+//                                                                            //
+// Essentially the adjoint of a QR factorization on the adjoint of the input  //
+// matrix.                                                                    //
+//----------------------------------------------------------------------------//
+
+// Serial version for real datatypes
+template<typename R>
+void
+LQ( Matrix<R>& A );
+
+#ifndef WITHOUT_COMPLEX
+// Serial version for complex datatypes
+template<typename R>
+void
+LQ( Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& t );
+#endif
+
+// Parallel version for real datatypes
+template<typename R>
+void
+LQ( DistMatrix<R,MC,MR>& A );
+
+#ifndef WITHOUT_COMPLEX
+// Parallel version for complex datatypes
+template<typename R>
+void
+LQ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
+    DistMatrix<std::complex<R>,Star,Star>& t );
+#endif
+
+
+//----------------------------------------------------------------------------//
 // Norm                                                                       //
 //----------------------------------------------------------------------------//
 
@@ -740,20 +773,26 @@ TriangularInversion
 ( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
 //----------------------------------------------------------------------------//
-// UT (UT transform):                                                         //
+// ApplyPackedReflectors                                                      //
 //                                                                            //
 // Applies the accumulated Householder transforms that are stored in the      //
 // triangle of H specified by 'shape' to the matrix A.                        //
 //                                                                            //
 // If 'shape' is set to 'Lower', then offset determines the diagonal that the //
 // transforms are stored above (they are implicitly one on that diagonal).    //
-// Due to the conventions of the LAPACK routines 'chetrd' and 'zhetrd', the   //
-// transforms are assumed to be accumulated left-to-right.                    //
 //                                                                            //
 // If 'shape' is set to 'Upper', then offset determines the diagonal that the //
 // transforms are stored below (they are implicitly one on that diagonal).    //
-// Due to the conventions of the LAPACK routines 'chetrd' and 'zhetrd', the   //
-// transforms are assumed to be accumulated right-to-left.                    //
+//                                                                            //
+// 'direction' determines whether the reflectors are stored vertically or     //
+// horizontally.                                                              //
+//                                                                            //
+// 'conjugation' determines whether or not the Householder scalars should be  //
+// conjugated.                                                                //
+//                                                                            //
+// If 'order' is set to forward, then the reflectors are applied              //
+// left-to-right, or top-to-bottom, depending on 'direction'. Otherwise, they //
+// are applied in the opposite order.
 //                                                                            //
 // See the above note for QR factorizations regarding the vector 't' and      //
 // Householder early-exit conditions.                                         //
@@ -763,24 +802,29 @@ TriangularInversion
 
 // Parallel version for real datatypes
 template<typename R>
-void
-UT( Side side, Shape shape, Orientation orientation, int offset,
-    const DistMatrix<R,MC,MR>& H, 
-          DistMatrix<R,MC,MR>& A );
+void ApplyPackedReflectors
+( Side side, Shape shape, VectorDirection direction, ForwardOrBackward order,
+  int offset,
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-UT( Side side, Shape shape, Orientation orientation, int offset,
-    const DistMatrix<std::complex<R>,MC,  MR  >& H,
-    const DistMatrix<std::complex<R>,MD,  Star>& t,
-          DistMatrix<std::complex<R>,MC,  MR  >& A );
+void ApplyPackedReflectors
+( Side side, Shape shape,
+  VectorDirection direction, ForwardOrBackward order, Conjugation conjugation,
+  int offset,
+  const DistMatrix<std::complex<R>,MC,  MR  >& H,
+  const DistMatrix<std::complex<R>,MD,  Star>& t,
+        DistMatrix<std::complex<R>,MC,  MR  >& A );
 template<typename R>
-void
-UT( Side side, Shape shape, Orientation orientation, int offset,
-    const DistMatrix<std::complex<R>,MC,  MR  >& H,
-    const DistMatrix<std::complex<R>,Star,Star>& t,
-          DistMatrix<std::complex<R>,MC,  MR  >& A );
+void ApplyPackedReflectors
+( Side side, Shape shape, 
+  VectorDirection direction, ForwardOrBackward order, Conjugation conjugation,
+  int offset,
+  const DistMatrix<std::complex<R>,MC,  MR  >& H,
+  const DistMatrix<std::complex<R>,Star,Star>& t,
+        DistMatrix<std::complex<R>,MC,  MR  >& A );
 #endif
 
 } // advanced
@@ -850,6 +894,45 @@ elemental::advanced::LU
 
 template<typename R>
 inline void
+elemental::advanced::LQ
+( Matrix<R>& A )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::LQ");
+#endif
+    imports::lapack::LQ
+    ( A.Height(), A.Width(), A.Buffer(), A.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline void
+elemental::advanced::LQ
+( Matrix< std::complex<R> >& A, Matrix< std::complex<R> >& t )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::LQ");
+    if( t.Viewing() && 
+        (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
+        throw std::logic_error
+              ( "t must be a vector of length equal to the min. dim. of A." );
+#endif
+    if( !t.Viewing() )
+        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    imports::lapack::LQ
+    ( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif
+
+
+template<typename R>
+inline void
 elemental::advanced::QR
 ( Matrix<R>& A )
 {
@@ -877,7 +960,7 @@ elemental::advanced::QR
               ( "t must be a vector of length equal to the min. dim. of A." );
 #endif
     if( !t.Viewing() )
-        t.ResizeTo( A.Height(), 1 );
+        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
     imports::lapack::QR
     ( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
 #ifndef RELEASE

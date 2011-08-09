@@ -444,13 +444,16 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() ); // We can simply shrink matrices
-    advanced::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, paddedZ );
+    if( shape == Lower )
+        advanced::ApplyPackedReflectors
+        ( Left, Lower, Vertical, Backward, subdiagonal, A, paddedZ );
+    else
+        advanced::ApplyPackedReflectors
+        ( Left, Upper, Vertical, Forward,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
         basic::Scal( 1/scale, w );
-
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -658,8 +661,12 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() );
-    advanced::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, paddedZ );
+    if( shape == Lower )
+        advanced::ApplyPackedReflectors
+        ( Left, Lower, Vertical, Backward, subdiagonal, A, paddedZ );
+    else
+        advanced::ApplyPackedReflectors
+        ( Left, Upper, Vertical, Forward,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
@@ -905,8 +912,12 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() );
-    advanced::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, paddedZ );
+    if( shape == Lower )
+        advanced::ApplyPackedReflectors
+        ( Left, Lower, Vertical, Backward, subdiagonal, A, paddedZ );
+    else
+        advanced::ApplyPackedReflectors
+        ( Left, Upper, Vertical, Forward,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
@@ -1500,8 +1511,14 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() ); 
-    advanced::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, t, paddedZ );
+    if( shape == Lower )
+        advanced::ApplyPackedReflectors
+        ( Left, Lower, Vertical, Backward, Unconjugated, 
+          subdiagonal, A, t, paddedZ );
+    else
+        advanced::ApplyPackedReflectors
+        ( Left, Upper, Vertical, Forward, Conjugated, 
+          subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
@@ -1714,8 +1731,14 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() );
-    advanced::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, t, paddedZ );
+    if( shape == Lower )
+        advanced::ApplyPackedReflectors
+        ( Left, Lower, Vertical, Backward, Unconjugated, 
+          subdiagonal, A, t, paddedZ );
+    else
+        advanced::ApplyPackedReflectors
+        ( Left, Upper, Vertical, Forward, Conjugated, 
+          subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
@@ -1962,8 +1985,14 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() );
-    advanced::UT
-    ( Left, shape, ConjugateTranspose, subdiagonal, A, t, paddedZ );
+    if( shape == Lower )
+        advanced::ApplyPackedReflectors
+        ( Left, Lower, Vertical, Backward, Unconjugated, 
+          subdiagonal, A, t, paddedZ );
+    else
+        advanced::ApplyPackedReflectors
+        ( Left, Upper, Vertical, Forward, Conjugated, 
+          subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )

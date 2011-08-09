@@ -92,8 +92,20 @@ void TestCorrectness
     B.SetDiagonal( eOpposite, -subdiagonal );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    advanced::UT( Left, shape, ConjugateTranspose, subdiagonal, A, B ); 
-    advanced::UT( Right, shape, Normal, subdiagonal, A, B );
+    if( shape == Lower )
+    {
+        advanced::ApplyPackedReflectors
+        ( Left, Lower, Vertical, Backward, subdiagonal, A, B );
+        advanced::ApplyPackedReflectors
+        ( Right, Lower, Vertical, Backward, subdiagonal, A, B );
+    }
+    else
+    {
+        advanced::ApplyPackedReflectors
+        ( Left, Upper, Vertical, Forward, subdiagonal, A, B );
+        advanced::ApplyPackedReflectors
+        ( Right, Upper, Vertical, Forward, subdiagonal, A, B );
+    }
 
     // Compare the appropriate triangle of AOrig and B
     AOrig.MakeTrapezoidal( Left, shape );
@@ -154,8 +166,24 @@ void TestCorrectness
     B.SetRealDiagonal( eOpposite, -subdiagonal );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    advanced::UT( Left, shape, ConjugateTranspose, subdiagonal, A, t, B ); 
-    advanced::UT( Right, shape, Normal, subdiagonal, A, t, B );
+    if( shape == Lower )
+    {
+        advanced::ApplyPackedReflectors
+        ( Left, Lower, Vertical, Backward, 
+          Unconjugated, subdiagonal, A, t, B );
+        advanced::ApplyPackedReflectors
+        ( Right, Lower, Vertical, Backward, 
+          Unconjugated, subdiagonal, A, t, B );
+    }
+    else
+    {
+        advanced::ApplyPackedReflectors
+        ( Left, Upper, Vertical, Forward, 
+          Conjugated, subdiagonal, A, t, B );
+        advanced::ApplyPackedReflectors
+        ( Right, Upper, Vertical, Forward, 
+          Conjugated, subdiagonal, A, t, B );
+    }
 
     // Compare the appropriate triangle of AOrig and B
     AOrig.MakeTrapezoidal( Left, shape );

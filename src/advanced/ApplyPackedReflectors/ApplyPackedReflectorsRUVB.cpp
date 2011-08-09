@@ -37,28 +37,24 @@ using namespace std;
 
 #include "./UTUtil.hpp"
 
-// This routine reverses the accumulation of Householder transforms stored 
-// in the portion of H above the diagonal marked by 'offset'. It is assumed 
-// that the Householder transforms were accumulated right-to-left.
-
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::UTRUN
+elemental::advanced::internal::ApplyPackedReflectorsRUVB
 ( int offset, 
   const DistMatrix<R,MC,MR>& H,
         DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::UTRUN");
+    PushCallStack("advanced::internal::ApplyPackedReflectorsRUVB");
     if( H.Grid() != A.Grid() )
         throw logic_error( "H and A must be distributed over the same grid." );
     if( offset > H.Height() )
         throw logic_error( "Transforms cannot extend above matrix." );
     if( offset < 0 )
         throw logic_error( "Transforms cannot extend below matrix." );
-    if( H.Height() != A.Width() )
+    if( H.Width() != A.Height() )
         throw logic_error
-              ( "Height of transforms must equal width of target matrix." );
+              ( "Width of transforms must equal width of target matrix." );
 #endif
     const Grid& g = H.Grid();
 
@@ -75,16 +71,16 @@ elemental::advanced::internal::UTRUN
     DistMatrix<R,MC,  Star> Z_MC_Star(g);
     DistMatrix<R,VC,  Star> Z_VC_Star(g);
 
-    LockedPartitionDownDiagonal
+    LockedPartitionUpDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
-    while( HTL.Height() < H.Height() && HTL.Width() < H.Width() )
+    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
-        LockedRepartitionDownDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
+        LockedRepartitionUpDiagonal
+        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
+               /**/       H10, H11, /**/ H12,
          /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
+          HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
         int HPanHeight = H01.Height() + H11.Height();
         int HPanOffset = min( H11.Width(), max(offset-H00.Width(),0) );
@@ -108,7 +104,7 @@ elemental::advanced::internal::UTRUN
         basic::Syrk
         ( Upper, Transpose, 
           (R)1, HPan_VC_Star.LockedLocalMatrix(),
-          (R)0, SInv_Star_Star.LocalMatrix() );
+          (R)0, SInv_Star_Star.LocalMatrix() );     
         SInv_Star_Star.SumOverGrid();
         HalveMainDiagonal( SInv_Star_Star );
 
@@ -119,7 +115,7 @@ elemental::advanced::internal::UTRUN
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
         
         basic::internal::LocalTrsm
-        ( Right, Upper, Normal, NonUnit, 
+        ( Right, Upper, Transpose, NonUnit, 
           (R)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;
@@ -131,11 +127,11 @@ elemental::advanced::internal::UTRUN
         Z_MC_Star.FreeAlignments();
         Z_VC_Star.FreeAlignments();
 
-        SlideLockedPartitionDownDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
+        SlideLockedPartitionUpDiagonal
+        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
          /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+               /**/       H10, /**/ H11, H12,
+          HBL, /**/ HBR,  H20, /**/ H21, H22 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -145,14 +141,14 @@ elemental::advanced::internal::UTRUN
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::UTRUN
-( int offset, 
+elemental::advanced::internal::ApplyPackedReflectorsRUVB
+( Conjugation conjugation, int offset, 
   const DistMatrix<complex<R>,MC,MR  >& H,
   const DistMatrix<complex<R>,MD,Star>& t,
         DistMatrix<complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::UTRUN");
+    PushCallStack("advanced::internal::ApplyPackedReflectorsRUVB");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw logic_error
               ( "H, t, and A must be distributed over the same grid." );
@@ -160,9 +156,9 @@ elemental::advanced::internal::UTRUN
         throw logic_error( "Transforms cannot extend above matrix." );
     if( offset < 0 )
         throw logic_error( "Transforms cannot extend below matrix." );
-    if( H.Height() != A.Width() )
+    if( H.Width() != A.Width() )
         throw logic_error
-              ( "Height of transforms must equal width of target matrix." );
+              ( "Width of transforms must equal width of target matrix." );
     if( t.Height() != H.DiagonalLength( offset ) )
         throw logic_error( "t must be the same length as H's 'offset' diag." );
     if( !t.AlignedWithDiag( H, offset ) )
@@ -189,19 +185,19 @@ elemental::advanced::internal::UTRUN
     DistMatrix<C,MC,  Star> Z_MC_Star(g);
     DistMatrix<C,VC,  Star> Z_VC_Star(g);
 
-    LockedPartitionDownDiagonal
+    LockedPartitionUpDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
-    LockedPartitionDown
+    LockedPartitionUp
     ( t, tT,
          tB, 0 );
-    while( HTL.Height() < H.Height() && HTL.Width() < H.Width() )
+    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
-        LockedRepartitionDownDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
+        LockedRepartitionUpDiagonal
+        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
+               /**/       H10, H11, /**/ H12,
          /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
+          HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
         int HPanHeight = H01.Height() + H11.Height();
         int HPanOffset = min( H11.Width(), max(offset-H00.Width(),0) );
@@ -209,10 +205,10 @@ elemental::advanced::internal::UTRUN
         HPan.LockedView
         ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
-        LockedRepartitionDown
+        LockedRepartitionUp
         ( tT,  t0,
-         /**/ /**/
                t1,
+         /**/ /**/
           tB,  t2, HPanWidth );
 
         ALeft.View( A, 0, 0, A.Height(), HPanHeight );
@@ -226,15 +222,15 @@ elemental::advanced::internal::UTRUN
         HPanCopy = HPan;
         HPanCopy.MakeTrapezoidal( Right, Upper, offset );
         SetDiagonalToOne( Right, offset, HPanCopy );
- 
+
         HPan_VC_Star = HPanCopy;
         basic::Herk
         ( Upper, ConjugateTranspose, 
           (C)1, HPan_VC_Star.LockedLocalMatrix(),
-          (C)0, SInv_Star_Star.LocalMatrix() ); 
+          (C)0, SInv_Star_Star.LocalMatrix() );     
         SInv_Star_Star.SumOverGrid();
         t1_Star_Star = t1;
-        FixDiagonalConj( t1_Star_Star, SInv_Star_Star );
+        FixDiagonal( conjugation, t1_Star_Star, SInv_Star_Star );
 
         HPan_MR_Star = HPan_VC_Star;
         basic::internal::LocalGemm
@@ -243,28 +239,28 @@ elemental::advanced::internal::UTRUN
         Z_VC_Star.SumScatterFrom( Z_MC_Star );
         
         basic::internal::LocalTrsm
-        ( Right, Upper, Normal, NonUnit, 
+        ( Right, Upper, ConjugateTranspose, NonUnit, 
           (C)1, SInv_Star_Star, Z_VC_Star );
 
         Z_MC_Star = Z_VC_Star;
         basic::internal::LocalGemm
-        ( Normal, ConjugateTranspose,
+        ( Normal, ConjugateTranspose, 
           (C)-1, Z_MC_Star, HPan_MR_Star, (C)1, ALeft );
         //--------------------------------------------------------------------//
         HPan_MR_Star.FreeAlignments();
         Z_MC_Star.FreeAlignments();
         Z_VC_Star.FreeAlignments();
 
-        SlideLockedPartitionDownDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
+        SlideLockedPartitionUpDiagonal
+        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
          /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+               /**/       H10, /**/ H11, H12,
+          HBL, /**/ HBR,  H20, /**/ H21, H22 );
 
-        SlideLockedPartitionDown
+        SlideLockedPartitionUp
         ( tT,  t0,
-               t1,
          /**/ /**/
+               t1,
           tB,  t2 );
     }
 #ifndef RELEASE
@@ -273,25 +269,25 @@ elemental::advanced::internal::UTRUN
 }
 #endif
 
-template void elemental::advanced::internal::UTRUN
+template void elemental::advanced::internal::ApplyPackedReflectorsRUVB
 ( int offset,
   const DistMatrix<float,MC,MR>& H,
         DistMatrix<float,MC,MR>& A );
 
-template void elemental::advanced::internal::UTRUN
+template void elemental::advanced::internal::ApplyPackedReflectorsRUVB
 ( int offset,
   const DistMatrix<double,MC,MR>& H,
         DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::internal::UTRUN
-( int offset,
+template void elemental::advanced::internal::ApplyPackedReflectorsRUVB
+( Conjugation conjugation, int offset,
   const DistMatrix<scomplex,MC,MR  >& H,
   const DistMatrix<scomplex,MD,Star>& t,
         DistMatrix<scomplex,MC,MR  >& A );
 
-template void elemental::advanced::internal::UTRUN
-( int offset,
+template void elemental::advanced::internal::ApplyPackedReflectorsRUVB
+( Conjugation conjugation, int offset,
   const DistMatrix<dcomplex,MC,MR  >& H,
   const DistMatrix<dcomplex,MD,Star>& t,
         DistMatrix<dcomplex,MC,MR  >& A );

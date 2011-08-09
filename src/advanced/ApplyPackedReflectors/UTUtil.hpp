@@ -100,35 +100,28 @@ HalveMainDiagonal( DistMatrix<R,Star,Star>& SInv )
 template<typename R> // representation of a real number
 void
 FixDiagonal
-( const DistMatrix<complex<R>,Star,Star>& t,
+( Conjugation conjugation,
+  const DistMatrix<complex<R>,Star,Star>& t,
         DistMatrix<complex<R>,Star,Star>& SInv )
 {
 #ifndef RELEASE
     PushCallStack("FixDiagonal");
 #endif
-    for( int j=0; j<SInv.Height(); ++j )
+    if( conjugation == Conjugated )
     {
-        const complex<R> value = complex<R>(1)/t.GetLocalEntry(j,0);
-        SInv.SetLocalEntry(j,j,value);
+        for( int j=0; j<SInv.Height(); ++j )
+        {
+            const complex<R> value = complex<R>(1)/Conj(t.GetLocalEntry(j,0));
+            SInv.SetLocalEntry(j,j,value);
+        }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename R> // representation of a real number
-void
-FixDiagonalConj
-( const DistMatrix<complex<R>,Star,Star>& t,
-        DistMatrix<complex<R>,Star,Star>& SInv )
-{
-#ifndef RELEASE
-    PushCallStack("FixDiagonal");
-#endif
-    for( int j=0; j<SInv.Height(); ++j )
+    else
     {
-        const complex<R> value = complex<R>(1)/Conj(t.GetLocalEntry(j,0));
-        SInv.SetLocalEntry(j,j,value);
+        for( int j=0; j<SInv.Height(); ++j )
+        {
+            const complex<R> value = complex<R>(1)/t.GetLocalEntry(j,0);
+            SInv.SetLocalEntry(j,j,value);
+        }
     }
 #ifndef RELEASE
     PopCallStack();

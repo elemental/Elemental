@@ -396,6 +396,132 @@ elemental::imports::lapack::LU
 #endif // WITHOUT_COMPLEX
 
 void
+elemental::imports::lapack::LQ
+( int m, int n, float* A, int lda )
+{
+#ifndef RELEASE
+    PushCallStack("imports::lapack::LQ");
+#endif
+    int info;
+    int lwork;
+    float workSize;
+
+    std::vector<float> t(std::min(m,n));
+
+    // Retrieve the optimal worksize
+    lwork = -1;
+    LAPACK(sgelqf)( &m, &n, A, &lda, &t[0], &workSize, &lwork, &info );
+    
+    // Allocate the work buffer and make the actual call
+    lwork = (int)workSize;
+    std::vector<float> work(lwork); 
+    LAPACK(sgelqf)( &m, &n, A, &lda, &t[0], &work[0], &lwork, &info );
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "sgelqf returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::lapack::LQ
+( int m, int n, double* A, int lda )
+{
+#ifndef RELEASE
+    PushCallStack("imports::lapack::LQ");
+#endif
+    int info;
+    int lwork;
+    double workSize;
+
+    std::vector<double> t(std::min(m,n));
+
+    // Retrieve the optimal worksize
+    lwork = -1;
+    LAPACK(dgelqf)( &m, &n, A, &lda, &t[0], &workSize, &lwork, &info );
+    
+    // Allocate the work buffer and make the actual call
+    lwork = (int)workSize;
+    std::vector<double> work(lwork); 
+    LAPACK(dgelqf)( &m, &n, A, &lda, &t[0], &work[0], &lwork, &info );
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "dgelqf returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+#ifndef WITHOUT_COMPLEX
+void
+elemental::imports::lapack::LQ
+( int m, int n, scomplex* A, int lda, scomplex* t )
+{
+#ifndef RELEASE
+    PushCallStack("imports::lapack::LQ");
+#endif
+    int info;
+    int lwork;
+    scomplex workSize;
+
+    // Retrieve the optimal worksize
+    lwork = -1;
+    LAPACK(cgelqf)( &m, &n, A, &lda, t, &workSize, &lwork, &info );
+    
+    // Allocate the work buffer and make the actual call
+    lwork = (int)std::real(workSize);
+    std::vector<scomplex> work(lwork); 
+    LAPACK(cgelqf)( &m, &n, A, &lda, t, &work[0], &lwork, &info );
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "cgelqf returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::lapack::LQ
+( int m, int n, dcomplex* A, int lda, dcomplex* t )
+{
+#ifndef RELEASE
+    PushCallStack("imports::lapack::LQ");
+#endif
+    int info;
+    int lwork;
+    dcomplex workSize;
+
+    // Retrieve the optimal worksize
+    lwork = -1;
+    LAPACK(zgelqf)( &m, &n, A, &lda, t, &workSize, &lwork, &info );
+    
+    // Allocate the work buffer and make the actual call
+    lwork = (int)std::real(workSize);
+    std::vector<dcomplex> work(lwork); 
+    LAPACK(zgelqf)( &m, &n, A, &lda, t, &work[0], &lwork, &info );
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        msg << "zgelqf returned with info = " << info;
+        throw std::logic_error( msg.str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // WITHOUT_COMPLEX
+
+void
 elemental::imports::lapack::QR
 ( int m, int n, float* A, int lda )
 {

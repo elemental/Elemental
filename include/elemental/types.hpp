@@ -95,6 +95,29 @@ enum Side
 char SideToChar( Side side );
 Side CharToSide( char c );
 
+enum VectorDirection
+{
+    Vertical,
+    Horizontal
+};
+
+enum ForwardOrBackward
+{
+    Forward,
+    Backward
+};
+
+enum Conjugation
+{
+    Unconjugated,
+    Conjugated
+};
+
+enum GridOrder
+{
+    RowMajor,
+    ColMajor
+};
 
 //
 // We ensure that all enums are lifted into the elemental namespace so that
@@ -105,12 +128,6 @@ Side CharToSide( char c );
 // ...
 // double norm = advanced::Norm( A, ONE_NORM );
 //
-
-enum GridOrder
-{
-    RowMajor,
-    ColMajor
-};
 
 enum NormType
 {

@@ -78,153 +78,84 @@ template<typename R> R MachineOverflowThreshold();
 template<> float MachineOverflowThreshold<float>();
 template<> double MachineOverflowThreshold<double>();
 
-void
-Chol
-( char uplo, int n, const float* A, int lda );
-
-void
-Chol
-( char uplo, int n, const double* A, int lda );
- 
+void Chol( char uplo, int n, const float* A, int lda );
+void Chol( char uplo, int n, const double* A, int lda );
 #ifndef WITHOUT_COMPLEX
-void
-Chol
-( char uplo, int n, const scomplex* A, int lda );
-
-void
-Chol
-( char uplo, int n, const dcomplex* A, int lda );
+void Chol( char uplo, int n, const scomplex* A, int lda );
+void Chol( char uplo, int n, const dcomplex* A, int lda );
 #endif
 
-void
-Hegst
+void Hegst
 ( int itype, char uplo, 
   int n, float* A, int lda, const float* B, int ldb );
-
-void
-Hegst
+void Hegst
 ( int itype, char uplo,
   int n, double* A, int lda, const double* B, int ldb );
-
 #ifndef WITHOUT_COMPLEX
-void
-Hegst
+void Hegst
 ( int itype, char uplo,
   int n, scomplex* A, int lda, const scomplex* B, int ldb );
-
-void
-Hegst
+void Hegst
 ( int itype, char uplo,
   int n, dcomplex* A, int lda, const dcomplex* B, int ldb );
 #endif
 
-void
-LU
-( int m, int n, float* A, int lda, int* p );
-
-void
-LU
-( int m, int n, double* A, int lda, int* p );
-
+void LU( int m, int n, float* A, int lda, int* p );
+void LU( int m, int n, double* A, int lda, int* p );
 #ifndef WITHOUT_COMPLEX
-void
-LU
-( int m, int n, scomplex* A, int lda, int* p );
-
-void
-LU
-( int m, int n, dcomplex* A, int lda, int* p );
+void LU( int m, int n, scomplex* A, int lda, int* p );
+void LU( int m, int n, dcomplex* A, int lda, int* p );
 #endif
 
-void
-QR
-( int m, int n, float* A, int lda );
-
-void
-QR
-( int m, int n, double* A, int lda );
-
+void LQ( int m, int n, float* A, int lda );
+void LQ( int m, int n, double* A, int lda );
 #ifndef WITHOUT_COMPLEX
-void
-QR
-( int m, int n, scomplex* A, int lda, scomplex* t );
-
-void
-QR
-( int m, int n, dcomplex* A, int lda, dcomplex* t );
+void LQ( int m, int n, scomplex* A, int lda, scomplex* t );
+void LQ( int m, int n, dcomplex* A, int lda, dcomplex* t );
 #endif
 
-float
-SafeNorm
-( float alpha, float beta );
+void QR( int m, int n, float* A, int lda );
+void QR( int m, int n, double* A, int lda );
+#ifndef WITHOUT_COMPLEX
+void QR( int m, int n, scomplex* A, int lda, scomplex* t );
+void QR( int m, int n, dcomplex* A, int lda, dcomplex* t );
+#endif
 
-double
-SafeNorm
-( double alpha, double beta );
+float SafeNorm( float alpha, float beta );
+double SafeNorm( double alpha, double beta );
+float SafeNorm( float alpha, float beta, float gamma );
+double SafeNorm( double alpha, double beta, double gamma );
 
-float
-SafeNorm
-( float alpha, float beta, float gamma );
-
-double
-SafeNorm
-( double alpha, double beta, double gamma );
-
-void
-SVD
+void SVD
 ( char UColumns, char VColumns, int m, int n, float* A, int lda,
   float* SigmaDiag, float* U, int ldu, float* VT, int ldvt );
-
-void
-SVD
+void SVD
 ( char UColumns, char VColumns, int m, int n, double* A, int lda,
   double* SigmaDiag, double* U, int ldu, double* VT, int ldvt );
-
 #ifndef WITHOUT_COMPLEX
-void
-SVD
+void SVD
 ( char UColumns, char VColumns, int m, int n, scomplex* A, int lda,
   float* SigmaDiag, scomplex* U, int ldu, scomplex* VT, int ldvt );
-
-void
-SVD
+void SVD
 ( char UColumns, char VColumns, int m, int n, dcomplex* A, int lda,
   double* SigmaDiag, dcomplex* U, int ldu, dcomplex* VT, int ldvt );
 #endif
 
-void
-HermitianTridiag
-( char uplo, int n, float* A, int lda );
-
-void
-HermitianTridiag
-( char uplo, int n, double* A, int lda );
-
+void HermitianTridiag( char uplo, int n, float* A, int lda );
+void HermitianTridiag( char uplo, int n, double* A, int lda );
 #ifndef WITHOUT_COMPLEX
-void
-HermitianTridiag
-( char uplo, int n, scomplex* A, int lda, scomplex* t );
-
-void
-HermitianTridiag
-( char uplo, int n, dcomplex* A, int lda, dcomplex* t );
+void HermitianTridiag( char uplo, int n, scomplex* A, int lda, scomplex* t );
+void HermitianTridiag( char uplo, int n, dcomplex* A, int lda, dcomplex* t );
 #endif
 
-void
-TriangularInversion
+void TriangularInversion
 ( char uplo, char diag, int n, const float* A, int lda );
-
-void
-TriangularInversion
+void TriangularInversion
 ( char uplo, char diag, int n, const double* A, int lda );
-
 #ifndef WITHOUT_COMPLEX
-void
-TriangularInversion
+void TriangularInversion
 ( char uplo, char diag, int n, const scomplex* A, int lda );
-
-void
-TriangularInversion
+void TriangularInversion
 ( char uplo, char diag, int n, const dcomplex* A, int lda );
 #endif
 
@@ -237,6 +168,46 @@ extern "C" {
 // Machine constants
 float LAPACK(slamch)( const char* cmach );
 double LAPACK(dlamch)( const char* cmach );
+
+// LU factorization
+void LAPACK(sgetrf)
+( const int* m, const int* n, 
+  float* A, const int* lda, int* p, int* info );
+
+void LAPACK(dgetrf)
+( const int* m, const int* n, 
+  double* A, const int* lda, int* p, int* info );
+
+#ifndef WITHOUT_COMPLEX
+void LAPACK(cgetrf)
+( const int* m, const int* n, 
+  elemental::scomplex* A, const int* lda, int* p, int* info );
+
+void LAPACK(zgetrf)
+( const int* m, const int* n, 
+  elemental::dcomplex* A, const int* lda, int* p, int* info );
+#endif
+
+// LQ factorization
+void LAPACK(sgelqf)
+( const int* m, const int* n, float* A, const int* lda, 
+  float* t, float* work, const int* lwork, int* info );
+
+void LAPACK(dgelqf)
+( const int* m, const int* n, double* A, const int* lda,
+  double* t, double* work, const int* lwork, int* info );
+
+#ifndef WITHOUT_COMPLEX
+void LAPACK(cgelqf)
+( const int* m, const int* n, elemental::scomplex* A, const int* lda,
+  elemental::scomplex* t, elemental::scomplex* work, const int* lwork, 
+  int* info );
+
+void LAPACK(zgelqf)
+( const int* m, const int* n, elemental::dcomplex* A, const int* lda,
+  elemental::dcomplex* t, elemental::dcomplex* work, const int* lwork, 
+  int* info );
+#endif
 
 // QR factorization
 void LAPACK(sgeqrf)
@@ -257,25 +228,6 @@ void LAPACK(zgeqrf)
 ( const int* m, const int* n, elemental::dcomplex* A, const int* lda,
   elemental::dcomplex* t, elemental::dcomplex* work, const int* lwork, 
   int* info );
-#endif
-
-// LU factorization
-void LAPACK(sgetrf)
-( const int* m, const int* n, 
-  float* A, const int* lda, int* p, int* info );
-
-void LAPACK(dgetrf)
-( const int* m, const int* n, 
-  double* A, const int* lda, int* p, int* info );
-
-#ifndef WITHOUT_COMPLEX
-void LAPACK(cgetrf)
-( const int* m, const int* n, 
-  elemental::scomplex* A, const int* lda, int* p, int* info );
-
-void LAPACK(zgetrf)
-( const int* m, const int* n, 
-  elemental::dcomplex* A, const int* lda, int* p, int* info );
 #endif
 
 // Safe norms

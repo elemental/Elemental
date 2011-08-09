@@ -67,8 +67,8 @@ void TestCorrectness
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Z(m,n,g);
     Z.SetToIdentity();
-    advanced::UT( Left, Lower, ConjugateTranspose, 0, A, Z );
-    advanced::UT( Left, Lower, Normal, 0, A, Z );
+    advanced::ApplyPackedReflectors( Left, Lower, Vertical, Backward, 0, A, Z );
+    advanced::ApplyPackedReflectors( Left, Lower, Vertical, Forward, 0, A, Z );
 
     DistMatrix<R,MC,MR> ZUpper(g);
     ZUpper.View( Z, 0, 0, minDim, minDim );
@@ -98,7 +98,7 @@ void TestCorrectness
     // Form Q R
     DistMatrix<R,MC,MR> U( A );
     U.MakeTrapezoidal( Left, Upper );
-    advanced::UT( Left, Lower, ConjugateTranspose, 0, A, U );
+    advanced::ApplyPackedReflectors( Left, Lower, Vertical, Backward, 0, A, U );
 
     // Form Q R - A
     basic::Axpy( (R)-1, AOrig, U );
@@ -141,8 +141,10 @@ void TestCorrectness
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<C,MC,MR> Z(m,n,g);
     Z.SetToIdentity();
-    advanced::UT( Left, Lower, ConjugateTranspose, 0, A, t, Z );
-    advanced::UT( Left, Lower, Normal, 0, A, t, Z );
+    advanced::ApplyPackedReflectors
+    ( Left, Lower, Vertical, Backward, Unconjugated, 0, A, t, Z );
+    advanced::ApplyPackedReflectors
+    ( Left, Lower, Vertical, Forward, Unconjugated, 0, A, t, Z );
     
     DistMatrix<C,MC,MR> ZUpper(g);
     ZUpper.View( Z, 0, 0, minDim, minDim );
@@ -170,7 +172,8 @@ void TestCorrectness
     // Form Q R
     DistMatrix<C,MC,MR> U( A );
     U.MakeTrapezoidal( Left, Upper );
-    advanced::UT( Left, Lower, ConjugateTranspose, 0, A, t, U );
+    advanced::ApplyPackedReflectors
+    ( Left, Lower, Vertical, Backward, Unconjugated, 0, A, t, U );
 
     // Form Q R - A
     basic::Axpy( (C)-1, AOrig, U );

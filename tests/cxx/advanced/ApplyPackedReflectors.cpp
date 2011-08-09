@@ -40,13 +40,14 @@ using namespace elemental::imports;
 void Usage()
 {
     cout << "Tests UT transform application.\n\n"
-         << "  UT <r> <c> <side> <shape> <orientation> <m> <offset> <nb> "
-         << "<correctness?> <print?>\n\n"
+         << "  ApplyPackedReflectors <r> <c> <side> <shape> <order> "
+            "<conjugation> <m> <offset> <nb> <correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  side: {L/R}\n"
          << "  shape: {L/U}\n"
-         << "  orientation: {N/C}\n"
+         << "  order: {0/1} for {forward/backward}\n"
+         << "  conjugation: {0/1} for {Unconjugated/Conjugated}\n"
          << "  m: height of matrix\n"
          << "  offset: diagonal transforms are stored above/below\n"
          << "  nb: algorithmic blocksize\n"
@@ -58,7 +59,7 @@ template<typename R> // represents a real number
 void TestCorrectness
 ( Side side, 
   Shape shape,
-  Orientation orientation,
+  ForwardOrBackward order,
   int offset,
   bool printMatrices,
   const DistMatrix<R,MC,MR>& H )
@@ -72,20 +73,23 @@ void TestCorrectness
     // Form Z := Q^H Q or Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Y(m,m,g);
     Y.SetToIdentity();
-    advanced::UT( side, shape, orientation, offset, H, Y );
+    advanced::ApplyPackedReflectors
+    ( side, shape, Vertical, order, offset, H, Y );
     if( printMatrices )
     {
         DistMatrix<R,MC,MR> W(m,m,g);
         W.SetToIdentity();
-        if( orientation == Normal )
+        if( order == Forward )
         {
-            advanced::UT( side, shape, ConjugateTranspose, offset, H, W );
+            advanced::ApplyPackedReflectors
+            ( side, shape, Vertical, Backward, offset, H, W );
             Y.Print("Q");
             W.Print("Q^H");
         }
         else
         {
-            advanced::UT( side, shape, Normal, offset, H, W );
+            advanced::ApplyPackedReflectors
+            ( side, shape, Vertical, Forward, offset, H, W );
             Y.Print("Q^H");
             W.Print("Q");
         }
@@ -100,7 +104,7 @@ void TestCorrectness
     basic::Axpy( (R)-1, Z, X );
     if( printMatrices )
     {
-        if( orientation == Normal )
+        if( order == Forward )
             X.Print("I - Q Q^H");
         else
             X.Print("I - Q^H Q");
@@ -111,7 +115,7 @@ void TestCorrectness
     R frobNormOfError = advanced::Norm( X, FrobeniusNorm );
     if( g.VCRank() == 0 )
     {
-        if( orientation == Normal )
+        if( order == Forward )
         {
             cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
                  << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
@@ -131,7 +135,8 @@ template<typename R> // represents a real number
 void TestCorrectness
 ( Side side,
   Shape shape,
-  Orientation orientation,
+  ForwardOrBackward order,
+  Conjugation conjugation,
   int offset,
   bool printMatrices,
   const DistMatrix<complex<R>,MC,MR  >& H,
@@ -148,20 +153,23 @@ void TestCorrectness
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
     DistMatrix<C,MC,MR> Y(m,m,g);
     Y.SetToIdentity();
-    advanced::UT( side, shape, orientation, offset, H, t, Y );
+    advanced::ApplyPackedReflectors
+    ( side, shape, Vertical, order, conjugation, offset, H, t, Y );
     if( printMatrices )
     {
         DistMatrix<C,MC,MR> W(m,m,g);
         W.SetToIdentity();
-        if( orientation == Normal )
+        if( order == Forward )
         {
-            advanced::UT( side, shape, ConjugateTranspose, offset, H, t, W );
+            advanced::ApplyPackedReflectors
+            ( side, shape, Vertical, Backward, conjugation, offset, H, t, W );
             Y.Print("Q");
             W.Print("Q^H");
         }
         else
         {
-            advanced::UT( side, shape, Normal, offset, H, t, W );
+            advanced::ApplyPackedReflectors
+            ( side, shape, Vertical, Forward, conjugation, offset, H, t, W );
             Y.Print("Q^H");
             W.Print("Q");
         }
@@ -176,7 +184,7 @@ void TestCorrectness
     basic::Axpy( (C)-1, Z, X );
     if( printMatrices )
     {
-        if( orientation == Normal )
+        if( order == Forward )
             X.Print("I - Q Q^H");
         else
             X.Print("I - Q^H Q");
@@ -188,7 +196,7 @@ void TestCorrectness
     R frobNormOfError = advanced::Norm( X, FrobeniusNorm );
     if( g.VCRank() == 0 )
     {
-        if( orientation == Normal )
+        if( order == Forward )
         {
             cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
                  << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
@@ -206,13 +214,13 @@ void TestCorrectness
 
 template<typename F> // represents a real or complex number
 void TestUT
-( Side side, Shape shape, Orientation orientation, 
+( Side side, Shape shape, ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g );
 
 template<>
 void TestUT<double>
-( Side side, Shape shape, Orientation orientation,
+( Side side, Shape shape, ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
@@ -240,11 +248,12 @@ void TestUT<double>
     }
     mpi::Barrier( g.VCComm() );
     startTime = mpi::Time();
-    advanced::UT( side, shape, orientation, offset, H, A );
+    advanced::ApplyPackedReflectors
+    ( side, shape, Vertical, order, offset, H, A );
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::UTGFlops<R>( m, runTime );
+    gFlops = advanced::internal::ApplyPackedReflectorsGFlops<R>( m, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
@@ -254,13 +263,13 @@ void TestUT<double>
     if( printMatrices )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( side, shape, orientation, offset, printMatrices, H );
+        TestCorrectness( side, shape, order, offset, printMatrices, H );
 }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 void TestUT< complex<double> >
-( Side side, Shape shape, Orientation orientation,
+( Side side, Shape shape, ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
@@ -317,11 +326,12 @@ void TestUT< complex<double> >
     }
     mpi::Barrier( g.VCComm() );
     startTime = mpi::Time();
-    advanced::UT( side, shape, orientation, offset, H, t, A );
+    advanced::ApplyPackedReflectors
+    ( side, shape, Vertical, order, conjugation, offset, H, t, A );
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::UTGFlops<C>( m, runTime );
+    gFlops = advanced::internal::ApplyPackedReflectorsGFlops<C>( m, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
@@ -333,7 +343,7 @@ void TestUT< complex<double> >
     if( testCorrectness )
     {
         TestCorrectness
-        ( side, shape, orientation, offset, printMatrices, H, t );
+        ( side, shape, order, conjugation, offset, printMatrices, H, t );
     }
 }
 #endif
@@ -345,7 +355,7 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int rank = mpi::CommRank( comm );
 
-    if( argc < 11 )
+    if( argc < 12 )
     {
         if( rank == 0 )
             Usage();
@@ -360,7 +370,10 @@ main( int argc, char* argv[] )
         const int c = atoi(argv[++argNum]);
         const Side side = CharToSide(*argv[++argNum]);
         const Shape shape = CharToShape(*argv[++argNum]);
-        const Orientation orientation = CharToOrientation(*argv[++argNum]);
+        const ForwardOrBackward order = 
+            ( atoi(argv[++argNum]) ? Forward : Backward );
+        const Conjugation conjugation = 
+            ( atoi(argv[++argNum]) ? Conjugated : Unconjugated );
         const int m = atoi(argv[++argNum]);
         const int offset = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
@@ -399,7 +412,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestUT<double>
-        ( side, shape, orientation, m, offset, 
+        ( side, shape, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
 
 #ifndef WITHOUT_COMPLEX
@@ -410,7 +423,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestUT<dcomplex>
-        ( side, shape, orientation, m, offset, 
+        ( side, shape, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
 #endif
     }

@@ -39,413 +39,273 @@ namespace blas {
 //----------------------------------------------------------------//
 // Level 1 BLAS                                                   //
 //----------------------------------------------------------------//
-void
-Axpy
+void Axpy
 ( int n, int alpha, const int* x, int incx, int* y, int incy );
-
-void
-Axpy
+void Axpy
 ( int n, float alpha, const float* x, int incx, float* y, int incy );
-
-void
-Axpy
+void Axpy
 ( int n, double alpha, const double* x, int incx, double* y, int incy );
-
 #ifndef WITHOUT_COMPLEX
-void
-Axpy
+void Axpy
 ( int n, scomplex alpha, const scomplex* x, int incx, scomplex* y, int incy );
-
-void
-Axpy
+void Axpy
 ( int n, dcomplex alpha, const dcomplex* x, int incx, dcomplex* y, int incy );
 #endif
 
-float
-Dot
-( int n, const float* x, int incx, const float* y, int incy );
-
-double
-Dot
-( int n, const double* x, int incx, const double* y, int incy );
-
+float Dot( int n, const float* x, int incx, const float* y, int incy );
+double Dot( int n, const double* x, int incx, const double* y, int incy );
 #ifndef WITHOUT_COMPLEX
-scomplex
-Dot
-( int n, const scomplex* x, int incx, const scomplex* y, int incy );
+scomplex Dot( int n, const scomplex* x, int incx, const scomplex* y, int incy );
+dcomplex Dot( int n, const dcomplex* x, int incx, const dcomplex* y, int incy );
+#endif
 
-dcomplex
-Dot
+float Dotc
+( int n, const float* x, int incx, const float* y, int incy );
+double Dotc
+( int n, const double* x, int incx, const double* y, int incy );
+#ifndef WITHOUT_COMPLEX
+scomplex Dotc
+( int n, const scomplex* x, int incx, const scomplex* y, int incy );
+dcomplex Dotc
 ( int n, const dcomplex* x, int incx, const dcomplex* y, int incy );
 #endif
 
-float
-Dotc
+float Dotu
 ( int n, const float* x, int incx, const float* y, int incy );
-
-double
-Dotc
+double Dotu
 ( int n, const double* x, int incx, const double* y, int incy );
-
 #ifndef WITHOUT_COMPLEX
-scomplex
-Dotc
+scomplex Dotu
 ( int n, const scomplex* x, int incx, const scomplex* y, int incy );
-
-dcomplex
-Dotc
+dcomplex Dotu
 ( int n, const dcomplex* x, int incx, const dcomplex* y, int incy );
 #endif
 
-float
-Dotu
-( int n, const float* x, int incx, const float* y, int incy );
-
-double
-Dotu
-( int n, const double* x, int incx, const double* y, int incy );
-
+float Nrm2( int n, const float* x, int incx );
+double Nrm2( int n, const double* x, int incx );
 #ifndef WITHOUT_COMPLEX
-scomplex
-Dotu
-( int n, const scomplex* x, int incx, const scomplex* y, int incy );
-
-dcomplex
-Dotu
-( int n, const dcomplex* x, int incx, const dcomplex* y, int incy );
+float Nrm2( int n, const scomplex* x, int incx );
+double Nrm2( int n, const dcomplex* x, int incx );
 #endif
 
-float
-Nrm2
-( int n, const float* x, int incx );
-
-double
-Nrm2
-( int n, const double* x, int incx );
-
+void Scal( int n, float alpha, float* x, int incx );
+void Scal( int n, double alpha, double* x, int incx );
 #ifndef WITHOUT_COMPLEX
-float
-Nrm2
-( int n, const scomplex* x, int incx );
-
-double
-Nrm2
-( int n, const dcomplex* x, int incx );
-#endif
-
-void
-Scal
-( int n, float alpha, float* x, int incx );
-
-void
-Scal
-( int n, double alpha, double* x, int incx );
-
-#ifndef WITHOUT_COMPLEX
-void
-Scal
-( int n, scomplex alpha, scomplex* x, int incx );
-
-void
-Scal
-( int n, dcomplex alpha, dcomplex* x, int incx );
+void Scal( int n, scomplex alpha, scomplex* x, int incx );
+void Scal( int n, dcomplex alpha, dcomplex* x, int incx );
 #endif
             
 //----------------------------------------------------------------//
 // Level 2 BLAS                                                   //
 //----------------------------------------------------------------//
-void
-Gemv
+void Gemv
 ( char trans, int m, int n,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy );
-
-void
-Gemv
+void Gemv
 ( char trans, int m, int n,
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy );
-
 #ifndef WITHOUT_COMPLEX
-void
-Gemv
+void Gemv
 ( char trans, int m, int n,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy );
-
-void
-Gemv
+void Gemv
 ( char trans, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy );
 #endif
 
-void
-Ger
+void Ger
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda );
-
-void
-Ger
+void Ger
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda );
-
 #ifndef WITHOUT_COMPLEX
-void
-Ger
+void Ger
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda );
-
-void
-Ger
+void Ger
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
 #endif
 
-void
-Gerc
+void Gerc
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda );
-
-void
-Gerc
+void Gerc
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda );
-
 #ifndef WITHOUT_COMPLEX
-void
-Gerc
+void Gerc
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda );
-
-void
-Gerc
+void Gerc
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
 #endif
 
-void
-Geru
+void Geru
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda );
-
-void
-Geru
+void Geru
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda );
-
 #ifndef WITHOUT_COMPLEX
-void
-Geru
+void Geru
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda );
-
-void
-Geru
+void Geru
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
 #endif
 
-void
-Hemv
+void Hemv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy );
-
-void
-Hemv
+void Hemv
 ( char uplo, int m,
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy );
-
 #ifndef WITHOUT_COMPLEX
-void
-Hemv
+void Hemv
 ( char uplo, int m,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy );
-
-void
-Hemv
+void Hemv
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy );
 #endif
 
-void
-Her
+void Her
 ( char uplo, int m,
   float alpha, const float* x, int incx, float* A, int lda );
-
-void
-Her
+void Her
 ( char uplo, int m,
   double alpha, const double* x, int incx, double* A, int lda );
-
 #ifndef WITHOUT_COMPLEX
-void
-Her
+void Her
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda );
-
-void
-Her
+void Her
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda );
 #endif
 
-void
-Her2
+void Her2
 ( char uplo, int m,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda );
-
-void
-Her2
+void Her2
 ( char uplo, int m,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda );
-
 #ifndef WITHOUT_COMPLEX
-void
-Her2
+void Her2
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda );
-
-void
-Her2
+void Her2
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
 #endif
 
-void
-Symv
+void Symv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy );
-
-void
-Symv
+void Symv
 ( char uplo, int m, 
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy );
-
 #ifndef WITHOUT_COMPLEX
-void
-Symv
+void Symv
 ( char uplo, int m,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy );
-
-void
-Symv
+void Symv
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy );
 #endif
 
-void
-Syr
+void Syr
 ( char uplo, int m,
   float alpha, const float* x, int incx, float* A, int lda );
-
-void
-Syr
+void Syr
 ( char uplo, int m,
   double alpha, const double* x, int incx, double* A, int lda );
-
 #ifndef WITHOUT_COMPLEX
-void
-Syr
+void Syr
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda ); 
-
-void
-Syr
+void Syr
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda );
 #endif
 
-void
-Syr2
+void Syr2
 ( char uplo, int m,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda );
-
-void
-Syr2
+void Syr2
 ( char uplo, int m,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda );
-
 #ifndef WITHOUT_COMPLEX
-void
-Syr2
+void Syr2
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda );
-
-void
-Syr2
+void Syr2
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
 #endif
 
-void
-Trmv
+void Trmv
 ( char uplo, char trans, char diag, int m,
   const float* A, int lda, float* x, int incx );
-
-void
-Trmv
+void Trmv
 ( char uplo, char trans, char diag, int m,
   const double* A, int lda, double* x, int incx );
-
 #ifndef WITHOUT_COMPLEX
-void
-Trmv
+void Trmv
 ( char uplo, char trans, char diag, int m,
   const scomplex* A, int lda, scomplex* x, int incx );
-
-void
-Trmv
+void Trmv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx );
 #endif
 
-void
-Trsv
+void Trsv
 ( char uplo, char trans, char diag, int m,
   const float* A, int lda, float* x, int incx );
-
-void
-Trsv
+void Trsv
 ( char uplo, char trans, char diag, int m,
   const double* A, int lda, double* x, int incx );
-
 #ifndef WITHOUT_COMPLEX
-void
-Trsv
+void Trsv
 ( char uplo, char trans, char diag, int m,
   const scomplex* A, int lda, scomplex* x, int incx );
-
-void
-Trsv
+void Trsv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx );
 #endif
@@ -453,226 +313,163 @@ Trsv
 //----------------------------------------------------------------//
 // Level 3 BLAS                                                   //
 //----------------------------------------------------------------//
-void
-Gemm
+void Gemm
 ( char transA, char transB, int m, int n, int k,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc );
-
-void
-Gemm
+void Gemm
 ( char transA, char transB, int m, int n, int k,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc );
-
 #ifndef WITHOUT_COMPLEX
-void
-Gemm
+void Gemm
 ( char transA, char transB, int m, int n, int k,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc );
-
-void
-Gemm
+void Gemm
 ( char transA, char transB, int m, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
 #endif
 
-void
-Hemm
+void Hemm
 ( char side, char uplo, int m, int n,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc );
-
-void
-Hemm
+void Hemm
 ( char side, char uplo, int m, int n,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc );
-
 #ifndef WITHOUT_COMPLEX
-void
-Hemm
+void Hemm
 ( char side, char uplo, int m, int n,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc );
-
-void
-Hemm
+void Hemm
 ( char side, char uplo, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
 #endif
 
-void
-Her2k
+void Her2k
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc );
-
-void
-Her2k
+void Her2k
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc );
-
 #ifndef WITHOUT_COMPLEX
-void
-Her2k
+void Her2k
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc );
-
-void
-Her2k
+void Her2k
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
 #endif
 
-void
-Herk
+void Herk
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda, float beta, float* C, int ldc );
-
-void
-Herk
+void Herk
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda, double beta, double* C, int ldc );
-
 #ifndef WITHOUT_COMPLEX
-void
-Herk
+void Herk
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda,
   scomplex beta,        scomplex* C, int ldc );
-
-void
-Herk
+void Herk
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc );
 #endif
 
-void
-Symm
+void Symm
 ( char side, char uplo, int m, int n,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc );
-
-void
-Symm
+void Symm
 ( char side, char uplo, int m, int n,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc );
-
 #ifndef WITHOUT_COMPLEX
-void
-Symm
+void Symm
 ( char side, char uplo, int m, int n,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc );
-
-void
-Symm
+void Symm
 ( char side, char uplo, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
 #endif
 
-void
-Syr2k
+void Syr2k
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc );
-
-void
-Syr2k
+void Syr2k
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc );
-
 #ifndef WITHOUT_COMPLEX
-void
-Syr2k
+void Syr2k
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc );
-
-void
-Syr2k
+void Syr2k
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
 #endif
 
-void
-Syrk
+void Syrk
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda,
   float beta,        float* C, int ldc );
-
-void
-Syrk
+void Syrk
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda,
   double beta,        double* C, int ldc );
-
 #ifndef WITHOUT_COMPLEX
-void
-Syrk
+void Syrk
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda,
   scomplex beta,        scomplex* C, int ldc );
-
-void
-Syrk
+void Syrk
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc );
 #endif
 
-void
-Trmm
+void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   float alpha, const float* A, int lda, float* X, int ldb );
-
-void
-Trmm
+void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   double alpha, const double* A, int lda, double* X, int ldb );
-
 #ifndef WITHOUT_COMPLEX
-void
-Trmm
+void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   scomplex alpha, const scomplex* A, int lda, scomplex* X, int ldb );
-
-void
-Trmm
+void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* X, int ldb );
 #endif
 
-void
-Trsm
+void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   float alpha, const float* A, int lda, float* X, int ldb );
-
-void
-Trsm
+void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   double alpha, const double* A, int lda, double* X, int ldb );
-
 #ifndef WITHOUT_COMPLEX
-void
-Trsm
+void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   scomplex alpha, const scomplex* A, int lda, scomplex* X, int ldb );
-
-void
-Trsm
+void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* X, int ldb );
 #endif

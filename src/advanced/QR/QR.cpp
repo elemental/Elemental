@@ -83,7 +83,8 @@ elemental::advanced::QR
 
         //--------------------------------------------------------------------//
         advanced::internal::PanelQR( ALeftPan );
-        advanced::UT( Left, Lower, Normal, 0, ALeftPan, ARightPan );
+        advanced::ApplyPackedReflectors
+        ( Left, Lower, Vertical, Forward, 0, ALeftPan, ARightPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -109,14 +110,9 @@ elemental::advanced::QR
     if( A.Grid() != t.Grid() )
         throw logic_error( "A and s must be distributed over the same grid." );
 #endif
-    const Grid& g = A.Grid();
-#ifndef RELEASE
-    if( t.Height() != min(A.Height(),A.Width()) || t.Width() != 1 )
-        throw logic_error
-              ( "t must be a column vector of the same height as the minimum "
-                "dimension of A." );
-#endif
     typedef complex<R> C;
+
+    const Grid& g = A.Grid();
     DistMatrix<C,MD,Star> tDiag(g);
     tDiag.AlignWithDiag( A );
     tDiag.ResizeTo( min(A.Height(),A.Width()), 1 );
@@ -161,7 +157,9 @@ elemental::advanced::QR
 
         //--------------------------------------------------------------------//
         advanced::internal::PanelQR( ALeftPan, t1 );
-        advanced::UT( Left, Lower, Normal, 0, ALeftPan, t1, ARightPan );
+        advanced::ApplyPackedReflectors
+        ( Left, Lower, Vertical, Forward, Unconjugated, 
+          0, ALeftPan, t1, ARightPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal

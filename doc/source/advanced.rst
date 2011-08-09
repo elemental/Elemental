@@ -112,16 +112,16 @@ the identity matrix as a Householder transform since it requires the
 ``advanced::Reflector`` here.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Reduction of the Generalized Hermitian^Definite EVP
+Reduction of the Generalized Hermitian-Definite EVP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Describe the reduction steps of :math:`ABx-\lambda x`, :math:`BAx-\lambda x`, 
 and :math:`Ax-\lambda Bx` using the operations :math:`A :- L^H A L` and 
 :math:`A :- L^{^1} A L^{^H}`.
 
-^^^^^^^^^^^^^
-UT transforms
-^^^^^^^^^^^^^
-Describe ``advanced::UT`` here.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Applying packed Householder transforms
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Describe ``advanced::ApplyPackedReflectors`` here.
 
 --------------------
 Environment routines

@@ -37,28 +37,24 @@ using namespace std;
 
 #include "./UTUtil.hpp"
 
-// This routine reverses the accumulation of Householder transforms stored 
-// in the portion of H below the diagonal marked by 'offset'. It is assumed 
-// that the Householder transforms were accumulated left-to-right.
-
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::UTRLN
+elemental::advanced::internal::ApplyPackedReflectorsLUVB
 ( int offset, 
   const DistMatrix<R,MC,MR>& H,
         DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::UTRLN");
+    PushCallStack("advanced::internal::ApplyPackedReflectorsLUVB");
     if( H.Grid() != A.Grid() )
         throw logic_error( "H and A must be distributed over the same grid." );
-    if( offset > 0 )
+    if( offset > H.Height() )
         throw logic_error( "Transforms cannot extend above matrix." );
-    if( offset < -H.Height() )
+    if( offset < 0 )
         throw logic_error( "Transforms cannot extend below matrix." );
-    if( H.Height() != A.Width() )
+    if( H.Width() != A.Height() )
         throw logic_error
-              ( "Height of transforms must equal width of target matrix." );
+              ( "Width of transforms must equal height of target matrix." );
 #endif
     const Grid& g = H.Grid();
 
@@ -67,17 +63,23 @@ elemental::advanced::internal::UTRLN
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
                          H20(g), H21(g), H22(g);
-    DistMatrix<R,MC,MR> ARight(g);
+    DistMatrix<R,MC,MR>
+        AT(g),  A0(g),  ATop(g),
+        AB(g),  A1(g),
+                A2(g);
 
     DistMatrix<R,VC,  Star> HPan_VC_Star(g);
-    DistMatrix<R,MR,  Star> HPan_MR_Star(g);
+    DistMatrix<R,MC,  Star> HPan_MC_Star(g);
     DistMatrix<R,Star,Star> SInv_Star_Star(g);
-    DistMatrix<R,MC,  Star> Z_MC_Star(g);
-    DistMatrix<R,VC,  Star> Z_VC_Star(g);
+    DistMatrix<R,Star,MR  > Z_Star_MR(g);
+    DistMatrix<R,Star,VR  > Z_Star_VR(g);
 
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
+    PartitionUp
+    ( A, AT,
+         AB, max(0,H.Height()-H.Width()) );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -86,22 +88,30 @@ elemental::advanced::internal::UTRLN
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        int HPanHeight = H11.Height() + H21.Height();
-        int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
-        int leftover = A.Width()-HPanHeight;
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        int HPanHeight = H01.Height() + H11.Height();
+        int HPanOffset = min( H11.Width(), max(offset-H00.Width(),0) );
+        int HPanWidth = H11.Width()-HPanOffset;
+        HPan.LockedView
+        ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
-        ARight.View( A, 0, leftover, A.Height(), HPanHeight );
+        RepartitionUp
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
 
-        HPan_MR_Star.AlignWith( ARight );
-        Z_MC_Star.AlignWith( ARight );
-        Z_VC_Star.AlignWith( ARight );
-        Z_MC_Star.ResizeTo( ARight.Height(), HPanWidth );
-        SInv_Star_Star.ResizeTo( HPanWidth, HPanWidth );
+        ATop.View2x1( A0,
+                      A1 );
+
+        HPan_MC_Star.AlignWith( ATop );
+        Z_Star_MR.AlignWith( ATop );
+        Z_Star_VR.AlignWith( ATop );
+        Z_Star_MR.ResizeTo( HPan.Width(), ATop.Width() );
+        SInv_Star_Star.ResizeTo( HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        HPanCopy.MakeTrapezoidal( Left, Lower, offset );
-        SetDiagonalToOne( Left, offset, HPanCopy );
+        HPanCopy.MakeTrapezoidal( Right, Upper, offset );
+        SetDiagonalToOne( Right, offset, HPanCopy );
 
         HPan_VC_Star = HPanCopy;
         basic::Syrk
@@ -111,30 +121,34 @@ elemental::advanced::internal::UTRLN
         SInv_Star_Star.SumOverGrid();
         HalveMainDiagonal( SInv_Star_Star );
 
-        HPan_MR_Star = HPan_VC_Star;
+        HPan_MC_Star = HPanCopy;
         basic::internal::LocalGemm
-        ( Normal, Normal, 
-          (R)1, ARight, HPan_MR_Star, (R)0, Z_MC_Star );
-        Z_VC_Star.SumScatterFrom( Z_MC_Star );
- 
+        ( Transpose, Normal, 
+          (R)1, HPan_MC_Star, ATop, (R)0, Z_Star_MR );
+        Z_Star_VR.SumScatterFrom( Z_Star_MR );
+        
         basic::internal::LocalTrsm
-        ( Right, Upper, Transpose, NonUnit,
-          (R)1, SInv_Star_Star, Z_VC_Star );
+        ( Left, Upper, Normal, NonUnit, (R)1, SInv_Star_Star, Z_Star_VR );
 
-        Z_MC_Star = Z_VC_Star;
+        Z_Star_MR = Z_Star_VR;
         basic::internal::LocalGemm
-        ( Normal, Transpose, 
-          (R)-1, Z_MC_Star, HPan_MR_Star, (R)1, ARight );
+        ( Normal, Normal, (R)-1, HPan_MC_Star, Z_Star_MR, (R)1, ATop );
         //--------------------------------------------------------------------//
-        HPan_MR_Star.FreeAlignments();
-        Z_MC_Star.FreeAlignments();
-        Z_VC_Star.FreeAlignments();
+        HPan_MC_Star.FreeAlignments();
+        Z_Star_MR.FreeAlignments();
+        Z_Star_VR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( HTL, /**/ HTR,  H00, /**/ H01, H02,
          /*************/ /******************/
                /**/       H10, /**/ H11, H12,
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
+
+        SlidePartitionUp
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -144,24 +158,24 @@ elemental::advanced::internal::UTRLN
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 void
-elemental::advanced::internal::UTRLN
-( int offset, 
+elemental::advanced::internal::ApplyPackedReflectorsLUVB
+( Conjugation conjugation, int offset, 
   const DistMatrix<complex<R>,MC,MR  >& H,
   const DistMatrix<complex<R>,MD,Star>& t,
         DistMatrix<complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::UTRLN");
+    PushCallStack("advanced::internal::ApplyPackedReflectorsLUVB");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw logic_error
               ( "H, t, and A must be distributed over the same grid." );
-    if( offset > 0 )
+    if( offset > H.Height() )
         throw logic_error( "Transforms cannot extend above matrix." );
-    if( offset < -H.Height() )
+    if( offset < 0 )
         throw logic_error( "Transforms cannot extend below matrix." );
-    if( H.Height() != A.Width() )
+    if( H.Width() != A.Height() )
         throw logic_error
-              ( "Height of transforms must equal width of target matrix." );
+              ( "Width of transforms must equal height of target matrix." );
     if( t.Height() != H.DiagonalLength( offset ) )
         throw logic_error( "t must be the same length as H's 'offset' diag." );
     if( !t.AlignedWithDiag( H, offset ) )
@@ -175,18 +189,21 @@ elemental::advanced::internal::UTRLN
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
                          H20(g), H21(g), H22(g);
-    DistMatrix<C,MC,MR> ARight(g);
+    DistMatrix<C,MC,MR>
+        AT(g),  A0(g),  ATop(g),
+        AB(g),  A1(g),
+                A2(g);
     DistMatrix<C,MD,Star>
         tT(g),  t0(g),
         tB(g),  t1(g),
                 t2(g);
-    
+
     DistMatrix<C,VC,  Star> HPan_VC_Star(g);
-    DistMatrix<C,MR,  Star> HPan_MR_Star(g);
+    DistMatrix<C,MC,  Star> HPan_MC_Star(g);
     DistMatrix<C,Star,Star> t1_Star_Star(g);
     DistMatrix<C,Star,Star> SInv_Star_Star(g);
-    DistMatrix<C,MC,  Star> Z_MC_Star(g);
-    DistMatrix<C,VC,  Star> Z_VC_Star(g);
+    DistMatrix<C,Star,MR  > Z_Star_MR(g);
+    DistMatrix<C,Star,VR  > Z_Star_VR(g);
 
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
@@ -194,6 +211,9 @@ elemental::advanced::internal::UTRLN
     LockedPartitionUp
     ( t, tT,
          tB, 0 );
+    PartitionUp
+    ( A, AT,
+         AB, max(0,H.Height()-H.Width()) );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -202,10 +222,11 @@ elemental::advanced::internal::UTRLN
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        int HPanHeight = H11.Height() + H21.Height();
-        int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
-        int leftover = A.Width()-HPanHeight;
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        int HPanHeight = H01.Height() + H11.Height();
+        int HPanOffset = min( H11.Width(), max(offset-H00.Width(),0) );
+        int HPanWidth = H11.Width()-HPanOffset;
+        HPan.LockedView
+        ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
         LockedRepartitionUp
         ( tT,  t0,
@@ -213,45 +234,50 @@ elemental::advanced::internal::UTRLN
          /**/ /**/
           tB,  t2, HPanWidth );
 
-        ARight.View( A, 0, leftover, A.Height(), HPanHeight );
+        RepartitionUp
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
 
-        HPan_MR_Star.AlignWith( ARight );
-        Z_MC_Star.AlignWith( ARight );
-        Z_VC_Star.AlignWith( ARight );
-        Z_MC_Star.ResizeTo( ARight.Height(), HPan.Width() );
+        ATop.View2x1( A0,
+                      A1 );
+
+        HPan_MC_Star.AlignWith( ATop );
+        Z_Star_MR.AlignWith( ATop );
+        Z_Star_VR.AlignWith( ATop );
+        Z_Star_MR.ResizeTo( HPan.Width(), ATop.Width() );
         SInv_Star_Star.ResizeTo( HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        HPanCopy.MakeTrapezoidal( Left, Lower, offset );
-        SetDiagonalToOne( Left, offset, HPanCopy );
+        HPanCopy.MakeTrapezoidal( Right, Upper, offset );
+        SetDiagonalToOne( Right, offset, HPanCopy );
 
         HPan_VC_Star = HPanCopy;
         basic::Herk
         ( Upper, ConjugateTranspose, 
           (C)1, HPan_VC_Star.LockedLocalMatrix(),
-          (C)0, SInv_Star_Star.LocalMatrix() );     
+          (C)0, SInv_Star_Star.LocalMatrix() );
         SInv_Star_Star.SumOverGrid();
         t1_Star_Star = t1;
-        FixDiagonal( t1_Star_Star, SInv_Star_Star );
+        FixDiagonal( conjugation, t1_Star_Star, SInv_Star_Star );
 
-        HPan_MR_Star = HPan_VC_Star;
+        HPan_MC_Star = HPanCopy;
         basic::internal::LocalGemm
-        ( Normal, Normal, 
-          (C)1, ARight, HPan_MR_Star, (C)0, Z_MC_Star );
-        Z_VC_Star.SumScatterFrom( Z_MC_Star );
- 
+        ( ConjugateTranspose, Normal, 
+          (C)1, HPan_MC_Star, ATop, (C)0, Z_Star_MR );
+        Z_Star_VR.SumScatterFrom( Z_Star_MR );
+        
         basic::internal::LocalTrsm
-        ( Right, Upper, ConjugateTranspose, NonUnit, 
-          (C)1, SInv_Star_Star, Z_VC_Star );
+        ( Left, Upper, Normal, NonUnit, (C)1, SInv_Star_Star, Z_Star_VR );
 
-        Z_MC_Star = Z_VC_Star;
+        Z_Star_MR = Z_Star_VR;
         basic::internal::LocalGemm
-        ( Normal, ConjugateTranspose, 
-          (C)-1, Z_MC_Star, HPan_MR_Star, (C)1, ARight );
+        ( Normal, Normal, (C)-1, HPan_MC_Star, Z_Star_MR, (C)1, ATop );
         //--------------------------------------------------------------------//
-        HPan_MR_Star.FreeAlignments();
-        Z_MC_Star.FreeAlignments();
-        Z_VC_Star.FreeAlignments();
+        HPan_MC_Star.FreeAlignments();
+        Z_Star_MR.FreeAlignments();
+        Z_Star_VR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( HTL, /**/ HTR,  H00, /**/ H01, H02,
@@ -264,6 +290,12 @@ elemental::advanced::internal::UTRLN
          /**/ /**/
                t1,
           tB,  t2 );
+
+        SlidePartitionUp
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -271,25 +303,25 @@ elemental::advanced::internal::UTRLN
 }
 #endif
 
-template void elemental::advanced::internal::UTRLN
+template void elemental::advanced::internal::ApplyPackedReflectorsLUVB
 ( int offset,
   const DistMatrix<float,MC,MR>& H,
         DistMatrix<float,MC,MR>& A );
 
-template void elemental::advanced::internal::UTRLN
+template void elemental::advanced::internal::ApplyPackedReflectorsLUVB
 ( int offset,
   const DistMatrix<double,MC,MR>& H,
         DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::internal::UTRLN
-( int offset,
+template void elemental::advanced::internal::ApplyPackedReflectorsLUVB
+( Conjugation conjugation, int offset,
   const DistMatrix<scomplex,MC,MR  >& H,
   const DistMatrix<scomplex,MD,Star>& t,
         DistMatrix<scomplex,MC,MR  >& A );
 
-template void elemental::advanced::internal::UTRLN
-( int offset,
+template void elemental::advanced::internal::ApplyPackedReflectorsLUVB
+( Conjugation conjugation, int offset,
   const DistMatrix<dcomplex,MC,MR  >& H,
   const DistMatrix<dcomplex,MD,Star>& t,
         DistMatrix<dcomplex,MC,MR  >& A );

@@ -326,6 +326,21 @@ PivotFunc
   int* length, imports::mpi::Datatype* datatype );
 
 //----------------------------------------------------------------------------//
+// LQ                                                                         //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+void
+PanelLQ( DistMatrix<R,MC,MR>& A );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void
+PanelLQ( DistMatrix<std::complex<R>,MC,MR  >& A,
+         DistMatrix<std::complex<R>,MD,Star>& t );
+#endif
+
+//----------------------------------------------------------------------------//
 // Norm                                                                       //
 //----------------------------------------------------------------------------//
 
@@ -610,140 +625,228 @@ TriangularInversionUVar3
 ( Diagonal diagonal, DistMatrix<F,MC,MR>& U );
 
 //----------------------------------------------------------------------------//
-// UT Transform                                                               //
+// ApplyPackedReflectors                                                      //
 //----------------------------------------------------------------------------//
 
 template<typename R>
-void
-UTLLN
+void ApplyPackedReflectorsLLVF
 ( int offset, 
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A );
-
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-UTLLN
-( int offset,
+void ApplyPackedReflectorsLLVF
+( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
 template<typename R>
-void
-UTLLC
+void ApplyPackedReflectorsLLVB
 ( int offset, 
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A );
-
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-UTLLC
-( int offset,
+void ApplyPackedReflectorsLLVB
+( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
 template<typename R>
-void
-UTLUN
+void ApplyPackedReflectorsLLHF
 ( int offset, 
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A );
-
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-UTLUN
-( int offset,
+void ApplyPackedReflectorsLLHF
+( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
 template<typename R>
-void
-UTLUC
+void ApplyPackedReflectorsLLHB
 ( int offset, 
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A );
-
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-UTLUC
-( int offset,
+void ApplyPackedReflectorsLLHB
+( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
 template<typename R>
-void
-UTRLN
+void ApplyPackedReflectorsLUVF
 ( int offset, 
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A );
-
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-UTRLN
-( int offset,
+void ApplyPackedReflectorsLUVF
+( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
 template<typename R>
-void
-UTRLC
+void ApplyPackedReflectorsLUVB
 ( int offset, 
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A );
-
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-UTRLC
-( int offset,
+void ApplyPackedReflectorsLUVB
+( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
 template<typename R>
-void
-UTRUN
+void ApplyPackedReflectorsLUHF
 ( int offset, 
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A );
-
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-UTRUN
-( int offset,
+void ApplyPackedReflectorsLUHF
+( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
 template<typename R>
-void
-UTRUC
+void ApplyPackedReflectorsLUHB
 ( int offset, 
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A );
-
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-UTRUC
+void ApplyPackedReflectorsLUHB
+( Conjugation conjugation, int offset,
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,Star>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A );
+#endif
+
+template<typename R>
+void ApplyPackedReflectorsRLVF
 ( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void ApplyPackedReflectorsRLVF
+( Conjugation conjugation, int offset,
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,Star>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A );
+#endif
+
+template<typename R>
+void ApplyPackedReflectorsRLVB
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void ApplyPackedReflectorsRLVB
+( Conjugation conjugation, int offset,
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,Star>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A );
+#endif
+
+template<typename R>
+void ApplyPackedReflectorsRLHF
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void ApplyPackedReflectorsRLHF
+( Conjugation conjugation, int offset,
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,Star>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A );
+#endif
+
+template<typename R>
+void ApplyPackedReflectorsRLHB
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void ApplyPackedReflectorsRLHB
+( Conjugation conjugation, int offset,
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,Star>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A );
+#endif
+
+template<typename R>
+void ApplyPackedReflectorsRUVF
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void ApplyPackedReflectorsRUVF
+( Conjugation conjugation, int offset,
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,Star>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A );
+#endif
+
+template<typename R>
+void ApplyPackedReflectorsRUVB
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void ApplyPackedReflectorsRUVB
+( Conjugation conjugation, int offset,
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,Star>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A );
+#endif
+
+template<typename R>
+void ApplyPackedReflectorsRUHF
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void ApplyPackedReflectorsRUHF
+( Conjugation conjugation, int offset,
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,Star>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A );
+#endif
+
+template<typename R>
+void ApplyPackedReflectorsRUHB
+( int offset, 
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void ApplyPackedReflectorsRUHB
+( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,Star>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
@@ -778,7 +881,7 @@ TriangularInversionGFlops( int m, double seconds );
 
 template<typename F>
 double
-UTGFlops( int m, double seconds );
+ApplyPackedReflectorsGFlops( int m, double seconds );
 
 } // internal
 } // advanced
@@ -1001,28 +1104,28 @@ TriangularInversionGFlops<dcomplex>
 
 template<>
 inline double
-UTGFlops<float>
+ApplyPackedReflectorsGFlops<float>
 ( int m, double seconds )
 { return (2.*m*m*m)/(1.e9*seconds); }
 
 template<>
 inline double
-UTGFlops<double>
+ApplyPackedReflectorsGFlops<double>
 ( int m, double seconds )
-{ return UTGFlops<float>(m,seconds); }
+{ return ApplyPackedReflectorsGFlops<float>(m,seconds); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 inline double
-UTGFlops<scomplex>
+ApplyPackedReflectorsGFlops<scomplex>
 ( int m, double seconds )
-{ return 4.*UTGFlops<float>(m,seconds); }
+{ return 4.*ApplyPackedReflectorsGFlops<float>(m,seconds); }
 
 template<>
 inline double
-UTGFlops<dcomplex>
+ApplyPackedReflectorsGFlops<dcomplex>
 ( int m, double seconds )
-{ return 4.*UTGFlops<float>(m,seconds); }
+{ return 4.*ApplyPackedReflectorsGFlops<float>(m,seconds); }
 #endif
 
 } // internal
