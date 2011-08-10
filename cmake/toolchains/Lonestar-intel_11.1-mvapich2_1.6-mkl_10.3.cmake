@@ -1,7 +1,11 @@
-# We need MPI C and CXX compilers, but only a serial Fortran compiler
-set(CMAKE_C_COMPILER /opt/apps/intel11_1/mvapich2/1.6/bin/mpicc)
-set(CMAKE_CXX_COMPILER /opt/apps/intel11_1/mvapich2/1.6/bin/mpicxx)
+# The serial Intel compilers
+set(CMAKE_C_COMPILER       /opt/apps/intel/11.1/bin/intel64/icc)
+set(CMAKE_CXX_COMPILER     /opt/apps/intel/11.1/bin/intel64/icpc)
 set(CMAKE_Fortran_COMPILER /opt/apps/intel/11.1/bin/intel64/ifort)
+
+# The MPI wrappers for the C and C++ compilers
+set(MPI_C_COMPILER   /opt/apps/intel11_1/mvapich2/1.6/bin/mpicc)
+set(MPI_CXX_COMPILER /opt/apps/intel11_1/mvapich2/1.6/bin/mpicxx)
 
 set(CXX_PURE_DEBUG_FLAGS "-g")
 set(CXX_PURE_RELEASE_FLAGS "-O3")

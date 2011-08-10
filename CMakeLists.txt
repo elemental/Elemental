@@ -30,21 +30,19 @@
 #  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 #
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.5)
 project(Elemental)
 
 set(Elemental_VERSION_MAJOR 0)
 set(Elemental_VERSION_MINOR 68)
 
-# Elemental supports four build modes:
-#   HybridDebug, HybridRelease, PureDebug, and PureRelease
 if(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
    NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
    NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
    NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
   message(
     FATAL_ERROR 
-    "CMAKE_BUILD_TYPE must be one of: HybridDebug, HybridRelease, PureDebug, PureRelease"
+    "CMAKE_BUILD_TYPE must be in {HybridDebug,HybridRelease,PureDebug,PureRelease}"
   )
 endif(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
       NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
@@ -52,16 +50,16 @@ endif(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
       NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
 set(
   CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING 
-  "Choose the build type, options are: HybridDebug, HybridRelease, PureDebug, and PureRelease" 
+  "The build type options are {HybridDebug,HybridRelease,PureDebug,PureRelease}"
   FORCE
 )
 
-option(BUILD_TESTS   "Build a collection of test executables"   ON)
-option(BUILD_EXAMPLES "Build the example(s)"                    ON)
+option(BUILD_EXAMPLES "Build the examples" ON)
+option(BUILD_TESTS "Build a collection of test executables" ON)
 if(WIN32)
   option(BUILD_PMRRR "Build and link against eigensolver PMRRR" OFF)
 else(WIN32)
-  option(BUILD_PMRRR   "Build and link against eigensolver PMRRR" ON)
+  option(BUILD_PMRRR "Build and link against eigensolver PMRRR" ON)
 endif(WIN32)
 
 option(WITHOUT_COMPLEX "Avoid all usage of complex numbers" OFF)
@@ -140,14 +138,11 @@ if(NOT WIN32)
   endif(PURE_RELEASE)
 endif(NOT WIN32)
 
-if(NOT MPI_LINK_LIBS)
-  if(NOT (CMAKE_CXX_COMPILER MATCHES "mpi"))
-    message(
-      WARNING 
-      "CXX compiler, ${CMAKE_CXX_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CXX or through the '-DCMAKE_CXX_COMPILER' cmake flag. You should probably also clean this build folder first."
-    )
-  endif(NOT (CMAKE_CXX_COMPILER MATCHES "mpi"))
-endif(NOT MPI_LINK_LIBS)
+find_package(MPI)
+if(NOT MPI_CXX_FOUND)
+    message(FATAL_ERROR "MPI C++ compiler was not found and is required")
+endif(NOT MPI_CXX_FOUND)
+include_directories("${MPI_CXX_INCLUDE_PATH}")
 
 if(HYBRID)
   if(OpenMP_CXX_FLAGS)
@@ -162,7 +157,7 @@ if(HYBRID)
       set(OpenMP_CXX_FLAGS "" CACHE STRING "OpenMP CXX FLAGS")
       message(
         FATAL_ERROR
-        "${CMAKE_BUILD_TYPE} failed because OpenMP support was not found. If your system supports OpenMP, please manually specify OpenMP_CXX_FLAGS."
+        "Hybrid build failed because OpenMP support was not detected. Please try specifying OpenMP_CXX_FLAGS."
       )
     endif(OPENMP_FOUND)
   endif(OpenMP_CXX_FLAGS)
@@ -170,14 +165,16 @@ endif(HYBRID)
 
 set(
   CMAKE_CXX_FLAGS_HYBRIDDEBUG 
-  "${CXX_HYBRID_DEBUG_FLAGS} ${OpenMP_CXX_FLAGS}"
+  "${CXX_HYBRID_DEBUG_FLAGS} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}"
 )
 set(
   CMAKE_CXX_FLAGS_HYBRIDRELEASE 
-  "${CXX_HYBRID_RELEASE_FLAGS} ${OpenMP_CXX_FLAGS}"
+  "${CXX_HYBRID_RELEASE_FLAGS} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}"
 )
-set(CMAKE_CXX_FLAGS_PUREDEBUG "${CXX_PURE_DEBUG_FLAGS}")
-set(CMAKE_CXX_FLAGS_PURERELEASE "${CXX_PURE_RELEASE_FLAGS}")
+set(CMAKE_CXX_FLAGS_PUREDEBUG 
+    "${CXX_PURE_DEBUG_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS_PURERELEASE 
+    "${CXX_PURE_RELEASE_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
 
 # Query the size of a void pointer in order to determine whether or not this is
 # a 32-bit system.
@@ -224,17 +221,11 @@ if(NEED_MATH)
           mkl/em64t/lib mkl/intel64/lib mkl/lib/em64t mkl/lib/intel64)
     endif(32_BIT_SYSTEM)
     if(INTEL_ROOT)
-      message(
-        STATUS 
-        "Will also search user-defined INTEL_ROOT=${INTEL_ROOT} for MKL"
-      )
+      message(STATUS "Will also search INTEL_ROOT=${INTEL_ROOT} for MKL")
       message(STATUS "INTEL_ARCH_SUBDIRS=${INTEL_ARCH_SUBDIRS}")
     endif(INTEL_ROOT)
     if(MKL_ROOT)
-      message(
-        STATUS
-        "Will also search user-defined MKL_ROOT=${MKL_ROOT} for MKL"
-      )
+      message(STATUS "Will also search MKL_ROOT=${MKL_ROOT} for MKL")
       message(STATUS "MKL_ARCH_SUBDIRS=${INTEL_ARCH_SUBDIRS}")
     endif(MKL_ROOT)
     # There is a cyclic dependency between MKL_CORE and 
@@ -320,8 +311,7 @@ if(NEED_MATH)
       # Look for default BLAS and LAPACK
       if(REFERENCE_ROOT)
         message(
-          STATUS 
-          "Will also search REFERENCE_ROOT=${REFERENCE_ROOT} for reference math libs"
+          STATUS "Will search REFERENCE_ROOT=${REFERENCE_ROOT} for math libs"
         )
       endif(REFERENCE_ROOT)
       set(REFERENCE_REQUIRED LAPACK BLAS)
@@ -343,7 +333,7 @@ if(NEED_MATH)
       else(REFERENCE_FOUND) 
         message(
           FATAL_ERROR 
-          "Could not find BLAS/LAPACK libraries. Please manually specify MATH_LIBS"
+          "Could not find BLAS/LAPACK libraries. Please specify MATH_LIBS"
         )
       endif(REFERENCE_FOUND)
     endif(NEED_MATH)
@@ -423,7 +413,7 @@ if(WITHOUT_PMRRR)
   )
   list(
     REMOVE_ITEM ELEMENTAL_CPP
-    "src/advanced/GeneralizedHermitianEig/GeneralizedHermitianEig.cpp"
+    "src/advanced/HermitianGenDefiniteEig/HermitianGenDefiniteEig.cpp"
   )
 endif(WITHOUT_PMRRR)
 if(NOT BUILD_C_INTERFACE)
@@ -432,6 +422,18 @@ if(NOT BUILD_C_INTERFACE)
     list(REMOVE_ITEM ELEMENTAL_HEADERS "include/elemental/exports/c.h")
 endif(NOT BUILD_C_INTERFACE)
 set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
+
+# Copy the headers into the build directory
+foreach(HEADER ${ELEMENTAL_HEADERS})
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${HEADER}
+            ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
+  )
+endforeach(HEADER)
+
+# Make sure the Elemental headers can be found
+include_directories("${PROJECT_BINARY_DIR}/include")
 
 # Create the lists of test executables 
 if(BUILD_TESTS)
@@ -469,32 +471,17 @@ endif(BUILD_EXAMPLES)
 # Create a dummy library in order to be able to force the math (and potentially
 # MPI libraries) to be linked last
 add_library(cmake-dummy-lib STATIC cmake/CMakeDummyFunction.cpp)
-target_link_libraries(cmake-dummy-lib ${MATH_LIBS} ${MPI_LINK_LIBS})
+target_link_libraries(cmake-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 
-# If we specified an MPI include directory, make sure it's in our include path
-if(MPI_INCLUDE_DIR)
-  include_directories("${MPI_INCLUDE_DIR}")
-endif(MPI_INCLUDE_DIR)
-
-# Copy the headers into the build directory
-foreach(HEADER ${ELEMENTAL_HEADERS})
-  add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${HEADER}
-            ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
-  )
-endforeach(HEADER)
-
-# Make sure the Elemental headers can be found
-include_directories("${PROJECT_BINARY_DIR}/include")
-
-# Build the main library
+# Set up for building the main library
 if(BUILD_PMRRR AND NOT FAILED_PMRRR)
   add_library(elemental STATIC ${ELEMENTAL_SRC})
   target_link_libraries(elemental pmrrr plcg)
+  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
 else(BUILD_PMRRR AND NOT FAILED_PMRRR)
   add_library(elemental STATIC ${ELEMENTAL_SRC})
   target_link_libraries(elemental plcg)
+  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
 endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
 # Build the test drivers if necessary
@@ -508,6 +495,7 @@ if(BUILD_TESTS)
       tests-cxx-core-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+      LINK_FLAGS ${MPI_LINK_FLAGS}
     )
   endforeach(TEST)
   # Build the basic tests
@@ -519,6 +507,7 @@ if(BUILD_TESTS)
       tests-cxx-basic-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+      LINK_FLAGS ${MPI_LINK_FLAGS}
     )
   endforeach(TEST)
   # Build the advanced tests
@@ -533,6 +522,7 @@ if(BUILD_TESTS)
       tests-cxx-advanced-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+      LINK_FLAGS ${MPI_LINK_FLAGS}
     )
   endforeach(TEST)
   # Build the C tests
@@ -544,6 +534,7 @@ if(BUILD_TESTS)
       tests-c-${TEST}
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+      LINK_FLAGS ${MPI_LINK_FLAGS}
     )
   endforeach(TEST)
 endif(BUILD_TESTS)
@@ -565,6 +556,7 @@ if(BUILD_EXAMPLES)
       examples-cxx-advanced-${EXAMPLE} 
       PROPERTIES OUTPUT_NAME ${EXAMPLE}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+      LINK_FLAGS ${MPI_LINK_FLAGS}
     )
   endforeach(EXAMPLE)
 endif(BUILD_EXAMPLES)

@@ -1,11 +1,25 @@
 ==================
 Building Elemental
 ==================
+Elemental's build system heavily relies on `CMake <http://www.cmake.org>`_ 
+in order to manage a large number of configuration options in a 
+platform-independent manner.
 
 ----------------
 Installing CMake
 ----------------
-Give a link to the CMake website and describe the bootstrap process
+The `installation process <http://www.cmake.org/cmake/help/install.html>`_
+is extremely straightforward: either download a platform-specific binary from
+the `downloads page <http://www.cmake.org/cmake/resources/software.html>`_
+or download the source code and run::
+
+    ./bootstrap
+    make
+
+Though the binaries can be run from within the build directory, it might be 
+more convenient to install them by subsequently running::
+
+    make install
 
 ------------------
 Working with CMake

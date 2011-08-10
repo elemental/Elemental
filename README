@@ -23,11 +23,7 @@ to build the pure-MPI release:
       cd elemental
       mkdir -p build/PureRelease
       cd build/PureRelease
-      cmake -DCMAKE_BUILD_TYPE=PureRelease \
-            -DCMAKE_CXX_COMPILER=/path/to/mpi/cxx/compiler \
-            -DCMAKE_C_COMPILER=/path/to/mpi/c/compiler \
-            -DCMAKE_Fortran_COMPILER=/path/to/serial/fortran/compiler \
-            ../..
+      cmake -DCMAKE_BUILD_TYPE=PureRelease ../..
       make
 If the correct BLAS/LAPACK libraries are not found, try specifying them using
 by appending the additional cmake flags of the form:
@@ -40,7 +36,7 @@ On BlueGene/P, one should instead run (after loading the dec2010 compilers)
       mkdir -p build/PureRelease
       cd build/PureRelease
       cmake -DCMAKE_BUILD_TYPE=PureRelease \
-            -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchains/BGP-xl_dec2010-essl_4.3.1-1.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchains/BGP-xl_apr2010-essl_4.3.1-1.cmake \
             ../..
       make
 
@@ -71,9 +67,9 @@ performance:
     ( elemental::HermitianTridiagApproach approach );
 
   The choices are:
-    elemental::HERMITIAN_TRIDIAG_NORMAL
-    elemental::HERMITIAN_TRIDIAG_SQUARE
-    elemental::HERMITIAN_TRIDIAG_DEFAULT
+    elemental::HermitianTridiagNormal
+    elemental::HermitianTridiagSquare
+    elemental::HermitianTridiagDefault
   The first always uses the general nonsquare grid algorithm, even when
   running on a square grid. The second drops down to the largest perfect square
   number of processors less than or equal to the number available in order to
@@ -86,8 +82,8 @@ performance:
     ( elemental::GridOrder order );
 
   The choices are:
-    elemental::COL_MAJOR
-    elemental::ROW_MAJOR
+    elemental::ColMajor
+    elemental::RowMajor
   Finally, the default option uses the square grid algorithm if the input matrix
   is already distributed over a square grid, otherwise, the normal nonsquare 
   grid algorithm is used.

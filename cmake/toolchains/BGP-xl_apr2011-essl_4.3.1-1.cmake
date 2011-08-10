@@ -1,16 +1,20 @@
 set(CMAKE_SYSTEM_NAME BlueGeneP-static)
 
-# We need MPI C and CXX compilers, but only a serial Fortran compiler
-set(CMAKE_C_COMPILER /bgsys/drivers/ppcfloor/comm/bin/mpixlc_r)
-set(CMAKE_CXX_COMPILER /bgsys/drivers/ppcfloor/comm/bin/mpixlcxx_r)
-set(CMAKE_Fortran_COMPILER /soft/apps/ibmcmp-dec2010/xlf/bg/11.1/bin/bgxlf_r) 
+# The serial XL compilers
+set(CMAKE_C_COMPILER       /soft/apps/ibmcmp-apr2011/vacpp/bg/9.0/bin/bgxlc_r)
+set(CMAKE_CXX_COMPILER     /soft/apps/ibmcmp-apr2011/vacpp/bg/9.0/bin/bgxlC_r)
+set(CMAKE_Fortran_COMPILER /soft/apps/ibmcmp-apr2011/xlf/bg/11.1/bin/bgxlf_r) 
+
+# The MPI wrappers for the XL C and C++ compilers
+set(MPI_C_COMPILER   /bgsys/drivers/ppcfloor/comm/bin/mpixlc_r)
+set(MPI_CXX_COMPILER /bgsys/drivers/ppcfloor/comm/bin/mpixlcxx_r)
 
 set(CXX_PURE_DEBUG_FLAGS "-g")
 set(CXX_PURE_RELEASE_FLAGS "-g -O4")
 set(CXX_HYBRID_DEBUG_FLAGS "-g")
 set(CXX_HYBRID_RELEASE_FLAGS "-g -O4")
 
-set(PTHREADS_C_FLAGS "-qthreaded")
+set(CMAKE_THREAD_LIBS_INIT "-qthreaded")
 set(OpenMP_CXX_FLAGS "-qsmp=omp:noauto -qthreaded")
 
 # The remainder of the file is for linking BLAS/LAPACK functionality

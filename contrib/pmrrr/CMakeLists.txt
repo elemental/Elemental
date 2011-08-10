@@ -150,7 +150,7 @@ if(MISSING_LAPACK)
 
     # Now determine the way C should interface with our Fortran addons. 
     get_filename_component(Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
-    set(LAPACK_ADDONS_LINK_LIBS "")
+    set(LAPACK_ADDONS_LIBS "")
     if(Fortran_COMPILER_NAME STREQUAL "gfortran")
       if(F_FROM_C_DEFS)
         message(STATUS "Using user-defined F_FROM_C_DEFS=${F_FROM_C_DEFS}")
@@ -163,7 +163,7 @@ if(MISSING_LAPACK)
       # if /usr/lib/libgfortran.so.1 exists, but /usr/lib/libgfortran.so 
       # does not exist. 
       if(GFORTRAN_LIB)
-        set(LAPACK_ADDONS_LINK_LIBS ${GFORTRAN_LIB})
+        set(LAPACK_ADDONS_LIBS ${GFORTRAN_LIB})
         message(STATUS "Using user-defined GFORTRAN_LIB=${GFORTRAN_LIB}")
       else(GFORTRAN_LIB)
         string(
@@ -189,7 +189,7 @@ if(MISSING_LAPACK)
           )
         endif(GFORTRAN_LIB)
       endif(GFORTRAN_LIB)
-      set(LAPACK_ADDONS_LINK_LIBS ${GFORTRAN_LIB})
+      set(LAPACK_ADDONS_LIBS ${GFORTRAN_LIB})
     elseif(Fortran_COMPILER_NAME STREQUAL "bgxlf_r" OR
            Fortran_COMPILER_NAME STREQUAL "bgxlf" OR
            Fortran_COMPILER_NAME STREQUAL "xlf" OR
@@ -207,7 +207,7 @@ if(MISSING_LAPACK)
       endif(F_FROM_C_DEFS)
       if(IFCORE_LIB)
         message(STATUS "Using user-defined IFCORE_LIB=${IFCORE_LIB}")
-        set(LAPACK_ADDONS_LINK_LIBS ${IFCORE_LIB})
+        set(LAPACK_ADDONS_LIBS ${IFCORE_LIB})
       else(IFCORE_LIB)
         string(
           REGEX REPLACE "/bin/([^/]*)/?ifort" "/lib/\\1" 
@@ -216,7 +216,7 @@ if(MISSING_LAPACK)
         message(STATUS "Will also search ${IFCORE_LIB_DIR_HINT} for ifcore lib")
         find_library(IFCORE_LIB ifcore HINTS ${IFCORE_LIB_DIR_HINT})
         if(IFCORE_LIB)
-          set(LAPACK_ADDONS_LINK_LIBS ${IFCORE_LIB})
+          set(LAPACK_ADDONS_LIBS ${IFCORE_LIB})
           message("Found ifcore lib at ${IFCORE_LIB}")
         else(IFCORE_LIB)
           message(FATAL_ERROR "Could not find ifcore library")
@@ -237,71 +237,62 @@ if(MISSING_LAPACK)
       GLOB_RECURSE LAPACK_ADDON_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.f"
     )
     add_library(lapack-addons STATIC ${LAPACK_ADDON_SRC})
-    target_link_libraries(lapack-addons ${LAPACK_ADDONS_LINK_LIBS})
+    target_link_libraries(lapack-addons ${LAPACK_ADDONS_LIBS})
   else(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
-    set(FAILED_PMRRR TRUE)
     set(FAILED_PMRRR TRUE PARENT_SCOPE)
     message(STATUS "Fortran compiler not found; cannot use PMRRR with supplied MATH_LIBS")
+    return()
   endif(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
 endif(MISSING_LAPACK)
 
-if(FAILED_PMRRR)
-  # Do nothing, we are falling back to building Elemental without PMRRR
-else(FAILED_PMRRR)
-  # Add in the preprocessor definitions 
-  if(MISSING_LAPACK)
-    set(C_BASE_FLAGS "${F_FROM_C_DEFS}")
-  else(MISSING_LAPACK)
-    set(C_BASE_FLAGS "${BLAS_DEFS} ${LAPACK_DEFS}")
-  endif(MISSING_LAPACK)
-  if(NOT HAVE_SPINLOCKS)
-    set(C_BASE_FLAGS "${C_BASE_FLAGS} -DNOSPINLOCKS")
-  endif(NOT HAVE_SPINLOCKS)
+# Add in the preprocessor definitions 
+if(MISSING_LAPACK)
+  set(C_BASE_FLAGS "${F_FROM_C_DEFS}")
+else(MISSING_LAPACK)
+  set(C_BASE_FLAGS "${BLAS_DEFS} ${LAPACK_DEFS}")
+endif(MISSING_LAPACK)
+if(NOT HAVE_SPINLOCKS)
+  set(C_BASE_FLAGS "${C_BASE_FLAGS} -DNOSPINLOCKS")
+endif(NOT HAVE_SPINLOCKS)
 
-  # Grab all of the .c and .h files
-  file(GLOB_RECURSE PMRRR_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.c")
-  file(GLOB_RECURSE PMRRR_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
-  set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
+# Grab all of the .c and .h files
+file(GLOB_RECURSE PMRRR_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.c")
+file(GLOB_RECURSE PMRRR_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
+set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
 
-  # Try to check if we have an MPI C compiler specified
-  if(NOT MPI_LINK_LIBS)
-    if(NOT (CMAKE_C_COMPILER MATCHES "mpi"))
-      message(
-        WARNING 
-        "C compiler, ${CMAKE_C_COMPILER} does not appear to be an MPI compiler. Please manually set it via the environment variable CC or through the '-DCMAKE_C_COMPILER' cmake flag. You should probably also clean this build folder first."
-      )
-    endif(NOT (CMAKE_C_COMPILER MATCHES "mpi"))
-  endif(NOT MPI_LINK_LIBS)
+# Ensure that an MPI C compiler was found
+if(NOT MPI_C_FOUND)
+    message(WARNING "No MPI C compiler was found, so PMRRR cannot be built")
+    set(FAILED_PMRRR TRUE PARENT_SCOPE)
+    return()
+endif(NOT MPI_C_FOUND)
+include_directories("${MPI_C_INCLUDE_PATH}")
     
-  # Findpthreads.cmake does not seem to be standard
-  #
-  #find_package(pthreads REQUIRED)
-  #set(C_BASE_FLAGS "${C_BASE_FLAGS} -I${PTHREADS_INCLUDE_DIR}")
-  #foreach(DEF ${PTHREADS_DEFINITIONS})
-  #  set(C_BASE_FLAGS "${C_BASE_FLAGS} -D${DEF}")
-  #endforeach(DEF)
-  if(NOT PTHREADS_C_FLAGS)
-    # TODO: Make this section more robust by checking a longer list of compile
-    #       flags using CMake's builtin routines.
-    set(
-      PTHREADS_C_FLAGS "-pthread" CACHE STRING 
-      "C compilation flags for pthreads support."
-    )
-  endif(NOT PTHREADS_C_FLAGS)
-  set(C_BASE_FLAGS "${C_BASE_FLAGS} ${PTHREADS_C_FLAGS}")
+# Set the various build flags
+set(CMAKE_C_FLAGS_HYBRIDDEBUG "${C_BASE_FLAGS} ${C_HYBRID_DEBUG_FLAGS}")
+set(CMAKE_C_FLAGS_HYBRIDRELEASE "${C_BASE_FLAGS} ${C_HYBRID_RELEASE_FLAGS}")
+set(CMAKE_C_FLAGS_PUREDEBUG "${C_BASE_FLAGS} ${C_PURE_DEBUG_FLAGS}")
+set(CMAKE_C_FLAGS_PURERELEASE "${C_BASE_FLAGS} ${C_PURE_RELEASE_FLAGS}")
 
-  # Set the various build flags
-  set(CMAKE_C_FLAGS_HYBRIDDEBUG "${C_BASE_FLAGS} ${C_HYBRID_DEBUG_FLAGS}")
-  set(CMAKE_C_FLAGS_HYBRIDRELEASE "${C_BASE_FLAGS} ${C_HYBRID_RELEASE_FLAGS}")
-  set(CMAKE_C_FLAGS_PUREDEBUG "${C_BASE_FLAGS} ${C_PURE_DEBUG_FLAGS}")
-  set(CMAKE_C_FLAGS_PURERELEASE "${C_BASE_FLAGS} ${C_PURE_RELEASE_FLAGS}")
+# Look for a PTHREADS library unless one was already specified
+if(NOT CMAKE_THREAD_LIBS_INIT)
+  set(CMAKE_THREAD_PREFER_PTHREAD ON)
+  find_package(Threads)
+  if(NOT CMAKE_USE_PTHREADS_INIT)
+    message(WARNING "Could not find a pthreads library, cannot build PMRRR")
+    set(FAILED_PMRRR TRUE PARENT_SCOPE)
+    return()
+  endif(NOT CMAKE_USE_PTHREADS_INIT)
+endif(NOT CMAKE_THREAD_LIBS_INIT)
 
-  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-  if(MISSING_LAPACK)
-    add_library(pmrrr STATIC ${PMRRR_SRC})
-    target_link_libraries(pmrrr lapack-addons)
-  else(MISSING_LAPACK)
-    add_library(pmrrr STATIC ${PMRRR_SRC})
-  endif(MISSING_LAPACK)
-endif(FAILED_PMRRR)
-
+# Build PMRRR and set the link libraries
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+if(MISSING_LAPACK)
+  add_library(pmrrr STATIC ${PMRRR_SRC})
+  target_link_libraries(
+    pmrrr lapack-addons ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
+  )
+else(MISSING_LAPACK)
+  add_library(pmrrr STATIC ${PMRRR_SRC})
+  target_link_libraries(pmrrr ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+endif(MISSING_LAPACK)
