@@ -278,10 +278,10 @@ Scal
 //----------------------------------------------------------------------------//
 
 //
-// Conj: 
+// Conjugate: 
 //
-// Conjugates a matrix. The in-place version performs A := Conjugate(A), while the 
-// out-of-place sets B := Conjugate(A).
+// Conjugates a matrix. The in-place version performs A := Conjugate(A), 
+// while the out-of-place sets B := Conjugate(A).
 //
 
 // In-place serial version for real datatypes. 
@@ -1131,7 +1131,7 @@ elemental::basic::Conjugate
     const int n = A.Width();
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            A.Set(i,j,elemental::Conjugate(A.Get(i,j)));
+            A.Set(i,j,Conj(A.Get(i,j)));
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1897,7 +1897,7 @@ elemental::basic::Trsm
     const char uploChar = ShapeToChar( shape );
     const char transChar = OrientationToChar( orientation );
     const char diagChar = DiagonalToChar( diagonal );
-    if( checkIfSingular && diagonal != Unit )
+    if( checkIfSingular && diagonal != UNIT )
     {
         const int n = A.Height();
         for( int j=0; j<n; ++j )

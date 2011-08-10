@@ -371,7 +371,7 @@ main( int argc, char* argv[] )
                  << "Double-precision normal algorithm:\n"
                  << "----------------------------------" << endl;
         }
-        advanced::SetHermitianTridiagApproach( HermitianTridiagNormal );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianTridiag<double>
         ( testCorrectness, printMatrices, shape, m, g );
 
@@ -382,8 +382,8 @@ main( int argc, char* argv[] )
                  << "--------------------------------------------------" 
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HermitianTridiagSquare );
-        advanced::SetHermitianTridiagGridOrder( RowMajor );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianTridiag<double>
         ( testCorrectness, printMatrices, shape, m, g );
 
@@ -394,8 +394,8 @@ main( int argc, char* argv[] )
                  << "--------------------------------------------------" 
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HermitianTridiagSquare );
-        advanced::SetHermitianTridiagGridOrder( ColMajor );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianTridiag<double>
         ( testCorrectness, printMatrices, shape, m, g );
 
@@ -406,7 +406,7 @@ main( int argc, char* argv[] )
                  << "Double-precision complex normal algorithm:\n"
                  << "------------------------------------------" << endl;
         }
-        advanced::SetHermitianTridiagApproach( HermitianTridiagNormal );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianTridiag< complex<double> >
         ( testCorrectness, printMatrices, shape, m, g );
 
@@ -418,8 +418,8 @@ main( int argc, char* argv[] )
                  << "-------------------------------------------" 
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HermitianTridiagSquare );
-        advanced::SetHermitianTridiagGridOrder( RowMajor );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianTridiag<complex<double> >
         ( testCorrectness, printMatrices, shape, m, g );
 
@@ -431,8 +431,8 @@ main( int argc, char* argv[] )
                  << "-------------------------------------------" 
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HermitianTridiagSquare );
-        advanced::SetHermitianTridiagGridOrder( ColMajor );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianTridiag<complex<double> >
         ( testCorrectness, printMatrices, shape, m, g );
 #endif

@@ -65,7 +65,7 @@ elemental::basic::Her2k
         basic::internal::Her2kLN( alpha, A, B, beta, C );
     else if( shape == LOWER )
         basic::internal::Her2kLC( alpha, A, B, beta, C );
-    else if( shape == Upper && orientation == NORMAL )
+    else if( orientation == NORMAL )
         basic::internal::Her2kUN( alpha, A, B, beta, C );
     else
         basic::internal::Her2kUC( alpha, A, B, beta, C );

@@ -165,7 +165,7 @@ elemental::advanced::internal::HegstRLVar3
         // A10 := inv(L11) A10
         A10_STAR_VR = A10;
         basic::internal::LocalTrsm
-        ( Left, Lower, NORMAL, NonUnit,
+        ( LEFT, LOWER, NORMAL, NON_UNIT,
           (F)1, L11_STAR_STAR, A10_STAR_VR );
 
         // Y20 := Y20 + L21 A10

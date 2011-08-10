@@ -83,15 +83,15 @@ elemental::basic::internal::Syr2kLT
                                 B2(g);
 
     // Temporary distributions
-    DistMatrix<T,MR,  Star> A1Trans_MR_Star(g);
-    DistMatrix<T,MR,  Star> B1Trans_MR_Star(g);
-    DistMatrix<T,Star,VR  > A1_Star_VR(g);
-    DistMatrix<T,Star,VR  > B1_Star_VR(g);
-    DistMatrix<T,Star,MC  > A1_Star_MC(g);
-    DistMatrix<T,Star,MC  > B1_Star_MC(g);
+    DistMatrix<T,MR,  STAR> A1Trans_MR_STAR(g);
+    DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);
+    DistMatrix<T,STAR,VR  > A1_STAR_VR(g);
+    DistMatrix<T,STAR,VR  > B1_STAR_VR(g);
+    DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
+    DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
 
     // Start the algorithm
-    C.ScaleTrapezoidal( beta, Left, Lower );
+    C.ScaleTrapezoidal( beta, LEFT, LOWER );
     LockedPartitionDown
     ( A, AT, 
          AB, 0 );
@@ -112,27 +112,27 @@ elemental::basic::internal::Syr2kLT
                B1,
           BB,  B2 );
 
-        A1Trans_MR_Star.AlignWith( C );
-        B1Trans_MR_Star.AlignWith( C );
-        A1_Star_MC.AlignWith( C );
-        B1_Star_MC.AlignWith( C );
+        A1Trans_MR_STAR.AlignWith( C );
+        B1Trans_MR_STAR.AlignWith( C );
+        A1_STAR_MC.AlignWith( C );
+        B1_STAR_MC.AlignWith( C );
         //--------------------------------------------------------------------//
-        A1Trans_MR_Star.TransposeFrom( A1 );
-        A1_Star_VR.TransposeFrom( A1Trans_MR_Star );
-        A1_Star_MC = A1_Star_VR;
+        A1Trans_MR_STAR.TransposeFrom( A1 );
+        A1_STAR_VR.TransposeFrom( A1Trans_MR_STAR );
+        A1_STAR_MC = A1_STAR_VR;
 
-        B1Trans_MR_Star.TransposeFrom( B1 );
-        B1_Star_VR.TransposeFrom( B1Trans_MR_Star );
-        B1_Star_MC = B1_Star_VR;
+        B1Trans_MR_STAR.TransposeFrom( B1 );
+        B1_STAR_VR.TransposeFrom( B1Trans_MR_STAR );
+        B1_STAR_MC = B1_STAR_VR;
 
         basic::internal::LocalTriangularRank2K
-        ( Lower, Transpose, Transpose, Transpose, Transpose, alpha,
-          A1_Star_MC, B1_Star_MC, A1Trans_MR_Star, B1Trans_MR_Star, (T)1, C );
+        ( LOWER, TRANSPOSE, TRANSPOSE, TRANSPOSE, TRANSPOSE, alpha,
+          A1_STAR_MC, B1_STAR_MC, A1Trans_MR_STAR, B1Trans_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
-        A1Trans_MR_Star.FreeAlignments();
-        B1Trans_MR_Star.FreeAlignments();
-        A1_Star_MC.FreeAlignments();
-        B1_Star_MC.FreeAlignments();
+        A1Trans_MR_STAR.FreeAlignments();
+        B1Trans_MR_STAR.FreeAlignments();
+        A1_STAR_MC.FreeAlignments();
+        B1_STAR_MC.FreeAlignments();
 
         SlideLockedPartitionDown
         ( AT,  A0,

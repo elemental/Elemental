@@ -79,17 +79,17 @@ void TestCorrectness
     {
         DistMatrix<R,MC,MR> W(m,m,g);
         W.SetToIdentity();
-        if( order == Forward )
+        if( order == FORWARD )
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, VERTICAL, Backward, offset, H, W );
+            ( side, shape, VERTICAL, BACKWARD, offset, H, W );
             Y.Print("Q");
             W.Print("Q^H");
         }
         else
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, VERTICAL, Forward, offset, H, W );
+            ( side, shape, VERTICAL, FORWARD, offset, H, W );
             Y.Print("Q^H");
             W.Print("Q");
         }
@@ -104,7 +104,7 @@ void TestCorrectness
     basic::Axpy( (R)-1, Z, X );
     if( printMatrices )
     {
-        if( order == Forward )
+        if( order == FORWARD )
             X.Print("I - Q Q^H");
         else
             X.Print("I - Q^H Q");
@@ -115,7 +115,7 @@ void TestCorrectness
     R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
-        if( order == Forward )
+        if( order == FORWARD )
         {
             cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
                  << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
@@ -159,17 +159,17 @@ void TestCorrectness
     {
         DistMatrix<C,MC,MR> W(m,m,g);
         W.SetToIdentity();
-        if( order == Forward )
+        if( order == FORWARD )
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, VERTICAL, Backward, conjugation, offset, H, t, W );
+            ( side, shape, VERTICAL, BACKWARD, conjugation, offset, H, t, W );
             Y.Print("Q");
             W.Print("Q^H");
         }
         else
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, VERTICAL, Forward, conjugation, offset, H, t, W );
+            ( side, shape, VERTICAL, FORWARD, conjugation, offset, H, t, W );
             Y.Print("Q^H");
             W.Print("Q");
         }
@@ -184,7 +184,7 @@ void TestCorrectness
     basic::Axpy( (C)-1, Z, X );
     if( printMatrices )
     {
-        if( order == Forward )
+        if( order == FORWARD )
             X.Print("I - Q Q^H");
         else
             X.Print("I - Q^H Q");
@@ -196,7 +196,7 @@ void TestCorrectness
     R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
-        if( order == Forward )
+        if( order == FORWARD )
         {
             cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
                  << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
@@ -371,9 +371,9 @@ main( int argc, char* argv[] )
         const Side side = CharToSide(*argv[++argNum]);
         const Shape shape = CharToShape(*argv[++argNum]);
         const ForwardOrBackward order = 
-            ( atoi(argv[++argNum]) ? Forward : Backward );
+            ( atoi(argv[++argNum]) ? FORWARD : BACKWARD );
         const Conjugation conjugation = 
-            ( atoi(argv[++argNum]) ? Conjugated : Unconjugated );
+            ( atoi(argv[++argNum]) ? CONJUGATED : UNCONJUGATED );
         const int m = atoi(argv[++argNum]);
         const int offset = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);

@@ -63,7 +63,7 @@ void TestSyr2k
     DistMatrix<T,MC,MR> B(g);
     DistMatrix<T,MC,MR> C(g);
 
-    if( orientation == Normal )
+    if( orientation == NORMAL )
     {
         A.ResizeTo( m, k );
         B.ResizeTo( m, k );
@@ -107,7 +107,7 @@ void TestSyr2k
     if( printMatrices )
     {
         ostringstream msg;
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             msg << "C := " << alpha << " A B' + B A'" << beta << " C";
         else
             msg << "C := " << alpha << " A' B + B' A" << beta << " C";

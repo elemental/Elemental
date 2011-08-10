@@ -242,7 +242,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 
-        basic::Conj( HPan_STAR_VR );
+        basic::Conjugate( HPan_STAR_VR );
         HPan_STAR_MR = HPan_STAR_VR;
         basic::internal::LocalGemm
         ( NORMAL, ADJOINT, (C)1, AR, HPan_STAR_MR, (C)0, Z_MC_STAR );

@@ -89,7 +89,7 @@ void TestCorrectnessDouble
         cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<double,MC,MR> X(k,k,g);
     X.SetToIdentity();
-    basic::Herk( shape, Adjoint, (double)-1, Z, (double)1, X );
+    basic::Herk( shape, ADJOINT, (double)-1, Z, (double)1, X );
     double oneNormOfError = advanced::Norm( X, ONE_NORM );
     double infNormOfError = advanced::Norm( X, INFINITY_NORM );
     double frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
@@ -164,7 +164,7 @@ void TestCorrectnessDoubleComplex
     DistMatrix<std::complex<double>,MC,MR> X( k, k, g );
     X.SetToIdentity();
     basic::Herk
-    ( shape, Adjoint, 
+    ( shape, ADJOINT, 
       std::complex<double>(-1), Z, std::complex<double>(1), X );
     double oneNormOfError = advanced::Norm( X, ONE_NORM );
     double infNormOfError = advanced::Norm( X, INFINITY_NORM );

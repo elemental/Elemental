@@ -147,7 +147,7 @@ elemental::advanced::HermitianTridiag
     if( ::tridiagApproach == HERMITIAN_TRIDIAG_NORMAL )
     {
         // Use the pipelined algorithm for nonsquare meshes
-        if( shape == Lower )
+        if( shape == LOWER )
             advanced::internal::HermitianTridiagL( A, t );
         else
             advanced::internal::HermitianTridiagU( A, t );

@@ -143,14 +143,14 @@ elemental::advanced::internal::HegstRUVar3
         A11_STAR_STAR = A11;
         U11_STAR_STAR = U11;
         advanced::internal::LocalHegst
-        ( Right, Upper, A11_STAR_STAR, U11_STAR_STAR );
+        ( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A12 := A12 - U01' A02
         U01_MC_STAR = U01;
         X12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
         basic::internal::LocalGemm
-        ( Adjoint, Normal, 
+        ( ADJOINT, NORMAL, 
           (F)1, U01_MC_STAR, A02, (F)0, X12_STAR_MR );
         A12.SumScatterUpdate( (F)-1, X12_STAR_MR );
 

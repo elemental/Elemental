@@ -142,7 +142,7 @@ elemental::basic::internal::SymmRLA
         Z1Trans.SumScatterFrom( Z1Trans_MC_STAR );
         Z1Trans_MR_MC = Z1Trans;
         Z1Trans_MR_MC.SumScatterUpdate( (T)1, Z1Trans_MR_STAR );
-        basic::Trans( Z1Trans_MR_MC.LockedLocalMatrix(), Z1Local );
+        basic::Transpose( Z1Trans_MR_MC.LockedLocalMatrix(), Z1Local );
         basic::Axpy( (T)1, Z1Local, C1.LocalMatrix() );
         //--------------------------------------------------------------------//
         B1Trans_MR_STAR.FreeAlignments();

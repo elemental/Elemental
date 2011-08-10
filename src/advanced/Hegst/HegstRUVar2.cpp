@@ -146,7 +146,7 @@ elemental::advanced::internal::HegstRUVar2
         ( ADJOINT, NORMAL,
           (F)1, A01_MC_STAR, U01, (F)1, X11_STAR_MR );
         X11.SumScatterFrom( X11_STAR_MR );
-        X11.MakeTrapezoidal( LEFT, Upper );
+        X11.MakeTrapezoidal( LEFT, UPPER );
         basic::Axpy( (F)-1, X11, A11 );
 
         // A01 := A01 inv(U11)

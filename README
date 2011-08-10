@@ -31,12 +31,12 @@ by appending the additional cmake flags of the form:
 where the math libs should be optimized for single core usage for pure-MPI 
 builds and threaded for the hybrid builds.
 
-On BlueGene/P, one should instead run (after loading the dec2010 compilers)
+On BlueGene/P, one should instead run (after loading the apr2011 compilers)
       cd elemental
       mkdir -p build/PureRelease
       cd build/PureRelease
       cmake -DCMAKE_BUILD_TYPE=PureRelease \
-            -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchains/BGP-xl_apr2010-essl_4.3.1-1.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchains/BGP-xl_apr2011-essl_4.3.1-1.cmake \
             ../..
       make
 
@@ -59,7 +59,7 @@ performance:
   manually chosen to build an r x c grid using the extended process grid 
   constructor:
 
-  elemental::Grid::Grid( MPI_Comm comm, int r, int c );
+  elemental::Grid::Grid( elemental::mpi::Comm comm, int r, int c );
 
 - The Householder tridiagonalization approach may be chosen using the routine:
 
@@ -67,9 +67,9 @@ performance:
     ( elemental::HermitianTridiagApproach approach );
 
   The choices are:
-    elemental::HermitianTridiagNormal
-    elemental::HermitianTridiagSquare
-    elemental::HermitianTridiagDefault
+    elemental::HERMITIAN_TRIDIAG_NORMAL
+    elemental::HERMITIAN_TRIDIAG_SQUARE
+    elemental::HERMITIAN_TRIDIAG_DEFAULT
   The first always uses the general nonsquare grid algorithm, even when
   running on a square grid. The second drops down to the largest perfect square
   number of processors less than or equal to the number available in order to
@@ -82,8 +82,8 @@ performance:
     ( elemental::GridOrder order );
 
   The choices are:
-    elemental::ColMajor
-    elemental::RowMajor
+    elemental::COLUMN_MAJOR
+    elemental::ROW_MAJOR
   Finally, the default option uses the square grid algorithm if the input matrix
   is already distributed over a square grid, otherwise, the normal nonsquare 
   grid algorithm is used.

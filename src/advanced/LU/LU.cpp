@@ -68,8 +68,7 @@ elemental::advanced::LU
     DistMatrix<int,STAR,STAR> p1_STAR_STAR(g);
 
     // Pivot composition
-    vector<int> image;
-    vector<int> preimage;
+    vector<int> image, preimage;
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -114,7 +113,7 @@ elemental::advanced::LU
         // it's total contribution is only O(n^2)
         A12_STAR_VR = A12;
         basic::internal::LocalTrsm
-        ( LEFT, LOWER, NORMAL, Unit, (F)1, A11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
 
         A12_STAR_MR = A12_STAR_VR;
         basic::internal::LocalGemm

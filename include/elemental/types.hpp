@@ -61,7 +61,7 @@ enum Distribution
     MR,  // Row of a matrix distribution
     VC,  // Col-major vector distribution
     VR,  // Row-major vector distribution
-    Star // Do not distribute
+    STAR // Do not distribute
 };
 
 std::string DistToString( Distribution distribution );
@@ -157,7 +157,7 @@ enum HermitianTridiagApproach
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-inline char elemental::DiagonalToChar( elemental::Diagonal diagonal )
+inline char elemental::DiagonalToChar( Diagonal diagonal )
 {
     char diagonalChar;
     switch( diagonal )
@@ -173,7 +173,7 @@ inline elemental::Diagonal elemental::CharToDiagonal( char c )
     Diagonal diagonal;
     switch( c )
     {
-        case 'N': diagonal = NON_UNIT: break;
+        case 'N': diagonal = NON_UNIT; break;
         case 'U': diagonal = UNIT;     break;
         default:
             throw std::logic_error("CharToDiagonal expects char in {N,U}.");
@@ -182,7 +182,7 @@ inline elemental::Diagonal elemental::CharToDiagonal( char c )
 }
 
 inline std::string elemental::DistToString
-( elemental::Distribution distribution )
+( Distribution distribution )
 {
     std::string distString;
     switch( distribution )
@@ -211,7 +211,7 @@ inline elemental::Distribution elemental::StringToDist( std::string s )
     else if( s == "VR" )
         distribution = VR;
     else if( s == "* " || s == " *" || s == "*" )
-        distribution = Star;
+        distribution = STAR;
     else
     {
         throw std::logic_error("StringToDist expects string in "
@@ -220,7 +220,7 @@ inline elemental::Distribution elemental::StringToDist( std::string s )
     return distribution;
 }
 
-inline char elemental::OrientationToChar( elemental::Orientation orientation )
+inline char elemental::OrientationToChar( Orientation orientation )
 {
     char orientationChar;
     switch( orientation )
@@ -247,7 +247,7 @@ inline elemental::Orientation elemental::CharToOrientation( char c )
     return orientation;
 }
 
-inline char elemental::ShapeToChar( elemental::Shape shape )
+inline char elemental::ShapeToChar( Shape shape )
 {
     char shapeChar;
     switch( shape )
@@ -271,7 +271,7 @@ inline elemental::Shape elemental::CharToShape( char c )
     return shape;
 }
 
-inline char elemental::SideToChar( elemental::Side side )
+inline char elemental::SideToChar( Side side )
 {
     char sideChar;
     switch( side )

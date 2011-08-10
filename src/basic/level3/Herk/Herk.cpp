@@ -66,7 +66,7 @@ elemental::basic::Herk
         basic::internal::HerkLN( alpha, A, beta, C );
     else if( shape == LOWER )
         basic::internal::HerkLC( alpha, A, beta, C );
-    else if( shape == Upper && orientation == NORMAL )
+    else if( orientation == NORMAL )
         basic::internal::HerkUN( alpha, A, beta, C );
     else
         basic::internal::HerkUC( alpha, A, beta, C );

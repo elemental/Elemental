@@ -119,7 +119,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUVF
 
         Z_MC_STAR = Z_VC_STAR;
         basic::internal::LocalGemm
-        ( NORMAL, Transpose, 
+        ( NORMAL, TRANSPOSE, 
           (R)-1, Z_MC_STAR, HPan_MR_STAR, (R)1, ALeft );
         //--------------------------------------------------------------------//
         HPan_MR_STAR.FreeAlignments();

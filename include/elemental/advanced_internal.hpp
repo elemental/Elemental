@@ -56,16 +56,16 @@ namespace internal {
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void LocalChol( Shape shape, DistMatrix<F,Star,Star>& A );
+void LocalChol( Shape shape, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
 void LocalHegst
 ( Side side, Shape shape, 
-  DistMatrix<F,Star,Star>& A, const DistMatrix<F,Star,Star>& B );
+  DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B );
 
 template<typename F>
 void LocalTriangularInversion
-( Shape shape, Diagonal diagonal, DistMatrix<F,Star,Star>& A );
+( Shape shape, Diagonal diagonal, DistMatrix<F,STAR,STAR>& A );
 
 //----------------------------------------------------------------------------//
 // Chol helpers                                                               //
@@ -182,7 +182,7 @@ void ApplyRowPivots
         int pivotOffset=0 );
 
 void ComposePivots
-( const DistMatrix<int,Star,Star>& p,
+( const DistMatrix<int,STAR,STAR>& p,
         std::vector<int>& image,
         std::vector<int>& preimage,
         int pivotOffset = 0 );
@@ -222,13 +222,13 @@ void DestroyPivotOp<dcomplex>();
 #endif
 
 template<typename F>
-void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,Star,Star>& p );
+void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,STAR,STAR>& p );
 
 template<typename F>
 void PanelLU
-( DistMatrix<F,Star,Star>& A, 
-  DistMatrix<F,MC,  Star>& B, 
-  DistMatrix<int,Star,Star>& p, 
+( DistMatrix<F,STAR,STAR>& A, 
+  DistMatrix<F,MC,  STAR>& B, 
+  DistMatrix<int,STAR,STAR>& p, 
   int pivotOffset=0 );
 
 template<typename F>
@@ -264,7 +264,7 @@ void PanelLQ( DistMatrix<R,MC,MR>& A );
 template<typename R>
 void PanelLQ
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<std::complex<R>,MD,Star>& t );
+  DistMatrix<std::complex<R>,MD,STAR>& t );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -366,7 +366,7 @@ void PanelQR( DistMatrix<R,MC,MR>& A );
 template<typename R>
 void PanelQR
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<std::complex<R>,MD,Star>& t );
+  DistMatrix<std::complex<R>,MD,STAR>& t );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -400,73 +400,73 @@ template<typename R>
 void HermitianPanelTridiagL
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MC,Star>& APan_MC_Star,
-  DistMatrix<R,MR,Star>& APan_MR_Star,
-  DistMatrix<R,MC,Star>& W_MC_Star,
-  DistMatrix<R,MR,Star>& W_MR_Star );
+  DistMatrix<R,MC,STAR>& APan_MC_STAR,
+  DistMatrix<R,MR,STAR>& APan_MR_STAR,
+  DistMatrix<R,MC,STAR>& W_MC_STAR,
+  DistMatrix<R,MR,STAR>& W_MR_STAR );
 template<typename R>
 void HermitianPanelTridiagU
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MC,Star>& APan_MC_Star,
-  DistMatrix<R,MR,Star>& APan_MR_Star,
-  DistMatrix<R,MC,Star>& W_MC_Star,
-  DistMatrix<R,MR,Star>& W_MR_Star );
+  DistMatrix<R,MC,STAR>& APan_MC_STAR,
+  DistMatrix<R,MR,STAR>& APan_MR_STAR,
+  DistMatrix<R,MC,STAR>& W_MC_STAR,
+  DistMatrix<R,MR,STAR>& W_MR_STAR );
 template<typename R>
 void HermitianPanelTridiagLSquare
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MC,Star>& APan_MC_Star,
-  DistMatrix<R,MR,Star>& APan_MR_Star,
-  DistMatrix<R,MC,Star>& W_MC_Star,
-  DistMatrix<R,MR,Star>& W_MR_Star );
+  DistMatrix<R,MC,STAR>& APan_MC_STAR,
+  DistMatrix<R,MR,STAR>& APan_MR_STAR,
+  DistMatrix<R,MC,STAR>& W_MC_STAR,
+  DistMatrix<R,MR,STAR>& W_MR_STAR );
 template<typename R>
 void HermitianPanelTridiagUSquare
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
-  DistMatrix<R,MC,Star>& APan_MC_Star,
-  DistMatrix<R,MR,Star>& APan_MR_Star,
-  DistMatrix<R,MC,Star>& W_MC_Star,
-  DistMatrix<R,MR,Star>& W_MR_Star );
+  DistMatrix<R,MC,STAR>& APan_MC_STAR,
+  DistMatrix<R,MR,STAR>& APan_MR_STAR,
+  DistMatrix<R,MC,STAR>& W_MC_STAR,
+  DistMatrix<R,MR,STAR>& W_MR_STAR );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void HermitianPanelTridiagL
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
-  DistMatrix<std::complex<R>,MD,Star>& t,
-  DistMatrix<std::complex<R>,MC,Star>& APan_MC_Star,
-  DistMatrix<std::complex<R>,MR,Star>& APan_MR_Star,
-  DistMatrix<std::complex<R>,MC,Star>& W_MC_Star,
-  DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
+  DistMatrix<std::complex<R>,MD,STAR>& t,
+  DistMatrix<std::complex<R>,MC,STAR>& APan_MC_STAR,
+  DistMatrix<std::complex<R>,MR,STAR>& APan_MR_STAR,
+  DistMatrix<std::complex<R>,MC,STAR>& W_MC_STAR,
+  DistMatrix<std::complex<R>,MR,STAR>& W_MR_STAR );
 template<typename R>
 void HermitianPanelTridiagU
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
-  DistMatrix<std::complex<R>,MD,Star>& t,
-  DistMatrix<std::complex<R>,MC,Star>& APan_MC_Star,
-  DistMatrix<std::complex<R>,MR,Star>& APan_MR_Star,
-  DistMatrix<std::complex<R>,MC,Star>& W_MC_Star,
-  DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
+  DistMatrix<std::complex<R>,MD,STAR>& t,
+  DistMatrix<std::complex<R>,MC,STAR>& APan_MC_STAR,
+  DistMatrix<std::complex<R>,MR,STAR>& APan_MR_STAR,
+  DistMatrix<std::complex<R>,MC,STAR>& W_MC_STAR,
+  DistMatrix<std::complex<R>,MR,STAR>& W_MR_STAR );
 
 template<typename R>
 void HermitianPanelTridiagLSquare
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
-  DistMatrix<std::complex<R>,MD,Star>& t,
-  DistMatrix<std::complex<R>,MC,Star>& APan_MC_Star,
-  DistMatrix<std::complex<R>,MR,Star>& APan_MR_Star,
-  DistMatrix<std::complex<R>,MC,Star>& W_MC_Star,
-  DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
+  DistMatrix<std::complex<R>,MD,STAR>& t,
+  DistMatrix<std::complex<R>,MC,STAR>& APan_MC_STAR,
+  DistMatrix<std::complex<R>,MR,STAR>& APan_MR_STAR,
+  DistMatrix<std::complex<R>,MC,STAR>& W_MC_STAR,
+  DistMatrix<std::complex<R>,MR,STAR>& W_MR_STAR );
 template<typename R>
 void HermitianPanelTridiagUSquare
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
-  DistMatrix<std::complex<R>,MD,Star>& t,
-  DistMatrix<std::complex<R>,MC,Star>& APan_MC_Star,
-  DistMatrix<std::complex<R>,MR,Star>& APan_MR_Star,
-  DistMatrix<std::complex<R>,MC,Star>& W_MC_Star,
-  DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
+  DistMatrix<std::complex<R>,MD,STAR>& t,
+  DistMatrix<std::complex<R>,MC,STAR>& APan_MC_STAR,
+  DistMatrix<std::complex<R>,MR,STAR>& APan_MR_STAR,
+  DistMatrix<std::complex<R>,MC,STAR>& W_MC_STAR,
+  DistMatrix<std::complex<R>,MR,STAR>& W_MR_STAR );
 #endif
  
 template<typename R>
@@ -483,20 +483,20 @@ void HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A );
 template<typename R>
 void HermitianTridiagL
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
-  DistMatrix<std::complex<R>,Star,Star>& t );
+  DistMatrix<std::complex<R>,STAR,STAR>& t );
 template<typename R>
 void HermitianTridiagU
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
-  DistMatrix<std::complex<R>,Star,Star>& t );
+  DistMatrix<std::complex<R>,STAR,STAR>& t );
 
 template<typename R>
 void HermitianTridiagLSquare
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
-  DistMatrix<std::complex<R>,Star,Star>& t );
+  DistMatrix<std::complex<R>,STAR,STAR>& t );
 template<typename R>
 void HermitianTridiagUSquare
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
-  DistMatrix<std::complex<R>,Star,Star>& t );
+  DistMatrix<std::complex<R>,STAR,STAR>& t );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -529,7 +529,7 @@ template<typename R>
 void ApplyPackedReflectorsLLVF
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -543,7 +543,7 @@ template<typename R>
 void ApplyPackedReflectorsLLVB
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -557,7 +557,7 @@ template<typename R>
 void ApplyPackedReflectorsLLHF
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -571,7 +571,7 @@ template<typename R>
 void ApplyPackedReflectorsLLHB
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -585,7 +585,7 @@ template<typename R>
 void ApplyPackedReflectorsLUVF
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -599,7 +599,7 @@ template<typename R>
 void ApplyPackedReflectorsLUVB
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -613,7 +613,7 @@ template<typename R>
 void ApplyPackedReflectorsLUHF
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -627,7 +627,7 @@ template<typename R>
 void ApplyPackedReflectorsLUHB
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -641,7 +641,7 @@ template<typename R>
 void ApplyPackedReflectorsRLVF
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -655,7 +655,7 @@ template<typename R>
 void ApplyPackedReflectorsRLVB
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -669,7 +669,7 @@ template<typename R>
 void ApplyPackedReflectorsRLHF
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -683,7 +683,7 @@ template<typename R>
 void ApplyPackedReflectorsRLHB
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -697,7 +697,7 @@ template<typename R>
 void ApplyPackedReflectorsRUVF
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -711,7 +711,7 @@ template<typename R>
 void ApplyPackedReflectorsRUVB
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -725,7 +725,7 @@ template<typename R>
 void ApplyPackedReflectorsRUHF
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -739,7 +739,7 @@ template<typename R>
 void ApplyPackedReflectorsRUHB
 ( Conjugation conjugation, int offset,
   const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,Star>& t,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A );
 #endif
 
@@ -786,7 +786,7 @@ namespace internal {
 template<typename F>
 inline void
 LocalChol
-( Shape shape, DistMatrix<F,Star,Star>& A )
+( Shape shape, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::LocalChol");
@@ -801,7 +801,7 @@ template<typename F>
 inline void
 LocalHegst
 ( Side side, Shape shape,
-  DistMatrix<F,Star,Star>& A, const DistMatrix<F,Star,Star>& B )
+  DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::LocalHegst");
@@ -815,7 +815,7 @@ LocalHegst
 template<typename F>
 inline void
 LocalTriangularInversion
-( Shape shape, Diagonal diagonal, DistMatrix<F,Star,Star>& A )
+( Shape shape, Diagonal diagonal, DistMatrix<F,STAR,STAR>& A )
 { 
 #ifndef RELEASE
     PushCallStack("advanced::internal::LocalTriangularInversion");

@@ -79,15 +79,15 @@ elemental::basic::internal::Syr2kLN
                         B0(g), B1(g), B2(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,  Star> A1_MC_Star(g);
-    DistMatrix<T,MC,  Star> B1_MC_Star(g);
-    DistMatrix<T,VR,  Star> A1_VR_Star(g);
-    DistMatrix<T,VR,  Star> B1_VR_Star(g);
-    DistMatrix<T,Star,MR  > A1Trans_Star_MR(g);
-    DistMatrix<T,Star,MR  > B1Trans_Star_MR(g);
+    DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
+    DistMatrix<T,MC,  STAR> B1_MC_STAR(g);
+    DistMatrix<T,VR,  STAR> A1_VR_STAR(g);
+    DistMatrix<T,VR,  STAR> B1_VR_STAR(g);
+    DistMatrix<T,STAR,MR  > A1Trans_STAR_MR(g);
+    DistMatrix<T,STAR,MR  > B1Trans_STAR_MR(g);
 
     // Start the algorithm
-    C.ScaleTrapezoidal( beta, Left, Lower );
+    C.ScaleTrapezoidal( beta, LEFT, LOWER );
     LockedPartitionRight( A, AL, AR, 0 );
     LockedPartitionRight( B, BL, BR, 0 );
     while( AR.Width() > 0 )
@@ -100,29 +100,29 @@ elemental::basic::internal::Syr2kLN
         ( BL, /**/ BR,
           B0, /**/ B1, B2 );
 
-        A1_MC_Star.AlignWith( C );
-        B1_MC_Star.AlignWith( C );
-        A1_VR_Star.AlignWith( C );
-        B1_VR_Star.AlignWith( C );
-        A1Trans_Star_MR.AlignWith( C );
-        B1Trans_Star_MR.AlignWith( C );
+        A1_MC_STAR.AlignWith( C );
+        B1_MC_STAR.AlignWith( C );
+        A1_VR_STAR.AlignWith( C );
+        B1_VR_STAR.AlignWith( C );
+        A1Trans_STAR_MR.AlignWith( C );
+        B1Trans_STAR_MR.AlignWith( C );
         //--------------------------------------------------------------------//
-        A1_VR_Star = A1_MC_Star = A1;
-        A1Trans_Star_MR.TransposeFrom( A1_VR_Star );
+        A1_VR_STAR = A1_MC_STAR = A1;
+        A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR );
 
-        B1_VR_Star = B1_MC_Star = B1;
-        B1Trans_Star_MR.TransposeFrom( B1_VR_Star );
+        B1_VR_STAR = B1_MC_STAR = B1;
+        B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
 
         basic::internal::LocalTriangularRank2K
-        ( Lower, alpha, 
-          A1_MC_Star, B1_MC_Star, A1Trans_Star_MR, B1Trans_Star_MR, (T)1, C );
+        ( LOWER, alpha, 
+          A1_MC_STAR, B1_MC_STAR, A1Trans_STAR_MR, B1Trans_STAR_MR, (T)1, C );
         //--------------------------------------------------------------------//
-        A1_MC_Star.FreeAlignments();
-        B1_MC_Star.FreeAlignments();
-        A1_VR_Star.FreeAlignments();
-        B1_VR_Star.FreeAlignments();
-        A1Trans_Star_MR.FreeAlignments();
-        B1Trans_Star_MR.FreeAlignments();
+        A1_MC_STAR.FreeAlignments();
+        B1_MC_STAR.FreeAlignments();
+        A1_VR_STAR.FreeAlignments();
+        B1_VR_STAR.FreeAlignments();
+        A1Trans_STAR_MR.FreeAlignments();
+        B1Trans_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionRight
         ( AL,     /**/ AR,

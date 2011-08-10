@@ -110,8 +110,8 @@ elemental::advanced::internal::ApplyPackedReflectorsLUVF
         SInv_STAR_STAR.ResizeTo( HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        HPanCopy.MakeTrapezoidal( Right, UPPER, offset );
-        SetDiagonalToOne( Right, offset, HPanCopy );
+        HPanCopy.MakeTrapezoidal( RIGHT, UPPER, offset );
+        SetDiagonalToOne( RIGHT, offset, HPanCopy );
         HPan_VC_STAR = HPanCopy;
         basic::Syrk
         ( UPPER, TRANSPOSE, 
@@ -251,8 +251,8 @@ elemental::advanced::internal::ApplyPackedReflectorsLUVF
         SInv_STAR_STAR.ResizeTo( HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        HPanCopy.MakeTrapezoidal( Right, UPPER, offset );
-        SetDiagonalToOne( Right, offset, HPanCopy );
+        HPanCopy.MakeTrapezoidal( RIGHT, UPPER, offset );
+        SetDiagonalToOne( RIGHT, offset, HPanCopy );
         HPan_VC_STAR = HPanCopy;
         basic::Herk
         ( UPPER, ADJOINT, 

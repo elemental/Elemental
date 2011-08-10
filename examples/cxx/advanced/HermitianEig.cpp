@@ -107,11 +107,11 @@ main( int argc, char* argv[] )
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X[MC,MR], and an eigenvalue row vector, w[* ,VR]
-        DistMatrix<R,Star,VR> w( g );
+        DistMatrix<R,STAR,VR> w( g );
         DistMatrix<C,MC,MR> X( g );
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        advanced::HermitianEig( Lower, H, w, X ); // only use lower half of H
+        advanced::HermitianEig( LOWER, H, w, X ); // only use lower half of H
 
         // Print the eigensolution
         w.Print("Eigenvalues of H:");

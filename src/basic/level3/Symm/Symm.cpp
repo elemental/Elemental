@@ -56,15 +56,15 @@ elemental::basic::Symm
 #ifndef RELEASE
     PushCallStack("basic::Symm");
 #endif
-    if( side == Left && shape == Lower )
+    if( side == LEFT && shape == LOWER )
     {
         basic::internal::SymmLL( alpha, A, B, beta, C );
     }
-    else if( side == Left )
+    else if( side == LEFT )
     {
         basic::internal::SymmLU( alpha, A, B, beta, C );
     }
-    else if( shape == Lower )
+    else if( shape == LOWER )
     {
         basic::internal::SymmRL( alpha, A, B, beta, C );
     }

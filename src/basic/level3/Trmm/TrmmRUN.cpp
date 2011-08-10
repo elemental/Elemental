@@ -306,7 +306,7 @@ elemental::basic::internal::LocalTrmmAccumulateRUN
         //--------------------------------------------------------------------//
         D11 = U11;
         D11.MakeTrapezoidal( LEFT, UPPER );
-        if( diagonal == Unit )
+        if( diagonal == UNIT )
             SetDiagonalToOne( D11 );
         basic::internal::LocalGemm
         ( orientation, orientation,

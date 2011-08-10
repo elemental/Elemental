@@ -118,7 +118,7 @@ elemental::basic::internal::TrmmLUNA
         X1Trans_STAR_MR.TransposeFrom( X1_VR_STAR );
         Z1_MC_STAR.SetToZero();
         basic::internal::LocalTrmmAccumulateLUN
-        ( Transpose, diagonal, alpha, U, X1Trans_STAR_MR, Z1_MC_STAR );
+        ( TRANSPOSE, diagonal, alpha, U, X1Trans_STAR_MR, Z1_MC_STAR );
 
         X1.SumScatterFrom( Z1_MC_STAR );
         //--------------------------------------------------------------------//

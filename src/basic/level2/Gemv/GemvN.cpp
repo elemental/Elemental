@@ -119,7 +119,7 @@ elemental::basic::internal::GemvN
                  x_MR_STAR.LockedLocalMatrix(),
           (T)0,  z_MC_STAR.LocalMatrix() );
         z.SumScatterFrom( z_MC_STAR );
-        basic::Trans( z, zTrans );
+        basic::Transpose( z, zTrans );
         basic::Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
         x_MR_STAR.FreeAlignments();
@@ -173,7 +173,7 @@ elemental::basic::internal::GemvN
                  x_STAR_MR.LockedLocalMatrix(),
           (T)0,  z_MC_STAR.LocalMatrix() );
         z.SumScatterFrom( z_MC_STAR );
-        basic::Trans( z, zTrans );
+        basic::Transpose( z, zTrans );
         basic::Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
         x_STAR_MR.FreeAlignments();

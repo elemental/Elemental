@@ -307,7 +307,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -444,9 +444,9 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() ); // We can simply shrink matrices
-    if( shape == Lower )
+    if( shape == LOWER )
         advanced::ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, Backward, subdiagonal, A, paddedZ );
+        ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
     else
         advanced::ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
@@ -523,7 +523,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -661,9 +661,9 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() );
-    if( shape == Lower )
+    if( shape == LOWER )
         advanced::ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, Backward, subdiagonal, A, paddedZ );
+        ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
     else
         advanced::ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
@@ -733,7 +733,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -912,9 +912,9 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() );
-    if( shape == Lower )
+    if( shape == LOWER )
         advanced::ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, Backward, subdiagonal, A, paddedZ );
+        ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
     else
         advanced::ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
@@ -967,7 +967,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1095,7 +1095,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1220,7 +1220,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1373,7 +1373,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1511,9 +1511,9 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() ); 
-    if( shape == Lower )
+    if( shape == LOWER )
         advanced::ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, Backward, UNCONJUGATED, 
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
         advanced::ApplyPackedReflectors
@@ -1592,7 +1592,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1731,7 +1731,7 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() );
-    if( shape == Lower )
+    if( shape == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
@@ -1805,7 +1805,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1985,7 +1985,7 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Width() );
-    if( shape == Lower )
+    if( shape == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
@@ -2042,7 +2042,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -2171,7 +2171,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -2297,7 +2297,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MaxNorm );
+    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
         imports::lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 

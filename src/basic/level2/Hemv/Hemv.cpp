@@ -221,7 +221,7 @@ elemental::basic::Hemv
         z.SumScatterFrom( z_MC_STAR );
         z_MR_MC = z;
         z_MR_MC.SumScatterUpdate( (T)1, z_MR_STAR );
-        basic::Trans( z_MR_MC, zTrans );
+        basic::Transpose( z_MR_MC, zTrans );
         basic::Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
         x_MC_STAR.FreeAlignments();
@@ -271,7 +271,7 @@ elemental::basic::Hemv
         z.SumScatterFrom( z_STAR_MR );
         z_MR_MC = z;
         z_MR_MC.SumScatterUpdate( (T)1, z_STAR_MC );
-        basic::Trans( z_MR_MC, zTrans );
+        basic::Transpose( z_MR_MC, zTrans );
         basic::Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
         x_STAR_MC.FreeAlignments();

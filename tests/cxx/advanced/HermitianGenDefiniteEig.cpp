@@ -868,8 +868,8 @@ main( int argc, char* argv[] )
                  << "-------------------------------------------"
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HermitianTridiagSquare );
-        advanced::SetHermitianTridiagGridOrder( ColMajor );
+        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianGenDefiniteEigDouble
         ( testCorrectness, printMatrices, 
           eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,

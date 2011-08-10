@@ -45,9 +45,9 @@ elemental::advanced::ApplyPackedReflectors
 #ifndef RELEASE
     PushCallStack("advanced::ApplyPackedReflectors");
 #endif
-    if( side == Left )
+    if( side == LEFT )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLLVF( offset, H, A );
@@ -72,7 +72,7 @@ elemental::advanced::ApplyPackedReflectors
     }
     else
     {
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRLVF( offset, H, A );
@@ -114,9 +114,9 @@ elemental::advanced::ApplyPackedReflectors
 #ifndef RELEASE
     PushCallStack("advanced::ApplyPackedReflectors");
 #endif
-    if( side == Left )
+    if( side == LEFT )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLLVF
@@ -149,7 +149,7 @@ elemental::advanced::ApplyPackedReflectors
     }
     else
     {
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRLVF

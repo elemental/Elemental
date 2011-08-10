@@ -66,21 +66,21 @@ elemental::basic::Trmm
         else
             basic::internal::TrmmLLT( orientation, diagonal, alpha, A, X );
     }
-    else if( side == LEFT && shape == UPPER )
+    else if( side == LEFT )
     {
         if( orientation == NORMAL )
             basic::internal::TrmmLUN( diagonal, alpha, A, X );
         else
             basic::internal::TrmmLUT( orientation, diagonal, alpha, A, X );
     }
-    else if( side == Right && shape == LOWER )
+    else if( shape == LOWER )
     {
         if( orientation == NORMAL )
             basic::internal::TrmmRLN( diagonal, alpha, A, X );
         else
             basic::internal::TrmmRLT( orientation, diagonal, alpha, A, X );
     }
-    else if( side == Right && shape == UPPER )
+    else
     {
         if( orientation == NORMAL )
             basic::internal::TrmmRUN( diagonal, alpha, A, X );

@@ -240,8 +240,8 @@ elemental::basic::internal::HemmLLC
         //--------------------------------------------------------------------//
         AColPan_MC_STAR = AColPan;
         ARowPan_STAR_MC = ARowPan;
-        AColPan_MC_STAR.MakeTrapezoidal( Left, Lower );
-        ARowPan_STAR_MC.MakeTrapezoidal( Right, Lower, -1 );
+        AColPan_MC_STAR.MakeTrapezoidal( LEFT, LOWER );
+        ARowPan_STAR_MC.MakeTrapezoidal( RIGHT, LOWER, -1 );
 
         B1Adj_MR_STAR.AdjointFrom( B1 );
 
@@ -406,11 +406,11 @@ elemental::basic::internal::LocalSymmetricAccumulateLL
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
         D11 = A11;
-        D11.MakeTrapezoidal( Left, Lower );
+        D11.MakeTrapezoidal( LEFT, LOWER );
         basic::internal::LocalGemm
         ( NORMAL, orientation, alpha, D11, B1AdjOrTrans_STAR_MR, 
           (T)1, Z1_MC_STAR );
-        D11.MakeTrapezoidal( Left, Lower, -1 );
+        D11.MakeTrapezoidal( LEFT, LOWER, -1 );
 
         basic::internal::LocalGemm
         ( orientation, NORMAL, 

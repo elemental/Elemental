@@ -63,18 +63,18 @@ elemental::advanced::internal::HegstRUVar1
                          U20(g), U21(g), U22(g);
 
     // Temporary distributions
-    DistMatrix<F,STAR,g A11_STAR_STAR(g);
-    DistMatrix<F,VC,  g A01_VC_STAR(g);
-    DistMatrix<F,STAR,g U11_STAR_STAR(g);
-    DistMatrix<F,MC,  g U01_MC_STAR(g);
-    DistMatrix<F,VC,  g U01_VC_STAR(g);
-    DistMatrix<F,VR,  g U01_VR_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,VC,  STAR> A01_VC_STAR(g);
+    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
+    DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
+    DistMatrix<F,VC,  STAR> U01_VC_STAR(g);
+    DistMatrix<F,VR,  STAR> U01_VR_STAR(g);
     DistMatrix<F,STAR,MR  > U01Adj_STAR_MR(g);
-    DistMatrix<F,STAR,g X11_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> X11_STAR_STAR(g);
     DistMatrix<F,MC,  MR  > Y01(g);
     DistMatrix<F,MR,  MC  > Z01_MR_MC(g);
-    DistMatrix<F,MC,  g Z01_MC_STAR(g);
-    DistMatrix<F,MR,  g Z01_MR_STAR(g);
+    DistMatrix<F,MC,  STAR> Z01_MC_STAR(g);
+    DistMatrix<F,MR,  STAR> Z01_MR_STAR(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,

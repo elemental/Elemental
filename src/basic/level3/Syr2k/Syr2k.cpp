@@ -60,11 +60,11 @@ elemental::basic::Syr2k
     if( orientation == Adjoint )
         throw logic_error( "Syr2k accepts Normal and Transpose options." );
 #endif
-    if( shape == Lower && orientation == Normal )
+    if( shape == LOWER && orientation == NORMAL )
         basic::internal::Syr2kLN( alpha, A, B, beta, C );
-    else if( shape == Lower )
+    else if( shape == LOWER )
         basic::internal::Syr2kLT( alpha, A, B, beta, C );
-    else if( shape == Upper && orientation == Normal )
+    else if( orientation == NORMAL )
         basic::internal::Syr2kUN( alpha, A, B, beta, C );
     else
         basic::internal::Syr2kUT( alpha, A, B, beta, C );

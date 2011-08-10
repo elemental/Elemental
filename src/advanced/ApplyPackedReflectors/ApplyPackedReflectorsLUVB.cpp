@@ -115,7 +115,7 @@ elemental::advanced::internal::ApplyPackedReflectorsLUVB
 
         HPan_VC_STAR = HPanCopy;
         basic::Syrk
-        ( UPPER, Transpose, 
+        ( UPPER, TRANSPOSE, 
           (R)1, HPan_VC_STAR.LockedLocalMatrix(),
           (R)0, SInv_STAR_STAR.LocalMatrix() );     
         SInv_STAR_STAR.SumOverGrid();
@@ -123,12 +123,12 @@ elemental::advanced::internal::ApplyPackedReflectorsLUVB
 
         HPan_MC_STAR = HPanCopy;
         basic::internal::LocalGemm
-        ( Transpose, NORMAL, 
+        ( TRANSPOSE, NORMAL, 
           (R)1, HPan_MC_STAR, ATop, (R)0, Z_STAR_MR );
         Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
         
         basic::internal::LocalTrsm
-        ( LEFT, UPPER, NORMAL, NonUnit, (R)1, SInv_STAR_STAR, Z_STAR_VR );
+        ( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, SInv_STAR_STAR, Z_STAR_VR );
 
         Z_STAR_MR = Z_STAR_VR;
         basic::internal::LocalGemm
@@ -268,7 +268,7 @@ elemental::advanced::internal::ApplyPackedReflectorsLUVB
         Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
         
         basic::internal::LocalTrsm
-        ( LEFT, UPPER, NORMAL, NonUnit, (C)1, SInv_STAR_STAR, Z_STAR_VR );
+        ( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, SInv_STAR_STAR, Z_STAR_VR );
 
         Z_STAR_MR = Z_STAR_VR;
         basic::internal::LocalGemm

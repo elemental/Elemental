@@ -783,7 +783,7 @@ elemental::DistMatrixBase<T,STAR,VC>::ScaleTrapezoidal
     const int p = this->Grid().Size();
     const int rowShift = this->RowShift();
 
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         T* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();

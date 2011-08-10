@@ -63,7 +63,7 @@ void
 elemental::advanced::internal::ApplyPackedReflectorsLUHF
 ( Conjugation conjugation, int offset, 
   const DistMatrix<complex<R>,MC,MR  >& H,
-  const DistMatrix<complex<R>,MD,Star>& t,
+  const DistMatrix<complex<R>,MD,STAR>& t,
         DistMatrix<complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
@@ -95,13 +95,13 @@ template void elemental::advanced::internal::ApplyPackedReflectorsLUHF
 template void elemental::advanced::internal::ApplyPackedReflectorsLUHF
 ( Conjugation conjugation, int offset,
   const DistMatrix<scomplex,MC,MR  >& H,
-  const DistMatrix<scomplex,MD,Star>& t,
+  const DistMatrix<scomplex,MD,STAR>& t,
         DistMatrix<scomplex,MC,MR  >& A );
 
 template void elemental::advanced::internal::ApplyPackedReflectorsLUHF
 ( Conjugation conjugation, int offset,
   const DistMatrix<dcomplex,MC,MR  >& H,
-  const DistMatrix<dcomplex,MD,Star>& t,
+  const DistMatrix<dcomplex,MD,STAR>& t,
         DistMatrix<dcomplex,MC,MR  >& A );
 #endif
 

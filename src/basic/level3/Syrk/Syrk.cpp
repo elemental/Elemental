@@ -59,11 +59,11 @@ elemental::basic::Syrk
     if( orientation == ADJOINT )
         throw logic_error( "Syrk accepts NORMAL and TRANSPOSE options." );
 #endif
-    if( shape == Lower && orientation == NORMAL )
+    if( shape == LOWER && orientation == NORMAL )
         basic::internal::SyrkLN( alpha, A, beta, C );
-    else if( shape == Lower )
+    else if( shape == LOWER )
         basic::internal::SyrkLT( alpha, A, beta, C );
-    else if( shape == Upper && orientation == NORMAL )
+    else if( orientation == NORMAL )
         basic::internal::SyrkUN( alpha, A, beta, C );
     else
         basic::internal::SyrkUT( alpha, A, beta, C );

@@ -126,7 +126,7 @@ elemental::advanced::internal::HegstRLVar5
         // A21 := A21 inv(L11)'
         A21_VC_STAR = A21;
         basic::internal::LocalTrsm
-        ( RIGHT, LOWER, Adjoint, NON_UNIT, (F)1, L11_STAR_STAR, A21_VC_STAR );
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, L11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
 
         // A21 := A21 - 1/2 Y21

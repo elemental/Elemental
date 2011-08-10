@@ -59,14 +59,14 @@ elemental::advanced::HermitianGenDefiniteEig
     advanced::HermitianEig( shape, A, w, X, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
             basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
             basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
@@ -96,21 +96,21 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
             basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
             basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
@@ -138,21 +138,21 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
             basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
             basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
@@ -178,7 +178,7 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -207,7 +207,7 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -234,7 +234,7 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -262,14 +262,14 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trsm
             ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -278,7 +278,7 @@ elemental::advanced::HermitianGenDefiniteEig
     }
     else /* type == BAX */
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trmm
             ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -310,14 +310,14 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trsm
             ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -326,7 +326,7 @@ elemental::advanced::HermitianGenDefiniteEig
     }
     else /* type == BAX */
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trmm
             ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -356,14 +356,14 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trsm
             ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -372,7 +372,7 @@ elemental::advanced::HermitianGenDefiniteEig
     }
     else /* type == BAX */
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             basic::Trmm
             ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -400,7 +400,7 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -429,7 +429,7 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -456,7 +456,7 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );

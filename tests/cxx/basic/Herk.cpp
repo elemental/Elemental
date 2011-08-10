@@ -62,7 +62,7 @@ void TestHerk
     DistMatrix<T,MC,MR> A(g);
     DistMatrix<T,MC,MR> C(g);
 
-    if( orientation == Normal )
+    if( orientation == NORMAL )
         A.ResizeTo( m, k );
     else
         A.ResizeTo( k, m );
@@ -97,7 +97,7 @@ void TestHerk
     if( printMatrices )
     {
         ostringstream msg;
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             msg << "C := " << alpha << " A A' + " << beta << " C";
         else
             msg << "C := " << alpha << " A' A + " << beta << " C";

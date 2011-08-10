@@ -176,13 +176,13 @@ elemental::basic::internal::LocalHemvColAccumulateU
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
         D11 = A11;
-        D11.MakeTrapezoidal( Left, Upper );
+        D11.MakeTrapezoidal( LEFT, UPPER );
         basic::Gemv
         ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
                  x1_MR_STAR.LockedLocalMatrix(),
           (T)1,  z1_MC_STAR.LocalMatrix() );
-        D11.MakeTrapezoidal( Left, Upper, 1 );
+        D11.MakeTrapezoidal( LEFT, UPPER, 1 );
 
         basic::Gemv
         ( ADJOINT,
@@ -352,13 +352,13 @@ elemental::basic::internal::LocalHemvRowAccumulateU
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
         D11 = A11;
-        D11.MakeTrapezoidal( Left, Upper );
+        D11.MakeTrapezoidal( LEFT, UPPER );
         basic::Gemv
         ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
                  x1_STAR_MR.LockedLocalMatrix(),
           (T)1,  z1_STAR_MC.LocalMatrix() );
-        D11.MakeTrapezoidal( Left, Upper, 1 );
+        D11.MakeTrapezoidal( LEFT, UPPER, 1 );
 
         basic::Gemv
         ( ADJOINT,

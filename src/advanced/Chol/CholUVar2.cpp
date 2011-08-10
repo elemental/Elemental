@@ -239,7 +239,7 @@ elemental::advanced::internal::CholUVar2Naive
         //--------------------------------------------------------------------//
         A01_MC_STAR = A01;
         basic::internal::LocalGemm
-        ( Adjoint, NORMAL, 
+        ( ADJOINT, NORMAL, 
           (F)1, A01_MC_STAR, A01, (F)0, X11_STAR_MR );
         A11.SumScatterUpdate( (F)-1, X11_STAR_MR );
 
@@ -248,7 +248,7 @@ elemental::advanced::internal::CholUVar2Naive
         A11 = A11_STAR_STAR;
 
         basic::internal::LocalGemm
-        ( Adjoint, NORMAL, (F)1, A01_MC_STAR, A02, (F)0, X12_STAR_MR );
+        ( ADJOINT, NORMAL, (F)1, A01_MC_STAR, A02, (F)0, X12_STAR_MR );
         A12.SumScatterUpdate( (F)-1, X12_STAR_MR );
 
         A12_STAR_VR = A12;

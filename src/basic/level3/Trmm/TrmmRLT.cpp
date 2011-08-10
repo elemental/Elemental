@@ -114,7 +114,7 @@ elemental::basic::internal::TrmmRLTA
         Z1AdjOrTrans_MR_MC.AlignWith( X1 );
         Z1AdjOrTrans_MC_STAR.ResizeTo( X1.Width(), X1.Height() );
         //--------------------------------------------------------------------//
-        if( orientation == Adjoint )
+        if( orientation == ADJOINT )
             X1AdjOrTrans_MR_STAR.AdjointFrom( X1 );
         else
             X1AdjOrTrans_MR_STAR.TransposeFrom( X1 );
@@ -125,7 +125,7 @@ elemental::basic::internal::TrmmRLTA
 
         Z1AdjOrTrans.SumScatterFrom( Z1AdjOrTrans_MC_STAR );
         Z1AdjOrTrans_MR_MC = Z1AdjOrTrans;
-        if( orientation == Adjoint )
+        if( orientation == ADJOINT )
             basic::Adjoint
             ( Z1AdjOrTrans_MR_MC.LocalMatrix(), X1.LocalMatrix() );
         else
