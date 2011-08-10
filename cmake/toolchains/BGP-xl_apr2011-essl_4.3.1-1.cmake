@@ -19,7 +19,7 @@ set(OpenMP_CXX_FLAGS "-qsmp=omp:noauto -qthreaded")
 
 # The remainder of the file is for linking BLAS/LAPACK functionality
 set(ESSL_BASE "/soft/apps/ESSL-4.3.1-1")
-set(IBMCMP_BASE "/soft/apps/ibmcmp-dec2010")
+set(IBMCMP_BASE "/soft/apps/ibmcmp-apr2011")
 set(XLF_BASE "${IBMCMP_BASE}/xlf/bg/11.1/bglib")
 set(XLSMP_BASE "${IBMCMP_BASE}/xlsmp/bg/1.7/bglib")
 
