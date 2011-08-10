@@ -1527,7 +1527,7 @@ namespace internal {
 template<typename T, Distribution AColDist, Distribution ARowDist,
                      Distribution BColDist, Distribution BRowDist,
                      Distribution CColDist, Distribution CRowDist>
-void 
+inline void 
 LocalGemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,AColDist,ARowDist>& A, 
@@ -1599,7 +1599,7 @@ LocalGemm
 }
 
 template<typename T, Distribution BColDist, Distribution BRowDist>
-void
+inline void
 LocalTrmm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,Star,Star>& A,
@@ -1621,12 +1621,12 @@ LocalTrmm
 }
 
 template<typename F, Distribution XColDist, Distribution XRowDist>
-void
+inline void
 LocalTrsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,Star,Star>& A, 
                  DistMatrix<F,XColDist,XRowDist>& X,
-  bool checkIfSingular=false )
+  bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrsm");

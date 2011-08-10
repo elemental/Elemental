@@ -142,7 +142,7 @@ find_package(MPI)
 if(NOT MPI_CXX_FOUND)
     message(FATAL_ERROR "MPI C++ compiler was not found and is required")
 endif(NOT MPI_CXX_FOUND)
-include_directories("${MPI_CXX_INCLUDE_PATH}")
+include_directories(${MPI_CXX_INCLUDE_PATH})
 
 if(HYBRID)
   if(OpenMP_CXX_FLAGS)

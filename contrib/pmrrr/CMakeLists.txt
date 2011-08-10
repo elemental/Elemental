@@ -266,7 +266,7 @@ if(NOT MPI_C_FOUND)
     set(FAILED_PMRRR TRUE PARENT_SCOPE)
     return()
 endif(NOT MPI_C_FOUND)
-include_directories("${MPI_C_INCLUDE_PATH}")
+include_directories(${MPI_C_INCLUDE_PATH})
     
 # Set the various build flags
 set(CMAKE_C_FLAGS_HYBRIDDEBUG "${C_BASE_FLAGS} ${C_HYBRID_DEBUG_FLAGS}")
