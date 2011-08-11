@@ -57,26 +57,18 @@ elemental::basic::Her2k
 {
 #ifndef RELEASE
     PushCallStack("basic::Her2k");
-    if( orientation == Transpose )
+    if( orientation == TRANSPOSE )
         throw logic_error
-        ( "Her2k accepts Normal and ConjugateTranspose options." );
+        ( "Her2k accepts NORMAL and ADJOINT options." );
 #endif
-    if( shape == Lower && orientation == Normal )
-    {
+    if( shape == LOWER && orientation == NORMAL )
         basic::internal::Her2kLN( alpha, A, B, beta, C );
-    }
-    else if( shape == Lower )
-    {
+    else if( shape == LOWER )
         basic::internal::Her2kLC( alpha, A, B, beta, C );
-    }
-    else if( shape == Upper && orientation == Normal )
-    {
+    else if( shape == Upper && orientation == NORMAL )
         basic::internal::Her2kUN( alpha, A, B, beta, C );
-    }
     else
-    {
         basic::internal::Her2kUC( alpha, A, B, beta, C );
-    }
 #ifndef RELEASE
     PopCallStack();
 #endif

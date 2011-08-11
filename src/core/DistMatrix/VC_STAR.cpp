@@ -50,10 +50,10 @@ using namespace elemental::utilities;
 
 template<typename Z>
 void
-elemental::DistMatrix<Z,Star,MR>::SetToRandomHermitian()
+elemental::DistMatrix<Z,VC,STAR>::SetToRandomHermitian()
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MR]::SetToRandomHermitian");
+    PushCallStack("[VC,* ]::SetToRandomHermitian");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
         throw logic_error( "Hermitian matrices must be square." );
@@ -66,19 +66,18 @@ elemental::DistMatrix<Z,Star,MR>::SetToRandomHermitian()
 
 template<typename Z>
 void
-elemental::DistMatrix<Z,Star,MR>::SetToRandomHPD()
+elemental::DistMatrix<Z,VC,STAR>::SetToRandomHPD()
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MR]::SetToRandomHPD");
+    PushCallStack("[VC,* ]::SetToRandomHPD");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
-    const int height     = this->Height();
-    const int width      = this->Width();
-    const int localWidth = this->LocalWidth();
-    const int c          = this->Grid().Width();
-    const int rowShift   = this->RowShift();
+    const int width       = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int p           = this->Grid().Size();
+    const int colShift    = this->ColShift();
 
     this->SetToRandom();
 
@@ -87,11 +86,11 @@ elemental::DistMatrix<Z,Star,MR>::SetToRandomHPD()
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int j = rowShift + jLocal*c;
-        if( j < height )
-            thisLocalBuffer[j+jLocal*thisLDim] += width;
+        const int i = colShift + iLocal*p;
+        if( i < width )
+            thisLocalBuffer[iLocal+i*thisLDim] += width;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -101,18 +100,18 @@ elemental::DistMatrix<Z,Star,MR>::SetToRandomHPD()
 #ifndef WITHOUT_COMPLEX
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MR>::SetToRandomHermitian()
+elemental::DistMatrix<complex<Z>,VC,STAR>::SetToRandomHermitian()
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MR]::SetToRandomHermitian");
+    PushCallStack("[VC,* ]::SetToRandomHermitian");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
         throw logic_error( "Hermitian matrices must be square." );
 #endif
-    const int height     = this->Height();
-    const int localWidth = this->LocalWidth();
-    const int c          = this->Grid().Width();
-    const int rowShift   = this->RowShift();
+    const int width       = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int p           = this->Grid().Size();
+    const int colShift    = this->ColShift();
 
     this->SetToRandom();
 
@@ -121,13 +120,13 @@ elemental::DistMatrix<complex<Z>,Star,MR>::SetToRandomHermitian()
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int j = rowShift + jLocal*c;
-        if( j < height )
+        const int i = colShift + iLocal*p;
+        if( i < width )
         {
-            const Z value = real(thisLocalBuffer[j+jLocal*thisLDim]);
-            thisLocalBuffer[j+jLocal*thisLDim] = value;
+            const Z value = real(thisLocalBuffer[iLocal+i*thisLDim]);
+            thisLocalBuffer[iLocal+i*thisLDim] = value;
         }
     }
 #ifndef RELEASE
@@ -137,19 +136,18 @@ elemental::DistMatrix<complex<Z>,Star,MR>::SetToRandomHermitian()
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MR>::SetToRandomHPD()
+elemental::DistMatrix<complex<Z>,VC,STAR>::SetToRandomHPD()
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MR]::SetToRandomHPD");
+    PushCallStack("[VC,* ]::SetToRandomHPD");
     this->AssertNotLockedView();
     if( this->Height() != this->Width() )
         throw logic_error( "Positive-definite matrices must be square." );
 #endif
-    const int height     = this->Height();
-    const int width      = this->Width();
-    const int localWidth = this->LocalWidth();
-    const int c          = this->Grid().Width();
-    const int rowShift   = this->RowShift();
+    const int width       = this->Width();
+    const int localHeight = this->LocalHeight();
+    const int p           = this->Grid().Size();
+    const int colShift    = this->ColShift();
 
     this->SetToRandom();
 
@@ -158,13 +156,13 @@ elemental::DistMatrix<complex<Z>,Star,MR>::SetToRandomHPD()
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int j = rowShift + jLocal*c;
-        if( j < height )
+        const int i = colShift + iLocal*p;
+        if( i < width )
         {
-            const Z value = real(thisLocalBuffer[j+jLocal*thisLDim]);
-            thisLocalBuffer[j+jLocal*thisLDim] = value + width;
+            const Z value = real(thisLocalBuffer[iLocal+i*thisLDim]);
+            thisLocalBuffer[iLocal+i*thisLDim] = value + width;
         }
     }
 #ifndef RELEASE
@@ -174,25 +172,25 @@ elemental::DistMatrix<complex<Z>,Star,MR>::SetToRandomHPD()
 
 template<typename Z>
 Z
-elemental::DistMatrix<complex<Z>,Star,MR>::GetReal
+elemental::DistMatrix<complex<Z>,VC,STAR>::GetReal
 ( int i, int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MR]::GetReal");
+    PushCallStack("[VC,* ]::GetReal");
     this->AssertValidEntry( i, j );
 #endif
-    // We will determine the owner column of entry (i,j) and broadcast from that
-    // column within each process row
+    // We will determine the owner rank of entry (i,j) and broadcast from that
+    // process over the entire g
     const elemental::Grid& g = this->Grid();
-    const int ownerCol = (j + this->RowAlignment()) % g.Width();
+    const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     Z u;
-    if( g.MRRank() == ownerCol )
+    if( g.VCRank() == ownerRank )
     {
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        u = this->GetRealLocalEntry(i,jLoc);
+        const int iLoc = (i-this->ColShift()) / g.Size();
+        u = this->GetRealLocalEntry(iLoc,j);
     }
-    mpi::Broadcast( &u, 1, ownerCol, g.MRComm() );
+    mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -202,25 +200,25 @@ elemental::DistMatrix<complex<Z>,Star,MR>::GetReal
 
 template<typename Z>
 Z
-elemental::DistMatrix<complex<Z>,Star,MR>::GetImag
+elemental::DistMatrix<complex<Z>,VC,STAR>::GetImag
 ( int i, int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MR]::GetImag");
+    PushCallStack("[VC,* ]::GetImag");
     this->AssertValidEntry( i, j );
 #endif
-    // We will determine the owner column of entry (i,j) and broadcast from that
-    // column within each process row
+    // We will determine the owner rank of entry (i,j) and broadcast from that
+    // process over the entire g
     const elemental::Grid& g = this->Grid();
-    const int ownerCol = (j + this->RowAlignment()) % g.Width();
+    const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
     Z u;
-    if( g.MRRank() == ownerCol )
+    if( g.VCRank() == ownerRank )
     {
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        u = this->GetImagLocalEntry(i,jLoc);
+        const int iLoc = (i-this->ColShift()) / g.Size();
+        u = this->GetImagLocalEntry(iLoc,j);
     }
-    mpi::Broadcast( &u, 1, ownerCol, g.MRComm() );
+    mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -230,20 +228,20 @@ elemental::DistMatrix<complex<Z>,Star,MR>::GetImag
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MR>::SetReal
+elemental::DistMatrix<complex<Z>,VC,STAR>::SetReal
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MR]::SetReal");
+    PushCallStack("[VC,* ]::SetReal");
     this->AssertValidEntry( i, j );
 #endif
     const elemental::Grid& g = this->Grid();
-    const int ownerCol = (j + this->RowAlignment()) % g.Width();
+    const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
-    if( g.MRRank() == ownerCol )
+    if( g.VCRank() == ownerRank )
     {
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        this->SetRealLocalEntry(i,jLoc,u);
+        const int iLoc = (i-this->ColShift()) / g.Size();
+        this->SetRealLocalEntry(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -252,20 +250,20 @@ elemental::DistMatrix<complex<Z>,Star,MR>::SetReal
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MR>::SetImag
+elemental::DistMatrix<complex<Z>,VC,STAR>::SetImag
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MR]::SetImag");
+    PushCallStack("[VC,* ]::SetImag");
     this->AssertValidEntry( i, j );
 #endif
     const elemental::Grid& g = this->Grid();
-    const int ownerCol = (j + this->RowAlignment()) % g.Width();
+    const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
-    if( g.MRRank() == ownerCol )
+    if( g.VCRank() == ownerRank )
     {
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        this->SetImagLocalEntry(i,jLoc,u);
+        const int iLoc = (i-this->ColShift()) / g.Size();
+        this->SetImagLocalEntry(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -274,20 +272,20 @@ elemental::DistMatrix<complex<Z>,Star,MR>::SetImag
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MR>::UpdateReal
+elemental::DistMatrix<complex<Z>,VC,STAR>::UpdateReal
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MR]::UpdateReal");
+    PushCallStack("[VC,* ]::UpdateReal");
     this->AssertValidEntry( i, j );
 #endif
     const elemental::Grid& g = this->Grid();
-    const int ownerCol = (j + this->RowAlignment()) % g.Width();
+    const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
-    if( g.MRRank() == ownerCol )
+    if( g.VCRank() == ownerRank )
     {
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        this->UpdateRealLocalEntry(i,jLoc,u);
+        const int iLoc = (i-this->ColShift()) / g.Size();
+        this->UpdateRealLocalEntry(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -296,20 +294,20 @@ elemental::DistMatrix<complex<Z>,Star,MR>::UpdateReal
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MR>::UpdateImag
+elemental::DistMatrix<complex<Z>,VC,STAR>::UpdateImag
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MR]::UpdateImag");
+    PushCallStack("[VC,* ]::UpdateImag");
     this->AssertValidEntry( i, j );
 #endif
     const elemental::Grid& g = this->Grid();
-    const int ownerCol = (j + this->RowAlignment()) % g.Width();
+    const int ownerRank = (i + this->ColAlignment()) % g.Size();
 
-    if( g.MRRank() == ownerCol )
+    if( g.VCRank() == ownerRank )
     {
-        const int jLoc = (j-this->RowShift()) / g.Width();
-        this->UpdateImagLocalEntry(i,jLoc,u);
+        const int iLoc = (i-this->ColShift()) / g.Size();
+        this->UpdateImagLocalEntry(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -317,11 +315,11 @@ elemental::DistMatrix<complex<Z>,Star,MR>::UpdateImag
 }
 #endif // WITHOUT_COMPLEX
 
-template class elemental::DistMatrix<int,   Star,MR>;
-template class elemental::DistMatrix<float, Star,MR>;
-template class elemental::DistMatrix<double,Star,MR>;
+template class elemental::DistMatrix<int,   VC,STAR>;
+template class elemental::DistMatrix<float, VC,STAR>;
+template class elemental::DistMatrix<double,VC,STAR>;
 #ifndef WITHOUT_COMPLEX
-template class elemental::DistMatrix<scomplex,Star,MR>;
-template class elemental::DistMatrix<dcomplex,Star,MR>;
+template class elemental::DistMatrix<scomplex,VC,STAR>;
+template class elemental::DistMatrix<dcomplex,VC,STAR>;
 #endif
 

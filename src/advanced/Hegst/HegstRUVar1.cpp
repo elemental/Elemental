@@ -63,18 +63,18 @@ elemental::advanced::internal::HegstRUVar1
                          U20(g), U21(g), U22(g);
 
     // Temporary distributions
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,VC,  Star> A01_VC_Star(g);
-    DistMatrix<F,Star,Star> U11_Star_Star(g);
-    DistMatrix<F,MC,  Star> U01_MC_Star(g);
-    DistMatrix<F,VC,  Star> U01_VC_Star(g);
-    DistMatrix<F,VR,  Star> U01_VR_Star(g);
-    DistMatrix<F,Star,MR  > U01Herm_Star_MR(g);
-    DistMatrix<F,Star,Star> X11_Star_Star(g);
+    DistMatrix<F,STAR,g A11_STAR_STAR(g);
+    DistMatrix<F,VC,  g A01_VC_STAR(g);
+    DistMatrix<F,STAR,g U11_STAR_STAR(g);
+    DistMatrix<F,MC,  g U01_MC_STAR(g);
+    DistMatrix<F,VC,  g U01_VC_STAR(g);
+    DistMatrix<F,VR,  g U01_VR_STAR(g);
+    DistMatrix<F,STAR,MR  > U01Adj_STAR_MR(g);
+    DistMatrix<F,STAR,g X11_STAR_STAR(g);
     DistMatrix<F,MC,  MR  > Y01(g);
     DistMatrix<F,MR,  MC  > Z01_MR_MC(g);
-    DistMatrix<F,MC,  Star> Z01_MC_Star(g);
-    DistMatrix<F,MR,  Star> Z01_MR_Star(g);
+    DistMatrix<F,MC,  g Z01_MC_STAR(g);
+    DistMatrix<F,MR,  g Z01_MR_STAR(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -96,75 +96,74 @@ elemental::advanced::internal::HegstRUVar1
                /**/       U10, /**/ U11, U12,
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
-        A01_VC_Star.AlignWith( A01 );
-        U01_MC_Star.AlignWith( A00 );
-        U01_VR_Star.AlignWith( A00 );
-        U01_VC_Star.AlignWith( A00 );
-        U01Herm_Star_MR.AlignWith( A00 );
+        A01_VC_STAR.AlignWith( A01 );
+        U01_MC_STAR.AlignWith( A00 );
+        U01_VR_STAR.AlignWith( A00 );
+        U01_VC_STAR.AlignWith( A00 );
+        U01Adj_STAR_MR.AlignWith( A00 );
         Y01.AlignWith( A01 );
         Z01_MR_MC.AlignWith( A01 );
-        Z01_MC_Star.AlignWith( A00 );
-        Z01_MR_Star.AlignWith( A00 );
+        Z01_MC_STAR.AlignWith( A00 );
+        Z01_MR_STAR.AlignWith( A00 );
         //--------------------------------------------------------------------//
         // Y01 := A00 U01
-        U01_MC_Star = U01;
-        U01_VR_Star = U01_MC_Star;
-        U01Herm_Star_MR.ConjugateTransposeFrom( U01_VR_Star );
-        Z01_MC_Star.ResizeTo( A01.Height(), A01.Width() );
-        Z01_MR_Star.ResizeTo( A01.Height(), A01.Width() );
-        Z01_MC_Star.SetToZero();
-        Z01_MR_Star.SetToZero();
+        U01_MC_STAR = U01;
+        U01_VR_STAR = U01_MC_STAR;
+        U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
+        Z01_MC_STAR.ResizeTo( A01.Height(), A01.Width() );
+        Z01_MR_STAR.ResizeTo( A01.Height(), A01.Width() );
+        Z01_MC_STAR.SetToZero();
+        Z01_MR_STAR.SetToZero();
         basic::internal::LocalSymmetricAccumulateLU
-        ( ConjugateTranspose, 
-          (F)1, A00, U01_MC_Star, U01Herm_Star_MR, Z01_MC_Star, Z01_MR_Star );
-        Z01_MR_MC.SumScatterFrom( Z01_MR_Star );
+        ( ADJOINT, 
+          (F)1, A00, U01_MC_STAR, U01Adj_STAR_MR, Z01_MC_STAR, Z01_MR_STAR );
+        Z01_MR_MC.SumScatterFrom( Z01_MR_STAR );
         Y01 = Z01_MR_MC;
-        Y01.SumScatterUpdate( (F)1, Z01_MC_Star );
+        Y01.SumScatterUpdate( (F)1, Z01_MC_STAR );
 
         // A01 := inv(U00)' A01
         //
         // This is the bottleneck because A01 only has blocksize columns
-        basic::Trsm
-        ( Left, Upper, ConjugateTranspose, NonUnit, (F)1, U00, A01 );
+        basic::Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U00, A01 );
 
         // A01 := A01 - 1/2 Y01
         basic::Axpy( (F)-0.5, Y01, A01 );
 
         // A11 := A11 - (U01' A01 + A01' U01)
-        A01_VC_Star = A01;
-        U01_VC_Star = U01_MC_Star;
-        X11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
+        A01_VC_STAR = A01;
+        U01_VC_STAR = U01_MC_STAR;
+        X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
         basic::Her2k
-        ( Upper, ConjugateTranspose,
-          (F)-1, A01_VC_Star.LocalMatrix(), U01_VC_Star.LocalMatrix(),
-          (F)0, X11_Star_Star.LocalMatrix() );
-        A11.SumScatterUpdate( (F)1, X11_Star_Star );
+        ( UPPER, ADJOINT,
+          (F)-1, A01_VC_STAR.LocalMatrix(), U01_VC_STAR.LocalMatrix(),
+          (F)0, X11_STAR_STAR.LocalMatrix() );
+        A11.SumScatterUpdate( (F)1, X11_STAR_STAR );
 
         // A11 := inv(U11)' A11 inv(U11)
-        A11_Star_Star = A11;
-        U11_Star_Star = U11;
+        A11_STAR_STAR = A11;
+        U11_STAR_STAR = U11;
         advanced::internal::LocalHegst
-        ( Right, Upper, A11_Star_Star, U11_Star_Star );
-        A11 = A11_Star_Star;
+        ( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
         // A01 := A01 - 1/2 Y01
         basic::Axpy( (F)-0.5, Y01, A01 );
 
         // A01 := A01 inv(U11)
-        A01_VC_Star = A01;
+        A01_VC_STAR = A01;
         basic::internal::LocalTrsm
-        ( Right, Upper, Normal, NonUnit, (F)1, U11_Star_Star, A01_VC_Star );
-        A01 = A01_VC_Star;
+        ( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U11_STAR_STAR, A01_VC_STAR );
+        A01 = A01_VC_STAR;
         //--------------------------------------------------------------------//
-        A01_VC_Star.FreeAlignments();
-        U01_MC_Star.FreeAlignments();
-        U01_VR_Star.FreeAlignments();
-        U01_VC_Star.FreeAlignments();
-        U01Herm_Star_MR.FreeAlignments();
+        A01_VC_STAR.FreeAlignments();
+        U01_MC_STAR.FreeAlignments();
+        U01_VR_STAR.FreeAlignments();
+        U01_VC_STAR.FreeAlignments();
+        U01Adj_STAR_MR.FreeAlignments();
         Y01.FreeAlignments();
         Z01_MR_MC.FreeAlignments();
-        Z01_MC_Star.FreeAlignments();
-        Z01_MR_Star.FreeAlignments();
+        Z01_MC_STAR.FreeAlignments();
+        Z01_MR_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

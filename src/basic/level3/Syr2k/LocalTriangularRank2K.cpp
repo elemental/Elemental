@@ -112,10 +112,10 @@ void
 CheckInput
 ( Orientation orientationOfB1,
   Orientation orientationOfB2,
-  const DistMatrix<T,MC,Star>& A1, 
-  const DistMatrix<T,MC,Star>& A2,
-  const DistMatrix<T,MR,Star>& B1,
-  const DistMatrix<T,MR,Star>& B2,
+  const DistMatrix<T,MC,STAR>& A1, 
+  const DistMatrix<T,MC,STAR>& A2,
+  const DistMatrix<T,MR,STAR>& B1,
+  const DistMatrix<T,MR,STAR>& B2,
   const DistMatrix<T,MC,MR  >& C )
 {
     if( orientationOfB1 == Normal )
@@ -167,10 +167,10 @@ CheckInput
 ( Orientation orientationOfA1,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  const DistMatrix<T,Star,MC  >& A1, 
-  const DistMatrix<T,MC,  Star>& A2,
-  const DistMatrix<T,MR,  Star>& B1,
-  const DistMatrix<T,MR,  Star>& B2,
+  const DistMatrix<T,STAR,MC  >& A1, 
+  const DistMatrix<T,MC,  STAR>& A2,
+  const DistMatrix<T,MR,  STAR>& B1,
+  const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA1 == Normal )
@@ -224,10 +224,10 @@ CheckInput
 ( Orientation orientationOfA2,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  const DistMatrix<T,MC,  Star>& A1, 
-  const DistMatrix<T,Star,MC  >& A2,
-  const DistMatrix<T,MR,  Star>& B1,
-  const DistMatrix<T,MR,  Star>& B2,
+  const DistMatrix<T,MC,  STAR>& A1, 
+  const DistMatrix<T,STAR,MC  >& A2,
+  const DistMatrix<T,MR,  STAR>& B1,
+  const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA2 == Normal )
@@ -279,10 +279,10 @@ template<typename T>
 void 
 CheckInput
 ( Orientation orientationOfB2,
-  const DistMatrix<T,MC,  Star>& A1, 
-  const DistMatrix<T,MC,  Star>& A2,
-  const DistMatrix<T,Star,MR  >& B1,
-  const DistMatrix<T,MR,  Star>& B2,
+  const DistMatrix<T,MC,  STAR>& A1, 
+  const DistMatrix<T,MC,  STAR>& A2,
+  const DistMatrix<T,STAR,MR  >& B1,
+  const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfB2 == Normal )
@@ -330,10 +330,10 @@ template<typename T>
 void 
 CheckInput
 ( Orientation orientationOfB1,
-  const DistMatrix<T,MC,  Star>& A1, 
-  const DistMatrix<T,MC,  Star>& A2,
-  const DistMatrix<T,MR,  Star>& B1,
-  const DistMatrix<T,Star,MR  >& B2,
+  const DistMatrix<T,MC,  STAR>& A1, 
+  const DistMatrix<T,MC,  STAR>& A2,
+  const DistMatrix<T,MR,  STAR>& B1,
+  const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfB1 == Normal )
@@ -384,10 +384,10 @@ CheckInput
   Orientation orientationOfA2,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  const DistMatrix<T,Star,MC  >& A1, 
-  const DistMatrix<T,Star,MC  >& A2,
-  const DistMatrix<T,MR,  Star>& B1,
-  const DistMatrix<T,MR,  Star>& B2,
+  const DistMatrix<T,STAR,MC  >& A1, 
+  const DistMatrix<T,STAR,MC  >& A2,
+  const DistMatrix<T,MR,  STAR>& B1,
+  const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA1 == Normal )
@@ -442,10 +442,10 @@ void
 CheckInput
 ( Orientation orientationOfA1,
   Orientation orientationOfB2,
-  const DistMatrix<T,Star,MC  >& A1, 
-  const DistMatrix<T,MC,  Star>& A2,
-  const DistMatrix<T,Star,MR  >& B1,
-  const DistMatrix<T,MR,  Star>& B2,
+  const DistMatrix<T,STAR,MC  >& A1, 
+  const DistMatrix<T,MC,  STAR>& A2,
+  const DistMatrix<T,STAR,MR  >& B1,
+  const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA1 == Normal )
@@ -496,10 +496,10 @@ void
 CheckInput
 ( Orientation orientationOfA1,
   Orientation orientationOfB1,
-  const DistMatrix<T,Star,MC  >& A1, 
-  const DistMatrix<T,MC,  Star>& A2,
-  const DistMatrix<T,MR,  Star>& B1,
-  const DistMatrix<T,Star,MR  >& B2,
+  const DistMatrix<T,STAR,MC  >& A1, 
+  const DistMatrix<T,MC,  STAR>& A2,
+  const DistMatrix<T,MR,  STAR>& B1,
+  const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA1 == Normal )
@@ -550,10 +550,10 @@ void
 CheckInput
 ( Orientation orientationOfA2,
   Orientation orientationOfB2,
-  const DistMatrix<T,MC,  Star>& A1,
-  const DistMatrix<T,Star,MC  >& A2, 
-  const DistMatrix<T,Star,MR  >& B1,
-  const DistMatrix<T,MR,  Star>& B2,
+  const DistMatrix<T,MC,  STAR>& A1,
+  const DistMatrix<T,STAR,MC  >& A2, 
+  const DistMatrix<T,STAR,MR  >& B1,
+  const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA2 == Normal )
@@ -604,10 +604,10 @@ void
 CheckInput
 ( Orientation orientationOfA2,
   Orientation orientationOfB1,
-  const DistMatrix<T,MC,  Star>& A1,
-  const DistMatrix<T,Star,MC  >& A2, 
-  const DistMatrix<T,MR,  Star>& B1,
-  const DistMatrix<T,Star,MR  >& B2,
+  const DistMatrix<T,MC,  STAR>& A1,
+  const DistMatrix<T,STAR,MC  >& A2, 
+  const DistMatrix<T,MR,  STAR>& B1,
+  const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA2 == Normal )
@@ -656,10 +656,10 @@ CheckInput
 template<typename T>
 void 
 CheckInput
-( const DistMatrix<T,MC,  Star>& A1, 
-  const DistMatrix<T,MC,  Star>& A2,
-  const DistMatrix<T,Star,MR  >& B1,
-  const DistMatrix<T,Star,MR  >& B2,
+( const DistMatrix<T,MC,  STAR>& A1, 
+  const DistMatrix<T,MC,  STAR>& A2,
+  const DistMatrix<T,STAR,MR  >& B1,
+  const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C  )
 {
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
@@ -707,10 +707,10 @@ CheckInput
 ( Orientation orientationOfA1,
   Orientation orientationOfA2,
   Orientation orientationOfB2,
-  const DistMatrix<T,Star,MC  >& A1, 
-  const DistMatrix<T,Star,MC  >& A2,
-  const DistMatrix<T,Star,MR  >& B1,
-  const DistMatrix<T,MR,  Star>& B2,
+  const DistMatrix<T,STAR,MC  >& A1, 
+  const DistMatrix<T,STAR,MC  >& A2,
+  const DistMatrix<T,STAR,MR  >& B1,
+  const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA1 == Normal )
@@ -764,10 +764,10 @@ CheckInput
 ( Orientation orientationOfA1,
   Orientation orientationOfA2,
   Orientation orientationOfB1,
-  const DistMatrix<T,Star,MC  >& A1, 
-  const DistMatrix<T,Star,MC  >& A2,
-  const DistMatrix<T,MR,  Star>& B1,
-  const DistMatrix<T,Star,MR  >& B2,
+  const DistMatrix<T,STAR,MC  >& A1, 
+  const DistMatrix<T,STAR,MC  >& A2,
+  const DistMatrix<T,MR,  STAR>& B1,
+  const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA1 == Normal )
@@ -819,10 +819,10 @@ template<typename T>
 void 
 CheckInput
 ( Orientation orientationOfA1,
-  const DistMatrix<T,Star,MC  >& A1, 
-  const DistMatrix<T,MC,  Star>& A2,
-  const DistMatrix<T,Star,MR  >& B1,
-  const DistMatrix<T,Star,MR  >& B2,
+  const DistMatrix<T,STAR,MC  >& A1, 
+  const DistMatrix<T,MC,  STAR>& A2,
+  const DistMatrix<T,STAR,MR  >& B1,
+  const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA1 == Normal )
@@ -870,10 +870,10 @@ template<typename T>
 void 
 CheckInput
 ( Orientation orientationOfA2,
-  const DistMatrix<T,MC,  Star>& A1,
-  const DistMatrix<T,Star,MC  >& A2, 
-  const DistMatrix<T,Star,MR  >& B1,
-  const DistMatrix<T,Star,MR  >& B2,
+  const DistMatrix<T,MC,  STAR>& A1,
+  const DistMatrix<T,STAR,MC  >& A2, 
+  const DistMatrix<T,STAR,MR  >& B1,
+  const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
     if( orientationOfA2 == Normal )
@@ -922,10 +922,10 @@ void
 CheckInput
 ( Orientation orientationOfA1,
   Orientation orientationOfA2,
-  const DistMatrix<T,Star,MC>& A1, 
-  const DistMatrix<T,Star,MC>& A2,
-  const DistMatrix<T,Star,MR>& B1,
-  const DistMatrix<T,Star,MR>& B2,
+  const DistMatrix<T,STAR,MC>& A1, 
+  const DistMatrix<T,STAR,MC>& A2,
+  const DistMatrix<T,STAR,MR>& B1,
+  const DistMatrix<T,STAR,MR>& B2,
   const DistMatrix<T,MC,  MR>& C )
 {
     if( orientationOfA1 == Normal )
@@ -978,10 +978,10 @@ LocalTriangularRank2KKernel
 ( Shape shape,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,MC,Star>& A1,
-           const DistMatrix<T,MC,Star>& A2,
-           const DistMatrix<T,MR,Star>& B1,
-           const DistMatrix<T,MR,Star>& B2,
+  T alpha, const DistMatrix<T,MC,STAR>& A1,
+           const DistMatrix<T,MC,STAR>& A2,
+           const DistMatrix<T,MR,STAR>& B1,
+           const DistMatrix<T,MR,STAR>& B2,
   T beta,        DistMatrix<T,MC,MR  >& C )
 {
 #ifndef RELEASE
@@ -990,10 +990,10 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,Star> A1T(g),  A2T(g),
+    DistMatrix<T,MC,STAR> A1T(g),  A2T(g),
                           A1B(g),  A2B(g);
 
-    DistMatrix<T,MR,Star> B1T(g),  B2T(g),
+    DistMatrix<T,MR,STAR> B1T(g),  B2T(g),
                           B1B(g),  B2B(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -1028,39 +1028,39 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( Normal, orientationOfB2, alpha, A1B, B2T, (T)1, CBL );
+        ( NORMAL, orientationOfB2, alpha, A1B, B2T, (T)1, CBL );
 
         basic::internal::LocalGemm
-        ( Normal, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
+        ( NORMAL, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
     }
     else
     {
         basic::internal::LocalGemm
-        ( Normal, orientationOfB2, alpha, A1T, B2B, (T)1, CTR );
+        ( NORMAL, orientationOfB2, alpha, A1T, B2B, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( Normal, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
+        ( NORMAL, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB2, alpha, A1T, B2T, (T)0, DTL );
+    ( NORMAL, orientationOfB2, alpha, A1T, B2T, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB1, alpha, A2T, B1T, (T)1, DTL );
+    ( NORMAL, orientationOfB1, alpha, A2T, B1T, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB2, alpha, A1B, B2B, (T)0, DBR );
+    ( NORMAL, orientationOfB2, alpha, A1B, B2B, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB1, alpha, A2B, B1B, (T)1, DBR );
+    ( NORMAL, orientationOfB1, alpha, A2B, B1B, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1075,10 +1075,10 @@ LocalTriangularRank2KKernel
   Orientation orientationOfA1,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -1088,15 +1088,15 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,Star,MC> A1L(g), A1R(g);
+    DistMatrix<T,STAR,MC> A1L(g), A1R(g);
 
-    DistMatrix<T,MC,Star> A2T(g),
+    DistMatrix<T,MC,STAR> A2T(g),
                           A2B(g);
 
-    DistMatrix<T,MR,Star> B1T(g), 
+    DistMatrix<T,MR,STAR> B1T(g), 
                           B1B(g);
 
-    DistMatrix<T,MR,Star> B2T(g), 
+    DistMatrix<T,MR,STAR> B2T(g), 
                           B2B(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -1130,13 +1130,13 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA1, orientationOfB2, alpha, A1R, B2T, (T)1, CBL );
 
         basic::internal::LocalGemm
-        ( Normal, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
+        ( NORMAL, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
     }
     else
     {
@@ -1144,25 +1144,25 @@ LocalTriangularRank2KKernel
         ( orientationOfA1, orientationOfB2, alpha, A1L, B2B, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( Normal, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
+        ( NORMAL, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA1, orientationOfB2, alpha, A1L, B2T, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB1, alpha, A2T, B1T, (T)1, DTL );
+    ( NORMAL, orientationOfB1, alpha, A2T, B1T, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
     ( orientationOfA1, orientationOfB2, alpha, A1R, B2B, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB1, alpha, A2B, B1B, (T)1, DBR );
+    ( NORMAL, orientationOfB1, alpha, A2B, B1B, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1177,10 +1177,10 @@ LocalTriangularRank2KKernel
   Orientation orientationOfA2,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -1190,15 +1190,15 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,Star> A1T(g),
+    DistMatrix<T,MC,STAR> A1T(g),
                           A1B(g);
 
-    DistMatrix<T,Star,MC> A2L(g), A2R(g);
+    DistMatrix<T,STAR,MC> A2L(g), A2R(g);
 
-    DistMatrix<T,MR,Star> B1T(g), 
+    DistMatrix<T,MR,STAR> B1T(g), 
                           B1B(g);
 
-    DistMatrix<T,MR,Star> B2T(g), 
+    DistMatrix<T,MR,STAR> B2T(g), 
                           B2B(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -1232,10 +1232,10 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( Normal, orientationOfB2, alpha, A1B, B2T, (T)1, CBL );
+        ( NORMAL, orientationOfB2, alpha, A1B, B2T, (T)1, CBL );
 
         basic::internal::LocalGemm
         ( orientationOfA2, orientationOfB1, alpha, A2R, B1T, (T)1, CBL );
@@ -1243,28 +1243,28 @@ LocalTriangularRank2KKernel
     else
     {
         basic::internal::LocalGemm
-        ( Normal, orientationOfB2, alpha, A1T, B2B, (T)1, CTR );
+        ( NORMAL, orientationOfB2, alpha, A1T, B2B, (T)1, CTR );
 
         basic::internal::LocalGemm
         ( orientationOfA2, orientationOfB1, alpha, A2L, B1B, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB2, alpha, A1T, B2T, (T)0, DTL );
+    ( NORMAL, orientationOfB2, alpha, A1T, B2T, (T)0, DTL );
 
     basic::internal::LocalGemm
     ( orientationOfA2, orientationOfB1, alpha, A2L, B1T, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB2, alpha, A1B, B2B, (T)0, DBR );
+    ( NORMAL, orientationOfB2, alpha, A1B, B2B, (T)0, DBR );
 
     basic::internal::LocalGemm
     ( orientationOfA2, orientationOfB1, alpha, A2R, B1B, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1277,10 +1277,10 @@ void
 LocalTriangularRank2KKernel
 ( Shape shape,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -1289,12 +1289,12 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,Star> A1T(g),  A2T(g),
+    DistMatrix<T,MC,STAR> A1T(g),  A2T(g),
                           A1B(g),  A2B(g);
 
-    DistMatrix<T,Star,MR> B1L(g), B1R(g);
+    DistMatrix<T,STAR,MR> B1L(g), B1R(g);
 
-    DistMatrix<T,MR,Star> B2T(g), 
+    DistMatrix<T,MR,STAR> B2T(g), 
                           B2B(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -1327,39 +1327,39 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( Normal, orientationOfB2, alpha, A1B, B2T, (T)1, CBL );
+        ( NORMAL, orientationOfB2, alpha, A1B, B2T, (T)1, CBL );
 
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A2B, B1L, (T)1, CBL );
+        ( NORMAL, NORMAL, alpha, A2B, B1L, (T)1, CBL );
     }
     else
     {
         basic::internal::LocalGemm
-        ( Normal, orientationOfB2, alpha, A1T, B2B, (T)1, CTR );
+        ( NORMAL, orientationOfB2, alpha, A1T, B2B, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A2T, B1R, (T)1, CTR );
+        ( NORMAL, NORMAL, alpha, A2T, B1R, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB2, alpha, A1T, B2T, (T)0, DTL );
+    ( NORMAL, orientationOfB2, alpha, A1T, B2T, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A2T, B1L, (T)1, DTL );
+    ( NORMAL, NORMAL, alpha, A2T, B1L, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB2, alpha, A1B, B2B, (T)0, DBR );
+    ( NORMAL, orientationOfB2, alpha, A1B, B2B, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A2B, B1R, (T)1, DBR );
+    ( NORMAL, NORMAL, alpha, A2B, B1R, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1372,10 +1372,10 @@ void
 LocalTriangularRank2KKernel
 ( Shape shape,
   Orientation orientationOfB1,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -1384,13 +1384,13 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,Star> A1T(g),  A2T(g),
+    DistMatrix<T,MC,STAR> A1T(g),  A2T(g),
                           A1B(g),  A2B(g);
 
-    DistMatrix<T,MR,Star> B1T(g), 
+    DistMatrix<T,MR,STAR> B1T(g), 
                           B1B(g);
 
-    DistMatrix<T,Star,MR> B2L(g), B2R(g);
+    DistMatrix<T,STAR,MR> B2L(g), B2R(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
                         CBL(g), CBR(g);
@@ -1423,39 +1423,39 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A1B, B2L, (T)1, CBL );
+        ( NORMAL, NORMAL, alpha, A1B, B2L, (T)1, CBL );
 
         basic::internal::LocalGemm
-        ( Normal, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
+        ( NORMAL, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
     }
     else
     {
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A1T, B2R, (T)1, CTR );
+        ( NORMAL, NORMAL, alpha, A1T, B2R, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( Normal, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
+        ( NORMAL, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A1T, B2L, (T)0, DTL );
+    ( NORMAL, NORMAL, alpha, A1T, B2L, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB1, alpha, A2T, B1T, (T)1, DTL );
+    ( NORMAL, orientationOfB1, alpha, A2T, B1T, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A1B, B2R, (T)0, DBR );
+    ( NORMAL, NORMAL, alpha, A1B, B2R, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB1, alpha, A2B, B1B, (T)1, DBR );
+    ( NORMAL, orientationOfB1, alpha, A2B, B1B, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1471,10 +1471,10 @@ LocalTriangularRank2KKernel
   Orientation orientationOfA2,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -1485,10 +1485,10 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,Star,MC> A1L(g), A1R(g),
+    DistMatrix<T,STAR,MC> A1L(g), A1R(g),
                           A2L(g), A2R(g);
 
-    DistMatrix<T,MR,Star> B1T(g),  B2T(g),
+    DistMatrix<T,MR,STAR> B1T(g),  B2T(g),
                           B1B(g),  B2B(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -1520,7 +1520,7 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA1, orientationOfB2, alpha, A1R, B2T, (T)1, CBL );
@@ -1543,7 +1543,7 @@ LocalTriangularRank2KKernel
     basic::internal::LocalGemm
     ( orientationOfA2, orientationOfB1, alpha, A2L, B1T, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
@@ -1552,7 +1552,7 @@ LocalTriangularRank2KKernel
     basic::internal::LocalGemm
     ( orientationOfA2, orientationOfB1, alpha, A2R, B1B, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1566,10 +1566,10 @@ LocalTriangularRank2KKernel
 ( Shape shape,
   Orientation orientationOfA1,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -1578,14 +1578,14 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,Star,MC> A1L(g), A1R(g);
+    DistMatrix<T,STAR,MC> A1L(g), A1R(g);
 
-    DistMatrix<T,MC,Star> A2T(g),
+    DistMatrix<T,MC,STAR> A2T(g),
                           A2B(g);
 
-    DistMatrix<T,Star,MR> B1L(g), B1R(g);
+    DistMatrix<T,STAR,MR> B1L(g), B1R(g);
 
-    DistMatrix<T,MR,Star> B2T(g),
+    DistMatrix<T,MR,STAR> B2T(g),
                           B2B(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -1616,13 +1616,13 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA1, orientationOfB2, alpha, A1R, B2T, (T)1, CBL );
 
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A2B, B1L, (T)1, CBL );
+        ( NORMAL, NORMAL, alpha, A2B, B1L, (T)1, CBL );
     }
     else
     {
@@ -1630,25 +1630,25 @@ LocalTriangularRank2KKernel
         ( orientationOfA1, orientationOfB2, alpha, A1L, B2B, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A2T, B1R, (T)1, CTR );
+        ( NORMAL, NORMAL, alpha, A2T, B1R, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA1, orientationOfB2, alpha, A1L, B2T, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A2T, B1L, (T)1, DTL );
+    ( NORMAL, NORMAL, alpha, A2T, B1L, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
     ( orientationOfA1, orientationOfB2, alpha, A1R, B2B, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A2B, B1R, (T)1, DBR );
+    ( NORMAL, NORMAL, alpha, A2B, B1R, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1662,10 +1662,10 @@ LocalTriangularRank2KKernel
 ( Shape shape,
   Orientation orientationOfA1,
   Orientation orientationOfB1,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -1674,15 +1674,15 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,Star,MC> A1L(g), A1R(g);
+    DistMatrix<T,STAR,MC> A1L(g), A1R(g);
 
-    DistMatrix<T,MC,Star> A2T(g),
+    DistMatrix<T,MC,STAR> A2T(g),
                           A2B(g);
 
-    DistMatrix<T,MR,Star> B1T(g),
+    DistMatrix<T,MR,STAR> B1T(g),
                           B1B(g);
 
-    DistMatrix<T,Star,MR> B2L(g), B2R(g);
+    DistMatrix<T,STAR,MR> B2L(g), B2R(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
                         CBL(g), CBR(g);
@@ -1712,39 +1712,39 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( orientationOfA1, Normal, alpha, A1R, B2L, (T)1, CBL );
+        ( orientationOfA1, NORMAL, alpha, A1R, B2L, (T)1, CBL );
 
         basic::internal::LocalGemm
-        ( Normal, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
+        ( NORMAL, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
     }
     else
     {
         basic::internal::LocalGemm
-        ( orientationOfA1, Normal, alpha, A1L, B2R, (T)1, CTR );
+        ( orientationOfA1, NORMAL, alpha, A1L, B2R, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( Normal, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
+        ( NORMAL, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( orientationOfA1, Normal, alpha, A1L, B2L, (T)0, DTL );
+    ( orientationOfA1, NORMAL, alpha, A1L, B2L, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB1, alpha, A2T, B1T, (T)1, DTL );
+    ( NORMAL, orientationOfB1, alpha, A2T, B1T, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( orientationOfA1, Normal, alpha, A1R, B2R, (T)0, DBR );
+    ( orientationOfA1, NORMAL, alpha, A1R, B2R, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB1, alpha, A2B, B1B, (T)1, DBR );
+    ( NORMAL, orientationOfB1, alpha, A2B, B1B, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1758,10 +1758,10 @@ LocalTriangularRank2KKernel
 ( Shape shape,
   Orientation orientationOfA2,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -1770,14 +1770,14 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,Star> A1T(g),
+    DistMatrix<T,MC,STAR> A1T(g),
                           A1B(g);
     
-    DistMatrix<T,Star,MC> A2L(g), A2R(g);
+    DistMatrix<T,STAR,MC> A2L(g), A2R(g);
 
-    DistMatrix<T,Star,MR> B1L(g), B1R(g);
+    DistMatrix<T,STAR,MR> B1L(g), B1R(g);
 
-    DistMatrix<T,MR,Star> B2T(g),
+    DistMatrix<T,MR,STAR> B2T(g),
                           B2B(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -1808,39 +1808,39 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( Normal, orientationOfB2, alpha, A1B, B2T, (T)1, CBL );
+        ( NORMAL, orientationOfB2, alpha, A1B, B2T, (T)1, CBL );
 
         basic::internal::LocalGemm
-        ( orientationOfA2, Normal, alpha, A2R, B1L, (T)1, CBL );
+        ( orientationOfA2, NORMAL, alpha, A2R, B1L, (T)1, CBL );
     }
     else
     {
         basic::internal::LocalGemm
-        ( Normal, orientationOfB2, alpha, A1T, B2B, (T)1, CTR );
+        ( NORMAL, orientationOfB2, alpha, A1T, B2B, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( orientationOfA2, Normal, alpha, A2L, B1R, (T)1, CTR );
+        ( orientationOfA2, NORMAL, alpha, A2L, B1R, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB2, alpha, A1T, B2T, (T)0, DTL );
+    ( NORMAL, orientationOfB2, alpha, A1T, B2T, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( orientationOfA2, Normal, alpha, A2L, B1L, (T)1, DTL );
+    ( orientationOfA2, NORMAL, alpha, A2L, B1L, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( Normal, orientationOfB2, alpha, A1B, B2B, (T)0, DBR );
+    ( NORMAL, orientationOfB2, alpha, A1B, B2B, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( orientationOfA2, Normal, alpha, A2R, B1R, (T)1, DBR );
+    ( orientationOfA2, NORMAL, alpha, A2R, B1R, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1854,10 +1854,10 @@ LocalTriangularRank2KKernel
 ( Shape shape,
   Orientation orientationOfA2,
   Orientation orientationOfB1,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -1866,15 +1866,15 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,Star> A1T(g),
+    DistMatrix<T,MC,STAR> A1T(g),
                           A1B(g);
     
-    DistMatrix<T,Star,MC> A2L(g), A2R(g);
+    DistMatrix<T,STAR,MC> A2L(g), A2R(g);
 
-    DistMatrix<T,MR,Star> B1T(g),
+    DistMatrix<T,MR,STAR> B1T(g),
                           B1B(g);
 
-    DistMatrix<T,Star,MR> B2L(g), B2R(g);
+    DistMatrix<T,STAR,MR> B2L(g), B2R(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
                         CBL(g), CBR(g);
@@ -1904,10 +1904,10 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A1B, B2L, (T)1, CBL );
+        ( NORMAL, NORMAL, alpha, A1B, B2L, (T)1, CBL );
 
         basic::internal::LocalGemm
         ( orientationOfA2, orientationOfB1, alpha, A2R, B1T, (T)1, CBL );
@@ -1915,28 +1915,28 @@ LocalTriangularRank2KKernel
     else
     {
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A1T, B2R, (T)1, CTR );
+        ( NORMAL, NORMAL, alpha, A1T, B2R, (T)1, CTR );
 
         basic::internal::LocalGemm
         ( orientationOfA2, orientationOfB1, alpha, A2L, B1B, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A1T, B2L, (T)0, DTL );
+    ( NORMAL, NORMAL, alpha, A1T, B2L, (T)0, DTL );
 
     basic::internal::LocalGemm
     ( orientationOfA2, orientationOfB1, alpha, A2L, B1T, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A1B, B2R, (T)0, DBR );
+    ( NORMAL, NORMAL, alpha, A1B, B2R, (T)0, DBR );
 
     basic::internal::LocalGemm
     ( orientationOfA2, orientationOfB1, alpha, A2R, B1B, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1948,10 +1948,10 @@ template<typename T>
 void
 LocalTriangularRank2KKernel
 ( Shape shape,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -1960,10 +1960,10 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,Star> A1T(g),  A2T(g),
+    DistMatrix<T,MC,STAR> A1T(g),  A2T(g),
                           A1B(g),  A2B(g);
 
-    DistMatrix<T,Star,MR> B1L(g), B1R(g),
+    DistMatrix<T,STAR,MR> B1L(g), B1R(g),
                           B2L(g), B2R(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -1994,39 +1994,39 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A1B, B2L, (T)1, CBL );
+        ( NORMAL, NORMAL, alpha, A1B, B2L, (T)1, CBL );
 
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A2B, B1L, (T)1, CBL );
+        ( NORMAL, NORMAL, alpha, A2B, B1L, (T)1, CBL );
     }
     else
     {
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A1T, B2R, (T)1, CTR );
+        ( NORMAL, NORMAL, alpha, A1T, B2R, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A2T, B1R, (T)1, CTR );
+        ( NORMAL, NORMAL, alpha, A2T, B1R, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A1T, B2L, (T)0, DTL );
+    ( NORMAL, NORMAL, alpha, A1T, B2L, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A2T, B1L, (T)1, DTL );
+    ( NORMAL, NORMAL, alpha, A2T, B1L, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A1B, B2R, (T)0, DBR );
+    ( NORMAL, NORMAL, alpha, A1B, B2R, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A2B, B1R, (T)1, DBR );
+    ( NORMAL, NORMAL, alpha, A2B, B1R, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -2041,10 +2041,10 @@ LocalTriangularRank2KKernel
   Orientation orientationOfA1,
   Orientation orientationOfA2,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR>& C )
 {
 #ifndef RELEASE
@@ -2054,12 +2054,12 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,Star,MC> A1L(g), A1R(g),
+    DistMatrix<T,STAR,MC> A1L(g), A1R(g),
                           A2L(g), A2R(g);
 
-    DistMatrix<T,Star,MR> B1L(g), B1R(g);
+    DistMatrix<T,STAR,MR> B1L(g), B1R(g);
 
-    DistMatrix<T,MR,Star> B2T(g),
+    DistMatrix<T,MR,STAR> B2T(g),
                           B2B(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -2088,13 +2088,13 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA1, orientationOfB2, alpha, A1R, B2T, (T)1, CBL );
         
         basic::internal::LocalGemm
-        ( orientationOfA2, Normal, alpha, A2R, B1L, (T)1, CBL );
+        ( orientationOfA2, NORMAL, alpha, A2R, B1L, (T)1, CBL );
     }
     else
     {
@@ -2102,25 +2102,25 @@ LocalTriangularRank2KKernel
         ( orientationOfA1, orientationOfB2, alpha, A1L, B2B, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( orientationOfA2, Normal, alpha, A2L, B1R, (T)1, CTR );
+        ( orientationOfA2, NORMAL, alpha, A2L, B1R, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA1, orientationOfB2, alpha, A1L, B2T, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( orientationOfA2, Normal, alpha, A2L, B1L, (T)1, DTL );
+    ( orientationOfA2, NORMAL, alpha, A2L, B1L, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
     ( orientationOfA1, orientationOfB2, alpha, A1R, B2B, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( orientationOfA2, Normal, alpha, A2R, B1R, (T)1, DBR );
+    ( orientationOfA2, NORMAL, alpha, A2R, B1R, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -2135,10 +2135,10 @@ LocalTriangularRank2KKernel
   Orientation orientationOfA1,
   Orientation orientationOfA2,
   Orientation orientationOfB1,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -2148,13 +2148,13 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,Star,MC> A1L(g), A1R(g),
+    DistMatrix<T,STAR,MC> A1L(g), A1R(g),
                           A2L(g), A2R(g);
 
-    DistMatrix<T,MR,Star> B1T(g),
+    DistMatrix<T,MR,STAR> B1T(g),
                           B1B(g);
 
-    DistMatrix<T,Star,MR> B2L(g), B2R(g);
+    DistMatrix<T,STAR,MR> B2L(g), B2R(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
                         CBL(g), CBR(g);
@@ -2182,10 +2182,10 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( orientationOfA1, Normal, alpha, A1R, B2L, (T)1, CBL );
+        ( orientationOfA1, NORMAL, alpha, A1R, B2L, (T)1, CBL );
         
         basic::internal::LocalGemm
         ( orientationOfA2, orientationOfB1, alpha, A2R, B1T, (T)1, CBL );
@@ -2193,28 +2193,28 @@ LocalTriangularRank2KKernel
     else
     {
         basic::internal::LocalGemm
-        ( orientationOfA1, Normal, alpha, A1L, B2R, (T)1, CTR );
+        ( orientationOfA1, NORMAL, alpha, A1L, B2R, (T)1, CTR );
 
         basic::internal::LocalGemm
         ( orientationOfA2, orientationOfB1, alpha, A2L, B1B, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( orientationOfA1, Normal, alpha, A1L, B2L, (T)0, DTL );
+    ( orientationOfA1, NORMAL, alpha, A1L, B2L, (T)0, DTL );
 
     basic::internal::LocalGemm
     ( orientationOfA2, orientationOfB1, alpha, A2L, B1T, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( orientationOfA1, Normal, alpha, A1R, B2R, (T)0, DBR );
+    ( orientationOfA1, NORMAL, alpha, A1R, B2R, (T)0, DBR );
 
     basic::internal::LocalGemm
     ( orientationOfA2, orientationOfB1, alpha, A2R, B1B, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -2227,10 +2227,10 @@ void
 LocalTriangularRank2KKernel
 ( Shape shape,
   Orientation orientationOfA1,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -2239,12 +2239,12 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,Star,MC> A1L(g), A1R(g);
+    DistMatrix<T,STAR,MC> A1L(g), A1R(g);
 
-    DistMatrix<T,MC,Star> A2T(g),
+    DistMatrix<T,MC,STAR> A2T(g),
                           A2B(g);
 
-    DistMatrix<T,Star,MR> B1L(g), B1R(g),
+    DistMatrix<T,STAR,MR> B1L(g), B1R(g),
                           B2L(g), B2R(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -2273,39 +2273,39 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( orientationOfA1, Normal, alpha, A1R, B2L, (T)1, CBL );
+        ( orientationOfA1, NORMAL, alpha, A1R, B2L, (T)1, CBL );
         
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A2B, B1L, (T)1, CBL );
+        ( NORMAL, NORMAL, alpha, A2B, B1L, (T)1, CBL );
     }
     else
     {
         basic::internal::LocalGemm
-        ( orientationOfA1, Normal, alpha, A1L, B2R, (T)1, CTR );
+        ( orientationOfA1, NORMAL, alpha, A1L, B2R, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A2T, B1R, (T)1, CTR );
+        ( NORMAL, NORMAL, alpha, A2T, B1R, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( orientationOfA1, Normal, alpha, A1L, B2L, (T)0, DTL );
+    ( orientationOfA1, NORMAL, alpha, A1L, B2L, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A2T, B1L, (T)1, DTL );
+    ( NORMAL, NORMAL, alpha, A2T, B1L, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( orientationOfA1, Normal, alpha, A1R, B2R, (T)0, DBR );
+    ( orientationOfA1, NORMAL, alpha, A1R, B2R, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A2B, B1R, (T)1, DBR );
+    ( NORMAL, NORMAL, alpha, A2B, B1R, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -2318,10 +2318,10 @@ void
 LocalTriangularRank2KKernel
 ( Shape shape,
   Orientation orientationOfA2,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -2330,12 +2330,12 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,Star> A1T(g),
+    DistMatrix<T,MC,STAR> A1T(g),
                           A1B(g);
 
-    DistMatrix<T,Star,MC> A2L(g), A2R(g);
+    DistMatrix<T,STAR,MC> A2L(g), A2R(g);
 
-    DistMatrix<T,Star,MR> B1L(g), B1R(g),
+    DistMatrix<T,STAR,MR> B1L(g), B1R(g),
                           B2L(g), B2R(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -2364,39 +2364,39 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A1B, B2L, (T)1, CBL );
+        ( NORMAL, NORMAL, alpha, A1B, B2L, (T)1, CBL );
         
         basic::internal::LocalGemm
-        ( orientationOfA2, Normal, alpha, A2R, B1L, (T)1, CBL );
+        ( orientationOfA2, NORMAL, alpha, A2R, B1L, (T)1, CBL );
     }
     else
     {
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A1T, B2R, (T)1, CTR );
+        ( NORMAL, NORMAL, alpha, A1T, B2R, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( orientationOfA2, Normal, alpha, A2L, B1R, (T)1, CTR );
+        ( orientationOfA2, NORMAL, alpha, A2L, B1R, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A1T, B2L, (T)0, DTL );
+    ( NORMAL, NORMAL, alpha, A1T, B2L, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( orientationOfA2, Normal, alpha, A2L, B1L, (T)1, DTL );
+    ( orientationOfA2, NORMAL, alpha, A2L, B1L, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( Normal, Normal, alpha, A1B, B2R, (T)0, DBR );
+    ( NORMAL, NORMAL, alpha, A1B, B2R, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( orientationOfA2, Normal, alpha, A2R, B1R, (T)1, DBR );
+    ( orientationOfA2, NORMAL, alpha, A2R, B1R, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -2410,10 +2410,10 @@ LocalTriangularRank2KKernel
 ( Shape shape,
   Orientation orientationOfA1,
   Orientation orientationOfA2,
-  T alpha, const DistMatrix<T,Star,MC>& A1,
-           const DistMatrix<T,Star,MC>& A2,
-           const DistMatrix<T,Star,MR>& B1,
-           const DistMatrix<T,Star,MR>& B2,
+  T alpha, const DistMatrix<T,STAR,MC>& A1,
+           const DistMatrix<T,STAR,MC>& A2,
+           const DistMatrix<T,STAR,MR>& B1,
+           const DistMatrix<T,STAR,MR>& B2,
   T beta,        DistMatrix<T,MC,  MR>& C )
 {
 #ifndef RELEASE
@@ -2422,10 +2422,10 @@ LocalTriangularRank2KKernel
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,Star,MC> A1L(g), A1R(g),
+    DistMatrix<T,STAR,MC> A1L(g), A1R(g),
                           A2L(g), A2R(g);
 
-    DistMatrix<T,Star,MR> B1L(g), B1R(g),
+    DistMatrix<T,STAR,MR> B1L(g), B1R(g),
                           B2L(g), B2R(g);
 
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -2452,39 +2452,39 @@ LocalTriangularRank2KKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         basic::internal::LocalGemm
-        ( orientationOfA1, Normal, alpha, A1R, B2L, (T)1, CBL );
+        ( orientationOfA1, NORMAL, alpha, A1R, B2L, (T)1, CBL );
         
         basic::internal::LocalGemm
-        ( orientationOfA2, Normal, alpha, A2R, B1L, (T)1, CBL );
+        ( orientationOfA2, NORMAL, alpha, A2R, B1L, (T)1, CBL );
     }
     else
     {
         basic::internal::LocalGemm
-        ( orientationOfA1, Normal, alpha, A1L, B2R, (T)1, CTR );
+        ( orientationOfA1, NORMAL, alpha, A1L, B2R, (T)1, CTR );
 
         basic::internal::LocalGemm
-        ( orientationOfA2, Normal, alpha, A2L, B1R, (T)1, CTR );
+        ( orientationOfA2, NORMAL, alpha, A2L, B1R, (T)1, CTR );
     }
 
     basic::internal::LocalGemm
-    ( orientationOfA1, Normal, alpha, A1L, B2L, (T)0, DTL );
+    ( orientationOfA1, NORMAL, alpha, A1L, B2L, (T)0, DTL );
 
     basic::internal::LocalGemm
-    ( orientationOfA2, Normal, alpha, A2L, B1L, (T)1, DTL );
+    ( orientationOfA2, NORMAL, alpha, A2L, B1L, (T)1, DTL );
 
-    DTL.MakeTrapezoidal( Left, shape );
+    DTL.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
-    ( orientationOfA1, Normal, alpha, A1R, B2R, (T)0, DBR );
+    ( orientationOfA1, NORMAL, alpha, A1R, B2R, (T)0, DBR );
 
     basic::internal::LocalGemm
-    ( orientationOfA2, Normal, alpha, A2R, B1R, (T)1, DBR );
+    ( orientationOfA2, NORMAL, alpha, A2R, B1R, (T)1, DBR );
 
-    DBR.MakeTrapezoidal( Left, shape );
+    DBR.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -2500,10 +2500,10 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,MC,Star>& A1,
-           const DistMatrix<T,MC,Star>& A2,
-           const DistMatrix<T,MR,Star>& B1,
-           const DistMatrix<T,MR,Star>& B2,
+  T alpha, const DistMatrix<T,MC,STAR>& A1,
+           const DistMatrix<T,MC,STAR>& A2,
+           const DistMatrix<T,MR,STAR>& B1,
+           const DistMatrix<T,MR,STAR>& B2,
   T beta,        DistMatrix<T,MC,MR  >& C  )
 {
 #ifndef RELEASE
@@ -2523,10 +2523,10 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,MC,Star> A1T(g),  A2T(g),
+        DistMatrix<T,MC,STAR> A1T(g),  A2T(g),
                               A1B(g),  A2B(g);
 
-        DistMatrix<T,MR,Star> B1T(g),  B2T(g),
+        DistMatrix<T,MR,STAR> B1T(g),  B2T(g),
                               B1B(g),  B2B(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -2552,21 +2552,21 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB2, alpha, A1B, B2T, beta, CBL );
+            ( NORMAL, orientationOfB2, alpha, A1B, B2T, beta, CBL );
 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
+            ( NORMAL, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
         }
         else
         {
             basic::internal::LocalGemm
-            ( Normal, orientationOfB2, alpha, A1T, B2B, beta, CTR );
+            ( NORMAL, orientationOfB2, alpha, A1T, B2B, beta, CTR );
 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
+            ( NORMAL, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
         }
 
         // Recurse
@@ -2590,10 +2590,10 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -2614,12 +2614,12 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,Star,MC> A1L(g), A1R(g);
+        DistMatrix<T,STAR,MC> A1L(g), A1R(g);
 
-        DistMatrix<T,MC,Star> A2T(g),
+        DistMatrix<T,MC,STAR> A2T(g),
                               A2B(g); 
 
-        DistMatrix<T,MR,Star> B1T(g),  B2T(g),
+        DistMatrix<T,MR,STAR> B1T(g),  B2T(g),
                               B1B(g),  B2B(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -2643,13 +2643,13 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA1, orientationOfB2, alpha, A1R, B2T, beta, CBL );
 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
+            ( NORMAL, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
         }
         else
         {
@@ -2657,7 +2657,7 @@ elemental::basic::internal::LocalTriangularRank2K
             ( orientationOfA1, orientationOfB2, alpha, A1L, B2B, beta, CTR );
 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
+            ( NORMAL, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
         }
 
         // Recurse
@@ -2681,10 +2681,10 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA2,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -2705,12 +2705,12 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,MC,Star> A1T(g),
+        DistMatrix<T,MC,STAR> A1T(g),
                               A1B(g); 
 
-        DistMatrix<T,Star,MC> A2L(g), A2R(g);
+        DistMatrix<T,STAR,MC> A2L(g), A2R(g);
 
-        DistMatrix<T,MR,Star> B1T(g),  B2T(g),
+        DistMatrix<T,MR,STAR> B1T(g),  B2T(g),
                               B1B(g),  B2B(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -2734,10 +2734,10 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB2, alpha, A1B, B2T, beta, CBL );
+            ( NORMAL, orientationOfB2, alpha, A1B, B2T, beta, CBL );
 
             basic::internal::LocalGemm
             ( orientationOfA2, orientationOfB1, alpha, A2R, B1T, (T)1, CBL );
@@ -2745,7 +2745,7 @@ elemental::basic::internal::LocalTriangularRank2K
         else
         {
             basic::internal::LocalGemm
-            ( Normal, orientationOfB2, alpha, A1T, B2B, beta, CTR );
+            ( NORMAL, orientationOfB2, alpha, A1T, B2B, beta, CTR );
 
             basic::internal::LocalGemm
             ( orientationOfA2, orientationOfB1, alpha, A2L, B1B, (T)1, CTR );
@@ -2770,10 +2770,10 @@ void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -2792,12 +2792,12 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,MC,Star> A1T(g),  A2T(g),
+        DistMatrix<T,MC,STAR> A1T(g),  A2T(g),
                               A1B(g),  A2B(g);
 
-        DistMatrix<T,Star,MR> B1L(g), B1R(g);
+        DistMatrix<T,STAR,MR> B1L(g), B1R(g);
         
-        DistMatrix<T,MR,Star> B2T(g), 
+        DistMatrix<T,MR,STAR> B2T(g), 
                               B2B(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -2821,21 +2821,21 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB2, alpha, A1B, B2T, beta, CBL );
+            ( NORMAL, orientationOfB2, alpha, A1B, B2T, beta, CBL );
 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A2B, B1L, (T)1, CBL );
+            ( NORMAL, NORMAL, alpha, A2B, B1L, (T)1, CBL );
         }
         else
         {
             basic::internal::LocalGemm
-            ( Normal, orientationOfB2, alpha, A1T, B2B, beta, CTR );
+            ( NORMAL, orientationOfB2, alpha, A1T, B2B, beta, CTR );
 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A2T, B1R, (T)1, CTR );
+            ( NORMAL, NORMAL, alpha, A2T, B1R, (T)1, CTR );
         }
 
         // Recurse
@@ -2855,10 +2855,10 @@ void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfB1,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -2877,13 +2877,13 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,MC,Star> A1T(g),  A2T(g),
+        DistMatrix<T,MC,STAR> A1T(g),  A2T(g),
                               A1B(g),  A2B(g);
 
-        DistMatrix<T,MR,Star> B1T(g), 
+        DistMatrix<T,MR,STAR> B1T(g), 
                               B1B(g);
 
-        DistMatrix<T,Star,MR> B2L(g), B2R(g);
+        DistMatrix<T,STAR,MR> B2L(g), B2R(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
@@ -2906,21 +2906,21 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A1B, B2L, beta, CBL );
+            ( NORMAL, NORMAL, alpha, A1B, B2L, beta, CBL );
 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
+            ( NORMAL, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
         }
         else
         {
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A1T, B2R, beta, CTR );
+            ( NORMAL, NORMAL, alpha, A1T, B2R, beta, CTR );
 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
+            ( NORMAL, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
         }
 
         // Recurse
@@ -2943,10 +2943,10 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA2,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -2970,10 +2970,10 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,Star,MC> A1L(g), A1R(g),
+        DistMatrix<T,STAR,MC> A1L(g), A1R(g),
                               A2L(g), A2R(g);
 
-        DistMatrix<T,MR,Star> B1T(g),  B2T(g),
+        DistMatrix<T,MR,STAR> B1T(g),  B2T(g),
                               B1B(g),  B2B(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -2995,7 +2995,7 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA1, orientationOfB2, alpha, A1R, B2T, beta, CBL );
@@ -3036,10 +3036,10 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfA1,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -3060,14 +3060,14 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,Star,MC> A1L(g), A1R(g);
+        DistMatrix<T,STAR,MC> A1L(g), A1R(g);
 
-        DistMatrix<T,MC,Star> A2T(g),
+        DistMatrix<T,MC,STAR> A2T(g),
                               A2B(g); 
 
-        DistMatrix<T,Star,MR> B1L(g), B1R(g);
+        DistMatrix<T,STAR,MR> B1L(g), B1R(g);
 
-        DistMatrix<T,MR,Star> B2T(g),
+        DistMatrix<T,MR,STAR> B2T(g),
                               B2B(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -3089,13 +3089,13 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA1, orientationOfB2, alpha, A1R, B2T, beta, CBL );
 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A2B, B1L, (T)1, CBL );
+            ( NORMAL, NORMAL, alpha, A2B, B1L, (T)1, CBL );
         }
         else
         {
@@ -3103,7 +3103,7 @@ elemental::basic::internal::LocalTriangularRank2K
             ( orientationOfA1, orientationOfB2, alpha, A1L, B2B, beta, CTR );
 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A2T, B1R, (T)1, CTR );
+            ( NORMAL, NORMAL, alpha, A2T, B1R, (T)1, CTR );
         }
 
         // Recurse
@@ -3126,10 +3126,10 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfA1,
   Orientation orientationOfB1,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -3150,15 +3150,15 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,Star,MC> A1L(g), A1R(g);
+        DistMatrix<T,STAR,MC> A1L(g), A1R(g);
 
-        DistMatrix<T,MC,Star> A2T(g),
+        DistMatrix<T,MC,STAR> A2T(g),
                               A2B(g); 
 
-        DistMatrix<T,MR,Star> B1T(g),
+        DistMatrix<T,MR,STAR> B1T(g),
                               B1B(g);
 
-        DistMatrix<T,Star,MR> B2L(g), B2R(g);
+        DistMatrix<T,STAR,MR> B2L(g), B2R(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
@@ -3179,21 +3179,21 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( orientationOfA1, Normal, alpha, A1R, B2L, beta, CBL );
+            ( orientationOfA1, NORMAL, alpha, A1R, B2L, beta, CBL );
 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
+            ( NORMAL, orientationOfB1, alpha, A2B, B1T, (T)1, CBL );
         }
         else
         {
             basic::internal::LocalGemm
-            ( orientationOfA1, Normal, alpha, A1L, B2R, beta, CTR );
+            ( orientationOfA1, NORMAL, alpha, A1L, B2R, beta, CTR );
 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
+            ( NORMAL, orientationOfB1, alpha, A2T, B1B, (T)1, CTR );
         }
 
         // Recurse
@@ -3216,10 +3216,10 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfA2,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -3240,14 +3240,14 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,MC,Star> A1T(g),
+        DistMatrix<T,MC,STAR> A1T(g),
                               A1B(g); 
 
-        DistMatrix<T,Star,MC> A2L(g), A2R(g);
+        DistMatrix<T,STAR,MC> A2L(g), A2R(g);
 
-        DistMatrix<T,Star,MR> B1L(g), B1R(g);
+        DistMatrix<T,STAR,MR> B1L(g), B1R(g);
 
-        DistMatrix<T,MR,Star> B2T(g),
+        DistMatrix<T,MR,STAR> B2T(g),
                               B2B(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -3269,21 +3269,21 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( Normal, orientationOfB2, alpha, A1B, B2T, beta, CBL );
+            ( NORMAL, orientationOfB2, alpha, A1B, B2T, beta, CBL );
 
             basic::internal::LocalGemm
-            ( orientationOfA2, Normal, alpha, A2R, B1L, (T)1, CBL );
+            ( orientationOfA2, NORMAL, alpha, A2R, B1L, (T)1, CBL );
         }
         else
         {
             basic::internal::LocalGemm
-            ( Normal, orientationOfB2, alpha, A1T, B2B, beta, CTR );
+            ( NORMAL, orientationOfB2, alpha, A1T, B2B, beta, CTR );
 
             basic::internal::LocalGemm
-            ( orientationOfA2, Normal, alpha, A2L, B1R, (T)1, CTR );
+            ( orientationOfA2, NORMAL, alpha, A2L, B1R, (T)1, CTR );
         }
 
         // Recurse
@@ -3306,10 +3306,10 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfA2,
   Orientation orientationOfB1,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -3330,15 +3330,15 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,MC,Star> A1T(g),
+        DistMatrix<T,MC,STAR> A1T(g),
                               A1B(g); 
 
-        DistMatrix<T,Star,MC> A2L(g), A2R(g);
+        DistMatrix<T,STAR,MC> A2L(g), A2R(g);
 
-        DistMatrix<T,MR,Star> B1T(g),
+        DistMatrix<T,MR,STAR> B1T(g),
                               B1B(g);
 
-        DistMatrix<T,Star,MR> B2L(g), B2R(g);
+        DistMatrix<T,STAR,MR> B2L(g), B2R(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
@@ -3359,10 +3359,10 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A1B, B2L, beta, CBL );
+            ( NORMAL, NORMAL, alpha, A1B, B2L, beta, CBL );
 
             basic::internal::LocalGemm
             ( orientationOfA2, orientationOfB1, alpha, A2R, B1T, (T)1, CBL );
@@ -3370,7 +3370,7 @@ elemental::basic::internal::LocalTriangularRank2K
         else
         {
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A1T, B2R, beta, CTR );
+            ( NORMAL, NORMAL, alpha, A1T, B2R, beta, CTR );
 
             basic::internal::LocalGemm
             ( orientationOfA2, orientationOfB1, alpha, A2L, B1B, (T)1, CTR );
@@ -3394,10 +3394,10 @@ template<typename T>
 void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
@@ -3416,10 +3416,10 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,MC,Star> A1T(g),  A2T(g),
+        DistMatrix<T,MC,STAR> A1T(g),  A2T(g),
                               A1B(g),  A2B(g);
 
-        DistMatrix<T,Star,MR> B1L(g), B1R(g),
+        DistMatrix<T,STAR,MR> B1L(g), B1R(g),
                               B2L(g), B2R(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -3441,21 +3441,21 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A1B, B2L, beta, CBL );
+            ( NORMAL, NORMAL, alpha, A1B, B2L, beta, CBL );
 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A2B, B1L, (T)1, CBL );
+            ( NORMAL, NORMAL, alpha, A2B, B1L, (T)1, CBL );
         }
         else
         {
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A1T, B2R, beta, CTR );
+            ( NORMAL, NORMAL, alpha, A1T, B2R, beta, CTR );
             
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A2T, B1R, (T)1, CTR );
+            ( NORMAL, NORMAL, alpha, A2T, B1R, (T)1, CTR );
         }
 
         // Recurse
@@ -3477,10 +3477,10 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfA2,
   Orientation orientationOfB2,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,MR,  Star>& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,MR,  STAR>& B2,
   T beta,        DistMatrix<T,MC,  MR>& C  )
 {
 #ifndef RELEASE
@@ -3501,12 +3501,12 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,Star,MC> A1L(g), A1R(g),
+        DistMatrix<T,STAR,MC> A1L(g), A1R(g),
                               A2L(g), A2R(g);
 
-        DistMatrix<T,Star,MR> B1L(g), B1R(g);
+        DistMatrix<T,STAR,MR> B1L(g), B1R(g);
 
-        DistMatrix<T,MR,Star> B2T(g),
+        DistMatrix<T,MR,STAR> B2T(g),
                               B2B(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -3526,13 +3526,13 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA1, orientationOfB2, alpha, A1R, B2T, beta, CBL );
 
             basic::internal::LocalGemm
-            ( orientationOfA2, Normal, alpha, A2R, B1L, (T)1, CBL );
+            ( orientationOfA2, NORMAL, alpha, A2R, B1L, (T)1, CBL );
         }
         else
         {
@@ -3540,7 +3540,7 @@ elemental::basic::internal::LocalTriangularRank2K
             ( orientationOfA1, orientationOfB2, alpha, A1L, B2B, beta, CTR );
 
             basic::internal::LocalGemm
-            ( orientationOfA2, Normal, alpha, A2L, B1R, (T)1, CTR );
+            ( orientationOfA2, NORMAL, alpha, A2L, B1R, (T)1, CTR );
         }
 
         // Recurse
@@ -3564,10 +3564,10 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfA2,
   Orientation orientationOfB1,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,MR,  Star>& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,MR,  STAR>& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -3588,13 +3588,13 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,Star,MC> A1L(g), A1R(g),
+        DistMatrix<T,STAR,MC> A1L(g), A1R(g),
                               A2L(g), A2R(g);
 
-        DistMatrix<T,MR,Star> B1T(g),
+        DistMatrix<T,MR,STAR> B1T(g),
                               B1B(g);
 
-        DistMatrix<T,Star,MR> B2L(g), B2R(g);
+        DistMatrix<T,STAR,MR> B2L(g), B2R(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
@@ -3613,10 +3613,10 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( orientationOfA1, Normal, alpha, A1R, B2L, beta, CBL );
+            ( orientationOfA1, NORMAL, alpha, A1R, B2L, beta, CBL );
 
             basic::internal::LocalGemm
             ( orientationOfA2, orientationOfB1, alpha, A2R, B1T, (T)1, CBL );
@@ -3624,7 +3624,7 @@ elemental::basic::internal::LocalTriangularRank2K
         else
         {
             basic::internal::LocalGemm
-            ( orientationOfA1, Normal, alpha, A1L, B2R, beta, CTR );
+            ( orientationOfA1, NORMAL, alpha, A1L, B2R, beta, CTR );
 
             basic::internal::LocalGemm
             ( orientationOfA2, orientationOfB1, alpha, A2L, B1B, (T)1, CTR );
@@ -3649,10 +3649,10 @@ void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfA1,
-  T alpha, const DistMatrix<T,Star,MC  >& A1,
-           const DistMatrix<T,MC,  Star>& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,STAR,MC  >& A1,
+           const DistMatrix<T,MC,  STAR>& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -3671,12 +3671,12 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,Star,MC> A1L(g), A1R(g);
+        DistMatrix<T,STAR,MC> A1L(g), A1R(g);
 
-        DistMatrix<T,MC,Star> A2T(g),
+        DistMatrix<T,MC,STAR> A2T(g),
                               A2B(g);
 
-        DistMatrix<T,Star,MR> B1L(g), B1R(g),
+        DistMatrix<T,STAR,MR> B1L(g), B1R(g),
                               B2L(g), B2R(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -3696,21 +3696,21 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( orientationOfA1, Normal, alpha, A1R, B2L, beta, CBL );
+            ( orientationOfA1, NORMAL, alpha, A1R, B2L, beta, CBL );
 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A2B, B1L, (T)1, CBL );
+            ( NORMAL, NORMAL, alpha, A2B, B1L, (T)1, CBL );
         }
         else
         {
             basic::internal::LocalGemm
-            ( orientationOfA1, Normal, alpha, A1L, B2R, beta, CTR );
+            ( orientationOfA1, NORMAL, alpha, A1L, B2R, beta, CTR );
 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A2T, B1R, (T)1, CTR );
+            ( NORMAL, NORMAL, alpha, A2T, B1R, (T)1, CTR );
         }
 
         // Recurse
@@ -3730,10 +3730,10 @@ void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfA2,
-  T alpha, const DistMatrix<T,MC,  Star>& A1,
-           const DistMatrix<T,Star,MC  >& A2,
-           const DistMatrix<T,Star,MR  >& B1,
-           const DistMatrix<T,Star,MR  >& B2,
+  T alpha, const DistMatrix<T,MC,  STAR>& A1,
+           const DistMatrix<T,STAR,MC  >& A2,
+           const DistMatrix<T,STAR,MR  >& B1,
+           const DistMatrix<T,STAR,MR  >& B2,
   T beta,        DistMatrix<T,MC,  MR  >& C  )
 {
 #ifndef RELEASE
@@ -3752,12 +3752,12 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,MC,Star> A1T(g),
+        DistMatrix<T,MC,STAR> A1T(g),
                               A1B(g);
 
-        DistMatrix<T,Star,MC> A2L(g), A2R(g);
+        DistMatrix<T,STAR,MC> A2L(g), A2R(g);
 
-        DistMatrix<T,Star,MR> B1L(g), B1R(g),
+        DistMatrix<T,STAR,MR> B1L(g), B1R(g),
                               B2L(g), B2R(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -3777,21 +3777,21 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A1B, B2L, beta, CBL );
+            ( NORMAL, NORMAL, alpha, A1B, B2L, beta, CBL );
 
             basic::internal::LocalGemm
-            ( orientationOfA2, Normal, alpha, A2R, B1L, (T)1, CBL );
+            ( orientationOfA2, NORMAL, alpha, A2R, B1L, (T)1, CBL );
         }
         else
         {
             basic::internal::LocalGemm
-            ( Normal, Normal, alpha, A1T, B2R, beta, CTR );
+            ( NORMAL, NORMAL, alpha, A1T, B2R, beta, CTR );
 
             basic::internal::LocalGemm
-            ( orientationOfA2, Normal, alpha, A2L, B1R, (T)1, CTR );
+            ( orientationOfA2, NORMAL, alpha, A2L, B1R, (T)1, CTR );
         }
 
         // Recurse
@@ -3812,10 +3812,10 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape,
   Orientation orientationOfA1,
   Orientation orientationOfA2,
-  T alpha, const DistMatrix<T,Star,MC>& A1,
-           const DistMatrix<T,Star,MC>& A2,
-           const DistMatrix<T,Star,MR>& B1,
-           const DistMatrix<T,Star,MR>& B2,
+  T alpha, const DistMatrix<T,STAR,MC>& A1,
+           const DistMatrix<T,STAR,MC>& A2,
+           const DistMatrix<T,STAR,MR>& B1,
+           const DistMatrix<T,STAR,MR>& B2,
   T beta,        DistMatrix<T,MC,  MR>& C  )
 {
 #ifndef RELEASE
@@ -3835,10 +3835,10 @@ elemental::basic::internal::LocalTriangularRank2K
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
 
-        DistMatrix<T,Star,MC> A1L(g), A1R(g),
+        DistMatrix<T,STAR,MC> A1L(g), A1R(g),
                               A2L(g), A2R(g);
 
-        DistMatrix<T,Star,MR> B1L(g), B1R(g),
+        DistMatrix<T,STAR,MR> B1L(g), B1R(g),
                               B2L(g), B2R(g);
 
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
@@ -3856,21 +3856,21 @@ elemental::basic::internal::LocalTriangularRank2K
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == Lower )
+        if( shape == LOWER )
         { 
             basic::internal::LocalGemm
-            ( orientationOfA1, Normal, alpha, A1R, B2L, beta, CBL );
+            ( orientationOfA1, NORMAL, alpha, A1R, B2L, beta, CBL );
 
             basic::internal::LocalGemm
-            ( orientationOfA2, Normal, alpha, A2R, B1L, (T)1, CBL );
+            ( orientationOfA2, NORMAL, alpha, A2R, B1L, (T)1, CBL );
         }
         else
         {
             basic::internal::LocalGemm
-            ( orientationOfA1, Normal, alpha, A1L, B2R, beta, CTR );
+            ( orientationOfA1, NORMAL, alpha, A1L, B2R, beta, CTR );
 
             basic::internal::LocalGemm
-            ( orientationOfA2, Normal, alpha, A2L, B1R, (T)1, CTR );
+            ( orientationOfA2, NORMAL, alpha, A2L, B1R, (T)1, CTR );
         }
 
         // Recurse
@@ -3892,10 +3892,10 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  float alpha, const DistMatrix<float,MC,  Star>& A1,
-               const DistMatrix<float,MC,  Star>& A2,
-               const DistMatrix<float,MR,  Star>& B1,
-               const DistMatrix<float,MR,  Star>& B2,
+  float alpha, const DistMatrix<float,MC,  STAR>& A1,
+               const DistMatrix<float,MC,  STAR>& A2,
+               const DistMatrix<float,MR,  STAR>& B1,
+               const DistMatrix<float,MR,  STAR>& B2,
   float beta,        DistMatrix<float,MC,  MR  >& C );
 
 template void
@@ -3904,10 +3904,10 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  float alpha, const DistMatrix<float,Star,MC  >& A1,
-               const DistMatrix<float,MC,  Star>& A2,
-               const DistMatrix<float,MR,  Star>& B1,
-               const DistMatrix<float,MR,  Star>& B2,
+  float alpha, const DistMatrix<float,STAR,MC  >& A1,
+               const DistMatrix<float,MC,  STAR>& A2,
+               const DistMatrix<float,MR,  STAR>& B1,
+               const DistMatrix<float,MR,  STAR>& B2,
   float beta,        DistMatrix<float,MC,  MR  >& C );
 
 template void
@@ -3916,108 +3916,30 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA2,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  float alpha, const DistMatrix<float,MC,  Star>& A1,
-               const DistMatrix<float,Star,MC  >& A2,
-               const DistMatrix<float,MR,  Star>& B1,
-               const DistMatrix<float,MR,  Star>& B2,
+  float alpha, const DistMatrix<float,MC,  STAR>& A1,
+               const DistMatrix<float,STAR,MC  >& A2,
+               const DistMatrix<float,MR,  STAR>& B1,
+               const DistMatrix<float,MR,  STAR>& B2,
   float beta,        DistMatrix<float,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB2,
-  float alpha, const DistMatrix<float,MC,  Star>& A1,
-               const DistMatrix<float,MC,  Star>& A2,
-               const DistMatrix<float,Star,MR  >& B1,
-               const DistMatrix<float,MR,  Star>& B2,
+  float alpha, const DistMatrix<float,MC,  STAR>& A1,
+               const DistMatrix<float,MC,  STAR>& A2,
+               const DistMatrix<float,STAR,MR  >& B1,
+               const DistMatrix<float,MR,  STAR>& B2,
   float beta,        DistMatrix<float,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB1,
-  float alpha, const DistMatrix<float,MC,  Star>& A1,
-               const DistMatrix<float,MC,  Star>& A2,
-               const DistMatrix<float,MR,  Star>& B1,
-               const DistMatrix<float,Star,MR  >& B2,
-  float beta,        DistMatrix<float,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfA2,
-  Orientation orientationOfB1,
-  Orientation orientationOfB2,
-  float alpha, const DistMatrix<float,Star,MC  >& A1,
-               const DistMatrix<float,Star,MC  >& A2,
-               const DistMatrix<float,MR,  Star>& B1,
-               const DistMatrix<float,MR,  Star>& B2,
-  float beta,        DistMatrix<float,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfB2,
-  float alpha, const DistMatrix<float,Star,MC  >& A1,
-               const DistMatrix<float,MC,  Star>& A2,
-               const DistMatrix<float,Star,MR  >& B1,
-               const DistMatrix<float,MR,  Star>& B2,
-  float beta,        DistMatrix<float,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfB1,
-  float alpha, const DistMatrix<float,Star,MC  >& A1,
-               const DistMatrix<float,MC,  Star>& A2,
-               const DistMatrix<float,MR,  Star>& B1,
-               const DistMatrix<float,Star,MR  >& B2,
-  float beta,        DistMatrix<float,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA2,
-  Orientation orientationOfB2,
-  float alpha, const DistMatrix<float,MC,  Star>& A1,
-               const DistMatrix<float,Star,MC  >& A2,
-               const DistMatrix<float,Star,MR  >& B1,
-               const DistMatrix<float,MR,  Star>& B2,
-  float beta,        DistMatrix<float,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA2,
-  Orientation orientationOfB1,
-  float alpha, const DistMatrix<float,MC,  Star>& A1,
-               const DistMatrix<float,Star,MC  >& A2,
-               const DistMatrix<float,MR,  Star>& B1,
-               const DistMatrix<float,Star,MR  >& B2,
-  float beta,        DistMatrix<float,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  float alpha, const DistMatrix<float,MC,  Star>& A1,
-               const DistMatrix<float,MC,  Star>& A2,
-               const DistMatrix<float,Star,MR  >& B1,
-               const DistMatrix<float,Star,MR  >& B2,
-  float beta,        DistMatrix<float,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfA2,
-  Orientation orientationOfB2,
-  float alpha, const DistMatrix<float,Star,MC  >& A1,
-               const DistMatrix<float,Star,MC  >& A2,
-               const DistMatrix<float,Star,MR  >& B1,
-               const DistMatrix<float,MR,  Star>& B2,
+  float alpha, const DistMatrix<float,MC,  STAR>& A1,
+               const DistMatrix<float,MC,  STAR>& A2,
+               const DistMatrix<float,MR,  STAR>& B1,
+               const DistMatrix<float,STAR,MR  >& B2,
   float beta,        DistMatrix<float,MC,  MR  >& C );
 
 template void
@@ -4026,41 +3948,119 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfA2,
   Orientation orientationOfB1,
-  float alpha, const DistMatrix<float,Star,MC  >& A1,
-               const DistMatrix<float,Star,MC  >& A2,
-               const DistMatrix<float,MR,  Star>& B1,
-               const DistMatrix<float,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  float alpha, const DistMatrix<float,STAR,MC  >& A1,
+               const DistMatrix<float,STAR,MC  >& A2,
+               const DistMatrix<float,MR,  STAR>& B1,
+               const DistMatrix<float,MR,  STAR>& B2,
   float beta,        DistMatrix<float,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfA1,
-  float alpha, const DistMatrix<float,Star,MC  >& A1,
-               const DistMatrix<float,MC,  Star>& A2,
-               const DistMatrix<float,Star,MR  >& B1,
-               const DistMatrix<float,Star,MR  >& B2,
-  float beta,        DistMatrix<float,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA2,
-  float alpha, const DistMatrix<float,MC,  Star>& A1,
-               const DistMatrix<float,Star,MC  >& A2,
-               const DistMatrix<float,Star,MR  >& B1,
-               const DistMatrix<float,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  float alpha, const DistMatrix<float,STAR,MC  >& A1,
+               const DistMatrix<float,MC,  STAR>& A2,
+               const DistMatrix<float,STAR,MR  >& B1,
+               const DistMatrix<float,MR,  STAR>& B2,
   float beta,        DistMatrix<float,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfA1,
+  Orientation orientationOfB1,
+  float alpha, const DistMatrix<float,STAR,MC  >& A1,
+               const DistMatrix<float,MC,  STAR>& A2,
+               const DistMatrix<float,MR,  STAR>& B1,
+               const DistMatrix<float,STAR,MR  >& B2,
+  float beta,        DistMatrix<float,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
   Orientation orientationOfA2,
-  float alpha, const DistMatrix<float,Star,MC  >& A1,
-               const DistMatrix<float,Star,MC  >& A2,
-               const DistMatrix<float,Star,MR  >& B1,
-               const DistMatrix<float,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  float alpha, const DistMatrix<float,MC,  STAR>& A1,
+               const DistMatrix<float,STAR,MC  >& A2,
+               const DistMatrix<float,STAR,MR  >& B1,
+               const DistMatrix<float,MR,  STAR>& B2,
+  float beta,        DistMatrix<float,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  float alpha, const DistMatrix<float,MC,  STAR>& A1,
+               const DistMatrix<float,STAR,MC  >& A2,
+               const DistMatrix<float,MR,  STAR>& B1,
+               const DistMatrix<float,STAR,MR  >& B2,
+  float beta,        DistMatrix<float,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  float alpha, const DistMatrix<float,MC,  STAR>& A1,
+               const DistMatrix<float,MC,  STAR>& A2,
+               const DistMatrix<float,STAR,MR  >& B1,
+               const DistMatrix<float,STAR,MR  >& B2,
+  float beta,        DistMatrix<float,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB2,
+  float alpha, const DistMatrix<float,STAR,MC  >& A1,
+               const DistMatrix<float,STAR,MC  >& A2,
+               const DistMatrix<float,STAR,MR  >& B1,
+               const DistMatrix<float,MR,  STAR>& B2,
+  float beta,        DistMatrix<float,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  float alpha, const DistMatrix<float,STAR,MC  >& A1,
+               const DistMatrix<float,STAR,MC  >& A2,
+               const DistMatrix<float,MR,  STAR>& B1,
+               const DistMatrix<float,STAR,MR  >& B2,
+  float beta,        DistMatrix<float,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  float alpha, const DistMatrix<float,STAR,MC  >& A1,
+               const DistMatrix<float,MC,  STAR>& A2,
+               const DistMatrix<float,STAR,MR  >& B1,
+               const DistMatrix<float,STAR,MR  >& B2,
+  float beta,        DistMatrix<float,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA2,
+  float alpha, const DistMatrix<float,MC,  STAR>& A1,
+               const DistMatrix<float,STAR,MC  >& A2,
+               const DistMatrix<float,STAR,MR  >& B1,
+               const DistMatrix<float,STAR,MR  >& B2,
+  float beta,        DistMatrix<float,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  float alpha, const DistMatrix<float,STAR,MC  >& A1,
+               const DistMatrix<float,STAR,MC  >& A2,
+               const DistMatrix<float,STAR,MR  >& B1,
+               const DistMatrix<float,STAR,MR  >& B2,
   float beta,        DistMatrix<float,MC,  MR  >& C );
 
 template void
@@ -4068,10 +4068,10 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  double alpha, const DistMatrix<double,MC,  Star>& A1,
-                const DistMatrix<double,MC,  Star>& A2,
-                const DistMatrix<double,MR,  Star>& B1,
-                const DistMatrix<double,MR,  Star>& B2,
+  double alpha, const DistMatrix<double,MC,  STAR>& A1,
+                const DistMatrix<double,MC,  STAR>& A2,
+                const DistMatrix<double,MR,  STAR>& B1,
+                const DistMatrix<double,MR,  STAR>& B2,
   double beta,        DistMatrix<double,MC,  MR  >& C );
 
 template void
@@ -4080,10 +4080,10 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  double alpha, const DistMatrix<double,Star,MC  >& A1,
-                const DistMatrix<double,MC,  Star>& A2,
-                const DistMatrix<double,MR,  Star>& B1,
-                const DistMatrix<double,MR,  Star>& B2,
+  double alpha, const DistMatrix<double,STAR,MC  >& A1,
+                const DistMatrix<double,MC,  STAR>& A2,
+                const DistMatrix<double,MR,  STAR>& B1,
+                const DistMatrix<double,MR,  STAR>& B2,
   double beta,        DistMatrix<double,MC,  MR  >& C );
 
 template void
@@ -4092,108 +4092,30 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA2,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  double alpha, const DistMatrix<double,MC,  Star>& A1,
-                const DistMatrix<double,Star,MC  >& A2,
-                const DistMatrix<double,MR,  Star>& B1,
-                const DistMatrix<double,MR,  Star>& B2,
+  double alpha, const DistMatrix<double,MC,  STAR>& A1,
+                const DistMatrix<double,STAR,MC  >& A2,
+                const DistMatrix<double,MR,  STAR>& B1,
+                const DistMatrix<double,MR,  STAR>& B2,
   double beta,        DistMatrix<double,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB2,
-  double alpha, const DistMatrix<double,MC,  Star>& A1,
-                const DistMatrix<double,MC,  Star>& A2,
-                const DistMatrix<double,Star,MR  >& B1,
-                const DistMatrix<double,MR,  Star>& B2,
+  double alpha, const DistMatrix<double,MC,  STAR>& A1,
+                const DistMatrix<double,MC,  STAR>& A2,
+                const DistMatrix<double,STAR,MR  >& B1,
+                const DistMatrix<double,MR,  STAR>& B2,
   double beta,        DistMatrix<double,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB1,
-  double alpha, const DistMatrix<double,MC,  Star>& A1,
-                const DistMatrix<double,MC,  Star>& A2,
-                const DistMatrix<double,MR,  Star>& B1,
-                const DistMatrix<double,Star,MR  >& B2,
-  double beta,        DistMatrix<double,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfA2,
-  Orientation orientationOfB1,
-  Orientation orientationOfB2,
-  double alpha, const DistMatrix<double,Star,MC  >& A1,
-                const DistMatrix<double,Star,MC  >& A2,
-                const DistMatrix<double,MR,  Star>& B1,
-                const DistMatrix<double,MR,  Star>& B2,
-  double beta,        DistMatrix<double,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfB2,
-  double alpha, const DistMatrix<double,Star,MC  >& A1,
-                const DistMatrix<double,MC,  Star>& A2,
-                const DistMatrix<double,Star,MR  >& B1,
-                const DistMatrix<double,MR,  Star>& B2,
-  double beta,        DistMatrix<double,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfB1,
-  double alpha, const DistMatrix<double,Star,MC  >& A1,
-                const DistMatrix<double,MC,  Star>& A2,
-                const DistMatrix<double,MR,  Star>& B1,
-                const DistMatrix<double,Star,MR  >& B2,
-  double beta,        DistMatrix<double,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA2,
-  Orientation orientationOfB2,
-  double alpha, const DistMatrix<double,MC,  Star>& A1,
-                const DistMatrix<double,Star,MC  >& A2,
-                const DistMatrix<double,Star,MR  >& B1,
-                const DistMatrix<double,MR,  Star>& B2,
-  double beta,        DistMatrix<double,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA2,
-  Orientation orientationOfB1,
-  double alpha, const DistMatrix<double,MC,  Star>& A1,
-                const DistMatrix<double,Star,MC  >& A2,
-                const DistMatrix<double,MR,  Star>& B1,
-                const DistMatrix<double,Star,MR  >& B2,
-  double beta,        DistMatrix<double,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  double alpha, const DistMatrix<double,MC,  Star>& A1,
-                const DistMatrix<double,MC,  Star>& A2,
-                const DistMatrix<double,Star,MR  >& B1,
-                const DistMatrix<double,Star,MR  >& B2,
-  double beta,        DistMatrix<double,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfA2,
-  Orientation orientationOfB2,
-  double alpha, const DistMatrix<double,Star,MC  >& A1,
-                const DistMatrix<double,Star,MC  >& A2,
-                const DistMatrix<double,Star,MR  >& B1,
-                const DistMatrix<double,MR,  Star>& B2,
+  double alpha, const DistMatrix<double,MC,  STAR>& A1,
+                const DistMatrix<double,MC,  STAR>& A2,
+                const DistMatrix<double,MR,  STAR>& B1,
+                const DistMatrix<double,STAR,MR  >& B2,
   double beta,        DistMatrix<double,MC,  MR  >& C );
 
 template void
@@ -4202,30 +4124,64 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfA2,
   Orientation orientationOfB1,
-  double alpha, const DistMatrix<double,Star,MC  >& A1,
-                const DistMatrix<double,Star,MC  >& A2,
-                const DistMatrix<double,MR,  Star>& B1,
-                const DistMatrix<double,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  double alpha, const DistMatrix<double,STAR,MC  >& A1,
+                const DistMatrix<double,STAR,MC  >& A2,
+                const DistMatrix<double,MR,  STAR>& B1,
+                const DistMatrix<double,MR,  STAR>& B2,
   double beta,        DistMatrix<double,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfA1,
-  double alpha, const DistMatrix<double,Star,MC  >& A1,
-                const DistMatrix<double,MC,  Star>& A2,
-                const DistMatrix<double,Star,MR  >& B1,
-                const DistMatrix<double,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  double alpha, const DistMatrix<double,STAR,MC  >& A1,
+                const DistMatrix<double,MC,  STAR>& A2,
+                const DistMatrix<double,STAR,MR  >& B1,
+                const DistMatrix<double,MR,  STAR>& B2,
+  double beta,        DistMatrix<double,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfB1,
+  double alpha, const DistMatrix<double,STAR,MC  >& A1,
+                const DistMatrix<double,MC,  STAR>& A2,
+                const DistMatrix<double,MR,  STAR>& B1,
+                const DistMatrix<double,STAR,MR  >& B2,
   double beta,        DistMatrix<double,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfA2,
-  double alpha, const DistMatrix<double,MC,  Star>& A1,
-                const DistMatrix<double,Star,MC  >& A2,
-                const DistMatrix<double,Star,MR  >& B1,
-                const DistMatrix<double,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  double alpha, const DistMatrix<double,MC,  STAR>& A1,
+                const DistMatrix<double,STAR,MC  >& A2,
+                const DistMatrix<double,STAR,MR  >& B1,
+                const DistMatrix<double,MR,  STAR>& B2,
+  double beta,        DistMatrix<double,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  double alpha, const DistMatrix<double,MC,  STAR>& A1,
+                const DistMatrix<double,STAR,MC  >& A2,
+                const DistMatrix<double,MR,  STAR>& B1,
+                const DistMatrix<double,STAR,MR  >& B2,
+  double beta,        DistMatrix<double,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  double alpha, const DistMatrix<double,MC,  STAR>& A1,
+                const DistMatrix<double,MC,  STAR>& A2,
+                const DistMatrix<double,STAR,MR  >& B1,
+                const DistMatrix<double,STAR,MR  >& B2,
   double beta,        DistMatrix<double,MC,  MR  >& C );
 
 template void
@@ -4233,10 +4189,54 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfA1,
   Orientation orientationOfA2,
-  double alpha, const DistMatrix<double,Star,MC  >& A1,
-                const DistMatrix<double,Star,MC  >& A2,
-                const DistMatrix<double,Star,MR  >& B1,
-                const DistMatrix<double,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  double alpha, const DistMatrix<double,STAR,MC  >& A1,
+                const DistMatrix<double,STAR,MC  >& A2,
+                const DistMatrix<double,STAR,MR  >& B1,
+                const DistMatrix<double,MR,  STAR>& B2,
+  double beta,        DistMatrix<double,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  double alpha, const DistMatrix<double,STAR,MC  >& A1,
+                const DistMatrix<double,STAR,MC  >& A2,
+                const DistMatrix<double,MR,  STAR>& B1,
+                const DistMatrix<double,STAR,MR  >& B2,
+  double beta,        DistMatrix<double,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  double alpha, const DistMatrix<double,STAR,MC  >& A1,
+                const DistMatrix<double,MC,  STAR>& A2,
+                const DistMatrix<double,STAR,MR  >& B1,
+                const DistMatrix<double,STAR,MR  >& B2,
+  double beta,        DistMatrix<double,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA2,
+  double alpha, const DistMatrix<double,MC,  STAR>& A1,
+                const DistMatrix<double,STAR,MC  >& A2,
+                const DistMatrix<double,STAR,MR  >& B1,
+                const DistMatrix<double,STAR,MR  >& B2,
+  double beta,        DistMatrix<double,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  double alpha, const DistMatrix<double,STAR,MC  >& A1,
+                const DistMatrix<double,STAR,MC  >& A2,
+                const DistMatrix<double,STAR,MR  >& B1,
+                const DistMatrix<double,STAR,MR  >& B2,
   double beta,        DistMatrix<double,MC,  MR  >& C );
 
 #ifndef WITHOUT_COMPLEX
@@ -4245,10 +4245,10 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  scomplex alpha, const DistMatrix<scomplex,MC,  Star>& A1,
-                  const DistMatrix<scomplex,MC,  Star>& A2,
-                  const DistMatrix<scomplex,MR,  Star>& B1,
-                  const DistMatrix<scomplex,MR,  Star>& B2,
+  scomplex alpha, const DistMatrix<scomplex,MC,  STAR>& A1,
+                  const DistMatrix<scomplex,MC,  STAR>& A2,
+                  const DistMatrix<scomplex,MR,  STAR>& B1,
+                  const DistMatrix<scomplex,MR,  STAR>& B2,
   scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
 
 template void
@@ -4257,10 +4257,10 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  scomplex alpha, const DistMatrix<scomplex,Star,MC  >& A1,
-                  const DistMatrix<scomplex,MC,  Star>& A2,
-                  const DistMatrix<scomplex,MR,  Star>& B1,
-                  const DistMatrix<scomplex,MR,  Star>& B2,
+  scomplex alpha, const DistMatrix<scomplex,STAR,MC  >& A1,
+                  const DistMatrix<scomplex,MC,  STAR>& A2,
+                  const DistMatrix<scomplex,MR,  STAR>& B1,
+                  const DistMatrix<scomplex,MR,  STAR>& B2,
   scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
 
 template void
@@ -4269,108 +4269,30 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA2,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  scomplex alpha, const DistMatrix<scomplex,MC,  Star>& A1,
-                  const DistMatrix<scomplex,Star,MC  >& A2,
-                  const DistMatrix<scomplex,MR,  Star>& B1,
-                  const DistMatrix<scomplex,MR,  Star>& B2,
+  scomplex alpha, const DistMatrix<scomplex,MC,  STAR>& A1,
+                  const DistMatrix<scomplex,STAR,MC  >& A2,
+                  const DistMatrix<scomplex,MR,  STAR>& B1,
+                  const DistMatrix<scomplex,MR,  STAR>& B2,
   scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB2,
-  scomplex alpha, const DistMatrix<scomplex,MC,  Star>& A1,
-                  const DistMatrix<scomplex,MC,  Star>& A2,
-                  const DistMatrix<scomplex,Star,MR  >& B1,
-                  const DistMatrix<scomplex,MR,  Star>& B2,
+  scomplex alpha, const DistMatrix<scomplex,MC,  STAR>& A1,
+                  const DistMatrix<scomplex,MC,  STAR>& A2,
+                  const DistMatrix<scomplex,STAR,MR  >& B1,
+                  const DistMatrix<scomplex,MR,  STAR>& B2,
   scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB1,
-  scomplex alpha, const DistMatrix<scomplex,MC,  Star>& A1,
-                  const DistMatrix<scomplex,MC,  Star>& A2,
-                  const DistMatrix<scomplex,MR,  Star>& B1,
-                  const DistMatrix<scomplex,Star,MR  >& B2,
-  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfA2,
-  Orientation orientationOfB1,
-  Orientation orientationOfB2,
-  scomplex alpha, const DistMatrix<scomplex,Star,MC  >& A1,
-                  const DistMatrix<scomplex,Star,MC  >& A2,
-                  const DistMatrix<scomplex,MR,  Star>& B1,
-                  const DistMatrix<scomplex,MR,  Star>& B2,
-  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfB2,
-  scomplex alpha, const DistMatrix<scomplex,Star,MC  >& A1,
-                  const DistMatrix<scomplex,MC,  Star>& A2,
-                  const DistMatrix<scomplex,Star,MR  >& B1,
-                  const DistMatrix<scomplex,MR,  Star>& B2,
-  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfB1,
-  scomplex alpha, const DistMatrix<scomplex,Star,MC  >& A1,
-                  const DistMatrix<scomplex,MC,  Star>& A2,
-                  const DistMatrix<scomplex,MR,  Star>& B1,
-                  const DistMatrix<scomplex,Star,MR  >& B2,
-  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA2,
-  Orientation orientationOfB2,
-  scomplex alpha, const DistMatrix<scomplex,MC,  Star>& A1,
-                  const DistMatrix<scomplex,Star,MC  >& A2,
-                  const DistMatrix<scomplex,Star,MR  >& B1,
-                  const DistMatrix<scomplex,MR,  Star>& B2,
-  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA2,
-  Orientation orientationOfB1,
-  scomplex alpha, const DistMatrix<scomplex,MC,  Star>& A1,
-                  const DistMatrix<scomplex,Star,MC  >& A2,
-                  const DistMatrix<scomplex,MR,  Star>& B1,
-                  const DistMatrix<scomplex,Star,MR  >& B2,
-  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  scomplex alpha, const DistMatrix<scomplex,MC,  Star>& A1,
-                  const DistMatrix<scomplex,MC,  Star>& A2,
-                  const DistMatrix<scomplex,Star,MR  >& B1,
-                  const DistMatrix<scomplex,Star,MR  >& B2,
-  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfA2,
-  Orientation orientationOfB2,
-  scomplex alpha, const DistMatrix<scomplex,Star,MC  >& A1,
-                  const DistMatrix<scomplex,Star,MC  >& A2,
-                  const DistMatrix<scomplex,Star,MR  >& B1,
-                  const DistMatrix<scomplex,MR,  Star>& B2,
+  scomplex alpha, const DistMatrix<scomplex,MC,  STAR>& A1,
+                  const DistMatrix<scomplex,MC,  STAR>& A2,
+                  const DistMatrix<scomplex,MR,  STAR>& B1,
+                  const DistMatrix<scomplex,STAR,MR  >& B2,
   scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
 
 template void
@@ -4379,41 +4301,119 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfA2,
   Orientation orientationOfB1,
-  scomplex alpha, const DistMatrix<scomplex,Star,MC  >& A1,
-                  const DistMatrix<scomplex,Star,MC  >& A2,
-                  const DistMatrix<scomplex,MR,  Star>& B1,
-                  const DistMatrix<scomplex,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  scomplex alpha, const DistMatrix<scomplex,STAR,MC  >& A1,
+                  const DistMatrix<scomplex,STAR,MC  >& A2,
+                  const DistMatrix<scomplex,MR,  STAR>& B1,
+                  const DistMatrix<scomplex,MR,  STAR>& B2,
   scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfA1,
-  scomplex alpha, const DistMatrix<scomplex,Star,MC  >& A1,
-                  const DistMatrix<scomplex,MC,  Star>& A2,
-                  const DistMatrix<scomplex,Star,MR  >& B1,
-                  const DistMatrix<scomplex,Star,MR  >& B2,
-  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA2,
-  scomplex alpha, const DistMatrix<scomplex,MC,  Star>& A1,
-                  const DistMatrix<scomplex,Star,MC  >& A2,
-                  const DistMatrix<scomplex,Star,MR  >& B1,
-                  const DistMatrix<scomplex,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  scomplex alpha, const DistMatrix<scomplex,STAR,MC  >& A1,
+                  const DistMatrix<scomplex,MC,  STAR>& A2,
+                  const DistMatrix<scomplex,STAR,MR  >& B1,
+                  const DistMatrix<scomplex,MR,  STAR>& B2,
   scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfA1,
+  Orientation orientationOfB1,
+  scomplex alpha, const DistMatrix<scomplex,STAR,MC  >& A1,
+                  const DistMatrix<scomplex,MC,  STAR>& A2,
+                  const DistMatrix<scomplex,MR,  STAR>& B1,
+                  const DistMatrix<scomplex,STAR,MR  >& B2,
+  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
   Orientation orientationOfA2,
-  scomplex alpha, const DistMatrix<scomplex,Star,MC  >& A1,
-                  const DistMatrix<scomplex,Star,MC  >& A2,
-                  const DistMatrix<scomplex,Star,MR  >& B1,
-                  const DistMatrix<scomplex,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  scomplex alpha, const DistMatrix<scomplex,MC,  STAR>& A1,
+                  const DistMatrix<scomplex,STAR,MC  >& A2,
+                  const DistMatrix<scomplex,STAR,MR  >& B1,
+                  const DistMatrix<scomplex,MR,  STAR>& B2,
+  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  scomplex alpha, const DistMatrix<scomplex,MC,  STAR>& A1,
+                  const DistMatrix<scomplex,STAR,MC  >& A2,
+                  const DistMatrix<scomplex,MR,  STAR>& B1,
+                  const DistMatrix<scomplex,STAR,MR  >& B2,
+  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  scomplex alpha, const DistMatrix<scomplex,MC,  STAR>& A1,
+                  const DistMatrix<scomplex,MC,  STAR>& A2,
+                  const DistMatrix<scomplex,STAR,MR  >& B1,
+                  const DistMatrix<scomplex,STAR,MR  >& B2,
+  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB2,
+  scomplex alpha, const DistMatrix<scomplex,STAR,MC  >& A1,
+                  const DistMatrix<scomplex,STAR,MC  >& A2,
+                  const DistMatrix<scomplex,STAR,MR  >& B1,
+                  const DistMatrix<scomplex,MR,  STAR>& B2,
+  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  scomplex alpha, const DistMatrix<scomplex,STAR,MC  >& A1,
+                  const DistMatrix<scomplex,STAR,MC  >& A2,
+                  const DistMatrix<scomplex,MR,  STAR>& B1,
+                  const DistMatrix<scomplex,STAR,MR  >& B2,
+  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  scomplex alpha, const DistMatrix<scomplex,STAR,MC  >& A1,
+                  const DistMatrix<scomplex,MC,  STAR>& A2,
+                  const DistMatrix<scomplex,STAR,MR  >& B1,
+                  const DistMatrix<scomplex,STAR,MR  >& B2,
+  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA2,
+  scomplex alpha, const DistMatrix<scomplex,MC,  STAR>& A1,
+                  const DistMatrix<scomplex,STAR,MC  >& A2,
+                  const DistMatrix<scomplex,STAR,MR  >& B1,
+                  const DistMatrix<scomplex,STAR,MR  >& B2,
+  scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  scomplex alpha, const DistMatrix<scomplex,STAR,MC  >& A1,
+                  const DistMatrix<scomplex,STAR,MC  >& A2,
+                  const DistMatrix<scomplex,STAR,MR  >& B1,
+                  const DistMatrix<scomplex,STAR,MR  >& B2,
   scomplex beta,        DistMatrix<scomplex,MC,  MR  >& C );
 
 template void
@@ -4421,10 +4421,10 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  dcomplex alpha, const DistMatrix<dcomplex,MC,  Star>& A1,
-                  const DistMatrix<dcomplex,MC,  Star>& A2,
-                  const DistMatrix<dcomplex,MR,  Star>& B1,
-                  const DistMatrix<dcomplex,MR,  Star>& B2,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,  STAR>& A1,
+                  const DistMatrix<dcomplex,MC,  STAR>& A2,
+                  const DistMatrix<dcomplex,MR,  STAR>& B1,
+                  const DistMatrix<dcomplex,MR,  STAR>& B2,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
 
 template void
@@ -4433,10 +4433,10 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  dcomplex alpha, const DistMatrix<dcomplex,Star,MC  >& A1,
-                  const DistMatrix<dcomplex,MC,  Star>& A2,
-                  const DistMatrix<dcomplex,MR,  Star>& B1,
-                  const DistMatrix<dcomplex,MR,  Star>& B2,
+  dcomplex alpha, const DistMatrix<dcomplex,STAR,MC  >& A1,
+                  const DistMatrix<dcomplex,MC,  STAR>& A2,
+                  const DistMatrix<dcomplex,MR,  STAR>& B1,
+                  const DistMatrix<dcomplex,MR,  STAR>& B2,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
 
 template void
@@ -4445,108 +4445,30 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA2,
   Orientation orientationOfB1,
   Orientation orientationOfB2,
-  dcomplex alpha, const DistMatrix<dcomplex,MC,  Star>& A1,
-                  const DistMatrix<dcomplex,Star,MC  >& A2,
-                  const DistMatrix<dcomplex,MR,  Star>& B1,
-                  const DistMatrix<dcomplex,MR,  Star>& B2,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,  STAR>& A1,
+                  const DistMatrix<dcomplex,STAR,MC  >& A2,
+                  const DistMatrix<dcomplex,MR,  STAR>& B1,
+                  const DistMatrix<dcomplex,MR,  STAR>& B2,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB2,
-  dcomplex alpha, const DistMatrix<dcomplex,MC,  Star>& A1,
-                  const DistMatrix<dcomplex,MC,  Star>& A2,
-                  const DistMatrix<dcomplex,Star,MR  >& B1,
-                  const DistMatrix<dcomplex,MR,  Star>& B2,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,  STAR>& A1,
+                  const DistMatrix<dcomplex,MC,  STAR>& A2,
+                  const DistMatrix<dcomplex,STAR,MR  >& B1,
+                  const DistMatrix<dcomplex,MR,  STAR>& B2,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfB1,
-  dcomplex alpha, const DistMatrix<dcomplex,MC,  Star>& A1,
-                  const DistMatrix<dcomplex,MC,  Star>& A2,
-                  const DistMatrix<dcomplex,MR,  Star>& B1,
-                  const DistMatrix<dcomplex,Star,MR  >& B2,
-  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfA2,
-  Orientation orientationOfB1,
-  Orientation orientationOfB2,
-  dcomplex alpha, const DistMatrix<dcomplex,Star,MC  >& A1,
-                  const DistMatrix<dcomplex,Star,MC  >& A2,
-                  const DistMatrix<dcomplex,MR,  Star>& B1,
-                  const DistMatrix<dcomplex,MR,  Star>& B2,
-  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfB2,
-  dcomplex alpha, const DistMatrix<dcomplex,Star,MC  >& A1,
-                  const DistMatrix<dcomplex,MC,  Star>& A2,
-                  const DistMatrix<dcomplex,Star,MR  >& B1,
-                  const DistMatrix<dcomplex,MR,  Star>& B2,
-  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfB1,
-  dcomplex alpha, const DistMatrix<dcomplex,Star,MC  >& A1,
-                  const DistMatrix<dcomplex,MC,  Star>& A2,
-                  const DistMatrix<dcomplex,MR,  Star>& B1,
-                  const DistMatrix<dcomplex,Star,MR  >& B2,
-  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA2,
-  Orientation orientationOfB2,
-  dcomplex alpha, const DistMatrix<dcomplex,MC,  Star>& A1,
-                  const DistMatrix<dcomplex,Star,MC  >& A2,
-                  const DistMatrix<dcomplex,Star,MR  >& B1,
-                  const DistMatrix<dcomplex,MR,  Star>& B2,
-  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA2,
-  Orientation orientationOfB1,
-  dcomplex alpha, const DistMatrix<dcomplex,MC,  Star>& A1,
-                  const DistMatrix<dcomplex,Star,MC  >& A2,
-                  const DistMatrix<dcomplex,MR,  Star>& B1,
-                  const DistMatrix<dcomplex,Star,MR  >& B2,
-  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  dcomplex alpha, const DistMatrix<dcomplex,MC,  Star>& A1,
-                  const DistMatrix<dcomplex,MC,  Star>& A2,
-                  const DistMatrix<dcomplex,Star,MR  >& B1,
-                  const DistMatrix<dcomplex,Star,MR  >& B2,
-  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
-
-template void
-elemental::basic::internal::LocalTriangularRank2K
-( Shape shape, 
-  Orientation orientationOfA1,
-  Orientation orientationOfA2,
-  Orientation orientationOfB2,
-  dcomplex alpha, const DistMatrix<dcomplex,Star,MC  >& A1,
-                  const DistMatrix<dcomplex,Star,MC  >& A2,
-                  const DistMatrix<dcomplex,Star,MR  >& B1,
-                  const DistMatrix<dcomplex,MR,  Star>& B2,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,  STAR>& A1,
+                  const DistMatrix<dcomplex,MC,  STAR>& A2,
+                  const DistMatrix<dcomplex,MR,  STAR>& B1,
+                  const DistMatrix<dcomplex,STAR,MR  >& B2,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
 
 template void
@@ -4555,30 +4477,64 @@ elemental::basic::internal::LocalTriangularRank2K
   Orientation orientationOfA1,
   Orientation orientationOfA2,
   Orientation orientationOfB1,
-  dcomplex alpha, const DistMatrix<dcomplex,Star,MC  >& A1,
-                  const DistMatrix<dcomplex,Star,MC  >& A2,
-                  const DistMatrix<dcomplex,MR,  Star>& B1,
-                  const DistMatrix<dcomplex,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  dcomplex alpha, const DistMatrix<dcomplex,STAR,MC  >& A1,
+                  const DistMatrix<dcomplex,STAR,MC  >& A2,
+                  const DistMatrix<dcomplex,MR,  STAR>& B1,
+                  const DistMatrix<dcomplex,MR,  STAR>& B2,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfA1,
-  dcomplex alpha, const DistMatrix<dcomplex,Star,MC  >& A1,
-                  const DistMatrix<dcomplex,MC,  Star>& A2,
-                  const DistMatrix<dcomplex,Star,MR  >& B1,
-                  const DistMatrix<dcomplex,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  dcomplex alpha, const DistMatrix<dcomplex,STAR,MC  >& A1,
+                  const DistMatrix<dcomplex,MC,  STAR>& A2,
+                  const DistMatrix<dcomplex,STAR,MR  >& B1,
+                  const DistMatrix<dcomplex,MR,  STAR>& B2,
+  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfB1,
+  dcomplex alpha, const DistMatrix<dcomplex,STAR,MC  >& A1,
+                  const DistMatrix<dcomplex,MC,  STAR>& A2,
+                  const DistMatrix<dcomplex,MR,  STAR>& B1,
+                  const DistMatrix<dcomplex,STAR,MR  >& B2,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
 
 template void
 elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfA2,
-  dcomplex alpha, const DistMatrix<dcomplex,MC,  Star>& A1,
-                  const DistMatrix<dcomplex,Star,MC  >& A2,
-                  const DistMatrix<dcomplex,Star,MR  >& B1,
-                  const DistMatrix<dcomplex,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,  STAR>& A1,
+                  const DistMatrix<dcomplex,STAR,MC  >& A2,
+                  const DistMatrix<dcomplex,STAR,MR  >& B1,
+                  const DistMatrix<dcomplex,MR,  STAR>& B2,
+  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,  STAR>& A1,
+                  const DistMatrix<dcomplex,STAR,MC  >& A2,
+                  const DistMatrix<dcomplex,MR,  STAR>& B1,
+                  const DistMatrix<dcomplex,STAR,MR  >& B2,
+  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  dcomplex alpha, const DistMatrix<dcomplex,MC,  STAR>& A1,
+                  const DistMatrix<dcomplex,MC,  STAR>& A2,
+                  const DistMatrix<dcomplex,STAR,MR  >& B1,
+                  const DistMatrix<dcomplex,STAR,MR  >& B2,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
 
 template void
@@ -4586,10 +4542,54 @@ elemental::basic::internal::LocalTriangularRank2K
 ( Shape shape, 
   Orientation orientationOfA1,
   Orientation orientationOfA2,
-  dcomplex alpha, const DistMatrix<dcomplex,Star,MC  >& A1,
-                  const DistMatrix<dcomplex,Star,MC  >& A2,
-                  const DistMatrix<dcomplex,Star,MR  >& B1,
-                  const DistMatrix<dcomplex,Star,MR  >& B2,
+  Orientation orientationOfB2,
+  dcomplex alpha, const DistMatrix<dcomplex,STAR,MC  >& A1,
+                  const DistMatrix<dcomplex,STAR,MC  >& A2,
+                  const DistMatrix<dcomplex,STAR,MR  >& B1,
+                  const DistMatrix<dcomplex,MR,  STAR>& B2,
+  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  Orientation orientationOfB1,
+  dcomplex alpha, const DistMatrix<dcomplex,STAR,MC  >& A1,
+                  const DistMatrix<dcomplex,STAR,MC  >& A2,
+                  const DistMatrix<dcomplex,MR,  STAR>& B1,
+                  const DistMatrix<dcomplex,STAR,MR  >& B2,
+  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  dcomplex alpha, const DistMatrix<dcomplex,STAR,MC  >& A1,
+                  const DistMatrix<dcomplex,MC,  STAR>& A2,
+                  const DistMatrix<dcomplex,STAR,MR  >& B1,
+                  const DistMatrix<dcomplex,STAR,MR  >& B2,
+  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA2,
+  dcomplex alpha, const DistMatrix<dcomplex,MC,  STAR>& A1,
+                  const DistMatrix<dcomplex,STAR,MC  >& A2,
+                  const DistMatrix<dcomplex,STAR,MR  >& B1,
+                  const DistMatrix<dcomplex,STAR,MR  >& B2,
+  dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
+
+template void
+elemental::basic::internal::LocalTriangularRank2K
+( Shape shape, 
+  Orientation orientationOfA1,
+  Orientation orientationOfA2,
+  dcomplex alpha, const DistMatrix<dcomplex,STAR,MC  >& A1,
+                  const DistMatrix<dcomplex,STAR,MC  >& A2,
+                  const DistMatrix<dcomplex,STAR,MR  >& B1,
+                  const DistMatrix<dcomplex,STAR,MR  >& B2,
   dcomplex beta,        DistMatrix<dcomplex,MC,  MR  >& C );
 #endif
 

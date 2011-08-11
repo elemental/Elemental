@@ -57,25 +57,17 @@ elemental::basic::Syr2k
 {
 #ifndef RELEASE
     PushCallStack("basic::Syr2k");
-    if( orientation == ConjugateTranspose )
+    if( orientation == Adjoint )
         throw logic_error( "Syr2k accepts Normal and Transpose options." );
 #endif
     if( shape == Lower && orientation == Normal )
-    {
         basic::internal::Syr2kLN( alpha, A, B, beta, C );
-    }
     else if( shape == Lower )
-    {
         basic::internal::Syr2kLT( alpha, A, B, beta, C );
-    }
     else if( shape == Upper && orientation == Normal )
-    {
         basic::internal::Syr2kUN( alpha, A, B, beta, C );
-    }
     else
-    {
         basic::internal::Syr2kUT( alpha, A, B, beta, C );
-    }
 #ifndef RELEASE
     PopCallStack();
 #endif

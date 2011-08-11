@@ -59,30 +59,30 @@ elemental::basic::Trmm
 #ifndef RELEASE
     PushCallStack("basic::Trmm");
 #endif
-    if( side == Left && shape == Lower )
+    if( side == LEFT && shape == LOWER )
     {
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             basic::internal::TrmmLLN( diagonal, alpha, A, X );
         else
             basic::internal::TrmmLLT( orientation, diagonal, alpha, A, X );
     }
-    else if( side == Left && shape == Upper )
+    else if( side == LEFT && shape == UPPER )
     {
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             basic::internal::TrmmLUN( diagonal, alpha, A, X );
         else
             basic::internal::TrmmLUT( orientation, diagonal, alpha, A, X );
     }
-    else if( side == Right && shape == Lower )
+    else if( side == Right && shape == LOWER )
     {
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             basic::internal::TrmmRLN( diagonal, alpha, A, X );
         else
             basic::internal::TrmmRLT( orientation, diagonal, alpha, A, X );
     }
-    else if( side == Right && shape == Upper )
+    else if( side == Right && shape == UPPER )
     {
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             basic::internal::TrmmRUN( diagonal, alpha, A, X );
         else
             basic::internal::TrmmRUT( orientation, diagonal, alpha, A, X );

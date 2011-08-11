@@ -180,7 +180,7 @@ elemental::basic::internal::Dotu
 template<typename T, Distribution U, Distribution V>
 inline T
 elemental::basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,Star>& y )
+( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::Dotu");
@@ -199,7 +199,7 @@ elemental::basic::internal::Dotu
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,MC,Star> xRedist(g);
+        DistMatrix<T,MC,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -210,7 +210,7 @@ elemental::basic::internal::Dotu
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,Star,MC> xRedist(g);
+        DistMatrix<T,STAR,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -225,7 +225,7 @@ elemental::basic::internal::Dotu
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,Star,MC> xRedist(g);
+        DistMatrix<T,STAR,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -236,7 +236,7 @@ elemental::basic::internal::Dotu
     }
     else
     {
-        DistMatrix<T,MC,Star> xRedist(g);
+        DistMatrix<T,MC,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -258,7 +258,7 @@ elemental::basic::internal::Dotu
 template<typename T, Distribution U, Distribution V>
 inline T
 elemental::basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,MR>& y )
+( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::Dotu");
@@ -277,7 +277,7 @@ elemental::basic::internal::Dotu
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,Star,MR> xRedist(g);
+        DistMatrix<T,STAR,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -292,7 +292,7 @@ elemental::basic::internal::Dotu
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,MR,Star> xRedist(g);
+        DistMatrix<T,MR,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -303,7 +303,7 @@ elemental::basic::internal::Dotu
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,MR,Star> xRedist(g);
+        DistMatrix<T,MR,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -318,7 +318,7 @@ elemental::basic::internal::Dotu
     }
     else
     {
-        DistMatrix<T,Star,MR> xRedist(g);
+        DistMatrix<T,STAR,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -430,7 +430,7 @@ elemental::basic::internal::Dotu
 template<typename T, Distribution U, Distribution V>
 inline T
 elemental::basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,Star>& y )
+( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::Dotu");
@@ -449,7 +449,7 @@ elemental::basic::internal::Dotu
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,MR,Star> xRedist(g);
+        DistMatrix<T,MR,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -460,7 +460,7 @@ elemental::basic::internal::Dotu
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,Star,MR> xRedist(g);
+        DistMatrix<T,STAR,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -475,7 +475,7 @@ elemental::basic::internal::Dotu
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,Star,MR> xRedist(g);
+        DistMatrix<T,STAR,MR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -486,7 +486,7 @@ elemental::basic::internal::Dotu
     }
     else
     {
-        DistMatrix<T,MR,Star> xRedist(g);
+        DistMatrix<T,MR,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -508,7 +508,7 @@ elemental::basic::internal::Dotu
 template<typename T, Distribution U, Distribution V>
 inline T
 elemental::basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,MC>& y )
+( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::Dotu");
@@ -527,7 +527,7 @@ elemental::basic::internal::Dotu
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,Star,MC> xRedist(g);
+        DistMatrix<T,STAR,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -542,7 +542,7 @@ elemental::basic::internal::Dotu
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,MC,Star> xRedist(g);
+        DistMatrix<T,MC,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -553,7 +553,7 @@ elemental::basic::internal::Dotu
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,MC,Star> xRedist(g);
+        DistMatrix<T,MC,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -568,7 +568,7 @@ elemental::basic::internal::Dotu
     }
     else
     {
-        DistMatrix<T,Star,MC> xRedist(g);
+        DistMatrix<T,STAR,MC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -586,7 +586,7 @@ elemental::basic::internal::Dotu
 template<typename T, Distribution U, Distribution V>
 inline T
 elemental::basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,Star>& y )
+( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::Dotu");
@@ -605,7 +605,7 @@ elemental::basic::internal::Dotu
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,VC,Star> xRedist(g);
+        DistMatrix<T,VC,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -616,7 +616,7 @@ elemental::basic::internal::Dotu
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,Star,VC> xRedist(g);
+        DistMatrix<T,STAR,VC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -631,7 +631,7 @@ elemental::basic::internal::Dotu
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,Star,VC> xRedist(g);
+        DistMatrix<T,STAR,VC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -642,7 +642,7 @@ elemental::basic::internal::Dotu
     }
     else
     {
-        DistMatrix<T,VC,Star> xRedist(g);
+        DistMatrix<T,VC,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -664,7 +664,7 @@ elemental::basic::internal::Dotu
 template<typename T, Distribution U, Distribution V>
 inline T
 elemental::basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,VC>& y )
+( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::Dotu");
@@ -683,7 +683,7 @@ elemental::basic::internal::Dotu
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,Star,VC> xRedist(g);
+        DistMatrix<T,STAR,VC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -698,7 +698,7 @@ elemental::basic::internal::Dotu
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,VC,Star> xRedist(g);
+        DistMatrix<T,VC,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -709,7 +709,7 @@ elemental::basic::internal::Dotu
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,VC,Star> xRedist(g);
+        DistMatrix<T,VC,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -724,7 +724,7 @@ elemental::basic::internal::Dotu
     }
     else
     {
-        DistMatrix<T,Star,VC> xRedist(g);
+        DistMatrix<T,STAR,VC> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -742,7 +742,7 @@ elemental::basic::internal::Dotu
 template<typename T, Distribution U, Distribution V>
 inline T
 elemental::basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,Star>& y )
+( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::Dotu");
@@ -761,7 +761,7 @@ elemental::basic::internal::Dotu
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,VR,Star> xRedist(g);
+        DistMatrix<T,VR,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -772,7 +772,7 @@ elemental::basic::internal::Dotu
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,Star,VR> xRedist(g);
+        DistMatrix<T,STAR,VR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -787,7 +787,7 @@ elemental::basic::internal::Dotu
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,Star,VR> xRedist(g);
+        DistMatrix<T,STAR,VR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -798,7 +798,7 @@ elemental::basic::internal::Dotu
     }
     else
     {
-        DistMatrix<T,VR,Star> xRedist(g);
+        DistMatrix<T,VR,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -820,7 +820,7 @@ elemental::basic::internal::Dotu
 template<typename T, Distribution U, Distribution V>
 inline T
 elemental::basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,VR>& y )
+( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::Dotu");
@@ -839,7 +839,7 @@ elemental::basic::internal::Dotu
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,Star,VR> xRedist(g);
+        DistMatrix<T,STAR,VR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -854,7 +854,7 @@ elemental::basic::internal::Dotu
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,VR,Star> xRedist(g);
+        DistMatrix<T,VR,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -865,7 +865,7 @@ elemental::basic::internal::Dotu
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,VR,Star> xRedist(g);
+        DistMatrix<T,VR,STAR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -880,7 +880,7 @@ elemental::basic::internal::Dotu
     }
     else
     {
-        DistMatrix<T,Star,VR> xRedist(g);
+        DistMatrix<T,STAR,VR> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -898,7 +898,7 @@ elemental::basic::internal::Dotu
 template<typename T, Distribution U, Distribution V>
 inline T
 elemental::basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,Star,Star>& y )
+( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::Dotu");
@@ -914,7 +914,7 @@ elemental::basic::internal::Dotu
 #endif
     const Grid& g = x.Grid();
 
-    DistMatrix<T,Star,Star> xRedist(g);
+    DistMatrix<T,STAR,STAR> xRedist(g);
     xRedist = x;
 
     T globalDotu = 
@@ -935,374 +935,374 @@ template float elemental::basic::Dotu
 #ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MC,MR>& x,
-  const DistMatrix<float,MC,Star>& y );
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MC,MR>& x,
-  const DistMatrix<float,Star,MR>& y );
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MC,MR>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MC,MR>& x,
-  const DistMatrix<float,MR,Star>& y );
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MC,MR>& x,
-  const DistMatrix<float,Star,MC>& y );
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MC,MR>& x,
-  const DistMatrix<float,VC,Star>& y );
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MC,MR>& x,
-  const DistMatrix<float,Star,VC>& y );
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MC,MR>& x,
-  const DistMatrix<float,VR,Star>& y );
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MC,MR>& x,
-  const DistMatrix<float,Star,VR>& y );
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MC,MR>& x,
-  const DistMatrix<float,Star,Star>& y );
+  const DistMatrix<float,STAR,STAR>& y );
 
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
+( const DistMatrix<float,MC,STAR>& x,
   const DistMatrix<float,MC,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
-  const DistMatrix<float,MC,Star>& y );
+( const DistMatrix<float,MC,STAR>& x,
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
-  const DistMatrix<float,Star,MR>& y );
+( const DistMatrix<float,MC,STAR>& x,
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
+( const DistMatrix<float,MC,STAR>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
-  const DistMatrix<float,MR,Star>& y );
+( const DistMatrix<float,MC,STAR>& x,
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
-  const DistMatrix<float,Star,MC>& y );
+( const DistMatrix<float,MC,STAR>& x,
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
-  const DistMatrix<float,VC,Star>& y );
+( const DistMatrix<float,MC,STAR>& x,
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
-  const DistMatrix<float,Star,VC>& y );
+( const DistMatrix<float,MC,STAR>& x,
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
-  const DistMatrix<float,VR,Star>& y );
+( const DistMatrix<float,MC,STAR>& x,
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
-  const DistMatrix<float,Star,VR>& y );
+( const DistMatrix<float,MC,STAR>& x,
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MC,Star>& x,
-  const DistMatrix<float,Star,Star>& y );
+( const DistMatrix<float,MC,STAR>& x,
+  const DistMatrix<float,STAR,STAR>& y );
 
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
+( const DistMatrix<float,STAR,MR>& x,
   const DistMatrix<float,MC,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
-  const DistMatrix<float,MC,Star>& y );
+( const DistMatrix<float,STAR,MR>& x,
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
-  const DistMatrix<float,Star,MR>& y );
+( const DistMatrix<float,STAR,MR>& x,
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
+( const DistMatrix<float,STAR,MR>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
-  const DistMatrix<float,MR,Star>& y );
+( const DistMatrix<float,STAR,MR>& x,
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
-  const DistMatrix<float,Star,MC>& y );
+( const DistMatrix<float,STAR,MR>& x,
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
-  const DistMatrix<float,VC,Star>& y );
+( const DistMatrix<float,STAR,MR>& x,
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
-  const DistMatrix<float,Star,VC>& y );
+( const DistMatrix<float,STAR,MR>& x,
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
-  const DistMatrix<float,VR,Star>& y );
+( const DistMatrix<float,STAR,MR>& x,
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
-  const DistMatrix<float,Star,VR>& y );
+( const DistMatrix<float,STAR,MR>& x,
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MR>& x,
-  const DistMatrix<float,Star,Star>& y );
+( const DistMatrix<float,STAR,MR>& x,
+  const DistMatrix<float,STAR,STAR>& y );
 
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
   const DistMatrix<float,MC,MR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
-  const DistMatrix<float,MC,Star>& y );
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
-  const DistMatrix<float,Star,MR>& y );
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
-  const DistMatrix<float,MR,Star>& y );
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
-  const DistMatrix<float,Star,MC>& y );
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
-  const DistMatrix<float,VC,Star>& y );
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
-  const DistMatrix<float,Star,VC>& y );
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
-  const DistMatrix<float,VR,Star>& y );
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
-  const DistMatrix<float,Star,VR>& y );
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
 ( const DistMatrix<float,MR,MC>& x,
-  const DistMatrix<float,Star,Star>& y );
+  const DistMatrix<float,STAR,STAR>& y );
 
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
+( const DistMatrix<float,MR,STAR>& x,
   const DistMatrix<float,MC,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
-  const DistMatrix<float,MC,Star>& y );
+( const DistMatrix<float,MR,STAR>& x,
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
-  const DistMatrix<float,Star,MR>& y );
+( const DistMatrix<float,MR,STAR>& x,
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
+( const DistMatrix<float,MR,STAR>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
-  const DistMatrix<float,MR,Star>& y );
+( const DistMatrix<float,MR,STAR>& x,
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
-  const DistMatrix<float,Star,MC>& y );
+( const DistMatrix<float,MR,STAR>& x,
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
-  const DistMatrix<float,VC,Star>& y );
+( const DistMatrix<float,MR,STAR>& x,
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
-  const DistMatrix<float,Star,VC>& y );
+( const DistMatrix<float,MR,STAR>& x,
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
-  const DistMatrix<float,VR,Star>& y );
+( const DistMatrix<float,MR,STAR>& x,
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
-  const DistMatrix<float,Star,VR>& y );
+( const DistMatrix<float,MR,STAR>& x,
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,MR,Star>& x,
-  const DistMatrix<float,Star,Star>& y );
+( const DistMatrix<float,MR,STAR>& x,
+  const DistMatrix<float,STAR,STAR>& y );
 
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
+( const DistMatrix<float,STAR,MC>& x,
   const DistMatrix<float,MC,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
-  const DistMatrix<float,MC,Star>& y );
+( const DistMatrix<float,STAR,MC>& x,
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
-  const DistMatrix<float,Star,MR>& y );
+( const DistMatrix<float,STAR,MC>& x,
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
+( const DistMatrix<float,STAR,MC>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
-  const DistMatrix<float,MR,Star>& y );
+( const DistMatrix<float,STAR,MC>& x,
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
-  const DistMatrix<float,Star,MC>& y );
+( const DistMatrix<float,STAR,MC>& x,
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
-  const DistMatrix<float,VC,Star>& y );
+( const DistMatrix<float,STAR,MC>& x,
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
-  const DistMatrix<float,Star,VC>& y );
+( const DistMatrix<float,STAR,MC>& x,
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
-  const DistMatrix<float,VR,Star>& y );
+( const DistMatrix<float,STAR,MC>& x,
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
-  const DistMatrix<float,Star,VR>& y );
+( const DistMatrix<float,STAR,MC>& x,
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,MC>& x,
-  const DistMatrix<float,Star,Star>& y );
+( const DistMatrix<float,STAR,MC>& x,
+  const DistMatrix<float,STAR,STAR>& y );
 
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
+( const DistMatrix<float,VC,STAR>& x,
   const DistMatrix<float,MC,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
-  const DistMatrix<float,MC,Star>& y );
+( const DistMatrix<float,VC,STAR>& x,
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
-  const DistMatrix<float,Star,MR>& y );
+( const DistMatrix<float,VC,STAR>& x,
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
+( const DistMatrix<float,VC,STAR>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
-  const DistMatrix<float,MR,Star>& y );
+( const DistMatrix<float,VC,STAR>& x,
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
-  const DistMatrix<float,Star,MC>& y );
+( const DistMatrix<float,VC,STAR>& x,
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
-  const DistMatrix<float,VC,Star>& y );
+( const DistMatrix<float,VC,STAR>& x,
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
-  const DistMatrix<float,Star,VC>& y );
+( const DistMatrix<float,VC,STAR>& x,
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
-  const DistMatrix<float,VR,Star>& y );
+( const DistMatrix<float,VC,STAR>& x,
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
-  const DistMatrix<float,Star,VR>& y );
+( const DistMatrix<float,VC,STAR>& x,
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VC,Star>& x,
-  const DistMatrix<float,Star,Star>& y );
+( const DistMatrix<float,VC,STAR>& x,
+  const DistMatrix<float,STAR,STAR>& y );
 
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
+( const DistMatrix<float,STAR,VC>& x,
   const DistMatrix<float,MC,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
-  const DistMatrix<float,MC,Star>& y );
+( const DistMatrix<float,STAR,VC>& x,
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
-  const DistMatrix<float,Star,MR>& y );
+( const DistMatrix<float,STAR,VC>& x,
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
+( const DistMatrix<float,STAR,VC>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
-  const DistMatrix<float,MR,Star>& y );
+( const DistMatrix<float,STAR,VC>& x,
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
-  const DistMatrix<float,Star,MC>& y );
+( const DistMatrix<float,STAR,VC>& x,
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
-  const DistMatrix<float,VC,Star>& y );
+( const DistMatrix<float,STAR,VC>& x,
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
-  const DistMatrix<float,Star,VC>& y );
+( const DistMatrix<float,STAR,VC>& x,
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
-  const DistMatrix<float,VR,Star>& y );
+( const DistMatrix<float,STAR,VC>& x,
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
-  const DistMatrix<float,Star,VR>& y );
+( const DistMatrix<float,STAR,VC>& x,
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VC>& x,
-  const DistMatrix<float,Star,Star>& y );
+( const DistMatrix<float,STAR,VC>& x,
+  const DistMatrix<float,STAR,STAR>& y );
 
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
+( const DistMatrix<float,VR,STAR>& x,
   const DistMatrix<float,MC,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
-  const DistMatrix<float,MC,Star>& y );
+( const DistMatrix<float,VR,STAR>& x,
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
-  const DistMatrix<float,Star,MR>& y );
+( const DistMatrix<float,VR,STAR>& x,
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
+( const DistMatrix<float,VR,STAR>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
-  const DistMatrix<float,MR,Star>& y );
+( const DistMatrix<float,VR,STAR>& x,
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
-  const DistMatrix<float,Star,MC>& y );
+( const DistMatrix<float,VR,STAR>& x,
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
-  const DistMatrix<float,VC,Star>& y );
+( const DistMatrix<float,VR,STAR>& x,
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
-  const DistMatrix<float,Star,VC>& y );
+( const DistMatrix<float,VR,STAR>& x,
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
-  const DistMatrix<float,VR,Star>& y );
+( const DistMatrix<float,VR,STAR>& x,
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
-  const DistMatrix<float,Star,VR>& y );
+( const DistMatrix<float,VR,STAR>& x,
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,VR,Star>& x,
-  const DistMatrix<float,Star,Star>& y );
+( const DistMatrix<float,VR,STAR>& x,
+  const DistMatrix<float,STAR,STAR>& y );
 
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
+( const DistMatrix<float,STAR,VR>& x,
   const DistMatrix<float,MC,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
-  const DistMatrix<float,MC,Star>& y );
+( const DistMatrix<float,STAR,VR>& x,
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
-  const DistMatrix<float,Star,MR>& y );
+( const DistMatrix<float,STAR,VR>& x,
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
+( const DistMatrix<float,STAR,VR>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
-  const DistMatrix<float,MR,Star>& y );
+( const DistMatrix<float,STAR,VR>& x,
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
-  const DistMatrix<float,Star,MC>& y );
+( const DistMatrix<float,STAR,VR>& x,
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
-  const DistMatrix<float,VC,Star>& y );
+( const DistMatrix<float,STAR,VR>& x,
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
-  const DistMatrix<float,Star,VC>& y );
+( const DistMatrix<float,STAR,VR>& x,
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
-  const DistMatrix<float,VR,Star>& y );
+( const DistMatrix<float,STAR,VR>& x,
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
-  const DistMatrix<float,Star,VR>& y );
+( const DistMatrix<float,STAR,VR>& x,
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,VR>& x,
-  const DistMatrix<float,Star,Star>& y );
+( const DistMatrix<float,STAR,VR>& x,
+  const DistMatrix<float,STAR,STAR>& y );
 
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
+( const DistMatrix<float,STAR,STAR>& x,
   const DistMatrix<float,MC,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
-  const DistMatrix<float,MC,Star>& y );
+( const DistMatrix<float,STAR,STAR>& x,
+  const DistMatrix<float,MC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
-  const DistMatrix<float,Star,MR>& y );
+( const DistMatrix<float,STAR,STAR>& x,
+  const DistMatrix<float,STAR,MR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
+( const DistMatrix<float,STAR,STAR>& x,
   const DistMatrix<float,MR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
-  const DistMatrix<float,MR,Star>& y );
+( const DistMatrix<float,STAR,STAR>& x,
+  const DistMatrix<float,MR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
-  const DistMatrix<float,Star,MC>& y );
+( const DistMatrix<float,STAR,STAR>& x,
+  const DistMatrix<float,STAR,MC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
-  const DistMatrix<float,VC,Star>& y );
+( const DistMatrix<float,STAR,STAR>& x,
+  const DistMatrix<float,VC,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
-  const DistMatrix<float,Star,VC>& y );
+( const DistMatrix<float,STAR,STAR>& x,
+  const DistMatrix<float,STAR,VC>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
-  const DistMatrix<float,VR,Star>& y );
+( const DistMatrix<float,STAR,STAR>& x,
+  const DistMatrix<float,VR,STAR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
-  const DistMatrix<float,Star,VR>& y );
+( const DistMatrix<float,STAR,STAR>& x,
+  const DistMatrix<float,STAR,VR>& y );
 template float elemental::basic::Dotu
-( const DistMatrix<float,Star,Star>& x,
-  const DistMatrix<float,Star,Star>& y );
+( const DistMatrix<float,STAR,STAR>& x,
+  const DistMatrix<float,STAR,STAR>& y );
 #endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 template double elemental::basic::Dotu
@@ -1311,374 +1311,374 @@ template double elemental::basic::Dotu
 #ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MC,MR>& x,
-  const DistMatrix<double,MC,Star>& y );
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MC,MR>& x,
-  const DistMatrix<double,Star,MR>& y );
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MC,MR>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MC,MR>& x,
-  const DistMatrix<double,MR,Star>& y );
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MC,MR>& x,
-  const DistMatrix<double,Star,MC>& y );
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MC,MR>& x,
-  const DistMatrix<double,VC,Star>& y );
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MC,MR>& x,
-  const DistMatrix<double,Star,VC>& y );
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MC,MR>& x,
-  const DistMatrix<double,VR,Star>& y );
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MC,MR>& x,
-  const DistMatrix<double,Star,VR>& y );
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MC,MR>& x,
-  const DistMatrix<double,Star,Star>& y );
+  const DistMatrix<double,STAR,STAR>& y );
 
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
+( const DistMatrix<double,MC,STAR>& x,
   const DistMatrix<double,MC,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
-  const DistMatrix<double,MC,Star>& y );
+( const DistMatrix<double,MC,STAR>& x,
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
-  const DistMatrix<double,Star,MR>& y );
+( const DistMatrix<double,MC,STAR>& x,
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
+( const DistMatrix<double,MC,STAR>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
-  const DistMatrix<double,MR,Star>& y );
+( const DistMatrix<double,MC,STAR>& x,
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
-  const DistMatrix<double,Star,MC>& y );
+( const DistMatrix<double,MC,STAR>& x,
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
-  const DistMatrix<double,VC,Star>& y );
+( const DistMatrix<double,MC,STAR>& x,
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
-  const DistMatrix<double,Star,VC>& y );
+( const DistMatrix<double,MC,STAR>& x,
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
-  const DistMatrix<double,VR,Star>& y );
+( const DistMatrix<double,MC,STAR>& x,
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
-  const DistMatrix<double,Star,VR>& y );
+( const DistMatrix<double,MC,STAR>& x,
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MC,Star>& x,
-  const DistMatrix<double,Star,Star>& y );
+( const DistMatrix<double,MC,STAR>& x,
+  const DistMatrix<double,STAR,STAR>& y );
 
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
+( const DistMatrix<double,STAR,MR>& x,
   const DistMatrix<double,MC,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
-  const DistMatrix<double,MC,Star>& y );
+( const DistMatrix<double,STAR,MR>& x,
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
-  const DistMatrix<double,Star,MR>& y );
+( const DistMatrix<double,STAR,MR>& x,
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
+( const DistMatrix<double,STAR,MR>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
-  const DistMatrix<double,MR,Star>& y );
+( const DistMatrix<double,STAR,MR>& x,
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
-  const DistMatrix<double,Star,MC>& y );
+( const DistMatrix<double,STAR,MR>& x,
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
-  const DistMatrix<double,VC,Star>& y );
+( const DistMatrix<double,STAR,MR>& x,
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
-  const DistMatrix<double,Star,VC>& y );
+( const DistMatrix<double,STAR,MR>& x,
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
-  const DistMatrix<double,VR,Star>& y );
+( const DistMatrix<double,STAR,MR>& x,
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
-  const DistMatrix<double,Star,VR>& y );
+( const DistMatrix<double,STAR,MR>& x,
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MR>& x,
-  const DistMatrix<double,Star,Star>& y );
+( const DistMatrix<double,STAR,MR>& x,
+  const DistMatrix<double,STAR,STAR>& y );
 
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
   const DistMatrix<double,MC,MR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
-  const DistMatrix<double,MC,Star>& y );
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
-  const DistMatrix<double,Star,MR>& y );
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
-  const DistMatrix<double,MR,Star>& y );
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
-  const DistMatrix<double,Star,MC>& y );
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
-  const DistMatrix<double,VC,Star>& y );
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
-  const DistMatrix<double,Star,VC>& y );
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
-  const DistMatrix<double,VR,Star>& y );
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
-  const DistMatrix<double,Star,VR>& y );
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
 ( const DistMatrix<double,MR,MC>& x,
-  const DistMatrix<double,Star,Star>& y );
+  const DistMatrix<double,STAR,STAR>& y );
 
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
+( const DistMatrix<double,MR,STAR>& x,
   const DistMatrix<double,MC,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
-  const DistMatrix<double,MC,Star>& y );
+( const DistMatrix<double,MR,STAR>& x,
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
-  const DistMatrix<double,Star,MR>& y );
+( const DistMatrix<double,MR,STAR>& x,
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
+( const DistMatrix<double,MR,STAR>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
-  const DistMatrix<double,MR,Star>& y );
+( const DistMatrix<double,MR,STAR>& x,
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
-  const DistMatrix<double,Star,MC>& y );
+( const DistMatrix<double,MR,STAR>& x,
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
-  const DistMatrix<double,VC,Star>& y );
+( const DistMatrix<double,MR,STAR>& x,
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
-  const DistMatrix<double,Star,VC>& y );
+( const DistMatrix<double,MR,STAR>& x,
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
-  const DistMatrix<double,VR,Star>& y );
+( const DistMatrix<double,MR,STAR>& x,
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
-  const DistMatrix<double,Star,VR>& y );
+( const DistMatrix<double,MR,STAR>& x,
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,MR,Star>& x,
-  const DistMatrix<double,Star,Star>& y );
+( const DistMatrix<double,MR,STAR>& x,
+  const DistMatrix<double,STAR,STAR>& y );
 
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
+( const DistMatrix<double,STAR,MC>& x,
   const DistMatrix<double,MC,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
-  const DistMatrix<double,MC,Star>& y );
+( const DistMatrix<double,STAR,MC>& x,
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
-  const DistMatrix<double,Star,MR>& y );
+( const DistMatrix<double,STAR,MC>& x,
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
+( const DistMatrix<double,STAR,MC>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
-  const DistMatrix<double,MR,Star>& y );
+( const DistMatrix<double,STAR,MC>& x,
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
-  const DistMatrix<double,Star,MC>& y );
+( const DistMatrix<double,STAR,MC>& x,
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
-  const DistMatrix<double,VC,Star>& y );
+( const DistMatrix<double,STAR,MC>& x,
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
-  const DistMatrix<double,Star,VC>& y );
+( const DistMatrix<double,STAR,MC>& x,
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
-  const DistMatrix<double,VR,Star>& y );
+( const DistMatrix<double,STAR,MC>& x,
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
-  const DistMatrix<double,Star,VR>& y );
+( const DistMatrix<double,STAR,MC>& x,
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,MC>& x,
-  const DistMatrix<double,Star,Star>& y );
+( const DistMatrix<double,STAR,MC>& x,
+  const DistMatrix<double,STAR,STAR>& y );
 
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
+( const DistMatrix<double,VC,STAR>& x,
   const DistMatrix<double,MC,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
-  const DistMatrix<double,MC,Star>& y );
+( const DistMatrix<double,VC,STAR>& x,
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
-  const DistMatrix<double,Star,MR>& y );
+( const DistMatrix<double,VC,STAR>& x,
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
+( const DistMatrix<double,VC,STAR>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
-  const DistMatrix<double,MR,Star>& y );
+( const DistMatrix<double,VC,STAR>& x,
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
-  const DistMatrix<double,Star,MC>& y );
+( const DistMatrix<double,VC,STAR>& x,
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
-  const DistMatrix<double,VC,Star>& y );
+( const DistMatrix<double,VC,STAR>& x,
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
-  const DistMatrix<double,Star,VC>& y );
+( const DistMatrix<double,VC,STAR>& x,
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
-  const DistMatrix<double,VR,Star>& y );
+( const DistMatrix<double,VC,STAR>& x,
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
-  const DistMatrix<double,Star,VR>& y );
+( const DistMatrix<double,VC,STAR>& x,
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VC,Star>& x,
-  const DistMatrix<double,Star,Star>& y );
+( const DistMatrix<double,VC,STAR>& x,
+  const DistMatrix<double,STAR,STAR>& y );
 
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
+( const DistMatrix<double,STAR,VC>& x,
   const DistMatrix<double,MC,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
-  const DistMatrix<double,MC,Star>& y );
+( const DistMatrix<double,STAR,VC>& x,
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
-  const DistMatrix<double,Star,MR>& y );
+( const DistMatrix<double,STAR,VC>& x,
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
+( const DistMatrix<double,STAR,VC>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
-  const DistMatrix<double,MR,Star>& y );
+( const DistMatrix<double,STAR,VC>& x,
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
-  const DistMatrix<double,Star,MC>& y );
+( const DistMatrix<double,STAR,VC>& x,
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
-  const DistMatrix<double,VC,Star>& y );
+( const DistMatrix<double,STAR,VC>& x,
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
-  const DistMatrix<double,Star,VC>& y );
+( const DistMatrix<double,STAR,VC>& x,
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
-  const DistMatrix<double,VR,Star>& y );
+( const DistMatrix<double,STAR,VC>& x,
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
-  const DistMatrix<double,Star,VR>& y );
+( const DistMatrix<double,STAR,VC>& x,
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VC>& x,
-  const DistMatrix<double,Star,Star>& y );
+( const DistMatrix<double,STAR,VC>& x,
+  const DistMatrix<double,STAR,STAR>& y );
 
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
+( const DistMatrix<double,VR,STAR>& x,
   const DistMatrix<double,MC,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
-  const DistMatrix<double,MC,Star>& y );
+( const DistMatrix<double,VR,STAR>& x,
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
-  const DistMatrix<double,Star,MR>& y );
+( const DistMatrix<double,VR,STAR>& x,
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
+( const DistMatrix<double,VR,STAR>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
-  const DistMatrix<double,MR,Star>& y );
+( const DistMatrix<double,VR,STAR>& x,
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
-  const DistMatrix<double,Star,MC>& y );
+( const DistMatrix<double,VR,STAR>& x,
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
-  const DistMatrix<double,VC,Star>& y );
+( const DistMatrix<double,VR,STAR>& x,
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
-  const DistMatrix<double,Star,VC>& y );
+( const DistMatrix<double,VR,STAR>& x,
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
-  const DistMatrix<double,VR,Star>& y );
+( const DistMatrix<double,VR,STAR>& x,
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
-  const DistMatrix<double,Star,VR>& y );
+( const DistMatrix<double,VR,STAR>& x,
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,VR,Star>& x,
-  const DistMatrix<double,Star,Star>& y );
+( const DistMatrix<double,VR,STAR>& x,
+  const DistMatrix<double,STAR,STAR>& y );
 
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
+( const DistMatrix<double,STAR,VR>& x,
   const DistMatrix<double,MC,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
-  const DistMatrix<double,MC,Star>& y );
+( const DistMatrix<double,STAR,VR>& x,
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
-  const DistMatrix<double,Star,MR>& y );
+( const DistMatrix<double,STAR,VR>& x,
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
+( const DistMatrix<double,STAR,VR>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
-  const DistMatrix<double,MR,Star>& y );
+( const DistMatrix<double,STAR,VR>& x,
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
-  const DistMatrix<double,Star,MC>& y );
+( const DistMatrix<double,STAR,VR>& x,
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
-  const DistMatrix<double,VC,Star>& y );
+( const DistMatrix<double,STAR,VR>& x,
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
-  const DistMatrix<double,Star,VC>& y );
+( const DistMatrix<double,STAR,VR>& x,
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
-  const DistMatrix<double,VR,Star>& y );
+( const DistMatrix<double,STAR,VR>& x,
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
-  const DistMatrix<double,Star,VR>& y );
+( const DistMatrix<double,STAR,VR>& x,
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,VR>& x,
-  const DistMatrix<double,Star,Star>& y );
+( const DistMatrix<double,STAR,VR>& x,
+  const DistMatrix<double,STAR,STAR>& y );
 
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
+( const DistMatrix<double,STAR,STAR>& x,
   const DistMatrix<double,MC,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
-  const DistMatrix<double,MC,Star>& y );
+( const DistMatrix<double,STAR,STAR>& x,
+  const DistMatrix<double,MC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
-  const DistMatrix<double,Star,MR>& y );
+( const DistMatrix<double,STAR,STAR>& x,
+  const DistMatrix<double,STAR,MR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
+( const DistMatrix<double,STAR,STAR>& x,
   const DistMatrix<double,MR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
-  const DistMatrix<double,MR,Star>& y );
+( const DistMatrix<double,STAR,STAR>& x,
+  const DistMatrix<double,MR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
-  const DistMatrix<double,Star,MC>& y );
+( const DistMatrix<double,STAR,STAR>& x,
+  const DistMatrix<double,STAR,MC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
-  const DistMatrix<double,VC,Star>& y );
+( const DistMatrix<double,STAR,STAR>& x,
+  const DistMatrix<double,VC,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
-  const DistMatrix<double,Star,VC>& y );
+( const DistMatrix<double,STAR,STAR>& x,
+  const DistMatrix<double,STAR,VC>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
-  const DistMatrix<double,VR,Star>& y );
+( const DistMatrix<double,STAR,STAR>& x,
+  const DistMatrix<double,VR,STAR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
-  const DistMatrix<double,Star,VR>& y );
+( const DistMatrix<double,STAR,STAR>& x,
+  const DistMatrix<double,STAR,VR>& y );
 template double elemental::basic::Dotu
-( const DistMatrix<double,Star,Star>& x,
-  const DistMatrix<double,Star,Star>& y );
+( const DistMatrix<double,STAR,STAR>& x,
+  const DistMatrix<double,STAR,STAR>& y );
 #endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 #ifndef WITHOUT_COMPLEX
@@ -1688,374 +1688,374 @@ template scomplex elemental::basic::Dotu
 #ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MC,MR>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+  const DistMatrix<scomplex,STAR,STAR>& y );
 
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
+( const DistMatrix<scomplex,MC,STAR>& x,
   const DistMatrix<scomplex,MC,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+( const DistMatrix<scomplex,MC,STAR>& x,
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+( const DistMatrix<scomplex,MC,STAR>& x,
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
+( const DistMatrix<scomplex,MC,STAR>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+( const DistMatrix<scomplex,MC,STAR>& x,
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+( const DistMatrix<scomplex,MC,STAR>& x,
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+( const DistMatrix<scomplex,MC,STAR>& x,
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+( const DistMatrix<scomplex,MC,STAR>& x,
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+( const DistMatrix<scomplex,MC,STAR>& x,
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+( const DistMatrix<scomplex,MC,STAR>& x,
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MC,Star>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+( const DistMatrix<scomplex,MC,STAR>& x,
+  const DistMatrix<scomplex,STAR,STAR>& y );
 
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
+( const DistMatrix<scomplex,STAR,MR>& x,
   const DistMatrix<scomplex,MC,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+( const DistMatrix<scomplex,STAR,MR>& x,
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+( const DistMatrix<scomplex,STAR,MR>& x,
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
+( const DistMatrix<scomplex,STAR,MR>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+( const DistMatrix<scomplex,STAR,MR>& x,
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+( const DistMatrix<scomplex,STAR,MR>& x,
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+( const DistMatrix<scomplex,STAR,MR>& x,
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+( const DistMatrix<scomplex,STAR,MR>& x,
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+( const DistMatrix<scomplex,STAR,MR>& x,
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+( const DistMatrix<scomplex,STAR,MR>& x,
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MR>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+( const DistMatrix<scomplex,STAR,MR>& x,
+  const DistMatrix<scomplex,STAR,STAR>& y );
 
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
   const DistMatrix<scomplex,MC,MR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
 ( const DistMatrix<scomplex,MR,MC>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+  const DistMatrix<scomplex,STAR,STAR>& y );
 
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
+( const DistMatrix<scomplex,MR,STAR>& x,
   const DistMatrix<scomplex,MC,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+( const DistMatrix<scomplex,MR,STAR>& x,
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+( const DistMatrix<scomplex,MR,STAR>& x,
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
+( const DistMatrix<scomplex,MR,STAR>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+( const DistMatrix<scomplex,MR,STAR>& x,
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+( const DistMatrix<scomplex,MR,STAR>& x,
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+( const DistMatrix<scomplex,MR,STAR>& x,
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+( const DistMatrix<scomplex,MR,STAR>& x,
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+( const DistMatrix<scomplex,MR,STAR>& x,
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+( const DistMatrix<scomplex,MR,STAR>& x,
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,MR,Star>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+( const DistMatrix<scomplex,MR,STAR>& x,
+  const DistMatrix<scomplex,STAR,STAR>& y );
 
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
+( const DistMatrix<scomplex,STAR,MC>& x,
   const DistMatrix<scomplex,MC,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+( const DistMatrix<scomplex,STAR,MC>& x,
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+( const DistMatrix<scomplex,STAR,MC>& x,
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
+( const DistMatrix<scomplex,STAR,MC>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+( const DistMatrix<scomplex,STAR,MC>& x,
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+( const DistMatrix<scomplex,STAR,MC>& x,
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+( const DistMatrix<scomplex,STAR,MC>& x,
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+( const DistMatrix<scomplex,STAR,MC>& x,
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+( const DistMatrix<scomplex,STAR,MC>& x,
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+( const DistMatrix<scomplex,STAR,MC>& x,
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,MC>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+( const DistMatrix<scomplex,STAR,MC>& x,
+  const DistMatrix<scomplex,STAR,STAR>& y );
 
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
+( const DistMatrix<scomplex,VC,STAR>& x,
   const DistMatrix<scomplex,MC,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+( const DistMatrix<scomplex,VC,STAR>& x,
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+( const DistMatrix<scomplex,VC,STAR>& x,
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
+( const DistMatrix<scomplex,VC,STAR>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+( const DistMatrix<scomplex,VC,STAR>& x,
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+( const DistMatrix<scomplex,VC,STAR>& x,
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+( const DistMatrix<scomplex,VC,STAR>& x,
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+( const DistMatrix<scomplex,VC,STAR>& x,
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+( const DistMatrix<scomplex,VC,STAR>& x,
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+( const DistMatrix<scomplex,VC,STAR>& x,
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VC,Star>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+( const DistMatrix<scomplex,VC,STAR>& x,
+  const DistMatrix<scomplex,STAR,STAR>& y );
 
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
+( const DistMatrix<scomplex,STAR,VC>& x,
   const DistMatrix<scomplex,MC,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+( const DistMatrix<scomplex,STAR,VC>& x,
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+( const DistMatrix<scomplex,STAR,VC>& x,
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
+( const DistMatrix<scomplex,STAR,VC>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+( const DistMatrix<scomplex,STAR,VC>& x,
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+( const DistMatrix<scomplex,STAR,VC>& x,
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+( const DistMatrix<scomplex,STAR,VC>& x,
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+( const DistMatrix<scomplex,STAR,VC>& x,
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+( const DistMatrix<scomplex,STAR,VC>& x,
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+( const DistMatrix<scomplex,STAR,VC>& x,
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VC>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+( const DistMatrix<scomplex,STAR,VC>& x,
+  const DistMatrix<scomplex,STAR,STAR>& y );
 
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
+( const DistMatrix<scomplex,VR,STAR>& x,
   const DistMatrix<scomplex,MC,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+( const DistMatrix<scomplex,VR,STAR>& x,
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+( const DistMatrix<scomplex,VR,STAR>& x,
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
+( const DistMatrix<scomplex,VR,STAR>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+( const DistMatrix<scomplex,VR,STAR>& x,
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+( const DistMatrix<scomplex,VR,STAR>& x,
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+( const DistMatrix<scomplex,VR,STAR>& x,
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+( const DistMatrix<scomplex,VR,STAR>& x,
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+( const DistMatrix<scomplex,VR,STAR>& x,
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+( const DistMatrix<scomplex,VR,STAR>& x,
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,VR,Star>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+( const DistMatrix<scomplex,VR,STAR>& x,
+  const DistMatrix<scomplex,STAR,STAR>& y );
 
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
+( const DistMatrix<scomplex,STAR,VR>& x,
   const DistMatrix<scomplex,MC,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+( const DistMatrix<scomplex,STAR,VR>& x,
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+( const DistMatrix<scomplex,STAR,VR>& x,
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
+( const DistMatrix<scomplex,STAR,VR>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+( const DistMatrix<scomplex,STAR,VR>& x,
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+( const DistMatrix<scomplex,STAR,VR>& x,
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+( const DistMatrix<scomplex,STAR,VR>& x,
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+( const DistMatrix<scomplex,STAR,VR>& x,
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+( const DistMatrix<scomplex,STAR,VR>& x,
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+( const DistMatrix<scomplex,STAR,VR>& x,
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,VR>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+( const DistMatrix<scomplex,STAR,VR>& x,
+  const DistMatrix<scomplex,STAR,STAR>& y );
 
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
+( const DistMatrix<scomplex,STAR,STAR>& x,
   const DistMatrix<scomplex,MC,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
-  const DistMatrix<scomplex,MC,Star>& y );
+( const DistMatrix<scomplex,STAR,STAR>& x,
+  const DistMatrix<scomplex,MC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
-  const DistMatrix<scomplex,Star,MR>& y );
+( const DistMatrix<scomplex,STAR,STAR>& x,
+  const DistMatrix<scomplex,STAR,MR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
+( const DistMatrix<scomplex,STAR,STAR>& x,
   const DistMatrix<scomplex,MR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
-  const DistMatrix<scomplex,MR,Star>& y );
+( const DistMatrix<scomplex,STAR,STAR>& x,
+  const DistMatrix<scomplex,MR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
-  const DistMatrix<scomplex,Star,MC>& y );
+( const DistMatrix<scomplex,STAR,STAR>& x,
+  const DistMatrix<scomplex,STAR,MC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
-  const DistMatrix<scomplex,VC,Star>& y );
+( const DistMatrix<scomplex,STAR,STAR>& x,
+  const DistMatrix<scomplex,VC,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
-  const DistMatrix<scomplex,Star,VC>& y );
+( const DistMatrix<scomplex,STAR,STAR>& x,
+  const DistMatrix<scomplex,STAR,VC>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
-  const DistMatrix<scomplex,VR,Star>& y );
+( const DistMatrix<scomplex,STAR,STAR>& x,
+  const DistMatrix<scomplex,VR,STAR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
-  const DistMatrix<scomplex,Star,VR>& y );
+( const DistMatrix<scomplex,STAR,STAR>& x,
+  const DistMatrix<scomplex,STAR,VR>& y );
 template scomplex elemental::basic::Dotu
-( const DistMatrix<scomplex,Star,Star>& x,
-  const DistMatrix<scomplex,Star,Star>& y );
+( const DistMatrix<scomplex,STAR,STAR>& x,
+  const DistMatrix<scomplex,STAR,STAR>& y );
 #endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 template dcomplex elemental::basic::Dotu
@@ -2064,373 +2064,373 @@ template dcomplex elemental::basic::Dotu
 #ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MC,MR>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
+( const DistMatrix<dcomplex,MC,STAR>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+( const DistMatrix<dcomplex,MC,STAR>& x,
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+( const DistMatrix<dcomplex,MC,STAR>& x,
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
+( const DistMatrix<dcomplex,MC,STAR>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+( const DistMatrix<dcomplex,MC,STAR>& x,
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+( const DistMatrix<dcomplex,MC,STAR>& x,
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+( const DistMatrix<dcomplex,MC,STAR>& x,
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+( const DistMatrix<dcomplex,MC,STAR>& x,
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+( const DistMatrix<dcomplex,MC,STAR>& x,
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+( const DistMatrix<dcomplex,MC,STAR>& x,
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MC,Star>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+( const DistMatrix<dcomplex,MC,STAR>& x,
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
+( const DistMatrix<dcomplex,STAR,MR>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+( const DistMatrix<dcomplex,STAR,MR>& x,
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+( const DistMatrix<dcomplex,STAR,MR>& x,
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
+( const DistMatrix<dcomplex,STAR,MR>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+( const DistMatrix<dcomplex,STAR,MR>& x,
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+( const DistMatrix<dcomplex,STAR,MR>& x,
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+( const DistMatrix<dcomplex,STAR,MR>& x,
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+( const DistMatrix<dcomplex,STAR,MR>& x,
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+( const DistMatrix<dcomplex,STAR,MR>& x,
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+( const DistMatrix<dcomplex,STAR,MR>& x,
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MR>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+( const DistMatrix<dcomplex,STAR,MR>& x,
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
 ( const DistMatrix<dcomplex,MR,MC>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
+( const DistMatrix<dcomplex,MR,STAR>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+( const DistMatrix<dcomplex,MR,STAR>& x,
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+( const DistMatrix<dcomplex,MR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
+( const DistMatrix<dcomplex,MR,STAR>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+( const DistMatrix<dcomplex,MR,STAR>& x,
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+( const DistMatrix<dcomplex,MR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+( const DistMatrix<dcomplex,MR,STAR>& x,
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+( const DistMatrix<dcomplex,MR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+( const DistMatrix<dcomplex,MR,STAR>& x,
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+( const DistMatrix<dcomplex,MR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,MR,Star>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+( const DistMatrix<dcomplex,MR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
+( const DistMatrix<dcomplex,STAR,MC>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+( const DistMatrix<dcomplex,STAR,MC>& x,
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+( const DistMatrix<dcomplex,STAR,MC>& x,
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
+( const DistMatrix<dcomplex,STAR,MC>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+( const DistMatrix<dcomplex,STAR,MC>& x,
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+( const DistMatrix<dcomplex,STAR,MC>& x,
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+( const DistMatrix<dcomplex,STAR,MC>& x,
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+( const DistMatrix<dcomplex,STAR,MC>& x,
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+( const DistMatrix<dcomplex,STAR,MC>& x,
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+( const DistMatrix<dcomplex,STAR,MC>& x,
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,MC>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+( const DistMatrix<dcomplex,STAR,MC>& x,
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
+( const DistMatrix<dcomplex,VC,STAR>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+( const DistMatrix<dcomplex,VC,STAR>& x,
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+( const DistMatrix<dcomplex,VC,STAR>& x,
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
+( const DistMatrix<dcomplex,VC,STAR>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+( const DistMatrix<dcomplex,VC,STAR>& x,
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+( const DistMatrix<dcomplex,VC,STAR>& x,
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+( const DistMatrix<dcomplex,VC,STAR>& x,
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+( const DistMatrix<dcomplex,VC,STAR>& x,
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+( const DistMatrix<dcomplex,VC,STAR>& x,
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+( const DistMatrix<dcomplex,VC,STAR>& x,
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VC,Star>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+( const DistMatrix<dcomplex,VC,STAR>& x,
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
+( const DistMatrix<dcomplex,STAR,VC>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+( const DistMatrix<dcomplex,STAR,VC>& x,
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+( const DistMatrix<dcomplex,STAR,VC>& x,
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
+( const DistMatrix<dcomplex,STAR,VC>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+( const DistMatrix<dcomplex,STAR,VC>& x,
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+( const DistMatrix<dcomplex,STAR,VC>& x,
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+( const DistMatrix<dcomplex,STAR,VC>& x,
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+( const DistMatrix<dcomplex,STAR,VC>& x,
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+( const DistMatrix<dcomplex,STAR,VC>& x,
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+( const DistMatrix<dcomplex,STAR,VC>& x,
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VC>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+( const DistMatrix<dcomplex,STAR,VC>& x,
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
+( const DistMatrix<dcomplex,VR,STAR>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+( const DistMatrix<dcomplex,VR,STAR>& x,
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+( const DistMatrix<dcomplex,VR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
+( const DistMatrix<dcomplex,VR,STAR>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+( const DistMatrix<dcomplex,VR,STAR>& x,
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+( const DistMatrix<dcomplex,VR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+( const DistMatrix<dcomplex,VR,STAR>& x,
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+( const DistMatrix<dcomplex,VR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+( const DistMatrix<dcomplex,VR,STAR>& x,
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+( const DistMatrix<dcomplex,VR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,VR,Star>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+( const DistMatrix<dcomplex,VR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
+( const DistMatrix<dcomplex,STAR,VR>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+( const DistMatrix<dcomplex,STAR,VR>& x,
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+( const DistMatrix<dcomplex,STAR,VR>& x,
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
+( const DistMatrix<dcomplex,STAR,VR>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+( const DistMatrix<dcomplex,STAR,VR>& x,
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+( const DistMatrix<dcomplex,STAR,VR>& x,
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+( const DistMatrix<dcomplex,STAR,VR>& x,
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+( const DistMatrix<dcomplex,STAR,VR>& x,
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+( const DistMatrix<dcomplex,STAR,VR>& x,
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+( const DistMatrix<dcomplex,STAR,VR>& x,
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,VR>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+( const DistMatrix<dcomplex,STAR,VR>& x,
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
+( const DistMatrix<dcomplex,STAR,STAR>& x,
   const DistMatrix<dcomplex,MC,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
-  const DistMatrix<dcomplex,MC,Star>& y );
+( const DistMatrix<dcomplex,STAR,STAR>& x,
+  const DistMatrix<dcomplex,MC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
-  const DistMatrix<dcomplex,Star,MR>& y );
+( const DistMatrix<dcomplex,STAR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,MR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
+( const DistMatrix<dcomplex,STAR,STAR>& x,
   const DistMatrix<dcomplex,MR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
-  const DistMatrix<dcomplex,MR,Star>& y );
+( const DistMatrix<dcomplex,STAR,STAR>& x,
+  const DistMatrix<dcomplex,MR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
-  const DistMatrix<dcomplex,Star,MC>& y );
+( const DistMatrix<dcomplex,STAR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,MC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
-  const DistMatrix<dcomplex,VC,Star>& y );
+( const DistMatrix<dcomplex,STAR,STAR>& x,
+  const DistMatrix<dcomplex,VC,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
-  const DistMatrix<dcomplex,Star,VC>& y );
+( const DistMatrix<dcomplex,STAR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,VC>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
-  const DistMatrix<dcomplex,VR,Star>& y );
+( const DistMatrix<dcomplex,STAR,STAR>& x,
+  const DistMatrix<dcomplex,VR,STAR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
-  const DistMatrix<dcomplex,Star,VR>& y );
+( const DistMatrix<dcomplex,STAR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,VR>& y );
 template dcomplex elemental::basic::Dotu
-( const DistMatrix<dcomplex,Star,Star>& x,
-  const DistMatrix<dcomplex,Star,Star>& y );
+( const DistMatrix<dcomplex,STAR,STAR>& x,
+  const DistMatrix<dcomplex,STAR,STAR>& y );
 #endif // ENABLE_ALL_DISTRIBUTED_DOT
 #endif // WITHOUT_COMPLEX

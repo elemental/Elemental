@@ -49,22 +49,22 @@ elemental::advanced::ApplyPackedReflectors
     {
         if( shape == Lower )
         {
-            if( direction == Vertical && order == Forward )
+            if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLLVF( offset, H, A );
-            else if( direction == Vertical )
+            else if( direction == VERTICAL )
                 advanced::internal::ApplyPackedReflectorsLLVB( offset, H, A );
-            else if( order == Forward )
+            else if( order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLLHF( offset, H, A );
             else
                 advanced::internal::ApplyPackedReflectorsLLHB( offset, H, A );
         }
         else
         {
-            if( direction == Vertical && order == Forward )
+            if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLUVF( offset, H, A );
-            else if( direction == Vertical )
+            else if( direction == VERTICAL )
                 advanced::internal::ApplyPackedReflectorsLUVB( offset, H, A );
-            else if( order == Forward )
+            else if( order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLUHF( offset, H, A );
             else
                 advanced::internal::ApplyPackedReflectorsLUHB( offset, H, A );
@@ -74,22 +74,22 @@ elemental::advanced::ApplyPackedReflectors
     {
         if( shape == Lower )
         {
-            if( direction == Vertical && order == Forward )
+            if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRLVF( offset, H, A );
-            else if( direction == Vertical )
+            else if( direction == VERTICAL )
                 advanced::internal::ApplyPackedReflectorsRLVB( offset, H, A );
-            else if( order == Forward )
+            else if( order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRLHF( offset, H, A );
             else
                 advanced::internal::ApplyPackedReflectorsRLHB( offset, H, A );
         }
         else
         {
-            if( direction == Vertical && order == Forward )
+            if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRUVF( offset, H, A );
-            else if( direction == Vertical )
+            else if( direction == VERTICAL )
                 advanced::internal::ApplyPackedReflectorsRUVB( offset, H, A );
-            else if( order == Forward )
+            else if( order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRUHF( offset, H, A );
             else
                 advanced::internal::ApplyPackedReflectorsRUHB( offset, H, A );
@@ -108,7 +108,7 @@ elemental::advanced::ApplyPackedReflectors
   Conjugation conjugation,
   int offset,
   const DistMatrix<complex<R>,MC,MR  >& H, 
-  const DistMatrix<complex<R>,MD,Star>& t,
+  const DistMatrix<complex<R>,MD,STAR>& t,
         DistMatrix<complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
@@ -118,13 +118,13 @@ elemental::advanced::ApplyPackedReflectors
     {
         if( shape == Lower )
         {
-            if( direction == Vertical && order == Forward )
+            if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLLVF
                 ( conjugation, offset, H, t, A );
-            else if( direction == Vertical )
+            else if( direction == VERTICAL )
                 advanced::internal::ApplyPackedReflectorsLLVB
                 ( conjugation, offset, H, t, A );
-            else if( order == Forward )
+            else if( order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLLHF
                 ( conjugation, offset, H, t, A );
             else
@@ -133,13 +133,13 @@ elemental::advanced::ApplyPackedReflectors
         }
         else
         {
-            if( direction == Vertical && order == Forward )
+            if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLUVF
                 ( conjugation, offset, H, t, A );
-            else if( direction == Vertical )
+            else if( direction == VERTICAL )
                 advanced::internal::ApplyPackedReflectorsLUVB
                 ( conjugation, offset, H, t, A );
-            else if( order == Forward )
+            else if( order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLUHF
                 ( conjugation, offset, H, t, A );
             else
@@ -151,13 +151,13 @@ elemental::advanced::ApplyPackedReflectors
     {
         if( shape == Lower )
         {
-            if( direction == Vertical && order == Forward )
+            if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRLVF
                 ( conjugation, offset, H, t, A );
-            else if( direction == Vertical )
+            else if( direction == VERTICAL )
                 advanced::internal::ApplyPackedReflectorsRLVB
                 ( conjugation, offset, H, t, A );
-            else if( order == Forward )
+            else if( order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRLHF
                 ( conjugation, offset, H, t, A );
             else
@@ -166,13 +166,13 @@ elemental::advanced::ApplyPackedReflectors
         }
         else
         {
-            if( direction == Vertical && order == Forward )
+            if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRUVF
                 ( conjugation, offset, H, t, A );
-            else if( direction == Vertical )
+            else if( direction == VERTICAL )
                 advanced::internal::ApplyPackedReflectorsRUVB
                 ( conjugation, offset, H, t, A );
-            else if( order == Forward )
+            else if( order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRUHF
                 ( conjugation, offset, H, t, A );
             else
@@ -192,13 +192,13 @@ elemental::advanced::ApplyPackedReflectors
   Conjugation conjugation,
   int offset,
   const DistMatrix<complex<R>,MC,  MR  >& H, 
-  const DistMatrix<complex<R>,Star,Star>& t,
+  const DistMatrix<complex<R>,STAR,STAR>& t,
         DistMatrix<complex<R>,MC,  MR  >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::ApplyPackedReflectors");
 #endif
-    DistMatrix<complex<R>,MD,Star> tDiag(A.Grid());
+    DistMatrix<complex<R>,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiag( A, offset );
     tDiag = t;
     advanced::ApplyPackedReflectors
@@ -228,14 +228,14 @@ template void elemental::advanced::ApplyPackedReflectors
   Conjugation conjugation,
   int offset,
   const DistMatrix<scomplex,MC,  MR  >& H,
-  const DistMatrix<scomplex,MD,  Star>& t,
+  const DistMatrix<scomplex,MD,  STAR>& t,
         DistMatrix<scomplex,MC,  MR  >& A );
 template void elemental::advanced::ApplyPackedReflectors
 ( Side side, Shape shape, VectorDirection direction, ForwardOrBackward order, 
   Conjugation conjugation,
   int offset,
   const DistMatrix<scomplex,MC,  MR  >& H,
-  const DistMatrix<scomplex,Star,Star>& t,
+  const DistMatrix<scomplex,STAR,STAR>& t,
         DistMatrix<scomplex,MC,  MR  >& A );
 
 template void elemental::advanced::ApplyPackedReflectors
@@ -243,14 +243,14 @@ template void elemental::advanced::ApplyPackedReflectors
   Conjugation conjugation,
   int offset,
   const DistMatrix<dcomplex,MC,  MR  >& H,
-  const DistMatrix<dcomplex,MD,  Star>& t,
+  const DistMatrix<dcomplex,MD,  STAR>& t,
         DistMatrix<dcomplex,MC,  MR  >& A );
 template void elemental::advanced::ApplyPackedReflectors
 ( Side side, Shape shape, VectorDirection direction, ForwardOrBackward order, 
   Conjugation conjugation,
   int offset,
   const DistMatrix<dcomplex,MC,  MR  >& H,
-  const DistMatrix<dcomplex,Star,Star>& t,
+  const DistMatrix<dcomplex,STAR,STAR>& t,
         DistMatrix<dcomplex,MC,  MR  >& A );
 #endif
 

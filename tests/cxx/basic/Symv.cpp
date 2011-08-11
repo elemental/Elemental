@@ -85,8 +85,7 @@ void TestSymv
     }
     mpi::Barrier( g.VCComm() );
     startTime = mpi::Time();
-    basic::Symv
-    ( shape, alpha, A, x, beta, y );
+    basic::Symv( shape, alpha, A, x, beta, y );
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -147,7 +146,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         basic::SetLocalSymvBlocksize<double>( nbLocalDouble );
 #ifndef WITHOUT_COMPLEX
-        basic::SetLocalSymvBlocksize< std::complex<double> >
+        basic::SetLocalSymvBlocksize<std::complex<double> >
         ( nbLocalComplexDouble );
 #endif
 

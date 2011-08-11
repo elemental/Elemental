@@ -44,8 +44,8 @@ void Usage()
             "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
-         << "  side: we set up ABX=XW or BAX=XW if side=Left, \n"
-         << "                            AX=BXW if side=Right\n"
+         << "  side: we set up ABX=XW or BAX=XW if side=LEFT, \n"
+         << "                            AX=BXW if side=RIGHT\n"
          << "  shape: {L,U}\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
@@ -69,26 +69,26 @@ void TestCorrectness
     X.SetToRandom();
     Y = X;
 
-    if( side == Right )
+    if( side == RIGHT )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // tril(B)^-1 AOrig tril(B)^-H
-            basic::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (F)1, B, Y );
-            basic::Hemm( Left, Lower, (F)1, AOrig, Y, (F)0, Z );
-            basic::Trsm( Left, Lower, Normal, NonUnit, (F)1, B, Z );
-            basic::Hemm( Left, Lower, (F)-1, A, X, (F)1, Z );
+            basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, B, Y );
+            basic::Hemm( LEFT, LOWER, (F)1, AOrig, Y, (F)0, Z );
+            basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, B, Z );
+            basic::Hemm( LEFT, LOWER, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
+                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
-            F infNormOfA = advanced::HermitianNorm( shape, A, InfinityNorm );
-            F frobNormOfA = advanced::HermitianNorm( shape, A, FrobeniusNorm );
-            F oneNormOfError = advanced::Norm( Z, OneNorm );
-            F infNormOfError = advanced::Norm( Z, InfinityNorm );
-            F frobNormOfError = advanced::Norm( Z, FrobeniusNorm );
+                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+            F infNormOfA = advanced::HermitianNorm( shape, A, INFINITY_NORM );
+            F frobNormOfA = advanced::HermitianNorm( shape, A, FROBENIUS_NORM );
+            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
+            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
+            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo     = "
@@ -112,19 +112,19 @@ void TestCorrectness
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // triu(B)^-H AOrig triu(B)^-1
-            basic::Trsm( Left, Upper, Normal, NonUnit, (F)1, B, Y );
-            basic::Hemm( Left, Upper, (F)1, AOrig, Y, (F)0, Z );
-            basic::Trsm( Left, Upper, ConjugateTranspose, NonUnit, (F)1, B, Z );
-            basic::Hemm( Left, Upper, (F)-1, A, X, (F)1, Z );
+            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, B, Y );
+            basic::Hemm( LEFT, UPPER, (F)1, AOrig, Y, (F)0, Z );
+            basic::Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, B, Z );
+            basic::Hemm( LEFT, UPPER, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
+                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
-            F infNormOfA = advanced::HermitianNorm( shape, A, InfinityNorm );
-            F frobNormOfA = advanced::HermitianNorm( shape, A, FrobeniusNorm );
-            F oneNormOfError = advanced::Norm( Z, OneNorm );
-            F infNormOfError = advanced::Norm( Z, InfinityNorm );
-            F frobNormOfError = advanced::Norm( Z, FrobeniusNorm );
+                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+            F infNormOfA = advanced::HermitianNorm( shape, A, INFINITY_NORM );
+            F frobNormOfA = advanced::HermitianNorm( shape, A, FROBENIUS_NORM );
+            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
+            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
+            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo     = "
@@ -146,26 +146,26 @@ void TestCorrectness
     }
     else
     {
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // tril(B)^H AOrig tril(B)
-            basic::Trmm( Left, Lower, Normal, NonUnit, (F)1, B, Y );
-            basic::Hemm( Left, Lower, (F)1, AOrig, Y, (F)0, Z );
-            basic::Trmm( Left, Lower, ConjugateTranspose, NonUnit, (F)1, B, Z );
-            basic::Hemm( Left, Lower, (F)-1, A, X, (F)1, Z );
+            basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, B, Y );
+            basic::Hemm( LEFT, LOWER, (F)1, AOrig, Y, (F)0, Z );
+            basic::Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, B, Z );
+            basic::Hemm( LEFT, LOWER, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
+                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
+                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
             F infNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
+                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
             F frobNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
-            F oneNormOfError = advanced::Norm( Z, OneNorm );
-            F infNormOfError = advanced::Norm( Z, InfinityNorm );
-            F frobNormOfError = advanced::Norm( Z, FrobeniusNorm );
+                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
+            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
+            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo = "
@@ -189,21 +189,21 @@ void TestCorrectness
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // triu(B) AOrig triu(B)^H
-            basic::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (F)1, B, Y );
-            basic::Hemm( Left, Upper, (F)1, AOrig, Y, (F)0, Z );
-            basic::Trmm( Left, Upper, Normal, NonUnit, (F)1, B, Z );
-            basic::Hemm( Left, Upper, (F)-1, A, X, (F)1, Z );
+            basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, B, Y );
+            basic::Hemm( LEFT, UPPER, (F)1, AOrig, Y, (F)0, Z );
+            basic::Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, B, Z );
+            basic::Hemm( LEFT, UPPER, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
+                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
+                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
             F infNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, InfinityNorm );
+                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
             F frobNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
-            F oneNormOfError = advanced::Norm( Z, OneNorm );
-            F infNormOfError = advanced::Norm( Z, InfinityNorm );
-            F frobNormOfError = advanced::Norm( Z, FrobeniusNorm );
+                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
+            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
+            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
             if( g.VCRank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo = "
@@ -242,9 +242,9 @@ void TestHegst
     {
         DistMatrix<F,MC,MR> C( m, m, g );
         C.SetToRandom();
-        basic::Herk( shape, Normal, (F)1, C, (F)0, A );
+        basic::Herk( shape, NORMAL, (F)1, C, (F)0, A );
         C.SetToRandom();
-        basic::Herk( shape, Normal, (F)1, C, (F)0, B );
+        basic::Herk( shape, NORMAL, (F)1, C, (F)0, B );
         advanced::Chol( shape, B );
     }
     else
@@ -252,7 +252,7 @@ void TestHegst
         A.SetToRandomHPD();
         B.SetToRandomHPD();
     }
-    B.MakeTrapezoidal( Left, shape );
+    B.MakeTrapezoidal( LEFT, shape );
     if( testCorrectness )
     {
         if( g.VCRank() == 0 )

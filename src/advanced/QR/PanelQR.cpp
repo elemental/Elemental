@@ -52,8 +52,8 @@ elemental::advanced::internal::PanelQR
                          A20(g), a21(g),     A22(g);
 
     // Temporary distributions
-    DistMatrix<R,MC,Star> ALeftCol_MC_Star(g);
-    DistMatrix<R,MR,Star> Z_MR_Star(g);
+    DistMatrix<R,MC,STAR> ALeftCol_MC_STAR(g);
+    DistMatrix<R,MR,STAR> Z_MR_STAR(g);
 
     PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
@@ -75,9 +75,9 @@ elemental::advanced::internal::PanelQR
         ( a12,
           A22 );
 
-        ALeftCol_MC_Star.AlignWith( ARightPan );
-        Z_MR_Star.AlignWith( ARightPan );
-        Z_MR_Star.ResizeTo( ARightPan.Width(), 1 );
+        ALeftCol_MC_STAR.AlignWith( ARightPan );
+        Z_MR_STAR.AlignWith( ARightPan );
+        Z_MR_STAR.ResizeTo( ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
         R tau = advanced::Reflector( alpha11, a21 );
 
@@ -90,26 +90,26 @@ elemental::advanced::internal::PanelQR
             alpha11.SetLocalEntry(0,0,1);
         }
 
-        ALeftCol_MC_Star = ALeftCol;
+        ALeftCol_MC_STAR = ALeftCol;
 
         basic::Gemv
-        ( Transpose, 
+        ( TRANSPOSE, 
           (R)1, ARightPan.LockedLocalMatrix(), 
-                ALeftCol_MC_Star.LockedLocalMatrix(),
-          (R)0, Z_MR_Star.LocalMatrix() );
-        Z_MR_Star.SumOverCol(); 
+                ALeftCol_MC_STAR.LockedLocalMatrix(),
+          (R)0, Z_MR_STAR.LocalMatrix() );
+        Z_MR_STAR.SumOverCol(); 
 
         basic::Ger
         ( -tau, 
-          ALeftCol_MC_Star.LockedLocalMatrix(), 
-          Z_MR_Star.LockedLocalMatrix(),
+          ALeftCol_MC_STAR.LockedLocalMatrix(), 
+          Z_MR_STAR.LockedLocalMatrix(),
           ARightPan.LocalMatrix() );
 
         if( myDiagonalEntry )
             alpha11.SetLocalEntry(0,0,alpha);
         //--------------------------------------------------------------------//
-        ALeftCol_MC_Star.FreeAlignments();
-        Z_MR_Star.FreeAlignments();
+        ALeftCol_MC_STAR.FreeAlignments();
+        Z_MR_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
@@ -128,7 +128,7 @@ template<typename R> // representation of a real number
 void
 elemental::advanced::internal::PanelQR
 ( DistMatrix<complex<R>,MC,MR  >& A,
-  DistMatrix<complex<R>,MD,Star>& t )
+  DistMatrix<complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::PanelQR");
@@ -149,14 +149,14 @@ elemental::advanced::internal::PanelQR
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ALeftCol(g), ARightPan(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
                          A20(g), a21(g),     A22(g);
-    DistMatrix<C,MD,Star>
+    DistMatrix<C,MD,STAR>
         tT(g),  t0(g),
         tB(g),  tau1(g),
                 t2(g);
 
     // Temporary distributions
-    DistMatrix<C,MC,Star> ALeftCol_MC_Star(g);
-    DistMatrix<C,MR,Star> Z_MR_Star(g);
+    DistMatrix<C,MC,STAR> ALeftCol_MC_STAR(g);
+    DistMatrix<C,MR,STAR> Z_MR_STAR(g);
 
     PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
@@ -187,9 +187,9 @@ elemental::advanced::internal::PanelQR
         ( a12,
           A22 );
 
-        ALeftCol_MC_Star.AlignWith( ARightPan );
-        Z_MR_Star.AlignWith( ARightPan );
-        Z_MR_Star.ResizeTo( ARightPan.Width(), 1 );
+        ALeftCol_MC_STAR.AlignWith( ARightPan );
+        Z_MR_STAR.AlignWith( ARightPan );
+        Z_MR_STAR.ResizeTo( ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
         C tau = advanced::Reflector( alpha11, a21 );
         tau1.Set( 0, 0, tau );
@@ -203,26 +203,26 @@ elemental::advanced::internal::PanelQR
             alpha11.SetLocalEntry(0,0,1);
         }
 
-        ALeftCol_MC_Star = ALeftCol;
+        ALeftCol_MC_STAR = ALeftCol;
 
         basic::Gemv
-        ( ConjugateTranspose, 
+        ( ADJOINT, 
           (C)1, ARightPan.LockedLocalMatrix(), 
-                ALeftCol_MC_Star.LockedLocalMatrix(),
-          (C)0, Z_MR_Star.LocalMatrix() );
-        Z_MR_Star.SumOverCol(); 
+                ALeftCol_MC_STAR.LockedLocalMatrix(),
+          (C)0, Z_MR_STAR.LocalMatrix() );
+        Z_MR_STAR.SumOverCol(); 
 
         basic::Ger
         ( -conj(tau), 
-          ALeftCol_MC_Star.LockedLocalMatrix(), 
-          Z_MR_Star.LockedLocalMatrix(),
+          ALeftCol_MC_STAR.LockedLocalMatrix(), 
+          Z_MR_STAR.LockedLocalMatrix(),
           ARightPan.LocalMatrix() );
 
         if( myDiagonalEntry )
             alpha11.SetLocalEntry(0,0,alpha);
         //--------------------------------------------------------------------//
-        ALeftCol_MC_Star.FreeAlignments();
-        Z_MR_Star.FreeAlignments();
+        ALeftCol_MC_STAR.FreeAlignments();
+        Z_MR_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
@@ -255,11 +255,11 @@ elemental::advanced::internal::PanelQR
 template void
 elemental::advanced::internal::PanelQR
 ( DistMatrix<scomplex,MC,MR  >& A,
-  DistMatrix<scomplex,MD,Star>& t );
+  DistMatrix<scomplex,MD,STAR>& t );
 
 template void
 elemental::advanced::internal::PanelQR
 ( DistMatrix<dcomplex,MC,MR  >& A,
-  DistMatrix<dcomplex,MD,Star>& t );
+  DistMatrix<dcomplex,MD,STAR>& t );
 #endif
 

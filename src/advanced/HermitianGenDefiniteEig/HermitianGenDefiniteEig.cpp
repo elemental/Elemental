@@ -42,7 +42,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,STAR,VR>& w,
   DistMatrix<R,MC,  MR>& X,
   bool tryForHighAccuracy )
 {
@@ -52,7 +52,7 @@ elemental::advanced::HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const Side side = ( type==AXBX ? Right : Left );
+    const Side side = ( type==AXBX ? RIGHT : LEFT );
 
     advanced::Chol( shape, B );
     advanced::Hegst( side, shape, A, B );
@@ -60,16 +60,16 @@ elemental::advanced::HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
-            basic::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (R)1, B, X );
+            basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
-            basic::Trsm( Left, Upper, Normal, NonUnit, (R)1, B, X );
+            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
         if( shape == Lower )
-            basic::Trmm( Left, Lower, Normal, NonUnit, (R)1, B, X );
+            basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
-            basic::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (R)1, B, X );
+            basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -86,7 +86,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,STAR,VR>& w,
   DistMatrix<R,MC,  MR>& X,
   int a, int b, bool tryForHighAccuracy )
 {
@@ -104,16 +104,16 @@ elemental::advanced::HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
-            basic::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (R)1, B, X );
+            basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
-            basic::Trsm( Left, Upper, Normal, NonUnit, (R)1, B, X );
+            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
         if( shape == Lower )
-            basic::Trmm( Left, Lower, Normal, NonUnit, (R)1, B, X );
+            basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
-            basic::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (R)1, B, X );
+            basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -128,7 +128,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,STAR,VR>& w,
   DistMatrix<R,MC,  MR>& X,
   R a, R b, bool tryForHighAccuracy )
 {
@@ -146,16 +146,16 @@ elemental::advanced::HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
-            basic::Trsm( Left, Lower, ConjugateTranspose, NonUnit, (R)1, B, X );
+            basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
-            basic::Trsm( Left, Upper, Normal, NonUnit, (R)1, B, X );
+            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
         if( shape == Lower )
-            basic::Trmm( Left, Lower, Normal, NonUnit, (R)1, B, X );
+            basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
-            basic::Trmm( Left, Upper, ConjugateTranspose, NonUnit, (R)1, B, X );
+            basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -169,7 +169,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,STAR,VR>& w,
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -198,7 +198,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,STAR,VR>& w,
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -225,7 +225,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,Star,VR>& w,
+  DistMatrix<R,STAR,VR>& w,
   R a, R b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -252,7 +252,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<             R, STAR,VR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X,
   bool tryForHighAccuracy )
 {
@@ -270,32 +270,20 @@ elemental::advanced::HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
-        {
             basic::Trsm
-            ( Left, Lower, ConjugateTranspose, NonUnit, 
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
-        {
             basic::Trsm
-            ( Left, Upper, Normal, NonUnit, 
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
     }
     else /* type == BAX */
     {
         if( shape == Lower )
-        {
             basic::Trmm
-            ( Left, Lower, Normal, NonUnit,
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
-        {
             basic::Trmm
-            ( Left, Upper, ConjugateTranspose, NonUnit,
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -312,7 +300,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<             R, STAR,VR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X,
   int a, int b, bool tryForHighAccuracy )
 {
@@ -330,32 +318,20 @@ elemental::advanced::HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
-        {
             basic::Trsm
-            ( Left, Lower, ConjugateTranspose, NonUnit, 
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
-        {
             basic::Trsm
-            ( Left, Upper, Normal, NonUnit, 
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
     }
     else /* type == BAX */
     {
         if( shape == Lower )
-        {
             basic::Trmm
-            ( Left, Lower, Normal, NonUnit,
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
-        {
             basic::Trmm
-            ( Left, Upper, ConjugateTranspose, NonUnit,
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -370,7 +346,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<             R, STAR,VR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X,
   R a, R b, bool tryForHighAccuracy )
 {
@@ -388,32 +364,20 @@ elemental::advanced::HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( shape == Lower )
-        {
             basic::Trsm
-            ( Left, Lower, ConjugateTranspose, NonUnit, 
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
-        {
             basic::Trsm
-            ( Left, Upper, Normal, NonUnit, 
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
     }
     else /* type == BAX */
     {
         if( shape == Lower )
-        {
             basic::Trmm
-            ( Left, Lower, Normal, NonUnit,
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
-        {
             basic::Trmm
-            ( Left, Upper, ConjugateTranspose, NonUnit,
-              std::complex<R>(1), B, X );
-        }
+            ( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -427,7 +391,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<             R, STAR,VR>& w,
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -456,7 +420,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<             R, STAR,VR>& w,
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -483,7 +447,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, Star,VR>& w,
+  DistMatrix<             R, STAR,VR>& w,
   R a, R b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -508,7 +472,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   DistMatrix<double,MC,  MR>& X,
   bool tryForHighAccuracy );
 
@@ -517,7 +481,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   DistMatrix<double,MC,  MR>& X,
   int a, int b, bool tryForHighAccuracy );
 
@@ -526,7 +490,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   DistMatrix<double,MC,  MR>& X,
   double a, double b, bool tryForHighAccuracy );
 
@@ -535,7 +499,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   bool tryForHighAccuracy );
 
 template void
@@ -543,7 +507,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   int a, int b, bool tryForHighAccuracy );
 
 template void
@@ -551,7 +515,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,MC,  MR>& B,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   double a, double b, bool tryForHighAccuracy );
 
 #ifndef WITHOUT_COMPLEX
@@ -560,7 +524,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& X,
   bool tryForHighAccuracy );
 
@@ -569,7 +533,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& X,
   int a, int b, bool tryForHighAccuracy );
 
@@ -578,7 +542,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& X,
   double a, double b, bool tryForHighAccuracy );
 
@@ -587,7 +551,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   bool tryForHighAccuracy );
 
 template void
@@ -595,7 +559,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   int a, int b, bool tryForHighAccuracy );
 
 template void
@@ -603,7 +567,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<std::complex<double>,MC,  MR>& B,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   double a, double b, bool tryForHighAccuracy );
 #endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR

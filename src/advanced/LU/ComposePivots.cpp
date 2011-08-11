@@ -36,7 +36,7 @@ using namespace elemental;
 
 void
 elemental::advanced::internal::ComposePivots
-( const DistMatrix<int,Star,Star>& p, 
+( const DistMatrix<int,STAR,STAR>& p, 
         vector<int>& image,
         vector<int>& preimage,
         int pivotOffset )

@@ -38,7 +38,7 @@ using namespace elemental;
 template<typename F> // represents a real or complex number
 void
 elemental::advanced::LU
-( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,Star>& p )
+( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
     PushCallStack("advanced::LU");
@@ -55,17 +55,17 @@ elemental::advanced::LU
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),  
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<int,VC,Star>
+    DistMatrix<int,VC,STAR>
         pT(g),  p0(g), 
         pB(g),  p1(g),
                 p2(g);
 
     // Temporary distributions
-    DistMatrix<F,  Star,Star> A11_Star_Star(g);
-    DistMatrix<F,  MC,  Star> A21_MC_Star(g);
-    DistMatrix<F,  Star,VR  > A12_Star_VR(g);
-    DistMatrix<F,  Star,MR  > A12_Star_MR(g);
-    DistMatrix<int,Star,Star> p1_Star_Star(g);
+    DistMatrix<F,  STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,  MC,  STAR> A21_MC_STAR(g);
+    DistMatrix<F,  STAR,VR  > A12_STAR_VR(g);
+    DistMatrix<F,  STAR,MR  > A12_STAR_MR(g);
+    DistMatrix<int,STAR,STAR> p1_STAR_STAR(g);
 
     // Pivot composition
     vector<int> image;
@@ -95,39 +95,39 @@ elemental::advanced::LU
         AB.View1x2( ABL, ABR );
 
         int pivotOffset = A01.Height();
-        A12_Star_VR.AlignWith( A22 );
-        A12_Star_MR.AlignWith( A22 );
-        A21_MC_Star.AlignWith( A22 );
-        A11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
-        p1_Star_Star.ResizeTo( p1.Height(), 1 );
+        A12_STAR_VR.AlignWith( A22 );
+        A12_STAR_MR.AlignWith( A22 );
+        A21_MC_STAR.AlignWith( A22 );
+        A11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
+        p1_STAR_STAR.ResizeTo( p1.Height(), 1 );
         //--------------------------------------------------------------------//
-        A21_MC_Star = A21;
-        A11_Star_Star = A11;
+        A21_MC_STAR = A21;
+        A11_STAR_STAR = A11;
         advanced::internal::PanelLU
-        ( A11_Star_Star, A21_MC_Star, p1_Star_Star, pivotOffset );
+        ( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, pivotOffset );
 
         advanced::internal::ComposePivots
-        ( p1_Star_Star, image, preimage, pivotOffset );
+        ( p1_STAR_STAR, image, preimage, pivotOffset );
         advanced::internal::ApplyRowPivots( AB, image, preimage, pivotOffset );
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
-        A12_Star_VR = A12;
+        A12_STAR_VR = A12;
         basic::internal::LocalTrsm
-        ( Left, Lower, Normal, Unit, (F)1, A11_Star_Star, A12_Star_VR );
+        ( LEFT, LOWER, NORMAL, Unit, (F)1, A11_STAR_STAR, A12_STAR_VR );
 
-        A12_Star_MR = A12_Star_VR;
+        A12_STAR_MR = A12_STAR_VR;
         basic::internal::LocalGemm
-        ( Normal, Normal, (F)-1, A21_MC_Star, A12_Star_MR, (F)1, A22 );
+        ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, A12_STAR_MR, (F)1, A22 );
 
-        A11 = A11_Star_Star;
-        A12 = A12_Star_MR;
-        A21 = A21_MC_Star;
-        p1 = p1_Star_Star;
+        A11 = A11_STAR_STAR;
+        A12 = A12_STAR_MR;
+        A21 = A21_MC_STAR;
+        p1 = p1_STAR_STAR;
         //--------------------------------------------------------------------//
-        A12_Star_VR.FreeAlignments();
-        A12_Star_MR.FreeAlignments();
-        A21_MC_Star.FreeAlignments();
+        A12_STAR_VR.FreeAlignments();
+        A12_STAR_MR.FreeAlignments();
+        A21_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
@@ -148,19 +148,19 @@ elemental::advanced::LU
 
 template void
 elemental::advanced::LU
-( DistMatrix<float,MC,MR>& A, DistMatrix<int,VC,Star>& p );
+( DistMatrix<float,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 
 template void
 elemental::advanced::LU
-( DistMatrix<double,MC,MR>& A, DistMatrix<int,VC,Star>& p );
+( DistMatrix<double,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 
 #ifndef WITHOUT_COMPLEX
 template void
 elemental::advanced::LU
-( DistMatrix<scomplex,MC,MR>& A, DistMatrix<int,VC,Star>& p );
+( DistMatrix<scomplex,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 
 template void
 elemental::advanced::LU
-( DistMatrix<dcomplex,MC,MR>& A, DistMatrix<int,VC,Star>& p );
+( DistMatrix<dcomplex,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 #endif
 

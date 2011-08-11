@@ -361,7 +361,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::UpdateImag
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,MR,MC>::GetRealDiagonal
-( DistMatrix<Z,MD,Star>& d, int offset ) const
+( DistMatrix<Z,MD,STAR>& d, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetRealDiagonal([MD,* ])");
@@ -441,7 +441,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetRealDiagonal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,MR,MC>::GetImagDiagonal
-( DistMatrix<Z,MD,Star>& d, int offset ) const
+( DistMatrix<Z,MD,STAR>& d, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetImagDiagonal([MD,* ])");
@@ -521,7 +521,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetImagDiagonal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,MR,MC>::GetRealDiagonal
-( DistMatrix<Z,Star,MD>& d, int offset ) const
+( DistMatrix<Z,STAR,MD>& d, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetRealDiagonal([* ,MD])");
@@ -604,7 +604,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetRealDiagonal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,MR,MC>::GetImagDiagonal
-( DistMatrix<Z,Star,MD>& d, int offset ) const
+( DistMatrix<Z,STAR,MD>& d, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetImagDiagonal([* ,MD])");
@@ -687,7 +687,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::GetImagDiagonal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,MR,MC>::SetDiagonal
-( const DistMatrixBase<Z,MD,Star>& d, int offset )
+( const DistMatrixBase<Z,MD,STAR>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetDiagonal([MD,* ])");
@@ -766,7 +766,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetDiagonal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,MR,MC>::SetRealDiagonal
-( const DistMatrixBase<Z,MD,Star>& d, int offset )
+( const DistMatrixBase<Z,MD,STAR>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetRealDiagonal([MD,* ])");
@@ -847,7 +847,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetRealDiagonal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,MR,MC>::SetImagDiagonal
-( const DistMatrixBase<Z,MD,Star>& d, int offset )
+( const DistMatrixBase<Z,MD,STAR>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetImagDiagonal([MD,* ])");
@@ -928,7 +928,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetImagDiagonal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,MR,MC>::SetDiagonal
-( const DistMatrixBase<Z,Star,MD>& d, int offset )
+( const DistMatrixBase<Z,STAR,MD>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetDiagonal([* ,MD])");
@@ -1008,7 +1008,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetDiagonal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,MR,MC>::SetRealDiagonal
-( const DistMatrixBase<Z,Star,MD>& d, int offset )
+( const DistMatrixBase<Z,STAR,MD>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetRealDiagonal([* ,MD])");
@@ -1090,7 +1090,7 @@ elemental::DistMatrix<complex<Z>,MR,MC>::SetRealDiagonal
 template<typename Z>
 void
 elemental::DistMatrix<complex<Z>,MR,MC>::SetImagDiagonal
-( const DistMatrixBase<Z,Star,MD>& d, int offset )
+( const DistMatrixBase<Z,STAR,MD>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetImagDiagonal([* ,MD])");

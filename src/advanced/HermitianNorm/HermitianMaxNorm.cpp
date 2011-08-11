@@ -46,7 +46,7 @@ advanced::internal::HermitianMaxNorm
         throw std::logic_error("Hermitian matrices must be square.");
 
     R maxAbs = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -78,7 +78,7 @@ advanced::internal::HermitianMaxNorm
 template<typename R> // representation of a real number
 R
 advanced::internal::HermitianMaxNorm
-( Shape shape, const Matrix< std::complex<R> >& A )
+( Shape shape, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianMaxNorm");
@@ -87,7 +87,7 @@ advanced::internal::HermitianMaxNorm
         throw std::logic_error("Hermitian matrices must be square.");
 
     R maxAbs = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -133,7 +133,7 @@ advanced::internal::HermitianMaxNorm
     const int rowShift = A.RowShift();
 
     R localMaxAbs = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
@@ -188,7 +188,7 @@ advanced::internal::HermitianMaxNorm
     const int rowShift = A.RowShift();
 
     R localMaxAbs = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
@@ -232,9 +232,9 @@ template double elemental::advanced::internal::HermitianMaxNorm
 ( Shape shape, const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
 template float elemental::advanced::internal::HermitianMaxNorm
-( Shape shape, const Matrix< std::complex<float> >& A );
+( Shape shape, const Matrix<std::complex<float> >& A );
 template double elemental::advanced::internal::HermitianMaxNorm
-( Shape shape, const Matrix< std::complex<double> >& A );
+( Shape shape, const Matrix<std::complex<double> >& A );
 #endif
 
 template float elemental::advanced::internal::HermitianMaxNorm

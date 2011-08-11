@@ -84,7 +84,7 @@ elemental::advanced::QR
         //--------------------------------------------------------------------//
         advanced::internal::PanelQR( ALeftPan );
         advanced::ApplyPackedReflectors
-        ( Left, Lower, Vertical, Forward, 0, ALeftPan, ARightPan );
+        ( LEFT, LOWER, VERTICAL, FORWARD, 0, ALeftPan, ARightPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -103,7 +103,7 @@ template<typename R> // representation of a real number
 void
 elemental::advanced::QR
 ( DistMatrix<complex<R>,MC,  MR  >& A, 
-  DistMatrix<complex<R>,Star,Star>& t )
+  DistMatrix<complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("advanced::QR");
@@ -113,7 +113,7 @@ elemental::advanced::QR
     typedef complex<R> C;
 
     const Grid& g = A.Grid();
-    DistMatrix<C,MD,Star> tDiag(g);
+    DistMatrix<C,MD,STAR> tDiag(g);
     tDiag.AlignWithDiag( A );
     tDiag.ResizeTo( min(A.Height(),A.Width()), 1 );
 
@@ -122,7 +122,7 @@ elemental::advanced::QR
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ALeftPan(g), ARightPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
-    DistMatrix<C,MD,Star>
+    DistMatrix<C,MD,STAR>
         tT(g),  t0(g),
         tB(g),  t1(g),
                 t2(g);
@@ -158,7 +158,7 @@ elemental::advanced::QR
         //--------------------------------------------------------------------//
         advanced::internal::PanelQR( ALeftPan, t1 );
         advanced::ApplyPackedReflectors
-        ( Left, Lower, Vertical, Forward, Unconjugated, 
+        ( LEFT, LOWER, VERTICAL, FORWARD, UNCONJUGATED, 
           0, ALeftPan, t1, ARightPan );
         //--------------------------------------------------------------------//
 
@@ -194,11 +194,11 @@ elemental::advanced::QR
 template void
 elemental::advanced::QR
 ( DistMatrix<scomplex,MC,  MR  >& A,
-  DistMatrix<scomplex,Star,Star>& t );
+  DistMatrix<scomplex,STAR,STAR>& t );
 
 template void
 elemental::advanced::QR
 ( DistMatrix<dcomplex,MC,  MR  >& A,
-  DistMatrix<dcomplex,Star,Star>& t );
+  DistMatrix<dcomplex,STAR,STAR>& t );
 #endif
 

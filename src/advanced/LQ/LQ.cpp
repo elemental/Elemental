@@ -66,7 +66,7 @@ template<typename R> // representation of a real number
 void
 elemental::advanced::LQ
 ( DistMatrix<complex<R>,MC,  MR  >& A, 
-  DistMatrix<complex<R>,Star,Star>& t )
+  DistMatrix<complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("advanced::LQ");
@@ -93,11 +93,11 @@ elemental::advanced::LQ
 template void
 elemental::advanced::LQ
 ( DistMatrix<scomplex,MC,  MR  >& A,
-  DistMatrix<scomplex,Star,Star>& t );
+  DistMatrix<scomplex,STAR,STAR>& t );
 
 template void
 elemental::advanced::LQ
 ( DistMatrix<dcomplex,MC,  MR  >& A,
-  DistMatrix<dcomplex,Star,Star>& t );
+  DistMatrix<dcomplex,STAR,STAR>& t );
 #endif
 

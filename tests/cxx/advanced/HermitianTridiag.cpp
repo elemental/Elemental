@@ -62,25 +62,25 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    int subdiagonal = ( shape==Lower ? -1 : +1 );
+    int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     if( g.VCRank() == 0 )
         cout << "Testing error..." << endl;
 
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
-    DistMatrix<R,MD,Star> d(g);
-    DistMatrix<R,MD,Star> e(g);
+    DistMatrix<R,MD,STAR> d(g);
+    DistMatrix<R,MD,STAR> e(g);
     A.GetDiagonal( d );
     A.GetDiagonal( e, subdiagonal );
 
     // Grab a full copy of e so that we may fill the opposite subdiagonal 
-    // The unaligned [MD,Star] <- [MD,Star] redistribution is not yet written,
-    // so go around it via [MD,Star] <- [Star,Star] <- [MD,Star]
-    DistMatrix<R,Star,Star> e_Star_Star(g);
-    DistMatrix<R,MD,Star> eOpposite(g);
-    e_Star_Star = e;
+    // The unaligned [MD,STAR] <- [MD,STAR] redistribution is not yet written,
+    // so go around it via [MD,STAR] <- [STAR,STAR] <- [MD,STAR]
+    DistMatrix<R,STAR,STAR> e_STAR_STAR(g);
+    DistMatrix<R,MD,STAR> eOpposite(g);
+    e_STAR_STAR = e;
     eOpposite.AlignWithDiag( A, -subdiagonal );
-    eOpposite = e_Star_Star;
+    eOpposite = e_STAR_STAR;
     
     // Zero B and then fill its tridiagonal
     DistMatrix<R,MC,MR> B(g);
@@ -92,30 +92,30 @@ void TestCorrectness
     B.SetDiagonal( eOpposite, -subdiagonal );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         advanced::ApplyPackedReflectors
-        ( Left, Lower, Vertical, Backward, subdiagonal, A, B );
+        ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, B );
         advanced::ApplyPackedReflectors
-        ( Right, Lower, Vertical, Backward, subdiagonal, A, B );
+        ( RIGHT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, B );
     }
     else
     {
         advanced::ApplyPackedReflectors
-        ( Left, Upper, Vertical, Forward, subdiagonal, A, B );
+        ( LEFT, UPPER, VERTICAL, FORWARD, subdiagonal, A, B );
         advanced::ApplyPackedReflectors
-        ( Right, Upper, Vertical, Forward, subdiagonal, A, B );
+        ( RIGHT, UPPER, VERTICAL, FORWARD, subdiagonal, A, B );
     }
 
     // Compare the appropriate triangle of AOrig and B
-    AOrig.MakeTrapezoidal( Left, shape );
-    B.MakeTrapezoidal( Left, shape );
+    AOrig.MakeTrapezoidal( LEFT, shape );
+    B.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (R)-1, AOrig, B );
 
-    R infNormOfAOrig = advanced::HermitianNorm( shape, AOrig, InfinityNorm );
-    R frobNormOfAOrig = advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
-    R infNormOfError = advanced::HermitianNorm( shape, B, InfinityNorm );
-    R frobNormOfError = advanced::HermitianNorm( shape, B, FrobeniusNorm );
+    R infNormOfAOrig = advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+    R frobNormOfAOrig = advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+    R infNormOfError = advanced::HermitianNorm( shape, B, INFINITY_NORM );
+    R frobNormOfError = advanced::HermitianNorm( shape, B, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -131,30 +131,30 @@ void TestCorrectness
 ( bool printMatrices,
   Shape shape, 
   const DistMatrix<complex<R>,MC,  MR  >& A, 
-  const DistMatrix<complex<R>,Star,Star>& t,
+  const DistMatrix<complex<R>,STAR,STAR>& t,
         DistMatrix<complex<R>,MC,  MR  >& AOrig )
 {
     typedef complex<R> C;
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    int subdiagonal = ( shape==Lower ? -1 : +1 );
+    int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     if( g.VCRank() == 0 )
         cout << "Testing error..." << endl;
 
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
-    DistMatrix<R,MD,Star> d(g);
-    DistMatrix<R,MD,Star> e(g);
+    DistMatrix<R,MD,STAR> d(g);
+    DistMatrix<R,MD,STAR> e(g);
     A.GetRealDiagonal( d );
     A.GetRealDiagonal( e, subdiagonal );
      
     // Grab a full copy of e so that we may fill the opposite subdiagonal 
-    DistMatrix<R,Star,Star> e_Star_Star(g);
-    DistMatrix<R,MD,Star> eOpposite(g);
-    e_Star_Star = e;
+    DistMatrix<R,STAR,STAR> e_STAR_STAR(g);
+    DistMatrix<R,MD,STAR> eOpposite(g);
+    e_STAR_STAR = e;
     eOpposite.AlignWithDiag( A, -subdiagonal );
-    eOpposite = e_Star_Star;
+    eOpposite = e_STAR_STAR;
     
     // Zero B and then fill its tridiagonal
     DistMatrix<C,MC,MR> B(g);
@@ -166,34 +166,34 @@ void TestCorrectness
     B.SetRealDiagonal( eOpposite, -subdiagonal );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         advanced::ApplyPackedReflectors
-        ( Left, Lower, Vertical, Backward, 
-          Unconjugated, subdiagonal, A, t, B );
+        ( LEFT, LOWER, VERTICAL, BACKWARD, 
+          UNCONJUGATED, subdiagonal, A, t, B );
         advanced::ApplyPackedReflectors
-        ( Right, Lower, Vertical, Backward, 
-          Unconjugated, subdiagonal, A, t, B );
+        ( RIGHT, LOWER, VERTICAL, BACKWARD, 
+          UNCONJUGATED, subdiagonal, A, t, B );
     }
     else
     {
         advanced::ApplyPackedReflectors
-        ( Left, Upper, Vertical, Forward, 
-          Conjugated, subdiagonal, A, t, B );
+        ( LEFT, UPPER, VERTICAL, FORWARD, 
+          CONJUGATED, subdiagonal, A, t, B );
         advanced::ApplyPackedReflectors
-        ( Right, Upper, Vertical, Forward, 
-          Conjugated, subdiagonal, A, t, B );
+        ( RIGHT, UPPER, VERTICAL, FORWARD, 
+          CONJUGATED, subdiagonal, A, t, B );
     }
 
     // Compare the appropriate triangle of AOrig and B
-    AOrig.MakeTrapezoidal( Left, shape );
-    B.MakeTrapezoidal( Left, shape );
+    AOrig.MakeTrapezoidal( LEFT, shape );
+    B.MakeTrapezoidal( LEFT, shape );
     basic::Axpy( (C)-1, AOrig, B );
 
-    R infNormOfAOrig = advanced::HermitianNorm( shape, AOrig, InfinityNorm );
-    R frobNormOfAOrig = advanced::HermitianNorm( shape, AOrig, FrobeniusNorm );
-    R infNormOfError = advanced::HermitianNorm( shape, B, InfinityNorm );
-    R frobNormOfError = advanced::HermitianNorm( shape, B, FrobeniusNorm );
+    R infNormOfAOrig = advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+    R frobNormOfAOrig = advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+    R infNormOfError = advanced::HermitianNorm( shape, B, INFINITY_NORM );
+    R frobNormOfError = advanced::HermitianNorm( shape, B, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -272,7 +272,7 @@ void TestHermitianTridiag< complex<double> >
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<C,MC,  MR  > A(g);
-    DistMatrix<C,Star,Star> t(g);
+    DistMatrix<C,STAR,STAR> t(g);
     DistMatrix<C,MC,  MR  > AOrig(g);
 
     A.ResizeTo( m, m );

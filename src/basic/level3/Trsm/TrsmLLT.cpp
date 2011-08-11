@@ -65,7 +65,7 @@ elemental::basic::internal::TrsmLLT
     PushCallStack("basic::internal::TrsmLLT");
     if( L.Grid() != X.Grid() )
         throw logic_error( "L and X must be distributed over the same grid." );
-    if( orientation == Normal )
+    if( orientation == NORMAL )
         throw logic_error( "TrsmLLT expects a (Conjugate)Transpose option." );
     if( L.Height() != L.Width() || L.Height() != X.Height() )
     {
@@ -89,10 +89,10 @@ elemental::basic::internal::TrsmLLT
                                 X2(g);
 
     // Temporary distributions
-    DistMatrix<F,Star,MC  > L10_Star_MC(g);
-    DistMatrix<F,Star,Star> L11_Star_Star(g);
-    DistMatrix<F,Star,MR  > X1_Star_MR(g);
-    DistMatrix<F,Star,VR  > X1_Star_VR(g);
+    DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
+    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
+    DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
+    DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     // Start the algorithm
     basic::Scal( alpha, X );
@@ -116,28 +116,28 @@ elemental::basic::internal::TrsmLLT
          /**/ /**/
           XB,  X2 ); 
 
-        L10_Star_MC.AlignWith( X0 );
-        X1_Star_MR.AlignWith( X0 );
+        L10_STAR_MC.AlignWith( X0 );
+        X1_STAR_MR.AlignWith( X0 );
         //--------------------------------------------------------------------//
-        L11_Star_Star = L11; // L11[*,*] <- L11[MC,MR]
-        X1_Star_VR    = X1;  // X1[*,VR] <- X1[MC,MR]
+        L11_STAR_STAR = L11; // L11[*,*] <- L11[MC,MR]
+        X1_STAR_VR    = X1;  // X1[*,VR] <- X1[MC,MR]
 
         // X1[*,VR] := (L11[*,*])^-(T/H) X1[*,VR]
         basic::internal::LocalTrsm
-        ( Left, Lower, orientation, diagonal, (F)1, L11_Star_Star, X1_Star_VR,
+        ( LEFT, LOWER, orientation, diagonal, (F)1, L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
-        X1_Star_MR  = X1_Star_VR; // X1[*,MR] <- X1[*,VR]
-        X1          = X1_Star_MR; // X1[MC,MR] <- X1[*,MR]
-        L10_Star_MC = L10;        // L10[*,MC] <- L10[MC,MR]
+        X1_STAR_MR  = X1_STAR_VR; // X1[*,MR] <- X1[*,VR]
+        X1          = X1_STAR_MR; // X1[MC,MR] <- X1[*,MR]
+        L10_STAR_MC = L10;        // L10[*,MC] <- L10[MC,MR]
 
         // X0[MC,MR] -= (L10[*,MC])^(T/H) X1[*,MR]
         //            = (L10^(T/H))[MC,*] X1[*,MR]
         basic::internal::LocalGemm
-        ( orientation, Normal, (F)-1, L10_Star_MC, X1_Star_MR, (F)1, X0 );
+        ( orientation, NORMAL, (F)-1, L10_STAR_MC, X1_STAR_MR, (F)1, X0 );
         //--------------------------------------------------------------------//
-        L10_Star_MC.FreeAlignments();
-        X1_Star_MR.FreeAlignments();
+        L10_STAR_MC.FreeAlignments();
+        X1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( LTL, /**/ LTR,  L00, /**/ L01, L02,

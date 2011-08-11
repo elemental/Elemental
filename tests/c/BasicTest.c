@@ -96,19 +96,19 @@ main( int argc, char* argv[] )
 #ifndef WITHOUT_PMRRR
     /* Attempt to solve a real Hermitian EVP */
     {
-        Star_VR_Double w = CreateEmpty_Star_VR_Double( g );
+        STAR_VR_Double w = CreateEmpty_STAR_VR_Double( g );
         MC_MR_Double Z = CreateEmpty_MC_MR_Double( g );
         HermitianEigDouble( 'L', 1, 'A', 0, 0, 0, 0, A, w, Z );
-        Print_Star_VR_Double( "eigenvalues of A", w );
+        Print_STAR_VR_Double( "eigenvalues of A", w );
         Print_MC_MR_Double( "eigenvectors of A", Z );
     }
 #ifndef WITHOUT_COMPLEX
     /* Attempt to solve a complex Hermitian EVP */
     {
-        Star_VR_Double w = CreateEmpty_Star_VR_Double( g );
+        STAR_VR_Double w = CreateEmpty_STAR_VR_Double( g );
         MC_MR_DComplex Z = CreateEmpty_MC_MR_DComplex( g );
         HermitianEigDComplex( 'L', 1, 'A', 0, 0, 0, 0, B, w, Z );
-        Print_Star_VR_Double( "eigenvalues of B", w );
+        Print_STAR_VR_Double( "eigenvalues of B", w );
         Print_MC_MR_DComplex( "eigenvectors of B", Z );
     }
 #endif /* WITHOUT_COMPLEX */

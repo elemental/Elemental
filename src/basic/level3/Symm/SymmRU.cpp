@@ -90,11 +90,11 @@ elemental::basic::internal::SymmRUA
         CB(g),  C1(g),
                 C2(g);
 
-    DistMatrix<T,MR,  Star> B1Trans_MR_Star(g);
-    DistMatrix<T,VC,  Star> B1Trans_VC_Star(g);
-    DistMatrix<T,Star,MC  > B1_Star_MC(g);
-    DistMatrix<T,MC,  Star> Z1Trans_MC_Star(g);
-    DistMatrix<T,MR,  Star> Z1Trans_MR_Star(g);
+    DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);
+    DistMatrix<T,VC,  STAR> B1Trans_VC_STAR(g);
+    DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
+    DistMatrix<T,MC,  STAR> Z1Trans_MC_STAR(g);
+    DistMatrix<T,MR,  STAR> Z1Trans_MR_STAR(g);
     DistMatrix<T,MC,  MR  > Z1Trans(g);
     DistMatrix<T,MR,  MC  > Z1Trans_MR_MC(g);
 
@@ -121,35 +121,35 @@ elemental::basic::internal::SymmRUA
                C1,
           CB,  C2 );
 
-        B1Trans_MR_Star.AlignWith( A );
-        B1Trans_VC_Star.AlignWith( A );
-        B1_Star_MC.AlignWith( A );
-        Z1Trans_MC_Star.AlignWith( A );
-        Z1Trans_MR_Star.AlignWith( A );
+        B1Trans_MR_STAR.AlignWith( A );
+        B1Trans_VC_STAR.AlignWith( A );
+        B1_STAR_MC.AlignWith( A );
+        Z1Trans_MC_STAR.AlignWith( A );
+        Z1Trans_MR_STAR.AlignWith( A );
         Z1Trans_MR_MC.AlignWith( C1 );
-        Z1Trans_MC_Star.ResizeTo( C1.Width(), C1.Height() );
-        Z1Trans_MR_Star.ResizeTo( C1.Width(), C1.Height() );
+        Z1Trans_MC_STAR.ResizeTo( C1.Width(), C1.Height() );
+        Z1Trans_MR_STAR.ResizeTo( C1.Width(), C1.Height() );
         //--------------------------------------------------------------------//
-        B1Trans_MR_Star.TransposeFrom( B1 );
-        B1Trans_VC_Star = B1Trans_MR_Star;
-        B1_Star_MC.TransposeFrom( B1Trans_VC_Star );
-        Z1Trans_MC_Star.SetToZero();
-        Z1Trans_MR_Star.SetToZero();
+        B1Trans_MR_STAR.TransposeFrom( B1 );
+        B1Trans_VC_STAR = B1Trans_MR_STAR;
+        B1_STAR_MC.TransposeFrom( B1Trans_VC_STAR );
+        Z1Trans_MC_STAR.SetToZero();
+        Z1Trans_MR_STAR.SetToZero();
         basic::internal::LocalSymmetricAccumulateRU
-        ( Transpose, alpha, A, B1_Star_MC, B1Trans_MR_Star, 
-          Z1Trans_MC_Star, Z1Trans_MR_Star );
+        ( TRANSPOSE, alpha, A, B1_STAR_MC, B1Trans_MR_STAR, 
+          Z1Trans_MC_STAR, Z1Trans_MR_STAR );
 
-        Z1Trans.SumScatterFrom( Z1Trans_MC_Star );
+        Z1Trans.SumScatterFrom( Z1Trans_MC_STAR );
         Z1Trans_MR_MC = Z1Trans;
-        Z1Trans_MR_MC.SumScatterUpdate( (T)1, Z1Trans_MR_Star );
+        Z1Trans_MR_MC.SumScatterUpdate( (T)1, Z1Trans_MR_STAR );
         basic::Trans( Z1Trans_MR_MC.LockedLocalMatrix(), Z1Local );
         basic::Axpy( (T)1, Z1Local, C1.LocalMatrix() );
         //--------------------------------------------------------------------//
-        B1Trans_MR_Star.FreeAlignments();
-        B1Trans_VC_Star.FreeAlignments();
-        B1_Star_MC.FreeAlignments();
-        Z1Trans_MC_Star.FreeAlignments();
-        Z1Trans_MR_Star.FreeAlignments();
+        B1Trans_MR_STAR.FreeAlignments();
+        B1Trans_VC_STAR.FreeAlignments();
+        B1_STAR_MC.FreeAlignments();
+        Z1Trans_MC_STAR.FreeAlignments();
+        Z1Trans_MR_STAR.FreeAlignments();
         Z1Trans_MR_MC.FreeAlignments();
 
         SlideLockedPartitionDown
@@ -197,10 +197,10 @@ elemental::basic::internal::SymmRUC
                         CLeft(g), CRight(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,Star> B1_MC_Star(g);
-    DistMatrix<T,VR,  Star> AColPan_VR_Star(g);
-    DistMatrix<T,Star,MR  > AColPanTrans_Star_MR(g);
-    DistMatrix<T,MR,  Star> ARowPanTrans_MR_Star(g);
+    DistMatrix<T,MC,  STAR> B1_MC_STAR(g);
+    DistMatrix<T,VR,  STAR> AColPan_VR_STAR(g);
+    DistMatrix<T,STAR,MR  > AColPanTrans_STAR_MR(g);
+    DistMatrix<T,MR,  STAR> ARowPanTrans_MR_STAR(g);
 
     // Start the algorithm
     basic::Scal( beta, C );
@@ -235,31 +235,31 @@ elemental::basic::internal::SymmRUC
 
         CRight.View1x2( C1, C2 );
 
-        B1_MC_Star.AlignWith( C );
-        AColPan_VR_Star.AlignWith( CLeft );
-        AColPanTrans_Star_MR.AlignWith( CLeft );
-        ARowPanTrans_MR_Star.AlignWith( CRight );
+        B1_MC_STAR.AlignWith( C );
+        AColPan_VR_STAR.AlignWith( CLeft );
+        AColPanTrans_STAR_MR.AlignWith( CLeft );
+        ARowPanTrans_MR_STAR.AlignWith( CRight );
         //--------------------------------------------------------------------//
-        B1_MC_Star = B1;
+        B1_MC_STAR = B1;
 
-        AColPan_VR_Star = AColPan;
-        AColPanTrans_Star_MR.TransposeFrom( AColPan_VR_Star );
-        ARowPanTrans_MR_Star.TransposeFrom( ARowPan );
-        ARowPanTrans_MR_Star.MakeTrapezoidal( Left, Lower );
-        AColPanTrans_Star_MR.MakeTrapezoidal( Right, Lower, -1 );
+        AColPan_VR_STAR = AColPan;
+        AColPanTrans_STAR_MR.TransposeFrom( AColPan_VR_STAR );
+        ARowPanTrans_MR_STAR.TransposeFrom( ARowPan );
+        ARowPanTrans_MR_STAR.MakeTrapezoidal( LEFT, LOWER );
+        AColPanTrans_STAR_MR.MakeTrapezoidal( RIGHT, LOWER, -1 );
 
         basic::internal::LocalGemm
-        ( Normal, Transpose, 
-          alpha, B1_MC_Star, ARowPanTrans_MR_Star, (T)1, CRight );
+        ( NORMAL, TRANSPOSE, 
+          alpha, B1_MC_STAR, ARowPanTrans_MR_STAR, (T)1, CRight );
 
         basic::internal::LocalGemm
-        ( Normal, Normal,
-          alpha, B1_MC_Star, AColPanTrans_Star_MR, (T)1, CLeft );
+        ( NORMAL, NORMAL,
+          alpha, B1_MC_STAR, AColPanTrans_STAR_MR, (T)1, CLeft );
         //--------------------------------------------------------------------//
-        B1_MC_Star.FreeAlignments();
-        AColPan_VR_Star.FreeAlignments();
-        AColPanTrans_Star_MR.FreeAlignments();
-        ARowPanTrans_MR_Star.FreeAlignments();
+        B1_MC_STAR.FreeAlignments();
+        AColPan_VR_STAR.FreeAlignments();
+        AColPanTrans_STAR_MR.FreeAlignments();
+        ARowPanTrans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

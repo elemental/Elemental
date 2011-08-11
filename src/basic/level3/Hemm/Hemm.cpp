@@ -56,15 +56,15 @@ elemental::basic::Hemm
 #ifndef RELEASE
     PushCallStack("basic::Hemm");
 #endif
-    if( side == Left && shape == Lower )
+    if( side == LEFT && shape == LOWER )
     {
         basic::internal::HemmLL( alpha, A, B, beta, C );
     }
-    else if( side == Left )
+    else if( side == LEFT )
     {
         basic::internal::HemmLU( alpha, A, B, beta, C );
     }
-    else if( shape == Lower )
+    else if( shape == LOWER )
     {
         basic::internal::HemmRL( alpha, A, B, beta, C );
     }

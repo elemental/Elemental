@@ -84,11 +84,11 @@ elemental::advanced::internal::CholLVar2
                           A20(g), A21(g), A22(g);
 
     // Temporary distributions
-    DistMatrix<F,MR,  Star> A10Herm_MR_Star(g);
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,VC,  Star> A21_VC_Star(g);
-    DistMatrix<F,MC,  Star> X11_MC_Star(g);
-    DistMatrix<F,MC,  Star> X21_MC_Star(g);
+    DistMatrix<F,MR,  STAR> A10Adj_MR_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
+    DistMatrix<F,MC,  STAR> X11_MC_STAR(g);
+    DistMatrix<F,MC,  STAR> X21_MC_STAR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -102,36 +102,35 @@ elemental::advanced::internal::CholLVar2
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A10Herm_MR_Star.AlignWith( A10 );
-        X11_MC_Star.AlignWith( A10 );
-        X21_MC_Star.AlignWith( A20 );
-        X11_MC_Star.ResizeTo( A11.Height(), A11.Width() );
-        X21_MC_Star.ResizeTo( A21.Height(), A21.Width() );
+        A10Adj_MR_STAR.AlignWith( A10 );
+        X11_MC_STAR.AlignWith( A10 );
+        X21_MC_STAR.AlignWith( A20 );
+        X11_MC_STAR.ResizeTo( A11.Height(), A11.Width() );
+        X21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
         //--------------------------------------------------------------------//
-        A10Herm_MR_Star.ConjugateTransposeFrom( A10 );
+        A10Adj_MR_STAR.AdjointFrom( A10 );
         basic::internal::LocalGemm
-        ( Normal, Normal, 
-          (F)1, A10, A10Herm_MR_Star, (F)0, X11_MC_Star );
-        A11.SumScatterUpdate( (F)-1, X11_MC_Star );
+        ( NORMAL, NORMAL, 
+          (F)1, A10, A10Adj_MR_STAR, (F)0, X11_MC_STAR );
+        A11.SumScatterUpdate( (F)-1, X11_MC_STAR );
 
-        A11_Star_Star = A11;
-        advanced::internal::LocalChol( Lower, A11_Star_Star );
-        A11 = A11_Star_Star;
+        A11_STAR_STAR = A11;
+        advanced::internal::LocalChol( LOWER, A11_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
         basic::internal::LocalGemm
-        ( Normal, Normal,
-          (F)1, A20, A10Herm_MR_Star, (F)0, X21_MC_Star );
-        A21.SumScatterUpdate( (F)-1, X21_MC_Star );
+        ( NORMAL, NORMAL,
+          (F)1, A20, A10Adj_MR_STAR, (F)0, X21_MC_STAR );
+        A21.SumScatterUpdate( (F)-1, X21_MC_STAR );
 
-        A21_VC_Star = A21;
+        A21_VC_STAR = A21;
         basic::internal::LocalTrsm
-        ( Right, Lower, ConjugateTranspose, NonUnit, 
-          (F)1, A11_Star_Star, A21_VC_Star );
-        A21 = A21_VC_Star;
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
+        A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
-        A10Herm_MR_Star.FreeAlignments();
-        X11_MC_Star.FreeAlignments();
-        X21_MC_Star.FreeAlignments();
+        A10Adj_MR_STAR.FreeAlignments();
+        X11_MC_STAR.FreeAlignments();
+        X21_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
@@ -198,11 +197,11 @@ elemental::advanced::internal::CholLVar2Naive
                           A20(g), A21(g), A22(g);
 
     // Temporary distributions
-    DistMatrix<F,Star,MR  > A10_Star_MR(g);
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,VC,  Star> A21_VC_Star(g);
-    DistMatrix<F,MC,  Star> X11_MC_Star(g);
-    DistMatrix<F,MC,  Star> X21_MC_Star(g);
+    DistMatrix<F,STAR,MR  > A10_STAR_MR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
+    DistMatrix<F,MC,  STAR> X11_MC_STAR(g);
+    DistMatrix<F,MC,  STAR> X21_MC_STAR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -216,36 +215,33 @@ elemental::advanced::internal::CholLVar2Naive
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A10_Star_MR.AlignWith( A10 );
-        X11_MC_Star.AlignWith( A10 );
-        X21_MC_Star.AlignWith( A20 );
-        X11_MC_Star.ResizeTo( A11.Height(), A11.Width() );
-        X21_MC_Star.ResizeTo( A21.Height(), A21.Width() );
+        A10_STAR_MR.AlignWith( A10 );
+        X11_MC_STAR.AlignWith( A10 );
+        X21_MC_STAR.AlignWith( A20 );
+        X11_MC_STAR.ResizeTo( A11.Height(), A11.Width() );
+        X21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
         //--------------------------------------------------------------------//
-        A10_Star_MR = A10;
+        A10_STAR_MR = A10;
         basic::internal::LocalGemm
-        ( Normal, ConjugateTranspose, 
-          (F)1, A10, A10_Star_MR, (F)0, X11_MC_Star );
-        A11.SumScatterUpdate( (F)-1, X11_MC_Star );
+        ( NORMAL, ADJOINT, (F)1, A10, A10_STAR_MR, (F)0, X11_MC_STAR );
+        A11.SumScatterUpdate( (F)-1, X11_MC_STAR );
 
-        A11_Star_Star = A11;
-        advanced::internal::LocalChol( Lower, A11_Star_Star );
-        A11 = A11_Star_Star;
+        A11_STAR_STAR = A11;
+        advanced::internal::LocalChol( LOWER, A11_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
         basic::internal::LocalGemm
-        ( Normal, ConjugateTranspose, 
-          (F)1, A20, A10_Star_MR, (F)0, X21_MC_Star );
-        A21.SumScatterUpdate( (F)-1, X21_MC_Star );
+        ( NORMAL, ADJOINT, (F)1, A20, A10_STAR_MR, (F)0, X21_MC_STAR );
+        A21.SumScatterUpdate( (F)-1, X21_MC_STAR );
 
-        A21_VC_Star = A21;
+        A21_VC_STAR = A21;
         basic::internal::LocalTrsm
-        ( Right, Lower, ConjugateTranspose, NonUnit, 
-          (F)1, A11_Star_Star, A21_VC_Star );
-        A21 = A21_VC_Star;
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
+        A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
-        A10_Star_MR.FreeAlignments();
-        X11_MC_Star.FreeAlignments();
-        X21_MC_Star.FreeAlignments();
+        A10_STAR_MR.FreeAlignments();
+        X11_MC_STAR.FreeAlignments();
+        X21_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

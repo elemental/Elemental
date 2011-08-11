@@ -56,7 +56,7 @@ advanced::internal::HermitianInfinityNorm
 template<typename R> // representation of a real number
 R
 advanced::internal::HermitianInfinityNorm
-( Shape shape, const Matrix< std::complex<R> >& A )
+( Shape shape, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianInfinityNorm");
@@ -107,9 +107,9 @@ template double elemental::advanced::internal::HermitianInfinityNorm
 ( Shape shape, const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
 template float elemental::advanced::internal::HermitianInfinityNorm
-( Shape shape, const Matrix< std::complex<float> >& A );
+( Shape shape, const Matrix<std::complex<float> >& A );
 template double elemental::advanced::internal::HermitianInfinityNorm
-( Shape shape, const Matrix< std::complex<double> >& A );
+( Shape shape, const Matrix<std::complex<double> >& A );
 #endif
 
 template float elemental::advanced::internal::HermitianInfinityNorm

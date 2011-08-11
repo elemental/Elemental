@@ -46,7 +46,7 @@ using namespace elemental;
 //   R: representation of real number
 //   std::complex<R>: representation of complex number
 
-// Left Lower Normal (Non)Unit Trsm 
+// Left Lower NORMAL (Non)Unit Trsm 
 //   X := tril(L)^-1  X, or
 //   X := trilu(L)^-1 X
 template<typename F>
@@ -83,10 +83,10 @@ elemental::basic::internal::TrsmLLN
                                 X2(g);
 
     // Temporary distributions
-    DistMatrix<F,Star,Star> L11_Star_Star(g);
-    DistMatrix<F,MC,  Star> L21_MC_Star(g);
-    DistMatrix<F,Star,MR  > X1_Star_MR(g);
-    DistMatrix<F,Star,VR  > X1_Star_VR(g);
+    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
+    DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
+    DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
+    DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     // Start the algorithm
     basic::Scal( alpha, X );
@@ -110,27 +110,27 @@ elemental::basic::internal::TrsmLLN
                X1,
           XB,  X2 );
 
-        L21_MC_Star.AlignWith( X2 );
-        X1_Star_MR.AlignWith( X2 );
+        L21_MC_STAR.AlignWith( X2 );
+        X1_STAR_MR.AlignWith( X2 );
         //--------------------------------------------------------------------//
-        L11_Star_Star = L11; // L11[*,*] <- L11[MC,MR]
-        X1_Star_VR    = X1;  // X1[*,VR] <- X1[MC,MR]
+        L11_STAR_STAR = L11; // L11[*,*] <- L11[MC,MR]
+        X1_STAR_VR    = X1;  // X1[*,VR] <- X1[MC,MR]
 
         // X1[*,VR] := (L11[*,*])^-1 X1[*,VR]
         basic::internal::LocalTrsm
-        ( Left, Lower, Normal, diagonal, (F)1, L11_Star_Star, X1_Star_VR,
+        ( LEFT, LOWER, NORMAL, diagonal, (F)1, L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
-        X1_Star_MR  = X1_Star_VR; // X1[*,MR]  <- X1[*,VR]
-        X1          = X1_Star_MR; // X1[MC,MR] <- X1[*,MR]
-        L21_MC_Star = L21;        // L21[MC,*] <- L21[MC,MR]
+        X1_STAR_MR  = X1_STAR_VR; // X1[*,MR]  <- X1[*,VR]
+        X1          = X1_STAR_MR; // X1[MC,MR] <- X1[*,MR]
+        L21_MC_STAR = L21;        // L21[MC,*] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,*] X1[*,MR]
         basic::internal::LocalGemm
-        ( Normal, Normal, (F)-1, L21_MC_Star, X1_Star_MR, (F)1, X2 );
+        ( NORMAL, NORMAL, (F)-1, L21_MC_STAR, X1_STAR_MR, (F)1, X2 );
         //--------------------------------------------------------------------//
-        L21_MC_Star.FreeAlignments();
-        X1_Star_MR.FreeAlignments();
+        L21_MC_STAR.FreeAlignments();
+        X1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,

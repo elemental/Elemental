@@ -79,10 +79,10 @@ HermitianTridiagL
         R epsilon1 = alpha21T.Get(0,0);
         alpha21T.Set(0,0,(R)1);
 
-        basic::Symv( Lower, tau, A22, a21, (R)0, w21 );
+        basic::Symv( LOWER, tau, A22, a21, (R)0, w21 );
         R alpha = -static_cast<R>(0.5)*tau*basic::Dot( w21, a21 );
         basic::Axpy( alpha, a21, w21 );
-        basic::Syr2( Lower, (R)-1, a21, w21, A22 );
+        basic::Syr2( LOWER, (R)-1, a21, w21, A22 );
 
         alpha21T.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
@@ -141,10 +141,10 @@ HermitianTridiagU
         R epsilon1 = alpha01B.Get(0,0);
         alpha01B.Set(0,0,(R)1);
 
-        basic::Symv( Upper, tau, A00, a01, (R)0, w01 );
+        basic::Symv( UPPER, tau, A00, a01, (R)0, w01 );
         R alpha = -static_cast<R>(0.5)*tau*basic::Dot( w01, a01 );
         basic::Axpy( alpha, a01, w01 );
-        basic::Syr2( Upper, (R)-1, a01, w01, A00 );
+        basic::Syr2( UPPER, (R)-1, a01, w01, A00 );
 
         alpha01B.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
@@ -226,10 +226,10 @@ HermitianTridiagL
         R epsilon1 = alpha21T.GetReal(0,0);
         alpha21T.Set(0,0,(C)1);
 
-        basic::Hemv( Lower, tau, A22, a21, (C)0, w21 );
+        basic::Hemv( LOWER, tau, A22, a21, (C)0, w21 );
         C alpha = -static_cast<C>(0.5)*tau*basic::Dot( w21, a21 );
         basic::Axpy( alpha, a21, w21 );
-        basic::Her2( Lower, (C)-1, a21, w21, A22 );
+        basic::Her2( LOWER, (C)-1, a21, w21, A22 );
 
         alpha21T.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
@@ -316,10 +316,10 @@ HermitianTridiagU
         R epsilon1 = alpha01B.GetReal(0,0);
         alpha01B.Set(0,0,(C)1);
 
-        basic::Hemv( Upper, tau, A00, a01, (C)0, w01 );
+        basic::Hemv( UPPER, tau, A00, a01, (C)0, w01 );
         C alpha = -static_cast<C>(0.5)*tau*basic::Dot( w01, a01 );
         basic::Axpy( alpha, a01, w01 );
-        basic::Her2( Upper, (C)-1, a01, w01, A00 );
+        basic::Her2( UPPER, (C)-1, a01, w01, A00 );
 
         alpha01B.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
@@ -353,7 +353,7 @@ elemental::advanced::HermitianTridiag
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");
 #endif
-    if( shape == Lower )
+    if( shape == LOWER )
         HermitianTridiagL( A );
     else
         HermitianTridiagU( A );
@@ -371,7 +371,7 @@ elemental::advanced::HermitianTridiag
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");
 #endif
-    if( shape == Lower )
+    if( shape == LOWER )
         HermitianTridiagL( A, t );
     else
         HermitianTridiagU( A, t );

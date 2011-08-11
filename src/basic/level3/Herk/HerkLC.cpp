@@ -73,12 +73,12 @@ elemental::basic::internal::HerkLC
                                 A2(g);
 
     // Temporary distributions
-    DistMatrix<T,MR,  Star> A1Trans_MR_Star(g);
-    DistMatrix<T,Star,VR  > A1_Star_VR(g);
-    DistMatrix<T,Star,MC  > A1_Star_MC(g);
+    DistMatrix<T,MR,  STAR> A1Trans_MR_STAR(g);
+    DistMatrix<T,STAR,VR  > A1_STAR_VR(g);
+    DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
 
     // Start the algorithm
-    C.ScaleTrapezoidal( beta, Left, Lower );
+    C.ScaleTrapezoidal( beta, LEFT, LOWER );
     LockedPartitionDown
     ( A, AT, 
          AB, 0 );
@@ -90,19 +90,19 @@ elemental::basic::internal::HerkLC
                A1,
           AB,  A2 );
 
-        A1Trans_MR_Star.AlignWith( C );
-        A1_Star_MC.AlignWith( C );
+        A1Trans_MR_STAR.AlignWith( C );
+        A1_STAR_MC.AlignWith( C );
         //--------------------------------------------------------------------//
-        A1Trans_MR_Star.TransposeFrom( A1 );
-        A1_Star_VR.TransposeFrom( A1Trans_MR_Star );
-        A1_Star_MC = A1_Star_VR;
+        A1Trans_MR_STAR.TransposeFrom( A1 );
+        A1_STAR_VR.TransposeFrom( A1Trans_MR_STAR );
+        A1_STAR_MC = A1_STAR_VR;
 
         basic::internal::LocalTriangularRankK
-        ( Lower, ConjugateTranspose, Transpose,
-          alpha, A1_Star_MC, A1Trans_MR_Star, (T)1, C );
+        ( LOWER, ADJOINT, TRANSPOSE,
+          alpha, A1_STAR_MC, A1Trans_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
-        A1Trans_MR_Star.FreeAlignments();
-        A1_Star_MC.FreeAlignments();
+        A1Trans_MR_STAR.FreeAlignments();
+        A1_STAR_MC.FreeAlignments();
 
         SlideLockedPartitionDown
         ( AT,  A0,

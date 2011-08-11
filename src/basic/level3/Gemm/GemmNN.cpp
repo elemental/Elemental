@@ -118,9 +118,9 @@ elemental::basic::internal::GemmNNA
                         C0(g), C1(g), C2(g);
 
     // Temporary distributions
-    DistMatrix<T,VR,Star> B1_VR_Star(g);
-    DistMatrix<T,Star,MR> B1Trans_Star_MR(g);
-    DistMatrix<T,MC,Star> D1_MC_Star(g);
+    DistMatrix<T,VR,STAR> B1_VR_STAR(g);
+    DistMatrix<T,STAR,MR> B1Trans_STAR_MR(g);
+    DistMatrix<T,MC,STAR> D1_MC_STAR(g);
 
     // Start the algorithm
     basic::Scal( beta, C );
@@ -136,24 +136,24 @@ elemental::basic::internal::GemmNNA
         ( CL, /**/     CR,
           C0, /**/ C1, C2 );
 
-        B1_VR_Star.AlignWith( A );
-        B1Trans_Star_MR.AlignWith( A );
-        D1_MC_Star.AlignWith( A );
-        D1_MC_Star.ResizeTo( C1.Height(), C1.Width() );
+        B1_VR_STAR.AlignWith( A );
+        B1Trans_STAR_MR.AlignWith( A );
+        D1_MC_STAR.AlignWith( A );
+        D1_MC_STAR.ResizeTo( C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
-        B1_VR_Star = B1;
-        B1Trans_Star_MR.TransposeFrom( B1_VR_Star );
+        B1_VR_STAR = B1;
+        B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
         basic::internal::LocalGemm
-        ( Normal, Transpose, alpha, A, B1Trans_Star_MR, (T)0, D1_MC_Star );
+        ( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, (T)0, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
-        C1.SumScatterUpdate( (T)1, D1_MC_Star );
+        C1.SumScatterUpdate( (T)1, D1_MC_STAR );
         //--------------------------------------------------------------------//
-        B1_VR_Star.FreeAlignments();
-        B1Trans_Star_MR.FreeAlignments();
-        D1_MC_Star.FreeAlignments();
+        B1_VR_STAR.FreeAlignments();
+        B1Trans_STAR_MR.FreeAlignments();
+        D1_MC_STAR.FreeAlignments();
 
         SlideLockedPartitionRight
         ( BL,     /**/ BR,
@@ -203,8 +203,8 @@ elemental::basic::internal::GemmNNB
                                 C2(g);
 
     // Temporary distributions
-    DistMatrix<T,Star,MC> A1_Star_MC(g);
-    DistMatrix<T,Star,MR> D1_Star_MR(g);
+    DistMatrix<T,STAR,MC> A1_STAR_MC(g);
+    DistMatrix<T,STAR,MR> D1_STAR_MR(g);
 
     // Start the algorithm
     basic::Scal( beta, C );
@@ -228,21 +228,21 @@ elemental::basic::internal::GemmNNB
                C1,
           CB,  C2 );
 
-        A1_Star_MC.AlignWith( B );
-        D1_Star_MR.AlignWith( B );
-        D1_Star_MR.ResizeTo( C1.Height(), C1.Width() );
+        A1_STAR_MC.AlignWith( B );
+        D1_STAR_MR.AlignWith( B );
+        D1_STAR_MR.ResizeTo( C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
-        A1_Star_MC = A1; // A1[*,MC] <- A1[MC,MR]
+        A1_STAR_MC = A1; // A1[*,MC] <- A1[MC,MR]
 
         // D1[*,MR] := alpha A1[*,MC] B[MC,MR]
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A1_Star_MC, B, (T)0, D1_Star_MR );
+        ( NORMAL, NORMAL, alpha, A1_STAR_MC, B, (T)0, D1_STAR_MR );
 
         // C1[MC,MR] += scattered result of D1[*,MR] summed over grid cols
-        C1.SumScatterUpdate( (T)1, D1_Star_MR );
+        C1.SumScatterUpdate( (T)1, D1_STAR_MR );
         //--------------------------------------------------------------------//
-        A1_Star_MC.FreeAlignments();
-        D1_Star_MR.FreeAlignments();
+        A1_STAR_MC.FreeAlignments();
+        D1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDown
         ( AT,  A0,
@@ -296,8 +296,8 @@ elemental::basic::internal::GemmNNC
                                 B2(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,Star> A1_MC_Star(g);
-    DistMatrix<T,MR,Star> B1Trans_MR_Star(g); 
+    DistMatrix<T,MC,STAR> A1_MC_STAR(g);
+    DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g); 
 
     // Start the algorithm
     basic::Scal( beta, C );
@@ -315,19 +315,19 @@ elemental::basic::internal::GemmNNC
                                     B1, 
                                BB,  B2 );
 
-        A1_MC_Star.AlignWith( C );
-        B1Trans_MR_Star.AlignWith( C );
+        A1_MC_STAR.AlignWith( C );
+        B1Trans_MR_STAR.AlignWith( C );
         //--------------------------------------------------------------------//
-        A1_MC_Star = A1; 
-        B1Trans_MR_Star.TransposeFrom( B1 );
+        A1_MC_STAR = A1; 
+        B1Trans_MR_STAR.TransposeFrom( B1 );
 
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
         basic::internal::LocalGemm
-        ( Normal, Transpose, alpha, A1_MC_Star, B1Trans_MR_Star, (T)1, C );
+        ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
-        A1_MC_Star.FreeAlignments();
-        B1Trans_MR_Star.FreeAlignments();
+        A1_MC_STAR.FreeAlignments();
+        B1Trans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionRight( AL,     /**/ AR,
                                    A0, A1, /**/ A2 );
@@ -383,9 +383,9 @@ elemental::basic::internal::GemmNNDot
                                    C2(g);
 
         // Temporary distributions
-        DistMatrix<T,Star,VC> A1_Star_VC(g);
-        DistMatrix<T,VC,Star> B1_VC_Star(g);
-        DistMatrix<T,Star,Star> C11_Star_Star(g);
+        DistMatrix<T,STAR,VC> A1_STAR_VC(g);
+        DistMatrix<T,VC,STAR> B1_VC_STAR(g);
+        DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
 
         // Star the algorithm
         basic::Scal( beta, C );
@@ -409,9 +409,9 @@ elemental::basic::internal::GemmNNDot
                    C1,
               CB,  C2 );
 
-            A1_Star_VC.AlignWith( B1 );
+            A1_STAR_VC.AlignWith( B1 );
             //----------------------------------------------------------------//
-            A1_Star_VC = A1; 
+            A1_STAR_VC = A1; 
             //----------------------------------------------------------------//
 
             LockedPartitionRight( B, BL, BR, 0 );
@@ -426,16 +426,16 @@ elemental::basic::internal::GemmNNDot
                 ( C1L, /**/ C1R,
                   C10, /**/ C11, C12 );
 
-                B1_VC_Star.AlignWith( A1_Star_VC );
-                C11_Star_Star.ResizeTo( C11.Height(), C11.Width() );
+                B1_VC_STAR.AlignWith( A1_STAR_VC );
+                C11_STAR_STAR.ResizeTo( C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
-                B1_VC_Star = B1;
+                B1_VC_STAR = B1;
                 basic::internal::LocalGemm
-                ( Normal, Normal, 
-                  alpha, A1_Star_VC, B1_VC_Star, (T)0, C11_Star_Star );
-                C11.SumScatterUpdate( (T)1, C11_Star_Star );
+                ( NORMAL, NORMAL, 
+                  alpha, A1_STAR_VC, B1_VC_STAR, (T)0, C11_STAR_STAR );
+                C11.SumScatterUpdate( (T)1, C11_STAR_STAR );
                 //------------------------------------------------------------//
-                B1_VC_Star.FreeAlignments();
+                B1_VC_STAR.FreeAlignments();
 
                 SlideLockedPartitionRight
                 ( BL,     /**/ BR,
@@ -445,7 +445,7 @@ elemental::basic::internal::GemmNNDot
                 ( C1L,      /**/ C1R,
                   C10, C11, /**/ C12 );
             }
-            A1_Star_VC.FreeAlignments();
+            A1_STAR_VC.FreeAlignments();
 
             SlideLockedPartitionDown
             ( AT,  A0,
@@ -476,9 +476,9 @@ elemental::basic::internal::GemmNNDot
                                            C21(g);
 
         // Temporary distributions
-        DistMatrix<T,Star,VR> A1_Star_VR(g);
-        DistMatrix<T,VR,Star> B1_VR_Star(g);
-        DistMatrix<T,Star,Star> C11_Star_Star(g);
+        DistMatrix<T,STAR,VR> A1_STAR_VR(g);
+        DistMatrix<T,VR,STAR> B1_VR_STAR(g);
+        DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
 
         // Star the algorithm
         basic::Scal( beta, C );
@@ -494,9 +494,9 @@ elemental::basic::internal::GemmNNDot
             ( CL, /**/ CR,
               C0, /**/ C1, C2 );
 
-            B1_VR_Star.AlignWith( A1 );
+            B1_VR_STAR.AlignWith( A1 );
             //----------------------------------------------------------------//
-            B1_VR_Star = B1;
+            B1_VR_STAR = B1;
             //----------------------------------------------------------------//
 
             LockedPartitionDown
@@ -519,16 +519,16 @@ elemental::basic::internal::GemmNNDot
                         C11,
                   C1B,  C21 );
 
-                A1_Star_VR.AlignWith( B1_VR_Star );
-                C11_Star_Star.ResizeTo( C11.Height(), C11.Width() );
+                A1_STAR_VR.AlignWith( B1_VR_STAR );
+                C11_STAR_STAR.ResizeTo( C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
-                A1_Star_VR = A1;
+                A1_STAR_VR = A1;
                 basic::internal::LocalGemm
-                ( Normal, Normal,
-                  alpha, A1_Star_VR, B1_VR_Star, (T)0, C11_Star_Star );
-                C11.SumScatterUpdate( (T)1, C11_Star_Star );
+                ( NORMAL, NORMAL, 
+                  alpha, A1_STAR_VR, B1_VR_STAR, (T)0, C11_STAR_STAR );
+                C11.SumScatterUpdate( (T)1, C11_STAR_STAR );
                 //------------------------------------------------------------//
-                A1_Star_VR.FreeAlignments();
+                A1_STAR_VR.FreeAlignments();
 
                 SlideLockedPartitionDown
                 ( AT,  A0,
@@ -542,7 +542,7 @@ elemental::basic::internal::GemmNNDot
                  /***/ /***/
                   C1B,  C21 );
             }
-            B1_VR_Star.FreeAlignments();
+            B1_VR_STAR.FreeAlignments();
 
             SlideLockedPartitionRight
             ( BL,     /**/ BR,

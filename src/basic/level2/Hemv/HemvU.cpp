@@ -51,44 +51,44 @@ void
 elemental::basic::internal::LocalHemvColAccumulateU
 ( T alpha, 
   const DistMatrix<T,MC,MR  >& A,
-  const DistMatrix<T,MC,Star>& x_MC_Star,
-  const DistMatrix<T,MR,Star>& x_MR_Star,
-        DistMatrix<T,MC,Star>& z_MC_Star,
-        DistMatrix<T,MR,Star>& z_MR_Star )
+  const DistMatrix<T,MC,STAR>& x_MC_STAR,
+  const DistMatrix<T,MR,STAR>& x_MR_STAR,
+        DistMatrix<T,MC,STAR>& z_MC_STAR,
+        DistMatrix<T,MR,STAR>& z_MR_STAR )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalHemvColAccumulateU");
-    if( A.Grid() != x_MC_Star.Grid() ||
-        x_MC_Star.Grid() != x_MR_Star.Grid() ||
-        x_MR_Star.Grid() != z_MC_Star.Grid() ||
-        z_MC_Star.Grid() != z_MR_Star.Grid() )
+    if( A.Grid() != x_MC_STAR.Grid() ||
+        x_MC_STAR.Grid() != x_MR_STAR.Grid() ||
+        x_MR_STAR.Grid() != z_MC_STAR.Grid() ||
+        z_MC_STAR.Grid() != z_MR_STAR.Grid() )
         throw logic_error( "{A,x,z} must be distributed over the same grid." );
-    if( x_MC_Star.Width() != 1 || x_MR_Star.Width() != 1 ||
-        z_MC_Star.Width() != 1 || z_MR_Star.Width() != 1 )
+    if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
+        z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
         throw logic_error( "Expected x and z to be column vectors." );
     if( A.Height() != A.Width() || 
-        A.Height() != x_MC_Star.Height() ||
-        A.Height() != x_MR_Star.Height() ||
-        A.Height() != z_MC_Star.Height() ||
-        A.Height() != z_MR_Star.Height() )
+        A.Height() != x_MC_STAR.Height() ||
+        A.Height() != x_MR_STAR.Height() ||
+        A.Height() != z_MC_STAR.Height() ||
+        A.Height() != z_MR_STAR.Height() )
     {
         ostringstream msg;
         msg << "Nonconformal LocalHemvColAccumulateU: " << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
-            << "  x[MC,* ] ~ " << x_MC_Star.Height() << " x " 
-                               << x_MC_Star.Width() << endl
-            << "  x[MR,* ] ~ " << x_MR_Star.Height() << " x " 
-                               << x_MR_Star.Width() << endl
-            << "  z[MC,* ] ~ " << z_MC_Star.Height() << " x " 
-                               << z_MC_Star.Width() << endl
-            << "  z[MR,* ] ~ " << z_MR_Star.Height() << " x " 
-                               << z_MR_Star.Width() << endl;
+            << "  x[MC,* ] ~ " << x_MC_STAR.Height() << " x " 
+                               << x_MC_STAR.Width() << endl
+            << "  x[MR,* ] ~ " << x_MR_STAR.Height() << " x " 
+                               << x_MR_STAR.Width() << endl
+            << "  z[MC,* ] ~ " << z_MC_STAR.Height() << " x " 
+                               << z_MC_STAR.Width() << endl
+            << "  z[MR,* ] ~ " << z_MR_STAR.Height() << " x " 
+                               << z_MR_STAR.Width() << endl;
         throw logic_error( msg.str() );
     }
-    if( x_MC_Star.ColAlignment() != A.ColAlignment() ||
-        x_MR_Star.ColAlignment() != A.RowAlignment() ||
-        z_MC_Star.ColAlignment() != A.ColAlignment() ||
-        z_MR_Star.ColAlignment() != A.RowAlignment() )
+    if( x_MC_STAR.ColAlignment() != A.ColAlignment() ||
+        x_MR_STAR.ColAlignment() != A.RowAlignment() ||
+        z_MC_STAR.ColAlignment() != A.ColAlignment() ||
+        z_MR_STAR.ColAlignment() != A.RowAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
     const Grid& g = A.Grid();
@@ -101,25 +101,25 @@ elemental::basic::internal::LocalHemvColAccumulateU
 
     DistMatrix<T,MC,MR> D11(g);
 
-    DistMatrix<T,MC,Star> 
-        xT_MC_Star(g),  x0_MC_Star(g),
-        xB_MC_Star(g),  x1_MC_Star(g),
-                        x2_MC_Star(g);
+    DistMatrix<T,MC,STAR> 
+        xT_MC_STAR(g),  x0_MC_STAR(g),
+        xB_MC_STAR(g),  x1_MC_STAR(g),
+                        x2_MC_STAR(g);
 
-    DistMatrix<T,MR,Star> 
-        xT_MR_Star(g),  x0_MR_Star(g),
-        xB_MR_Star(g),  x1_MR_Star(g),
-                        x2_MR_Star(g);
+    DistMatrix<T,MR,STAR> 
+        xT_MR_STAR(g),  x0_MR_STAR(g),
+        xB_MR_STAR(g),  x1_MR_STAR(g),
+                        x2_MR_STAR(g);
 
-    DistMatrix<T,MC,Star> 
-        zT_MC_Star(g),  z0_MC_Star(g),
-        zB_MC_Star(g),  z1_MC_Star(g),
-                        z2_MC_Star(g);
+    DistMatrix<T,MC,STAR> 
+        zT_MC_STAR(g),  z0_MC_STAR(g),
+        zB_MC_STAR(g),  z1_MC_STAR(g),
+                        z2_MC_STAR(g);
 
-    DistMatrix<T,MR,Star> 
-        zT_MR_Star(g),  z0_MR_Star(g),
-        zB_MR_Star(g),  z1_MR_Star(g),
-                        z2_MR_Star(g);
+    DistMatrix<T,MR,STAR> 
+        zT_MR_STAR(g),  z0_MR_STAR(g),
+        zB_MR_STAR(g),  z1_MR_STAR(g),
+                        z2_MR_STAR(g);
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
@@ -130,17 +130,17 @@ elemental::basic::internal::LocalHemvColAccumulateU
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     LockedPartitionDown
-    ( x_MC_Star, xT_MC_Star,
-                 xB_MC_Star, 0 );
+    ( x_MC_STAR, xT_MC_STAR,
+                 xB_MC_STAR, 0 );
     LockedPartitionDown
-    ( x_MR_Star, xT_MR_Star,
-                 xB_MR_Star, 0 );
+    ( x_MR_STAR, xT_MR_STAR,
+                 xB_MR_STAR, 0 );
     PartitionDown
-    ( z_MC_Star, zT_MC_Star,
-                 zB_MC_Star, 0 );
+    ( z_MC_STAR, zT_MC_STAR,
+                 zB_MC_STAR, 0 );
     PartitionDown
-    ( z_MR_Star, zT_MR_Star,
-                 zB_MR_Star, 0 );
+    ( z_MR_STAR, zT_MR_STAR,
+                 zB_MR_STAR, 0 );
     while( ATL.Height() < A.Height() )
     {
         LockedRepartitionDownDiagonal
@@ -150,57 +150,57 @@ elemental::basic::internal::LocalHemvColAccumulateU
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
         LockedRepartitionDown
-        ( xT_MC_Star,  x0_MC_Star,
+        ( xT_MC_STAR,  x0_MC_STAR,
          /**********/ /**********/
-                       x1_MC_Star,
-          xB_MC_Star,  x2_MC_Star );
+                       x1_MC_STAR,
+          xB_MC_STAR,  x2_MC_STAR );
 
         LockedRepartitionDown
-        ( xT_MR_Star,  x0_MR_Star,
+        ( xT_MR_STAR,  x0_MR_STAR,
          /**********/ /**********/
-                       x1_MR_Star,
-          xB_MR_Star,  x2_MR_Star );
+                       x1_MR_STAR,
+          xB_MR_STAR,  x2_MR_STAR );
 
         RepartitionDown
-        ( zT_MC_Star,  z0_MC_Star,
+        ( zT_MC_STAR,  z0_MC_STAR,
          /**********/ /**********/
-                       z1_MC_Star,
-          zB_MC_Star,  z2_MC_Star );
+                       z1_MC_STAR,
+          zB_MC_STAR,  z2_MC_STAR );
 
         RepartitionDown
-        ( zT_MR_Star,  z0_MR_Star,
+        ( zT_MR_STAR,  z0_MR_STAR,
          /**********/ /**********/
-                       z1_MR_Star,
-          zB_MR_Star,  z2_MR_Star );
+                       z1_MR_STAR,
+          zB_MR_STAR,  z2_MR_STAR );
 
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
         D11 = A11;
         D11.MakeTrapezoidal( Left, Upper );
         basic::Gemv
-        ( Normal, 
+        ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
-                 x1_MR_Star.LockedLocalMatrix(),
-          (T)1,  z1_MC_Star.LocalMatrix() );
+                 x1_MR_STAR.LockedLocalMatrix(),
+          (T)1,  z1_MC_STAR.LocalMatrix() );
         D11.MakeTrapezoidal( Left, Upper, 1 );
 
         basic::Gemv
-        ( ConjugateTranspose,
+        ( ADJOINT,
           alpha, D11.LockedLocalMatrix(),
-                 x1_MC_Star.LockedLocalMatrix(),
-          (T)1,  z1_MR_Star.LocalMatrix() );
+                 x1_MC_STAR.LockedLocalMatrix(),
+          (T)1,  z1_MR_STAR.LocalMatrix() );
 
         basic::Gemv
-        ( Normal,
+        ( NORMAL,
           alpha, A12.LockedLocalMatrix(),
-                 x2_MR_Star.LockedLocalMatrix(),
-          (T)1,  z1_MC_Star.LocalMatrix() );
+                 x2_MR_STAR.LockedLocalMatrix(),
+          (T)1,  z1_MC_STAR.LocalMatrix() );
 
         basic::Gemv
-        ( ConjugateTranspose,
+        ( ADJOINT,
           alpha, A12.LockedLocalMatrix(),
-                 x1_MC_Star.LockedLocalMatrix(),
-          (T)1,  z2_MR_Star.LocalMatrix() );
+                 x1_MC_STAR.LockedLocalMatrix(),
+          (T)1,  z2_MR_STAR.LocalMatrix() );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 
@@ -211,28 +211,28 @@ elemental::basic::internal::LocalHemvColAccumulateU
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
         SlideLockedPartitionDown
-        ( xT_MC_Star,  x0_MC_Star,
-                       x1_MC_Star,
+        ( xT_MC_STAR,  x0_MC_STAR,
+                       x1_MC_STAR,
          /**********/ /**********/
-          xB_MC_Star,  x2_MC_Star );
+          xB_MC_STAR,  x2_MC_STAR );
 
         SlideLockedPartitionDown
-        ( xT_MR_Star,  x0_MR_Star,
-                       x1_MR_Star,
+        ( xT_MR_STAR,  x0_MR_STAR,
+                       x1_MR_STAR,
          /**********/ /**********/
-          xB_MR_Star,  x2_MR_Star );
+          xB_MR_STAR,  x2_MR_STAR );
         
         SlidePartitionDown
-        ( zT_MC_Star,  z0_MC_Star,
-                       z1_MC_Star,
+        ( zT_MC_STAR,  z0_MC_STAR,
+                       z1_MC_STAR,
          /**********/ /**********/
-          zB_MC_Star,  z2_MC_Star );
+          zB_MC_STAR,  z2_MC_STAR );
 
         SlidePartitionDown
-        ( zT_MR_Star,  z0_MR_Star,
-                       z1_MR_Star,
+        ( zT_MR_STAR,  z0_MR_STAR,
+                       z1_MR_STAR,
          /**********/ /**********/
-          zB_MR_Star,  z2_MR_Star );
+          zB_MR_STAR,  z2_MR_STAR );
     }
 
     PopBlocksizeStack();
@@ -247,44 +247,44 @@ void
 elemental::basic::internal::LocalHemvRowAccumulateU
 ( T alpha, 
   const DistMatrix<T,MC,  MR>& A,
-  const DistMatrix<T,Star,MC>& x_Star_MC,
-  const DistMatrix<T,Star,MR>& x_Star_MR,
-        DistMatrix<T,Star,MC>& z_Star_MC,
-        DistMatrix<T,Star,MR>& z_Star_MR )
+  const DistMatrix<T,STAR,MC>& x_STAR_MC,
+  const DistMatrix<T,STAR,MR>& x_STAR_MR,
+        DistMatrix<T,STAR,MC>& z_STAR_MC,
+        DistMatrix<T,STAR,MR>& z_STAR_MR )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalHemvRowAccumulateU");
-    if( A.Grid() != x_Star_MC.Grid() ||
-        x_Star_MC.Grid() != x_Star_MR.Grid() ||
-        x_Star_MR.Grid() != z_Star_MC.Grid() ||
-        z_Star_MC.Grid() != z_Star_MR.Grid() )
+    if( A.Grid() != x_STAR_MC.Grid() ||
+        x_STAR_MC.Grid() != x_STAR_MR.Grid() ||
+        x_STAR_MR.Grid() != z_STAR_MC.Grid() ||
+        z_STAR_MC.Grid() != z_STAR_MR.Grid() )
         throw logic_error( "{A,x,z} must be distributed over the same grid." );
-    if( x_Star_MC.Height() != 1 || x_Star_MR.Height() != 1 ||
-        z_Star_MC.Height() != 1 || z_Star_MR.Height() != 1 )
+    if( x_STAR_MC.Height() != 1 || x_STAR_MR.Height() != 1 ||
+        z_STAR_MC.Height() != 1 || z_STAR_MR.Height() != 1 )
         throw logic_error( "Expected x and z to be row vectors." );
     if( A.Height() != A.Width() || 
-        A.Height() != x_Star_MC.Width() ||
-        A.Height() != x_Star_MR.Width() ||
-        A.Height() != z_Star_MC.Width() ||
-        A.Height() != z_Star_MR.Width() )
+        A.Height() != x_STAR_MC.Width() ||
+        A.Height() != x_STAR_MR.Width() ||
+        A.Height() != z_STAR_MC.Width() ||
+        A.Height() != z_STAR_MR.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal LocalHemvRowAccumulateU: " << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
-            << "  x[* ,MC] ~ " << x_Star_MC.Height() << " x " 
-                               << x_Star_MC.Width() << endl
-            << "  x[* ,MR] ~ " << x_Star_MR.Height() << " x " 
-                               << x_Star_MR.Width() << endl
-            << "  z[* ,MC] ~ " << z_Star_MC.Height() << " x " 
-                               << z_Star_MC.Width() << endl
-            << "  z[* ,MR] ~ " << z_Star_MR.Height() << " x " 
-                               << z_Star_MR.Width() << endl;
+            << "  x[* ,MC] ~ " << x_STAR_MC.Height() << " x " 
+                               << x_STAR_MC.Width() << endl
+            << "  x[* ,MR] ~ " << x_STAR_MR.Height() << " x " 
+                               << x_STAR_MR.Width() << endl
+            << "  z[* ,MC] ~ " << z_STAR_MC.Height() << " x " 
+                               << z_STAR_MC.Width() << endl
+            << "  z[* ,MR] ~ " << z_STAR_MR.Height() << " x " 
+                               << z_STAR_MR.Width() << endl;
         throw logic_error( msg.str() );
     }
-    if( x_Star_MC.RowAlignment() != A.ColAlignment() ||
-        x_Star_MR.RowAlignment() != A.RowAlignment() ||
-        z_Star_MC.RowAlignment() != A.ColAlignment() ||
-        z_Star_MR.RowAlignment() != A.RowAlignment() )
+    if( x_STAR_MC.RowAlignment() != A.ColAlignment() ||
+        x_STAR_MR.RowAlignment() != A.RowAlignment() ||
+        z_STAR_MC.RowAlignment() != A.ColAlignment() ||
+        z_STAR_MR.RowAlignment() != A.RowAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
     const Grid& g = A.Grid();
@@ -297,21 +297,21 @@ elemental::basic::internal::LocalHemvRowAccumulateU
 
     DistMatrix<T,MC,MR> D11(g);
 
-    DistMatrix<T,Star,MC> 
-        xL_Star_MC(g), xR_Star_MC(g),
-        x0_Star_MC(g), x1_Star_MC(g), x2_Star_MC(g);
+    DistMatrix<T,STAR,MC> 
+        xL_STAR_MC(g), xR_STAR_MC(g),
+        x0_STAR_MC(g), x1_STAR_MC(g), x2_STAR_MC(g);
 
-    DistMatrix<T,Star,MR> 
-        xL_Star_MR(g), xR_Star_MR(g),
-        x0_Star_MR(g), x1_Star_MR(g), x2_Star_MR(g);
+    DistMatrix<T,STAR,MR> 
+        xL_STAR_MR(g), xR_STAR_MR(g),
+        x0_STAR_MR(g), x1_STAR_MR(g), x2_STAR_MR(g);
 
-    DistMatrix<T,Star,MC> 
-        zL_Star_MC(g), zR_Star_MC(g),
-        z0_Star_MC(g), z1_Star_MC(g), z2_Star_MC(g);
+    DistMatrix<T,STAR,MC> 
+        zL_STAR_MC(g), zR_STAR_MC(g),
+        z0_STAR_MC(g), z1_STAR_MC(g), z2_STAR_MC(g);
 
-    DistMatrix<T,Star,MR> 
-        zL_Star_MR(g), zR_Star_MR(g),
-        z0_Star_MR(g), z1_Star_MR(g), z2_Star_MR(g);
+    DistMatrix<T,STAR,MR> 
+        zL_STAR_MR(g), zR_STAR_MR(g),
+        z0_STAR_MR(g), z1_STAR_MR(g), z2_STAR_MR(g);
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
@@ -321,10 +321,10 @@ elemental::basic::internal::LocalHemvRowAccumulateU
     LockedPartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    LockedPartitionRight( x_Star_MC,  xL_Star_MC, xR_Star_MC, 0 );
-    LockedPartitionRight( x_Star_MR,  xL_Star_MR, xR_Star_MR, 0 );
-    PartitionRight( z_Star_MC,  zL_Star_MC, zR_Star_MC, 0 );
-    PartitionRight( z_Star_MR,  zL_Star_MR, zR_Star_MR, 0 );
+    LockedPartitionRight( x_STAR_MC,  xL_STAR_MC, xR_STAR_MC, 0 );
+    LockedPartitionRight( x_STAR_MR,  xL_STAR_MR, xR_STAR_MR, 0 );
+    PartitionRight( z_STAR_MC,  zL_STAR_MC, zR_STAR_MC, 0 );
+    PartitionRight( z_STAR_MR,  zL_STAR_MR, zR_STAR_MR, 0 );
     while( ATL.Height() < A.Height() )
     {
         LockedRepartitionDownDiagonal
@@ -334,49 +334,49 @@ elemental::basic::internal::LocalHemvRowAccumulateU
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
         LockedRepartitionRight
-        ( xL_Star_MC, /**/ xR_Star_MC, 
-          x0_Star_MC, /**/ x1_Star_MC, x2_Star_MC );
+        ( xL_STAR_MC, /**/ xR_STAR_MC, 
+          x0_STAR_MC, /**/ x1_STAR_MC, x2_STAR_MC );
 
         LockedRepartitionRight
-        ( xL_Star_MR, /**/ xR_Star_MR, 
-          x0_Star_MR, /**/ x1_Star_MR, x2_Star_MR );
+        ( xL_STAR_MR, /**/ xR_STAR_MR, 
+          x0_STAR_MR, /**/ x1_STAR_MR, x2_STAR_MR );
 
         RepartitionRight
-        ( zL_Star_MC, /**/ zR_Star_MC,
-          z0_Star_MC, /**/ z1_Star_MC, z2_Star_MC );
+        ( zL_STAR_MC, /**/ zR_STAR_MC,
+          z0_STAR_MC, /**/ z1_STAR_MC, z2_STAR_MC );
 
         RepartitionRight
-        ( zL_Star_MR, /**/ zR_Star_MR,
-          z0_Star_MR, /**/ z1_Star_MR, z2_Star_MR );
+        ( zL_STAR_MR, /**/ zR_STAR_MR,
+          z0_STAR_MR, /**/ z1_STAR_MR, z2_STAR_MR );
 
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
         D11 = A11;
         D11.MakeTrapezoidal( Left, Upper );
         basic::Gemv
-        ( Normal, 
+        ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
-                 x1_Star_MR.LockedLocalMatrix(),
-          (T)1,  z1_Star_MC.LocalMatrix() );
+                 x1_STAR_MR.LockedLocalMatrix(),
+          (T)1,  z1_STAR_MC.LocalMatrix() );
         D11.MakeTrapezoidal( Left, Upper, 1 );
 
         basic::Gemv
-        ( ConjugateTranspose,
+        ( ADJOINT,
           alpha, D11.LockedLocalMatrix(),
-                 x1_Star_MC.LockedLocalMatrix(),
-          (T)1,  z1_Star_MR.LocalMatrix() );
+                 x1_STAR_MC.LockedLocalMatrix(),
+          (T)1,  z1_STAR_MR.LocalMatrix() );
 
         basic::Gemv
-        ( Normal,
+        ( NORMAL,
           alpha, A12.LockedLocalMatrix(),
-                 x2_Star_MR.LockedLocalMatrix(),
-          (T)1,  z1_Star_MC.LocalMatrix() );
+                 x2_STAR_MR.LockedLocalMatrix(),
+          (T)1,  z1_STAR_MC.LocalMatrix() );
 
         basic::Gemv
-        ( ConjugateTranspose,
+        ( ADJOINT,
           alpha, A12.LockedLocalMatrix(),
-                 x1_Star_MC.LockedLocalMatrix(),
-          (T)1,  z2_Star_MR.LocalMatrix() );
+                 x1_STAR_MC.LockedLocalMatrix(),
+          (T)1,  z2_STAR_MR.LocalMatrix() );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 
@@ -387,20 +387,20 @@ elemental::basic::internal::LocalHemvRowAccumulateU
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
         SlideLockedPartitionRight
-        ( xL_Star_MC,             /**/ xR_Star_MC,
-          x0_Star_MC, x1_Star_MC, /**/ x2_Star_MC );
+        ( xL_STAR_MC,             /**/ xR_STAR_MC,
+          x0_STAR_MC, x1_STAR_MC, /**/ x2_STAR_MC );
         
         SlideLockedPartitionRight
-        ( xL_Star_MR,             /**/ xR_Star_MR,
-          x0_Star_MR, x1_Star_MR, /**/ x2_Star_MR );
+        ( xL_STAR_MR,             /**/ xR_STAR_MR,
+          x0_STAR_MR, x1_STAR_MR, /**/ x2_STAR_MR );
 
         SlidePartitionRight
-        ( zL_Star_MC,             /**/ zR_Star_MC,
-          z0_Star_MC, z1_Star_MC, /**/ z2_Star_MC );
+        ( zL_STAR_MC,             /**/ zR_STAR_MC,
+          z0_STAR_MC, z1_STAR_MC, /**/ z2_STAR_MC );
 
         SlidePartitionRight
-        ( zL_Star_MR,             /**/ zR_Star_MR,
-          z0_Star_MR, z1_Star_MR, /**/ z2_Star_MR );
+        ( zL_STAR_MR,             /**/ zR_STAR_MR,
+          z0_STAR_MR, z1_STAR_MR, /**/ z2_STAR_MR );
     }
 
     PopBlocksizeStack();
@@ -413,66 +413,66 @@ elemental::basic::internal::LocalHemvRowAccumulateU
 template void elemental::basic::internal::LocalHemvColAccumulateU
 ( float alpha, 
   const DistMatrix<float,MC,MR  >& A,
-  const DistMatrix<float,MC,Star>& x_MC_Star,    
-  const DistMatrix<float,MR,Star>& x_MR_Star,
-        DistMatrix<float,MC,Star>& z_MC_Star,
-        DistMatrix<float,MR,Star>& z_MR_Star );
+  const DistMatrix<float,MC,STAR>& x_MC_STAR,    
+  const DistMatrix<float,MR,STAR>& x_MR_STAR,
+        DistMatrix<float,MC,STAR>& z_MC_STAR,
+        DistMatrix<float,MR,STAR>& z_MR_STAR );
 
 template void elemental::basic::internal::LocalHemvRowAccumulateU
 ( float alpha, 
   const DistMatrix<float,MC,  MR>& A,
-  const DistMatrix<float,Star,MC>& x_Star_MC,
-  const DistMatrix<float,Star,MR>& x_Star_MR,
-        DistMatrix<float,Star,MC>& z_Star_MC,
-        DistMatrix<float,Star,MR>& z_Star_MR );
+  const DistMatrix<float,STAR,MC>& x_STAR_MC,
+  const DistMatrix<float,STAR,MR>& x_STAR_MR,
+        DistMatrix<float,STAR,MC>& z_STAR_MC,
+        DistMatrix<float,STAR,MR>& z_STAR_MR );
 
 template void elemental::basic::internal::LocalHemvColAccumulateU
 ( double alpha, 
   const DistMatrix<double,MC,MR  >& A,
-  const DistMatrix<double,MC,Star>& x_MC_Star,
-  const DistMatrix<double,MR,Star>& x_MR_Star,
-        DistMatrix<double,MC,Star>& z_MC_Star,
-        DistMatrix<double,MR,Star>& z_MR_Star );
+  const DistMatrix<double,MC,STAR>& x_MC_STAR,
+  const DistMatrix<double,MR,STAR>& x_MR_STAR,
+        DistMatrix<double,MC,STAR>& z_MC_STAR,
+        DistMatrix<double,MR,STAR>& z_MR_STAR );
 
 template void elemental::basic::internal::LocalHemvRowAccumulateU
 ( double alpha, 
   const DistMatrix<double,MC,  MR>& A,
-  const DistMatrix<double,Star,MC>& x_Star_MC,
-  const DistMatrix<double,Star,MR>& x_Star_MR,
-        DistMatrix<double,Star,MC>& z_Star_MC,
-        DistMatrix<double,Star,MR>& z_Star_MR );
+  const DistMatrix<double,STAR,MC>& x_STAR_MC,
+  const DistMatrix<double,STAR,MR>& x_STAR_MR,
+        DistMatrix<double,STAR,MC>& z_STAR_MC,
+        DistMatrix<double,STAR,MR>& z_STAR_MR );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::basic::internal::LocalHemvColAccumulateU
 ( scomplex alpha,
   const DistMatrix<scomplex,MC,MR  >& A,
-  const DistMatrix<scomplex,MC,Star>& x_MC_Star,
-  const DistMatrix<scomplex,MR,Star>& x_MR_Star,
-        DistMatrix<scomplex,MC,Star>& z_MC_Star,
-        DistMatrix<scomplex,MR,Star>& z_MR_Star );
+  const DistMatrix<scomplex,MC,STAR>& x_MC_STAR,
+  const DistMatrix<scomplex,MR,STAR>& x_MR_STAR,
+        DistMatrix<scomplex,MC,STAR>& z_MC_STAR,
+        DistMatrix<scomplex,MR,STAR>& z_MR_STAR );
 
 template void elemental::basic::internal::LocalHemvRowAccumulateU
 ( scomplex alpha,
   const DistMatrix<scomplex,MC,  MR>& A,
-  const DistMatrix<scomplex,Star,MC>& x_Star_MC,
-  const DistMatrix<scomplex,Star,MR>& x_Star_MR,
-        DistMatrix<scomplex,Star,MC>& z_Star_MC,
-        DistMatrix<scomplex,Star,MR>& z_Star_MR );
+  const DistMatrix<scomplex,STAR,MC>& x_STAR_MC,
+  const DistMatrix<scomplex,STAR,MR>& x_STAR_MR,
+        DistMatrix<scomplex,STAR,MC>& z_STAR_MC,
+        DistMatrix<scomplex,STAR,MR>& z_STAR_MR );
 
 template void elemental::basic::internal::LocalHemvColAccumulateU
 ( dcomplex alpha,
   const DistMatrix<dcomplex,MC,MR  >& A,
-  const DistMatrix<dcomplex,MC,Star>& x_MC_Star,
-  const DistMatrix<dcomplex,MR,Star>& x_MR_Star,
-        DistMatrix<dcomplex,MC,Star>& z_MC_Star,
-        DistMatrix<dcomplex,MR,Star>& z_MR_Star );
+  const DistMatrix<dcomplex,MC,STAR>& x_MC_STAR,
+  const DistMatrix<dcomplex,MR,STAR>& x_MR_STAR,
+        DistMatrix<dcomplex,MC,STAR>& z_MC_STAR,
+        DistMatrix<dcomplex,MR,STAR>& z_MR_STAR );
 
 template void elemental::basic::internal::LocalHemvRowAccumulateU
 ( dcomplex alpha,
   const DistMatrix<dcomplex,MC,  MR>& A,
-  const DistMatrix<dcomplex,Star,MC>& x_Star_MC,
-  const DistMatrix<dcomplex,Star,MR>& x_Star_MR,
-        DistMatrix<dcomplex,Star,MC>& z_Star_MC,
-        DistMatrix<dcomplex,Star,MR>& z_Star_MR );
+  const DistMatrix<dcomplex,STAR,MC>& x_STAR_MC,
+  const DistMatrix<dcomplex,STAR,MR>& x_STAR_MR,
+        DistMatrix<dcomplex,STAR,MC>& z_STAR_MC,
+        DistMatrix<dcomplex,STAR,MR>& z_STAR_MR );
 #endif
 

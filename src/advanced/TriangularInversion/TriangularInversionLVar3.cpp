@@ -54,11 +54,11 @@ elemental::advanced::internal::TriangularInversionLVar3
                          L20(g), L21(g), L22(g);
 
     // Temporary distributions
-    DistMatrix<F,Star,MR  > L10_Star_MR(g);
-    DistMatrix<F,Star,VR  > L10_Star_VR(g);
-    DistMatrix<F,Star,Star> L11_Star_Star(g);
-    DistMatrix<F,MC,  Star> L21_MC_Star(g);
-    DistMatrix<F,VC,  Star> L21_VC_Star(g);
+    DistMatrix<F,STAR,MR  > L10_STAR_MR(g);
+    DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
+    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
+    DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
+    DistMatrix<F,VC,  STAR> L21_VC_STAR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -72,30 +72,31 @@ elemental::advanced::internal::TriangularInversionLVar3
                /**/       L10, /**/ L11, L12,
           LBL, /**/ LBR,  L20, /**/ L21, L22 );
 
-        L10_Star_MR.AlignWith( L20 );
-        L21_MC_Star.AlignWith( L20 );
+        L10_STAR_MR.AlignWith( L20 );
+        L21_MC_STAR.AlignWith( L20 );
         //--------------------------------------------------------------------//
-        L11_Star_Star = L11;
-        advanced::internal::LocalTriangularInversion( Lower, diagonal, L11_Star_Star );
-        L11 = L11_Star_Star;
+        L11_STAR_STAR = L11;
+        advanced::internal::LocalTriangularInversion
+        ( LOWER, diagonal, L11_STAR_STAR );
+        L11 = L11_STAR_STAR;
 
-        L10_Star_VR = L10;
+        L10_STAR_VR = L10;
         basic::internal::LocalTrmm
-        ( Left, Lower, Normal, diagonal, (F)-1, L11_Star_Star, L10_Star_VR );
+        ( LEFT, LOWER, NORMAL, diagonal, (F)-1, L11_STAR_STAR, L10_STAR_VR );
 
-        L21_MC_Star = L21;
-        L10_Star_MR = L10_Star_VR;
+        L21_MC_STAR = L21;
+        L10_STAR_MR = L10_STAR_VR;
         basic::internal::LocalGemm
-        ( Normal, Normal, (F)1, L21_MC_Star, L10_Star_MR, (F)1, L20 );
-        L10 = L10_Star_MR;
+        ( NORMAL, NORMAL, (F)1, L21_MC_STAR, L10_STAR_MR, (F)1, L20 );
+        L10 = L10_STAR_MR;
 
-        L21_VC_Star = L21_MC_Star;
+        L21_VC_STAR = L21_MC_STAR;
         basic::internal::LocalTrmm
-        ( Right, Lower, Normal, diagonal, (F)1, L11_Star_Star, L21_VC_Star );
-        L21 = L21_VC_Star;
+        ( RIGHT, LOWER, NORMAL, diagonal, (F)1, L11_STAR_STAR, L21_VC_STAR );
+        L21 = L21_VC_STAR;
         //--------------------------------------------------------------------//
-        L10_Star_MR.FreeAlignments();
-        L21_MC_Star.FreeAlignments();
+        L10_STAR_MR.FreeAlignments();
+        L21_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,

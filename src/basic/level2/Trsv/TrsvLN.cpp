@@ -81,10 +81,10 @@ elemental::basic::internal::TrsvLN
                     x2(g);
 
         // Temporary distributions
-        DistMatrix<F,Star,Star> L11_Star_Star(g);
-        DistMatrix<F,Star,Star> x1_Star_Star(g);
-        DistMatrix<F,MR,  Star> x1_MR_Star(g);
-        DistMatrix<F,MC,  Star> z2_MC_Star(g);
+        DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
+        DistMatrix<F,STAR,STAR> x1_STAR_STAR(g);
+        DistMatrix<F,MR,  STAR> x1_MR_STAR(g);
+        DistMatrix<F,MC,  STAR> z2_MC_STAR(g);
 
         // Start the algorithm
         LockedPartitionDownDiagonal
@@ -107,28 +107,28 @@ elemental::basic::internal::TrsvLN
                    x1,
               xB,  x2 );
 
-            x1_MR_Star.AlignWith( L21 );
-            z2_MC_Star.AlignWith( L21 );
-            z2_MC_Star.ResizeTo( x2.Height(), 1 );
+            x1_MR_STAR.AlignWith( L21 );
+            z2_MC_STAR.AlignWith( L21 );
+            z2_MC_STAR.ResizeTo( x2.Height(), 1 );
             //----------------------------------------------------------------//
-            x1_Star_Star = x1;
-            L11_Star_Star = L11;
+            x1_STAR_STAR = x1;
+            L11_STAR_STAR = L11;
             basic::Trsv
-            ( Lower, Normal, diagonal,
-              L11_Star_Star.LockedLocalMatrix(),
-              x1_Star_Star.LocalMatrix() );
-            x1 = x1_Star_Star;
+            ( LOWER, NORMAL, diagonal,
+              L11_STAR_STAR.LockedLocalMatrix(),
+              x1_STAR_STAR.LocalMatrix() );
+            x1 = x1_STAR_STAR;
 
-            x1_MR_Star = x1_Star_Star;
+            x1_MR_STAR = x1_STAR_STAR;
             basic::Gemv
-            ( Normal, (F)-1, 
+            ( NORMAL, (F)-1, 
               L21.LockedLocalMatrix(), 
-              x1_MR_Star.LockedLocalMatrix(),
-              (F)0, z2_MC_Star.LocalMatrix() );
-            x2.SumScatterUpdate( (F)1, z2_MC_Star );
+              x1_MR_STAR.LockedLocalMatrix(),
+              (F)0, z2_MC_STAR.LocalMatrix() );
+            x2.SumScatterUpdate( (F)1, z2_MC_STAR );
             //----------------------------------------------------------------//
-            x1_MR_Star.FreeAlignments();
-            z2_MC_Star.FreeAlignments();
+            x1_MR_STAR.FreeAlignments();
+            z2_MC_STAR.FreeAlignments();
 
             SlideLockedPartitionDownDiagonal
             ( LTL, /**/ LTR,  L00, L01, /**/ L02,
@@ -156,10 +156,10 @@ elemental::basic::internal::TrsvLN
             x0(g), x1(g), x2(g);
 
         // Temporary distributions
-        DistMatrix<F,Star,Star> L11_Star_Star(g);
-        DistMatrix<F,Star,Star> x1_Star_Star(g);
-        DistMatrix<F,Star,MR  > x1_Star_MR(g);
-        DistMatrix<F,Star,MC  > z2_Star_MC(g);
+        DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
+        DistMatrix<F,STAR,STAR> x1_STAR_STAR(g);
+        DistMatrix<F,STAR,MR  > x1_STAR_MR(g);
+        DistMatrix<F,STAR,MC  > z2_STAR_MC(g);
         DistMatrix<F,MR,  MC  > z2_MR_MC(g);
         DistMatrix<F,MC,  MR  > z2(g);
 
@@ -180,31 +180,31 @@ elemental::basic::internal::TrsvLN
             ( xL, /**/ xR,
               x0, /**/ x1, x2 );
 
-            x1_Star_MR.AlignWith( L21 );
-            z2_Star_MC.AlignWith( L21 );
+            x1_STAR_MR.AlignWith( L21 );
+            z2_STAR_MC.AlignWith( L21 );
             z2.AlignWith( x2 );
-            z2_Star_MC.ResizeTo( 1, x2.Width() );
+            z2_STAR_MC.ResizeTo( 1, x2.Width() );
             //----------------------------------------------------------------//
-            x1_Star_Star = x1;
-            L11_Star_Star = L11;
+            x1_STAR_STAR = x1;
+            L11_STAR_STAR = L11;
             basic::Trsv
-            ( Lower, Normal, diagonal,
-              L11_Star_Star.LockedLocalMatrix(),
-              x1_Star_Star.LocalMatrix() );
-            x1 = x1_Star_Star;
+            ( LOWER, NORMAL, diagonal,
+              L11_STAR_STAR.LockedLocalMatrix(),
+              x1_STAR_STAR.LocalMatrix() );
+            x1 = x1_STAR_STAR;
 
-            x1_Star_MR = x1_Star_Star;
+            x1_STAR_MR = x1_STAR_STAR;
             basic::Gemv
-            ( Normal, (F)-1, 
+            ( NORMAL, (F)-1, 
               L21.LockedLocalMatrix(), 
-              x1_Star_MR.LockedLocalMatrix(),
-              (F)0, z2_Star_MC.LocalMatrix() );
-            z2_MR_MC.SumScatterFrom( z2_Star_MC );
+              x1_STAR_MR.LockedLocalMatrix(),
+              (F)0, z2_STAR_MC.LocalMatrix() );
+            z2_MR_MC.SumScatterFrom( z2_STAR_MC );
             z2 = z2_MR_MC;
             basic::Axpy( (F)1, z2, x2 );
             //----------------------------------------------------------------//
-            x1_Star_MR.FreeAlignments();
-            z2_Star_MC.FreeAlignments();
+            x1_STAR_MR.FreeAlignments();
+            z2_STAR_MC.FreeAlignments();
             z2.FreeAlignments(); 
 
             SlideLockedPartitionDownDiagonal

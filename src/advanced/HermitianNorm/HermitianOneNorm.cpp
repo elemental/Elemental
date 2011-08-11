@@ -45,7 +45,7 @@ advanced::internal::HermitianOneNorm
     if( A.Height() != A.Width() )
         throw std::runtime_error("Hermitian matrices must be square.");
     R maxColSum = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -79,7 +79,7 @@ advanced::internal::HermitianOneNorm
 template<typename R> // representation of a real number
 R
 advanced::internal::HermitianOneNorm
-( Shape shape, const Matrix< std::complex<R> >& A )
+( Shape shape, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianOneNorm");
@@ -88,7 +88,7 @@ advanced::internal::HermitianOneNorm
         throw std::runtime_error("Hermitian matrices must be square.");
 
     R maxColSum = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -140,7 +140,7 @@ advanced::internal::HermitianOneNorm
     int colShift = A.ColShift();
 
     R maxColSum = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         std::vector<R> myPartialUpperColSums(A.LocalWidth());
         std::vector<R> myPartialStrictlyUpperRowSums(A.LocalHeight());
@@ -260,7 +260,7 @@ advanced::internal::HermitianOneNorm
     int r = A.Grid().Height();
     int c = A.Grid().Width();
     R maxColSum = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         std::vector<R> myPartialUpperColSums(A.LocalWidth());
         std::vector<R> myPartialStrictlyUpperRowSums(A.LocalHeight());
@@ -366,9 +366,9 @@ template double elemental::advanced::internal::HermitianOneNorm
 ( Shape shape, const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
 template float elemental::advanced::internal::HermitianOneNorm
-( Shape shape, const Matrix< std::complex<float> >& A );
+( Shape shape, const Matrix<std::complex<float> >& A );
 template double elemental::advanced::internal::HermitianOneNorm
-( Shape shape, const Matrix< std::complex<double> >& A );
+( Shape shape, const Matrix<std::complex<double> >& A );
 #endif
 
 template float elemental::advanced::internal::HermitianOneNorm

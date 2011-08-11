@@ -83,10 +83,10 @@ elemental::basic::internal::TrsmRUN
                         X0(g), X1(g), X2(g);
 
     // Temporary distributions
-    DistMatrix<F,Star,Star> U11_Star_Star(g); 
-    DistMatrix<F,Star,MR  > U12_Star_MR(g);
-    DistMatrix<F,MC,  Star> X1_MC_Star(g);
-    DistMatrix<F,VC,  Star> X1_VC_Star(g);    
+    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
+    DistMatrix<F,STAR,MR  > U12_STAR_MR(g);
+    DistMatrix<F,MC,  STAR> X1_MC_STAR(g);
+    DistMatrix<F,VC,  STAR> X1_VC_STAR(g);    
     
     // Start the algorithm
     basic::Scal( alpha, X );
@@ -106,27 +106,27 @@ elemental::basic::internal::TrsmRUN
         ( XL, /**/     XR,
           X0, /**/ X1, X2 ); 
 
-        X1_MC_Star.AlignWith( X2 );
-        U12_Star_MR.AlignWith( X2 );
+        X1_MC_STAR.AlignWith( X2 );
+        U12_STAR_MR.AlignWith( X2 );
         //--------------------------------------------------------------------//
-        U11_Star_Star = U11; // U11[*,*] <- U11[MC,MR]
-        X1_VC_Star    = X1;  // X1[VC,*] <- X1[MC,MR]
+        U11_STAR_STAR = U11; // U11[*,*] <- U11[MC,MR]
+        X1_VC_STAR    = X1;  // X1[VC,*] <- X1[MC,MR]
 
         // X1[VC,*] := X1[VC,*] (U11[*,*])^-1
         basic::internal::LocalTrsm
-        ( Right, Upper, Normal, diagonal, (F)1, U11_Star_Star, X1_VC_Star,
+        ( RIGHT, UPPER, NORMAL, diagonal, (F)1, U11_STAR_STAR, X1_VC_STAR,
           checkIfSingular );
 
-        X1_MC_Star  = X1_VC_Star; // X1[MC,*]  <- X1[VC,*]
-        X1          = X1_MC_Star; // X1[MC,MR] <- X1[MC,*]
-        U12_Star_MR = U12;        // U12[*,MR] <- U12[MC,MR]
+        X1_MC_STAR  = X1_VC_STAR; // X1[MC,*]  <- X1[VC,*]
+        X1          = X1_MC_STAR; // X1[MC,MR] <- X1[MC,*]
+        U12_STAR_MR = U12;        // U12[*,MR] <- U12[MC,MR]
 
         // X2[MC,MR] -= X1[MC,*] U12[*,MR]
         basic::internal::LocalGemm
-        ( Normal, Normal, (F)-1, X1_MC_Star, U12_Star_MR, (F)1, X2 );
+        ( NORMAL, NORMAL, (F)-1, X1_MC_STAR, U12_STAR_MR, (F)1, X2 );
         //--------------------------------------------------------------------//
-        X1_MC_Star.FreeAlignments();
-        U12_Star_MR.FreeAlignments();
+        X1_MC_STAR.FreeAlignments();
+        U12_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,

@@ -50,7 +50,7 @@ using namespace elemental::utilities;
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::Print
+elemental::DistMatrixBase<T,MC,STAR>::Print
 ( ostream& os, const string msg ) const
 {
 #ifndef RELEASE
@@ -120,14 +120,14 @@ elemental::DistMatrixBase<T,MC,Star>::Print
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::Print( const string msg ) const
+elemental::DistMatrixBase<T,MC,STAR>::Print( const string msg ) const
 {
     Print( cout, msg );
 }
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::Align
+elemental::DistMatrixBase<T,MC,STAR>::Align
 ( int colAlignment )
 {
 #ifndef RELEASE
@@ -142,7 +142,7 @@ elemental::DistMatrixBase<T,MC,Star>::Align
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignCols
+elemental::DistMatrixBase<T,MC,STAR>::AlignCols
 ( int colAlignment )
 {
 #ifndef RELEASE
@@ -170,7 +170,7 @@ elemental::DistMatrixBase<T,MC,Star>::AlignCols
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignWith
+elemental::DistMatrixBase<T,MC,STAR>::AlignWith
 ( const DistMatrixBase<T,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -194,8 +194,8 @@ elemental::DistMatrixBase<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignWith
-( const DistMatrixBase<T,MC,Star>& A )
+elemental::DistMatrixBase<T,MC,STAR>::AlignWith
+( const DistMatrixBase<T,MC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::AlignWith([MC,* ])");
@@ -218,7 +218,7 @@ elemental::DistMatrixBase<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignWith
+elemental::DistMatrixBase<T,MC,STAR>::AlignWith
 ( const DistMatrixBase<T,MR,MC>& A )
 {
 #ifndef RELEASE
@@ -242,8 +242,8 @@ elemental::DistMatrixBase<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignWith
-( const DistMatrixBase<T,Star,MC>& A )
+elemental::DistMatrixBase<T,MC,STAR>::AlignWith
+( const DistMatrixBase<T,STAR,MC>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::AlignWith([* ,MC])");
@@ -266,8 +266,8 @@ elemental::DistMatrixBase<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignWith
-( const DistMatrixBase<T,VC,Star>& A )
+elemental::DistMatrixBase<T,MC,STAR>::AlignWith
+( const DistMatrixBase<T,VC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::AlignWith([VC,* ])");
@@ -292,8 +292,8 @@ elemental::DistMatrixBase<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignWith
-( const DistMatrixBase<T,Star,VC>& A )
+elemental::DistMatrixBase<T,MC,STAR>::AlignWith
+( const DistMatrixBase<T,STAR,VC>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::AlignWith([* ,VC])");
@@ -318,44 +318,44 @@ elemental::DistMatrixBase<T,MC,Star>::AlignWith
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
+elemental::DistMatrixBase<T,MC,STAR>::AlignColsWith
 ( const DistMatrixBase<T,MC,MR>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
-( const DistMatrixBase<T,MC,Star>& A )
+elemental::DistMatrixBase<T,MC,STAR>::AlignColsWith
+( const DistMatrixBase<T,MC,STAR>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
+elemental::DistMatrixBase<T,MC,STAR>::AlignColsWith
 ( const DistMatrixBase<T,MR,MC>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
-( const DistMatrixBase<T,Star,MC>& A )
+elemental::DistMatrixBase<T,MC,STAR>::AlignColsWith
+( const DistMatrixBase<T,STAR,MC>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
-( const DistMatrixBase<T,VC,Star>& A )
+elemental::DistMatrixBase<T,MC,STAR>::AlignColsWith
+( const DistMatrixBase<T,VC,STAR>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::AlignColsWith
-( const DistMatrixBase<T,Star,VC>& A )
+elemental::DistMatrixBase<T,MC,STAR>::AlignColsWith
+( const DistMatrixBase<T,STAR,VC>& A )
 { AlignWith( A ); }
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::View
-( DistMatrixBase<T,MC,Star>& A )
+elemental::DistMatrixBase<T,MC,STAR>::View
+( DistMatrixBase<T,MC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::View");
@@ -380,8 +380,8 @@ elemental::DistMatrixBase<T,MC,Star>::View
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::LockedView
-( const DistMatrixBase<T,MC,Star>& A )
+elemental::DistMatrixBase<T,MC,STAR>::LockedView
+( const DistMatrixBase<T,MC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::LockedView");
@@ -406,8 +406,8 @@ elemental::DistMatrixBase<T,MC,Star>::LockedView
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::View
-( DistMatrixBase<T,MC,Star>& A,
+elemental::DistMatrixBase<T,MC,STAR>::View
+( DistMatrixBase<T,MC,STAR>& A,
   int i, int j, int height, int width )
 {
 #ifndef RELEASE
@@ -442,8 +442,8 @@ elemental::DistMatrixBase<T,MC,Star>::View
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::LockedView
-( const DistMatrixBase<T,MC,Star>& A,
+elemental::DistMatrixBase<T,MC,STAR>::LockedView
+( const DistMatrixBase<T,MC,STAR>& A,
   int i, int j, int height, int width )
 {
 #ifndef RELEASE
@@ -479,9 +479,9 @@ elemental::DistMatrixBase<T,MC,Star>::LockedView
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::View1x2
-( DistMatrixBase<T,MC,Star>& AL,
-  DistMatrixBase<T,MC,Star>& AR )
+elemental::DistMatrixBase<T,MC,STAR>::View1x2
+( DistMatrixBase<T,MC,STAR>& AL,
+  DistMatrixBase<T,MC,STAR>& AR )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::View1x2");    
@@ -508,9 +508,9 @@ elemental::DistMatrixBase<T,MC,Star>::View1x2
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::LockedView1x2
-( const DistMatrixBase<T,MC,Star>& AL,
-  const DistMatrixBase<T,MC,Star>& AR )
+elemental::DistMatrixBase<T,MC,STAR>::LockedView1x2
+( const DistMatrixBase<T,MC,STAR>& AL,
+  const DistMatrixBase<T,MC,STAR>& AR )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::LockedView1x2");
@@ -538,9 +538,9 @@ elemental::DistMatrixBase<T,MC,Star>::LockedView1x2
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::View2x1
-( DistMatrixBase<T,MC,Star>& AT,
-  DistMatrixBase<T,MC,Star>& AB )
+elemental::DistMatrixBase<T,MC,STAR>::View2x1
+( DistMatrixBase<T,MC,STAR>& AT,
+  DistMatrixBase<T,MC,STAR>& AB )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::View2x1");
@@ -569,9 +569,9 @@ elemental::DistMatrixBase<T,MC,Star>::View2x1
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::LockedView2x1
-( const DistMatrixBase<T,MC,Star>& AT,
-  const DistMatrixBase<T,MC,Star>& AB )
+elemental::DistMatrixBase<T,MC,STAR>::LockedView2x1
+( const DistMatrixBase<T,MC,STAR>& AT,
+  const DistMatrixBase<T,MC,STAR>& AB )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::LockedView2x1");
@@ -600,11 +600,11 @@ elemental::DistMatrixBase<T,MC,Star>::LockedView2x1
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::View2x2
-( DistMatrixBase<T,MC,Star>& ATL,
-  DistMatrixBase<T,MC,Star>& ATR,
-  DistMatrixBase<T,MC,Star>& ABL,
-  DistMatrixBase<T,MC,Star>& ABR )
+elemental::DistMatrixBase<T,MC,STAR>::View2x2
+( DistMatrixBase<T,MC,STAR>& ATL,
+  DistMatrixBase<T,MC,STAR>& ATR,
+  DistMatrixBase<T,MC,STAR>& ABL,
+  DistMatrixBase<T,MC,STAR>& ABR )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::View2x2");
@@ -635,11 +635,11 @@ elemental::DistMatrixBase<T,MC,Star>::View2x2
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::LockedView2x2
-( const DistMatrixBase<T,MC,Star>& ATL,
-  const DistMatrixBase<T,MC,Star>& ATR,
-  const DistMatrixBase<T,MC,Star>& ABL,
-  const DistMatrixBase<T,MC,Star>& ABR )
+elemental::DistMatrixBase<T,MC,STAR>::LockedView2x2
+( const DistMatrixBase<T,MC,STAR>& ATL,
+  const DistMatrixBase<T,MC,STAR>& ATR,
+  const DistMatrixBase<T,MC,STAR>& ABL,
+  const DistMatrixBase<T,MC,STAR>& ABR )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::LockedView2x2");
@@ -670,7 +670,7 @@ elemental::DistMatrixBase<T,MC,Star>::LockedView2x2
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::ResizeTo
+elemental::DistMatrixBase<T,MC,STAR>::ResizeTo
 ( int height, int width )
 {
 #ifndef RELEASE
@@ -693,7 +693,7 @@ elemental::DistMatrixBase<T,MC,Star>::ResizeTo
 
 template<typename T>
 T
-elemental::DistMatrixBase<T,MC,Star>::Get
+elemental::DistMatrixBase<T,MC,STAR>::Get
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -721,7 +721,7 @@ elemental::DistMatrixBase<T,MC,Star>::Get
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::Set
+elemental::DistMatrixBase<T,MC,STAR>::Set
 ( int i, int j, T u )
 {
 #ifndef RELEASE
@@ -743,7 +743,7 @@ elemental::DistMatrixBase<T,MC,Star>::Set
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::Update
+elemental::DistMatrixBase<T,MC,STAR>::Update
 ( int i, int j, T u )
 {
 #ifndef RELEASE
@@ -769,7 +769,7 @@ elemental::DistMatrixBase<T,MC,Star>::Update
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::MakeTrapezoidal
+elemental::DistMatrixBase<T,MC,STAR>::MakeTrapezoidal
 ( Side side, Shape shape, int offset )
 {
 #ifndef RELEASE
@@ -785,7 +785,7 @@ elemental::DistMatrixBase<T,MC,Star>::MakeTrapezoidal
 
     if( this->Grid().InGrid() )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             T* thisLocalBuffer = this->LocalBuffer();
             const int thisLDim = this->LocalLDim();
@@ -794,7 +794,7 @@ elemental::DistMatrixBase<T,MC,Star>::MakeTrapezoidal
 #endif
             for( int j=0; j<width; ++j )
             {
-                int lastZeroRow = ( side==Left ? j-offset-1
+                int lastZeroRow = ( side==LEFT ? j-offset-1
                                                : j-offset+height-width-1 );
                 if( lastZeroRow >= 0 )
                 {
@@ -815,7 +815,7 @@ elemental::DistMatrixBase<T,MC,Star>::MakeTrapezoidal
             for( int j=0; j<width; ++j )
             {
                 int firstZeroRow = 
-                    ( side==Left ? max(j-offset+1,0)
+                    ( side==LEFT ? max(j-offset+1,0)
                       : max(j-offset+height-width+1,0) );
                 int numNonzeroRows = RawLocalLength(firstZeroRow,colShift,r);
                 if( numNonzeroRows < localHeight )
@@ -834,7 +834,7 @@ elemental::DistMatrixBase<T,MC,Star>::MakeTrapezoidal
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::ScaleTrapezoidal
+elemental::DistMatrixBase<T,MC,STAR>::ScaleTrapezoidal
 ( T alpha, Side side, Shape shape, int offset )
 {
 #ifndef RELEASE
@@ -848,7 +848,7 @@ elemental::DistMatrixBase<T,MC,Star>::ScaleTrapezoidal
     const int r = this->Grid().Height();
     const int colShift = this->ColShift();
 
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         T* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
@@ -857,7 +857,7 @@ elemental::DistMatrixBase<T,MC,Star>::ScaleTrapezoidal
 #endif
         for( int j=0; j<width; ++j )
         {
-            int lastRow = ( side==Left ? j-offset : j-offset+height-width );
+            int lastRow = ( side==LEFT ? j-offset : j-offset+height-width );
             int boundary = min( lastRow+1, height );
             int numRows = RawLocalLength( boundary, colShift, r );
             T* thisCol = &thisLocalBuffer[j*thisLDim];
@@ -874,7 +874,7 @@ elemental::DistMatrixBase<T,MC,Star>::ScaleTrapezoidal
 #endif
         for( int j=0; j<width; ++j )
         {
-            int firstRow = ( side==Left ? max(j-offset,0)
+            int firstRow = ( side==LEFT ? max(j-offset,0)
                                         : max(j+height-width-offset,0) );
             int numZeroRows = RawLocalLength( firstRow, colShift, r );
             T* thisCol = &thisLocalBuffer[numZeroRows+j*thisLDim];
@@ -889,7 +889,7 @@ elemental::DistMatrixBase<T,MC,Star>::ScaleTrapezoidal
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::SetToIdentity()
+elemental::DistMatrixBase<T,MC,STAR>::SetToIdentity()
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetToIdentity");
@@ -921,7 +921,7 @@ elemental::DistMatrixBase<T,MC,Star>::SetToIdentity()
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,Star>::SetToRandom()
+elemental::DistMatrixBase<T,MC,STAR>::SetToRandom()
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetToRandom");
@@ -967,7 +967,7 @@ elemental::DistMatrixBase<T,MC,Star>::SetToRandom()
 
 template<typename T>
 void 
-elemental::DistMatrixBase<T,MC,Star>::SumOverRow()
+elemental::DistMatrixBase<T,MC,STAR>::SumOverRow()
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SumOverRow");
@@ -1020,8 +1020,8 @@ elemental::DistMatrixBase<T,MC,Star>::SumOverRow()
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
 ( const DistMatrixBase<T,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -1247,9 +1247,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 // LEFT OFF HERE FOR IN/OUT OF GRID MODIFICATIONS
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,MC,Star>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,MC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [MC,* ]");
@@ -1340,9 +1340,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,Star,MR>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,STAR,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,MR]");
@@ -1363,9 +1363,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,MD,Star>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,MD,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [MD,* ]");
@@ -1382,9 +1382,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,Star,MD>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,STAR,MD>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,MD]");
@@ -1401,8 +1401,8 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
 ( const DistMatrixBase<T,MR,MC>& A )
 {
 #ifndef RELEASE
@@ -1413,16 +1413,16 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    auto_ptr< DistMatrix<T,VR,Star> > A_VR_Star
-    ( new DistMatrix<T,VR,Star>(g) );
-    *A_VR_Star = A;
+    auto_ptr< DistMatrix<T,VR,STAR> > A_VR_STAR
+    ( new DistMatrix<T,VR,STAR>(g) );
+    *A_VR_STAR = A;
 
-    auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
-    ( new DistMatrix<T,VC,Star>(true,this->ColAlignment(),g) );
-    *A_VC_Star = *A_VR_Star;
-    delete A_VR_Star.release(); // lowers memory highwater
+    auto_ptr< DistMatrix<T,VC,STAR> > A_VC_STAR
+    ( new DistMatrix<T,VC,STAR>(true,this->ColAlignment(),g) );
+    *A_VC_STAR = *A_VR_STAR;
+    delete A_VR_STAR.release(); // lowers memory highwater
 
-    *this = *A_VC_Star;
+    *this = *A_VC_STAR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1430,9 +1430,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,MR,Star>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,MR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [MR,* ]");
@@ -1442,16 +1442,16 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    auto_ptr< DistMatrix<T,VR,Star> > A_VR_Star
-    ( new DistMatrix<T,VR,Star>(g) );
-    *A_VR_Star = A;
+    auto_ptr< DistMatrix<T,VR,STAR> > A_VR_STAR
+    ( new DistMatrix<T,VR,STAR>(g) );
+    *A_VR_STAR = A;
 
-    auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
-    ( new DistMatrix<T,VC,Star>(true,this->ColAlignment(),g) );
-    *A_VC_Star = *A_VR_Star;
-    delete A_VR_Star.release(); // lowers memory highwater
+    auto_ptr< DistMatrix<T,VC,STAR> > A_VC_STAR
+    ( new DistMatrix<T,VC,STAR>(true,this->ColAlignment(),g) );
+    *A_VC_STAR = *A_VR_STAR;
+    delete A_VR_STAR.release(); // lowers memory highwater
 
-    *this = *A_VC_Star;
+    *this = *A_VC_STAR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1459,9 +1459,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,Star,MC>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,STAR,MC>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,MC]");
@@ -1474,17 +1474,17 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
     auto_ptr< DistMatrix<T,MR,MC> > A_MR_MC( new DistMatrix<T,MR,MC>(g) );
     *A_MR_MC = A;
 
-    auto_ptr< DistMatrix<T,VR,Star> > A_VR_Star
-    ( new DistMatrix<T,VR,Star>(g) );
-    *A_VR_Star = *A_MR_MC;
+    auto_ptr< DistMatrix<T,VR,STAR> > A_VR_STAR
+    ( new DistMatrix<T,VR,STAR>(g) );
+    *A_VR_STAR = *A_MR_MC;
     delete A_MR_MC.release(); // lowers memory highwater
 
-    auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
-    ( new DistMatrix<T,VC,Star>(true,this->ColAlignment(),g) );
-    *A_VC_Star = *A_VR_Star;
-    delete A_VR_Star.release(); // lowers memory highwater
+    auto_ptr< DistMatrix<T,VC,STAR> > A_VC_STAR
+    ( new DistMatrix<T,VC,STAR>(true,this->ColAlignment(),g) );
+    *A_VC_STAR = *A_VR_STAR;
+    delete A_VR_STAR.release(); // lowers memory highwater
 
-    *this = *A_VC_Star;
+    *this = *A_VC_STAR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1492,9 +1492,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,VC,Star>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,VC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [VC,* ]");
@@ -1685,9 +1685,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,Star,VC>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,STAR,VC>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,VC]");
@@ -1697,14 +1697,14 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    auto_ptr< DistMatrix<T,Star,VR> > A_Star_VR
-    ( new DistMatrix<T,Star,VR>(g) );
-    *A_Star_VR = A;
+    auto_ptr< DistMatrix<T,STAR,VR> > A_STAR_VR
+    ( new DistMatrix<T,STAR,VR>(g) );
+    *A_STAR_VR = A;
 
     auto_ptr< DistMatrix<T,MC,MR> > A_MC_MR
     ( new DistMatrix<T,MC,MR>(true,false,this->ColAlignment(),0,g) );
-    *A_MC_MR = *A_Star_VR;
-    delete A_Star_VR.release(); // lowers memory highwater
+    *A_MC_MR = *A_STAR_VR;
+    delete A_STAR_VR.release(); // lowers memory highwater
 
     *this = *A_MC_MR;
 #ifndef RELEASE
@@ -1714,9 +1714,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,VR,Star>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,VR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [VR,* ]");
@@ -1726,10 +1726,10 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    DistMatrix<T,VC,Star> A_VC_Star(true,this->ColAlignment(),g);
+    DistMatrix<T,VC,STAR> A_VC_STAR(true,this->ColAlignment(),g);
 
-    A_VC_Star = A;
-    *this = A_VC_Star;
+    A_VC_STAR = A;
+    *this = A_VC_STAR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1737,9 +1737,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,Star,VR>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,STAR,VR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,VR]");
@@ -1760,9 +1760,9 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
 }
 
 template<typename T>
-const DistMatrixBase<T,MC,Star>&
-elemental::DistMatrixBase<T,MC,Star>::operator=
-( const DistMatrixBase<T,Star,Star>& A )
+const DistMatrixBase<T,MC,STAR>&
+elemental::DistMatrixBase<T,MC,STAR>::operator=
+( const DistMatrixBase<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,* ]");
@@ -1797,10 +1797,10 @@ elemental::DistMatrixBase<T,MC,Star>::operator=
     return *this;
 }
 
-template class elemental::DistMatrixBase<int,   MC,Star>;
-template class elemental::DistMatrixBase<float, MC,Star>;
-template class elemental::DistMatrixBase<double,MC,Star>;
+template class elemental::DistMatrixBase<int,   MC,STAR>;
+template class elemental::DistMatrixBase<float, MC,STAR>;
+template class elemental::DistMatrixBase<double,MC,STAR>;
 #ifndef WITHOUT_COMPLEX
-template class elemental::DistMatrixBase<scomplex,MC,Star>;
-template class elemental::DistMatrixBase<dcomplex,MC,Star>;
+template class elemental::DistMatrixBase<scomplex,MC,STAR>;
+template class elemental::DistMatrixBase<dcomplex,MC,STAR>;
 #endif

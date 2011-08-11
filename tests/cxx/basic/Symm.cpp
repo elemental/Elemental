@@ -62,7 +62,7 @@ void TestSymm
     DistMatrix<T,MC,MR> B(g);
     DistMatrix<T,MC,MR> C(g);
 
-    if( side == Left )
+    if( side == LEFT )
         A.ResizeTo( m, m );
     else
         A.ResizeTo( n, n );
@@ -103,7 +103,7 @@ void TestSymm
     if( printMatrices )
     {
         ostringstream msg;
-        if( side == Left )
+        if( side == LEFT )
             msg << "C := " << alpha << " Symm(A) B + " << beta << " C";
         else
             msg << "C := " << alpha << " B Symm(A) + " << beta << " C";

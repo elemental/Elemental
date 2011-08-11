@@ -76,82 +76,82 @@ elemental::basic::Ger
     if( x.Width() == 1 && y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,Star> x_MC_Star(g);
-        DistMatrix<T,MR,Star> y_MR_Star(g);
+        DistMatrix<T,MC,STAR> x_MC_STAR(g);
+        DistMatrix<T,MR,STAR> y_MR_STAR(g);
 
         // Begin the algoritm
-        x_MC_Star.AlignWith( A );
-        y_MR_Star.AlignWith( A );
+        x_MC_STAR.AlignWith( A );
+        y_MR_STAR.AlignWith( A );
         //--------------------------------------------------------------------//
-        x_MC_Star = x;
-        y_MR_Star = y;
+        x_MC_STAR = x;
+        y_MR_STAR = y;
         basic::Ger
-        ( alpha, x_MC_Star.LockedLocalMatrix(),
-                 y_MR_Star.LockedLocalMatrix(),
+        ( alpha, x_MC_STAR.LockedLocalMatrix(),
+                 y_MR_STAR.LockedLocalMatrix(),
                  A.LocalMatrix() );
         //--------------------------------------------------------------------//
-        x_MC_Star.FreeAlignments();
-        y_MR_Star.FreeAlignments();
+        x_MC_STAR.FreeAlignments();
+        y_MR_STAR.FreeAlignments();
     }
     else if( x.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,  Star> x_MC_Star(g);
-        DistMatrix<T,Star,MR  > y_Star_MR(g);
+        DistMatrix<T,MC,  STAR> x_MC_STAR(g);
+        DistMatrix<T,STAR,MR  > y_STAR_MR(g);
 
         // Begin the algorithm
-        x_MC_Star.AlignWith( A );
-        y_Star_MR.AlignWith( A );
+        x_MC_STAR.AlignWith( A );
+        y_STAR_MR.AlignWith( A );
         //--------------------------------------------------------------------//
-        x_MC_Star = x;
-        y_Star_MR = y;
+        x_MC_STAR = x;
+        y_STAR_MR = y;
         basic::Ger
-        ( alpha, x_MC_Star.LockedLocalMatrix(),
-                 y_Star_MR.LockedLocalMatrix(),
+        ( alpha, x_MC_STAR.LockedLocalMatrix(),
+                 y_STAR_MR.LockedLocalMatrix(),
                  A.LocalMatrix() );
         //--------------------------------------------------------------------//
-        x_MC_Star.FreeAlignments();
-        y_Star_MR.FreeAlignments();
+        x_MC_STAR.FreeAlignments();
+        y_STAR_MR.FreeAlignments();
     }
     else if( y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC  > x_Star_MC(g);
-        DistMatrix<T,MR,  Star> y_MR_Star(g);
+        DistMatrix<T,STAR,MC  > x_STAR_MC(g);
+        DistMatrix<T,MR,  STAR> y_MR_STAR(g);
 
         // Begin the algorithm
-        x_Star_MC.AlignWith( A );
-        y_MR_Star.AlignWith( A );
+        x_STAR_MC.AlignWith( A );
+        y_MR_STAR.AlignWith( A );
         //--------------------------------------------------------------------//
-        x_Star_MC = x;
-        y_MR_Star = y;
+        x_STAR_MC = x;
+        y_MR_STAR = y;
         basic::Ger
-        ( alpha, x_Star_MC.LockedLocalMatrix(),
-                 y_MR_Star.LockedLocalMatrix(),
+        ( alpha, x_STAR_MC.LockedLocalMatrix(),
+                 y_MR_STAR.LockedLocalMatrix(),
                  A.LocalMatrix() );
         //--------------------------------------------------------------------//
-        x_Star_MC.FreeAlignments();
-        y_MR_Star.FreeAlignments();
+        x_STAR_MC.FreeAlignments();
+        y_MR_STAR.FreeAlignments();
     }
     else
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC> x_Star_MC(g);
-        DistMatrix<T,Star,MR> y_Star_MR(g);
+        DistMatrix<T,STAR,MC> x_STAR_MC(g);
+        DistMatrix<T,STAR,MR> y_STAR_MR(g);
 
         // Begin the algorithm
-        x_Star_MC.AlignWith( A );
-        y_Star_MR.AlignWith( A );
+        x_STAR_MC.AlignWith( A );
+        y_STAR_MR.AlignWith( A );
         //--------------------------------------------------------------------//
-        x_Star_MC = x;
-        y_Star_MR = y;
+        x_STAR_MC = x;
+        y_STAR_MR = y;
         basic::Ger
-        ( alpha, x_Star_MC.LockedLocalMatrix(),
-                 y_Star_MR.LockedLocalMatrix(),
+        ( alpha, x_STAR_MC.LockedLocalMatrix(),
+                 y_STAR_MR.LockedLocalMatrix(),
                  A.LocalMatrix() );
         //--------------------------------------------------------------------//
-        x_Star_MC.FreeAlignments();
-        y_Star_MR.FreeAlignments();
+        x_STAR_MC.FreeAlignments();
+        y_STAR_MR.FreeAlignments();
     }
 #ifndef RELEASE
     PopCallStack();

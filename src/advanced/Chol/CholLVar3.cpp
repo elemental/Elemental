@@ -81,11 +81,11 @@ elemental::advanced::internal::CholLVar3
                          A20(g), A21(g), A22(g);
 
     // Temporary matrices
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,VC,  Star> A21_VC_Star(g);
-    DistMatrix<F,VR,  Star> A21_VR_Star(g);
-    DistMatrix<F,Star,MC  > A21Trans_Star_MC(g);
-    DistMatrix<F,Star,MR  > A21Herm_Star_MR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
+    DistMatrix<F,VR,  STAR> A21_VR_STAR(g);
+    DistMatrix<F,STAR,MC  > A21Trans_STAR_MC(g);
+    DistMatrix<F,STAR,MR  > A21Adj_STAR_MR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -99,36 +99,35 @@ elemental::advanced::internal::CholLVar3
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A21_VR_Star.AlignWith( A22 );
-        A21_VC_Star.AlignWith( A22 );
-        A21Trans_Star_MC.AlignWith( A22 );
-        A21Herm_Star_MR.AlignWith( A22 );
+        A21_VR_STAR.AlignWith( A22 );
+        A21_VC_STAR.AlignWith( A22 );
+        A21Trans_STAR_MC.AlignWith( A22 );
+        A21Adj_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
-        A11_Star_Star = A11;
-        advanced::internal::LocalChol( Lower, A11_Star_Star );
-        A11 = A11_Star_Star;
+        A11_STAR_STAR = A11;
+        advanced::internal::LocalChol( LOWER, A11_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
-        A21_VC_Star = A21;
+        A21_VC_STAR = A21;
         basic::internal::LocalTrsm
-        ( Right, Lower, ConjugateTranspose, NonUnit, 
-          (F)1, A11_Star_Star, A21_VC_Star );
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
 
-        A21_VR_Star = A21_VC_Star;
-        A21Trans_Star_MC.TransposeFrom( A21_VC_Star );
-        A21Herm_Star_MR.ConjugateTransposeFrom( A21_VR_Star );
+        A21_VR_STAR = A21_VC_STAR;
+        A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
+        A21Adj_STAR_MR.AdjointFrom( A21_VR_STAR );
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
         basic::internal::LocalTriangularRankK
-        ( Lower, Transpose, 
-          (F)-1, A21Trans_Star_MC, A21Herm_Star_MR, (F)1, A22 );
+        ( LOWER, TRANSPOSE, 
+          (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
 
-        A21.TransposeFrom( A21Trans_Star_MC );
+        A21.TransposeFrom( A21Trans_STAR_MC );
         //--------------------------------------------------------------------//
-        A21_VR_Star.FreeAlignments();
-        A21_VC_Star.FreeAlignments();
-        A21Trans_Star_MC.FreeAlignments();
-        A21Herm_Star_MR.FreeAlignments();
+        A21_VR_STAR.FreeAlignments();
+        A21_VC_STAR.FreeAlignments();
+        A21Trans_STAR_MC.FreeAlignments();
+        A21Adj_STAR_MR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
@@ -191,10 +190,10 @@ elemental::advanced::internal::CholLVar3Naive
                          A20(g), A21(g), A22(g);
 
     // Temporary matrices
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,VC,  Star> A21_VC_Star(g);
-    DistMatrix<F,MC,  Star> A21_MC_Star(g);
-    DistMatrix<F,MR,  Star> A21_MR_Star(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
+    DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
+    DistMatrix<F,MR,  STAR> A21_MR_STAR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -208,33 +207,31 @@ elemental::advanced::internal::CholLVar3Naive
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A21_VC_Star.AlignWith( A22 );
-        A21_MC_Star.AlignWith( A22 );
-        A21_MR_Star.AlignWith( A22 );
+        A21_VC_STAR.AlignWith( A22 );
+        A21_MC_STAR.AlignWith( A22 );
+        A21_MR_STAR.AlignWith( A22 );
         //--------------------------------------------------------------------//
-        A11_Star_Star = A11;
-        advanced::internal::LocalChol( Lower, A11_Star_Star );
-        A11 = A11_Star_Star;
+        A11_STAR_STAR = A11;
+        advanced::internal::LocalChol( LOWER, A11_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
-        A21_VC_Star = A21;
+        A21_VC_STAR = A21;
         basic::internal::LocalTrsm
-        ( Right, Lower, ConjugateTranspose, NonUnit, 
-          (F)1, A11_Star_Star, A21_VC_Star );
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
 
-        A21_MC_Star = A21_VC_Star;
-        A21_MR_Star = A21_VC_Star;
+        A21_MC_STAR = A21_VC_STAR;
+        A21_MR_STAR = A21_VC_STAR;
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
         basic::internal::LocalTriangularRankK
-        ( Lower, ConjugateTranspose, 
-          (F)-1, A21_MC_Star, A21_MR_Star, (F)1, A22 );
+        ( LOWER, ADJOINT, (F)-1, A21_MC_STAR, A21_MR_STAR, (F)1, A22 );
 
-        A21 = A21_MC_Star;
+        A21 = A21_MC_STAR;
         //--------------------------------------------------------------------//
-        A21_VC_Star.FreeAlignments();
-        A21_MC_Star.FreeAlignments();
-        A21_MR_Star.FreeAlignments();
+        A21_VC_STAR.FreeAlignments();
+        A21_MC_STAR.FreeAlignments();
+        A21_MR_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

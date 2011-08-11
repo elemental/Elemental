@@ -88,10 +88,10 @@ advanced::internal::CholUVar3Naive
                          A20(g), A21(g), A22(g);
 
     // Temporary matrix distributions
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,Star,VR  > A12_Star_VR(g);
-    DistMatrix<F,Star,MC  > A12_Star_MC(g);
-    DistMatrix<F,Star,MR  > A12_Star_MR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
+    DistMatrix<F,STAR,MC  > A12_STAR_MC(g);
+    DistMatrix<F,STAR,MR  > A12_STAR_MR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -105,29 +105,27 @@ advanced::internal::CholUVar3Naive
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A12_Star_MC.AlignWith( A22 );
-        A12_Star_MR.AlignWith( A22 );
-        A12_Star_VR.AlignWith( A22 );
+        A12_STAR_MC.AlignWith( A22 );
+        A12_STAR_MR.AlignWith( A22 );
+        A12_STAR_VR.AlignWith( A22 );
         //--------------------------------------------------------------------//
-        A11_Star_Star = A11;
-        advanced::internal::LocalChol( Upper, A11_Star_Star );
-        A11 = A11_Star_Star;
+        A11_STAR_STAR = A11;
+        advanced::internal::LocalChol( UPPER, A11_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
-        A12_Star_VR = A12;
+        A12_STAR_VR = A12;
         basic::internal::LocalTrsm
-        ( Left, Upper, ConjugateTranspose, NonUnit,
-          (F)1, A11_Star_Star, A12_Star_VR );
+        ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
 
-        A12_Star_MC = A12_Star_VR;
-        A12_Star_MR = A12_Star_VR;
+        A12_STAR_MC = A12_STAR_VR;
+        A12_STAR_MR = A12_STAR_VR;
         basic::internal::LocalTriangularRankK
-        ( Upper, ConjugateTranspose,
-          (F)-1, A12_Star_MC, A12_Star_MR, (F)1, A22 );
-        A12 = A12_Star_MR;
+        ( UPPER, ADJOINT, (F)-1, A12_STAR_MC, A12_STAR_MR, (F)1, A22 );
+        A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//
-        A12_Star_MC.FreeAlignments();
-        A12_Star_MR.FreeAlignments();
-        A12_Star_VR.FreeAlignments();
+        A12_STAR_MC.FreeAlignments();
+        A12_STAR_MR.FreeAlignments();
+        A12_STAR_VR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

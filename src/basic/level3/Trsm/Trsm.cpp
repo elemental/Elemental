@@ -60,36 +60,36 @@ elemental::basic::Trsm
 #ifndef RELEASE
     PushCallStack("basic::Trsm");
 #endif
-    if( side == Left && shape == Lower )
+    if( side == LEFT && shape == LOWER )
     {
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             basic::internal::TrsmLLN
             ( diagonal, alpha, A, X, checkIfSingular );
         else
             basic::internal::TrsmLLT
             ( orientation, diagonal, alpha, A, X, checkIfSingular );
     }
-    else if( side == Left && shape == Upper )
+    else if( side == LEFT && shape == UPPER )
     {
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             basic::internal::TrsmLUN
             ( diagonal, alpha, A, X, checkIfSingular );
         else
             basic::internal::TrsmLUT
             ( orientation, diagonal, alpha, A, X, checkIfSingular );
     }
-    else if( side == Right && shape == Lower )
+    else if( side == RIGHT && shape == LOWER )
     {
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             basic::internal::TrsmRLN
             ( diagonal, alpha, A, X, checkIfSingular );
         else
             basic::internal::TrsmRLT
             ( orientation, diagonal, alpha, A, X, checkIfSingular );
     }
-    else if( side == Right && shape == Upper )
+    else if( side == RIGHT && shape == UPPER )
     {
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             basic::internal::TrsmRUN
             ( diagonal, alpha, A, X, checkIfSingular );
         else

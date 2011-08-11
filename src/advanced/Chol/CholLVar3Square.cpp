@@ -100,10 +100,10 @@ elemental::advanced::internal::CholLVar3Square
                          A20(g), A21(g), A22(g);
 
     // Temporary matrices
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,VC,  Star> A21_VC_Star(g);
-    DistMatrix<F,Star,MC  > A21Trans_Star_MC(g);
-    DistMatrix<F,Star,MR  > A21Herm_Star_MR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
+    DistMatrix<F,STAR,MC  > A21Trans_STAR_MC(g);
+    DistMatrix<F,STAR,MR  > A21Adj_STAR_MR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -117,29 +117,28 @@ elemental::advanced::internal::CholLVar3Square
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A21_VC_Star.AlignWith( A22 );
-        A21Trans_Star_MC.AlignWith( A22 );
-        A21Herm_Star_MR.AlignWith( A22 );
+        A21_VC_STAR.AlignWith( A22 );
+        A21Trans_STAR_MC.AlignWith( A22 );
+        A21Adj_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
-        A11_Star_Star = A11;
-        advanced::internal::LocalChol( Lower, A11_Star_Star );
-        A11 = A11_Star_Star;
+        A11_STAR_STAR = A11;
+        advanced::internal::LocalChol( LOWER, A11_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
-        A21_VC_Star = A21;
+        A21_VC_STAR = A21;
         basic::internal::LocalTrsm
-        ( Right, Lower, ConjugateTranspose, NonUnit, 
-          (F)1, A11_Star_Star, A21_VC_Star );
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
 
-        A21Trans_Star_MC.TransposeFrom( A21_VC_Star );
+        A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
         // SendRecv to from A21^T[* ,MR] from A21^T[* ,MC], then conjugate
         // the buffer to from A21^H[* ,MR]
-        A21Herm_Star_MR.ResizeTo( A21.Width(), A21.Height() ); 
+        A21Adj_STAR_MR.ResizeTo( A21.Width(), A21.Height() ); 
         {
             if( onDiagonal )
             { 
                 int size = A11.Height()*A22.LocalWidth();
                 memcpy
-                ( A21Herm_Star_MR.LocalBuffer(), A21Trans_Star_MC.LocalBuffer(),
+                ( A21Adj_STAR_MR.LocalBuffer(), A21Trans_STAR_MC.LocalBuffer(),
                   size*sizeof(F) );
             }
             else
@@ -149,24 +148,24 @@ elemental::advanced::internal::CholLVar3Square
                 // We know that the ldim is the height since we have manually 
                 // created both temporary matrices.
                 mpi::SendRecv 
-                ( A21Trans_Star_MC.LocalBuffer(), sendSize, transposeRank, 0,
-                  A21Herm_Star_MR.LocalBuffer(),  recvSize, transposeRank, 0,
+                ( A21Trans_STAR_MC.LocalBuffer(), sendSize, transposeRank, 0,
+                  A21Adj_STAR_MR.LocalBuffer(),  recvSize, transposeRank, 0,
                   g.VCComm() );
             }
-            basic::Conj( A21Herm_Star_MR );
+            basic::Conjugate( A21Adj_STAR_MR );
         }
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
         basic::internal::LocalTriangularRankK
-        ( Lower, Transpose, 
-          (F)-1, A21Trans_Star_MC, A21Herm_Star_MR, (F)1, A22 );
+        ( LOWER, TRANSPOSE, 
+          (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
 
-        A21.TransposeFrom( A21Trans_Star_MC );
+        A21.TransposeFrom( A21Trans_STAR_MC );
         //--------------------------------------------------------------------//
-        A21_VC_Star.FreeAlignments();
-        A21Trans_Star_MC.FreeAlignments();
-        A21Herm_Star_MR.FreeAlignments();
+        A21_VC_STAR.FreeAlignments();
+        A21Trans_STAR_MC.FreeAlignments();
+        A21Adj_STAR_MR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

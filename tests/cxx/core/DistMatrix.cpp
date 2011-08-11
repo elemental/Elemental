@@ -62,8 +62,8 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     int rank = g.VCRank();
     int height = B.Height();
     int width = B.Width();
-    DistMatrix<T,Star,Star> A_Star_Star(g);
-    DistMatrix<T,Star,Star> B_Star_Star(g);
+    DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
+    DistMatrix<T,STAR,STAR> B_STAR_STAR(g);
 
     if( rank == 0 )
     {
@@ -75,16 +75,16 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     }
     A = B;
 
-    A_Star_Star = A;
-    B_Star_Star = B;
+    A_STAR_STAR = A;
+    B_STAR_STAR = B;
 
     int myErrorFlag = 0;
     for( int j=0; j<width; ++j )
     {
         for( int i=0; i<height; ++i )
         {
-            if( A_Star_Star.GetLocalEntry(i,j) != 
-                B_Star_Star.GetLocalEntry(i,j) )
+            if( A_STAR_STAR.GetLocalEntry(i,j) != 
+                B_STAR_STAR.GetLocalEntry(i,j) )
             {
                 myErrorFlag = 1;
                 break;
@@ -119,170 +119,170 @@ DistMatrixTest( int m, int n, const Grid& g )
     PushCallStack("DistMatrixTest");
 #endif
     DistMatrix<T,MC,  MR  > A_MC_MR(g);
-    DistMatrix<T,MC,  Star> A_MC_Star(g);
-    DistMatrix<T,Star,MR  > A_Star_MR(g);
+    DistMatrix<T,MC,  STAR> A_MC_STAR(g);
+    DistMatrix<T,STAR,MR  > A_STAR_MR(g);
     DistMatrix<T,MR,  MC  > A_MR_MC(g);
-    DistMatrix<T,MR,  Star> A_MR_Star(g);
-    DistMatrix<T,Star,MC  > A_Star_MC(g);
-    DistMatrix<T,VC,  Star> A_VC_Star(g);
-    DistMatrix<T,Star,VC  > A_Star_VC(g);
-    DistMatrix<T,VR,  Star> A_VR_Star(g);
-    DistMatrix<T,Star,VR  > A_Star_VR(g);
-    DistMatrix<T,Star,Star> A_Star_Star(g);
+    DistMatrix<T,MR,  STAR> A_MR_STAR(g);
+    DistMatrix<T,STAR,MC  > A_STAR_MC(g);
+    DistMatrix<T,VC,  STAR> A_VC_STAR(g);
+    DistMatrix<T,STAR,VC  > A_STAR_VC(g);
+    DistMatrix<T,VR,  STAR> A_VR_STAR(g);
+    DistMatrix<T,STAR,VR  > A_STAR_VR(g);
+    DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
 
     // Communicate from A[MC,MR] 
     A_MC_MR.ResizeTo( m, n );
     A_MC_MR.SetToRandom();
-    Check( A_MC_Star,   A_MC_MR );
-    Check( A_Star_MR,   A_MC_MR );
+    Check( A_MC_STAR,   A_MC_MR );
+    Check( A_STAR_MR,   A_MC_MR );
     Check( A_MR_MC,     A_MC_MR );
-    Check( A_MR_Star,   A_MC_MR );
-    Check( A_Star_MC,   A_MC_MR );
-    Check( A_VC_Star,   A_MC_MR );
-    Check( A_Star_VC,   A_MC_MR );
-    Check( A_VR_Star,   A_MC_MR );
-    Check( A_Star_VR,   A_MC_MR );
-    Check( A_Star_Star, A_MC_MR );
+    Check( A_MR_STAR,   A_MC_MR );
+    Check( A_STAR_MC,   A_MC_MR );
+    Check( A_VC_STAR,   A_MC_MR );
+    Check( A_STAR_VC,   A_MC_MR );
+    Check( A_VR_STAR,   A_MC_MR );
+    Check( A_STAR_VR,   A_MC_MR );
+    Check( A_STAR_STAR, A_MC_MR );
 
     // Communicate from A[MC,*]
-    A_MC_Star.ResizeTo( m, n );
-    A_MC_Star.SetToRandom();
-    Check( A_MC_MR,     A_MC_Star );
-    Check( A_Star_MR,   A_MC_Star );
-    Check( A_MR_MC,     A_MC_Star );
-    Check( A_MR_Star,   A_MC_Star );
-    Check( A_Star_MC,   A_MC_Star );
-    Check( A_VC_Star,   A_MC_Star );
-    Check( A_Star_VC,   A_MC_Star );
-    Check( A_VR_Star,   A_MC_Star );
-    Check( A_Star_VR,   A_MC_Star );
-    Check( A_Star_Star, A_MC_Star );
+    A_MC_STAR.ResizeTo( m, n );
+    A_MC_STAR.SetToRandom();
+    Check( A_MC_MR,     A_MC_STAR );
+    Check( A_STAR_MR,   A_MC_STAR );
+    Check( A_MR_MC,     A_MC_STAR );
+    Check( A_MR_STAR,   A_MC_STAR );
+    Check( A_STAR_MC,   A_MC_STAR );
+    Check( A_VC_STAR,   A_MC_STAR );
+    Check( A_STAR_VC,   A_MC_STAR );
+    Check( A_VR_STAR,   A_MC_STAR );
+    Check( A_STAR_VR,   A_MC_STAR );
+    Check( A_STAR_STAR, A_MC_STAR );
 
     // Communicate from A[*,MR]
-    A_Star_MR.ResizeTo( m, n );
-    A_Star_MR.SetToRandom();
-    Check( A_MC_MR,     A_Star_MR );
-    Check( A_MC_Star,   A_Star_MR );
-    Check( A_MR_MC,     A_Star_MR );
-    Check( A_MR_Star,   A_Star_MR );
-    Check( A_Star_MC,   A_Star_MR );
-    Check( A_VC_Star,   A_Star_MR );
-    Check( A_Star_VC,   A_Star_MR );
-    Check( A_VR_Star,   A_Star_MR );
-    Check( A_Star_VR,   A_Star_MR );
-    Check( A_Star_Star, A_Star_MR );
+    A_STAR_MR.ResizeTo( m, n );
+    A_STAR_MR.SetToRandom();
+    Check( A_MC_MR,     A_STAR_MR );
+    Check( A_MC_STAR,   A_STAR_MR );
+    Check( A_MR_MC,     A_STAR_MR );
+    Check( A_MR_STAR,   A_STAR_MR );
+    Check( A_STAR_MC,   A_STAR_MR );
+    Check( A_VC_STAR,   A_STAR_MR );
+    Check( A_STAR_VC,   A_STAR_MR );
+    Check( A_VR_STAR,   A_STAR_MR );
+    Check( A_STAR_VR,   A_STAR_MR );
+    Check( A_STAR_STAR, A_STAR_MR );
     
     // Communicate from A[MR,MC]
     A_MR_MC.ResizeTo( m, n );
     A_MR_MC.SetToRandom();
     Check( A_MC_MR,     A_MR_MC );
-    Check( A_MC_Star,   A_MR_MC );
-    Check( A_Star_MR,   A_MR_MC );
-    Check( A_MR_Star,   A_MR_MC );
-    Check( A_Star_MC,   A_MR_MC );
-    Check( A_VC_Star,   A_MR_MC );
-    Check( A_Star_VC,   A_MR_MC );
-    Check( A_VR_Star,   A_MR_MC );
-    Check( A_Star_VR,   A_MR_MC );
-    Check( A_Star_Star, A_MR_MC );
+    Check( A_MC_STAR,   A_MR_MC );
+    Check( A_STAR_MR,   A_MR_MC );
+    Check( A_MR_STAR,   A_MR_MC );
+    Check( A_STAR_MC,   A_MR_MC );
+    Check( A_VC_STAR,   A_MR_MC );
+    Check( A_STAR_VC,   A_MR_MC );
+    Check( A_VR_STAR,   A_MR_MC );
+    Check( A_STAR_VR,   A_MR_MC );
+    Check( A_STAR_STAR, A_MR_MC );
 
     // Communicate from A[MR,*]
-    A_MR_Star.ResizeTo( m, n );
-    A_MR_Star.SetToRandom();
-    Check( A_MC_MR,     A_MR_Star );
-    Check( A_MC_Star,   A_MR_Star );
-    Check( A_Star_MR,   A_MR_Star );
-    Check( A_MR_MC,     A_MR_Star );
-    Check( A_Star_MC,   A_MR_Star );
-    Check( A_VC_Star,   A_MR_Star );
-    Check( A_Star_VC,   A_MR_Star );
-    Check( A_VR_Star,   A_MR_Star );
-    Check( A_Star_VR,   A_MR_Star );
-    Check( A_Star_Star, A_MR_Star );
+    A_MR_STAR.ResizeTo( m, n );
+    A_MR_STAR.SetToRandom();
+    Check( A_MC_MR,     A_MR_STAR );
+    Check( A_MC_STAR,   A_MR_STAR );
+    Check( A_STAR_MR,   A_MR_STAR );
+    Check( A_MR_MC,     A_MR_STAR );
+    Check( A_STAR_MC,   A_MR_STAR );
+    Check( A_VC_STAR,   A_MR_STAR );
+    Check( A_STAR_VC,   A_MR_STAR );
+    Check( A_VR_STAR,   A_MR_STAR );
+    Check( A_STAR_VR,   A_MR_STAR );
+    Check( A_STAR_STAR, A_MR_STAR );
 
     // Communicate from A[*,MC]
-    A_Star_MC.ResizeTo( m, n );
-    A_Star_MC.SetToRandom();
-    Check( A_MC_MR,     A_Star_MC );
-    Check( A_MC_Star,   A_Star_MC );
-    Check( A_Star_MR,   A_Star_MC );
-    Check( A_MR_MC,     A_Star_MC );
-    Check( A_MR_Star,   A_Star_MC );
-    Check( A_VC_Star,   A_Star_MC );
-    Check( A_Star_VC,   A_Star_MC );
-    Check( A_VR_Star,   A_Star_MC );
-    Check( A_Star_VR,   A_Star_MC );
-    Check( A_Star_Star, A_Star_MC );
+    A_STAR_MC.ResizeTo( m, n );
+    A_STAR_MC.SetToRandom();
+    Check( A_MC_MR,     A_STAR_MC );
+    Check( A_MC_STAR,   A_STAR_MC );
+    Check( A_STAR_MR,   A_STAR_MC );
+    Check( A_MR_MC,     A_STAR_MC );
+    Check( A_MR_STAR,   A_STAR_MC );
+    Check( A_VC_STAR,   A_STAR_MC );
+    Check( A_STAR_VC,   A_STAR_MC );
+    Check( A_VR_STAR,   A_STAR_MC );
+    Check( A_STAR_VR,   A_STAR_MC );
+    Check( A_STAR_STAR, A_STAR_MC );
  
     // Communicate from A[VC,*]
-    A_VC_Star.ResizeTo( m, n );
-    A_VC_Star.SetToRandom();
-    Check( A_MC_MR,     A_VC_Star );
-    Check( A_MC_Star,   A_VC_Star );
-    Check( A_Star_MR,   A_VC_Star );
-    Check( A_MR_MC,     A_VC_Star );
-    Check( A_MR_Star,   A_VC_Star );
-    Check( A_Star_MC,   A_VC_Star );
-    Check( A_Star_VC,   A_VC_Star );
-    Check( A_VR_Star,   A_VC_Star );
-    Check( A_Star_VR,   A_VC_Star );
-    Check( A_Star_Star, A_VC_Star );
+    A_VC_STAR.ResizeTo( m, n );
+    A_VC_STAR.SetToRandom();
+    Check( A_MC_MR,     A_VC_STAR );
+    Check( A_MC_STAR,   A_VC_STAR );
+    Check( A_STAR_MR,   A_VC_STAR );
+    Check( A_MR_MC,     A_VC_STAR );
+    Check( A_MR_STAR,   A_VC_STAR );
+    Check( A_STAR_MC,   A_VC_STAR );
+    Check( A_STAR_VC,   A_VC_STAR );
+    Check( A_VR_STAR,   A_VC_STAR );
+    Check( A_STAR_VR,   A_VC_STAR );
+    Check( A_STAR_STAR, A_VC_STAR );
 
     // Communicate from A[*,VC]
-    A_Star_VC.ResizeTo( m, n );
-    A_Star_VC.SetToRandom();
-    Check( A_MC_MR,     A_Star_VC );
-    Check( A_MC_Star,   A_Star_VC );
-    Check( A_Star_MR,   A_Star_VC );
-    Check( A_MR_MC,     A_Star_VC );
-    Check( A_MR_Star,   A_Star_VC );
-    Check( A_Star_MC,   A_Star_VC );
-    Check( A_VC_Star,   A_Star_VC );
-    Check( A_VR_Star,   A_Star_VC );
-    Check( A_Star_VR,   A_Star_VC );
-    Check( A_Star_Star, A_Star_VC );
+    A_STAR_VC.ResizeTo( m, n );
+    A_STAR_VC.SetToRandom();
+    Check( A_MC_MR,     A_STAR_VC );
+    Check( A_MC_STAR,   A_STAR_VC );
+    Check( A_STAR_MR,   A_STAR_VC );
+    Check( A_MR_MC,     A_STAR_VC );
+    Check( A_MR_STAR,   A_STAR_VC );
+    Check( A_STAR_MC,   A_STAR_VC );
+    Check( A_VC_STAR,   A_STAR_VC );
+    Check( A_VR_STAR,   A_STAR_VC );
+    Check( A_STAR_VR,   A_STAR_VC );
+    Check( A_STAR_STAR, A_STAR_VC );
 
     // Communicate from A[VR,*]
-    A_VR_Star.ResizeTo( m, n );
-    A_VR_Star.SetToRandom();
-    Check( A_MC_MR,     A_VR_Star );
-    Check( A_MC_Star,   A_VR_Star );
-    Check( A_Star_MR,   A_VR_Star );
-    Check( A_MR_MC,     A_VR_Star );
-    Check( A_MR_Star,   A_VR_Star );
-    Check( A_Star_MC,   A_VR_Star );
-    Check( A_VC_Star,   A_VR_Star );
-    Check( A_Star_VC,   A_VR_Star );
-    Check( A_Star_VR,   A_VR_Star );
-    Check( A_Star_Star, A_VR_Star );
+    A_VR_STAR.ResizeTo( m, n );
+    A_VR_STAR.SetToRandom();
+    Check( A_MC_MR,     A_VR_STAR );
+    Check( A_MC_STAR,   A_VR_STAR );
+    Check( A_STAR_MR,   A_VR_STAR );
+    Check( A_MR_MC,     A_VR_STAR );
+    Check( A_MR_STAR,   A_VR_STAR );
+    Check( A_STAR_MC,   A_VR_STAR );
+    Check( A_VC_STAR,   A_VR_STAR );
+    Check( A_STAR_VC,   A_VR_STAR );
+    Check( A_STAR_VR,   A_VR_STAR );
+    Check( A_STAR_STAR, A_VR_STAR );
 
     // Communicate from A[*,VR]
-    A_Star_VR.ResizeTo( m, n );
-    A_Star_VR.SetToRandom();
-    Check( A_MC_MR,     A_Star_VR );
-    Check( A_MC_Star,   A_Star_VR );
-    Check( A_Star_MR,   A_Star_VR );
-    Check( A_MR_MC,     A_Star_VR );
-    Check( A_MR_Star,   A_Star_VR );
-    Check( A_Star_MC,   A_Star_VR );
-    Check( A_VC_Star,   A_Star_VR );
-    Check( A_Star_VC,   A_Star_VR );
-    Check( A_VR_Star,   A_Star_VR );
-    Check( A_Star_Star, A_Star_VR );
+    A_STAR_VR.ResizeTo( m, n );
+    A_STAR_VR.SetToRandom();
+    Check( A_MC_MR,     A_STAR_VR );
+    Check( A_MC_STAR,   A_STAR_VR );
+    Check( A_STAR_MR,   A_STAR_VR );
+    Check( A_MR_MC,     A_STAR_VR );
+    Check( A_MR_STAR,   A_STAR_VR );
+    Check( A_STAR_MC,   A_STAR_VR );
+    Check( A_VC_STAR,   A_STAR_VR );
+    Check( A_STAR_VC,   A_STAR_VR );
+    Check( A_VR_STAR,   A_STAR_VR );
+    Check( A_STAR_STAR, A_STAR_VR );
 
     // Communicate from A[*,*]
-    A_Star_Star.ResizeTo( m, n );
-    A_Star_Star.SetToRandom();
-    Check( A_MC_MR,   A_Star_Star );
-    Check( A_MC_Star, A_Star_Star );
-    Check( A_Star_MR, A_Star_Star );
-    Check( A_MR_MC,   A_Star_Star );
-    Check( A_MR_Star, A_Star_Star );
-    Check( A_Star_MC, A_Star_Star );
-    Check( A_VC_Star, A_Star_Star );
-    Check( A_Star_VC, A_Star_Star );
-    Check( A_VR_Star, A_Star_Star );
-    Check( A_Star_VR, A_Star_Star );
+    A_STAR_STAR.ResizeTo( m, n );
+    A_STAR_STAR.SetToRandom();
+    Check( A_MC_MR,   A_STAR_STAR );
+    Check( A_MC_STAR, A_STAR_STAR );
+    Check( A_STAR_MR, A_STAR_STAR );
+    Check( A_MR_MC,   A_STAR_STAR );
+    Check( A_MR_STAR, A_STAR_STAR );
+    Check( A_STAR_MC, A_STAR_STAR );
+    Check( A_VC_STAR, A_STAR_STAR );
+    Check( A_STAR_VC, A_STAR_STAR );
+    Check( A_VR_STAR, A_STAR_STAR );
+    Check( A_STAR_VR, A_STAR_STAR );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -50,7 +50,7 @@ using namespace elemental::utilities;
 
 template<typename Z>
 void
-elemental::DistMatrix<Z,Star,Star>::SetToRandomHermitian()
+elemental::DistMatrix<Z,STAR,STAR>::SetToRandomHermitian()
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHermitian");
@@ -67,7 +67,7 @@ elemental::DistMatrix<Z,Star,Star>::SetToRandomHermitian()
 
 template<typename Z>
 void
-elemental::DistMatrix<Z,Star,Star>::SetToRandomHPD()
+elemental::DistMatrix<Z,STAR,STAR>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHPD");
@@ -98,7 +98,7 @@ elemental::DistMatrix<Z,Star,Star>::SetToRandomHPD()
 #ifndef WITHOUT_COMPLEX
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,Star>::SetToRandomHermitian()
+elemental::DistMatrix<complex<Z>,STAR,STAR>::SetToRandomHermitian()
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHermitian");
@@ -131,7 +131,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::SetToRandomHermitian()
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,Star>::SetToRandomHPD()
+elemental::DistMatrix<complex<Z>,STAR,STAR>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHPD");
@@ -164,7 +164,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::SetToRandomHPD()
 
 template<typename Z>
 Z
-elemental::DistMatrix<complex<Z>,Star,Star>::GetReal
+elemental::DistMatrix<complex<Z>,STAR,STAR>::GetReal
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -196,7 +196,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::GetReal
 
 template<typename Z>
 Z
-elemental::DistMatrix<complex<Z>,Star,Star>::GetImag
+elemental::DistMatrix<complex<Z>,STAR,STAR>::GetImag
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -228,7 +228,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::GetImag
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,Star>::SetReal
+elemental::DistMatrix<complex<Z>,STAR,STAR>::SetReal
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
@@ -244,7 +244,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::SetReal
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,Star>::SetImag
+elemental::DistMatrix<complex<Z>,STAR,STAR>::SetImag
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
@@ -260,7 +260,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::SetImag
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,Star>::UpdateReal
+elemental::DistMatrix<complex<Z>,STAR,STAR>::UpdateReal
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
@@ -276,7 +276,7 @@ elemental::DistMatrix<complex<Z>,Star,Star>::UpdateReal
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,Star>::UpdateImag
+elemental::DistMatrix<complex<Z>,STAR,STAR>::UpdateImag
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
@@ -291,11 +291,11 @@ elemental::DistMatrix<complex<Z>,Star,Star>::UpdateImag
 }
 #endif // WITHOUT_COMPLEX
 
-template class elemental::DistMatrix<int,   Star,Star>;
-template class elemental::DistMatrix<float, Star,Star>;
-template class elemental::DistMatrix<double,Star,Star>;
+template class elemental::DistMatrix<int,   STAR,STAR>;
+template class elemental::DistMatrix<float, STAR,STAR>;
+template class elemental::DistMatrix<double,STAR,STAR>;
 #ifndef WITHOUT_COMPLEX
-template class elemental::DistMatrix<scomplex,Star,Star>;
-template class elemental::DistMatrix<dcomplex,Star,Star>;
+template class elemental::DistMatrix<scomplex,STAR,STAR>;
+template class elemental::DistMatrix<dcomplex,STAR,STAR>;
 #endif
 

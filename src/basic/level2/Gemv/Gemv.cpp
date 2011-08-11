@@ -56,7 +56,7 @@ elemental::basic::Gemv
 #ifndef RELEASE
     PushCallStack("basic::Gemv");
 #endif
-    if( orientation == Normal )
+    if( orientation == NORMAL )
         basic::internal::GemvN( alpha, A, x, beta, y );
     else
         basic::internal::GemvT( orientation, alpha, A, x, beta, y );

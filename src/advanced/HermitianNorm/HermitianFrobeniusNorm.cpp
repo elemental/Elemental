@@ -46,7 +46,7 @@ advanced::internal::HermitianFrobeniusNorm
         throw std::logic_error("Hermitian matrices must be square.");
 
     R normSquared = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -84,7 +84,7 @@ advanced::internal::HermitianFrobeniusNorm
 template<typename R> // representation of a real number
 R
 advanced::internal::HermitianFrobeniusNorm
-( Shape shape, const Matrix< std::complex<R> >& A )
+( Shape shape, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianFrobeniusNorm");
@@ -95,7 +95,7 @@ advanced::internal::HermitianFrobeniusNorm
     // The std::norm function is a field norm rather than a vector norm.
 
     R normSquared = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -147,7 +147,7 @@ advanced::internal::HermitianFrobeniusNorm
     const int rowShift = A.RowShift();
 
     R localNormSquared = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
@@ -215,7 +215,7 @@ advanced::internal::HermitianFrobeniusNorm
     // The std::norm function is a field norm rather than a vector norm.
 
     R localNormSquared = 0;
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
@@ -270,9 +270,9 @@ template double elemental::advanced::internal::HermitianFrobeniusNorm
 ( Shape shape, const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
 template float elemental::advanced::internal::HermitianFrobeniusNorm
-( Shape shape, const Matrix< std::complex<float> >& A );
+( Shape shape, const Matrix<std::complex<float> >& A );
 template double elemental::advanced::internal::HermitianFrobeniusNorm
-( Shape shape, const Matrix< std::complex<double> >& A );
+( Shape shape, const Matrix<std::complex<double> >& A );
 #endif
 
 template float elemental::advanced::internal::HermitianFrobeniusNorm

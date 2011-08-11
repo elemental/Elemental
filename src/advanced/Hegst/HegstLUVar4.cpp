@@ -63,19 +63,19 @@ elemental::advanced::internal::HegstLUVar4
                          U20(g), U21(g), U22(g);
 
     // Temporary distributions
-    DistMatrix<F,VC,  Star> A01_VC_Star(g);
-    DistMatrix<F,VR,  Star> A01_VR_Star(g);
-    DistMatrix<F,Star,MC  > A01Herm_Star_MC(g);
-    DistMatrix<F,Star,MR  > A01Herm_Star_MR(g);
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,Star,VR  > A12_Star_VR(g);
-    DistMatrix<F,MR,  Star> A12Herm_MR_Star(g);
-    DistMatrix<F,VC,  Star> U01_VC_Star(g);
-    DistMatrix<F,VR,  Star> U01_VR_Star(g);
-    DistMatrix<F,Star,MC  > U01Herm_Star_MC(g);
-    DistMatrix<F,Star,MR  > U01Herm_Star_MR(g);
-    DistMatrix<F,Star,Star> U11_Star_Star(g);
-    DistMatrix<F,VC,  Star> Y01_VC_Star(g);
+    DistMatrix<F,VC,  STAR> A01_VC_STAR(g);
+    DistMatrix<F,VR,  STAR> A01_VR_STAR(g);
+    DistMatrix<F,STAR,MC  > A01Adj_STAR_MC(g);
+    DistMatrix<F,STAR,MR  > A01Adj_STAR_MR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
+    DistMatrix<F,MR,  STAR> A12Adj_MR_STAR(g);
+    DistMatrix<F,VC,  STAR> U01_VC_STAR(g);
+    DistMatrix<F,VR,  STAR> U01_VR_STAR(g);
+    DistMatrix<F,STAR,MC  > U01Adj_STAR_MC(g);
+    DistMatrix<F,STAR,MR  > U01Adj_STAR_MR(g);
+    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
+    DistMatrix<F,VC,  STAR> Y01_VC_STAR(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -97,82 +97,80 @@ elemental::advanced::internal::HegstLUVar4
                /**/       U10, /**/ U11, U12,
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
-        A01_VC_Star.AlignWith( A00 );
-        A01_VR_Star.AlignWith( A00 );
-        A01Herm_Star_MC.AlignWith( A00 );
-        A01Herm_Star_MR.AlignWith( A00 );
-        A12Herm_MR_Star.AlignWith( A02 );
-        U01_VC_Star.AlignWith( A00 );
-        U01_VR_Star.AlignWith( A00 );
-        U01Herm_Star_MC.AlignWith( A00 );
-        U01Herm_Star_MR.AlignWith( A00 );
-        Y01_VC_Star.AlignWith( A01 );
+        A01_VC_STAR.AlignWith( A00 );
+        A01_VR_STAR.AlignWith( A00 );
+        A01Adj_STAR_MC.AlignWith( A00 );
+        A01Adj_STAR_MR.AlignWith( A00 );
+        A12Adj_MR_STAR.AlignWith( A02 );
+        U01_VC_STAR.AlignWith( A00 );
+        U01_VR_STAR.AlignWith( A00 );
+        U01Adj_STAR_MC.AlignWith( A00 );
+        U01Adj_STAR_MR.AlignWith( A00 );
+        Y01_VC_STAR.AlignWith( A01 );
         //--------------------------------------------------------------------//
         // Y01 := U01 A11
-        A11_Star_Star = A11;
-        U01_VC_Star = U01;
-        Y01_VC_Star.ResizeTo( A01.Height(), A01.Width() );
-        Y01_VC_Star.SetToZero();
+        A11_STAR_STAR = A11;
+        U01_VC_STAR = U01;
+        Y01_VC_STAR.ResizeTo( A01.Height(), A01.Width() );
+        Y01_VC_STAR.SetToZero();
         basic::Hemm
-        ( Right, Upper, 
-          (F)0.5, A11_Star_Star.LockedLocalMatrix(), 
-                  U01_VC_Star.LockedLocalMatrix(), 
-          (F)0, Y01_VC_Star.LocalMatrix() );
+        ( RIGHT, UPPER, 
+          (F)0.5, A11_STAR_STAR.LockedLocalMatrix(), 
+                  U01_VC_STAR.LockedLocalMatrix(), 
+          (F)0, Y01_VC_STAR.LocalMatrix() );
 
         // A01 := A01 + 1/2 Y01
-        A01_VC_Star = A01;
-        basic::Axpy( (F)1, Y01_VC_Star, A01_VC_Star );
+        A01_VC_STAR = A01;
+        basic::Axpy( (F)1, Y01_VC_STAR, A01_VC_STAR );
 
         // A00 := A00 + (U01 A01' + A01 U01')
-        A01Herm_Star_MC.ConjugateTransposeFrom( A01_VC_Star );
-        U01Herm_Star_MC.ConjugateTransposeFrom( U01_VC_Star );
-        A01_VR_Star = A01_VC_Star;
-        U01_VR_Star = U01_VC_Star;
-        A01Herm_Star_MR.ConjugateTransposeFrom( A01_VR_Star );
-        U01Herm_Star_MR.ConjugateTransposeFrom( U01_VR_Star );
+        A01Adj_STAR_MC.AdjointFrom( A01_VC_STAR );
+        U01Adj_STAR_MC.AdjointFrom( U01_VC_STAR );
+        A01_VR_STAR = A01_VC_STAR;
+        U01_VR_STAR = U01_VC_STAR;
+        A01Adj_STAR_MR.AdjointFrom( A01_VR_STAR );
+        U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
         basic::internal::LocalTriangularRank2K
-        ( Upper, ConjugateTranspose, ConjugateTranspose, 
-          (F)1, A01Herm_Star_MC, U01Herm_Star_MC, 
-                A01Herm_Star_MR, U01Herm_Star_MR,
+        ( UPPER, ADJOINT, ADJOINT, 
+          (F)1, A01Adj_STAR_MC, U01Adj_STAR_MC, 
+                A01Adj_STAR_MR, U01Adj_STAR_MR,
           (F)1, A00 );
 
         // A01 := A01 + 1/2 Y01
-        basic::Axpy( (F)1, Y01_VC_Star, A01_VC_Star );
+        basic::Axpy( (F)1, Y01_VC_STAR, A01_VC_STAR );
 
         // A01 := A01 U11'
-        U11_Star_Star = U11;
+        U11_STAR_STAR = U11;
         basic::internal::LocalTrmm
-        ( Right, Upper, ConjugateTranspose, NonUnit,
-          (F)1, U11_Star_Star, A01_VC_Star );
-        A01 = A01_VC_Star;
+        ( RIGHT, UPPER, ADJOINT, NON_UNIT, (F)1, U11_STAR_STAR, A01_VC_STAR );
+        A01 = A01_VC_STAR;
 
         // A02 := A02 + U01 A12
-        A12Herm_MR_Star.ConjugateTransposeFrom( A12 );
+        A12Adj_MR_STAR.AdjointFrom( A12 );
         basic::internal::LocalGemm
-        ( ConjugateTranspose, ConjugateTranspose, 
-          (F)1, U01Herm_Star_MC, A12Herm_MR_Star, (F)1, A02 );
+        ( ADJOINT, ADJOINT, (F)1, U01Adj_STAR_MC, A12Adj_MR_STAR, (F)1, A02 );
 
         // A11 := U11 A11 U11'
         advanced::internal::LocalHegst
-        ( Left, Upper, A11_Star_Star, U11_Star_Star );
-        A11 = A11_Star_Star;
+        ( LEFT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
         // A12 := U11 A12
-        A12_Star_VR.ConjugateTransposeFrom( A12Herm_MR_Star );
+        A12_STAR_VR.AdjointFrom( A12Adj_MR_STAR );
         basic::internal::LocalTrmm
-        ( Left, Upper, Normal, NonUnit, (F)1, U11_Star_Star, A12_Star_VR );
-        A12 = A12_Star_VR;
+        ( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, U11_STAR_STAR, A12_STAR_VR );
+        A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
-        A01_VC_Star.FreeAlignments();
-        A01_VR_Star.FreeAlignments();
-        A01Herm_Star_MC.FreeAlignments();
-        A01Herm_Star_MR.FreeAlignments();
-        A12Herm_MR_Star.FreeAlignments();
-        U01_VC_Star.FreeAlignments();
-        U01_VR_Star.FreeAlignments();
-        U01Herm_Star_MC.FreeAlignments();
-        U01Herm_Star_MR.FreeAlignments();
-        Y01_VC_Star.FreeAlignments();
+        A01_VC_STAR.FreeAlignments();
+        A01_VR_STAR.FreeAlignments();
+        A01Adj_STAR_MC.FreeAlignments();
+        A01Adj_STAR_MR.FreeAlignments();
+        A12Adj_MR_STAR.FreeAlignments();
+        U01_VC_STAR.FreeAlignments();
+        U01_VR_STAR.FreeAlignments();
+        U01Adj_STAR_MC.FreeAlignments();
+        U01Adj_STAR_MR.FreeAlignments();
+        Y01_VC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

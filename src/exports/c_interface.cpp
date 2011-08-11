@@ -36,7 +36,7 @@
 using elemental::MC;
 using elemental::MD;
 using elemental::MR;
-using elemental::Star;
+using elemental::STAR;
 using elemental::VC;
 using elemental::VR;
 using elemental::scomplex;
@@ -47,57 +47,57 @@ namespace {
 std::vector<elemental::Grid*> gridList;
 std::vector<DistMatrix<float, MC,  MR  >*> MC_MR_SingleList;
 std::vector<DistMatrix<double,MC,  MR  >*> MC_MR_DoubleList;
-std::vector<DistMatrix<float, MC,  Star>*> MC_Star_SingleList;
-std::vector<DistMatrix<double,MC,  Star>*> MC_Star_DoubleList;
-std::vector<DistMatrix<float, MD,  Star>*> MD_Star_SingleList;
-std::vector<DistMatrix<double,MD,  Star>*> MD_Star_DoubleList;
+std::vector<DistMatrix<float, MC,  STAR>*> MC_STAR_SingleList;
+std::vector<DistMatrix<double,MC,  STAR>*> MC_STAR_DoubleList;
+std::vector<DistMatrix<float, MD,  STAR>*> MD_STAR_SingleList;
+std::vector<DistMatrix<double,MD,  STAR>*> MD_STAR_DoubleList;
 std::vector<DistMatrix<float, MR,  MC  >*> MR_MC_SingleList;
 std::vector<DistMatrix<double,MR,  MC  >*> MR_MC_DoubleList;
-std::vector<DistMatrix<float, MR,  Star>*> MR_Star_SingleList;
-std::vector<DistMatrix<double,MR,  Star>*> MR_Star_DoubleList;
-std::vector<DistMatrix<float, Star,MC  >*> Star_MC_SingleList;
-std::vector<DistMatrix<double,Star,MC  >*> Star_MC_DoubleList;
-std::vector<DistMatrix<float, Star,MD  >*> Star_MD_SingleList;
-std::vector<DistMatrix<double,Star,MD  >*> Star_MD_DoubleList;
-std::vector<DistMatrix<float, Star,MR  >*> Star_MR_SingleList;
-std::vector<DistMatrix<double,Star,MR  >*> Star_MR_DoubleList;
-std::vector<DistMatrix<float, Star,Star>*> Star_Star_SingleList;
-std::vector<DistMatrix<double,Star,Star>*> Star_Star_DoubleList;
-std::vector<DistMatrix<float, Star,VC  >*> Star_VC_SingleList;
-std::vector<DistMatrix<double,Star,VC  >*> Star_VC_DoubleList;
-std::vector<DistMatrix<float, Star,VR  >*> Star_VR_SingleList;
-std::vector<DistMatrix<double,Star,VR  >*> Star_VR_DoubleList;
-std::vector<DistMatrix<float, VC,  Star>*> VC_Star_SingleList;
-std::vector<DistMatrix<double,VC,  Star>*> VC_Star_DoubleList;
-std::vector<DistMatrix<float, VR,  Star>*> VR_Star_SingleList;
-std::vector<DistMatrix<double,VR,  Star>*> VR_Star_DoubleList;
+std::vector<DistMatrix<float, MR,  STAR>*> MR_STAR_SingleList;
+std::vector<DistMatrix<double,MR,  STAR>*> MR_STAR_DoubleList;
+std::vector<DistMatrix<float, STAR,MC  >*> STAR_MC_SingleList;
+std::vector<DistMatrix<double,STAR,MC  >*> STAR_MC_DoubleList;
+std::vector<DistMatrix<float, STAR,MD  >*> STAR_MD_SingleList;
+std::vector<DistMatrix<double,STAR,MD  >*> STAR_MD_DoubleList;
+std::vector<DistMatrix<float, STAR,MR  >*> STAR_MR_SingleList;
+std::vector<DistMatrix<double,STAR,MR  >*> STAR_MR_DoubleList;
+std::vector<DistMatrix<float, STAR,STAR>*> STAR_STAR_SingleList;
+std::vector<DistMatrix<double,STAR,STAR>*> STAR_STAR_DoubleList;
+std::vector<DistMatrix<float, STAR,VC  >*> STAR_VC_SingleList;
+std::vector<DistMatrix<double,STAR,VC  >*> STAR_VC_DoubleList;
+std::vector<DistMatrix<float, STAR,VR  >*> STAR_VR_SingleList;
+std::vector<DistMatrix<double,STAR,VR  >*> STAR_VR_DoubleList;
+std::vector<DistMatrix<float, VC,  STAR>*> VC_STAR_SingleList;
+std::vector<DistMatrix<double,VC,  STAR>*> VC_STAR_DoubleList;
+std::vector<DistMatrix<float, VR,  STAR>*> VR_STAR_SingleList;
+std::vector<DistMatrix<double,VR,  STAR>*> VR_STAR_DoubleList;
 #ifndef WITHOUT_COMPLEX
 std::vector<DistMatrix<scomplex,MC,  MR  >*> MC_MR_SComplexList;
 std::vector<DistMatrix<dcomplex,MC,  MR  >*> MC_MR_DComplexList;
-std::vector<DistMatrix<scomplex,MC,  Star>*> MC_Star_SComplexList;
-std::vector<DistMatrix<dcomplex,MC,  Star>*> MC_Star_DComplexList;
-std::vector<DistMatrix<scomplex,MD,  Star>*> MD_Star_SComplexList;
-std::vector<DistMatrix<dcomplex,MD,  Star>*> MD_Star_DComplexList;
+std::vector<DistMatrix<scomplex,MC,  STAR>*> MC_STAR_SComplexList;
+std::vector<DistMatrix<dcomplex,MC,  STAR>*> MC_STAR_DComplexList;
+std::vector<DistMatrix<scomplex,MD,  STAR>*> MD_STAR_SComplexList;
+std::vector<DistMatrix<dcomplex,MD,  STAR>*> MD_STAR_DComplexList;
 std::vector<DistMatrix<scomplex,MR,  MC  >*> MR_MC_SComplexList;
 std::vector<DistMatrix<dcomplex,MR,  MC  >*> MR_MC_DComplexList;
-std::vector<DistMatrix<scomplex,MR,  Star>*> MR_Star_SComplexList;
-std::vector<DistMatrix<dcomplex,MR,  Star>*> MR_Star_DComplexList;
-std::vector<DistMatrix<scomplex,Star,MC  >*> Star_MC_SComplexList;
-std::vector<DistMatrix<dcomplex,Star,MC  >*> Star_MC_DComplexList;
-std::vector<DistMatrix<scomplex,Star,MD  >*> Star_MD_SComplexList;
-std::vector<DistMatrix<dcomplex,Star,MD  >*> Star_MD_DComplexList;
-std::vector<DistMatrix<scomplex,Star,MR  >*> Star_MR_SComplexList;
-std::vector<DistMatrix<dcomplex,Star,MR  >*> Star_MR_DComplexList;
-std::vector<DistMatrix<scomplex,Star,Star>*> Star_Star_SComplexList;
-std::vector<DistMatrix<dcomplex,Star,Star>*> Star_Star_DComplexList;
-std::vector<DistMatrix<scomplex,Star,VC  >*> Star_VC_SComplexList;
-std::vector<DistMatrix<dcomplex,Star,VC  >*> Star_VC_DComplexList;
-std::vector<DistMatrix<scomplex,Star,VR  >*> Star_VR_SComplexList;
-std::vector<DistMatrix<dcomplex,Star,VR  >*> Star_VR_DComplexList;
-std::vector<DistMatrix<scomplex,VC,  Star>*> VC_Star_SComplexList;
-std::vector<DistMatrix<dcomplex,VC,  Star>*> VC_Star_DComplexList;
-std::vector<DistMatrix<scomplex,VR,  Star>*> VR_Star_SComplexList;
-std::vector<DistMatrix<dcomplex,VR,  Star>*> VR_Star_DComplexList;
+std::vector<DistMatrix<scomplex,MR,  STAR>*> MR_STAR_SComplexList;
+std::vector<DistMatrix<dcomplex,MR,  STAR>*> MR_STAR_DComplexList;
+std::vector<DistMatrix<scomplex,STAR,MC  >*> STAR_MC_SComplexList;
+std::vector<DistMatrix<dcomplex,STAR,MC  >*> STAR_MC_DComplexList;
+std::vector<DistMatrix<scomplex,STAR,MD  >*> STAR_MD_SComplexList;
+std::vector<DistMatrix<dcomplex,STAR,MD  >*> STAR_MD_DComplexList;
+std::vector<DistMatrix<scomplex,STAR,MR  >*> STAR_MR_SComplexList;
+std::vector<DistMatrix<dcomplex,STAR,MR  >*> STAR_MR_DComplexList;
+std::vector<DistMatrix<scomplex,STAR,STAR>*> STAR_STAR_SComplexList;
+std::vector<DistMatrix<dcomplex,STAR,STAR>*> STAR_STAR_DComplexList;
+std::vector<DistMatrix<scomplex,STAR,VC  >*> STAR_VC_SComplexList;
+std::vector<DistMatrix<dcomplex,STAR,VC  >*> STAR_VC_DComplexList;
+std::vector<DistMatrix<scomplex,STAR,VR  >*> STAR_VR_SComplexList;
+std::vector<DistMatrix<dcomplex,STAR,VR  >*> STAR_VR_DComplexList;
+std::vector<DistMatrix<scomplex,VC,  STAR>*> VC_STAR_SComplexList;
+std::vector<DistMatrix<dcomplex,VC,  STAR>*> VC_STAR_DComplexList;
+std::vector<DistMatrix<scomplex,VR,  STAR>*> VR_STAR_SComplexList;
+std::vector<DistMatrix<dcomplex,VR,  STAR>*> VR_STAR_DComplexList;
 #endif // WITHOUT_COMPLEX
 } // anonymous namespace
 
@@ -131,19 +131,19 @@ void ElementalFinalize()
     ::MC_MR_SingleList.resize(0);
     ::MC_MR_DoubleList.resize(0);
     // Real [MC,* ]
-    for( unsigned j=0; j< ::MC_Star_SingleList.size(); ++j )
-        delete ::MC_Star_SingleList[j];
-    for( unsigned j=0; j< ::MC_Star_DoubleList.size(); ++j )
-        delete ::MC_Star_DoubleList[j];
-    ::MC_Star_SingleList.resize(0);
-    ::MC_Star_DoubleList.resize(0);
+    for( unsigned j=0; j< ::MC_STAR_SingleList.size(); ++j )
+        delete ::MC_STAR_SingleList[j];
+    for( unsigned j=0; j< ::MC_STAR_DoubleList.size(); ++j )
+        delete ::MC_STAR_DoubleList[j];
+    ::MC_STAR_SingleList.resize(0);
+    ::MC_STAR_DoubleList.resize(0);
     // Real [MD,* ]
-    for( unsigned j=0; j< ::MD_Star_SingleList.size(); ++j )
-        delete ::MD_Star_SingleList[j];
-    for( unsigned j=0; j< ::MD_Star_DoubleList.size(); ++j )
-        delete ::MD_Star_DoubleList[j];
-    ::MD_Star_SingleList.resize(0);
-    ::MD_Star_DoubleList.resize(0);
+    for( unsigned j=0; j< ::MD_STAR_SingleList.size(); ++j )
+        delete ::MD_STAR_SingleList[j];
+    for( unsigned j=0; j< ::MD_STAR_DoubleList.size(); ++j )
+        delete ::MD_STAR_DoubleList[j];
+    ::MD_STAR_SingleList.resize(0);
+    ::MD_STAR_DoubleList.resize(0);
     // Real [MR,MC]
     for( unsigned j=0; j< ::MR_MC_SingleList.size(); ++j )
         delete ::MR_MC_SingleList[j];
@@ -152,68 +152,68 @@ void ElementalFinalize()
     ::MR_MC_SingleList.resize(0);
     ::MR_MC_DoubleList.resize(0);
     // Real [MR,* ]
-    for( unsigned j=0; j< ::MR_Star_SingleList.size(); ++j )
-        delete ::MR_Star_SingleList[j];
-    for( unsigned j=0; j< ::MR_Star_DoubleList.size(); ++j )
-        delete ::MR_Star_DoubleList[j];
-    ::MR_Star_SingleList.resize(0);
-    ::MR_Star_DoubleList.resize(0);
+    for( unsigned j=0; j< ::MR_STAR_SingleList.size(); ++j )
+        delete ::MR_STAR_SingleList[j];
+    for( unsigned j=0; j< ::MR_STAR_DoubleList.size(); ++j )
+        delete ::MR_STAR_DoubleList[j];
+    ::MR_STAR_SingleList.resize(0);
+    ::MR_STAR_DoubleList.resize(0);
     // Real [* ,MC]
-    for( unsigned j=0; j< ::Star_MC_SingleList.size(); ++j )
-        delete ::Star_MC_SingleList[j];
-    for( unsigned j=0; j< ::Star_MC_DoubleList.size(); ++j )
-        delete ::Star_MC_DoubleList[j];
-    ::Star_MC_SingleList.resize(0);
-    ::Star_MC_DoubleList.resize(0);
+    for( unsigned j=0; j< ::STAR_MC_SingleList.size(); ++j )
+        delete ::STAR_MC_SingleList[j];
+    for( unsigned j=0; j< ::STAR_MC_DoubleList.size(); ++j )
+        delete ::STAR_MC_DoubleList[j];
+    ::STAR_MC_SingleList.resize(0);
+    ::STAR_MC_DoubleList.resize(0);
     // Real [* ,MD]
-    for( unsigned j=0; j< ::Star_MD_SingleList.size(); ++j )
-        delete ::Star_MD_SingleList[j];
-    for( unsigned j=0; j< ::Star_MD_DoubleList.size(); ++j )
-        delete ::Star_MD_DoubleList[j];
-    ::Star_MD_SingleList.resize(0);
-    ::Star_MD_DoubleList.resize(0);
+    for( unsigned j=0; j< ::STAR_MD_SingleList.size(); ++j )
+        delete ::STAR_MD_SingleList[j];
+    for( unsigned j=0; j< ::STAR_MD_DoubleList.size(); ++j )
+        delete ::STAR_MD_DoubleList[j];
+    ::STAR_MD_SingleList.resize(0);
+    ::STAR_MD_DoubleList.resize(0);
     // Real [* ,MR]
-    for( unsigned j=0; j< ::Star_MR_SingleList.size(); ++j )
-        delete ::Star_MR_SingleList[j];
-    for( unsigned j=0; j< ::Star_MR_DoubleList.size(); ++j )
-        delete ::Star_MR_DoubleList[j];
-    ::Star_MR_SingleList.resize(0);
-    ::Star_MR_DoubleList.resize(0);
+    for( unsigned j=0; j< ::STAR_MR_SingleList.size(); ++j )
+        delete ::STAR_MR_SingleList[j];
+    for( unsigned j=0; j< ::STAR_MR_DoubleList.size(); ++j )
+        delete ::STAR_MR_DoubleList[j];
+    ::STAR_MR_SingleList.resize(0);
+    ::STAR_MR_DoubleList.resize(0);
     // Real [* ,* ]
-    for( unsigned j=0; j< ::Star_Star_SingleList.size(); ++j )
-        delete ::Star_Star_SingleList[j];
-    for( unsigned j=0; j< ::Star_Star_DoubleList.size(); ++j )
-        delete ::Star_Star_DoubleList[j];
-    ::Star_Star_SingleList.resize(0);
-    ::Star_Star_DoubleList.resize(0);
+    for( unsigned j=0; j< ::STAR_STAR_SingleList.size(); ++j )
+        delete ::STAR_STAR_SingleList[j];
+    for( unsigned j=0; j< ::STAR_STAR_DoubleList.size(); ++j )
+        delete ::STAR_STAR_DoubleList[j];
+    ::STAR_STAR_SingleList.resize(0);
+    ::STAR_STAR_DoubleList.resize(0);
     // Real [* ,VC]
-    for( unsigned j=0; j< ::Star_VC_SingleList.size(); ++j )
-        delete ::Star_VC_SingleList[j];
-    for( unsigned j=0; j< ::Star_VC_DoubleList.size(); ++j )
-        delete ::Star_VC_DoubleList[j];
-    ::Star_VC_SingleList.resize(0);
-    ::Star_VC_DoubleList.resize(0);
+    for( unsigned j=0; j< ::STAR_VC_SingleList.size(); ++j )
+        delete ::STAR_VC_SingleList[j];
+    for( unsigned j=0; j< ::STAR_VC_DoubleList.size(); ++j )
+        delete ::STAR_VC_DoubleList[j];
+    ::STAR_VC_SingleList.resize(0);
+    ::STAR_VC_DoubleList.resize(0);
     // Real [* ,VR]
-    for( unsigned j=0; j< ::Star_VR_SingleList.size(); ++j )
-        delete ::Star_VR_SingleList[j];
-    for( unsigned j=0; j< ::Star_VR_DoubleList.size(); ++j )
-        delete ::Star_VR_DoubleList[j];
-    ::Star_VR_SingleList.resize(0);
-    ::Star_VR_DoubleList.resize(0);
+    for( unsigned j=0; j< ::STAR_VR_SingleList.size(); ++j )
+        delete ::STAR_VR_SingleList[j];
+    for( unsigned j=0; j< ::STAR_VR_DoubleList.size(); ++j )
+        delete ::STAR_VR_DoubleList[j];
+    ::STAR_VR_SingleList.resize(0);
+    ::STAR_VR_DoubleList.resize(0);
     // Real [VC,* ]
-    for( unsigned j=0; j< ::VC_Star_SingleList.size(); ++j )
-        delete ::VC_Star_SingleList[j];
-    for( unsigned j=0; j< ::VC_Star_DoubleList.size(); ++j )
-        delete ::VC_Star_DoubleList[j];
-    ::VC_Star_SingleList.resize(0);
-    ::VC_Star_DoubleList.resize(0);
+    for( unsigned j=0; j< ::VC_STAR_SingleList.size(); ++j )
+        delete ::VC_STAR_SingleList[j];
+    for( unsigned j=0; j< ::VC_STAR_DoubleList.size(); ++j )
+        delete ::VC_STAR_DoubleList[j];
+    ::VC_STAR_SingleList.resize(0);
+    ::VC_STAR_DoubleList.resize(0);
     // Real [VR,* ]
-    for( unsigned j=0; j< ::VR_Star_SingleList.size(); ++j )
-        delete ::VR_Star_SingleList[j];
-    for( unsigned j=0; j< ::VR_Star_DoubleList.size(); ++j )
-        delete ::VR_Star_DoubleList[j];
-    ::VR_Star_SingleList.resize(0);
-    ::VR_Star_DoubleList.resize(0);
+    for( unsigned j=0; j< ::VR_STAR_SingleList.size(); ++j )
+        delete ::VR_STAR_SingleList[j];
+    for( unsigned j=0; j< ::VR_STAR_DoubleList.size(); ++j )
+        delete ::VR_STAR_DoubleList[j];
+    ::VR_STAR_SingleList.resize(0);
+    ::VR_STAR_DoubleList.resize(0);
 #ifndef WITHOUT_COMPLEX
     // Complex [MC,MR]
     for( unsigned j=0; j< ::MC_MR_SComplexList.size(); ++j )
@@ -223,19 +223,19 @@ void ElementalFinalize()
     ::MC_MR_SComplexList.resize(0);
     ::MC_MR_DComplexList.resize(0);
     // Complex [MC,* ]
-    for( unsigned j=0; j< ::MC_Star_SComplexList.size(); ++j )
-        delete ::MC_Star_SComplexList[j];
-    for( unsigned j=0; j< ::MC_Star_DComplexList.size(); ++j )
-        delete ::MC_Star_DComplexList[j];
-    ::MC_Star_SComplexList.resize(0);
-    ::MC_Star_DComplexList.resize(0);
+    for( unsigned j=0; j< ::MC_STAR_SComplexList.size(); ++j )
+        delete ::MC_STAR_SComplexList[j];
+    for( unsigned j=0; j< ::MC_STAR_DComplexList.size(); ++j )
+        delete ::MC_STAR_DComplexList[j];
+    ::MC_STAR_SComplexList.resize(0);
+    ::MC_STAR_DComplexList.resize(0);
     // Complex [MD,* ]
-    for( unsigned j=0; j< ::MD_Star_SComplexList.size(); ++j )
-        delete ::MD_Star_SComplexList[j];
-    for( unsigned j=0; j< ::MD_Star_DComplexList.size(); ++j )
-        delete ::MD_Star_DComplexList[j];
-    ::MD_Star_SComplexList.resize(0);
-    ::MD_Star_DComplexList.resize(0);
+    for( unsigned j=0; j< ::MD_STAR_SComplexList.size(); ++j )
+        delete ::MD_STAR_SComplexList[j];
+    for( unsigned j=0; j< ::MD_STAR_DComplexList.size(); ++j )
+        delete ::MD_STAR_DComplexList[j];
+    ::MD_STAR_SComplexList.resize(0);
+    ::MD_STAR_DComplexList.resize(0);
     // Complex [MR,MC]
     for( unsigned j=0; j< ::MR_MC_SComplexList.size(); ++j )
         delete ::MR_MC_SComplexList[j];
@@ -244,68 +244,68 @@ void ElementalFinalize()
     ::MR_MC_SComplexList.resize(0);
     ::MR_MC_DComplexList.resize(0);
     // Complex [MR,* ]
-    for( unsigned j=0; j< ::MR_Star_SComplexList.size(); ++j )
-        delete ::MR_Star_SComplexList[j];
-    for( unsigned j=0; j< ::MR_Star_DComplexList.size(); ++j )
-        delete ::MR_Star_DComplexList[j];
-    ::MR_Star_SComplexList.resize(0);
-    ::MR_Star_DComplexList.resize(0);
+    for( unsigned j=0; j< ::MR_STAR_SComplexList.size(); ++j )
+        delete ::MR_STAR_SComplexList[j];
+    for( unsigned j=0; j< ::MR_STAR_DComplexList.size(); ++j )
+        delete ::MR_STAR_DComplexList[j];
+    ::MR_STAR_SComplexList.resize(0);
+    ::MR_STAR_DComplexList.resize(0);
     // Complex [* ,MC]
-    for( unsigned j=0; j< ::Star_MC_SComplexList.size(); ++j )
-        delete ::Star_MC_SComplexList[j];
-    for( unsigned j=0; j< ::Star_MC_DComplexList.size(); ++j )
-        delete ::Star_MC_DComplexList[j];
-    ::Star_MC_SComplexList.resize(0);
-    ::Star_MC_DComplexList.resize(0);
+    for( unsigned j=0; j< ::STAR_MC_SComplexList.size(); ++j )
+        delete ::STAR_MC_SComplexList[j];
+    for( unsigned j=0; j< ::STAR_MC_DComplexList.size(); ++j )
+        delete ::STAR_MC_DComplexList[j];
+    ::STAR_MC_SComplexList.resize(0);
+    ::STAR_MC_DComplexList.resize(0);
     // Complex [* ,MD]
-    for( unsigned j=0; j< ::Star_MD_SComplexList.size(); ++j )
-        delete ::Star_MD_SComplexList[j];
-    for( unsigned j=0; j< ::Star_MD_DComplexList.size(); ++j )
-        delete ::Star_MD_DComplexList[j];
-    ::Star_MD_SComplexList.resize(0);
-    ::Star_MD_DComplexList.resize(0);
+    for( unsigned j=0; j< ::STAR_MD_SComplexList.size(); ++j )
+        delete ::STAR_MD_SComplexList[j];
+    for( unsigned j=0; j< ::STAR_MD_DComplexList.size(); ++j )
+        delete ::STAR_MD_DComplexList[j];
+    ::STAR_MD_SComplexList.resize(0);
+    ::STAR_MD_DComplexList.resize(0);
     // Complex [* ,MR]
-    for( unsigned j=0; j< ::Star_MR_SComplexList.size(); ++j )
-        delete ::Star_MR_SComplexList[j];
-    for( unsigned j=0; j< ::Star_MR_DComplexList.size(); ++j )
-        delete ::Star_MR_DComplexList[j];
-    ::Star_MR_SComplexList.resize(0);
-    ::Star_MR_DComplexList.resize(0);
+    for( unsigned j=0; j< ::STAR_MR_SComplexList.size(); ++j )
+        delete ::STAR_MR_SComplexList[j];
+    for( unsigned j=0; j< ::STAR_MR_DComplexList.size(); ++j )
+        delete ::STAR_MR_DComplexList[j];
+    ::STAR_MR_SComplexList.resize(0);
+    ::STAR_MR_DComplexList.resize(0);
     // Complex [* ,* ]
-    for( unsigned j=0; j< ::Star_Star_SComplexList.size(); ++j )
-        delete ::Star_Star_SComplexList[j];
-    for( unsigned j=0; j< ::Star_Star_DComplexList.size(); ++j )
-        delete ::Star_Star_DComplexList[j];
-    ::Star_Star_SComplexList.resize(0);
-    ::Star_Star_DComplexList.resize(0);
+    for( unsigned j=0; j< ::STAR_STAR_SComplexList.size(); ++j )
+        delete ::STAR_STAR_SComplexList[j];
+    for( unsigned j=0; j< ::STAR_STAR_DComplexList.size(); ++j )
+        delete ::STAR_STAR_DComplexList[j];
+    ::STAR_STAR_SComplexList.resize(0);
+    ::STAR_STAR_DComplexList.resize(0);
     // Complex [* ,VC]
-    for( unsigned j=0; j< ::Star_VC_SComplexList.size(); ++j )
-        delete ::Star_VC_SComplexList[j];
-    for( unsigned j=0; j< ::Star_VC_DComplexList.size(); ++j )
-        delete ::Star_VC_DComplexList[j];
-    ::Star_VC_SComplexList.resize(0);
-    ::Star_VC_DComplexList.resize(0);
+    for( unsigned j=0; j< ::STAR_VC_SComplexList.size(); ++j )
+        delete ::STAR_VC_SComplexList[j];
+    for( unsigned j=0; j< ::STAR_VC_DComplexList.size(); ++j )
+        delete ::STAR_VC_DComplexList[j];
+    ::STAR_VC_SComplexList.resize(0);
+    ::STAR_VC_DComplexList.resize(0);
     // Complex [* ,VR]
-    for( unsigned j=0; j< ::Star_VR_SComplexList.size(); ++j )
-        delete ::Star_VR_SComplexList[j];
-    for( unsigned j=0; j< ::Star_VR_DComplexList.size(); ++j )
-        delete ::Star_VR_DComplexList[j];
-    ::Star_VR_SComplexList.resize(0);
-    ::Star_VR_DComplexList.resize(0);
+    for( unsigned j=0; j< ::STAR_VR_SComplexList.size(); ++j )
+        delete ::STAR_VR_SComplexList[j];
+    for( unsigned j=0; j< ::STAR_VR_DComplexList.size(); ++j )
+        delete ::STAR_VR_DComplexList[j];
+    ::STAR_VR_SComplexList.resize(0);
+    ::STAR_VR_DComplexList.resize(0);
     // Complex [VC,* ]
-    for( unsigned j=0; j< ::VC_Star_SComplexList.size(); ++j )
-        delete ::VC_Star_SComplexList[j];
-    for( unsigned j=0; j< ::VC_Star_DComplexList.size(); ++j )
-        delete ::VC_Star_DComplexList[j];
-    ::VC_Star_SComplexList.resize(0);
-    ::VC_Star_DComplexList.resize(0);
+    for( unsigned j=0; j< ::VC_STAR_SComplexList.size(); ++j )
+        delete ::VC_STAR_SComplexList[j];
+    for( unsigned j=0; j< ::VC_STAR_DComplexList.size(); ++j )
+        delete ::VC_STAR_DComplexList[j];
+    ::VC_STAR_SComplexList.resize(0);
+    ::VC_STAR_DComplexList.resize(0);
     // Complex [VR,* ]
-    for( unsigned j=0; j< ::VR_Star_SComplexList.size(); ++j )
-        delete ::VR_Star_SComplexList[j];
-    for( unsigned j=0; j< ::VR_Star_DComplexList.size(); ++j )
-        delete ::VR_Star_DComplexList[j];
-    ::VR_Star_SComplexList.resize(0);
-    ::VR_Star_DComplexList.resize(0);
+    for( unsigned j=0; j< ::VR_STAR_SComplexList.size(); ++j )
+        delete ::VR_STAR_SComplexList[j];
+    for( unsigned j=0; j< ::VR_STAR_DComplexList.size(); ++j )
+        delete ::VR_STAR_DComplexList[j];
+    ::VR_STAR_SComplexList.resize(0);
+    ::VR_STAR_DComplexList.resize(0);
 #endif
 
     for( unsigned j=0; j< ::gridList.size(); ++j )
@@ -569,103 +569,103 @@ Print_MC_MR_DComplex( char* msg, MC_MR_DComplex A )
 // [MC,* ] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-MC_Star_Single
-CreateEmpty_MC_Star_Single( Grid g )
+MC_STAR_Single
+CreateEmpty_MC_STAR_Single( Grid g )
 {
-    MC_Star_Single A;
+    MC_STAR_Single A;
     CATCH(
-        A = ::MC_Star_SingleList.size();
-        ::MC_Star_SingleList.push_back
-        ( new DistMatrix<float,MC,Star>( *::gridList[g] ) );
+        A = ::MC_STAR_SingleList.size();
+        ::MC_STAR_SingleList.push_back
+        ( new DistMatrix<float,MC,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-MC_Star_Double
-CreateEmpty_MC_Star_Double( Grid g )
+MC_STAR_Double
+CreateEmpty_MC_STAR_Double( Grid g )
 {
-    MC_Star_Double A;
+    MC_STAR_Double A;
     CATCH(
-        A = ::MC_Star_DoubleList.size();
-        ::MC_Star_DoubleList.push_back
-        ( new DistMatrix<double,MC,Star>( *::gridList[g] ) );
+        A = ::MC_STAR_DoubleList.size();
+        ::MC_STAR_DoubleList.push_back
+        ( new DistMatrix<double,MC,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-MC_Star_SComplex
-CreateEmpty_MC_Star_SComplex( Grid g )
+MC_STAR_SComplex
+CreateEmpty_MC_STAR_SComplex( Grid g )
 {
-    MC_Star_SComplex A;
+    MC_STAR_SComplex A;
     CATCH(
-        A = ::MC_Star_SComplexList.size();
-        ::MC_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,MC,Star>( *::gridList[g] ) );
+        A = ::MC_STAR_SComplexList.size();
+        ::MC_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,MC,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-MC_Star_DComplex
-CreateEmpty_MC_Star_DComplex( Grid g )
+MC_STAR_DComplex
+CreateEmpty_MC_STAR_DComplex( Grid g )
 {
-    MC_Star_DComplex A;
+    MC_STAR_DComplex A;
     CATCH(
-        A = ::MC_Star_DComplexList.size();
-        ::MC_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,MC,Star>( *::gridList[g] ) );
+        A = ::MC_STAR_DComplexList.size();
+        ::MC_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,MC,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-MC_Star_Single
-Register_MC_Star_Single
+MC_STAR_Single
+Register_MC_STAR_Single
 ( int height, int width, int colAlignment, float* buffer, int ldim, Grid g )
 {
-    MC_Star_Single A;
+    MC_STAR_Single A;
     CATCH(
-        A = ::MC_Star_SingleList.size();
-        ::MC_Star_SingleList.push_back
-        ( new DistMatrix<float,MC,Star>
+        A = ::MC_STAR_SingleList.size();
+        ::MC_STAR_SingleList.push_back
+        ( new DistMatrix<float,MC,STAR>
           ( height, width, colAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-MC_Star_Double
-Register_MC_Star_Double
+MC_STAR_Double
+Register_MC_STAR_Double
 ( int height, int width, int colAlignment, double* buffer, int ldim, Grid g )
 {
-    MC_Star_Double A;
+    MC_STAR_Double A;
     CATCH(
-        A = ::MC_Star_DoubleList.size();
-        ::MC_Star_DoubleList.push_back
-        ( new DistMatrix<double,MC,Star>
+        A = ::MC_STAR_DoubleList.size();
+        ::MC_STAR_DoubleList.push_back
+        ( new DistMatrix<double,MC,STAR>
           ( height, width, colAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-MC_Star_SComplex
-Register_MC_Star_SComplex
+MC_STAR_SComplex
+Register_MC_STAR_SComplex
 ( int height, int width, int colAlignment, SComplex* buffer, int ldim, Grid g )
 {
-    MC_Star_SComplex A;
+    MC_STAR_SComplex A;
     CATCH(
-        A = ::MC_Star_SComplexList.size();
-        ::MC_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,MC,Star>
+        A = ::MC_STAR_SComplexList.size();
+        ::MC_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,MC,STAR>
           ( height, width, colAlignment, (scomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
     return A;
 }
-MC_Star_DComplex
-Register_MC_Star_DComplex
+MC_STAR_DComplex
+Register_MC_STAR_DComplex
 ( int height, int width, int colAlignment, DComplex* buffer, int ldim, Grid g )
 {
-    MC_Star_DComplex A;
+    MC_STAR_DComplex A;
     CATCH(
-        A = ::MC_Star_DComplexList.size();
-        ::MC_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,MC,Star>
+        A = ::MC_STAR_DComplexList.size();
+        ::MC_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,MC,STAR>
           ( height, width, colAlignment, (dcomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
@@ -674,51 +674,51 @@ Register_MC_Star_DComplex
 #endif // WITHOUT_COMPLEX
 // Get the col alignments
 int
-ColAlignment_MC_Star_Single( MC_Star_Single A )
-{ return ::MC_Star_SingleList[A]->ColAlignment(); }
+ColAlignment_MC_STAR_Single( MC_STAR_Single A )
+{ return ::MC_STAR_SingleList[A]->ColAlignment(); }
 int
-ColAlignment_MC_Star_Double( MC_Star_Double A )
-{ return ::MC_Star_DoubleList[A]->ColAlignment(); }
+ColAlignment_MC_STAR_Double( MC_STAR_Double A )
+{ return ::MC_STAR_DoubleList[A]->ColAlignment(); }
 #ifndef WITHOUT_COMPLEX
 int
-ColAlignment_MC_Star_SComplex( MC_Star_SComplex A )
-{ return ::MC_Star_SComplexList[A]->ColAlignment(); }
+ColAlignment_MC_STAR_SComplex( MC_STAR_SComplex A )
+{ return ::MC_STAR_SComplexList[A]->ColAlignment(); }
 int
-ColAlignment_MC_Star_DComplex( MC_Star_DComplex A )
-{ return ::MC_Star_DComplexList[A]->ColAlignment(); }
+ColAlignment_MC_STAR_DComplex( MC_STAR_DComplex A )
+{ return ::MC_STAR_DComplexList[A]->ColAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_MC_Star_Single( char* msg, MC_Star_Single A )
+Print_MC_STAR_Single( char* msg, MC_STAR_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::MC_Star_SingleList[A]->Print( s );
+        ::MC_STAR_SingleList[A]->Print( s );
     );
 }
 void 
-Print_MC_Star_Double( char* msg, MC_Star_Double A )
+Print_MC_STAR_Double( char* msg, MC_STAR_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::MC_Star_DoubleList[A]->Print( s );
+        ::MC_STAR_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_MC_Star_SComplex( char* msg, MC_Star_SComplex A )
+Print_MC_STAR_SComplex( char* msg, MC_STAR_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::MC_Star_SComplexList[A]->Print( s );
+        ::MC_STAR_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_MC_Star_DComplex( char* msg, MC_Star_DComplex A )
+Print_MC_STAR_DComplex( char* msg, MC_STAR_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::MC_Star_DComplexList[A]->Print( s );
+        ::MC_STAR_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -726,103 +726,103 @@ Print_MC_Star_DComplex( char* msg, MC_Star_DComplex A )
 // [MD,* ] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-MD_Star_Single
-CreateEmpty_MD_Star_Single( Grid g )
+MD_STAR_Single
+CreateEmpty_MD_STAR_Single( Grid g )
 {
-    MD_Star_Single A;
+    MD_STAR_Single A;
     CATCH(
-        A = ::MD_Star_SingleList.size();
-        ::MD_Star_SingleList.push_back
-        ( new DistMatrix<float,MD,Star>( *::gridList[g] ) );
+        A = ::MD_STAR_SingleList.size();
+        ::MD_STAR_SingleList.push_back
+        ( new DistMatrix<float,MD,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-MD_Star_Double
-CreateEmpty_MD_Star_Double( Grid g )
+MD_STAR_Double
+CreateEmpty_MD_STAR_Double( Grid g )
 {
-    MD_Star_Double A;
+    MD_STAR_Double A;
     CATCH(
-        A = ::MD_Star_DoubleList.size();
-        ::MD_Star_DoubleList.push_back
-        ( new DistMatrix<double,MD,Star>( *::gridList[g] ) );
+        A = ::MD_STAR_DoubleList.size();
+        ::MD_STAR_DoubleList.push_back
+        ( new DistMatrix<double,MD,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-MD_Star_SComplex
-CreateEmpty_MD_Star_SComplex( Grid g )
+MD_STAR_SComplex
+CreateEmpty_MD_STAR_SComplex( Grid g )
 {
-    MD_Star_SComplex A;
+    MD_STAR_SComplex A;
     CATCH(
-        A = ::MD_Star_SComplexList.size();
-        ::MD_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,MD,Star>( *::gridList[g] ) );
+        A = ::MD_STAR_SComplexList.size();
+        ::MD_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,MD,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-MD_Star_DComplex
-CreateEmpty_MD_Star_DComplex( Grid g )
+MD_STAR_DComplex
+CreateEmpty_MD_STAR_DComplex( Grid g )
 {
-    MD_Star_DComplex A;
+    MD_STAR_DComplex A;
     CATCH(
-        A = ::MD_Star_DComplexList.size();
-        ::MD_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,MD,Star>( *::gridList[g] ) );
+        A = ::MD_STAR_DComplexList.size();
+        ::MD_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,MD,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-MD_Star_Single
-Register_MD_Star_Single
+MD_STAR_Single
+Register_MD_STAR_Single
 ( int height, int width, int colAlignment, float* buffer, int ldim, Grid g )
 {
-    MD_Star_Single A;
+    MD_STAR_Single A;
     CATCH(
-        A = ::MD_Star_SingleList.size();
-        ::MD_Star_SingleList.push_back
-        ( new DistMatrix<float,MD,Star>
+        A = ::MD_STAR_SingleList.size();
+        ::MD_STAR_SingleList.push_back
+        ( new DistMatrix<float,MD,STAR>
           ( height, width, colAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-MD_Star_Double
-Register_MD_Star_Double
+MD_STAR_Double
+Register_MD_STAR_Double
 ( int height, int width, int colAlignment, double* buffer, int ldim, Grid g )
 {
-    MD_Star_Double A;
+    MD_STAR_Double A;
     CATCH(
-        A = ::MD_Star_DoubleList.size();
-        ::MD_Star_DoubleList.push_back
-        ( new DistMatrix<double,MD,Star>
+        A = ::MD_STAR_DoubleList.size();
+        ::MD_STAR_DoubleList.push_back
+        ( new DistMatrix<double,MD,STAR>
           ( height, width, colAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-MD_Star_SComplex
-Register_MD_Star_SComplex
+MD_STAR_SComplex
+Register_MD_STAR_SComplex
 ( int height, int width, int colAlignment, SComplex* buffer, int ldim, Grid g )
 {
-    MD_Star_SComplex A;
+    MD_STAR_SComplex A;
     CATCH(
-        A = ::MD_Star_SComplexList.size();
-        ::MD_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,MD,Star>
+        A = ::MD_STAR_SComplexList.size();
+        ::MD_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,MD,STAR>
           ( height, width, colAlignment, (scomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
     return A;
 }
-MD_Star_DComplex
-Register_MD_Star_DComplex
+MD_STAR_DComplex
+Register_MD_STAR_DComplex
 ( int height, int width, int colAlignment, DComplex* buffer, int ldim, Grid g )
 {
-    MD_Star_DComplex A;
+    MD_STAR_DComplex A;
     CATCH(
-        A = ::MD_Star_DComplexList.size();
-        ::MD_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,MD,Star>
+        A = ::MD_STAR_DComplexList.size();
+        ::MD_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,MD,STAR>
           ( height, width, colAlignment, (dcomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
@@ -831,51 +831,51 @@ Register_MD_Star_DComplex
 #endif // WITHOUT_COMPLEX
 // Get the col alignments
 int
-ColAlignment_MD_Star_Single( MD_Star_Single A )
-{ return ::MD_Star_SingleList[A]->ColAlignment(); }
+ColAlignment_MD_STAR_Single( MD_STAR_Single A )
+{ return ::MD_STAR_SingleList[A]->ColAlignment(); }
 int
-ColAlignment_MD_Star_Double( MD_Star_Double A )
-{ return ::MD_Star_DoubleList[A]->ColAlignment(); }
+ColAlignment_MD_STAR_Double( MD_STAR_Double A )
+{ return ::MD_STAR_DoubleList[A]->ColAlignment(); }
 #ifndef WITHOUT_COMPLEX
 int
-ColAlignment_MD_Star_SComplex( MD_Star_SComplex A )
-{ return ::MD_Star_SComplexList[A]->ColAlignment(); }
+ColAlignment_MD_STAR_SComplex( MD_STAR_SComplex A )
+{ return ::MD_STAR_SComplexList[A]->ColAlignment(); }
 int
-ColAlignment_MD_Star_DComplex( MD_Star_DComplex A )
-{ return ::MD_Star_DComplexList[A]->ColAlignment(); }
+ColAlignment_MD_STAR_DComplex( MD_STAR_DComplex A )
+{ return ::MD_STAR_DComplexList[A]->ColAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_MD_Star_Single( char* msg, MD_Star_Single A )
+Print_MD_STAR_Single( char* msg, MD_STAR_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::MD_Star_SingleList[A]->Print( s );
+        ::MD_STAR_SingleList[A]->Print( s );
     );
 }
 void 
-Print_MD_Star_Double( char* msg, MD_Star_Double A )
+Print_MD_STAR_Double( char* msg, MD_STAR_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::MD_Star_DoubleList[A]->Print( s );
+        ::MD_STAR_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_MD_Star_SComplex( char* msg, MD_Star_SComplex A )
+Print_MD_STAR_SComplex( char* msg, MD_STAR_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::MD_Star_SComplexList[A]->Print( s );
+        ::MD_STAR_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_MD_Star_DComplex( char* msg, MD_Star_DComplex A )
+Print_MD_STAR_DComplex( char* msg, MD_STAR_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::MD_Star_DComplexList[A]->Print( s );
+        ::MD_STAR_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -1058,103 +1058,103 @@ Print_MR_MC_DComplex( char* msg, MR_MC_DComplex A )
 // [MR,* ] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-MR_Star_Single
-CreateEmpty_MR_Star_Single( Grid g )
+MR_STAR_Single
+CreateEmpty_MR_STAR_Single( Grid g )
 {
-    MR_Star_Single A;
+    MR_STAR_Single A;
     CATCH(
-        A = ::MR_Star_SingleList.size();
-        ::MR_Star_SingleList.push_back
-        ( new DistMatrix<float,MR,Star>( *::gridList[g] ) );
+        A = ::MR_STAR_SingleList.size();
+        ::MR_STAR_SingleList.push_back
+        ( new DistMatrix<float,MR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-MR_Star_Double
-CreateEmpty_MR_Star_Double( Grid g )
+MR_STAR_Double
+CreateEmpty_MR_STAR_Double( Grid g )
 {
-    MR_Star_Double A;
+    MR_STAR_Double A;
     CATCH(
-        A = ::MR_Star_DoubleList.size();
-        ::MR_Star_DoubleList.push_back
-        ( new DistMatrix<double,MR,Star>( *::gridList[g] ) );
+        A = ::MR_STAR_DoubleList.size();
+        ::MR_STAR_DoubleList.push_back
+        ( new DistMatrix<double,MR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-MR_Star_SComplex
-CreateEmpty_MR_Star_SComplex( Grid g )
+MR_STAR_SComplex
+CreateEmpty_MR_STAR_SComplex( Grid g )
 {
-    MR_Star_SComplex A;
+    MR_STAR_SComplex A;
     CATCH(
-        A = ::MR_Star_SComplexList.size();
-        ::MR_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,MR,Star>( *::gridList[g] ) );
+        A = ::MR_STAR_SComplexList.size();
+        ::MR_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,MR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-MR_Star_DComplex
-CreateEmpty_MR_Star_DComplex( Grid g )
+MR_STAR_DComplex
+CreateEmpty_MR_STAR_DComplex( Grid g )
 {
-    MR_Star_DComplex A;
+    MR_STAR_DComplex A;
     CATCH(
-        A = ::MR_Star_DComplexList.size();
-        ::MR_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,MR,Star>( *::gridList[g] ) );
+        A = ::MR_STAR_DComplexList.size();
+        ::MR_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,MR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-MR_Star_Single
-Register_MR_Star_Single
+MR_STAR_Single
+Register_MR_STAR_Single
 ( int height, int width, int colAlignment, float* buffer, int ldim, Grid g )
 {
-    MR_Star_Single A;
+    MR_STAR_Single A;
     CATCH(
-        A = ::MR_Star_SingleList.size();
-        ::MR_Star_SingleList.push_back
-        ( new DistMatrix<float,MR,Star>
+        A = ::MR_STAR_SingleList.size();
+        ::MR_STAR_SingleList.push_back
+        ( new DistMatrix<float,MR,STAR>
           ( height, width, colAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-MR_Star_Double
-Register_MR_Star_Double
+MR_STAR_Double
+Register_MR_STAR_Double
 ( int height, int width, int colAlignment, double* buffer, int ldim, Grid g )
 {
-    MR_Star_Double A;
+    MR_STAR_Double A;
     CATCH(
-        A = ::MR_Star_DoubleList.size();
-        ::MR_Star_DoubleList.push_back
-        ( new DistMatrix<double,MR,Star>
+        A = ::MR_STAR_DoubleList.size();
+        ::MR_STAR_DoubleList.push_back
+        ( new DistMatrix<double,MR,STAR>
           ( height, width, colAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-MR_Star_SComplex
-Register_MR_Star_SComplex
+MR_STAR_SComplex
+Register_MR_STAR_SComplex
 ( int height, int width, int colAlignment, SComplex* buffer, int ldim, Grid g )
 {
-    MR_Star_SComplex A;
+    MR_STAR_SComplex A;
     CATCH(
-        A = ::MR_Star_SComplexList.size();
-        ::MR_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,MR,Star>
+        A = ::MR_STAR_SComplexList.size();
+        ::MR_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,MR,STAR>
           ( height, width, colAlignment, (scomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
     return A;
 }
-MR_Star_DComplex
-Register_MR_Star_DComplex
+MR_STAR_DComplex
+Register_MR_STAR_DComplex
 ( int height, int width, int colAlignment, DComplex* buffer, int ldim, Grid g )
 {
-    MR_Star_DComplex A;
+    MR_STAR_DComplex A;
     CATCH(
-        A = ::MR_Star_DComplexList.size();
-        ::MR_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,MR,Star>
+        A = ::MR_STAR_DComplexList.size();
+        ::MR_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,MR,STAR>
           ( height, width, colAlignment, (dcomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
@@ -1163,51 +1163,51 @@ Register_MR_Star_DComplex
 #endif // WITHOUT_COMPLEX
 // Get the col alignments
 int
-ColAlignment_MR_Star_Single( MR_Star_Single A )
-{ return ::MR_Star_SingleList[A]->ColAlignment(); }
+ColAlignment_MR_STAR_Single( MR_STAR_Single A )
+{ return ::MR_STAR_SingleList[A]->ColAlignment(); }
 int
-ColAlignment_MR_Star_Double( MR_Star_Double A )
-{ return ::MR_Star_DoubleList[A]->ColAlignment(); }
+ColAlignment_MR_STAR_Double( MR_STAR_Double A )
+{ return ::MR_STAR_DoubleList[A]->ColAlignment(); }
 #ifndef WITHOUT_COMPLEX
 int
-ColAlignment_MR_Star_SComplex( MR_Star_SComplex A )
-{ return ::MR_Star_SComplexList[A]->ColAlignment(); }
+ColAlignment_MR_STAR_SComplex( MR_STAR_SComplex A )
+{ return ::MR_STAR_SComplexList[A]->ColAlignment(); }
 int
-ColAlignment_MR_Star_DComplex( MR_Star_DComplex A )
-{ return ::MR_Star_DComplexList[A]->ColAlignment(); }
+ColAlignment_MR_STAR_DComplex( MR_STAR_DComplex A )
+{ return ::MR_STAR_DComplexList[A]->ColAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_MR_Star_Single( char* msg, MR_Star_Single A )
+Print_MR_STAR_Single( char* msg, MR_STAR_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::MR_Star_SingleList[A]->Print( s );
+        ::MR_STAR_SingleList[A]->Print( s );
     );
 }
 void 
-Print_MR_Star_Double( char* msg, MR_Star_Double A )
+Print_MR_STAR_Double( char* msg, MR_STAR_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::MR_Star_DoubleList[A]->Print( s );
+        ::MR_STAR_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_MR_Star_SComplex( char* msg, MR_Star_SComplex A )
+Print_MR_STAR_SComplex( char* msg, MR_STAR_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::MR_Star_SComplexList[A]->Print( s );
+        ::MR_STAR_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_MR_Star_DComplex( char* msg, MR_Star_DComplex A )
+Print_MR_STAR_DComplex( char* msg, MR_STAR_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::MR_Star_DComplexList[A]->Print( s );
+        ::MR_STAR_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -1215,103 +1215,103 @@ Print_MR_Star_DComplex( char* msg, MR_Star_DComplex A )
 // [* ,MC] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-Star_MC_Single
-CreateEmpty_Star_MC_Single( Grid g )
+STAR_MC_Single
+CreateEmpty_STAR_MC_Single( Grid g )
 {
-    Star_MC_Single A;
+    STAR_MC_Single A;
     CATCH(
-        A = ::Star_MC_SingleList.size();
-        ::Star_MC_SingleList.push_back
-        ( new DistMatrix<float,Star,MC>( *::gridList[g] ) );
+        A = ::STAR_MC_SingleList.size();
+        ::STAR_MC_SingleList.push_back
+        ( new DistMatrix<float,STAR,MC>( *::gridList[g] ) );
     );
     return A;
 }
-Star_MC_Double
-CreateEmpty_Star_MC_Double( Grid g )
+STAR_MC_Double
+CreateEmpty_STAR_MC_Double( Grid g )
 {
-    Star_MC_Double A;
+    STAR_MC_Double A;
     CATCH(
-        A = ::Star_MC_DoubleList.size();
-        ::Star_MC_DoubleList.push_back
-        ( new DistMatrix<double,Star,MC>( *::gridList[g] ) );
+        A = ::STAR_MC_DoubleList.size();
+        ::STAR_MC_DoubleList.push_back
+        ( new DistMatrix<double,STAR,MC>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_MC_SComplex
-CreateEmpty_Star_MC_SComplex( Grid g )
+STAR_MC_SComplex
+CreateEmpty_STAR_MC_SComplex( Grid g )
 {
-    Star_MC_SComplex A;
+    STAR_MC_SComplex A;
     CATCH(
-        A = ::Star_MC_SComplexList.size();
-        ::Star_MC_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,MC>( *::gridList[g] ) );
+        A = ::STAR_MC_SComplexList.size();
+        ::STAR_MC_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,MC>( *::gridList[g] ) );
     );
     return A;
 }
-Star_MC_DComplex
-CreateEmpty_Star_MC_DComplex( Grid g )
+STAR_MC_DComplex
+CreateEmpty_STAR_MC_DComplex( Grid g )
 {
-    Star_MC_DComplex A;
+    STAR_MC_DComplex A;
     CATCH(
-        A = ::Star_MC_DComplexList.size();
-        ::Star_MC_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,MC>( *::gridList[g] ) );
+        A = ::STAR_MC_DComplexList.size();
+        ::STAR_MC_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,MC>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-Star_MC_Single
-Register_Star_MC_Single
+STAR_MC_Single
+Register_STAR_MC_Single
 ( int height, int width, int rowAlignment, float* buffer, int ldim, Grid g )
 {
-    Star_MC_Single A;
+    STAR_MC_Single A;
     CATCH(
-        A = ::Star_MC_SingleList.size();
-        ::Star_MC_SingleList.push_back
-        ( new DistMatrix<float,Star,MC>
+        A = ::STAR_MC_SingleList.size();
+        ::STAR_MC_SingleList.push_back
+        ( new DistMatrix<float,STAR,MC>
           ( height, width, rowAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-Star_MC_Double
-Register_Star_MC_Double
+STAR_MC_Double
+Register_STAR_MC_Double
 ( int height, int width, int rowAlignment, double* buffer, int ldim, Grid g )
 {
-    Star_MC_Double A;
+    STAR_MC_Double A;
     CATCH(
-        A = ::Star_MC_DoubleList.size();
-        ::Star_MC_DoubleList.push_back
-        ( new DistMatrix<double,Star,MC>
+        A = ::STAR_MC_DoubleList.size();
+        ::STAR_MC_DoubleList.push_back
+        ( new DistMatrix<double,STAR,MC>
           ( height, width, rowAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_MC_SComplex
-Register_Star_MC_SComplex
+STAR_MC_SComplex
+Register_STAR_MC_SComplex
 ( int height, int width, int rowAlignment, SComplex* buffer, int ldim, Grid g )
 {
-    Star_MC_SComplex A;
+    STAR_MC_SComplex A;
     CATCH(
-        A = ::Star_MC_SComplexList.size();
-        ::Star_MC_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,MC>
+        A = ::STAR_MC_SComplexList.size();
+        ::STAR_MC_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,MC>
           ( height, width, rowAlignment, (scomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
     return A;
 }
-Star_MC_DComplex
-Register_Star_MC_DComplex
+STAR_MC_DComplex
+Register_STAR_MC_DComplex
 ( int height, int width, int rowAlignment, DComplex* buffer, int ldim, Grid g )
 {
-    Star_MC_DComplex A;
+    STAR_MC_DComplex A;
     CATCH(
-        A = ::Star_MC_DComplexList.size();
-        ::Star_MC_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,MC>
+        A = ::STAR_MC_DComplexList.size();
+        ::STAR_MC_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,MC>
           ( height, width, rowAlignment, (dcomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
@@ -1320,51 +1320,51 @@ Register_Star_MC_DComplex
 #endif // WITHOUT_COMPLEX
 // Get the row alignments
 int
-RowAlignment_Star_MC_Single( Star_MC_Single A )
-{ return ::Star_MC_SingleList[A]->RowAlignment(); }
+RowAlignment_STAR_MC_Single( STAR_MC_Single A )
+{ return ::STAR_MC_SingleList[A]->RowAlignment(); }
 int
-RowAlignment_Star_MC_Double( Star_MC_Double A )
-{ return ::Star_MC_DoubleList[A]->RowAlignment(); }
+RowAlignment_STAR_MC_Double( STAR_MC_Double A )
+{ return ::STAR_MC_DoubleList[A]->RowAlignment(); }
 #ifndef WITHOUT_COMPLEX
 int
-RowAlignment_Star_MC_SComplex( Star_MC_SComplex A )
-{ return ::Star_MC_SComplexList[A]->RowAlignment(); }
+RowAlignment_STAR_MC_SComplex( STAR_MC_SComplex A )
+{ return ::STAR_MC_SComplexList[A]->RowAlignment(); }
 int
-RowAlignment_Star_MC_DComplex( Star_MC_DComplex A )
-{ return ::Star_MC_DComplexList[A]->RowAlignment(); }
+RowAlignment_STAR_MC_DComplex( STAR_MC_DComplex A )
+{ return ::STAR_MC_DComplexList[A]->RowAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_Star_MC_Single( char* msg, Star_MC_Single A )
+Print_STAR_MC_Single( char* msg, STAR_MC_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MC_SingleList[A]->Print( s );
+        ::STAR_MC_SingleList[A]->Print( s );
     );
 }
 void 
-Print_Star_MC_Double( char* msg, Star_MC_Double A )
+Print_STAR_MC_Double( char* msg, STAR_MC_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MC_DoubleList[A]->Print( s );
+        ::STAR_MC_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_Star_MC_SComplex( char* msg, Star_MC_SComplex A )
+Print_STAR_MC_SComplex( char* msg, STAR_MC_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MC_SComplexList[A]->Print( s );
+        ::STAR_MC_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_Star_MC_DComplex( char* msg, Star_MC_DComplex A )
+Print_STAR_MC_DComplex( char* msg, STAR_MC_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MC_DComplexList[A]->Print( s );
+        ::STAR_MC_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -1372,103 +1372,103 @@ Print_Star_MC_DComplex( char* msg, Star_MC_DComplex A )
 // [* ,MD] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-Star_MD_Single
-CreateEmpty_Star_MD_Single( Grid g )
+STAR_MD_Single
+CreateEmpty_STAR_MD_Single( Grid g )
 {
-    Star_MD_Single A;
+    STAR_MD_Single A;
     CATCH(
-        A = ::Star_MD_SingleList.size();
-        ::Star_MD_SingleList.push_back
-        ( new DistMatrix<float,Star,MD>( *::gridList[g] ) );
+        A = ::STAR_MD_SingleList.size();
+        ::STAR_MD_SingleList.push_back
+        ( new DistMatrix<float,STAR,MD>( *::gridList[g] ) );
     );
     return A;
 }
-Star_MD_Double
-CreateEmpty_Star_MD_Double( Grid g )
+STAR_MD_Double
+CreateEmpty_STAR_MD_Double( Grid g )
 {
-    Star_MD_Double A;
+    STAR_MD_Double A;
     CATCH(
-        A = ::Star_MD_DoubleList.size();
-        ::Star_MD_DoubleList.push_back
-        ( new DistMatrix<double,Star,MD>( *::gridList[g] ) );
+        A = ::STAR_MD_DoubleList.size();
+        ::STAR_MD_DoubleList.push_back
+        ( new DistMatrix<double,STAR,MD>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_MD_SComplex
-CreateEmpty_Star_MD_SComplex( Grid g )
+STAR_MD_SComplex
+CreateEmpty_STAR_MD_SComplex( Grid g )
 {
-    Star_MD_SComplex A;
+    STAR_MD_SComplex A;
     CATCH(
-        A = ::Star_MD_SComplexList.size();
-        ::Star_MD_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,MD>( *::gridList[g] ) );
+        A = ::STAR_MD_SComplexList.size();
+        ::STAR_MD_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,MD>( *::gridList[g] ) );
     );
     return A;
 }
-Star_MD_DComplex
-CreateEmpty_Star_MD_DComplex( Grid g )
+STAR_MD_DComplex
+CreateEmpty_STAR_MD_DComplex( Grid g )
 {
-    Star_MD_DComplex A;
+    STAR_MD_DComplex A;
     CATCH(
-        A = ::Star_MD_DComplexList.size();
-        ::Star_MD_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,MD>( *::gridList[g] ) );
+        A = ::STAR_MD_DComplexList.size();
+        ::STAR_MD_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,MD>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-Star_MD_Single
-Register_Star_MD_Single
+STAR_MD_Single
+Register_STAR_MD_Single
 ( int height, int width, int rowAlignment, float* buffer, int ldim, Grid g )
 {
-    Star_MD_Single A;
+    STAR_MD_Single A;
     CATCH(
-        A = ::Star_MD_SingleList.size();
-        ::Star_MD_SingleList.push_back
-        ( new DistMatrix<float,Star,MD>
+        A = ::STAR_MD_SingleList.size();
+        ::STAR_MD_SingleList.push_back
+        ( new DistMatrix<float,STAR,MD>
           ( height, width, rowAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-Star_MD_Double
-Register_Star_MD_Double
+STAR_MD_Double
+Register_STAR_MD_Double
 ( int height, int width, int rowAlignment, double* buffer, int ldim, Grid g )
 {
-    Star_MD_Double A;
+    STAR_MD_Double A;
     CATCH(
-        A = ::Star_MD_DoubleList.size();
-        ::Star_MD_DoubleList.push_back
-        ( new DistMatrix<double,Star,MD>
+        A = ::STAR_MD_DoubleList.size();
+        ::STAR_MD_DoubleList.push_back
+        ( new DistMatrix<double,STAR,MD>
           ( height, width, rowAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_MD_SComplex
-Register_Star_MD_SComplex
+STAR_MD_SComplex
+Register_STAR_MD_SComplex
 ( int height, int width, int rowAlignment, SComplex* buffer, int ldim, Grid g )
 {
-    Star_MD_SComplex A;
+    STAR_MD_SComplex A;
     CATCH(
-        A = ::Star_MD_SComplexList.size();
-        ::Star_MD_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,MD>
+        A = ::STAR_MD_SComplexList.size();
+        ::STAR_MD_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,MD>
           ( height, width, rowAlignment, (scomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
     return A;
 }
-Star_MD_DComplex
-Register_Star_MD_DComplex
+STAR_MD_DComplex
+Register_STAR_MD_DComplex
 ( int height, int width, int rowAlignment, DComplex* buffer, int ldim, Grid g )
 {
-    Star_MD_DComplex A;
+    STAR_MD_DComplex A;
     CATCH(
-        A = ::Star_MD_DComplexList.size();
-        ::Star_MD_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,MD>
+        A = ::STAR_MD_DComplexList.size();
+        ::STAR_MD_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,MD>
           ( height, width, rowAlignment, (dcomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
@@ -1477,51 +1477,51 @@ Register_Star_MD_DComplex
 #endif // WITHOUT_COMPLEX
 // Get the row alignments
 int
-RowAlignment_MD_Star_Single( MD_Star_Single A )
-{ return ::MD_Star_SingleList[A]->RowAlignment(); }
+RowAlignment_MD_STAR_Single( MD_STAR_Single A )
+{ return ::MD_STAR_SingleList[A]->RowAlignment(); }
 int
-RowAlignment_MD_Star_Double( MD_Star_Double A )
-{ return ::MD_Star_DoubleList[A]->RowAlignment(); }
+RowAlignment_MD_STAR_Double( MD_STAR_Double A )
+{ return ::MD_STAR_DoubleList[A]->RowAlignment(); }
 #ifndef WITHOUT_COMPLEX
 int
-RowAlignment_MD_Star_SComplex( MD_Star_SComplex A )
-{ return ::MD_Star_SComplexList[A]->RowAlignment(); }
+RowAlignment_MD_STAR_SComplex( MD_STAR_SComplex A )
+{ return ::MD_STAR_SComplexList[A]->RowAlignment(); }
 int
-RowAlignment_MD_Star_DComplex( MD_Star_DComplex A )
-{ return ::MD_Star_DComplexList[A]->RowAlignment(); }
+RowAlignment_MD_STAR_DComplex( MD_STAR_DComplex A )
+{ return ::MD_STAR_DComplexList[A]->RowAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_Star_MD_Single( char* msg, Star_MD_Single A )
+Print_STAR_MD_Single( char* msg, STAR_MD_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MD_SingleList[A]->Print( s );
+        ::STAR_MD_SingleList[A]->Print( s );
     );
 }
 void 
-Print_Star_MD_Double( char* msg, Star_MD_Double A )
+Print_STAR_MD_Double( char* msg, STAR_MD_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MD_DoubleList[A]->Print( s );
+        ::STAR_MD_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_Star_MD_SComplex( char* msg, Star_MD_SComplex A )
+Print_STAR_MD_SComplex( char* msg, STAR_MD_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MD_SComplexList[A]->Print( s );
+        ::STAR_MD_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_Star_MD_DComplex( char* msg, Star_MD_DComplex A )
+Print_STAR_MD_DComplex( char* msg, STAR_MD_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MD_DComplexList[A]->Print( s );
+        ::STAR_MD_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -1529,103 +1529,103 @@ Print_Star_MD_DComplex( char* msg, Star_MD_DComplex A )
 // [* ,MR] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-Star_MR_Single
-CreateEmpty_Star_MR_Single( Grid g )
+STAR_MR_Single
+CreateEmpty_STAR_MR_Single( Grid g )
 {
-    Star_MR_Single A;
+    STAR_MR_Single A;
     CATCH(
-        A = ::Star_MR_SingleList.size();
-        ::Star_MR_SingleList.push_back
-        ( new DistMatrix<float,Star,MR>( *::gridList[g] ) );
+        A = ::STAR_MR_SingleList.size();
+        ::STAR_MR_SingleList.push_back
+        ( new DistMatrix<float,STAR,MR>( *::gridList[g] ) );
     );
     return A;
 }
-Star_MR_Double
-CreateEmpty_Star_MR_Double( Grid g )
+STAR_MR_Double
+CreateEmpty_STAR_MR_Double( Grid g )
 {
-    Star_MR_Double A;
+    STAR_MR_Double A;
     CATCH(
-        A = ::Star_MR_DoubleList.size();
-        ::Star_MR_DoubleList.push_back
-        ( new DistMatrix<double,Star,MR>( *::gridList[g] ) );
+        A = ::STAR_MR_DoubleList.size();
+        ::STAR_MR_DoubleList.push_back
+        ( new DistMatrix<double,STAR,MR>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_MR_SComplex
-CreateEmpty_Star_MR_SComplex( Grid g )
+STAR_MR_SComplex
+CreateEmpty_STAR_MR_SComplex( Grid g )
 {
-    Star_MR_SComplex A;
+    STAR_MR_SComplex A;
     CATCH(
-        A = ::Star_MR_SComplexList.size();
-        ::Star_MR_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,MR>( *::gridList[g] ) );
+        A = ::STAR_MR_SComplexList.size();
+        ::STAR_MR_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,MR>( *::gridList[g] ) );
     );
     return A;
 }
-Star_MR_DComplex
-CreateEmpty_Star_MR_DComplex( Grid g )
+STAR_MR_DComplex
+CreateEmpty_STAR_MR_DComplex( Grid g )
 {
-    Star_MR_DComplex A;
+    STAR_MR_DComplex A;
     CATCH(
-        A = ::Star_MR_DComplexList.size();
-        ::Star_MR_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,MR>( *::gridList[g] ) );
+        A = ::STAR_MR_DComplexList.size();
+        ::STAR_MR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,MR>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-Star_MR_Single
-Register_Star_MR_Single
+STAR_MR_Single
+Register_STAR_MR_Single
 ( int height, int width, int rowAlignment, float* buffer, int ldim, Grid g )
 {
-    Star_MR_Single A;
+    STAR_MR_Single A;
     CATCH(
-        A = ::Star_MR_SingleList.size();
-        ::Star_MR_SingleList.push_back
-        ( new DistMatrix<float,Star,MR>
+        A = ::STAR_MR_SingleList.size();
+        ::STAR_MR_SingleList.push_back
+        ( new DistMatrix<float,STAR,MR>
           ( height, width, rowAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-Star_MR_Double
-Register_Star_MR_Double
+STAR_MR_Double
+Register_STAR_MR_Double
 ( int height, int width, int rowAlignment, double* buffer, int ldim, Grid g )
 {
-    Star_MR_Double A;
+    STAR_MR_Double A;
     CATCH(
-        A = ::Star_MR_DoubleList.size();
-        ::Star_MR_DoubleList.push_back
-        ( new DistMatrix<double,Star,MR>
+        A = ::STAR_MR_DoubleList.size();
+        ::STAR_MR_DoubleList.push_back
+        ( new DistMatrix<double,STAR,MR>
           ( height, width, rowAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_MR_SComplex
-Register_Star_MR_SComplex
+STAR_MR_SComplex
+Register_STAR_MR_SComplex
 ( int height, int width, int rowAlignment, SComplex* buffer, int ldim, Grid g )
 {
-    Star_MR_SComplex A;
+    STAR_MR_SComplex A;
     CATCH(
-        A = ::Star_MR_SComplexList.size();
-        ::Star_MR_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,MR>
+        A = ::STAR_MR_SComplexList.size();
+        ::STAR_MR_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,MR>
           ( height, width, rowAlignment, (scomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
     return A;
 }
-Star_MR_DComplex
-Register_Star_MR_DComplex
+STAR_MR_DComplex
+Register_STAR_MR_DComplex
 ( int height, int width, int rowAlignment, DComplex* buffer, int ldim, Grid g )
 {
-    Star_MR_DComplex A;
+    STAR_MR_DComplex A;
     CATCH(
-        A = ::Star_MR_DComplexList.size();
-        ::Star_MR_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,MR>
+        A = ::STAR_MR_DComplexList.size();
+        ::STAR_MR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,MR>
           ( height, width, rowAlignment, (dcomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
@@ -1634,51 +1634,51 @@ Register_Star_MR_DComplex
 #endif // WITHOUT_COMPLEX
 // Get the row alignments
 int
-RowAlignment_Star_MR_Single( Star_MR_Single A )
-{ return ::Star_MR_SingleList[A]->RowAlignment(); }
+RowAlignment_STAR_MR_Single( STAR_MR_Single A )
+{ return ::STAR_MR_SingleList[A]->RowAlignment(); }
 int
-RowAlignment_Star_MR_Double( Star_MR_Double A )
-{ return ::Star_MR_DoubleList[A]->RowAlignment(); }
+RowAlignment_STAR_MR_Double( STAR_MR_Double A )
+{ return ::STAR_MR_DoubleList[A]->RowAlignment(); }
 #ifndef WITHOUT_COMPLEX
 int
-RowAlignment_Star_MR_SComplex( Star_MR_SComplex A )
-{ return ::Star_MR_SComplexList[A]->RowAlignment(); }
+RowAlignment_STAR_MR_SComplex( STAR_MR_SComplex A )
+{ return ::STAR_MR_SComplexList[A]->RowAlignment(); }
 int
-RowAlignment_Star_MR_DComplex( Star_MR_DComplex A )
-{ return ::Star_MR_DComplexList[A]->RowAlignment(); }
+RowAlignment_STAR_MR_DComplex( STAR_MR_DComplex A )
+{ return ::STAR_MR_DComplexList[A]->RowAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_Star_MR_Single( char* msg, Star_MR_Single A )
+Print_STAR_MR_Single( char* msg, STAR_MR_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MR_SingleList[A]->Print( s );
+        ::STAR_MR_SingleList[A]->Print( s );
     );
 }
 void 
-Print_Star_MR_Double( char* msg, Star_MR_Double A )
+Print_STAR_MR_Double( char* msg, STAR_MR_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MR_DoubleList[A]->Print( s );
+        ::STAR_MR_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_Star_MR_SComplex( char* msg, Star_MR_SComplex A )
+Print_STAR_MR_SComplex( char* msg, STAR_MR_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MR_SComplexList[A]->Print( s );
+        ::STAR_MR_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_Star_MR_DComplex( char* msg, Star_MR_DComplex A )
+Print_STAR_MR_DComplex( char* msg, STAR_MR_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_MR_DComplexList[A]->Print( s );
+        ::STAR_MR_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -1686,102 +1686,102 @@ Print_Star_MR_DComplex( char* msg, Star_MR_DComplex A )
 // [* ,* ] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-Star_Star_Single
-CreateEmpty_Star_Star_Single( Grid g )
+STAR_STAR_Single
+CreateEmpty_STAR_STAR_Single( Grid g )
 {
-    Star_Star_Single A;
+    STAR_STAR_Single A;
     CATCH(
-        A = ::Star_Star_SingleList.size();
-        ::Star_Star_SingleList.push_back
-        ( new DistMatrix<float,Star,Star>( *::gridList[g] ) );
+        A = ::STAR_STAR_SingleList.size();
+        ::STAR_STAR_SingleList.push_back
+        ( new DistMatrix<float,STAR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-Star_Star_Double
-CreateEmpty_Star_Star_Double( Grid g )
+STAR_STAR_Double
+CreateEmpty_STAR_STAR_Double( Grid g )
 {
-    Star_Star_Double A;
+    STAR_STAR_Double A;
     CATCH(
-        A = ::Star_Star_DoubleList.size();
-        ::Star_Star_DoubleList.push_back
-        ( new DistMatrix<double,Star,Star>( *::gridList[g] ) );
+        A = ::STAR_STAR_DoubleList.size();
+        ::STAR_STAR_DoubleList.push_back
+        ( new DistMatrix<double,STAR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_Star_SComplex
-CreateEmpty_Star_Star_SComplex( Grid g )
+STAR_STAR_SComplex
+CreateEmpty_STAR_STAR_SComplex( Grid g )
 {
-    Star_Star_SComplex A;
+    STAR_STAR_SComplex A;
     CATCH(
-        A = ::Star_Star_SComplexList.size();
-        ::Star_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,Star>( *::gridList[g] ) );
+        A = ::STAR_STAR_SComplexList.size();
+        ::STAR_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-Star_Star_DComplex
-CreateEmpty_Star_Star_DComplex( Grid g )
+STAR_STAR_DComplex
+CreateEmpty_STAR_STAR_DComplex( Grid g )
 {
-    Star_Star_DComplex A;
+    STAR_STAR_DComplex A;
     CATCH(
-        A = ::Star_Star_DComplexList.size();
-        ::Star_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,Star>( *::gridList[g] ) );
+        A = ::STAR_STAR_DComplexList.size();
+        ::STAR_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-Star_Star_Single
-Register_Star_Star_Single
+STAR_STAR_Single
+Register_STAR_STAR_Single
 ( int height, int width, float* buffer, int ldim, Grid g )
 {
-    Star_Star_Single A;
+    STAR_STAR_Single A;
     CATCH(
-        A = ::Star_Star_SingleList.size();
-        ::Star_Star_SingleList.push_back
-        ( new DistMatrix<float,Star,Star>
+        A = ::STAR_STAR_SingleList.size();
+        ::STAR_STAR_SingleList.push_back
+        ( new DistMatrix<float,STAR,STAR>
           ( height, width, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-Star_Star_Double
-Register_Star_Star_Double
+STAR_STAR_Double
+Register_STAR_STAR_Double
 ( int height, int width, double* buffer, int ldim, Grid g )
 {
-    Star_Star_Double A;
+    STAR_STAR_Double A;
     CATCH(
-        A = ::Star_Star_DoubleList.size();
-        ::Star_Star_DoubleList.push_back
-        ( new DistMatrix<double,Star,Star>
+        A = ::STAR_STAR_DoubleList.size();
+        ::STAR_STAR_DoubleList.push_back
+        ( new DistMatrix<double,STAR,STAR>
           ( height, width, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_Star_SComplex
-Register_Star_Star_SComplex
+STAR_STAR_SComplex
+Register_STAR_STAR_SComplex
 ( int height, int width, SComplex* buffer, int ldim, Grid g )
 {
-    Star_Star_SComplex A;
+    STAR_STAR_SComplex A;
     CATCH(
-        A = ::Star_Star_SComplexList.size();
-        ::Star_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,Star>
+        A = ::STAR_STAR_SComplexList.size();
+        ::STAR_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,STAR>
           ( height, width, (scomplex*)buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-Star_Star_DComplex
-Register_Star_Star_DComplex
+STAR_STAR_DComplex
+Register_STAR_STAR_DComplex
 ( int height, int width, DComplex* buffer, int ldim, Grid g )
 {
-    Star_Star_DComplex A;
+    STAR_STAR_DComplex A;
     CATCH(
-        A = ::Star_Star_DComplexList.size();
-        ::Star_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,Star>
+        A = ::STAR_STAR_DComplexList.size();
+        ::STAR_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,STAR>
           ( height, width, (dcomplex*)buffer, ldim, *::gridList[g] ) );
     );
     return A;
@@ -1789,36 +1789,36 @@ Register_Star_Star_DComplex
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_Star_Star_Single( char* msg, Star_Star_Single A )
+Print_STAR_STAR_Single( char* msg, STAR_STAR_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_Star_SingleList[A]->Print( s );
+        ::STAR_STAR_SingleList[A]->Print( s );
     );
 }
 void 
-Print_Star_Star_Double( char* msg, Star_Star_Double A )
+Print_STAR_STAR_Double( char* msg, STAR_STAR_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_Star_DoubleList[A]->Print( s );
+        ::STAR_STAR_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_Star_Star_SComplex( char* msg, Star_Star_SComplex A )
+Print_STAR_STAR_SComplex( char* msg, STAR_STAR_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_Star_SComplexList[A]->Print( s );
+        ::STAR_STAR_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_Star_Star_DComplex( char* msg, Star_Star_DComplex A )
+Print_STAR_STAR_DComplex( char* msg, STAR_STAR_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_Star_DComplexList[A]->Print( s );
+        ::STAR_STAR_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -1826,103 +1826,103 @@ Print_Star_Star_DComplex( char* msg, Star_Star_DComplex A )
 // [* ,VC] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-Star_VC_Single
-CreateEmpty_Star_VC_Single( Grid g )
+STAR_VC_Single
+CreateEmpty_STAR_VC_Single( Grid g )
 {
-    Star_VC_Single A;
+    STAR_VC_Single A;
     CATCH(
-        A = ::Star_VC_SingleList.size();
-        ::Star_VC_SingleList.push_back
-        ( new DistMatrix<float,Star,VC>( *::gridList[g] ) );
+        A = ::STAR_VC_SingleList.size();
+        ::STAR_VC_SingleList.push_back
+        ( new DistMatrix<float,STAR,VC>( *::gridList[g] ) );
     );
     return A;
 }
-Star_VC_Double
-CreateEmpty_Star_VC_Double( Grid g )
+STAR_VC_Double
+CreateEmpty_STAR_VC_Double( Grid g )
 {
-    Star_VC_Double A;
+    STAR_VC_Double A;
     CATCH(
-        A = ::Star_VC_DoubleList.size();
-        ::Star_VC_DoubleList.push_back
-        ( new DistMatrix<double,Star,VC>( *::gridList[g] ) );
+        A = ::STAR_VC_DoubleList.size();
+        ::STAR_VC_DoubleList.push_back
+        ( new DistMatrix<double,STAR,VC>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_VC_SComplex
-CreateEmpty_Star_VC_SComplex( Grid g )
+STAR_VC_SComplex
+CreateEmpty_STAR_VC_SComplex( Grid g )
 {
-    Star_VC_SComplex A;
+    STAR_VC_SComplex A;
     CATCH(
-        A = ::Star_VC_SComplexList.size();
-        ::Star_VC_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,VC>( *::gridList[g] ) );
+        A = ::STAR_VC_SComplexList.size();
+        ::STAR_VC_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,VC>( *::gridList[g] ) );
     );
     return A;
 }
-Star_VC_DComplex
-CreateEmpty_Star_VC_DComplex( Grid g )
+STAR_VC_DComplex
+CreateEmpty_STAR_VC_DComplex( Grid g )
 {
-    Star_VC_DComplex A;
+    STAR_VC_DComplex A;
     CATCH(
-        A = ::Star_VC_DComplexList.size();
-        ::Star_VC_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,VC>( *::gridList[g] ) );
+        A = ::STAR_VC_DComplexList.size();
+        ::STAR_VC_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,VC>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-Star_VC_Single
-Register_Star_VC_Single
+STAR_VC_Single
+Register_STAR_VC_Single
 ( int height, int width, int rowAlignment, float* buffer, int ldim, Grid g )
 {
-    Star_VC_Single A;
+    STAR_VC_Single A;
     CATCH(
-        A = ::Star_VC_SingleList.size();
-        ::Star_VC_SingleList.push_back
-        ( new DistMatrix<float,Star,VC>
+        A = ::STAR_VC_SingleList.size();
+        ::STAR_VC_SingleList.push_back
+        ( new DistMatrix<float,STAR,VC>
           ( height, width, rowAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-Star_VC_Double
-Register_Star_VC_Double
+STAR_VC_Double
+Register_STAR_VC_Double
 ( int height, int width, int rowAlignment, double* buffer, int ldim, Grid g )
 {
-    Star_VC_Double A;
+    STAR_VC_Double A;
     CATCH(
-        A = ::Star_VC_DoubleList.size();
-        ::Star_VC_DoubleList.push_back
-        ( new DistMatrix<double,Star,VC>
+        A = ::STAR_VC_DoubleList.size();
+        ::STAR_VC_DoubleList.push_back
+        ( new DistMatrix<double,STAR,VC>
           ( height, width, rowAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_VC_SComplex
-Register_Star_VC_SComplex
+STAR_VC_SComplex
+Register_STAR_VC_SComplex
 ( int height, int width, int rowAlignment, SComplex* buffer, int ldim, Grid g )
 {
-    Star_VC_SComplex A;
+    STAR_VC_SComplex A;
     CATCH(
-        A = ::Star_VC_SComplexList.size();
-        ::Star_VC_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,VC>
+        A = ::STAR_VC_SComplexList.size();
+        ::STAR_VC_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,VC>
           ( height, width, rowAlignment, (scomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
     return A;
 }
-Star_VC_DComplex
-Register_Star_VC_DComplex
+STAR_VC_DComplex
+Register_STAR_VC_DComplex
 ( int height, int width, int rowAlignment, DComplex* buffer, int ldim, Grid g )
 {
-    Star_VC_DComplex A;
+    STAR_VC_DComplex A;
     CATCH(
-        A = ::Star_VC_DComplexList.size();
-        ::Star_VC_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,VC>
+        A = ::STAR_VC_DComplexList.size();
+        ::STAR_VC_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,VC>
           ( height, width, rowAlignment, (dcomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
@@ -1931,51 +1931,51 @@ Register_Star_VC_DComplex
 #endif // WITHOUT_COMPLEX
 // Get the row alignments
 int
-RowAlignment_Star_VC_Single( Star_VC_Single A )
-{ return ::Star_VC_SingleList[A]->RowAlignment(); }
+RowAlignment_STAR_VC_Single( STAR_VC_Single A )
+{ return ::STAR_VC_SingleList[A]->RowAlignment(); }
 int
-RowAlignment_Star_VC_Double( Star_VC_Double A )
-{ return ::Star_VC_DoubleList[A]->RowAlignment(); }
+RowAlignment_STAR_VC_Double( STAR_VC_Double A )
+{ return ::STAR_VC_DoubleList[A]->RowAlignment(); }
 #ifndef WITHOUT_COMPLEX
 int
-RowAlignment_Star_VC_SComplex( Star_VC_SComplex A )
-{ return ::Star_VC_SComplexList[A]->RowAlignment(); }
+RowAlignment_STAR_VC_SComplex( STAR_VC_SComplex A )
+{ return ::STAR_VC_SComplexList[A]->RowAlignment(); }
 int
-RowAlignment_Star_VC_DComplex( Star_VC_DComplex A )
-{ return ::Star_VC_DComplexList[A]->RowAlignment(); }
+RowAlignment_STAR_VC_DComplex( STAR_VC_DComplex A )
+{ return ::STAR_VC_DComplexList[A]->RowAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_Star_VC_Single( char* msg, Star_VC_Single A )
+Print_STAR_VC_Single( char* msg, STAR_VC_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_VC_SingleList[A]->Print( s );
+        ::STAR_VC_SingleList[A]->Print( s );
     );
 }
 void 
-Print_Star_VC_Double( char* msg, Star_VC_Double A )
+Print_STAR_VC_Double( char* msg, STAR_VC_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_VC_DoubleList[A]->Print( s );
+        ::STAR_VC_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_Star_VC_SComplex( char* msg, Star_VC_SComplex A )
+Print_STAR_VC_SComplex( char* msg, STAR_VC_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_VC_SComplexList[A]->Print( s );
+        ::STAR_VC_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_Star_VC_DComplex( char* msg, Star_VC_DComplex A )
+Print_STAR_VC_DComplex( char* msg, STAR_VC_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_VC_DComplexList[A]->Print( s );
+        ::STAR_VC_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -1983,103 +1983,103 @@ Print_Star_VC_DComplex( char* msg, Star_VC_DComplex A )
 // [* ,VR] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-Star_VR_Single
-CreateEmpty_Star_VR_Single( Grid g )
+STAR_VR_Single
+CreateEmpty_STAR_VR_Single( Grid g )
 {
-    Star_VR_Single A;
+    STAR_VR_Single A;
     CATCH(
-        A = ::Star_VR_SingleList.size();
-        ::Star_VR_SingleList.push_back
-        ( new DistMatrix<float,Star,VR>( *::gridList[g] ) );
+        A = ::STAR_VR_SingleList.size();
+        ::STAR_VR_SingleList.push_back
+        ( new DistMatrix<float,STAR,VR>( *::gridList[g] ) );
     );
     return A;
 }
-Star_VR_Double
-CreateEmpty_Star_VR_Double( Grid g )
+STAR_VR_Double
+CreateEmpty_STAR_VR_Double( Grid g )
 {
-    Star_VR_Double A;
+    STAR_VR_Double A;
     CATCH(
-        A = ::Star_VR_DoubleList.size();
-        ::Star_VR_DoubleList.push_back
-        ( new DistMatrix<double,Star,VR>( *::gridList[g] ) );
+        A = ::STAR_VR_DoubleList.size();
+        ::STAR_VR_DoubleList.push_back
+        ( new DistMatrix<double,STAR,VR>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_VR_SComplex
-CreateEmpty_Star_VR_SComplex( Grid g )
+STAR_VR_SComplex
+CreateEmpty_STAR_VR_SComplex( Grid g )
 {
-    Star_VR_SComplex A;
+    STAR_VR_SComplex A;
     CATCH(
-        A = ::Star_VR_SComplexList.size();
-        ::Star_VR_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,VR>( *::gridList[g] ) );
+        A = ::STAR_VR_SComplexList.size();
+        ::STAR_VR_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,VR>( *::gridList[g] ) );
     );
     return A;
 }
-Star_VR_DComplex
-CreateEmpty_Star_VR_DComplex( Grid g )
+STAR_VR_DComplex
+CreateEmpty_STAR_VR_DComplex( Grid g )
 {
-    Star_VR_DComplex A;
+    STAR_VR_DComplex A;
     CATCH(
-        A = ::Star_VR_DComplexList.size();
-        ::Star_VR_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,VR>( *::gridList[g] ) );
+        A = ::STAR_VR_DComplexList.size();
+        ::STAR_VR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,VR>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-Star_VR_Single
-Register_Star_VR_Single
+STAR_VR_Single
+Register_STAR_VR_Single
 ( int height, int width, int rowAlignment, float* buffer, int ldim, Grid g )
 {
-    Star_VR_Single A;
+    STAR_VR_Single A;
     CATCH(
-        A = ::Star_VR_SingleList.size();
-        ::Star_VR_SingleList.push_back
-        ( new DistMatrix<float,Star,VR>
+        A = ::STAR_VR_SingleList.size();
+        ::STAR_VR_SingleList.push_back
+        ( new DistMatrix<float,STAR,VR>
           ( height, width, rowAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-Star_VR_Double
-Register_Star_VR_Double
+STAR_VR_Double
+Register_STAR_VR_Double
 ( int height, int width, int rowAlignment, double* buffer, int ldim, Grid g )
 {
-    Star_VR_Double A;
+    STAR_VR_Double A;
     CATCH(
-        A = ::Star_VR_DoubleList.size();
-        ::Star_VR_DoubleList.push_back
-        ( new DistMatrix<double,Star,VR>
+        A = ::STAR_VR_DoubleList.size();
+        ::STAR_VR_DoubleList.push_back
+        ( new DistMatrix<double,STAR,VR>
           ( height, width, rowAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-Star_VR_SComplex
-Register_Star_VR_SComplex
+STAR_VR_SComplex
+Register_STAR_VR_SComplex
 ( int height, int width, int rowAlignment, SComplex* buffer, int ldim, Grid g )
 {
-    Star_VR_SComplex A;
+    STAR_VR_SComplex A;
     CATCH(
-        A = ::Star_VR_SComplexList.size();
-        ::Star_VR_SComplexList.push_back
-        ( new DistMatrix<scomplex,Star,VR>
+        A = ::STAR_VR_SComplexList.size();
+        ::STAR_VR_SComplexList.push_back
+        ( new DistMatrix<scomplex,STAR,VR>
           ( height, width, rowAlignment, (scomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
     return A;
 }
-Star_VR_DComplex
-Register_Star_VR_DComplex
+STAR_VR_DComplex
+Register_STAR_VR_DComplex
 ( int height, int width, int rowAlignment, DComplex* buffer, int ldim, Grid g )
 {
-    Star_VR_DComplex A;
+    STAR_VR_DComplex A;
     CATCH(
-        A = ::Star_VR_DComplexList.size();
-        ::Star_VR_DComplexList.push_back
-        ( new DistMatrix<dcomplex,Star,VR>
+        A = ::STAR_VR_DComplexList.size();
+        ::STAR_VR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,STAR,VR>
           ( height, width, rowAlignment, (dcomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
@@ -2088,51 +2088,51 @@ Register_Star_VR_DComplex
 #endif // WITHOUT_COMPLEX
 // Get the row alignments
 int
-RowAlignment_Star_VR_Single( Star_VR_Single A )
-{ return ::Star_VR_SingleList[A]->RowAlignment(); }
+RowAlignment_STAR_VR_Single( STAR_VR_Single A )
+{ return ::STAR_VR_SingleList[A]->RowAlignment(); }
 int
-RowAlignment_Star_VR_Double( Star_VR_Double A )
-{ return ::Star_VR_DoubleList[A]->RowAlignment(); }
+RowAlignment_STAR_VR_Double( STAR_VR_Double A )
+{ return ::STAR_VR_DoubleList[A]->RowAlignment(); }
 #ifndef WITHOUT_COMPLEX
 int
-RowAlignment_Star_VR_SComplex( Star_VR_SComplex A )
-{ return ::Star_VR_SComplexList[A]->RowAlignment(); }
+RowAlignment_STAR_VR_SComplex( STAR_VR_SComplex A )
+{ return ::STAR_VR_SComplexList[A]->RowAlignment(); }
 int
-RowAlignment_Star_VR_DComplex( Star_VR_DComplex A )
-{ return ::Star_VR_DComplexList[A]->RowAlignment(); }
+RowAlignment_STAR_VR_DComplex( STAR_VR_DComplex A )
+{ return ::STAR_VR_DComplexList[A]->RowAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_Star_VR_Single( char* msg, Star_VR_Single A )
+Print_STAR_VR_Single( char* msg, STAR_VR_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_VR_SingleList[A]->Print( s );
+        ::STAR_VR_SingleList[A]->Print( s );
     );
 }
 void 
-Print_Star_VR_Double( char* msg, Star_VR_Double A )
+Print_STAR_VR_Double( char* msg, STAR_VR_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_VR_DoubleList[A]->Print( s );
+        ::STAR_VR_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_Star_VR_SComplex( char* msg, Star_VR_SComplex A )
+Print_STAR_VR_SComplex( char* msg, STAR_VR_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_VR_SComplexList[A]->Print( s );
+        ::STAR_VR_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_Star_VR_DComplex( char* msg, Star_VR_DComplex A )
+Print_STAR_VR_DComplex( char* msg, STAR_VR_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::Star_VR_DComplexList[A]->Print( s );
+        ::STAR_VR_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -2140,103 +2140,103 @@ Print_Star_VR_DComplex( char* msg, Star_VR_DComplex A )
 // [VC,* ] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-VC_Star_Single
-CreateEmpty_VC_Star_Single( Grid g )
+VC_STAR_Single
+CreateEmpty_VC_STAR_Single( Grid g )
 {
-    VC_Star_Single A;
+    VC_STAR_Single A;
     CATCH(
-        A = ::VC_Star_SingleList.size();
-        ::VC_Star_SingleList.push_back
-        ( new DistMatrix<float,VC,Star>( *::gridList[g] ) );
+        A = ::VC_STAR_SingleList.size();
+        ::VC_STAR_SingleList.push_back
+        ( new DistMatrix<float,VC,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-VC_Star_Double
-CreateEmpty_VC_Star_Double( Grid g )
+VC_STAR_Double
+CreateEmpty_VC_STAR_Double( Grid g )
 {
-    VC_Star_Double A;
+    VC_STAR_Double A;
     CATCH(
-        A = ::VC_Star_DoubleList.size();
-        ::VC_Star_DoubleList.push_back
-        ( new DistMatrix<double,VC,Star>( *::gridList[g] ) );
+        A = ::VC_STAR_DoubleList.size();
+        ::VC_STAR_DoubleList.push_back
+        ( new DistMatrix<double,VC,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-VC_Star_SComplex
-CreateEmpty_VC_Star_SComplex( Grid g )
+VC_STAR_SComplex
+CreateEmpty_VC_STAR_SComplex( Grid g )
 {
-    VC_Star_SComplex A;
+    VC_STAR_SComplex A;
     CATCH(
-        A = ::VC_Star_SComplexList.size();
-        ::VC_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,VC,Star>( *::gridList[g] ) );
+        A = ::VC_STAR_SComplexList.size();
+        ::VC_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,VC,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-VC_Star_DComplex
-CreateEmpty_VC_Star_DComplex( Grid g )
+VC_STAR_DComplex
+CreateEmpty_VC_STAR_DComplex( Grid g )
 {
-    VC_Star_DComplex A;
+    VC_STAR_DComplex A;
     CATCH(
-        A = ::VC_Star_DComplexList.size();
-        ::VC_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,VC,Star>( *::gridList[g] ) );
+        A = ::VC_STAR_DComplexList.size();
+        ::VC_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,VC,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-VC_Star_Single
-Register_VC_Star_Single
+VC_STAR_Single
+Register_VC_STAR_Single
 ( int height, int width, int colAlignment, float* buffer, int ldim, Grid g )
 {
-    VC_Star_Single A;
+    VC_STAR_Single A;
     CATCH(
-        A = ::VC_Star_SingleList.size();
-        ::VC_Star_SingleList.push_back
-        ( new DistMatrix<float,VC,Star>
+        A = ::VC_STAR_SingleList.size();
+        ::VC_STAR_SingleList.push_back
+        ( new DistMatrix<float,VC,STAR>
           ( height, width, colAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-VC_Star_Double
-Register_VC_Star_Double
+VC_STAR_Double
+Register_VC_STAR_Double
 ( int height, int width, int colAlignment, double* buffer, int ldim, Grid g )
 {
-    VC_Star_Double A;
+    VC_STAR_Double A;
     CATCH(
-        A = ::VC_Star_DoubleList.size();
-        ::VC_Star_DoubleList.push_back
-        ( new DistMatrix<double,VC,Star>
+        A = ::VC_STAR_DoubleList.size();
+        ::VC_STAR_DoubleList.push_back
+        ( new DistMatrix<double,VC,STAR>
           ( height, width, colAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-VC_Star_SComplex
-Register_VC_Star_SComplex
+VC_STAR_SComplex
+Register_VC_STAR_SComplex
 ( int height, int width, int colAlignment, SComplex* buffer, int ldim, Grid g )
 {
-    VC_Star_SComplex A;
+    VC_STAR_SComplex A;
     CATCH(
-        A = ::VC_Star_SComplexList.size();
-        ::VC_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,VC,Star>
+        A = ::VC_STAR_SComplexList.size();
+        ::VC_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,VC,STAR>
           ( height, width, colAlignment, (scomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
     return A;
 }
-VC_Star_DComplex
-Register_VC_Star_DComplex
+VC_STAR_DComplex
+Register_VC_STAR_DComplex
 ( int height, int width, int colAlignment, DComplex* buffer, int ldim, Grid g )
 {
-    VC_Star_DComplex A;
+    VC_STAR_DComplex A;
     CATCH(
-        A = ::VC_Star_DComplexList.size();
-        ::VC_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,VC,Star>
+        A = ::VC_STAR_DComplexList.size();
+        ::VC_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,VC,STAR>
           ( height, width, colAlignment, (dcomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
@@ -2245,51 +2245,51 @@ Register_VC_Star_DComplex
 #endif // WITHOUT_COMPLEX
 // Get the col alignments
 int
-ColAlignment_VC_Star_Single( VC_Star_Single A )
-{ return ::VC_Star_SingleList[A]->ColAlignment(); }
+ColAlignment_VC_STAR_Single( VC_STAR_Single A )
+{ return ::VC_STAR_SingleList[A]->ColAlignment(); }
 int
-ColAlignment_VC_Star_Double( VC_Star_Double A )
-{ return ::VC_Star_DoubleList[A]->ColAlignment(); }
+ColAlignment_VC_STAR_Double( VC_STAR_Double A )
+{ return ::VC_STAR_DoubleList[A]->ColAlignment(); }
 #ifndef WITHOUT_COMPLEX
 int
-ColAlignment_VC_Star_SComplex( VC_Star_SComplex A )
-{ return ::VC_Star_SComplexList[A]->ColAlignment(); }
+ColAlignment_VC_STAR_SComplex( VC_STAR_SComplex A )
+{ return ::VC_STAR_SComplexList[A]->ColAlignment(); }
 int
-ColAlignment_VC_Star_DComplex( VC_Star_DComplex A )
-{ return ::VC_Star_DComplexList[A]->ColAlignment(); }
+ColAlignment_VC_STAR_DComplex( VC_STAR_DComplex A )
+{ return ::VC_STAR_DComplexList[A]->ColAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_VC_Star_Single( char* msg, VC_Star_Single A )
+Print_VC_STAR_Single( char* msg, VC_STAR_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::VC_Star_SingleList[A]->Print( s );
+        ::VC_STAR_SingleList[A]->Print( s );
     );
 }
 void 
-Print_VC_Star_Double( char* msg, VC_Star_Double A )
+Print_VC_STAR_Double( char* msg, VC_STAR_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::VC_Star_DoubleList[A]->Print( s );
+        ::VC_STAR_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_VC_Star_SComplex( char* msg, VC_Star_SComplex A )
+Print_VC_STAR_SComplex( char* msg, VC_STAR_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::VC_Star_SComplexList[A]->Print( s );
+        ::VC_STAR_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_VC_Star_DComplex( char* msg, VC_Star_DComplex A )
+Print_VC_STAR_DComplex( char* msg, VC_STAR_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::VC_Star_DComplexList[A]->Print( s );
+        ::VC_STAR_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -2297,103 +2297,103 @@ Print_VC_Star_DComplex( char* msg, VC_Star_DComplex A )
 // [VR,* ] manipulation routines                                              //
 //----------------------------------------------------------------------------//
 // Create empty
-VR_Star_Single
-CreateEmpty_VR_Star_Single( Grid g )
+VR_STAR_Single
+CreateEmpty_VR_STAR_Single( Grid g )
 {
-    VR_Star_Single A;
+    VR_STAR_Single A;
     CATCH(
-        A = ::VR_Star_SingleList.size();
-        ::VR_Star_SingleList.push_back
-        ( new DistMatrix<float,VR,Star>( *::gridList[g] ) );
+        A = ::VR_STAR_SingleList.size();
+        ::VR_STAR_SingleList.push_back
+        ( new DistMatrix<float,VR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-VR_Star_Double
-CreateEmpty_VR_Star_Double( Grid g )
+VR_STAR_Double
+CreateEmpty_VR_STAR_Double( Grid g )
 {
-    VR_Star_Double A;
+    VR_STAR_Double A;
     CATCH(
-        A = ::VR_Star_DoubleList.size();
-        ::VR_Star_DoubleList.push_back
-        ( new DistMatrix<double,VR,Star>( *::gridList[g] ) );
+        A = ::VR_STAR_DoubleList.size();
+        ::VR_STAR_DoubleList.push_back
+        ( new DistMatrix<double,VR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-VR_Star_SComplex
-CreateEmpty_VR_Star_SComplex( Grid g )
+VR_STAR_SComplex
+CreateEmpty_VR_STAR_SComplex( Grid g )
 {
-    VR_Star_SComplex A;
+    VR_STAR_SComplex A;
     CATCH(
-        A = ::VR_Star_SComplexList.size();
-        ::VR_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,VR,Star>( *::gridList[g] ) );
+        A = ::VR_STAR_SComplexList.size();
+        ::VR_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,VR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
-VR_Star_DComplex
-CreateEmpty_VR_Star_DComplex( Grid g )
+VR_STAR_DComplex
+CreateEmpty_VR_STAR_DComplex( Grid g )
 {
-    VR_Star_DComplex A;
+    VR_STAR_DComplex A;
     CATCH(
-        A = ::VR_Star_DComplexList.size();
-        ::VR_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,VR,Star>( *::gridList[g] ) );
+        A = ::VR_STAR_DComplexList.size();
+        ::VR_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,VR,STAR>( *::gridList[g] ) );
     );
     return A;
 }
 #endif // WITHOUT_COMPLEX
 // Create from existing buffer
-VR_Star_Single
-Register_VR_Star_Single
+VR_STAR_Single
+Register_VR_STAR_Single
 ( int height, int width, int colAlignment, float* buffer, int ldim, Grid g )
 {
-    VR_Star_Single A;
+    VR_STAR_Single A;
     CATCH(
-        A = ::VR_Star_SingleList.size();
-        ::VR_Star_SingleList.push_back
-        ( new DistMatrix<float,VR,Star>
+        A = ::VR_STAR_SingleList.size();
+        ::VR_STAR_SingleList.push_back
+        ( new DistMatrix<float,VR,STAR>
           ( height, width, colAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
-VR_Star_Double
-Register_VR_Star_Double
+VR_STAR_Double
+Register_VR_STAR_Double
 ( int height, int width, int colAlignment, double* buffer, int ldim, Grid g )
 {
-    VR_Star_Double A;
+    VR_STAR_Double A;
     CATCH(
-        A = ::VR_Star_DoubleList.size();
-        ::VR_Star_DoubleList.push_back
-        ( new DistMatrix<double,VR,Star>
+        A = ::VR_STAR_DoubleList.size();
+        ::VR_STAR_DoubleList.push_back
+        ( new DistMatrix<double,VR,STAR>
           ( height, width, colAlignment, buffer, ldim, *::gridList[g] ) );
     );
     return A;
 }
 #ifndef WITHOUT_COMPLEX
-VR_Star_SComplex
-Register_VR_Star_SComplex
+VR_STAR_SComplex
+Register_VR_STAR_SComplex
 ( int height, int width, int colAlignment, SComplex* buffer, int ldim, Grid g )
 {
-    VR_Star_SComplex A;
+    VR_STAR_SComplex A;
     CATCH(
-        A = ::VR_Star_SComplexList.size();
-        ::VR_Star_SComplexList.push_back
-        ( new DistMatrix<scomplex,VR,Star>
+        A = ::VR_STAR_SComplexList.size();
+        ::VR_STAR_SComplexList.push_back
+        ( new DistMatrix<scomplex,VR,STAR>
           ( height, width, colAlignment, (scomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
     return A;
 }
-VR_Star_DComplex
-Register_VR_Star_DComplex
+VR_STAR_DComplex
+Register_VR_STAR_DComplex
 ( int height, int width, int colAlignment, DComplex* buffer, int ldim, Grid g )
 {
-    VR_Star_DComplex A;
+    VR_STAR_DComplex A;
     CATCH(
-        A = ::VR_Star_DComplexList.size();
-        ::VR_Star_DComplexList.push_back
-        ( new DistMatrix<dcomplex,VR,Star>
+        A = ::VR_STAR_DComplexList.size();
+        ::VR_STAR_DComplexList.push_back
+        ( new DistMatrix<dcomplex,VR,STAR>
           ( height, width, colAlignment, (dcomplex*)buffer, ldim, 
             *::gridList[g] ) );
     );
@@ -2402,51 +2402,51 @@ Register_VR_Star_DComplex
 #endif // WITHOUT_COMPLEX
 // Get the col alignments
 int
-ColAlignment_VR_Star_Single( VR_Star_Single A )
-{ return ::VR_Star_SingleList[A]->ColAlignment(); }
+ColAlignment_VR_STAR_Single( VR_STAR_Single A )
+{ return ::VR_STAR_SingleList[A]->ColAlignment(); }
 int
-ColAlignment_VR_Star_Double( VR_Star_Double A )
-{ return ::VR_Star_DoubleList[A]->ColAlignment(); }
+ColAlignment_VR_STAR_Double( VR_STAR_Double A )
+{ return ::VR_STAR_DoubleList[A]->ColAlignment(); }
 #ifndef WITHOUT_COMPLEX
 int
-ColAlignment_VR_Star_SComplex( VR_Star_SComplex A )
-{ return ::VR_Star_SComplexList[A]->ColAlignment(); }
+ColAlignment_VR_STAR_SComplex( VR_STAR_SComplex A )
+{ return ::VR_STAR_SComplexList[A]->ColAlignment(); }
 int
-ColAlignment_VR_Star_DComplex( VR_Star_DComplex A )
-{ return ::VR_Star_DComplexList[A]->ColAlignment(); }
+ColAlignment_VR_STAR_DComplex( VR_STAR_DComplex A )
+{ return ::VR_STAR_DComplexList[A]->ColAlignment(); }
 #endif // WITHOUT_COMPLEX
 // Print
 void 
-Print_VR_Star_Single( char* msg, VR_Star_Single A )
+Print_VR_STAR_Single( char* msg, VR_STAR_Single A )
 {
     CATCH(
         std::string s( msg );
-        ::VR_Star_SingleList[A]->Print( s );
+        ::VR_STAR_SingleList[A]->Print( s );
     );
 }
 void 
-Print_VR_Star_Double( char* msg, VR_Star_Double A )
+Print_VR_STAR_Double( char* msg, VR_STAR_Double A )
 {
     CATCH(
         std::string s( msg );
-        ::VR_Star_DoubleList[A]->Print( s );
+        ::VR_STAR_DoubleList[A]->Print( s );
     );
 }
 #ifndef WITHOUT_COMPLEX
 void 
-Print_VR_Star_SComplex( char* msg, VR_Star_SComplex A )
+Print_VR_STAR_SComplex( char* msg, VR_STAR_SComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::VR_Star_SComplexList[A]->Print( s );
+        ::VR_STAR_SComplexList[A]->Print( s );
     );
 }
 void 
-Print_VR_Star_DComplex( char* msg, VR_Star_DComplex A )
+Print_VR_STAR_DComplex( char* msg, VR_STAR_DComplex A )
 {
     CATCH(
         std::string s( msg );
-        ::VR_Star_DComplexList[A]->Print( s );
+        ::VR_STAR_DComplexList[A]->Print( s );
     );
 }
 #endif // WITHOUT_COMPLEX
@@ -2505,7 +2505,7 @@ void
 HermitianEigDouble
 ( char uplo, int tryForHighAccuracy, 
   char job, int a, int b, double u, double v,
-  MC_MR_Double A, Star_VR_Double w, MC_MR_Double Z )
+  MC_MR_Double A, STAR_VR_Double w, MC_MR_Double Z )
 {
     elemental::Shape shape;
     CATCH(shape = elemental::CharToShape( uplo ););
@@ -2513,7 +2513,7 @@ HermitianEigDouble
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DoubleList[A], *::STAR_VR_DoubleList[w],
               *::MC_MR_DoubleList[Z], tryForHighAccuracy );
         );
     }
@@ -2521,7 +2521,7 @@ HermitianEigDouble
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DoubleList[A], *::STAR_VR_DoubleList[w],
               *::MC_MR_DoubleList[Z], a, b, tryForHighAccuracy );
         );
     }
@@ -2529,7 +2529,7 @@ HermitianEigDouble
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DoubleList[A], *::STAR_VR_DoubleList[w],
               *::MC_MR_DoubleList[Z], u, v, tryForHighAccuracy );
         );
     }
@@ -2543,7 +2543,7 @@ void
 HermitianEigDouble_OnlyEigvals
 ( char uplo, int tryForHighAccuracy,
   char job, int a, int b, double u, double v,
-  MC_MR_Double A, Star_VR_Double w )
+  MC_MR_Double A, STAR_VR_Double w )
 {
     elemental::Shape shape;
     CATCH(shape = elemental::CharToShape( uplo ););
@@ -2551,7 +2551,7 @@ HermitianEigDouble_OnlyEigvals
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DoubleList[A], *::STAR_VR_DoubleList[w],
               tryForHighAccuracy );
         );
     }
@@ -2559,7 +2559,7 @@ HermitianEigDouble_OnlyEigvals
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DoubleList[A], *::STAR_VR_DoubleList[w],
               a, b, tryForHighAccuracy );
         );
     }
@@ -2567,7 +2567,7 @@ HermitianEigDouble_OnlyEigvals
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DoubleList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DoubleList[A], *::STAR_VR_DoubleList[w],
               u, v, tryForHighAccuracy );
         );
     }
@@ -2582,7 +2582,7 @@ void
 HermitianEigDComplex
 ( char uplo, int tryForHighAccuracy,
   char job, int a, int b, double u, double v,
-  MC_MR_DComplex A, Star_VR_Double w, MC_MR_DComplex Z )
+  MC_MR_DComplex A, STAR_VR_Double w, MC_MR_DComplex Z )
 {
     elemental::Shape shape;
     CATCH(shape = elemental::CharToShape( uplo ););
@@ -2590,7 +2590,7 @@ HermitianEigDComplex
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DComplexList[A], *::STAR_VR_DoubleList[w],
               *::MC_MR_DComplexList[Z], tryForHighAccuracy );
         );
     }
@@ -2598,7 +2598,7 @@ HermitianEigDComplex
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DComplexList[A], *::STAR_VR_DoubleList[w],
               *::MC_MR_DComplexList[Z], a, b, tryForHighAccuracy );
         );
     }
@@ -2606,7 +2606,7 @@ HermitianEigDComplex
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DComplexList[A], *::STAR_VR_DoubleList[w],
               *::MC_MR_DComplexList[Z], u, v, tryForHighAccuracy );
         );
     }
@@ -2620,7 +2620,7 @@ void
 HermitianEigDComplex_OnlyEigvals
 ( char uplo, int tryForHighAccuracy, 
   char job, int a, int b, double u, double v,
-  MC_MR_DComplex A, Star_VR_Double w )
+  MC_MR_DComplex A, STAR_VR_Double w )
 {
     elemental::Shape shape;
     CATCH(shape = elemental::CharToShape( uplo ););
@@ -2628,7 +2628,7 @@ HermitianEigDComplex_OnlyEigvals
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DComplexList[A], *::STAR_VR_DoubleList[w],
               tryForHighAccuracy );
         );
     }
@@ -2636,7 +2636,7 @@ HermitianEigDComplex_OnlyEigvals
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DComplexList[A], *::STAR_VR_DoubleList[w],
               a, b, tryForHighAccuracy );
         );
     }
@@ -2644,7 +2644,7 @@ HermitianEigDComplex_OnlyEigvals
     {
         CATCH(
             elemental::advanced::HermitianEig
-            ( shape, *::MC_MR_DComplexList[A], *::Star_VR_DoubleList[w],
+            ( shape, *::MC_MR_DComplexList[A], *::STAR_VR_DoubleList[w],
               u, v, tryForHighAccuracy );
         );
     }
@@ -2659,7 +2659,7 @@ void
 HermitianGenDefiniteEigDouble
 ( int genEigInt, char uplo, int tryForHighAccuracy, 
   char job, int a, int b, double u, double v,
-  MC_MR_Double A, MC_MR_Double B, Star_VR_Double w, MC_MR_Double Z )
+  MC_MR_Double A, MC_MR_Double B, STAR_VR_Double w, MC_MR_Double Z )
 {
     elemental::HermitianGenDefiniteEigType genEigType;
     if( genEigInt == 1 )
@@ -2681,7 +2681,7 @@ HermitianGenDefiniteEigDouble
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
-              *::Star_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
+              *::STAR_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
               tryForHighAccuracy );
         );
     }
@@ -2691,7 +2691,7 @@ HermitianGenDefiniteEigDouble
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
-              *::Star_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
+              *::STAR_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
               a, b, tryForHighAccuracy );
         );
     }
@@ -2701,7 +2701,7 @@ HermitianGenDefiniteEigDouble
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
-              *::Star_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
+              *::STAR_VR_DoubleList[w], *::MC_MR_DoubleList[Z], 
               u, v, tryForHighAccuracy );
         );
     }
@@ -2715,7 +2715,7 @@ void
 HermitianGenDefiniteEigDouble_OnlyEigvals
 ( int genEigInt, char uplo, int tryForHighAccuracy, 
   char job, int a, int b, double u, double v,
-  MC_MR_Double A, MC_MR_Double B, Star_VR_Double w )
+  MC_MR_Double A, MC_MR_Double B, STAR_VR_Double w )
 {
     elemental::advanced::GenEigType genEigType;
     if( genEigInt == 1 )
@@ -2743,7 +2743,7 @@ HermitianGenDefiniteEigDouble_OnlyEigvals
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
-              *::Star_VR_DoubleList[w], tryForHighAccuracy );
+              *::STAR_VR_DoubleList[w], tryForHighAccuracy );
         );
     }
     else if( job == 'i' || job == 'I' )
@@ -2752,7 +2752,7 @@ HermitianGenDefiniteEigDouble_OnlyEigvals
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
-              *::Star_VR_DoubleList[w], a, b, tryForHighAccuracy );
+              *::STAR_VR_DoubleList[w], a, b, tryForHighAccuracy );
         );
     }
     else if( job == 'v' || job == 'V' )
@@ -2761,7 +2761,7 @@ HermitianGenDefiniteEigDouble_OnlyEigvals
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DoubleList[A], *::MC_MR_DoubleList[B], 
-              *::Star_VR_DoubleList[w], u, v, tryForHighAccuracy );
+              *::STAR_VR_DoubleList[w], u, v, tryForHighAccuracy );
         );
     }
     else
@@ -2775,7 +2775,7 @@ void
 HermitianGenDefiniteEigDComplex
 ( int genEigInt, char uplo, int tryForHighAccuracy, 
   char job, int a, int b, double u, double v,
-  MC_MR_DComplex A, MC_MR_DComplex B, Star_VR_Double w, MC_MR_DComplex Z )
+  MC_MR_DComplex A, MC_MR_DComplex B, STAR_VR_Double w, MC_MR_DComplex Z )
 {
     elemental::advanced::GenEigType genEigType;
     if( genEigInt == 1 )
@@ -2803,7 +2803,7 @@ HermitianGenDefiniteEigDComplex
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
-              *::Star_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
+              *::STAR_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
               tryForHighAccuracy );
         );
     }
@@ -2813,7 +2813,7 @@ HermitianGenDefiniteEigDComplex
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
-              *::Star_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
+              *::STAR_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
               a, b, tryForHighAccuracy );
         );
     }
@@ -2823,7 +2823,7 @@ HermitianGenDefiniteEigDComplex
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
-              *::Star_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
+              *::STAR_VR_DoubleList[w], *::MC_MR_DComplexList[Z], 
               u, v, tryForHighAccuracy );
         );
     }
@@ -2837,7 +2837,7 @@ void
 HermitianGenDefiniteEigDComplex_OnlyEigvals
 ( int genEigInt, char uplo, int tryForHighAccuracy, 
   char job, int a, int b, double u, double v,
-  MC_MR_DComplex A, MC_MR_DComplex B, Star_VR_Double w )
+  MC_MR_DComplex A, MC_MR_DComplex B, STAR_VR_Double w )
 {
     elemental::advanced::GenEigType genEigType;
     if( genEigInt == 1 )
@@ -2865,7 +2865,7 @@ HermitianGenDefiniteEigDComplex_OnlyEigvals
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
-              *::Star_VR_DoubleList[w], tryForHighAccuracy );
+              *::STAR_VR_DoubleList[w], tryForHighAccuracy );
         );
     }
     else if( job == 'i' || job == 'I' )
@@ -2874,7 +2874,7 @@ HermitianGenDefiniteEigDComplex_OnlyEigvals
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
-              *::Star_VR_DoubleList[w], a, b, tryForHighAccuracy );
+              *::STAR_VR_DoubleList[w], a, b, tryForHighAccuracy );
         );
     }
     else if( job == 'v' || job == 'V' )
@@ -2883,7 +2883,7 @@ HermitianGenDefiniteEigDComplex_OnlyEigvals
             elemental::advanced::HermitianGenDefiniteEig
             ( genEigType, shape, 
               *::MC_MR_DComplexList[A], *::MC_MR_DComplexList[B], 
-              *::Star_VR_DoubleList[w], u, v, tryForHighAccuracy );
+              *::STAR_VR_DoubleList[w], u, v, tryForHighAccuracy );
         );
     }
     else

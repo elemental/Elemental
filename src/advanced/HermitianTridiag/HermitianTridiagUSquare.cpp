@@ -56,20 +56,20 @@ elemental::advanced::internal::HermitianTridiagUSquare
                              A20(g), A21(g), A22(g);
 
         // Temporary distributions
-        DistMatrix<R,Star,Star> A11_Star_Star(g);
-        DistMatrix<R,MC,  Star> APan_MC_Star(g);
-        DistMatrix<R,MR,  Star> APan_MR_Star(g);
-        DistMatrix<R,MC,  Star> A11_MC_Star(g);
-        DistMatrix<R,MR,  Star> A11_MR_Star(g);
-        DistMatrix<R,MC,  Star> A01_MC_Star(g);
-        DistMatrix<R,MR,  Star> A01_MR_Star(g);
+        DistMatrix<R,STAR,STAR> A11_STAR_STAR(g);
+        DistMatrix<R,MC,  STAR> APan_MC_STAR(g);
+        DistMatrix<R,MR,  STAR> APan_MR_STAR(g);
+        DistMatrix<R,MC,  STAR> A11_MC_STAR(g);
+        DistMatrix<R,MR,  STAR> A11_MR_STAR(g);
+        DistMatrix<R,MC,  STAR> A01_MC_STAR(g);
+        DistMatrix<R,MR,  STAR> A01_MR_STAR(g);
         DistMatrix<R,MC,  MR  > WPan(g);
-        DistMatrix<R,MC,  Star> WPan_MC_Star(g);
-        DistMatrix<R,MR,  Star> WPan_MR_Star(g);
-        DistMatrix<R,MC,  Star> W11_MC_Star(g);
-        DistMatrix<R,MR,  Star> W11_MR_Star(g);
-        DistMatrix<R,MC,  Star> W01_MC_Star(g);
-        DistMatrix<R,MR,  Star> W01_MR_Star(g);
+        DistMatrix<R,MC,  STAR> WPan_MC_STAR(g);
+        DistMatrix<R,MR,  STAR> WPan_MR_STAR(g);
+        DistMatrix<R,MC,  STAR> W11_MC_STAR(g);
+        DistMatrix<R,MR,  STAR> W11_MR_STAR(g);
+        DistMatrix<R,MC,  STAR> W01_MC_STAR(g);
+        DistMatrix<R,MR,  STAR> W01_MR_STAR(g);
 
         PartitionUpDiagonal
         ( A, ATL, ATR,
@@ -84,28 +84,28 @@ elemental::advanced::internal::HermitianTridiagUSquare
 
             if( A00.Height() > 0 )
             {
-                APan_MC_Star.AlignWith( A00 );
-                APan_MR_Star.AlignWith( A00 );
-                APan_MC_Star.ResizeTo( ATL.Height(), A11.Width() );
-                APan_MR_Star.ResizeTo( ATL.Height(), A11.Width() );
+                APan_MC_STAR.AlignWith( A00 );
+                APan_MR_STAR.AlignWith( A00 );
+                APan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
+                APan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
                 WPan.AlignWith( A01 );
-                WPan_MC_Star.AlignWith( A00 );
-                WPan_MR_Star.AlignWith( A00 );
+                WPan_MC_STAR.AlignWith( A00 );
+                WPan_MR_STAR.AlignWith( A00 );
                 WPan.ResizeTo( ATL.Height(), A11.Width() );
-                WPan_MC_Star.ResizeTo( ATL.Height(), A11.Width() );
-                WPan_MR_Star.ResizeTo( ATL.Height(), A11.Width() );
+                WPan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
+                WPan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
                 PartitionUp
-                ( APan_MC_Star, A01_MC_Star,
-                                A11_MC_Star, A11.Height() );
+                ( APan_MC_STAR, A01_MC_STAR,
+                                A11_MC_STAR, A11.Height() );
                 PartitionUp
-                ( APan_MR_Star, A01_MR_Star,
-                                A11_MR_Star, A11.Height() );
+                ( APan_MR_STAR, A01_MR_STAR,
+                                A11_MR_STAR, A11.Height() );
                 PartitionUp
-                ( WPan_MC_Star, W01_MC_Star,
-                                W11_MC_Star, A11.Height() );
+                ( WPan_MC_STAR, W01_MC_STAR,
+                                W11_MC_STAR, A11.Height() );
                 PartitionUp
-                ( WPan_MR_Star, W01_MR_Star,
-                                W11_MR_Star, A11.Height() );
+                ( WPan_MR_STAR, W01_MR_STAR,
+                                W11_MR_STAR, A11.Height() );
                 //------------------------------------------------------------//
                 // Accumulate the Householder vectors into A01 and form W01 
                 // such that subtracting (A01 W01' + W01 A01') is equal to 
@@ -116,24 +116,24 @@ elemental::advanced::internal::HermitianTridiagUSquare
                 // formed during the panel factorization.
                 advanced::internal::HermitianPanelTridiagUSquare
                 ( ATL, WPan, 
-                  APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
+                  APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
                 basic::internal::LocalTriangularRank2K
-                ( Upper, Transpose, Transpose,
-                  (R)-1, A01_MC_Star, W01_MC_Star, A01_MR_Star, W01_MR_Star,
+                ( UPPER, TRANSPOSE, TRANSPOSE,
+                  (R)-1, A01_MC_STAR, W01_MC_STAR, A01_MR_STAR, W01_MR_STAR,
                   (R)1, A00 );
                 //------------------------------------------------------------//
-                APan_MC_Star.FreeAlignments();
-                APan_MR_Star.FreeAlignments();
+                APan_MC_STAR.FreeAlignments();
+                APan_MR_STAR.FreeAlignments();
                 WPan.FreeAlignments();
-                WPan_MC_Star.FreeAlignments();
-                WPan_MR_Star.FreeAlignments();
+                WPan_MC_STAR.FreeAlignments();
+                WPan_MR_STAR.FreeAlignments();
             }
             else
             {
-                A11_Star_Star = A11;
+                A11_STAR_STAR = A11;
                 advanced::HermitianTridiag
-                ( Upper, A11_Star_Star.LocalMatrix() );
-                A11 = A11_Star_Star;
+                ( UPPER, A11_STAR_STAR.LocalMatrix() );
+                A11 = A11_STAR_STAR;
             }
 
             SlidePartitionUpDiagonal
@@ -153,7 +153,7 @@ template<typename R> // representation of a real number
 void
 elemental::advanced::internal::HermitianTridiagUSquare
 ( DistMatrix<complex<R>,MC,  MR  >& A,
-  DistMatrix<complex<R>,Star,Star>& t )
+  DistMatrix<complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianTridiagUSquare");
@@ -169,7 +169,7 @@ elemental::advanced::internal::HermitianTridiagUSquare
 #endif
     typedef complex<R> C;
 
-    DistMatrix<C,MD,Star> tDiag(g);
+    DistMatrix<C,MD,STAR> tDiag(g);
     tDiag.AlignWithDiag( A, 1 );
     tDiag.ResizeTo( A.Height()-1, 1 );
 
@@ -180,26 +180,26 @@ elemental::advanced::internal::HermitianTridiagUSquare
             ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
             ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                              A20(g), A21(g), A22(g);
-        DistMatrix<C,MD,Star> tT(g),  t0(g), 
+        DistMatrix<C,MD,STAR> tT(g),  t0(g), 
                               tB(g),  t1(g),
                                       t2(g);
 
         // Temporary distributions
-        DistMatrix<C,Star,Star> A11_Star_Star(g);
-        DistMatrix<C,MC,  Star> APan_MC_Star(g);
-        DistMatrix<C,MR,  Star> APan_MR_Star(g);
-        DistMatrix<C,MC,  Star> A11_MC_Star(g);
-        DistMatrix<C,MR,  Star> A11_MR_Star(g);
-        DistMatrix<C,MC,  Star> A01_MC_Star(g);
-        DistMatrix<C,MR,  Star> A01_MR_Star(g);
+        DistMatrix<C,STAR,STAR> A11_STAR_STAR(g);
+        DistMatrix<C,MC,  STAR> APan_MC_STAR(g);
+        DistMatrix<C,MR,  STAR> APan_MR_STAR(g);
+        DistMatrix<C,MC,  STAR> A11_MC_STAR(g);
+        DistMatrix<C,MR,  STAR> A11_MR_STAR(g);
+        DistMatrix<C,MC,  STAR> A01_MC_STAR(g);
+        DistMatrix<C,MR,  STAR> A01_MR_STAR(g);
         DistMatrix<C,MC,  MR  > WPan(g);
-        DistMatrix<C,MC,  Star> WPan_MC_Star(g);
-        DistMatrix<C,MR,  Star> WPan_MR_Star(g);
-        DistMatrix<C,MC,  Star> W11_MC_Star(g);
-        DistMatrix<C,MR,  Star> W11_MR_Star(g);
-        DistMatrix<C,MC,  Star> W01_MC_Star(g);
-        DistMatrix<C,MR,  Star> W01_MR_Star(g);
-        DistMatrix<C,Star,Star> t1_Star_Star(g);
+        DistMatrix<C,MC,  STAR> WPan_MC_STAR(g);
+        DistMatrix<C,MR,  STAR> WPan_MR_STAR(g);
+        DistMatrix<C,MC,  STAR> W11_MC_STAR(g);
+        DistMatrix<C,MR,  STAR> W11_MR_STAR(g);
+        DistMatrix<C,MC,  STAR> W01_MC_STAR(g);
+        DistMatrix<C,MR,  STAR> W01_MR_STAR(g);
+        DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);
 
         PartitionUpDiagonal
         ( A, ATL, ATR,
@@ -223,28 +223,28 @@ elemental::advanced::internal::HermitianTridiagUSquare
             
             if( A00.Height() > 0 )
             {
-                APan_MC_Star.AlignWith( A00 );
-                APan_MR_Star.AlignWith( A00 );
-                APan_MC_Star.ResizeTo( ATL.Height(), A11.Width() );
-                APan_MR_Star.ResizeTo( ATL.Height(), A11.Width() );
+                APan_MC_STAR.AlignWith( A00 );
+                APan_MR_STAR.AlignWith( A00 );
+                APan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
+                APan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
                 WPan.AlignWith( A01 );
-                WPan_MC_Star.AlignWith( A00 );
-                WPan_MR_Star.AlignWith( A00 );
+                WPan_MC_STAR.AlignWith( A00 );
+                WPan_MR_STAR.AlignWith( A00 );
                 WPan.ResizeTo( ATL.Height(), A11.Width() );
-                WPan_MC_Star.ResizeTo( ATL.Height(), A11.Width() );
-                WPan_MR_Star.ResizeTo( ATL.Height(), A11.Width() );
+                WPan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
+                WPan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
                 PartitionUp
-                ( APan_MC_Star, A01_MC_Star,
-                                A11_MC_Star, A11.Height() );
+                ( APan_MC_STAR, A01_MC_STAR,
+                                A11_MC_STAR, A11.Height() );
                 PartitionUp
-                ( APan_MR_Star, A01_MR_Star,
-                                A11_MR_Star, A11.Height() );
+                ( APan_MR_STAR, A01_MR_STAR,
+                                A11_MR_STAR, A11.Height() );
                 PartitionUp
-                ( WPan_MC_Star, W01_MC_Star,
-                                W11_MC_Star, A11.Height() );
+                ( WPan_MC_STAR, W01_MC_STAR,
+                                W11_MC_STAR, A11.Height() );
                 PartitionUp
-                ( WPan_MR_Star, W01_MR_Star,
-                                W11_MR_Star, A11.Height() );
+                ( WPan_MR_STAR, W01_MR_STAR,
+                                W11_MR_STAR, A11.Height() );
                 //------------------------------------------------------------//
                 // Accumulate the Householder vectors into A01 and form W01 such
                 // that subtracting (A01 W01' + W01 A01') is equal to 
@@ -255,29 +255,29 @@ elemental::advanced::internal::HermitianTridiagUSquare
                 // formed during the panel factorization.
                 advanced::internal::HermitianPanelTridiagUSquare
                 ( ATL, WPan, t1,
-                  APan_MC_Star, APan_MR_Star, WPan_MC_Star, WPan_MR_Star );
+                  APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
                 basic::internal::LocalTriangularRank2K
-                ( Upper, ConjugateTranspose, ConjugateTranspose,
-                  (C)-1, A01_MC_Star, W01_MC_Star, A01_MR_Star, W01_MR_Star,
+                ( UPPER, ADJOINT, ADJOINT,
+                  (C)-1, A01_MC_STAR, W01_MC_STAR, A01_MR_STAR, W01_MR_STAR,
                   (C)1, A00 );
                 //------------------------------------------------------------//
-                APan_MC_Star.FreeAlignments();
-                APan_MR_Star.FreeAlignments();
+                APan_MC_STAR.FreeAlignments();
+                APan_MR_STAR.FreeAlignments();
                 WPan.FreeAlignments();
-                WPan_MC_Star.FreeAlignments();
-                WPan_MR_Star.FreeAlignments();
+                WPan_MC_STAR.FreeAlignments();
+                WPan_MR_STAR.FreeAlignments();
             }
             else
             {
-                A11_Star_Star = A11;
-                t1_Star_Star.ResizeTo( t1.Height(), 1 );
+                A11_STAR_STAR = A11;
+                t1_STAR_STAR.ResizeTo( t1.Height(), 1 );
 
                 advanced::HermitianTridiag
-                ( Upper, A11_Star_Star.LocalMatrix(), 
-                  t1_Star_Star.LocalMatrix() );
+                ( UPPER, A11_STAR_STAR.LocalMatrix(), 
+                  t1_STAR_STAR.LocalMatrix() );
 
-                A11 = A11_Star_Star;
-                t1 = t1_Star_Star;
+                A11 = A11_STAR_STAR;
+                t1 = t1_STAR_STAR;
             }
 
             SlidePartitionUpDiagonal
@@ -310,10 +310,10 @@ template void elemental::advanced::internal::HermitianTridiagUSquare
 #ifndef WITHOUT_COMPLEX
 template void elemental::advanced::internal::HermitianTridiagUSquare
 ( DistMatrix<scomplex,MC,  MR  >& A, 
-  DistMatrix<scomplex,Star,Star>& t );
+  DistMatrix<scomplex,STAR,STAR>& t );
 
 template void elemental::advanced::internal::HermitianTridiagUSquare
 ( DistMatrix<dcomplex,MC,  MR  >& A, 
-  DistMatrix<dcomplex,Star,Star>& t );
+  DistMatrix<dcomplex,STAR,STAR>& t );
 #endif
 

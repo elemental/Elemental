@@ -134,16 +134,16 @@ public:
     //
 
     void GetDiagonal
-    ( DistMatrixBase<T,MD,Star>& d, int offset = 0 ) const;
+    ( DistMatrixBase<T,MD,STAR>& d, int offset = 0 ) const;
 
     void GetDiagonal
-    ( DistMatrixBase<T,Star,MD>& d, int offset = 0 ) const;
+    ( DistMatrixBase<T,STAR,MD>& d, int offset = 0 ) const;
 
     void SetDiagonal
-    ( const DistMatrixBase<T,MD,Star>& d, int offset = 0 );
+    ( const DistMatrixBase<T,MD,STAR>& d, int offset = 0 );
 
     void SetDiagonal
-    ( const DistMatrixBase<T,Star,MD>& d, int offset = 0 );
+    ( const DistMatrixBase<T,STAR,MD>& d, int offset = 0 );
 
     // Set the alignments
     void Align( int colAlignment, int rowAlignment );
@@ -153,35 +153,35 @@ public:
     // Aligns all of our DistMatrix's distributions that match a distribution
     // of the argument DistMatrix.
     void AlignWith( const DistMatrixBase<T,MR,  MC  >& A );
-    void AlignWith( const DistMatrixBase<T,MR,  Star>& A );
-    void AlignWith( const DistMatrixBase<T,Star,MC  >& A );
+    void AlignWith( const DistMatrixBase<T,MR,  STAR>& A );
+    void AlignWith( const DistMatrixBase<T,STAR,MC  >& A );
     void AlignWith( const DistMatrixBase<T,MC,  MR  >& A );
-    void AlignWith( const DistMatrixBase<T,MC,  Star>& A );
-    void AlignWith( const DistMatrixBase<T,Star,MR  >& A );
-    void AlignWith( const DistMatrixBase<T,VC,  Star>& A );
-    void AlignWith( const DistMatrixBase<T,Star,VC  >& A );
-    void AlignWith( const DistMatrixBase<T,VR,  Star>& A );
-    void AlignWith( const DistMatrixBase<T,Star,VR  >& A );
+    void AlignWith( const DistMatrixBase<T,MC,  STAR>& A );
+    void AlignWith( const DistMatrixBase<T,STAR,MR  >& A );
+    void AlignWith( const DistMatrixBase<T,VC,  STAR>& A );
+    void AlignWith( const DistMatrixBase<T,STAR,VC  >& A );
+    void AlignWith( const DistMatrixBase<T,VR,  STAR>& A );
+    void AlignWith( const DistMatrixBase<T,STAR,VR  >& A );
 
     // Aligns our column distribution (i.e., MR) with the matching distribution
     // of the argument. We recognize that a VR distribution can be a subset of 
     // an MR distribution.
     void AlignColsWith( const DistMatrixBase<T,MR,  MC  >& A );
-    void AlignColsWith( const DistMatrixBase<T,MR,  Star>& A );
+    void AlignColsWith( const DistMatrixBase<T,MR,  STAR>& A );
     void AlignColsWith( const DistMatrixBase<T,MC,  MR  >& A );
-    void AlignColsWith( const DistMatrixBase<T,Star,MR  >& A );
-    void AlignColsWith( const DistMatrixBase<T,VR,  Star>& A );
-    void AlignColsWith( const DistMatrixBase<T,Star,VR  >& A );
+    void AlignColsWith( const DistMatrixBase<T,STAR,MR  >& A );
+    void AlignColsWith( const DistMatrixBase<T,VR,  STAR>& A );
+    void AlignColsWith( const DistMatrixBase<T,STAR,VR  >& A );
 
     // Aligns our row distribution (i.e., MC) with the matching distribution
     // of the argument. We recognize that a VC distribution can be a subset of
     // an MC distribution.
     void AlignRowsWith( const DistMatrixBase<T,MC,  MR  >& A );
-    void AlignRowsWith( const DistMatrixBase<T,MC,  Star>& A );
+    void AlignRowsWith( const DistMatrixBase<T,MC,  STAR>& A );
     void AlignRowsWith( const DistMatrixBase<T,MR,  MC  >& A );
-    void AlignRowsWith( const DistMatrixBase<T,Star,MC  >& A );
-    void AlignRowsWith( const DistMatrixBase<T,VC,  Star>& A );
-    void AlignRowsWith( const DistMatrixBase<T,Star,VC  >& A );
+    void AlignRowsWith( const DistMatrixBase<T,STAR,MC  >& A );
+    void AlignRowsWith( const DistMatrixBase<T,VC,  STAR>& A );
+    void AlignRowsWith( const DistMatrixBase<T,STAR,VC  >& A );
 
     // (Immutable) view of a distributed matrix
     void View( DistMatrixBase<T,MR,MC>& A );
@@ -227,65 +227,65 @@ public:
     // Equate/Update with the scattered summation of A[MR,* ] across 
     // process cols
     void SumScatterFrom
-    ( const DistMatrixBase<T,MR,Star>& A );
+    ( const DistMatrixBase<T,MR,STAR>& A );
 
     void SumScatterUpdate
-    ( T alpha, const DistMatrixBase<T,MR,Star>& A );
+    ( T alpha, const DistMatrixBase<T,MR,STAR>& A );
 
     // Equate/Update with the scattered summation of A[* ,MC] across
     // process rows
     void SumScatterFrom
-    ( const DistMatrixBase<T,Star,MC>& A );
+    ( const DistMatrixBase<T,STAR,MC>& A );
 
     void SumScatterUpdate
-    ( T alpha, const DistMatrixBase<T,Star,MC>& A );
+    ( T alpha, const DistMatrixBase<T,STAR,MC>& A );
 
     // Equate/Update with the scattered summation of A[* ,* ] across 
     // the entire g
     void SumScatterFrom
-    ( const DistMatrixBase<T,Star,Star>& A );
+    ( const DistMatrixBase<T,STAR,STAR>& A );
 
     void SumScatterUpdate
-    ( T alpha, const DistMatrixBase<T,Star,Star>& A );
+    ( T alpha, const DistMatrixBase<T,STAR,STAR>& A );
 
     const DistMatrixBase<T,MR,MC>&
     operator=( const DistMatrixBase<T,MC,MR>& A );
 
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,MC,Star>& A );
+    operator=( const DistMatrixBase<T,MC,STAR>& A );
 
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,Star,MR>& A );
+    operator=( const DistMatrixBase<T,STAR,MR>& A );
 
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,MD,Star>& A );
+    operator=( const DistMatrixBase<T,MD,STAR>& A );
 
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,Star,MD>& A );
+    operator=( const DistMatrixBase<T,STAR,MD>& A );
 
     const DistMatrixBase<T,MR,MC>&
     operator=( const DistMatrixBase<T,MR,MC>& A );
 
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,MR,Star>& A );
+    operator=( const DistMatrixBase<T,MR,STAR>& A );
 
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,Star,MC>& A );
+    operator=( const DistMatrixBase<T,STAR,MC>& A );
 
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,VC,Star>& A );
+    operator=( const DistMatrixBase<T,VC,STAR>& A );
 
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,Star,VC>& A );
+    operator=( const DistMatrixBase<T,STAR,VC>& A );
 
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,VR,Star>& A );
+    operator=( const DistMatrixBase<T,VR,STAR>& A );
 
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,Star,VR>& A );
+    operator=( const DistMatrixBase<T,STAR,VR>& A );
     
     const DistMatrixBase<T,MR,MC>&
-    operator=( const DistMatrixBase<T,Star,Star>& A );
+    operator=( const DistMatrixBase<T,STAR,STAR>& A );
 };
 
 // Partial specialization to A[MR,MC] for real rings.
@@ -348,40 +348,40 @@ public:
     operator=( const DistMatrixBase<Z,MC,MR>& A );
 
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,MC,Star>& A );
+    operator=( const DistMatrixBase<Z,MC,STAR>& A );
 
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,Star,MR>& A );
+    operator=( const DistMatrixBase<Z,STAR,MR>& A );
 
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,MD,Star>& A );
+    operator=( const DistMatrixBase<Z,MD,STAR>& A );
 
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,Star,MD>& A );
+    operator=( const DistMatrixBase<Z,STAR,MD>& A );
 
     const DistMatrix<Z,MR,MC>&
     operator=( const DistMatrixBase<Z,MR,MC>& A );
 
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,MR,Star>& A );
+    operator=( const DistMatrixBase<Z,MR,STAR>& A );
 
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,Star,MC>& A );
+    operator=( const DistMatrixBase<Z,STAR,MC>& A );
 
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,VC,Star>& A );
+    operator=( const DistMatrixBase<Z,VC,STAR>& A );
 
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,Star,VC>& A );
+    operator=( const DistMatrixBase<Z,STAR,VC>& A );
 
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,VR,Star>& A );
+    operator=( const DistMatrixBase<Z,VR,STAR>& A );
 
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,Star,VR>& A );
+    operator=( const DistMatrixBase<Z,STAR,VR>& A );
     
     const DistMatrix<Z,MR,MC>&
-    operator=( const DistMatrixBase<Z,Star,Star>& A );
+    operator=( const DistMatrixBase<Z,STAR,STAR>& A );
 
     //------------------------------------------------------------------------//
     // Fulfillments of abstract virtual func's from AbstractDistMatrixBase    //
@@ -463,40 +463,40 @@ public:
     operator=( const DistMatrixBase<std::complex<Z>,MC,MR>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,MC,Star>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,MC,STAR>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,Star,MR>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,STAR,MR>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,MD,Star>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,MD,STAR>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,Star,MD>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,STAR,MD>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
     operator=( const DistMatrixBase<std::complex<Z>,MR,MC>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,MR,Star>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,MR,STAR>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,Star,MC>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,STAR,MC>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,VC,Star>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,VC,STAR>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,Star,VC>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,STAR,VC>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,VR,Star>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,VR,STAR>& A );
 
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,Star,VR>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,STAR,VR>& A );
     
     const DistMatrix<std::complex<Z>,MR,MC>&
-    operator=( const DistMatrixBase<std::complex<Z>,Star,Star>& A );
+    operator=( const DistMatrixBase<std::complex<Z>,STAR,STAR>& A );
 
     //------------------------------------------------------------------------//
     // Fulfillments of abstract virtual func's from AbstractDistMatrixBase    //
@@ -549,34 +549,34 @@ public:
     //------------------------------------------------------------------------//
 
     void GetRealDiagonal
-    ( DistMatrix<Z,MD,Star>& d, int offset = 0 ) const;
+    ( DistMatrix<Z,MD,STAR>& d, int offset = 0 ) const;
 
     void GetImagDiagonal
-    ( DistMatrix<Z,MD,Star>& d, int offset = 0 ) const;
+    ( DistMatrix<Z,MD,STAR>& d, int offset = 0 ) const;
 
     void GetRealDiagonal
-    ( DistMatrix<Z,Star,MD>& d, int offset = 0 ) const;
+    ( DistMatrix<Z,STAR,MD>& d, int offset = 0 ) const;
 
     void GetImagDiagonal
-    ( DistMatrix<Z,Star,MD>& d, int offset = 0 ) const;
+    ( DistMatrix<Z,STAR,MD>& d, int offset = 0 ) const;
 
     void SetDiagonal
-    ( const DistMatrixBase<Z,MD,Star>& d, int offset = 0 );
+    ( const DistMatrixBase<Z,MD,STAR>& d, int offset = 0 );
 
     void SetRealDiagonal
-    ( const DistMatrixBase<Z,MD,Star>& d, int offset = 0 );
+    ( const DistMatrixBase<Z,MD,STAR>& d, int offset = 0 );
 
     void SetImagDiagonal
-    ( const DistMatrixBase<Z,MD,Star>& d, int offset = 0 );
+    ( const DistMatrixBase<Z,MD,STAR>& d, int offset = 0 );
 
     void SetDiagonal
-    ( const DistMatrixBase<Z,Star,MD>& d, int offset = 0 );
+    ( const DistMatrixBase<Z,STAR,MD>& d, int offset = 0 );
 
     void SetRealDiagonal
-    ( const DistMatrixBase<Z,Star,MD>& d, int offset = 0 );
+    ( const DistMatrixBase<Z,STAR,MD>& d, int offset = 0 );
 
     void SetImagDiagonal
-    ( const DistMatrixBase<Z,Star,MD>& d, int offset = 0 );
+    ( const DistMatrixBase<Z,STAR,MD>& d, int offset = 0 );
 };
 #endif // WITHOUT_COMPLEX
 
@@ -769,25 +769,25 @@ DistMatrix<Z,MR,MC>::operator=
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,MC,Star>& A )
+( const DistMatrixBase<Z,MC,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,Star,MR>& A )
+( const DistMatrixBase<Z,STAR,MR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,MD,Star>& A )
+( const DistMatrixBase<Z,MD,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,Star,MD>& A )
+( const DistMatrixBase<Z,STAR,MD>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
@@ -799,43 +799,43 @@ DistMatrix<Z,MR,MC>::operator=
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,MR,Star>& A )
+( const DistMatrixBase<Z,MR,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,Star,MC>& A )
+( const DistMatrixBase<Z,STAR,MC>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,VC,Star>& A )
+( const DistMatrixBase<Z,VC,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,Star,VC>& A )
+( const DistMatrixBase<Z,STAR,VC>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,VR,Star>& A )
+( const DistMatrixBase<Z,VR,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,Star,VR>& A )
+( const DistMatrixBase<Z,STAR,VR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<Z,MR,MC>& 
 DistMatrix<Z,MR,MC>::operator=
-( const DistMatrixBase<Z,Star,Star>& A )
+( const DistMatrixBase<Z,STAR,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 //
@@ -935,25 +935,25 @@ DistMatrix<std::complex<Z>,MR,MC>::operator=
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,MC,Star>& A )
+( const DistMatrixBase<std::complex<Z>,MC,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,Star,MR>& A )
+( const DistMatrixBase<std::complex<Z>,STAR,MR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,MD,Star>& A )
+( const DistMatrixBase<std::complex<Z>,MD,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,Star,MD>& A )
+( const DistMatrixBase<std::complex<Z>,STAR,MD>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
@@ -965,43 +965,43 @@ DistMatrix<std::complex<Z>,MR,MC>::operator=
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,MR,Star>& A )
+( const DistMatrixBase<std::complex<Z>,MR,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,Star,MC>& A )
+( const DistMatrixBase<std::complex<Z>,STAR,MC>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,VC,Star>& A )
+( const DistMatrixBase<std::complex<Z>,VC,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,Star,VC>& A )
+( const DistMatrixBase<std::complex<Z>,STAR,VC>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,VR,Star>& A )
+( const DistMatrixBase<std::complex<Z>,VR,STAR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,Star,VR>& A )
+( const DistMatrixBase<std::complex<Z>,STAR,VR>& A )
 { DMB::operator=( A ); return *this; }
 
 template<typename Z>
 inline const DistMatrix<std::complex<Z>,MR,MC>& 
 DistMatrix<std::complex<Z>,MR,MC>::operator=
-( const DistMatrixBase<std::complex<Z>,Star,Star>& A )
+( const DistMatrixBase<std::complex<Z>,STAR,STAR>& A )
 { DMB::operator=( A ); return *this; }
 #endif // WITHOUT_COMPLEX
 

@@ -47,8 +47,8 @@ typedef std::complex<double> dcomplex;
 
 enum Diagonal
 {
-    NonUnit,
-    Unit
+    NON_UNIT,
+    UNIT
 };
 
 char DiagonalToChar( Diagonal diagonal );
@@ -69,9 +69,9 @@ Distribution StringToDist( std::string s );
 
 enum Orientation
 {
-    Normal,
-    Transpose,
-    ConjugateTranspose
+    NORMAL,
+    TRANSPOSE,
+    ADJOINT
 };
 
 char OrientationToChar( Orientation orientation );
@@ -79,8 +79,8 @@ Orientation CharToOrientation( char c );
 
 enum Shape
 {
-    Lower,
-    Upper
+    LOWER,
+    UPPER
 };
 
 char ShapeToChar( Shape shape );
@@ -88,8 +88,8 @@ Shape CharToShape( char c );
 
 enum Side
 {
-    Left,
-    Right
+    LEFT,
+    RIGHT
 };
 
 char SideToChar( Side side );
@@ -97,26 +97,26 @@ Side CharToSide( char c );
 
 enum VectorDirection
 {
-    Vertical,
-    Horizontal
+    VERTICAL,
+    HORIZONTAL
 };
 
 enum ForwardOrBackward
 {
-    Forward,
-    Backward
+    FORWARD,
+    BACKWARD
 };
 
 enum Conjugation
 {
-    Unconjugated,
-    Conjugated
+    UNCONJUGATED,
+    CONJUGATED
 };
 
 enum GridOrder
 {
-    RowMajor,
-    ColMajor
+    ROW_MAJOR,
+    COLUMN_MAJOR
 };
 
 //
@@ -131,10 +131,10 @@ enum GridOrder
 
 enum NormType
 {
-    FrobeniusNorm, // Compute the "vector" L_2 norm of the matrix
-    InfinityNorm,  // Compute the L_oo norm of the matrix
-    MaxNorm,       // Compute the "vector" L_oo norm of the matrix
-    OneNorm,       // Compute the L_1 norm of the matrix
+    FROBENIUS_NORM, // Compute the "vector" L_2 norm of the matrix
+    INFINITY_NORM,  // Compute the L_oo norm of the matrix
+    MAX_NORM,       // Compute the "vector" L_oo norm of the matrix
+    ONE_NORM,       // Compute the L_1 norm of the matrix
 };
 
 enum HermitianGenDefiniteEigType
@@ -146,9 +146,9 @@ enum HermitianGenDefiniteEigType
 
 enum HermitianTridiagApproach
 {
-    HermitianTridiagNormal, // Keep the current grid
-    HermitianTridiagSquare, // Drop to a square process grid
-    HermitianTridiagDefault // Square grid algorithm only if already square
+    HERMITIAN_TRIDIAG_NORMAL, // Keep the current grid
+    HERMITIAN_TRIDIAG_SQUARE, // Drop to a square process grid
+    HERMITIAN_TRIDIAG_DEFAULT // Square grid algorithm only if already square
 };
 
 } // elemental
@@ -162,8 +162,8 @@ inline char elemental::DiagonalToChar( elemental::Diagonal diagonal )
     char diagonalChar;
     switch( diagonal )
     {
-        case NonUnit: diagonalChar = 'N'; break;
-        default:      diagonalChar = 'U'; break;
+        case NON_UNIT: diagonalChar = 'N'; break;
+        default:       diagonalChar = 'U'; break;
     }
     return diagonalChar;
 }
@@ -173,10 +173,10 @@ inline elemental::Diagonal elemental::CharToDiagonal( char c )
     Diagonal diagonal;
     switch( c )
     {
-        case 'N': diagonal = NonUnit; break;
-        case 'U': diagonal = Unit;    break;
+        case 'N': diagonal = NON_UNIT: break;
+        case 'U': diagonal = UNIT;     break;
         default:
-            throw std::logic_error( "CharToDiagonal expects char in {N,U}." );
+            throw std::logic_error("CharToDiagonal expects char in {N,U}.");
     }
     return diagonal;
 }
@@ -214,8 +214,8 @@ inline elemental::Distribution elemental::StringToDist( std::string s )
         distribution = Star;
     else
     {
-        throw std::logic_error( "StringToDist expects string in "
-              "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}." );
+        throw std::logic_error("StringToDist expects string in "
+              "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}.");
     }
     return distribution;
 }
@@ -225,9 +225,9 @@ inline char elemental::OrientationToChar( elemental::Orientation orientation )
     char orientationChar;
     switch( orientation )
     {
-        case Normal:             orientationChar = 'N'; break;
-        case Transpose:          orientationChar = 'T'; break;
-        default:                 orientationChar = 'C'; break;
+        case NORMAL:    orientationChar = 'N'; break;
+        case TRANSPOSE: orientationChar = 'T'; break;
+        default:        orientationChar = 'C'; break;
     }
     return orientationChar;
 }
@@ -237,12 +237,12 @@ inline elemental::Orientation elemental::CharToOrientation( char c )
     Orientation orientation;
     switch( c )
     {
-        case 'N': orientation = Normal;             break;
-        case 'T': orientation = Transpose;          break;
-        case 'C': orientation = ConjugateTranspose; break;
+        case 'N': orientation = NORMAL;    break;
+        case 'T': orientation = TRANSPOSE; break;
+        case 'C': orientation = ADJOINT;   break;
         default:
             throw std::logic_error
-            ( "CharToOrientation expects char in {N,T,C}." );
+            ("CharToOrientation expects char in {N,T,C}.");
     }
     return orientation;
 }
@@ -252,7 +252,7 @@ inline char elemental::ShapeToChar( elemental::Shape shape )
     char shapeChar;
     switch( shape )
     {
-        case Lower: shapeChar = 'L'; break;
+        case LOWER: shapeChar = 'L'; break;
         default:    shapeChar = 'U'; break;
     }
     return shapeChar;
@@ -263,10 +263,10 @@ inline elemental::Shape elemental::CharToShape( char c )
     Shape shape;
     switch( c )
     {
-        case 'L': shape = Lower; break;
-        case 'U': shape = Upper; break;
+        case 'L': shape = LOWER; break;
+        case 'U': shape = UPPER; break;
         default:
-            throw std::logic_error( "CharToShape expects char in {L,U}." );
+            throw std::logic_error("CharToShape expects char in {L,U}.");
     }
     return shape;
 }
@@ -276,7 +276,7 @@ inline char elemental::SideToChar( elemental::Side side )
     char sideChar;
     switch( side )
     {
-        case Left:  sideChar = 'L'; break;
+        case LEFT:  sideChar = 'L'; break;
         default:    sideChar = 'R'; break;
     }
     return sideChar;
@@ -287,10 +287,10 @@ inline elemental::Side elemental::CharToSide( char c )
     Side side;
     switch( c )
     {
-        case 'L': side = Left;  break;
-        case 'R': side = Right; break;
+        case 'L': side = LEFT;  break;
+        case 'R': side = RIGHT; break;
         default:
-            throw std::logic_error( "CharToSide expects char in {L,R}." );
+            throw std::logic_error("CharToSide expects char in {L,R}.");
     }
     return side;
 }

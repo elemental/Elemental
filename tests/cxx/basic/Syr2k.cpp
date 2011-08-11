@@ -79,7 +79,7 @@ void TestSyr2k
     A.SetToRandom();
     B.SetToRandom();
     C.SetToRandom();
-    C.MakeTrapezoidal( Left, shape );
+    C.MakeTrapezoidal( LEFT, shape );
     if( printMatrices )
     {
         A.Print("A");

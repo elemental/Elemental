@@ -51,9 +51,9 @@ elemental::advanced::GaussElim
 #endif
     advanced::internal::ReduceToRowEchelon( A, B );
     if( B.Width() == 1 )
-        basic::Trsv( Upper, Normal, NonUnit, A, B );
+        basic::Trsv( UPPER, NORMAL, NON_UNIT, A, B );
     else
-        basic::Trsm( Left, Upper, Normal, NonUnit, (F)1, A, B );
+        basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
 #ifndef RELEASE
     PopCallStack();
 #endif

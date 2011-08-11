@@ -61,21 +61,20 @@ elemental::advanced::internal::ReduceToRowEchelon
                 B2(g);
 
     // Temporary distributions
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,Star,VR  > A12_Star_VR(g);
-    DistMatrix<F,Star,MR  > A12_Star_MR(g);
-    DistMatrix<F,MC,  Star> A21_MC_Star(g);
-    DistMatrix<F,Star,VR  > B1_Star_VR(g);
-    DistMatrix<F,Star,MR  > B1_Star_MR(g);
-    DistMatrix<int,Star,Star> p1_Star_Star(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
+    DistMatrix<F,STAR,MR  > A12_STAR_MR(g);
+    DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
+    DistMatrix<F,STAR,VR  > B1_STAR_VR(g);
+    DistMatrix<F,STAR,MR  > B1_STAR_MR(g);
+    DistMatrix<int,STAR,STAR> p1_STAR_STAR(g);
 
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
-    DistMatrix<F,MC,Star> A21_MC_Star_B(g);
+    DistMatrix<F,MC,STAR> A21_MC_STAR_B(g);
 
     // Pivot composition
-    vector<int> image;
-    vector<int> preimage;
+    vector<int> image, preimage;
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -102,63 +101,61 @@ elemental::advanced::internal::ReduceToRowEchelon
         ( A12,
           A22 );
 
-        A12_Star_VR.AlignWith( A22 );
-        A12_Star_MR.AlignWith( A22 );
-        A21_MC_Star.AlignWith( A22 );
-        B1_Star_VR.AlignWith( B1 );
-        B1_Star_MR.AlignWith( B1 );
+        A12_STAR_VR.AlignWith( A22 );
+        A12_STAR_MR.AlignWith( A22 );
+        A21_MC_STAR.AlignWith( A22 );
+        B1_STAR_VR.AlignWith( B1 );
+        B1_STAR_MR.AlignWith( B1 );
         if( ! BAligned )
-            A21_MC_Star_B.AlignWith( B2 );
-        A11_Star_Star.ResizeTo( A11.Height(), A11.Width() );
-        p1_Star_Star.ResizeTo( A11.Height(), 1 );
+            A21_MC_STAR_B.AlignWith( B2 );
+        A11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
+        p1_STAR_STAR.ResizeTo( A11.Height(), 1 );
         //--------------------------------------------------------------------//
-        A11_Star_Star = A11;
-        A21_MC_Star = A21;
+        A11_STAR_STAR = A11;
+        A21_MC_STAR = A21;
         advanced::internal::PanelLU
-        ( A11_Star_Star, A21_MC_Star, p1_Star_Star, A00.Height() );
+        ( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, A00.Height() );
         advanced::internal::ComposePivots
-        ( p1_Star_Star, image, preimage, A00.Height() );
+        ( p1_STAR_STAR, image, preimage, A00.Height() );
         advanced::internal::ApplyRowPivots
         ( APan, image, preimage, A00.Height() );
         advanced::internal::ApplyRowPivots
         ( BB,   image, preimage, A00.Height() );
 
-        A12_Star_VR = A12;
-        B1_Star_VR = B1;
+        A12_STAR_VR = A12;
+        B1_STAR_VR = B1;
         basic::internal::LocalTrsm
-        ( Left, Lower, Normal, Unit, (F)1, A11_Star_Star, A12_Star_VR );
+        ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
         basic::internal::LocalTrsm
-        ( Left, Lower, Normal, Unit, (F)1, A11_Star_Star, B1_Star_VR );
+        ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, B1_STAR_VR );
 
-        A12_Star_MR = A12_Star_VR;
-        B1_Star_MR = B1_Star_VR;
+        A12_STAR_MR = A12_STAR_VR;
+        B1_STAR_MR = B1_STAR_VR;
         basic::internal::LocalGemm
-        ( Normal, Normal, (F)-1, A21_MC_Star, A12_Star_MR, (F)1, A22 );
+        ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, A12_STAR_MR, (F)1, A22 );
         if( BAligned )
         {
             basic::internal::LocalGemm
-            ( Normal, Normal, 
-              (F)-1, A21_MC_Star, B1_Star_MR, (F)1, B2 );
+            ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, B1_STAR_MR, (F)1, B2 );
         }
         else
         {
-            A21_MC_Star_B = A21_MC_Star;
+            A21_MC_STAR_B = A21_MC_STAR;
             basic::internal::LocalGemm
-            ( Normal, Normal, 
-              (F)-1, A21_MC_Star_B, B1_Star_MR, (F)1, B2 );
+            ( NORMAL, NORMAL, (F)-1, A21_MC_STAR_B, B1_STAR_MR, (F)1, B2 );
         }
 
-        A11 = A11_Star_Star;
-        A12 = A12_Star_MR;
-        B1 = B1_Star_MR;
+        A11 = A11_STAR_STAR;
+        A12 = A12_STAR_MR;
+        B1 = B1_STAR_MR;
         //--------------------------------------------------------------------//
-        A12_Star_VR.FreeAlignments();
-        A12_Star_MR.FreeAlignments();
-        A21_MC_Star.FreeAlignments();
-        B1_Star_VR.FreeAlignments();
-        B1_Star_MR.FreeAlignments();
+        A12_STAR_VR.FreeAlignments();
+        A12_STAR_MR.FreeAlignments();
+        A21_MC_STAR.FreeAlignments();
+        B1_STAR_VR.FreeAlignments();
+        B1_STAR_MR.FreeAlignments();
         if( ! BAligned )
-            A21_MC_Star_B.FreeAlignments();
+            A21_MC_STAR_B.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

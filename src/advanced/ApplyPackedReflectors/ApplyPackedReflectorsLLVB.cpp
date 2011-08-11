@@ -68,11 +68,11 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVB
         AB(g),  A1(g),
                 A2(g);
 
-    DistMatrix<R,VC,  Star> HPan_VC_Star(g);
-    DistMatrix<R,MC,  Star> HPan_MC_Star(g);
-    DistMatrix<R,Star,Star> SInv_Star_Star(g);
-    DistMatrix<R,Star,MR  > Z_Star_MR(g);
-    DistMatrix<R,Star,VR  > Z_Star_VR(g);
+    DistMatrix<R,VC,  STAR> HPan_VC_STAR(g);
+    DistMatrix<R,MC,  STAR> HPan_MC_STAR(g);
+    DistMatrix<R,STAR,STAR> SInv_STAR_STAR(g);
+    DistMatrix<R,STAR,MR  > Z_STAR_MR(g);
+    DistMatrix<R,STAR,VR  > Z_STAR_VR(g);
 
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
@@ -101,41 +101,41 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVB
         ABottom.View2x1( A1,
                          A2 );
 
-        HPan_MC_Star.AlignWith( ABottom );
-        Z_Star_MR.AlignWith( ABottom );
-        Z_Star_VR.AlignWith( ABottom );
-        Z_Star_MR.ResizeTo( HPanWidth, ABottom.Width() );
-        SInv_Star_Star.ResizeTo( HPanWidth, HPanWidth );
+        HPan_MC_STAR.AlignWith( ABottom );
+        Z_STAR_MR.AlignWith( ABottom );
+        Z_STAR_VR.AlignWith( ABottom );
+        Z_STAR_MR.ResizeTo( HPanWidth, ABottom.Width() );
+        SInv_STAR_STAR.ResizeTo( HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        HPanCopy.MakeTrapezoidal( Left, Lower, offset );
-        SetDiagonalToOne( Left, offset, HPanCopy );
+        HPanCopy.MakeTrapezoidal( LEFT, LOWER, offset );
+        SetDiagonalToOne( LEFT, offset, HPanCopy );
 
-        HPan_VC_Star = HPanCopy;
+        HPan_VC_STAR = HPanCopy;
         basic::Syrk
-        ( Upper, Transpose, 
-          (R)1, HPan_VC_Star.LockedLocalMatrix(),
-          (R)0, SInv_Star_Star.LocalMatrix() );     
-        SInv_Star_Star.SumOverGrid();
-        HalveMainDiagonal( SInv_Star_Star );
+        ( UPPER, TRANSPOSE, 
+          (R)1, HPan_VC_STAR.LockedLocalMatrix(),
+          (R)0, SInv_STAR_STAR.LocalMatrix() );     
+        SInv_STAR_STAR.SumOverGrid();
+        HalveMainDiagonal( SInv_STAR_STAR );
 
-        HPan_MC_Star = HPanCopy;
+        HPan_MC_STAR = HPanCopy;
         basic::internal::LocalGemm
-        ( Transpose, Normal, 
-          (R)1, HPan_MC_Star, ABottom, (R)0, Z_Star_MR );
-        Z_Star_VR.SumScatterFrom( Z_Star_MR );
+        ( TRANSPOSE, NORMAL, 
+          (R)1, HPan_MC_STAR, ABottom, (R)0, Z_STAR_MR );
+        Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
  
         basic::internal::LocalTrsm
-        ( Left, Upper, Normal, NonUnit, 
-          (R)1, SInv_Star_Star, Z_Star_VR );
+        ( LEFT, UPPER, NORMAL, NON_UNIT, 
+          (R)1, SInv_STAR_STAR, Z_STAR_VR );
 
-        Z_Star_MR = Z_Star_VR;
+        Z_STAR_MR = Z_STAR_VR;
         basic::internal::LocalGemm
-        ( Normal, Normal, (R)-1, HPan_MC_Star, Z_Star_MR, (R)1, ABottom );
+        ( NORMAL, NORMAL, (R)-1, HPan_MC_STAR, Z_STAR_MR, (R)1, ABottom );
         //--------------------------------------------------------------------//
-        HPan_MC_Star.FreeAlignments();
-        Z_Star_MR.FreeAlignments();
-        Z_Star_VR.FreeAlignments();
+        HPan_MC_STAR.FreeAlignments();
+        Z_STAR_MR.FreeAlignments();
+        Z_STAR_VR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( HTL, /**/ HTR,  H00, /**/ H01, H02,
@@ -160,7 +160,7 @@ void
 elemental::advanced::internal::ApplyPackedReflectorsLLVB
 ( Conjugation conjugation, int offset, 
   const DistMatrix<complex<R>,MC,MR  >& H,
-  const DistMatrix<complex<R>,MD,Star>& t,
+  const DistMatrix<complex<R>,MD,STAR>& t,
         DistMatrix<complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
@@ -192,17 +192,17 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVB
         AT(g),  A0(g),  ABottom(g),
         AB(g),  A1(g),
                 A2(g);
-    DistMatrix<C,MD,Star>
+    DistMatrix<C,MD,STAR>
         tT(g),  t0(g),
         tB(g),  t1(g),
                 t2(g);
 
-    DistMatrix<C,VC,  Star> HPan_VC_Star(g);
-    DistMatrix<C,MC,  Star> HPan_MC_Star(g);
-    DistMatrix<C,Star,Star> t1_Star_Star(g);
-    DistMatrix<C,Star,Star> SInv_Star_Star(g);
-    DistMatrix<C,Star,MR  > Z_Star_MR(g);
-    DistMatrix<C,Star,VR  > Z_Star_VR(g);
+    DistMatrix<C,VC,  STAR> HPan_VC_STAR(g);
+    DistMatrix<C,MC,  STAR> HPan_MC_STAR(g);
+    DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);
+    DistMatrix<C,STAR,STAR> SInv_STAR_STAR(g);
+    DistMatrix<C,STAR,MR  > Z_STAR_MR(g);
+    DistMatrix<C,STAR,VR  > Z_STAR_VR(g);
 
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
@@ -240,42 +240,41 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVB
         ABottom.View2x1( A1,
                          A2 );
 
-        HPan_MC_Star.AlignWith( ABottom );
-        Z_Star_MR.AlignWith( ABottom );
-        Z_Star_VR.AlignWith( ABottom );
-        Z_Star_MR.ResizeTo( HPan.Width(), ABottom.Width() );
-        SInv_Star_Star.ResizeTo( HPan.Width(), HPan.Width() );
+        HPan_MC_STAR.AlignWith( ABottom );
+        Z_STAR_MR.AlignWith( ABottom );
+        Z_STAR_VR.AlignWith( ABottom );
+        Z_STAR_MR.ResizeTo( HPan.Width(), ABottom.Width() );
+        SInv_STAR_STAR.ResizeTo( HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        HPanCopy.MakeTrapezoidal( Left, Lower, offset );
-        SetDiagonalToOne( Left, offset, HPanCopy );
+        HPanCopy.MakeTrapezoidal( LEFT, LOWER, offset );
+        SetDiagonalToOne( LEFT, offset, HPanCopy );
 
-        HPan_VC_Star = HPanCopy;
+        HPan_VC_STAR = HPanCopy;
         basic::Herk
-        ( Upper, ConjugateTranspose, 
-          (C)1, HPan_VC_Star.LockedLocalMatrix(),
-          (C)0, SInv_Star_Star.LocalMatrix() );     
-        SInv_Star_Star.SumOverGrid();
-        t1_Star_Star = t1;
-        FixDiagonal( conjugation, t1_Star_Star, SInv_Star_Star );
+        ( UPPER, ADJOINT, 
+          (C)1, HPan_VC_STAR.LockedLocalMatrix(),
+          (C)0, SInv_STAR_STAR.LocalMatrix() );     
+        SInv_STAR_STAR.SumOverGrid();
+        t1_STAR_STAR = t1;
+        FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 
-        HPan_MC_Star = HPanCopy;
+        HPan_MC_STAR = HPanCopy;
         basic::internal::LocalGemm
-        ( ConjugateTranspose, Normal, 
-          (C)1, HPan_MC_Star, ABottom, (C)0, Z_Star_MR );
-        Z_Star_VR.SumScatterFrom( Z_Star_MR );
+        ( ADJOINT, NORMAL, (C)1, HPan_MC_STAR, ABottom, (C)0, Z_STAR_MR );
+        Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
  
         basic::internal::LocalTrsm
-        ( Left, Upper, Normal, NonUnit, 
-          (C)1, SInv_Star_Star, Z_Star_VR );
+        ( LEFT, UPPER, NORMAL, NON_UNIT, 
+          (C)1, SInv_STAR_STAR, Z_STAR_VR );
 
-        Z_Star_MR = Z_Star_VR;
+        Z_STAR_MR = Z_STAR_VR;
         basic::internal::LocalGemm
-        ( Normal, Normal, (C)-1, HPan_MC_Star, Z_Star_MR, (C)1, ABottom );
+        ( NORMAL, NORMAL, (C)-1, HPan_MC_STAR, Z_STAR_MR, (C)1, ABottom );
         //--------------------------------------------------------------------//
-        HPan_MC_Star.FreeAlignments();
-        Z_Star_MR.FreeAlignments();
-        Z_Star_VR.FreeAlignments();
+        HPan_MC_STAR.FreeAlignments();
+        Z_STAR_MR.FreeAlignments();
+        Z_STAR_VR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( HTL, /**/ HTR,  H00, /**/ H01, H02,
@@ -315,13 +314,13 @@ template void elemental::advanced::internal::ApplyPackedReflectorsLLVB
 template void elemental::advanced::internal::ApplyPackedReflectorsLLVB
 ( Conjugation conjugation, int offset,
   const DistMatrix<scomplex,MC,MR  >& H,
-  const DistMatrix<scomplex,MD,Star>& t,
+  const DistMatrix<scomplex,MD,STAR>& t,
         DistMatrix<scomplex,MC,MR  >& A );
 
 template void elemental::advanced::internal::ApplyPackedReflectorsLLVB
 ( Conjugation conjugation, int offset,
   const DistMatrix<dcomplex,MC,MR  >& H,
-  const DistMatrix<dcomplex,MD,Star>& t,
+  const DistMatrix<dcomplex,MD,STAR>& t,
         DistMatrix<dcomplex,MC,MR  >& A );
 #endif
 

@@ -58,15 +58,15 @@ elemental::basic::Gemm
 #ifndef RELEASE
     PushCallStack("basic::Gemm");
 #endif
-    if( orientationOfA == Normal && orientationOfB == Normal )
+    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         basic::internal::GemmNN( alpha, A, B, beta, C );
     }
-    else if( orientationOfA == Normal )
+    else if( orientationOfA == NORMAL )
     {
         basic::internal::GemmNT( orientationOfB, alpha, A, B, beta, C );
     }
-    else if( orientationOfB == Normal )
+    else if( orientationOfB == NORMAL )
     {
         basic::internal::GemmTN
         ( orientationOfA, alpha, A, B, beta, C );
@@ -93,15 +93,15 @@ elemental::basic::internal::GemmA
 #ifndef RELEASE
     PushCallStack("basic::internal::GemmA");
 #endif
-    if( orientationOfA == Normal && orientationOfB == Normal )
+    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         basic::internal::GemmNNA( alpha, A, B, beta, C );
     }
-    else if( orientationOfA == Normal )
+    else if( orientationOfA == NORMAL )
     {
         basic::internal::GemmNTA( orientationOfB, alpha, A, B, beta, C );
     }
-    else if( orientationOfB == Normal )
+    else if( orientationOfB == NORMAL )
     {
         basic::internal::GemmTNA( orientationOfA, alpha, A, B, beta, C );
     }
@@ -127,15 +127,15 @@ elemental::basic::internal::GemmB
 #ifndef RELEASE
     PushCallStack("basic::internal::GemmB");
 #endif
-    if( orientationOfA == Normal && orientationOfB == Normal )
+    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         basic::internal::GemmNNB( alpha, A, B, beta, C );
     }
-    else if( orientationOfA == Normal )
+    else if( orientationOfA == NORMAL )
     {
         basic::internal::GemmNTB( orientationOfB, alpha, A, B, beta, C );
     }
-    else if( orientationOfB == Normal )
+    else if( orientationOfB == NORMAL )
     {
         basic::internal::GemmTNB( orientationOfA, alpha, A, B, beta, C );
     }
@@ -161,15 +161,15 @@ elemental::basic::internal::GemmC
 #ifndef RELEASE
     PushCallStack("basic::internal::GemmC");
 #endif
-    if( orientationOfA == Normal && orientationOfB == Normal )
+    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         basic::internal::GemmNNC( alpha, A, B, beta, C );
     }
-    else if( orientationOfA == Normal )
+    else if( orientationOfA == NORMAL )
     {
         basic::internal::GemmNTC( orientationOfB, alpha, A, B, beta, C );
     }
-    else if( orientationOfB == Normal )
+    else if( orientationOfB == NORMAL )
     {
         basic::internal::GemmTNC( orientationOfA, alpha, A, B, beta, C );
     }
@@ -195,17 +195,17 @@ elemental::basic::internal::GemmDot
 #ifndef RELEASE
     PushCallStack("basic::internal::GemmDot");
 #endif
-    if( orientationOfA == Normal && orientationOfB == Normal )
+    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
         basic::internal::GemmNNDot( alpha, A, B, beta, C );
     else
         throw logic_error( "GemmDot currently only implemented for NN case." );
     // This code will be enabled when the routines are implemented
     /*
-    else if( orientationOfA == Normal )
+    else if( orientationOfA == NORMAL )
     {
         basic::internal::GemmNTDot( orientationOfB, alpha, A, B, beta, C );
     }
-    else if( orientationOfB == Normal )
+    else if( orientationOfB == NORMAL )
     {
         basic::internal::GemmTNDot( orientationOfA, alpha, A, B, beta, C );
     }

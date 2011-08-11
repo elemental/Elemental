@@ -84,14 +84,14 @@ elemental::advanced::internal::CholUVar2
                          A20(g), A21(g), A22(g);
 
     // Temporary distributions
-    DistMatrix<F,MC,  Star> A01_MC_Star(g);
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,Star,VR  > A12_Star_VR(g);
-    DistMatrix<F,MR,  Star> X11Herm_MR_Star(g);
-    DistMatrix<F,MR,  MC  > X11Herm_MR_MC(g);
+    DistMatrix<F,MC,  STAR> A01_MC_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
+    DistMatrix<F,MR,  STAR> X11Adj_MR_STAR(g);
+    DistMatrix<F,MR,  MC  > X11Adj_MR_MC(g);
     DistMatrix<F,MC,  MR  > X11(g);
-    DistMatrix<F,MR,  Star> X12Herm_MR_Star(g);
-    DistMatrix<F,MR,  MC  > X12Herm_MR_MC(g);
+    DistMatrix<F,MR,  STAR> X12Adj_MR_STAR(g);
+    DistMatrix<F,MR,  MC  > X12Adj_MR_MC(g);
     DistMatrix<F,MC,  MR  > X12(g);
 
     // Start the algorithm
@@ -106,47 +106,46 @@ elemental::advanced::internal::CholUVar2
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A01_MC_Star.AlignWith( A01 );
-        X11Herm_MR_Star.AlignWith( A01 );
-        X11Herm_MR_MC.AlignWith( A11 );
+        A01_MC_STAR.AlignWith( A01 );
+        X11Adj_MR_STAR.AlignWith( A01 );
+        X11Adj_MR_MC.AlignWith( A11 );
         X11.AlignWith( A11 );
-        X12Herm_MR_Star.AlignWith( A02 );
-        X12Herm_MR_MC.AlignWith( A12 );
+        X12Adj_MR_STAR.AlignWith( A02 );
+        X12Adj_MR_MC.AlignWith( A12 );
         X12.AlignWith( A12 );
-        X11Herm_MR_Star.ResizeTo( A11.Width(), A11.Height() );
-        X12Herm_MR_Star.ResizeTo( A12.Width(), A12.Height() );
+        X11Adj_MR_STAR.ResizeTo( A11.Width(), A11.Height() );
+        X12Adj_MR_STAR.ResizeTo( A12.Width(), A12.Height() );
         //--------------------------------------------------------------------//
-        A01_MC_Star = A01;
+        A01_MC_STAR = A01;
         basic::internal::LocalGemm
-        ( ConjugateTranspose, Normal, 
-          (F)1, A01, A01_MC_Star, (F)0, X11Herm_MR_Star );
-        X11Herm_MR_MC.SumScatterFrom( X11Herm_MR_Star );
-        basic::ConjTrans( X11Herm_MR_MC, X11 );
+        ( ADJOINT, NORMAL, 
+          (F)1, A01, A01_MC_STAR, (F)0, X11Adj_MR_STAR );
+        X11Adj_MR_MC.SumScatterFrom( X11Adj_MR_STAR );
+        basic::Adjoint( X11Adj_MR_MC, X11 );
         basic::Axpy( (F)-1, X11, A11 );
 
-        A11_Star_Star = A11;
-        advanced::internal::LocalChol( Upper, A11_Star_Star );
-        A11 = A11_Star_Star;
+        A11_STAR_STAR = A11;
+        advanced::internal::LocalChol( UPPER, A11_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
         basic::internal::LocalGemm
-        ( ConjugateTranspose, Normal, 
-          (F)1, A02, A01_MC_Star, (F)0, X12Herm_MR_Star );
-        X12Herm_MR_MC.SumScatterFrom( X12Herm_MR_Star );
-        basic::ConjTrans( X12Herm_MR_MC, X12 );
+        ( ADJOINT, NORMAL, 
+          (F)1, A02, A01_MC_STAR, (F)0, X12Adj_MR_STAR );
+        X12Adj_MR_MC.SumScatterFrom( X12Adj_MR_STAR );
+        basic::Adjoint( X12Adj_MR_MC, X12 );
         basic::Axpy( (F)-1, X12, A12 );
 
-        A12_Star_VR = A12;
+        A12_STAR_VR = A12;
         basic::internal::LocalTrsm
-        ( Left, Upper, ConjugateTranspose, NonUnit,
-          (F)1, A11_Star_Star, A12_Star_VR );
-        A12 = A12_Star_VR;
+        ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
+        A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
-        A01_MC_Star.FreeAlignments();
-        X11Herm_MR_Star.FreeAlignments();
-        X11Herm_MR_MC.FreeAlignments();
+        A01_MC_STAR.FreeAlignments();
+        X11Adj_MR_STAR.FreeAlignments();
+        X11Adj_MR_MC.FreeAlignments();
         X11.FreeAlignments();
-        X12Herm_MR_Star.FreeAlignments();
-        X12Herm_MR_MC.FreeAlignments();
+        X12Adj_MR_STAR.FreeAlignments();
+        X12Adj_MR_MC.FreeAlignments();
         X12.FreeAlignments();
 
         SlidePartitionDownDiagonal
@@ -214,11 +213,11 @@ elemental::advanced::internal::CholUVar2Naive
                          A20(g), A21(g), A22(g);
 
     // Temporary distributions
-    DistMatrix<F,MC,  Star> A01_MC_Star(g);
-    DistMatrix<F,Star,Star> A11_Star_Star(g);
-    DistMatrix<F,Star,VR  > A12_Star_VR(g);
-    DistMatrix<F,Star,MR  > X11_Star_MR(g);
-    DistMatrix<F,Star,MR  > X12_Star_MR(g);
+    DistMatrix<F,MC,  STAR> A01_MC_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
+    DistMatrix<F,STAR,MR  > X11_STAR_MR(g);
+    DistMatrix<F,STAR,MR  > X12_STAR_MR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -232,36 +231,34 @@ elemental::advanced::internal::CholUVar2Naive
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A01_MC_Star.AlignWith( A01 );
-        X11_Star_MR.AlignWith( A01 );
-        X12_Star_MR.AlignWith( A02 );
-        X11_Star_MR.ResizeTo( A11.Height(), A11.Width() );
-        X12_Star_MR.ResizeTo( A12.Height(), A12.Width() );
+        A01_MC_STAR.AlignWith( A01 );
+        X11_STAR_MR.AlignWith( A01 );
+        X12_STAR_MR.AlignWith( A02 );
+        X11_STAR_MR.ResizeTo( A11.Height(), A11.Width() );
+        X12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
         //--------------------------------------------------------------------//
-        A01_MC_Star = A01;
+        A01_MC_STAR = A01;
         basic::internal::LocalGemm
-        ( ConjugateTranspose, Normal, 
-          (F)1, A01_MC_Star, A01, (F)0, X11_Star_MR );
-        A11.SumScatterUpdate( (F)-1, X11_Star_MR );
+        ( Adjoint, NORMAL, 
+          (F)1, A01_MC_STAR, A01, (F)0, X11_STAR_MR );
+        A11.SumScatterUpdate( (F)-1, X11_STAR_MR );
 
-        A11_Star_Star = A11;
-        advanced::internal::LocalChol( Upper, A11_Star_Star );
-        A11 = A11_Star_Star;
+        A11_STAR_STAR = A11;
+        advanced::internal::LocalChol( UPPER, A11_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
         basic::internal::LocalGemm
-        ( ConjugateTranspose, Normal, 
-          (F)1, A01_MC_Star, A02, (F)0, X12_Star_MR );
-        A12.SumScatterUpdate( (F)-1, X12_Star_MR );
+        ( Adjoint, NORMAL, (F)1, A01_MC_STAR, A02, (F)0, X12_STAR_MR );
+        A12.SumScatterUpdate( (F)-1, X12_STAR_MR );
 
-        A12_Star_VR = A12;
+        A12_STAR_VR = A12;
         basic::internal::LocalTrsm
-        ( Left, Upper, ConjugateTranspose, NonUnit,
-          (F)1, A11_Star_Star, A12_Star_VR );
-        A12 = A12_Star_VR;
+        ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
+        A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
-        A01_MC_Star.FreeAlignments();
-        X11_Star_MR.FreeAlignments();
-        X12_Star_MR.FreeAlignments();
+        A01_MC_STAR.FreeAlignments();
+        X11_STAR_MR.FreeAlignments();
+        X12_STAR_MR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

@@ -68,13 +68,13 @@ void TestCorrectness
     Y = X;
 
     // Since A o A^-1 = I, test the change introduced by the approximate comp.
-    basic::Trmm( Left, shape, Normal, NonUnit, (F)1, A, Y );
-    basic::Trmm( Left, shape, Normal, NonUnit, (F)1, AOrig, Y );
+    basic::Trmm( LEFT, shape, NORMAL, NON_UNIT, (F)1, A, Y );
+    basic::Trmm( LEFT, shape, NORMAL, NON_UNIT, (F)1, AOrig, Y );
     basic::Axpy( (F)-1, Y, X );
 
-    F oneNormOfError = advanced::Norm( Y, OneNorm );
-    F infNormOfError = advanced::Norm( Y, InfinityNorm );
-    F frobNormOfError = advanced::Norm( Y, FrobeniusNorm );
+    F oneNormOfError = advanced::Norm( Y, ONE_NORM );
+    F infNormOfError = advanced::Norm( Y, INFINITY_NORM );
+    F frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         cout << "||A A^-1 - I||_1  = " << Abs(oneNormOfError) << "\n"
@@ -95,7 +95,7 @@ void TestTriangularInversion
     A.ResizeTo( m, m );
 
     A.SetToRandomHPD();
-    A.MakeTrapezoidal( Left, shape );
+    A.MakeTrapezoidal( LEFT, shape );
     if( testCorrectness )
     {
         if( g.VCRank() == 0 )

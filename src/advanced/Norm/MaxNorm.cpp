@@ -59,7 +59,7 @@ advanced::internal::MaxNorm( const Matrix<R>& A )
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::internal::MaxNorm( const Matrix< std::complex<R> >& A )
+advanced::internal::MaxNorm( const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::MaxNorm");
@@ -142,9 +142,9 @@ template double elemental::advanced::internal::MaxNorm
 ( const Matrix<double>& A );
 #ifndef WITHOUT_COMPLEX
 template float elemental::advanced::internal::MaxNorm
-( const Matrix< std::complex<float> >& A );
+( const Matrix<std::complex<float> >& A );
 template double elemental::advanced::internal::MaxNorm
-( const Matrix< std::complex<double> >& A );
+( const Matrix<std::complex<double> >& A );
 #endif
 
 template float elemental::advanced::internal::MaxNorm

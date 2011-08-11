@@ -43,16 +43,16 @@ elemental::advanced::Hegst
 #ifndef RELEASE
     PushCallStack("advanced::Hegst");
 #endif
-    if( side==Left )
+    if( side == LEFT )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             advanced::internal::HegstLLVar4( A, B );
         else
             advanced::internal::HegstLUVar4( A, B );
     }
     else
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             advanced::internal::HegstRLVar4( A, B );
         else
             advanced::internal::HegstRUVar4( A, B );

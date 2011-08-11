@@ -43,7 +43,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   bool tryForHighAccuracy )
 {
@@ -73,7 +73,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, A, s, Z, tryForHighAccuracy );
 
     // Backtransform the eigenvalues by multiplying by i
@@ -99,7 +99,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   int a, int b, bool tryForHighAccuracy )
 {
@@ -129,7 +129,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, A, s, Z, a, b, tryForHighAccuracy );
     
     // Backtransform the eigenvalues by multiplying by i
@@ -153,7 +153,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   double a, double b, bool tryForHighAccuracy )
 {
@@ -183,7 +183,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, A, s, Z, a, b, tryForHighAccuracy );
     
     // Backtransform the eigenvalues by multiplying by i
@@ -206,7 +206,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -235,7 +235,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, A, s, tryForHighAccuracy );
     
     // Backtransform the eigenvalues by multiplying by i
@@ -261,7 +261,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -290,7 +290,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, A, s, a, b, tryForHighAccuracy );
     
     // Backtransform the eigenvalues by multiplying by i
@@ -314,7 +314,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   double a, double b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -343,7 +343,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, A, s, a, b, tryForHighAccuracy );
     
     // Backtransform the eigenvalues by multiplying by i
@@ -366,7 +366,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   bool tryForHighAccuracy )
 {
@@ -380,10 +380,10 @@ elemental::advanced::SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, Left, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, G, s, Z, tryForHighAccuracy );
 
     // Backtransform the eigenvalues by multiplying by i
@@ -410,7 +410,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   int a, int b, bool tryForHighAccuracy )
 {
@@ -424,10 +424,10 @@ elemental::advanced::SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, Left, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, G, s, Z, a, b, tryForHighAccuracy );
 
     // Backtransform the eigenvalues by multiplying by i
@@ -452,7 +452,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   double a, double b, bool tryForHighAccuracy )
 {
@@ -466,10 +466,10 @@ elemental::advanced::SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, Left, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, G, s, Z, a, b, tryForHighAccuracy );
 
     // Backtransform the eigenvalues by multiplying by i
@@ -492,7 +492,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -505,10 +505,10 @@ elemental::advanced::SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, Left, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, G, s, tryForHighAccuracy );
 
     // Backtransform the eigenvalues by multiplying by i
@@ -535,7 +535,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -548,10 +548,10 @@ elemental::advanced::SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, Left, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, G, s, a, b, tryForHighAccuracy );
 
     // Backtransform the eigenvalues by multiplying by i
@@ -576,7 +576,7 @@ void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,Star,VR>& w,
+  DistMatrix<std::complex<double>,STAR,VR>& w,
   double a, double b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -589,10 +589,10 @@ elemental::advanced::SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, Left, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
 
     // Perform the Hermitian eigensolve
-    DistMatrix<double,Star,VR> s(grid);
+    DistMatrix<double,STAR,VR> s(grid);
     advanced::HermitianEig( shape, G, s, a, b, tryForHighAccuracy );
 
     // Backtransform the eigenvalues by multiplying by i

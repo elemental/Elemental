@@ -90,13 +90,13 @@ elemental::basic::internal::HemmRUA
         CB(g),  C1(g),
                 C2(g);
 
-    DistMatrix<T,MR,  Star> B1Herm_MR_Star(g);
-    DistMatrix<T,VC,  Star> B1Herm_VC_Star(g);
-    DistMatrix<T,Star,MC  > B1_Star_MC(g);
-    DistMatrix<T,MC,  Star> Z1Herm_MC_Star(g);
-    DistMatrix<T,MR,  Star> Z1Herm_MR_Star(g);
-    DistMatrix<T,MC,  MR  > Z1Herm(g);
-    DistMatrix<T,MR,  MC  > Z1Herm_MR_MC(g);
+    DistMatrix<T,MR,  STAR> B1Adj_MR_STAR(g);
+    DistMatrix<T,VC,  STAR> B1Adj_VC_STAR(g);
+    DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
+    DistMatrix<T,MC,  STAR> Z1Adj_MC_STAR(g);
+    DistMatrix<T,MR,  STAR> Z1Adj_MR_STAR(g);
+    DistMatrix<T,MC,  MR  > Z1Adj(g);
+    DistMatrix<T,MR,  MC  > Z1Adj_MR_MC(g);
 
     Matrix<T> Z1Local;
 
@@ -121,36 +121,36 @@ elemental::basic::internal::HemmRUA
                C1,
           CB,  C2 );
 
-        B1Herm_MR_Star.AlignWith( A );
-        B1Herm_VC_Star.AlignWith( A );
-        B1_Star_MC.AlignWith( A );
-        Z1Herm_MC_Star.AlignWith( A );
-        Z1Herm_MR_Star.AlignWith( A );
-        Z1Herm_MR_MC.AlignWith( C1 );
-        Z1Herm_MC_Star.ResizeTo( C1.Width(), C1.Height() );
-        Z1Herm_MR_Star.ResizeTo( C1.Width(), C1.Height() );
+        B1Adj_MR_STAR.AlignWith( A );
+        B1Adj_VC_STAR.AlignWith( A );
+        B1_STAR_MC.AlignWith( A );
+        Z1Adj_MC_STAR.AlignWith( A );
+        Z1Adj_MR_STAR.AlignWith( A );
+        Z1Adj_MR_MC.AlignWith( C1 );
+        Z1Adj_MC_STAR.ResizeTo( C1.Width(), C1.Height() );
+        Z1Adj_MR_STAR.ResizeTo( C1.Width(), C1.Height() );
         //--------------------------------------------------------------------//
-        B1Herm_MR_Star.ConjugateTransposeFrom( B1 );
-        B1Herm_VC_Star = B1Herm_MR_Star;
-        B1_Star_MC.ConjugateTransposeFrom( B1Herm_VC_Star );
-        Z1Herm_MC_Star.SetToZero();
-        Z1Herm_MR_Star.SetToZero();
+        B1Adj_MR_STAR.AdjointFrom( B1 );
+        B1Adj_VC_STAR = B1Adj_MR_STAR;
+        B1_STAR_MC.AdjointFrom( B1Adj_VC_STAR );
+        Z1Adj_MC_STAR.SetToZero();
+        Z1Adj_MR_STAR.SetToZero();
         basic::internal::LocalSymmetricAccumulateRU
-        ( ConjugateTranspose, alpha, A, B1_Star_MC, B1Herm_MR_Star, 
-          Z1Herm_MC_Star, Z1Herm_MR_Star );
+        ( ADJOINT, alpha, A, B1_STAR_MC, B1Adj_MR_STAR, 
+          Z1Adj_MC_STAR, Z1Adj_MR_STAR );
 
-        Z1Herm.SumScatterFrom( Z1Herm_MC_Star );
-        Z1Herm_MR_MC = Z1Herm;
-        Z1Herm_MR_MC.SumScatterUpdate( (T)1, Z1Herm_MR_Star );
-        basic::ConjTrans( Z1Herm_MR_MC.LockedLocalMatrix(), Z1Local );
+        Z1Adj.SumScatterFrom( Z1Adj_MC_STAR );
+        Z1Adj_MR_MC = Z1Adj;
+        Z1Adj_MR_MC.SumScatterUpdate( (T)1, Z1Adj_MR_STAR );
+        basic::Adjoint( Z1Adj_MR_MC.LockedLocalMatrix(), Z1Local );
         basic::Axpy( (T)1, Z1Local, C1.LocalMatrix() );
         //--------------------------------------------------------------------//
-        B1Herm_MR_Star.FreeAlignments();
-        B1Herm_VC_Star.FreeAlignments();
-        B1_Star_MC.FreeAlignments();
-        Z1Herm_MC_Star.FreeAlignments();
-        Z1Herm_MR_Star.FreeAlignments();
-        Z1Herm_MR_MC.FreeAlignments();
+        B1Adj_MR_STAR.FreeAlignments();
+        B1Adj_VC_STAR.FreeAlignments();
+        B1_STAR_MC.FreeAlignments();
+        Z1Adj_MC_STAR.FreeAlignments();
+        Z1Adj_MR_STAR.FreeAlignments();
+        Z1Adj_MR_MC.FreeAlignments();
 
         SlideLockedPartitionDown
         ( BT,  B0,
@@ -197,10 +197,10 @@ elemental::basic::internal::HemmRUC
                         CLeft(g), CRight(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,Star> B1_MC_Star(g);
-    DistMatrix<T,VR,  Star> AColPan_VR_Star(g);
-    DistMatrix<T,Star,MR  > AColPanHerm_Star_MR(g);
-    DistMatrix<T,MR,  Star> ARowPanHerm_MR_Star(g);
+    DistMatrix<T,MC,STAR> B1_MC_STAR(g);
+    DistMatrix<T,VR,  STAR> AColPan_VR_STAR(g);
+    DistMatrix<T,STAR,MR  > AColPanAdj_STAR_MR(g);
+    DistMatrix<T,MR,  STAR> ARowPanAdj_MR_STAR(g);
 
     // Start the algorithm
     basic::Scal( beta, C );
@@ -235,31 +235,31 @@ elemental::basic::internal::HemmRUC
 
         CRight.View1x2( C1, C2 );
 
-        B1_MC_Star.AlignWith( C );
-        AColPan_VR_Star.AlignWith( CLeft );
-        AColPanHerm_Star_MR.AlignWith( CLeft );
-        ARowPanHerm_MR_Star.AlignWith( CRight );
+        B1_MC_STAR.AlignWith( C );
+        AColPan_VR_STAR.AlignWith( CLeft );
+        AColPanAdj_STAR_MR.AlignWith( CLeft );
+        ARowPanAdj_MR_STAR.AlignWith( CRight );
         //--------------------------------------------------------------------//
-        B1_MC_Star = B1;
+        B1_MC_STAR = B1;
 
-        AColPan_VR_Star = AColPan;
-        AColPanHerm_Star_MR.ConjugateTransposeFrom( AColPan_VR_Star );
-        ARowPanHerm_MR_Star.ConjugateTransposeFrom( ARowPan );
-        ARowPanHerm_MR_Star.MakeTrapezoidal( Left, Lower );
-        AColPanHerm_Star_MR.MakeTrapezoidal( Right, Lower, -1 );
+        AColPan_VR_STAR = AColPan;
+        AColPanAdj_STAR_MR.AdjointFrom( AColPan_VR_STAR );
+        ARowPanAdj_MR_STAR.AdjointFrom( ARowPan );
+        ARowPanAdj_MR_STAR.MakeTrapezoidal( Left, Lower );
+        AColPanAdj_STAR_MR.MakeTrapezoidal( Right, Lower, -1 );
 
         basic::internal::LocalGemm
-        ( Normal, ConjugateTranspose, 
-          alpha, B1_MC_Star, ARowPanHerm_MR_Star, (T)1, CRight );
+        ( NORMAL, ADJOINT, 
+          alpha, B1_MC_STAR, ARowPanAdj_MR_STAR, (T)1, CRight );
 
         basic::internal::LocalGemm
-        ( Normal, Normal,
-          alpha, B1_MC_Star, AColPanHerm_Star_MR, (T)1, CLeft );
+        ( NORMAL, NORMAL,
+          alpha, B1_MC_STAR, AColPanAdj_STAR_MR, (T)1, CLeft );
         //--------------------------------------------------------------------//
-        B1_MC_Star.FreeAlignments();
-        AColPan_VR_Star.FreeAlignments();
-        AColPanHerm_Star_MR.FreeAlignments();
-        ARowPanHerm_MR_Star.FreeAlignments();
+        B1_MC_STAR.FreeAlignments();
+        AColPan_VR_STAR.FreeAlignments();
+        AColPanAdj_STAR_MR.FreeAlignments();
+        ARowPanAdj_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
@@ -285,44 +285,44 @@ void
 elemental::basic::internal::LocalSymmetricAccumulateRU
 ( Orientation orientation, T alpha,
   const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,Star,MC  >& B_Star_MC,
-  const DistMatrix<T,MR,  Star>& BHermOrTrans_MR_Star,
-        DistMatrix<T,MC,  Star>& ZHermOrTrans_MC_Star,
-        DistMatrix<T,MR,  Star>& ZHermOrTrans_MR_Star )
+  const DistMatrix<T,STAR,MC  >& B_STAR_MC,
+  const DistMatrix<T,MR,  STAR>& BAdjOrTrans_MR_STAR,
+        DistMatrix<T,MC,  STAR>& ZAdjOrTrans_MC_STAR,
+        DistMatrix<T,MR,  STAR>& ZAdjOrTrans_MR_STAR )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalSymmetricAccumulateRU");
-    if( A.Grid() != B_Star_MC.Grid() ||
-        B_Star_MC.Grid() != BHermOrTrans_MR_Star.Grid() ||
-        BHermOrTrans_MR_Star.Grid() != ZHermOrTrans_MC_Star.Grid() ||
-        ZHermOrTrans_MC_Star.Grid() != ZHermOrTrans_MR_Star.Grid() )
+    if( A.Grid() != B_STAR_MC.Grid() ||
+        B_STAR_MC.Grid() != BAdjOrTrans_MR_STAR.Grid() ||
+        BAdjOrTrans_MR_STAR.Grid() != ZAdjOrTrans_MC_STAR.Grid() ||
+        ZAdjOrTrans_MC_STAR.Grid() != ZAdjOrTrans_MR_STAR.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
     if( A.Height() != A.Width() ||
-        A.Height() != B_Star_MC.Width() ||
-        A.Height() != BHermOrTrans_MR_Star.Height() ||
-        A.Height() != ZHermOrTrans_MC_Star.Height() ||
-        A.Height() != ZHermOrTrans_MR_Star.Height() ||
-        B_Star_MC.Height() != BHermOrTrans_MR_Star.Width() ||
-        BHermOrTrans_MR_Star.Width() != ZHermOrTrans_MC_Star.Width() ||
-        ZHermOrTrans_MC_Star.Width() != ZHermOrTrans_MR_Star.Width() )
+        A.Height() != B_STAR_MC.Width() ||
+        A.Height() != BAdjOrTrans_MR_STAR.Height() ||
+        A.Height() != ZAdjOrTrans_MC_STAR.Height() ||
+        A.Height() != ZAdjOrTrans_MR_STAR.Height() ||
+        B_STAR_MC.Height() != BAdjOrTrans_MR_STAR.Width() ||
+        BAdjOrTrans_MR_STAR.Width() != ZAdjOrTrans_MC_STAR.Width() ||
+        ZAdjOrTrans_MC_STAR.Width() != ZAdjOrTrans_MR_STAR.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal LocalSymmetricAccumulateRU: " << endl
             << "  A ~ " << A.Height() << " x " << A.Width() << endl
-            << "  B[* ,MC] ~ " << B_Star_MC.Height() << " x "
-                               << B_Star_MC.Width() << endl
-            << "  B^H/T[MR,* ] ~ " << BHermOrTrans_MR_Star.Height() << " x "
-                                   << BHermOrTrans_MR_Star.Width() << endl
-            << "  Z^H/T[MC,* ] ~ " << ZHermOrTrans_MC_Star.Height() << " x "
-                                   << ZHermOrTrans_MC_Star.Width() << endl
-            << "  Z^H/T[MR,* ] ~ " << ZHermOrTrans_MR_Star.Height() << " x "
-                                   << ZHermOrTrans_MR_Star.Width() << endl;
+            << "  B[* ,MC] ~ " << B_STAR_MC.Height() << " x "
+                               << B_STAR_MC.Width() << endl
+            << "  B^H/T[MR,* ] ~ " << BAdjOrTrans_MR_STAR.Height() << " x "
+                                   << BAdjOrTrans_MR_STAR.Width() << endl
+            << "  Z^H/T[MC,* ] ~ " << ZAdjOrTrans_MC_STAR.Height() << " x "
+                                   << ZAdjOrTrans_MC_STAR.Width() << endl
+            << "  Z^H/T[MR,* ] ~ " << ZAdjOrTrans_MR_STAR.Height() << " x "
+                                   << ZAdjOrTrans_MR_STAR.Width() << endl;
         throw logic_error( msg.str() );
     }
-    if( B_Star_MC.RowAlignment() != A.ColAlignment() ||
-        BHermOrTrans_MR_Star.ColAlignment() != A.RowAlignment() ||
-        ZHermOrTrans_MC_Star.ColAlignment() != A.ColAlignment() ||
-        ZHermOrTrans_MR_Star.ColAlignment() != A.RowAlignment() )
+    if( B_STAR_MC.RowAlignment() != A.ColAlignment() ||
+        BAdjOrTrans_MR_STAR.ColAlignment() != A.RowAlignment() ||
+        ZAdjOrTrans_MC_STAR.ColAlignment() != A.ColAlignment() ||
+        ZAdjOrTrans_MR_STAR.ColAlignment() != A.RowAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
     const Grid& g = A.Grid();
@@ -335,24 +335,24 @@ elemental::basic::internal::LocalSymmetricAccumulateRU
 
     DistMatrix<T,MC,MR> D11(g);
 
-    DistMatrix<T,Star,MC>
-        BL_Star_MC(g), BR_Star_MC(g),
-        B0_Star_MC(g), B1_Star_MC(g), B2_Star_MC(g);
+    DistMatrix<T,STAR,MC>
+        BL_STAR_MC(g), BR_STAR_MC(g),
+        B0_STAR_MC(g), B1_STAR_MC(g), B2_STAR_MC(g);
 
-    DistMatrix<T,MR,Star>
-        BTHermOrTrans_MR_Star(g),  B0HermOrTrans_MR_Star(g),
-        BBHermOrTrans_MR_Star(g),  B1HermOrTrans_MR_Star(g),
-                                   B2HermOrTrans_MR_Star(g);
+    DistMatrix<T,MR,STAR>
+        BTAdjOrTrans_MR_STAR(g),  B0AdjOrTrans_MR_STAR(g),
+        BBAdjOrTrans_MR_STAR(g),  B1AdjOrTrans_MR_STAR(g),
+                                  B2AdjOrTrans_MR_STAR(g);
 
-    DistMatrix<T,MC,Star>
-        ZTHermOrTrans_MC_Star(g),  Z0HermOrTrans_MC_Star(g),
-        ZBHermOrTrans_MC_Star(g),  Z1HermOrTrans_MC_Star(g),
-                                   Z2HermOrTrans_MC_Star(g);
+    DistMatrix<T,MC,STAR>
+        ZTAdjOrTrans_MC_STAR(g),  Z0AdjOrTrans_MC_STAR(g),
+        ZBAdjOrTrans_MC_STAR(g),  Z1AdjOrTrans_MC_STAR(g),
+                                  Z2AdjOrTrans_MC_STAR(g);
 
-    DistMatrix<T,MR,Star>
-        ZBHermOrTrans_MR_Star(g),  Z0HermOrTrans_MR_Star(g),
-        ZTHermOrTrans_MR_Star(g),  Z1HermOrTrans_MR_Star(g),
-                                   Z2HermOrTrans_MR_Star(g);
+    DistMatrix<T,MR,STAR>
+        ZBAdjOrTrans_MR_STAR(g),  Z0AdjOrTrans_MR_STAR(g),
+        ZTAdjOrTrans_MR_STAR(g),  Z1AdjOrTrans_MR_STAR(g),
+                                  Z2AdjOrTrans_MR_STAR(g);
 
     const int ratio = max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
@@ -360,16 +360,16 @@ elemental::basic::internal::LocalSymmetricAccumulateRU
     LockedPartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    LockedPartitionRight( B_Star_MC,  BL_Star_MC, BR_Star_MC, 0 );
+    LockedPartitionRight( B_STAR_MC,  BL_STAR_MC, BR_STAR_MC, 0 );
     LockedPartitionDown
-    ( BHermOrTrans_MR_Star, BTHermOrTrans_MR_Star,
-                            BBHermOrTrans_MR_Star, 0 );
+    ( BAdjOrTrans_MR_STAR, BTAdjOrTrans_MR_STAR,
+                           BBAdjOrTrans_MR_STAR, 0 );
     PartitionDown
-    ( ZHermOrTrans_MC_Star, ZTHermOrTrans_MC_Star,
-                            ZBHermOrTrans_MC_Star, 0 );
+    ( ZAdjOrTrans_MC_STAR, ZTAdjOrTrans_MC_STAR,
+                           ZBAdjOrTrans_MC_STAR, 0 );
     PartitionDown
-    ( ZHermOrTrans_MR_Star, ZTHermOrTrans_MR_Star,
-                            ZBHermOrTrans_MR_Star, 0 );
+    ( ZAdjOrTrans_MR_STAR, ZTAdjOrTrans_MR_STAR,
+                           ZBAdjOrTrans_MR_STAR, 0 );
     while( ATL.Height() < A.Height() )
     {
         LockedRepartitionDownDiagonal
@@ -379,26 +379,26 @@ elemental::basic::internal::LocalSymmetricAccumulateRU
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
         LockedRepartitionRight
-        ( BL_Star_MC, /**/ BR_Star_MC,
-          B0_Star_MC, /**/ B1_Star_MC, B2_Star_MC );
+        ( BL_STAR_MC, /**/ BR_STAR_MC,
+          B0_STAR_MC, /**/ B1_STAR_MC, B2_STAR_MC );
 
         LockedRepartitionDown
-        ( BTHermOrTrans_MR_Star,  B0HermOrTrans_MR_Star,
-         /*********************/ /*********************/
-                                  B1HermOrTrans_MR_Star,
-          BBHermOrTrans_MR_Star,  B2HermOrTrans_MR_Star );
+        ( BTAdjOrTrans_MR_STAR,  B0AdjOrTrans_MR_STAR,
+         /********************/ /********************/
+                                 B1AdjOrTrans_MR_STAR,
+          BBAdjOrTrans_MR_STAR,  B2AdjOrTrans_MR_STAR );
 
         RepartitionDown
-        ( ZTHermOrTrans_MC_Star,  Z0HermOrTrans_MC_Star,
-         /*********************/ /*********************/
-                                  Z1HermOrTrans_MC_Star,
-          ZBHermOrTrans_MC_Star,  Z2HermOrTrans_MC_Star );
+        ( ZTAdjOrTrans_MC_STAR,  Z0AdjOrTrans_MC_STAR,
+         /********************/ /********************/
+                                 Z1AdjOrTrans_MC_STAR,
+          ZBAdjOrTrans_MC_STAR,  Z2AdjOrTrans_MC_STAR );
 
         RepartitionDown
-        ( ZTHermOrTrans_MR_Star,  Z0HermOrTrans_MR_Star,
-         /*********************/ /*********************/
-                                  Z1HermOrTrans_MR_Star,
-          ZBHermOrTrans_MR_Star,  Z2HermOrTrans_MR_Star );
+        ( ZTAdjOrTrans_MR_STAR,  Z0AdjOrTrans_MR_STAR,
+         /********************/ /********************/
+                                 Z1AdjOrTrans_MR_STAR,
+          ZBAdjOrTrans_MR_STAR,  Z2AdjOrTrans_MR_STAR );
 
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
@@ -406,20 +406,20 @@ elemental::basic::internal::LocalSymmetricAccumulateRU
         D11.MakeTrapezoidal( Left, Upper );
         basic::internal::LocalGemm
         ( orientation, orientation,
-          alpha, D11, B1_Star_MC, (T)1, Z1HermOrTrans_MR_Star );
+          alpha, D11, B1_STAR_MC, (T)1, Z1AdjOrTrans_MR_STAR );
         D11.MakeTrapezoidal( Left, Upper, 1 );
 
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, D11, B1HermOrTrans_MR_Star, 
-          (T)1, Z1HermOrTrans_MC_Star );
+        ( NORMAL, NORMAL, alpha, D11, B1AdjOrTrans_MR_STAR, 
+          (T)1, Z1AdjOrTrans_MC_STAR );
 
         basic::internal::LocalGemm
         ( orientation, orientation,
-          alpha, A12, B1_Star_MC, (T)1, Z2HermOrTrans_MR_Star );
+          alpha, A12, B1_STAR_MC, (T)1, Z2AdjOrTrans_MR_STAR );
 
         basic::internal::LocalGemm
-        ( Normal, Normal, alpha, A12, B2HermOrTrans_MR_Star, 
-          (T)1, Z1HermOrTrans_MC_Star );
+        ( NORMAL, NORMAL, alpha, A12, B2AdjOrTrans_MR_STAR, 
+          (T)1, Z1AdjOrTrans_MC_STAR );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 
@@ -430,26 +430,26 @@ elemental::basic::internal::LocalSymmetricAccumulateRU
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
         SlideLockedPartitionRight
-        ( BL_Star_MC,             /**/ BR_Star_MC,
-          B0_Star_MC, B1_Star_MC, /**/ B2_Star_MC );
+        ( BL_STAR_MC,             /**/ BR_STAR_MC,
+          B0_STAR_MC, B1_STAR_MC, /**/ B2_STAR_MC );
 
         SlideLockedPartitionDown
-        ( BTHermOrTrans_MR_Star,  B0HermOrTrans_MR_Star,
-                                  B1HermOrTrans_MR_Star,
-         /*********************/ /*********************/
-          BBHermOrTrans_MR_Star,  B2HermOrTrans_MR_Star );
+        ( BTAdjOrTrans_MR_STAR,  B0AdjOrTrans_MR_STAR,
+                                 B1AdjOrTrans_MR_STAR,
+         /********************/ /********************/
+          BBAdjOrTrans_MR_STAR,  B2AdjOrTrans_MR_STAR );
 
         SlidePartitionDown
-        ( ZTHermOrTrans_MC_Star,  Z0HermOrTrans_MC_Star,
-                                  Z1HermOrTrans_MC_Star,
-         /*********************/ /*********************/
-          ZBHermOrTrans_MC_Star,  Z2HermOrTrans_MC_Star );       
+        ( ZTAdjOrTrans_MC_STAR,  Z0AdjOrTrans_MC_STAR,
+                                 Z1AdjOrTrans_MC_STAR,
+         /********************/ /********************/
+          ZBAdjOrTrans_MC_STAR,  Z2AdjOrTrans_MC_STAR );       
         
         SlidePartitionDown
-        ( ZTHermOrTrans_MR_Star,  Z0HermOrTrans_MR_Star,
-                                  Z1HermOrTrans_MR_Star,
-         /*********************/ /*********************/
-          ZBHermOrTrans_MR_Star,  Z2HermOrTrans_MR_Star ); 
+        ( ZTAdjOrTrans_MR_STAR,  Z0AdjOrTrans_MR_STAR,
+                                 Z1AdjOrTrans_MR_STAR,
+         /********************/ /********************/
+          ZBAdjOrTrans_MR_STAR,  Z2AdjOrTrans_MR_STAR ); 
     }
     PopBlocksizeStack();
 #ifndef RELEASE
@@ -466,10 +466,10 @@ template void
 elemental::basic::internal::LocalSymmetricAccumulateRU
 ( Orientation orientation, float alpha,
   const DistMatrix<float,MC,  MR  >& A,
-  const DistMatrix<float,Star,MC  >& B_Star_MC,
-  const DistMatrix<float,MR,  Star>& BHermOrTrans_MR_Star,
-        DistMatrix<float,MC,  Star>& ZHermOrTrans_MC_Star,
-        DistMatrix<float,MR,  Star>& ZHermOrTrans_MR_Star );
+  const DistMatrix<float,STAR,MC  >& B_STAR_MC,
+  const DistMatrix<float,MR,  STAR>& BAdjOrTrans_MR_STAR,
+        DistMatrix<float,MC,  STAR>& ZAdjOrTrans_MC_STAR,
+        DistMatrix<float,MR,  STAR>& ZAdjOrTrans_MR_STAR );
 
 template void elemental::basic::internal::HemmRU
 ( double alpha, const DistMatrix<double,MC,MR>& A,
@@ -480,10 +480,10 @@ template void
 elemental::basic::internal::LocalSymmetricAccumulateRU
 ( Orientation orientation, double alpha,
   const DistMatrix<double,MC,  MR  >& A,
-  const DistMatrix<double,Star,MC  >& B_Star_MC,
-  const DistMatrix<double,MR,  Star>& BHermOrTrans_MR_Star,
-        DistMatrix<double,MC,  Star>& ZHermOrTrans_MC_Star,
-        DistMatrix<double,MR,  Star>& ZHermOrTrans_MR_Star );
+  const DistMatrix<double,STAR,MC  >& B_STAR_MC,
+  const DistMatrix<double,MR,  STAR>& BAdjOrTrans_MR_STAR,
+        DistMatrix<double,MC,  STAR>& ZAdjOrTrans_MC_STAR,
+        DistMatrix<double,MR,  STAR>& ZAdjOrTrans_MR_STAR );
 
 #ifndef WITHOUT_COMPLEX
 template void elemental::basic::internal::HemmRU
@@ -495,10 +495,10 @@ template void
 elemental::basic::internal::LocalSymmetricAccumulateRU
 ( Orientation orientation, scomplex alpha,
   const DistMatrix<scomplex,MC,  MR  >& A,
-  const DistMatrix<scomplex,Star,MC  >& B_Star_MC,
-  const DistMatrix<scomplex,MR,  Star>& BHermOrTrans_MR_Star,
-        DistMatrix<scomplex,MC,  Star>& ZHermOrTrans_MC_Star,
-        DistMatrix<scomplex,MR,  Star>& ZHermOrTrans_MR_Star );
+  const DistMatrix<scomplex,STAR,MC  >& B_STAR_MC,
+  const DistMatrix<scomplex,MR,  STAR>& BAdjOrTrans_MR_STAR,
+        DistMatrix<scomplex,MC,  STAR>& ZAdjOrTrans_MC_STAR,
+        DistMatrix<scomplex,MR,  STAR>& ZAdjOrTrans_MR_STAR );
 
 template void elemental::basic::internal::HemmRU
 ( dcomplex alpha, const DistMatrix<dcomplex,MC,MR>& A,
@@ -509,9 +509,9 @@ template void
 elemental::basic::internal::LocalSymmetricAccumulateRU
 ( Orientation orientation, dcomplex alpha,
   const DistMatrix<dcomplex,MC,  MR  >& A,
-  const DistMatrix<dcomplex,Star,MC  >& B_Star_MC,
-  const DistMatrix<dcomplex,MR,  Star>& BHermOrTrans_MR_Star,
-        DistMatrix<dcomplex,MC,  Star>& ZHermOrTrans_MC_Star,
-        DistMatrix<dcomplex,MR,  Star>& ZHermOrTrans_MR_Star );
+  const DistMatrix<dcomplex,STAR,MC  >& B_STAR_MC,
+  const DistMatrix<dcomplex,MR,  STAR>& BAdjOrTrans_MR_STAR,
+        DistMatrix<dcomplex,MC,  STAR>& ZAdjOrTrans_MC_STAR,
+        DistMatrix<dcomplex,MR,  STAR>& ZAdjOrTrans_MR_STAR );
 #endif
 

@@ -58,16 +58,16 @@ elemental::basic::Trsv
 #ifndef RELEASE
     PushCallStack("basic::Trsv");
 #endif
-    if( shape == Lower )
+    if( shape == LOWER )
     {
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             basic::internal::TrsvLN( diagonal, A, x );
         else
             basic::internal::TrsvLT( orientation, diagonal, A, x );
     }
     else
     {
-        if( orientation == Normal )
+        if( orientation == NORMAL )
             basic::internal::TrsvUN( diagonal, A, x );
         else
             basic::internal::TrsvUT( orientation, diagonal, A, x );

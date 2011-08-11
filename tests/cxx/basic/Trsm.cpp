@@ -65,7 +65,7 @@ void TestTrsm
     DistMatrix<F,MC,MR> A(g);
     DistMatrix<F,MC,MR> X(g);
 
-    if( side == Left )
+    if( side == LEFT )
         A.ResizeTo( m, m );
     else
         A.ResizeTo( n, n );

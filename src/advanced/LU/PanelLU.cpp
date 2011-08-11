@@ -38,9 +38,9 @@ using namespace elemental::imports;
 template<typename F> // represents a real or complex number
 void
 elemental::advanced::internal::PanelLU
-( DistMatrix<F,  Star,Star>& A, 
-  DistMatrix<F,  MC,  Star>& B, 
-  DistMatrix<int,Star,Star>& p, 
+( DistMatrix<F,  STAR,STAR>& A, 
+  DistMatrix<F,  MC,  STAR>& B, 
+  DistMatrix<int,STAR,STAR>& p, 
   int pivotOffset )
 {
 #ifndef RELEASE
@@ -58,16 +58,16 @@ elemental::advanced::internal::PanelLU
     const int colAlignment = B.ColAlignment();
 
     // Matrix views
-    DistMatrix<F,Star,Star> 
+    DistMatrix<F,STAR,STAR> 
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),  
                          A20(g), a21(g),     A22(g);
 
-    DistMatrix<F,MC,Star>
+    DistMatrix<F,MC,STAR>
         BL(g), BR(g),
         B0(g), b1(g), B2(g);
 
-    DistMatrix<int,Star,Star>
+    DistMatrix<int,STAR,STAR>
         pT(g),  p0(g),
         pB(g),  psi1(g),
                 p2(g);
@@ -235,31 +235,31 @@ elemental::advanced::internal::PanelLU
 
 template void
 elemental::advanced::internal::PanelLU
-( DistMatrix<float,Star,Star>& A, 
-  DistMatrix<float,MC,  Star>& B, 
-  DistMatrix<int,  Star,Star>& p,
+( DistMatrix<float,STAR,STAR>& A, 
+  DistMatrix<float,MC,  STAR>& B, 
+  DistMatrix<int,  STAR,STAR>& p,
   int pivotOffset );
 
 template void
 elemental::advanced::internal::PanelLU
-( DistMatrix<double,Star,Star>& A, 
-  DistMatrix<double,MC,  Star>& B, 
-  DistMatrix<int,   Star,Star>& p,
+( DistMatrix<double,STAR,STAR>& A, 
+  DistMatrix<double,MC,  STAR>& B, 
+  DistMatrix<int,   STAR,STAR>& p,
   int pivotOffset );
 
 #ifndef WITHOUT_COMPLEX
 template void
 elemental::advanced::internal::PanelLU
-( DistMatrix<scomplex,Star,Star>& A,
-  DistMatrix<scomplex,MC,  Star>& B,
-  DistMatrix<int,     Star,Star>& p,
+( DistMatrix<scomplex,STAR,STAR>& A,
+  DistMatrix<scomplex,MC,  STAR>& B,
+  DistMatrix<int,     STAR,STAR>& p,
   int pivotOffset );
 
 template void
 elemental::advanced::internal::PanelLU
-( DistMatrix<dcomplex,Star,Star>& A,
-  DistMatrix<dcomplex,MC,  Star>& B,
-  DistMatrix<int,     Star,Star>& p,
+( DistMatrix<dcomplex,STAR,STAR>& A,
+  DistMatrix<dcomplex,MC,  STAR>& B,
+  DistMatrix<int,     STAR,STAR>& p,
   int pivotOffset );
 #endif
 

@@ -59,7 +59,7 @@ elemental::basic::internal::GemmTT
     PushCallStack("basic::internal::GemmTT");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
-    if( orientationOfA == Normal || orientationOfB == Normal )
+    if( orientationOfA == NORMAL || orientationOfB == NORMAL )
         throw logic_error( "GemmTT expects A and B to be transposed." );
 #endif
     const int m = C.Height();
@@ -101,7 +101,7 @@ elemental::basic::internal::GemmTTA
     PushCallStack("basic::internal::GemmTTA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
-    if( orientationOfA == Normal || orientationOfB == Normal )
+    if( orientationOfA == NORMAL || orientationOfB == NORMAL )
         throw logic_error
         ( "GemmTTA expects A and B to be (Conjugate)Transposed." );
     if( A.Width()  != C.Height() ||
@@ -127,8 +127,8 @@ elemental::basic::internal::GemmTTA
                         C0(g), C1(g), C2(g);
 
     // Temporary distributions
-    DistMatrix<T,Star,MC  > B1_Star_MC(g);
-    DistMatrix<T,MR,  Star> D1_MR_Star(g);
+    DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
+    DistMatrix<T,MR,  STAR> D1_MR_STAR(g);
     DistMatrix<T,MR,  MC  > D1_MR_MC(g);
     DistMatrix<T,MC,  MR  > D1(g);
 
@@ -150,26 +150,26 @@ elemental::basic::internal::GemmTTA
         ( CL, /**/     CR,
           C0, /**/ C1, C2 );
 
-        B1_Star_MC.AlignWith( A ); 
-        D1_MR_Star.AlignWith( A );  
-        D1_MR_Star.ResizeTo( C1.Height(), C1.Width() );
+        B1_STAR_MC.AlignWith( A ); 
+        D1_MR_STAR.AlignWith( A );  
+        D1_MR_STAR.ResizeTo( C1.Height(), C1.Width() );
         D1.AlignWith( C1 );  
         //--------------------------------------------------------------------//
-        B1_Star_MC = B1; // B1[*,MC] <- B1[MC,MR]
+        B1_STAR_MC = B1; // B1[*,MC] <- B1[MC,MR]
 
         // D1[MR,*] := alpha (A[MC,MR])^T (B1[*,MC])^T
         //           = alpha (A^T)[MR,MC] (B1^T)[MC,*]
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, 
-          alpha, A, B1_Star_MC, (T)0, D1_MR_Star );
+          alpha, A, B1_STAR_MC, (T)0, D1_MR_STAR );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
-        D1_MR_MC.SumScatterFrom( D1_MR_Star );
+        D1_MR_MC.SumScatterFrom( D1_MR_STAR );
         D1 = D1_MR_MC; 
         basic::Axpy( (T)1, D1, C1 );
         //--------------------------------------------------------------------//
-        B1_Star_MC.FreeAlignments();
-        D1_MR_Star.FreeAlignments();
+        B1_STAR_MC.FreeAlignments();
+        D1_MR_STAR.FreeAlignments();
         D1.FreeAlignments();
         
         SlideLockedPartitionDown
@@ -201,7 +201,7 @@ elemental::basic::internal::GemmTTB
     PushCallStack("basic::internal::GemmTTB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
-    if( orientationOfA == Normal || orientationOfB == Normal )
+    if( orientationOfA == NORMAL || orientationOfB == NORMAL )
         throw logic_error
         ( "GemmTTB expects A and B to be (Conjugate)Transposed." );
     if( A.Width()  != C.Height() ||
@@ -227,8 +227,8 @@ elemental::basic::internal::GemmTTB
                                 C2(g);
 
     // Temporary distributions
-    DistMatrix<T,MR,  Star> A1_MR_Star(g);
-    DistMatrix<T,Star,MC  > D1_Star_MC(g);
+    DistMatrix<T,MR,  STAR> A1_MR_STAR(g);
+    DistMatrix<T,STAR,MC  > D1_STAR_MC(g);
     DistMatrix<T,MR,  MC  > D1_MR_MC(g);
     DistMatrix<T,MC,  MR  > D1(g);
 
@@ -250,26 +250,26 @@ elemental::basic::internal::GemmTTB
                C1,
           CB,  C2 );
 
-        A1_MR_Star.AlignWith( B );
-        D1_Star_MC.AlignWith( B );
-        D1_Star_MC.ResizeTo( C1.Height(), C1.Width() );
+        A1_MR_STAR.AlignWith( B );
+        D1_STAR_MC.AlignWith( B );
+        D1_STAR_MC.ResizeTo( C1.Height(), C1.Width() );
         D1.AlignWith( C1 );
         //--------------------------------------------------------------------//
-        A1_MR_Star = A1; // A1[MR,*] <- A1[MC,MR]
+        A1_MR_STAR = A1; // A1[MR,*] <- A1[MC,MR]
  
         // D1[*,MC] := alpha (A1[MR,*])^T (B[MC,MR])^T
         //           = alpha (A1^T)[*,MR] (B^T)[MR,MC]
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, 
-          alpha, A1_MR_Star, B, (T)0, D1_Star_MC );
+          alpha, A1_MR_STAR, B, (T)0, D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
-        D1_MR_MC.SumScatterFrom( D1_Star_MC );
+        D1_MR_MC.SumScatterFrom( D1_STAR_MC );
         D1 = D1_MR_MC; 
         basic::Axpy( (T)1, D1, C1 );
         //--------------------------------------------------------------------//
-        A1_MR_Star.FreeAlignments();
-        D1_Star_MC.FreeAlignments();
+        A1_MR_STAR.FreeAlignments();
+        D1_STAR_MC.FreeAlignments();
         D1.FreeAlignments();
 
         SlideLockedPartitionRight
@@ -301,7 +301,7 @@ elemental::basic::internal::GemmTTC
     PushCallStack("basic::internal::GemmTTC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw logic_error( "{A,B,C} must be distributed over the same grid." );
-    if( orientationOfA == Normal || orientationOfB == Normal )
+    if( orientationOfA == NORMAL || orientationOfB == NORMAL )
         throw logic_error
         ( "GemmTTC expects A and B to be (Conjugate)Transposed." );
     if( A.Width()  != C.Height() ||
@@ -327,8 +327,8 @@ elemental::basic::internal::GemmTTC
                         B0(g), B1(g), B2(g);
 
     // Temporary distributions
-    DistMatrix<T,Star,MC> A1_Star_MC(g);
-    DistMatrix<T,MR,Star> B1_MR_Star(g);
+    DistMatrix<T,STAR,MC> A1_STAR_MC(g);
+    DistMatrix<T,MR,STAR> B1_MR_STAR(g);
     
     // Start the algorithm    
     basic::Scal( beta, C );
@@ -348,20 +348,20 @@ elemental::basic::internal::GemmTTC
         ( BL, /**/     BR,
           B0, /**/ B1, B2 );
 
-        A1_Star_MC.AlignWith( C );
-        B1_MR_Star.AlignWith( C );
+        A1_STAR_MC.AlignWith( C );
+        B1_MR_STAR.AlignWith( C );
         //--------------------------------------------------------------------//
-        A1_Star_MC = A1; // A1[*,MC] <- A1[MC,MR]
-        B1_MR_Star = B1; // B1[MR,*] <- B1[MC,MR]
+        A1_STAR_MC = A1; // A1[*,MC] <- A1[MC,MR]
+        B1_MR_STAR = B1; // B1[MR,*] <- B1[MC,MR]
 
         // C[MC,MR] += alpha (A1[*,MC])^T (B1[MR,*])^T
         //           = alpha (A1^T)[MC,*] (B1^T)[*,MR]
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, 
-          alpha, A1_Star_MC, B1_MR_Star, (T)1, C );
+          alpha, A1_STAR_MC, B1_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
-        A1_Star_MC.FreeAlignments();
-        B1_MR_Star.FreeAlignments();
+        A1_STAR_MC.FreeAlignments();
+        B1_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionDown
         ( AT,  A0,

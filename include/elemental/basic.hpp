@@ -58,16 +58,16 @@ template<typename T> void SetLocalHemvBlocksize( int blocksize );
 template<> void SetLocalHemvBlocksize<float>( int blocksize );
 template<> void SetLocalHemvBlocksize<double>( int blocksize );
 #ifndef WITHOUT_COMPLEX
-template<> void SetLocalHemvBlocksize< std::complex<float> >( int blocksize );
-template<> void SetLocalHemvBlocksize< std::complex<double> >( int blocksize );
+template<> void SetLocalHemvBlocksize<std::complex<float> >( int blocksize );
+template<> void SetLocalHemvBlocksize<std::complex<double> >( int blocksize );
 #endif // WITHOUT_COMPLEX
 
 template<typename T> void SetLocalSymvBlocksize( int blocksize );
 template<> void SetLocalSymvBlocksize<float>( int blocksize );
 template<> void SetLocalSymvBlocksize<double>( int blocksize );
 #ifndef WITHOUT_COMPLEX
-template<> void SetLocalSymvBlocksize< std::complex<float> >( int blocksize );
-template<> void SetLocalSymvBlocksize< std::complex<double> >( int blocksize );
+template<> void SetLocalSymvBlocksize<std::complex<float> >( int blocksize );
+template<> void SetLocalSymvBlocksize<std::complex<double> >( int blocksize );
 #endif // WITHOUT_COMPLEX
 
 template<typename T> void SetLocalTriangularRankKBlocksize( int blocksize );
@@ -75,9 +75,9 @@ template<> void SetLocalTriangularRankKBlocksize<float>( int blocksize );
 template<> void SetLocalTriangularRankKBlocksize<double>( int blocksize );
 #ifndef WITHOUT_COMPLEX
 template<> void 
-SetLocalTriangularRankKBlocksize< std::complex<float> >( int blocksize );
+SetLocalTriangularRankKBlocksize<std::complex<float> >( int blocksize );
 template<> void 
-SetLocalTriangularRankKBlocksize< std::complex<double> >( int blocksize );
+SetLocalTriangularRankKBlocksize<std::complex<double> >( int blocksize );
 #endif // WITHOUT_COMPLEX
 
 template<typename T> void SetLocalTriangularRank2KBlocksize( int blocksize );
@@ -85,9 +85,9 @@ template<> void SetLocalTriangularRank2KBlocksize<float>( int blocksize );
 template<> void SetLocalTriangularRank2KBlocksize<double>( int blocksize );
 #ifndef WITHOUT_COMPLEX
 template<> void 
-SetLocalTriangularRank2KBlocksize< std::complex<float> >( int blocksize );
+SetLocalTriangularRank2KBlocksize<std::complex<float> >( int blocksize );
 template<> void 
-SetLocalTriangularRank2KBlocksize< std::complex<double> >( int blocksize );
+SetLocalTriangularRank2KBlocksize<std::complex<double> >( int blocksize );
 #endif // WITHOUT_COMPLEX
 
 template<typename T> int LocalHemvBlocksize();
@@ -241,7 +241,7 @@ Nrm2( const Matrix<R>& x );
 // Serial version for complex datatypes
 template<typename R>
 R
-Nrm2( const Matrix< std::complex<R> >& x );
+Nrm2( const Matrix<std::complex<R> >& x );
 #endif
 
 // Parallel version for real datatypes
@@ -253,7 +253,7 @@ Nrm2( const DistMatrix<R,MC,MR>& x );
 // Parallel version for complex datatypes
 template<typename R>
 R
-Nrm2( const DistMatrix< std::complex<R>, MC, MR >& x );
+Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x );
 #endif
 
 // 
@@ -280,75 +280,66 @@ Scal
 //
 // Conj: 
 //
-// Conjugates a matrix. The in-place version performs A := Conj(A), while the 
-// out-of-place sets B := Conj(A).
+// Conjugates a matrix. The in-place version performs A := Conjugate(A), while the 
+// out-of-place sets B := Conjugate(A).
 //
 
 // In-place serial version for real datatypes. 
 // Note: this is a no-op.
 template<typename Z>
-void
-Conj( Matrix<Z>& A );
+void Conjugate( Matrix<Z>& A );
 
 #ifndef WITHOUT_COMPLEX
 // In-place serial version for complex datatypes.
 template<typename Z>
-void
-Conj( Matrix< std::complex<Z> >& A );
+void Conjugate( Matrix<std::complex<Z> >& A );
 #endif
 
 // In-place parallel version
 template<typename T, Distribution U, Distribution V>
-void
-Conj( DistMatrix<T,U,V>& A );
+void Conjugate( DistMatrix<T,U,V>& A );
 
 // Out-of-place serial version.
 template<typename T>
-void
-Conj( const Matrix<T>& A, Matrix<T>& B );
+void Conjugate( const Matrix<T>& A, Matrix<T>& B );
 
 // Out-of-place parallel version.
 template<typename T, 
          Distribution U, Distribution V,
          Distribution W, Distribution Z>
-void
-Conj( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
+void Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
 //
-// ConjTrans:
+// Adjoint:
 //
 // B := A^H
 //
 
 // Serial version
 template<typename T>
-void
-ConjTrans( const Matrix<T>& A, Matrix<T>& B );
+void Adjoint( const Matrix<T>& A, Matrix<T>& B );
 
 // Parallel version
 template<typename T, 
          Distribution U, Distribution V,
          Distribution W, Distribution Z>
-void
-ConjTrans( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
+void Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
 //
-// Trans:
+// Transpose:
 //
 // B := A^T
 //
 
 // Serial version
 template<typename T>
-void
-Trans( const Matrix<T>& A, Matrix<T>& B );
+void Transpose( const Matrix<T>& A, Matrix<T>& B );
 
 // Parallel version
 template<typename T, 
          Distribution U, Distribution V,
          Distribution W, Distribution Z>
-void
-Trans( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
+void Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
 //----------------------------------------------------------------------------//
 // Level 2 BLAS-like routines                                                 //
@@ -363,15 +354,13 @@ Trans( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
 // Serial version
 template<typename T>
-void
-Gemv
+void Gemv
 ( Orientation orientation, 
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
 
 // Parallel version
 template<typename T>
-void
-Gemv
+void Gemv
 ( Orientation orientationOfA,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y );
@@ -384,13 +373,11 @@ Gemv
 
 // Serial version
 template<typename T>
-void
-Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+void Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
-void
-Ger
+void Ger
 ( T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
 
@@ -405,13 +392,11 @@ Ger
 
 // Serial version
 template<typename T>
-void
-Gerc( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+void Gerc( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
-void
-Gerc
+void Gerc
 ( T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
 
@@ -423,13 +408,11 @@ Gerc
 
 // Serial version
 template<typename T>
-void
-Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+void Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
-void
-Geru
+void Geru
 ( T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
 
@@ -443,14 +426,13 @@ Geru
 
 // Serial version
 template<typename T>
-void
-Hemv( Shape shape,
-      T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
+void Hemv
+( Shape shape,
+  T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
 
 // Parallel version
 template<typename T>
-void
-Hemv
+void Hemv
 ( Shape shape,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y );
@@ -465,13 +447,11 @@ Hemv
 
 // Serial version
 template<typename T>
-void
-Her( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A );
+void Her( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
-void
-Her
+void Her
 ( Shape shape, T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A );
 
 //
@@ -484,14 +464,12 @@ Her
 
 // Serial version
 template<typename T>
-void
-Her2
+void Her2
 ( Shape shape, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
-void
-Her2
+void Her2
 ( Shape shape,
   T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
@@ -507,15 +485,13 @@ Her2
 
 // Serial version
 template<typename T>
-void
-Symv
+void Symv
 ( Shape shape,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
 
 // Parallel version
 template<typename T>
-void
-Symv
+void Symv
 ( Shape shape,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y );
@@ -530,13 +506,11 @@ Symv
 
 // Serial version
 template<typename T>
-void
-Syr( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A );
+void Syr( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
-void
-Syr
+void Syr
 ( Shape shape,
   T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A );
 
@@ -550,14 +524,12 @@ Syr
 
 // Serial version
 template<typename T>
-void
-Syr2
+void Syr2
 ( Shape shape, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
-void
-Syr2
+void Syr2
 ( Shape shape,
   T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
@@ -574,15 +546,13 @@ Syr2
 
 // Serial version
 template<typename T>
-void
-Trmv
+void Trmv
 ( Shape shape, Orientation orientation, Diagonal diagonal,
   const Matrix<T>& A, Matrix<T>& x );
 
 // Parallel version
 template<typename T>
-void
-Trmv
+void Trmv
 ( Shape shape, Orientation orientation, Diagonal diagonal,
   const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& x );
 
@@ -598,15 +568,13 @@ Trmv
 
 // Serial version
 template<typename F>
-void
-Trsv
+void Trsv
 ( Shape shape, Orientation orientation, Diagonal diagonal,
   const Matrix<F>& A, Matrix<F>& x );
 
 // Parallel version
 template<typename F>
-void
-Trsv
+void Trsv
 ( Shape shape, Orientation orientation, Diagonal diagonal,
   const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& x );
 
@@ -622,15 +590,13 @@ Trsv
 
 // Serial version
 template<typename T>
-void
-Gemm
+void Gemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
-void
-Gemm
+void Gemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
@@ -639,24 +605,22 @@ Gemm
 // Hemm (HErmitian Matrix-Matrix multiplication):
 //
 // Performs the update
-//   C := alpha A B + beta C,  { side = Left }
+//   C := alpha A B + beta C,  { side = LEFT }
 // or
-//   C := alpha B A + beta C,  { side = Right }
+//   C := alpha B A + beta C,  { side = RIGHT }
 // where only the triangle of 'A' specified by 'shape' is referenced, and the
 // other triangle is implied by the Hermitian assumption.
 //
 
 // Serial version
 template<typename T>
-void
-Hemm
+void Hemm
 ( Side side, Shape shape,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
-void
-Hemm
+void Hemm
 ( Side side, Shape shape,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
@@ -665,23 +629,21 @@ Hemm
 // Her2k (HErmitian Rank-2K update):
 //
 // Performs the update
-//   C := alpha ( A B^H + B A^H ) + beta C, { orientation = Normal }
+//   C := alpha ( A B^H + B A^H ) + beta C, { orientation = NORMAL }
 // or
-//   C := alpha ( A^H B + B^H A ) + beta C, { orientation = ConjugateTranspose }
+//   C := alpha ( A^H B + B^H A ) + beta C, { orientation = ADJOINT }
 // where only the triangle of C specified by 'shape' is updated.
 //
 
 // Serial version
 template<typename T>
-void
-Her2k
+void Her2k
 ( Shape shape, Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
-void
-Her2k
+void Her2k
 ( Shape shape, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
@@ -690,23 +652,21 @@ Her2k
 // Herk (HErmitian Rank-K update):
 //
 // Performs the update
-//   C := alpha A B^H + beta C,  { orientation = Normal }
+//   C := alpha A B^H + beta C,  { orientation = NORMAL }
 // or
-//   C := alpha A^H B + beta C,  { orientation = ConjugateTranspose }
+//   C := alpha A^H B + beta C,  { orientation = ADJOINT }
 // where only the triangle of C specified by 'shape' is updated.
 //
 
 // Serial version
 template<typename T>
-void
-Herk
+void Herk
 ( Shape shape, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
-void
-Herk
+void Herk
 ( Shape shape, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
@@ -714,24 +674,22 @@ Herk
 // Symm (SYmmetric Matrix-Matrix multiplication):
 //
 // Performs the update
-//   C := alpha A B + beta C,  { side = Left }
+//   C := alpha A B + beta C,  { side = LEFT }
 // or
-//   C := alpha B A + beta C,  { side = Right }
+//   C := alpha B A + beta C,  { side = RIGHT }
 // where only the triangle of A specified by 'shape' is referenced, and the 
 // other triangle is implied by the symmetry assumption.
 //
 
 // Serial version
 template<typename T>
-void
-Symm
+void Symm
 ( Side side, Shape shape,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C ); 
 
 // Parallel version
 template<typename T>
-void
-Symm
+void Symm
 ( Side side, Shape shape,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
@@ -740,23 +698,21 @@ Symm
 // Syr2k (SYmmetric Rank-2K update):
 //
 // Performs the update
-//   C := alpha ( A B^H + B A^H ) + beta C,  { orientation = Normal }
+//   C := alpha ( A B^H + B A^H ) + beta C,  { orientation = NORMAL }
 // or
-//   C := alpha ( A^H B + B^H A ) + beta C,  { orientation = Transpose }
+//   C := alpha ( A^H B + B^H A ) + beta C,  { orientation = TRANSPOSE }
 // where only the triangle of C specified by 'shape' is updated.
 //
 
 // Serial version
 template<typename T>
-void
-Syr2k
+void Syr2k
 ( Shape shape, Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
-void
-Syr2k
+void Syr2k
 ( Shape shape, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
@@ -765,23 +721,21 @@ Syr2k
 // Syrk (SYmmetric Rank-K update):
 //
 // Performs the update
-//   C := alpha A B^H + beta C,  { orientation = Normal }
+//   C := alpha A B^H + beta C,  { orientation = NORMAL }
 // or
-//   C := alpha A^H B + beta C,  { orientation = Transpose }
+//   C := alpha A^H B + beta C,  { orientation = TRANSPOSE }
 // where only the triangle of C specified by 'shape' is updated.
 //
 
 // Serial version
 template<typename T>
-void
-Syrk
+void Syrk
 ( Shape shape, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
-void
-Syrk
+void Syrk
 ( Shape shape, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
@@ -789,9 +743,9 @@ Syrk
 // Trmm (TRiangular Matrix-Matrix multiplication):
 //
 // Performs the update
-//   B := alpha orientation( A ) B,  { side = Left }
+//   B := alpha orientation( A ) B,  { side = LEFT }
 // or
-//   B := alpha B orientation( A ),  { side = Right }
+//   B := alpha B orientation( A ),  { side = RIGHT }
 // where 'shape' determines whether A is assumed to be upper or lower 
 // triangular and 'diagonal' determines whether A has an implicit unit
 // diagonal.
@@ -799,15 +753,13 @@ Syrk
 
 // Serial version
 template<typename T>
-void
-Trmm
+void Trmm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
   T alpha, const Matrix<T>& A, Matrix<T>& B );
 
 // Parallel version
 template<typename T>
-void
-Trmm
+void Trmm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
 
@@ -815,9 +767,9 @@ Trmm
 // Trsm (TRiangular Solve with Multiple right-hand sides):
 //
 // Performs the update
-//   B := alpha orientation( A )^-1 B,  { side = Left }
+//   B := alpha orientation( A )^-1 B,  { side = LEFT }
 // or
-//   B := alpha B orientation( A )^-1,  { side = Right }
+//   B := alpha B orientation( A )^-1,  { side = RIGHT }
 // where 'shape' determines whether A is assumed to be upper or lower
 // triangular and 'diagonal' determines whether A has an implicit unit
 // diagonal.
@@ -825,16 +777,14 @@ Trmm
 
 // Serial version
 template<typename F>
-void
-Trsm
+void Trsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
   F alpha, const Matrix<F>& A, Matrix<F>& B, 
   bool checkIfSingular=false ); 
         
 // Parallel version
 template<typename F>
-void
-Trsm
+void Trsm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B,
   bool checkIfSingular=false );
@@ -1102,7 +1052,7 @@ elemental::basic::Nrm2
 template<typename R>
 inline R
 elemental::basic::Nrm2
-( const Matrix< std::complex<R> >& x )
+( const Matrix<std::complex<R> >& x )
 {
 #ifndef RELEASE
     PushCallStack("basic::Nrm2");
@@ -1164,25 +1114,24 @@ elemental::basic::Scal
 // Default case is for real datatypes
 template<typename Z>
 inline void
-elemental::basic::Conj
-( Matrix<Z>& A )
+elemental::basic::Conjugate( Matrix<Z>& A )
 { }
 
 #ifndef WITHOUT_COMPLEX
 // Specialization is to complex datatypes
 template<typename Z>
 inline void
-elemental::basic::Conj
-( Matrix< std::complex<Z> >& A )
+elemental::basic::Conjugate
+( Matrix<std::complex<Z> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Conj (in-place)");
+    PushCallStack("basic::Conjugate (in-place)");
 #endif
     const int m = A.Height();
     const int n = A.Width();
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            A.Set(i,j,elemental::Conj(A.Get(i,j)));
+            A.Set(i,j,elemental::Conjugate(A.Get(i,j)));
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1191,18 +1140,17 @@ elemental::basic::Conj
 
 template<typename T>
 inline void
-elemental::basic::Conj
-( const Matrix<T>& A, Matrix<T>& B )
+elemental::basic::Conjugate( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Conj");
+    PushCallStack("basic::Conjugate");
 #endif
     const int m = A.Height();
     const int n = A.Width();
     B.ResizeTo( m, n );
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            B.Set(i,j,elemental::Conj(A.Get(i,j)));
+            B.Set(i,j,Conj(A.Get(i,j)));
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1210,26 +1158,21 @@ elemental::basic::Conj
 
 template<typename T>
 inline void
-elemental::basic::ConjTrans
-( const Matrix<T>& A, Matrix<T>& B )
+elemental::basic::Adjoint( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::ConjTrans");
+    PushCallStack("basic::Adjoint");
 #endif
     const int m = A.Height();
     const int n = A.Width();
     if( !B.Viewing() )
-    {
         B.ResizeTo( n, m );
-    }
     else if( B.Height() != n || B.Width() != m )
-    {
         throw std::logic_error
-              ("If ConjTrans'ing into a view, it must be the right size.");
-    }
+              ("If Adjoint'ing into a view, it must be the right size.");
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            B.Set(j,i,elemental::Conj(A.Get(i,j)));
+            B.Set(j,i,Conj(A.Get(i,j)));
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1237,23 +1180,18 @@ elemental::basic::ConjTrans
 
 template<typename T>
 inline void
-elemental::basic::Trans
-( const Matrix<T>& A, Matrix<T>& B )
+elemental::basic::Transpose( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trans");
+    PushCallStack("basic::Transpose");
 #endif
     const int m = A.Height();
     const int n = A.Width();
     if( !B.Viewing() )
-    {
         B.ResizeTo( n, m );
-    }
     else if( B.Height() != n || B.Width() != m )
-    {
         throw std::logic_error
               ("If Transposing into a view, it must be the right size.");
-    }
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             B.Set(j,i,A.Get(i,j));
@@ -1285,7 +1223,7 @@ elemental::basic::Gemv
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-    if( orientation == Normal )
+    if( orientation == NORMAL )
     {
         if( A.Height() != yLength || A.Width() != xLength )
         {
@@ -1665,21 +1603,21 @@ elemental::basic::Gemm
 {
 #ifndef RELEASE
     PushCallStack("basic::Gemm");
-    if( orientationOfA == Normal && orientationOfB == Normal )
+    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         if( A.Height() != C.Height() ||
             B.Width()  != C.Width()  ||
             A.Width()  != B.Height() )
             throw std::logic_error( "Nonconformal GemmNN." );
     }
-    else if( orientationOfA == Normal )
+    else if( orientationOfA == NORMAL )
     {
         if( A.Height() != C.Height() ||
             B.Height() != C.Width()  ||
             A.Width()  != B.Width() )
             throw std::logic_error( "Nonconformal GemmN(T/C)." );
     }
-    else if( orientationOfB == Normal )
+    else if( orientationOfB == NORMAL )
     {
         if( A.Width()  != C.Height() ||
             B.Width()  != C.Width()  ||
@@ -1698,7 +1636,7 @@ elemental::basic::Gemm
     const char transB = OrientationToChar( orientationOfB );
     const int m = C.Height();
     const int n = C.Width();
-    const int k = ( orientationOfA == Normal ? A.Width() : A.Height() );
+    const int k = ( orientationOfA == NORMAL ? A.Width() : A.Height() );
     if( k != 0 )
     {
         imports::blas::Gemm
@@ -1744,13 +1682,13 @@ elemental::basic::Her2k
 {
 #ifndef RELEASE
     PushCallStack("basic::Her2k");
-    if( orientation == Normal )
+    if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
             B.Height() != C.Height() ||B.Height() != C.Width() )
             throw std::logic_error( "Nonconformal Her2k." );
     }
-    else if( orientation == ConjugateTranspose )
+    else if( orientation == Adjoint )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() ||
             B.Width() != C.Height() || B.Width() != C.Width() )
@@ -1758,11 +1696,11 @@ elemental::basic::Her2k
     }
     else
         throw std::logic_error
-        ( "Her2k only accepts Normal and ConjugateTranspose options." );
+        ( "Her2k only accepts NORMAL and ADJOINT options." );
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
-    const int k = ( orientation == Normal ? A.Width() : A.Height() );
+    const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
     imports::blas::Her2k
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
@@ -1781,23 +1719,22 @@ elemental::basic::Herk
 {
 #ifndef RELEASE
     PushCallStack("basic::Herk");
-    if( orientation == Normal )
+    if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() )
             throw std::logic_error( "Nonconformal Herk." );
     }
-    else if( orientation == ConjugateTranspose )
+    else if( orientation == ADJOINT )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() )
             throw std::logic_error( "Nonconformal Herk." );
     }
     else
-        throw std::logic_error
-        ( "Herk only accepts Normal and ConjugateTranpose options." );
+        throw std::logic_error("Herk only accepts NORMAL and ADJOINT options.");
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
-    const int k = ( orientation == Normal ? A.Width() : A.Height() );
+    const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
     imports::blas::Herk
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
@@ -1836,13 +1773,13 @@ elemental::basic::Syr2k
 {
 #ifndef RELEASE
     PushCallStack("basic::Syr2k");
-    if( orientation == Normal )
+    if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
             B.Height() != C.Height() ||B.Height() != C.Width()    )
             throw std::logic_error( "Nonconformal Syr2k." );
     }
-    else if( orientation == Transpose )
+    else if( orientation == TRANSPOSE )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() ||
             B.Width() != C.Height() || B.Width() != C.Width()   )
@@ -1850,11 +1787,11 @@ elemental::basic::Syr2k
     }
     else
         throw std::logic_error
-        ( "Syr2k only accepts Normal and Tranpose options." );
+        ( "Syr2k only accepts NORMAL and TRANSPOSE options." );
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
-    const int k = ( orientation == Normal ? A.Width() : A.Height() );
+    const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
     imports::blas::Syr2k
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
@@ -1873,23 +1810,23 @@ elemental::basic::Syrk
 {
 #ifndef RELEASE
     PushCallStack("basic::Syrk");
-    if( orientation == Normal )
+    if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() )
             throw std::logic_error( "Nonconformal Syrk." );
     }
-    else if( orientation == Transpose )
+    else if( orientation == TRANSPOSE )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() )
             throw std::logic_error( "Nonconformal Syrk." );
     }
     else
         throw std::logic_error
-        ( "Syrk only accepts Normal and Tranpose options." );
+        ( "Syrk only accepts NORMAL and TRANSPOSE options." );
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
-    const int k = ( orientation == Normal ? A.Width() : A.Height() );
+    const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
     imports::blas::Syrk
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
@@ -1910,7 +1847,7 @@ elemental::basic::Trmm
     PushCallStack("basic::Trmm");
     if( A.Height() != A.Width() )
         throw std::logic_error( "Triangular matrix must be square." );
-    if( side == Left )
+    if( side == LEFT )
     {
         if( A.Height() != B.Height() )
             throw std::logic_error( "Nonconformal Trmm." );
@@ -1945,7 +1882,7 @@ elemental::basic::Trsm
     PushCallStack("basic::Trsm");
     if( A.Height() != A.Width() )
         throw std::logic_error( "Triangular matrix must be square." );
-    if( side == Left )
+    if( side == LEFT )
     {
         if( A.Height() != B.Height() )
             throw std::logic_error( "Nonconformal Trsm." );
@@ -2052,13 +1989,12 @@ elemental::basic::Scal
 
 template<typename T, elemental::Distribution U, elemental::Distribution V>
 inline void
-elemental::basic::Conj
-( DistMatrix<T,U,V>& A )
+elemental::basic::Conjugate( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Conj (in-place)");
+    PushCallStack("basic::Conjugate (in-place)");
 #endif
-    basic::Conj( A.LocalMatrix() );
+    basic::Conjugate( A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2067,14 +2003,14 @@ elemental::basic::Conj
 template<typename T, elemental::Distribution U, elemental::Distribution V,
                      elemental::Distribution W, elemental::Distribution Z >
 inline void
-elemental::basic::Conj
+elemental::basic::Conjugate
 ( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Conj");
+    PushCallStack("basic::Conjugate");
 #endif
     B = A;
-    basic::Conj( B ); 
+    basic::Conjugate( B ); 
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2083,11 +2019,11 @@ elemental::basic::Conj
 template<typename T, elemental::Distribution U, elemental::Distribution V,
                      elemental::Distribution W, elemental::Distribution Z >
 inline void
-elemental::basic::ConjTrans
+elemental::basic::Adjoint
 ( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::ConjTrans");
+    PushCallStack("basic::Adjoint");
 #endif
     DistMatrix<T,Z,W> C( B.Grid() );
     if( B.ConstrainedColAlignment() )
@@ -2109,9 +2045,9 @@ elemental::basic::ConjTrans
     else if( B.Height() != A.Width() || B.Width() != A.Height() )
     {
         throw std::logic_error
-              ("If ConjTrans'ing into a view, it must be the right size.");
+              ("If Adjoint'ing into a view, it must be the right size.");
     }
-    basic::ConjTrans( C.LockedLocalMatrix(), B.LocalMatrix() );
+    basic::Adjoint( C.LockedLocalMatrix(), B.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2120,11 +2056,11 @@ elemental::basic::ConjTrans
 template<typename T, elemental::Distribution U, elemental::Distribution V,
                      elemental::Distribution W, elemental::Distribution Z >
 inline void
-elemental::basic::Trans
+elemental::basic::Transpose
 ( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trans");
+    PushCallStack("basic::Transpose");
 #endif
     DistMatrix<T,Z,W> C( B.Grid() );
     if( B.ConstrainedColAlignment() )
@@ -2148,7 +2084,7 @@ elemental::basic::Trans
         throw std::logic_error
               ("If Transposing into a view, it must be the right size.");
     }
-    basic::Trans( C.LockedLocalMatrix(), B.LocalMatrix() );
+    basic::Transpose( C.LockedLocalMatrix(), B.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

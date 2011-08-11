@@ -63,12 +63,12 @@ void TestGemm
     DistMatrix<T,MC,MR> B(g);
     DistMatrix<T,MC,MR> C(g);
 
-    if( orientationOfA == Normal )
+    if( orientationOfA == NORMAL )
         A.ResizeTo( m, k );
     else
         A.ResizeTo( k, m );
 
-    if( orientationOfB == Normal )
+    if( orientationOfB == NORMAL )
         B.ResizeTo( k, n );
     else
         B.ResizeTo( n, k );
@@ -189,7 +189,7 @@ void TestGemm
         C.Print( msg.str() );
     }
     
-    if( orientationOfA == Normal && orientationOfB == Normal )
+    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         // Test the variant of Gemm for panel-panel dot products
         if( g.VCRank() == 0 )

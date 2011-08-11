@@ -58,26 +58,18 @@ elemental::basic::Herk
     PushCallStack("basic::Herk");
     if( A.Grid() != C.Grid() )
         throw logic_error( "A and C must be distributed over the same grid." );
-    if( orientation == Transpose )
+    if( orientation == TRANSPOSE )
         throw logic_error
-        ( "Herk accepts Normal and ConjugateTranspose options." );
+        ( "Herk accepts NORMAL and ADJOINT options." );
 #endif
-    if( shape == Lower && orientation == Normal )
-    {
+    if( shape == LOWER && orientation == NORMAL )
         basic::internal::HerkLN( alpha, A, beta, C );
-    }
-    else if( shape == Lower )
-    {
+    else if( shape == LOWER )
         basic::internal::HerkLC( alpha, A, beta, C );
-    }
-    else if( shape == Upper && orientation == Normal )
-    {
+    else if( shape == Upper && orientation == NORMAL )
         basic::internal::HerkUN( alpha, A, beta, C );
-    }
     else
-    {
         basic::internal::HerkUC( alpha, A, beta, C );
-    }
 #ifndef RELEASE
     PopCallStack();
 #endif

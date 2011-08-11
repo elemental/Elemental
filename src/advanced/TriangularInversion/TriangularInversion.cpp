@@ -59,7 +59,7 @@ elemental::advanced::internal::TriangularInversionVar3
 #ifndef RELEASE
     PushCallStack("advanced::internal::TriangularInversionVar3");
 #endif
-    if( shape == Lower )
+    if( shape == LOWER )
         advanced::internal::TriangularInversionLVar3( diagonal, A );
     else
         advanced::internal::TriangularInversionUVar3( diagonal, A );

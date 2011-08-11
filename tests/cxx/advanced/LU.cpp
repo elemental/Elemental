@@ -53,12 +53,12 @@ template<typename F> // represents a real or complex field
 void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<F,MC,MR>& A,
-  const DistMatrix<int,VC,Star>& p,
+  const DistMatrix<int,VC,STAR>& p,
   const DistMatrix<F,MC,MR>& AOrig )
 {
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
-    DistMatrix<int,Star,Star> p_Star_Star(g);
+    DistMatrix<int,STAR,STAR> p_STAR_STAR(g);
     vector<int> image;
     vector<int> preimage;
 
@@ -66,31 +66,31 @@ void TestCorrectness
         cout << "Testing error..." << endl;
 
     // Compose the pivots
-    p_Star_Star = p;
-    advanced::internal::ComposePivots( p_Star_Star, image, preimage, 0 );
+    p_STAR_STAR = p;
+    advanced::internal::ComposePivots( p_STAR_STAR, image, preimage, 0 );
 
     // Apply the pivots to our random right-hand sides
     DistMatrix<F,MC,MR> X(m,100,g);
     DistMatrix<F,MC,MR> Y(g);
     X.SetToRandom();
-    F oneNormOfX = advanced::Norm( X, OneNorm );
-    F infNormOfX = advanced::Norm( X, InfinityNorm );
-    F frobNormOfX = advanced::Norm( X, FrobeniusNorm );
+    F oneNormOfX = advanced::Norm( X, ONE_NORM );
+    F infNormOfX = advanced::Norm( X, INFINITY_NORM );
+    F frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
     Y = X;
     advanced::internal::ApplyRowPivots( Y, image, preimage, 0 );
 
     // Solve against the pivoted right-hand sides
-    basic::Trsm( Left, Lower, Normal, Unit, (F)1, A, Y );
-    basic::Trsm( Left, Upper, Normal, NonUnit, (F)1, A, Y );
+    basic::Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A, Y );
+    basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
-    basic::Gemm( Normal, Normal, (F)-1, AOrig, Y, (F)1, X );
-    F oneNormOfError = advanced::Norm( X, OneNorm );
-    F infNormOfError = advanced::Norm( X, InfinityNorm );
-    F frobNormOfError = advanced::Norm( X, FrobeniusNorm );
-    F oneNormOfA = advanced::Norm( AOrig, OneNorm );
-    F infNormOfA = advanced::Norm( AOrig, InfinityNorm );
-    F frobNormOfA = advanced::Norm( AOrig, FrobeniusNorm );
+    basic::Gemm( NORMAL, NORMAL, (F)-1, AOrig, Y, (F)1, X );
+    F oneNormOfError = advanced::Norm( X, ONE_NORM );
+    F infNormOfError = advanced::Norm( X, INFINITY_NORM );
+    F frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    F oneNormOfA = advanced::Norm( AOrig, ONE_NORM );
+    F infNormOfA = advanced::Norm( AOrig, INFINITY_NORM );
+    F frobNormOfA = advanced::Norm( AOrig, FROBENIUS_NORM );
 
     if( g.VCRank() == 0 )
     {
@@ -114,7 +114,7 @@ void TestLU
     double startTime, endTime, runTime, gFlops;
     DistMatrix<F,MC,MR> A(g);
     DistMatrix<F,MC,MR> ARef(g);
-    DistMatrix<int,VC,Star> p(g);
+    DistMatrix<int,VC,STAR> p(g);
 
     A.ResizeTo( m, m );
     p.ResizeTo( m, 1 );

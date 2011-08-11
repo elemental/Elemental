@@ -249,7 +249,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignWith
-( const DistMatrixBase<T,MC,Star>& A )
+( const DistMatrixBase<T,MC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([MC,* ])");
@@ -273,7 +273,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignWith
-( const DistMatrixBase<T,Star,MR>& A )
+( const DistMatrixBase<T,STAR,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([* ,MR])");
@@ -325,7 +325,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignWith
-( const DistMatrixBase<T,MR,Star>& A )
+( const DistMatrixBase<T,MR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([MR,* ])");
@@ -349,7 +349,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignWith
-( const DistMatrixBase<T,Star,MC>& A )
+( const DistMatrixBase<T,STAR,MC>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([* ,MC])");
@@ -373,7 +373,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignWith
-( const DistMatrixBase<T,VC,Star>& A )
+( const DistMatrixBase<T,VC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([VC,* ])");
@@ -399,7 +399,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignWith
-( const DistMatrixBase<T,Star,VC>& A )
+( const DistMatrixBase<T,STAR,VC>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([* ,VC])");
@@ -425,7 +425,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignWith
-( const DistMatrixBase<T,VR,Star>& A )
+( const DistMatrixBase<T,VR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([VR,* ])");
@@ -451,7 +451,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignWith
-( const DistMatrixBase<T,Star,VR>& A )
+( const DistMatrixBase<T,STAR,VR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([* ,VR])");
@@ -501,7 +501,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
-( const DistMatrixBase<T,MC,Star>& A )
+( const DistMatrixBase<T,MC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignColsWith([MC,* ])");
@@ -549,7 +549,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
-( const DistMatrixBase<T,Star,MC>& A )
+( const DistMatrixBase<T,STAR,MC>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignColsWith([* ,MC])");
@@ -573,7 +573,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
-( const DistMatrixBase<T,VC,Star>& A )
+( const DistMatrixBase<T,VC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignColsWith([VC,* ])");
@@ -599,7 +599,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignColsWith
-( const DistMatrixBase<T,Star,VC>& A )
+( const DistMatrixBase<T,STAR,VC>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignColsWith([* ,VC])");
@@ -649,7 +649,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
-( const DistMatrixBase<T,Star,MR>& A )
+( const DistMatrixBase<T,STAR,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignRowsWith([* ,MR])");
@@ -697,7 +697,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
-( const DistMatrixBase<T,MR,Star>& A )
+( const DistMatrixBase<T,MR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignRowsWith([MR,* ])");
@@ -721,7 +721,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
-( const DistMatrixBase<T,VR,Star>& A )
+( const DistMatrixBase<T,VR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignRowsWith([VR,* ])");
@@ -747,7 +747,7 @@ elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::AlignRowsWith
-( const DistMatrixBase<T,Star,VR>& A )
+( const DistMatrixBase<T,STAR,VR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignRowsWith([* ,VR])");
@@ -1240,7 +1240,7 @@ elemental::DistMatrixBase<T,MC,MR>::Update
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
-( DistMatrixBase<T,MD,Star>& d, int offset ) const
+( DistMatrixBase<T,MD,STAR>& d, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetDiagonal");
@@ -1315,7 +1315,7 @@ elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
-( DistMatrixBase<T,Star,MD>& d, int offset ) const
+( DistMatrixBase<T,STAR,MD>& d, int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetDiagonal");
@@ -1391,7 +1391,7 @@ elemental::DistMatrixBase<T,MC,MR>::GetDiagonal
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
-( const DistMatrixBase<T,MD,Star>& d, int offset )
+( const DistMatrixBase<T,MD,STAR>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetDiagonal");
@@ -1459,7 +1459,7 @@ elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::SetDiagonal
-( const DistMatrixBase<T,Star,MD>& d, int offset )
+( const DistMatrixBase<T,STAR,MD>& d, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetDiagonal");
@@ -1547,7 +1547,7 @@ elemental::DistMatrixBase<T,MC,MR>::MakeTrapezoidal
     const int colShift = this->ColShift();
     const int rowShift = this->RowShift();
 
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         T* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
@@ -1557,7 +1557,7 @@ elemental::DistMatrixBase<T,MC,MR>::MakeTrapezoidal
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int lastZeroRow = ( side==Left ? j-offset-1
+            int lastZeroRow = ( side==LEFT ? j-offset-1
                                            : j-offset+height-width-1 );
             if( lastZeroRow >= 0 )
             {
@@ -1578,7 +1578,7 @@ elemental::DistMatrixBase<T,MC,MR>::MakeTrapezoidal
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int firstZeroRow = ( side==Left ? max(j-offset+1,0)
+            int firstZeroRow = ( side==LEFT ? max(j-offset+1,0)
                                             : max(j-offset+height-width+1,0) );
             int numNonzeroRows = RawLocalLength(firstZeroRow,colShift,r);
             if( numNonzeroRows < localHeight )
@@ -1611,7 +1611,7 @@ elemental::DistMatrixBase<T,MC,MR>::ScaleTrapezoidal
     const int colShift = this->ColShift();
     const int rowShift = this->RowShift();
 
-    if( shape == Upper )
+    if( shape == UPPER )
     {
         T* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
@@ -1621,7 +1621,7 @@ elemental::DistMatrixBase<T,MC,MR>::ScaleTrapezoidal
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int lastRow = ( side==Left ? j-offset : j-offset+height-width );
+            int lastRow = ( side==LEFT ? j-offset : j-offset+height-width );
             int boundary = min( lastRow+1, height );
             int numRows = RawLocalLength( boundary, colShift, r );
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
@@ -1639,7 +1639,7 @@ elemental::DistMatrixBase<T,MC,MR>::ScaleTrapezoidal
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int firstRow = ( side==Left ? max(j-offset,0) 
+            int firstRow = ( side==LEFT ? max(j-offset,0) 
                                         : max(j-offset+height-width,0) );
             int numZeroRows = RawLocalLength( firstRow, colShift, r );
             T* thisCol = &thisLocalBuffer[numZeroRows+jLocal*thisLDim];
@@ -1708,11 +1708,11 @@ elemental::DistMatrixBase<T,MC,MR>::SetToRandom()
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,MC,MR>::ConjugateTransposeFrom
-( const DistMatrixBase<T,Star,MC>& A )
+elemental::DistMatrixBase<T,MC,MR>::AdjointFrom
+( const DistMatrixBase<T,STAR,MC>& A )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,MR]::ConjugateTransposeFrom");
+    PushCallStack("[MC,MR]::AdjointFrom");
     this->AssertNotLockedView();
     this->AssertSameGrid( A );
     if( this->Viewing() )
@@ -1759,7 +1759,7 @@ elemental::DistMatrixBase<T,MC,MR>::ConjugateTransposeFrom
         {
 #ifdef UNALIGNED_WARNINGS
             if( g.VCRank() == 0 )
-                cerr << "Unaligned [MC,MR]::ConjugateTransposeFrom." << endl;
+                cerr << "Unaligned [MC,MR]::AdjointFrom." << endl;
 #endif
             const int r = g.Height();
             const int c = g.Width();
@@ -1823,7 +1823,7 @@ elemental::DistMatrixBase<T,MC,MR>::ConjugateTransposeFrom
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::TransposeFrom
-( const DistMatrixBase<T,Star,MC>& A )
+( const DistMatrixBase<T,STAR,MC>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::TransposeFrom");
@@ -2245,7 +2245,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,MC,Star>& A )
+( const DistMatrixBase<T,MC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [MC,* ]");
@@ -2364,7 +2364,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,Star,MR>& A )
+( const DistMatrixBase<T,STAR,MR>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [* ,MR]");
@@ -2479,7 +2479,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,MD,Star>& A )
+( const DistMatrixBase<T,MD,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [MD,* ]");
@@ -2498,7 +2498,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,Star,MD>& A )
+( const DistMatrixBase<T,STAR,MD>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [* ,MD]");
@@ -2719,31 +2719,31 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
         {
             if( A.Height() >= A.Width() )
             {
-                auto_ptr< DistMatrix<T,VR,Star> > A_VR_Star
-                ( new DistMatrix<T,VR,Star>(g) );
+                auto_ptr< DistMatrix<T,VR,STAR> > A_VR_STAR
+                ( new DistMatrix<T,VR,STAR>(g) );
 
-                *A_VR_Star = A;
+                *A_VR_STAR = A;
 
-                auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
-                ( new DistMatrix<T,VC,Star>(true,this->ColAlignment(),g) );
-                *A_VC_Star = *A_VR_Star;
-                delete A_VR_Star.release(); // lowers memory highwater
+                auto_ptr< DistMatrix<T,VC,STAR> > A_VC_STAR
+                ( new DistMatrix<T,VC,STAR>(true,this->ColAlignment(),g) );
+                *A_VC_STAR = *A_VR_STAR;
+                delete A_VR_STAR.release(); // lowers memory highwater
 
-                *this = *A_VC_Star;
+                *this = *A_VC_STAR;
             }
             else
             {
-                auto_ptr< DistMatrix<T,Star,VC> > A_Star_VC
-                ( new DistMatrix<T,Star,VC>(g) );
-                *A_Star_VC = A;
+                auto_ptr< DistMatrix<T,STAR,VC> > A_STAR_VC
+                ( new DistMatrix<T,STAR,VC>(g) );
+                *A_STAR_VC = A;
 
-                auto_ptr< DistMatrix<T,Star,VR> > A_Star_VR
-                ( new DistMatrix<T,Star,VR>(true,this->RowAlignment(),g) );
-                *A_Star_VR = *A_Star_VC;
-                delete A_Star_VC.release(); // lowers memory highwater
+                auto_ptr< DistMatrix<T,STAR,VR> > A_STAR_VR
+                ( new DistMatrix<T,STAR,VR>(true,this->RowAlignment(),g) );
+                *A_STAR_VR = *A_STAR_VC;
+                delete A_STAR_VC.release(); // lowers memory highwater
     
-                *this = *A_Star_VR;
-                this->ResizeTo( A_Star_VR->Height(), A_Star_VR->Width() );
+                *this = *A_STAR_VR;
+                this->ResizeTo( A_STAR_VR->Height(), A_STAR_VR->Width() );
             }
         }
     } 
@@ -2760,7 +2760,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,MR,Star>& A )
+( const DistMatrixBase<T,MR,STAR>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [MR,* ]");
@@ -2771,16 +2771,16 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 #endif
     const elemental::Grid& g = this->Grid();
 
-    auto_ptr< DistMatrix<T,VR,Star> > A_VR_Star
-    ( new DistMatrix<T,VR,Star>(g) );
-    *A_VR_Star = A;
+    auto_ptr< DistMatrix<T,VR,STAR> > A_VR_STAR
+    ( new DistMatrix<T,VR,STAR>(g) );
+    *A_VR_STAR = A;
 
-    auto_ptr< DistMatrix<T,VC,Star> > A_VC_Star
-    ( new DistMatrix<T,VC,Star>(true,this->ColAlignment(),g) );
-    *A_VC_Star = *A_VR_Star;
-    delete A_VR_Star.release(); // lowers memory highwater
+    auto_ptr< DistMatrix<T,VC,STAR> > A_VC_STAR
+    ( new DistMatrix<T,VC,STAR>(true,this->ColAlignment(),g) );
+    *A_VC_STAR = *A_VR_STAR;
+    delete A_VR_STAR.release(); // lowers memory highwater
 
-    *this = *A_VC_Star;
+    *this = *A_VC_STAR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2790,7 +2790,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,Star,MC>& A )
+( const DistMatrixBase<T,STAR,MC>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [* ,MC]");
@@ -2801,16 +2801,16 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 #endif
     const elemental::Grid& g = this->Grid();
 
-    auto_ptr< DistMatrix<T,Star,VC> > A_Star_VC
-    ( new DistMatrix<T,Star,VC>(g) );
-    *A_Star_VC = A;
+    auto_ptr< DistMatrix<T,STAR,VC> > A_STAR_VC
+    ( new DistMatrix<T,STAR,VC>(g) );
+    *A_STAR_VC = A;
 
-    auto_ptr< DistMatrix<T,Star,VR> > A_Star_VR
-    ( new DistMatrix<T,Star,VR>(true,this->RowAlignment(),g) );
-    *A_Star_VR = *A_Star_VC;
-    delete A_Star_VC.release(); // lowers memory highwater
+    auto_ptr< DistMatrix<T,STAR,VR> > A_STAR_VR
+    ( new DistMatrix<T,STAR,VR>(true,this->RowAlignment(),g) );
+    *A_STAR_VR = *A_STAR_VC;
+    delete A_STAR_VC.release(); // lowers memory highwater
 
-    *this = *A_Star_VR;
+    *this = *A_STAR_VR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2820,7 +2820,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,VC,Star>& A )
+( const DistMatrixBase<T,VC,STAR>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [VC,* ]");
@@ -3043,7 +3043,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,Star,VC>& A )
+( const DistMatrixBase<T,STAR,VC>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [* ,VC]");
@@ -3053,10 +3053,10 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    DistMatrix<T,Star,VR> A_Star_VR(true,this->RowAlignment(),g);
+    DistMatrix<T,STAR,VR> A_STAR_VR(true,this->RowAlignment(),g);
 
-    A_Star_VR = A;
-    *this = A_Star_VR;
+    A_STAR_VR = A;
+    *this = A_STAR_VR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -3066,7 +3066,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,VR,Star>& A )
+( const DistMatrixBase<T,VR,STAR>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [VR,* ]");
@@ -3076,10 +3076,10 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    DistMatrix<T,VC,Star> A_VC_Star(true,this->ColAlignment(),g);
+    DistMatrix<T,VC,STAR> A_VC_STAR(true,this->ColAlignment(),g);
 
-    A_VC_Star = A;
-    *this = A_VC_Star;
+    A_VC_STAR = A;
+    *this = A_VC_STAR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -3089,7 +3089,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,Star,VR>& A )
+( const DistMatrixBase<T,STAR,VR>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [* ,VR]");
@@ -3311,7 +3311,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 const DistMatrixBase<T,MC,MR>&
 elemental::DistMatrixBase<T,MC,MR>::operator=
-( const DistMatrixBase<T,Star,Star>& A )
+( const DistMatrixBase<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR] = [* ,* ]");
@@ -3351,7 +3351,7 @@ elemental::DistMatrixBase<T,MC,MR>::operator=
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
-( const DistMatrixBase<T,MC,Star>& A )
+( const DistMatrixBase<T,MC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SumScatterFrom([MC,* ])");
@@ -3624,7 +3624,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
-( const DistMatrixBase<T,Star,MR>& A )
+( const DistMatrixBase<T,STAR,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SumScatterFrom([* ,MR])");
@@ -3833,7 +3833,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
-( const DistMatrixBase<T,Star,Star>& A )
+( const DistMatrixBase<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SumScatterFrom([* ,* ])");
@@ -3928,7 +3928,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterFrom
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
-( T alpha, const DistMatrixBase<T,MC,Star>& A )
+( T alpha, const DistMatrixBase<T,MC,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SumScatterUpdate([MC,* ])");
@@ -4198,7 +4198,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
-( T alpha, const DistMatrixBase<T,Star,MR>& A )
+( T alpha, const DistMatrixBase<T,STAR,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SumScatterUpdate([* ,MR])");
@@ -4388,7 +4388,7 @@ elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
 template<typename T>
 void
 elemental::DistMatrixBase<T,MC,MR>::SumScatterUpdate
-( T alpha, const DistMatrixBase<T,Star,Star>& A )
+( T alpha, const DistMatrixBase<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SumScatterUpdate([* ,* ])");

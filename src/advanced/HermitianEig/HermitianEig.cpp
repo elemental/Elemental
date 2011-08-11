@@ -253,7 +253,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   DistMatrix<double,MC,  MR>& paddedZ,
   bool tryForHighAccuracy )
 {
@@ -263,7 +263,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = n; // full set of eigenpairs
@@ -316,31 +316,31 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
     advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetDiagonal( d_MD_Star );
-    A.GetDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetDiagonal( d_MD_STAR );
+    A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR] in place, panel by panel
@@ -348,15 +348,15 @@ elemental::advanced::HermitianEig
         // Grab a pointer into the paddedZ local matrix
         double* paddedZBuffer = paddedZ.LocalBuffer();
 
-        // Grab a slice of size Z_Star_VR_BufferSize from the very end
+        // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_Star_VR_LocalWidth = 
+        const int Z_STAR_VR_LocalWidth = 
             utilities::LocalLength(k,g.VRRank(),g.Size());
-        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
-        double* Z_Star_VR_Buffer = 
-            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
+        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        double* Z_STAR_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         char jobz = 'V'; // compute the eigenvalues and eigenvectors
         char range = 'A'; // compute all eigenpairs
@@ -373,15 +373,15 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR_Buffer,
+              Z_STAR_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -412,7 +412,7 @@ elemental::advanced::HermitianEig
         // Manually maintain information about the implicit Z[* ,VR] stored 
         // at the end of the paddedZ[MC,MR] buffers.
         int alignment = 0;
-        const double* readBuffer = Z_Star_VR_Buffer;
+        const double* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -446,10 +446,10 @@ elemental::advanced::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() ); // We can simply shrink matrices
     if( shape == Lower )
         advanced::ApplyPackedReflectors
-        ( Left, Lower, Vertical, Backward, subdiagonal, A, paddedZ );
+        ( LEFT, LOWER, VERTICAL, Backward, subdiagonal, A, paddedZ );
     else
         advanced::ApplyPackedReflectors
-        ( Left, Upper, Vertical, Forward,  subdiagonal, A, paddedZ );
+        ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
@@ -469,7 +469,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   DistMatrix<double,MC,  MR>& paddedZ,
   int a, int b, bool tryForHighAccuracy )
 {
@@ -479,7 +479,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = (b - a) + 1;
@@ -532,31 +532,31 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
     advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetDiagonal( d_MD_Star );
-    A.GetDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetDiagonal( d_MD_STAR );
+    A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR] in place, panel by panel
@@ -564,15 +564,15 @@ elemental::advanced::HermitianEig
         // Grab a pointer into the paddedZ local matrix 
         double* paddedZBuffer = paddedZ.LocalBuffer();
 
-        // Grab a slice of size Z_Star_VR_BufferSize from the very end 
+        // Grab a slice of size Z_STAR_VR_BufferSize from the very end 
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_Star_VR_LocalWidth = 
+        const int Z_STAR_VR_LocalWidth = 
             utilities::LocalLength(k,g.VRRank(),g.Size());
-        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
-        double* Z_Star_VR_Buffer = 
-            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
+        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        double* Z_STAR_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         char jobz = 'V'; // compute the eigenvalues and eigenvectors
         char range = 'I'; // use an integer range
@@ -590,15 +590,15 @@ elemental::advanced::HermitianEig
             ( &jobz,
               &range,
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR_Buffer,
+              Z_STAR_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -629,7 +629,7 @@ elemental::advanced::HermitianEig
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of the paddedZ[MC,MR] buffer
         int alignment = 0;
-        const double* readBuffer = Z_Star_VR_Buffer;
+        const double* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -663,10 +663,10 @@ elemental::advanced::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() );
     if( shape == Lower )
         advanced::ApplyPackedReflectors
-        ( Left, Lower, Vertical, Backward, subdiagonal, A, paddedZ );
+        ( LEFT, LOWER, VERTICAL, Backward, subdiagonal, A, paddedZ );
     else
         advanced::ApplyPackedReflectors
-        ( Left, Upper, Vertical, Forward,  subdiagonal, A, paddedZ );
+        ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
@@ -684,7 +684,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   DistMatrix<double,MC,  MR>& paddedZ,
   double a, double b, bool tryForHighAccuracy )
 {
@@ -694,7 +694,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const Grid& g = A.Grid();
@@ -742,31 +742,31 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
     advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetDiagonal( d_MD_Star );
-    A.GetDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetDiagonal( d_MD_STAR );
+    A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR]
@@ -788,8 +788,8 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
@@ -815,15 +815,15 @@ elemental::advanced::HermitianEig
         // Grab a pointer into the paddedZ local matrix
         double* paddedZBuffer = paddedZ.LocalBuffer();
 
-        // Grab a slice of size Z_Star_VR_BufferSize from the very end
+        // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_Star_VR_LocalWidth = 
+        const int Z_STAR_VR_LocalWidth = 
             utilities::LocalLength(k,g.VRRank(),g.Size());
-        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
-        double* Z_Star_VR_Buffer = 
-            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
+        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        double* Z_STAR_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         // Now perform the actual computation
         jobz = 'V'; // compute the eigenvalues and eigenvectors
@@ -837,15 +837,15 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR_Buffer,
+              Z_STAR_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -880,7 +880,7 @@ elemental::advanced::HermitianEig
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of paddedZ[MC,MR] buffers.
         int alignment = 0;
-        const double* readBuffer = Z_Star_VR_Buffer;
+        const double* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -914,10 +914,10 @@ elemental::advanced::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() );
     if( shape == Lower )
         advanced::ApplyPackedReflectors
-        ( Left, Lower, Vertical, Backward, subdiagonal, A, paddedZ );
+        ( LEFT, LOWER, VERTICAL, Backward, subdiagonal, A, paddedZ );
     else
         advanced::ApplyPackedReflectors
-        ( Left, Upper, Vertical, Forward,  subdiagonal, A, paddedZ );
+        ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
@@ -934,7 +934,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -947,7 +947,7 @@ elemental::advanced::HermitianEig
     const int k = n;
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     if( w.Viewing() )
     {
@@ -976,31 +976,31 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
     advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetDiagonal( d_MD_Star );
-    A.GetDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetDiagonal( d_MD_STAR );
+    A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR.
     {
@@ -1019,8 +1019,8 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
@@ -1062,7 +1062,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -1071,7 +1071,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = (b - a) + 1;
@@ -1104,31 +1104,31 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
     advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetDiagonal( d_MD_Star );
-    A.GetDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetDiagonal( d_MD_STAR );
+    A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR.
     {
@@ -1148,8 +1148,8 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
@@ -1189,7 +1189,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,Star,VR>& w,
+  DistMatrix<double,STAR,VR>& w,
   double a, double b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -1198,7 +1198,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const Grid& g = A.Grid();
@@ -1229,31 +1229,31 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
     advanced::HermitianTridiag( shape, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetDiagonal( d_MD_Star );
-    A.GetDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetDiagonal( d_MD_STAR );
+    A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR.
     {
@@ -1273,8 +1273,8 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
@@ -1319,7 +1319,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   bool tryForHighAccuracy )
 {
@@ -1329,7 +1329,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = n; // full set of eigenpairs
@@ -1382,32 +1382,32 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,Star,Star> t(g);
+    DistMatrix<std::complex<double>,STAR,STAR> t(g);
     advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetRealDiagonal( d_MD_Star );
-    A.GetRealDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetRealDiagonal( d_MD_STAR );
+    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR] in place, panel by panel
@@ -1415,15 +1415,15 @@ elemental::advanced::HermitianEig
         // Grab a pointer into the paddedZ local matrix
         double* paddedZBuffer = (double*)paddedZ.LocalBuffer();
 
-        // Grab a slice of size Z_Star_VR_BufferSize from the very end 
+        // Grab a slice of size Z_STAR_VR_BufferSize from the very end 
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_Star_VR_LocalWidth = 
+        const int Z_STAR_VR_LocalWidth = 
             utilities::LocalLength(k,g.VRRank(),g.Size());
-        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
-        double* Z_Star_VR_Buffer = 
-            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
+        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        double* Z_STAR_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         char jobz = 'V'; // compute the eigenvalues and eigenvectors
         char range = 'A'; // compute all of them
@@ -1440,15 +1440,15 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR_Buffer,
+              Z_STAR_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -1479,7 +1479,7 @@ elemental::advanced::HermitianEig
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of the paddedZ[MC,MR] buffers.
         int alignment = 0;
-        const double* readBuffer = Z_Star_VR_Buffer;
+        const double* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -1513,11 +1513,11 @@ elemental::advanced::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() ); 
     if( shape == Lower )
         advanced::ApplyPackedReflectors
-        ( Left, Lower, Vertical, Backward, Unconjugated, 
+        ( LEFT, LOWER, VERTICAL, Backward, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
         advanced::ApplyPackedReflectors
-        ( Left, Upper, Vertical, Forward, Conjugated, 
+        ( LEFT, UPPER, VERTICAL, FORWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
@@ -1538,7 +1538,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   int a, int b, bool tryForHighAccuracy )
 {
@@ -1548,7 +1548,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = (b - a) + 1;
@@ -1601,32 +1601,32 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,Star,Star> t(g);
+    DistMatrix<std::complex<double>,STAR,STAR> t(g);
     advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetRealDiagonal( d_MD_Star );
-    A.GetRealDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetRealDiagonal( d_MD_STAR );
+    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR]
@@ -1634,15 +1634,15 @@ elemental::advanced::HermitianEig
         // Grab a pointer into the paddedZ local matrix
         double* paddedZBuffer = (double*)paddedZ.LocalBuffer();
 
-        // Grab a slice of size Z_Star_VR_BufferSize from the very end
+        // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_Star_VR_LocalWidth = 
+        const int Z_STAR_VR_LocalWidth = 
             utilities::LocalLength(k,g.VRRank(),g.Size());
-        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
-        double* Z_Star_VR_Buffer = 
-            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
+        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        double* Z_STAR_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         char jobz = 'V'; // compute the eigenvalues and eigenvectors
         char range = 'I'; // use an integer range
@@ -1660,15 +1660,15 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR_Buffer,
+              Z_STAR_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -1699,7 +1699,7 @@ elemental::advanced::HermitianEig
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of the padded Z[MC,MR] buffer
         int alignment = 0;
-        const double* readBuffer = Z_Star_VR_Buffer;
+        const double* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -1733,11 +1733,11 @@ elemental::advanced::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() );
     if( shape == Lower )
         advanced::ApplyPackedReflectors
-        ( Left, Lower, Vertical, Backward, Unconjugated, 
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
         advanced::ApplyPackedReflectors
-        ( Left, Upper, Vertical, Forward, Conjugated, 
+        ( LEFT, UPPER, VERTICAL, FORWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
@@ -1756,7 +1756,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   double a, double b, bool tryForHighAccuracy )
 {
@@ -1766,7 +1766,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const Grid& g = A.Grid();
@@ -1814,32 +1814,32 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,Star,Star> t(g);
+    DistMatrix<std::complex<double>,STAR,STAR> t(g);
     advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetRealDiagonal( d_MD_Star );
-    A.GetRealDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetRealDiagonal( d_MD_STAR );
+    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR]
@@ -1860,8 +1860,8 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
@@ -1876,7 +1876,7 @@ elemental::advanced::HermitianEig
         // then create Z[* ,VR]
         int k;
         mpi::AllReduce( &nz, &k, 1, mpi::SUM, g.VRComm() );
-        DistMatrix<double,Star,VR> Z_Star_VR( n, k, g );
+        DistMatrix<double,STAR,VR> Z_STAR_VR( n, k, g );
 
         if( !paddedZ.Viewing() )
         {
@@ -1888,15 +1888,15 @@ elemental::advanced::HermitianEig
         // Grab a pointer into the paddedZ local matrix
         double* paddedZBuffer = (double*)paddedZ.LocalBuffer();
 
-        // Grab a slice of size Z_Star_VR_BufferSize from the very end
+        // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_Star_VR_LocalWidth = 
+        const int Z_STAR_VR_LocalWidth = 
             utilities::LocalLength(k,g.VRRank(),g.Size());
-        const int Z_Star_VR_BufferSize = n*Z_Star_VR_LocalWidth;
-        double* Z_Star_VR_Buffer = 
-            &paddedZBuffer[paddedZBufferSize-Z_Star_VR_BufferSize];
+        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        double* Z_STAR_VR_Buffer = 
+            &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         // Now perform the actual computation
         jobz = 'V'; // compute the eigenvalues and eigenvectors
@@ -1910,15 +1910,15 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
               &nz,
               &offset,
               &wBuffer[0],
-              Z_Star_VR_Buffer,
+              Z_STAR_VR_Buffer,
               &ldz,
               &ZSupp[0] );
         if( retval != 0 )
@@ -1953,7 +1953,7 @@ elemental::advanced::HermitianEig
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of paddedZ[MC,MR] buffers.
         int alignment = 0;
-        const double* readBuffer = Z_Star_VR_Buffer;
+        const double* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -1987,11 +1987,11 @@ elemental::advanced::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() );
     if( shape == Lower )
         advanced::ApplyPackedReflectors
-        ( Left, Lower, Vertical, Backward, Unconjugated, 
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
         advanced::ApplyPackedReflectors
-        ( Left, Upper, Vertical, Forward, Conjugated, 
+        ( LEFT, UPPER, VERTICAL, FORWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
@@ -2009,7 +2009,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -2018,7 +2018,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = n;
@@ -2051,32 +2051,32 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,Star,Star> t(g);
+    DistMatrix<std::complex<double>,STAR,STAR> t(g);
     advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetRealDiagonal( d_MD_Star );
-    A.GetRealDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetRealDiagonal( d_MD_STAR );
+    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR
     {
@@ -2095,8 +2095,8 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
@@ -2138,7 +2138,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   int a, int b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -2147,7 +2147,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = (b - a) + 1;
@@ -2180,32 +2180,32 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,Star,Star> t(g);
+    DistMatrix<std::complex<double>,STAR,STAR> t(g);
     advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetRealDiagonal( d_MD_Star );
-    A.GetRealDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetRealDiagonal( d_MD_STAR );
+    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR
     {
@@ -2225,8 +2225,8 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),
@@ -2266,7 +2266,7 @@ void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, Star,VR>& w,
+  DistMatrix<             double, STAR,VR>& w,
   double a, double b, bool tryForHighAccuracy )
 {
 #ifndef RELEASE
@@ -2275,7 +2275,7 @@ elemental::advanced::HermitianEig
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const int subdiagonal = ( shape==Lower ? -1 : +1 );
+    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const Grid& g = A.Grid();
@@ -2306,32 +2306,32 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, Left, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
     }
 
     // Tridiagonalize A
-    DistMatrix<std::complex<double>,Star,Star> t(g);
+    DistMatrix<std::complex<double>,STAR,STAR> t(g);
     advanced::HermitianTridiag( shape, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,Star> d_MD_Star( n, 1, g );
-    DistMatrix<double,MD,Star> e_MD_Star( n-1, 1 , g );
-    A.GetRealDiagonal( d_MD_Star );
-    A.GetRealDiagonal( e_MD_Star, subdiagonal );
+    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
+    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    A.GetRealDiagonal( d_MD_STAR );
+    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,Star,Star> d_Star_Star( n, 1, g );
-    DistMatrix<double,Star,Star> e_Star_Star( n-1, 1, n, g );
-    d_Star_Star = d_MD_Star;
-    e_Star_Star = e_MD_Star;
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    d_STAR_STAR = d_MD_STAR;
+    e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR
     {
@@ -2351,8 +2351,8 @@ elemental::advanced::HermitianEig
             ( &jobz, 
               &range, 
               &n, 
-              d_Star_Star.LocalBuffer(),
-              e_Star_Star.LocalBuffer(),
+              d_STAR_STAR.LocalBuffer(),
+              e_STAR_STAR.LocalBuffer(),
               &vl, &vu, &il, &iu,
               &tryrac,
               g.VRComm(),

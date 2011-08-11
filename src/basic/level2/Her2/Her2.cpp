@@ -84,22 +84,22 @@ elemental::basic::Her2
 
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,MC,Star> x_MC_Star(g);
-        DistMatrix<T,MR,Star> x_MR_Star(g);
-        DistMatrix<T,MC,Star> y_MC_Star(g);
-        DistMatrix<T,MR,Star> y_MR_Star(g);
+        DistMatrix<T,MC,STAR> x_MC_STAR(g);
+        DistMatrix<T,MR,STAR> x_MR_STAR(g);
+        DistMatrix<T,MC,STAR> y_MC_STAR(g);
+        DistMatrix<T,MR,STAR> y_MR_STAR(g);
 
-        x_MC_Star.AlignWith( A );
-        x_MR_Star.AlignWith( A );
-        y_MC_Star.AlignWith( A );
-        y_MR_Star.AlignWith( A );
+        x_MC_STAR.AlignWith( A );
+        x_MR_STAR.AlignWith( A );
+        y_MC_STAR.AlignWith( A );
+        y_MR_STAR.AlignWith( A );
         //--------------------------------------------------------------------//
-        x_MC_Star = x;
-        x_MR_Star = x_MC_Star;
-        y_MC_Star = y;
-        y_MR_Star = y_MC_Star;
+        x_MC_STAR = x;
+        x_MR_STAR = x_MC_STAR;
+        y_MC_STAR = y;
+        y_MR_STAR = y_MC_STAR;
 
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
@@ -111,10 +111,10 @@ elemental::basic::Her2
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      (                 x_MC_Star.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(y_MR_Star.GetLocalEntry(jLoc,0)) + 
-                                        y_MC_Star.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(x_MR_Star.GetLocalEntry(jLoc,0)) ) );
+                      (                 x_MC_STAR.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) + 
+                                        y_MC_STAR.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
@@ -130,37 +130,37 @@ elemental::basic::Her2
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      (                 x_MC_Star.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(y_MR_Star.GetLocalEntry(jLoc,0)) + 
-                                        y_MC_Star.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(x_MR_Star.GetLocalEntry(jLoc,0)) ) );
+                      (                 x_MC_STAR.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) + 
+                                        y_MC_STAR.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
         //--------------------------------------------------------------------//
-        x_MC_Star.FreeAlignments();
-        x_MR_Star.FreeAlignments();
-        y_MC_Star.FreeAlignments();
-        y_MR_Star.FreeAlignments();
+        x_MC_STAR.FreeAlignments();
+        x_MR_STAR.FreeAlignments();
+        y_MC_STAR.FreeAlignments();
+        y_MR_STAR.FreeAlignments();
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,MC,Star> x_MC_Star(g);
-        DistMatrix<T,MR,Star> x_MR_Star(g);
-        DistMatrix<T,Star,MC> y_Star_MC(g);
-        DistMatrix<T,Star,MR> y_Star_MR(g);
+        DistMatrix<T,MC,STAR> x_MC_STAR(g);
+        DistMatrix<T,MR,STAR> x_MR_STAR(g);
+        DistMatrix<T,STAR,MC> y_STAR_MC(g);
+        DistMatrix<T,STAR,MR> y_STAR_MR(g);
 
-        x_MC_Star.AlignWith( A );
-        x_MR_Star.AlignWith( A );
-        y_Star_MC.AlignWith( A );
-        y_Star_MR.AlignWith( A );
+        x_MC_STAR.AlignWith( A );
+        x_MR_STAR.AlignWith( A );
+        y_STAR_MC.AlignWith( A );
+        y_STAR_MR.AlignWith( A );
         //--------------------------------------------------------------------//
-        x_MC_Star = x;
-        x_MR_Star = x_MC_Star;
-        y_Star_MR = y;
-        y_Star_MC = y_Star_MR;
+        x_MC_STAR = x;
+        x_MR_STAR = x_MC_STAR;
+        y_STAR_MR = y;
+        y_STAR_MC = y_STAR_MR;
 
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
@@ -172,10 +172,10 @@ elemental::basic::Her2
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      (                 x_MC_Star.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(y_Star_MR.GetLocalEntry(0,jLoc)) + 
-                                        y_Star_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(x_MR_Star.GetLocalEntry(jLoc,0)) ) );
+                      (                 x_MC_STAR.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) + 
+                                        y_STAR_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
@@ -191,37 +191,37 @@ elemental::basic::Her2
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      (                 x_MC_Star.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(y_Star_MR.GetLocalEntry(0,jLoc)) +
-                                        y_Star_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(x_MR_Star.GetLocalEntry(jLoc,0)) ) );
+                      (                 x_MC_STAR.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) +
+                                        y_STAR_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
         //--------------------------------------------------------------------//
-        x_MC_Star.FreeAlignments();
-        x_MR_Star.FreeAlignments();
-        y_Star_MC.FreeAlignments();
-        y_Star_MR.FreeAlignments();
+        x_MC_STAR.FreeAlignments();
+        x_MR_STAR.FreeAlignments();
+        y_STAR_MC.FreeAlignments();
+        y_STAR_MR.FreeAlignments();
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,Star,MC> x_Star_MC(g);
-        DistMatrix<T,Star,MR> x_Star_MR(g);
-        DistMatrix<T,MC,Star> y_MC_Star(g);
-        DistMatrix<T,MR,Star> y_MR_Star(g);
+        DistMatrix<T,STAR,MC> x_STAR_MC(g);
+        DistMatrix<T,STAR,MR> x_STAR_MR(g);
+        DistMatrix<T,MC,STAR> y_MC_STAR(g);
+        DistMatrix<T,MR,STAR> y_MR_STAR(g);
 
-        x_Star_MC.AlignWith( A );
-        x_Star_MR.AlignWith( A );
-        y_MC_Star.AlignWith( A );
-        y_MR_Star.AlignWith( A );
+        x_STAR_MC.AlignWith( A );
+        x_STAR_MR.AlignWith( A );
+        y_MC_STAR.AlignWith( A );
+        y_MR_STAR.AlignWith( A );
         //--------------------------------------------------------------------//
-        x_Star_MR = x;
-        x_Star_MC = x_Star_MR;
-        y_MC_Star = y;
-        y_MR_Star = y_MC_Star;
+        x_STAR_MR = x;
+        x_STAR_MC = x_STAR_MR;
+        y_MC_STAR = y;
+        y_MR_STAR = y_MC_STAR;
 
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
@@ -233,10 +233,10 @@ elemental::basic::Her2
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      (                 x_Star_MC.GetLocalEntry(0,iLoc)* 
-                        elemental::Conj(y_MR_Star.GetLocalEntry(jLoc,0)) + 
-                                        y_MC_Star.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(x_Star_MR.GetLocalEntry(0,jLoc)) ) );
+                      (                 x_STAR_MC.GetLocalEntry(0,iLoc)* 
+                        elemental::Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) + 
+                                        y_MC_STAR.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
@@ -252,37 +252,37 @@ elemental::basic::Her2
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      (                 x_Star_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(y_MR_Star.GetLocalEntry(jLoc,0)) +
-                                        y_MC_Star.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(x_Star_MR.GetLocalEntry(0,jLoc)) ) );
+                      (                 x_STAR_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) +
+                                        y_MC_STAR.GetLocalEntry(iLoc,0)*
+                        elemental::Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
         //--------------------------------------------------------------------//
-        x_Star_MC.FreeAlignments();
-        x_Star_MR.FreeAlignments();
-        y_MC_Star.FreeAlignments();
-        y_MR_Star.FreeAlignments();
+        x_STAR_MC.FreeAlignments();
+        x_STAR_MR.FreeAlignments();
+        y_MC_STAR.FreeAlignments();
+        y_MR_STAR.FreeAlignments();
     }
     else
     {
-        DistMatrix<T,Star,MC> x_Star_MC(g);
-        DistMatrix<T,Star,MR> x_Star_MR(g);
-        DistMatrix<T,Star,MC> y_Star_MC(g);
-        DistMatrix<T,Star,MR> y_Star_MR(g);
+        DistMatrix<T,STAR,MC> x_STAR_MC(g);
+        DistMatrix<T,STAR,MR> x_STAR_MR(g);
+        DistMatrix<T,STAR,MC> y_STAR_MC(g);
+        DistMatrix<T,STAR,MR> y_STAR_MR(g);
 
-        x_Star_MC.AlignWith( A );
-        x_Star_MR.AlignWith( A );
-        y_Star_MC.AlignWith( A );
-        y_Star_MR.AlignWith( A );
+        x_STAR_MC.AlignWith( A );
+        x_STAR_MR.AlignWith( A );
+        y_STAR_MC.AlignWith( A );
+        y_STAR_MR.AlignWith( A );
         //--------------------------------------------------------------------//
-        x_Star_MR = x;
-        x_Star_MC = x_Star_MR;
-        y_Star_MR = y;
-        y_Star_MC = y_Star_MR;
+        x_STAR_MR = x;
+        x_STAR_MC = x_STAR_MR;
+        y_STAR_MR = y;
+        y_STAR_MC = y_STAR_MR;
 
-        if( shape == Lower )
+        if( shape == LOWER )
         {
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
@@ -294,10 +294,10 @@ elemental::basic::Her2
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      (                 x_Star_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(y_Star_MR.GetLocalEntry(0,jLoc)) + 
-                                        y_Star_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(x_Star_MR.GetLocalEntry(0,jLoc)) ) );
+                      (                 x_STAR_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) + 
+                                        y_STAR_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
@@ -313,18 +313,18 @@ elemental::basic::Her2
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      (                 x_Star_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(y_Star_MR.GetLocalEntry(0,jLoc)) + 
-                                        y_Star_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(x_Star_MR.GetLocalEntry(0,jLoc)) ) );
+                      (                 x_STAR_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) + 
+                                        y_STAR_MC.GetLocalEntry(0,iLoc)*
+                        elemental::Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
         //--------------------------------------------------------------------//
-        x_Star_MC.FreeAlignments();
-        x_Star_MR.FreeAlignments();
-        y_Star_MC.FreeAlignments();
-        y_Star_MR.FreeAlignments();
+        x_STAR_MC.FreeAlignments();
+        x_STAR_MR.FreeAlignments();
+        y_STAR_MC.FreeAlignments();
+        y_STAR_MR.FreeAlignments();
     }
 #ifndef RELEASE
     PopCallStack();

@@ -72,12 +72,12 @@ elemental::basic::internal::SyrkUN
                         A0(g), A1(g), A2(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,  Star> A1_MC_Star(g);
-    DistMatrix<T,VR,  Star> A1_VR_Star(g);
-    DistMatrix<T,Star,MR  > A1Trans_Star_MR(g);
+    DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
+    DistMatrix<T,VR,  STAR> A1_VR_STAR(g);
+    DistMatrix<T,STAR,MR  > A1Trans_STAR_MR(g);
 
     // Start the algorithm
-    C.ScaleTrapezoidal( beta, Left, Upper );
+    C.ScaleTrapezoidal( beta, LEFT, UPPER );
     LockedPartitionRight( A, AL, AR, 0 );
     while( AR.Width() > 0 )
     {
@@ -85,19 +85,19 @@ elemental::basic::internal::SyrkUN
         ( AL, /**/ AR,
           A0, /**/ A1, A2 );
 
-        A1_MC_Star.AlignWith( C );
-        A1_VR_Star.AlignWith( C );
-        A1Trans_Star_MR.AlignWith( C );
+        A1_MC_STAR.AlignWith( C );
+        A1_VR_STAR.AlignWith( C );
+        A1Trans_STAR_MR.AlignWith( C );
         //--------------------------------------------------------------------//
-        A1_VR_Star = A1_MC_Star = A1;
-        A1Trans_Star_MR.TransposeFrom( A1_VR_Star );
+        A1_VR_STAR = A1_MC_STAR = A1;
+        A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR );
 
         basic::internal::LocalTriangularRankK
-        ( Upper, alpha, A1_MC_Star, A1Trans_Star_MR, (T)1, C ); 
+        ( UPPER, alpha, A1_MC_STAR, A1Trans_STAR_MR, (T)1, C ); 
         //--------------------------------------------------------------------//
-        A1_MC_Star.FreeAlignments();
-        A1_VR_Star.FreeAlignments();
-        A1Trans_Star_MR.FreeAlignments();
+        A1_MC_STAR.FreeAlignments();
+        A1_VR_STAR.FreeAlignments();
+        A1Trans_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionRight
         ( AL,     /**/ AR,

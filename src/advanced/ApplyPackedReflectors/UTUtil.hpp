@@ -48,7 +48,7 @@ SetDiagonalToOne( Side side, int offset, DistMatrix<T,MC,MR>& H )
     const int colShift = H.ColShift();
     const int rowShift = H.RowShift();
 
-    if( side == Left )
+    if( side == LEFT )
     {
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
@@ -81,7 +81,7 @@ SetDiagonalToOne( Side side, int offset, DistMatrix<T,MC,MR>& H )
 
 template<typename R> // representation of a real number
 void 
-HalveMainDiagonal( DistMatrix<R,Star,Star>& SInv )
+HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
 {
 #ifndef RELEASE
     PushCallStack("HalveMainDiagonal");
@@ -101,13 +101,13 @@ template<typename R> // representation of a real number
 void
 FixDiagonal
 ( Conjugation conjugation,
-  const DistMatrix<complex<R>,Star,Star>& t,
-        DistMatrix<complex<R>,Star,Star>& SInv )
+  const DistMatrix<complex<R>,STAR,STAR>& t,
+        DistMatrix<complex<R>,STAR,STAR>& SInv )
 {
 #ifndef RELEASE
     PushCallStack("FixDiagonal");
 #endif
-    if( conjugation == Conjugated )
+    if( conjugation == CONJUGATED )
     {
         for( int j=0; j<SInv.Height(); ++j )
         {

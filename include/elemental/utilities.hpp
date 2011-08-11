@@ -36,45 +36,25 @@
 namespace elemental {
 namespace utilities {
 
-int
-GCD
-( int a, int b ); 
+int GCD( int a, int b ); 
 
-int
-RawGCD
-( int a, int b ); 
+int RawGCD( int a, int b ); 
 
-int
-LocalLength
-( int n, int shift, int modulus );
+int LocalLength( int n, int shift, int modulus );
 
-int
-RawLocalLength
-( int n, int shift, int modulus );
+int RawLocalLength( int n, int shift, int modulus );
 
-int
-LocalLength
-( int n, int index, int alignment, int modulus );
+int LocalLength( int n, int index, int alignment, int modulus );
 
-int
-RawLocalLength
-( int n, int index, int alignment, int modulus );
+int RawLocalLength( int n, int index, int alignment, int modulus );
 
-int
-MaxLocalLength
-( int n, int modulus );
+int MaxLocalLength( int n, int modulus );
 
-int
-RawMaxLocalLength
-( int n, int modulus );
+int RawMaxLocalLength( int n, int modulus );
 
-int
-Shift
-( int index, int alignment, int modulus );
+int Shift( int index, int alignment, int modulus );
 
-int
-RawShift
-( int index, int alignment, int modulus );
+int RawShift( int index, int alignment, int modulus );
 
 } // utilities
 } // elemental
@@ -84,8 +64,7 @@ RawShift
 //----------------------------------------------------------------------------//
 
 inline int
-elemental::utilities::GCD
-( int a, int b )
+elemental::utilities::GCD( int a, int b )
 {
 #ifndef RELEASE
     if( a < 0 || b < 0 )
@@ -95,8 +74,7 @@ elemental::utilities::GCD
 }
 
 inline int
-elemental::utilities::RawGCD
-( int a, int b )
+elemental::utilities::RawGCD( int a, int b )
 {
     if( b == 0 )
         return a;
@@ -105,8 +83,7 @@ elemental::utilities::RawGCD
 }
 
 inline int
-elemental::utilities::LocalLength
-( int n, int shift, int modulus )
+elemental::utilities::LocalLength( int n, int shift, int modulus )
 {
 #ifndef RELEASE
     PushCallStack("utilities::LocalLength");
@@ -127,8 +104,7 @@ elemental::utilities::LocalLength
 }
 
 inline int
-elemental::utilities::RawLocalLength
-( int n, int shift, int modulus )
+elemental::utilities::RawLocalLength( int n, int shift, int modulus )
 {
     return ( n > shift ? (n - shift - 1)/modulus + 1 : 0 );
 }
@@ -158,8 +134,7 @@ elemental::utilities::RawLocalLength
 }
 
 inline int
-elemental::utilities::MaxLocalLength
-( int n, int modulus )
+elemental::utilities::MaxLocalLength( int n, int modulus )
 {
 #ifndef RELEASE
     PushCallStack("utilities::MaxLocalLength");
@@ -173,8 +148,7 @@ elemental::utilities::MaxLocalLength
 }
 
 inline int
-elemental::utilities::RawMaxLocalLength
-( int n, int modulus )
+elemental::utilities::RawMaxLocalLength( int n, int modulus )
 {
     return ( n > 0 ? (n - 1)/modulus + 1 : 0 );
 }
@@ -183,8 +157,7 @@ elemental::utilities::RawMaxLocalLength
 // 'index', with distribution alignment 'alignment' and number of process 
 // rows/cols 'modulus'
 inline int
-elemental::utilities::Shift
-( int index, int alignment, int modulus )
+elemental::utilities::Shift( int index, int alignment, int modulus )
 {
 #ifndef RELEASE
     PushCallStack("utilities::Shift");
@@ -210,8 +183,7 @@ elemental::utilities::Shift
 }
 
 inline int
-elemental::utilities::RawShift
-( int index, int alignment, int modulus )
+elemental::utilities::RawShift( int index, int alignment, int modulus )
 {
     return (index + modulus - alignment) % modulus;
 }

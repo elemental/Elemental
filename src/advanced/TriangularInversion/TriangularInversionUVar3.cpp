@@ -55,11 +55,11 @@ elemental::advanced::internal::TriangularInversionUVar3
 
     // Temporary distributions
 
-    DistMatrix<F,VC,  Star> U01_VC_Star(g);
-    DistMatrix<F,Star,Star> U11_Star_Star(g);
-    DistMatrix<F,Star,VR  > U12_Star_VR(g);
-    DistMatrix<F,Star,MC  > U01Trans_Star_MC(g);
-    DistMatrix<F,MR,  Star> U12Trans_MR_Star(g);
+    DistMatrix<F,VC,  STAR> U01_VC_STAR(g);
+    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
+    DistMatrix<F,STAR,VR  > U12_STAR_VR(g);
+    DistMatrix<F,STAR,MC  > U01Trans_STAR_MC(g);
+    DistMatrix<F,MR,  STAR> U12Trans_MR_STAR(g);
 
     // Start the algorithm
     PartitionUpDiagonal
@@ -73,34 +73,35 @@ elemental::advanced::internal::TriangularInversionUVar3
          /*************/ /******************/
           UBL, /**/ UBR,  U20, U21, /**/ U22 );
 
-        U01Trans_Star_MC.AlignWith( U02 );
-        U12Trans_MR_Star.AlignWith( U02 );
+        U01Trans_STAR_MC.AlignWith( U02 );
+        U12Trans_MR_STAR.AlignWith( U02 );
         //--------------------------------------------------------------------//
-        U11_Star_Star = U11;
-        advanced::internal::LocalTriangularInversion( Upper, diagonal, U11_Star_Star );
-        U11 = U11_Star_Star;
+        U11_STAR_STAR = U11;
+        advanced::internal::LocalTriangularInversion
+        ( UPPER, diagonal, U11_STAR_STAR );
+        U11 = U11_STAR_STAR;
 
-        U01_VC_Star = U01;
+        U01_VC_STAR = U01;
         basic::internal::LocalTrmm
-        ( Right, Upper, Normal, diagonal, (F)-1, U11_Star_Star, U01_VC_Star );
+        ( RIGHT, UPPER, NORMAL, diagonal, (F)-1, U11_STAR_STAR, U01_VC_STAR );
 
         // We transpose before the communication to avoid cache-thrashing
         // in the unpacking stage.
-        U12Trans_MR_Star.TransposeFrom( U12 );
-        U01Trans_Star_MC.TransposeFrom( U01_VC_Star );
+        U12Trans_MR_STAR.TransposeFrom( U12 );
+        U01Trans_STAR_MC.TransposeFrom( U01_VC_STAR );
 
         basic::internal::LocalGemm
-        ( Transpose, Transpose, 
-          (F)1, U01Trans_Star_MC, U12Trans_MR_Star, (F)1, U02 );
-        U01.TransposeFrom( U01Trans_Star_MC );
+        ( TRANSPOSE, TRANSPOSE, 
+          (F)1, U01Trans_STAR_MC, U12Trans_MR_STAR, (F)1, U02 );
+        U01.TransposeFrom( U01Trans_STAR_MC );
 
-        U12_Star_VR.TransposeFrom( U12Trans_MR_Star );
+        U12_STAR_VR.TransposeFrom( U12Trans_MR_STAR );
         basic::internal::LocalTrmm
-        ( Left, Upper, Normal, diagonal, (F)1, U11_Star_Star, U12_Star_VR );
-        U12 = U12_Star_VR;
+        ( LEFT, UPPER, NORMAL, diagonal, (F)1, U11_STAR_STAR, U12_STAR_VR );
+        U12 = U12_STAR_VR;
         //--------------------------------------------------------------------//
-        U01Trans_Star_MC.FreeAlignments();
-        U12Trans_MR_Star.FreeAlignments();
+        U01Trans_STAR_MC.FreeAlignments();
+        U12Trans_MR_STAR.FreeAlignments();
 
         SlidePartitionUpDiagonal
         ( UTL, /**/ UTR,  U00, /**/ U01, U02,

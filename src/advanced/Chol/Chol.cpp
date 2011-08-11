@@ -46,14 +46,14 @@ elemental::advanced::Chol
     // TODO: Come up with a better routing mechanism
     if( g.Height() == g.Width() )
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             advanced::internal::CholLVar3Square( A );
         else
             advanced::internal::CholUVar3Square( A );
     }
     else
     {
-        if( shape == Lower )
+        if( shape == LOWER )
             advanced::internal::CholLVar3( A );
         else
             advanced::internal::CholUVar3( A );

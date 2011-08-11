@@ -77,124 +77,124 @@ elemental::basic::internal::GemvT
     if( x.Width() == 1 && y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,Star> x_MC_Star(g);
-        DistMatrix<T,MR,Star> z_MR_Star(g);
+        DistMatrix<T,MC,STAR> x_MC_STAR(g);
+        DistMatrix<T,MR,STAR> z_MR_STAR(g);
         DistMatrix<T,MR,MC  > z_MR_MC(g);
         DistMatrix<T,MC,MR  > z(g);
 
         // Start the algorithm
         basic::Scal( beta, y );
-        x_MC_Star.AlignWith( A );
-        z_MR_Star.AlignWith( A );
-        z_MR_Star.ResizeTo( A.Width(), 1 );
+        x_MC_STAR.AlignWith( A );
+        z_MR_STAR.AlignWith( A );
+        z_MR_STAR.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         z.AlignWith( y );
         //--------------------------------------------------------------------//
-        x_MC_Star = x;
+        x_MC_STAR = x;
         basic::Gemv
         ( orientation,
           alpha, A.LockedLocalMatrix(), 
-                 x_MC_Star.LockedLocalMatrix(),
-          (T)0,  z_MR_Star.LocalMatrix() );
-        z_MR_MC.SumScatterFrom( z_MR_Star );
+                 x_MC_STAR.LockedLocalMatrix(),
+          (T)0,  z_MR_STAR.LocalMatrix() );
+        z_MR_MC.SumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
         basic::Axpy( (T)1, z, y );
         //--------------------------------------------------------------------//
-        x_MC_Star.FreeAlignments();
-        z_MR_Star.FreeAlignments();
+        x_MC_STAR.FreeAlignments();
+        z_MR_STAR.FreeAlignments();
         z_MR_MC.FreeAlignments();
         z.FreeAlignments();
     }
     else if( x.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,Star> x_MC_Star(g);
-        DistMatrix<T,MR,Star> z_MR_Star(g);
+        DistMatrix<T,MC,STAR> x_MC_STAR(g);
+        DistMatrix<T,MR,STAR> z_MR_STAR(g);
         DistMatrix<T,MR,MC  > z_MR_MC(g);
         DistMatrix<T,MC,MR  > zTrans(g);
 
         // Start the algorithm
         basic::Scal( beta, y );
-        x_MC_Star.AlignWith( A );
-        z_MR_Star.AlignWith( A );
-        z_MR_Star.ResizeTo( A.Width(), 1 );
+        x_MC_STAR.AlignWith( A );
+        z_MR_STAR.AlignWith( A );
+        z_MR_STAR.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
-        x_MC_Star = x;
+        x_MC_STAR = x;
         basic::Gemv
         ( orientation,
           alpha, A.LockedLocalMatrix(),
-                 x_MC_Star.LockedLocalMatrix(),
-          (T)0,  z_MR_Star.LocalMatrix() );
-        z_MR_MC.SumScatterFrom( z_MR_Star );
+                 x_MC_STAR.LockedLocalMatrix(),
+          (T)0,  z_MR_STAR.LocalMatrix() );
+        z_MR_MC.SumScatterFrom( z_MR_STAR );
         basic::Trans( z_MR_MC, zTrans );
         basic::Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
-        x_MC_Star.FreeAlignments();
-        z_MR_Star.FreeAlignments();
+        x_MC_STAR.FreeAlignments();
+        z_MR_STAR.FreeAlignments();
         z_MR_MC.FreeAlignments();
         zTrans.FreeAlignments();
     }
     else if( y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC  > x_Star_MC(g);
-        DistMatrix<T,MR,  Star> z_MR_Star(g);
+        DistMatrix<T,STAR,MC  > x_STAR_MC(g);
+        DistMatrix<T,MR,  STAR> z_MR_STAR(g);
         DistMatrix<T,MR,  MC  > z_MR_MC(g);
         DistMatrix<T,MC,  MR  > z(g);
 
         // Start the algorithm
         basic::Scal( beta, y );
-        x_Star_MC.AlignWith( A );
-        z_MR_Star.AlignWith( A );
-        z_MR_Star.ResizeTo( A.Width(), 1 );
+        x_STAR_MC.AlignWith( A );
+        z_MR_STAR.AlignWith( A );
+        z_MR_STAR.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         z.AlignWith( y );
         //--------------------------------------------------------------------//
-        x_Star_MC = x;
+        x_STAR_MC = x;
         basic::Gemv
         ( orientation,
           alpha, A.LockedLocalMatrix(), 
-                 x_Star_MC.LockedLocalMatrix(),
-          (T)0,  z_MR_Star.LocalMatrix() );
-        z_MR_MC.SumScatterFrom( z_MR_Star );
+                 x_STAR_MC.LockedLocalMatrix(),
+          (T)0,  z_MR_STAR.LocalMatrix() );
+        z_MR_MC.SumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
         basic::Axpy( (T)1, z, y );
         //--------------------------------------------------------------------//
-        x_Star_MC.FreeAlignments();
-        z_MR_Star.FreeAlignments();
+        x_STAR_MC.FreeAlignments();
+        z_MR_STAR.FreeAlignments();
         z_MR_MC.FreeAlignments();
         z.FreeAlignments();
     }
     else
     {
         // Temporary distributions
-        DistMatrix<T,Star,MC  > x_Star_MC(g);
-        DistMatrix<T,MR,  Star> z_MR_Star(g);
+        DistMatrix<T,STAR,MC  > x_STAR_MC(g);
+        DistMatrix<T,MR,  STAR> z_MR_STAR(g);
         DistMatrix<T,MR,  MC  > z_MR_MC(g);
         DistMatrix<T,MC,  MR  > zTrans(g);
 
         // Start the algorithm
         basic::Scal( beta, y );
-        x_Star_MC.AlignWith( A );
-        z_MR_Star.AlignWith( A );
-        z_MR_Star.ResizeTo( A.Width(), 1 );
+        x_STAR_MC.AlignWith( A );
+        z_MR_STAR.AlignWith( A );
+        z_MR_STAR.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
-        x_Star_MC = x;
+        x_STAR_MC = x;
         basic::Gemv
         ( orientation,
           alpha, A.LockedLocalMatrix(),
-                 x_Star_MC.LockedLocalMatrix(),
-          (T)0,  z_MR_Star.LocalMatrix() );
-        z_MR_MC.SumScatterFrom( z_MR_Star );
+                 x_STAR_MC.LockedLocalMatrix(),
+          (T)0,  z_MR_STAR.LocalMatrix() );
+        z_MR_MC.SumScatterFrom( z_MR_STAR );
         basic::Trans( z_MR_MC, zTrans );
         basic::Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
-        x_Star_MC.FreeAlignments();
-        z_MR_Star.FreeAlignments();
+        x_STAR_MC.FreeAlignments();
+        z_MR_STAR.FreeAlignments();
         z_MR_MC.FreeAlignments();
         zTrans.FreeAlignments();
     }

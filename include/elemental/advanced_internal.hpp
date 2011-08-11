@@ -56,19 +56,15 @@ namespace internal {
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void
-LocalChol
-( Shape shape, DistMatrix<F,Star,Star>& A );
+void LocalChol( Shape shape, DistMatrix<F,Star,Star>& A );
 
 template<typename F>
-void
-LocalHegst
+void LocalHegst
 ( Side side, Shape shape, 
   DistMatrix<F,Star,Star>& A, const DistMatrix<F,Star,Star>& B );
 
 template<typename F>
-void
-LocalTriangularInversion
+void LocalTriangularInversion
 ( Shape shape, Diagonal diagonal, DistMatrix<F,Star,Star>& A );
 
 //----------------------------------------------------------------------------//
@@ -76,252 +72,184 @@ LocalTriangularInversion
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void
-CholLVar2( DistMatrix<F,MC,MR>& A );
+void CholLVar2( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void
-CholLVar2Naive( DistMatrix<F,MC,MR>& A );
+void CholLVar2Naive( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void
-CholLVar3( DistMatrix<F,MC,MR>& A );
+void CholLVar3( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void
-CholLVar3Naive( DistMatrix<F,MC,MR>& A );
+void CholLVar3Naive( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void
-CholLVar3Square( DistMatrix<F,MC,MR>& A );
+void CholLVar3Square( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void
-CholUVar2( DistMatrix<F,MC,MR>& A );
+void CholUVar2( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void
-CholUVar2Naive( DistMatrix<F,MC,MR>& A );
+void CholUVar2Naive( DistMatrix<F,MC,MR>& A );
  
 template<typename F>
-void
-CholUVar3( DistMatrix<F,MC,MR>& A );
+void CholUVar3( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void
-CholUVar3Naive( DistMatrix<F,MC,MR>& A );
+void CholUVar3Naive( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void
-CholUVar3Square( DistMatrix<F,MC,MR>& A );
+void CholUVar3Square( DistMatrix<F,MC,MR>& A );
             
 //----------------------------------------------------------------------------//
 // GaussElim                                                                  //
 //----------------------------------------------------------------------------//
             
 template<typename F>
-void
-ReduceToRowEchelon
-( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
+void ReduceToRowEchelon( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
 // Hegst                                                                      //
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void
-HegstLLVar1
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstLLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
-void
-HegstLLVar2
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 // HegstLLVar3 would redundantly compute too much data
 
 template<typename F>
-void
-HegstLLVar4
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstLLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
-void
-HegstLLVar5
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstLLVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
-void
-HegstLUVar1
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstLUVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
-void
-HegstLUVar2
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstLUVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 // HegstLUVar3 would redundantly compute too much data
 
 template<typename F>
-void
-HegstLUVar4
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstLUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
-void
-HegstLUVar5
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstLUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
-void
-HegstRLVar1
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstRLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
-void
-HegstRLVar2
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstRLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
-void
-HegstRLVar3
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstRLVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
-void
-HegstRLVar4
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstRLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
-void
-HegstRLVar5
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstRLVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
 
 template<typename F>
-void
-HegstRUVar1
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstRUVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
-void
-HegstRUVar2
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstRUVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
-void
-HegstRUVar3
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
-void
-HegstRUVar4
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstRUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
-void
-HegstRUVar5
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstRUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 //----------------------------------------------------------------------------//
 // LU                                                                         //
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void
-ApplyRowPivots
+void ApplyRowPivots
 (       DistMatrix<F,MC,MR>& A, 
   const std::vector<int>& image,
   const std::vector<int>& preimage,
         int pivotOffset=0 );
 
-void
-ComposePivots
+void ComposePivots
 ( const DistMatrix<int,Star,Star>& p,
         std::vector<int>& image,
         std::vector<int>& preimage,
         int pivotOffset = 0 );
 
 template<typename F>
-void
-CreatePivotOp();
+void CreatePivotOp();
 
 template<>
-void
-CreatePivotOp<float>();
+void CreatePivotOp<float>();
 
 template<>
-void
-CreatePivotOp<double>();
+void CreatePivotOp<double>();
 
 #ifndef WITHOUT_COMPLEX
 template<>
-void
-CreatePivotOp<scomplex>();
+void CreatePivotOp<scomplex>();
 
 template<>
-void
-CreatePivotOp<dcomplex>();
+void CreatePivotOp<dcomplex>();
 #endif
 
 template<typename T>
-void
-DestroyPivotOp();
+void DestroyPivotOp();
 
 template<>
-void
-DestroyPivotOp<float>();
+void DestroyPivotOp<float>();
 
 template<>
-void
-DestroyPivotOp<double>();
+void DestroyPivotOp<double>();
 
 #ifndef WITHOUT_COMPLEX
 template<>
-void
-DestroyPivotOp<scomplex>();
+void DestroyPivotOp<scomplex>();
 
 template<>
-void
-DestroyPivotOp<dcomplex>();
+void DestroyPivotOp<dcomplex>();
 #endif
 
 template<typename F>
-void
-LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,Star,Star>& p );
+void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,Star,Star>& p );
 
 template<typename F>
-void
-PanelLU
+void PanelLU
 ( DistMatrix<F,Star,Star>& A, 
   DistMatrix<F,MC,  Star>& B, 
   DistMatrix<int,Star,Star>& p, 
   int pivotOffset=0 );
 
 template<typename F>
-imports::mpi::Op
-PivotOp();
+imports::mpi::Op PivotOp();
 
 template<>
-imports::mpi::Op
-PivotOp<float>();
+imports::mpi::Op PivotOp<float>();
 
 template<>
-imports::mpi::Op
-PivotOp<double>();
+imports::mpi::Op PivotOp<double>();
 
 #ifndef WITHOUT_COMPLEX
 template<>
-imports::mpi::Op
-PivotOp<scomplex>();
+imports::mpi::Op PivotOp<scomplex>();
 
 template<>
-imports::mpi::Op
-PivotOp<dcomplex>();
+imports::mpi::Op PivotOp<dcomplex>();
 #endif
             
 template<typename F>
-void
-PivotFunc
+void PivotFunc
 ( void* inData, void* outData, 
   int* length, imports::mpi::Datatype* datatype );
 
@@ -330,14 +258,13 @@ PivotFunc
 //----------------------------------------------------------------------------//
 
 template<typename R>
-void
-PanelLQ( DistMatrix<R,MC,MR>& A );
+void PanelLQ( DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-PanelLQ( DistMatrix<std::complex<R>,MC,MR  >& A,
-         DistMatrix<std::complex<R>,MD,Star>& t );
+void PanelLQ
+( DistMatrix<std::complex<R>,MC,MR  >& A,
+  DistMatrix<std::complex<R>,MD,Star>& t );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -364,13 +291,13 @@ R OneNorm( const DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-R FrobeniusNorm( const Matrix< std::complex<R> >& A );
+R FrobeniusNorm( const Matrix<std::complex<R> >& A );
 template<typename R>
-R InfinityNorm( const Matrix< std::complex<R> >& A );
+R InfinityNorm( const Matrix<std::complex<R> >& A );
 template<typename R>
-R MaxNorm( const Matrix< std::complex<R> >& A );
+R MaxNorm( const Matrix<std::complex<R> >& A );
 template<typename R>
-R OneNorm( const Matrix< std::complex<R> >& A );
+R OneNorm( const Matrix<std::complex<R> >& A );
 
 template<typename R>
 R FrobeniusNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
@@ -387,44 +314,32 @@ R OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
 //----------------------------------------------------------------------------//
 
 template<typename R>
-R HermitianFrobeniusNorm
-( Shape shape, const Matrix<R>& A );
+R HermitianFrobeniusNorm( Shape shape, const Matrix<R>& A );
 template<typename R>
-R HermitianInfinityNorm
-( Shape shape, const Matrix<R>& A );
+R HermitianInfinityNorm( Shape shape, const Matrix<R>& A );
 template<typename R>
-R HermitianMaxNorm
-( Shape shape, const Matrix<R>& A );
+R HermitianMaxNorm( Shape shape, const Matrix<R>& A );
 template<typename R>
-R HermitianOneNorm
-( Shape shape, const Matrix<R>& A );
+R HermitianOneNorm( Shape shape, const Matrix<R>& A );
 
 template<typename R>
-R HermitianFrobeniusNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A );
+R HermitianFrobeniusNorm( Shape shape, const DistMatrix<R,MC,MR>& A );
 template<typename R>
-R HermitianInfinityNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A );
+R HermitianInfinityNorm( Shape shape, const DistMatrix<R,MC,MR>& A );
 template<typename R>
-R HermitianMaxNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A );
+R HermitianMaxNorm( Shape shape, const DistMatrix<R,MC,MR>& A );
 template<typename R>
-R HermitianOneNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A );
+R HermitianOneNorm( Shape shape, const DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-R HermitianFrobeniusNorm
-( Shape shape, const Matrix< std::complex<R> >& A );
+R HermitianFrobeniusNorm( Shape shape, const Matrix<std::complex<R> >& A );
 template<typename R>
-R HermitianInfinityNorm
-( Shape shape, const Matrix< std::complex<R> >& A );
+R HermitianInfinityNorm( Shape shape, const Matrix<std::complex<R> >& A );
 template<typename R>
-R HermitianMaxNorm
-( Shape shape, const Matrix< std::complex<R> >& A );
+R HermitianMaxNorm( Shape shape, const Matrix<std::complex<R> >& A );
 template<typename R>
-R HermitianOneNorm
-( Shape shape, const Matrix< std::complex<R> >& A );
+R HermitianOneNorm( Shape shape, const Matrix<std::complex<R> >& A );
 
 template<typename R>
 R HermitianFrobeniusNorm
@@ -445,39 +360,34 @@ R HermitianOneNorm
 //----------------------------------------------------------------------------//
 
 template<typename R>
-void
-PanelQR( DistMatrix<R,MC,MR>& A );
+void PanelQR( DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-PanelQR( DistMatrix<std::complex<R>,MC,MR  >& A,
-         DistMatrix<std::complex<R>,MD,Star>& t );
+void PanelQR
+( DistMatrix<std::complex<R>,MC,MR  >& A,
+  DistMatrix<std::complex<R>,MD,Star>& t );
 #endif
 
 //----------------------------------------------------------------------------//
 // Reflector                                                                  //
 //----------------------------------------------------------------------------//
 template<typename R>
-R 
-ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
+R ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-std::complex<R>
-ColReflector
+std::complex<R> ColReflector
 ( DistMatrix<std::complex<R>,MC,MR>& chi, 
   DistMatrix<std::complex<R>,MC,MR>& x );
 #endif
 
 template<typename R>
-R
-RowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
+R RowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-std::complex<R>
-RowReflector
+std::complex<R> RowReflector
 ( DistMatrix<std::complex<R>,MC,MR>& chi,
   DistMatrix<std::complex<R>,MC,MR>& x );
 #endif
@@ -487,8 +397,7 @@ RowReflector
 //----------------------------------------------------------------------------//
 
 template<typename R>
-void
-HermitianPanelTridiagL
+void HermitianPanelTridiagL
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star,
@@ -496,8 +405,7 @@ HermitianPanelTridiagL
   DistMatrix<R,MC,Star>& W_MC_Star,
   DistMatrix<R,MR,Star>& W_MR_Star );
 template<typename R>
-void
-HermitianPanelTridiagU
+void HermitianPanelTridiagU
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star,
@@ -505,8 +413,7 @@ HermitianPanelTridiagU
   DistMatrix<R,MC,Star>& W_MC_Star,
   DistMatrix<R,MR,Star>& W_MR_Star );
 template<typename R>
-void
-HermitianPanelTridiagLSquare
+void HermitianPanelTridiagLSquare
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star,
@@ -514,8 +421,7 @@ HermitianPanelTridiagLSquare
   DistMatrix<R,MC,Star>& W_MC_Star,
   DistMatrix<R,MR,Star>& W_MR_Star );
 template<typename R>
-void
-HermitianPanelTridiagUSquare
+void HermitianPanelTridiagUSquare
 ( DistMatrix<R,MC,MR  >& A, 
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,Star>& APan_MC_Star,
@@ -525,8 +431,7 @@ HermitianPanelTridiagUSquare
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-HermitianPanelTridiagL
+void HermitianPanelTridiagL
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<std::complex<R>,MD,Star>& t,
@@ -535,8 +440,7 @@ HermitianPanelTridiagL
   DistMatrix<std::complex<R>,MC,Star>& W_MC_Star,
   DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
 template<typename R>
-void
-HermitianPanelTridiagU
+void HermitianPanelTridiagU
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<std::complex<R>,MD,Star>& t,
@@ -546,8 +450,7 @@ HermitianPanelTridiagU
   DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
 
 template<typename R>
-void
-HermitianPanelTridiagLSquare
+void HermitianPanelTridiagLSquare
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<std::complex<R>,MD,Star>& t,
@@ -556,8 +459,7 @@ HermitianPanelTridiagLSquare
   DistMatrix<std::complex<R>,MC,Star>& W_MC_Star,
   DistMatrix<std::complex<R>,MR,Star>& W_MR_Star );
 template<typename R>
-void
-HermitianPanelTridiagUSquare
+void HermitianPanelTridiagUSquare
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MC,MR  >& W,
   DistMatrix<std::complex<R>,MD,Star>& t,
@@ -568,39 +470,31 @@ HermitianPanelTridiagUSquare
 #endif
  
 template<typename R>
-void
-HermitianTridiagL( DistMatrix<R,MC,MR>& A );
+void HermitianTridiagL( DistMatrix<R,MC,MR>& A );
 template<typename R>
-void
-HermitianTridiagU( DistMatrix<R,MC,MR>& A );
+void HermitianTridiagU( DistMatrix<R,MC,MR>& A );
 
 template<typename R>
-void
-HermitianTridiagLSquare( DistMatrix<R,MC,MR>& A );
+void HermitianTridiagLSquare( DistMatrix<R,MC,MR>& A );
 template<typename R>
-void
-HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A );
+void HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-void
-HermitianTridiagL
+void HermitianTridiagL
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,Star,Star>& t );
 template<typename R>
-void
-HermitianTridiagU
+void HermitianTridiagU
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,Star,Star>& t );
 
 template<typename R>
-void
-HermitianTridiagLSquare
+void HermitianTridiagLSquare
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,Star,Star>& t );
 template<typename R>
-void
-HermitianTridiagUSquare
+void HermitianTridiagUSquare
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,Star,Star>& t );
 #endif
@@ -610,18 +504,15 @@ HermitianTridiagUSquare
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void
-TriangularInversionVar3
+void TriangularInversionVar3
 ( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
 template<typename F>
-void
-TriangularInversionLVar3
+void TriangularInversionLVar3
 ( Diagonal diagonal, DistMatrix<F,MC,MR>& L );
 
 template<typename F>
-void
-TriangularInversionUVar3
+void TriangularInversionUVar3
 ( Diagonal diagonal, DistMatrix<F,MC,MR>& U );
 
 //----------------------------------------------------------------------------//
@@ -856,32 +747,25 @@ void ApplyPackedReflectorsRUHB
 // LAPACK-like Utility Functions                                              //
 //----------------------------------------------------------------------------//
 template<typename F>
-double
-CholGFlops( int m, double seconds );
+double CholGFlops( int m, double seconds );
 
 template<typename F>
-double
-HegstGFlops( int m, double seconds );
+double HegstGFlops( int m, double seconds );
 
 template<typename F>
-double
-LUGFlops( int m, double seconds );
+double LUGFlops( int m, double seconds );
 
 template<typename F>
-double
-QRGFlops( int m, int n, double seconds );
+double QRGFlops( int m, int n, double seconds );
 
 template<typename F>
-double
-HermitianTridiagGFlops( int m, double seconds );
+double HermitianTridiagGFlops( int m, double seconds );
 
 template<typename F>
-double
-TriangularInversionGFlops( int m, double seconds );
+double TriangularInversionGFlops( int m, double seconds );
 
 template<typename F>
-double
-ApplyPackedReflectorsGFlops( int m, double seconds );
+double ApplyPackedReflectorsGFlops( int m, double seconds );
 
 } // internal
 } // advanced

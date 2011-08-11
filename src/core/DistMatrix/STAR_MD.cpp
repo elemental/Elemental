@@ -50,31 +50,31 @@ using namespace elemental::utilities;
 
 template<typename Z>
 bool
-elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
+elemental::DistMatrix<Z,STAR,MD>::AlignedWithDiag
 ( const DistMatrixBase<Z,MC,MR>& A, int offset ) const
 { return DMB::AlignedWithDiag( A, offset ); }
 
 template<typename Z>
 void
-elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
+elemental::DistMatrix<Z,STAR,MD>::AlignWithDiag
 ( const DistMatrixBase<Z,MC,MR>& A, int offset )
 { DMB::AlignWithDiag( A, offset ); }
 
 template<typename Z>
 bool
-elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
+elemental::DistMatrix<Z,STAR,MD>::AlignedWithDiag
 ( const DistMatrixBase<Z,MR,MC>& A, int offset ) const
 { return DMB::AlignedWithDiag( A, offset ); }
 
 template<typename Z>
 void
-elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
+elemental::DistMatrix<Z,STAR,MD>::AlignWithDiag
 ( const DistMatrixBase<Z,MR,MC>& A, int offset )
 { DMB::AlignWithDiag( A, offset ); }
 
 template<typename Z>
 void
-elemental::DistMatrix<Z,Star,MD>::SetToRandomHermitian()
+elemental::DistMatrix<Z,STAR,MD>::SetToRandomHermitian()
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::SetToRandomHermitian");
@@ -90,7 +90,7 @@ elemental::DistMatrix<Z,Star,MD>::SetToRandomHermitian()
 
 template<typename Z>
 void
-elemental::DistMatrix<Z,Star,MD>::SetToRandomHPD()
+elemental::DistMatrix<Z,STAR,MD>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::SetToRandomHPD");
@@ -128,7 +128,7 @@ elemental::DistMatrix<Z,Star,MD>::SetToRandomHPD()
 #ifndef WITHOUT_COMPLEX
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MD>::SetToRandomHermitian()
+elemental::DistMatrix<complex<Z>,STAR,MD>::SetToRandomHermitian()
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::SetToRandomHermitian");
@@ -167,7 +167,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::SetToRandomHermitian()
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MD>::SetToRandomHPD()
+elemental::DistMatrix<complex<Z>,STAR,MD>::SetToRandomHPD()
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::SetToRandomHPD");
@@ -207,7 +207,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::SetToRandomHPD()
 
 template<typename Z>
 Z
-elemental::DistMatrix<complex<Z>,Star,MD>::GetReal
+elemental::DistMatrix<complex<Z>,STAR,MD>::GetReal
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -244,7 +244,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::GetReal
 
 template<typename Z>
 Z
-elemental::DistMatrix<complex<Z>,Star,MD>::GetImag
+elemental::DistMatrix<complex<Z>,STAR,MD>::GetImag
 ( int i, int j ) const
 {
 #ifndef RELEASE
@@ -281,7 +281,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::GetImag
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MD>::SetReal
+elemental::DistMatrix<complex<Z>,STAR,MD>::SetReal
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
@@ -313,7 +313,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::SetReal
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MD>::SetImag
+elemental::DistMatrix<complex<Z>,STAR,MD>::SetImag
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
@@ -345,7 +345,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::SetImag
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MD>::UpdateReal
+elemental::DistMatrix<complex<Z>,STAR,MD>::UpdateReal
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
@@ -377,7 +377,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::UpdateReal
 
 template<typename Z>
 void
-elemental::DistMatrix<complex<Z>,Star,MD>::UpdateImag
+elemental::DistMatrix<complex<Z>,STAR,MD>::UpdateImag
 ( int i, int j, Z u )
 {
 #ifndef RELEASE
@@ -409,7 +409,7 @@ elemental::DistMatrix<complex<Z>,Star,MD>::UpdateImag
 
 template<typename Z>
 bool
-elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
+elemental::DistMatrix<Z,STAR,MD>::AlignedWithDiag
 ( const DistMatrixBase<complex<Z>,MC,MR>& A, int offset ) const
 {
 #ifndef RELEASE
@@ -443,7 +443,7 @@ elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
 
 template<typename Z>
 void
-elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
+elemental::DistMatrix<Z,STAR,MD>::AlignWithDiag
 ( const DistMatrixBase<complex<Z>,MC,MR>& A, int offset )
 {
 #ifndef RELEASE
@@ -487,7 +487,7 @@ elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
 
 template<typename Z>
 bool
-elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
+elemental::DistMatrix<Z,STAR,MD>::AlignedWithDiag
 ( const DistMatrixBase<complex<Z>,MR,MC>& A, int offset ) const
 {
 #ifndef RELEASE
@@ -521,7 +521,7 @@ elemental::DistMatrix<Z,Star,MD>::AlignedWithDiag
 
 template<typename Z>
 void
-elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
+elemental::DistMatrix<Z,STAR,MD>::AlignWithDiag
 ( const DistMatrixBase<complex<Z>,MR,MC>& A, int offset )
 {
 #ifndef RELEASE
@@ -564,11 +564,11 @@ elemental::DistMatrix<Z,Star,MD>::AlignWithDiag
 }
 #endif // WITHOUT_COMPLEX
 
-template class elemental::DistMatrix<int,   Star,MD>;
-template class elemental::DistMatrix<float, Star,MD>;
-template class elemental::DistMatrix<double,Star,MD>;
+template class elemental::DistMatrix<int,   STAR,MD>;
+template class elemental::DistMatrix<float, STAR,MD>;
+template class elemental::DistMatrix<double,STAR,MD>;
 #ifndef WITHOUT_COMPLEX
-template class elemental::DistMatrix<scomplex,Star,MD>;
-template class elemental::DistMatrix<dcomplex,Star,MD>;
+template class elemental::DistMatrix<scomplex,STAR,MD>;
+template class elemental::DistMatrix<dcomplex,STAR,MD>;
 #endif
 

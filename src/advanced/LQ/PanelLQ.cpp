@@ -55,7 +55,7 @@ template<typename R> // representation of a real number
 void
 elemental::advanced::internal::PanelLQ
 ( DistMatrix<complex<R>,MC,MR  >& A,
-  DistMatrix<complex<R>,MD,Star>& t )
+  DistMatrix<complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::PanelLQ");
@@ -88,11 +88,11 @@ elemental::advanced::internal::PanelLQ
 template void
 elemental::advanced::internal::PanelLQ
 ( DistMatrix<scomplex,MC,MR  >& A,
-  DistMatrix<scomplex,MD,Star>& t );
+  DistMatrix<scomplex,MD,STAR>& t );
 
 template void
 elemental::advanced::internal::PanelLQ
 ( DistMatrix<dcomplex,MC,MR  >& A,
-  DistMatrix<dcomplex,MD,Star>& t );
+  DistMatrix<dcomplex,MD,STAR>& t );
 #endif
 

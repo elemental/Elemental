@@ -97,9 +97,9 @@ elemental::basic::internal::TrmmLUNA
         XL(g), XR(g),
         X0(g), X1(g), X2(g);
 
-    DistMatrix<T,VR,  Star> X1_VR_Star(g);
-    DistMatrix<T,Star,MR  > X1Trans_Star_MR(g);
-    DistMatrix<T,MC,  Star> Z1_MC_Star(g);
+    DistMatrix<T,VR,  STAR> X1_VR_STAR(g);
+    DistMatrix<T,STAR,MR  > X1Trans_STAR_MR(g);
+    DistMatrix<T,MC,  STAR> Z1_MC_STAR(g);
 
     PartitionRight
     ( X, XL, XR, 0 );
@@ -109,22 +109,22 @@ elemental::basic::internal::TrmmLUNA
         ( XL, /**/ XR,
           X0, /**/ X1, X2 );
 
-        X1_VR_Star.AlignWith( U );
-        X1Trans_Star_MR.AlignWith( U );
-        Z1_MC_Star.AlignWith( U );
-        Z1_MC_Star.ResizeTo( X1.Height(), X1.Width() );
+        X1_VR_STAR.AlignWith( U );
+        X1Trans_STAR_MR.AlignWith( U );
+        Z1_MC_STAR.AlignWith( U );
+        Z1_MC_STAR.ResizeTo( X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
-        X1_VR_Star = X1;
-        X1Trans_Star_MR.TransposeFrom( X1_VR_Star );
-        Z1_MC_Star.SetToZero();
+        X1_VR_STAR = X1;
+        X1Trans_STAR_MR.TransposeFrom( X1_VR_STAR );
+        Z1_MC_STAR.SetToZero();
         basic::internal::LocalTrmmAccumulateLUN
-        ( Transpose, diagonal, alpha, U, X1Trans_Star_MR, Z1_MC_Star );
+        ( Transpose, diagonal, alpha, U, X1Trans_STAR_MR, Z1_MC_STAR );
 
-        X1.SumScatterFrom( Z1_MC_Star );
+        X1.SumScatterFrom( Z1_MC_STAR );
         //--------------------------------------------------------------------//
-        X1_VR_Star.FreeAlignments();
-        X1Trans_Star_MR.FreeAlignments();
-        Z1_MC_Star.FreeAlignments();
+        X1_VR_STAR.FreeAlignments();
+        X1Trans_STAR_MR.FreeAlignments();
+        Z1_MC_STAR.FreeAlignments();
 
         SlidePartitionRight
         ( XL,     /**/ XR,
@@ -168,10 +168,10 @@ elemental::basic::internal::TrmmLUNC
                                 X2(g);
 
     // Temporary distributions
-    DistMatrix<T,Star,Star> U11_Star_Star(g);
-    DistMatrix<T,Star,MC  > U12_Star_MC(g);
-    DistMatrix<T,Star,VR  > X1_Star_VR(g);
-    DistMatrix<T,Star,MR  > D1_Star_MR(g);
+    DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
+    DistMatrix<T,STAR,MC  > U12_STAR_MC(g);
+    DistMatrix<T,STAR,VR  > X1_STAR_VR(g);
+    DistMatrix<T,STAR,MR  > D1_STAR_MR(g);
 
     // Start the algorithm
     basic::Scal( alpha, X );
@@ -195,23 +195,23 @@ elemental::basic::internal::TrmmLUNC
                X1,
           XB,  X2 );
 
-        U12_Star_MC.AlignWith( X2 );
-        D1_Star_MR.AlignWith( X1 );
-        D1_Star_MR.ResizeTo( X1.Height(), X1.Width() );
+        U12_STAR_MC.AlignWith( X2 );
+        D1_STAR_MR.AlignWith( X1 );
+        D1_STAR_MR.ResizeTo( X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
-        X1_Star_VR = X1;
-        U11_Star_Star = U11;
+        X1_STAR_VR = X1;
+        U11_STAR_STAR = U11;
         basic::internal::LocalTrmm
-        ( Left, Upper, Normal, diagonal, (T)1, U11_Star_Star, X1_Star_VR );
-        X1 = X1_Star_VR;
+        ( LEFT, UPPER, NORMAL, diagonal, (T)1, U11_STAR_STAR, X1_STAR_VR );
+        X1 = X1_STAR_VR;
  
-        U12_Star_MC = U12;
+        U12_STAR_MC = U12;
         basic::internal::LocalGemm
-        ( Normal, Normal, (T)1, U12_Star_MC, X2, (T)0, D1_Star_MR );
-        X1.SumScatterUpdate( (T)1, D1_Star_MR );
+        ( NORMAL, NORMAL, (T)1, U12_STAR_MC, X2, (T)0, D1_STAR_MR );
+        X1.SumScatterUpdate( (T)1, D1_STAR_MR );
        //--------------------------------------------------------------------//
-        U12_Star_MC.FreeAlignments();
-        D1_Star_MR.FreeAlignments();
+        U12_STAR_MC.FreeAlignments();
+        D1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,
@@ -235,30 +235,30 @@ void
 elemental::basic::internal::LocalTrmmAccumulateLUN
 ( Orientation orientation, Diagonal diagonal, T alpha,
   const DistMatrix<T,MC,  MR  >& U,
-  const DistMatrix<T,Star,MR  >& XHermOrTrans_Star_MR,
-        DistMatrix<T,MC,  Star>& Z_MC_Star )
+  const DistMatrix<T,STAR,MR  >& XAdjOrTrans_STAR_MR,
+        DistMatrix<T,MC,  STAR>& Z_MC_STAR )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrmmAccumulateLUN");
-    if( U.Grid() != XHermOrTrans_Star_MR.Grid() ||
-        XHermOrTrans_Star_MR.Grid() != Z_MC_Star.Grid() )
+    if( U.Grid() != XAdjOrTrans_STAR_MR.Grid() ||
+        XAdjOrTrans_STAR_MR.Grid() != Z_MC_STAR.Grid() )
         throw logic_error( "{U,X,Z} must be distributed over the same grid." );
     if( U.Height() != U.Width() ||
-        U.Height() != XHermOrTrans_Star_MR.Width() ||
-        U.Height() != Z_MC_Star.Height() ||
-        XHermOrTrans_Star_MR.Height() != Z_MC_Star.Width() )
+        U.Height() != XAdjOrTrans_STAR_MR.Width() ||
+        U.Height() != Z_MC_STAR.Height() ||
+        XAdjOrTrans_STAR_MR.Height() != Z_MC_STAR.Width() )
     {
         ostringstream msg;
         msg << "Nonconformal LocalTrmmAccumulateLUN: \n"
             << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X^H/T[* ,MR] ~ " << XHermOrTrans_Star_MR.Height() << " x "
-                                   << XHermOrTrans_Star_MR.Width() << "\n"
-            << "  Z[MC,* ] ~ " << Z_MC_Star.Height() << " x "
-                               << Z_MC_Star.Width() << endl;
+            << "  X^H/T[* ,MR] ~ " << XAdjOrTrans_STAR_MR.Height() << " x "
+                                   << XAdjOrTrans_STAR_MR.Width() << "\n"
+            << "  Z[MC,* ] ~ " << Z_MC_STAR.Height() << " x "
+                               << Z_MC_STAR.Width() << endl;
         throw logic_error( msg.str() );
     }
-    if( XHermOrTrans_Star_MR.RowAlignment() != U.RowAlignment() ||
-        Z_MC_Star.ColAlignment() != U.ColAlignment() )
+    if( XAdjOrTrans_STAR_MR.RowAlignment() != U.RowAlignment() ||
+        Z_MC_STAR.ColAlignment() != U.ColAlignment() )
         throw logic_error( "Partial matrix distributions are misaligned." );
 #endif
     const Grid& g = U.Grid();
@@ -271,15 +271,15 @@ elemental::basic::internal::LocalTrmmAccumulateLUN
 
     DistMatrix<T,MC,MR> D11(g);
 
-    DistMatrix<T,Star,MR>
-        XLHermOrTrans_Star_MR(g), XRHermOrTrans_Star_MR(g),
-        X0HermOrTrans_Star_MR(g), X1HermOrTrans_Star_MR(g), 
-        X2HermOrTrans_Star_MR(g);
+    DistMatrix<T,STAR,MR>
+        XLAdjOrTrans_STAR_MR(g), XRAdjOrTrans_STAR_MR(g),
+        X0AdjOrTrans_STAR_MR(g), X1AdjOrTrans_STAR_MR(g), 
+        X2AdjOrTrans_STAR_MR(g);
 
-    DistMatrix<T,MC,Star>
-        ZT_MC_Star(g),  Z0_MC_Star(g),
-        ZB_MC_Star(g),  Z1_MC_Star(g),
-                        Z2_MC_Star(g);
+    DistMatrix<T,MC,STAR>
+        ZT_MC_STAR(g),  Z0_MC_STAR(g),
+        ZB_MC_STAR(g),  Z1_MC_STAR(g),
+                        Z2_MC_STAR(g);
 
     const int ratio = max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
@@ -288,10 +288,10 @@ elemental::basic::internal::LocalTrmmAccumulateLUN
     ( U, UTL, UTR,
          UBL, UBR, 0 );
     LockedPartitionRight
-    ( XHermOrTrans_Star_MR, XLHermOrTrans_Star_MR, XRHermOrTrans_Star_MR, 0 );
+    ( XAdjOrTrans_STAR_MR, XLAdjOrTrans_STAR_MR, XRAdjOrTrans_STAR_MR, 0 );
     PartitionDown
-    ( Z_MC_Star, ZT_MC_Star,
-                 ZB_MC_Star, 0 );
+    ( Z_MC_STAR, ZT_MC_STAR,
+                 ZB_MC_STAR, 0 );
     while( UTL.Height() < U.Height() )
     {
         LockedRepartitionDownDiagonal
@@ -301,29 +301,29 @@ elemental::basic::internal::LocalTrmmAccumulateLUN
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
         LockedRepartitionRight
-        ( XLHermOrTrans_Star_MR, /**/ XRHermOrTrans_Star_MR,
-          X0HermOrTrans_Star_MR, /**/ X1HermOrTrans_Star_MR, 
-                                      X2HermOrTrans_Star_MR );
+        ( XLAdjOrTrans_STAR_MR, /**/ XRAdjOrTrans_STAR_MR,
+          X0AdjOrTrans_STAR_MR, /**/ X1AdjOrTrans_STAR_MR, X2AdjOrTrans_STAR_MR 
+        );
 
         RepartitionDown
-        ( ZT_MC_Star,  Z0_MC_Star,
+        ( ZT_MC_STAR,  Z0_MC_STAR,
          /**********/ /**********/
-                       Z1_MC_Star,
-          ZB_MC_Star,  Z2_MC_Star );
+                       Z1_MC_STAR,
+          ZB_MC_STAR,  Z2_MC_STAR );
 
         D11.AlignWith( U11 );
         //--------------------------------------------------------------------//
         D11 = U11;
-        D11.MakeTrapezoidal( Left, Upper );
-        if( diagonal == Unit )
+        D11.MakeTrapezoidal( LEFT, UPPER );
+        if( diagonal == UNIT )
             SetDiagonalToOne( D11 );
         basic::internal::LocalGemm
-        ( Normal, orientation, alpha, D11, X1HermOrTrans_Star_MR,
-          (T)1, Z1_MC_Star );
+        ( NORMAL, orientation, alpha, D11, X1AdjOrTrans_STAR_MR,
+          (T)1, Z1_MC_STAR );
 
         basic::internal::LocalGemm
-        ( Normal, orientation, alpha, U01, X1HermOrTrans_Star_MR,
-          (T)1, Z0_MC_Star );
+        ( NORMAL, orientation, alpha, U01, X1AdjOrTrans_STAR_MR,
+          (T)1, Z0_MC_STAR );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 
@@ -334,16 +334,15 @@ elemental::basic::internal::LocalTrmmAccumulateLUN
           UBL, /**/ UBR,  U20, U21, /**/ U22 );
 
         SlideLockedPartitionRight
-        ( XLHermOrTrans_Star_MR,                        /**/ 
-          XRHermOrTrans_Star_MR,
-          X0HermOrTrans_Star_MR, X1HermOrTrans_Star_MR, /**/ 
-          X2HermOrTrans_Star_MR );
+        ( XLAdjOrTrans_STAR_MR,                       /**/ XRAdjOrTrans_STAR_MR,
+          X0AdjOrTrans_STAR_MR, X1AdjOrTrans_STAR_MR, /**/ X2AdjOrTrans_STAR_MR 
+        );
 
         SlidePartitionDown
-        ( ZT_MC_Star,  Z0_MC_Star,
-                       Z1_MC_Star,
+        ( ZT_MC_STAR,  Z0_MC_STAR,
+                       Z1_MC_STAR,
          /**********/ /**********/
-          ZB_MC_Star,  Z2_MC_Star );
+          ZB_MC_STAR,  Z2_MC_STAR );
     }
     PopBlocksizeStack();
 #ifndef RELEASE

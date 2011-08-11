@@ -74,7 +74,7 @@ void TestCorrectness
     DistMatrix<R,MC,MR> Y(m,m,g);
     Y.SetToIdentity();
     advanced::ApplyPackedReflectors
-    ( side, shape, Vertical, order, offset, H, Y );
+    ( side, shape, VERTICAL, order, offset, H, Y );
     if( printMatrices )
     {
         DistMatrix<R,MC,MR> W(m,m,g);
@@ -82,21 +82,21 @@ void TestCorrectness
         if( order == Forward )
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, Vertical, Backward, offset, H, W );
+            ( side, shape, VERTICAL, Backward, offset, H, W );
             Y.Print("Q");
             W.Print("Q^H");
         }
         else
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, Vertical, Forward, offset, H, W );
+            ( side, shape, VERTICAL, Forward, offset, H, W );
             Y.Print("Q^H");
             W.Print("Q");
         }
     }
     DistMatrix<R,MC,MR> Z(m,m,g);
     Z.SetToZero();
-    basic::Syrk( shape, Normal, 1.0, Y, 0.0, Z );
+    basic::Syrk( shape, NORMAL, 1.0, Y, 0.0, Z );
 
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<R,MC,MR> X(m,m,g);
@@ -110,9 +110,9 @@ void TestCorrectness
             X.Print("I - Q^H Q");
     }
 
-    R oneNormOfError = advanced::Norm( X, OneNorm );
-    R infNormOfError = advanced::Norm( X, InfinityNorm );
-    R frobNormOfError = advanced::Norm( X, FrobeniusNorm );
+    R oneNormOfError = advanced::Norm( X, ONE_NORM );
+    R infNormOfError = advanced::Norm( X, INFINITY_NORM );
+    R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         if( order == Forward )
@@ -140,7 +140,7 @@ void TestCorrectness
   int offset,
   bool printMatrices,
   const DistMatrix<complex<R>,MC,MR  >& H,
-  const DistMatrix<complex<R>,MD,Star>& t )
+  const DistMatrix<complex<R>,MD,STAR>& t )
 {
     typedef complex<R> C;
 
@@ -154,7 +154,7 @@ void TestCorrectness
     DistMatrix<C,MC,MR> Y(m,m,g);
     Y.SetToIdentity();
     advanced::ApplyPackedReflectors
-    ( side, shape, Vertical, order, conjugation, offset, H, t, Y );
+    ( side, shape, VERTICAL, order, conjugation, offset, H, t, Y );
     if( printMatrices )
     {
         DistMatrix<C,MC,MR> W(m,m,g);
@@ -162,21 +162,21 @@ void TestCorrectness
         if( order == Forward )
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, Vertical, Backward, conjugation, offset, H, t, W );
+            ( side, shape, VERTICAL, Backward, conjugation, offset, H, t, W );
             Y.Print("Q");
             W.Print("Q^H");
         }
         else
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, Vertical, Forward, conjugation, offset, H, t, W );
+            ( side, shape, VERTICAL, Forward, conjugation, offset, H, t, W );
             Y.Print("Q^H");
             W.Print("Q");
         }
     }
     DistMatrix<C,MC,MR> Z(m,m,g);
     Z.SetToZero();
-    basic::Herk( shape, Normal, (C)1, Y, (C)0, Z );
+    basic::Herk( shape, NORMAL, (C)1, Y, (C)0, Z );
     
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<C,MC,MR> X(m,m,g);
@@ -191,9 +191,9 @@ void TestCorrectness
     }
 
     // Compute the maximum deviance
-    R oneNormOfError = advanced::Norm( X, OneNorm );
-    R infNormOfError = advanced::Norm( X, InfinityNorm );
-    R frobNormOfError = advanced::Norm( X, FrobeniusNorm );
+    R oneNormOfError = advanced::Norm( X, ONE_NORM );
+    R infNormOfError = advanced::Norm( X, INFINITY_NORM );
+    R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         if( order == Forward )
@@ -249,7 +249,7 @@ void TestUT<double>
     mpi::Barrier( g.VCComm() );
     startTime = mpi::Time();
     advanced::ApplyPackedReflectors
-    ( side, shape, Vertical, order, offset, H, A );
+    ( side, shape, VERTICAL, order, offset, H, A );
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -277,7 +277,7 @@ void TestUT< complex<double> >
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<C,MC,MR  > H(g);
-    DistMatrix<C,MD,Star> t(g);
+    DistMatrix<C,MD,STAR> t(g);
     DistMatrix<C,MC,MR  > A(g);
 
     H.ResizeTo( m, m );
@@ -289,7 +289,7 @@ void TestUT< complex<double> >
     H.SetToRandom();
     A.SetToRandom();
     DistMatrix<C,MC,MR> HCol(g);
-    if( shape == Lower )
+    if( shape == LOWER )
     {
         for( int i=0; i<t.Height(); ++i )
         {
@@ -327,7 +327,7 @@ void TestUT< complex<double> >
     mpi::Barrier( g.VCComm() );
     startTime = mpi::Time();
     advanced::ApplyPackedReflectors
-    ( side, shape, Vertical, order, conjugation, offset, H, t, A );
+    ( side, shape, VERTICAL, order, conjugation, offset, H, t, A );
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -379,13 +379,13 @@ main( int argc, char* argv[] )
         const int nb = atoi(argv[++argNum]);
         const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
-        if( shape == Lower && offset > 0 )
+        if( shape == LOWER && offset > 0 )
         {
             throw std::runtime_error
                   ("The offset cannot be positive if the transforms are in "
                    "the lower triangle.");
         }
-        else if( shape == Upper && offset < 0 )
+        else if( shape == UPPER && offset < 0 )
         {
             throw std::runtime_error
                   ("The offset cannot be negative if the transforms are in "

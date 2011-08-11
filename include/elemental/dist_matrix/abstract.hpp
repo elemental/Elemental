@@ -270,25 +270,25 @@ public:
     
     // Zero out necessary entries to make distributed matrix trapezoidal:
     //
-    //   If side equals 'Left', then the diagonal is chosen to pass through 
+    //   If side equals 'LEFT', then the diagonal is chosen to pass through 
     //   the upper-left corner of the matrix.
     //
-    //   If side equals 'Right', then the diagonal is chosen to pass through
+    //   If side equals 'RIGHT', then the diagonal is chosen to pass through
     //   the lower-right corner of the matrix.
     //
     // Upper trapezoidal with offset = 1:
     //   
-    //    |0 x x x x x x| <-- side = Left      |0 0 0 x x x x|
+    //    |0 x x x x x x| <-- side = LEFT      |0 0 0 x x x x|
     //    |0 0 x x x x x|                      |0 0 0 0 x x x|
-    //    |0 0 0 x x x x|     side = Right --> |0 0 0 0 0 x x|
+    //    |0 0 0 x x x x|     side = RIGHT --> |0 0 0 0 0 x x|
     //    |0 0 0 0 x x x|                      |0 0 0 0 0 0 x|
     //    |0 0 0 0 0 x x|                      |0 0 0 0 0 0 0|
     //
     // Lower trapezoidal with offset = 1:
     //    
-    //    |x x 0 0 0 0 0| <-- side = Left      |x x x x 0 0 0|
+    //    |x x 0 0 0 0 0| <-- side = LEFT      |x x x x 0 0 0|
     //    |x x x 0 0 0 0|                      |x x x x x 0 0|
-    //    |x x x x 0 0 0|     side = Right --> |x x x x x x 0|
+    //    |x x x x 0 0 0|     side = RIGHT --> |x x x x x x 0|
     //    |x x x x x 0 0|                      |x x x x x x x|
     //    |x x x x x x 0|                      |x x x x x x x|
     virtual void MakeTrapezoidal

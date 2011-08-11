@@ -144,7 +144,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         basic::SetLocalTriangularRankKBlocksize<double>( nbLocal );
 #ifndef WITHOUT_COMPLEX
-        basic::SetLocalTriangularRankKBlocksize< std::complex<double> >
+        basic::SetLocalTriangularRankKBlocksize<std::complex<double> >
         ( nbLocal );
 #endif
 

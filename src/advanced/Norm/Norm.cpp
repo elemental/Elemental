@@ -44,16 +44,16 @@ advanced::Norm( const Matrix<R>& A, NormType type )
     R norm = 0;
     switch( type )
     {
-    case InfinityNorm:
+    case INFINITY_NORM:
         norm = advanced::internal::InfinityNorm( A );
         break;
-    case FrobeniusNorm: 
+    case FROBENIUS_NORM: 
         norm = advanced::internal::FrobeniusNorm( A );
         break;
-    case MaxNorm:
+    case MAX_NORM:
         norm = advanced::internal::MaxNorm( A );
         break;
-    case OneNorm:
+    case ONE_NORM:
         norm = advanced::internal::OneNorm( A );
         break;
     }
@@ -74,16 +74,16 @@ advanced::Norm( const Matrix<std::complex<R> >& A, NormType type )
     R norm = 0;
     switch( type )
     {
-    case InfinityNorm:
+    case INFINITY_NORM:
         norm = advanced::internal::InfinityNorm( A );
         break;
-    case FrobeniusNorm: 
+    case FROBENIUS_NORM: 
         norm = advanced::internal::FrobeniusNorm( A );
         break;
-    case MaxNorm:
+    case MAX_NORM:
         norm = advanced::internal::MaxNorm( A );
         break;
-    case OneNorm:
+    case ONE_NORM:
         norm = advanced::internal::OneNorm( A );
         break;
     }
@@ -104,16 +104,16 @@ advanced::Norm( const DistMatrix<R,MC,MR>& A, NormType type )
     R norm = 0;
     switch( type )
     {
-    case InfinityNorm:
+    case INFINITY_NORM:
         norm = advanced::internal::InfinityNorm( A );
         break;
-    case FrobeniusNorm: 
+    case FROBENIUS_NORM: 
         norm = advanced::internal::FrobeniusNorm( A );
         break;
-    case MaxNorm:
+    case MAX_NORM:
         norm = advanced::internal::MaxNorm( A );
         break;
-    case OneNorm:
+    case ONE_NORM:
         norm = advanced::internal::OneNorm( A );
         break;
     }
@@ -134,16 +134,16 @@ advanced::Norm( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
     R norm = 0;
     switch( type )
     {
-    case InfinityNorm:
+    case INFINITY_NORM:
         norm = advanced::internal::InfinityNorm( A );
         break;
-    case FrobeniusNorm: 
+    case FROBENIUS_NORM: 
         norm = advanced::internal::FrobeniusNorm( A );
         break;
-    case MaxNorm:
+    case MAX_NORM:
         norm = advanced::internal::MaxNorm( A );
         break;
-    case OneNorm:
+    case ONE_NORM:
         norm = advanced::internal::OneNorm( A );
         break;
     }
