@@ -110,13 +110,18 @@ if(MISSING_LAPACK)
     # For some reason enable_language( ... OPTIONAL) causes an error, so we 
     # should instead manually probe for a Fortran compiler first
     #enable_language(Fortran OPTIONAL)
-    find_program(
-      FORTRAN_COMPILER 
-      NAMES gfortran g77 ifort xlf_r xlf
-    )
+    find_program(FORTRAN_COMPILER NAMES gfortran ifort xlf_r xlf)
   endif(NOT CMAKE_Fortran_COMPILER)
   if(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
     enable_language(Fortran)
+    if(NOT CMAKE_Fortran_COMPILER_SUPPORTS_F90)
+      message(
+        WARNING 
+        "${CMAKE_Fortran_COMPILER} does not support F90, so PMRRR cannot be built"
+      )
+      set(FAILED_PMRRR TRUE PARENT_SCOPE)
+      return()
+    endif(NOT CMAKE_Fortran_COMPILER_SUPPORTS_F90)
 
     if(HYBRID_DEBUG)
       set(
@@ -240,7 +245,7 @@ if(MISSING_LAPACK)
     target_link_libraries(lapack-addons ${LAPACK_ADDONS_LIBS})
   else(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
     set(FAILED_PMRRR TRUE PARENT_SCOPE)
-    message(STATUS "Fortran compiler not found; cannot use PMRRR with supplied MATH_LIBS")
+    message(WARNING "F90 compiler not found; cannot build PMRRR using the supplied MATH_LIBS")
     return()
   endif(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
 endif(MISSING_LAPACK)

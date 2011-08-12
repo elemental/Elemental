@@ -87,8 +87,9 @@ Getting Elemental's source
 There are two basic approaches:
 
 1. Download a tarball of the most recent version from 
-   `http://code.google.com/p/elemental/downloads/list <http://code.google.com/p/elemental/downloads/list>`_. A new version is released roughly once a month, 
-   on average.
+   `http://code.google.com/p/elemental/downloads/list 
+   <http://code.google.com/p/elemental/downloads/list>`_. A new version is 
+   released roughly once a month, on average.
 
 2. Install `Mercurial <http://mercurial.selenic.com>`_ and check out a copy of 
    the repository by running ::

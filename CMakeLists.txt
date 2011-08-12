@@ -54,8 +54,8 @@ else(NOT CMAKE_BUILD_TYPE)
         NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
 endif(NOT CMAKE_BUILD_TYPE)
 
-option(BUILD_EXAMPLES "Build the examples" ON)
-option(BUILD_TESTS "Build a collection of test executables" ON)
+option(BUILD_EXAMPLES "Build the examples" OFF)
+option(BUILD_TESTS "Build a collection of test executables" OFF)
 if(WIN32)
   option(BUILD_PMRRR "Build and link against eigensolver PMRRR" OFF)
 else(WIN32)
@@ -329,7 +329,7 @@ if(NEED_MATH)
         endif(${NAME}_LIB)
       endforeach(NAME)
       if(REFERENCE_FOUND)
-        message(STATUS "WARNING: Using reference BLAS/LAPACK.")
+        message(WARNING "Using reference BLAS/LAPACK.")
       else(REFERENCE_FOUND) 
         message(
           FATAL_ERROR 
@@ -448,7 +448,13 @@ target_link_libraries(cmake-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 if(BUILD_PMRRR AND NOT FAILED_PMRRR)
   add_library(elemental STATIC ${ELEMENTAL_SRC})
   target_link_libraries(elemental pmrrr plcg)
-  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
+  if(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
+    set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
+  elseif(MPI_CXX_LINK_FLAGS)
+    set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
+  elseif(MPI_C_LINK_FLAGS)
+    set(MPI_LINK_FLAGS "${MPI_C_LINK_FLAGS}")
+  endif(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
 else(BUILD_PMRRR AND NOT FAILED_PMRRR)
   add_library(elemental STATIC ${ELEMENTAL_SRC})
   target_link_libraries(elemental plcg)
@@ -483,8 +489,10 @@ if(BUILD_TESTS)
       tests-cxx-core-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-      LINK_FLAGS ${MPI_LINK_FLAGS}
     )
+    if(MPI_LINK_FLAGS)
+      set_target_properties(tests-cxx-core-${TEST} LINK_FLAGS ${MPI_LINK_FLAGS})
+    endif(MPI_LINK_FLAGS)
   endforeach(TEST)
   # Build the basic tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/basic")
@@ -495,8 +503,12 @@ if(BUILD_TESTS)
       tests-cxx-basic-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-      LINK_FLAGS ${MPI_LINK_FLAGS}
     )
+    if(MPI_LINK_FLAGS)
+      set_target_properties(
+        tests-cxx-basic-${TEST} LINK_FLAGS ${MPI_LINK_FLAGS}
+      )
+    endif(MPI_LINK_FLAGS)
   endforeach(TEST)
   # Build the advanced tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/advanced")
@@ -510,8 +522,12 @@ if(BUILD_TESTS)
       tests-cxx-advanced-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-      LINK_FLAGS ${MPI_LINK_FLAGS}
     )
+    if(MPI_LINK_FLAGS)
+      set_target_properties(
+        tests-cxx-advanced-${TEST} LINK_FLAGS ${MPI_LINK_FLAGS}
+      )
+    endif(MPI_LINK_FLAGS)
   endforeach(TEST)
   # Build the C tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/c")
@@ -522,8 +538,10 @@ if(BUILD_TESTS)
       tests-c-${TEST}
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-      LINK_FLAGS ${MPI_LINK_FLAGS}
     )
+    if(MPI_LINK_FLAGS)
+      set_target_properties(tests-c-${TEST} LINK_FLAGS ${MPI_LINK_FLAGS})
+    endif(MPI_LINK_FLAGS)
   endforeach(TEST)
 endif(BUILD_TESTS)
 
@@ -555,8 +573,12 @@ if(BUILD_EXAMPLES)
       examples-cxx-advanced-${EXAMPLE} 
       PROPERTIES OUTPUT_NAME ${EXAMPLE}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-      LINK_FLAGS ${MPI_LINK_FLAGS}
     )
+    if(MPI_LINK_FLAGS)
+      set_target_properties(
+        examples-cxx-advanced-${EXAMPLE} LINK_FLAGS ${MPI_LINK_FLAGS}
+      )
+    endif(MPI_LINK_FLAGS)
   endforeach(EXAMPLE)
 endif(BUILD_EXAMPLES)
 
