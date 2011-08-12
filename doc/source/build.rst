@@ -1,15 +1,11 @@
-==================
-Building Elemental
-==================
 Elemental's build system relies on `CMake <http://www.cmake.org>`_ 
 in order to manage a large number of configuration options in a 
 platform-independent manner; it can be easily configured to build on Linux and 
 Unix environments (including Darwin) as well as various versions of 
 Microsoft Windows.
 
-----------------
 Installing CMake
-----------------
+================
 Elemental uses several new CMake modules, so it is important to ensure that 
 version 2.8.5 or later is installed. Thankfully the 
 `installation process <http://www.cmake.org/cmake/help/install.html>`_
@@ -43,9 +39,8 @@ There are two important issues to consider:
    setting the environment variables ``CC`` and ``CXX`` to the full paths to 
    your preferred C and C++ compilers before running the ``bootstrap`` script.
 
-------------------
 Working with CMake
-------------------
+==================
 Though many configuration utilities, like 
 `autoconf <http://www.gnu.org/software/autoconf/>`_, are designed such that
 the user need only invoke ``./configure && make && make install`` from the
@@ -81,9 +76,8 @@ machines, this is most easily accomplished with::
 This is a better habit than simply running ``rm -rf *`` since, 
 if accidentally run from the wrong directory, the former will most likely fail.
 
---------------------------
 Getting Elemental's source 
---------------------------
+==========================
 There are two basic approaches:
 
 1. Download a tarball of the most recent version from 
@@ -96,9 +90,8 @@ There are two basic approaches:
 
     hg clone https://elemental.googlecode.com/hg elemental
 
-------------------
 Building Elemental
-------------------
+==================
 On \*nix machines with `BLAS <http://www.netlib.org/blas/>`_, 
 `LAPACK <http://www.netlib.org/lapack/>`_, and 
 `MPI <http://en.wikipedia.org/wiki/Message_Passing_Interface>`_ installed in 
@@ -143,7 +136,6 @@ Discuss all of the available options, like optionally building PMRRR, as well
 as the different build modes. Also give examples of building PureRelease versus
 HybridDebug.
 
----------------
 Using Elemental
----------------
+===============
 Give an example of linking against Elemental.
