@@ -37,3 +37,4 @@ file(GLOB_RECURSE PLCG_HPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.hpp")
 set(PLCG_SRC "${PLCG_CPP};${PLCG_HPP}")
 
 add_library(plcg STATIC ${PLCG_SRC})
+install(TARGETS plcg DESTINATION lib)

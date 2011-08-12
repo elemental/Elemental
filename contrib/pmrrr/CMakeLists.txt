@@ -292,7 +292,9 @@ if(MISSING_LAPACK)
   target_link_libraries(
     pmrrr lapack-addons ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
   )
+  install(TARGETS pmrrr lapack-addons DESTINATION lib)
 else(MISSING_LAPACK)
   add_library(pmrrr STATIC ${PMRRR_SRC})
   target_link_libraries(pmrrr ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+  install(TARGETS pmrrr DESTINATION lib)
 endif(MISSING_LAPACK)

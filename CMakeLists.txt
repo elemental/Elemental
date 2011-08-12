@@ -34,25 +34,25 @@ cmake_minimum_required(VERSION 2.8.5)
 project(Elemental)
 
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 68)
+set(Elemental_VERSION_MINOR 69)
 
-if(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
-   NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
-   NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
-   NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
-  message(
-    FATAL_ERROR 
-    "CMAKE_BUILD_TYPE must be in {HybridDebug,HybridRelease,PureDebug,PureRelease}"
-  )
-endif(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
-      NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
-      NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
-      NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
-set(
-  CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING 
-  "The build type options are {HybridDebug,HybridRelease,PureDebug,PureRelease}"
-  FORCE
-)
+if(NOT CMAKE_BUILD_TYPE)
+  message(STATUS "Build mode not specified, defaulting to PureRelease build.")
+  set(CMAKE_BUILD_TYPE PureRelease)
+else(NOT CMAKE_BUILD_TYPE)
+  if(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
+     NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
+     NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
+     NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
+    message(
+      FATAL_ERROR 
+      "CMAKE_BUILD_TYPE must be in {HybridDebug,HybridRelease,PureDebug,PureRelease}"
+    )
+  endif(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
+        NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
+        NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
+        NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
+endif(NOT CMAKE_BUILD_TYPE)
 
 option(BUILD_EXAMPLES "Build the examples" ON)
 option(BUILD_TESTS "Build a collection of test executables" ON)
@@ -391,6 +391,8 @@ configure_file(
   ${CMAKE_SOURCE_DIR}/include/elemental/config.h.cmake
   ${CMAKE_BINARY_DIR}/include/elemental/config.h 
 ) 
+install(FILES ${CMAKE_BINARY_DIR}/include/elemental/config.h 
+        DESTINATION include/elemental)
 
 # Grab all of the .c, .cpp, .h, and .hpp Elemental files
 file(
@@ -430,12 +432,31 @@ foreach(HEADER ${ELEMENTAL_HEADERS})
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${HEADER}
             ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
   )
+  get_filename_component(HEADER_PATH ${HEADER} PATH)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${HEADER} DESTINATION ${HEADER_PATH})
 endforeach(HEADER)
 
 # Make sure the Elemental headers can be found
 include_directories("${PROJECT_BINARY_DIR}/include")
 
-# Create the lists of test executables 
+# Create a dummy library in order to be able to force the math (and potentially
+# MPI libraries) to be linked last
+add_library(cmake-dummy-lib STATIC cmake/CMakeDummyFunction.cpp)
+target_link_libraries(cmake-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+
+# Build the main library
+if(BUILD_PMRRR AND NOT FAILED_PMRRR)
+  add_library(elemental STATIC ${ELEMENTAL_SRC})
+  target_link_libraries(elemental pmrrr plcg)
+  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
+else(BUILD_PMRRR AND NOT FAILED_PMRRR)
+  add_library(elemental STATIC ${ELEMENTAL_SRC})
+  target_link_libraries(elemental plcg)
+  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
+endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
+install(TARGETS elemental DESTINATION lib)
+
+# Build the test drivers if necessary
 if(BUILD_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
 
@@ -452,40 +473,7 @@ if(BUILD_TESTS)
     list(APPEND ADVANCED_TESTS HermitianGenDefiniteEig)
     list(APPEND ADVANCED_TESTS HermitianEig)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
-endif(BUILD_TESTS)
 
-# Create the lists of example executables. There is currently only one.
-if(BUILD_EXAMPLES)
-  set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
-
-  set(ADVANCED_EXAMPLES)
-
-  if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-    if(NOT WITHOUT_COMPLEX)
-      list(APPEND ADVANCED_EXAMPLES HermitianEig)
-    endif(NOT WITHOUT_COMPLEX)
-    list(APPEND ADVANCED_EXAMPLES SymmetricEig)
-  endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
-endif(BUILD_EXAMPLES)
-
-# Create a dummy library in order to be able to force the math (and potentially
-# MPI libraries) to be linked last
-add_library(cmake-dummy-lib STATIC cmake/CMakeDummyFunction.cpp)
-target_link_libraries(cmake-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
-
-# Set up for building the main library
-if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-  add_library(elemental STATIC ${ELEMENTAL_SRC})
-  target_link_libraries(elemental pmrrr plcg)
-  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
-else(BUILD_PMRRR AND NOT FAILED_PMRRR)
-  add_library(elemental STATIC ${ELEMENTAL_SRC})
-  target_link_libraries(elemental plcg)
-  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
-endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
-
-# Build the test drivers if necessary
-if(BUILD_TESTS)
   # Build the core tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/core")
   foreach(TEST ${CORE_TESTS})
@@ -541,6 +529,17 @@ endif(BUILD_TESTS)
 
 # Build the example drivers if necessary
 if(BUILD_EXAMPLES)
+  set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
+
+  set(ADVANCED_EXAMPLES)
+
+  if(BUILD_PMRRR AND NOT FAILED_PMRRR)
+    if(NOT WITHOUT_COMPLEX)
+      list(APPEND ADVANCED_EXAMPLES HermitianEig)
+    endif(NOT WITHOUT_COMPLEX)
+    list(APPEND ADVANCED_EXAMPLES SymmetricEig)
+  endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
+
   # Build the advanced test(s)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/cxx/advanced")
   foreach(EXAMPLE ${ADVANCED_EXAMPLES})

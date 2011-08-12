@@ -26,22 +26,22 @@ following commands::
 There are two important issues to consider:
 
 1. By default, ``make install`` attempts a system-wide installation 
-(e.g., into ``/usr/bin``) and will likely require administrative privileges.
-A different installation folder may be specified with the ``--prefix`` option 
-to the ``bootstrap`` script, e.g.,::
+   (e.g., into ``/usr/bin``) and will likely require administrative privileges.
+   A different installation folder may be specified with the ``--prefix`` 
+   option to the ``bootstrap`` script, e.g.,::
 
     ./bootstrap --prefix=/home/your_username
     make
     make install
 
-Afterwards, it is a good idea to make sure that the environment variable 
-``PATH`` includes the ``bin`` subdirectory of the installation folder, e.g.,
-``/home/your_username/bin``.
+   Afterwards, it is a good idea to make sure that the environment variable 
+   ``PATH`` includes the ``bin`` subdirectory of the installation folder, e.g.,
+   ``/home/your_username/bin``.
 
 2. Some highly optimizing compilers will not correctly build CMake, but the GNU
-compilers nearly always work. You can specify which compilers to use by
-setting the environment variables ``CC`` and ``CXX`` to the full paths to 
-your preferred C and C++ compilers before running the ``bootstrap`` script.
+   compilers nearly always work. You can specify which compilers to use by
+   setting the environment variables ``CC`` and ``CXX`` to the full paths to 
+   your preferred C and C++ compilers before running the ``bootstrap`` script.
 
 ------------------
 Working with CMake
@@ -65,23 +65,58 @@ the source directory and to invoke CMake from within it::
 The last line calls the command line version of CMake, ``cmake``,
 and tells it that it should look in the parent directory for the configuration
 instructions, which should be in a file named ``CMakeLists.txt``. Users that 
-would prefer a graphical interface from the terminal (through ``curses``) 
-should instead use ``ccmake`` (on Unix platforms) or ``CMakeSetup`` (on Windows platforms). In addition, a GUI version is available through ``cmake-gui``. 
+would prefer a graphical interface from the terminal (through ``curses``)
+should instead use ``ccmake`` (on Unix platforms) or ``CMakeSetup`` 
+(on Windows platforms). In addition, a GUI version is available through 
+``cmake-gui``. 
 
----------------------
-Configuring Elemental
----------------------
+Though running ``make clean`` will remove all files generated from running 
+``make``, it will not remove configuration files. Thus, the best approach for
+completely cleaning a build is to remove the entire build folder. On \*nix 
+machines, this is most easily accomplished with::
+
+    cd .. 
+    rm -rf build
+
+This is a better habit than simply running ``rm -rf *`` since, 
+if accidentally run from the wrong directory, the former will most likely fail.
+
+--------------------------
+Getting Elemental's source 
+--------------------------
+There are two basic approaches:
+
+1. Download a tarball of the most recent version from 
+   `http://code.google.com/p/elemental/downloads/list <http://code.google.com/p/elemental/downloads/list>`_. A new version is released roughly once a month, 
+   on average.
+
+2. Install `Mercurial <http://mercurial.selenic.com>`_ and check out a copy of 
+   the repository by running::
+
+    hg clone https://elemental.googlecode.com/hg elemental
+
+------------------
+Building Elemental
+------------------
+On \*nix machines with `BLAS <http://www.netlib.org/blas/>`_, 
+`LAPACK <http://www.netlib.org/lapack/>`_, and 
+`MPI <http://en.wikipedia.org/wiki/Message_Passing_Interface>`_ installed in 
+standard locations, building Elemental can be as simple as::
+
+    cd elemental
+    mkdir build
+    cd build
+    cmake ..
+    make
+    make install
+
+Talk about installation and ``CMAKE_INSTALL_PREFIX``.
+
 Discuss all of the available options, like optionally building PMRRR, as well
 as the different build modes. Also give examples of building PureRelease versus
 HybridDebug.
 
---------------------
-Installing Elemental
---------------------
-Discuss the differences between running "make" and "make install", and how
-to choose the installation directory.
-
 ---------------
 Using Elemental
 ---------------
-Discuss how to link against libelemental and which headers need to be included, etc.
+Give an example of linking against Elemental.
