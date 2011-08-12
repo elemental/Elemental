@@ -23,11 +23,11 @@ to build the pure-MPI release:
       cd elemental
       mkdir -p build/PureRelease
       cd build/PureRelease
-      cmake -DCMAKE_BUILD_TYPE=PureRelease ../..
+      cmake -D CMAKE_BUILD_TYPE=PureRelease ../..
       make
 If the correct BLAS/LAPACK libraries are not found, try specifying them using
 by appending the additional cmake flags of the form:
-  -DMATH_LIBS="-L/path/to/first/lib -lfirst_lib etc."
+  -D MATH_LIBS="-L/path/to/first/lib -lfirst_lib etc."
 where the math libs should be optimized for single core usage for pure-MPI 
 builds and threaded for the hybrid builds.
 
@@ -35,8 +35,8 @@ On BlueGene/P, one should instead run (after loading the apr2011 compilers)
       cd elemental
       mkdir -p build/PureRelease
       cd build/PureRelease
-      cmake -DCMAKE_BUILD_TYPE=PureRelease \
-            -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchains/BGP-xl_apr2011-essl_4.3.1-1.cmake \
+      cmake -D CMAKE_BUILD_TYPE=PureRelease \
+            -D CMAKE_TOOLCHAIN_FILE=../../cmake/toolchains/BGP-xl_apr2011-essl_4.3.1-1.cmake \
             ../..
       make
 
