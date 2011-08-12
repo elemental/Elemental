@@ -91,7 +91,7 @@ There are two basic approaches:
    on average.
 
 2. Install `Mercurial <http://mercurial.selenic.com>`_ and check out a copy of 
-   the repository by running::
+   the repository by running ::
 
     hg clone https://elemental.googlecode.com/hg elemental
 
@@ -110,7 +110,33 @@ standard locations, building Elemental can be as simple as::
     make
     make install
 
-Talk about installation and ``CMAKE_INSTALL_PREFIX``.
+As with the installation of CMake, the default install location is 
+system-wide, e.g., ``/usr/local``. The installation directory can be changed
+at any time by running::
+
+    cmake -D CMAKE_INSTALL_PREFIX=/your/desired/install/path ..
+    make install
+
+
+Though the above instructions will work on many systems, it is common to need
+to manually specify several build options, especially when multiple versions of
+libraries or several different compilers are available on your system. For 
+instance, any C++, C, or Fortran compiler can respectively be set with the 
+``CMAKE_CXX_COMPILER``, ``CMAKE_C_COMPILER``, and ``CMAKE_Fortran_COMPILER`` 
+variables, e.g., ::
+
+    cmake -D CMAKE_CXX_COMPILER=/usr/bin/g++ \
+          -D CMAKE_C_COMPILER=/usr/bin/gcc   \
+          -D CMAKE_Fortran_COMPILER=/usr/bin/gfortran ..
+    
+It is also common to need to specify which libraries need to be linked in order
+to provide serial BLAS and LAPACK routines. The ``MATH_LIBS`` variable was
+introduced for this purpose and an example usage would be ::
+
+    cmake -D MATH_LIBS="-L/usr/lib -llapack -lblas -lm" ..
+
+It is important to ensure that if library A depends upon library B, A should 
+be specified to the left of B.
 
 Discuss all of the available options, like optionally building PMRRR, as well
 as the different build modes. Also give examples of building PureRelease versus
