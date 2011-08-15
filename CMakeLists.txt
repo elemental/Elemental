@@ -140,7 +140,7 @@ endif(NOT WIN32)
 
 find_package(MPI)
 if(NOT MPI_CXX_FOUND)
-    message(FATAL_ERROR "MPI C++ compiler was not found and is required")
+  message(FATAL_ERROR "MPI C++ compiler was not found and is required")
 endif(NOT MPI_CXX_FOUND)
 include_directories(${MPI_CXX_INCLUDE_PATH})
 
@@ -163,14 +163,10 @@ if(HYBRID)
   endif(OpenMP_CXX_FLAGS)
 endif(HYBRID)
 
-set(
-  CMAKE_CXX_FLAGS_HYBRIDDEBUG 
-  "${CXX_HYBRID_DEBUG_FLAGS} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}"
-)
-set(
-  CMAKE_CXX_FLAGS_HYBRIDRELEASE 
-  "${CXX_HYBRID_RELEASE_FLAGS} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}"
-)
+set(CMAKE_CXX_FLAGS_HYBRIDDEBUG 
+    "${CXX_HYBRID_DEBUG_FLAGS} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS_HYBRIDRELEASE 
+    "${CXX_HYBRID_RELEASE_FLAGS} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS_PUREDEBUG 
     "${CXX_PURE_DEBUG_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS_PURERELEASE 
@@ -271,10 +267,8 @@ if(NEED_MATH)
         PATHS ${MKL_ROOT}
         PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
       )
-      set(
-        MKL_REQUIRED MKL_INTEL MKL_SEQUENTIAL MKL_CORE MKL_SEQUENTIAL 
-        CMATH GUIDE IOMP5
-      ) 
+      set(MKL_REQUIRED MKL_INTEL MKL_SEQUENTIAL MKL_CORE MKL_SEQUENTIAL CMATH
+                       GUIDE IOMP5)
     else(PURE)
       find_library(
         MKL_INTEL_THREAD_LIB
@@ -282,10 +276,8 @@ if(NEED_MATH)
         PATHS ${MKL_ROOT}
         PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
       )
-      set(
-        MKL_REQUIRED MKL_INTEL MKL_INTEL_THREAD MKL_CORE 
-        MKL_INTEL_THREAD CMATH GUIDE IOMP5
-      )
+      set(MKL_REQUIRED MKL_INTEL MKL_INTEL_THREAD MKL_CORE MKL_INTEL_THREAD 
+                       CMATH GUIDE IOMP5)
     endif(PURE)
     if(NOT WIN32)
       list(APPEND MKL_REQUIRED PTHREAD)
@@ -311,7 +303,8 @@ if(NEED_MATH)
       # Look for default BLAS and LAPACK
       if(REFERENCE_ROOT)
         message(
-          STATUS "Will search REFERENCE_ROOT=${REFERENCE_ROOT} for math libs"
+          STATUS 
+          "Will search REFERENCE_ROOT=${REFERENCE_ROOT} for math libs"
         )
       endif(REFERENCE_ROOT)
       set(REFERENCE_REQUIRED LAPACK BLAS)
@@ -395,28 +388,18 @@ install(FILES ${CMAKE_BINARY_DIR}/include/elemental/config.h
         DESTINATION include/elemental)
 
 # Grab all of the .c, .cpp, .h, and .hpp Elemental files
-file(
-  GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
-  "src/*.c" "src/*.cpp"
-)
-file(
-  GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
-  "include/*.h" "include/*.hpp"
-)
+file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
+     "src/*.c" "src/*.cpp")
+file(GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
+     "include/*.h" "include/*.hpp")
 if(WITHOUT_PMRRR)
   message(STATUS "Removing eigensolver source from Elemental")
-  list(
-    REMOVE_ITEM ELEMENTAL_CPP
-    "src/advanced/HermitianEig/HermitianEig.cpp"
-  )
-  list(
-    REMOVE_ITEM ELEMENTAL_CPP
-   "src/advanced/SkewHermitianEig/SkewHermitianEig.cpp"
-  )
-  list(
-    REMOVE_ITEM ELEMENTAL_CPP
-    "src/advanced/HermitianGenDefiniteEig/HermitianGenDefiniteEig.cpp"
-  )
+  list(REMOVE_ITEM ELEMENTAL_CPP
+       "src/advanced/HermitianEig/HermitianEig.cpp")
+  list(REMOVE_ITEM ELEMENTAL_CPP
+       "src/advanced/SkewHermitianEig/SkewHermitianEig.cpp")
+  list(REMOVE_ITEM ELEMENTAL_CPP
+       "src/advanced/HermitianGenDefiniteEig/HermitianGenDefiniteEig.cpp")
 endif(WITHOUT_PMRRR)
 if(NOT BUILD_C_INTERFACE)
     message(STATUS "Removing prototype C interface from Elemental")
@@ -481,67 +464,68 @@ if(BUILD_TESTS)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
   # Build the core tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/core")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/core")
   foreach(TEST ${CORE_TESTS})
-    add_executable(tests-cxx-core-${TEST} ${TEST_DIR}/cxx/core/${TEST}.cpp)
-    target_link_libraries(tests-cxx-core-${TEST} elemental cmake-dummy-lib)
+    add_executable(tests-core-${TEST} ${TEST_DIR}/core/${TEST}.cpp)
+    target_link_libraries(tests-core-${TEST} elemental cmake-dummy-lib)
     set_target_properties(
-      tests-cxx-core-${TEST} 
+      tests-core-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
     )
     if(MPI_LINK_FLAGS)
-      set_target_properties(tests-cxx-core-${TEST} LINK_FLAGS ${MPI_LINK_FLAGS})
+      set_target_properties(tests-core-${TEST} 
+                            PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
+    install(TARGETS tests-core-${TEST} DESTINATION bin/tests/core)
   endforeach(TEST)
   # Build the basic tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/basic")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/basic")
   foreach(TEST ${BASIC_TESTS})
-    add_executable(tests-cxx-basic-${TEST} ${TEST_DIR}/cxx/basic/${TEST}.cpp)
-    target_link_libraries(tests-cxx-basic-${TEST} elemental cmake-dummy-lib)
+    add_executable(tests-basic-${TEST} ${TEST_DIR}/basic/${TEST}.cpp)
+    target_link_libraries(tests-basic-${TEST} elemental cmake-dummy-lib)
     set_target_properties(
-      tests-cxx-basic-${TEST} 
+      tests-basic-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
     )
     if(MPI_LINK_FLAGS)
-      set_target_properties(
-        tests-cxx-basic-${TEST} LINK_FLAGS ${MPI_LINK_FLAGS}
-      )
+      set_target_properties(tests-basic-${TEST} 
+                            PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
+    install(TARGETS tests-basic-${TEST} DESTINATION bin/tests/basic)
   endforeach(TEST)
   # Build the advanced tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/cxx/advanced")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/advanced")
   foreach(TEST ${ADVANCED_TESTS})
-    add_executable(
-      tests-cxx-advanced-${TEST} 
-      ${TEST_DIR}/cxx/advanced/${TEST}.cpp
-    )
-    target_link_libraries(tests-cxx-advanced-${TEST} elemental cmake-dummy-lib)
+    add_executable(tests-advanced-${TEST} ${TEST_DIR}/advanced/${TEST}.cpp)
+    target_link_libraries(tests-advanced-${TEST} elemental cmake-dummy-lib)
     set_target_properties(
-      tests-cxx-advanced-${TEST} 
+      tests-advanced-${TEST} 
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
     )
     if(MPI_LINK_FLAGS)
-      set_target_properties(
-        tests-cxx-advanced-${TEST} LINK_FLAGS ${MPI_LINK_FLAGS}
-      )
+      set_target_properties(tests-advanced-${TEST} 
+                            PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
+    install(TARGETS tests-advanced-${TEST} DESTINATION bin/tests/advanced)
   endforeach(TEST)
-  # Build the C tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/c")
-  foreach(TEST ${C_TESTS})
-    add_executable(tests-c-${TEST} ${TEST_DIR}/c/${TEST}.c)
-    target_link_libraries(tests-c-${TEST} elemental cmake-dummy-lib)
+  # Build the export tests
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/exports/c")
+  foreach(TEST ${EXPORT_TESTS})
+    add_executable(tests-exports-${TEST} ${TEST_DIR}/exports/${TEST}.c)
+    target_link_libraries(tests-exports-${TEST} elemental cmake-dummy-lib)
     set_target_properties(
-      tests-c-${TEST}
+      tests-exports-${TEST}
       PROPERTIES OUTPUT_NAME ${TEST}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
     )
     if(MPI_LINK_FLAGS)
-      set_target_properties(tests-c-${TEST} LINK_FLAGS ${MPI_LINK_FLAGS})
+      set_target_properties(tests-exports-${TEST} 
+                            PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
+    install(TARGETS tests-exports-c-${TEST} DESTINATION bin/tests/exports/c)
   endforeach(TEST)
 endif(BUILD_TESTS)
 
@@ -559,26 +543,27 @@ if(BUILD_EXAMPLES)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
   # Build the advanced test(s)
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/cxx/advanced")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/advanced")
   foreach(EXAMPLE ${ADVANCED_EXAMPLES})
     add_executable(
-      examples-cxx-advanced-${EXAMPLE} 
-      ${EXAMPLE_DIR}/cxx/advanced/${EXAMPLE}.cpp
+      examples-advanced-${EXAMPLE} 
+      ${EXAMPLE_DIR}/advanced/${EXAMPLE}.cpp
     )
     target_link_libraries(
-      examples-cxx-advanced-${EXAMPLE} 
+      examples-advanced-${EXAMPLE} 
       elemental cmake-dummy-lib
     )
     set_target_properties(
-      examples-cxx-advanced-${EXAMPLE} 
+      examples-advanced-${EXAMPLE} 
       PROPERTIES OUTPUT_NAME ${EXAMPLE}
       RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
     )
     if(MPI_LINK_FLAGS)
-      set_target_properties(
-        examples-cxx-advanced-${EXAMPLE} LINK_FLAGS ${MPI_LINK_FLAGS}
-      )
+      set_target_properties(examples-advanced-${EXAMPLE} 
+                            PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
+    install(TARGETS examples-advanced-${EXAMPLE} 
+            DESTINATION bin/examples/advanced)
   endforeach(EXAMPLE)
 endif(BUILD_EXAMPLES)
 
