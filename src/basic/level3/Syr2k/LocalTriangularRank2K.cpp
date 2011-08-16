@@ -118,9 +118,9 @@ CheckInput
   const DistMatrix<T,MR,STAR>& B2,
   const DistMatrix<T,MC,MR  >& C )
 {
-    if( orientationOfB1 == Normal )
+    if( orientationOfB1 == NORMAL )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
-    if( orientationOfB2 == Normal )
+    if( orientationOfB2 == NORMAL )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -173,11 +173,11 @@ CheckInput
   const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA1 == Normal )
+    if( orientationOfA1 == NORMAL )
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfB1 == Normal )
+    if( orientationOfB1 == NORMAL )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
-    if( orientationOfB2 == Normal )
+    if( orientationOfB2 == NORMAL )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -230,11 +230,11 @@ CheckInput
   const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA2 == Normal )
+    if( orientationOfA2 == NORMAL )
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfB1 == Normal )
+    if( orientationOfB1 == NORMAL )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
-    if( orientationOfB2 == Normal )
+    if( orientationOfB2 == NORMAL )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -285,7 +285,7 @@ CheckInput
   const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfB2 == Normal )
+    if( orientationOfB2 == NORMAL )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -336,7 +336,7 @@ CheckInput
   const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfB1 == Normal )
+    if( orientationOfB1 == NORMAL )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -390,13 +390,13 @@ CheckInput
   const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA1 == Normal )
+    if( orientationOfA1 == NORMAL )
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfA2 == Normal )
+    if( orientationOfA2 == NORMAL )
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfB1 == Normal )
+    if( orientationOfB1 == NORMAL )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
-    if( orientationOfB2 == Normal )
+    if( orientationOfB2 == NORMAL )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -448,9 +448,9 @@ CheckInput
   const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA1 == Normal )
+    if( orientationOfA1 == NORMAL )
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfB2 == Normal )
+    if( orientationOfB2 == NORMAL )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -502,9 +502,9 @@ CheckInput
   const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA1 == Normal )
+    if( orientationOfA1 == NORMAL )
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfB1 == Normal )
+    if( orientationOfB1 == NORMAL )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -556,9 +556,9 @@ CheckInput
   const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA2 == Normal )
+    if( orientationOfA2 == NORMAL )
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfB2 == Normal )
+    if( orientationOfB2 == NORMAL )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -610,9 +610,9 @@ CheckInput
   const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA2 == Normal )
+    if( orientationOfA2 == NORMAL )
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfB1 == Normal )
+    if( orientationOfB1 == NORMAL )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -713,11 +713,11 @@ CheckInput
   const DistMatrix<T,MR,  STAR>& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA1 == Normal )
+    if( orientationOfA1 == NORMAL )
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfA2 == Normal )
+    if( orientationOfA2 == NORMAL )
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfB2 == Normal )
+    if( orientationOfB2 == NORMAL )
         throw logic_error( "B2[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -770,11 +770,11 @@ CheckInput
   const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA1 == Normal )
+    if( orientationOfA1 == NORMAL )
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfA2 == Normal )
+    if( orientationOfA2 == NORMAL )
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfB1 == Normal )
+    if( orientationOfB1 == NORMAL )
         throw logic_error( "B1[MR,* ] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -825,7 +825,7 @@ CheckInput
   const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA1 == Normal )
+    if( orientationOfA1 == NORMAL )
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -876,7 +876,7 @@ CheckInput
   const DistMatrix<T,STAR,MR  >& B2,
   const DistMatrix<T,MC,  MR  >& C )
 {
-    if( orientationOfA2 == Normal )
+    if( orientationOfA2 == NORMAL )
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )
@@ -928,9 +928,9 @@ CheckInput
   const DistMatrix<T,STAR,MR>& B2,
   const DistMatrix<T,MC,  MR>& C )
 {
-    if( orientationOfA1 == Normal )
+    if( orientationOfA1 == NORMAL )
         throw logic_error( "A1[* ,MC] must be (Conjugate)Transpose'd." );
-    if( orientationOfA2 == Normal )
+    if( orientationOfA2 == NORMAL )
         throw logic_error( "A2[* ,MC] must be (Conjugate)Transpose'd." );
     if( A1.Grid() != A2.Grid() || A2.Grid() != B1.Grid() ||
         B1.Grid() != B2.Grid() || B2.Grid() != C.Grid() )

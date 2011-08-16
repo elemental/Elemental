@@ -1688,7 +1688,7 @@ elemental::basic::Her2k
             B.Height() != C.Height() ||B.Height() != C.Width() )
             throw std::logic_error( "Nonconformal Her2k." );
     }
-    else if( orientation == Adjoint )
+    else if( orientation == ADJOINT )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() ||
             B.Width() != C.Height() || B.Width() != C.Width() )

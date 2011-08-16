@@ -57,7 +57,7 @@ elemental::basic::Syr2k
 {
 #ifndef RELEASE
     PushCallStack("basic::Syr2k");
-    if( orientation == Adjoint )
+    if( orientation == ADJOINT )
         throw logic_error( "Syr2k accepts Normal and Transpose options." );
 #endif
     if( shape == LOWER && orientation == NORMAL )
