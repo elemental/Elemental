@@ -113,28 +113,20 @@ endif(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
 
 if(NOT WIN32)
   if(HYBRID_DEBUG)
-    set(
-      CXX_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
-      "CXX optimization/debug flags for hybrid OpenMP/MPI debug build"
-    )
+    set(CXX_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
+        "CXX optimization/debug flags for hybrid OpenMP/MPI debug build")
   endif(HYBRID_DEBUG)
   if(HYBRID_RELEASE)
-    set(
-      CXX_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
-      "CXX optimization flags for hybrid OpenMP/MPI release build"
-    )
+    set(CXX_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
+        "CXX optimization flags for hybrid OpenMP/MPI release build")
   endif(HYBRID_RELEASE)
   if(PURE_DEBUG)
-    set(
-      CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
-      "CXX optimization/debugging flags for pure MPI debug build"
-    )
+    set(CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
+        "CXX optimization/debugging flags for pure MPI debug build")
   endif(PURE_DEBUG)
   if(PURE_RELEASE)
-    set(
-      CXX_PURE_RELEASE_FLAGS "-O3" CACHE STRING
-      "CXX optimization flags for pure MPI release build"
-    )
+    set(CXX_PURE_RELEASE_FLAGS "-O3" CACHE STRING
+        "CXX optimization flags for pure MPI release build")
   endif(PURE_RELEASE)
 endif(NOT WIN32)
 
@@ -302,10 +294,8 @@ if(NEED_MATH)
     if(NEED_MATH)
       # Look for default BLAS and LAPACK
       if(REFERENCE_ROOT)
-        message(
-          STATUS 
-          "Will search REFERENCE_ROOT=${REFERENCE_ROOT} for math libs"
-        )
+        message(STATUS 
+          "Will search REFERENCE_ROOT=${REFERENCE_ROOT} for math libs")
       endif(REFERENCE_ROOT)
       set(REFERENCE_REQUIRED LAPACK BLAS)
       find_library(BLAS_LIB NAMES blas PATHS ${REFERENCE_ROOT})
@@ -324,10 +314,8 @@ if(NEED_MATH)
       if(REFERENCE_FOUND)
         message(WARNING "Using reference BLAS/LAPACK.")
       else(REFERENCE_FOUND) 
-        message(
-          FATAL_ERROR 
-          "Could not find BLAS/LAPACK libraries. Please specify MATH_LIBS"
-        )
+        message(FATAL_ERROR 
+          "Could not find BLAS/LAPACK libraries. Please specify MATH_LIBS")
       endif(REFERENCE_FOUND)
     endif(NEED_MATH)
   endif(APPLE)
@@ -468,14 +456,12 @@ if(BUILD_TESTS)
   foreach(TEST ${CORE_TESTS})
     add_executable(tests-core-${TEST} ${TEST_DIR}/core/${TEST}.cpp)
     target_link_libraries(tests-core-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(
-      tests-core-${TEST} 
-      PROPERTIES OUTPUT_NAME ${TEST}
-      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-    )
+    set_target_properties(tests-core-${TEST} PROPERTIES
+                          OUTPUT_NAME ${TEST}
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
-      set_target_properties(tests-core-${TEST} 
-                            PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
+      set_target_properties(tests-core-${TEST} PROPERTIES
+                            LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
     install(TARGETS tests-core-${TEST} DESTINATION bin/tests/core)
   endforeach(TEST)
@@ -484,14 +470,12 @@ if(BUILD_TESTS)
   foreach(TEST ${BASIC_TESTS})
     add_executable(tests-basic-${TEST} ${TEST_DIR}/basic/${TEST}.cpp)
     target_link_libraries(tests-basic-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(
-      tests-basic-${TEST} 
-      PROPERTIES OUTPUT_NAME ${TEST}
-      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-    )
+    set_target_properties(tests-basic-${TEST} PROPERTIES
+                          OUTPUT_NAME ${TEST}
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
-      set_target_properties(tests-basic-${TEST} 
-                            PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
+      set_target_properties(tests-basic-${TEST} PROPERTIES
+                            LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
     install(TARGETS tests-basic-${TEST} DESTINATION bin/tests/basic)
   endforeach(TEST)
@@ -500,14 +484,12 @@ if(BUILD_TESTS)
   foreach(TEST ${ADVANCED_TESTS})
     add_executable(tests-advanced-${TEST} ${TEST_DIR}/advanced/${TEST}.cpp)
     target_link_libraries(tests-advanced-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(
-      tests-advanced-${TEST} 
-      PROPERTIES OUTPUT_NAME ${TEST}
-      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-    )
+    set_target_properties(tests-advanced-${TEST} PROPERTIES
+                          OUTPUT_NAME ${TEST}
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
-      set_target_properties(tests-advanced-${TEST} 
-                            PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
+      set_target_properties(tests-advanced-${TEST} PROPERTIES
+                            LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
     install(TARGETS tests-advanced-${TEST} DESTINATION bin/tests/advanced)
   endforeach(TEST)
@@ -516,14 +498,12 @@ if(BUILD_TESTS)
   foreach(TEST ${EXPORT_TESTS})
     add_executable(tests-exports-${TEST} ${TEST_DIR}/exports/${TEST}.c)
     target_link_libraries(tests-exports-${TEST} elemental cmake-dummy-lib)
-    set_target_properties(
-      tests-exports-${TEST}
-      PROPERTIES OUTPUT_NAME ${TEST}
-      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-    )
+    set_target_properties(tests-exports-${TEST} PROPERTIES
+                          OUTPUT_NAME ${TEST}
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
-      set_target_properties(tests-exports-${TEST} 
-                            PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
+      set_target_properties(tests-exports-${TEST} PROPERTIES
+                            LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
     install(TARGETS tests-exports-c-${TEST} DESTINATION bin/tests/exports/c)
   endforeach(TEST)
@@ -533,6 +513,7 @@ endif(BUILD_TESTS)
 if(BUILD_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
 
+  set(CORE_EXAMPLES Simple)
   set(ADVANCED_EXAMPLES)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
@@ -542,25 +523,34 @@ if(BUILD_EXAMPLES)
     list(APPEND ADVANCED_EXAMPLES SymmetricEig)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
+  # Build the core test(s)
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/core")
+  foreach(EXAMPLE ${CORE_EXAMPLES})
+    add_executable(examples-core-${EXAMPLE} ${EXAMPLE_DIR}/core/${EXAMPLE}.cpp)
+    target_link_libraries(examples-core-${EXAMPLE} elemental cmake-dummy-lib)
+    set_target_properties(examples-core-${EXAMPLE} PROPERTIES 
+                          OUTPUT_NAME ${EXAMPLE} 
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    if(MPI_LINK_FLAGS)
+      set_target_properties(examples-core-${EXAMPLE} PROPERTIES
+                            LINK_FLAGS ${MPI_LINK_FLAGS})
+    endif(MPI_LINK_FLAGS)
+    install(TARGETS examples-core-${EXAMPLE} DESTINATION bin/examples/core)
+  endforeach(EXAMPLE)
+
   # Build the advanced test(s)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/advanced")
   foreach(EXAMPLE ${ADVANCED_EXAMPLES})
-    add_executable(
-      examples-advanced-${EXAMPLE} 
-      ${EXAMPLE_DIR}/advanced/${EXAMPLE}.cpp
-    )
-    target_link_libraries(
-      examples-advanced-${EXAMPLE} 
-      elemental cmake-dummy-lib
-    )
-    set_target_properties(
-      examples-advanced-${EXAMPLE} 
-      PROPERTIES OUTPUT_NAME ${EXAMPLE}
-      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-    )
+    add_executable(examples-advanced-${EXAMPLE} 
+                   ${EXAMPLE_DIR}/advanced/${EXAMPLE}.cpp)
+    target_link_libraries(examples-advanced-${EXAMPLE} 
+                          elemental cmake-dummy-lib)
+    set_target_properties(examples-advanced-${EXAMPLE} PROPERTIES
+                          OUTPUT_NAME ${EXAMPLE}
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
-      set_target_properties(examples-advanced-${EXAMPLE} 
-                            PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
+      set_target_properties(examples-advanced-${EXAMPLE} PROPERTIES
+                            LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
     install(TARGETS examples-advanced-${EXAMPLE} 
             DESTINATION bin/examples/advanced)

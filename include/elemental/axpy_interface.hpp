@@ -607,9 +607,9 @@ AxpyInterface<T>::AxpyLocalToGlobal
             const int destination = receivingRow + r*receivingCol;
             while( !_canSendTo[destination] )
             {
+                HandleLocalToGlobalData();
                 HandleAck();
                 HandleEom();
-                HandleLocalToGlobalData();
             }
 
             const int bufferSize = 
@@ -689,9 +689,9 @@ AxpyInterface<T>::AxpyGlobalToLocal
     {
         while( !_canSendTo[rank] )
         {
+            HandleGlobalToLocalRequest();
             HandleAck();
             HandleEom();
-            HandleGlobalToLocalRequest();
         }
 
         // Resize the vector and grab out the pointer
@@ -715,9 +715,9 @@ AxpyInterface<T>::AxpyGlobalToLocal
     int numReplies = 0;
     while( numReplies < p )
     {
+        HandleGlobalToLocalRequest();
         HandleAck();
         HandleEom();
-        HandleGlobalToLocalRequest();
 
         int haveReply;
         mpi::Status status;
@@ -787,12 +787,12 @@ AxpyInterface<T>::Detach()
     SendEoms();
     while( !Finished() )
     {
-        HandleAck();
-        HandleEom();
         if( _attachedForLocalToGlobal )
             HandleLocalToGlobalData();
         else
             HandleGlobalToLocalRequest();
+        HandleAck();
+        HandleEom();
     }
 
     const Grid& g = ( _attachedForLocalToGlobal ? _Y->Grid() : _X->Grid() );

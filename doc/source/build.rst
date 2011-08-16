@@ -130,12 +130,100 @@ introduced for this purpose and an example usage would be ::
     cmake -D MATH_LIBS="-L/usr/lib -llapack -lblas -lm" ..
 
 It is important to ensure that if library A depends upon library B, A should 
-be specified to the left of B.
+be specified to the left of B; in this case, LAPACK depends upon BLAS, so 
+``-llapack`` is specified to the left of ``-lblas``.
 
-Discuss all of the available options, like optionally building PMRRR, as well
-as the different build modes. Also give examples of building PureRelease versus
-HybridDebug.
+Build Modes
+-----------
+Elemental currently has four different build modes:
+
+* **PureDebug** - An MPI-only build that maintains a call stack and provides 
+  more error checking.
+* **PureRelease** - An optimized MPI-only build suitable for production use.
+* **HybridDebug** - An MPI+OpenMP build that maintains a call stack and provides
+  more error checking.
+* **HybridRelease** - An optimized MPI+OpenMP build suitable for production use.
+
+The build mode can be specified with the ``CMAKE_BUILD_TYPE`` option, e.g., 
+``-D CMAKE_BUILD_TYPE=PureDebug``. If this option is not specified, Elemental
+defaults to the **PureRelease** build mode.
+
+Building PMRRR
+--------------
+PMRRR is a parallel implementation of the MRRR algorithm introduced by 
+`Inderjit Dhillon <http://www.cs.utexas.edu/~inderjit/>`_ and 
+`Beresford Parlett <http://math.berkeley.edu/~parlett/>`_ for computing 
+:math:`k` eigenvectors of a tridiagonal matrix of size :math:`n` in 
+:math:`\mathcal{O}(nk)` time. PMRRR was written by 
+`Matthias Petschow <http://www.aices.rwth-aachen.de/people/petschow>`_ and 
+`Paolo Bientinesi <http://www.aices.rwth-aachen.de/people/bientinesi>`_ and is 
+available here:
+
+    http://code.google.com/p/pmrrr
+
+Elemental builds a copy of PMRRR by default whenever possible: if an up-to-date
+non-MKL version of LAPACK is used, then PMRRR only requires a working MPI C 
+compiler, otherwise, a Fortran 90 compiler is needed in order to build several
+recent LAPACK functions. If these LAPACK routines cannot be made available, 
+then PMRRR is not built and Elemental's eigensolver are automatically disabled.
 
 Using Elemental
 ===============
-Give an example of linking against Elemental.
+Once the library has been built, it is a good idea to verify that it is 
+functioning properly. The following is a simple example that constructs of a 
+distributed matrix, sets it to the identity matrix, then prints it:
+
+   .. code-block:: cpp
+
+      #include "elemental.hpp"
+      using namespace elemental;
+      using namespace elemental::imports;
+
+      int
+      main( int argc, char* argv[] )
+      {
+          Init( argc, argv );
+          mpi::Comm comm = mpi::COMM_WORLD;
+          const int commRank = mpi::CommRank( comm );
+          const int commSize = mpi::CommSize( comm );
+          const int n = 8;
+
+          if( commRank == 0 )
+          {
+              std::cout << "Creating a matrix distributed over " << commSize;
+              if( commSize != 1 )
+                  std::cout << " processes.\n" << std::endl;
+              else
+                  std::cout << " process.\n" << std::endl;
+          }
+          const Grid grid( comm );
+          DistMatrix<double,MC,MR> I( n, n, grid );
+          I.SetToIdentity();
+          I.Print("Identity");
+
+          Finalize();
+          return 0;
+      }
+
+As you can see, the only required header is ``elemental.hpp``, which must be
+in the include path when compiling this simple driver, say ``Simple.cpp``. 
+If Elemental was installed in ``/usr/local/elemental``, then 
+``/usr/local/elemental/include`` must be in the include path.
+
+**Discuss compilation and linking**
+
+If run with a single MPI process, the output should be ::
+
+    Creating a matrix distributed over 1 process.
+
+    Identity
+    1 0 0 0 0 0 0 0 
+    0 1 0 0 0 0 0 0 
+    0 0 1 0 0 0 0 0 
+    0 0 0 1 0 0 0 0 
+    0 0 0 0 1 0 0 0 
+    0 0 0 0 0 1 0 0 
+    0 0 0 0 0 0 1 0 
+    0 0 0 0 0 0 0 1 
+
+If run on several processes, only the first line of the output should change.
