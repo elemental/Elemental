@@ -208,11 +208,22 @@ distributed matrix, sets it to the identity matrix, then prints it:
 As you can see, the only required header is ``elemental.hpp``, which must be
 in the include path when compiling this simple driver, say ``Simple.cpp``. 
 If Elemental was installed in ``/usr/local/elemental``, then 
-``/usr/local/elemental/include`` must be in the include path.
+``/usr/local/elemental/include`` must be in the include path. Supposing that
+the file ``Simple.cpp`` is in the current folder, a typical build would be ::
 
-**Discuss compilation and linking**
+    mpicxx Simple.cpp -o Simple \
+        -I/usr/local/elemental/include \
+        -L/usr/local/elemental/lib -lelemental -llapack -lblas -lm
 
-If run with a single MPI process, the output should be ::
+Of course, ``/usr/local/elemental`` should be replaced with your installation
+prefix and ``-llapack -lblas -lm`` should be replaced with the ``MATH_LIBS`` 
+set during the CMake configuration.
+
+The executable can then typically be run with a single process using ::
+
+    ./Simple
+
+and the output should be ::
 
     Creating a matrix distributed over 1 process.
 
@@ -226,4 +237,11 @@ If run with a single MPI process, the output should be ::
     0 0 0 0 0 0 1 0 
     0 0 0 0 0 0 0 1 
 
-If run on several processes, only the first line of the output should change.
+The driver can be run with several processes using the MPI launcher provided
+by your MPI implementation; a typical way to run the ``Simple`` driver on 
+eight processes would be::
+
+    mpirun -np 8 ./Simple
+
+Only the first line of the output should change with respect to when run on 
+a single process.
