@@ -1,3 +1,6 @@
+Core functionality
+******************
+
 Matrix class
 ============
 

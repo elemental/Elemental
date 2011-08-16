@@ -1,3 +1,6 @@
+Advanced linear algebra
+***********************
+
 Norms
 =====
 

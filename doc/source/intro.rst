@@ -1,3 +1,5 @@
+Introduction
+************
 Elemental is a high-performance framework for distributed-memory dense linear 
 algebra that is inspired by 
 `PLAPACK <http://www.cs.utexas.edu/users/plapack/new/using.html>`_

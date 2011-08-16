@@ -1,3 +1,5 @@
+Building Elemental
+******************
 Elemental's build system relies on `CMake <http://www.cmake.org>`_ 
 in order to manage a large number of configuration options in a 
 platform-independent manner; it can be easily configured to build on Linux and 
