@@ -123,6 +123,12 @@ protected:
       int ldim,
       const elemental::Grid& g );
 
+    //------------------------------------------------------------------------//
+    // Routines that MUST be implemented in non-abstract derived classes      //
+    //------------------------------------------------------------------------//
+    virtual void PrintBase
+    ( std::ostream& os, const std::string msg="" ) const = 0;
+
 public:
     virtual ~AbstractDistMatrixBase();
 
@@ -216,6 +222,10 @@ public:
     // Collective routines
     //
 
+    void Print( const std::string msg="" ) const;
+    void Print( std::ostream& os, const std::string msg="" ) const;
+    void Write( const std::string filename, const std::string msg="" ) const;
+
     void SetToZero();
     void Empty();
 
@@ -297,8 +307,6 @@ public:
     virtual void ScaleTrapezoidal
     ( T alpha, Side side, Shape shape, int offset = 0 ) = 0;
 
-    virtual void Print( const std::string msg="" ) const = 0;
-    virtual void Print( std::ostream& os, const std::string msg="" ) const = 0;
     virtual void ResizeTo( int height, int width ) = 0;
     virtual void SetToIdentity() = 0;
     virtual void SetToRandom() = 0;
@@ -377,11 +385,11 @@ public:
 
 #ifndef WITHOUT_COMPLEX
 template<typename Z> // Z represents any real ring
-class AbstractDistMatrix< std::complex<Z> > 
-: public AbstractDistMatrixBase< std::complex<Z> >
+class AbstractDistMatrix<std::complex<Z> > 
+: public AbstractDistMatrixBase<std::complex<Z> >
 {
 protected:
-    typedef AbstractDistMatrixBase< std::complex<Z> > ADMB;
+    typedef AbstractDistMatrixBase<std::complex<Z> > ADMB;
 
     // Initialize with particular local dimensions
     AbstractDistMatrix
@@ -943,6 +951,45 @@ AbstractDistMatrixBase<T>::Empty()
     _rowShift = 0;
 }
 
+template<typename T>
+inline void
+AbstractDistMatrixBase<T>::Print( const std::string msg ) const
+{ PrintBase( std::cout, msg ); }
+
+template<typename T>
+inline void
+AbstractDistMatrixBase<T>::Print
+( std::ostream& os, const std::string msg ) const
+{ PrintBase( os, msg ); }
+
+template<typename T>
+inline void
+AbstractDistMatrixBase<T>::Write
+( const std::string filename, const std::string msg ) const
+{
+#ifndef RELEASE
+    PushCallStack("AbstractDistMatrixBase::Write");
+#endif
+    const elemental::Grid& g = Grid();
+    const int commRank = imports::mpi::CommRank( g.VCComm() ); 
+
+    if( commRank == 0 )
+    {
+        std::ofstream file( filename.c_str() );
+        file.setf( std::ios::scientific );
+        PrintBase( file, msg );
+        file.close();
+    }
+    else
+    {
+        NullStream nullStream;
+        PrintBase( nullStream, msg );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 //
 // Real AbstractDistMatrix
 //
@@ -1034,7 +1081,7 @@ AbstractDistMatrix<Z>::~AbstractDistMatrix()
 #ifndef WITHOUT_COMPLEX
 template<typename Z>
 inline
-AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
+AbstractDistMatrix<std::complex<Z> >::AbstractDistMatrix
 ( int height,
   int width,
   bool constrainedColAlignment,
@@ -1053,7 +1100,7 @@ AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
 
 template<typename Z>
 inline
-AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
+AbstractDistMatrix<std::complex<Z> >::AbstractDistMatrix
 ( int height,
   int width,
   bool constrainedColAlignment,
@@ -1073,7 +1120,7 @@ AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
 
 template<typename Z>
 inline
-AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
+AbstractDistMatrix<std::complex<Z> >::AbstractDistMatrix
 ( int height,
   int width,
   int colAlignment,
@@ -1091,7 +1138,7 @@ AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
 
 template<typename Z>
 inline
-AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
+AbstractDistMatrix<std::complex<Z> >::AbstractDistMatrix
 ( int height,
   int width,
   int colAlignment,
@@ -1109,42 +1156,42 @@ AbstractDistMatrix< std::complex<Z> >::AbstractDistMatrix
 
 template<typename Z>
 inline
-AbstractDistMatrix< std::complex<Z> >::~AbstractDistMatrix()
+AbstractDistMatrix<std::complex<Z> >::~AbstractDistMatrix()
 { }
 
 template<typename Z>
 inline const Z
-AbstractDistMatrix< std::complex<Z> >::GetRealLocalEntry
+AbstractDistMatrix<std::complex<Z> >::GetRealLocalEntry
 ( int iLocal, int jLocal ) const
 { return this->_localMatrix.GetReal(iLocal,jLocal); }
 
 template<typename Z>
 inline const Z
-AbstractDistMatrix< std::complex<Z> >::GetImagLocalEntry
+AbstractDistMatrix<std::complex<Z> >::GetImagLocalEntry
 ( int iLocal, int jLocal ) const
 { return this->_localMatrix.GetImag(iLocal,jLocal); }
 
 template<typename Z>
 inline void
-AbstractDistMatrix< std::complex<Z> >::SetRealLocalEntry
+AbstractDistMatrix<std::complex<Z> >::SetRealLocalEntry
 ( int iLocal, int jLocal, Z alpha )
 { this->_localMatrix.SetReal(iLocal,jLocal,alpha); }
 
 template<typename Z>
 inline void
-AbstractDistMatrix< std::complex<Z> >::SetImagLocalEntry
+AbstractDistMatrix<std::complex<Z> >::SetImagLocalEntry
 ( int iLocal, int jLocal, Z alpha )
 { this->_localMatrix.SetImag(iLocal,jLocal,alpha); }
 
 template<typename Z>
 inline void
-AbstractDistMatrix< std::complex<Z> >::UpdateRealLocalEntry
+AbstractDistMatrix<std::complex<Z> >::UpdateRealLocalEntry
 ( int iLocal, int jLocal, Z alpha )
 { this->_localMatrix.UpdateReal(iLocal,jLocal,alpha); }
 
 template<typename Z>
 inline void
-AbstractDistMatrix< std::complex<Z> >::UpdateImagLocalEntry
+AbstractDistMatrix<std::complex<Z> >::UpdateImagLocalEntry
 ( int iLocal, int jLocal, Z alpha )
 { this->_localMatrix.UpdateImag(iLocal,jLocal,alpha); }
 #endif // WITHOUT_COMPLEX

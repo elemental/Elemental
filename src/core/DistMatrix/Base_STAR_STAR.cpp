@@ -50,11 +50,11 @@ using namespace elemental::utilities;
 
 template<typename T>
 void
-elemental::DistMatrixBase<T,STAR,STAR>::Print
+elemental::DistMatrixBase<T,STAR,STAR>::PrintBase
 ( ostream& os, const string msg ) const
 {
 #ifndef RELEASE
-    PushCallStack("[* ,* ]::Print");
+    PushCallStack("[* ,* ]::PrintBase");
 #endif
     const elemental::Grid& g = this->Grid();
     if( g.VCRank() == 0 && msg != "" )
@@ -88,13 +88,6 @@ elemental::DistMatrixBase<T,STAR,STAR>::Print
 #ifndef RELEASE
     PopCallStack();
 #endif
-}
-
-template<typename T>
-void
-elemental::DistMatrixBase<T,STAR,STAR>::Print( const string msg ) const
-{
-    Print( cout, msg );
 }
 
 template<typename T>

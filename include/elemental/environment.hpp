@@ -38,6 +38,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -129,6 +130,22 @@ template<typename Z>
 std::complex<Z>
 Conj( std::complex<Z> alpha );
 #endif
+
+// We define an output stream that does nothing. This is done so that the 
+// root process can be used to print data to a file's ostream while all other 
+// processes use a null ostream. This is used within the DistMatrixBase class's
+// 'Write' functions.
+struct NullStream : std::ostream
+{
+    struct NullStreamBuffer : std::streambuf
+    {
+        int overflow( int c ) { return traits_type::not_eof(c); }
+    } _nullStreamBuffer;
+
+    NullStream() 
+    : std::ios(&_nullStreamBuffer), std::ostream(&_nullStreamBuffer) 
+    { }
+};
 
 } // elemental
 

@@ -75,6 +75,8 @@ protected:
 
     ~DistMatrixBase();
 
+    virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
+
 public:
     //------------------------------------------------------------------------//
     // Fulfillments of abstract virtual func's from AbstractDistMatrixBase    //
@@ -104,8 +106,6 @@ public:
     virtual void ScaleTrapezoidal
     ( T alpha, Side side, Shape shape, int offset = 0 );
 
-    virtual void Print( const std::string msg="" ) const;
-    virtual void Print( std::ostream& os, const std::string msg="" ) const;
     virtual void ResizeTo( int height, int width );
     virtual void SetToIdentity();
     virtual void SetToRandom();

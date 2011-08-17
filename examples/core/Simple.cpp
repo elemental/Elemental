@@ -57,6 +57,7 @@ main( int argc, char* argv[] )
         DistMatrix<double,MC,MR> I( n, n, grid );
         I.SetToIdentity();
         I.Print("Identity");
+        I.Write( "identity.txt", "Identity" );
     }
     catch( std::exception& e )
     {
