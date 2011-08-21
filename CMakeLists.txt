@@ -368,6 +368,7 @@ else(BUILD_PMRRR AND NOT FAILED_PMRRR)
   set(WITHOUT_PMRRR TRUE)
 endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
+# Create the Elemental configuration header
 configure_file( 
   ${CMAKE_SOURCE_DIR}/include/elemental/config.h.cmake
   ${CMAKE_BINARY_DIR}/include/elemental/config.h 

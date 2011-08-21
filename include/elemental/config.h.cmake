@@ -33,10 +33,31 @@
 #ifndef ELEMENTAL_CONFIG_H
 #define ELEMENTAL_CONFIG_H 1
 
-/* Basic variables */
+/* Build type and version information */
 #define CMAKE_BUILD_TYPE @CMAKE_BUILD_TYPE@
 #define Elemental_VERSION_MAJOR @Elemental_VERSION_MAJOR@
 #define Elemental_VERSION_MINOR @Elemental_VERSION_MINOR@
+
+/* C compiler info */
+#define CMAKE_C_COMPILER    @CMAKE_C_COMPILER@
+#define MPI_C_COMPILER      @MPI_C_COMPILER@
+#define MPI_C_INCLUDE_PATH  @MPI_C_INCLUDE_PATH@
+#define MPI_C_COMPILE_FLAGS @MPI_C_COMPILE_FLAGS@
+#define MPI_C_LINK_FLAGS    @MPI_C_LINK_FLAGS@
+#define MPI_C_LIBRARIES     @MPI_C_LIBRARIES@
+
+/* C++ compiler info */
+#define CMAKE_CXX_COMPILER    @CMAKE_CXX_COMPILER@
+#define MPI_CXX_COMPILER      @MPI_CXX_COMPILER@
+#define MPI_CXX_INCLUDE_PATH  @MPI_CXX_INCLUDE_PATH@
+#define MPI_CXX_COMPILE_FLAGS @MPI_CXX_COMPILE_FLAGS@
+#define MPI_CXX_LINK_FLAGS    @MPI_CXX_LINK_FLAGS@
+#define MPI_CXX_LIBRARIES     @MPI_CXX_LIBRARIES@
+
+/* Math libraries */
+#define MATH_LIBS @MATH_LIBS@
+
+/* Basic configuration options */
 #cmakedefine RELEASE
 #cmakedefine BLAS_POST
 #cmakedefine LAPACK_POST
@@ -45,7 +66,7 @@
 #cmakedefine AVOID_COMPLEX_MPI
 #cmakedefine USE_CHAR_ALLGATHERS
 
-/* Advanced variables */
+/* Advanced configuration options */
 #cmakedefine CACHE_WARNINGS
 #cmakedefine UNALIGNED_WARNINGS
 #cmakedefine VECTOR_WARNINGS

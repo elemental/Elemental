@@ -219,7 +219,8 @@ the file ``Simple.cpp`` is in the current folder, a typical build would be ::
 
 Of course, ``/usr/local/elemental`` should be replaced with your installation
 prefix and ``-llapack -lblas -lm`` should be replaced with the ``MATH_LIBS`` 
-set during the CMake configuration.
+set during configuration (it is written into the file 
+``include/elemental/config.h`` in the build directory).
 
 The executable can then typically be run with a single process using ::
 
