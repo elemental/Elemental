@@ -67,7 +67,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
         AL(g), AR(g),
         A0(g), A1(g), A2(g);
 
-    DistMatrix<R,VC,  STAR> HPan_STAR_VR(g);
+    DistMatrix<R,STAR,VR  > HPan_STAR_VR(g);
     DistMatrix<R,STAR,MR  > HPan_STAR_MR(g);
     DistMatrix<R,STAR,STAR> SInv_STAR_STAR(g);
     DistMatrix<R,MC,  STAR> Z_MC_STAR(g);
@@ -76,6 +76,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
     LockedPartitionDownDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
+    PartitionRight( A, AL, AR, 0 );
     while( HTL.Height() < H.Height() && HTL.Width() < H.Width() )
     {
         LockedRepartitionDownDiagonal
@@ -104,7 +105,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
 
         HPan_STAR_VR = HPanCopy;
         basic::Syrk
-        ( UPPER, NORMAL,
+        ( LOWER, NORMAL,
           (R)1, HPan_STAR_VR.LockedLocalMatrix(),
           (R)0, SInv_STAR_STAR.LocalMatrix() );
         SInv_STAR_STAR.SumOverGrid();
@@ -117,7 +118,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
         Z_VC_STAR.SumScatterFrom( Z_MC_STAR );
 
         basic::internal::LocalTrsm
-        ( RIGHT, UPPER, NORMAL, NON_UNIT,
+        ( RIGHT, LOWER, TRANSPOSE, NON_UNIT,
           (R)1, SInv_STAR_STAR, Z_VC_STAR );
 
         Z_MC_STAR = Z_VC_STAR;
@@ -129,15 +130,15 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
         Z_MC_STAR.FreeAlignments();
         Z_VC_STAR.FreeAlignments();
 
+        SlidePartitionRight
+        ( AL,     /**/ AR,
+          A0, A1, /**/ A2 );
+
         SlideLockedPartitionDownDiagonal
         ( HTL, /**/ HTR,  H00, H01, /**/ H02,
                /**/       H10, H11, /**/ H12,
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
-
-        SlidePartitionRight
-        ( AL,     /**/ AR,
-          A0, A1, /**/ A2 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -235,21 +236,20 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
 
         HPan_STAR_VR = HPanCopy;
         basic::Herk
-        ( UPPER, NORMAL,
+        ( LOWER, NORMAL,
           (C)1, HPan_STAR_VR.LockedLocalMatrix(),
           (C)0, SInv_STAR_STAR.LocalMatrix() );
         SInv_STAR_STAR.SumOverGrid();
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 
-        basic::Conjugate( HPan_STAR_VR );
         HPan_STAR_MR = HPan_STAR_VR;
         basic::internal::LocalGemm
         ( NORMAL, ADJOINT, (C)1, AR, HPan_STAR_MR, (C)0, Z_MC_STAR );
         Z_VC_STAR.SumScatterFrom( Z_MC_STAR );
 
         basic::internal::LocalTrsm
-        ( RIGHT, UPPER, NORMAL, NON_UNIT,
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT,
           (C)1, SInv_STAR_STAR, Z_VC_STAR );
 
         Z_MC_STAR = Z_VC_STAR;
@@ -260,11 +260,9 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
         Z_MC_STAR.FreeAlignments();
         Z_VC_STAR.FreeAlignments();
 
-        SlideLockedPartitionDownDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
-         /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+        SlidePartitionRight
+        ( AL,     /**/ AR,
+          A0, A1, /**/ A2 );
 
         SlideLockedPartitionDown
         ( tT,  t0,
@@ -272,15 +270,17 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
          /**/ /**/
           tB,  t2 );
 
-        SlidePartitionRight
-        ( AL,     /**/ AR,
-          A0, A1, /**/ A2 );
+        SlideLockedPartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
+               /**/       H10, H11, /**/ H12,
+         /*************/ /******************/
+          HBL, /**/ HBR,  H20, H21, /**/ H22 );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-#endif
+#endif // WITHOUT_COMPLEX
 
 template void elemental::advanced::internal::ApplyPackedReflectorsRUHF
 ( int offset,

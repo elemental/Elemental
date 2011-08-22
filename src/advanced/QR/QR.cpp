@@ -39,11 +39,11 @@ using namespace elemental;
 // transforms that determine Q are stored below the diagonal of A with an 
 // implicit one on the diagonal. 
 //
-// In the complex case, the column-vector s stores the unit-magnitude complex 
+// In the complex case, the column-vector t stores the unit-magnitude complex 
 // rotations that map the norms of the implicit Householder vectors to their
 // coefficient:  
-//                tau_j = 2 psi_j / ( u_j^H u_j ),
-// where psi_j is the j'th entry of s and u_j is the j'th unscaled Householder
+//                psi_j = 2 tau_j / ( u_j^H u_j ),
+// where tau_j is the j'th entry of t and u_j is the j'th unscaled Householder
 // reflector.
 
 template<typename R> // representation of a real number
@@ -65,7 +65,7 @@ elemental::advanced::QR
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    while( ( ATL.Height() < A.Height() && ATL.Width() < A.Width() ) )
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ A01, A02,
@@ -133,7 +133,7 @@ elemental::advanced::QR
     PartitionDown
     ( tDiag, tT,
              tB, 0 );
-    while( ( ATL.Height() < A.Height() && ATL.Width() < A.Width() ) )
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ A01, A02,
@@ -158,21 +158,21 @@ elemental::advanced::QR
         //--------------------------------------------------------------------//
         advanced::internal::PanelQR( ALeftPan, t1 );
         advanced::ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, FORWARD, UNCONJUGATED, 
+        ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 
           0, ALeftPan, t1, ARightPan );
         //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
         SlidePartitionDown
         ( tT,  t0,
                t1,
          /**/ /**/
           tB,  t2 );
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
     // Redistribute from matrix-diag to fully replicated form
     t = tDiag;
@@ -180,7 +180,7 @@ elemental::advanced::QR
     PopCallStack();
 #endif
 }
-#endif
+#endif // WITHOUT_COMPLEX
 
 template void
 elemental::advanced::QR

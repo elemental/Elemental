@@ -265,7 +265,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUVF
     PopCallStack();
 #endif
 }
-#endif
+#endif // WITHOUT_COMPLEX
 
 template void elemental::advanced::internal::ApplyPackedReflectorsRUVF
 ( int offset,

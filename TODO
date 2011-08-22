@@ -1,6 +1,9 @@
 Relatively trivial but important 
 ================================
 - Unit tests for unaligned DistMatrix redistributions and summations
+- QR/LQ solves for AX=B
+- Finish adding packed reflector application routines for horizontal storage
+- Complete parallel Level2 BLAS (i.e., Trmv)
 
 Relatively trivial but not important
 ====================================
@@ -10,8 +13,6 @@ Relatively trivial but not important
 Substantial effort and important
 ================================
 - SVD
-- LQ factorization and then QR/LQ solves for AX=B
-- Complete parallel Level2 BLAS (i.e., Trmv)
 
 Substantial effort but not terribly important 
 =============================================

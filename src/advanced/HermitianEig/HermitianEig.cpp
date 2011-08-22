@@ -1513,11 +1513,11 @@ elemental::advanced::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() ); 
     if( shape == LOWER )
         advanced::ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
+        ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
         advanced::ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD, CONJUGATED, 
+        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
@@ -1733,11 +1733,11 @@ elemental::advanced::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() );
     if( shape == LOWER )
         advanced::ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
+        ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
         advanced::ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD, CONJUGATED, 
+        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
@@ -1987,11 +1987,11 @@ elemental::advanced::HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Width() );
     if( shape == LOWER )
         advanced::ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
+        ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
         advanced::ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD, CONJUGATED, 
+        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary

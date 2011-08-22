@@ -39,8 +39,8 @@ using namespace elemental::imports;
 
 void Usage()
 {
-    cout << "Generates random matrix then solves for its QR factorization.\n\n"
-         << "  QR <r> <c> <m> <n> <nb> <correctness?> <print?>\n\n"
+    cout << "Generates random matrix then solves for its LQ factorization.\n\n"
+         << "  LQ <r> <c> <m> <n> <nb> <correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  m: height of matrix\n"
@@ -67,8 +67,10 @@ void TestCorrectness
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Z(m,n,g);
     Z.SetToIdentity();
-    advanced::ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, Z );
-    advanced::ApplyPackedReflectors( LEFT, LOWER, VERTICAL, FORWARD, 0, A, Z );
+    advanced::ApplyPackedReflectors
+    ( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, Z );
+    advanced::ApplyPackedReflectors
+    ( RIGHT, UPPER, HORIZONTAL, FORWARD, 0, A, Z );
 
     DistMatrix<R,MC,MR> ZUpper(g);
     ZUpper.View( Z, 0, 0, minDim, minDim );
@@ -92,31 +94,32 @@ void TestCorrectness
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Testing if A = QR..." << endl;
+        cout << "  Testing if A = LQ..." << endl;
     }
 
-    // Form Q R
-    DistMatrix<R,MC,MR> U( A );
-    U.MakeTrapezoidal( LEFT, UPPER );
-    advanced::ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, U );
+    // Form L Q
+    DistMatrix<R,MC,MR> L( A );
+    L.MakeTrapezoidal( LEFT, LOWER );
+    advanced::ApplyPackedReflectors
+    ( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, L );
 
-    // Form Q R - A
-    basic::Axpy( (R)-1, AOrig, U );
+    // Form L Q - A
+    basic::Axpy( (R)-1, AOrig, L );
     
     R oneNormOfA = advanced::Norm( AOrig, ONE_NORM );
     R infNormOfA = advanced::Norm( AOrig, INFINITY_NORM );
     R frobNormOfA = advanced::Norm( AOrig, FROBENIUS_NORM );
-    oneNormOfError = advanced::Norm( U, ONE_NORM );
-    infNormOfError = advanced::Norm( U, INFINITY_NORM );
-    frobNormOfError = advanced::Norm( U, FROBENIUS_NORM );
+    oneNormOfError = advanced::Norm( L, ONE_NORM );
+    infNormOfError = advanced::Norm( L, INFINITY_NORM );
+    frobNormOfError = advanced::Norm( L, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"
              << "    ||A||_oo      = " << infNormOfA << "\n"
              << "    ||A||_F       = " << frobNormOfA << "\n"
-             << "    ||A - QR||_1  = " << oneNormOfError << "\n"
-             << "    ||A - QR||_oo = " << infNormOfError << "\n"
-             << "    ||A - QR||_F  = " << frobNormOfError << endl;
+             << "    ||A - LQ||_1  = " << oneNormOfError << "\n"
+             << "    ||A - LQ||_oo = " << infNormOfError << "\n"
+             << "    ||A - LQ||_F  = " << frobNormOfError << endl;
     }
 }
 
@@ -142,9 +145,9 @@ void TestCorrectness
     DistMatrix<C,MC,MR> Z(m,n,g);
     Z.SetToIdentity();
     advanced::ApplyPackedReflectors
-    ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, Z );
+    ( RIGHT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, Z );
     advanced::ApplyPackedReflectors
-    ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, Z );
+    ( RIGHT, UPPER, HORIZONTAL, FORWARD, CONJUGATED, 0, A, t, Z );
     
     DistMatrix<C,MC,MR> ZUpper(g);
     ZUpper.View( Z, 0, 0, minDim, minDim );
@@ -167,42 +170,42 @@ void TestCorrectness
     }
 
     if( g.VCRank() == 0 )
-        cout << "  Testing if A = QR..." << endl;
+        cout << "  Testing if A = LQ..." << endl;
 
-    // Form Q R
-    DistMatrix<C,MC,MR> U( A );
-    U.MakeTrapezoidal( LEFT, UPPER );
+    // Form L Q
+    DistMatrix<C,MC,MR> L( A );
+    L.MakeTrapezoidal( LEFT, LOWER );
     advanced::ApplyPackedReflectors
-    ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, U );
+    ( RIGHT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, L );
 
-    // Form Q R - A
-    basic::Axpy( (C)-1, AOrig, U );
+    // Form L Q - A
+    basic::Axpy( (C)-1, AOrig, L );
     
     R oneNormOfA = advanced::Norm( AOrig, ONE_NORM );
     R infNormOfA = advanced::Norm( AOrig, INFINITY_NORM );
     R frobNormOfA = advanced::Norm( AOrig, FROBENIUS_NORM );
-    oneNormOfError = advanced::Norm( U, ONE_NORM );
-    infNormOfError = advanced::Norm( U, INFINITY_NORM );
-    frobNormOfError = advanced::Norm( U, FROBENIUS_NORM );
+    oneNormOfError = advanced::Norm( L, ONE_NORM );
+    infNormOfError = advanced::Norm( L, INFINITY_NORM );
+    frobNormOfError = advanced::Norm( L, FROBENIUS_NORM );
     if( g.VCRank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"
              << "    ||A||_oo      = " << infNormOfA << "\n"
              << "    ||A||_F       = " << frobNormOfA << "\n"
-             << "    ||A - QR||_1  = " << oneNormOfError << "\n"
-             << "    ||A - QR||_oo = " << infNormOfError << "\n"
-             << "    ||A - QR||_F  = " << frobNormOfError << endl;
+             << "    ||A - LQ||_1  = " << oneNormOfError << "\n"
+             << "    ||A - LQ||_oo = " << infNormOfError << "\n"
+             << "    ||A - LQ||_F  = " << frobNormOfError << endl;
     }
 }
 #endif // WITHOUT_COMPLEX
 
 template<typename F> // represents a real or complex field
-void TestQR
+void TestLQ
 ( bool testCorrectness, bool printMatrices,
   int m, int n, const Grid& g );
 
 template<>
-void TestQR<double>
+void TestLQ<double>
 ( bool testCorrectness, bool printMatrices,
   int m, int n, const Grid& g )
 {
@@ -231,16 +234,16 @@ void TestQR<double>
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Starting QR factorization...";
+        cout << "  Starting LQ factorization...";
         cout.flush();
     }
     mpi::Barrier( g.VCComm() );
     startTime = mpi::Time();
-    advanced::QR( A );
+    advanced::LQ( A );
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::QRGFlops<R>( m, n, runTime );
+    gFlops = advanced::internal::LQGFlops<R>( m, n, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
@@ -255,7 +258,7 @@ void TestQR<double>
 
 #ifndef WITHOUT_COMPLEX
 template<>
-void TestQR< complex<double> >
+void TestLQ< complex<double> >
 ( bool testCorrectness, bool printMatrices,
   int m, int n, const Grid& g )
 {
@@ -285,16 +288,16 @@ void TestQR< complex<double> >
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Starting QR factorization...";
+        cout << "  Starting LQ factorization...";
         cout.flush();
     }
     mpi::Barrier( g.VCComm() );
     startTime = mpi::Time();
-    advanced::QR( A, t );
+    advanced::LQ( A, t );
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::QRGFlops<C>( m, n, runTime );
+    gFlops = advanced::internal::LQGFlops<C>( m, n, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
@@ -345,7 +348,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         if( rank == 0 )
-            cout << "Will test QR" << endl;
+            cout << "Will test LQ" << endl;
 
         if( rank == 0 )
         {
@@ -353,7 +356,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestQR<double>
+        TestLQ<double>
         ( testCorrectness, printMatrices, m, n, g );
 
 #ifndef WITHOUT_COMPLEX
@@ -363,7 +366,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestQR<dcomplex>
+        TestLQ<dcomplex>
         ( testCorrectness, printMatrices, m, n, g );
 #endif
     }

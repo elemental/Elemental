@@ -24,6 +24,10 @@ LU factorization
 ----------------
 Describe ``advanced::LU`` here.
 
+LQ factorization
+----------------
+Describe ``advanced::LQ`` here.
+
 QR factorization
 ----------------
 Describe ``advanced::QR`` here.

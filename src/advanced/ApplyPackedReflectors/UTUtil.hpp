@@ -111,7 +111,7 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const complex<R> value = complex<R>(1)/Conj(t.GetLocalEntry(j,0));
+            const complex<R> value = complex<R>(1)/t.GetLocalEntry(j,0);
             SInv.SetLocalEntry(j,j,value);
         }
     }
@@ -119,7 +119,7 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const complex<R> value = complex<R>(1)/t.GetLocalEntry(j,0);
+            const complex<R> value = complex<R>(1)/Conj(t.GetLocalEntry(j,0));
             SInv.SetLocalEntry(j,j,value);
         }
     }

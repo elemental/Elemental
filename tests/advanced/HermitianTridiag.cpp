@@ -170,19 +170,19 @@ void TestCorrectness
     {
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, 
-          UNCONJUGATED, subdiagonal, A, t, B );
+          CONJUGATED, subdiagonal, A, t, B );
         advanced::ApplyPackedReflectors
         ( RIGHT, LOWER, VERTICAL, BACKWARD, 
-          UNCONJUGATED, subdiagonal, A, t, B );
+          CONJUGATED, subdiagonal, A, t, B );
     }
     else
     {
         advanced::ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD, 
-          CONJUGATED, subdiagonal, A, t, B );
+          UNCONJUGATED, subdiagonal, A, t, B );
         advanced::ApplyPackedReflectors
         ( RIGHT, UPPER, VERTICAL, FORWARD, 
-          CONJUGATED, subdiagonal, A, t, B );
+          UNCONJUGATED, subdiagonal, A, t, B );
     }
 
     // Compare the appropriate triangle of AOrig and B

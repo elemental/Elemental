@@ -756,6 +756,9 @@ template<typename F>
 double LUGFlops( int m, double seconds );
 
 template<typename F>
+double LQGFlops( int m, int n, double seconds );
+
+template<typename F>
 double QRGFlops( int m, int n, double seconds );
 
 template<typename F>
@@ -906,6 +909,32 @@ inline double
 LUGFlops<dcomplex>
 ( int m, double seconds )
 { return 4.*LUGFlops<float>(m,seconds); }
+#endif
+
+template<>
+inline double
+LQGFlops<float>
+( int m, int n, double seconds )
+{ return (2.*m*m*n-2./3.*m*m*m)/(1.e9*seconds); }
+
+template<>
+inline double
+LQGFlops<double>
+( int m, int n, double seconds )
+{ return LQGFlops<float>(m,n,seconds); }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+inline double
+LQGFlops<scomplex>
+( int m, int n, double seconds )
+{ return 4.*LQGFlops<float>(m,n,seconds); }
+
+template<>
+inline double
+LQGFlops<dcomplex>
+( int m, int n, double seconds )
+{ return 4.*LQGFlops<float>(m,n,seconds); }
 #endif
 
 template<>
