@@ -64,7 +64,10 @@ void LocalHegst
   DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B );
 
 template<typename F>
-void LocalTriangularInversion
+void LocalLU( DistMatrix<F,STAR,STAR>& A );
+
+template<typename F>
+void LocalTriangularInverse
 ( Shape shape, Diagonal diagonal, DistMatrix<F,STAR,STAR>& A );
 
 //----------------------------------------------------------------------------//
@@ -176,6 +179,18 @@ void HegstRUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
 void ApplyRowPivots
+(       DistMatrix<F,  MC,MR  >& A,
+  const DistMatrix<int,VC,STAR>& p,
+        int pivotOffset=0 );
+
+template<typename F>
+void ApplyRowPivots
+(       DistMatrix<F,  MC,  MR  >& A,
+  const DistMatrix<int,STAR,STAR>& p,
+        int pivotOffset=0 );
+
+template<typename F>
+void ApplyRowPivots
 (       DistMatrix<F,MC,MR>& A, 
   const std::vector<int>& image,
   const std::vector<int>& preimage,
@@ -220,9 +235,6 @@ void DestroyPivotOp<scomplex>();
 template<>
 void DestroyPivotOp<dcomplex>();
 #endif
-
-template<typename F>
-void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,STAR,STAR>& p );
 
 template<typename F>
 void PanelLU
@@ -500,19 +512,19 @@ void HermitianTridiagUSquare
 #endif
 
 //----------------------------------------------------------------------------//
-// Triangular Inversion                                                       //
+// Triangular Inverse                                                         //
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void TriangularInversionVar3
+void TriangularInverseVar3
 ( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
 template<typename F>
-void TriangularInversionLVar3
+void TriangularInverseLVar3
 ( Diagonal diagonal, DistMatrix<F,MC,MR>& L );
 
 template<typename F>
-void TriangularInversionUVar3
+void TriangularInverseUVar3
 ( Diagonal diagonal, DistMatrix<F,MC,MR>& U );
 
 //----------------------------------------------------------------------------//
@@ -765,7 +777,7 @@ template<typename F>
 double HermitianTridiagGFlops( int m, double seconds );
 
 template<typename F>
-double TriangularInversionGFlops( int m, double seconds );
+double TriangularInverseGFlops( int m, double seconds );
 
 template<typename F>
 double ApplyPackedReflectorsGFlops( int m, double seconds );
@@ -817,13 +829,26 @@ LocalHegst
 
 template<typename F>
 inline void
-LocalTriangularInversion
+LocalLU( DistMatrix<F,STAR,STAR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::internal::LocalLU");
+#endif
+    advanced::LU( A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+LocalTriangularInverse
 ( Shape shape, Diagonal diagonal, DistMatrix<F,STAR,STAR>& A )
 { 
 #ifndef RELEASE
-    PushCallStack("advanced::internal::LocalTriangularInversion");
+    PushCallStack("advanced::internal::LocalTriangularInverse");
 #endif
-    TriangularInversion( shape, diagonal, A.LocalMatrix() );
+    TriangularInverse( shape, diagonal, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -991,28 +1016,28 @@ HermitianTridiagGFlops<dcomplex>
 
 template<>
 inline double
-TriangularInversionGFlops<float>
+TriangularInverseGFlops<float>
 ( int m, double seconds )
 { return (1./3.*m*m*m)/(1.e9*seconds); }
 
 template<>
 inline double
-TriangularInversionGFlops<double>
+TriangularInverseGFlops<double>
 ( int m, double seconds )
-{ return TriangularInversionGFlops<float>(m,seconds); }
+{ return TriangularInverseGFlops<float>(m,seconds); }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 inline double
-TriangularInversionGFlops<scomplex>
+TriangularInverseGFlops<scomplex>
 ( int m, double seconds )
-{ return 4.*TriangularInversionGFlops<float>(m,seconds); }
+{ return 4.*TriangularInverseGFlops<float>(m,seconds); }
 
 template<>
 inline double
-TriangularInversionGFlops<dcomplex>
+TriangularInverseGFlops<dcomplex>
 ( int m, double seconds )
-{ return 4.*TriangularInversionGFlops<float>(m,seconds); }
+{ return 4.*TriangularInverseGFlops<float>(m,seconds); }
 #endif
 
 template<>

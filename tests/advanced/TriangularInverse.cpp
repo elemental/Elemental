@@ -40,7 +40,7 @@ using namespace elemental::imports;
 void Usage()
 {
     cout << "Inverts a triangular matrix.\n\n"
-         << "  TriangularInversion <r> <c> <shape> <diag> <m> <nb> "
+         << "  TriangularInverse <r> <c> <shape> <diag> <m> <nb> "
             "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
@@ -84,7 +84,7 @@ void TestCorrectness
 }
 
 template<typename F> // represents a real or complex number
-void TestTriangularInversion
+void TestTriangularInverse
 ( bool testCorrectness, bool printMatrices,
   Shape shape, Diagonal diagonal, int m, const Grid& g )
 {
@@ -117,11 +117,11 @@ void TestTriangularInversion
     }
     mpi::Barrier( g.VCComm() );
     startTime = mpi::Time();
-    advanced::TriangularInversion( shape, diagonal, A );
+    advanced::TriangularInverse( shape, diagonal, A );
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::TriangularInversionGFlops<F>( m, runTime );
+    gFlops = advanced::internal::TriangularInverseGFlops<F>( m, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE. " << endl
@@ -172,7 +172,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         if( rank == 0 )
-            cout << "Will test TriangularInversion" << ShapeToChar(shape) 
+            cout << "Will test TriangularInverse" << ShapeToChar(shape) 
                  << DiagonalToChar(diagonal) << endl;
 
         if( rank == 0 )
@@ -181,7 +181,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestTriangularInversion<double>
+        TestTriangularInverse<double>
         ( testCorrectness, printMatrices, shape, diagonal, m, g );
 
 #ifndef WITHOUT_COMPLEX
@@ -191,7 +191,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestTriangularInversion<dcomplex>
+        TestTriangularInverse<dcomplex>
         ( testCorrectness, printMatrices, shape, diagonal, m, g );
 #endif
     }

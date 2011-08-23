@@ -441,7 +441,7 @@ if(BUILD_TESTS)
   set(CORE_TESTS AxpyInterface DifferentGrids DistMatrix Matrix)
   set(BASIC_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
   set(ADVANCED_TESTS ApplyPackedReflectors Chol Hegst HermitianTridiag LU LQ QR 
-                     TriangularInversion)
+                     TriangularInverse)
 
   if(BUILD_C_INTERFACE)
     set(C_TESTS BasicTest)

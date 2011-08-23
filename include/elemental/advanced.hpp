@@ -338,15 +338,26 @@ void HermitianEig
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
-// LU (LU factorization with partial pivoting):                               //
+// LU (LU factorization):                                                     //
 //                                                                            //
-// Overwrite A with its LU factorization after partial pivoting: P A = L U.   //
+// If a container for a pivot vector is passed in, then A is overwritten with //
+// its LU factorization after partial pivoting: P A = L U.                    //
 // P is compressed into the vector p by storing the location of the nonzero   //
 // element of each row.                                                       //
+//                                                                            //
+// If pivot vector is given, then A is overwritten with L U. Note that this   //
+// version should usually be avoided, as pivoting is usually required for     //
+// stability.                                                                 //
 //----------------------------------------------------------------------------//
 
 template<typename F>
+void LU( Matrix<F>& A );
+
+template<typename F> 
 void LU( Matrix<F>& A, Matrix<int>& p );
+
+template<typename F>
+void LU( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
 void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
@@ -690,7 +701,7 @@ void SetHermitianTridiagApproach( HermitianTridiagApproach approach );
 void SetHermitianTridiagGridOrder( GridOrder order );
 
 //----------------------------------------------------------------------------//
-// TriangularInversion                                                        //
+// TriangularInverse                                                          //
 //                                                                            //
 // Inverts a triangular matrix. 'shape' determines whether A is assumed to be //
 // upper or lower triangular, and 'diagonal' determines whether or not A is   //
@@ -700,13 +711,13 @@ void SetHermitianTridiagGridOrder( GridOrder order );
 // Serial version
 template<typename F>
 void
-TriangularInversion
+TriangularInverse
 ( Shape shape, Diagonal diagonal, Matrix<F>& A );
 
 // Parallel version
 template<typename F>
 void
-TriangularInversion
+TriangularInverse
 ( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
 //----------------------------------------------------------------------------//
@@ -996,17 +1007,17 @@ elemental::advanced::SVD
 
 template<typename F>
 inline void
-elemental::advanced::TriangularInversion
+elemental::advanced::TriangularInverse
 ( Shape shape, Diagonal diagonal, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::TriangularInversion");
+    PushCallStack("advanced::TriangularInverse");
     if( A.Height() != A.Width() )
         throw std::logic_error( "A must be square." );
 #endif
     const char uplo = ShapeToChar( shape );
     const char diag = DiagonalToChar( diagonal );
-    imports::lapack::TriangularInversion
+    imports::lapack::TriangularInverse
     ( uplo, diag, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();

@@ -35,6 +35,81 @@
 using namespace std;
 using namespace elemental;
 
+// Performs LU factorization without pivoting
+template<typename F> // represents a real or complex number
+void
+elemental::advanced::LU( DistMatrix<F,MC,MR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::LU");
+#endif
+    const Grid& g = A.Grid();
+
+    // Matrix views
+    DistMatrix<F,MC,MR>
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),  
+                         A20(g), A21(g), A22(g);
+
+    // Temporary distributions
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
+    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
+    DistMatrix<F,STAR,MR  > A12_STAR_MR(g);
+
+    // Start the algorithm
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        A12_STAR_VR.AlignWith( A22 );
+        A12_STAR_MR.AlignWith( A22 );
+        A21_MC_STAR.AlignWith( A22 );
+        A11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
+        //--------------------------------------------------------------------//
+        A11_STAR_STAR = A11;
+        advanced::internal::LocalLU( A11_STAR_STAR );
+        A11 = A11_STAR_STAR;
+
+        A21_MC_STAR = A21;
+        basic::internal::LocalTrsm
+        ( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, A11_STAR_STAR, A21_MC_STAR );
+        A21 = A21_MC_STAR;
+
+        // Perhaps we should give up perfectly distributing this operation since
+        // it's total contribution is only O(n^2)
+        A12_STAR_VR = A12;
+        basic::internal::LocalTrsm
+        ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
+
+        A12_STAR_MR = A12_STAR_VR;
+        basic::internal::LocalGemm
+        ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, A12_STAR_MR, (F)1, A22 );
+        A12 = A12_STAR_MR;
+        //--------------------------------------------------------------------//
+        A12_STAR_VR.FreeAlignments();
+        A12_STAR_MR.FreeAlignments();
+        A21_MC_STAR.FreeAlignments();
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Performs LU factorization with pivoting
 template<typename F> // represents a real or complex number
 void
 elemental::advanced::LU
@@ -145,21 +220,21 @@ elemental::advanced::LU
 #endif
 }
 
-template void
-elemental::advanced::LU
+template void elemental::advanced::LU( DistMatrix<float,MC,MR>& A );
+template void elemental::advanced::LU
 ( DistMatrix<float,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 
-template void
-elemental::advanced::LU
+template void elemental::advanced::LU( DistMatrix<double,MC,MR>& A );
+template void elemental::advanced::LU
 ( DistMatrix<double,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 
 #ifndef WITHOUT_COMPLEX
-template void
-elemental::advanced::LU
+template void elemental::advanced::LU( DistMatrix<scomplex,MC,MR>& A );
+template void elemental::advanced::LU
 ( DistMatrix<scomplex,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 
-template void
-elemental::advanced::LU
+template void elemental::advanced::LU( DistMatrix<dcomplex,MC,MR>& A );
+template void elemental::advanced::LU
 ( DistMatrix<dcomplex,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 #endif
 

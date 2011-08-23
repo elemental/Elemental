@@ -992,11 +992,11 @@ elemental::imports::lapack::HermitianTridiag
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::lapack::TriangularInversion
+elemental::imports::lapack::TriangularInverse
 ( char uplo, char diag, int n, const float* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::TriangularInversion");
+    PushCallStack("imports::lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(strtri)( &uplo, &diag, &n, A, &lda, &info );
@@ -1012,11 +1012,11 @@ elemental::imports::lapack::TriangularInversion
 }
 
 void
-elemental::imports::lapack::TriangularInversion
+elemental::imports::lapack::TriangularInverse
 ( char uplo, char diag, int n, const double* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::TriangularInversion");
+    PushCallStack("imports::lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(dtrtri)( &uplo, &diag, &n, A, &lda, &info );
@@ -1033,11 +1033,11 @@ elemental::imports::lapack::TriangularInversion
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::lapack::TriangularInversion
+elemental::imports::lapack::TriangularInverse
 ( char uplo, char diag, int n, const scomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::TriangularInversion");
+    PushCallStack("imports::lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(ctrtri)( &uplo, &diag, &n, A, &lda, &info );
@@ -1053,11 +1053,11 @@ elemental::imports::lapack::TriangularInversion
 }
 
 void
-elemental::imports::lapack::TriangularInversion
+elemental::imports::lapack::TriangularInverse
 ( char uplo, char diag, int n, const dcomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::TriangularInversion");
+    PushCallStack("imports::lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(ztrtri)( &uplo, &diag, &n, A, &lda, &info );

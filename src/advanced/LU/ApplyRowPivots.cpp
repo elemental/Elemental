@@ -36,6 +36,39 @@ using namespace elemental;
 using namespace elemental::imports;
 using namespace elemental::utilities;
 
+template<typename F>
+void
+elemental::advanced::internal::ApplyRowPivots
+( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p, int pivotOffset )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::internal::ApplyRowPivots");
+#endif
+    const Grid& g = A.Grid();
+    DistMatrix<int,STAR,STAR> p_STAR_STAR(g);
+    p_STAR_STAR = p;
+    advanced::internal::ApplyRowPivots( A, p_STAR_STAR, pivotOffset );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+void
+elemental::advanced::internal::ApplyRowPivots
+( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p, int pivotOffset )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::internal::ApplyRowPivots");
+#endif
+    vector<int> image, preimage;
+    advanced::internal::ComposePivots( p, image, preimage, pivotOffset );
+    advanced::internal::ApplyRowPivots( A, image, preimage, pivotOffset );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename F> // represents a real or complex number
 void
 elemental::advanced::internal::ApplyRowPivots
@@ -222,11 +255,31 @@ elemental::advanced::internal::ApplyRowPivots
 
 template void
 elemental::advanced::internal::ApplyRowPivots
+(       DistMatrix<float,MC,MR  >& A,
+  const DistMatrix<int,  VC,STAR>& p,
+        int pivotOffset );
+template void
+elemental::advanced::internal::ApplyRowPivots
+(       DistMatrix<float,MC,  MR  >& A,
+  const DistMatrix<int,  STAR,STAR>& p,
+        int pivotOffset );
+template void
+elemental::advanced::internal::ApplyRowPivots
 (       DistMatrix<float,MC,MR>& A, 
   const vector<int>& image,
   const vector<int>& preimage,
         int pivotOffset );
 
+template void
+elemental::advanced::internal::ApplyRowPivots
+(       DistMatrix<double,MC,MR  >& A,
+  const DistMatrix<int,   VC,STAR>& p,
+        int pivotOffset );
+template void
+elemental::advanced::internal::ApplyRowPivots
+(       DistMatrix<double,MC,  MR  >& A,
+  const DistMatrix<int,   STAR,STAR>& p,
+        int pivotOffset );
 template void
 elemental::advanced::internal::ApplyRowPivots
 (       DistMatrix<double,MC,MR>& A, 
@@ -237,6 +290,16 @@ elemental::advanced::internal::ApplyRowPivots
 #ifndef WITHOUT_COMPLEX
 template void
 elemental::advanced::internal::ApplyRowPivots
+(       DistMatrix<scomplex,MC,MR  >& A,
+  const DistMatrix<int,     VC,STAR>& p,
+        int pivotOffset );
+template void
+elemental::advanced::internal::ApplyRowPivots
+(       DistMatrix<scomplex,MC,  MR  >& A,
+  const DistMatrix<int,     STAR,STAR>& p,
+        int pivotOffset );
+template void
+elemental::advanced::internal::ApplyRowPivots
 (       DistMatrix<scomplex,MC,MR>& A, 
   const vector<int>& image,
   const vector<int>& preimage,
@@ -244,9 +307,18 @@ elemental::advanced::internal::ApplyRowPivots
 
 template void
 elemental::advanced::internal::ApplyRowPivots
+(       DistMatrix<dcomplex,MC,MR  >& A,
+  const DistMatrix<int,     VC,STAR>& p,
+        int pivotOffset );
+template void
+elemental::advanced::internal::ApplyRowPivots
+(       DistMatrix<dcomplex,MC,  MR  >& A,
+  const DistMatrix<int,     STAR,STAR>& p,
+        int pivotOffset );
+template void
+elemental::advanced::internal::ApplyRowPivots
 (       DistMatrix<dcomplex,MC,MR>& A, 
   const vector<int>& image,
   const vector<int>& preimage,
         int pivotOffset );
 #endif
-

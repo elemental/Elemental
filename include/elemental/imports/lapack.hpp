@@ -148,14 +148,14 @@ void HermitianTridiag( char uplo, int n, scomplex* A, int lda, scomplex* t );
 void HermitianTridiag( char uplo, int n, dcomplex* A, int lda, dcomplex* t );
 #endif
 
-void TriangularInversion
+void TriangularInverse
 ( char uplo, char diag, int n, const float* A, int lda );
-void TriangularInversion
+void TriangularInverse
 ( char uplo, char diag, int n, const double* A, int lda );
 #ifndef WITHOUT_COMPLEX
-void TriangularInversion
+void TriangularInverse
 ( char uplo, char diag, int n, const scomplex* A, int lda );
-void TriangularInversion
+void TriangularInverse
 ( char uplo, char diag, int n, const dcomplex* A, int lda );
 #endif
 

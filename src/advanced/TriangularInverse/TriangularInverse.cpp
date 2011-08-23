@@ -35,15 +35,15 @@ using namespace elemental;
 
 template<typename F> // represents a real or complex number
 void
-elemental::advanced::TriangularInversion
+elemental::advanced::TriangularInverse
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::TriangularInversion");
+    PushCallStack("advanced::TriangularInverse");
 #endif
-    advanced::internal::TriangularInversionVar3( shape, diagonal, A );
+    advanced::internal::TriangularInverseVar3( shape, diagonal, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -51,60 +51,60 @@ elemental::advanced::TriangularInversion
 
 template<typename F>
 void
-elemental::advanced::internal::TriangularInversionVar3
+elemental::advanced::internal::TriangularInverseVar3
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::TriangularInversionVar3");
+    PushCallStack("advanced::internal::TriangularInverseVar3");
 #endif
     if( shape == LOWER )
-        advanced::internal::TriangularInversionLVar3( diagonal, A );
+        advanced::internal::TriangularInverseLVar3( diagonal, A );
     else
-        advanced::internal::TriangularInversionUVar3( diagonal, A );
+        advanced::internal::TriangularInverseUVar3( diagonal, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template void elemental::advanced::TriangularInversion
+template void elemental::advanced::TriangularInverse
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<float,MC,MR>& A );
 
-template void elemental::advanced::internal::TriangularInversionVar3
+template void elemental::advanced::internal::TriangularInverseVar3
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<float,MC,MR>& A );
 
-template void elemental::advanced::TriangularInversion
+template void elemental::advanced::TriangularInverse
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<double,MC,MR>& A );
 
-template void elemental::advanced::internal::TriangularInversionVar3
+template void elemental::advanced::internal::TriangularInverseVar3
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<double,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-template void elemental::advanced::TriangularInversion
+template void elemental::advanced::TriangularInverse
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<scomplex,MC,MR>& A );
 
-template void elemental::advanced::internal::TriangularInversionVar3
+template void elemental::advanced::internal::TriangularInverseVar3
 ( Shape shape, 
   Diagonal diagonal,
   DistMatrix<scomplex,MC,MR>& A );
 
-template void elemental::advanced::TriangularInversion
+template void elemental::advanced::TriangularInverse
 ( Shape shape, 
   Diagonal diagonal, 
   DistMatrix<dcomplex,MC,MR>& A );
 
-template void elemental::advanced::internal::TriangularInversionVar3
+template void elemental::advanced::internal::TriangularInverseVar3
 ( Shape shape, 
   Diagonal diagonal,
   DistMatrix<dcomplex,MC,MR>& A );
