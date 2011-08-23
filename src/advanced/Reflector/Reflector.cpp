@@ -181,7 +181,7 @@ elemental::advanced::Reflector
 
     const Grid& g = x.Grid();
     F tau;
-    if( x.Width() == 1 )
+    if( x.Width() == 1 && x.RowAlignment() == chi.RowAlignment() )
     {
         const bool thisIsMyColumn = ( g.MRRank() == x.RowAlignment() );
         if( thisIsMyColumn )

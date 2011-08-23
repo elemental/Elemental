@@ -163,6 +163,8 @@ elemental::advanced::LQ
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
+    // Redistribute from matrix-diag to fully replicated form
+    t = tDiag;
 #ifndef RELEASE
     PopCallStack();
 #endif

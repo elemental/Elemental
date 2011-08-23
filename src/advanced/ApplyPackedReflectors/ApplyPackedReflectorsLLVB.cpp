@@ -94,8 +94,8 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVB
          /**/ /**/
           AB,  A2 );
 
-        int HPanHeight = H11.Height() + H21.Height();
-        int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
+        const int HPanHeight = H11.Height() + H21.Height();
+        const int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         ABottom.View2x1( A1,
@@ -221,8 +221,8 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVB
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        int HPanHeight = H11.Height() + H21.Height();
-        int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
+        const int HPanHeight = H11.Height() + H21.Height();
+        const int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         LockedRepartitionUp

@@ -88,9 +88,9 @@ elemental::advanced::internal::ApplyPackedReflectorsLUVB
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        int HPanHeight = H01.Height() + H11.Height();
-        int HPanOffset = min( H11.Width(), max(offset-H00.Width(),0) );
-        int HPanWidth = H11.Width()-HPanOffset;
+        const int HPanHeight = H01.Height() + H11.Height();
+        const int HPanOffset = min( H11.Width(), max(offset-H00.Width(),0) );
+        const int HPanWidth = H11.Width()-HPanOffset;
         HPan.LockedView
         ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
@@ -222,9 +222,9 @@ elemental::advanced::internal::ApplyPackedReflectorsLUVB
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        int HPanHeight = H01.Height() + H11.Height();
-        int HPanOffset = min( H11.Width(), max(offset-H00.Width(),0) );
-        int HPanWidth = H11.Width()-HPanOffset;
+        const int HPanHeight = H01.Height() + H11.Height();
+        const int HPanOffset = min( H11.Width(), max(offset-H00.Width(),0) );
+        const int HPanWidth = H11.Width()-HPanOffset;
         HPan.LockedView
         ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
