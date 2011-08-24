@@ -102,7 +102,7 @@ elemental::advanced::internal::LDLVar3
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
     DistMatrix<F,VR,  STAR> A21_VR_STAR(g);
     DistMatrix<F,STAR,MC  > S21Trans_STAR_MC(g);
-    DistMatrix<F,MC,  MR  > A21AdjOrTrans(g);
+    DistMatrix<F,MR,  MC  > A21AdjOrTrans(g);
     DistMatrix<F,STAR,MR  > A21AdjOrTrans_STAR_MR(g);
 
     // Start the algorithm
@@ -140,11 +140,11 @@ elemental::advanced::internal::LDLVar3
 
         A21_VC_STAR = A21;
         basic::internal::LocalTrsm
-        ( RIGHT, LOWER, orientation, NON_UNIT, 
+        ( RIGHT, LOWER, orientation, UNIT, 
           (F)1, A11_STAR_STAR, A21_VC_STAR );
 
         S21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
-        basic::DiagonalSolve( RIGHT, orientation, d1_STAR_STAR, A21_VC_STAR );
+        basic::DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, A21_VC_STAR );
         A21_VR_STAR = A21_VC_STAR;
         if( orientation == ADJOINT )
             A21AdjOrTrans_STAR_MR.AdjointFrom( A21_VR_STAR );

@@ -782,6 +782,12 @@ template<typename F>
 double HegstGFlops( int m, double seconds );
 
 template<typename F>
+double LDLHGFlops( int m, double seconds );
+
+template<typename F>
+double LDLTGFlops( int m, double seconds );
+
+template<typename F>
 double LUGFlops( int m, double seconds );
 
 template<typename F>
@@ -848,11 +854,16 @@ template<typename F>
 inline void
 LocalLDL
 ( Orientation orientation, 
-  DistMatrix<F,STAR,STAR>& A, DistMatrix<F,MC,STAR>& d )
+  DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::LocalLDL");
+    if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
+        throw std::logic_error
+        ("d must be a column vector of the same height as A");
 #endif
+    if( !d.Viewing() )
+        d.ResizeTo( A.Height(), 1 );
     advanced::internal::LDLVar3
     ( orientation, A.LocalMatrix(), d.LocalMatrix() );
 #ifndef RELEASE
@@ -948,6 +959,14 @@ inline double
 LUGFlops<float>
 ( int m, double seconds )
 { return (2./3.*m*m*m)/(1.e9*seconds); }
+
+template<typename F>
+inline double LDLHGFlops( int n, double seconds )
+{ return CholGFlops<F>( n, seconds ); }
+
+template<typename F>
+inline double LDLTGFlops( int n, double seconds )
+{ return CholGFlops<F>( n, seconds ); }
 
 template<>
 inline double

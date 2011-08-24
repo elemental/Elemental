@@ -4,12 +4,12 @@ Advanced linear algebra
 Norms
 =====
 
-advanced::Norm
+Norm
 --------------
-Describe :math:`||A||_1,`, :math:`||A||_\infty`, and
+Describe :math:`||A||_1`, :math:`||A||_\infty`, and
 :math:`||A||_F`, and the maximum norm.
 
-advanced::HermitianNorm
+HermitianNorm
 -----------------------
 Same, but with added Shape parameter. Give examples.
 
@@ -28,16 +28,16 @@ Describe ``advanced::LDLH`` here.
 ---------------------------
 Describe ``advanced::LDLT`` here.
 
-LU factorization
-----------------
+:math:`LU` factorization
+------------------------
 Describe ``advanced::LU`` here.
 
-LQ factorization
-----------------
+:math:`LQ` factorization
+------------------------
 Describe ``advanced::LQ`` here.
 
-QR factorization
-----------------
+:math:`QR` factorization
+------------------------
 Describe ``advanced::QR`` here.
 
 Linear Solvers
@@ -47,8 +47,8 @@ Gaussian Elimination
 --------------------
 Describe ``advanced::GaussElim`` here.
 
-QR Solver
----------
+:math:`QR` Solver
+-----------------
 Not yet written but trivial.
 
 Reduction to Condensed Form

@@ -121,9 +121,9 @@ elemental::advanced::internal::LDLVar3
         s21 = a21;
         basic::Scal( static_cast<F>(1)/delta, a21 );
         if( orientation == ADJOINT )
-            basic::Ger( (F)-1, a21, s21, A22 );
+            basic::Ger( (F)-1, s21, a21, A22 );
         else
-            basic::Geru( (F)-1, a21, s21, A22 );
+            basic::Geru( (F)-1, s21, a21, A22 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDown
