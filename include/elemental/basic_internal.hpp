@@ -64,6 +64,9 @@ void LocalGemm
            const DistMatrix<T,BColDist,BRowDist>& B,
   T beta,        DistMatrix<T,CColDist,CRowDist>& C );
 
+template<typename T>
+void LocalHetrmm( Shape shape, DistMatrix<T,STAR,STAR>& A );
+
 template<typename T, Distribution BColDist, Distribution BRowDist>
 void LocalTrmm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
@@ -505,13 +508,6 @@ void GemmTTDot
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
-// Hemm
-template<typename T>
-void Hemm
-( Side side, Shape shape,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C );
-
 // Left Lower Hemm
 template<typename T>
 void HemmLL
@@ -668,12 +664,13 @@ template<typename T>
 void HerkUC
 ( T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
-// Symm
+// Lower Variant 1 Hetrmm
 template<typename T>
-void Symm
-( Side side, Shape shape,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C );
+void HetrmmLVar1( DistMatrix<T,MC,MR>& L );
+
+// Upper Variant 1 Hetrmm
+template<typename T>
+void HetrmmUVar1( DistMatrix<T,MC,MR>& U );
 
 // Left Lower Symm
 template<typename T>
@@ -1313,6 +1310,10 @@ template<typename T>
 double
 HerkGFlops
 ( int m, int k, double seconds );
+
+template<typename T>
+double
+HetrmmGFlops( int m, double seconds );
             
 template<typename T>
 double
@@ -1423,6 +1424,19 @@ inline void LocalGemm
     ( orientationOfA , orientationOfB, 
       alpha, A.LockedLocalMatrix(), B.LockedLocalMatrix(),
       beta, C.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void 
+LocalHetrmm( Shape shape, DistMatrix<T,STAR,STAR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("basic::internal::LocalHetrmm");
+#endif
+    basic::Hetrmm( shape, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1615,6 +1629,26 @@ HerkGFlops<dcomplex>
 ( int m, int k, double seconds )
 { return 4.*HerkGFlops<float>(m,k,seconds); }
 #endif
+
+template<>
+inline double
+HetrmmGFlops<float>( int n, double seconds )
+{ return (1./3.*n*n*n)/(1.e9*seconds); }
+
+template<>
+inline double
+HetrmmGFlops<double>( int n, double seconds )
+{ return HetrmmGFlops<float>( n, seconds ); }
+
+template<>
+inline double
+HetrmmGFlops<scomplex>( int n, double seconds )
+{ return 4.*HetrmmGFlops<float>( n, seconds ); }
+
+template<>
+inline double
+HetrmmGFlops<dcomplex>( int n, double seconds )
+{ return 4.*HetrmmGFlops<double>( n, seconds ); }
             
 template<>
 inline double

@@ -825,6 +825,84 @@ elemental::imports::blas::Herk
 #endif // WITHOUT_COMPLEX
 
 void
+elemental::imports::blas::Hetrmm( char uplo, int n, float* A, int lda )
+{
+#ifndef RELEASE
+    PushCallStack("imports::blas::Hetrmm");
+#endif
+    int info;
+    LAPACK(slauum)( &uplo, &n, A, &lda, &info );
+    if( info != 0 )
+    {
+        std::ostringstream os;
+        os << "slauum returned with info=" << info;
+        throw std::logic_error( os.str().c_str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::blas::Hetrmm( char uplo, int n, double* A, int lda )
+{
+#ifndef RELEASE
+    PushCallStack("imports::blas::Hetrmm");
+#endif
+    int info;
+    LAPACK(dlauum)( &uplo, &n, A, &lda, &info );
+    if( info != 0 )
+    {
+        std::ostringstream os;
+        os << "dlauum returned with info=" << info;
+        throw std::logic_error( os.str().c_str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+#ifndef WITHOUT_COMPLEX
+void
+elemental::imports::blas::Hetrmm( char uplo, int n, scomplex* A, int lda )
+{
+#ifndef RELEASE
+    PushCallStack("imports::blas::Hetrmm");
+#endif
+    int info;
+    LAPACK(clauum)( &uplo, &n, A, &lda, &info );
+    if( info != 0 )
+    {
+        std::ostringstream os;
+        os << "clauum returned with info=" << info;
+        throw std::logic_error( os.str().c_str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::imports::blas::Hetrmm( char uplo, int n, dcomplex* A, int lda )
+{
+#ifndef RELEASE
+    PushCallStack("imports::blas::Hetrmm");
+#endif
+    int info;
+    LAPACK(zlauum)( &uplo, &n, A, &lda, &info );
+    if( info != 0 )
+    {
+        std::ostringstream os;
+        os << "zlauum returned with info=" << info;
+        throw std::logic_error( os.str().c_str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // WITHOUT_COMPLEX
+
+void
 elemental::imports::blas::Symm
 ( char side, char uplo, int m, int n,
   float alpha, const float* A, int lda, const float* B, int ldb,

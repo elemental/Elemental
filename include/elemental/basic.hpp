@@ -711,6 +711,24 @@ void Herk
   T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
 //
+// Hetrmm (HErmitian TRiangular Matrix-Matrix multiply):
+//
+// Either L := tril(L L') or U := triu(U' U)
+//
+// NOTE: This is not a standard BLAS routine and is in fact the same operation
+//       as the LAPACK routine ?LAUUM. Since it is similar in spirit to many
+//       other BLAS routines, I have instead placed it here.
+//
+
+// Serial version
+template<typename T>
+void Hetrmm( Shape shape, Matrix<T>& A );
+
+// Parallel version
+template<typename T>
+void Hetrmm( Shape shape, DistMatrix<T,MC,MR>& A );
+
+//
 // Symm (SYmmetric Matrix-Matrix multiplication):
 //
 // Performs the update
@@ -1867,6 +1885,20 @@ elemental::basic::Herk
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
       beta,  C.Buffer(),       C.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+elemental::basic::Hetrmm( Shape shape, Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("basic::Hetrmm");
+#endif
+    const char shapeChar = ShapeToChar( shape );
+    imports::blas::Hetrmm( shapeChar, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif

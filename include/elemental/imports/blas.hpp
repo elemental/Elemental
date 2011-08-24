@@ -387,6 +387,18 @@ void Herk
   dcomplex beta,        dcomplex* C, int ldc );
 #endif
 
+// NOTE: This is the only non-standard naming convention of an existing BLAS
+//       routine. The routines for forming U := U' U and L := L L' are in
+//       LAPACK and are called ?lauum. I am instead labeling it Hetrmm to 
+//       match the BLAS naming conventions, and it stands for 
+//       'HErmitian TRiangular Matrix-Matrix multiplication'
+void Hetrmm( char uplo, int n, float* A, int lda );
+void Hetrmm( char uplo, int n, double* A, int lda );
+#ifndef WITHOUT_COMPLEX
+void Hetrmm( char uplo, int n, scomplex* A, int lda );
+void Hetrmm( char uplo, int n, dcomplex* A, int lda );
+#endif
+
 void Symm
 ( char side, char uplo, int m, int n,
   float alpha, const float* A, int lda, const float* B, int ldb,
@@ -714,7 +726,7 @@ void BLAS(dsymv)
   const double* beta,        double* y, const int* incy );
 
 #ifndef WITHOUT_COMPLEX
-// Recall that 'csymv' is an auxiliary LAPACK routine
+// 'csymv' is an auxiliary LAPACK routine, but we will treat it as BLAS
 void LAPACK(csymv)
 ( const char* uplo, const int* m,
   const elemental::scomplex* alpha, 
@@ -723,7 +735,7 @@ void LAPACK(csymv)
   const elemental::scomplex* beta,        
         elemental::scomplex* y, const int* incy );
 
-// Recall that 'zsymv' is an auxiliary LAPACK routine
+// 'zsymv' is an auxiliary LAPACK routine, but we will treat it as BLAS
 void LAPACK(zsymv)
 ( const char* uplo, const int* m,
   const elemental::dcomplex* alpha, 
@@ -744,14 +756,14 @@ void BLAS(dsyr)
                              double* A, const int* lda  );
 
 #ifndef WITHOUT_COMPLEX
-// Recall that 'csyr' is an auxiliary LAPACK routine
+// 'csyr' is an auxilliary LAPACK routine, but we will treat it as BLAS
 void LAPACK(csyr)
 ( const char* uplo, const int* m,
   const elemental::scomplex* alpha, 
   const elemental::scomplex* x, const int* incx,
         elemental::scomplex* A, const int* lda  );
 
-// Recall that 'zsyr' is an auxiliary LAPACK routine
+// 'zsyr' is an auxilliary LAPACK routine, but we will treat it as BLAS
 void LAPACK(zsyr)
 ( const char* uplo, const int* m,
   const elemental::dcomplex* alpha, 
@@ -898,6 +910,15 @@ void BLAS(zherk)
   const elemental::dcomplex* A, const int* lda,
   const elemental::dcomplex* beta,        
         elemental::dcomplex* C, const int* ldc );
+#endif
+
+void LAPACK(slauum)( char* uplo, int* n, float* A, int* lda, int* info );
+void LAPACK(dlauum)( char* uplo, int* n, double* A, int* lda, int* info );
+#ifndef WITHOUT_COMPLEX
+void LAPACK(clauum)
+( char* uplo, int* n, elemental::scomplex* A, int* lda, int* info );
+void LAPACK(zlauum)
+( char* uplo, int* n, elemental::dcomplex* A, int* lda, int* info );
 #endif
 
 void BLAS(ssymm)
