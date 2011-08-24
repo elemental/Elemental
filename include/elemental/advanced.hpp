@@ -83,7 +83,6 @@ void GaussElim( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 //----------------------------------------------------------------------------//
 
 #ifndef WITHOUT_PMRRR
-
 // Grab the full set of eigenpairs of real symmetric A and SPD B
 template<typename R>
 void HermitianGenDefiniteEig
@@ -336,6 +335,40 @@ void HermitianEig
   double a, double b, bool tryForHighAccuracy = false );
 #endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
+
+//----------------------------------------------------------------------------//
+// LDLH (LDL^H factorization):                                                //
+//                                                                            //
+// Overwrite the lower triangle of A with L and d with the diagonal entries   //
+// of D, so that A = L D L^H.                                                 //
+//                                                                            //
+// Partial pivoting is not yet supported.                                     //
+//----------------------------------------------------------------------------//
+
+// Serial version (currently unblocked)
+template<typename F>
+void LDLH( Matrix<F>& A, Matrix<F>& d );
+
+// Parallel version
+template<typename F>
+void LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d );
+
+//----------------------------------------------------------------------------//
+// LDLT (LDL^T factorization):                                                //
+//                                                                            //
+// Overwrite the lower triangle of A with L and d with the diagonal entries   //
+// of D, so that A = L D L^T.                                                 //
+//                                                                            //
+// Partial pivoting is not yet supported.                                     //
+//----------------------------------------------------------------------------//
+
+// Serial version (currently unblocked)
+template<typename F>
+void LDLT( Matrix<F>& A, Matrix<F>& d );
+
+// Parallel version
+template<typename F>
+void LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d );
 
 //----------------------------------------------------------------------------//
 // LU (LU factorization):                                                     //
@@ -669,12 +702,12 @@ SVD
 // routines.                                                                  //
 //----------------------------------------------------------------------------//
 
-// Serial version for real datatypes
+// Serial version for real datatypes (currently unblocked)
 template<typename R>
 void HermitianTridiag( Shape shape, Matrix<R>& A );
 
 #ifndef WITHOUT_COMPLEX
-// Serial version for complex datatypes
+// Serial version for complex datatypes (currently unblocked)
 template<typename R>
 void HermitianTridiag
 ( Shape shape, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t );

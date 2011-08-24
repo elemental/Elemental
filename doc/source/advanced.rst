@@ -20,6 +20,14 @@ Cholesky factorization
 ----------------------
 Describe ``advanced::Chol`` here.
 
+:math:`LDL^H` factorization
+---------------------------
+Describe ``advanced::LDLH`` here.
+
+:math:`LDL^T` factorization
+---------------------------
+Describe ``advanced::LDLT`` here.
+
 LU factorization
 ----------------
 Describe ``advanced::LU`` here.

@@ -64,6 +64,11 @@ void LocalHegst
   DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B );
 
 template<typename F>
+void LocalLDL
+( Orientation orientation, 
+  DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d );
+
+template<typename F>
 void LocalLU( DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
@@ -172,6 +177,18 @@ void HegstRUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
 
 template<typename F>
 void HegstRUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+
+//----------------------------------------------------------------------------//
+// LDL                                                                        //
+//----------------------------------------------------------------------------//
+
+template<typename F>
+void LDLVar3
+( Orientation orientation, Matrix<F>& A, Matrix<F>& d );
+
+template<typename F>
+void LDLVar3
+( Orientation orientation, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d );
 
 //----------------------------------------------------------------------------//
 // LU                                                                         //
@@ -822,6 +839,22 @@ LocalHegst
     PushCallStack("advanced::internal::LocalHegst");
 #endif
     Hegst( side, shape, A.LocalMatrix(), B.LockedLocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+LocalLDL
+( Orientation orientation, 
+  DistMatrix<F,STAR,STAR>& A, DistMatrix<F,MC,STAR>& d )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::internal::LocalLDL");
+#endif
+    advanced::internal::LDLVar3
+    ( orientation, A.LocalMatrix(), d.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

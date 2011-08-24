@@ -161,6 +161,46 @@ void
 Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
 //
+// DiagonalScale
+//
+// Performs either X := op(D) X or
+//                 X := X op(D)
+
+// Serial version
+template<typename T>
+void DiagonalScale
+( Side side, Orientation orientation, 
+  const Matrix<T>& d, Matrix<T>& X );
+
+// Parallel version
+template<typename T,
+         Distribution U,Distribution V,
+         Distribution W,Distribution Z>
+void DiagonalScale
+( Side side, Orientation orientation, 
+  const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X );
+
+//
+// DiagonalSolve
+//
+// Performs either X := op(D)^-1 X or 
+//                 X := X op(D)^-1
+
+// Serial version
+template<typename F>
+void DiagonalSolve
+( Side side, Orientation orientation, 
+  const Matrix<F>& d, Matrix<F>& X );
+
+// Parallel version
+template<typename F,
+         Distribution U,Distribution V,
+         Distribution W,Distribution Z>
+void DiagonalSolve
+( Side side, Orientation orientation, 
+  const DistMatrix<F,U,V>& d, DistMatrix<F,W,Z>& X );
+
+//
 // Dot: 
 // 
 // Returns (x,y) = x^H y.
@@ -878,6 +918,94 @@ elemental::basic::Copy
     PushCallStack("basic::Copy");
 #endif
     B = A;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void 
+elemental::basic::DiagonalScale
+( Side side, Orientation orientation, const Matrix<T>& d, Matrix<T>& X )
+{
+#ifndef RELEASE
+    PushCallStack("basic::DiagonalScale");
+#endif
+    const int m = X.Height();
+    const int n = X.Width();
+    const int ldim = X.LDim();
+    if( side == LEFT )
+    {
+        for( int i=0; i<m; ++i )
+        {
+            const T delta = d.Get(i,0);
+            T* XBuffer = X.Buffer(i,0);
+            if( orientation == ADJOINT )
+                for( int j=0; j<n; ++j )
+                    XBuffer[j*ldim] *= Conj(delta);
+            else
+                for( int j=0; j<n; ++j )
+                    XBuffer[j*ldim] *= delta;
+        }
+    }
+    else
+    {
+        for( int j=0; j<n; ++j )
+        {
+            const T delta = d.Get(j,0);
+            T* XBuffer = X.Buffer(0,j);
+            if( orientation == ADJOINT )
+                for( int i=0; i<m; ++i )
+                    XBuffer[i] *= Conj(delta);
+            else
+                for( int i=0; i<m; ++i )
+                    XBuffer[i] *= delta;
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void 
+elemental::basic::DiagonalSolve
+( Side side, Orientation orientation, const Matrix<F>& d, Matrix<F>& X )
+{
+#ifndef RELEASE
+    PushCallStack("basic::DiagonalSolve");
+#endif
+    const int m = X.Height();
+    const int n = X.Width();
+    const int ldim = X.LDim();
+    if( side == LEFT )
+    {
+        for( int i=0; i<m; ++i )
+        {
+            const F deltaInv = static_cast<F>(1)/d.Get(i,0);
+            F* XBuffer = X.Buffer(i,0);
+            if( orientation == ADJOINT )
+                for( int j=0; j<n; ++j )
+                    XBuffer[j*ldim] *= Conj(deltaInv);
+            else
+                for( int j=0; j<n; ++j )
+                    XBuffer[j*ldim] *= deltaInv;
+        }
+    }
+    else
+    {
+        for( int j=0; j<n; ++j )
+        {
+            const F deltaInv = static_cast<F>(1)/d.Get(j,0);
+            F* XBuffer = X.Buffer(0,j);
+            if( orientation == ADJOINT )
+                for( int i=0; i<m; ++i )
+                    XBuffer[i] *= Conj(deltaInv);
+            else
+                for( int i=0; i<m; ++i )
+                    XBuffer[i] *= deltaInv;
+        }
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1951,6 +2079,100 @@ elemental::basic::Copy
 #endif
 }
 
+template<typename T, elemental::Distribution U, elemental::Distribution V,
+                     elemental::Distribution W, elemental::Distribution Z>
+inline void
+elemental::basic::DiagonalScale
+( Side side, Orientation orientation, 
+  const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X )
+{
+#ifndef RELEASE
+    PushCallStack("basic::DiagonalScale");
+#endif
+    if( side == LEFT )
+    {
+        if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
+        {
+            basic::DiagonalScale
+            ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+        else
+        {
+            DistMatrix<T,W,STAR> d_W_STAR( X.Grid() );
+            d_W_STAR = d;
+            basic::DiagonalScale
+            ( LEFT, orientation, 
+              d_W_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+    }
+    else
+    {
+        if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
+        {
+            basic::DiagonalScale
+            ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+        else
+        {
+            DistMatrix<T,Z,STAR> d_Z_STAR( X.Grid() );
+            d_Z_STAR = d;
+            basic::DiagonalScale
+            ( RIGHT, orientation, 
+              d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F, elemental::Distribution U, elemental::Distribution V,
+                     elemental::Distribution W, elemental::Distribution Z>
+inline void
+elemental::basic::DiagonalSolve
+( Side side, Orientation orientation, 
+  const DistMatrix<F,U,V>& d, DistMatrix<F,W,Z>& X )
+{
+#ifndef RELEASE
+    PushCallStack("basic::DiagonalSolve");
+#endif
+    if( side == LEFT )
+    {
+        if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
+        {
+            basic::DiagonalSolve
+            ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+        else
+        {
+            DistMatrix<F,W,STAR> d_W_STAR( X.Grid() );
+            d_W_STAR = d;
+            basic::DiagonalSolve
+            ( LEFT, orientation, 
+              d_W_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+    }
+    else
+    {
+        if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
+        {
+            basic::DiagonalSolve
+            ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+        else
+        {
+            DistMatrix<F,Z,STAR> d_Z_STAR( X.Grid() );
+            d_Z_STAR = d;
+            basic::DiagonalSolve
+            ( RIGHT, orientation, 
+              d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 // Our extended Dotc is equivalent to our extended Dot, 
 // but we are burdened with consistency
 template<typename T, elemental::Distribution U, elemental::Distribution V,
@@ -2025,29 +2247,36 @@ elemental::basic::Adjoint
 #ifndef RELEASE
     PushCallStack("basic::Adjoint");
 #endif
-    DistMatrix<T,Z,W> C( B.Grid() );
-    if( B.ConstrainedColAlignment() )
-        C.AlignRowsWith( B );
-    if( B.ConstrainedRowAlignment() )
-        C.AlignColsWith( B );
-
-    C = A;
-
-    if( !B.Viewing() )
+    if( U == Z && V == W && 
+        A.ColAlignment() == B.RowAlignment() && 
+        A.RowAlignment() == B.ColAlignment() )
     {
-        if( !B.ConstrainedColAlignment() )
-            B.AlignColsWith( C );
-        if( !B.ConstrainedRowAlignment() )
-            B.AlignRowsWith( C );
-
-        B.ResizeTo( A.Width(), A.Height() );
+        basic::Adjoint( A.LockedLocalMatrix(), B.LocalMatrix() );
     }
-    else if( B.Height() != A.Width() || B.Width() != A.Height() )
+    else
     {
-        throw std::logic_error
-              ("If Adjoint'ing into a view, it must be the right size.");
+        DistMatrix<T,Z,W> C( B.Grid() );
+        if( B.ConstrainedColAlignment() )
+            C.AlignRowsWith( B );
+        if( B.ConstrainedRowAlignment() )
+            C.AlignColsWith( B );
+        C = A;
+
+        if( !B.Viewing() )
+        {
+            if( !B.ConstrainedColAlignment() )
+                B.AlignColsWith( C );
+            if( !B.ConstrainedRowAlignment() )
+                B.AlignRowsWith( C );
+            B.ResizeTo( A.Width(), A.Height() );
+        }
+        else if( B.Height() != A.Width() || B.Width() != A.Height() )
+        {
+            throw std::logic_error
+                  ("If Adjoint'ing into a view, it must be the right size.");
+        }
+        basic::Adjoint( C.LockedLocalMatrix(), B.LocalMatrix() );
     }
-    basic::Adjoint( C.LockedLocalMatrix(), B.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2062,29 +2291,36 @@ elemental::basic::Transpose
 #ifndef RELEASE
     PushCallStack("basic::Transpose");
 #endif
-    DistMatrix<T,Z,W> C( B.Grid() );
-    if( B.ConstrainedColAlignment() )
-        C.AlignRowsWith( B );
-    if( B.ConstrainedRowAlignment() )
-        C.AlignColsWith( B );
-
-    C = A;
-
-    if( !B.Viewing() )
+    if( U == Z && V == W && 
+        A.ColAlignment() == B.RowAlignment() && 
+        A.RowAlignment() == B.ColAlignment() )
     {
-        if( !B.ConstrainedColAlignment() )
-            B.AlignColsWith( C );
-        if( !B.ConstrainedRowAlignment() )
-            B.AlignRowsWith( C );
-
-        B.ResizeTo( A.Width(), A.Height() );
+        basic::Transpose( A.LockedLocalMatrix(), B.LocalMatrix() );
     }
-    else if( B.Height() != A.Width() || B.Width() != A.Height() )
+    else
     {
-        throw std::logic_error
-              ("If Transposing into a view, it must be the right size.");
+        DistMatrix<T,Z,W> C( B.Grid() );
+        if( B.ConstrainedColAlignment() )
+            C.AlignRowsWith( B );
+        if( B.ConstrainedRowAlignment() )
+            C.AlignColsWith( B );
+        C = A;
+
+        if( !B.Viewing() )
+        {
+            if( !B.ConstrainedColAlignment() )
+                B.AlignColsWith( C );
+            if( !B.ConstrainedRowAlignment() )
+                B.AlignRowsWith( C );
+            B.ResizeTo( A.Width(), A.Height() );
+        }
+        else if( B.Height() != A.Width() || B.Width() != A.Height() )
+        {
+            throw std::logic_error
+            ("If Transposing into a view, it must be the right size.");
+        }
+        basic::Transpose( C.LockedLocalMatrix(), B.LocalMatrix() );
     }
-    basic::Transpose( C.LockedLocalMatrix(), B.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
