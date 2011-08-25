@@ -56,7 +56,7 @@ class Grid
     imports::mpi::Group _owningGroup; // the processes that can own data
     imports::mpi::Group _notOwningGroup; // contains the remaining processes
 
-    std::vector<int> _VCToViewingMap;
+    std::vector<int> _vectorColToViewingMap;
 
     // Keep track of whether or not our process is in the grid. This is 
     // necessary to avoid calls like MPI_Comm_size when we're not in the
@@ -221,7 +221,7 @@ elemental::Grid::ViewingRank() const
 
 inline int
 elemental::Grid::VCToViewingMap( int VCRank ) const
-{ return _VCToViewingMap[VCRank]; }
+{ return _vectorColToViewingMap[VCRank]; }
 
 inline elemental::imports::mpi::Group
 elemental::Grid::OwningGroup() const

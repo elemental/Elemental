@@ -64,8 +64,8 @@ class AxpyInterface
 
     bool _attachedForLocalToGlobal, _attachedForGlobalToLocal;
     char _sendDummy, _recvDummy;
-    DistMatrix<T,MC,MR>* _Y;
-    const DistMatrix<T,MC,MR>* _X;
+    DistMatrix<T,MC,MR>* _localToGlobalMat;
+    const DistMatrix<T,MC,MR>* _globalToLocalMat;
 
     std::vector<bool> _canSendTo, _haveEomFrom;
     std::vector<std::vector<char> > _sendVectors, _recvVectors;
@@ -129,7 +129,9 @@ AxpyInterface<T>::Finished()
     if( !_attachedForLocalToGlobal && !_attachedForGlobalToLocal )
         throw std::logic_error("Not attached!");
 #endif
-    const Grid& g = ( _attachedForLocalToGlobal ? _Y->Grid() : _X->Grid() );
+    const Grid& g = ( _attachedForLocalToGlobal ? 
+                      _localToGlobalMat->Grid() : 
+                      _globalToLocalMat->Grid() );
     const int p = g.Size();
 
     bool finished = true; 
@@ -159,7 +161,9 @@ AxpyInterface<T>::HandleAck()
     if( !_attachedForLocalToGlobal && !_attachedForGlobalToLocal )
         throw std::logic_error("Not attached!");
 #endif
-    const Grid& g = ( _attachedForLocalToGlobal ? _Y->Grid() : _X->Grid() );
+    const Grid& g = ( _attachedForLocalToGlobal ? 
+                      _localToGlobalMat->Grid() : 
+                      _globalToLocalMat->Grid() );
 
     int haveAck;
     imports::mpi::Status status;
@@ -185,7 +189,9 @@ AxpyInterface<T>::HandleEom()
 #ifndef RELEASE
     PushCallStack("AxpyInterface::HandleEom");
 #endif
-    const Grid& g = ( _attachedForLocalToGlobal ? _Y->Grid() : _X->Grid() );
+    const Grid& g = ( _attachedForLocalToGlobal ? 
+                      _localToGlobalMat->Grid() : 
+                      _globalToLocalMat->Grid() );
 
     int haveEom;
     imports::mpi::Status status;
@@ -213,7 +219,7 @@ AxpyInterface<T>::HandleLocalToGlobalData()
     using namespace elemental::imports;
     using namespace elemental::utilities;
 
-    DistMatrix<T,MC,MR>& Y = *_Y;
+    DistMatrix<T,MC,MR>& Y = *_localToGlobalMat;
     const Grid& g = Y.Grid();
     const int r = g.Height();
     const int c = g.Width();
@@ -285,7 +291,7 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
     using namespace elemental::imports;
     using namespace elemental::utilities;
 
-    const DistMatrix<T,MC,MR>& X = *_X;
+    const DistMatrix<T,MC,MR>& X = *_globalToLocalMat;
     const Grid& g = X.Grid();
     const int r = g.Height();
     const int c = g.Width();
@@ -373,7 +379,9 @@ AxpyInterface<T>::SendEoms()
 #ifndef RELEASE
     PushCallStack("AxpyInterface::SendEoms");
 #endif
-    const Grid& g = ( _attachedForLocalToGlobal ? _Y->Grid() : _X->Grid() );
+    const Grid& g = ( _attachedForLocalToGlobal ? 
+                      _localToGlobalMat->Grid() : 
+                      _globalToLocalMat->Grid() );
     const int p = g.Size();
 
     for( int rank=0; rank<p; ++rank )
@@ -390,7 +398,7 @@ AxpyInterface<T>::SendEoms()
 template<typename T>
 AxpyInterface<T>::AxpyInterface()
 : _attachedForLocalToGlobal(false), _attachedForGlobalToLocal(false), 
-  _Y(0), _X(0)
+  _localToGlobalMat(0), _globalToLocalMat(0)
 { }
 
 template<typename T>
@@ -403,15 +411,15 @@ AxpyInterface<T>::AxpyInterface( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
     {
         _attachedForLocalToGlobal = true;
         _attachedForGlobalToLocal = false;
-        _Y = &Z;
-        _X = 0;
+        _localToGlobalMat = &Z;
+        _globalToLocalMat = 0;
     }
     else
     {
         _attachedForLocalToGlobal = false;
         _attachedForGlobalToLocal = true;
-        _Y = 0;
-        _X = &Z;
+        _localToGlobalMat = 0;
+        _globalToLocalMat = &Z;
     }
 
     const int p = Z.Grid().Size();
@@ -439,8 +447,8 @@ AxpyInterface<T>::AxpyInterface
     {
         _attachedForLocalToGlobal = false;
         _attachedForGlobalToLocal = true;
-        _Y = 0;
-        _X = &X;
+        _localToGlobalMat = 0;
+        _globalToLocalMat = &X;
     }
 
     const int p = X.Grid().Size();
@@ -473,12 +481,12 @@ AxpyInterface<T>::Attach( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
     if( axpyType == LOCAL_TO_GLOBAL )
     {
         _attachedForLocalToGlobal = true;
-        _Y = &Z;
+        _localToGlobalMat = &Z;
     }
     else
     {
         _attachedForGlobalToLocal = true;
-        _X = &Z;
+        _globalToLocalMat = &Z;
     }
 
     const int p = Z.Grid().Size();
@@ -508,7 +516,7 @@ AxpyInterface<T>::Attach( AxpyType axpyType, const DistMatrix<T,MC,MR>& X )
     else
     {
         _attachedForGlobalToLocal = true;
-        _X = &X;
+        _globalToLocalMat = &X;
     }
 
     const int p = X.Grid().Size();
@@ -569,7 +577,7 @@ AxpyInterface<T>::AxpyLocalToGlobal
     using namespace elemental::imports;
     using namespace elemental::utilities;
 
-    DistMatrix<T,MC,MR>& Y = *_Y;
+    DistMatrix<T,MC,MR>& Y = *_localToGlobalMat;
 
     const Grid& g = Y.Grid();
     const int r = g.Height();
@@ -664,7 +672,7 @@ AxpyInterface<T>::AxpyGlobalToLocal
     using namespace elemental::imports;
     using namespace elemental::utilities;
 
-    const DistMatrix<T,MC,MR>& X = *_X;
+    const DistMatrix<T,MC,MR>& X = *_globalToLocalMat;
 
     const int height = Y.Height();
     const int width = Y.Width();
@@ -795,7 +803,9 @@ AxpyInterface<T>::Detach()
         HandleEom();
     }
 
-    const Grid& g = ( _attachedForLocalToGlobal ? _Y->Grid() : _X->Grid() );
+    const Grid& g = ( _attachedForLocalToGlobal ? 
+                      _localToGlobalMat->Grid() : 
+                      _globalToLocalMat->Grid() );
     imports::mpi::Barrier( g.VCComm() );
 
     _attachedForLocalToGlobal = false;

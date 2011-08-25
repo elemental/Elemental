@@ -272,9 +272,9 @@ elemental::Grid::SetUpGrid()
     std::vector<int> ranks(_p);
     for( int i=0; i<_p; ++i )
         ranks[i] = i;
-    _VCToViewingMap.resize(_p);
+    _vectorColToViewingMap.resize(_p);
     mpi::GroupTranslateRanks
-    ( _owningGroup, _p, &ranks[0], _viewingGroup, &_VCToViewingMap[0] );
+    ( _owningGroup, _p, &ranks[0], _viewingGroup, &_vectorColToViewingMap[0] );
 
 #ifndef RELEASE
     PopCallStack();
