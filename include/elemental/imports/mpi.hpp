@@ -113,6 +113,9 @@ void Barrier( Comm comm );
 // Ensure that the request finishes before continuing
 void Wait( Request& request );
 
+// Test for completion
+int Test( Request& request );
+
 // Nonblocking test for message completion
 void IProbe
 ( int source, int tag, Comm comm, int& flag, Status& status );

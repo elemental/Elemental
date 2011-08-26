@@ -59,16 +59,24 @@ enum AxpyType { LOCAL_TO_GLOBAL, GLOBAL_TO_LOCAL };
 template<typename T>
 class AxpyInterface
 {   
-    static const int DATA_TAG=1, ACK_TAG=2, EOM_TAG=3, 
-                     DATA_REQUEST_TAG=4, DATA_REPLY_TAG=5;
+    static const int DATA_TAG=1, EOM_TAG=2, 
+                     DATA_REQUEST_TAG=3, DATA_REPLY_TAG=4;
 
     bool _attachedForLocalToGlobal, _attachedForGlobalToLocal;
     char _sendDummy, _recvDummy;
     DistMatrix<T,MC,MR>* _localToGlobalMat;
     const DistMatrix<T,MC,MR>* _globalToLocalMat;
 
-    std::vector<bool> _canSendTo, _haveEomFrom;
-    std::vector<std::vector<char> > _sendVectors, _recvVectors;
+    std::vector<bool> _sentEomTo, _haveEomFrom;
+    std::vector<std::vector<char> > _recvVectors;
+
+    std::vector<std::vector<std::vector<char> > >
+        _dataVectors, _requestVectors, _replyVectors;
+    std::vector<std::vector<bool> > 
+        _sendingData, _sendingRequest, _sendingReply;
+    std::vector<std::vector<imports::mpi::Request> > 
+        _dataSendRequests, _requestSendRequests, _replySendRequests;
+    std::vector<imports::mpi::Request> _eomSendRequests;
 
     struct LocalToGlobalHeader
     {
@@ -90,14 +98,21 @@ class AxpyInterface
     bool Finished();
 
     // Progress functions
-    void HandleAck();
-    void HandleEom();
+    void UpdateRequestStatuses();
+    void HandleEoms();
     void HandleLocalToGlobalData();
     void HandleGlobalToLocalRequest();
-    void SendEoms();
+    void StartSendingEoms();
+    void FinishSendingEoms();
 
     void AxpyLocalToGlobal( T alpha, const Matrix<T>& X, int i, int j );
     void AxpyGlobalToLocal( T alpha,       Matrix<T>& Y, int i, int j );
+
+    int ReadyForSend
+    ( int sendSize,
+      std::vector<std::vector<char> >& sendVectors,
+      std::vector<imports::mpi::Request>& requests, 
+      std::vector<bool>& requestStatuses );
 
 public:
     AxpyInterface( AxpyType axpyType, DistMatrix<T,MC,MR>& Z );
@@ -137,10 +152,7 @@ AxpyInterface<T>::Finished()
     bool finished = true; 
     for( int rank=0; rank<p; ++rank )
     {
-        // For every message we send, we should get an ACK back. Thus, 
-        // since we start our with _canSendTo set to 'true', it should
-        // end up that way as well.
-        if( !_canSendTo[rank] || !_haveEomFrom[rank] )
+        if( !_sentEomTo[rank] || !_haveEomFrom[rank] )
         {
             finished = false;
             break;
@@ -154,44 +166,57 @@ AxpyInterface<T>::Finished()
 
 template<typename T>
 void
-AxpyInterface<T>::HandleAck()
+AxpyInterface<T>::HandleEoms()
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::HandleAck");
-    if( !_attachedForLocalToGlobal && !_attachedForGlobalToLocal )
-        throw std::logic_error("Not attached!");
+    PushCallStack("AxpyInterface::HandleEoms");
 #endif
     const Grid& g = ( _attachedForLocalToGlobal ? 
                       _localToGlobalMat->Grid() : 
                       _globalToLocalMat->Grid() );
+    const int p = g.Size();
 
-    int haveAck;
-    imports::mpi::Status status;
-    imports::mpi::IProbe
-    ( imports::mpi::ANY_SOURCE, ACK_TAG, g.VCComm(), haveAck, status );
+    UpdateRequestStatuses();
 
-    if( haveAck )
+    // Try to progress our EOM sends
+    for( int i=0; i<p; ++i )
     {
-        const int source = status.MPI_SOURCE;
-        imports::mpi::Recv( &_recvDummy, 1, source, ACK_TAG, g.VCComm() );
-        _canSendTo[source] = true;
-        _sendVectors[source].clear();
+        if( !_sentEomTo[i] )
+        {
+            bool shouldSendEom = true;
+            for( int j=0; j<_sendingData[i].size(); ++j )
+            {
+                if( _sendingData[i][j] )
+                {
+                    shouldSendEom = false;
+                    break;
+                }
+            }
+            for( int j=0; j<_sendingRequest[i].size(); ++j )
+            {
+                if( !shouldSendEom || _sendingRequest[i][j] )
+                {
+                    shouldSendEom = false; 
+                    break;
+                }
+            }
+            for( int j=0; j<_sendingReply[i].size(); ++j )
+            {
+                if( !shouldSendEom || _sendingReply[i][j] )
+                {
+                    shouldSendEom = false;
+                    break;
+                }
+            }
+            if( shouldSendEom )
+            {
+                imports::mpi::Request& request = _eomSendRequests[i];
+                imports::mpi::ISSend
+                ( &_sendDummy, 1, i, EOM_TAG, g.VCComm(), request );
+                _sentEomTo[i] = true;
+            }
+        }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-AxpyInterface<T>::HandleEom()
-{
-#ifndef RELEASE
-    PushCallStack("AxpyInterface::HandleEom");
-#endif
-    const Grid& g = ( _attachedForLocalToGlobal ? 
-                      _localToGlobalMat->Grid() : 
-                      _globalToLocalMat->Grid() );
 
     int haveEom;
     imports::mpi::Status status;
@@ -271,10 +296,6 @@ AxpyInterface<T>::HandleLocalToGlobalData()
 
         // Free the memory for the recv buffer
         _recvVectors[source].clear();
-
-        // Send an ACK to the source
-        mpi::Request r;
-        mpi::ISSend( &_sendDummy, 1, source, ACK_TAG, g.VCComm(), r );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -312,10 +333,6 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
         ( &_recvVectors[source][0], sizeof(GlobalToLocalRequestHeader),
           source, DATA_REQUEST_TAG, g.VCComm() );
 
-        // Send ACK to let source know messages can be sent
-        mpi::Request request;
-        mpi::ISSend( &_sendDummy, 1, source, ACK_TAG, g.VCComm(), request );
-
         // Extract the header
         const char* recvBuffer = &_recvVectors[source][0];
         GlobalToLocalRequestHeader requestHeader;
@@ -343,11 +360,13 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
         const int bufferSize = 
             numEntries*sizeof(T) + sizeof(GlobalToLocalReplyHeader);
 
-        // Make sure we have a big enough buffer
-        _sendVectors[source].resize( bufferSize );
-        char* sendBuffer = &_sendVectors[source][0];
+        const int index = 
+            ReadyForSend
+            ( bufferSize, _replyVectors[source], 
+              _replySendRequests[source], _sendingReply[source] );
 
         // Pack the reply header
+        char* sendBuffer = &_replyVectors[source][index][0];
         std::memcpy
         ( sendBuffer, &replyHeader, sizeof(GlobalToLocalReplyHeader) );
 
@@ -362,33 +381,8 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
 
         // Fire off non-blocking send
         mpi::ISSend
-        ( sendBuffer, bufferSize, source, DATA_REPLY_TAG, g.VCComm(), request );
-
-        // 'source' is no longer waiting for a message
-        _canSendTo[source] = false;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-void
-AxpyInterface<T>::SendEoms()
-{
-#ifndef RELEASE
-    PushCallStack("AxpyInterface::SendEoms");
-#endif
-    const Grid& g = ( _attachedForLocalToGlobal ? 
-                      _localToGlobalMat->Grid() : 
-                      _globalToLocalMat->Grid() );
-    const int p = g.Size();
-
-    for( int rank=0; rank<p; ++rank )
-    {
-        imports::mpi::Request request;
-        imports::mpi::ISSend
-        ( &_sendDummy, 1, rank, EOM_TAG, g.VCComm(), request );
+        ( sendBuffer, bufferSize, source, DATA_REPLY_TAG, g.VCComm(), 
+          _replySendRequests[source][index] );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -423,10 +417,23 @@ AxpyInterface<T>::AxpyInterface( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
     }
 
     const int p = Z.Grid().Size();
-    _sendVectors.resize( p );
     _recvVectors.resize( p );
-    _canSendTo.resize( p, true );
+    _sentEomTo.resize( p, false );
     _haveEomFrom.resize( p, false );
+
+    _sendingData.resize( p );
+    _sendingRequest.resize( p );
+    _sendingReply.resize( p );
+
+    _dataVectors.resize( p );
+    _requestVectors.resize( p );
+    _replyVectors.resize( p );
+
+    _dataSendRequests.resize( p );
+    _requestSendRequests.resize( p );
+    _replySendRequests.resize( p );
+
+    _eomSendRequests.resize( p );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -452,10 +459,23 @@ AxpyInterface<T>::AxpyInterface
     }
 
     const int p = X.Grid().Size();
-    _sendVectors.resize( p );
     _recvVectors.resize( p );
-    _canSendTo.resize( p, true );
+    _sentEomTo.resize( p, false );
     _haveEomFrom.resize( p, false );
+
+    _sendingData.resize( p );
+    _sendingRequest.resize( p );
+    _sendingReply.resize( p );
+
+    _dataVectors.resize( p );
+    _requestVectors.resize( p );
+    _replyVectors.resize( p );
+
+    _dataSendRequests.resize( p );
+    _requestSendRequests.resize( p );
+    _replySendRequests.resize( p );
+
+    _eomSendRequests.resize( p );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -490,10 +510,24 @@ AxpyInterface<T>::Attach( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
     }
 
     const int p = Z.Grid().Size();
-    _sendVectors.resize( p );
-    _recvVectors.resize( p );
-    _canSendTo.resize( p, true );
+    _recvVectors.resize( p ); 
+
+    _sentEomTo.resize( p, false );
     _haveEomFrom.resize( p, false );
+
+    _sendingData.resize( p );
+    _sendingRequest.resize( p );
+    _sendingReply.resize( p );
+
+    _dataVectors.resize( p );
+    _requestVectors.resize( p );
+    _replyVectors.resize( p );
+
+    _dataSendRequests.resize( p );
+    _requestSendRequests.resize( p );
+    _replySendRequests.resize( p );
+
+    _eomSendRequests.resize( p );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -520,10 +554,24 @@ AxpyInterface<T>::Attach( AxpyType axpyType, const DistMatrix<T,MC,MR>& X )
     }
 
     const int p = X.Grid().Size();
-    _sendVectors.resize( p );
-    _recvVectors.resize( p );
-    _canSendTo.resize( p, true );
+    _recvVectors.resize( p ); 
+
+    _sentEomTo.resize( p, false );
     _haveEomFrom.resize( p, false );
+
+    _sendingData.resize( p );
+    _sendingRequest.resize( p );
+    _sendingReply.resize( p );
+
+    _dataVectors.resize( p );
+    _requestVectors.resize( p );
+    _replyVectors.resize( p );
+
+    _dataSendRequests.resize( p );
+    _requestSendRequests.resize( p );
+    _replySendRequests.resize( p );
+
+    _eomSendRequests.resize( p );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -599,7 +647,6 @@ AxpyInterface<T>::AxpyLocalToGlobal
     header.width = width;
     header.alpha = alpha;
 
-    std::vector<mpi::Request> requests(p);
     int receivingRow = myProcessRow;
     int receivingCol = myProcessCol;
     for( int step=0; step<p; ++step )
@@ -613,21 +660,16 @@ AxpyInterface<T>::AxpyLocalToGlobal
         if( numEntries != 0 )
         {
             const int destination = receivingRow + r*receivingCol;
-            while( !_canSendTo[destination] )
-            {
-                HandleLocalToGlobalData();
-                HandleAck();
-                HandleEom();
-            }
-
             const int bufferSize = 
                 sizeof(LocalToGlobalHeader) + numEntries*sizeof(T);
 
-            // Make sure we have a big enough buffer
-            _sendVectors[destination].resize( bufferSize );
+            const int index = 
+                ReadyForSend
+                ( bufferSize, _dataVectors[destination], 
+                  _dataSendRequests[destination], _sendingData[destination] );
 
             // Pack the header
-            char* sendBuffer = &_sendVectors[destination][0];
+            char* sendBuffer = &_dataVectors[destination][index][0];
             std::memcpy( sendBuffer, &header, sizeof(LocalToGlobalHeader) );
 
             // Pack the payload
@@ -644,11 +686,8 @@ AxpyInterface<T>::AxpyLocalToGlobal
 
             // Fire off the non-blocking send
             mpi::ISSend
-            ( sendBuffer, bufferSize, destination, 
-              DATA_TAG, g.VCComm(), requests[destination] );
-
-            // 'destination' is no longer ready for a message
-            _canSendTo[destination] = false;
+            ( sendBuffer, bufferSize, destination, DATA_TAG, g.VCComm(), 
+              _dataSendRequests[destination][index] );
         }
 
         receivingRow = (receivingRow + 1) % r;
@@ -683,7 +722,6 @@ AxpyInterface<T>::AxpyGlobalToLocal
     const int r = g.Height();
     const int c = g.Width();
     const int p = g.Size();
-    std::vector<mpi::Request> requests(p);
 
     // Fill the request header
     GlobalToLocalRequestHeader requestHeader;
@@ -695,28 +733,20 @@ AxpyInterface<T>::AxpyGlobalToLocal
     // Send out the requests to all processes in the grid
     for( int rank=0; rank<p; ++rank )
     {
-        while( !_canSendTo[rank] )
-        {
-            HandleGlobalToLocalRequest();
-            HandleAck();
-            HandleEom();
-        }
-
-        // Resize the vector and grab out the pointer
-        _sendVectors[rank].resize(sizeof(GlobalToLocalRequestHeader));
-        char* sendBuffer = &_sendVectors[rank][0];
+        const int bufferSize = sizeof(GlobalToLocalRequestHeader);
+        const int index = 
+            ReadyForSend
+            ( bufferSize, _requestVectors[rank], 
+              _requestSendRequests[rank], _sendingRequest[rank] );
 
         // Copy the request header into the send buffer
-        std::memcpy
-        ( sendBuffer, &requestHeader, sizeof(GlobalToLocalRequestHeader) );
+        char* sendBuffer = &_requestVectors[rank][index][0];
+        std::memcpy( sendBuffer, &requestHeader, bufferSize );
 
         // Begin the non-blocking send
         mpi::ISSend
-        ( sendBuffer, sizeof(GlobalToLocalRequestHeader),
-          rank, DATA_REQUEST_TAG, g.VCComm(), requests[rank] );
-
-        // That process is no longer ready for a message
-        _canSendTo[rank] = false;
+        ( sendBuffer, bufferSize, rank, DATA_REQUEST_TAG, g.VCComm(), 
+          _requestSendRequests[rank][index] );
     }
 
     // Receive all of the replies
@@ -724,8 +754,6 @@ AxpyInterface<T>::AxpyGlobalToLocal
     while( numReplies < p )
     {
         HandleGlobalToLocalRequest();
-        HandleAck();
-        HandleEom();
 
         int haveReply;
         mpi::Status status;
@@ -743,10 +771,6 @@ AxpyInterface<T>::AxpyGlobalToLocal
 
             // Receive the data
             mpi::Recv( recvBuffer, count, source, DATA_REPLY_TAG, g.VCComm() );
-
-            // Send an ACK to the source
-            mpi::Request request;
-            mpi::ISSend( &_sendDummy, 1, source, ACK_TAG, g.VCComm(), request );
 
             // Unpack the reply header
             GlobalToLocalReplyHeader replyHeader;
@@ -783,6 +807,85 @@ AxpyInterface<T>::AxpyGlobalToLocal
 }
 
 template<typename T>
+int
+AxpyInterface<T>::ReadyForSend
+( int sendSize,
+  std::vector<std::vector<char> >& sendVectors,
+  std::vector<imports::mpi::Request>& requests, 
+  std::vector<bool>& requestStatuses )
+{
+#ifndef RELEASE
+    PushCallStack("AxpyInterface::ReadyForSend");
+#endif
+    const int numCreated = sendVectors.size();
+#ifndef RELEASE
+    if( numCreated != requests.size() || numCreated != requestStatuses.size() )
+        throw std::logic_error("size mismatch");
+#endif
+    for( int i=0; i<numCreated; ++i )
+    {
+        // If this request is still running, test to see if it finished.
+        if( requestStatuses[i] )
+        {
+            const bool finished = imports::mpi::Test( requests[i] );
+            requestStatuses[i] = !finished;
+        }
+
+        if( !requestStatuses[i] )    
+        {
+            requestStatuses[i] = true;
+            sendVectors[i].resize( sendSize );
+#ifndef RELEASE
+            PopCallStack();
+#endif
+            return i;
+        }
+    }
+
+    sendVectors.resize( numCreated+1 );
+    sendVectors[numCreated].resize( sendSize );
+    requests.resize( numCreated+1 );
+    requestStatuses.push_back( true );
+
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return numCreated;
+}
+
+template<typename T>
+void
+AxpyInterface<T>::UpdateRequestStatuses()
+{
+#ifndef RELEASE
+    PushCallStack("AxpyInterface::UpdateRequestStatuses");
+#endif
+    const Grid& g = ( _attachedForLocalToGlobal ? 
+                      _localToGlobalMat->Grid() : 
+                      _globalToLocalMat->Grid() );
+    const int p = g.Size();
+
+    for( int i=0; i<p; ++i )
+    {
+        for( int j=0; j<_dataSendRequests[i].size(); ++j )
+            if( _sendingData[i][j] )
+                _sendingData[i][j] = 
+                    !imports::mpi::Test( _dataSendRequests[i][j] );
+        for( int j=0; j<_requestSendRequests[i].size(); ++j )
+            if( _sendingRequest[i][j] )
+                _sendingRequest[i][j] = 
+                    !imports::mpi::Test( _requestSendRequests[i][j] );
+        for( int j=0; j<_replySendRequests[i].size(); ++j )
+            if( _sendingReply[i][j] )
+                _sendingReply[i][j] = 
+                    !imports::mpi::Test( _replySendRequests[i][j] );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
 void
 AxpyInterface<T>::Detach()
 {
@@ -792,28 +895,40 @@ AxpyInterface<T>::Detach()
     if( !_attachedForLocalToGlobal && !_attachedForGlobalToLocal )
         throw std::logic_error("Must attach before detaching.");
 
-    SendEoms();
+    const Grid& g = ( _attachedForLocalToGlobal ? 
+                      _localToGlobalMat->Grid() : 
+                      _globalToLocalMat->Grid() );
+
     while( !Finished() )
     {
         if( _attachedForLocalToGlobal )
             HandleLocalToGlobalData();
         else
             HandleGlobalToLocalRequest();
-        HandleAck();
-        HandleEom();
+        HandleEoms();
     }
 
-    const Grid& g = ( _attachedForLocalToGlobal ? 
-                      _localToGlobalMat->Grid() : 
-                      _globalToLocalMat->Grid() );
     imports::mpi::Barrier( g.VCComm() );
 
     _attachedForLocalToGlobal = false;
     _attachedForGlobalToLocal = false;
-    _sendVectors.clear();
     _recvVectors.clear();
-    _canSendTo.clear();
+    _sentEomTo.clear();
     _haveEomFrom.clear();
+
+    _sendingData.clear();
+    _sendingRequest.clear();
+    _sendingReply.clear();
+
+    _dataVectors.clear();
+    _requestVectors.clear();
+    _replyVectors.clear();
+    
+    _dataSendRequests.clear();
+    _requestSendRequests.clear();
+    _replySendRequests.clear();
+
+    _eomSendRequests.clear();
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -118,11 +118,15 @@ elemental::advanced::LU
 #ifndef RELEASE
     PushCallStack("advanced::LU");
     if( A.Grid() != p.Grid() )
-        throw logic_error( "A and p must be distributed over the same grid." );
-    if( A.Height() != p.Height() ) 
-        throw logic_error( "A and p must be the same height." );
+        throw logic_error("A and p must be distributed over the same grid.");
+    if( p.Viewing() && 
+        (min(A.Height(),A.Width()) != p.Height() || p.Width() != 1) ) 
+        throw logic_error
+        ("p must be a vector of the same height as the min dimension of A.");
 #endif
     const Grid& g = A.Grid();
+    if( !p.Viewing() )
+        p.ResizeTo( min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     DistMatrix<F,MC,MR>

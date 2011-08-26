@@ -41,18 +41,17 @@ The vast majority of source files contain the following copyright notice::
 
 There are two important exceptions in the main library:
 
-    - The ``AxpyInterface`` for building distributed matrices is based upon 
-      contributions from Martin Schatz and the copyright is shared with the 
-      University of Texas at Austin.
-    - The code for computing Householder reflectors is based off of LAPACK 
-      and is also copyright The University of Tennessee.
+* The ``AxpyInterface`` for building distributed matrices is based upon 
+  contributions from Martin Schatz and the copyright is shared with The 
+  University of Texas at Austin.
+* The code for computing Householder reflectors is based off of LAPACK and is
+  also copyright The University of Tennessee.
 
 In addition, two libraries that Elemental depends upon are included in the 
 ``contrib/`` folder:
     
-    - The parallel tridiagonal eigensolver, PMRRR, is written by Matthias 
-      Petschow and Paolo Bientinesi and is copyright RWTH Aachen University.
-    - The parallel linear congruential pseudo-random number generator, PLCG, 
-      is copyright Jack Poulson, Lexing Ying, and The University of Texas at 
-      Austin.
+* The parallel tridiagonal eigensolver, PMRRR, is written by Matthias Petschow
+  and Paolo Bientinesi and is copyright RWTH Aachen University.
+* The parallel linear congruential pseudo-random number generator, PLCG, is
+  copyright Jack Poulson, Lexing Ying, and The University of Texas at Austin.
 

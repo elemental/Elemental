@@ -56,34 +56,41 @@ main( int argc, char* argv[] )
 
         Grid g( comm );
 
-        DistMatrix<double,MC,MR> A( m, n, g );
-        A.SetToZero();
-
-        AxpyInterface<double> interface;
-        interface.Attach( LOCAL_TO_GLOBAL, A );
-        Matrix<double> X( p, 1 );
-        for( int j=0; j<X.Width(); ++j )
-            for( int i=0; i<p; ++i )
-                X.Set(i,j,rank+1);
-        interface.Axpy( 1.0, X, 2*rank, rank );
-        interface.Axpy( 1.0, X, 2*rank, rank+1 );
-        interface.Detach();
-
-        interface.Attach( GLOBAL_TO_LOCAL, A );
-        Matrix<double> Y;
-        if( rank == 0 )
+        for( int k=0; k<50; ++k )
         {
-            Y.ResizeTo( m, n );
-            Y.SetToZero();
-            interface.Axpy( 1.0, Y, 0, 0 );
+            if( rank == 0 )
+                std::cout << "Iteration " << k << std::endl;
+
+            DistMatrix<double,MC,MR> A( m, n, g );
+            A.SetToZero();
+
+            AxpyInterface<double> interface;
+            interface.Attach( LOCAL_TO_GLOBAL, A );
+            Matrix<double> X( p, 1 );
+            for( int j=0; j<X.Width(); ++j )
+                for( int i=0; i<p; ++i )
+                    X.Set(i,j,rank+1);
+            interface.Axpy( 1.0, X, 2*rank, rank );
+            interface.Axpy( 1.0, X, 2*rank, rank+1 );
+            interface.Detach();
+
+            //A.Print("A");
+
+            interface.Attach( GLOBAL_TO_LOCAL, A );
+            Matrix<double> Y;
+            if( rank == 0 )
+            {
+                Y.ResizeTo( m, n );
+                Y.SetToZero();
+                interface.Axpy( 1.0, Y, 0, 0 );
+            }
+            interface.Detach();
+
+            //if( rank == 0 )
+            //    Y.Print( "Copy of global matrix on root process:" );
+
+            // TODO: Check to ensure that the result is correct
         }
-        interface.Detach();
-
-        A.Print("A");
-        if( rank == 0 )
-            Y.Print( "Copy of global matrix on root process:" );
-
-        // TODO: Check to ensure that the result is correct
     }
     catch( exception& e )
     {

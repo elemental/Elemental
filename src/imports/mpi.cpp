@@ -376,6 +376,22 @@ elemental::imports::mpi::Barrier( mpi::Comm comm )
 #endif
 }
 
+// Test for completion
+int
+elemental::imports::mpi::Test( mpi::Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("imports::mpi::Test");
+#endif
+    MPI_Status status;
+    int flag;
+    SafeMpi( MPI_Test( &request, &flag, &status ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return flag;
+}
+
 // Ensure that the request finishes before continuing
 void
 elemental::imports::mpi::Wait( mpi::Request& request )
