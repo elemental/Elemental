@@ -74,7 +74,7 @@ main( int argc, char* argv[] )
             interface.Axpy( 1.0, X, 2*rank, rank+1 );
             interface.Detach();
 
-            //A.Print("A");
+            A.Print("A");
 
             interface.Attach( GLOBAL_TO_LOCAL, A );
             Matrix<double> Y;
@@ -86,8 +86,8 @@ main( int argc, char* argv[] )
             }
             interface.Detach();
 
-            //if( rank == 0 )
-            //    Y.Print( "Copy of global matrix on root process:" );
+            if( rank == 0 )
+                Y.Print( "Copy of global matrix on root process:" );
 
             // TODO: Check to ensure that the result is correct
         }

@@ -68,7 +68,8 @@ class AxpyInterface
     const DistMatrix<T,MC,MR>* _globalToLocalMat;
 
     std::vector<bool> _sentEomTo, _haveEomFrom;
-    std::vector<std::vector<char> > _recvVectors;
+    std::vector<char> _recvVector;
+    std::vector<imports::mpi::Request> _eomSendRequests;
 
     std::vector<std::vector<std::vector<char> > >
         _dataVectors, _requestVectors, _replyVectors;
@@ -76,7 +77,6 @@ class AxpyInterface
         _sendingData, _sendingRequest, _sendingReply;
     std::vector<std::vector<imports::mpi::Request> > 
         _dataSendRequests, _requestSendRequests, _replySendRequests;
-    std::vector<imports::mpi::Request> _eomSendRequests;
 
     struct LocalToGlobalHeader
     {
@@ -136,7 +136,7 @@ public:
 //----------------------------------------------------------------------------//
 
 template<typename T>
-bool
+inline bool
 AxpyInterface<T>::Finished()
 {
 #ifndef RELEASE
@@ -165,7 +165,7 @@ AxpyInterface<T>::Finished()
 }
 
 template<typename T>
-void
+inline void
 AxpyInterface<T>::HandleEoms()
 {
 #ifndef RELEASE
@@ -235,7 +235,7 @@ AxpyInterface<T>::HandleEoms()
 }
 
 template<typename T>
-void
+inline void
 AxpyInterface<T>::HandleLocalToGlobalData()
 {
 #ifndef RELEASE
@@ -260,18 +260,25 @@ AxpyInterface<T>::HandleLocalToGlobalData()
         // Message exists, so recv and pack    
         const int count = mpi::GetCount<char>( status );
         const int source = status.MPI_SOURCE;
-        _recvVectors[source].resize( count );
-        mpi::Recv
-        ( &_recvVectors[source][0], count, source, DATA_TAG, g.VCComm() );
+        _recvVector.resize( count );
+        char* recvBuffer = &_recvVector[0];
+        mpi::Recv( recvBuffer, count, source, DATA_TAG, g.VCComm() );
 
         // Extract the header
-        const char* recvBuffer = &_recvVectors[source][0];
         LocalToGlobalHeader header;
         std::memcpy( &header, recvBuffer, sizeof(LocalToGlobalHeader) );
         const int i = header.i;
         const int j = header.j;
         const int height = header.height;
         const int width = header.width;
+#ifndef RELEASE
+        if( height < 0 || width < 0 )
+            throw std::logic_error("Unpacked heights were negative");
+        if( i < 0 || j < 0 )
+            throw std::logic_error("Offsets must be non-negative");
+        if( i+height > Y.Height() || j+width > Y.Width() )
+            throw std::logic_error("Submatrix out of bounds of global matrix");
+#endif
 
         // Update Y
         const T* XBuffer = (const T*)&recvBuffer[sizeof(LocalToGlobalHeader)];
@@ -295,7 +302,7 @@ AxpyInterface<T>::HandleLocalToGlobalData()
         }
 
         // Free the memory for the recv buffer
-        _recvVectors[source].clear();
+        _recvVector.clear();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -303,7 +310,7 @@ AxpyInterface<T>::HandleLocalToGlobalData()
 }
     
 template<typename T>
-void
+inline void
 AxpyInterface<T>::HandleGlobalToLocalRequest()
 {
 #ifndef RELEASE
@@ -328,13 +335,13 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
     {
         // Request exists, so recv
         const int source = status.MPI_SOURCE;
-        _recvVectors[source].resize( sizeof(GlobalToLocalRequestHeader) );
+        _recvVector.resize( sizeof(GlobalToLocalRequestHeader) );
+        char* recvBuffer = &_recvVector[0];
         mpi::Recv
-        ( &_recvVectors[source][0], sizeof(GlobalToLocalRequestHeader),
+        ( recvBuffer, sizeof(GlobalToLocalRequestHeader),
           source, DATA_REQUEST_TAG, g.VCComm() );
 
         // Extract the header
-        const char* recvBuffer = &_recvVectors[source][0];
         GlobalToLocalRequestHeader requestHeader;
         std::memcpy
         ( &requestHeader, recvBuffer, sizeof(GlobalToLocalRequestHeader) );
@@ -390,12 +397,14 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
 }
 
 template<typename T>
+inline
 AxpyInterface<T>::AxpyInterface()
 : _attachedForLocalToGlobal(false), _attachedForGlobalToLocal(false), 
   _localToGlobalMat(0), _globalToLocalMat(0)
 { }
 
 template<typename T>
+inline
 AxpyInterface<T>::AxpyInterface( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
@@ -417,7 +426,6 @@ AxpyInterface<T>::AxpyInterface( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
     }
 
     const int p = Z.Grid().Size();
-    _recvVectors.resize( p );
     _sentEomTo.resize( p, false );
     _haveEomFrom.resize( p, false );
 
@@ -440,6 +448,7 @@ AxpyInterface<T>::AxpyInterface( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
 }
 
 template<typename T>
+inline
 AxpyInterface<T>::AxpyInterface
 ( AxpyType axpyType, const DistMatrix<T,MC,MR>& X )
 {
@@ -459,7 +468,6 @@ AxpyInterface<T>::AxpyInterface
     }
 
     const int p = X.Grid().Size();
-    _recvVectors.resize( p );
     _sentEomTo.resize( p, false );
     _haveEomFrom.resize( p, false );
 
@@ -482,6 +490,7 @@ AxpyInterface<T>::AxpyInterface
 }
 
 template<typename T>
+inline
 AxpyInterface<T>::~AxpyInterface()
 { 
     if( _attachedForLocalToGlobal || _attachedForGlobalToLocal )
@@ -512,7 +521,7 @@ AxpyInterface<T>::~AxpyInterface()
 }
 
 template<typename T>
-void
+inline void
 AxpyInterface<T>::Attach( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
@@ -533,8 +542,6 @@ AxpyInterface<T>::Attach( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
     }
 
     const int p = Z.Grid().Size();
-    _recvVectors.resize( p ); 
-
     _sentEomTo.resize( p, false );
     _haveEomFrom.resize( p, false );
 
@@ -557,7 +564,7 @@ AxpyInterface<T>::Attach( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
 }
 
 template<typename T>
-void
+inline void
 AxpyInterface<T>::Attach( AxpyType axpyType, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
@@ -577,8 +584,6 @@ AxpyInterface<T>::Attach( AxpyType axpyType, const DistMatrix<T,MC,MR>& X )
     }
 
     const int p = X.Grid().Size();
-    _recvVectors.resize( p ); 
-
     _sentEomTo.resize( p, false );
     _haveEomFrom.resize( p, false );
 
@@ -601,7 +606,7 @@ AxpyInterface<T>::Attach( AxpyType axpyType, const DistMatrix<T,MC,MR>& X )
 }
 
 template<typename T>
-void 
+inline void 
 AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, int i, int j )
 {
 #ifndef RELEASE
@@ -619,7 +624,7 @@ AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, int i, int j )
 }
 
 template<typename T>
-void 
+inline void 
 AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, int i, int j )
 {
 #ifndef RELEASE
@@ -638,7 +643,7 @@ AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, int i, int j )
 
 // Update Y(i:i+height-1,j:j+width-1) += alpha X, where X is height x width
 template<typename T>
-void
+inline void
 AxpyInterface<T>::AxpyLocalToGlobal
 ( T alpha, const Matrix<T>& X, int i, int j )
 {
@@ -649,6 +654,10 @@ AxpyInterface<T>::AxpyLocalToGlobal
     using namespace elemental::utilities;
 
     DistMatrix<T,MC,MR>& Y = *_localToGlobalMat;
+    if( i < 0 || j < 0 )
+        throw std::logic_error("Submatrix offsets must be non-negative");
+    if( i+X.Height() > Y.Height() || j+X.Width() > Y.Width() )
+        throw std::logic_error("Submatrix out of bounds of global matrix");
 
     const Grid& g = Y.Grid();
     const int r = g.Height();
@@ -724,7 +733,7 @@ AxpyInterface<T>::AxpyLocalToGlobal
 
 // Update Y += alpha X(i:i+height-1,j:j+width-1), where X is the dist-matrix
 template<typename T>
-void
+inline void
 AxpyInterface<T>::AxpyGlobalToLocal
 ( T alpha, Matrix<T>& Y, int i, int j )
 {
@@ -789,8 +798,8 @@ AxpyInterface<T>::AxpyGlobalToLocal
 
             // Ensure that we have a recv buffer
             const int count = mpi::GetCount<char>( status );
-            _recvVectors[source].resize( count );
-            char* recvBuffer = &_recvVectors[source][0];
+            _recvVector.resize( count );
+            char* recvBuffer = &_recvVector[0];
 
             // Receive the data
             mpi::Recv( recvBuffer, count, source, DATA_REPLY_TAG, g.VCComm() );
@@ -830,7 +839,7 @@ AxpyInterface<T>::AxpyGlobalToLocal
 }
 
 template<typename T>
-int
+inline int
 AxpyInterface<T>::ReadyForSend
 ( int sendSize,
   std::vector<std::vector<char> >& sendVectors,
@@ -877,7 +886,7 @@ AxpyInterface<T>::ReadyForSend
 }
 
 template<typename T>
-void
+inline void
 AxpyInterface<T>::UpdateRequestStatuses()
 {
 #ifndef RELEASE
@@ -909,7 +918,7 @@ AxpyInterface<T>::UpdateRequestStatuses()
 }
 
 template<typename T>
-void
+inline void
 AxpyInterface<T>::Detach()
 {
 #ifndef RELEASE    
@@ -935,7 +944,7 @@ AxpyInterface<T>::Detach()
 
     _attachedForLocalToGlobal = false;
     _attachedForGlobalToLocal = false;
-    _recvVectors.clear();
+    _recvVector.clear();
     _sentEomTo.clear();
     _haveEomFrom.clear();
 
