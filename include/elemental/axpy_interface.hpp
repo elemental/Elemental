@@ -485,7 +485,30 @@ template<typename T>
 AxpyInterface<T>::~AxpyInterface()
 { 
     if( _attachedForLocalToGlobal || _attachedForGlobalToLocal )
-        Detach();
+    {
+        if( std::uncaught_exception() )
+        {
+           const Grid& g = ( _attachedForLocalToGlobal ? 
+                             _localToGlobalMat->Grid() : 
+                             _globalToLocalMat->Grid() );
+           std::ostringstream os;
+           os << g.VCRank()
+              << "Uncaught exception detected during AxpyInterface destructor "
+                 "that required a call to Detach. Instead of allowing for the "
+                 "possibility of Detach throwing another exception and "
+                 "resulting in a 'terminate', we instead immediately dump the "
+                 "call stack (if not in RELEASE mode) since the program will "
+                 "likely hang:" << std::endl;
+           std::cerr << os.str();
+#ifndef RELEASE
+           DumpCallStack();
+#endif
+        }
+        else
+        {
+            Detach(); 
+        }
+    }
 }
 
 template<typename T>
