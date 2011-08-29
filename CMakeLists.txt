@@ -81,10 +81,10 @@ mark_as_advanced(
 option(AVOID_OMP_FMA "Avoid a bug in the IBM compilers." ON)
 mark_as_advanced(AVOID_OMP_FMA)
 
-# Treat the data for MPI_Allgather as char's in order to avoid known performance
-# bugs
-option(USE_CHAR_ALLGATHERS "Avoid BG/P Allgather performance bug." ON)
-mark_as_advanced(USE_CHAR_ALLGATHERS)
+# Treat the data for MPI_Allgather as unsigned char's in order to avoid known 
+# performance bugs
+option(USE_BYTE_ALLGATHERS "Avoid BG/P Allgather performance bug." ON)
+mark_as_advanced(USE_BYTE_ALLGATHERS)
 
 # Choose whether or not to build the prototype for the C interface
 option(BUILD_C_INTERFACE "Build the prototype for the C interface" OFF)

@@ -70,8 +70,11 @@ main( int argc, char* argv[] )
             for( int j=0; j<X.Width(); ++j )
                 for( int i=0; i<p; ++i )
                     X.Set(i,j,rank+1);
-            interface.Axpy( 1.0, X, 2*rank, rank );
-            interface.Axpy( 1.0, X, 2*rank, rank+1 );
+            for( int i=0; i<5; ++i )
+            {
+                interface.Axpy( 2, X, 2*rank, rank );
+                interface.Axpy( 2, X, 2*rank, rank+1 );
+            }
             interface.Detach();
 
             A.Print("A");

@@ -74,8 +74,8 @@ elemental::advanced::internal::PanelLU
 
     const int width = A.Width();
     const int numBytes = (width+1)*sizeof(F)+sizeof(int);
-    vector<char> sendData(numBytes);
-    vector<char> recvData(numBytes);
+    vector<byte> sendData(numBytes);
+    vector<byte> recvData(numBytes);
 
     // Extract pointers to send and recv data
     F* sendBufFloat = (F*) &sendData[0];

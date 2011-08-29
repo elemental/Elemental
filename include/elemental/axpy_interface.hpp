@@ -63,36 +63,20 @@ class AxpyInterface
                      DATA_REQUEST_TAG=3, DATA_REPLY_TAG=4;
 
     bool _attachedForLocalToGlobal, _attachedForGlobalToLocal;
-    char _sendDummy, _recvDummy;
+    byte _sendDummy, _recvDummy;
     DistMatrix<T,MC,MR>* _localToGlobalMat;
     const DistMatrix<T,MC,MR>* _globalToLocalMat;
 
     std::vector<bool> _sentEomTo, _haveEomFrom;
-    std::vector<char> _recvVector;
+    std::vector<byte> _recvVector;
     std::vector<imports::mpi::Request> _eomSendRequests;
 
-    std::vector<std::vector<std::vector<char> > >
+    std::vector<std::deque<std::vector<byte> > >
         _dataVectors, _requestVectors, _replyVectors;
-    std::vector<std::vector<bool> > 
+    std::vector<std::deque<bool> > 
         _sendingData, _sendingRequest, _sendingReply;
-    std::vector<std::vector<imports::mpi::Request> > 
+    std::vector<std::deque<imports::mpi::Request> > 
         _dataSendRequests, _requestSendRequests, _replySendRequests;
-
-    struct LocalToGlobalHeader
-    {
-        int i, j, height, width;
-        T alpha;
-    };
-
-    struct GlobalToLocalRequestHeader
-    {
-        int i, j, height, width;
-    };
-
-    struct GlobalToLocalReplyHeader
-    {
-        int processRow, processCol;
-    };
 
     // Check if we are done with this attachment's work
     bool Finished();
@@ -110,9 +94,9 @@ class AxpyInterface
 
     int ReadyForSend
     ( int sendSize,
-      std::vector<std::vector<char> >& sendVectors,
-      std::vector<imports::mpi::Request>& requests, 
-      std::vector<bool>& requestStatuses );
+      std::deque<std::vector<byte> >& sendVectors,
+      std::deque<imports::mpi::Request>& requests, 
+      std::deque<bool>& requestStatuses );
 
 public:
     AxpyInterface( AxpyType axpyType, DistMatrix<T,MC,MR>& Z );
@@ -258,30 +242,72 @@ AxpyInterface<T>::HandleLocalToGlobalData()
     if( haveData )
     {
         // Message exists, so recv and pack    
-        const int count = mpi::GetCount<char>( status );
+        const int count = mpi::GetCount<byte>( status );
+#ifndef RELEASE
+        if( count < 4*sizeof(int)+sizeof(T) )
+            throw std::logic_error("Count was too small");
+#endif
         const int source = status.MPI_SOURCE;
         _recvVector.resize( count );
-        char* recvBuffer = &_recvVector[0];
+        byte* recvBuffer = &_recvVector[0];
         mpi::Recv( recvBuffer, count, source, DATA_TAG, g.VCComm() );
 
         // Extract the header
-        LocalToGlobalHeader header;
-        std::memcpy( &header, recvBuffer, sizeof(LocalToGlobalHeader) );
-        const int i = header.i;
-        const int j = header.j;
-        const int height = header.height;
-        const int width = header.width;
+        byte* head = recvBuffer;
+        const int i = *reinterpret_cast<const int*>(head); 
+        head += sizeof(int);
+        const int j = *reinterpret_cast<const int*>(head); 
+        head += sizeof(int);
+        const int height = *reinterpret_cast<const int*>(head); 
+        head += sizeof(int);
+        const int width = *reinterpret_cast<const int*>(head); 
+        head += sizeof(int);
+        const T alpha = *reinterpret_cast<const T*>(head); 
+        head += sizeof(T);
 #ifndef RELEASE
         if( height < 0 || width < 0 )
-            throw std::logic_error("Unpacked heights were negative");
+        {
+            std::ostringstream os;
+            os << "Unpacked heights were negative:\n"
+               << "  i=     " << i << std::hex << "(" << i << ")\n" << std::dec
+               << "  j=     " << j << std::hex << "(" << j << ")\n" << std::dec
+               << "  height=" << height << std::hex << "(" << height << ")\n"
+                              << std::dec
+               << "  width= " << width << std::hex << "(" << width << ")\n"
+                              << std::dec
+               << "  alpha= " << alpha  << std::endl;
+            throw std::runtime_error( os.str().c_str() );
+        }
         if( i < 0 || j < 0 )
-            throw std::logic_error("Offsets must be non-negative");
+        {
+            std::ostringstream os;
+            os << "Unpacked offsets were negative:\n"
+               << "  i=     " << i << std::hex << "(" << i << ")\n" << std::dec
+               << "  j=     " << j << std::hex << "(" << j << ")\n" << std::dec
+               << "  height=" << height << std::hex << "(" << height << ")\n"
+                              << std::dec
+               << "  width= " << width << std::hex << "(" << width << ")\n"
+                              << std::dec
+               << "  alpha= " << alpha  << std::endl;
+            throw std::runtime_error( os.str().c_str() );
+        }
         if( i+height > Y.Height() || j+width > Y.Width() )
-            throw std::logic_error("Submatrix out of bounds of global matrix");
+        {
+            std::ostringstream os;
+            os << "Unpacked submatrix was out of bounds:\n"
+               << "  i=     " << i << std::hex << "(" << i << ")\n" << std::dec
+               << "  j=     " << j << std::hex << "(" << j << ")\n" << std::dec
+               << "  height=" << height << std::hex << "(" << height << ")\n"
+                              << std::dec
+               << "  width= " << width << std::hex << "(" << width << ")\n"
+                              << std::dec
+               << "  alpha= " << alpha  << std::endl;
+            throw std::runtime_error( os.str().c_str() );
+        }
 #endif
 
         // Update Y
-        const T* XBuffer = (const T*)&recvBuffer[sizeof(LocalToGlobalHeader)];
+        const T* XBuffer = reinterpret_cast<const T*>(head);
         const int colAlignment = (Y.ColAlignment()+i) % r;
         const int rowAlignment = (Y.RowAlignment()+j) % c;
         const int colShift = Shift( myRow, colAlignment, r );
@@ -289,10 +315,9 @@ AxpyInterface<T>::HandleLocalToGlobalData()
 
         const int localHeight = LocalLength( height, colShift, r );
         const int localWidth = LocalLength( width, rowShift, c );
-        const int iLocalOffset = LocalLength( header.i, Y.ColShift(), r );
-        const int jLocalOffset = LocalLength( header.j, Y.RowShift(), c );
+        const int iLocalOffset = LocalLength( i, Y.ColShift(), r );
+        const int jLocalOffset = LocalLength( j, Y.RowShift(), c );
 
-        const T alpha = header.alpha;
         for( int t=0; t<localWidth; ++t )
         {
             T* YCol = Y.LocalBuffer(iLocalOffset,jLocalOffset+t);
@@ -335,20 +360,21 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
     {
         // Request exists, so recv
         const int source = status.MPI_SOURCE;
-        _recvVector.resize( sizeof(GlobalToLocalRequestHeader) );
-        char* recvBuffer = &_recvVector[0];
+        _recvVector.resize( 4*sizeof(int) );
+        byte* recvBuffer = &_recvVector[0];
         mpi::Recv
-        ( recvBuffer, sizeof(GlobalToLocalRequestHeader),
-          source, DATA_REQUEST_TAG, g.VCComm() );
+        ( recvBuffer, 4*sizeof(int), source, DATA_REQUEST_TAG, g.VCComm() );
 
         // Extract the header
-        GlobalToLocalRequestHeader requestHeader;
-        std::memcpy
-        ( &requestHeader, recvBuffer, sizeof(GlobalToLocalRequestHeader) );
-        const int i = requestHeader.i;
-        const int j = requestHeader.j;
-        const int height = requestHeader.height;
-        const int width = requestHeader.width;
+        const byte* recvHead = recvBuffer;
+        const int i = *reinterpret_cast<const int*>(recvHead); 
+        recvHead += sizeof(int);
+        const int j = *reinterpret_cast<const int*>(recvHead);
+        recvHead += sizeof(int);
+        const int height = *reinterpret_cast<const int*>(recvHead);
+        recvHead += sizeof(int);
+        const int width = *reinterpret_cast<const int*>(recvHead);
+        recvHead += sizeof(int);
 
         const int colAlignment = (X.ColAlignment()+i) % r;
         const int rowAlignment = (X.RowAlignment()+j) % c;
@@ -361,24 +387,20 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
         const int localWidth = LocalLength( width, rowShift, c );
         const int numEntries = localHeight*localWidth;
 
-        GlobalToLocalReplyHeader replyHeader;
-        replyHeader.processRow = myRow;
-        replyHeader.processCol = myCol;
-        const int bufferSize = 
-            numEntries*sizeof(T) + sizeof(GlobalToLocalReplyHeader);
-
+        const int bufferSize = 2*sizeof(int) + numEntries*sizeof(T);
         const int index = 
             ReadyForSend
             ( bufferSize, _replyVectors[source], 
               _replySendRequests[source], _sendingReply[source] );
 
         // Pack the reply header
-        char* sendBuffer = &_replyVectors[source][index][0];
-        std::memcpy
-        ( sendBuffer, &replyHeader, sizeof(GlobalToLocalReplyHeader) );
+        byte* sendBuffer = &_replyVectors[source][index][0];
+        byte* sendHead = sendBuffer;
+        *reinterpret_cast<int*>(sendHead) = myRow; sendHead += sizeof(int);
+        *reinterpret_cast<int*>(sendHead) = myCol; sendHead += sizeof(int);
 
         // Pack the payload
-        T* sendData = (T*)&sendBuffer[sizeof(GlobalToLocalReplyHeader)];
+        T* sendData = reinterpret_cast<T*>(sendHead);
         for( int t=0; t<localWidth; ++t )
         {
             T* sendCol = &sendData[t*localHeight];
@@ -671,14 +693,6 @@ AxpyInterface<T>::AxpyLocalToGlobal
     const int height = X.Height();
     const int width = X.Width();
 
-    // Fill the header
-    LocalToGlobalHeader header;
-    header.i = i;
-    header.j = j;
-    header.height = height;
-    header.width = width;
-    header.alpha = alpha;
-
     int receivingRow = myProcessRow;
     int receivingCol = myProcessCol;
     for( int step=0; step<p; ++step )
@@ -692,20 +706,28 @@ AxpyInterface<T>::AxpyLocalToGlobal
         if( numEntries != 0 )
         {
             const int destination = receivingRow + r*receivingCol;
-            const int bufferSize = 
-                sizeof(LocalToGlobalHeader) + numEntries*sizeof(T);
+            const int bufferSize = 4*sizeof(int) + (numEntries+1)*sizeof(T);
 
             const int index = 
                 ReadyForSend
                 ( bufferSize, _dataVectors[destination], 
                   _dataSendRequests[destination], _sendingData[destination] );
+#ifndef RELEASE
+            if( _dataVectors[destination][index].size() != bufferSize )
+                throw std::logic_error("Error in ReadyForSend");
+#endif
 
             // Pack the header
-            char* sendBuffer = &_dataVectors[destination][index][0];
-            std::memcpy( sendBuffer, &header, sizeof(LocalToGlobalHeader) );
+            byte* sendBuffer = &_dataVectors[destination][index][0];
+            byte* head = sendBuffer;
+            *reinterpret_cast<int*>(head) = i; head += sizeof(int);
+            *reinterpret_cast<int*>(head) = j; head += sizeof(int);
+            *reinterpret_cast<int*>(head) = height; head += sizeof(int);
+            *reinterpret_cast<int*>(head) = width; head += sizeof(int);
+            *reinterpret_cast<T*>(head) = alpha; head += sizeof(T);
 
             // Pack the payload
-            T* sendData = (T*)&sendBuffer[sizeof(LocalToGlobalHeader)];
+            T* sendData = reinterpret_cast<T*>(head);
             const T* XBuffer = X.LockedBuffer();
             const int XLDim = X.LDim();
             for( int t=0; t<localWidth; ++t )
@@ -755,25 +777,22 @@ AxpyInterface<T>::AxpyGlobalToLocal
     const int c = g.Width();
     const int p = g.Size();
 
-    // Fill the request header
-    GlobalToLocalRequestHeader requestHeader;
-    requestHeader.i = i;
-    requestHeader.j = j;
-    requestHeader.height = height;
-    requestHeader.width = width;
-
     // Send out the requests to all processes in the grid
     for( int rank=0; rank<p; ++rank )
     {
-        const int bufferSize = sizeof(GlobalToLocalRequestHeader);
+        const int bufferSize = 4*sizeof(int);
         const int index = 
             ReadyForSend
             ( bufferSize, _requestVectors[rank], 
               _requestSendRequests[rank], _sendingRequest[rank] );
 
         // Copy the request header into the send buffer
-        char* sendBuffer = &_requestVectors[rank][index][0];
-        std::memcpy( sendBuffer, &requestHeader, bufferSize );
+        byte* sendBuffer = &_requestVectors[rank][index][0];
+        byte* head = sendBuffer;
+        *reinterpret_cast<int*>(head) = i; head += sizeof(int);
+        *reinterpret_cast<int*>(head) = j; head += sizeof(int);
+        *reinterpret_cast<int*>(head) = height; head += sizeof(int);
+        *reinterpret_cast<int*>(head) = width; head += sizeof(int);
 
         // Begin the non-blocking send
         mpi::ISSend
@@ -797,21 +816,20 @@ AxpyInterface<T>::AxpyGlobalToLocal
             const int source = status.MPI_SOURCE;
 
             // Ensure that we have a recv buffer
-            const int count = mpi::GetCount<char>( status );
+            const int count = mpi::GetCount<byte>( status );
             _recvVector.resize( count );
-            char* recvBuffer = &_recvVector[0];
+            byte* recvBuffer = &_recvVector[0];
 
             // Receive the data
             mpi::Recv( recvBuffer, count, source, DATA_REPLY_TAG, g.VCComm() );
 
             // Unpack the reply header
-            GlobalToLocalReplyHeader replyHeader;
-            std::memcpy
-            ( &replyHeader, recvBuffer, sizeof(GlobalToLocalReplyHeader) );
-            const int row = replyHeader.processRow;
-            const int col = replyHeader.processCol;
-            const T* recvData = 
-                (const T*)&recvBuffer[sizeof(GlobalToLocalReplyHeader)];
+            const byte* head = recvBuffer;
+            const int row = *reinterpret_cast<const int*>(head); 
+            head += sizeof(int);
+            const int col = *reinterpret_cast<const int*>(head); 
+            head += sizeof(int);
+            const T* recvData = reinterpret_cast<const T*>(head);
 
             // Compute the local heights and offsets
             const int colAlignment = (X.ColAlignment()+i) % r;
@@ -842,13 +860,15 @@ template<typename T>
 inline int
 AxpyInterface<T>::ReadyForSend
 ( int sendSize,
-  std::vector<std::vector<char> >& sendVectors,
-  std::vector<imports::mpi::Request>& requests, 
-  std::vector<bool>& requestStatuses )
+  std::deque<std::vector<byte> >& sendVectors,
+  std::deque<imports::mpi::Request>& requests, 
+  std::deque<bool>& requestStatuses )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::ReadyForSend");
 #endif
+    const int commRank = imports::mpi::CommRank( imports::mpi::COMM_WORLD );
+
     const int numCreated = sendVectors.size();
 #ifndef RELEASE
     if( numCreated != requests.size() || numCreated != requestStatuses.size() )
@@ -876,7 +896,7 @@ AxpyInterface<T>::ReadyForSend
 
     sendVectors.resize( numCreated+1 );
     sendVectors[numCreated].resize( sendSize );
-    requests.resize( numCreated+1 );
+    requests.push_back( imports::mpi::REQUEST_NULL );
     requestStatuses.push_back( true );
 
 #ifndef RELEASE

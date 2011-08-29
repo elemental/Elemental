@@ -59,6 +59,7 @@ const Comm COMM_WORLD = MPI_COMM_WORLD;
 const ErrorHandler ERRORS_RETURN = MPI_ERRORS_RETURN;
 const ErrorHandler ERRORS_ARE_FATAL = MPI_ERRORS_ARE_FATAL;
 const Group GROUP_EMPTY = MPI_GROUP_EMPTY;
+const Request REQUEST_NULL = MPI_REQUEST_NULL;
 const Op MAX = MPI_MAX;
 const Op SUM = MPI_SUM;
 
@@ -123,7 +124,7 @@ void IProbe
 template<typename T>
 int GetCount( Status& status );
 
-template<> int GetCount<char>( Status& status );
+template<> int GetCount<byte>( Status& status );
 template<> int GetCount<int>( Status& status );
 template<> int GetCount<float>( Status& status );
 template<> int GetCount<double>( Status& status );
@@ -134,13 +135,13 @@ template<> int GetCount<dcomplex>( Status& status );
 
 void
 Send
-( const char* buf, int count, int to, int tag, Comm comm );
+( const byte* buf, int count, int to, int tag, Comm comm );
 void
 ISend
-( const char* buf, int count, int to, int tag, Comm comm, Request& request );
+( const byte* buf, int count, int to, int tag, Comm comm, Request& request );
 void
 ISSend
-( const char* buf, int count, int to, int tag, Comm comm, Request& request );
+( const byte* buf, int count, int to, int tag, Comm comm, Request& request );
 
 void
 Send
@@ -200,10 +201,10 @@ ISSend
  
 void
 Recv
-( char* buf, int count, int from, int tag, Comm comm );
+( byte* buf, int count, int from, int tag, Comm comm );
 void
 IRecv
-( char* buf, int count, int from, int tag, Comm comm, Request& request );
+( byte* buf, int count, int from, int tag, Comm comm, Request& request );
        
 void
 Recv
@@ -244,8 +245,8 @@ IRecv
 
 void
 SendRecv
-( const char* sbuf, int sc, int to,   int stag,
-        char* rbuf, int rc, int from, int rtag, Comm comm );
+( const byte* sbuf, int sc, int to,   int stag,
+        byte* rbuf, int rc, int from, int rtag, Comm comm );
 
 void
 SendRecv
@@ -275,7 +276,7 @@ SendRecv
 #endif
 
 void
-Broadcast( char* buf, int count, int root, Comm comm );
+Broadcast( byte* buf, int count, int root, Comm comm );
 
 void
 Broadcast( int* buf, int count, int root, Comm comm );
@@ -298,8 +299,8 @@ Broadcast
 
 void
 Gather
-( const char* sbuf, int sc,
-        char* rbuf, int rc, int root, Comm comm );
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, int root, Comm comm );
 
 void
 Gather
@@ -330,8 +331,8 @@ Gather
  
 void
 AllGather
-( const char* sbuf, int sc,
-        char* rbuf, int rc, Comm comm );
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, Comm comm );
    
 void
 AllGather
@@ -362,8 +363,8 @@ AllGather
 
 void
 Scatter
-( const char* sbuf, int sc,
-        char* rbuf, int rc, int root, Comm comm );
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, int root, Comm comm );
 
 void
 Scatter
@@ -394,8 +395,8 @@ Scatter
  
 void
 AllToAll
-( const char* sbuf, int sc,
-        char* rbuf, int rc, Comm comm );
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, Comm comm );
    
 void
 AllToAll
@@ -426,8 +427,8 @@ AllToAll
 
 void
 AllToAll
-( const char* sbuf, const int* scs, const int* sds,
-        char* rbuf, const int* rcs, const int* rds, Comm comm );
+( const byte* sbuf, const int* scs, const int* sds,
+        byte* rbuf, const int* rcs, const int* rds, Comm comm );
 
 void
 AllToAll
@@ -458,7 +459,7 @@ AllToAll
 
 void
 Reduce
-( const char* sbuf, char* rbuf, int count, Op op, int root, Comm comm );
+( const byte* sbuf, byte* rbuf, int count, Op op, int root, Comm comm );
 
 void
 Reduce
@@ -484,7 +485,7 @@ Reduce
     
 void
 AllReduce
-( const char* sbuf, char* rbuf, int count, Op op, Comm comm );
+( const byte* sbuf, byte* rbuf, int count, Op op, Comm comm );
 
 void
 AllReduce
@@ -509,7 +510,7 @@ AllReduce
         
 void
 ReduceScatter
-( const char* sbuf, char* rbuf, const int* rcs, Op op, Comm comm );
+( const byte* sbuf, byte* rbuf, const int* rcs, Op op, Comm comm );
 
 void
 ReduceScatter

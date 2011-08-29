@@ -40,6 +40,8 @@
 
 namespace elemental {
 
+typedef unsigned char byte;
+ 
 #ifndef WITHOUT_COMPLEX
 typedef std::complex<float>  scomplex; 
 typedef std::complex<double> dcomplex;

@@ -64,7 +64,7 @@
 #cmakedefine WITHOUT_PMRRR
 #cmakedefine WITHOUT_COMPLEX
 #cmakedefine AVOID_COMPLEX_MPI
-#cmakedefine USE_CHAR_ALLGATHERS
+#cmakedefine USE_BYTE_ALLGATHERS
 
 /* Advanced configuration options */
 #cmakedefine CACHE_WARNINGS

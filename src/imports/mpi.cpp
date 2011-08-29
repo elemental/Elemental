@@ -422,13 +422,13 @@ elemental::imports::mpi::IProbe
 
 template<>
 int
-elemental::imports::mpi::GetCount<char>( MPI_Status& status )
+elemental::imports::mpi::GetCount<elemental::byte>( MPI_Status& status )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::GetCount");
 #endif
     int count;
-    SafeMpi( MPI_Get_count( &status, MPI_CHAR, &count ) );
+    SafeMpi( MPI_Get_count( &status, MPI_UNSIGNED_CHAR, &count ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -514,13 +514,14 @@ elemental::imports::mpi::GetCount<elemental::dcomplex>( MPI_Status& status )
 
 void
 elemental::imports::mpi::Send
-( const char* buf, int count, int to, int tag, MPI_Comm comm )
+( const byte* buf, int count, int to, int tag, MPI_Comm comm )
 { 
 #ifndef RELEASE
     PushCallStack("imports::mpi::Send");
 #endif
     SafeMpi( 
-        MPI_Send( const_cast<char*>(buf), count, MPI_CHAR, to, tag, comm ) 
+        MPI_Send
+        ( const_cast<byte*>(buf), count, MPI_UNSIGNED_CHAR, to, tag, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -529,7 +530,7 @@ elemental::imports::mpi::Send
 
 void
 elemental::imports::mpi::ISend
-( const char* buf, int count, int to, int tag, MPI_Comm comm,
+( const byte* buf, int count, int to, int tag, MPI_Comm comm,
   MPI_Request& request )
 { 
 #ifndef RELEASE
@@ -537,7 +538,8 @@ elemental::imports::mpi::ISend
 #endif
     SafeMpi( 
         MPI_Isend
-        ( const_cast<char*>(buf), count, MPI_CHAR, to, tag, comm, &request ) 
+        ( const_cast<byte*>(buf), count, MPI_UNSIGNED_CHAR, to, tag, comm,
+          &request ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -546,7 +548,7 @@ elemental::imports::mpi::ISend
 
 void
 elemental::imports::mpi::ISSend
-( const char* buf, int count, int to, int tag, MPI_Comm comm,
+( const byte* buf, int count, int to, int tag, MPI_Comm comm,
   MPI_Request& request )
 {
 #ifndef RELEASE
@@ -554,7 +556,8 @@ elemental::imports::mpi::ISSend
 #endif
     SafeMpi(
         MPI_Issend
-        ( const_cast<char*>(buf), count, MPI_CHAR, to, tag, comm, &request )
+        ( const_cast<byte*>(buf), count, MPI_UNSIGNED_CHAR, to, tag, comm, 
+          &request )
     );
 #ifndef RELEASE
     PopCallStack();
@@ -862,13 +865,15 @@ elemental::imports::mpi::ISSend
 
 void
 elemental::imports::mpi::Recv
-( char* buf, int count, int from, int tag, MPI_Comm comm )
+( byte* buf, int count, int from, int tag, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::Recv");
 #endif
     MPI_Status status;
-    SafeMpi( MPI_Recv( buf, count, MPI_CHAR, from, tag, comm, &status ) );
+    SafeMpi( 
+        MPI_Recv( buf, count, MPI_UNSIGNED_CHAR, from, tag, comm, &status ) 
+    );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -876,13 +881,15 @@ elemental::imports::mpi::Recv
 
 void
 elemental::imports::mpi::IRecv
-( char* buf, int count, int from, int tag, MPI_Comm comm, 
+( byte* buf, int count, int from, int tag, MPI_Comm comm, 
   MPI_Request& request )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::IRecv");
 #endif
-    SafeMpi( MPI_Irecv( buf, count, MPI_CHAR, from, tag, comm, &request ) );
+    SafeMpi( 
+        MPI_Irecv( buf, count, MPI_UNSIGNED_CHAR, from, tag, comm, &request ) 
+    );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1056,8 +1063,8 @@ elemental::imports::mpi::IRecv
 
 void
 elemental::imports::mpi::SendRecv
-( const char* sbuf, int sc, int to,   int stag,
-        char* rbuf, int rc, int from, int rtag, MPI_Comm comm )
+( const byte* sbuf, int sc, int to,   int stag,
+        byte* rbuf, int rc, int from, int rtag, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::SendRecv");
@@ -1065,8 +1072,8 @@ elemental::imports::mpi::SendRecv
     MPI_Status status;
     SafeMpi( 
         MPI_Sendrecv
-        ( const_cast<char*>(sbuf), sc, MPI_CHAR, to, stag,
-          rbuf, rc, MPI_CHAR, from, rtag, comm, &status ) 
+        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR, to, stag,
+          rbuf, rc, MPI_UNSIGNED_CHAR, from, rtag, comm, &status ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1192,12 +1199,12 @@ elemental::imports::mpi::SendRecv
 
 void
 elemental::imports::mpi::Broadcast
-( char* buf, int count, int root, MPI_Comm comm )
+( byte* buf, int count, int root, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::Broadcast");
 #endif
-    SafeMpi( MPI_Bcast( buf, count, MPI_CHAR, root, comm ) );
+    SafeMpi( MPI_Bcast( buf, count, MPI_UNSIGNED_CHAR, root, comm ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1280,16 +1287,16 @@ elemental::imports::mpi::Broadcast
 
 void
 elemental::imports::mpi::Gather
-( const char* sbuf, int sc,
-        char* rbuf, int rc, int root, MPI_Comm comm )
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, int root, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::Gather");
 #endif
     SafeMpi( 
         MPI_Gather
-        ( const_cast<char*>(sbuf), sc, MPI_CHAR,
-          rbuf,                    rc, MPI_CHAR, root, comm ) 
+        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR,
+          rbuf,                    rc, MPI_UNSIGNED_CHAR, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1406,16 +1413,16 @@ elemental::imports::mpi::Gather
 
 void
 elemental::imports::mpi::AllGather
-( const char* sbuf, int sc,
-        char* rbuf, int rc, MPI_Comm comm )
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
     SafeMpi( 
         MPI_Allgather
-        ( const_cast<char*>(sbuf), sc, MPI_CHAR, 
-          rbuf,                    rc, MPI_CHAR, comm ) 
+        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR, 
+          rbuf,                    rc, MPI_UNSIGNED_CHAR, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1430,11 +1437,11 @@ elemental::imports::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
-#ifdef USE_CHAR_ALLGATHERS
+#ifdef USE_BYTE_ALLGATHERS
     SafeMpi( 
         MPI_Allgather
-        ( const_cast<int*>(sbuf), sizeof(int)*sc, MPI_CHAR, 
-          rbuf,                   sizeof(int)*rc, MPI_CHAR, comm ) 
+        ( const_cast<int*>(sbuf), sizeof(int)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf,                   sizeof(int)*rc, MPI_UNSIGNED_CHAR, comm ) 
     );
 #else
     SafeMpi( 
@@ -1456,11 +1463,11 @@ elemental::imports::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
-#ifdef USE_CHAR_ALLGATHERS
+#ifdef USE_BYTE_ALLGATHERS
     SafeMpi( 
         MPI_Allgather
-        ( const_cast<float*>(sbuf), sizeof(float)*sc, MPI_CHAR, 
-          rbuf,                     sizeof(float)*rc, MPI_CHAR, comm ) 
+        ( const_cast<float*>(sbuf), sizeof(float)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf,                     sizeof(float)*rc, MPI_UNSIGNED_CHAR, comm ) 
     );
 #else
     SafeMpi( 
@@ -1482,11 +1489,12 @@ elemental::imports::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
-#ifdef USE_CHAR_ALLGATHERS
+#ifdef USE_BYTE_ALLGATHERS
     SafeMpi( 
         MPI_Allgather
-        ( const_cast<double*>(sbuf), sizeof(double)*sc, MPI_CHAR, 
-          rbuf,                      sizeof(double)*rc, MPI_CHAR, comm ) 
+        ( const_cast<double*>(sbuf), sizeof(double)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf,                      sizeof(double)*rc, MPI_UNSIGNED_CHAR, 
+          comm ) 
     );
 #else
     SafeMpi( 
@@ -1509,11 +1517,12 @@ elemental::imports::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
-#ifdef USE_CHAR_ALLGATHERS
+#ifdef USE_BYTE_ALLGATHERS
     SafeMpi( 
         MPI_Allgather
-        ( const_cast<scomplex*>(sbuf), 2*sizeof(float)*sc, MPI_CHAR, 
-          rbuf,                        2*sizeof(float)*rc, MPI_CHAR, comm ) 
+        ( const_cast<scomplex*>(sbuf), 2*sizeof(float)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf,                        2*sizeof(float)*rc, MPI_UNSIGNED_CHAR, 
+          comm ) 
     );
 #else
  #ifdef AVOID_COMPLEX_MPI
@@ -1543,11 +1552,12 @@ elemental::imports::mpi::AllGather
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllGather");
 #endif
-#ifdef USE_CHAR_ALLGATHERS
+#ifdef USE_BYTE_ALLGATHERS
     SafeMpi( 
         MPI_Allgather
-        ( const_cast<dcomplex*>(sbuf), 2*sizeof(double)*sc, MPI_CHAR, 
-          rbuf,                        2*sizeof(double)*rc, MPI_CHAR, comm ) 
+        ( const_cast<dcomplex*>(sbuf), 2*sizeof(double)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf,                        2*sizeof(double)*rc, MPI_UNSIGNED_CHAR, 
+          comm ) 
     );
 #else
  #ifdef AVOID_COMPLEX_MPI
@@ -1572,16 +1582,16 @@ elemental::imports::mpi::AllGather
 
 void
 elemental::imports::mpi::Scatter
-( const char* sbuf, int sc,
-        char* rbuf, int rc, int root, MPI_Comm comm )
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, int root, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::Scatter");
 #endif
     SafeMpi( 
         MPI_Scatter
-        ( const_cast<char*>(sbuf), sc, MPI_CHAR,
-          rbuf,                    rc, MPI_CHAR, root, comm ) 
+        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR,
+          rbuf,                    rc, MPI_UNSIGNED_CHAR, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1698,16 +1708,16 @@ elemental::imports::mpi::Scatter
 
 void
 elemental::imports::mpi::AllToAll
-( const char* sbuf, int sc,
-        char* rbuf, int rc, MPI_Comm comm )
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllToAll");
 #endif
     SafeMpi( 
         MPI_Alltoall
-        ( const_cast<char*>(sbuf), sc, MPI_CHAR,
-          rbuf,                    rc, MPI_CHAR, comm ) 
+        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR,
+          rbuf,                    rc, MPI_UNSIGNED_CHAR, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1824,22 +1834,22 @@ elemental::imports::mpi::AllToAll
 
 void
 elemental::imports::mpi::AllToAll
-( const char* sbuf, const int* scs, const int* sds, 
-        char* rbuf, const int* rcs, const int* rds, MPI_Comm comm )
+( const byte* sbuf, const int* scs, const int* sds, 
+        byte* rbuf, const int* rcs, const int* rds, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllToAll");
 #endif
     SafeMpi( 
         MPI_Alltoallv
-        ( const_cast<char*>(sbuf), 
+        ( const_cast<byte*>(sbuf), 
           const_cast<int*>(scs), 
           const_cast<int*>(sds), 
-          MPI_CHAR,
+          MPI_UNSIGNED_CHAR,
           rbuf, 
           const_cast<int*>(rcs), 
           const_cast<int*>(rds), 
-          MPI_CHAR, 
+          MPI_UNSIGNED_CHAR, 
           comm ) 
     ); 
 #ifndef RELEASE
@@ -2022,7 +2032,7 @@ elemental::imports::mpi::AllToAll
 
 void
 elemental::imports::mpi::Reduce
-( const char* sbuf, char* rbuf, int count, MPI_Op op, int root, MPI_Comm comm )
+( const byte* sbuf, byte* rbuf, int count, MPI_Op op, int root, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::Reduce");
@@ -2031,7 +2041,8 @@ elemental::imports::mpi::Reduce
     {
         SafeMpi( 
             MPI_Reduce
-            ( const_cast<char*>(sbuf), rbuf, count, MPI_CHAR, op, root, comm ) 
+            ( const_cast<byte*>(sbuf), rbuf, count, MPI_UNSIGNED_CHAR, op, root,
+              comm ) 
         );
     }
 #ifndef RELEASE
@@ -2182,7 +2193,7 @@ elemental::imports::mpi::Reduce
 
 void
 elemental::imports::mpi::AllReduce
-( const char* sbuf, char* rbuf, int count, MPI_Op op, MPI_Comm comm )
+( const byte* sbuf, byte* rbuf, int count, MPI_Op op, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::AllReduce");
@@ -2191,7 +2202,8 @@ elemental::imports::mpi::AllReduce
     {
         SafeMpi( 
             MPI_Allreduce
-            ( const_cast<char*>(sbuf), rbuf, count, MPI_CHAR, op, comm ) 
+            ( const_cast<byte*>(sbuf), rbuf, count, MPI_UNSIGNED_CHAR, op, 
+              comm ) 
         );
     }
 #ifndef RELEASE
@@ -2338,15 +2350,15 @@ elemental::imports::mpi::AllReduce
 
 void
 elemental::imports::mpi::ReduceScatter
-( const char* sbuf, char* rbuf, const int* rcs, MPI_Op op, MPI_Comm comm )
+( const byte* sbuf, byte* rbuf, const int* rcs, MPI_Op op, MPI_Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("imports::mpi::ReduceScatter");
 #endif
     SafeMpi( 
         MPI_Reduce_scatter
-        ( const_cast<char*>(sbuf), 
-          rbuf, const_cast<int*>(rcs), MPI_CHAR, op, comm ) 
+        ( const_cast<byte*>(sbuf), 
+          rbuf, const_cast<int*>(rcs), MPI_UNSIGNED_CHAR, op, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();

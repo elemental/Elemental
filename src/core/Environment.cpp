@@ -87,7 +87,7 @@ elemental::Init
     seed.d[1] = time(0);
     const unsigned rank = mpi::CommRank( mpi::COMM_WORLD );
     const unsigned size = mpi::CommSize( mpi::COMM_WORLD );
-    mpi::Broadcast( (char*)seed.d, 2*sizeof(unsigned), 0, mpi::COMM_WORLD );
+    mpi::Broadcast( (byte*)seed.d, 2*sizeof(unsigned), 0, mpi::COMM_WORLD );
     plcg::SeedParallelLcg( rank, size, seed );
 }
 
