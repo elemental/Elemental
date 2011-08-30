@@ -102,7 +102,6 @@ elemental::advanced::internal::LDLVar3
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
     DistMatrix<F,VR,  STAR> A21_VR_STAR(g);
     DistMatrix<F,STAR,MC  > S21Trans_STAR_MC(g);
-    DistMatrix<F,MR,  MC  > A21AdjOrTrans(g);
     DistMatrix<F,STAR,MR  > A21AdjOrTrans_STAR_MR(g);
 
     // Start the algorithm
@@ -129,7 +128,6 @@ elemental::advanced::internal::LDLVar3
         A21_VC_STAR.AlignWith( A22 );
         A21_VR_STAR.AlignWith( A22 );
         S21Trans_STAR_MC.AlignWith( A22 );
-        A21AdjOrTrans.AlignWith( A21 );
         A21AdjOrTrans_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11; 
@@ -155,25 +153,21 @@ elemental::advanced::internal::LDLVar3
         ( LOWER, TRANSPOSE,
           (F)-1, S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, (F)1, A22 );
 
-        A21AdjOrTrans = A21AdjOrTrans_STAR_MR;
-        if( orientation == ADJOINT )
-            basic::Adjoint( A21AdjOrTrans, A21 );
-        else
-            basic::Transpose( A21AdjOrTrans, A21 );
+        basic::DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
+        A21.TransposeFrom( S21Trans_STAR_MC );
         //--------------------------------------------------------------------//
         A21_VC_STAR.FreeAlignments();
         A21_VR_STAR.FreeAlignments();
         S21Trans_STAR_MC.FreeAlignments();
-        A21AdjOrTrans.FreeAlignments();
         A21AdjOrTrans_STAR_MR.FreeAlignments();
 
-       SlidePartitionDown
+        SlidePartitionDown
         ( dT,  d0,
                d1,
          /**/ /**/
           dB,  d2 );
 
-       SlidePartitionDownDiagonal
+        SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
                /**/       A10, A11, /**/ A12,
          /*************/ /******************/

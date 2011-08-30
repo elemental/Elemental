@@ -77,68 +77,64 @@ elemental::advanced::internal::LDLVar3
     if( orientation == NORMAL )
         throw std::logic_error("Can only perform LDL^T or LDL^H");
 #endif
+    const int n = A.Height();
     if( !d.Viewing() )
-        d.ResizeTo( A.Height(), 1 );
-
-    // Matrix views 
-    Matrix<F>
-        ATL, ATR,  A00, a01,     A02,  alpha21T,
-        ABL, ABR,  a10, alpha11, a12,  a21B,
-                   A20, a21,     A22;
-    Matrix<F>
-        dT,  d0,
-        dB,  delta1,
-             d2;
-
-    // Temporary matrices
-    Matrix<F> s21;
-
-    PushBlocksizeStack( 1 );
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( d, dT,
-         dB, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+        d.ResizeTo( n, 1 );
+    if( n == 0 )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
-
-        RepartitionDown
-        ( dT,  d0,
-         /**/ /******/
-               delta1,
-          dB,  d2 );
-
-        //--------------------------------------------------------------------//
-        F delta = alpha11.Get(0,0);
-        delta1.Set(0,0,delta);
-
-        s21 = a21;
-        basic::Scal( static_cast<F>(1)/delta, a21 );
-        if( orientation == ADJOINT )
-            basic::Ger( (F)-1, s21, a21, A22 );
-        else
-            basic::Geru( (F)-1, s21, a21, A22 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDown
-        ( dT,  d0,
-               delta1,
-         /**/ /******/
-          dB,  d2 );
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
     }
-    PopBlocksizeStack();
+
+    std::vector<F> s21( n-1 );
+    F* RESTRICT ABuffer = A.Buffer();
+    F* RESTRICT dBuffer = d.Buffer();
+    const int lda = A.LDim();
+    for( int j=0; j<n; ++j )
+    {
+        const int a21Height = n - (j+1);
+
+        // Extract and store the diagonal of D
+        const F alpha11 = ABuffer[j+j*lda];
+        dBuffer[j] = alpha11; 
+
+        // Make a copy of a21 in s21 before scaling
+        std::memcpy( &s21[0], &ABuffer[(j+1)+j*lda], a21Height*sizeof(F) );
+
+        // a21 := a21 / alpha11
+        const F alpha11Inv = static_cast<F>(1)/alpha11;
+        {
+            F* RESTRICT a21 = &ABuffer[(j+1)+j*lda];
+            for( int i=0; i<a21Height; ++i )
+                a21[i] *= alpha11Inv;
+        }
+
+        // A22 := A22 - s21 a21^[T/H]
+        if( orientation == ADJOINT )
+        {
+            const F* RESTRICT a21 = &ABuffer[(j+1)+j*lda];
+            for( int k=0; k<a21Height; ++k )
+            {
+                const F conjAlpha = Conj(a21[k]);
+                F* RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*lda];
+                for( int i=k; i<a21Height; ++i )
+                    A22Col[i] -= s21[i]*conjAlpha;
+            }
+        }
+        else
+        {
+            const F* RESTRICT a21 = &ABuffer[(j+1)+j*lda];
+            for( int k=0; k<a21Height; ++k )
+            {
+                const F alpha = a21[k];
+                F* RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*lda];
+                for( int i=k; i<a21Height; ++i )
+                    A22Col[i] -= s21[i]*alpha;
+            }
+        }
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

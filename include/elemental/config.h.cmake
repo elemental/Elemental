@@ -58,6 +58,7 @@
 #define MATH_LIBS @MATH_LIBS@
 
 /* Basic configuration options */
+#define RESTRICT @RESTRICT@
 #cmakedefine RELEASE
 #cmakedefine BLAS_POST
 #cmakedefine LAPACK_POST

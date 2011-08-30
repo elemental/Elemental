@@ -357,6 +357,39 @@ endif(HAVE_DPOTRF)
 set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
 check_function_exists(mkl_set_num_threads MATH_HAS_MKL)
 
+# Look for restrict support
+include(CheckCXXSourceCompiles)
+set(RESTRICT_CODE
+    "int main(void)
+     {
+         int* RESTRICT a;
+         return 0;
+     }
+    ")
+set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict__")
+check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
+if(HAVE___restrict__)
+  set(RESTRICT "__restrict__")
+  message(STATUS "Using __restrict__ keyword.")
+else(HAVE___restrict__)
+  set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict")
+  check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict)
+  if(HAVE___restrict)
+    set(RESTRICT "__restrict")
+    message(STATUS "Using __restrict keyword.")
+  else(HAVE___restrict)
+    set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=restrict")
+    check_cxx_source_compiles("${RESTRICT_CODE}" HAVE_restrict)
+    if(HAVE_restrict)
+      set(RESTRICT "restrict")
+      message(STATUS "Using restrict keyword.")
+    else(HAVE_restrict)
+      set(RESTRICT "")
+      message(STATUS "Could not find a restrict keyword.")
+    endif(HAVE_restrict)
+  endif(HAVE___restrict)
+endif(HAVE___restrict__)
+
 add_subdirectory(contrib/parallel_lcg)
 if(BUILD_PMRRR)
   add_subdirectory(contrib/pmrrr)
