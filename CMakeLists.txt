@@ -37,9 +37,9 @@ set(Elemental_VERSION_MAJOR 0)
 set(Elemental_VERSION_MINOR 69)
 
 # Check if an in-source build was attempted
-if(EXISTS "README")
-  message(FATAL_ERROR "In-source build attempted; please switch to an out-of-source build, e.g., mkdir build/ && cd build/ && cmake ..")
-endif(EXISTS "README")
+if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
+  message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g., rm CMakeCache.txt && rm -Rf CMakeFiles/ && mkdir build/ && cd build/ && cmake ..")
+endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "Build mode not specified, defaulting to PureRelease build.")
