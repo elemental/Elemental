@@ -36,6 +36,11 @@ project(Elemental)
 set(Elemental_VERSION_MAJOR 0)
 set(Elemental_VERSION_MINOR 69)
 
+# Check if an in-source build was attempted
+if(EXISTS "README")
+  message(FATAL_ERROR "In-source build attempted; please switch to an out-of-source build, e.g., mkdir build/ && cd build/ && cmake ..")
+endif(EXISTS "README")
+
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "Build mode not specified, defaulting to PureRelease build.")
   set(CMAKE_BUILD_TYPE PureRelease)
