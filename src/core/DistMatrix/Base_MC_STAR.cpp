@@ -105,7 +105,7 @@ elemental::DistMatrixBase<T,MC,STAR>::PrintBase
                 for( int i=0; i<height; ++i )
                 {
                     for( int j=0; j<width; ++j )
-                        os << recvBuf[i+j*height] << " ";
+                        os << WrapScalar(recvBuf[i+j*height]) << " ";
                     os << "\n";
                 }
                 os << endl;

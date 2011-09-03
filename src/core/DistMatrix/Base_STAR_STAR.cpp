@@ -78,7 +78,7 @@ elemental::DistMatrixBase<T,STAR,STAR>::PrintBase
             for( int i=0; i<height; ++i )
             {
                 for( int j=0; j<width; ++j )
-                    os << this->GetLocalEntry(i,j) << " ";
+                    os << WrapScalar(this->GetLocalEntry(i,j)) << " ";
                 os << "\n";
             }
             os << endl;

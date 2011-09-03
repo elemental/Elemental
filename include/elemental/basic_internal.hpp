@@ -1226,30 +1226,70 @@ void LocalTrmmAccumulateRUT
 
 // Left, Lower, Normal Trsm
 template<typename F>
-void TrsmLLN
+void TrsmLLNLarge
 ( Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
+template<typename F>
+void TrsmLLNMedium
+( Diagonal diagonal,
+  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
+template<typename F>
+void TrsmLLNSmall
+( Diagonal diagonal,
+  F alpha, const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular=false );
 
 // Left, Lower, (Conjugate)Transpose Trsm
 template<typename F>
-void TrsmLLT
+void TrsmLLTLarge
 ( Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
+template<typename F>
+void TrsmLLTMedium
+( Orientation orientation, Diagonal diagonal,
+  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
+template<typename F>
+void TrsmLLTSmall
+( Orientation orientation, Diagonal diagonal,
+  F alpha, const DistMatrix<F,STAR,VR>& L, DistMatrix<F,VR,STAR>& X,
   bool checkIfSingular=false );
 
 // Left, Upper, Normal Trsm
 template<typename F>
-void TrsmLUN
+void TrsmLUNLarge
 ( Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
+template<typename F>
+void TrsmLUNMedium
+( Diagonal diagonal,
+  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
+template<typename F>
+void TrsmLUNSmall
+( Diagonal diagonal,
+  F alpha, const DistMatrix<F,VC,STAR>& U, DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular=false );
 
 // Left, Upper, (Conjugate)Transpose Trsm
 template<typename F>
-void TrsmLUT
+void TrsmLUTLarge
 ( Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
+template<typename F>
+void TrsmLUTMedium
+( Orientation orientation, Diagonal diagonal,
+  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X,
+  bool checkIfSingular=false );
+template<typename F>
+void TrsmLUTSmall
+( Orientation orientation, Diagonal diagonal,
+  F alpha, const DistMatrix<F,STAR,VR>& U, DistMatrix<F,VR,STAR>& X,
   bool checkIfSingular=false );
 
 // Right, Lower, Normal Trsm

@@ -60,23 +60,48 @@ elemental::basic::Trsm
 #ifndef RELEASE
     PushCallStack("basic::Trsm");
 #endif
+    const int p = X.Grid().Size();
     if( side == LEFT && shape == LOWER )
     {
         if( orientation == NORMAL )
-            basic::internal::TrsmLLN
-            ( diagonal, alpha, A, X, checkIfSingular );
+        {
+            if( X.Width() > 5*p )
+                basic::internal::TrsmLLNLarge
+                ( diagonal, alpha, A, X, checkIfSingular );
+            else
+                basic::internal::TrsmLLNMedium
+                ( diagonal, alpha, A, X, checkIfSingular );
+        }
         else
-            basic::internal::TrsmLLT
-            ( orientation, diagonal, alpha, A, X, checkIfSingular );
+        {
+            if( X.Width() > 5*p )
+                basic::internal::TrsmLLTLarge
+                ( orientation, diagonal, alpha, A, X, checkIfSingular );
+            else
+                basic::internal::TrsmLLTMedium
+                ( orientation, diagonal, alpha, A, X, checkIfSingular );
+        }
     }
     else if( side == LEFT && shape == UPPER )
     {
         if( orientation == NORMAL )
-            basic::internal::TrsmLUN
-            ( diagonal, alpha, A, X, checkIfSingular );
+        {
+            if( X.Width() > 5*p )
+                basic::internal::TrsmLUNLarge
+                ( diagonal, alpha, A, X, checkIfSingular );
+            else
+                basic::internal::TrsmLUNMedium
+                ( diagonal, alpha, A, X, checkIfSingular );
+        }
         else
-            basic::internal::TrsmLUT
-            ( orientation, diagonal, alpha, A, X, checkIfSingular );
+        {
+            if( X.Width() > 5*p )
+                basic::internal::TrsmLUTLarge
+                ( orientation, diagonal, alpha, A, X, checkIfSingular );
+            else
+                basic::internal::TrsmLUTMedium
+                ( orientation, diagonal, alpha, A, X, checkIfSingular );
+        }
     }
     else if( side == RIGHT && shape == LOWER )
     {

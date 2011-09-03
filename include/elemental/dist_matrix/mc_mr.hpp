@@ -257,7 +257,9 @@ public:
     // Auxiliary routines needed to implement algorithms that avoid 
     // inefficient unpackings of partial matrix distributions
     void AdjointFrom( const DistMatrixBase<T,STAR,MC>& A );
+    void AdjointFrom( const DistMatrixBase<T,MR,STAR>& A );
     void TransposeFrom( const DistMatrixBase<T,STAR,MC>& A );
+    void TransposeFrom( const DistMatrixBase<T,MR,STAR>& A );
 
     const DistMatrixBase<T,MC,MR>& 
     operator=( const DistMatrixBase<T,MC,MR>& A );

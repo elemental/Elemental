@@ -109,7 +109,7 @@ elemental::DistMatrixBase<T,MC,MR>::PrintBase
             for( int i=0; i<height; ++i )
             {
                 for( int j=0; j<width; ++j )
-                    os << recvBuf[i+j*height] << " ";
+                    os << WrapScalar(recvBuf[i+j*height]) << " ";
                 os << "\n";
             }
             os << endl;
@@ -1815,6 +1815,58 @@ elemental::DistMatrixBase<T,MC,MR>::AdjointFrom
 
 template<typename T>
 void
+elemental::DistMatrixBase<T,MC,MR>::AdjointFrom
+( const DistMatrixBase<T,MR,STAR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::AdjointFrom");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSizeAsTranspose( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    if( !this->Viewing() )
+    {
+        if( !this->ConstrainedRowAlignment() )
+        {
+            this->_rowAlignment = A.ColAlignment();
+            if( g.InGrid() )
+                this->_rowShift = 
+                    Shift( g.MRRank(), this->RowAlignment(), g.Height() );
+        }
+        this->ResizeTo( A.Width(), A.Height() );
+    }
+    if( this->_rowAlignment != A.ColAlignment() )
+        throw std::logic_error("Unaligned AdjointFrom");
+
+    if( g.InGrid() ) 
+    { 
+        const int r = g.Height();
+        const int colShift = this->ColShift();
+
+        const int localHeight = this->LocalHeight();
+        const int localWidth = this->LocalWidth();
+
+        const T* ALocalBuffer = A.LockedLocalBuffer();
+        const int ALDim = A.LocalLDim();
+        T* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for COLLAPSE(2)
+#endif
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+                thisLocalBuffer[iLocal+jLocal*thisLDim] = 
+                    Conj(ALocalBuffer[jLocal+(colShift+iLocal*r)*ALDim]);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
 elemental::DistMatrixBase<T,MC,MR>::TransposeFrom
 ( const DistMatrixBase<T,STAR,MC>& A )
 {
@@ -1922,6 +1974,60 @@ elemental::DistMatrixBase<T,MC,MR>::TransposeFrom
             this->_auxMemory.Release();
         }
     } 
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+void
+elemental::DistMatrixBase<T,MC,MR>::TransposeFrom
+( const DistMatrixBase<T,MR,STAR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::TransposeFrom");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSizeAsTranspose( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    if( !this->Viewing() )
+    {
+        if( !this->ConstrainedRowAlignment() )
+        {
+            this->_rowAlignment = A.ColAlignment();
+            if( g.InGrid() )
+            {
+                this->_rowShift = 
+                    Shift( g.MRRank(), this->RowAlignment(), g.Height() );
+            }
+        }
+        this->ResizeTo( A.Width(), A.Height() );
+    }
+    if( this->_rowAlignment != A.ColAlignment() )
+        throw std::logic_error("Unaligned TransposeFrom");
+
+    if( g.InGrid() ) 
+    { 
+        const int r = g.Height();
+        const int colShift = this->ColShift();
+
+        const int localHeight = this->LocalHeight();
+        const int localWidth = this->LocalWidth();
+
+        const T* ALocalBuffer = A.LockedLocalBuffer();
+        const int ALDim = A.LocalLDim();
+        T* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for COLLAPSE(2)
+#endif
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+                thisLocalBuffer[iLocal+jLocal*thisLDim] = 
+                    ALocalBuffer[jLocal+(colShift+iLocal*r)*ALDim];
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

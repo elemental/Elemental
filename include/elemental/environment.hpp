@@ -102,34 +102,38 @@ void PushBlocksizeStack( int blocksize );
 void PopBlocksizeStack();
 
 template<typename Z>
-Z
-Abs( Z alpha );
+Z Abs( Z alpha );
 
 #ifndef WITHOUT_COMPLEX
 template<typename Z>
-Z
-Abs( std::complex<Z> alpha );
+Z Abs( std::complex<Z> alpha );
 #endif
 
 template<typename Z>
-Z
-FastAbs( Z alpha );
+Z FastAbs( Z alpha );
 
 #ifndef WITHOUT_COMPLEX
 template<typename Z>
-Z
-FastAbs( std::complex<Z> alpha );
+Z FastAbs( std::complex<Z> alpha );
 #endif
 
 template<typename Z>
-Z
-Conj( Z alpha );
+Z Conj( Z alpha );
 
 #ifndef WITHOUT_COMPLEX
 template<typename Z>
-std::complex<Z>
-Conj( std::complex<Z> alpha );
+std::complex<Z> Conj( std::complex<Z> alpha );
 #endif
+
+// For extracting the underlying real datatype, 
+// e.g., typename RealBase<Scalar>::type a = 3.0;
+template<typename R>
+struct RealBase
+{ typedef R type; };
+
+template<typename R>
+struct RealBase<std::complex<R> >
+{ typedef R type; };
 
 // We define an output stream that does nothing. This is done so that the 
 // root process can be used to print data to a file's ostream while all other 
@@ -147,53 +151,115 @@ struct NullStream : std::ostream
     { }
 };
 
+// Create a wrappers around real and std::complex<real> types so that they
+// can be conveniently printed in a more Matlab-compatible format.
+//
+// All printing of scalars should now be performed in the fashion:
+//     std::cout << WrapScalar(alpha);
+// where 'alpha' can be real or complex.
+
+template<typename R>
+class ScalarWrapper
+{
+    const R _value;
+public:
+    ScalarWrapper( const R alpha ) : _value(alpha) { }
+
+    friend std::ostream& operator<<
+    ( std::ostream& out, const ScalarWrapper<R> alpha )
+    {
+        out << alpha._value;
+        return out;
+    }
+};
+
+//template<typename R>
+//const ScalarWrapper<R> WrapScalar( const R alpha );
+template<typename R>
+R WrapScalar( const R alpha ) { return alpha; }
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+class ScalarWrapper<std::complex<R> >
+{
+    const std::complex<R> _value;
+public:
+    ScalarWrapper( const std::complex<R> alpha ) : _value(alpha) { }
+
+    friend std::ostream& operator<<
+    ( std::ostream& os, const ScalarWrapper<std::complex<R> > alpha )
+    {
+        os << std::real(alpha._value) << "+" << std::imag(alpha._value) << "i";
+        return os;
+    }
+};
+
+//template<typename R>
+//const ScalarWrapper<std::complex<R> > WrapScalar( const std::complex<R> alpha );
+template<typename R>
+std::complex<R> WrapScalar( const std::complex<R> alpha ) { return alpha; }
+#endif
+
 } // elemental
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
+namespace elemental {
+
+/*
+template<typename R>
+inline const ScalarWrapper<R>
+WrapScalar( const R alpha )
+{ return ScalarWrapper<R>( alpha ); }
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline const ScalarWrapper<std::complex<R> >
+WrapScalar( const std::complex<R> alpha )
+{ return ScalarWrapper<std::complex<R> >( alpha ); }
+#endif
+*/
+
 template<typename Z>
 inline Z 
-elemental::Abs
-( Z alpha )
+Abs( Z alpha )
 { return std::abs(alpha); }
 
 #ifndef WITHOUT_COMPLEX
 template<typename Z>
 inline Z
-elemental::Abs
-( std::complex<Z> alpha )
+Abs( std::complex<Z> alpha )
 { return std::abs( alpha ); }
 #endif
 
 template<typename Z>
 inline Z
-elemental::FastAbs
-( Z alpha )
+FastAbs( Z alpha )
 { return std::abs(alpha); }
 
 #ifndef WITHOUT_COMPLEX
 template<typename Z>
 inline Z
-elemental::FastAbs
-( std::complex<Z> alpha )
+FastAbs( std::complex<Z> alpha )
 { return std::abs( std::real(alpha) ) + std::abs( std::imag(alpha) ); }
 #endif
 
 template<typename Z>
 inline Z
-elemental::Conj
+Conj
 ( Z alpha )
 { return alpha; }
 
 #ifndef WITHOUT_COMPLEX
 template<typename Z>
 inline std::complex<Z>
-elemental::Conj
-( std::complex<Z> alpha )
+Conj( std::complex<Z> alpha )
 { return std::conj( alpha ); }
 #endif
+
+} // namespace elemental
 
 #endif /* ELEMENTAL_ENVIRONMENT_HPP */
 
