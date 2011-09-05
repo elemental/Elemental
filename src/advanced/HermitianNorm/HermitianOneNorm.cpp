@@ -147,7 +147,7 @@ advanced::internal::HermitianOneNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numUpperRows = utilities::LocalLength(j+1,colShift,r);
+            int numUpperRows = LocalLength(j+1,colShift,r);
             myPartialUpperColSums[jLocal] = 0;
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
                 myPartialUpperColSums[jLocal] += 
@@ -156,7 +156,7 @@ advanced::internal::HermitianOneNorm
         for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
             int i = colShift + iLocal*r;
-            int numLowerCols = utilities::LocalLength(i+1,rowShift,c);
+            int numLowerCols = LocalLength(i+1,rowShift,c);
             myPartialStrictlyUpperRowSums[iLocal] = 0;
             for( int jLocal=numLowerCols; jLocal<A.LocalWidth(); ++jLocal )
                 myPartialStrictlyUpperRowSums[iLocal] += 
@@ -193,7 +193,7 @@ advanced::internal::HermitianOneNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numStrictlyUpperRows = utilities::LocalLength(j,colShift,r);
+            int numStrictlyUpperRows = LocalLength(j,colShift,r);
             myPartialLowerColSums[jLocal] = 0;
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
@@ -203,7 +203,7 @@ advanced::internal::HermitianOneNorm
         for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
             int i = colShift + iLocal*r;
-            int numStrictlyLowerCols = utilities::LocalLength(i,rowShift,c);
+            int numStrictlyLowerCols = LocalLength(i,rowShift,c);
             myPartialStrictlyLowerRowSums[iLocal] = 0;
             for( int jLocal=0; jLocal<numStrictlyLowerCols; ++jLocal )
                 myPartialStrictlyLowerRowSums[iLocal] += 
@@ -267,7 +267,7 @@ advanced::internal::HermitianOneNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numUpperRows = utilities::LocalLength(j+1,colShift,r);
+            int numUpperRows = LocalLength(j+1,colShift,r);
             myPartialUpperColSums[jLocal] = 0;
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
                 myPartialUpperColSums[jLocal] += 
@@ -276,7 +276,7 @@ advanced::internal::HermitianOneNorm
         for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
             int i = colShift + iLocal*r;
-            int numLowerCols = utilities::LocalLength(i+1,rowShift,c);
+            int numLowerCols = LocalLength(i+1,rowShift,c);
             myPartialStrictlyUpperRowSums[iLocal] = 0;
             for( int jLocal=numLowerCols; jLocal<A.LocalWidth(); ++jLocal )
                 myPartialStrictlyUpperRowSums[iLocal] += 
@@ -313,7 +313,7 @@ advanced::internal::HermitianOneNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numStrictlyUpperRows = utilities::LocalLength(j,colShift,r);
+            int numStrictlyUpperRows = LocalLength(j,colShift,r);
             myPartialLowerColSums[jLocal] = 0;
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
@@ -323,7 +323,7 @@ advanced::internal::HermitianOneNorm
         for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
             int i = colShift + iLocal*r;
-            int numStrictlyLowerCols = utilities::LocalLength(i,rowShift,c);
+            int numStrictlyLowerCols = LocalLength(i,rowShift,c);
             myPartialStrictlyLowerRowSums[iLocal] = 0;
             for( int jLocal=0; jLocal<numStrictlyLowerCols; ++jLocal )
                 myPartialStrictlyLowerRowSums[iLocal] += 

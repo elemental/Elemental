@@ -33,104 +33,13 @@
 #ifndef ELEMENTAL_DIST_MATRIX_ABSTRACT_HPP
 #define ELEMENTAL_DIST_MATRIX_ABSTRACT_HPP 1
 
-// Template conventions:
-//   G: general datatype
-//
-//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
-//   Z: representation of a real ring, e.g., the integers or real numbers
-//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
-//                    or complex numbers
-//
-//   F: representation of real or complex number
-//   R: representation of real number
-//   std::complex<R>: representation of complex number
-
 namespace elemental {
 
 template<typename T> // T represents any ring
-class AbstractDistMatrixBase
+class AbstractDistMatrix
 {
-protected:
-    bool      _viewing;
-    bool      _lockedView;
-    int       _height;
-    int       _width;
-    Memory<T> _auxMemory;
-    Matrix<T> _localMatrix;
-    
-    bool _constrainedColAlignment;
-    bool _constrainedRowAlignment;
-    int _colAlignment;
-    int _rowAlignment;
-    int _colShift;
-    int _rowShift;
-    const elemental::Grid* _g;
-
-    // Initialize with particular local dimensions
-    AbstractDistMatrixBase
-    ( int height,
-      int width,
-      bool constrainedColAlignment,
-      bool constrainedRowAlignment,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      const elemental::Grid& g );
-
-    // Initialize with particular local dimensions and local leading dimensions
-    AbstractDistMatrixBase
-    ( int height,
-      int width,
-      bool constrainedColAlignment,
-      bool constrainedRowAlignment,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      int ldim,
-      const elemental::Grid& g );
-
-    // View a constant distributed matrix's buffer
-    AbstractDistMatrixBase
-    ( int height,
-      int width,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      const T* buffer,
-      int ldim,
-      const elemental::Grid& g );
-
-    // View a mutable distributed matrix's buffer
-    AbstractDistMatrixBase
-    ( int height,
-      int width,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      T* buffer,
-      int ldim,
-      const elemental::Grid& g );
-
-    //------------------------------------------------------------------------//
-    // Routines that MUST be implemented in non-abstract derived classes      //
-    //------------------------------------------------------------------------//
-    virtual void PrintBase
-    ( std::ostream& os, const std::string msg="" ) const = 0;
-
 public:
-    virtual ~AbstractDistMatrixBase();
+    virtual ~AbstractDistMatrix();
 
     //-----------------------------------------------------------------------//
     // Routines that do NOT need to be implemented in derived classes        //
@@ -156,30 +65,29 @@ public:
     void AssertFreeRowAlignment() const;
 
     template<typename U>
-    void AssertSameGrid( const AbstractDistMatrixBase<U>& A ) const;
+    void AssertSameGrid( const AbstractDistMatrix<U>& A ) const;
 
     template<typename U>
-    void AssertSameSize( const AbstractDistMatrixBase<U>& A ) const;
+    void AssertSameSize( const AbstractDistMatrix<U>& A ) const;
 
     template<typename U>
-    void AssertSameSizeAsTranspose( const AbstractDistMatrixBase<U>& A ) const;
+    void AssertSameSizeAsTranspose( const AbstractDistMatrix<U>& A ) const;
 
     template<typename U>
     void AssertConforming1x2
-    ( const AbstractDistMatrixBase<U>& AL, 
-      const AbstractDistMatrixBase<U>& AR ) const;
+    ( const AbstractDistMatrix<U>& AL, 
+      const AbstractDistMatrix<U>& AR ) const;
 
     template<typename U>
     void AssertConforming2x1
-    ( const AbstractDistMatrixBase<U>& AT,
-      const AbstractDistMatrixBase<U>& AB ) const;
+    ( const AbstractDistMatrix<U>& AT,
+      const AbstractDistMatrix<U>& AB ) const;
 
     template<typename U>
     void AssertConforming2x2
-    ( const AbstractDistMatrixBase<U>& ATL,
-      const AbstractDistMatrixBase<U>& ATR,
-      const AbstractDistMatrixBase<U>& ABL,
-      const AbstractDistMatrixBase<U>& ABR ) const;
+    ( const AbstractDistMatrix<U>& ATL, const AbstractDistMatrix<U>& ATR,
+      const AbstractDistMatrix<U>& ABL, const AbstractDistMatrix<U>& ABR ) 
+    const;
 #endif
 
     bool Viewing() const;
@@ -205,9 +113,9 @@ public:
     int LocalWidth() const;
     int LocalLDim() const;
 
-    // This process receives a copy of local entry (iLocal,jLocal)
-    const T GetLocalEntry( int iLocal, int jLocal ) const;
-    // This process sets the new value for local entry (iLocal,jLocal)
+    // This process receives a copy of a local entry 
+    T GetLocalEntry( int iLocal, int jLocal ) const;
+    // This process sets the new value for a local entry 
     void SetLocalEntry( int iLocal, int jLocal, T alpha );
     // This process updates local entry A(iLocal,jLocal) += alpha
     void UpdateLocalEntry( int iLocal, int jLocal, T alpha );
@@ -217,6 +125,29 @@ public:
 
           Matrix<T>& LocalMatrix();
     const Matrix<T>& LockedLocalMatrix() const;
+
+    //
+    // The following should only be called for complex datatypes!
+    //
+
+    // This process receives a copy of the real part of a local entry 
+    typename RealBase<T>::type 
+    GetRealLocalEntry( int iLocal, int jLocal ) const;
+    // This process receives a copy of the imag part of a local entry 
+    typename RealBase<T>::type 
+    GetImagLocalEntry( int iLocal, int jLocal ) const;
+    // This process sets the new value for real part of a local entry 
+    void SetRealLocalEntry
+    ( int iLocal, int jLocal, typename RealBase<T>::type alpha );
+    // This process sets the new value for imag part of a local entry 
+    void SetImagLocalEntry
+    ( int iLocal, int jLocal, typename RealBase<T>::type alpha );
+    // This process updates local entry real(ALocal(iLocal,jLocal)) += alpha
+    void UpdateRealLocalEntry
+    ( int iLocal, int jLocal, typename RealBase<T>::type alpha );
+    // This process updates local entry imag(ALocal(iLocal,jLocal)) += alpha
+    void UpdateImagLocalEntry
+    ( int iLocal, int jLocal, typename RealBase<T>::type alpha );
 
     //
     // Collective routines
@@ -314,193 +245,109 @@ public:
     virtual void SetToRandomHermitian() = 0;
     // Forces matrix to be row diagonally dominant and to have a real diagonal.
     virtual void SetToRandomHPD() = 0;
-};
 
-template<typename Z> // Z represents any real ring
-class AbstractDistMatrix : public AbstractDistMatrixBase<Z>
-{
-protected:
-    typedef AbstractDistMatrixBase<Z> ADMB;
+    //
+    // The following are only valid for complex datatypes
+    //
 
-    // Initialize with particular local dimensions
-    AbstractDistMatrix
-    ( int height,
-      int width,
-      bool constrainedColAlignment,
-      bool constrainedRowAlignment,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      const elemental::Grid& g );
-
-    // Initialize with particular local dimensions and local leading dimensions
-    AbstractDistMatrix
-    ( int height,
-      int width,
-      bool constrainedColAlignment,
-      bool constrainedRowAlignment,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      int ldim,
-      const elemental::Grid& g );
-
-    // View a constant distributed matrix's buffer
-    AbstractDistMatrix
-    ( int height,
-      int width,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      const Z* buffer,
-      int ldim,
-      const elemental::Grid& g );
-
-    // View a mutable distributed matrix's buffer
-    AbstractDistMatrix
-    ( int height,
-      int width,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      Z* buffer,
-      int ldim,
-      const elemental::Grid& g );
-
-public:
-    virtual ~AbstractDistMatrix();
-};
-
-#ifndef WITHOUT_COMPLEX
-template<typename Z> // Z represents any real ring
-class AbstractDistMatrix<std::complex<Z> > 
-: public AbstractDistMatrixBase<std::complex<Z> >
-{
-protected:
-    typedef AbstractDistMatrixBase<std::complex<Z> > ADMB;
-
-    // Initialize with particular local dimensions
-    AbstractDistMatrix
-    ( int height, 
-      int width,
-      bool constrainedColAlignment,
-      bool constrainedRowAlignment,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      const elemental::Grid& g );
-
-    // Initialize with particular local dimensions and local leading dimensions
-    AbstractDistMatrix
-    ( int height, 
-      int width,
-      bool constrainedColAlignment,
-      bool constrainedRowAlignment,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      int ldim,
-      const elemental::Grid& g );
-
-    // View a constant distributed matrix's buffer
-    AbstractDistMatrix
-    ( int height, 
-      int width,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      const std::complex<Z>* buffer,
-      int ldim,
-      const elemental::Grid& g );
-
-    // View a mutable distributed matrix's buffer
-    AbstractDistMatrix
-    ( int height, 
-      int width,
-      int colAlignment,
-      int rowAlignment,
-      int colShift,
-      int rowShift,
-      int localHeight,
-      int localWidth,
-      std::complex<Z>* buffer,
-      int ldim,
-      const elemental::Grid& g );
-
-public:
-    virtual ~AbstractDistMatrix();
-
-    //------------------------------------------------------------------------//
-    // Operations that should be collectively performed                       //
-    //------------------------------------------------------------------------//
     // Each process receives the real part of global entry (i,j)
-    virtual Z GetReal( int i, int j ) const = 0;
+    virtual typename RealBase<T>::type GetReal( int i, int j ) const = 0;
     // Each process receives the imaginary part of global entry (i,j)
-    virtual Z GetImag( int i, int j ) const = 0;
+    virtual typename RealBase<T>::type GetImag( int i, int j ) const = 0;
     // Each process provides the new value for global entry (i,j)
-    virtual void SetReal( int i, int j, Z alpha ) = 0;
+    virtual void SetReal( int i, int j, typename RealBase<T>::type alpha ) = 0;
     // Each process provides the new value for global entry (i,j)
-    virtual void SetImag( int i, int j, Z alpha ) = 0;
+    virtual void SetImag( int i, int j, typename RealBase<T>::type alpha ) = 0;
     // Each process provides the update to the real part of global entry (i,j)
     // i.e., real(A(i,j)) += alpha
-    virtual void UpdateReal( int i, int j, Z alpha ) = 0;
+    virtual void UpdateReal( int i, int j, typename RealBase<T>::type alpha ) = 0;
     // Each process provides the update to the imag part of global entry (i,j)
     // i.e., imag(A(i,j)) += alpha
-    virtual void UpdateImag( int i, int j, Z alpha ) = 0;
+    virtual void UpdateImag( int i, int j, typename RealBase<T>::type alpha ) = 0;
+
+protected:
+    bool      _viewing;
+    bool      _lockedView;
+    int       _height;
+    int       _width;
+    Memory<T> _auxMemory;
+    Matrix<T> _localMatrix;
     
-    //-----------------------------------------------------------------------//
-    // Operations that can be performed on a single process                  //
-    //-----------------------------------------------------------------------//
-    // This process receives a copy of the real part of local entry 
-    // (iLocal,jLocal)
-    const Z GetRealLocalEntry( int iLocal, int jLocal ) const;
-    // This process receives a copy of the imag part of local entry (i,j)
-    const Z GetImagLocalEntry( int iLocal, int jLocal ) const;
-    // This process sets the new value for real part of local entry 
-    // (iLocal,jLocal)
-    void SetRealLocalEntry( int iLocal, int jLocal, Z alpha );
-    // This process sets the new value for imag part of local entry 
-    // (iLocal,jLocal)
-    void SetImagLocalEntry( int iLocal, int jLocal, Z alpha );
-    // This process updates local entry real(ALocal(iLocal,jLocal)) += alpha
-    void UpdateRealLocalEntry( int iLocal, int jLocal, Z alpha );
-    // This process updates local entry imag(ALocal(iLocal,jLocal)) += alpha
-    void UpdateImagLocalEntry( int iLocal, int jLocal, Z alpha );
+    bool _constrainedColAlignment;
+    bool _constrainedRowAlignment;
+    int _colAlignment;
+    int _rowAlignment;
+    int _colShift;
+    int _rowShift;
+    const elemental::Grid* _g;
+
+    // Initialize with particular local dimensions
+    AbstractDistMatrix
+    ( int height,
+      int width,
+      bool constrainedColAlignment,
+      bool constrainedRowAlignment,
+      int colAlignment,
+      int rowAlignment,
+      int colShift,
+      int rowShift,
+      int localHeight,
+      int localWidth,
+      const elemental::Grid& g );
+
+    // Initialize with particular local dimensions and local leading dimensions
+    AbstractDistMatrix
+    ( int height,
+      int width,
+      bool constrainedColAlignment,
+      bool constrainedRowAlignment,
+      int colAlignment,
+      int rowAlignment,
+      int colShift,
+      int rowShift,
+      int localHeight,
+      int localWidth,
+      int ldim,
+      const elemental::Grid& g );
+
+    // View a constant distributed matrix's buffer
+    AbstractDistMatrix
+    ( int height,
+      int width,
+      int colAlignment,
+      int rowAlignment,
+      int colShift,
+      int rowShift,
+      int localHeight,
+      int localWidth,
+      const T* buffer,
+      int ldim,
+      const elemental::Grid& g );
+
+    // View a mutable distributed matrix's buffer
+    AbstractDistMatrix
+    ( int height,
+      int width,
+      int colAlignment,
+      int rowAlignment,
+      int colShift,
+      int rowShift,
+      int localHeight,
+      int localWidth,
+      T* buffer,
+      int ldim,
+      const elemental::Grid& g );
+
+    virtual void PrintBase( std::ostream& os, const std::string msg ) const = 0;
 };
-#endif // WITHOUT_COMPLEX
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-//
-// AbstractDistMatrixBase
-//
-
 template<typename T>
 inline
-AbstractDistMatrixBase<T>::AbstractDistMatrixBase
+AbstractDistMatrix<T>::AbstractDistMatrix
 ( int height, 
   int width, 
   bool constrainedColAlignment, 
@@ -529,7 +376,7 @@ AbstractDistMatrixBase<T>::AbstractDistMatrixBase
 
 template<typename T>
 inline
-AbstractDistMatrixBase<T>::AbstractDistMatrixBase
+AbstractDistMatrix<T>::AbstractDistMatrix
 ( int height, 
   int width, 
   bool constrainedColAlignment, 
@@ -559,7 +406,7 @@ AbstractDistMatrixBase<T>::AbstractDistMatrixBase
 
 template<typename T>
 inline
-AbstractDistMatrixBase<T>::AbstractDistMatrixBase
+AbstractDistMatrix<T>::AbstractDistMatrix
 ( int height, 
   int width, 
   int colAlignment, 
@@ -588,7 +435,7 @@ AbstractDistMatrixBase<T>::AbstractDistMatrixBase
 
 template<typename T>
 inline
-AbstractDistMatrixBase<T>::AbstractDistMatrixBase
+AbstractDistMatrix<T>::AbstractDistMatrix
 ( int height, 
   int width, 
   int colAlignment, 
@@ -617,13 +464,13 @@ AbstractDistMatrixBase<T>::AbstractDistMatrixBase
 
 template<typename T>
 inline
-AbstractDistMatrixBase<T>::~AbstractDistMatrixBase() 
+AbstractDistMatrix<T>::~AbstractDistMatrix() 
 { }
 
 #ifndef RELEASE
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::AssertNotLockedView() const
+AbstractDistMatrix<T>::AssertNotLockedView() const
 {
     if( _viewing && _lockedView )
         throw std::logic_error
@@ -632,7 +479,7 @@ AbstractDistMatrixBase<T>::AssertNotLockedView() const
 
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::AssertNotStoringData() const
+AbstractDistMatrix<T>::AssertNotStoringData() const
 {
     if( _localMatrix.MemorySize() > 0 )
         throw std::logic_error
@@ -641,7 +488,7 @@ AbstractDistMatrixBase<T>::AssertNotStoringData() const
 
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::AssertValidEntry
+AbstractDistMatrix<T>::AssertValidEntry
 ( int i, int j ) const
 {
     if( i < 0 || i >= this->Height() || j < 0 || j >= this->Width() )
@@ -655,7 +502,7 @@ AbstractDistMatrixBase<T>::AssertValidEntry
 
 template<typename T> template<typename U>
 inline void
-AbstractDistMatrixBase<T>::AssertValidSubmatrix
+AbstractDistMatrix<T>::AssertValidSubmatrix
 ( const AbstractDistMatrix<U>& A,
   int i, int j, int height, int width ) const
 {
@@ -675,7 +522,7 @@ AbstractDistMatrixBase<T>::AssertValidSubmatrix
 
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::AssertFreeColAlignment() const
+AbstractDistMatrix<T>::AssertFreeColAlignment() const
 {
     if( _constrainedColAlignment )
         throw std::logic_error
@@ -684,7 +531,7 @@ AbstractDistMatrixBase<T>::AssertFreeColAlignment() const
 
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::AssertFreeRowAlignment() const
+AbstractDistMatrix<T>::AssertFreeRowAlignment() const
 {
     if( _constrainedRowAlignment )
         throw std::logic_error
@@ -693,8 +540,8 @@ AbstractDistMatrixBase<T>::AssertFreeRowAlignment() const
 
 template<typename T> template<typename U>
 inline void
-AbstractDistMatrixBase<T>::AssertSameGrid
-( const AbstractDistMatrixBase<U>& A ) const
+AbstractDistMatrix<T>::AssertSameGrid
+( const AbstractDistMatrix<U>& A ) const
 {
     if( Grid() != A.Grid() )
         throw std::logic_error( "Assertion that grids match failed." );
@@ -702,8 +549,8 @@ AbstractDistMatrixBase<T>::AssertSameGrid
 
 template<typename T> template<typename U>
 inline void
-AbstractDistMatrixBase<T>::AssertSameSize
-( const AbstractDistMatrixBase<U>& A ) const
+AbstractDistMatrix<T>::AssertSameSize
+( const AbstractDistMatrix<U>& A ) const
 {
     if( Height() != A.Height() || Width() != A.Width() )
         throw std::logic_error
@@ -712,8 +559,8 @@ AbstractDistMatrixBase<T>::AssertSameSize
 
 template<typename T> template<typename U>
 inline void
-AbstractDistMatrixBase<T>::AssertSameSizeAsTranspose
-( const AbstractDistMatrixBase<U>& A ) const
+AbstractDistMatrix<T>::AssertSameSizeAsTranspose
+( const AbstractDistMatrix<U>& A ) const
 {
     if( Height() != A.Width() || Width() != A.Height() )
         throw std::logic_error
@@ -722,9 +569,8 @@ AbstractDistMatrixBase<T>::AssertSameSizeAsTranspose
 
 template<typename T> template<typename U>
 inline void
-AbstractDistMatrixBase<T>::AssertConforming1x2
-( const AbstractDistMatrixBase<U>& AL,
-  const AbstractDistMatrixBase<U>& AR ) const
+AbstractDistMatrix<T>::AssertConforming1x2
+( const AbstractDistMatrix<U>& AL, const AbstractDistMatrix<U>& AR ) const
 {
     if( AL.Height() != AR.Height() )    
     {
@@ -740,9 +586,9 @@ AbstractDistMatrixBase<T>::AssertConforming1x2
 
 template<typename T> template<typename U>
 inline void
-AbstractDistMatrixBase<T>::AssertConforming2x1
-( const AbstractDistMatrixBase<U>& AT,
-  const AbstractDistMatrixBase<U>& AB ) const
+AbstractDistMatrix<T>::AssertConforming2x1
+( const AbstractDistMatrix<U>& AT,
+  const AbstractDistMatrix<U>& AB ) const
 {
     if( AT.Width() != AB.Width() )
     {
@@ -758,11 +604,9 @@ AbstractDistMatrixBase<T>::AssertConforming2x1
 
 template<typename T> template<typename U>
 inline void
-AbstractDistMatrixBase<T>::AssertConforming2x2
-( const AbstractDistMatrixBase<U>& ATL,
-  const AbstractDistMatrixBase<U>& ATR,
-  const AbstractDistMatrixBase<U>& ABL,
-  const AbstractDistMatrixBase<U>& ABR ) const
+AbstractDistMatrix<T>::AssertConforming2x2
+( const AbstractDistMatrix<U>& ATL, const AbstractDistMatrix<U>& ATR,
+  const AbstractDistMatrix<U>& ABL, const AbstractDistMatrix<U>& ABR ) const
 {
     if( ATL.Width() != ABL.Width() || ATR.Width() != ABR.Width() ||
         ATL.Height() != ATR.Height() || ABL.Height() != ABR.Height() )
@@ -786,27 +630,27 @@ AbstractDistMatrixBase<T>::AssertConforming2x2
 
 template<typename T>
 inline bool
-AbstractDistMatrixBase<T>::Viewing() const
+AbstractDistMatrix<T>::Viewing() const
 { return _viewing; }
 
 template<typename T>
 inline bool
-AbstractDistMatrixBase<T>::LockedView() const
+AbstractDistMatrix<T>::LockedView() const
 { return _lockedView; }
 
 template<typename T>
 inline int
-AbstractDistMatrixBase<T>::Height() const
+AbstractDistMatrix<T>::Height() const
 { return _height; }
 
 template<typename T>
 inline int
-AbstractDistMatrixBase<T>::Width() const
+AbstractDistMatrix<T>::Width() const
 { return _width; }
 
 template<typename T>
 inline int
-AbstractDistMatrixBase<T>::DiagonalLength
+AbstractDistMatrix<T>::DiagonalLength
 ( int offset ) const
 {
     int width = this->Width();
@@ -827,7 +671,7 @@ AbstractDistMatrixBase<T>::DiagonalLength
 
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::FreeAlignments() 
+AbstractDistMatrix<T>::FreeAlignments() 
 { 
     _constrainedColAlignment = false;
     _constrainedRowAlignment = false;
@@ -835,107 +679,107 @@ AbstractDistMatrixBase<T>::FreeAlignments()
     
 template<typename T>
 inline bool
-AbstractDistMatrixBase<T>::ConstrainedColAlignment() const
+AbstractDistMatrix<T>::ConstrainedColAlignment() const
 { return _constrainedColAlignment; }
 
 template<typename T>
 inline bool
-AbstractDistMatrixBase<T>::ConstrainedRowAlignment() const
+AbstractDistMatrix<T>::ConstrainedRowAlignment() const
 { return _constrainedRowAlignment; }
 
 template<typename T>
 inline int
-AbstractDistMatrixBase<T>::ColAlignment() const
+AbstractDistMatrix<T>::ColAlignment() const
 { return _colAlignment; }
 
 template<typename T>
 inline int
-AbstractDistMatrixBase<T>::RowAlignment() const
+AbstractDistMatrix<T>::RowAlignment() const
 { return _rowAlignment; }
 
 template<typename T>
 inline int
-AbstractDistMatrixBase<T>::ColShift() const
+AbstractDistMatrix<T>::ColShift() const
 { return _colShift; }
 
 template<typename T>
 inline int
-AbstractDistMatrixBase<T>::RowShift() const
+AbstractDistMatrix<T>::RowShift() const
 { return _rowShift; }
 
 template<typename T>
 inline const elemental::Grid&
-AbstractDistMatrixBase<T>::Grid() const
+AbstractDistMatrix<T>::Grid() const
 { return *_g; }
 
 template<typename T>
 inline size_t
-AbstractDistMatrixBase<T>::AllocatedMemory() const
+AbstractDistMatrix<T>::AllocatedMemory() const
 { return _localMatrix.MemorySize(); }
 
 template<typename T>
 inline int
-AbstractDistMatrixBase<T>::LocalHeight() const
+AbstractDistMatrix<T>::LocalHeight() const
 { return _localMatrix.Height(); }
 
 template<typename T>
 inline int
-AbstractDistMatrixBase<T>::LocalWidth() const
+AbstractDistMatrix<T>::LocalWidth() const
 { return _localMatrix.Width(); }
 
 template<typename T>
 inline int
-AbstractDistMatrixBase<T>::LocalLDim() const
+AbstractDistMatrix<T>::LocalLDim() const
 { return _localMatrix.LDim(); }
 
 template<typename T>
-inline const T
-AbstractDistMatrixBase<T>::GetLocalEntry
+inline T
+AbstractDistMatrix<T>::GetLocalEntry
 ( int i, int j ) const
 { return _localMatrix.Get(i,j); }
 
 template<typename T>
 void
-AbstractDistMatrixBase<T>::SetLocalEntry
+AbstractDistMatrix<T>::SetLocalEntry
 ( int iLocal, int jLocal, T alpha )
 { _localMatrix.Set(iLocal,jLocal,alpha); }
 
 template<typename T>
 void
-AbstractDistMatrixBase<T>::UpdateLocalEntry
+AbstractDistMatrix<T>::UpdateLocalEntry
 ( int iLocal, int jLocal, T alpha )
 { _localMatrix.Update(iLocal,jLocal,alpha); }
 
 template<typename T>
 inline T*
-AbstractDistMatrixBase<T>::LocalBuffer
+AbstractDistMatrix<T>::LocalBuffer
 ( int iLocal, int jLocal )
 { return _localMatrix.Buffer(iLocal,jLocal); }
 
 template<typename T>
 inline const T*
-AbstractDistMatrixBase<T>::LockedLocalBuffer
+AbstractDistMatrix<T>::LockedLocalBuffer
 ( int iLocal, int jLocal ) const
 { return _localMatrix.LockedBuffer(iLocal,jLocal); }
 
 template<typename T>
 inline Matrix<T>&
-AbstractDistMatrixBase<T>::LocalMatrix()
+AbstractDistMatrix<T>::LocalMatrix()
 { return _localMatrix; }
 
 template<typename T>
 inline const Matrix<T>&
-AbstractDistMatrixBase<T>::LockedLocalMatrix() const
+AbstractDistMatrix<T>::LockedLocalMatrix() const
 { return _localMatrix; }
 
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::SetToZero()
+AbstractDistMatrix<T>::SetToZero()
 { _localMatrix.SetToZero(); }
 
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::Empty()
+AbstractDistMatrix<T>::Empty()
 {
     _localMatrix.Empty();
     _auxMemory.Empty();
@@ -953,22 +797,22 @@ AbstractDistMatrixBase<T>::Empty()
 
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::Print( const std::string msg ) const
+AbstractDistMatrix<T>::Print( const std::string msg ) const
 { PrintBase( std::cout, msg ); }
 
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::Print
+AbstractDistMatrix<T>::Print
 ( std::ostream& os, const std::string msg ) const
 { PrintBase( os, msg ); }
 
 template<typename T>
 inline void
-AbstractDistMatrixBase<T>::Write
+AbstractDistMatrix<T>::Write
 ( const std::string filename, const std::string msg ) const
 {
 #ifndef RELEASE
-    PushCallStack("AbstractDistMatrixBase::Write");
+    PushCallStack("AbstractDistMatrix::Write");
 #endif
     const elemental::Grid& g = Grid();
     const int commRank = imports::mpi::CommRank( g.VCComm() ); 
@@ -991,210 +835,44 @@ AbstractDistMatrixBase<T>::Write
 }
 
 //
-// Real AbstractDistMatrix
+// Complex-only specializations
 //
 
-template<typename Z>
-inline
-AbstractDistMatrix<Z>::AbstractDistMatrix
-( int height,
-  int width,
-  bool constrainedColAlignment,
-  bool constrainedRowAlignment,
-  int colAlignment,
-  int rowAlignment,
-  int colShift,
-  int rowShift,
-  int localHeight,
-  int localWidth,
-  const elemental::Grid& g )
-: ADMB(height,width,constrainedColAlignment,constrainedRowAlignment,
-       colAlignment,rowAlignment,colShift,rowShift,
-       localHeight,localWidth,g)
-{ }
-
-template<typename Z>
-inline
-AbstractDistMatrix<Z>::AbstractDistMatrix
-( int height,
-  int width,
-  bool constrainedColAlignment,
-  bool constrainedRowAlignment,
-  int colAlignment,
-  int rowAlignment,
-  int colShift,
-  int rowShift,
-  int localHeight,
-  int localWidth,
-  int ldim,
-  const elemental::Grid& g )
-: ADMB(height,width,constrainedColAlignment,constrainedRowAlignment,
-       colAlignment,rowAlignment,colShift,rowShift,
-       localHeight,localWidth,ldim,g)
-{ }
-
-template<typename Z>
-inline
-AbstractDistMatrix<Z>::AbstractDistMatrix
-( int height,
-  int width,
-  int colAlignment,
-  int rowAlignment,
-  int colShift,
-  int rowShift,
-  int localHeight,
-  int localWidth,
-  const Z* buffer,
-  int ldim,
-  const elemental::Grid& g )
-: ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
-       localHeight,localWidth,buffer,ldim,g)
-{ }
-
-template<typename Z>
-inline
-AbstractDistMatrix<Z>::AbstractDistMatrix
-( int height,
-  int width,
-  int colAlignment,
-  int rowAlignment,
-  int colShift,
-  int rowShift,
-  int localHeight,
-  int localWidth,
-  Z* buffer,
-  int ldim,
-  const elemental::Grid& g )
-: ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
-       localHeight,localWidth,buffer,ldim,g)
-{ }
-
-template<typename Z>
-inline
-AbstractDistMatrix<Z>::~AbstractDistMatrix()
-{ }
-
-//
-// Complex AbstractDistMatrix
-//
-
-#ifndef WITHOUT_COMPLEX
-template<typename Z>
-inline
-AbstractDistMatrix<std::complex<Z> >::AbstractDistMatrix
-( int height,
-  int width,
-  bool constrainedColAlignment,
-  bool constrainedRowAlignment,
-  int colAlignment,
-  int rowAlignment,
-  int colShift,
-  int rowShift,
-  int localHeight,
-  int localWidth,
-  const elemental::Grid& g )
-: ADMB(height,width,constrainedColAlignment,constrainedRowAlignment,
-       colAlignment,rowAlignment,colShift,rowShift,
-       localHeight,localWidth,g)
-{ }
-
-template<typename Z>
-inline
-AbstractDistMatrix<std::complex<Z> >::AbstractDistMatrix
-( int height,
-  int width,
-  bool constrainedColAlignment,
-  bool constrainedRowAlignment,
-  int colAlignment,
-  int rowAlignment,
-  int colShift,
-  int rowShift,
-  int localHeight,
-  int localWidth,
-  int ldim,
-  const elemental::Grid& g )
-: ADMB(height,width,constrainedColAlignment,constrainedRowAlignment,
-       colAlignment,rowAlignment,colShift,rowShift,
-       localHeight,localWidth,ldim,g)
-{ }
-
-template<typename Z>
-inline
-AbstractDistMatrix<std::complex<Z> >::AbstractDistMatrix
-( int height,
-  int width,
-  int colAlignment,
-  int rowAlignment,
-  int colShift,
-  int rowShift,
-  int localHeight,
-  int localWidth,
-  const std::complex<Z>* buffer,
-  int ldim,
-  const elemental::Grid& g )
-: ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
-       localHeight,localWidth,buffer,ldim,g)
-{ }
-
-template<typename Z>
-inline
-AbstractDistMatrix<std::complex<Z> >::AbstractDistMatrix
-( int height,
-  int width,
-  int colAlignment,
-  int rowAlignment,
-  int colShift,
-  int rowShift,
-  int localHeight,
-  int localWidth,
-  std::complex<Z>* buffer,
-  int ldim,
-  const elemental::Grid& g )
-: ADMB(height,width,colAlignment,rowAlignment,colShift,rowShift,
-       localHeight,localWidth,buffer,ldim,g)
-{ }
-
-template<typename Z>
-inline
-AbstractDistMatrix<std::complex<Z> >::~AbstractDistMatrix()
-{ }
-
-template<typename Z>
-inline const Z
-AbstractDistMatrix<std::complex<Z> >::GetRealLocalEntry
+template<typename T>
+inline typename RealBase<T>::type
+AbstractDistMatrix<T>::GetRealLocalEntry
 ( int iLocal, int jLocal ) const
 { return this->_localMatrix.GetReal(iLocal,jLocal); }
 
-template<typename Z>
-inline const Z
-AbstractDistMatrix<std::complex<Z> >::GetImagLocalEntry
+template<typename T>
+inline typename RealBase<T>::type
+AbstractDistMatrix<T>::GetImagLocalEntry
 ( int iLocal, int jLocal ) const
 { return this->_localMatrix.GetImag(iLocal,jLocal); }
 
-template<typename Z>
+template<typename T>
 inline void
-AbstractDistMatrix<std::complex<Z> >::SetRealLocalEntry
-( int iLocal, int jLocal, Z alpha )
+AbstractDistMatrix<T>::SetRealLocalEntry
+( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 { this->_localMatrix.SetReal(iLocal,jLocal,alpha); }
 
-template<typename Z>
+template<typename T>
 inline void
-AbstractDistMatrix<std::complex<Z> >::SetImagLocalEntry
-( int iLocal, int jLocal, Z alpha )
+AbstractDistMatrix<T>::SetImagLocalEntry
+( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 { this->_localMatrix.SetImag(iLocal,jLocal,alpha); }
 
-template<typename Z>
+template<typename T>
 inline void
-AbstractDistMatrix<std::complex<Z> >::UpdateRealLocalEntry
-( int iLocal, int jLocal, Z alpha )
+AbstractDistMatrix<T>::UpdateRealLocalEntry
+( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 { this->_localMatrix.UpdateReal(iLocal,jLocal,alpha); }
 
-template<typename Z>
+template<typename T>
 inline void
-AbstractDistMatrix<std::complex<Z> >::UpdateImagLocalEntry
-( int iLocal, int jLocal, Z alpha )
+AbstractDistMatrix<T>::UpdateImagLocalEntry
+( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 { this->_localMatrix.UpdateImag(iLocal,jLocal,alpha); }
-#endif // WITHOUT_COMPLEX
 
 } // elemental
 

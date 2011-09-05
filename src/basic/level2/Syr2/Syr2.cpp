@@ -33,7 +33,6 @@
 #include "elemental/basic.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::utilities;
 
 // Template conventions:
 //   G: general datatype

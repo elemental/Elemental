@@ -138,7 +138,7 @@ advanced::internal::HermitianMaxNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numUpperRows = utilities::LocalLength(j+1,colShift,r);
+            int numUpperRows = LocalLength(j+1,colShift,r);
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
                 const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
@@ -151,7 +151,7 @@ advanced::internal::HermitianMaxNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numStrictlyUpperRows = utilities::LocalLength(j,colShift,r);
+            int numStrictlyUpperRows = LocalLength(j,colShift,r);
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
             {
@@ -193,7 +193,7 @@ advanced::internal::HermitianMaxNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numUpperRows = utilities::LocalLength(j+1,colShift,r);
+            int numUpperRows = LocalLength(j+1,colShift,r);
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
                 const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
@@ -206,7 +206,7 @@ advanced::internal::HermitianMaxNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numStrictlyUpperRows = utilities::LocalLength(j,colShift,r);
+            int numStrictlyUpperRows = LocalLength(j,colShift,r);
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
             {

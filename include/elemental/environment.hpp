@@ -137,7 +137,7 @@ struct RealBase<std::complex<R> >
 
 // We define an output stream that does nothing. This is done so that the 
 // root process can be used to print data to a file's ostream while all other 
-// processes use a null ostream. This is used within the DistMatrixBase class's
+// processes use a null ostream. This is used within the DistMatrix class's
 // 'Write' functions.
 struct NullStream : std::ostream
 {
@@ -173,8 +173,10 @@ public:
     }
 };
 
-//template<typename R>
-//const ScalarWrapper<R> WrapScalar( const R alpha );
+/*
+template<typename R>
+const ScalarWrapper<R> WrapScalar( const R alpha );
+*/
 template<typename R>
 R WrapScalar( const R alpha ) { return alpha; }
 
@@ -194,8 +196,10 @@ public:
     }
 };
 
-//template<typename R>
-//const ScalarWrapper<std::complex<R> > WrapScalar( const std::complex<R> alpha );
+/*
+template<typename R>
+const ScalarWrapper<std::complex<R> > WrapScalar( const std::complex<R> alpha );
+*/
 template<typename R>
 std::complex<R> WrapScalar( const std::complex<R> alpha ) { return alpha; }
 #endif

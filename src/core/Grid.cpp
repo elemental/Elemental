@@ -181,7 +181,7 @@ elemental::Grid::SetUpGrid()
         throw logic_error( msg.str() );
     }
 
-    _gcd = utilities::GCD( _r, _c );
+    _gcd = elemental::GCD( _r, _c );
     int lcm = _p / _gcd;
 
 #ifndef RELEASE

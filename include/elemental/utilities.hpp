@@ -34,7 +34,6 @@
 #define ELEMENTAL_UTILITIES_HPP 1
 
 namespace elemental {
-namespace utilities {
 
 int GCD( int a, int b ); 
 
@@ -56,7 +55,6 @@ int Shift( int index, int alignment, int modulus );
 
 int RawShift( int index, int alignment, int modulus );
 
-} // utilities
 } // elemental
 
 //----------------------------------------------------------------------------//
@@ -64,17 +62,17 @@ int RawShift( int index, int alignment, int modulus );
 //----------------------------------------------------------------------------//
 
 inline int
-elemental::utilities::GCD( int a, int b )
+elemental::GCD( int a, int b )
 {
 #ifndef RELEASE
     if( a < 0 || b < 0 )
         throw std::logic_error( "GCD called with negative argument." );
 #endif
-    return elemental::utilities::RawGCD( a, b );
+    return elemental::RawGCD( a, b );
 }
 
 inline int
-elemental::utilities::RawGCD( int a, int b )
+elemental::RawGCD( int a, int b )
 {
     if( b == 0 )
         return a;
@@ -83,10 +81,10 @@ elemental::utilities::RawGCD( int a, int b )
 }
 
 inline int
-elemental::utilities::LocalLength( int n, int shift, int modulus )
+elemental::LocalLength( int n, int shift, int modulus )
 {
 #ifndef RELEASE
-    PushCallStack("utilities::LocalLength");
+    PushCallStack("LocalLength");
     if( n < 0 )
         throw std::logic_error( "n must be non-negative." );
     if( shift < 0 || shift >= modulus )
@@ -100,21 +98,21 @@ elemental::utilities::LocalLength( int n, int shift, int modulus )
         throw std::logic_error( "Modulus must be positive." );
     PopCallStack();
 #endif
-    return elemental::utilities::RawLocalLength( n, shift, modulus );
+    return elemental::RawLocalLength( n, shift, modulus );
 }
 
 inline int
-elemental::utilities::RawLocalLength( int n, int shift, int modulus )
+elemental::RawLocalLength( int n, int shift, int modulus )
 {
     return ( n > shift ? (n - shift - 1)/modulus + 1 : 0 );
 }
 
 inline int
-elemental::utilities::LocalLength
+elemental::LocalLength
 ( int n, int index, int alignment, int modulus )
 {
 #ifndef RELEASE
-    PushCallStack("utilities::LocalLength");
+    PushCallStack("LocalLength");
 #endif
     int shift = Shift( index, alignment, modulus );
     int localLength = LocalLength( n, shift, modulus );
@@ -125,7 +123,7 @@ elemental::utilities::LocalLength
 }
 
 inline int
-elemental::utilities::RawLocalLength
+elemental::RawLocalLength
 ( int n, int index, int alignment, int modulus )
 {
     int shift = RawShift( index, alignment, modulus );
@@ -134,21 +132,21 @@ elemental::utilities::RawLocalLength
 }
 
 inline int
-elemental::utilities::MaxLocalLength( int n, int modulus )
+elemental::MaxLocalLength( int n, int modulus )
 {
 #ifndef RELEASE
-    PushCallStack("utilities::MaxLocalLength");
+    PushCallStack("MaxLocalLength");
     if( n < 0 )
         throw std::logic_error( "n must be non-negative." );
     if( modulus <= 0 )
         throw std::logic_error( "Modulus must be positive." );
     PopCallStack();
 #endif
-    return elemental::utilities::RawMaxLocalLength( n, modulus );
+    return elemental::RawMaxLocalLength( n, modulus );
 }
 
 inline int
-elemental::utilities::RawMaxLocalLength( int n, int modulus )
+elemental::RawMaxLocalLength( int n, int modulus )
 {
     return ( n > 0 ? (n - 1)/modulus + 1 : 0 );
 }
@@ -157,10 +155,10 @@ elemental::utilities::RawMaxLocalLength( int n, int modulus )
 // 'index', with distribution alignment 'alignment' and number of process 
 // rows/cols 'modulus'
 inline int
-elemental::utilities::Shift( int index, int alignment, int modulus )
+elemental::Shift( int index, int alignment, int modulus )
 {
 #ifndef RELEASE
-    PushCallStack("utilities::Shift");
+    PushCallStack("Shift");
     if( index < 0 || index >= modulus )
     {
         std::ostringstream msg;
@@ -179,11 +177,11 @@ elemental::utilities::Shift( int index, int alignment, int modulus )
         throw std::logic_error( "Modulus must be positive." );
     PopCallStack();
 #endif
-    return elemental::utilities::RawShift( index, alignment, modulus );
+    return elemental::RawShift( index, alignment, modulus );
 }
 
 inline int
-elemental::utilities::RawShift( int index, int alignment, int modulus )
+elemental::RawShift( int index, int alignment, int modulus )
 {
     return (index + modulus - alignment) % modulus;
 }

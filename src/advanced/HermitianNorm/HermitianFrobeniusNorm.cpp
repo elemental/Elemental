@@ -152,7 +152,7 @@ advanced::internal::HermitianFrobeniusNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numUpperRows = utilities::LocalLength(j+1,colShift,r);
+            int numUpperRows = LocalLength(j+1,colShift,r);
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
                 int i = colShift + iLocal*r;
@@ -169,7 +169,7 @@ advanced::internal::HermitianFrobeniusNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numStrictlyUpperRows = utilities::LocalLength(j,colShift,r);
+            int numStrictlyUpperRows = LocalLength(j,colShift,r);
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
             {
@@ -220,7 +220,7 @@ advanced::internal::HermitianFrobeniusNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numUpperRows = utilities::LocalLength(j+1,colShift,r);
+            int numUpperRows = LocalLength(j+1,colShift,r);
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
                 int i = colShift + iLocal*r;
@@ -237,7 +237,7 @@ advanced::internal::HermitianFrobeniusNorm
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numStrictlyUpperRows = utilities::LocalLength(j,colShift,r);
+            int numStrictlyUpperRows = LocalLength(j,colShift,r);
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
             {

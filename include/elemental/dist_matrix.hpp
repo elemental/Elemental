@@ -35,7 +35,15 @@
 
 #include "elemental/matrix.hpp"
 
-#include "elemental/dist_matrix/forward.hpp"
+namespace elemental {
+
+template<typename T>
+class AbstractDistMatrix;
+
+template<typename T, Distribution ColDist, Distribution RowDist>
+class DistMatrix;
+
+}
 
 #include "elemental/dist_matrix/abstract.hpp"
 #include "elemental/dist_matrix/mc_mr.hpp"

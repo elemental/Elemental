@@ -34,7 +34,6 @@
 using namespace std;
 using namespace elemental;
 using namespace elemental::imports;
-using namespace elemental::utilities;
 
 template<typename F>
 void

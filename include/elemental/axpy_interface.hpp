@@ -226,7 +226,6 @@ AxpyInterface<T>::HandleLocalToGlobalData()
     PushCallStack("AxpyInterface::HandleLocalToGlobalData");
 #endif
     using namespace elemental::imports;
-    using namespace elemental::utilities;
 
     DistMatrix<T,MC,MR>& Y = *_localToGlobalMat;
     const Grid& g = Y.Grid();
@@ -342,7 +341,6 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
     PushCallStack("AxpyInterface::HandleGlobalToLocalRequest");
 #endif
     using namespace elemental::imports;
-    using namespace elemental::utilities;
 
     const DistMatrix<T,MC,MR>& X = *_globalToLocalMat;
     const Grid& g = X.Grid();
@@ -673,7 +671,6 @@ AxpyInterface<T>::AxpyLocalToGlobal
     PushCallStack("axpy_interface::AxpyLocalToGlobal");
 #endif
     using namespace elemental::imports;
-    using namespace elemental::utilities;
 
     DistMatrix<T,MC,MR>& Y = *_localToGlobalMat;
     if( i < 0 || j < 0 )
@@ -763,7 +760,6 @@ AxpyInterface<T>::AxpyGlobalToLocal
     PushCallStack("axpy_interface::AxpyGlobalToLocal");
 #endif
     using namespace elemental::imports;
-    using namespace elemental::utilities;
 
     const DistMatrix<T,MC,MR>& X = *_globalToLocalMat;
 

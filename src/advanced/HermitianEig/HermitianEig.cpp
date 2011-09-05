@@ -88,10 +88,10 @@ RealToRealInPlaceRedist
     const int colAlignment = paddedZ.ColAlignment();
 
     const int localWidthOfInput = 
-        utilities::LocalLength(width,g.VRRank(),rowAlignmentOfInput,p);
+        LocalLength(width,g.VRRank(),rowAlignmentOfInput,p);
 
-    const int maxHeight = utilities::MaxLocalLength(height,r);
-    const int maxWidth = utilities::MaxLocalLength(width,p);
+    const int maxHeight = MaxLocalLength(height,r);
+    const int maxWidth = MaxLocalLength(width,p);
     const int portionSize = 
         std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
     
@@ -108,9 +108,8 @@ RealToRealInPlaceRedist
     {
         double* data = &sendBuffer[k*portionSize];
 
-        const int thisColShift = utilities::Shift(k,colAlignment,r);
-        const int thisLocalHeight = 
-            utilities::LocalLength(height,thisColShift,r);
+        const int thisColShift = Shift(k,colAlignment,r);
+        const int thisLocalHeight = LocalLength(height,thisColShift,r);
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for COLLAPSE(2)
@@ -127,7 +126,7 @@ RealToRealInPlaceRedist
       recvBuffer, portionSize, g.MCComm() );
 
     // Unpack
-    const int localHeight = utilities::LocalLength(height,row,colAlignment,r);
+    const int localHeight = LocalLength(height,row,colAlignment,r);
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
     #pragma omp parallel for
 #endif
@@ -136,11 +135,9 @@ RealToRealInPlaceRedist
         const double* data = &recvBuffer[k*portionSize];
 
         const int thisRank = col+k*c;
-        const int thisRowShift = 
-            utilities::Shift(thisRank,rowAlignmentOfInput,p);
+        const int thisRowShift = Shift(thisRank,rowAlignmentOfInput,p);
         const int thisRowOffset = (thisRowShift-rowShift) / c;
-        const int thisLocalWidth = 
-            utilities::LocalLength(width,thisRowShift,p);
+        const int thisLocalWidth = LocalLength(width,thisRowShift,p);
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
@@ -174,10 +171,10 @@ RealToComplexInPlaceRedist
     const int colAlignment = paddedZ.ColAlignment();
 
     const int localWidthOfInput = 
-        utilities::LocalLength(width,g.VRRank(),rowAlignmentOfInput,p);
+        LocalLength(width,g.VRRank(),rowAlignmentOfInput,p);
 
-    const int maxHeight = utilities::MaxLocalLength(height,r);
-    const int maxWidth = utilities::MaxLocalLength(width,p);
+    const int maxHeight = MaxLocalLength(height,r);
+    const int maxWidth = MaxLocalLength(width,p);
     const int portionSize = 
         std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
     
@@ -194,9 +191,8 @@ RealToComplexInPlaceRedist
     {
         double* data = &sendBuffer[k*portionSize];
 
-        const int thisColShift = utilities::Shift(k,colAlignment,r);
-        const int thisLocalHeight = 
-            utilities::LocalLength(height,thisColShift,r);
+        const int thisColShift = Shift(k,colAlignment,r);
+        const int thisLocalHeight = LocalLength(height,thisColShift,r);
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for COLLAPSE(2)
@@ -213,7 +209,7 @@ RealToComplexInPlaceRedist
       recvBuffer, portionSize, g.MCComm() );
 
     // Unpack
-    const int localHeight = utilities::LocalLength(height,row,colAlignment,r);
+    const int localHeight = LocalLength(height,row,colAlignment,r);
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
     #pragma omp parallel for
 #endif
@@ -222,11 +218,9 @@ RealToComplexInPlaceRedist
         const double* data = &recvBuffer[k*portionSize];
 
         const int thisRank = col+k*c;
-        const int thisRowShift = 
-            utilities::Shift(thisRank,rowAlignmentOfInput,p);
+        const int thisRowShift = Shift(thisRank,rowAlignmentOfInput,p);
         const int thisRowOffset = (thisRowShift-rowShift) / c;
-        const int thisLocalWidth = 
-            utilities::LocalLength(width,thisRowShift,p);
+        const int thisLocalWidth = LocalLength(width,thisRowShift,p);
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
@@ -272,8 +266,8 @@ elemental::advanced::HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
-    const int K = utilities::MaxLocalLength(k,g.Size())*g.Size(); 
+    const int N = MaxLocalLength(n,g.Height())*g.Height();
+    const int K = MaxLocalLength(k,g.Size())*g.Size(); 
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
@@ -352,8 +346,7 @@ elemental::advanced::HermitianEig
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = 
-            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         double* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
@@ -488,8 +481,8 @@ elemental::advanced::HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
-    const int K = utilities::MaxLocalLength(k,g.Size())*g.Size(); 
+    const int N = MaxLocalLength(n,g.Height())*g.Height();
+    const int K = MaxLocalLength(k,g.Size())*g.Size(); 
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
@@ -568,8 +561,7 @@ elemental::advanced::HermitianEig
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = 
-            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         double* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
@@ -702,12 +694,12 @@ elemental::advanced::HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
+    const int N = MaxLocalLength(n,g.Height())*g.Height();
     // we don't know k yet, but if a buffer is passed in then it must be able
     // to account for the case where k=n.
     if( paddedZ.Viewing() )
     {
-        const int K = utilities::MaxLocalLength(n,g.Size())*g.Size();
+        const int K = MaxLocalLength(n,g.Size())*g.Size();
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
                   ("paddedZ was a view but was not properly padded.");
@@ -807,7 +799,7 @@ elemental::advanced::HermitianEig
 
         if( !paddedZ.Viewing() )
         {
-            const int K = utilities::MaxLocalLength(k,g.Size())*g.Size(); 
+            const int K = MaxLocalLength(k,g.Size())*g.Size(); 
             paddedZ.Align( 0, 0 );
             paddedZ.ResizeTo( N, K );
         }
@@ -819,8 +811,7 @@ elemental::advanced::HermitianEig
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = 
-            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         double* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
@@ -1338,8 +1329,8 @@ elemental::advanced::HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
-    const int K = utilities::MaxLocalLength(k,g.Size())*g.Size();
+    const int N = MaxLocalLength(n,g.Height())*g.Height();
+    const int K = MaxLocalLength(k,g.Size())*g.Size();
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
@@ -1419,8 +1410,7 @@ elemental::advanced::HermitianEig
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = 
-            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         double* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
@@ -1557,8 +1547,8 @@ elemental::advanced::HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
-    const int K = utilities::MaxLocalLength(k,g.Size())*g.Size();
+    const int N = MaxLocalLength(n,g.Height())*g.Height();
+    const int K = MaxLocalLength(k,g.Size())*g.Size();
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
@@ -1638,8 +1628,7 @@ elemental::advanced::HermitianEig
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = 
-            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         double* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
@@ -1774,12 +1763,12 @@ elemental::advanced::HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = utilities::MaxLocalLength(n,g.Height())*g.Height();
+    const int N = MaxLocalLength(n,g.Height())*g.Height();
     // we don't know k yet, but if a buffer is passed in then it must be able
     // to account for the case where k=n.
     if( paddedZ.Viewing() )
     {
-        const int K = utilities::MaxLocalLength(n,g.Size())*g.Size();
+        const int K = MaxLocalLength(n,g.Size())*g.Size();
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
                   ("paddedZ was a view but was not properly padded.");
@@ -1880,7 +1869,7 @@ elemental::advanced::HermitianEig
 
         if( !paddedZ.Viewing() )
         {
-            const int K = utilities::MaxLocalLength(k,g.Size())*g.Size();
+            const int K = MaxLocalLength(k,g.Size())*g.Size();
             paddedZ.Align( 0, 0 );
             paddedZ.ResizeTo( N, K );
         }
@@ -1892,8 +1881,7 @@ elemental::advanced::HermitianEig
         // of paddedZBuffer so that we can later redistribute in place
         const int paddedZBufferSize = 
             2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = 
-            utilities::LocalLength(k,g.VRRank(),g.Size());
+        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         double* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];

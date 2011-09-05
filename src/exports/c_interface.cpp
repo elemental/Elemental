@@ -2458,7 +2458,7 @@ LocalLength
 { 
     int localLength;
     CATCH(
-        localLength = elemental::utilities::LocalLength
+        localLength = elemental::LocalLength
         ( globalLength, myIndex, alignment, modulus );
     );
     return localLength;
