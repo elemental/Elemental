@@ -248,3 +248,7 @@ eight processes would be::
 
 Only the first line of the output should change with respect to when run on 
 a single process.
+
+Troubleshooting
+===============
+If you run into build problems, please email `elemental-framework@googlegroups.com <mailto:elemental-framework@googlegroups.com>`_ and make sure to attach the file ``include/elemental/config.h`` that should be generated within your build directory.
