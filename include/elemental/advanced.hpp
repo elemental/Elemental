@@ -471,6 +471,32 @@ R HermitianNorm
 #endif
 
 //----------------------------------------------------------------------------//
+// SymmetricNorm                                                              //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+R SymmetricNorm
+( Shape shape, const Matrix<R>& A, 
+  NormType type=FROBENIUS_NORM );
+
+template<typename R>
+R SymmetricNorm
+( Shape shape, const DistMatrix<R,MC,MR>& A, 
+  NormType type=FROBENIUS_NORM );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+R SymmetricNorm
+( Shape shape, const Matrix<std::complex<R> >& A, 
+  NormType type=FROBENIUS_NORM );
+
+template<typename R>
+R SymmetricNorm
+( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A, 
+  NormType type=FROBENIUS_NORM );
+#endif
+
+//----------------------------------------------------------------------------//
 // QR (QR factorization):                                                     //
 //                                                                            //
 // Performs a Householder QR factorization that overwrites the upper triangle //
@@ -911,6 +937,63 @@ elemental::advanced::LQ
 }
 #endif
 
+template<typename R>
+inline R
+elemental::advanced::SymmetricNorm
+( Shape shape, const Matrix<R>& A, NormType type )
+{ 
+#ifndef RELEASE
+    PushCallStack("advanced::SymmetricNorm");
+#endif
+    HermitianNorm( shape, A, type );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline R
+elemental::advanced::SymmetricNorm
+( Shape shape, const DistMatrix<R,MR,MC>& A, NormType type )
+{ 
+#ifndef RELEASE
+    PushCallStack("advanced::SymmetricNorm");
+#endif
+    HermitianNorm( shape, A, type );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline R
+elemental::advanced::SymmetricNorm
+( Shape shape, const Matrix<std::complex<R> >& A, NormType type )
+{ 
+#ifndef RELEASE
+    PushCallStack("advanced::SymmetricNorm");
+#endif
+    HermitianNorm( shape, A, type );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline R
+elemental::advanced::SymmetricNorm
+( Shape shape, const DistMatrix<std::complex<R>,MR,MC>& A, NormType type )
+{ 
+#ifndef RELEASE
+    PushCallStack("advanced::SymmetricNorm");
+#endif
+    HermitianNorm( shape, A, type );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // WITHOUT_COMPLEX
 
 template<typename R>
 inline void

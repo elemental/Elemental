@@ -10,8 +10,12 @@ Describe :math:`||A||_1`, :math:`||A||_\infty`, and
 :math:`||A||_F`, and the maximum norm.
 
 HermitianNorm
------------------------
+-------------
 Same, but with added Shape parameter. Give examples.
+
+SymmetricNorm
+-------------
+Meant for symmetric matrices. Currenty a wrapper around ``HermitianNorm``.
 
 Factorizations
 ==============
