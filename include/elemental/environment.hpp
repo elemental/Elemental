@@ -163,22 +163,15 @@ class ScalarWrapper
 {
     const R _value;
 public:
-    ScalarWrapper( const R alpha ) : _value(alpha) { }
+    ScalarWrapper( R alpha ) : _value(alpha) { }
 
     friend std::ostream& operator<<
-    ( std::ostream& out, const ScalarWrapper<R> alpha )
+    ( std::ostream& out, ScalarWrapper<R> alpha )
     {
         out << alpha._value;
         return out;
     }
 };
-
-/*
-template<typename R>
-const ScalarWrapper<R> WrapScalar( const R alpha );
-*/
-template<typename R>
-R WrapScalar( const R alpha ) { return alpha; }
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
@@ -186,23 +179,38 @@ class ScalarWrapper<std::complex<R> >
 {
     const std::complex<R> _value;
 public:
-    ScalarWrapper( const std::complex<R> alpha ) : _value(alpha) { }
+    ScalarWrapper( std::complex<R> alpha ) : _value(alpha) { }
 
     friend std::ostream& operator<<
-    ( std::ostream& os, const ScalarWrapper<std::complex<R> > alpha )
+    ( std::ostream& os, ScalarWrapper<std::complex<R> > alpha )
     {
         os << std::real(alpha._value) << "+" << std::imag(alpha._value) << "i";
         return os;
     }
 };
+#endif // ifndef WITHOUT_COMPLEX
 
-/*
+// There is a known bug in the Darwin g++ that causes an internal compiler
+// error, so, by default, this routine is subverted.
+#ifdef DISABLE_SCALAR_WRAPPER
+
 template<typename R>
-const ScalarWrapper<std::complex<R> > WrapScalar( const std::complex<R> alpha );
-*/
+R WrapScalar( R alpha );
+#ifndef WITHOUT_COMPLEX
 template<typename R>
-std::complex<R> WrapScalar( const std::complex<R> alpha ) { return alpha; }
-#endif
+std::complex<R> WrapScalar( std::complex<R> alpha );
+#endif // ifndef WITHOUT_COMPLEX
+
+#else  // ifdef DISABLE_SCALAR_WRAPPER
+
+template<typename R>
+ScalarWrapper<R> WrapScalar( R alpha );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+ScalarWrapper<std::complex<R> > WrapScalar( std::complex<R> alpha );
+#endif // ifndef WITHOUT_COMPLEX
+
+#endif // ifdef DISABLE_SCALAR_WRAPPER
 
 } // elemental
 
@@ -212,19 +220,33 @@ std::complex<R> WrapScalar( const std::complex<R> alpha ) { return alpha; }
 
 namespace elemental {
 
-/*
-template<typename R>
-inline const ScalarWrapper<R>
-WrapScalar( const R alpha )
-{ return ScalarWrapper<R>( alpha ); }
+#ifdef DISABLE_SCALAR_WRAPPER
 
+template<typename R>
+inline R
+WrapScalar( R alpha )
+{ return alpha; }
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-inline const ScalarWrapper<std::complex<R> >
-WrapScalar( const std::complex<R> alpha )
+inline std::complex<R>
+WrapScalar( std::complex<R> alpha )
+{ return alpha; }
+#endif // ifndef WITHOUT_COMPLEX
+
+#else // ifdef DISABLE_SCALAR_WRAPPER
+
+template<typename R>
+inline ScalarWrapper<R>
+WrapScalar( R alpha )
+{ return ScalarWrapper<R>( alpha ); }
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+inline ScalarWrapper<std::complex<R> >
+WrapScalar( std::complex<R> alpha )
 { return ScalarWrapper<std::complex<R> >( alpha ); }
-#endif
-*/
+#endif // ifndef WITHOUT_COMPLEX
+
+#endif // ifdef DISABLE_SCALAR_WRAPPER
 
 template<typename Z>
 inline Z 

@@ -63,6 +63,7 @@
 #cmakedefine BLAS_POST
 #cmakedefine LAPACK_POST
 #cmakedefine WITHOUT_PMRRR
+#cmakedefine DISABLE_SCALAR_WRAPPER
 #cmakedefine WITHOUT_COMPLEX
 #cmakedefine AVOID_COMPLEX_MPI
 #cmakedefine USE_BYTE_ALLGATHERS

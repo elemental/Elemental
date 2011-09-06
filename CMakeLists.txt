@@ -71,15 +71,9 @@ option(WITHOUT_COMPLEX "Avoid all usage of complex numbers" OFF)
 if(NOT WITHOUT_COMPLEX)
   option(AVOID_COMPLEX_MPI "Avoid complex MPI routines for robustness" ON)
 endif(NOT WITHOUT_COMPLEX)
-option(CACHE_WARNINGS "Warns when using cache-unfriendly routines"          OFF)
-option(UNALIGNED_WARNINGS "Warn when performing unaligned redistributions"  OFF)
-option(VECTOR_WARNINGS "Warn when vector redistribution chances are missed" OFF)
-option(ENABLE_ALL_DISTRIBUTED_DOT "Build every parallel dot product."       OFF)
-option(POOL_MEMORY "Make Memory class accumulate memory until destruction"  OFF)
-mark_as_advanced(
-  AVOID_COMPLEX_MPI CACHE_WARNINGS UNALIGNED_WARNINGS VECTOR_WARNINGS 
-  ENABLE_ALL_DISTRIBUTED_DOT POOL_MEMORY
-)
+
+# Bug fix for Darwin g++ compiler throwing an internal compiler error
+option(DISABLE_SCALAR_WRAPPER "Avoid pretty-printing of complex numbers" ON)
 
 # Bug fix for IBM's compiler miscompiling OpenMP a[i] += alpha b[i] statements
 # for complex datatypes
@@ -94,6 +88,26 @@ mark_as_advanced(USE_BYTE_ALLGATHERS)
 # Choose whether or not to build the prototype for the C interface
 option(BUILD_C_INTERFACE "Build the prototype for the C interface" OFF)
 mark_as_advanced(BUILD_C_INTERFACE)
+
+# This is mainly useful for the library developers
+option(CACHE_WARNINGS "Warns when using cache-unfriendly routines" OFF)
+mark_as_advanced(CACHE_WARNINGS)
+
+# This is mainly useful for the library developers
+option(UNALIGNED_WARNINGS "Warn when performing unaligned redistributions" OFF)
+mark_as_advanced(UNALIGNED_WARNINGS)
+
+# This is mainly useful for the library developers
+option(VECTOR_WARNINGS "Warn when vector redistribution chances are missed" OFF)
+mark_as_advanced(VECTOR_WARNINGS)
+
+# These are all implemented, but substantially increase compile time
+option(ENABLE_ALL_DISTRIBUTED_DOT "Build every parallel dot product." OFF)
+mark_as_advanced(ENABLE_ALL_DISTRIBUTED_DOT)
+
+# This can easily be performed, but is likely not a good idea
+option(POOL_MEMORY "Make Memory class accumulate memory until destruction" OFF)
+mark_as_advanced(POOL_MEMORY)
 
 if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
   set(HYBRID TRUE)
