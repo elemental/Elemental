@@ -1680,6 +1680,7 @@ inline double
 HetrmmGFlops<double>( int n, double seconds )
 { return HetrmmGFlops<float>( n, seconds ); }
 
+#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 HetrmmGFlops<scomplex>( int n, double seconds )
@@ -1689,6 +1690,7 @@ template<>
 inline double
 HetrmmGFlops<dcomplex>( int n, double seconds )
 { return 4.*HetrmmGFlops<double>( n, seconds ); }
+#endif
             
 template<>
 inline double
