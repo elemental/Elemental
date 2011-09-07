@@ -5,7 +5,7 @@
 
 Welcome to Elemental's documentation!
 #####################################
-**This is just the outline of the documentation. Please do not distribute it.**
+**This is a *very* early draft of the documentation. Please keep this in mind.**
 
 .. toctree::
    :maxdepth: 2
