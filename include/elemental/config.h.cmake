@@ -72,7 +72,6 @@
 #cmakedefine CACHE_WARNINGS
 #cmakedefine UNALIGNED_WARNINGS
 #cmakedefine VECTOR_WARNINGS
-#cmakedefine ENABLE_ALL_DISTRIBUTED_DOT
 #cmakedefine POOL_MEMORY
 #cmakedefine AVOID_OMP_FMA
 

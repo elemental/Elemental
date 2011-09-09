@@ -99,10 +99,6 @@ mark_as_advanced(UNALIGNED_WARNINGS)
 option(VECTOR_WARNINGS "Warn when vector redistribution chances are missed" OFF)
 mark_as_advanced(VECTOR_WARNINGS)
 
-# These are all implemented, but substantially increase compile time
-option(ENABLE_ALL_DISTRIBUTED_DOT "Build every parallel dot product." OFF)
-mark_as_advanced(ENABLE_ALL_DISTRIBUTED_DOT)
-
 # This can easily be performed, but is likely not a good idea
 option(POOL_MEMORY "Make Memory class accumulate memory until destruction" OFF)
 mark_as_advanced(POOL_MEMORY)

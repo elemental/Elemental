@@ -962,7 +962,7 @@ elemental::advanced::SymmetricNorm
 template<typename R>
 inline R
 elemental::advanced::SymmetricNorm
-( Shape shape, const DistMatrix<R,MR,MC>& A, NormType type )
+( Shape shape, const DistMatrix<R,MC,MR>& A, NormType type )
 { 
 #ifndef RELEASE
     PushCallStack("advanced::SymmetricNorm");
@@ -991,7 +991,7 @@ elemental::advanced::SymmetricNorm
 template<typename R>
 inline R
 elemental::advanced::SymmetricNorm
-( Shape shape, const DistMatrix<std::complex<R>,MR,MC>& A, NormType type )
+( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
 { 
 #ifndef RELEASE
     PushCallStack("advanced::SymmetricNorm");

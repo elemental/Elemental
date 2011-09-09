@@ -79,7 +79,6 @@ template<typename T, Distribution U, Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 
-#ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template<typename T, Distribution U, Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y );
@@ -119,14 +118,12 @@ T Dot
 template<typename T, Distribution U, Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y );
-#endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 // Pseudo-partial-specializations of basic::Dotu
 template<typename T, Distribution U, Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 
-#ifdef ENABLE_ALL_DISTRIBUTED_DOT
 template<typename T, Distribution U, Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y );
@@ -166,7 +163,6 @@ T Dotu
 template<typename T, Distribution U, Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y );
-#endif // ENABLE_ALL_DISTRIBUTED_DOT
 
 //----------------------------------------------------------------------------//
 // Distributed BLAS-like helpers: Level 2                                     //
