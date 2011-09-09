@@ -33,19 +33,7 @@
 #ifndef ELEMENTAL_BASIC_HPP
 #define ELEMENTAL_BASIC_HPP 1
 
-#include "elemental/partitioning.hpp"
-
-// Template conventions:
-//   G: general datatype
-//
-//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
-//   Z: representation of a real ring, e.g., the integers or real numbers
-//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
-//                    or complex numbers
-//
-//   F: representation of real or complex number
-//   R: representation of real number
-//   std::complex<R>: representation of complex number
+#include "elemental/core/partitioning.hpp"
 
 namespace elemental {
 namespace basic {
@@ -853,6 +841,11 @@ void Trsm
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
+
+#include "./basic/internal.hpp"
+#include "./basic/level1.hpp"
+#include "./basic/level2.hpp"
+#include "./basic/level3.hpp"
 
 //----------------------------------------------------------------------------//
 // Local BLAS-like routines: Level 1                                          //

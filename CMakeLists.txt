@@ -85,10 +85,6 @@ mark_as_advanced(AVOID_OMP_FMA)
 option(USE_BYTE_ALLGATHERS "Avoid BG/P Allgather performance bug." ON)
 mark_as_advanced(USE_BYTE_ALLGATHERS)
 
-# Choose whether or not to build the prototype for the C interface
-option(BUILD_C_INTERFACE "Build the prototype for the C interface" OFF)
-mark_as_advanced(BUILD_C_INTERFACE)
-
 # This is mainly useful for the library developers
 option(CACHE_WARNINGS "Warns when using cache-unfriendly routines" OFF)
 mark_as_advanced(CACHE_WARNINGS)
@@ -442,11 +438,6 @@ if(WITHOUT_PMRRR)
   list(REMOVE_ITEM ELEMENTAL_CPP
        "src/advanced/HermitianGenDefiniteEig/HermitianGenDefiniteEig.cpp")
 endif(WITHOUT_PMRRR)
-if(NOT BUILD_C_INTERFACE)
-    message(STATUS "Removing prototype C interface from Elemental")
-    list(REMOVE_ITEM ELEMENTAL_CPP "src/exports/c_interface.cpp")
-    list(REMOVE_ITEM ELEMENTAL_HEADERS "include/elemental/exports/c.h")
-endif(NOT BUILD_C_INTERFACE)
 set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
 # Copy the headers into the build directory
@@ -494,10 +485,6 @@ if(BUILD_TESTS)
   set(BASIC_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
   set(ADVANCED_TESTS ApplyPackedReflectors Chol Hegst HermitianTridiag LDL LU LQ
                      QR TriangularInverse)
-
-  if(BUILD_C_INTERFACE)
-    set(C_TESTS BasicTest)
-  endif(BUILD_C_INTERFACE)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     list(APPEND ADVANCED_TESTS HermitianGenDefiniteEig)

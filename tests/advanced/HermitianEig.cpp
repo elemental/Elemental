@@ -32,7 +32,6 @@
 */
 #include <ctime>
 #include "elemental.hpp"
-#include "elemental/advanced_internal.hpp"
 using namespace std;
 using namespace elemental;
 using namespace elemental::imports;

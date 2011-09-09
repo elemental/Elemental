@@ -35,18 +35,6 @@
 
 #include "elemental/basic.hpp"
 
-// Template conventions:
-//   G: general datatype
-//
-//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
-//   Z: representation of a real ring, e.g., the integers or real numbers
-//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
-//                    or complex numbers
-//
-//   F: representation of real or complex number
-//   R: representation of real number
-//   std::complex<R>: representation of complex number
-
 namespace elemental {
 namespace advanced {
 
@@ -753,11 +741,13 @@ void HermitianTridiag
 #endif
 
 void SetHermitianTridiagApproach( HermitianTridiagApproach approach );
+HermitianTridiagApproach GetHermitianTridiagApproach();
 
 // If dropping down to a square grid, the two simplest approaches are to take 
 // the first r^2 processes from the original grid (for an r x r grid) and to
 // either order them column-major or row-major to form the square grid.
 void SetHermitianTridiagGridOrder( GridOrder order );
+GridOrder GetHermitianTridiagGridOrder();
 
 //----------------------------------------------------------------------------//
 // TriangularInverse                                                          //
@@ -840,6 +830,23 @@ void ApplyPackedReflectors
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
+
+#include "./advanced/internal.hpp"
+#include "./advanced/ApplyPackedReflectors.hpp"
+#include "./advanced/Chol.hpp"
+#include "./advanced/GaussElim.hpp"
+#include "./advanced/Hegst.hpp"
+#include "./advanced/HermitianEig.hpp"
+#include "./advanced/HermitianNorm.hpp"
+#include "./advanced/HermitianTridiag.hpp"
+#include "./advanced/LDL.hpp"
+#include "./advanced/LQ.hpp"
+#include "./advanced/LU.hpp"
+#include "./advanced/Norm.hpp"
+#include "./advanced/QR.hpp"
+#include "./advanced/Reflector.hpp"
+#include "./advanced/SkewHermitianEig.hpp"
+#include "./advanced/TriangularInverse.hpp"
 
 template<typename F>
 inline void
