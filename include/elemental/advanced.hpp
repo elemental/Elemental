@@ -837,6 +837,7 @@ void ApplyPackedReflectors
 #include "./advanced/GaussElim.hpp"
 #include "./advanced/Hegst.hpp"
 #include "./advanced/HermitianEig.hpp"
+#include "./advanced/HermitianGenDefiniteEig.hpp"
 #include "./advanced/HermitianNorm.hpp"
 #include "./advanced/HermitianTridiag.hpp"
 #include "./advanced/LDL.hpp"
