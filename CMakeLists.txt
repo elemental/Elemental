@@ -72,8 +72,10 @@ if(NOT WITHOUT_COMPLEX)
   option(AVOID_COMPLEX_MPI "Avoid complex MPI routines for robustness" ON)
 endif(NOT WITHOUT_COMPLEX)
 
-# Bug fix for Darwin g++ compiler throwing an internal compiler error
-option(DISABLE_SCALAR_WRAPPER "Avoid pretty-printing of complex numbers" ON)
+# Bug fix for Darwin g++ compiler throwing an internal compiler error.
+# It seems to have somehow been circumvented after pulling most of the library
+# into header files.
+option(DISABLE_SCALAR_WRAPPER "Avoid pretty-printing of complex numbers" OFF)
 
 # Bug fix for IBM's compiler miscompiling OpenMP a[i] += alpha b[i] statements
 # for complex datatypes
