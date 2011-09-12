@@ -416,16 +416,16 @@ endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
 # Create the Elemental configuration header
 configure_file( 
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/elemental/config.h.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/include/elemental/config.h 
+  ${PROJECT_SOURCE_DIR}/include/elemental/config.h.cmake
+  ${PROJECT_BINARY_DIR}/include/elemental/config.h 
 ) 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/elemental/config.h 
+install(FILES ${PROJECT_BINARY_DIR}/include/elemental/config.h 
         DESTINATION include/elemental)
 
 # Grab all of the .c, .cpp, .h, and .hpp Elemental files
-file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
+file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
      "src/*.c" "src/*.cpp")
-file(GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
+file(GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
      "include/*.h" "include/*.hpp")
 if(WITHOUT_PMRRR)
   message(STATUS "Removing eigensolver source from Elemental")
@@ -438,26 +438,12 @@ if(WITHOUT_PMRRR)
 endif(WITHOUT_PMRRR)
 set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
-# Copy the headers into the build directory
-foreach(HEADER ${ELEMENTAL_HEADERS})
-  add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${HEADER}
-            ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
-  )
-  get_filename_component(HEADER_PATH ${HEADER} PATH)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${HEADER} DESTINATION ${HEADER_PATH})
-endforeach(HEADER)
-
-# Make sure the Elemental headers can be found
-include_directories("${PROJECT_BINARY_DIR}/include")
-
 # Create a dummy library in order to be able to force the math (and potentially
 # MPI libraries) to be linked last
 add_library(cmake-dummy-lib STATIC cmake/CMakeDummyFunction.cpp)
 target_link_libraries(cmake-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 
-# Build the main library
+# The main library
 if(BUILD_PMRRR AND NOT FAILED_PMRRR)
   add_library(elemental STATIC ${ELEMENTAL_SRC})
   target_link_libraries(elemental pmrrr plcg)
@@ -474,6 +460,25 @@ else(BUILD_PMRRR AND NOT FAILED_PMRRR)
   set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
 endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 install(TARGETS elemental DESTINATION lib)
+
+# Define the header-file preparation rules
+foreach(HEADER ${ELEMENTAL_HEADERS})
+  add_custom_command(
+    OUTPUT ${PROJECT_BINARY_DIR}/${HEADER}
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${HEADER}
+            ${PROJECT_BINARY_DIR}/${HEADER}
+    DEPENDS "${PROJECT_SOURCE_DIR}/${HEADER}"
+  )
+  string(REGEX REPLACE "/" "-" SAFE_NAME "${HEADER}")
+  add_custom_target(COPY-${SAFE_NAME} DEPENDS "${PROJECT_BINARY_DIR}/${HEADER}")
+  add_dependencies(elemental COPY-${SAFE_NAME})
+
+  get_filename_component(HEADER_PATH ${HEADER} PATH)
+  install(FILES ${PROJECT_BINARY_DIR}/${HEADER} DESTINATION ${HEADER_PATH})
+endforeach(HEADER)
+
+# Make sure the Elemental headers can be found
+include_directories("${PROJECT_BINARY_DIR}/include")
 
 # Build the test drivers if necessary
 if(BUILD_TESTS)
