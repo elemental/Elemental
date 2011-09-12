@@ -470,14 +470,13 @@ foreach(HEADER ${ELEMENTAL_HEADERS})
             ${PROJECT_BINARY_DIR}/${HEADER}
     DEPENDS "${PROJECT_SOURCE_DIR}/${HEADER}"
   )
-  string(REGEX REPLACE "/" "-" SAFE_NAME "${HEADER}")
   list(APPEND PREPARED_HEADERS ${PROJECT_BINARY_DIR}/${HEADER})
 
   get_filename_component(HEADER_PATH ${HEADER} PATH)
   install(FILES ${PROJECT_BINARY_DIR}/${HEADER} DESTINATION ${HEADER_PATH})
 endforeach(HEADER)
-add_custom_target(prepare_headers DEPENDS ${PREPARED_HEADERS})
-add_dependencies(elemental prepare_headers)
+add_custom_target(prepare_elemental_headers DEPENDS ${PREPARED_HEADERS})
+add_dependencies(elemental prepare_elemental_headers)
 
 # Make sure the Elemental headers can be found
 include_directories("${PROJECT_BINARY_DIR}/include")
