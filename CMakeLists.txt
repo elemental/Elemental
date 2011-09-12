@@ -462,6 +462,7 @@ endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 install(TARGETS elemental DESTINATION lib)
 
 # Define the header-file preparation rules
+set(PREPARED_HEADERS)
 foreach(HEADER ${ELEMENTAL_HEADERS})
   add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/${HEADER}
@@ -470,12 +471,13 @@ foreach(HEADER ${ELEMENTAL_HEADERS})
     DEPENDS "${PROJECT_SOURCE_DIR}/${HEADER}"
   )
   string(REGEX REPLACE "/" "-" SAFE_NAME "${HEADER}")
-  add_custom_target(COPY-${SAFE_NAME} DEPENDS "${PROJECT_BINARY_DIR}/${HEADER}")
-  add_dependencies(elemental COPY-${SAFE_NAME})
+  list(APPEND PREPARED_HEADERS ${PROJECT_BINARY_DIR}/${HEADER})
 
   get_filename_component(HEADER_PATH ${HEADER} PATH)
   install(FILES ${PROJECT_BINARY_DIR}/${HEADER} DESTINATION ${HEADER_PATH})
 endforeach(HEADER)
+add_custom_target(prepare_headers DEPENDS ${PREPARED_HEADERS})
+add_dependencies(elemental prepare_headers)
 
 # Make sure the Elemental headers can be found
 include_directories("${PROJECT_BINARY_DIR}/include")
