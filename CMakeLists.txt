@@ -403,9 +403,9 @@ else(HAVE___restrict__)
   endif(HAVE___restrict)
 endif(HAVE___restrict__)
 
-add_subdirectory(contrib/parallel_lcg)
+add_subdirectory(external/parallel_lcg)
 if(BUILD_PMRRR)
-  add_subdirectory(contrib/pmrrr)
+  add_subdirectory(external/pmrrr)
 endif(BUILD_PMRRR)
 
 if(BUILD_PMRRR AND NOT FAILED_PMRRR)

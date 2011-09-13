@@ -178,7 +178,7 @@ void DiagonalScale
 template<typename F>
 void DiagonalSolve
 ( Side side, Orientation orientation, 
-  const Matrix<F>& d, Matrix<F>& X );
+  const Matrix<F>& d, Matrix<F>& X, bool checkIfSingular=false );
 
 // Parallel version
 template<typename F,
@@ -186,7 +186,8 @@ template<typename F,
          Distribution W,Distribution Z>
 void DiagonalSolve
 ( Side side, Orientation orientation, 
-  const DistMatrix<F,U,V>& d, DistMatrix<F,W,Z>& X );
+  const DistMatrix<F,U,V>& d, DistMatrix<F,W,Z>& X, 
+  bool checkIfSingular=false );
 
 //
 // Dot: 
@@ -981,7 +982,8 @@ elemental::basic::DiagonalScale
 template<typename F>
 inline void 
 elemental::basic::DiagonalSolve
-( Side side, Orientation orientation, const Matrix<F>& d, Matrix<F>& X )
+( Side side, Orientation orientation, const Matrix<F>& d, Matrix<F>& X,
+  bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("basic::DiagonalSolve");
@@ -993,7 +995,10 @@ elemental::basic::DiagonalSolve
     {
         for( int i=0; i<m; ++i )
         {
-            const F deltaInv = static_cast<F>(1)/d.Get(i,0);
+            const F delta = d.Get(i,0);
+            if( checkIfSingular && delta == (F)0 )
+                throw std::logic_error("diagonal entry was zero");
+            const F deltaInv = static_cast<F>(1)/delta;
             F* XBuffer = X.Buffer(i,0);
             if( orientation == ADJOINT )
                 for( int j=0; j<n; ++j )
@@ -1007,7 +1012,10 @@ elemental::basic::DiagonalSolve
     {
         for( int j=0; j<n; ++j )
         {
-            const F deltaInv = static_cast<F>(1)/d.Get(j,0);
+            const F delta = d.Get(j,0);
+            if( checkIfSingular && delta == (F)0 )
+                throw std::logic_error("diagonal entry was zero");
+            const F deltaInv = static_cast<F>(1)/delta;
             F* XBuffer = X.Buffer(0,j);
             if( orientation == ADJOINT )
                 for( int i=0; i<m; ++i )
@@ -2156,7 +2164,8 @@ template<typename F, elemental::Distribution U, elemental::Distribution V,
 inline void
 elemental::basic::DiagonalSolve
 ( Side side, Orientation orientation, 
-  const DistMatrix<F,U,V>& d, DistMatrix<F,W,Z>& X )
+  const DistMatrix<F,U,V>& d, DistMatrix<F,W,Z>& X,
+  bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("basic::DiagonalSolve");
@@ -2166,7 +2175,8 @@ elemental::basic::DiagonalSolve
         if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
         {
             basic::DiagonalSolve
-            ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+            ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix(),
+              checkIfSingular );
         }
         else
         {
@@ -2174,7 +2184,7 @@ elemental::basic::DiagonalSolve
             d_W_STAR = d;
             basic::DiagonalSolve
             ( LEFT, orientation, 
-              d_W_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+              d_W_STAR.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
         }
     }
     else
@@ -2182,7 +2192,8 @@ elemental::basic::DiagonalSolve
         if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
         {
             basic::DiagonalSolve
-            ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+            ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix(),
+              checkIfSingular );
         }
         else
         {
@@ -2190,7 +2201,7 @@ elemental::basic::DiagonalSolve
             d_Z_STAR = d;
             basic::DiagonalSolve
             ( RIGHT, orientation, 
-              d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+              d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
         }
     }
 #ifndef RELEASE

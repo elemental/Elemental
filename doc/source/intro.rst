@@ -90,7 +90,7 @@ There are two important exceptions in the main library:
   also copyright The University of Tennessee.
 
 In addition, two libraries that Elemental depends upon are included in the 
-``contrib/`` folder:
+``external/`` folder:
     
 * The parallel tridiagonal eigensolver, PMRRR, is written by Matthias Petschow
   and Paolo Bientinesi and is copyright RWTH Aachen University.
