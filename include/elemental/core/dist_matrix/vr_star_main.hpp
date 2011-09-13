@@ -1494,6 +1494,88 @@ DistMatrix<T,VR,STAR>::SumScatterFrom
 
 template<typename T>
 inline void
+DistMatrix<T,VR,STAR>::SumScatterFrom
+( const DistMatrix<T,STAR,STAR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[VR,* ]::SumScatterFrom( [* ,* ] )");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    if( this->Viewing() )
+        this->AssertSameSize( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    if( !this->Viewing() )
+        this->ResizeTo( A.Height(), A.Width() );
+
+    const int p = g.Size();
+    const int VRRank = g.VRRank();
+    const int colAlignment = this->ColAlignment();
+    const int colShiftOfA = A.ColShift();
+
+    const int height = this->Height();
+    const int localHeight = this->LocalHeight();
+    const int localWidth = this->LocalWidth();
+    const int maxLocalHeight = MaxLocalLength( height, p );
+
+    const int recvSize = max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
+    const int sendSize = p*recvSize;
+
+    this->_auxMemory.Require( sendSize + recvSize );
+
+    T* buffer = this->_auxMemory.Buffer();
+    T* sendBuffer = &buffer[0];
+    T* recvBuffer = &buffer[sendSize];
+
+    // Pack
+    vector<int> recvSizes(p);
+    const T* ALocalBuffer = A.LockedLocalBuffer();
+    const int ALDim = A.LocalLDim();
+#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+    #pragma omp parallel for
+#endif
+    for( int k=0; k<p; ++k )
+    {
+        T* data = &sendBuffer[p*recvSize];
+        recvSizes[k] = recvSize;
+
+        const int thisColShift = RawShift( k, colAlignment, p );
+        const int thisColOffset = thisColShift-colShiftOfA;
+        const int thisLocalHeight = RawLocalLength( height, thisColShift, p );
+
+#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for COLLAPSE(2)
+#endif
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int iLocal=0; iLocal<thisLocalHeight; ++iLocal )
+                data[iLocal+jLocal*thisLocalHeight] =
+                    ALocalBuffer[(thisColOffset+iLocal*p)+jLocal*ALDim];
+    }
+
+    // Reduce-scatter over each process row
+    mpi::ReduceScatter
+    ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.VRComm() );
+
+    // Unpack our received data
+    T* thisLocalBuffer = this->LocalBuffer();
+    const int thisLDim = this->LocalLDim();
+#ifdef _OPENMP
+    #pragma omp parallel for
+#endif
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    {
+        const T* recvBufferCol = &recvBuffer[jLocal*localHeight];
+        T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
+        memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
+    }
+    this->_auxMemory.Release();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 DistMatrix<T,VR,STAR>::SumScatterUpdate
 ( T alpha, const DistMatrix<T,MR,STAR>& A )
 {
@@ -1588,6 +1670,86 @@ DistMatrix<T,VR,STAR>::SumScatterUpdate
               ( "Unaligned [VR,* ]::ReduceScatterUpdate( [MR,* ] ) is not "
                 "yet implemented." );
     }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+DistMatrix<T,VR,STAR>::SumScatterUpdate
+( T alpha, const DistMatrix<T,STAR,STAR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[VR,* ]::SumScatterUpdate( [* ,* ] )");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( A );
+    this->AssertSameSize( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+
+    const int p = g.Size();
+    const int VRRank = g.VRRank();
+    const int colAlignment = this->ColAlignment();
+    const int colShiftOfA = A.ColShift();
+
+    const int height = this->Height();
+    const int localHeight = this->LocalHeight();
+    const int localWidth = this->LocalWidth();
+    const int maxLocalHeight = MaxLocalLength( height, p );
+
+    const int recvSize = max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
+    const int sendSize = p*recvSize;
+
+    this->_auxMemory.Require( sendSize + recvSize );
+
+    T* buffer = this->_auxMemory.Buffer();
+    T* sendBuffer = &buffer[0];
+    T* recvBuffer = &buffer[sendSize];
+
+    // Pack
+    vector<int> recvSizes(p);
+    const T* ALocalBuffer = A.LockedLocalBuffer();
+    const int ALDim = A.LocalLDim();
+#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+    #pragma omp parallel for
+#endif
+    for( int k=0; k<p; ++k )
+    {
+        T* data = &sendBuffer[p*recvSize];
+        recvSizes[k] = recvSize;
+
+        const int thisColShift = RawShift( k, colAlignment, p );
+        const int thisColOffset = thisColShift-colShiftOfA;
+        const int thisLocalHeight = RawLocalLength( height, thisColShift, p );
+
+#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for COLLAPSE(2)
+#endif
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int iLocal=0; iLocal<thisLocalHeight; ++iLocal )
+                data[iLocal+jLocal*thisLocalHeight] =
+                    ALocalBuffer[(thisColOffset+iLocal*p)+jLocal*ALDim];
+    }
+
+    // Reduce-scatter over each process row
+    mpi::ReduceScatter
+    ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.VRComm() );
+
+    // Unpack our received data
+    T* thisLocalBuffer = this->LocalBuffer();
+    const int thisLDim = this->LocalLDim();
+#ifdef _OPENMP
+    #pragma omp parallel for
+#endif
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    {
+        const T* recvBufferCol = &recvBuffer[jLocal*localHeight];
+        T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            thisCol[iLocal] += alpha*recvBufferCol[iLocal];
+    }
+    this->_auxMemory.Release();
 #ifndef RELEASE
     PopCallStack();
 #endif

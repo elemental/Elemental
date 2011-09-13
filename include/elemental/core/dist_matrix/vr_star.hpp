@@ -244,8 +244,10 @@ public:
     ( const DistMatrix<T,VR,STAR>& ATL, const DistMatrix<T,VR,STAR>& ATR,
       const DistMatrix<T,VR,STAR>& ABL, const DistMatrix<T,VR,STAR>& ABR );
 
-    void SumScatterFrom( const DistMatrix<T,MR,STAR>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,MR,STAR>& A );
+    void SumScatterFrom( const DistMatrix<T,MR,  STAR>& A );
+    void SumScatterFrom( const DistMatrix<T,STAR,STAR>& A );
+    void SumScatterUpdate( T alpha, const DistMatrix<T,MR,  STAR>& A );
+    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR>& A );
 
 private:
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
