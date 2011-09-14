@@ -220,7 +220,8 @@ the file ``Simple.cpp`` is in the current folder, a typical build would be ::
 Of course, ``/usr/local/elemental`` should be replaced with your installation
 prefix and ``-llapack -lblas -lm`` should be replaced with the ``MATH_LIBS`` 
 set during configuration (it is written into the file 
-``include/elemental/config.h`` in the build directory).
+``include/elemental/config.h`` in the build directory). A slightly modified 
+version of the above driver is available in ``tests/core/Simple.cpp``.
 
 The executable can then typically be run with a single process using ::
 
@@ -251,4 +252,8 @@ a single process.
 
 Troubleshooting
 ===============
-If you run into build problems, please email `elemental-framework@googlegroups.com <mailto:elemental-framework@googlegroups.com>`_ and make sure to attach the file ``include/elemental/config.h`` that should be generated within your build directory.
+If you run into build problems, please email 
+`jack.poulson@gmail.com <mailto:jack.poulson@gmail.com>`_ and make sure to 
+attach the file ``include/elemental/config.h`` that should be generated within 
+your build directory. Please only direct general usage questions to 
+`elemental-framework@googlegroups.com <mailto:elemental-framework@googlegroups.com>`_.
