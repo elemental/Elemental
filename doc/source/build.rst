@@ -167,7 +167,7 @@ Elemental builds a copy of PMRRR by default whenever possible: if an up-to-date
 non-MKL version of LAPACK is used, then PMRRR only requires a working MPI C 
 compiler, otherwise, a Fortran 90 compiler is needed in order to build several
 recent LAPACK functions. If these LAPACK routines cannot be made available, 
-then PMRRR is not built and Elemental's eigensolver are automatically disabled.
+then PMRRR is not built and Elemental's eigensolvers are automatically disabled.
 
 Using Elemental
 ===============
