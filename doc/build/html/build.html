@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Building Elemental &mdash; Elemental v0.69 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.69',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Elemental v0.69 documentation" href="index.html" />
+    <link rel="next" title="Core functionality" href="core.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="core.html" title="Core functionality"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Elemental v0.69 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="building-elemental">
+<h1>Building Elemental<a class="headerlink" href="#building-elemental" title="Permalink to this headline">¶</a></h1>
+<p>Elemental&#8217;s build system relies on <a class="reference external" href="http://www.cmake.org">CMake</a>
+in order to manage a large number of configuration options in a
+platform-independent manner; it can be easily configured to build on Linux and
+Unix environments (including Darwin) as well as various versions of
+Microsoft Windows.</p>
+<div class="section" id="installing-cmake">
+<h2>Installing CMake<a class="headerlink" href="#installing-cmake" title="Permalink to this headline">¶</a></h2>
+<p>Elemental uses several new CMake modules, so it is important to ensure that
+version 2.8.5 or later is installed. Thankfully the
+<a class="reference external" href="http://www.cmake.org/cmake/help/install.html">installation process</a>
+is extremely straightforward: either download a platform-specific binary from
+the <a class="reference external" href="http://www.cmake.org/cmake/resources/software.html">downloads page</a>,
+or instead grab the most recent stable tarball and have CMake bootstrap itself.
+In the simplest case, the bootstrap process is as simple as running the
+following commands:</p>
+<div class="highlight-python"><pre>./bootstrap
+make
+make install</pre>
+</div>
+<p>There are two important issues to consider:</p>
+<ol class="arabic">
+<li><p class="first">By default, <tt class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></tt> attempts a system-wide installation
+(e.g., into <tt class="docutils literal"><span class="pre">/usr/bin</span></tt>) and will likely require administrative privileges.
+A different installation folder may be specified with the <tt class="docutils literal"><span class="pre">--prefix</span></tt>
+option to the <tt class="docutils literal"><span class="pre">bootstrap</span></tt> script, e.g.,:</p>
+<div class="highlight-python"><pre>./bootstrap --prefix=/home/your_username
+make
+make install</pre>
+</div>
+<p>Afterwards, it is a good idea to make sure that the environment variable
+<tt class="docutils literal"><span class="pre">PATH</span></tt> includes the <tt class="docutils literal"><span class="pre">bin</span></tt> subdirectory of the installation folder, e.g.,
+<tt class="docutils literal"><span class="pre">/home/your_username/bin</span></tt>.</p>
+</li>
+<li><p class="first">Some highly optimizing compilers will not correctly build CMake, but the GNU
+compilers nearly always work. You can specify which compilers to use by
+setting the environment variables <tt class="docutils literal"><span class="pre">CC</span></tt> and <tt class="docutils literal"><span class="pre">CXX</span></tt> to the full paths to
+your preferred C and C++ compilers before running the <tt class="docutils literal"><span class="pre">bootstrap</span></tt> script.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="working-with-cmake">
+<h2>Working with CMake<a class="headerlink" href="#working-with-cmake" title="Permalink to this headline">¶</a></h2>
+<p>Though many configuration utilities, like
+<a class="reference external" href="http://www.gnu.org/software/autoconf/">autoconf</a>, are designed such that
+the user need only invoke <tt class="docutils literal"><span class="pre">./configure</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">install</span></tt> from the
+top-level source directory, CMake targets <em>out-of-source</em> builds, which is
+to say that the build process occurs away from the source code. The
+out-of-source build approach is ideal for projects that offer several
+different build modes, as each version of the project can be built in a
+separate folder.</p>
+<p>A common approach is to create a folder named <tt class="docutils literal"><span class="pre">build</span></tt> in the top-level of
+the source directory and to invoke CMake from within it:</p>
+<div class="highlight-python"><pre>mkdir build
+cd build
+cmake ..</pre>
+</div>
+<p>The last line calls the command line version of CMake, <tt class="docutils literal"><span class="pre">cmake</span></tt>,
+and tells it that it should look in the parent directory for the configuration
+instructions, which should be in a file named <tt class="docutils literal"><span class="pre">CMakeLists.txt</span></tt>. Users that
+would prefer a graphical interface from the terminal (through <tt class="docutils literal"><span class="pre">curses</span></tt>)
+should instead use <tt class="docutils literal"><span class="pre">ccmake</span></tt> (on Unix platforms) or <tt class="docutils literal"><span class="pre">CMakeSetup</span></tt>
+(on Windows platforms). In addition, a GUI version is available through
+<tt class="docutils literal"><span class="pre">cmake-gui</span></tt>.</p>
+<p>Though running <tt class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></tt> will remove all files generated from running
+<tt class="docutils literal"><span class="pre">make</span></tt>, it will not remove configuration files. Thus, the best approach for
+completely cleaning a build is to remove the entire build folder. On *nix
+machines, this is most easily accomplished with:</p>
+<div class="highlight-python"><pre>cd ..
+rm -rf build</pre>
+</div>
+<p>This is a better habit than simply running <tt class="docutils literal"><span class="pre">rm</span> <span class="pre">-rf</span> <span class="pre">*</span></tt> since,
+if accidentally run from the wrong directory, the former will most likely fail.</p>
+</div>
+<div class="section" id="getting-elemental-s-source">
+<h2>Getting Elemental&#8217;s source<a class="headerlink" href="#getting-elemental-s-source" title="Permalink to this headline">¶</a></h2>
+<p>There are two basic approaches:</p>
+<ol class="arabic">
+<li><p class="first">Download a tarball of the most recent version from
+<a class="reference external" href="http://code.google.com/p/elemental/downloads/list">http://code.google.com/p/elemental/downloads/list</a>. A new version is
+released roughly once a month, on average.</p>
+</li>
+<li><p class="first">Install <a class="reference external" href="http://mercurial.selenic.com">Mercurial</a> and check out a copy of
+the repository by running</p>
+<div class="highlight-python"><pre>hg clone https://elemental.googlecode.com/hg elemental</pre>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="id1">
+<h2>Building Elemental<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>On *nix machines with <a class="reference external" href="http://www.netlib.org/blas/">BLAS</a>,
+<a class="reference external" href="http://www.netlib.org/lapack/">LAPACK</a>, and
+<a class="reference external" href="http://en.wikipedia.org/wiki/Message_Passing_Interface">MPI</a> installed in
+standard locations, building Elemental can be as simple as:</p>
+<div class="highlight-python"><pre>cd elemental
+mkdir build
+cd build
+cmake ..
+make
+make install</pre>
+</div>
+<p>As with the installation of CMake, the default install location is
+system-wide, e.g., <tt class="docutils literal"><span class="pre">/usr/local</span></tt>. The installation directory can be changed
+at any time by running:</p>
+<div class="highlight-python"><pre>cmake -D CMAKE_INSTALL_PREFIX=/your/desired/install/path ..
+make install</pre>
+</div>
+<p>Though the above instructions will work on many systems, it is common to need
+to manually specify several build options, especially when multiple versions of
+libraries or several different compilers are available on your system. For
+instance, any C++, C, or Fortran compiler can respectively be set with the
+<tt class="docutils literal"><span class="pre">CMAKE_CXX_COMPILER</span></tt>, <tt class="docutils literal"><span class="pre">CMAKE_C_COMPILER</span></tt>, and <tt class="docutils literal"><span class="pre">CMAKE_Fortran_COMPILER</span></tt>
+variables, e.g.,</p>
+<div class="highlight-python"><pre>cmake -D CMAKE_CXX_COMPILER=/usr/bin/g++ \
+      -D CMAKE_C_COMPILER=/usr/bin/gcc   \
+      -D CMAKE_Fortran_COMPILER=/usr/bin/gfortran ..</pre>
+</div>
+<p>It is also common to need to specify which libraries need to be linked in order
+to provide serial BLAS and LAPACK routines. The <tt class="docutils literal"><span class="pre">MATH_LIBS</span></tt> variable was
+introduced for this purpose and an example usage would be</p>
+<div class="highlight-python"><pre>cmake -D MATH_LIBS="-L/usr/lib -llapack -lblas -lm" ..</pre>
+</div>
+<p>It is important to ensure that if library A depends upon library B, A should
+be specified to the left of B; in this case, LAPACK depends upon BLAS, so
+<tt class="docutils literal"><span class="pre">-llapack</span></tt> is specified to the left of <tt class="docutils literal"><span class="pre">-lblas</span></tt>.</p>
+<div class="section" id="build-modes">
+<h3>Build Modes<a class="headerlink" href="#build-modes" title="Permalink to this headline">¶</a></h3>
+<p>Elemental currently has four different build modes:</p>
+<ul class="simple">
+<li><strong>PureDebug</strong> - An MPI-only build that maintains a call stack and provides
+more error checking.</li>
+<li><strong>PureRelease</strong> - An optimized MPI-only build suitable for production use.</li>
+<li><strong>HybridDebug</strong> - An MPI+OpenMP build that maintains a call stack and provides
+more error checking.</li>
+<li><strong>HybridRelease</strong> - An optimized MPI+OpenMP build suitable for production use.</li>
+</ul>
+<p>The build mode can be specified with the <tt class="docutils literal"><span class="pre">CMAKE_BUILD_TYPE</span></tt> option, e.g.,
+<tt class="docutils literal"><span class="pre">-D</span> <span class="pre">CMAKE_BUILD_TYPE=PureDebug</span></tt>. If this option is not specified, Elemental
+defaults to the <strong>PureRelease</strong> build mode.</p>
+</div>
+<div class="section" id="building-pmrrr">
+<h3>Building PMRRR<a class="headerlink" href="#building-pmrrr" title="Permalink to this headline">¶</a></h3>
+<p>PMRRR is a parallel implementation of the MRRR algorithm introduced by
+<a class="reference external" href="http://www.cs.utexas.edu/~inderjit/">Inderjit Dhillon</a> and
+<a class="reference external" href="http://math.berkeley.edu/~parlett/">Beresford Parlett</a> for computing
+<img class="math" src="_images/math/8c325612684d41304b9751c175df7bcc0f61f64f.png" alt="k"/> eigenvectors of a tridiagonal matrix of size <img class="math" src="_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/> in
+<img class="math" src="_images/math/862e7f76aee7c28f6a9fd5e25b353c3023ec4c41.png" alt="\mathcal{O}(nk)"/> time. PMRRR was written by
+<a class="reference external" href="http://www.aices.rwth-aachen.de/people/petschow">Matthias Petschow</a> and
+<a class="reference external" href="http://www.aices.rwth-aachen.de/people/bientinesi">Paolo Bientinesi</a> and is
+available here:</p>
+<blockquote>
+<div><a class="reference external" href="http://code.google.com/p/pmrrr">http://code.google.com/p/pmrrr</a></div></blockquote>
+<p>Elemental builds a copy of PMRRR by default whenever possible: if an up-to-date
+non-MKL version of LAPACK is used, then PMRRR only requires a working MPI C
+compiler, otherwise, a Fortran 90 compiler is needed in order to build several
+recent LAPACK functions. If these LAPACK routines cannot be made available,
+then PMRRR is not built and Elemental&#8217;s eigensolvers are automatically disabled.</p>
+</div>
+</div>
+<div class="section" id="using-elemental">
+<h2>Using Elemental<a class="headerlink" href="#using-elemental" title="Permalink to this headline">¶</a></h2>
+<p>Once the library has been built, it is a good idea to verify that it is
+functioning properly. The following is a simple example that constructs of a
+distributed matrix, sets it to the identity matrix, then prints it:</p>
+<blockquote>
+<div><div class="highlight-cpp"><div class="highlight"><pre><span class="cp">#include &quot;elemental.hpp&quot;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">elemental</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">elemental</span><span class="o">::</span><span class="n">imports</span><span class="p">;</span>
+
+<span class="kt">int</span>
+<span class="n">main</span><span class="p">(</span> <span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[]</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Init</span><span class="p">(</span> <span class="n">argc</span><span class="p">,</span> <span class="n">argv</span> <span class="p">);</span>
+    <span class="n">mpi</span><span class="o">::</span><span class="n">Comm</span> <span class="n">comm</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">::</span><span class="n">COMM_WORLD</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">commRank</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">::</span><span class="n">CommRank</span><span class="p">(</span> <span class="n">comm</span> <span class="p">);</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">commSize</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">::</span><span class="n">CommSize</span><span class="p">(</span> <span class="n">comm</span> <span class="p">);</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
+
+    <span class="k">if</span><span class="p">(</span> <span class="n">commRank</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Creating a matrix distributed over &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">commSize</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span> <span class="n">commSize</span> <span class="o">!=</span> <span class="mi">1</span> <span class="p">)</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; processes.</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">else</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; process.</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">const</span> <span class="n">Grid</span> <span class="n">grid</span><span class="p">(</span> <span class="n">comm</span> <span class="p">);</span>
+    <span class="n">DistMatrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="n">MC</span><span class="p">,</span><span class="n">MR</span><span class="o">&gt;</span> <span class="n">I</span><span class="p">(</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">grid</span> <span class="p">);</span>
+    <span class="n">I</span><span class="p">.</span><span class="n">SetToIdentity</span><span class="p">();</span>
+    <span class="n">I</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;Identity&quot;</span><span class="p">);</span>
+
+    <span class="n">Finalize</span><span class="p">();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>As you can see, the only required header is <tt class="docutils literal"><span class="pre">elemental.hpp</span></tt>, which must be
+in the include path when compiling this simple driver, say <tt class="docutils literal"><span class="pre">Simple.cpp</span></tt>.
+If Elemental was installed in <tt class="docutils literal"><span class="pre">/usr/local/elemental</span></tt>, then
+<tt class="docutils literal"><span class="pre">/usr/local/elemental/include</span></tt> must be in the include path. Supposing that
+the file <tt class="docutils literal"><span class="pre">Simple.cpp</span></tt> is in the current folder, a typical build would be</p>
+<div class="highlight-python"><pre>mpicxx Simple.cpp -o Simple \
+    -I/usr/local/elemental/include \
+    -L/usr/local/elemental/lib -lelemental -llapack -lblas -lm</pre>
+</div>
+<p>Of course, <tt class="docutils literal"><span class="pre">/usr/local/elemental</span></tt> should be replaced with your installation
+prefix and <tt class="docutils literal"><span class="pre">-llapack</span> <span class="pre">-lblas</span> <span class="pre">-lm</span></tt> should be replaced with the <tt class="docutils literal"><span class="pre">MATH_LIBS</span></tt>
+set during configuration (it is written into the file
+<tt class="docutils literal"><span class="pre">include/elemental/config.h</span></tt> in the build directory). A slightly modified
+version of the above driver is available in <tt class="docutils literal"><span class="pre">tests/core/Simple.cpp</span></tt>.</p>
+<p>The executable can then typically be run with a single process using</p>
+<div class="highlight-python"><pre>./Simple</pre>
+</div>
+<p>and the output should be</p>
+<div class="highlight-python"><pre>Creating a matrix distributed over 1 process.
+
+Identity
+1 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0
+0 0 1 0 0 0 0 0
+0 0 0 1 0 0 0 0
+0 0 0 0 1 0 0 0
+0 0 0 0 0 1 0 0
+0 0 0 0 0 0 1 0
+0 0 0 0 0 0 0 1</pre>
+</div>
+<p>The driver can be run with several processes using the MPI launcher provided
+by your MPI implementation; a typical way to run the <tt class="docutils literal"><span class="pre">Simple</span></tt> driver on
+eight processes would be:</p>
+<div class="highlight-python"><pre>mpirun -np 8 ./Simple</pre>
+</div>
+<p>Only the first line of the output should change with respect to when run on
+a single process.</p>
+</div>
+<div class="section" id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>If you run into build problems, please email
+<a class="reference external" href="mailto:jack&#46;poulson&#37;&#52;&#48;gmail&#46;com">jack<span>&#46;</span>poulson<span>&#64;</span>gmail<span>&#46;</span>com</a> and make sure to
+attach the file <tt class="docutils literal"><span class="pre">include/elemental/config.h</span></tt> that should be generated within
+your build directory. Please only direct general usage questions to
+<a class="reference external" href="mailto:elemental-framework&#37;&#52;&#48;googlegroups&#46;com">elemental-framework<span>&#64;</span>googlegroups<span>&#46;</span>com</a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Building Elemental</a><ul>
+<li><a class="reference internal" href="#installing-cmake">Installing CMake</a></li>
+<li><a class="reference internal" href="#working-with-cmake">Working with CMake</a></li>
+<li><a class="reference internal" href="#getting-elemental-s-source">Getting Elemental&#8217;s source</a></li>
+<li><a class="reference internal" href="#id1">Building Elemental</a><ul>
+<li><a class="reference internal" href="#build-modes">Build Modes</a></li>
+<li><a class="reference internal" href="#building-pmrrr">Building PMRRR</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#using-elemental">Using Elemental</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="core.html"
+                        title="next chapter">Core functionality</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/build.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="core.html" title="Core functionality"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >previous</a> |</li>
+        <li><a href="index.html">Elemental v0.69 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

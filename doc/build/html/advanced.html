@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Advanced linear algebra &mdash; Elemental v0.69 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.69',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Elemental v0.69 documentation" href="index.html" />
+    <link rel="prev" title="Basic linear algebra" href="basic.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="basic.html" title="Basic linear algebra"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Elemental v0.69 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="advanced-linear-algebra">
+<h1>Advanced linear algebra<a class="headerlink" href="#advanced-linear-algebra" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="norms">
+<h2>Norms<a class="headerlink" href="#norms" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="norm">
+<h3>Norm<a class="headerlink" href="#norm" title="Permalink to this headline">¶</a></h3>
+<p>Describe <img class="math" src="_images/math/6df3655a46bcf05e69c17b473e1be8e1151d3164.png" alt="||A||_1"/>, <img class="math" src="_images/math/a5e88845fceee36f68644bfd6965b1255b607143.png" alt="||A||_\infty"/>, and
+<img class="math" src="_images/math/266b0b4d1ae415f1b4b5d681ea5aa30ef9acbf95.png" alt="||A||_F"/>, and the maximum norm.</p>
+</div>
+<div class="section" id="hermitiannorm">
+<h3>HermitianNorm<a class="headerlink" href="#hermitiannorm" title="Permalink to this headline">¶</a></h3>
+<p>Same, but with added Shape parameter. Give examples.</p>
+</div>
+<div class="section" id="symmetricnorm">
+<h3>SymmetricNorm<a class="headerlink" href="#symmetricnorm" title="Permalink to this headline">¶</a></h3>
+<p>Meant for symmetric matrices. Currenty a wrapper around <tt class="docutils literal"><span class="pre">HermitianNorm</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="factorizations">
+<h2>Factorizations<a class="headerlink" href="#factorizations" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cholesky-factorization">
+<h3>Cholesky factorization<a class="headerlink" href="#cholesky-factorization" title="Permalink to this headline">¶</a></h3>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::Chol</span></tt> here.</p>
+</div>
+<div class="section" id="factorization">
+<h3><img class="math" src="_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization<a class="headerlink" href="#factorization" title="Permalink to this headline">¶</a></h3>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::LDLH</span></tt> here.</p>
+</div>
+<div class="section" id="id1">
+<h3><img class="math" src="_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::LDLT</span></tt> here.</p>
+</div>
+<div class="section" id="id2">
+<h3><img class="math" src="_images/math/f41c1b0893f231128abe8ae33a92b366d6c65db3.png" alt="LU"/> factorization<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::LU</span></tt> here.</p>
+</div>
+<div class="section" id="id3">
+<h3><img class="math" src="_images/math/74a751df89f77e97ef080654dfb03f981240a469.png" alt="LQ"/> factorization<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::LQ</span></tt> here.</p>
+</div>
+<div class="section" id="id4">
+<h3><img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> factorization<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::QR</span></tt> here.</p>
+</div>
+</div>
+<div class="section" id="linear-solvers">
+<h2>Linear Solvers<a class="headerlink" href="#linear-solvers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="gaussian-elimination">
+<h3>Gaussian Elimination<a class="headerlink" href="#gaussian-elimination" title="Permalink to this headline">¶</a></h3>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::GaussElim</span></tt> here.</p>
+</div>
+<div class="section" id="solver">
+<h3><img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> Solver<a class="headerlink" href="#solver" title="Permalink to this headline">¶</a></h3>
+<p>Not yet written but trivial.</p>
+</div>
+</div>
+<div class="section" id="reduction-to-condensed-form">
+<h2>Reduction to Condensed Form<a class="headerlink" href="#reduction-to-condensed-form" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="reduction-of-a-hermitian-matrix-to-tridiagonal-form">
+<h3>Reduction of a Hermitian matrix to tridiagonal form<a class="headerlink" href="#reduction-of-a-hermitian-matrix-to-tridiagonal-form" title="Permalink to this headline">¶</a></h3>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::HermitianTridiag</span></tt> here.</p>
+</div>
+<div class="section" id="reduction-of-a-general-matrix-to-hessenberg-form">
+<h3>Reduction of a general matrix to Hessenberg form<a class="headerlink" href="#reduction-of-a-general-matrix-to-hessenberg-form" title="Permalink to this headline">¶</a></h3>
+<p>Not yet written.</p>
+</div>
+<div class="section" id="reduction-of-a-general-matrix-to-bidiagonal-form">
+<h3>Reduction of a general matrix to bidiagonal form<a class="headerlink" href="#reduction-of-a-general-matrix-to-bidiagonal-form" title="Permalink to this headline">¶</a></h3>
+<p>Not yet written.</p>
+</div>
+</div>
+<div class="section" id="eigensolvers-and-svd">
+<h2>Eigensolvers and SVD<a class="headerlink" href="#eigensolvers-and-svd" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="hermitian-eigensolver">
+<h3>Hermitian eigensolver<a class="headerlink" href="#hermitian-eigensolver" title="Permalink to this headline">¶</a></h3>
+<p>Describe <img class="math" src="_images/math/2c32906812efae31c9400a3a4e84bf4b90580420.png" alt="Ax-\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::HermitianEig</span></tt> here.</p>
+</div>
+<div class="section" id="skew-hermitian-eigensolver">
+<h3>Skew-Hermitian eigensolver<a class="headerlink" href="#skew-hermitian-eigensolver" title="Permalink to this headline">¶</a></h3>
+<p>Describe <img class="math" src="_images/math/30726d79aed2b1894150aab1577727cea11ed30a.png" alt="Gx-\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::SkewHermitianEig</span></tt> here.</p>
+</div>
+<div class="section" id="hermitian-generalized-definite-eigensolvers">
+<h3>Hermitian generalized-definite eigensolvers<a class="headerlink" href="#hermitian-generalized-definite-eigensolvers" title="Permalink to this headline">¶</a></h3>
+<p>Describe <img class="math" src="_images/math/89038b083e92024403481cfa2a7149eee7a76b50.png" alt="ABx-\lambda x"/>, <img class="math" src="_images/math/4147b089e4202d627c6b5c6e72b64f4f108a8f66.png" alt="BAx-\lambda x"/>, and
+<img class="math" src="_images/math/be4347c8d9b4d131ef37905ad91451ea1e187c50.png" alt="Ax-\lambda Bx"/> cases and <tt class="docutils literal"><span class="pre">advanced::HermitianGenDefiniteEig</span></tt>.</p>
+</div>
+<div class="section" id="non-hermitian-eigensolver">
+<h3>Non-Hermitian eigensolver<a class="headerlink" href="#non-hermitian-eigensolver" title="Permalink to this headline">¶</a></h3>
+<p>Not yet written and probably not in the near future.</p>
+</div>
+<div class="section" id="svd">
+<h3>SVD<a class="headerlink" href="#svd" title="Permalink to this headline">¶</a></h3>
+<p>Not yet written but planned. Note that an SVD of a Hermitian matrix can easily be computed from the eigenvalue decomposition.</p>
+</div>
+</div>
+<div class="section" id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="householder-reflectors">
+<h3>Householder reflectors<a class="headerlink" href="#householder-reflectors" title="Permalink to this headline">¶</a></h3>
+<p>Describe major difference from LAPACK&#8217;s conventions (i.e., we do not treat
+the identity matrix as a Householder transform since it requires the
+<img class="math" src="_images/math/9ad99798ec4c38e165cf517cb9e02b1c9e824103.png" alt="u"/> in <img class="math" src="_images/math/189fff52d48f8bcd5ef98b9b18c3409e5cc3a47b.png" alt="H-I^2uu'"/> to have norm zero rather than one). Describe
+<tt class="docutils literal"><span class="pre">advanced::Reflector</span></tt> here.</p>
+</div>
+<div class="section" id="reduction-of-the-generalized-hermitian-definite-evp">
+<h3>Reduction of the Generalized Hermitian-Definite EVP<a class="headerlink" href="#reduction-of-the-generalized-hermitian-definite-evp" title="Permalink to this headline">¶</a></h3>
+<p>Describe the reduction steps of <img class="math" src="_images/math/89038b083e92024403481cfa2a7149eee7a76b50.png" alt="ABx-\lambda x"/>, <img class="math" src="_images/math/4147b089e4202d627c6b5c6e72b64f4f108a8f66.png" alt="BAx-\lambda x"/>,
+and <img class="math" src="_images/math/be4347c8d9b4d131ef37905ad91451ea1e187c50.png" alt="Ax-\lambda Bx"/> using the operations <img class="math" src="_images/math/1f015273914f04717d300e620601bd3bd54009ec.png" alt="A :- L^H A L"/> and
+<img class="math" src="_images/math/a17e5416c8d5132d0ab2cabc60a46a437b4934b3.png" alt="A :- L^{^1} A L^{^H}"/>.</p>
+</div>
+<div class="section" id="applying-packed-householder-transforms">
+<h3>Applying packed Householder transforms<a class="headerlink" href="#applying-packed-householder-transforms" title="Permalink to this headline">¶</a></h3>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::ApplyPackedReflectors</span></tt> here.</p>
+</div>
+</div>
+<div class="section" id="environment-routines">
+<h2>Environment routines<a class="headerlink" href="#environment-routines" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Advanced linear algebra</a><ul>
+<li><a class="reference internal" href="#norms">Norms</a><ul>
+<li><a class="reference internal" href="#norm">Norm</a></li>
+<li><a class="reference internal" href="#hermitiannorm">HermitianNorm</a></li>
+<li><a class="reference internal" href="#symmetricnorm">SymmetricNorm</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#factorizations">Factorizations</a><ul>
+<li><a class="reference internal" href="#cholesky-factorization">Cholesky factorization</a></li>
+<li><a class="reference internal" href="#factorization"><img class="math" src="_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization</a></li>
+<li><a class="reference internal" href="#id1"><img class="math" src="_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization</a></li>
+<li><a class="reference internal" href="#id2"><img class="math" src="_images/math/f41c1b0893f231128abe8ae33a92b366d6c65db3.png" alt="LU"/> factorization</a></li>
+<li><a class="reference internal" href="#id3"><img class="math" src="_images/math/74a751df89f77e97ef080654dfb03f981240a469.png" alt="LQ"/> factorization</a></li>
+<li><a class="reference internal" href="#id4"><img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> factorization</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#linear-solvers">Linear Solvers</a><ul>
+<li><a class="reference internal" href="#gaussian-elimination">Gaussian Elimination</a></li>
+<li><a class="reference internal" href="#solver"><img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> Solver</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reduction-to-condensed-form">Reduction to Condensed Form</a><ul>
+<li><a class="reference internal" href="#reduction-of-a-hermitian-matrix-to-tridiagonal-form">Reduction of a Hermitian matrix to tridiagonal form</a></li>
+<li><a class="reference internal" href="#reduction-of-a-general-matrix-to-hessenberg-form">Reduction of a general matrix to Hessenberg form</a></li>
+<li><a class="reference internal" href="#reduction-of-a-general-matrix-to-bidiagonal-form">Reduction of a general matrix to bidiagonal form</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#eigensolvers-and-svd">Eigensolvers and SVD</a><ul>
+<li><a class="reference internal" href="#hermitian-eigensolver">Hermitian eigensolver</a></li>
+<li><a class="reference internal" href="#skew-hermitian-eigensolver">Skew-Hermitian eigensolver</a></li>
+<li><a class="reference internal" href="#hermitian-generalized-definite-eigensolvers">Hermitian generalized-definite eigensolvers</a></li>
+<li><a class="reference internal" href="#non-hermitian-eigensolver">Non-Hermitian eigensolver</a></li>
+<li><a class="reference internal" href="#svd">SVD</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#utilities">Utilities</a><ul>
+<li><a class="reference internal" href="#householder-reflectors">Householder reflectors</a></li>
+<li><a class="reference internal" href="#reduction-of-the-generalized-hermitian-definite-evp">Reduction of the Generalized Hermitian-Definite EVP</a></li>
+<li><a class="reference internal" href="#applying-packed-householder-transforms">Applying packed Householder transforms</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#environment-routines">Environment routines</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="basic.html"
+                        title="previous chapter">Basic linear algebra</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/advanced.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="basic.html" title="Basic linear algebra"
+             >previous</a> |</li>
+        <li><a href="index.html">Elemental v0.69 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
