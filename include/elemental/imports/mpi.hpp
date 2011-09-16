@@ -34,7 +34,6 @@
 #define ELEMENTAL_IMPORTS_MPI_HPP 1
 
 namespace elemental {
-namespace imports {
 namespace mpi {
 
 // Datatype definitions
@@ -534,7 +533,6 @@ ReduceScatter
 #endif
 
 } // mpi
-} // imports
 } // elemental
 
 #endif /* ELEMENTAL_IMPORTS_MPI_HPP */

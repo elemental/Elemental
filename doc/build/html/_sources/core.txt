@@ -374,10 +374,12 @@ Utilities
 The DistMatrix class
 ====================
 The ``DistMatrix`` class is meant to provide a distributed-memory analogue of 
-the ``Matrix`` class. Rather than simply supporting a single type of 
-two-dimensional matrix distributions, it templates over the manner in which
-individual columns and rows of the matrix should be distributed 
-(in addition to templating over the underlying datatype).
+the ``Matrix`` class. Similar to PLAPACK, roughly ten different matrix 
+distributions are provided and it is trivial (in the programmability sense) to 
+redistribute from one to another: in PLAPACK, one would simply call 
+``PLA_Copy``, whereas, in Elemental, it is handled through overloading the 
+:math:`=` operator.
+
 Since it is crucial to know not only how many 
 processes to distribute the data over, but *which* processes, and in what 
 manner they should be decomposed into a logical two-dimensional grid, an 
@@ -385,6 +387,13 @@ instance of the ``Grid`` class must be passed into the constructor of
 the ``DistMatrix`` class.
 
 For example, ...
+
+The Grid class
+==============
+
+Constructors
+------------
+
 
 The ``Axpy`` interface
 ======================

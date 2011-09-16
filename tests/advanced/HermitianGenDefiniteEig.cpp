@@ -34,7 +34,6 @@
 #include "elemental.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::imports;
 
 void Usage()
 {
@@ -101,7 +100,7 @@ void TestCorrectnessDouble
         for( int j=0; j<X.LocalWidth(); ++j )
         {
             double omega = w_STAR_MR.GetLocalEntry(0,j);
-            elemental::imports::blas::Scal
+            elemental::blas::Scal
             ( Y.LocalHeight(), omega, Y.LocalBuffer(0,j), 1 );
         }
         // Y := Y - AX = BXW - AX
@@ -329,7 +328,7 @@ void TestCorrectnessDoubleComplex
         for( int j=0; j<Y.LocalWidth(); ++j )
         {
             double omega = w_STAR_MR.GetLocalEntry(0,j);
-            elemental::imports::blas::Scal
+            elemental::blas::Scal
             ( 2*Y.LocalHeight(), omega, (double*)Y.LocalBuffer(0,j), 1 );
         }
         // Y := Y - AX = BXW - AX

@@ -71,22 +71,21 @@ elemental::advanced::internal::RowReflector
 
     std::vector<R> localNorms(c);
     R localNorm = basic::Nrm2( x.LockedLocalMatrix() ); 
-    imports::mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
-    R norm = imports::blas::Nrm2( c, &localNorms[0], 1 );
+    mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
+    R norm = blas::Nrm2( c, &localNorms[0], 1 );
 
     R alpha;
     if( myCol == chi.RowAlignment() )
         alpha = chi.GetLocalEntry(0,0);
-    imports::mpi::Broadcast( &alpha, 1, chi.RowAlignment(), g.MRComm() );
+    mpi::Broadcast( &alpha, 1, chi.RowAlignment(), g.MRComm() );
 
     R beta;
     if( alpha <= 0 )
-        beta = imports::lapack::SafeNorm( alpha, norm );
+        beta = lapack::SafeNorm( alpha, norm );
     else
-        beta = -imports::lapack::SafeNorm( alpha, norm );
+        beta = -lapack::SafeNorm( alpha, norm );
 
-    const R safeMin = imports::lapack::MachineSafeMin<R>() /
-                      imports::lapack::MachineEpsilon<R>();
+    const R safeMin = lapack::MachineSafeMin<R>() / lapack::MachineEpsilon<R>();
     int count = 0;
     if( Abs( beta ) < safeMin )
     {
@@ -100,12 +99,12 @@ elemental::advanced::internal::RowReflector
         } while( Abs( beta ) < safeMin );
 
         localNorm = basic::Nrm2( x.LockedLocalMatrix() );
-        imports::mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
-        norm = imports::blas::Nrm2( c, &localNorms[0], 1 );
+        mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
+        norm = blas::Nrm2( c, &localNorms[0], 1 );
         if( alpha <= 0 )
-            beta = imports::lapack::SafeNorm( alpha, norm );
+            beta = lapack::SafeNorm( alpha, norm );
         else
-            beta = -imports::lapack::SafeNorm( alpha, norm );
+            beta = -lapack::SafeNorm( alpha, norm );
     }
 
     R tau = ( beta-alpha ) / beta;
@@ -150,13 +149,13 @@ elemental::advanced::internal::RowReflector
 
     std::vector<R> localNorms(c);
     R localNorm = basic::Nrm2( x.LockedLocalMatrix() ); 
-    imports::mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
-    R norm = imports::blas::Nrm2( c, &localNorms[0], 1 );
+    mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
+    R norm = blas::Nrm2( c, &localNorms[0], 1 );
 
     C alpha;
     if( myCol == chi.RowAlignment() )
         alpha = chi.GetLocalEntry(0,0);
-    imports::mpi::Broadcast( &alpha, 1, chi.RowAlignment(), g.MRComm() );
+    mpi::Broadcast( &alpha, 1, chi.RowAlignment(), g.MRComm() );
 
     if( norm == (R)0 && imag(alpha) == (R)0 )
     {
@@ -170,12 +169,11 @@ elemental::advanced::internal::RowReflector
 
     R beta;
     if( real(alpha) <= 0 )
-        beta = imports::lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        beta = lapack::SafeNorm( real(alpha), imag(alpha), norm );
     else
-        beta = -imports::lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        beta = -lapack::SafeNorm( real(alpha), imag(alpha), norm );
 
-    const R safeMin = imports::lapack::MachineSafeMin<R>() /
-                      imports::lapack::MachineEpsilon<R>();
+    const R safeMin = lapack::MachineSafeMin<R>() / lapack::MachineEpsilon<R>();
     int count = 0;
     if( Abs( beta ) < safeMin )
     {
@@ -189,18 +187,12 @@ elemental::advanced::internal::RowReflector
         } while( Abs( beta ) < safeMin );
 
         localNorm = basic::Nrm2( x.LockedLocalMatrix() );
-        imports::mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
-        norm = imports::blas::Nrm2( c, &localNorms[0], 1 );
+        mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
+        norm = blas::Nrm2( c, &localNorms[0], 1 );
         if( real(alpha) <= 0 )
-        {
-            beta = imports::lapack::SafeNorm
-                   ( real(alpha), imag(alpha), norm );
-        }
+            beta = lapack::SafeNorm( real(alpha), imag(alpha), norm );
         else
-        {
-            beta = -imports::lapack::SafeNorm
-                    ( real(alpha), imag(alpha), norm );
-        }
+            beta = -lapack::SafeNorm( real(alpha), imag(alpha), norm );
     }
 
     C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );

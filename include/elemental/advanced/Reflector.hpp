@@ -60,12 +60,12 @@ elemental::advanced::Reflector
 
     R beta;
     if( alpha <= 0 )
-        beta = imports::lapack::SafeNorm( alpha, norm );
+        beta = lapack::SafeNorm( alpha, norm );
     else
-        beta = -imports::lapack::SafeNorm( alpha, norm );
+        beta = -lapack::SafeNorm( alpha, norm );
 
-    const R safeMin = imports::lapack::MachineSafeMin<R>() /
-                      imports::lapack::MachineEpsilon<R>();
+    const R safeMin = lapack::MachineSafeMin<R>() /
+                      lapack::MachineEpsilon<R>();
     int count = 0;
     if( Abs( beta ) < safeMin )
     {
@@ -80,9 +80,9 @@ elemental::advanced::Reflector
 
         norm = basic::Nrm2( x );
         if( alpha <= 0 )
-            beta = imports::lapack::SafeNorm( alpha, norm );
+            beta = lapack::SafeNorm( alpha, norm );
         else
-            beta = -imports::lapack::SafeNorm( alpha, norm );
+            beta = -lapack::SafeNorm( alpha, norm );
     }
 
     R tau = ( beta - alpha ) / beta;
@@ -122,12 +122,12 @@ elemental::advanced::Reflector
 
     R beta;
     if( real(alpha) <= 0 )
-        beta = imports::lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        beta = lapack::SafeNorm( real(alpha), imag(alpha), norm );
     else
-        beta = -imports::lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        beta = -lapack::SafeNorm( real(alpha), imag(alpha), norm );
 
-    const R safeMin = imports::lapack::MachineSafeMin<R>() /
-                      imports::lapack::MachineEpsilon<R>();
+    const R safeMin = lapack::MachineSafeMin<R>() /
+                      lapack::MachineEpsilon<R>();
     int count = 0;
     if( Abs( beta ) < safeMin )
     {
@@ -142,10 +142,10 @@ elemental::advanced::Reflector
 
         norm = basic::Nrm2( x );
         if( real(alpha) <= 0 )
-            beta = imports::lapack::SafeNorm
+            beta = lapack::SafeNorm
                    ( real(alpha), imag(alpha), norm );
         else
-            beta = -imports::lapack::SafeNorm
+            beta = -lapack::SafeNorm
                     ( real(alpha), imag(alpha), norm );
     }
 
@@ -187,14 +187,14 @@ elemental::advanced::Reflector
         const bool thisIsMyColumn = ( g.MRRank() == x.RowAlignment() );
         if( thisIsMyColumn )
             tau = advanced::internal::ColReflector( chi, x );
-        imports::mpi::Broadcast( &tau, 1, x.RowAlignment(), g.MRComm() );
+        mpi::Broadcast( &tau, 1, x.RowAlignment(), g.MRComm() );
     }
     else
     {
         const bool thisIsMyRow = ( g.MCRank() == x.ColAlignment() );
         if( thisIsMyRow )
             tau = advanced::internal::RowReflector( chi, x );
-        imports::mpi::Broadcast( &tau, 1, x.ColAlignment(), g.MCComm() );
+        mpi::Broadcast( &tau, 1, x.ColAlignment(), g.MCComm() );
     }
 #ifndef RELEASE
     PopCallStack();

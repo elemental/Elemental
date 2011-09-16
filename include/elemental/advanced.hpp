@@ -860,7 +860,7 @@ elemental::advanced::Chol
         throw std::logic_error( "A must be square." );
 #endif
     const char uplo = ShapeToChar( shape );
-    imports::lapack::Chol( uplo, A.Height(), A.Buffer(), A.LDim() );
+    lapack::Chol( uplo, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -882,7 +882,7 @@ elemental::advanced::Hegst
 #endif
     const int itype = ( side==LEFT ? 2 : 1 );
     const char uplo = ShapeToChar( shape );
-    imports::lapack::Hegst
+    lapack::Hegst
     ( itype, uplo, A.Height(), 
       A.Buffer(), A.LDim(), B.LockedBuffer(), B.LDim() );
 #ifndef RELEASE
@@ -900,7 +900,7 @@ elemental::advanced::LU
     if( p.Height() != A.Height() )
         throw std::logic_error( "A and p must be the same height." );
 #endif
-    imports::lapack::LU
+    lapack::LU
     ( A.Height(), A.Width(), A.Buffer(), A.LDim(), p.Buffer() );
 #ifndef RELEASE
     PopCallStack();
@@ -915,8 +915,7 @@ elemental::advanced::LQ
 #ifndef RELEASE
     PushCallStack("advanced::LQ");
 #endif
-    imports::lapack::LQ
-    ( A.Height(), A.Width(), A.Buffer(), A.LDim() );
+    lapack::LQ( A.Height(), A.Width(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -937,8 +936,7 @@ elemental::advanced::LQ
 #endif
     if( !t.Viewing() )
         t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
-    imports::lapack::LQ
-    ( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
+    lapack::LQ( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1011,8 +1009,7 @@ elemental::advanced::QR
 #ifndef RELEASE
     PushCallStack("advanced::QR");
 #endif
-    imports::lapack::QR
-    ( A.Height(), A.Width(), A.Buffer(), A.LDim() );
+    lapack::QR( A.Height(), A.Width(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1033,8 +1030,7 @@ elemental::advanced::QR
 #endif
     if( !t.Viewing() )
         t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
-    imports::lapack::QR
-    ( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
+    lapack::QR( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1053,7 +1049,7 @@ elemental::advanced::SVD
     const int n = A.Width();
     SigmaDiag.resize( std::min(m,n) );
     VT.ResizeTo( std::min(m,n), n );
-    imports::lapack::SVD
+    lapack::SVD
     ( 'O', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], 0, 0, 
       VT.Buffer(), VT.LDim() );
 #ifndef RELEASE
@@ -1075,7 +1071,7 @@ elemental::advanced::SVD
     const int n = A.Width();
     SigmaDiag.resize( std::min(m,n) );
     VT.ResizeTo( std::min(m,n), n );
-    imports::lapack::SVD
+    lapack::SVD
     ( 'O', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], 0, 0, 
       VT.Buffer(), VT.LDim() );
 #ifndef RELEASE
@@ -1097,7 +1093,7 @@ elemental::advanced::SVD
     SigmaDiag.resize( std::min(m,n) );
     U.ResizeTo( m, std::min(m,n) );
     VT.ResizeTo( std::min(m,n), n );
-    imports::lapack::SVD
+    lapack::SVD
     ( 'S', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], U.Buffer(), U.LDim(),
       VT.Buffer(), VT.LDim() );
 #ifndef RELEASE
@@ -1120,7 +1116,7 @@ elemental::advanced::SVD
     SigmaDiag.resize( std::min(m,n) );
     U.ResizeTo( m, std::min(m,n) );
     VT.ResizeTo( std::min(m,n), n );
-    imports::lapack::SVD
+    lapack::SVD
     ( 'S', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], U.Buffer(), U.LDim(),
       VT.Buffer(), VT.LDim() );
 #ifndef RELEASE
@@ -1141,8 +1137,7 @@ elemental::advanced::TriangularInverse
 #endif
     const char uplo = ShapeToChar( shape );
     const char diag = DiagonalToChar( diagonal );
-    imports::lapack::TriangularInverse
-    ( uplo, diag, A.Height(), A.Buffer(), A.LDim() );
+    lapack::TriangularInverse( uplo, diag, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif

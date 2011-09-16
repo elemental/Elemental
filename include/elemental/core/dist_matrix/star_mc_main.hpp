@@ -33,7 +33,6 @@
 
 namespace elemental {
 using namespace std;
-using namespace elemental::imports;
 
 template<typename T>
 inline void

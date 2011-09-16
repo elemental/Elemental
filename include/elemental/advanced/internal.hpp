@@ -261,26 +261,21 @@ void PanelLU
   int pivotOffset=0 );
 
 template<typename F>
-imports::mpi::Op PivotOp();
+mpi::Op PivotOp();
 
-template<>
-imports::mpi::Op PivotOp<float>();
+template<> mpi::Op PivotOp<float>();
 
-template<>
-imports::mpi::Op PivotOp<double>();
+template<> mpi::Op PivotOp<double>();
 
 #ifndef WITHOUT_COMPLEX
-template<>
-imports::mpi::Op PivotOp<scomplex>();
+template<> mpi::Op PivotOp<scomplex>();
 
-template<>
-imports::mpi::Op PivotOp<dcomplex>();
+template<> mpi::Op PivotOp<dcomplex>();
 #endif
             
 template<typename F>
 void PivotFunc
-( void* inData, void* outData, 
-  int* length, imports::mpi::Datatype* datatype );
+( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
 //----------------------------------------------------------------------------//
 // LQ                                                                         //

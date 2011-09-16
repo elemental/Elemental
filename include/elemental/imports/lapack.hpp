@@ -34,7 +34,6 @@
 #define ELEMENTAL_IMPORTS_LAPACK_HPP 1
 
 namespace elemental {
-namespace imports {
 namespace lapack {
 
 // Relative machine precision
@@ -160,7 +159,6 @@ void TriangularInverse
 #endif
 
 } // lapack
-} // imports
 } // elemental
 
 extern "C" {

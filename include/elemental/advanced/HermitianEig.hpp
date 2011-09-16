@@ -300,9 +300,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -515,9 +515,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -724,9 +724,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -957,9 +957,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -1085,9 +1085,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -1210,9 +1210,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -1363,9 +1363,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -1581,9 +1581,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -1793,9 +1793,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -2029,9 +2029,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -2158,9 +2158,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;
@@ -2284,9 +2284,9 @@ elemental::advanced::HermitianEig
     bool neededScaling = false;
     const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
     const double underflowThreshold = 
-        imports::lapack::MachineUnderflowThreshold<double>();
+        lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
-        imports::lapack::MachineOverflowThreshold<double>();
+        lapack::MachineOverflowThreshold<double>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         neededScaling = true;

@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Core functionality &mdash; Elemental v0.69 documentation</title>
+    <title>Core functionality &mdash; Elemental v0.70 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.69',
+        VERSION:     '0.70',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Elemental v0.69 documentation" href="index.html" />
+    <link rel="top" title="Elemental v0.70 documentation" href="index.html" />
     <link rel="next" title="Basic linear algebra" href="basic.html" />
     <link rel="prev" title="Building Elemental" href="build.html" /> 
   </head>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="build.html" title="Building Elemental"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Elemental v0.69 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Elemental v0.70 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -533,16 +533,23 @@ void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetToZ
 <div class="section" id="the-distmatrix-class">
 <h2>The DistMatrix class<a class="headerlink" href="#the-distmatrix-class" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> class is meant to provide a distributed-memory analogue of
-the <tt class="docutils literal"><span class="pre">Matrix</span></tt> class. Rather than simply supporting a single type of
-two-dimensional matrix distributions, it templates over the manner in which
-individual columns and rows of the matrix should be distributed
-(in addition to templating over the underlying datatype).
-Since it is crucial to know not only how many
+the <tt class="docutils literal"><span class="pre">Matrix</span></tt> class. Similar to PLAPACK, roughly ten different matrix
+distributions are provided and it is trivial (in the programmability sense) to
+redistribute from one to another: in PLAPACK, one would simply call
+<tt class="docutils literal"><span class="pre">PLA_Copy</span></tt>, whereas, in Elemental, it is handled through overloading the
+<img class="math" src="_images/math/d5eb8726a34932d28103ce7ce17456421222603f.png" alt="="/> operator.</p>
+<p>Since it is crucial to know not only how many
 processes to distribute the data over, but <em>which</em> processes, and in what
 manner they should be decomposed into a logical two-dimensional grid, an
 instance of the <tt class="docutils literal"><span class="pre">Grid</span></tt> class must be passed into the constructor of
 the <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> class.</p>
 <p>For example, ...</p>
+</div>
+<div class="section" id="the-grid-class">
+<h2>The Grid class<a class="headerlink" href="#the-grid-class" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Constructors<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 <div class="section" id="the-axpy-interface">
 <h2>The <tt class="docutils literal"><span class="pre">Axpy</span></tt> interface<a class="headerlink" href="#the-axpy-interface" title="Permalink to this headline">¶</a></h2>
@@ -574,6 +581,10 @@ the <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> class.
 </ul>
 </li>
 <li><a class="reference internal" href="#the-distmatrix-class">The DistMatrix class</a></li>
+<li><a class="reference internal" href="#the-grid-class">The Grid class</a><ul>
+<li><a class="reference internal" href="#id1">Constructors</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#the-axpy-interface">The <tt class="docutils literal"><span class="pre">Axpy</span></tt> interface</a></li>
 <li><a class="reference internal" href="#environment-routines">Environment routines</a></li>
 </ul>
@@ -620,7 +631,7 @@ the <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> class.
         <li class="right" >
           <a href="build.html" title="Building Elemental"
              >previous</a> |</li>
-        <li><a href="index.html">Elemental v0.69 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Elemental v0.70 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

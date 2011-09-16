@@ -41,7 +41,6 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
   DistMatrix<R,MC,STAR>& W_MC_STAR,
   DistMatrix<R,MR,STAR>& W_MR_STAR )
 {
-    using namespace elemental::imports;
     const int panelSize = W.Width();
     const int bottomSize = W.Height()-panelSize;
     
@@ -776,7 +775,6 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
   DistMatrix<std::complex<R>,MC,STAR>& W_MC_STAR,
   DistMatrix<std::complex<R>,MR,STAR>& W_MR_STAR )
 {
-    using namespace elemental::imports;
     typedef std::complex<R> C;
 
     const int panelSize = W.Width();

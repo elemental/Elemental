@@ -33,7 +33,6 @@
 
 namespace elemental {
 using namespace std;
-using namespace elemental::imports;
 
 template<typename T>
 inline void
@@ -3277,8 +3276,7 @@ DistMatrix<T,MR,MC>::SumScatterUpdate
     {
         const T* recvBufferCol = &recvBuffer[jLocal*localHeight];
         T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-        imports::blas::Axpy
-        ( localHeight, alpha, recvBufferCol, 1, thisCol, 1 );
+        blas::Axpy( localHeight, alpha, recvBufferCol, 1, thisCol, 1 );
     }
     this->_auxMemory.Release();
 #ifndef RELEASE

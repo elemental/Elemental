@@ -33,7 +33,6 @@
 #include "elemental.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::imports;
 
 // Typedef our real type to 'R' for convenience
 typedef double R;

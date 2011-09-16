@@ -32,7 +32,6 @@
 */
 #include "elemental.hpp"
 using namespace elemental;
-using namespace elemental::imports;
 
 int 
 main( int argc, char* argv[] )

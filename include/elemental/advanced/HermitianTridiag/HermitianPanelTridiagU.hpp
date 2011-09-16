@@ -41,7 +41,6 @@ elemental::advanced::internal::HermitianPanelTridiagU
   DistMatrix<R,MC,STAR>& W_MC_STAR,
   DistMatrix<R,MR,STAR>& W_MR_STAR )
 {
-    using namespace elemental::imports;
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
@@ -776,7 +775,6 @@ elemental::advanced::internal::HermitianPanelTridiagU
   DistMatrix<std::complex<R>,MC,STAR>& W_MC_STAR,
   DistMatrix<std::complex<R>,MR,STAR>& W_MR_STAR )
 {
-    using namespace elemental::imports;
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE

@@ -34,123 +34,123 @@
 
 // Machine constants
 template<> float 
-elemental::imports::lapack::MachineEpsilon<float>()
+elemental::lapack::MachineEpsilon<float>()
 {
     const char cmach = 'E';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::imports::lapack::MachineEpsilon<double>()
+elemental::lapack::MachineEpsilon<double>()
 {
     const char cmach = 'E';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::imports::lapack::MachineSafeMin<float>()
+elemental::lapack::MachineSafeMin<float>()
 {
     const char cmach = 'S';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::imports::lapack::MachineSafeMin<double>()
+elemental::lapack::MachineSafeMin<double>()
 {
     const char cmach = 'S';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::imports::lapack::MachineBase<float>()
+elemental::lapack::MachineBase<float>()
 {
     const char cmach = 'B';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::imports::lapack::MachineBase<double>()
+elemental::lapack::MachineBase<double>()
 {
     const char cmach = 'B';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::imports::lapack::MachinePrecision<float>()
+elemental::lapack::MachinePrecision<float>()
 {
     const char cmach = 'P';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::imports::lapack::MachinePrecision<double>()
+elemental::lapack::MachinePrecision<double>()
 {
     const char cmach = 'P';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::imports::lapack::MachineUnderflowExponent<float>()
+elemental::lapack::MachineUnderflowExponent<float>()
 {
     const char cmach = 'M';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::imports::lapack::MachineUnderflowExponent<double>()
+elemental::lapack::MachineUnderflowExponent<double>()
 {
     const char cmach = 'M';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::imports::lapack::MachineUnderflowThreshold<float>()
+elemental::lapack::MachineUnderflowThreshold<float>()
 {
     const char cmach = 'U';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::imports::lapack::MachineUnderflowThreshold<double>()
+elemental::lapack::MachineUnderflowThreshold<double>()
 {
     const char cmach = 'U';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::imports::lapack::MachineOverflowExponent<float>()
+elemental::lapack::MachineOverflowExponent<float>()
 {
     const char cmach = 'L';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::imports::lapack::MachineOverflowExponent<double>()
+elemental::lapack::MachineOverflowExponent<double>()
 {
     const char cmach = 'L';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::imports::lapack::MachineOverflowThreshold<float>()
+elemental::lapack::MachineOverflowThreshold<float>()
 {
     const char cmach = 'O';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::imports::lapack::MachineOverflowThreshold<double>()
+elemental::lapack::MachineOverflowThreshold<double>()
 {
     const char cmach = 'O';
     return LAPACK(dlamch)( &cmach );
 }
 
 void
-elemental::imports::lapack::Chol
+elemental::lapack::Chol
 ( char uplo, int n, const float* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::Chol");
+    PushCallStack("lapack::Chol");
 #endif
     int info;
     LAPACK(spotrf)( &uplo, &n, A, &lda, &info );
@@ -166,11 +166,11 @@ elemental::imports::lapack::Chol
 }
 
 void
-elemental::imports::lapack::Chol
+elemental::lapack::Chol
 ( char uplo, int n, const double* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::Chol");
+    PushCallStack("lapack::Chol");
 #endif
     int info;
     LAPACK(dpotrf)( &uplo, &n, A, &lda, &info );
@@ -187,11 +187,11 @@ elemental::imports::lapack::Chol
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::lapack::Chol
+elemental::lapack::Chol
 ( char uplo, int n, const scomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::Chol");
+    PushCallStack("lapack::Chol");
 #endif
     int info;
     LAPACK(cpotrf)( &uplo, &n, A, &lda, &info );
@@ -207,11 +207,11 @@ elemental::imports::lapack::Chol
 }
 
 void
-elemental::imports::lapack::Chol
+elemental::lapack::Chol
 ( char uplo, int n, const dcomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::Chol");
+    PushCallStack("lapack::Chol");
 #endif
     int info;
     LAPACK(zpotrf)( &uplo, &n, A, &lda, &info );
@@ -228,12 +228,12 @@ elemental::imports::lapack::Chol
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::lapack::Hegst
+elemental::lapack::Hegst
 ( int itype, char uplo, int n,
   float* A, int lda, const float* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::Hegst");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
     LAPACK(ssygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
@@ -249,12 +249,12 @@ elemental::imports::lapack::Hegst
 }
 
 void
-elemental::imports::lapack::Hegst
+elemental::lapack::Hegst
 ( int itype, char uplo, int n,
   double* A, int lda, const double* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::Hegst");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
     LAPACK(dsygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
@@ -271,12 +271,12 @@ elemental::imports::lapack::Hegst
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::lapack::Hegst
+elemental::lapack::Hegst
 ( int itype, char uplo, int n,
   scomplex* A, int lda, const scomplex* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::Hegst");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
     LAPACK(chegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
@@ -292,12 +292,12 @@ elemental::imports::lapack::Hegst
 }
 
 void
-elemental::imports::lapack::Hegst
+elemental::lapack::Hegst
 ( int itype, char uplo, int n,
   dcomplex* A, int lda, const dcomplex* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::Hegst");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
     LAPACK(zhegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
@@ -314,11 +314,11 @@ elemental::imports::lapack::Hegst
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::lapack::LU
+elemental::lapack::LU
 ( int m, int n, float* A, int lda, int* p )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::LU");
+    PushCallStack("lapack::LU");
 #endif
     int info;
     LAPACK(sgetrf)( &m, &n, A, &lda, p, &info );
@@ -334,11 +334,11 @@ elemental::imports::lapack::LU
 }
 
 void
-elemental::imports::lapack::LU
+elemental::lapack::LU
 ( int m, int n, double* A, int lda, int* p )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::LU");
+    PushCallStack("lapack::LU");
 #endif
     int info;
     LAPACK(dgetrf)( &m, &n, A, &lda, p, &info );
@@ -355,11 +355,11 @@ elemental::imports::lapack::LU
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::lapack::LU
+elemental::lapack::LU
 ( int m, int n, scomplex* A, int lda, int* p )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::LU");
+    PushCallStack("lapack::LU");
 #endif
     int info;
     LAPACK(cgetrf)( &m, &n, A, &lda, p, &info );
@@ -375,11 +375,11 @@ elemental::imports::lapack::LU
 }
 
 void
-elemental::imports::lapack::LU
+elemental::lapack::LU
 ( int m, int n, dcomplex* A, int lda, int* p )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::LU");
+    PushCallStack("lapack::LU");
 #endif
     int info;
     LAPACK(zgetrf)( &m, &n, A, &lda, p, &info );
@@ -396,11 +396,11 @@ elemental::imports::lapack::LU
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::lapack::LQ
+elemental::lapack::LQ
 ( int m, int n, float* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::LQ");
+    PushCallStack("lapack::LQ");
 #endif
     int info;
     int lwork;
@@ -428,11 +428,11 @@ elemental::imports::lapack::LQ
 }
 
 void
-elemental::imports::lapack::LQ
+elemental::lapack::LQ
 ( int m, int n, double* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::LQ");
+    PushCallStack("lapack::LQ");
 #endif
     int info;
     int lwork;
@@ -461,11 +461,11 @@ elemental::imports::lapack::LQ
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::lapack::LQ
+elemental::lapack::LQ
 ( int m, int n, scomplex* A, int lda, scomplex* t )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::LQ");
+    PushCallStack("lapack::LQ");
 #endif
     int info;
     int lwork;
@@ -491,11 +491,11 @@ elemental::imports::lapack::LQ
 }
 
 void
-elemental::imports::lapack::LQ
+elemental::lapack::LQ
 ( int m, int n, dcomplex* A, int lda, dcomplex* t )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::LQ");
+    PushCallStack("lapack::LQ");
 #endif
     int info;
     int lwork;
@@ -522,11 +522,11 @@ elemental::imports::lapack::LQ
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::lapack::QR
+elemental::lapack::QR
 ( int m, int n, float* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::QR");
+    PushCallStack("lapack::QR");
 #endif
     int info;
     int lwork;
@@ -554,11 +554,11 @@ elemental::imports::lapack::QR
 }
 
 void
-elemental::imports::lapack::QR
+elemental::lapack::QR
 ( int m, int n, double* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::QR");
+    PushCallStack("lapack::QR");
 #endif
     int info;
     int lwork;
@@ -587,11 +587,11 @@ elemental::imports::lapack::QR
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::lapack::QR
+elemental::lapack::QR
 ( int m, int n, scomplex* A, int lda, scomplex* t )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::QR");
+    PushCallStack("lapack::QR");
 #endif
     int info;
     int lwork;
@@ -617,11 +617,11 @@ elemental::imports::lapack::QR
 }
 
 void
-elemental::imports::lapack::QR
+elemental::lapack::QR
 ( int m, int n, dcomplex* A, int lda, dcomplex* t )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::QR");
+    PushCallStack("lapack::QR");
 #endif
     int info;
     int lwork;
@@ -648,11 +648,11 @@ elemental::imports::lapack::QR
 #endif // WITHOUT_COMPLEX
 
 float
-elemental::imports::lapack::SafeNorm
+elemental::lapack::SafeNorm
 ( float alpha, float beta )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::SafeNorm");
+    PushCallStack("lapack::SafeNorm");
 #endif
     float gamma = LAPACK(slapy2)( &alpha, &beta );
 #ifndef RELEASE
@@ -662,11 +662,11 @@ elemental::imports::lapack::SafeNorm
 }
 
 double
-elemental::imports::lapack::SafeNorm
+elemental::lapack::SafeNorm
 ( double alpha, double beta )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::SafeNorm");
+    PushCallStack("lapack::SafeNorm");
 #endif
     double gamma = LAPACK(dlapy2)( &alpha, &beta );
 #ifndef RELEASE
@@ -676,11 +676,11 @@ elemental::imports::lapack::SafeNorm
 }
 
 float
-elemental::imports::lapack::SafeNorm
+elemental::lapack::SafeNorm
 ( float alpha, float beta, float gamma )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::SafeNorm");
+    PushCallStack("lapack::SafeNorm");
 #endif
     float delta = LAPACK(slapy3)( &alpha, &beta, &gamma );
 #ifndef RELEASE
@@ -690,11 +690,11 @@ elemental::imports::lapack::SafeNorm
 }
 
 double
-elemental::imports::lapack::SafeNorm
+elemental::lapack::SafeNorm
 ( double alpha, double beta, double gamma )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::SafeNorm");
+    PushCallStack("lapack::SafeNorm");
 #endif
     double delta = LAPACK(dlapy3)( &alpha, &beta, &gamma );
 #ifndef RELEASE
@@ -704,12 +704,12 @@ elemental::imports::lapack::SafeNorm
 }
 
 void
-elemental::imports::lapack::SVD
+elemental::lapack::SVD
 ( char UColumns, char VColumns, int m, int n, float* A, int lda,
   float* SigmaDiag, float* U, int ldu, float* VT, int ldvt )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::SVD");
+    PushCallStack("lapack::SVD");
 #endif
     int info;
     int lwork;
@@ -739,12 +739,12 @@ elemental::imports::lapack::SVD
 }
 
 void
-elemental::imports::lapack::SVD
+elemental::lapack::SVD
 ( char UColumns, char VColumns, int m, int n, double* A, int lda,
   double* SigmaDiag, double* U, int ldu, double* VT, int ldvt )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::SVD");
+    PushCallStack("lapack::SVD");
 #endif
     int info;
     int lwork;
@@ -775,12 +775,12 @@ elemental::imports::lapack::SVD
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::lapack::SVD
+elemental::lapack::SVD
 ( char UColumns, char VColumns, int m, int n, scomplex* A, int lda,
   float* SigmaDiag, scomplex* U, int ldu, scomplex* VT, int ldvt )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::SVD");
+    PushCallStack("lapack::SVD");
 #endif
     int info;
     int lwork;
@@ -811,12 +811,12 @@ elemental::imports::lapack::SVD
 }
 
 void
-elemental::imports::lapack::SVD
+elemental::lapack::SVD
 ( char UColumns, char VColumns, int m, int n, dcomplex* A, int lda,
   double* SigmaDiag, dcomplex* U, int ldu, dcomplex* VT, int ldvt )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::SVD");
+    PushCallStack("lapack::SVD");
 #endif
     int info;
     int lwork;
@@ -848,11 +848,11 @@ elemental::imports::lapack::SVD
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::lapack::HermitianTridiag
+elemental::lapack::HermitianTridiag
 ( char uplo, int n, float* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::HermitianTridiag");
+    PushCallStack("lapack::HermitianTridiag");
 #endif
     int info;
     int lwork;
@@ -884,11 +884,11 @@ elemental::imports::lapack::HermitianTridiag
 }
 
 void
-elemental::imports::lapack::HermitianTridiag
+elemental::lapack::HermitianTridiag
 ( char uplo, int n, double* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::HermitianTridiag");
+    PushCallStack("lapack::HermitianTridiag");
 #endif
     int info;
     int lwork;
@@ -921,11 +921,11 @@ elemental::imports::lapack::HermitianTridiag
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::lapack::HermitianTridiag
+elemental::lapack::HermitianTridiag
 ( char uplo, int n, scomplex* A, int lda, scomplex* t )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::HermitianTridiag");
+    PushCallStack("lapack::HermitianTridiag");
 #endif
     int info;
     int lwork;
@@ -956,11 +956,11 @@ elemental::imports::lapack::HermitianTridiag
 }
 
 void
-elemental::imports::lapack::HermitianTridiag
+elemental::lapack::HermitianTridiag
 ( char uplo, int n, dcomplex* A, int lda, dcomplex* t )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::HermitianTridiag");
+    PushCallStack("lapack::HermitianTridiag");
 #endif
     int info;
     int lwork;
@@ -992,11 +992,11 @@ elemental::imports::lapack::HermitianTridiag
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::lapack::TriangularInverse
+elemental::lapack::TriangularInverse
 ( char uplo, char diag, int n, const float* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::TriangularInverse");
+    PushCallStack("lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(strtri)( &uplo, &diag, &n, A, &lda, &info );
@@ -1012,11 +1012,11 @@ elemental::imports::lapack::TriangularInverse
 }
 
 void
-elemental::imports::lapack::TriangularInverse
+elemental::lapack::TriangularInverse
 ( char uplo, char diag, int n, const double* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::TriangularInverse");
+    PushCallStack("lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(dtrtri)( &uplo, &diag, &n, A, &lda, &info );
@@ -1033,11 +1033,11 @@ elemental::imports::lapack::TriangularInverse
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::lapack::TriangularInverse
+elemental::lapack::TriangularInverse
 ( char uplo, char diag, int n, const scomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::TriangularInverse");
+    PushCallStack("lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(ctrtri)( &uplo, &diag, &n, A, &lda, &info );
@@ -1053,11 +1053,11 @@ elemental::imports::lapack::TriangularInverse
 }
 
 void
-elemental::imports::lapack::TriangularInverse
+elemental::lapack::TriangularInverse
 ( char uplo, char diag, int n, const dcomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::lapack::TriangularInverse");
+    PushCallStack("lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(ztrtri)( &uplo, &diag, &n, A, &lda, &info );

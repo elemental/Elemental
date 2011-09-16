@@ -69,13 +69,13 @@ class AxpyInterface
 
     std::vector<bool> _sentEomTo, _haveEomFrom;
     std::vector<byte> _recvVector;
-    std::vector<imports::mpi::Request> _eomSendRequests;
+    std::vector<mpi::Request> _eomSendRequests;
 
     std::vector<std::deque<std::vector<byte> > >
         _dataVectors, _requestVectors, _replyVectors;
     std::vector<std::deque<bool> > 
         _sendingData, _sendingRequest, _sendingReply;
-    std::vector<std::deque<imports::mpi::Request> > 
+    std::vector<std::deque<mpi::Request> > 
         _dataSendRequests, _requestSendRequests, _replySendRequests;
 
     // Check if we are done with this attachment's work
@@ -95,7 +95,7 @@ class AxpyInterface
     int ReadyForSend
     ( int sendSize,
       std::deque<std::vector<byte> >& sendVectors,
-      std::deque<imports::mpi::Request>& requests, 
+      std::deque<mpi::Request>& requests, 
       std::deque<bool>& requestStatuses );
 
 public:
@@ -194,8 +194,8 @@ AxpyInterface<T>::HandleEoms()
             }
             if( shouldSendEom )
             {
-                imports::mpi::Request& request = _eomSendRequests[i];
-                imports::mpi::ISSend
+                mpi::Request& request = _eomSendRequests[i];
+                mpi::ISSend
                 ( &_sendDummy, 1, i, EOM_TAG, g.VCComm(), request );
                 _sentEomTo[i] = true;
             }
@@ -203,14 +203,14 @@ AxpyInterface<T>::HandleEoms()
     }
 
     int haveEom;
-    imports::mpi::Status status;
-    imports::mpi::IProbe
-    ( imports::mpi::ANY_SOURCE, EOM_TAG, g.VCComm(), haveEom, status );
+    mpi::Status status;
+    mpi::IProbe
+    ( mpi::ANY_SOURCE, EOM_TAG, g.VCComm(), haveEom, status );
 
     if( haveEom )
     {
         const int source = status.MPI_SOURCE;
-        imports::mpi::Recv( &_recvDummy, 1, source, EOM_TAG, g.VCComm() );
+        mpi::Recv( &_recvDummy, 1, source, EOM_TAG, g.VCComm() );
         _haveEomFrom[source] = true;
     }
 #ifndef RELEASE
@@ -225,8 +225,6 @@ AxpyInterface<T>::HandleLocalToGlobalData()
 #ifndef RELEASE
     PushCallStack("AxpyInterface::HandleLocalToGlobalData");
 #endif
-    using namespace elemental::imports;
-
     DistMatrix<T,MC,MR>& Y = *_localToGlobalMat;
     const Grid& g = Y.Grid();
     const int r = g.Height();
@@ -340,8 +338,6 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
 #ifndef RELEASE
     PushCallStack("AxpyInterface::HandleGlobalToLocalRequest");
 #endif
-    using namespace elemental::imports;
-
     const DistMatrix<T,MC,MR>& X = *_globalToLocalMat;
     const Grid& g = X.Grid();
     const int r = g.Height();
@@ -670,8 +666,6 @@ AxpyInterface<T>::AxpyLocalToGlobal
 #ifndef RELEASE
     PushCallStack("axpy_interface::AxpyLocalToGlobal");
 #endif
-    using namespace elemental::imports;
-
     DistMatrix<T,MC,MR>& Y = *_localToGlobalMat;
     if( i < 0 || j < 0 )
         throw std::logic_error("Submatrix offsets must be non-negative");
@@ -759,8 +753,6 @@ AxpyInterface<T>::AxpyGlobalToLocal
 #ifndef RELEASE
     PushCallStack("axpy_interface::AxpyGlobalToLocal");
 #endif
-    using namespace elemental::imports;
-
     const DistMatrix<T,MC,MR>& X = *_globalToLocalMat;
 
     const int height = Y.Height();
@@ -857,13 +849,13 @@ inline int
 AxpyInterface<T>::ReadyForSend
 ( int sendSize,
   std::deque<std::vector<byte> >& sendVectors,
-  std::deque<imports::mpi::Request>& requests, 
+  std::deque<mpi::Request>& requests, 
   std::deque<bool>& requestStatuses )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::ReadyForSend");
 #endif
-    const int commRank = imports::mpi::CommRank( imports::mpi::COMM_WORLD );
+    const int commRank = mpi::CommRank( mpi::COMM_WORLD );
 
     const int numCreated = sendVectors.size();
 #ifndef RELEASE
@@ -875,7 +867,7 @@ AxpyInterface<T>::ReadyForSend
         // If this request is still running, test to see if it finished.
         if( requestStatuses[i] )
         {
-            const bool finished = imports::mpi::Test( requests[i] );
+            const bool finished = mpi::Test( requests[i] );
             requestStatuses[i] = !finished;
         }
 
@@ -892,7 +884,7 @@ AxpyInterface<T>::ReadyForSend
 
     sendVectors.resize( numCreated+1 );
     sendVectors[numCreated].resize( sendSize );
-    requests.push_back( imports::mpi::REQUEST_NULL );
+    requests.push_back( mpi::REQUEST_NULL );
     requestStatuses.push_back( true );
 
 #ifndef RELEASE
@@ -918,15 +910,15 @@ AxpyInterface<T>::UpdateRequestStatuses()
         for( int j=0; j<_dataSendRequests[i].size(); ++j )
             if( _sendingData[i][j] )
                 _sendingData[i][j] = 
-                    !imports::mpi::Test( _dataSendRequests[i][j] );
+                    !mpi::Test( _dataSendRequests[i][j] );
         for( int j=0; j<_requestSendRequests[i].size(); ++j )
             if( _sendingRequest[i][j] )
                 _sendingRequest[i][j] = 
-                    !imports::mpi::Test( _requestSendRequests[i][j] );
+                    !mpi::Test( _requestSendRequests[i][j] );
         for( int j=0; j<_replySendRequests[i].size(); ++j )
             if( _sendingReply[i][j] )
                 _sendingReply[i][j] = 
-                    !imports::mpi::Test( _replySendRequests[i][j] );
+                    !mpi::Test( _replySendRequests[i][j] );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -956,7 +948,7 @@ AxpyInterface<T>::Detach()
         HandleEoms();
     }
 
-    imports::mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.VCComm() );
 
     _attachedForLocalToGlobal = false;
     _attachedForGlobalToLocal = false;

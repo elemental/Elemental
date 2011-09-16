@@ -815,7 +815,7 @@ AbstractDistMatrix<T>::Write
     PushCallStack("AbstractDistMatrix::Write");
 #endif
     const elemental::Grid& g = Grid();
-    const int commRank = imports::mpi::CommRank( g.VCComm() ); 
+    const int commRank = mpi::CommRank( g.VCComm() ); 
 
     if( commRank == 0 )
     {

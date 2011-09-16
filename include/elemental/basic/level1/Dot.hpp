@@ -51,7 +51,6 @@
      ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 */
 namespace elemental {
-using namespace elemental::imports;
 
 template<typename T, Distribution U, Distribution V,
                      Distribution W, Distribution Z >

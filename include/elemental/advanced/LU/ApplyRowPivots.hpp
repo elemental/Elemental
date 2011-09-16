@@ -199,7 +199,7 @@ elemental::advanced::internal::ApplyRowPivots
 
     // Communicate all pivot rows
     std::vector<F> recvData(max(1,totalRecvCount));
-    imports::mpi::AllToAll
+    mpi::AllToAll
     ( &sendData[0], &sendCounts[0], &sendDispls[0],
       &recvData[0], &recvCounts[0], &recvDispls[0], g.MCComm() );
 

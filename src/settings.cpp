@@ -46,24 +46,24 @@ void
 elemental::Init
 ( int& argc, char**& argv )
 {
-    if( !imports::mpi::Initialized() )
+    if( !mpi::Initialized() )
     {
-        if( imports::mpi::Finalized() )
+        if( mpi::Finalized() )
         {
             throw std::logic_error
             ("Cannot initialize elemental after finalizing MPI");
         }
 #ifdef _OPENMP
         const int provided = 
-            imports::mpi::InitThread
-            ( argc, argv, imports::mpi::THREAD_MULTIPLE );
-        if( provided != imports::mpi::THREAD_MULTIPLE )
+            mpi::InitThread
+            ( argc, argv, mpi::THREAD_MULTIPLE );
+        if( provided != mpi::THREAD_MULTIPLE )
         {
             std::cerr << "WARNING: Could not achieve THREAD_MULTIPLE support."
                       << std::endl;
         }
 #else
-        imports::mpi::Init( argc, argv );
+        mpi::Init( argc, argv );
 #endif
         ::elementalInitializedMpi = true;
     }
@@ -87,10 +87,10 @@ elemental::Init
     plcg::UInt64 seed;
     seed.d[0] = time(0);
     seed.d[1] = time(0);
-    const unsigned rank = imports::mpi::CommRank( imports::mpi::COMM_WORLD );
-    const unsigned size = imports::mpi::CommSize( imports::mpi::COMM_WORLD );
-    imports::mpi::Broadcast
-    ( (byte*)seed.d, 2*sizeof(unsigned), 0, imports::mpi::COMM_WORLD );
+    const unsigned rank = mpi::CommRank( mpi::COMM_WORLD );
+    const unsigned size = mpi::CommSize( mpi::COMM_WORLD );
+    mpi::Broadcast
+    ( (byte*)seed.d, 2*sizeof(unsigned), 0, mpi::COMM_WORLD );
     plcg::SeedParallelLcg( rank, size, seed );
 }
 
@@ -100,7 +100,7 @@ elemental::Finalize()
 #ifndef RELEASE
     PushCallStack("Finalize");
 #endif
-    if( imports::mpi::Finalized() )
+    if( mpi::Finalized() )
         std::cerr << "Warning: MPI was finalized before Elemental." 
                   << std::endl;
     else if( ::elementalInitializedMpi )
@@ -111,7 +111,7 @@ elemental::Finalize()
         advanced::internal::DestroyPivotOp<scomplex>();
         advanced::internal::DestroyPivotOp<dcomplex>();
 #endif
-        imports::mpi::Finalize();
+        mpi::Finalize();
     }
 #ifndef RELEASE
     PopCallStack();

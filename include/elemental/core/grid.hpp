@@ -49,12 +49,12 @@ class Grid
     int _vectorRowRank;
     std::vector<int> _diagPathsAndRanks;
 
-    imports::mpi::Comm _viewingComm; // all processes that create the grid
-    imports::mpi::Group _viewingGroup;
+    mpi::Comm _viewingComm; // all processes that create the grid
+    mpi::Group _viewingGroup;
     int _viewingRank; // our rank in the viewing communicator
 
-    imports::mpi::Group _owningGroup; // the processes that can own data
-    imports::mpi::Group _notOwningGroup; // contains the remaining processes
+    mpi::Group _owningGroup; // the processes that can own data
+    mpi::Group _notOwningGroup; // contains the remaining processes
 
     std::vector<int> _vectorColToViewingMap;
 
@@ -65,16 +65,16 @@ class Grid
     bool _inGrid;
 
     // Create a communicator for the processes that are in the process grid
-    imports::mpi::Comm _owningComm;
-    imports::mpi::Comm _notOwningComm; // necessary complimentary communicator
+    mpi::Comm _owningComm;
+    mpi::Comm _notOwningComm; // necessary complimentary communicator
     int _owningRank;
 
     // These will only be valid if we are in the grid
-    imports::mpi::Comm _cartComm;  // the processes that are in the grid
-    imports::mpi::Comm _matrixColComm;
-    imports::mpi::Comm _matrixRowComm;
-    imports::mpi::Comm _vectorColComm;
-    imports::mpi::Comm _vectorRowComm;
+    mpi::Comm _cartComm;  // the processes that are in the grid
+    mpi::Comm _matrixColComm;
+    mpi::Comm _matrixRowComm;
+    mpi::Comm _vectorColComm;
+    mpi::Comm _vectorRowComm;
 
     void SetUpGrid();
 
@@ -87,14 +87,14 @@ class Grid
     public:
 
     // For constructing grids where every process is a member
-    Grid( imports::mpi::Comm comm );
-    Grid( imports::mpi::Comm comm, int r, int c );
+    Grid( mpi::Comm comm );
+    Grid( mpi::Comm comm, int r, int c );
     
     // For constructing grids where only the 'owningGroup' processes are in the
     // grid. viewingComm must be valid for all processes creating the 
     // grid, not just those in the owning group.
-    Grid( imports::mpi::Comm viewingComm, imports::mpi::Group owningGroup );
-    Grid( imports::mpi::Comm viewingComm, imports::mpi::Group owningGroup, 
+    Grid( mpi::Comm viewingComm, mpi::Group owningGroup );
+    Grid( mpi::Comm viewingComm, mpi::Group owningGroup, 
           int r, int c );
 
     ~Grid();
@@ -117,13 +117,13 @@ class Grid
     int OwningRank() const;
     int ViewingRank() const;
     int VCToViewingMap( int VCRank ) const;
-    imports::mpi::Group OwningGroup() const;
-    imports::mpi::Comm OwningComm() const;
-    imports::mpi::Comm ViewingComm() const;
-    imports::mpi::Comm MCComm() const;
-    imports::mpi::Comm MRComm() const;
-    imports::mpi::Comm VCComm() const;
-    imports::mpi::Comm VRComm() const;
+    mpi::Group OwningGroup() const;
+    mpi::Comm OwningComm() const;
+    mpi::Comm ViewingComm() const;
+    mpi::Comm MCComm() const;
+    mpi::Comm MRComm() const;
+    mpi::Comm VCComm() const;
+    mpi::Comm VRComm() const;
 };
 
 bool operator== ( const Grid& A, const Grid& B );
@@ -165,16 +165,16 @@ elemental::Grid::DiagPath() const
     if( _inGrid )
         return _diagPathsAndRanks[2*_vectorColRank]; 
     else
-        return imports::mpi::UNDEFINED;
+        return mpi::UNDEFINED;
 }
 
 inline int
 elemental::Grid::DiagPath( int vectorColRank ) const
 { 
-    if( vectorColRank != imports::mpi::UNDEFINED )
+    if( vectorColRank != mpi::UNDEFINED )
         return _diagPathsAndRanks[2*vectorColRank]; 
     else
-        return imports::mpi::UNDEFINED;
+        return mpi::UNDEFINED;
 }
 
 inline int
@@ -183,16 +183,16 @@ elemental::Grid::DiagPathRank() const
     if( _inGrid )
         return _diagPathsAndRanks[2*_vectorColRank+1];
     else
-        return imports::mpi::UNDEFINED;
+        return mpi::UNDEFINED;
 }
 
 inline int
 elemental::Grid::DiagPathRank( int vectorColRank ) const
 { 
-    if( vectorColRank != imports::mpi::UNDEFINED )
+    if( vectorColRank != mpi::UNDEFINED )
         return _diagPathsAndRanks[2*vectorColRank+1]; 
     else
-        return imports::mpi::UNDEFINED;
+        return mpi::UNDEFINED;
 }
 
 inline int
@@ -223,31 +223,31 @@ inline int
 elemental::Grid::VCToViewingMap( int VCRank ) const
 { return _vectorColToViewingMap[VCRank]; }
 
-inline elemental::imports::mpi::Group
+inline elemental::mpi::Group
 elemental::Grid::OwningGroup() const
 { return _owningGroup; }
 
-inline elemental::imports::mpi::Comm
+inline elemental::mpi::Comm
 elemental::Grid::OwningComm() const
 { return _owningComm; }
 
-inline elemental::imports::mpi::Comm
+inline elemental::mpi::Comm
 elemental::Grid::ViewingComm() const
 { return _viewingComm; }
 
-inline elemental::imports::mpi::Comm
+inline elemental::mpi::Comm
 elemental::Grid::MCComm() const
 { return _matrixColComm; }
 
-inline elemental::imports::mpi::Comm
+inline elemental::mpi::Comm
 elemental::Grid::MRComm() const
 { return _matrixRowComm; }
 
-inline elemental::imports::mpi::Comm
+inline elemental::mpi::Comm
 elemental::Grid::VCComm() const
 { return _vectorColComm; }
 
-inline elemental::imports::mpi::Comm
+inline elemental::mpi::Comm
 elemental::Grid::VRComm() const
 { return _vectorRowComm; }
 
@@ -261,7 +261,7 @@ elemental::operator!= ( const Grid& A, const Grid& B )
 
 inline 
 elemental::Grid::Grid
-( imports::mpi::Comm comm )
+( mpi::Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
@@ -269,14 +269,14 @@ elemental::Grid::Grid
     _inGrid = true; // this is true by assumption for this constructor
 
     // Extract our rank, the underlying group, and the number of processes
-    imports::mpi::CommDup( comm, _viewingComm );
-    imports::mpi::CommGroup( _viewingComm, _viewingGroup );
-    _viewingRank = imports::mpi::CommRank( _viewingComm );
-    _p = imports::mpi::CommSize( _viewingComm );
+    mpi::CommDup( comm, _viewingComm );
+    mpi::CommGroup( _viewingComm, _viewingGroup );
+    _viewingRank = mpi::CommRank( _viewingComm );
+    _p = mpi::CommSize( _viewingComm );
 
     // All processes own the grid, so we have to trivially split _viewingGroup
     _owningGroup = _viewingGroup;
-    _notOwningGroup = imports::mpi::GROUP_EMPTY;
+    _notOwningGroup = mpi::GROUP_EMPTY;
     _owningRank = _viewingRank;
 
     // Factor p
@@ -294,7 +294,7 @@ elemental::Grid::Grid
 
 inline
 elemental::Grid::Grid
-( imports::mpi::Comm comm, int r, int c )
+( mpi::Comm comm, int r, int c )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
@@ -302,14 +302,14 @@ elemental::Grid::Grid
     _inGrid = true; // this is true by assumption for this constructor
 
     // Extract our rank, the underlying group, and the number of processes
-    imports::mpi::CommDup( comm, _viewingComm );
-    imports::mpi::CommGroup( _viewingComm, _viewingGroup );
-    _viewingRank = imports::mpi::CommRank( _viewingComm );
-    _p = imports::mpi::CommSize( _viewingComm );
+    mpi::CommDup( comm, _viewingComm );
+    mpi::CommGroup( _viewingComm, _viewingGroup );
+    _viewingRank = mpi::CommRank( _viewingComm );
+    _p = mpi::CommSize( _viewingComm );
 
     // All processes own the grid, so we have to trivially split _viewingGroup
     _owningGroup = _viewingGroup;
-    _notOwningGroup = imports::mpi::GROUP_EMPTY;
+    _notOwningGroup = mpi::GROUP_EMPTY;
     _owningRank = _viewingRank;
 
     _r = r;
@@ -327,25 +327,25 @@ elemental::Grid::Grid
 
 inline
 elemental::Grid::Grid
-( imports::mpi::Comm viewingComm, imports::mpi::Group owningGroup )
+( mpi::Comm viewingComm, mpi::Group owningGroup )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
 #endif
 
     // Extract our rank and the underlying group from the viewing comm
-    imports::mpi::CommDup( viewingComm, _viewingComm );
-    imports::mpi::CommGroup( _viewingComm, _viewingGroup );
-    _viewingRank = imports::mpi::CommRank( _viewingComm );
+    mpi::CommDup( viewingComm, _viewingComm );
+    mpi::CommGroup( _viewingComm, _viewingGroup );
+    _viewingRank = mpi::CommRank( _viewingComm );
 
     // Extract our rank and the number of processes from the owning group
     _owningGroup = owningGroup;
-    _p = imports::mpi::GroupSize( _owningGroup );
-    _owningRank = imports::mpi::GroupRank( _owningGroup );
-    _inGrid = ( _owningRank != imports::mpi::UNDEFINED );
+    _p = mpi::GroupSize( _owningGroup );
+    _owningRank = mpi::GroupRank( _owningGroup );
+    _inGrid = ( _owningRank != mpi::UNDEFINED );
 
     // Create the complement of the owning group
-    imports::mpi::GroupDifference
+    mpi::GroupDifference
     ( _viewingGroup, _owningGroup, _notOwningGroup );
 
     // Factor p
@@ -364,7 +364,7 @@ elemental::Grid::Grid
 // Currently forces a columnMajor absolute rank on the grid
 inline
 elemental::Grid::Grid
-( imports::mpi::Comm viewingComm, imports::mpi::Group owningGroup, 
+( mpi::Comm viewingComm, mpi::Group owningGroup, 
   int r, int c )
 {
 #ifndef RELEASE
@@ -372,18 +372,18 @@ elemental::Grid::Grid
 #endif
 
     // Extract our rank and the underlying group from the viewing comm
-    imports::mpi::CommDup( viewingComm, _viewingComm );
-    imports::mpi::CommGroup( _viewingComm, _viewingGroup );
-    _viewingRank = imports::mpi::CommRank( _viewingComm );
+    mpi::CommDup( viewingComm, _viewingComm );
+    mpi::CommGroup( _viewingComm, _viewingGroup );
+    _viewingRank = mpi::CommRank( _viewingComm );
 
     // Extract our rank and the number of processes from the owning group
     _owningGroup = owningGroup;
-    _p = imports::mpi::GroupSize( _owningGroup );
-    _owningRank = imports::mpi::GroupRank( _owningGroup );
-    _inGrid = ( _owningRank != imports::mpi::UNDEFINED );
+    _p = mpi::GroupSize( _owningGroup );
+    _owningRank = mpi::GroupRank( _owningGroup );
+    _inGrid = ( _owningRank != mpi::UNDEFINED );
 
     // Create the complement of the owning group
-    imports::mpi::GroupDifference
+    mpi::GroupDifference
     ( _viewingGroup, _owningGroup, _notOwningGroup );
 
     _r = r;
@@ -428,9 +428,9 @@ elemental::Grid::SetUpGrid()
 
     // Split the viewing comm into the owning and not owning subsets
     if( _inGrid )
-        imports::mpi::CommSplit( _viewingComm, true, _owningRank, _owningComm );
+        mpi::CommSplit( _viewingComm, true, _owningRank, _owningComm );
     else
-        imports::mpi::CommSplit( _viewingComm, false, 0, _notOwningComm );
+        mpi::CommSplit( _viewingComm, false, 0, _notOwningComm );
 
     if( _inGrid )
     {
@@ -438,25 +438,25 @@ elemental::Grid::SetUpGrid()
         int dimensions[2] = { _c, _r };
         int periods[2] = { true, true };
         int reorder = false;
-        imports::mpi::CartCreate
+        mpi::CartCreate
         ( _owningComm, 2, dimensions, periods, reorder, _cartComm );
 
         // Set up the MatrixCol and MatrixRow communicators
         int remainingDimensions[2];
         remainingDimensions[0] = false;
         remainingDimensions[1] = true;
-        imports::mpi::CartSub( _cartComm, remainingDimensions, _matrixColComm );
+        mpi::CartSub( _cartComm, remainingDimensions, _matrixColComm );
         remainingDimensions[0] = true;
         remainingDimensions[1] = false;
-        imports::mpi::CartSub( _cartComm, remainingDimensions, _matrixRowComm );
-        _matrixColRank = imports::mpi::CommRank( _matrixColComm );
-        _matrixRowRank = imports::mpi::CommRank( _matrixRowComm );
+        mpi::CartSub( _cartComm, remainingDimensions, _matrixRowComm );
+        _matrixColRank = mpi::CommRank( _matrixColComm );
+        _matrixRowRank = mpi::CommRank( _matrixRowComm );
 
         // Set up the VectorCol and VectorRow communicators
         _vectorColRank = _matrixColRank + _r*_matrixRowRank;
         _vectorRowRank = _matrixRowRank + _c*_matrixColRank;
-        imports::mpi::CommSplit( _cartComm, 0, _vectorColRank, _vectorColComm );
-        imports::mpi::CommSplit( _cartComm, 0, _vectorRowRank, _vectorRowComm );
+        mpi::CommSplit( _cartComm, 0, _vectorColRank, _vectorColComm );
+        mpi::CommSplit( _cartComm, 0, _vectorRowRank, _vectorRowComm );
 
         // Compute which diagonal 'path' we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
@@ -480,27 +480,27 @@ elemental::Grid::SetUpGrid()
                 ++diagPathRank;
             }
         }
-        imports::mpi::AllGather
+        mpi::AllGather
         ( &myDiagPathAndRank[0], 2, &_diagPathsAndRanks[0], 2, _vectorColComm );
 
 #ifndef RELEASE
-        imports::mpi::ErrorHandlerSet
-        ( _matrixColComm, imports::mpi::ERRORS_RETURN );
-        imports::mpi::ErrorHandlerSet
-        ( _matrixRowComm, imports::mpi::ERRORS_RETURN );
-        imports::mpi::ErrorHandlerSet
-        ( _vectorColComm, imports::mpi::ERRORS_RETURN );
-        imports::mpi::ErrorHandlerSet
-        ( _vectorRowComm, imports::mpi::ERRORS_RETURN );
+        mpi::ErrorHandlerSet
+        ( _matrixColComm, mpi::ERRORS_RETURN );
+        mpi::ErrorHandlerSet
+        ( _matrixRowComm, mpi::ERRORS_RETURN );
+        mpi::ErrorHandlerSet
+        ( _vectorColComm, mpi::ERRORS_RETURN );
+        mpi::ErrorHandlerSet
+        ( _vectorRowComm, mpi::ERRORS_RETURN );
 #endif
     }
     else
     {
         // diag paths and ranks are implicitly set to undefined
-        _matrixColRank = imports::mpi::UNDEFINED;
-        _matrixRowRank = imports::mpi::UNDEFINED;
-        _vectorColRank = imports::mpi::UNDEFINED;
-        _vectorRowRank = imports::mpi::UNDEFINED;
+        _matrixColRank = mpi::UNDEFINED;
+        _matrixRowRank = mpi::UNDEFINED;
+        _vectorColRank = mpi::UNDEFINED;
+        _vectorRowRank = mpi::UNDEFINED;
     }
 
     // Set up the map from the VC group to the _viewingGroup ranks.
@@ -510,7 +510,7 @@ elemental::Grid::SetUpGrid()
     for( int i=0; i<_p; ++i )
         ranks[i] = i;
     _vectorColToViewingMap.resize(_p);
-    imports::mpi::GroupTranslateRanks
+    mpi::GroupTranslateRanks
     ( _owningGroup, _p, &ranks[0], _viewingGroup, &_vectorColToViewingMap[0] );
 #ifndef RELEASE
     PopCallStack();
@@ -520,26 +520,26 @@ elemental::Grid::SetUpGrid()
 inline
 elemental::Grid::~Grid()
 {
-    if( !imports::mpi::Finalized() )
+    if( !mpi::Finalized() )
     {
         if( _inGrid )
         {
-            imports::mpi::CommFree( _matrixColComm );
-            imports::mpi::CommFree( _matrixRowComm );
-            imports::mpi::CommFree( _vectorColComm );
-            imports::mpi::CommFree( _vectorRowComm );
-            imports::mpi::CommFree( _cartComm );
+            mpi::CommFree( _matrixColComm );
+            mpi::CommFree( _matrixRowComm );
+            mpi::CommFree( _vectorColComm );
+            mpi::CommFree( _vectorRowComm );
+            mpi::CommFree( _cartComm );
         }
 
         if( _inGrid )
-            imports::mpi::CommFree( _owningComm );
+            mpi::CommFree( _owningComm );
         else
-            imports::mpi::CommFree( _notOwningComm );
+            mpi::CommFree( _notOwningComm );
 
-        if( _notOwningGroup != imports::mpi::GROUP_EMPTY )
-            imports::mpi::GroupFree( _notOwningGroup );
+        if( _notOwningGroup != mpi::GROUP_EMPTY )
+            mpi::GroupFree( _notOwningGroup );
 
-        imports::mpi::CommFree( _viewingComm );
+        mpi::CommFree( _viewingComm );
     }
 }
 

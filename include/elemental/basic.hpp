@@ -872,22 +872,22 @@ elemental::basic::Axpy
 #endif
         if( X.Width()==1 && Y.Width()==1 )
         {
-            elemental::imports::blas::Axpy
+            elemental::blas::Axpy
             ( XLength, alpha, X.LockedBuffer(0,0), 1, Y.Buffer(0,0), 1 );
         }
         else if( X.Width()==1 )
         {
-            elemental::imports::blas::Axpy
+            elemental::blas::Axpy
             ( XLength, alpha, X.LockedBuffer(0,0), 1, Y.Buffer(0,0), Y.LDim() );
         }
         else if( Y.Width()==1 )
         {
-            elemental::imports::blas::Axpy
+            elemental::blas::Axpy
             ( XLength, alpha, X.LockedBuffer(0,0), X.LDim(), Y.Buffer(0,0), 1 );
         }
         else
         {
-            elemental::imports::blas::Axpy
+            elemental::blas::Axpy
             ( XLength, alpha, 
               X.LockedBuffer(0,0), X.LDim(), Y.Buffer(0,0), Y.LDim() );
         }
@@ -902,7 +902,7 @@ elemental::basic::Axpy
         {
             for( int j=0; j<X.Width(); ++j )
             {
-                elemental::imports::blas::Axpy
+                elemental::blas::Axpy
                 ( X.Height(), alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
             }
         }
@@ -910,7 +910,7 @@ elemental::basic::Axpy
         {
             for( int i=0; i<X.Height(); ++i )
             {
-                elemental::imports::blas::Axpy
+                elemental::blas::Axpy
                 ( X.Width(), alpha, X.LockedBuffer(i,0), X.LDim(),
                                     Y.Buffer(i,0),       Y.LDim() );
             }
@@ -1048,25 +1048,25 @@ elemental::basic::Dot
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        dotProduct = imports::blas::Dot
+        dotProduct = blas::Dot
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), 1 );
     }
     else if( x.Width() == 1 )
     {
-        dotProduct = imports::blas::Dot
+        dotProduct = blas::Dot
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), y.LDim() );
     }
     else if( y.Width() == 1 )
     {
-        dotProduct = imports::blas::Dot
+        dotProduct = blas::Dot
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), 1        );
     }
     else
     {
-        dotProduct = imports::blas::Dot
+        dotProduct = blas::Dot
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), y.LDim() );
     }
@@ -1094,25 +1094,25 @@ elemental::basic::Dotc
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        dotProduct = imports::blas::Dotc
+        dotProduct = blas::Dotc
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), 1 );
     }
     else if( x.Width() == 1 )
     {
-        dotProduct = imports::blas::Dotc
+        dotProduct = blas::Dotc
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), y.LDim() );
     }
     else if( y.Width() == 1 )
     {
-        dotProduct = imports::blas::Dotc
+        dotProduct = blas::Dotc
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), 1        );
     }
     else
     {
-        dotProduct = imports::blas::Dotc
+        dotProduct = blas::Dotc
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), y.LDim() );
     }
@@ -1140,25 +1140,25 @@ elemental::basic::Dotu
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        dotProduct = imports::blas::Dotu
+        dotProduct = blas::Dotu
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), 1 );
     }
     else if( x.Width() == 1 )
     {
-        dotProduct = imports::blas::Dotu
+        dotProduct = blas::Dotu
                      ( x.Height(), x.LockedBuffer(), 1,
                                    y.LockedBuffer(), y.LDim() );
     }
     else if( y.Width() == 1 )
     {
-        dotProduct = imports::blas::Dotu
+        dotProduct = blas::Dotu
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), 1        );
     }
     else
     {
-        dotProduct = imports::blas::Dotu
+        dotProduct = blas::Dotu
                      ( x.Width(), x.LockedBuffer(), x.LDim(),
                                   y.LockedBuffer(), y.LDim() );
     }
@@ -1180,15 +1180,9 @@ elemental::basic::Nrm2
 #endif
     R norm;
     if( x.Width() == 1 )
-    {
-        norm = imports::blas::Nrm2
-               ( x.Height(), x.LockedBuffer(), 1 );
-    }
+        norm = blas::Nrm2( x.Height(), x.LockedBuffer(), 1 );
     else
-    {
-        norm = imports::blas::Nrm2
-               ( x.Width(), x.LockedBuffer(), x.LDim() );
-    }
+        norm = blas::Nrm2( x.Width(), x.LockedBuffer(), x.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1208,15 +1202,9 @@ elemental::basic::Nrm2
 #endif
     R norm;
     if( x.Width() == 1 )
-    {
-        norm = imports::blas::Nrm2
-               ( x.Height(), x.LockedBuffer(), 1 );
-    }
+        norm = blas::Nrm2( x.Height(), x.LockedBuffer(), 1 );
     else
-    {
-        norm = imports::blas::Nrm2
-               ( x.Width(), x.LockedBuffer(), x.LDim() );
-    }
+        norm = blas::Nrm2( x.Width(), x.LockedBuffer(), x.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1235,19 +1223,12 @@ elemental::basic::Scal
     if( alpha != (T)1 )
     {
         if( alpha == (T)0 )
-        {
             for( int j=0; j<X.Width(); ++j )
                 for( int i=0; i<X.Height(); ++i )
                     X.Set(i,j,0);
-        }
         else
-        {
             for( int j=0; j<X.Width(); ++j )
-            {
-                imports::blas::Scal
-                ( X.Height(), alpha, X.Buffer(0,j), 1 );
-            }
-        }
+                blas::Scal( X.Height(), alpha, X.Buffer(0,j), 1 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1403,7 +1384,7 @@ elemental::basic::Gemv
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
     if( k != 0 )
     {
-        imports::blas::Gemv
+        blas::Gemv
         ( transChar, m, n, 
           alpha, A.LockedBuffer(), A.LDim(), x.LockedBuffer(), incx, 
           beta,  y.Buffer(), incy );
@@ -1443,7 +1424,7 @@ elemental::basic::Ger
     const int n = A.Width();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    imports::blas::Ger
+    blas::Ger
     ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy, 
                    A.Buffer(), A.LDim() );
 #ifndef RELEASE
@@ -1470,7 +1451,7 @@ elemental::basic::Gerc
     const int n = A.Width();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    imports::blas::Gerc
+    blas::Gerc
     ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy, 
                    A.Buffer(), A.LDim() );
 #ifndef RELEASE
@@ -1497,7 +1478,7 @@ elemental::basic::Geru
     const int n = A.Width();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    imports::blas::Geru
+    blas::Geru
     ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy, 
                    A.Buffer(), A.LDim() );
 #ifndef RELEASE
@@ -1527,7 +1508,7 @@ elemental::basic::Hemv
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    imports::blas::Hemv
+    blas::Hemv
     ( uploChar, m,
       alpha, A.LockedBuffer(), A.LDim(), x.LockedBuffer(), incx,
       beta,  y.Buffer(), incy );
@@ -1554,9 +1535,8 @@ elemental::basic::Her
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    imports::blas::Her
-    ( uploChar, m,
-      alpha, x.LockedBuffer(), incx, A.Buffer(), A.LDim() );
+    blas::Her
+    ( uploChar, m, alpha, x.LockedBuffer(), incx, A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1584,7 +1564,7 @@ elemental::basic::Her2
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    imports::blas::Her2
+    blas::Her2
     ( uploChar, m,
       alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
              A.Buffer(), A.LDim() );
@@ -1615,7 +1595,7 @@ elemental::basic::Symv
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    imports::blas::Symv
+    blas::Symv
     ( uploChar, m, 
       alpha, A.LockedBuffer(), A.LDim(), x.LockedBuffer(), incx, 
       beta,  y.Buffer(), incy );
@@ -1642,9 +1622,8 @@ elemental::basic::Syr
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    imports::blas::Syr
-    ( uploChar, m,
-      alpha, x.LockedBuffer(), incx, A.Buffer(), A.LDim() );
+    blas::Syr
+    ( uploChar, m, alpha, x.LockedBuffer(), incx, A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1671,7 +1650,7 @@ elemental::basic::Syr2
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    imports::blas::Syr2
+    blas::Syr2
     ( uploChar, m,
       alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
              A.Buffer(), A.LDim() );
@@ -1701,7 +1680,7 @@ elemental::basic::Trmv
     const char diagChar = DiagonalToChar( diagonal );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    imports::blas::Trmv
+    blas::Trmv
     ( uploChar, transChar, diagChar, m,
       A.LockedBuffer(), A.LDim(), x.Buffer(), incx );
 #ifndef RELEASE
@@ -1730,7 +1709,7 @@ elemental::basic::Trsv
     const char diagChar = DiagonalToChar( diagonal );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    imports::blas::Trsv
+    blas::Trsv
     ( uploChar, transChar, diagChar, m,
       A.LockedBuffer(), A.LDim(), x.Buffer(), incx );
 #ifndef RELEASE
@@ -1786,7 +1765,7 @@ elemental::basic::Gemm
     const int k = ( orientationOfA == NORMAL ? A.Width() : A.Height() );
     if( k != 0 )
     {
-        imports::blas::Gemm
+        blas::Gemm
         ( transA, transB, m, n, k, 
           alpha, A.LockedBuffer(), A.LDim(), B.LockedBuffer(), B.LDim(),
           beta,  C.Buffer(),       C.LDim() );
@@ -1811,7 +1790,7 @@ elemental::basic::Hemm
 #endif
     const char sideChar = SideToChar( side );
     const char shapeChar = ShapeToChar( shape );
-    imports::blas::Hemm
+    blas::Hemm
     ( sideChar, shapeChar, C.Height(), C.Width(),
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
@@ -1848,7 +1827,7 @@ elemental::basic::Her2k
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
     const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
-    imports::blas::Her2k
+    blas::Her2k
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
@@ -1882,7 +1861,7 @@ elemental::basic::Herk
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
     const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
-    imports::blas::Herk
+    blas::Herk
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
       beta,  C.Buffer(),       C.LDim() );
@@ -1899,7 +1878,7 @@ elemental::basic::Hetrmm( Shape shape, Matrix<T>& A )
     PushCallStack("basic::Hetrmm");
 #endif
     const char shapeChar = ShapeToChar( shape );
-    imports::blas::Hetrmm( shapeChar, A.Height(), A.Buffer(), A.LDim() );
+    blas::Hetrmm( shapeChar, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1916,7 +1895,7 @@ elemental::basic::Symm
 #endif
     const char sideChar = SideToChar( side );
     const char shapeChar = ShapeToChar( shape );
-    imports::blas::Symm
+    blas::Symm
     ( sideChar, shapeChar, C.Height(), C.Width(),
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
@@ -1953,7 +1932,7 @@ elemental::basic::Syr2k
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
     const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
-    imports::blas::Syr2k
+    blas::Syr2k
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
@@ -1988,7 +1967,7 @@ elemental::basic::Syrk
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
     const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
-    imports::blas::Syrk
+    blas::Syrk
     ( uplo, trans, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
       beta,  C.Buffer(),       C.LDim() );
@@ -2023,7 +2002,7 @@ elemental::basic::Trmm
     const char uploChar = ShapeToChar( shape );
     const char transChar = OrientationToChar( orientation );
     const char diagChar = DiagonalToChar( diagonal );
-    imports::blas::Trmm
+    blas::Trmm
     ( sideChar, uploChar, transChar, diagChar, B.Height(), B.Width(),
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 #ifndef RELEASE
@@ -2065,7 +2044,7 @@ elemental::basic::Trsm
             if( A.Get(j,j) == (F)0 )
                 throw std::runtime_error("Triangular matrix was singular");
     }
-    imports::blas::Trsm
+    blas::Trsm
     ( sideChar, uploChar, transChar, diagChar, B.Height(), B.Width(),
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 #ifndef RELEASE

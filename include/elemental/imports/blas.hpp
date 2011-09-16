@@ -34,7 +34,6 @@
 #define ELEMENTAL_IMPORTS_BLAS_HPP 1
 
 namespace elemental {
-namespace imports {
 namespace blas {
 //----------------------------------------------------------------//
 // Level 1 BLAS                                                   //
@@ -486,7 +485,6 @@ void Trsm
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* X, int ldb );
 #endif
 } // blas
-} // imports
 } // elemental
 
 extern "C" {

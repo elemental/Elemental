@@ -36,7 +36,7 @@
 // Level 1 BLAS                                                               //
 //----------------------------------------------------------------------------//
 void
-elemental::imports::blas::Axpy
+elemental::blas::Axpy
 ( int n, int alpha, const int* x, int incx, int* y, int incy )
 {
     for( int i=0; i<n; ++i )
@@ -44,40 +44,40 @@ elemental::imports::blas::Axpy
 }
 
 void
-elemental::imports::blas::Axpy
+elemental::blas::Axpy
 ( int n, float alpha, const float* x, int incx, float* y, int incy )
 { BLAS(saxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
 void
-elemental::imports::blas::Axpy
+elemental::blas::Axpy
 ( int n, double alpha, const double* x, int incx, double* y, int incy )
 { BLAS(daxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Axpy
+elemental::blas::Axpy
 ( int n, scomplex alpha, const scomplex* x, int incx, scomplex* y, int incy )
 { BLAS(caxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
 void
-elemental::imports::blas::Axpy
+elemental::blas::Axpy
 ( int n, dcomplex alpha, const dcomplex* x, int incx, dcomplex* y, int incy )
 { BLAS(zaxpy)( &n, &alpha, x, &incx, y, &incy ); }
 #endif // WITHOUT_COMPLEX
 
 float
-elemental::imports::blas::Dot
+elemental::blas::Dot
 ( int n, const float* x, int incx, const float* y, int incy )
 { return BLAS(sdot)( &n, x, &incx, y, &incy ); }
 
 double
-elemental::imports::blas::Dot
+elemental::blas::Dot
 ( int n, const double* x, int incx, const double* y, int incy )
 { return BLAS(ddot)( &n, x, &incx, y, &incy ); }
 
 #ifndef WITHOUT_COMPLEX
 elemental::scomplex
-elemental::imports::blas::Dot
+elemental::blas::Dot
 ( int n, const elemental::scomplex* x, int incx,
          const elemental::scomplex* y, int incy )
 { 
@@ -97,7 +97,7 @@ elemental::imports::blas::Dot
 }
 
 elemental::dcomplex
-elemental::imports::blas::Dot
+elemental::blas::Dot
 ( int n, const elemental::dcomplex* x, int incx,
          const elemental::dcomplex* y, int incy )
 {
@@ -118,18 +118,18 @@ elemental::imports::blas::Dot
 #endif // WITHOUT_COMPLEX
 
 float
-elemental::imports::blas::Dotc
+elemental::blas::Dotc
 ( int n, const float* x, int incx, const float* y, int incy )
 { return BLAS(sdot)( &n, x, &incx, y, &incy ); }
 
 double
-elemental::imports::blas::Dotc
+elemental::blas::Dotc
 ( int n, const double* x, int incx, const double* y, int incy )
 { return BLAS(ddot)( &n, x, &incx, y, &incy ); }
 
 #ifndef WITHOUT_COMPLEX
 elemental::scomplex
-elemental::imports::blas::Dotc
+elemental::blas::Dotc
 ( int n, const elemental::scomplex* x, int incx,
          const elemental::scomplex* y, int incy )
 { 
@@ -149,7 +149,7 @@ elemental::imports::blas::Dotc
 }
 
 elemental::dcomplex
-elemental::imports::blas::Dotc
+elemental::blas::Dotc
 ( int n, const elemental::dcomplex* x, int incx,
          const elemental::dcomplex* y, int incy )
 { 
@@ -170,18 +170,18 @@ elemental::imports::blas::Dotc
 #endif // WITHOUT_COMPLEX
 
 float
-elemental::imports::blas::Dotu
+elemental::blas::Dotu
 ( int n, const float* x, int incx, const float* y, int incy )
 { return BLAS(sdot)( &n, x, &incx, y, &incy ); }
 
 double
-elemental::imports::blas::Dotu
+elemental::blas::Dotu
 ( int n, const double* x, int incx, const double* y, int incy )
 { return BLAS(ddot)( &n, x, &incx, y, &incy ); }
 
 #ifndef WITHOUT_COMPLEX
 elemental::scomplex
-elemental::imports::blas::Dotu
+elemental::blas::Dotu
 ( int n, const elemental::scomplex* x, int incx,
          const elemental::scomplex* y, int incy )
 {
@@ -201,7 +201,7 @@ elemental::imports::blas::Dotu
 }
 
 elemental::dcomplex
-elemental::imports::blas::Dotu
+elemental::blas::Dotu
 ( int n, const elemental::dcomplex* x, int incx,
          const elemental::dcomplex* y, int incy )
 {
@@ -222,45 +222,45 @@ elemental::imports::blas::Dotu
 #endif // WITHOUT_COMPLEX
 
 float
-elemental::imports::blas::Nrm2
+elemental::blas::Nrm2
 ( int n, const float* x, int incx )
 { return BLAS(snrm2)( &n, x, &incx ); }
 
 double
-elemental::imports::blas::Nrm2
+elemental::blas::Nrm2
 ( int n, const double* x, int incx )
 { return BLAS(dnrm2)( &n, x, &incx ); }
 
 #ifndef WITHOUT_COMPLEX
 float
-elemental::imports::blas::Nrm2
+elemental::blas::Nrm2
 ( int n, const scomplex* x, int incx )
 { return BLAS(scnrm2)( &n, x, &incx ); }
 
 double
-elemental::imports::blas::Nrm2
+elemental::blas::Nrm2
 ( int n, const dcomplex* x, int incx )
 { return BLAS(dznrm2)( &n, x, &incx ); }
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Scal
+elemental::blas::Scal
 ( int n, float alpha, float* x, int incx )
 { BLAS(sscal)( &n, &alpha, x, &incx ); }
 
 void
-elemental::imports::blas::Scal
+elemental::blas::Scal
 ( int n, double alpha, double* x, int incx )
 { BLAS(dscal)( &n, &alpha, x, &incx ); }
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Scal
+elemental::blas::Scal
 ( int n, scomplex alpha, scomplex* x, int incx )
 { BLAS(cscal)( &n, &alpha, x, &incx ); }
 
 void
-elemental::imports::blas::Scal
+elemental::blas::Scal
 ( int n, dcomplex alpha, dcomplex* x, int incx )
 { BLAS(zscal)( &n, &alpha, x, &incx ); }
 #endif // WITHOUT_COMPLEX
@@ -269,7 +269,7 @@ elemental::imports::blas::Scal
 // Level 2 BLAS                                                               //
 //----------------------------------------------------------------------------//
 void
-elemental::imports::blas::Gemv
+elemental::blas::Gemv
 ( char trans, int m, int n,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy )
@@ -280,7 +280,7 @@ elemental::imports::blas::Gemv
 }
 
 void
-elemental::imports::blas::Gemv
+elemental::blas::Gemv
 ( char trans, int m, int n,
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy )
@@ -292,14 +292,14 @@ elemental::imports::blas::Gemv
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Gemv
+elemental::blas::Gemv
 ( char trans, int m, int n,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy )
 { BLAS(cgemv)( &trans, &m, &n, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::imports::blas::Gemv
+elemental::blas::Gemv
 ( char trans, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy )
@@ -307,14 +307,14 @@ elemental::imports::blas::Gemv
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Ger
+elemental::blas::Ger
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
 { BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::imports::blas::Ger
+elemental::blas::Ger
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda  )
@@ -322,14 +322,14 @@ elemental::imports::blas::Ger
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Ger
+elemental::blas::Ger
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
 { BLAS(cgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::imports::blas::Ger
+elemental::blas::Ger
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
@@ -337,14 +337,14 @@ elemental::imports::blas::Ger
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Gerc
+elemental::blas::Gerc
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
 { BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::imports::blas::Gerc
+elemental::blas::Gerc
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
@@ -352,14 +352,14 @@ elemental::imports::blas::Gerc
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Gerc
+elemental::blas::Gerc
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
 { BLAS(cgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::imports::blas::Gerc
+elemental::blas::Gerc
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
@@ -367,14 +367,14 @@ elemental::imports::blas::Gerc
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Geru
+elemental::blas::Geru
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
 { BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::imports::blas::Geru
+elemental::blas::Geru
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
@@ -382,14 +382,14 @@ elemental::imports::blas::Geru
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Geru
+elemental::blas::Geru
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
 { BLAS(cgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::imports::blas::Geru
+elemental::blas::Geru
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
@@ -397,14 +397,14 @@ elemental::imports::blas::Geru
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Hemv
+elemental::blas::Hemv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy )
 { BLAS(ssymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::imports::blas::Hemv
+elemental::blas::Hemv
 ( char uplo, int m,
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy )
@@ -412,14 +412,14 @@ elemental::imports::blas::Hemv
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Hemv
+elemental::blas::Hemv
 ( char uplo, int m,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy )
 { BLAS(chemv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::imports::blas::Hemv
+elemental::blas::Hemv
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy )
@@ -427,40 +427,40 @@ elemental::imports::blas::Hemv
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Her
+elemental::blas::Her
 ( char uplo, int m,
   float alpha, const float* x, int incx, float* A, int lda )
 { BLAS(ssyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void
-elemental::imports::blas::Her
+elemental::blas::Her
 ( char uplo, int m,
   double alpha, const double* x, int incx, double* A, int lda )
 { BLAS(dsyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Her
+elemental::blas::Her
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda )
 { BLAS(cher)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void
-elemental::imports::blas::Her
+elemental::blas::Her
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda )
 { BLAS(zher)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Her2
+elemental::blas::Her2
 ( char uplo, int m,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
 { BLAS(ssyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::imports::blas::Her2
+elemental::blas::Her2
 ( char uplo, int m,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
@@ -468,14 +468,14 @@ elemental::imports::blas::Her2
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Her2
+elemental::blas::Her2
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
 { BLAS(cher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::imports::blas::Her2
+elemental::blas::Her2
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
@@ -483,14 +483,14 @@ elemental::imports::blas::Her2
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Symv
+elemental::blas::Symv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy )
 { BLAS(ssymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::imports::blas::Symv
+elemental::blas::Symv
 ( char uplo, int m,
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy )
@@ -498,7 +498,7 @@ elemental::imports::blas::Symv
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Symv
+elemental::blas::Symv
 ( char uplo, int m,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy )
@@ -508,7 +508,7 @@ elemental::imports::blas::Symv
 }
 
 void
-elemental::imports::blas::Symv
+elemental::blas::Symv
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy )
@@ -519,20 +519,20 @@ elemental::imports::blas::Symv
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Syr
+elemental::blas::Syr
 ( char uplo, int m,
   float alpha, const float* x, int incx, float* A, int lda  )
 { BLAS(ssyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void
-elemental::imports::blas::Syr
+elemental::blas::Syr
 ( char uplo, int m,
   double alpha, const double* x, int incx, double* A, int lda )
 { BLAS(dsyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Syr
+elemental::blas::Syr
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda )
 {
@@ -541,7 +541,7 @@ elemental::imports::blas::Syr
 }
 
 void
-elemental::imports::blas::Syr
+elemental::blas::Syr
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda )
 {
@@ -551,14 +551,14 @@ elemental::imports::blas::Syr
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Syr2
+elemental::blas::Syr2
 ( char uplo, int m,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
 { BLAS(ssyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::imports::blas::Syr2
+elemental::blas::Syr2
 ( char uplo, int m,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
@@ -566,7 +566,7 @@ elemental::imports::blas::Syr2
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Syr2
+elemental::blas::Syr2
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
@@ -583,7 +583,7 @@ elemental::imports::blas::Syr2
 }
 
 void
-elemental::imports::blas::Syr2
+elemental::blas::Syr2
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
@@ -601,52 +601,52 @@ elemental::imports::blas::Syr2
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Trmv
+elemental::blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const float* A, int lda, float* x, int incx )
 { BLAS(strmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::imports::blas::Trmv
+elemental::blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const double* A, int lda, double* x, int incx )
 { BLAS(dtrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Trmv
+elemental::blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const scomplex* A, int lda, scomplex* x, int incx )
 { BLAS(ctrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::imports::blas::Trmv
+elemental::blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx )
 { BLAS(ztrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Trsv
+elemental::blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const float* A, int lda, float* x, int incx )
 { BLAS(strsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::imports::blas::Trsv
+elemental::blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const double* A, int lda, double* x, int incx )
 { BLAS(dtrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Trsv
+elemental::blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const scomplex* A, int lda, scomplex* x, int incx )
 { BLAS(ctrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::imports::blas::Trsv
+elemental::blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx )
 { BLAS(ztrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
@@ -656,7 +656,7 @@ elemental::imports::blas::Trsv
 // Level 3 BLAS                                                               //
 //----------------------------------------------------------------------------//
 void
-elemental::imports::blas::Gemm
+elemental::blas::Gemm
 ( char transA, char transB, int m, int n, int k, 
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
@@ -668,7 +668,7 @@ elemental::imports::blas::Gemm
 }
 
 void
-elemental::imports::blas::Gemm
+elemental::blas::Gemm
 ( char transA, char transB,
   int m, int n, int k, 
   double alpha, const double* A, int lda, const double* B, int ldb,
@@ -682,7 +682,7 @@ elemental::imports::blas::Gemm
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Gemm
+elemental::blas::Gemm
 ( char transA, char transB, int m, int n, int k, 
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
@@ -692,7 +692,7 @@ elemental::imports::blas::Gemm
 }
 
 void
-elemental::imports::blas::Gemm
+elemental::blas::Gemm
 ( char transA, char transB, int m, int n, int k, 
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -703,7 +703,7 @@ elemental::imports::blas::Gemm
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Hemm
+elemental::blas::Hemm
 ( char side, char uplo, int m, int n,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
@@ -713,7 +713,7 @@ elemental::imports::blas::Hemm
 }
 
 void
-elemental::imports::blas::Hemm
+elemental::blas::Hemm
 ( char side, char uplo, int m, int n,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
@@ -724,7 +724,7 @@ elemental::imports::blas::Hemm
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Hemm
+elemental::blas::Hemm
 ( char side, char uplo, int m, int n,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
@@ -734,7 +734,7 @@ elemental::imports::blas::Hemm
 }
 
 void
-elemental::imports::blas::Hemm
+elemental::blas::Hemm
 ( char side, char uplo, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -745,7 +745,7 @@ elemental::imports::blas::Hemm
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Her2k
+elemental::blas::Her2k
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
@@ -756,7 +756,7 @@ elemental::imports::blas::Her2k
 }
 
 void
-elemental::imports::blas::Her2k
+elemental::blas::Her2k
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
@@ -768,7 +768,7 @@ elemental::imports::blas::Her2k
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Her2k
+elemental::blas::Her2k
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
@@ -778,7 +778,7 @@ elemental::imports::blas::Her2k
 }
 
 void
-elemental::imports::blas::Her2k
+elemental::blas::Her2k
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -789,7 +789,7 @@ elemental::imports::blas::Her2k
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Herk
+elemental::blas::Herk
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda,
   float beta,        float* C, int ldc )
@@ -799,7 +799,7 @@ elemental::imports::blas::Herk
 }
 
 void
-elemental::imports::blas::Herk
+elemental::blas::Herk
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda,
   double beta,        double* C, int ldc )
@@ -810,14 +810,14 @@ elemental::imports::blas::Herk
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Herk
+elemental::blas::Herk
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda,
   scomplex beta,        scomplex* C, int ldc )
 { BLAS(cherk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 void
-elemental::imports::blas::Herk
+elemental::blas::Herk
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -825,10 +825,10 @@ elemental::imports::blas::Herk
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Hetrmm( char uplo, int n, float* A, int lda )
+elemental::blas::Hetrmm( char uplo, int n, float* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::blas::Hetrmm");
+    PushCallStack("blas::Hetrmm");
 #endif
     int info;
     LAPACK(slauum)( &uplo, &n, A, &lda, &info );
@@ -844,10 +844,10 @@ elemental::imports::blas::Hetrmm( char uplo, int n, float* A, int lda )
 }
 
 void
-elemental::imports::blas::Hetrmm( char uplo, int n, double* A, int lda )
+elemental::blas::Hetrmm( char uplo, int n, double* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::blas::Hetrmm");
+    PushCallStack("blas::Hetrmm");
 #endif
     int info;
     LAPACK(dlauum)( &uplo, &n, A, &lda, &info );
@@ -864,10 +864,10 @@ elemental::imports::blas::Hetrmm( char uplo, int n, double* A, int lda )
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Hetrmm( char uplo, int n, scomplex* A, int lda )
+elemental::blas::Hetrmm( char uplo, int n, scomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::blas::Hetrmm");
+    PushCallStack("blas::Hetrmm");
 #endif
     int info;
     LAPACK(clauum)( &uplo, &n, A, &lda, &info );
@@ -883,10 +883,10 @@ elemental::imports::blas::Hetrmm( char uplo, int n, scomplex* A, int lda )
 }
 
 void
-elemental::imports::blas::Hetrmm( char uplo, int n, dcomplex* A, int lda )
+elemental::blas::Hetrmm( char uplo, int n, dcomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("imports::blas::Hetrmm");
+    PushCallStack("blas::Hetrmm");
 #endif
     int info;
     LAPACK(zlauum)( &uplo, &n, A, &lda, &info );
@@ -903,7 +903,7 @@ elemental::imports::blas::Hetrmm( char uplo, int n, dcomplex* A, int lda )
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Symm
+elemental::blas::Symm
 ( char side, char uplo, int m, int n,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
@@ -913,7 +913,7 @@ elemental::imports::blas::Symm
 }
 
 void
-elemental::imports::blas::Symm
+elemental::blas::Symm
 ( char side, char uplo, int m, int n,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
@@ -924,7 +924,7 @@ elemental::imports::blas::Symm
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Symm
+elemental::blas::Symm
 ( char side, char uplo, int m, int n,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
@@ -934,7 +934,7 @@ elemental::imports::blas::Symm
 }
 
 void
-elemental::imports::blas::Symm
+elemental::blas::Symm
 ( char side, char uplo, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -945,7 +945,7 @@ elemental::imports::blas::Symm
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Syr2k
+elemental::blas::Syr2k
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
@@ -955,7 +955,7 @@ elemental::imports::blas::Syr2k
 }
 
 void
-elemental::imports::blas::Syr2k
+elemental::blas::Syr2k
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
@@ -966,7 +966,7 @@ elemental::imports::blas::Syr2k
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Syr2k
+elemental::blas::Syr2k
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
@@ -976,7 +976,7 @@ elemental::imports::blas::Syr2k
 }
 
 void
-elemental::imports::blas::Syr2k
+elemental::blas::Syr2k
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -987,14 +987,14 @@ elemental::imports::blas::Syr2k
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Syrk
+elemental::blas::Syrk
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda,
   float beta,        float* C, int ldc )
 { BLAS(ssyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 void
-elemental::imports::blas::Syrk
+elemental::blas::Syrk
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda,
   double beta,        double* C, int ldc )
@@ -1002,14 +1002,14 @@ elemental::imports::blas::Syrk
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Syrk
+elemental::blas::Syrk
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda,
   scomplex beta,        scomplex* C, int ldc )
 { BLAS(csyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 void
-elemental::imports::blas::Syrk
+elemental::blas::Syrk
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -1017,7 +1017,7 @@ elemental::imports::blas::Syrk
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Trmm
+elemental::blas::Trmm
 ( char side, char uplo, char trans, char unit, int m, int n,
   float alpha, const float* A, int lda, float* B, int ldb )
 {
@@ -1027,7 +1027,7 @@ elemental::imports::blas::Trmm
 }
 
 void
-elemental::imports::blas::Trmm
+elemental::blas::Trmm
 ( char side, char uplo, char trans, char unit, int m, int n,
   double alpha, const double* A, int lda, double* B, int ldb )
 {
@@ -1038,7 +1038,7 @@ elemental::imports::blas::Trmm
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Trmm
+elemental::blas::Trmm
 ( char side, char uplo, char trans, char unit, int m, int n,
   scomplex alpha, const scomplex* A, int lda, scomplex* B, int ldb )
 {
@@ -1047,7 +1047,7 @@ elemental::imports::blas::Trmm
 }
 
 void
-elemental::imports::blas::Trmm
+elemental::blas::Trmm
 ( char side, char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb )
 {
@@ -1057,7 +1057,7 @@ elemental::imports::blas::Trmm
 #endif // WITHOUT_COMPLEX
 
 void
-elemental::imports::blas::Trsm
+elemental::blas::Trsm
 ( char side, char uplo, char trans, char unit, int m, int n,
   float alpha, const float* A, int lda, float* B, int ldb )
 {
@@ -1067,7 +1067,7 @@ elemental::imports::blas::Trsm
 } 
 
 void
-elemental::imports::blas::Trsm
+elemental::blas::Trsm
 ( char side, char uplo, char trans, char unit, int m, int n,
   double alpha, const double* A, int lda, double* B, int ldb )
 {
@@ -1078,7 +1078,7 @@ elemental::imports::blas::Trsm
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::imports::blas::Trsm
+elemental::blas::Trsm
 ( char side, char uplo, char trans, char unit, int m, int n,
   scomplex alpha, const scomplex* A, int lda, scomplex* B, int ldb )
 {
@@ -1087,7 +1087,7 @@ elemental::imports::blas::Trsm
 } 
 
 void
-elemental::imports::blas::Trsm
+elemental::blas::Trsm
 ( char side, char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb )
 {

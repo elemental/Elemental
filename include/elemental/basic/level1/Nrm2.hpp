@@ -32,7 +32,6 @@
 */
 
 namespace elemental {
-using namespace elemental::imports;
 
 template<typename R>
 inline R
@@ -57,7 +56,7 @@ basic::Nrm2( const DistMatrix<R,MC,MR>& x )
             std::vector<R> localNorms(r);
             R* localNormsPtr = &localNorms[0];
             mpi::AllGather( &localNorm, 1, localNormsPtr, 1, g.MCComm() );
-            norm = imports::blas::Nrm2( r, localNormsPtr, 1 );
+            norm = blas::Nrm2( r, localNormsPtr, 1 );
         }
         mpi::Broadcast( &norm, 1, ownerCol, g.MRComm() );
     }
@@ -72,7 +71,7 @@ basic::Nrm2( const DistMatrix<R,MC,MR>& x )
             std::vector<R> localNorms(c);
             R* localNormsPtr = &localNorms[0];
             mpi::AllGather( &localNorm, 1, localNormsPtr, 1, g.MRComm() );
-            norm = imports::blas::Nrm2( c, localNormsPtr, 1 );
+            norm = blas::Nrm2( c, localNormsPtr, 1 );
         }
         mpi::Broadcast( &norm, 1, ownerRow, g.MCComm() );
     }
@@ -107,7 +106,7 @@ basic::Nrm2
             std::vector<R> localNorms(r);
             R* localNormsPtr = &localNorms[0];
             mpi::AllGather( &localNorm, 1, localNormsPtr, 1, g.MCComm() );
-            norm = imports::blas::Nrm2( r, localNormsPtr, 1 );
+            norm = blas::Nrm2( r, localNormsPtr, 1 );
         }
         mpi::Broadcast( &norm, 1, ownerCol, g.MRComm() );
     }
@@ -122,7 +121,7 @@ basic::Nrm2
             std::vector<R> localNorms(c);
             R* localNormsPtr = &localNorms[0];
             mpi::AllGather( &localNorm, 1, localNormsPtr, 1, g.MRComm() );
-            norm = imports::blas::Nrm2( c, localNormsPtr, 1 );
+            norm = blas::Nrm2( c, localNormsPtr, 1 );
         }
         mpi::Broadcast( &norm, 1, ownerRow, g.MCComm() );
     }

@@ -72,7 +72,7 @@ elemental::Timer::Start()
     if( _running )
         throw std::logic_error("Forgot to stop timer before restarting.");
 #endif
-    _lastStartTime = imports::mpi::Time();
+    _lastStartTime = mpi::Time();
     _running = true;
     _running = true;
 #ifndef RELEASE
@@ -88,7 +88,7 @@ elemental::Timer::Stop()
     if( !_running )
         throw std::logic_error("Tried to stop a timer before starting it.");
 #endif
-    _time += imports::mpi::Time()-_lastStartTime;
+    _time += mpi::Time()-_lastStartTime;
     _running = false;
 #ifndef RELEASE
     PopCallStack();

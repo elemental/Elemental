@@ -169,8 +169,8 @@ compiler, otherwise, a Fortran 90 compiler is needed in order to build several
 recent LAPACK functions. If these LAPACK routines cannot be made available, 
 then PMRRR is not built and Elemental's eigensolvers are automatically disabled.
 
-Using Elemental
-===============
+Testing the installation
+========================
 Once the library has been built, it is a good idea to verify that it is 
 functioning properly. The following is a simple example that constructs of a 
 distributed matrix, sets it to the identity matrix, then prints it:
@@ -179,7 +179,6 @@ distributed matrix, sets it to the identity matrix, then prints it:
 
       #include "elemental.hpp"
       using namespace elemental;
-      using namespace elemental::imports;
 
       int
       main( int argc, char* argv[] )

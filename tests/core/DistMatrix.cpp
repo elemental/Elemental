@@ -35,7 +35,6 @@
 #include "elemental.hpp"
 using namespace std;
 using namespace elemental;
-using namespace elemental::imports;
 
 void Usage()
 {
