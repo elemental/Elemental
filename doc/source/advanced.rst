@@ -44,7 +44,7 @@ Describe ``advanced::LQ`` here.
 ------------------------
 Describe ``advanced::QR`` here.
 
-Linear Solvers
+Linear solvers
 ==============
 
 Cholesky solve
@@ -60,6 +60,17 @@ Householder solve
 Solves a general overdetermined or underdetermined linear systems using 
 a :math:`QR` or :math:`LQ` factorization, respectively. The routine is named
 ``advanced::HouseholderSolve``.
+
+Direct inversion
+================
+
+HPD inversion
+-------------
+Describe ``advanced::HPDInverse`` here.
+
+Triangular inversion
+--------------------
+Describe ``advanced::TriangularInverse`` here.
 
 Reduction to Condensed Form
 ===========================

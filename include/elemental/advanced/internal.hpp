@@ -35,18 +35,6 @@
 
 #include "elemental/advanced.hpp"
 
-// Template conventions:
-//   G: general datatype
-//
-//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
-//   Z: representation of a real ring, e.g., the integers or real numbers
-//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
-//                    or complex numbers
-//
-//   F: representation of real or complex number
-//   R: representation of real number
-//   std::complex<R>: representation of complex number
-
 namespace elemental {
 namespace advanced {
 namespace internal {
@@ -70,6 +58,9 @@ void LocalLDL
 
 template<typename F>
 void LocalLU( DistMatrix<F,STAR,STAR>& A );
+
+template<typename F>
+void LocalHPDInverse( Shape shape, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
 void LocalTriangularInverse
@@ -524,6 +515,16 @@ void HermitianTridiagUSquare
 #endif
 
 //----------------------------------------------------------------------------//
+// HPD Inverse                                                                //
+//----------------------------------------------------------------------------//
+
+template<typename F>
+void HPDInverseLVar2( DistMatrix<F,MC,MR>& A );
+
+template<typename F>
+void HPDInverseUVar2( DistMatrix<F,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
 // Triangular Inverse                                                         //
 //----------------------------------------------------------------------------//
 
@@ -795,6 +796,9 @@ template<typename F>
 double HermitianTridiagGFlops( int m, double seconds );
 
 template<typename F>
+double HPDInverseGFlops( int m, double seconds );
+
+template<typename F>
 double TriangularInverseGFlops( int m, double seconds );
 
 template<typename F>
@@ -874,6 +878,19 @@ LocalLU( DistMatrix<F,STAR,STAR>& A )
     PushCallStack("advanced::internal::LocalLU");
 #endif
     advanced::LU( A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+LocalHPDInverse( Shape shape, DistMatrix<F,STAR,STAR>& A )
+{ 
+#ifndef RELEASE
+    PushCallStack("advanced::internal::LocalHPDInverse");
+#endif
+    HPDInverse( shape, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1059,6 +1076,32 @@ inline double
 HermitianTridiagGFlops<dcomplex>
 ( int m, double seconds )
 { return 4.*HermitianTridiagGFlops<float>(m,seconds); }
+#endif
+
+template<>
+inline double
+HPDInverseGFlops<float>
+( int m, double seconds )
+{ return (1.*m*m*m)/(1.e9*seconds); }
+
+template<>
+inline double
+HPDInverseGFlops<double>
+( int m, double seconds )
+{ return HPDInverseGFlops<float>(m,seconds); }
+
+#ifndef WITHOUT_COMPLEX
+template<>
+inline double
+HPDInverseGFlops<scomplex>
+( int m, double seconds )
+{ return 4.*HPDInverseGFlops<float>(m,seconds); }
+
+template<>
+inline double
+HPDInverseGFlops<dcomplex>
+( int m, double seconds )
+{ return 4.*HPDInverseGFlops<float>(m,seconds); }
 #endif
 
 template<>

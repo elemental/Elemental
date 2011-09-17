@@ -360,6 +360,18 @@ void HouseholderSolve
   DistMatrix<std::complex<R>,MC,MR>& X );
 
 //----------------------------------------------------------------------------//
+// HPDInverse:                                                              //
+//                                                                            //
+// Inverts a Hermitian positive-definite matrix.                              //
+//----------------------------------------------------------------------------//
+
+//TODO: Write the serial version
+
+// Parallel version
+template<typename F>
+void HPDInverse( Shape shape, DistMatrix<F,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
 // LDLH (LDL^H factorization):                                                //
 //                                                                            //
 // Overwrite the lower triangle of A with L and d with the diagonal entries   //
@@ -877,6 +889,7 @@ void ApplyPackedReflectors
 #include "./advanced/HermitianNorm.hpp"
 #include "./advanced/HermitianTridiag.hpp"
 #include "./advanced/HouseholderSolve.hpp"
+#include "./advanced/HPDInverse.hpp"
 #include "./advanced/LDL.hpp"
 #include "./advanced/LQ.hpp"
 #include "./advanced/LU.hpp"
