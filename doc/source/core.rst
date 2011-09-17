@@ -220,7 +220,7 @@ Entry manipulation
 
    Add the contents of :math:`d` onto the entries in the ``offset`` diagonal.
 
-.. warning::
+.. note::
 
    The remaining functions in this subsection are only valid when ``T`` is a
    complex datatype.
@@ -403,6 +403,256 @@ AbstractDistMatrix
 
 This abstract class defines the list of member functions that are guaranteed 
 to be available for all matrix distributions.
+
+Basic information
+-----------------
+
+.. cpp:function:: int AbstractDistMatrix<T>::Height() const
+
+   Return the height of the matrix.
+
+.. cpp:function:: int AbstractDistMatrix<T>::Width() const
+
+   Return the width of the matrix.
+
+.. cpp:function:: int AbstractDistMatrix<T>::LocalHeight() const
+
+   Return the local height of the matrix.
+
+.. cpp:function:: int AbstractDistMatrix<T>::LocalWidth() const
+
+   Return the local width of the matrix.
+
+.. cpp:function:: int AbstractDistMatrix<T>::LocalLDim() const
+
+   Return the local leading dimension of the matrix.
+
+.. cpp:function:: size_t AbstractDistMatrix<T>::AllocatedMemory() const
+
+   Return the number of entries of type ``T`` that we have locally allocated
+   space for.
+
+.. cpp:function:: const Grid& AbstractDistMatrix<T>::Grid() const
+
+   Return the grid that this distributed matrix is distributed over.
+
+.. cpp:function:: T* AbstractDistMatrix<T>::LocalBuffer( int iLocal=0, int jLocal=0 )
+
+   Return a pointer to the portion of the local buffer that stores entry 
+   ``(iLocal,jLocal)``.
+
+.. cpp:function:: const T* AbstractDistMatrix<T>::LockedLocalBuffer( int iLocal=0, int jLocal=0 ) const
+
+   Return a pointer to the portion of the local buffer that stores entry
+   ``(iLocal,jLocal)``, but do not allow for the data to be modified through
+   the returned pointer.
+
+.. cpp:function:: Matrix<T>& AbstractDistMatrix<T>::LocalMatrix()
+
+   Return a reference to the local matrix.
+
+.. cpp:function:: const Matrix<T>& AbstractDistMatrix<T>::LockedLocalMatrix() const
+
+   Return an unmodifiable reference to the local matrix.
+
+I/O
+^^^
+
+.. cpp:function:: void AbstractDistMatrix<T>::Print( const std::string msg="" ) const
+
+   Print the distributed matrix to standard output (``std::cout``).
+
+.. cpp:function:: void AbstractDistMatrix<T>::Print( std::ostream& os, const std::string msg="" ) const
+
+   Print the distributed matrix to the output stream ``os``.
+
+.. cpp:function:: void AbstractDistMatrix<T>::Write( const std::string filename, const std::string msg="" ) const
+
+   Print the distributed matrix to the file named ``filename``.
+
+Alignments
+^^^^^^^^^^
+
+.. cpp:function:: void AbstractDistMatrix<T>::FreeAlignments()
+
+   Free all alignment constaints.
+
+.. cpp:function:: bool AbstractDistMatrix<T>::ConstrainedColAlignment() const
+
+   Return whether or not the column alignment is constrained.
+
+.. cpp:function:: bool AbstractDistMatrix<T>::ConstrainedRowAlignment() const
+
+   Return whether or not the row alignment is constrained.
+
+.. cpp:function:: int AbstractDistMatrix<T>::ColAlignment() const
+
+   Return the alignment of the columns of the matrix.
+
+.. cpp:function:: int AbstractDistMatrix<T>::RowAlignment() const
+
+   Return the alignment of the rows of the matrix.
+
+.. cpp:function:: int AbstractDistMatrix<T>::ColShift() const
+
+   Return the first global row that our process owns.
+
+.. cpp:function:: int AbstractDistMatrix<T>::RowShift() const
+
+   Return the first global column that our process owns.
+
+Entry manipulation
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: T AbstractDistMatrix<T>::Get( int i, int j ) const
+
+   Return the ``(i,j)`` entry of the global matrix. This operation is 
+   collective.
+
+.. cpp:function:: void AbstractDistMatrix<T>::Set( int i, int j, T alpha )
+
+   Set the ``(i,j)`` entry of the global matrix to :math:`\alpha`. This 
+   operation is collective.
+
+.. cpp:function:: void AbstractDistMatrix<T>::Update( int i, int j, T alpha )
+
+   Add :math:`\alpha` to the ``(i,j)`` entry of the global matrix. This 
+   operation is collective.
+
+.. cpp:function:: T AbstractDistMatrix<T>::GetLocalEntry( int iLocal, int jLocal ) const
+
+   Return the ``(iLocal,jLocal)`` entry of our local matrix.
+
+.. cpp:function:: void AbstractDistMatrix<T>::SetLocalEntry( int iLocal, int jLocal, T alpha )
+
+   Set the ``(iLocal,jLocal)`` entry of our local matrix to :math:`\alpha`.
+
+.. cpp:function:: void AbstractDistMatrix<T>::UpdateLocalEntry( int iLoca, int jLocal, T alpha )
+
+   Add :math:`\alpha` to the ``(iLocal,jLocal)`` entry of our local matrix.
+
+.. note::
+
+   The remainder of this subsubsection is only valid for complex datatypes.
+
+.. cpp:function:: typename RealBase<T>::type AbstractDistMatrix<T>::GetReal( int i, int j ) const
+
+   Return the real part of the ``(i,j)`` entry of the global matrix. This
+   operation is collective.
+
+.. cpp:function:: typename RealBase<T>::type AbstractDistMatrix<T>::GetImag( int i, int j ) const
+
+   Return the imaginary part of the ``(i,j)`` entry of the global matrix. This
+   operation is collective.
+
+.. cpp:function:: void AbstractDistMatrix<T>::SetReal( int i, int j, typename RealBase<T>::type alpha )
+
+   Set the real part of the ``(i,j)`` entry of the global matrix to 
+   :math:`\alpha`.
+
+.. cpp:function:: void AbstractDistMatrix<T>::SetImag( int i, int j, typename RealBase<T>::type alpha )
+
+   Set the imaginary part of the ``(i,j)`` entry of the global matrix to 
+   :math:`\alpha`.
+
+.. cpp:function:: void AbstractDistMatrix<T>::UpdateReal( int i, int j, typename RealBase<T>::type alpha )
+
+   Add :math:`\alpha` to the real part of the ``(i,j)`` entry of the global 
+   matrix.
+
+.. cpp:function:: void AbstractDistMatrix<T>::UpdateImag( int i, int j, typename RealBase<T>::type alpha )
+
+   Add :math:`\alpha` to the imaginary part of the ``(i,j)`` entry of the global
+   matrix.
+
+.. cpp:function:: typename RealBase<T>::type AbstractDistMatrix<T>::GetRealLocalEntry( int iLocal, int jLocal ) const
+
+   Return the real part of the ``(iLocal,jLocal)`` entry of our local matrix.
+
+.. cpp:function:: typename RealBase<T>::type AbstractDistMatrix<T>::GetImagLocalEntry( int iLocal, int jLocal ) const
+
+   Return the imaginary part of the ``(iLocal,jLocal)`` entry of our local 
+   matrix.
+
+.. cpp:function:: void AbstractDistMatrix<T>::SetRealLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+
+   Set the real part of the ``(iLocal,jLocal)`` entry of our local matrix.
+
+.. cpp:function:: void AbstractDistMatrix<T>::SetImagLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+
+   Set the imaginary part of the ``(iLocal,jLocal)`` entry of our local matrix.
+
+.. cpp:function:: void AbstractDistMatrix<T>::UpdateRealLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+
+   Add :math:`\alpha` to the real part of the ``(iLocal,jLocal)`` entry of 
+   our local matrix.
+
+.. cpp:function:: void AbstractDistMatrix<T>::UpdateImagLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+
+   Add :math:`\alpha` to the imaginary part of the ``(iLocal,jLocal)`` entry 
+   of our local matrix.
+
+Viewing
+^^^^^^^
+
+.. cpp:function:: bool AbstractDistMatrix<T>::Viewing() const
+
+   Return whether or not this ``DistMatrix`` is viewing another.
+
+.. cpp:function:: bool AbstractDistMatrix<T>::LockedView() const
+
+   Return whether or not this ``DistMatrix`` is viewing another in a manner
+   that does not allow for modifying the viewed data.
+
+Utilities
+^^^^^^^^^
+
+.. cpp:function:: void AbstractDistMatrix<T>::Empty()
+
+   Resize the distributed matrix so that it is :math:`0 \times 0` and free all
+   allocated storage.
+
+.. cpp:function:: void AbstractDistMatrix<T>::MakeTrapezoidal( Side side, Shape shape, int offset=0 )
+
+   Explicitly introduce zeroes into the distributed matrix such that it is 
+   trapezoidal with respect to the left or right diagonal (as chosen by the 
+   ``side`` parameter). Whether or not the matrix is lower or upper trapezoidal
+   is determined by the ``shape`` parameter, and the diagonal offset is chosen
+   by the ``offset`` parameter (:math:`0` denotes the main diagonal,
+   :math:`-1` denotes the subdiagonal, and :math:`+1` denotes the 
+   superdiagonal).
+
+.. cpp:function:: void AbstractDistMatrix<T>::ScaleTrapezoidal( T alpha, Side side, Shape shape, int offset=0 )
+
+   Scale the portion of the matrix determined by the above discussion by the 
+   scalar :math:`\alpha`.
+
+.. cpp:function:: void AbstractDistMatrix<T>::ResizeTo( int height, int width )
+
+   Reconfigure the matrix so that it is *height* :math:`\times` *width*.
+
+.. cpp:function:: void AbstractDistMatrix<T>::SetToIdentity()
+
+   Set the entire matrix to zero and then introduce ones onto the main diagonal.
+
+.. cpp:function:: void AbstractDistMatrix<T>::SetToRandom()
+
+   Independently draw each entry of the matrix from the uniform distribution
+   over the unit ball.
+
+.. cpp:function:: void AbstractDistMatrix<T>::SetToRandomHermitian()
+
+   Same as above, but the diagonal is forced to be real-valued
+   (the rest of the symmetry is implicit).
+
+.. cpp:function:: void AbstractDistMatrix<T>::SetToRandomHPD()
+
+   Same as above, but a sufficiently large constant is added to every diagonal
+   entry in order to ensure that the matrix is positive-definite.
+
+.. cpp:function:: void AbstractDistMatrix<T>::SetToZero()
+
+   Set all entries of the distributed matrix to zero.
 
 ``[MC,MR]``
 -----------
