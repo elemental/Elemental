@@ -46,6 +46,22 @@ why ScaLAPACK or PLAPACK might be more appropriate:
   an element-wise distribution format after construction, this might add 
   an unnecessary level of complexity.
 
+Dependencies
+============
+* Functioning C++03 and ANSI C compilers.
+* A working MPI implementation.
+* BLAS and LAPACK (ideally version 3.3 or greater) implementations. If 
+  a sufficiently up-to-date LAPACK implementation is not provided, then 
+  a working F90 compiler is required in order to build Elemental's eigensolvers
+  (the tridiagonal eigensolver, `PMRRR <http://code.google.com/p/pmrrr>`_, 
+  requires recent LAPACK routines).
+* `CMake <http://www.cmake.org>`_ (version 2.8.5 or later).
+
+Elemental should successfully build on nearly every platform, as it has been
+verified to build on most major desktop platforms (including Linux, Mac OS X, 
+Microsoft Windows, and Cygwin), as well as a wide variety of Linux clusters (including Blue Gene/P) and, with some minor modifications, on Intel's SCC
+research chip.
+
 License and Copyright
 =====================
 All files distributed with Elemental are made available under the 

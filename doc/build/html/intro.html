@@ -96,6 +96,23 @@ an element-wise distribution format after construction, this might add
 an unnecessary level of complexity.</li>
 </ul>
 </div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Functioning C++03 and ANSI C compilers.</li>
+<li>A working MPI implementation.</li>
+<li>BLAS and LAPACK (ideally version 3.3 or greater) implementations. If
+a sufficiently up-to-date LAPACK implementation is not provided, then
+a working F90 compiler is required in order to build Elemental&#8217;s eigensolvers
+(the tridiagonal eigensolver, <a class="reference external" href="http://code.google.com/p/pmrrr">PMRRR</a>,
+requires recent LAPACK routines).</li>
+<li><a class="reference external" href="http://www.cmake.org">CMake</a> (version 2.8.5 or later).</li>
+</ul>
+<p>Elemental should successfully build on nearly every platform, as it has been
+verified to build on most major desktop platforms (including Linux, Mac OS X,
+Microsoft Windows, and Cygwin), as well as a wide variety of Linux clusters (including Blue Gene/P) and, with some minor modifications, on Intel&#8217;s SCC
+research chip.</p>
+</div>
 <div class="section" id="license-and-copyright">
 <h2>License and Copyright<a class="headerlink" href="#license-and-copyright" title="Permalink to this headline">¶</a></h2>
 <p>All files distributed with Elemental are made available under the
@@ -164,6 +181,7 @@ copyright Jack Poulson, Lexing Ying, and The University of Texas at Austin.</li>
   <ul>
 <li><a class="reference internal" href="#">Introduction</a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li><a class="reference internal" href="#license-and-copyright">License and Copyright</a></li>
 </ul>
 </li>
