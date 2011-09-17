@@ -108,16 +108,16 @@ a <img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.p
 </div>
 <div class="section" id="reduction-to-condensed-form">
 <h2>Reduction to Condensed Form<a class="headerlink" href="#reduction-to-condensed-form" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="reduction-of-a-hermitian-matrix-to-tridiagonal-form">
-<h3>Reduction of a Hermitian matrix to tridiagonal form<a class="headerlink" href="#reduction-of-a-hermitian-matrix-to-tridiagonal-form" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="hermitian-to-tridiagonal">
+<h3>Hermitian to tridiagonal<a class="headerlink" href="#hermitian-to-tridiagonal" title="Permalink to this headline">¶</a></h3>
 <p>Describe <tt class="docutils literal"><span class="pre">advanced::HermitianTridiag</span></tt> here.</p>
 </div>
-<div class="section" id="reduction-of-a-general-matrix-to-hessenberg-form">
-<h3>Reduction of a general matrix to Hessenberg form<a class="headerlink" href="#reduction-of-a-general-matrix-to-hessenberg-form" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="general-to-hessenberg">
+<h3>General to Hessenberg<a class="headerlink" href="#general-to-hessenberg" title="Permalink to this headline">¶</a></h3>
 <p>Not yet written.</p>
 </div>
-<div class="section" id="reduction-of-a-general-matrix-to-bidiagonal-form">
-<h3>Reduction of a general matrix to bidiagonal form<a class="headerlink" href="#reduction-of-a-general-matrix-to-bidiagonal-form" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="general-to-bidiagonal">
+<h3>General to bidiagonal<a class="headerlink" href="#general-to-bidiagonal" title="Permalink to this headline">¶</a></h3>
 <p>Not yet written.</p>
 </div>
 </div>
@@ -125,16 +125,16 @@ a <img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.p
 <h2>Eigensolvers and SVD<a class="headerlink" href="#eigensolvers-and-svd" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="hermitian-eigensolver">
 <h3>Hermitian eigensolver<a class="headerlink" href="#hermitian-eigensolver" title="Permalink to this headline">¶</a></h3>
-<p>Describe <img class="math" src="_images/math/2c32906812efae31c9400a3a4e84bf4b90580420.png" alt="Ax-\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::HermitianEig</span></tt> here.</p>
+<p>Describe <img class="math" src="_images/math/ce1b74268edddc941676389e70780233b1b7e8c1.png" alt="Ax=\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::HermitianEig</span></tt> here.</p>
 </div>
 <div class="section" id="skew-hermitian-eigensolver">
 <h3>Skew-Hermitian eigensolver<a class="headerlink" href="#skew-hermitian-eigensolver" title="Permalink to this headline">¶</a></h3>
-<p>Describe <img class="math" src="_images/math/30726d79aed2b1894150aab1577727cea11ed30a.png" alt="Gx-\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::SkewHermitianEig</span></tt> here.</p>
+<p>Describe <img class="math" src="_images/math/6c977466b52927687f65a7e1bae3502a939a8b76.png" alt="Gx=\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::SkewHermitianEig</span></tt> here.</p>
 </div>
 <div class="section" id="hermitian-generalized-definite-eigensolvers">
 <h3>Hermitian generalized-definite eigensolvers<a class="headerlink" href="#hermitian-generalized-definite-eigensolvers" title="Permalink to this headline">¶</a></h3>
-<p>Describe <img class="math" src="_images/math/89038b083e92024403481cfa2a7149eee7a76b50.png" alt="ABx-\lambda x"/>, <img class="math" src="_images/math/4147b089e4202d627c6b5c6e72b64f4f108a8f66.png" alt="BAx-\lambda x"/>, and
-<img class="math" src="_images/math/be4347c8d9b4d131ef37905ad91451ea1e187c50.png" alt="Ax-\lambda Bx"/> cases and <tt class="docutils literal"><span class="pre">advanced::HermitianGenDefiniteEig</span></tt>.</p>
+<p>Describe <img class="math" src="_images/math/33ec4d2f57d5893939e581d8a3538d8bd62fb2c5.png" alt="ABx=\lambda x"/>, <img class="math" src="_images/math/718dc759ba10ce51232a298a45e2668bfc9cda7c.png" alt="BAx=\lambda x"/>, and
+<img class="math" src="_images/math/00f280d5da3e2314cfa8f3fe00886f894d1b3bab.png" alt="Ax=\lambda Bx"/> cases and <tt class="docutils literal"><span class="pre">advanced::HermitianGenDefiniteEig</span></tt>.</p>
 </div>
 <div class="section" id="non-hermitian-eigensolver">
 <h3>Non-Hermitian eigensolver<a class="headerlink" href="#non-hermitian-eigensolver" title="Permalink to this headline">¶</a></h3>
@@ -154,11 +154,11 @@ the identity matrix as a Householder transform since it requires the
 <img class="math" src="_images/math/9ad99798ec4c38e165cf517cb9e02b1c9e824103.png" alt="u"/> in <img class="math" src="_images/math/189fff52d48f8bcd5ef98b9b18c3409e5cc3a47b.png" alt="H-I^2uu'"/> to have norm zero rather than one). Describe
 <tt class="docutils literal"><span class="pre">advanced::Reflector</span></tt> here.</p>
 </div>
-<div class="section" id="reduction-of-the-generalized-hermitian-definite-evp">
-<h3>Reduction of the Generalized Hermitian-Definite EVP<a class="headerlink" href="#reduction-of-the-generalized-hermitian-definite-evp" title="Permalink to this headline">¶</a></h3>
-<p>Describe the reduction steps of <img class="math" src="_images/math/89038b083e92024403481cfa2a7149eee7a76b50.png" alt="ABx-\lambda x"/>, <img class="math" src="_images/math/4147b089e4202d627c6b5c6e72b64f4f108a8f66.png" alt="BAx-\lambda x"/>,
-and <img class="math" src="_images/math/be4347c8d9b4d131ef37905ad91451ea1e187c50.png" alt="Ax-\lambda Bx"/> using the operations <img class="math" src="_images/math/1f015273914f04717d300e620601bd3bd54009ec.png" alt="A :- L^H A L"/> and
-<img class="math" src="_images/math/a17e5416c8d5132d0ab2cabc60a46a437b4934b3.png" alt="A :- L^{^1} A L^{^H}"/>.</p>
+<div class="section" id="reduction-of-hermitian-generalized-definite-evps">
+<h3>Reduction of Hermitian generalized-definite EVPs<a class="headerlink" href="#reduction-of-hermitian-generalized-definite-evps" title="Permalink to this headline">¶</a></h3>
+<p>Describe the reduction steps of <img class="math" src="_images/math/33ec4d2f57d5893939e581d8a3538d8bd62fb2c5.png" alt="ABx=\lambda x"/>, <img class="math" src="_images/math/718dc759ba10ce51232a298a45e2668bfc9cda7c.png" alt="BAx=\lambda x"/>,
+and <img class="math" src="_images/math/00f280d5da3e2314cfa8f3fe00886f894d1b3bab.png" alt="Ax=\lambda Bx"/> using the operations <img class="math" src="_images/math/5d3c78e81441136d2f11a1f2fbd66b78cdc420a4.png" alt="A := L^H A L"/> and
+<img class="math" src="_images/math/af56dce77b4d4f2488bbfe44448e9a61f98202b8.png" alt="A := L^{-1} A L^{-H}"/>.</p>
 </div>
 <div class="section" id="applying-packed-householder-transforms">
 <h3>Applying packed Householder transforms<a class="headerlink" href="#applying-packed-householder-transforms" title="Permalink to this headline">¶</a></h3>
@@ -204,9 +204,9 @@ and <img class="math" src="_images/math/be4347c8d9b4d131ef37905ad91451ea1e187c50
 </ul>
 </li>
 <li><a class="reference internal" href="#reduction-to-condensed-form">Reduction to Condensed Form</a><ul>
-<li><a class="reference internal" href="#reduction-of-a-hermitian-matrix-to-tridiagonal-form">Reduction of a Hermitian matrix to tridiagonal form</a></li>
-<li><a class="reference internal" href="#reduction-of-a-general-matrix-to-hessenberg-form">Reduction of a general matrix to Hessenberg form</a></li>
-<li><a class="reference internal" href="#reduction-of-a-general-matrix-to-bidiagonal-form">Reduction of a general matrix to bidiagonal form</a></li>
+<li><a class="reference internal" href="#hermitian-to-tridiagonal">Hermitian to tridiagonal</a></li>
+<li><a class="reference internal" href="#general-to-hessenberg">General to Hessenberg</a></li>
+<li><a class="reference internal" href="#general-to-bidiagonal">General to bidiagonal</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#eigensolvers-and-svd">Eigensolvers and SVD</a><ul>
@@ -219,7 +219,7 @@ and <img class="math" src="_images/math/be4347c8d9b4d131ef37905ad91451ea1e187c50
 </li>
 <li><a class="reference internal" href="#utilities">Utilities</a><ul>
 <li><a class="reference internal" href="#householder-reflectors">Householder reflectors</a></li>
-<li><a class="reference internal" href="#reduction-of-the-generalized-hermitian-definite-evp">Reduction of the Generalized Hermitian-Definite EVP</a></li>
+<li><a class="reference internal" href="#reduction-of-hermitian-generalized-definite-evps">Reduction of Hermitian generalized-definite EVPs</a></li>
 <li><a class="reference internal" href="#applying-packed-householder-transforms">Applying packed Householder transforms</a></li>
 </ul>
 </li>
