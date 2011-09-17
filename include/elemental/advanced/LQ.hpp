@@ -94,8 +94,8 @@ elemental::advanced::LQ( DistMatrix<R,MC,MR>& A )
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::LQ
-( DistMatrix<std::complex<R>,MC,  MR  >& A, 
-  DistMatrix<std::complex<R>,STAR,STAR>& t )
+( DistMatrix<std::complex<R>,MC,MR  >& A, 
+  DistMatrix<std::complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("advanced::LQ");
@@ -104,9 +104,18 @@ elemental::advanced::LQ
 #endif
     typedef std::complex<R> C;
     const Grid& g = A.Grid();
-    DistMatrix<C,MD,STAR> tDiag(g);
-    tDiag.AlignWithDiag( A );
-    tDiag.ResizeTo( min(A.Height(),A.Width()), 1 );
+    if( t.Viewing() )
+    {
+        if( !t.AlignedWithDiag( A ) )
+            throw std::logic_error("t was not aligned with A");
+        if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
+            throw std::logic_error("t was not the appropriate shape");
+    }
+    else
+    {
+        t.AlignWithDiag( A );
+        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    }
 
     // Matrix views
     DistMatrix<C,MC,MR>
@@ -122,8 +131,8 @@ elemental::advanced::LQ
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionDown
-    ( tDiag, tT,
-             tB, 0 );
+    ( t, tT,
+         tB, 0 );
     while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
     {
         RepartitionDownDiagonal
@@ -160,8 +169,6 @@ elemental::advanced::LQ
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-    // Redistribute from matrix-diag to fully replicated form
-    t = tDiag;
 #ifndef RELEASE
     PopCallStack();
 #endif

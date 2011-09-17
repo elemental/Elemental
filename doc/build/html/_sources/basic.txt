@@ -114,6 +114,13 @@ Herk
 ----
 Sample text.
 
+Hetrmm
+------
+Performs :math:`L := L L^H` or :math:`U := U^H U`. This can be thought of 
+as the reverse of a Cholesky factorization. While this algorithm exists as 
+the LAPACK routines ?lauum, it fits in just as naturally as a BLAS-like routine,
+as it only requires matrix-matrix multiplication.
+
 Symm
 ----
 Sample text.

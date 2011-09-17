@@ -487,8 +487,8 @@ if(BUILD_TESTS)
 
   set(CORE_TESTS AxpyInterface DifferentGrids DistMatrix Matrix)
   set(BASIC_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
-  set(ADVANCED_TESTS ApplyPackedReflectors Chol Hegst HermitianTridiag LDL LU LQ
-                     QR TriangularInverse)
+  set(ADVANCED_TESTS ApplyPackedReflectors Cholesky Hegst HermitianTridiag LDL 
+                     LU LQ QR TriangularInverse)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     list(APPEND ADVANCED_TESTS HermitianGenDefiniteEig)

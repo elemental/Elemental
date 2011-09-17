@@ -125,9 +125,9 @@ void TestCorrectness
 template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
-  const DistMatrix<complex<R>,MC,  MR  >& A,
-  const DistMatrix<complex<R>,STAR,STAR>& t,
-        DistMatrix<complex<R>,MC,  MR  >& AOrig )
+  const DistMatrix<complex<R>,MC,MR  >& A,
+  const DistMatrix<complex<R>,MD,STAR>& t,
+        DistMatrix<complex<R>,MC,MR  >& AOrig )
 {
     typedef complex<R> C;
 
@@ -263,9 +263,9 @@ void TestLQ< complex<double> >
     typedef complex<double> C;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<C,MC,  MR  > A(g);
-    DistMatrix<C,STAR,STAR> t(g);
-    DistMatrix<C,MC,  MR  > AOrig(g);
+    DistMatrix<C,MC,MR  > A(g);
+    DistMatrix<C,MD,STAR> t(g);
+    DistMatrix<C,MC,MR  > AOrig(g);
 
     A.ResizeTo( m, n );
 

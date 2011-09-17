@@ -243,7 +243,7 @@ void TestHegst
         basic::Herk( shape, NORMAL, (F)1, C, (F)0, A );
         C.SetToRandom();
         basic::Herk( shape, NORMAL, (F)1, C, (F)0, B );
-        advanced::Chol( shape, B );
+        advanced::Cholesky( shape, B );
     }
     else
     {

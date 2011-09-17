@@ -37,7 +37,7 @@
 
    Original serial update:
    ------------------------
-   A11 := Chol(A11) 
+   A11 := Cholesky(A11) 
    A12 := triu(A11)^-H A12
    A22 := A22 - A12^H A12
    ------------------------
@@ -45,7 +45,7 @@
    Corresponding parallel update:
    -----------------------------------------------------
    A11[* ,* ] <- A11[MC,MR] 
-   A11[* ,* ] := Chol(A11[* ,* ])
+   A11[* ,* ] := Cholesky(A11[* ,* ])
    A11[MC,MR] <- A11[* ,* ]
    
    A12[* ,VR] <- A12[MC,MR]
@@ -59,17 +59,17 @@
 */
 template<typename F> // representation of real or complex number
 inline void
-elemental::advanced::internal::CholUVar3Square
+elemental::advanced::internal::CholeskyUVar3Square
 ( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CholUVar3Square");
+    PushCallStack("advanced::internal::CholeskyUVar3Square");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices.");
     if( A.Grid().Height() != A.Grid().Width() )
         throw std::logic_error
-        ("CholUVar3Square assumes a square process grid.");
+        ("CholeskyUVar3Square assumes a square process grid.");
 #endif
     const Grid& g = A.Grid();
 
@@ -117,7 +117,7 @@ elemental::advanced::internal::CholUVar3Square
         A12_STAR_VR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        advanced::internal::LocalChol( UPPER, A11_STAR_STAR );
+        advanced::internal::LocalCholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A12_STAR_VR = A12;

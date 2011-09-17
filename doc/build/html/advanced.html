@@ -66,7 +66,7 @@
 <h2>Factorizations<a class="headerlink" href="#factorizations" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="cholesky-factorization">
 <h3>Cholesky factorization<a class="headerlink" href="#cholesky-factorization" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::Chol</span></tt> here.</p>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::Cholesky</span></tt> here.</p>
 </div>
 <div class="section" id="factorization">
 <h3><img class="math" src="_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization<a class="headerlink" href="#factorization" title="Permalink to this headline">¶</a></h3>
@@ -91,13 +91,19 @@
 </div>
 <div class="section" id="linear-solvers">
 <h2>Linear Solvers<a class="headerlink" href="#linear-solvers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cholesky-solve">
+<h3>Cholesky solve<a class="headerlink" href="#cholesky-solve" title="Permalink to this headline">¶</a></h3>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::CholeskySolve</span></tt> here.</p>
+</div>
 <div class="section" id="gaussian-elimination">
 <h3>Gaussian Elimination<a class="headerlink" href="#gaussian-elimination" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::GaussElim</span></tt> here.</p>
+<p>Describe <tt class="docutils literal"><span class="pre">advanced::GaussianElimination</span></tt> here.</p>
 </div>
-<div class="section" id="solver">
-<h3><img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> Solver<a class="headerlink" href="#solver" title="Permalink to this headline">¶</a></h3>
-<p>Not yet written but trivial.</p>
+<div class="section" id="householder-solve">
+<h3>Householder solve<a class="headerlink" href="#householder-solve" title="Permalink to this headline">¶</a></h3>
+<p>Solves a general overdetermined or underdetermined linear systems using
+a <img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> or <img class="math" src="_images/math/74a751df89f77e97ef080654dfb03f981240a469.png" alt="LQ"/> factorization, respectively. The routine is named
+<tt class="docutils literal"><span class="pre">advanced::HouseholderSolve</span></tt>.</p>
 </div>
 </div>
 <div class="section" id="reduction-to-condensed-form">
@@ -192,8 +198,9 @@ and <img class="math" src="_images/math/be4347c8d9b4d131ef37905ad91451ea1e187c50
 </ul>
 </li>
 <li><a class="reference internal" href="#linear-solvers">Linear Solvers</a><ul>
+<li><a class="reference internal" href="#cholesky-solve">Cholesky solve</a></li>
 <li><a class="reference internal" href="#gaussian-elimination">Gaussian Elimination</a></li>
-<li><a class="reference internal" href="#solver"><img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> Solver</a></li>
+<li><a class="reference internal" href="#householder-solve">Householder solve</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#reduction-to-condensed-form">Reduction to Condensed Form</a><ul>

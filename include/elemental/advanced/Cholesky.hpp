@@ -31,20 +31,20 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Chol/CholLVar2.hpp"
-#include "./Chol/CholLVar3.hpp"
-#include "./Chol/CholLVar3Square.hpp"
-#include "./Chol/CholUVar2.hpp"
-#include "./Chol/CholUVar3.hpp"
-#include "./Chol/CholUVar3Square.hpp"
+#include "./Cholesky/CholeskyLVar2.hpp"
+#include "./Cholesky/CholeskyLVar3.hpp"
+#include "./Cholesky/CholeskyLVar3Square.hpp"
+#include "./Cholesky/CholeskyUVar2.hpp"
+#include "./Cholesky/CholeskyUVar3.hpp"
+#include "./Cholesky/CholeskyUVar3Square.hpp"
 
 template<typename F> // F represents a real or complex field
 inline void
-elemental::advanced::Chol
+elemental::advanced::Cholesky
 ( Shape shape, DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Chol");
+    PushCallStack("advanced::Cholesky");
 #endif
     const Grid& g = A.Grid();
 
@@ -52,16 +52,16 @@ elemental::advanced::Chol
     if( g.Height() == g.Width() )
     {
         if( shape == LOWER )
-            advanced::internal::CholLVar3Square( A );
+            advanced::internal::CholeskyLVar3Square( A );
         else
-            advanced::internal::CholUVar3Square( A );
+            advanced::internal::CholeskyUVar3Square( A );
     }
     else
     {
         if( shape == LOWER )
-            advanced::internal::CholLVar3( A );
+            advanced::internal::CholeskyLVar3( A );
         else
-            advanced::internal::CholUVar3( A );
+            advanced::internal::CholeskyUVar3( A );
     }
 #ifndef RELEASE
     PopCallStack();

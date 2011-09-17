@@ -146,11 +146,11 @@ elemental::lapack::MachineOverflowThreshold<double>()
 }
 
 void
-elemental::lapack::Chol
+elemental::lapack::Cholesky
 ( char uplo, int n, const float* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::Chol");
+    PushCallStack("lapack::Cholesky");
 #endif
     int info;
     LAPACK(spotrf)( &uplo, &n, A, &lda, &info );
@@ -166,11 +166,11 @@ elemental::lapack::Chol
 }
 
 void
-elemental::lapack::Chol
+elemental::lapack::Cholesky
 ( char uplo, int n, const double* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::Chol");
+    PushCallStack("lapack::Cholesky");
 #endif
     int info;
     LAPACK(dpotrf)( &uplo, &n, A, &lda, &info );
@@ -187,11 +187,11 @@ elemental::lapack::Chol
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::lapack::Chol
+elemental::lapack::Cholesky
 ( char uplo, int n, const scomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::Chol");
+    PushCallStack("lapack::Cholesky");
 #endif
     int info;
     LAPACK(cpotrf)( &uplo, &n, A, &lda, &info );
@@ -207,11 +207,11 @@ elemental::lapack::Chol
 }
 
 void
-elemental::lapack::Chol
+elemental::lapack::Cholesky
 ( char uplo, int n, const dcomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::Chol");
+    PushCallStack("lapack::Cholesky");
 #endif
     int info;
     LAPACK(zpotrf)( &uplo, &n, A, &lda, &info );

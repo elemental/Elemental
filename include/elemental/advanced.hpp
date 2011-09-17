@@ -39,7 +39,7 @@ namespace elemental {
 namespace advanced {
 
 //----------------------------------------------------------------------------//
-// Chol:                                                                      //
+// Cholesky:                                                                  //
 //                                                                            //
 // Overwrite a triangle of A with the Cholesky factor of A. 'shape'           //
 // determines whether it is the upper or lower triangle.                      //
@@ -47,14 +47,28 @@ namespace advanced {
 
 // Serial version
 template<typename F>
-void Chol( Shape shape, Matrix<F>& A );
+void Cholesky( Shape shape, Matrix<F>& A );
 
 // Parallel version
 template<typename F>
-void Chol( Shape shape, DistMatrix<F,MC,MR>& A );
+void Cholesky( Shape shape, DistMatrix<F,MC,MR>& A );
 
 //----------------------------------------------------------------------------//
-// GaussElim (Gaussian Elimination):                                          //
+// CholeskySolve:                                                             //
+//                                                                            //
+// Overwrites X := inv(A) X, where A is Hermitian positive-definite, using a  //
+// Cholesky factorization of A.                                               //
+//----------------------------------------------------------------------------//
+
+//TODO: Serial version
+
+// Parallel version
+template<typename F>
+void CholeskySolve
+( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& X );
+
+//----------------------------------------------------------------------------//
+// GaussianElimination:                                                       //
 //                                                                            //
 // Uses an LU factorization with partial pivoting to overwrite B := A^-1 B    //
 //----------------------------------------------------------------------------//
@@ -63,7 +77,7 @@ void Chol( Shape shape, DistMatrix<F,MC,MR>& A );
 
 // Parallel version
 template<typename F>
-void GaussElim( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
+void GaussianElimination( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
 // HermitianGenDefiniteEig (Hermitian Generalized-Definite Eigensolver)       //
@@ -325,6 +339,27 @@ void HermitianEig
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
+// HouseholderSolve:                                                          //
+//                                                                            //
+// Overwrite X with the solution of inv(A) X or inv(A)^H X, where A need not  //
+// be square. NOTE: If the system is underdetermined, then X should be the    //
+// size of the solution and the input RHS should be stored in the top m rows  //
+// of X, if the underdetermined matrix is m x n.                              //
+//----------------------------------------------------------------------------//
+
+//TODO: Write the serial version
+
+// Parallel versions
+template<typename R>
+void HouseholderSolve
+( Orientation orientation, DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& X );
+template<typename R>
+void HouseholderSolve
+( Orientation orientation, 
+  DistMatrix<std::complex<R>,MC,MR>& A,
+  DistMatrix<std::complex<R>,MC,MR>& X );
+
+//----------------------------------------------------------------------------//
 // LDLH (LDL^H factorization):                                                //
 //                                                                            //
 // Overwrite the lower triangle of A with L and d with the diagonal entries   //
@@ -408,8 +443,8 @@ void LQ( DistMatrix<R,MC,MR>& A );
 // Parallel version for complex datatypes
 template<typename R>
 void LQ
-( DistMatrix<std::complex<R>,MC,  MR  >& A, 
-  DistMatrix<std::complex<R>,STAR,STAR>& t );
+( DistMatrix<std::complex<R>,MC,MR  >& A, 
+  DistMatrix<std::complex<R>,MD,STAR>& t );
 #endif
 
 
@@ -532,8 +567,8 @@ void QR( DistMatrix<R,MC,MR>& A );
 // Parallel version for complex datatypes
 template<typename R>
 void QR
-( DistMatrix<std::complex<R>,MC,  MR  >& A, 
-  DistMatrix<std::complex<R>,STAR,STAR>& t );
+( DistMatrix<std::complex<R>,MC,MR  >& A, 
+  DistMatrix<std::complex<R>,MD,STAR>& t );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -833,13 +868,15 @@ void ApplyPackedReflectors
 
 #include "./advanced/internal.hpp"
 #include "./advanced/ApplyPackedReflectors.hpp"
-#include "./advanced/Chol.hpp"
-#include "./advanced/GaussElim.hpp"
+#include "./advanced/Cholesky.hpp"
+#include "./advanced/CholeskySolve.hpp"
+#include "./advanced/GaussianElimination.hpp"
 #include "./advanced/Hegst.hpp"
 #include "./advanced/HermitianEig.hpp"
 #include "./advanced/HermitianGenDefiniteEig.hpp"
 #include "./advanced/HermitianNorm.hpp"
 #include "./advanced/HermitianTridiag.hpp"
+#include "./advanced/HouseholderSolve.hpp"
 #include "./advanced/LDL.hpp"
 #include "./advanced/LQ.hpp"
 #include "./advanced/LU.hpp"
@@ -851,16 +888,16 @@ void ApplyPackedReflectors
 
 template<typename F>
 inline void
-elemental::advanced::Chol
+elemental::advanced::Cholesky
 ( Shape shape, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Chol");
+    PushCallStack("advanced::Cholesky");
     if( A.Height() != A.Width() )
         throw std::logic_error( "A must be square." );
 #endif
     const char uplo = ShapeToChar( shape );
-    lapack::Chol( uplo, A.Height(), A.Buffer(), A.LDim() );
+    lapack::Cholesky( uplo, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif

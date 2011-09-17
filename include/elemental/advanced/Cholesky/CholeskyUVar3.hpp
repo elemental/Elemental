@@ -35,16 +35,16 @@
 // Cholesky, since most memory access is stride one.
 template<typename F> // representation of real or complex number
 inline void
-elemental::advanced::internal::CholUVar3
+elemental::advanced::internal::CholeskyUVar3
 ( DistMatrix<F,MC,MR>& A )
-{ elemental::advanced::internal::CholUVar3Naive( A ); }
+{ elemental::advanced::internal::CholeskyUVar3Naive( A ); }
 
 /*
    Parallelization of Variant 3 Upper Cholesky factorization. 
 
    Original serial update:
    ------------------------
-   A11 := Chol(A11) 
+   A11 := Cholesky(A11) 
    A12 := triu(A11)^-H A12
    A22 := A22 - A12^H A12
    ------------------------
@@ -52,7 +52,7 @@ elemental::advanced::internal::CholUVar3
    Corresponding parallel update:
    -----------------------------------------------------
    A11[* ,* ] <- A11[MC,MR] 
-   A11[* ,* ] := Chol(A11[* ,* ])
+   A11[* ,* ] := Cholesky(A11[* ,* ])
    A11[MC,MR] <- A11[* ,* ]
    
    A12[* ,VR] <- A12[MC,MR]
@@ -66,11 +66,11 @@ elemental::advanced::internal::CholUVar3
 */
 template<typename F> // representation of real or complex number
 inline void
-advanced::internal::CholUVar3Naive
+advanced::internal::CholeskyUVar3Naive
 ( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CholUVar3Naive");
+    PushCallStack("advanced::internal::CholeskyUVar3Naive");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ( "Can only compute Cholesky factor of square matrices." );
@@ -106,7 +106,7 @@ advanced::internal::CholUVar3Naive
         A12_STAR_VR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        advanced::internal::LocalChol( UPPER, A11_STAR_STAR );
+        advanced::internal::LocalCholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A12_STAR_VR = A12;

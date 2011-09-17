@@ -22,7 +22,7 @@ Factorizations
 
 Cholesky factorization
 ----------------------
-Describe ``advanced::Chol`` here.
+Describe ``advanced::Cholesky`` here.
 
 :math:`LDL^H` factorization
 ---------------------------
@@ -47,13 +47,19 @@ Describe ``advanced::QR`` here.
 Linear Solvers
 ==============
 
+Cholesky solve
+--------------
+Describe ``advanced::CholeskySolve`` here.
+
 Gaussian Elimination
 --------------------
-Describe ``advanced::GaussElim`` here.
+Describe ``advanced::GaussianElimination`` here.
 
-:math:`QR` Solver
+Householder solve
 -----------------
-Not yet written but trivial.
+Solves a general overdetermined or underdetermined linear systems using 
+a :math:`QR` or :math:`LQ` factorization, respectively. The routine is named
+``advanced::HouseholderSolve``.
 
 Reduction to Condensed Form
 ===========================

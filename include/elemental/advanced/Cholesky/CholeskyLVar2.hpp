@@ -37,7 +37,7 @@
    Original serial update:
    ------------------------
    A11 := A11 - A10 A10^H
-   A11 := Chol(A11)
+   A11 := Cholesky(A11)
    A21 := A21 - A20 A10^H
    A21 := A21 tril(A11)^-H
    ------------------------
@@ -49,7 +49,7 @@
    A11[MC,MR] := A11[MC,MR] - (SumRow(X11[MC,* ]))[* ,MR]
 
    A11[* ,* ] <- A11[MC,MR]   
-   A11[* ,* ] := Chol(A11[* ,* ])
+   A11[* ,* ] := Cholesky(A11[* ,* ])
    A11[MC,MR] <- A11[* ,* ]
 
    X21[MC,* ] := A20[MC,MR] A10^H[MR,* ]
@@ -62,11 +62,11 @@
 */
 template<typename F> // representation of real or complex number
 inline void
-elemental::advanced::internal::CholLVar2
+elemental::advanced::internal::CholeskyLVar2
 ( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CholLVar2");
+    PushCallStack("advanced::internal::CholeskyLVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -111,7 +111,7 @@ elemental::advanced::internal::CholLVar2
         A11.SumScatterUpdate( (F)-1, X11_MC_STAR );
 
         A11_STAR_STAR = A11;
-        advanced::internal::LocalChol( LOWER, A11_STAR_STAR );
+        advanced::internal::LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         basic::internal::LocalGemm
@@ -145,7 +145,7 @@ elemental::advanced::internal::CholLVar2
    Original serial update:
    ------------------------
    A11 := A11 - A10 A10^H
-   A11 := Chol(A11)
+   A11 := Cholesky(A11)
    A21 := A21 - A20 A10^H
    A21 := A21 tril(A11)^-H
    ------------------------
@@ -157,7 +157,7 @@ elemental::advanced::internal::CholLVar2
    A11[MC,MR] := A11[MC,MR] - (SumRow(X11[MC,* ]))[* ,MR]
 
    A11[* ,* ] <- A11[MC,MR]   
-   A11[* ,* ] := Chol(A11[* ,* ])
+   A11[* ,* ] := Cholesky(A11[* ,* ])
    A11[MC,MR] <- A11[* ,* ]
 
    X21[MC,* ] := A20[MC,MR] (A10[* ,MR])^H
@@ -170,19 +170,19 @@ elemental::advanced::internal::CholLVar2
 */
 template<typename F> // representation of real or complex number
 inline void
-elemental::advanced::internal::CholLVar2Naive
+elemental::advanced::internal::CholeskyLVar2Naive
 ( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CholLVar2Naive");
+    PushCallStack("advanced::internal::CholeskyLVar2Naive");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
     if( A.Grid().VCRank() == 0 )
     {
         std::cout 
-            << "CholLVar2Naive exists solely for academic purposes. Please "
-               "use CholLVar2 in real applications." << std::endl;
+            << "CholeskyLVar2Naive exists solely for academic purposes. Please "
+               "use CholeskyLVar2 in real applications." << std::endl;
     }
 #endif
     const Grid& g = A.Grid();
@@ -224,7 +224,7 @@ elemental::advanced::internal::CholLVar2Naive
         A11.SumScatterUpdate( (F)-1, X11_MC_STAR );
 
         A11_STAR_STAR = A11;
-        advanced::internal::LocalChol( LOWER, A11_STAR_STAR );
+        advanced::internal::LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         basic::internal::LocalGemm

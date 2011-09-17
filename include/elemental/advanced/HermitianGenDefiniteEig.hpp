@@ -52,7 +52,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
@@ -96,7 +96,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
@@ -138,7 +138,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
@@ -178,7 +178,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, tryForHighAccuracy );
 #ifndef RELEASE
@@ -207,7 +207,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
 #ifndef RELEASE
@@ -234,7 +234,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
 #ifndef RELEASE
@@ -262,7 +262,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
@@ -310,7 +310,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
@@ -356,7 +356,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
     if( type == AXBX || type == ABX )
@@ -400,7 +400,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, tryForHighAccuracy );
 #ifndef RELEASE
@@ -429,7 +429,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
 #ifndef RELEASE
@@ -456,7 +456,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Chol( shape, B );
+    advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
     advanced::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
 #ifndef RELEASE

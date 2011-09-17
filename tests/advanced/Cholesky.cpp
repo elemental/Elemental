@@ -38,8 +38,8 @@ using namespace elemental;
 void Usage()
 {
     cout << "Generates SPD matrix then solves for its Cholesky factor.\n\n"
-         << "  Chol <r> <c> <shape> <m> <nb> <rankK local nb> <correctness?> "
-            "<print?>\n\n"
+         << "  Cholesky <r> <c> <shape> <m> <nb> <rankK local nb> "
+            "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  shape: {L,U}\n"
@@ -121,7 +121,7 @@ void TestCorrectness
 }
 
 template<typename F> // represents a real or complex field
-void TestChol
+void TestCholesky
 ( bool testCorrectness, bool printMatrices, 
   Shape shape, int m, const Grid& g )
 {
@@ -153,11 +153,11 @@ void TestChol
     }
     mpi::Barrier( g.VCComm() );
     startTime = mpi::Time();
-    advanced::Chol( shape, A );
+    advanced::Cholesky( shape, A );
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::CholGFlops<F>( m, runTime );
+    gFlops = advanced::internal::CholeskyGFlops<F>( m, runTime );
     if( g.VCRank() == 0 )
     {
         cout << "DONE.\n"
@@ -213,7 +213,7 @@ main( int argc, char* argv[] )
 #endif
 
         if( rank == 0 )
-            cout << "Will test Chol" << ShapeToChar(shape) << endl;
+            cout << "Will test Cholesky" << ShapeToChar(shape) << endl;
 
         if( rank == 0 )
         {
@@ -221,7 +221,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestChol<double>
+        TestCholesky<double>
         ( testCorrectness, printMatrices, shape, m, g );
 
 #ifndef WITHOUT_COMPLEX
@@ -231,7 +231,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestChol<dcomplex>
+        TestCholesky<dcomplex>
         ( testCorrectness, printMatrices, shape, m, g );
 #endif
     }

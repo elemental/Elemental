@@ -56,7 +56,7 @@ namespace internal {
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void LocalChol( Shape shape, DistMatrix<F,STAR,STAR>& A );
+void LocalCholesky( Shape shape, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
 void LocalHegst
@@ -76,38 +76,38 @@ void LocalTriangularInverse
 ( Shape shape, Diagonal diagonal, DistMatrix<F,STAR,STAR>& A );
 
 //----------------------------------------------------------------------------//
-// Chol helpers                                                               //
+// Cholesky helpers                                                           //
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void CholLVar2( DistMatrix<F,MC,MR>& A );
+void CholeskyLVar2( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void CholLVar2Naive( DistMatrix<F,MC,MR>& A );
+void CholeskyLVar2Naive( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void CholLVar3( DistMatrix<F,MC,MR>& A );
+void CholeskyLVar3( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void CholLVar3Naive( DistMatrix<F,MC,MR>& A );
+void CholeskyLVar3Naive( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void CholLVar3Square( DistMatrix<F,MC,MR>& A );
+void CholeskyLVar3Square( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void CholUVar2( DistMatrix<F,MC,MR>& A );
+void CholeskyUVar2( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void CholUVar2Naive( DistMatrix<F,MC,MR>& A );
+void CholeskyUVar2Naive( DistMatrix<F,MC,MR>& A );
  
 template<typename F>
-void CholUVar3( DistMatrix<F,MC,MR>& A );
+void CholeskyUVar3( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void CholUVar3Naive( DistMatrix<F,MC,MR>& A );
+void CholeskyUVar3Naive( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
-void CholUVar3Square( DistMatrix<F,MC,MR>& A );
+void CholeskyUVar3Square( DistMatrix<F,MC,MR>& A );
             
 //----------------------------------------------------------------------------//
 // GaussElim                                                                  //
@@ -771,7 +771,7 @@ void ApplyPackedReflectorsRUHB
 // LAPACK-like Utility Functions                                              //
 //----------------------------------------------------------------------------//
 template<typename F>
-double CholGFlops( int m, double seconds );
+double CholeskyGFlops( int m, double seconds );
 
 template<typename F>
 double HegstGFlops( int m, double seconds );
@@ -818,13 +818,13 @@ namespace internal {
 
 template<typename F>
 inline void
-LocalChol
+LocalCholesky
 ( Shape shape, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::LocalChol");
+    PushCallStack("advanced::internal::LocalCholesky");
 #endif
-    Chol( shape, A.LocalMatrix() );
+    Cholesky( shape, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -899,28 +899,28 @@ LocalTriangularInverse
 
 template<>
 inline double
-CholGFlops<float>
+CholeskyGFlops<float>
 ( int m, double seconds )
 { return (1./3.*m*m*m)/(1.e9*seconds); }
             
 template<>
 inline double
-CholGFlops<double>
+CholeskyGFlops<double>
 ( int m, double seconds )
-{ return CholGFlops<float>(m,seconds); }
+{ return CholeskyGFlops<float>(m,seconds); }
             
 #ifndef WITHOUT_COMPLEX
 template<>
 inline double
-CholGFlops<scomplex>
+CholeskyGFlops<scomplex>
 ( int m, double seconds )
-{ return 4.*CholGFlops<float>(m,seconds); }
+{ return 4.*CholeskyGFlops<float>(m,seconds); }
             
 template<>
 inline double
-CholGFlops<dcomplex>
+CholeskyGFlops<dcomplex>
 ( int m, double seconds )
-{ return 4.*CholGFlops<float>(m,seconds); }
+{ return 4.*CholeskyGFlops<float>(m,seconds); }
 #endif
 
 template<>
@@ -957,11 +957,11 @@ LUGFlops<float>
 
 template<typename F>
 inline double LDLHGFlops( int n, double seconds )
-{ return CholGFlops<F>( n, seconds ); }
+{ return CholeskyGFlops<F>( n, seconds ); }
 
 template<typename F>
 inline double LDLTGFlops( int n, double seconds )
-{ return CholGFlops<F>( n, seconds ); }
+{ return CholeskyGFlops<F>( n, seconds ); }
 
 template<>
 inline double

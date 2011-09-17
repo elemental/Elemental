@@ -33,11 +33,11 @@
 
 template<typename F> // representation of a real or complex number
 inline void
-elemental::advanced::GaussElim
+elemental::advanced::GaussianElimination
 ( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GaussElim");
+    PushCallStack("advanced::GaussianElimination");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )

@@ -131,7 +131,7 @@ void TestLDL
 
     if( g.VCRank() == 0 )
     {
-        cout << "  Starting Cholesky factorization...";
+        cout << "  Starting LDL^[T/H] factorization...";
         cout.flush();
     }
     mpi::Barrier( g.VCComm() );

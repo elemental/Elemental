@@ -77,11 +77,11 @@ template<typename R> R MachineOverflowThreshold();
 template<> float MachineOverflowThreshold<float>();
 template<> double MachineOverflowThreshold<double>();
 
-void Chol( char uplo, int n, const float* A, int lda );
-void Chol( char uplo, int n, const double* A, int lda );
+void Cholesky( char uplo, int n, const float* A, int lda );
+void Cholesky( char uplo, int n, const double* A, int lda );
 #ifndef WITHOUT_COMPLEX
-void Chol( char uplo, int n, const scomplex* A, int lda );
-void Chol( char uplo, int n, const dcomplex* A, int lda );
+void Cholesky( char uplo, int n, const scomplex* A, int lda );
+void Cholesky( char uplo, int n, const dcomplex* A, int lda );
 #endif
 
 void Hegst
