@@ -300,7 +300,7 @@ Scal( T alpha, Matrix<T>& X );
 template<typename T, Distribution U, Distribution V>
 void
 Scal
-( T alpha, DistMatrix<T,U,V>& A );
+( T alpha, DistMatrix<T,U,V>& X );
     
 //----------------------------------------------------------------------------//
 // Level 1 BLAS-like extensions                                               //
