@@ -45,10 +45,6 @@ public:
     // Routines that do NOT need to be implemented in derived classes        //
     //-----------------------------------------------------------------------//
 
-    //
-    // Non-collective routines
-    //
-
 #ifndef RELEASE
     void AssertNotLockedView() const;
 
@@ -90,14 +86,36 @@ public:
     const;
 #endif
 
-    bool Viewing() const;
-    bool LockedView() const;
+    //
+    // Basic information
+    //
 
     int Height() const;
     int Width() const;
+    int LocalHeight() const;
+    int LocalWidth() const;
+    int LocalLDim() const;
+    size_t AllocatedMemory() const;
+    const elemental::Grid& Grid() const;
 
-    int DiagonalLength( int offset ) const;
-    
+          T* LocalBuffer( int iLocal=0, int jLocal=0 );
+    const T* LockedLocalBuffer( int iLocal=0, int jLocal=0 ) const;
+
+          Matrix<T>& LocalMatrix();
+    const Matrix<T>& LockedLocalMatrix() const;
+
+    //
+    // I/O
+    //
+
+    void Print( const std::string msg="" ) const;
+    void Print( std::ostream& os, const std::string msg="" ) const;
+    void Write( const std::string filename, const std::string msg="" ) const;
+
+    //
+    // Alignments
+    //
+
     void FreeAlignments();
     bool ConstrainedColAlignment() const;
     bool ConstrainedRowAlignment() const;
@@ -105,165 +123,80 @@ public:
     int RowAlignment() const;
     int ColShift() const;
     int RowShift() const;
-    const elemental::Grid& Grid() const;
 
-    size_t AllocatedMemory() const;
+    //
+    // Local entry manipulation
+    //
 
-    int LocalHeight() const;
-    int LocalWidth() const;
-    int LocalLDim() const;
-
-    // This process receives a copy of a local entry 
     T GetLocalEntry( int iLocal, int jLocal ) const;
-    // This process sets the new value for a local entry 
     void SetLocalEntry( int iLocal, int jLocal, T alpha );
-    // This process updates local entry A(iLocal,jLocal) += alpha
     void UpdateLocalEntry( int iLocal, int jLocal, T alpha );
 
-    T* LocalBuffer( int iLocal=0, int jLocal=0 );
-    const T* LockedLocalBuffer( int iLocal=0, int jLocal=0 ) const;
+    // Only valid for complex datatypes
 
-          Matrix<T>& LocalMatrix();
-    const Matrix<T>& LockedLocalMatrix() const;
-
-    //
-    // The following should only be called for complex datatypes!
-    //
-
-    // This process receives a copy of the real part of a local entry 
     typename RealBase<T>::type 
     GetRealLocalEntry( int iLocal, int jLocal ) const;
-    // This process receives a copy of the imag part of a local entry 
     typename RealBase<T>::type 
     GetImagLocalEntry( int iLocal, int jLocal ) const;
-    // This process sets the new value for real part of a local entry 
     void SetRealLocalEntry
     ( int iLocal, int jLocal, typename RealBase<T>::type alpha );
-    // This process sets the new value for imag part of a local entry 
     void SetImagLocalEntry
     ( int iLocal, int jLocal, typename RealBase<T>::type alpha );
-    // This process updates local entry real(ALocal(iLocal,jLocal)) += alpha
     void UpdateRealLocalEntry
     ( int iLocal, int jLocal, typename RealBase<T>::type alpha );
-    // This process updates local entry imag(ALocal(iLocal,jLocal)) += alpha
     void UpdateImagLocalEntry
     ( int iLocal, int jLocal, typename RealBase<T>::type alpha );
 
     //
-    // Collective routines
+    // Viewing 
     //
 
-    void Print( const std::string msg="" ) const;
-    void Print( std::ostream& os, const std::string msg="" ) const;
-    void Write( const std::string filename, const std::string msg="" ) const;
+    bool Viewing() const;
+    bool LockedView() const;
 
-    void SetToZero();
+    //
+    // Utilities
+    //
+
     void Empty();
+    void SetToZero();
 
     //------------------------------------------------------------------------//
     // Routines that MUST be implemented in non-abstract derived classes      //
     //------------------------------------------------------------------------//
 
     //
-    // Non-collective routines
+    // Entry manipulation
     //
 
-    // (empty)
-
-    //
-    // Collective routines
-    //
-
-    // When distributed matrices are created that are only owned by subgroups,
-    // it may be necessary to occasionally resync the matrix attributes of the
-    // set of processes that constructed the distributed matrix but are not in 
-    // its process grid. An example scenario would be
-    //
-    //     mpi::Group evenGroup, oddGroup;
-    //     // Construct groups for even and odd ranks here...
-    //
-    //     elemental::Grid evenGrid( mpi::COMM_WORLD, evenGroup );
-    //     elemental::Grid oddGrid( mpi::COMM_WORLD, oddGroup );
-    //     elemental::DistMatrix<double,MC,MR> A(evenGrid);
-    //     elemental::DistMatrix<double,MC,MR> B(oddGrid);
-    //
-    //     if( rank % 2 == 0 )
-    //     {
-    //         // Form A here...
-    //     }
-    //     else
-    //     {
-    //         // Form B here...
-    //     }
-    //     A.Resync();
-    //     B.Resync();
-    //         
-    //
-    //virtual void Resync();
-
-    // Each process receives a copy of the global entry (i,j)
     virtual T Get( int i, int j ) const = 0;
-    // Each process provides the new value of global entry (i,j)
     virtual void Set( int i, int j, T alpha ) = 0;
-    // Each process provides the update to global entry (i,j)
-    // i.e., A(i,j) += alpha
     virtual void Update( int i, int j, T alpha ) = 0;
+
+    // Only valid for complex datatypes
+
+    virtual typename RealBase<T>::type GetReal( int i, int j ) const = 0;
+    virtual typename RealBase<T>::type GetImag( int i, int j ) const = 0;
+    virtual void SetReal( int i, int j, typename RealBase<T>::type alpha ) = 0;
+    virtual void SetImag( int i, int j, typename RealBase<T>::type alpha ) = 0;
+    virtual void UpdateReal
+    ( int i, int j, typename RealBase<T>::type alpha ) = 0;
+    virtual void UpdateImag
+    ( int i, int j, typename RealBase<T>::type alpha ) = 0;
+
+    //
+    // Utilities
+    //
     
-    // Zero out necessary entries to make distributed matrix trapezoidal:
-    //
-    //   If side equals 'LEFT', then the diagonal is chosen to pass through 
-    //   the upper-left corner of the matrix.
-    //
-    //   If side equals 'RIGHT', then the diagonal is chosen to pass through
-    //   the lower-right corner of the matrix.
-    //
-    // Upper trapezoidal with offset = 1:
-    //   
-    //    |0 x x x x x x| <-- side = LEFT      |0 0 0 x x x x|
-    //    |0 0 x x x x x|                      |0 0 0 0 x x x|
-    //    |0 0 0 x x x x|     side = RIGHT --> |0 0 0 0 0 x x|
-    //    |0 0 0 0 x x x|                      |0 0 0 0 0 0 x|
-    //    |0 0 0 0 0 x x|                      |0 0 0 0 0 0 0|
-    //
-    // Lower trapezoidal with offset = 1:
-    //    
-    //    |x x 0 0 0 0 0| <-- side = LEFT      |x x x x 0 0 0|
-    //    |x x x 0 0 0 0|                      |x x x x x 0 0|
-    //    |x x x x 0 0 0|     side = RIGHT --> |x x x x x x 0|
-    //    |x x x x x 0 0|                      |x x x x x x x|
-    //    |x x x x x x 0|                      |x x x x x x x|
     virtual void MakeTrapezoidal
-    ( Side side, Shape shape, int offset = 0 ) = 0;
-
+    ( Side side, Shape shape, int offset=0 ) = 0;
     virtual void ScaleTrapezoidal
-    ( T alpha, Side side, Shape shape, int offset = 0 ) = 0;
-
+    ( T alpha, Side side, Shape shape, int offset=0 ) = 0;
     virtual void ResizeTo( int height, int width ) = 0;
     virtual void SetToIdentity() = 0;
     virtual void SetToRandom() = 0;
-    // Forces a matrix to be random with a real diagonal.
     virtual void SetToRandomHermitian() = 0;
-    // Forces matrix to be row diagonally dominant and to have a real diagonal.
     virtual void SetToRandomHPD() = 0;
-
-    //
-    // The following are only valid for complex datatypes
-    //
-
-    // Each process receives the real part of global entry (i,j)
-    virtual typename RealBase<T>::type GetReal( int i, int j ) const = 0;
-    // Each process receives the imaginary part of global entry (i,j)
-    virtual typename RealBase<T>::type GetImag( int i, int j ) const = 0;
-    // Each process provides the new value for global entry (i,j)
-    virtual void SetReal( int i, int j, typename RealBase<T>::type alpha ) = 0;
-    // Each process provides the new value for global entry (i,j)
-    virtual void SetImag( int i, int j, typename RealBase<T>::type alpha ) = 0;
-    // Each process provides the update to the real part of global entry (i,j)
-    // i.e., real(A(i,j)) += alpha
-    virtual void UpdateReal( int i, int j, typename RealBase<T>::type alpha ) = 0;
-    // Each process provides the update to the imag part of global entry (i,j)
-    // i.e., imag(A(i,j)) += alpha
-    virtual void UpdateImag( int i, int j, typename RealBase<T>::type alpha ) = 0;
 
 protected:
     bool      _viewing;
@@ -647,27 +580,6 @@ template<typename T>
 inline int
 AbstractDistMatrix<T>::Width() const
 { return _width; }
-
-template<typename T>
-inline int
-AbstractDistMatrix<T>::DiagonalLength
-( int offset ) const
-{
-    int width = this->Width();
-    int height = this->Height();
-    int length;
-    if( offset > 0 )
-    {
-        const int remainingWidth = std::max(width-offset,0);
-        length = std::min(height,remainingWidth);
-    }
-    else
-    {
-        const int remainingHeight = std::max(height+offset,0);
-        length = std::min(remainingHeight,width);
-    }
-    return length;
-}
 
 template<typename T>
 inline void

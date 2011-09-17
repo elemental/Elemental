@@ -35,6 +35,8 @@
 
 namespace elemental {
 
+int DiagonalLength( int height, int width, int offset=0 );
+
 int GCD( int a, int b ); 
 
 int RawGCD( int a, int b ); 
@@ -60,6 +62,21 @@ int RawShift( int index, int alignment, int modulus );
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
+
+inline int
+elemental::DiagonalLength( int height, int width, int offset )
+{
+    if( offset > 0 )
+    {
+        const int remainingWidth = std::max(width-offset,0);
+        return std::min(height,remainingWidth);
+    }
+    else
+    {
+        const int remainingHeight = std::max(height+offset,0);
+        return std::min(remainingHeight,width);
+    }
+}
 
 inline int
 elemental::GCD( int a, int b )

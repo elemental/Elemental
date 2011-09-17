@@ -294,21 +294,25 @@ void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Update
 </dd></dl>
 
 <dl class="function">
-<dt id="Matrix:T:::GetDiagonal__Matrix:T:RC">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetDiagonal</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>d</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetDiagonal__Matrix:T:RC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Modify <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> into a column-vector containing our diagonal entries.</p>
+<dt id="Matrix:T:::GetDiagonal__Matrix:T:R.iC">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetDiagonal</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetDiagonal__Matrix:T:R.iC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> into a column-vector containing the entries lying on the
+<tt class="docutils literal"><span class="pre">offset</span></tt> diagonal of our matrix (for instance, the main diagonal has
+offset <img class="math" src="_images/math/bc1f9d9bf8a1b606a4188b5ce9a2af1809e27a89.png" alt="0"/>, the subdiagonal has offset <img class="math" src="_images/math/bae5aba07d37ff6ff813107e76260fb31ad5794e.png" alt="-1"/>, and the
+superdiagonal has offset <img class="math" src="_images/math/1178af8fcc5f3f3acb9f151f7dcc2c4eefe88fd9.png" alt="+1"/>).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Matrix:T:::SetDiagonal__Matrix:T:CR">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetDiagonal</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#Matrix:T:::SetDiagonal__Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set our diagonal entries from the contents of the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>.</p>
+<dt id="Matrix:T:::SetDiagonal__Matrix:T:CR.i">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetDiagonal</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::SetDiagonal__Matrix:T:CR.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal entries from the contents of the
+column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Matrix:T:::UpdateDiagonal__Matrix:T:CR">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateDiagonal</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateDiagonal__Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the contents of <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> onto our diagonal entries.</p>
+<dt id="Matrix:T:::UpdateDiagonal__Matrix:T:CR.i">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateDiagonal</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateDiagonal__Matrix:T:CR.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the contents of <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> onto the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
 </dd></dl>
 
 <div class="admonition warning">
@@ -353,50 +357,50 @@ void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Update
 </dd></dl>
 
 <dl class="function">
-<dt id="Matrix:T:::GetRealDiagonal__Matrix:typename-RealBase:T:::type:RC">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetRealDiagonal</tt><big>(</big>Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetRealDiagonal__Matrix:typename-RealBase:T:::type:RC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Modify <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> into a column-vector containing the real parts of our
-diagonal entries.</p>
+<dt id="Matrix:T:::GetRealDiagonal__Matrix:typename-RealBase:T:::type:R.iC">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetRealDiagonal</tt><big>(</big>Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetRealDiagonal__Matrix:typename-RealBase:T:::type:R.iC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> into a column-vector containing the real parts of the
+entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Matrix:T:::GetImagDiagonal__Matrix:typename-RealBase:T:::type:RC">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetImagDiagonal</tt><big>(</big>Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetImagDiagonal__Matrix:typename-RealBase:T:::type:RC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Modify <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> into a column-vector containing the imaginary parts of our
-diagonal entries.</p>
+<dt id="Matrix:T:::GetImagDiagonal__Matrix:typename-RealBase:T:::type:R.iC">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetImagDiagonal</tt><big>(</big>Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetImagDiagonal__Matrix:typename-RealBase:T:::type:R.iC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> into a column-vector containing the imaginary parts of the
+entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Matrix:T:::SetRealDiagonal__Matrix:typename-RealBase:T:::type:CR">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetRealDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#Matrix:T:::SetRealDiagonal__Matrix:typename-RealBase:T:::type:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the real parts of our diagonal entries from the contents of the
+<dt id="Matrix:T:::SetRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetRealDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::SetRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the real parts of the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal from the
+contents of the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Matrix:T:::SetImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetImagDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::SetImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the imaginary parts of the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal from the
 column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Matrix:T:::SetImagDiagonal__Matrix:typename-RealBase:T:::type:CR">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetImagDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#Matrix:T:::SetImagDiagonal__Matrix:typename-RealBase:T:::type:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the imaginary parts of our diagonal entries from the contents of the
-column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>.</p>
+<dt id="Matrix:T:::UpdateRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateRealDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the contents of the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> onto the real parts of the
+entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Matrix:T:::UpdateRealDiagonal__Matrix:typename-RealBase:T:::type:CR">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateRealDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateRealDiagonal__Matrix:typename-RealBase:T:::type:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the contents of the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> onto the real parts of our
-diagonal entries.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="Matrix:T:::UpdateImagDiagonal__Matrix:typename-RealBase:T:::type:CR">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateImagDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateImagDiagonal__Matrix:typename-RealBase:T:::type:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Matrix:T:::UpdateImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateImagDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the contents of the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> onto the imaginary parts of
-our diagonal entries.</p>
+the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="viewing-other-matrix-instances">
-<h3>Viewing other <tt class="docutils literal"><span class="pre">Matrix</span></tt> instances<a class="headerlink" href="#viewing-other-matrix-instances" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="views">
+<h3>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="Matrix:T:::ViewingC">
 bool <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Viewing</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::ViewingC" title="Permalink to this definition">¶</a></dt>
@@ -543,16 +547,68 @@ processes to distribute the data over, but <em>which</em> processes, and in what
 manner they should be decomposed into a logical two-dimensional grid, an
 instance of the <tt class="docutils literal"><span class="pre">Grid</span></tt> class must be passed into the constructor of
 the <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> class.</p>
-<p>For example, ...</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Since the <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> class makes use of MPI for message passing,
+custom interfaces must be written for nonstandard datatypes. As of now,
+the following datatypes are fully supported for <tt class="docutils literal"><span class="pre">DistMatrix</span></tt>:
+<tt class="docutils literal"><span class="pre">int</span></tt>, <tt class="docutils literal"><span class="pre">float</span></tt>, <tt class="docutils literal"><span class="pre">double</span></tt>, <tt class="docutils literal"><span class="pre">std::complex&lt;float&gt;</span></tt>, and
+<tt class="docutils literal"><span class="pre">std::complex&lt;double&gt;</span></tt>.</p>
+</div>
+<div class="section" id="abstractdistmatrix">
+<h3>AbstractDistMatrix<a class="headerlink" href="#abstractdistmatrix" title="Permalink to this headline">¶</a></h3>
+<p>This abstract class defines the list of member functions that are guaranteed
+to be available for all matrix distributions.</p>
+</div>
+<div class="section" id="mc-mr">
+<h3><tt class="docutils literal"><span class="pre">[MC,MR]</span></tt><a class="headerlink" href="#mc-mr" title="Permalink to this headline">¶</a></h3>
+<p>This is the standard matrix distribution... <strong>left off here</strong></p>
+</div>
+<div class="section" id="mc">
+<h3><tt class="docutils literal"><span class="pre">[MC,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#mc" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="mr">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MR]</span></tt><a class="headerlink" href="#mr" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="mr-mc">
+<h3><tt class="docutils literal"><span class="pre">[MR,MC]</span></tt><a class="headerlink" href="#mr-mc" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id1">
+<h3><tt class="docutils literal"><span class="pre">[MR,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id2">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MC]</span></tt><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="md">
+<h3><tt class="docutils literal"><span class="pre">[MD,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#md" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id3">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MD]</span></tt><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="vc">
+<h3><tt class="docutils literal"><span class="pre">[VC,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#vc" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id4">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VC]</span></tt><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="vr">
+<h3><tt class="docutils literal"><span class="pre">[VR,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#vr" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id5">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VR]</span></tt><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id6">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 <div class="section" id="the-grid-class">
 <h2>The Grid class<a class="headerlink" href="#the-grid-class" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id1">
-<h3>Constructors<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h3>Constructors<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 <div class="section" id="the-axpy-interface">
-<h2>The <tt class="docutils literal"><span class="pre">Axpy</span></tt> interface<a class="headerlink" href="#the-axpy-interface" title="Permalink to this headline">¶</a></h2>
+<h2>The Axpy interface<a class="headerlink" href="#the-axpy-interface" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="environment-routines">
 <h2>Environment routines<a class="headerlink" href="#environment-routines" title="Permalink to this headline">¶</a></h2>
@@ -576,16 +632,32 @@ the <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> class.
 <li><a class="reference internal" href="#basic-information">Basic information</a></li>
 <li><a class="reference internal" href="#i-o">I/O</a></li>
 <li><a class="reference internal" href="#entry-manipulation">Entry manipulation</a></li>
-<li><a class="reference internal" href="#viewing-other-matrix-instances">Viewing other <tt class="docutils literal"><span class="pre">Matrix</span></tt> instances</a></li>
+<li><a class="reference internal" href="#views">Views</a></li>
 <li><a class="reference internal" href="#utilities">Utilities</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#the-distmatrix-class">The DistMatrix class</a></li>
-<li><a class="reference internal" href="#the-grid-class">The Grid class</a><ul>
-<li><a class="reference internal" href="#id1">Constructors</a></li>
+<li><a class="reference internal" href="#the-distmatrix-class">The DistMatrix class</a><ul>
+<li><a class="reference internal" href="#abstractdistmatrix">AbstractDistMatrix</a></li>
+<li><a class="reference internal" href="#mc-mr"><tt class="docutils literal"><span class="pre">[MC,MR]</span></tt></a></li>
+<li><a class="reference internal" href="#mc"><tt class="docutils literal"><span class="pre">[MC,*</span> <span class="pre">]</span></tt></a></li>
+<li><a class="reference internal" href="#mr"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MR]</span></tt></a></li>
+<li><a class="reference internal" href="#mr-mc"><tt class="docutils literal"><span class="pre">[MR,MC]</span></tt></a></li>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">[MR,*</span> <span class="pre">]</span></tt></a></li>
+<li><a class="reference internal" href="#id2"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MC]</span></tt></a></li>
+<li><a class="reference internal" href="#md"><tt class="docutils literal"><span class="pre">[MD,*</span> <span class="pre">]</span></tt></a></li>
+<li><a class="reference internal" href="#id3"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MD]</span></tt></a></li>
+<li><a class="reference internal" href="#vc"><tt class="docutils literal"><span class="pre">[VC,*</span> <span class="pre">]</span></tt></a></li>
+<li><a class="reference internal" href="#id4"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VC]</span></tt></a></li>
+<li><a class="reference internal" href="#vr"><tt class="docutils literal"><span class="pre">[VR,*</span> <span class="pre">]</span></tt></a></li>
+<li><a class="reference internal" href="#id5"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VR]</span></tt></a></li>
+<li><a class="reference internal" href="#id6"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,*</span> <span class="pre">]</span></tt></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#the-axpy-interface">The <tt class="docutils literal"><span class="pre">Axpy</span></tt> interface</a></li>
+<li><a class="reference internal" href="#the-grid-class">The Grid class</a><ul>
+<li><a class="reference internal" href="#id7">Constructors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-axpy-interface">The Axpy interface</a></li>
 <li><a class="reference internal" href="#environment-routines">Environment routines</a></li>
 </ul>
 </li>

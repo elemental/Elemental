@@ -612,9 +612,11 @@ DistMatrix<T,MR,MC>::GetDiagonal
     PushCallStack("[MR,MC]::GetDiagonal([MD,* ])");
     this->AssertNotLockedView();
 #endif
-    int length = this->DiagonalLength( offset );
+    const int height = this->Height();
+    const int width = this->Width();
+    const int diagLength = DiagonalLength(height,width,offset);
 #ifndef RELEASE
-    if( d.Viewing() && length != d.Height() )
+    if( d.Viewing() && diagLength != d.Height() )
         throw logic_error( "d is not of the correct length." );
     if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
         !d.AlignedWithDiag( *this, offset ) )
@@ -624,7 +626,7 @@ DistMatrix<T,MR,MC>::GetDiagonal
     {
         if( !d.ConstrainedColAlignment() )
             d.AlignWithDiag( *this, offset );
-        d.ResizeTo( length, 1 );
+        d.ResizeTo( diagLength, 1 );
     }
 
     if( d.InDiagonal() )
@@ -681,9 +683,11 @@ DistMatrix<T,MR,MC>::GetDiagonal
     PushCallStack("[MR,MC]::GetDiagonal([* ,MD])");
     this->AssertNotLockedView();
 #endif
-    int length = this->DiagonalLength( offset );
+    const int height = this->Height();
+    const int width = this->Width();
+    const int diagLength = DiagonalLength(height,width,offset);
 #ifndef RELEASE
-    if( d.Viewing() && length != d.Width() )
+    if( d.Viewing() && diagLength != d.Width() )
         throw logic_error( "d is not of the correct length." );
     if( ( d.Viewing() && d.ConstrainedRowAlignment() ) &&
         !d.AlignedWithDiag( *this, offset ) )
@@ -693,7 +697,7 @@ DistMatrix<T,MR,MC>::GetDiagonal
     {
         if( !d.ConstrainedRowAlignment() )
             d.AlignWithDiag( *this, offset );
-        d.ResizeTo( 1, length );
+        d.ResizeTo( 1, diagLength );
     }
 
     if( d.InDiagonal() )
@@ -752,14 +756,16 @@ DistMatrix<T,MR,MC>::SetDiagonal
     if( d.Width() != 1 )
         throw logic_error( "d must be a column vector." );
     {
-        int length = this->DiagonalLength( offset );
-        if( length != d.Height() )
+        const int height = this->Height();
+        const int width = this->Width();
+        const int diagLength = DiagonalLength(height,width,offset);
+        if( diagLength != d.Height() )
         {
             ostringstream msg;
             msg << "d is not of the same length as the diagonal:" << endl
                 << "  A ~ " << this->Height() << " x " << this->Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
-                << "  A diag length: " << length << endl;
+                << "  A diag length: " << diagLength << endl;
             throw logic_error( msg.str() );
         }
     }
@@ -821,14 +827,16 @@ DistMatrix<T,MR,MC>::SetDiagonal
     if( d.Height() != 1 )
         throw logic_error( "d must be a row vector." );
     {
-        int length = this->DiagonalLength( offset );
-        if( length != d.Width() )
+        const int height = this->Height();
+        const int width = this->Width();
+        const int diagLength = DiagonalLength(height,width,offset);
+        if( diagLength != d.Width() )
         {
             ostringstream msg;
             msg << "d is not of the same length as the diagonal:" << endl
                 << "  A ~ " << this->Height() << " x " << this->Width() << endl
                 << "  d ~ " << d.Height() << " x " << d.Width() << endl
-                << "  A diag length: " << length << endl;
+                << "  A diag length: " << diagLength << endl;
             throw logic_error( msg.str() );
         }
     }

@@ -157,10 +157,10 @@ public:
     // Collective routines
     //
 
-    void GetDiagonal( DistMatrix<T,MD,STAR>& d, int offset = 0 ) const;
-    void GetDiagonal( DistMatrix<T,STAR,MD>& d, int offset = 0 ) const;
-    void SetDiagonal( const DistMatrix<T,MD,STAR>& d, int offset = 0 );
-    void SetDiagonal( const DistMatrix<T,STAR,MD>& d, int offset = 0 );
+    void GetDiagonal( DistMatrix<T,MD,STAR>& d, int offset=0 ) const;
+    void GetDiagonal( DistMatrix<T,STAR,MD>& d, int offset=0 ) const;
+    void SetDiagonal( const DistMatrix<T,MD,STAR>& d, int offset=0 );
+    void SetDiagonal( const DistMatrix<T,STAR,MD>& d, int offset=0 );
 
     // Set the alignments
     void Align( int colAlignment, int rowAlignment );

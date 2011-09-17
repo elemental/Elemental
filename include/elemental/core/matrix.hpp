@@ -91,9 +91,9 @@ public:
     void Set( int i, int j, T alpha );
     void Update( int i, int j, T alpha );
 
-    void GetDiagonal( Matrix<T>& d ) const;
-    void SetDiagonal( const Matrix<T>& d );
-    void UpdateDiagonal( const Matrix<T>& d );
+    void GetDiagonal( Matrix<T>& d, int offset=0 ) const;
+    void SetDiagonal( const Matrix<T>& d, int offset=0 );
+    void UpdateDiagonal( const Matrix<T>& d, int offset=0 );
 
     // Only valid for complex datatypes
 
@@ -104,12 +104,18 @@ public:
     void UpdateReal( int i, int j, typename RealBase<T>::type alpha );
     void UpdateImag( int i, int j, typename RealBase<T>::type alpha );
 
-    void GetRealDiagonal( Matrix<typename RealBase<T>::type>& d ) const;
-    void GetImagDiagonal( Matrix<typename RealBase<T>::type>& d ) const;
-    void SetRealDiagonal( const Matrix<typename RealBase<T>::type>& d );
-    void SetImagDiagonal( const Matrix<typename RealBase<T>::type>& d );
-    void UpdateRealDiagonal( const Matrix<typename RealBase<T>::type>& d );
-    void UpdateImagDiagonal( const Matrix<typename RealBase<T>::type>& d );
+    void GetRealDiagonal
+    ( Matrix<typename RealBase<T>::type>& d, int offset=0 ) const;
+    void GetImagDiagonal
+    ( Matrix<typename RealBase<T>::type>& d, int offset=0 ) const;
+    void SetRealDiagonal
+    ( const Matrix<typename RealBase<T>::type>& d, int offset=0 );
+    void SetImagDiagonal
+    ( const Matrix<typename RealBase<T>::type>& d, int offset=0 );
+    void UpdateRealDiagonal
+    ( const Matrix<typename RealBase<T>::type>& d, int offset=0 );
+    void UpdateImagDiagonal
+    ( const Matrix<typename RealBase<T>::type>& d, int offset=0 );
 
     //
     // Viewing other matrix instances
@@ -622,20 +628,26 @@ Matrix<T>::Update( int i, int j, T alpha )
 
 template<typename T>
 inline void
-Matrix<T>::GetDiagonal( Matrix<T>& d ) const
+Matrix<T>::GetDiagonal( Matrix<T>& d, int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetDiagonal");
     if( d.LockedView() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
-        (d.Height() != std::min(_height_width) || d.Width() != 1))
+        (d.Height() != DiagonalLength(_height,_width,offset) || 
+         d.Width() != 1 ))
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
+    const int diagLength = DiagonalLength(_height,_width,offset);
     if( !d.Viewing() )    
-        d.ResizeTo( std::min(_height,_width), 1 );
-    for( int j=0; j<std::min(_height,_width); ++j )
-        d.Set( j, 0, Get(j,j) );
+        d.ResizeTo( diagLength, 1 );
+    if( offset >= 0 )
+        for( int j=0; j<diagLength; ++j )
+            d.Set( j, 0, Get(j,j+offset) );
+    else
+        for( int j=0; j<diagLength; ++j )
+            d.Set( j, 0, Get(j-offset,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -643,15 +655,20 @@ Matrix<T>::GetDiagonal( Matrix<T>& d ) const
 
 template<typename T>
 inline void
-Matrix<T>::SetDiagonal( const Matrix<T>& d )
+Matrix<T>::SetDiagonal( const Matrix<T>& d, int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetDiagonal");
-    if( d.Height() != std::min(_height_width) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    for( int j=0; j<std::min(_height,_width); ++j )
-        Set( j, j, d.Get(j,0) );
+    const int diagLength = DiagonalLength(_height,_width,offset);
+    if( offset >= 0 )
+        for( int j=0; j<diagLength; ++j )
+            Set( j, j+offset, d.Get(j,0) );
+    else
+        for( int j=0; j<diagLength; ++j )
+            Set( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -659,15 +676,20 @@ Matrix<T>::SetDiagonal( const Matrix<T>& d )
 
 template<typename T>
 inline void
-Matrix<T>::UpdateDiagonal( const Matrix<T>& d )
+Matrix<T>::UpdateDiagonal( const Matrix<T>& d, int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateDiagonal");
-    if( d.Height() != std::min(_height_width) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    for( int j=0; j<std::min(_height,_width); ++j )
-        Update( j, j, d.Get(j,0) );
+    const int diagLength = DiagonalLength(_height,_width,offset);
+    if( offset >= 0 )
+        for( int j=0; j<diagLength; ++j )
+            Update( j, j+offset, d.Get(j,0) );
+    else
+        for( int j=0; j<diagLength; ++j )
+            Update( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -947,20 +969,26 @@ Matrix<T>::UpdateImagHelper<std::complex<Z> >::Func
 
 template<typename T>
 inline void
-Matrix<T>::GetRealDiagonal( Matrix<typename RealBase<T>::type>& d ) const
+Matrix<T>::GetRealDiagonal
+( Matrix<typename RealBase<T>::type>& d, int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetRealDiagonal");
     if( d.LockedView() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
-        (d.Height() != std::min(_height_width) || d.Width() != 1))
+        (d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1))
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
+    const int diagLength = DiagonalLength(_height,_width,offset);
     if( !d.Viewing() )    
-        d.ResizeTo( std::min(_height,_width), 1 );
-    for( int j=0; j<std::min(_height,_width); ++j )
-        d.Set( j, 0, GetReal(j,j) );
+        d.ResizeTo( diagLength, 1 );
+    if( offset >= 0 )
+        for( int j=0; j<diagLength; ++j )
+            d.Set( j, 0, GetReal(j,j+offset) );
+    else
+        for( int j=0; j<diagLength; ++j )
+            d.Set( j, 0, GetReal(j-offset,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -968,20 +996,26 @@ Matrix<T>::GetRealDiagonal( Matrix<typename RealBase<T>::type>& d ) const
 
 template<typename T>
 inline void
-Matrix<T>::GetImagDiagonal( Matrix<typename RealBase<T>::type>& d ) const
+Matrix<T>::GetImagDiagonal
+( Matrix<typename RealBase<T>::type>& d, int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetImagDiagonal");
     if( d.LockedView() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
-        (d.Height() != std::min(_height_width) || d.Width() != 1))
+        (d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1))
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
+    const int diagLength = DiagonalLength(_height,_width,offset);
     if( !d.Viewing() )    
-        d.ResizeTo( std::min(_height,_width), 1 );
-    for( int j=0; j<std::min(_height,_width); ++j )
-        d.Set( j, 0, GetImag(j,j) );
+        d.ResizeTo( diagLength, 1 );
+    if( offset >= 0 )
+        for( int j=0; j<diagLength; ++j )
+            d.Set( j, 0, GetImag(j,j+offset) );
+    else
+        for( int j=0; j<diagLength; ++j )
+            d.Set( j, 0, GetImag(j-offset,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -989,15 +1023,21 @@ Matrix<T>::GetImagDiagonal( Matrix<typename RealBase<T>::type>& d ) const
 
 template<typename T>
 inline void
-Matrix<T>::SetRealDiagonal( const Matrix<typename RealBase<T>::type>& d )
+Matrix<T>::SetRealDiagonal
+( const Matrix<typename RealBase<T>::type>& d, int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetRealDiagonal");
-    if( d.Height() != std::min(_height_width) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    for( int j=0; j<std::min(_height,_width); ++j )
-        SetReal( j, j, d.Get(j,0) );
+    const int diagLength = DiagonalLength(_height,_width,offset);
+    if( offset >= 0 )
+        for( int j=0; j<diagLength; ++j )
+            SetReal( j, j+offset, d.Get(j,0) );
+    else
+        for( int j=0; j<diagLength; ++j )
+            SetReal( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1005,15 +1045,21 @@ Matrix<T>::SetRealDiagonal( const Matrix<typename RealBase<T>::type>& d )
 
 template<typename T>
 inline void
-Matrix<T>::SetImagDiagonal( const Matrix<typename RealBase<T>::type>& d )
+Matrix<T>::SetImagDiagonal
+( const Matrix<typename RealBase<T>::type>& d, int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetImagDiagonal");
-    if( d.Height() != std::min(_height_width) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    for( int j=0; j<std::min(_height,_width); ++j )
-        SetImag( j, j, d.Get(j,0) );
+    const int diagLength = DiagonalLength(_height,_width,offset);
+    if( offset >= 0 )
+        for( int j=0; j<diagLength; ++j )
+            SetImag( j, j+offset, d.Get(j,0) );
+    else
+        for( int j=0; j<diagLength; ++j )
+            SetImag( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1021,15 +1067,21 @@ Matrix<T>::SetImagDiagonal( const Matrix<typename RealBase<T>::type>& d )
 
 template<typename T>
 inline void
-Matrix<T>::UpdateRealDiagonal( const Matrix<typename RealBase<T>::type>& d )
+Matrix<T>::UpdateRealDiagonal
+( const Matrix<typename RealBase<T>::type>& d, int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateRealDiagonal");
-    if( d.Height() != std::min(_height_width) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    for( int j=0; j<std::min(_height,_width); ++j )
-        UpdateReal( j, j, d.Get(j,0) );
+    const int diagLength = DiagonalLength(_height,_width,offset);
+    if( offset >= 0 )
+        for( int j=0; j<diagLength; ++j )
+            UpdateReal( j, j+offset, d.Get(j,0) );
+    else
+        for( int j=0; j<diagLength; ++j )
+            UpdateReal( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1037,15 +1089,21 @@ Matrix<T>::UpdateRealDiagonal( const Matrix<typename RealBase<T>::type>& d )
 
 template<typename T>
 inline void
-Matrix<T>::UpdateImagDiagonal( const Matrix<typename RealBase<T>::type>& d )
+Matrix<T>::UpdateImagDiagonal
+( const Matrix<typename RealBase<T>::type>& d, int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateImagDiagonal");
-    if( d.Height() != std::min(_height_width) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    for( int j=0; j<std::min(_height,_width); ++j )
-        UpdateImag( j, j, d.Get(j,0) );
+    const int diagLength = DiagonalLength(_height,_width,offset);
+    if( offset >= 0 )
+        for( int j=0; j<diagLength; ++j )
+            UpdateImag( j, j+offset, d.Get(j,0) );
+    else
+        for( int j=0; j<diagLength; ++j )
+            UpdateImag( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -656,15 +656,17 @@ DistMatrix<T,MC,MR>::GetDiagonal
     PushCallStack("[MC,MR]::GetDiagonal");
     this->AssertNotLockedView();
 #endif
-    int length = this->DiagonalLength( offset );
+    const int height = this->Height();
+    const int width = this->Width();
+    const int diagLength = DiagonalLength(height,width,offset);
 #ifndef RELEASE
-    if( d.Viewing() && length != d.Height() )
+    if( d.Viewing() && diagLength != d.Height() )
     {
         std::ostringstream msg;
         msg << "d is not of the same length as the diagonal:\n"
             << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-            << "  A diag length: " << length << "\n";
+            << "  A diag length: " << diagLength << "\n";
         throw std::logic_error( msg.str().c_str() );
     }
     if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
@@ -675,7 +677,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
     {
         if( !d.ConstrainedColAlignment() )
             d.AlignWithDiag( *this, offset );
-        d.ResizeTo( length, 1 );
+        d.ResizeTo( diagLength, 1 );
     }
 
     if( d.InDiagonal() )
@@ -731,15 +733,17 @@ DistMatrix<T,MC,MR>::GetDiagonal
     PushCallStack("[MC,MR]::GetDiagonal");
     this->AssertNotLockedView();
 #endif
-    int length = this->DiagonalLength( offset );
+    const int height = this->Height();
+    const int width = this->Width();
+    const int diagLength = DiagonalLength(height,width,offset);
 #ifndef RELEASE
-    if( d.Viewing() && length != d.Width() )
+    if( d.Viewing() && diagLength != d.Width() )
     {
         std::ostringstream msg;
         msg << "d is not of the same length as the diagonal:\n"
             << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-            << "  A diag length: " << length << "\n";
+            << "  A diag length: " << diagLength << "\n";
         throw std::logic_error( msg.str().c_str() );
     }
     if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
@@ -750,7 +754,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
     {
         if( !d.ConstrainedRowAlignment() )
             d.AlignWithDiag( *this, offset );
-        d.ResizeTo( 1, length );
+        d.ResizeTo( 1, diagLength );
     }
 
     if( d.InDiagonal() )
@@ -808,14 +812,16 @@ DistMatrix<T,MC,MR>::SetDiagonal
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
     {
-        int length = this->DiagonalLength( offset );
-        if( length != d.Height() )
+        const int height = this->Height();
+        const int width = this->Width();
+        const int diagLength = DiagonalLength(height,width,offset);
+        if( diagLength != d.Height() )
         {
             std::ostringstream msg;
             msg << "d is not of the same length as the diagonal:\n"
                 << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
                 << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-                << "  A diag length: " << length << "\n";
+                << "  A diag length: " << diagLength << "\n";
             throw std::logic_error( msg.str().c_str() );
         }
     }
@@ -876,14 +882,16 @@ DistMatrix<T,MC,MR>::SetDiagonal
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
     {
-        int length = this->DiagonalLength( offset );
-        if( length != d.Width() )
+        const int height = this->Height();
+        const int width = this->Width();
+        const int diagLength = DiagonalLength(height,width,offset);
+        if( diagLength != d.Width() )
         {
             std::ostringstream msg;
             msg << "d is not of the same length as the diagonal:\n"
                 << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
                 << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-                << "  A diag length: " << length << "\n";
+                << "  A diag length: " << diagLength << "\n";
             throw std::logic_error( msg.str().c_str() );
         }
     }

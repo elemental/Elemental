@@ -204,17 +204,21 @@ Entry manipulation
 
    Add :math:`\alpha` to entry :math:`(i,j)`.
 
-.. cpp:function:: void Matrix<T>::GetDiagonal( Matrix<T>& d ) const
+.. cpp:function:: void Matrix<T>::GetDiagonal( Matrix<T>& d, int offset=0 ) const
 
-   Modify :math:`d` into a column-vector containing our diagonal entries.
+   Modify :math:`d` into a column-vector containing the entries lying on the 
+   ``offset`` diagonal of our matrix (for instance, the main diagonal has 
+   offset :math:`0`, the subdiagonal has offset :math:`-1`, and the 
+   superdiagonal has offset :math:`+1`).
 
-.. cpp:function:: void Matrix<T>::SetDiagonal( const Matrix<T>& d )
+.. cpp:function:: void Matrix<T>::SetDiagonal( const Matrix<T>& d, int offset=0 )
 
-   Set our diagonal entries from the contents of the column-vector :math:`d`.
+   Set the entries in the ``offset`` diagonal entries from the contents of the 
+   column-vector :math:`d`.
 
-.. cpp:function:: void Matrix<T>::UpdateDiagonal( const Matrix<T>& d )
+.. cpp:function:: void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, int offset=0 )
 
-   Add the contents of :math:`d` onto our diagonal entries.
+   Add the contents of :math:`d` onto the entries in the ``offset`` diagonal.
 
 .. warning::
 
@@ -245,38 +249,38 @@ Entry manipulation
 
    Add :math:`\alpha` to the imaginary part of entry :math:`(i,j)`.
 
-.. cpp:function:: void Matrix<T>::GetRealDiagonal( Matrix<typename RealBase<T>::type>& d ) const
+.. cpp:function:: void Matrix<T>::GetRealDiagonal( Matrix<typename RealBase<T>::type>& d, int offset=0 ) const
 
-   Modify :math:`d` into a column-vector containing the real parts of our 
-   diagonal entries.
+   Modify :math:`d` into a column-vector containing the real parts of the
+   entries in the ``offset`` diagonal.
 
-.. cpp:function:: void Matrix<T>::GetImagDiagonal( Matrix<typename RealBase<T>::type>& d ) const
+.. cpp:function:: void Matrix<T>::GetImagDiagonal( Matrix<typename RealBase<T>::type>& d, int offset=0 ) const
 
-   Modify :math:`d` into a column-vector containing the imaginary parts of our 
-   diagonal entries.
+   Modify :math:`d` into a column-vector containing the imaginary parts of the
+   entries in the ``offset`` diagonal.
 
-.. cpp:function:: void Matrix<T>::SetRealDiagonal( const Matrix<typename RealBase<T>::type>& d )
+.. cpp:function:: void Matrix<T>::SetRealDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
 
-   Set the real parts of our diagonal entries from the contents of the 
+   Set the real parts of the entries in the ``offset`` diagonal from the 
+   contents of the column-vector :math:`d`.
+
+.. cpp:function:: void Matrix<T>::SetImagDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
+
+   Set the imaginary parts of the entries in the ``offset`` diagonal from the 
    column-vector :math:`d`.
 
-.. cpp:function:: void Matrix<T>::SetImagDiagonal( const Matrix<typename RealBase<T>::type>& d )
+.. cpp:function:: void Matrix<T>::UpdateRealDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
 
-   Set the imaginary parts of our diagonal entries from the contents of the
-   column-vector :math:`d`.
+   Add the contents of the column-vector :math:`d` onto the real parts of the
+   entries in the ``offset`` diagonal.
 
-.. cpp:function:: void Matrix<T>::UpdateRealDiagonal( const Matrix<typename RealBase<T>::type>& d )
-
-   Add the contents of the column-vector :math:`d` onto the real parts of our 
-   diagonal entries.
-
-.. cpp:function:: void Matrix<T>::UpdateImagDiagonal( const Matrix<typename RealBase<T>::type>& d )
+.. cpp:function:: void Matrix<T>::UpdateImagDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
 
    Add the contents of the column-vector :math:`d` onto the imaginary parts of 
-   our diagonal entries.
+   the entries in the ``offset`` diagonal.
 
-Viewing other ``Matrix`` instances
-----------------------------------
+Views
+-----
 
 .. cpp:function:: bool Matrix<T>::Viewing() const
 
@@ -386,7 +390,60 @@ manner they should be decomposed into a logical two-dimensional grid, an
 instance of the ``Grid`` class must be passed into the constructor of 
 the ``DistMatrix`` class.
 
-For example, ...
+.. note:: 
+   
+   Since the ``DistMatrix`` class makes use of MPI for message passing, 
+   custom interfaces must be written for nonstandard datatypes. As of now, 
+   the following datatypes are fully supported for ``DistMatrix``:
+   ``int``, ``float``, ``double``, ``std::complex<float>``, and
+   ``std::complex<double>``.
+
+AbstractDistMatrix
+------------------
+
+This abstract class defines the list of member functions that are guaranteed 
+to be available for all matrix distributions.
+
+``[MC,MR]``
+-----------
+
+This is the standard matrix distribution... **left off here**
+
+``[MC,* ]``
+-----------
+
+``[* ,MR]``
+-----------
+
+``[MR,MC]``
+-----------
+
+``[MR,* ]``
+-----------
+
+``[* ,MC]``
+-----------
+
+``[MD,* ]``
+-----------
+
+``[* ,MD]``
+-----------
+
+``[VC,* ]``
+-----------
+
+``[* ,VC]``
+-----------
+
+``[VR,* ]``
+-----------
+
+``[* ,VR]``
+-----------
+
+``[* ,* ]``
+-----------
 
 The Grid class
 ==============
@@ -395,7 +452,7 @@ Constructors
 ------------
 
 
-The ``Axpy`` interface
+The Axpy interface
 ======================
 
 Environment routines
