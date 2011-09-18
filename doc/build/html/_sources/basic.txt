@@ -353,53 +353,254 @@ Not yet written. Please call Trmm.
 
 Trsv
 ----
-Sample text.
+Triangular solve with a vector: computes
+:math:`x := \mbox{op}(A)^{-1} x`, where :math:`\mbox{op}(A)` is either 
+:math:`A`, :math:`A^T`, or :math:`A^H`, and :math:`A` is treated an either a 
+lower or upper triangular matrix, depending upon *shape*. :math:`A` can also be 
+treated as implicitly having a unit diagonal if *diagonal* is set to ``UNIT``.
+
+.. cpp:function:: void basic::Trsv( Shape shape, Orientation orientation, Diagonal diagonal, const Matrix<F>& A, Matrix<F>& x )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Trsv( Shape shape, Orientation orientation, Diagonal diagonal, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& x )
+
+   The distributed implementation (templated over the datatype).
 
 Level 3
 =======
 
 Gemm
 ----
-Sample text.
+General matrix-matrix multiplication: updates
+:math:`C := \alpha \mbox{op}_A(A) \mbox{op}_B(B) + \beta C`,
+where :math:`\mbox{op}_A(M)` and :math:`\mbox{op}_B(M)` can each be chosen from 
+:math:`M`, :math:`M^T`, and :math:`M^H`.
+
+.. cpp:function:: void basic::Gemm( Orientation orientationOfA, Orientation orientationOfB, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Gemm( Orientation orientationOfA, Orientation orientationOfB, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+
+   The distributed implementation (templated over the datatype).
 
 Hemm
 ----
-Sample text.
+Hermitian matrix-matrix multiplication: updates
+:math:`C := \alpha A B + \beta C`, or 
+:math:`C := \alpha B A + \beta C`, depending upon whether *side* is set to 
+``LEFT`` or ``RIGHT``, respectively. In both of these types of updates, 
+:math:`A` is implicitly Hermitian and only the triangle specified by *shape* is 
+accessed.
+
+.. cpp:function:: void basic::Hemm( Side side, Shape shape, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Hemm( Side side, Shape shape, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+
+   The distributed implementation (templated over the datatype).
 
 Her2k
 -----
-Sample text.
+Hermitian rank-2K update: updates
+:math:`C := \alpha (A B^H + B A^H) + \beta C`, or 
+:math:`C := \alpha (A^H B + B^H A) + \beta C`, depending upon whether 
+*orientation* is set to ``NORMAL`` or ``ADJOINT``, respectively. Only the 
+triangle of :math:`C` specified by the *shape* parameter is modified.
+
+.. cpp:function:: void basic::Her2k( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Her2k( Shape shape, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+
+   The distributed implementation (templated over the datatype).
 
 Herk
 ----
-Sample text.
+Hermitian rank-K update: updates
+:math:`C := \alpha A A^H + \beta C`, or 
+:math:`C := \alpha A^H A + \beta C`, depending upon whether *orientation* is
+set to ``NORMAL`` or ``ADJOINT``, respectively. Only the triangle of :math:`C` 
+specified by the *shape* parameter is modified.
+
+.. cpp:function:: void basic::Herk( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Herk( Shape shape, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C )
+
+   The distributed implementation (templated over the datatype).
 
 Hetrmm
 ------
-Performs :math:`L := L L^H` or :math:`U := U^H U`. This can be thought of 
-as the reverse of a Cholesky factorization. While this algorithm exists as 
-the LAPACK routines ?lauum, it fits in just as naturally as a BLAS-like routine,
-as it only requires matrix-matrix multiplication.
+.. note:: 
+
+   This routine directly corresponds with the LAPACK routines ?lauum, but it 
+   only involves matrix-matrix multiplication, so it is lumped in with the 
+   BLAS-like routines in Elemental.
+
+Hermitian triangular matrix-matrix multiply: performs 
+:math:`L := L L^H` or :math:`U := U^H U`, depending upon the choice of the 
+*shape* parameter. This can be thought of as the reverse of a Cholesky 
+factorization.  
+
+.. cpp:function:: void basic::Hetrmm( Shape shape, Matrix<T>& A )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Hetrmm( Shape shape, DistMatrix<T,MC,MR>& A )
+
+   The distributed implementation (templated over the datatype).
 
 Symm
 ----
-Sample text.
+Symmetric matrix-matrix multiplication: updates
+:math:`C := \alpha A B + \beta C`, or 
+:math:`C := \alpha B A + \beta C`, depending upon whether *side* is set to 
+``LEFT`` or ``RIGHT``, respectively. In both of these types of updates, 
+:math:`A` is implicitly symmetric and only the triangle specified by *shape* 
+is accessed.
+
+.. cpp:function:: void basic::Symm( Side side, Shape shape, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Symm( Side side, Shape shape, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+
+   The distributed implementation (templated over the datatype).
 
 Syr2k
 -----
-Sample text.
+Symmetric rank-2K update: updates
+:math:`C := \alpha (A B^T + B A^T) + \beta C`, or 
+:math:`C := \alpha (A^T B + B^T A) + \beta C`, depending upon whether 
+*orientation* is set to ``NORMAL`` or ``TRANSPOSE``, respectively. Only the 
+triangle of :math:`C` specified by the *shape* parameter is modified.
+
+.. cpp:function:: void basic::Syr2k( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Syr2k( Shape shape, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+
+   The distributed implementation (templated over the datatype).
 
 Syrk
 ----
-Sample text.
+Symmetric rank-K update: updates
+:math:`C := \alpha A A^T + \beta C`, or 
+:math:`C := \alpha A^T A + \beta C`, depending upon whether *orientation* is
+set to ``NORMAL`` or ``TRANSPOSE``, respectively. Only the triangle of :math:`C`
+specified by the *shape* parameter is modified.
+
+.. cpp:function:: void basic::Syrk( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Syrk( Shape shape, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C )
+
+   The distributed implementation (templated over the datatype).
 
 Trmm
 ----
-Sample text.
+Triangular matrix-matrix multiplication: performs
+:math:`C := \alpha \mbox{op}(A) B`, or 
+:math:`C := \alpha B \mbox{op}(A)`, depending upon whether *side* was chosen
+to be ``LEFT`` or ``RIGHT``, respectively. Whether :math:`A` is treated as 
+lower or upper triangular is determined by *shape*, and :math:`\mbox{op}(A)` 
+can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and *diagonal* determines
+whether :math:`A` is treated as unit diagonal or not).
+
+.. cpp:function:: void basic::Trmm( Side side, Shape shape, Orientation orientation, Diagonal diagonal, T alpha, const Matrix<T>& A, Matrix<T>& B )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Trmm( Side side, Shape shape, Orientation orientation, Diagonal diagonal, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+
+   The distributed implementation (templated over the datatype).
 
 Trsm
 ----
-Sample text.
+Triangular solve with multiple right-hand sides: performs
+:math:`C := \alpha \mbox{op}(A)^{-1} B`, or 
+:math:`C := \alpha B \mbox{op}(A)^{-1}`, depending upon whether *side* was 
+chosen to be ``LEFT`` or ``RIGHT``, respectively. Whether :math:`A` is treated 
+as lower or upper triangular is determined by *shape*, and :math:`\mbox{op}(A)` 
+can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and *diagonal* determines
+whether :math:`A` is treated as unit diagonal or not).
 
-Environment routines
-====================
+.. cpp:function:: void basic::Trsm( Side side, Shape shape, Orientation orientation, Diagonal diagonal, T alpha, const Matrix<T>& A, Matrix<T>& B )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Trsm( Side side, Shape shape, Orientation orientation, Diagonal diagonal, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+
+   The distributed implementation (templated over the datatype).
+
+Tuning parameters
+=================
+
+The following tuning parameters have been exposed since they are 
+system-dependent and can have a large impact on performance. The first two sets
+of tuning parameters, those of ``LocalHemvBlocksize`` and 
+``LocalSymvBlocksize``, should probably be combined.
+
+LocalHemvBlocksize
+------------------
+
+.. cpp:function:: void basic::SetLocalHemvBlocksize<T>( int blocksize )
+
+   Sets the local blocksize for the distributed ``basic::Hemv`` routine for 
+   datatype ``T``. It is set to 64 by 
+   default and is important for the Householder reduction of a Hermitian 
+   matrix to symmetric tridiagonal form.
+
+.. cpp:function:: int basic::LocalHemvBlocksize<T>()
+
+   Retrieves the local ``Hemv`` blocksize for datatype ``T``.
+
+LocalSymvBlocksize
+------------------
+
+.. cpp:function:: void basic::SetLocalSymvBlocksize<T>( int blocksize )
+
+   Sets the local blocksize for the distributed ``basic::Symv`` routine for 
+   datatype ``T``. It is set to 64 by default.
+
+.. cpp:function:: int basic::LocalSymvBlocksize<T>()
+
+   Retrieves the local ``Symv`` blocksize for datatype ``T``.
+
+LocalTriangularRankKBlocksize
+-----------------------------
+
+.. cpp:function:: void basic::SetLocalTriangularRankKBlocksize<T>( int blocksize )
+
+   Sets the local blocksize for the distributed 
+   ``basic::internal::LocalTriangularRankK`` routine for datatype ``T``. It is
+   set to 64 by default and is important for routines that perform distributed
+   ``basic::Syrk`` or ``basic::Herk`` updates, e.g., Cholesky factorization.
+
+.. cpp:function:: int basic::LocalTriangularRankKBlocksize<T>()
+
+   Retrieves the local blocksize for the distributed 
+   ``basic::internal::LocalTriangularRankK`` routine for datatype ``T``.
+
+LocalTriangularRank2KBlocksize
+------------------------------
+
+.. cpp:function:: void basic::SetLocalTriangularRank2KBlocksize<T>( int blocksize )
+
+   Sets the local blocksize for the distributed
+   ``basic::internal::LocalTriangularRank2K`` routine for datatype ``T``. It is
+   set to 64 by default and is important for routines that perform distributed
+   ``basic::Syr2k`` or ``basic::Her2k`` updates, e.g., Householder 
+   tridiagonalization.
+
+.. cpp:function:: int basic::LocalTriangularRank2KBlocksize<T>()
+
+   Retrieves the local blocksize for the distributed 
+   ``basic::internal::LocalTriangularRank2K`` routine for datatype ``T``.

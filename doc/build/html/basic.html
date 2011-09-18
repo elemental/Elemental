@@ -495,57 +495,317 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Syr2</tt><big>(<
 </div>
 <div class="section" id="trsv">
 <h3>Trsv<a class="headerlink" href="#trsv" title="Permalink to this headline">¶</a></h3>
-<p>Sample text.</p>
+<p>Triangular solve with a vector: computes
+<img class="math" src="_images/math/ae100e20d819dc49c5a2857ec628c645382ccd58.png" alt="x := \mbox{op}(A)^{-1} x"/>, where <img class="math" src="_images/math/7fc24681030cd4fbb78b30e05fb2ca510195f6f5.png" alt="\mbox{op}(A)"/> is either
+<img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, <img class="math" src="_images/math/4a113a49a168242ef8398e336b3e7bd9bef597e6.png" alt="A^T"/>, or <img class="math" src="_images/math/7b82dd68a42b65efdc9ac248cb183e9b6982c654.png" alt="A^H"/>, and <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is treated an either a
+lower or upper triangular matrix, depending upon <em>shape</em>. <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can also be
+treated as implicitly having a unit diagonal if <em>diagonal</em> is set to <tt class="docutils literal"><span class="pre">UNIT</span></tt>.</p>
+<dl class="function">
+<dt id="basic::Trsv__Shape.Orientation.Diagonal.Matrix:F:CR.Matrix:F:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Trsv</tt><big>(</big>Shape <em>shape</em>, Orientation <em>orientation</em>, Diagonal <em>diagonal</em>, const Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#basic::Trsv__Shape.Orientation.Diagonal.Matrix:F:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Trsv__Shape.Orientation.Diagonal.DistMatrix:F.MC.MR:CR.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Trsv</tt><big>(</big>Shape <em>shape</em>, Orientation <em>orientation</em>, Diagonal <em>diagonal</em>, const DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#basic::Trsv__Shape.Orientation.Diagonal.DistMatrix:F.MC.MR:CR.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 </div>
 <div class="section" id="level-3">
 <h2>Level 3<a class="headerlink" href="#level-3" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="gemm">
 <h3>Gemm<a class="headerlink" href="#gemm" title="Permalink to this headline">¶</a></h3>
-<p>Sample text.</p>
+<p>General matrix-matrix multiplication: updates
+<img class="math" src="_images/math/2263aafd9ddbb451a150aed5a7fb321c095377a7.png" alt="C := \alpha \mbox{op}_A(A) \mbox{op}_B(B) + \beta C"/>,
+where <img class="math" src="_images/math/448bafecececfd73506341d7d2284efe4a515eac.png" alt="\mbox{op}_A(M)"/> and <img class="math" src="_images/math/34f17594afaa0ac739c0aea13eea95d55c7a6be2.png" alt="\mbox{op}_B(M)"/> can each be chosen from
+<img class="math" src="_images/math/5d1e4485dc90c450e8c76826516c1b2ccb8fce16.png" alt="M"/>, <img class="math" src="_images/math/af230fe2189b0aac066f69f62feb5f5b8d82155b.png" alt="M^T"/>, and <img class="math" src="_images/math/270714217c19fc180c3e7ae5af701b7116ec1708.png" alt="M^H"/>.</p>
+<dl class="function">
+<dt id="basic::Gemm__Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Gemm</tt><big>(</big>Orientation <em>orientationOfA</em>, Orientation <em>orientationOfB</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Gemm__Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Gemm__Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Gemm</tt><big>(</big>Orientation <em>orientationOfA</em>, Orientation <em>orientationOfB</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Gemm__Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 <div class="section" id="hemm">
 <h3>Hemm<a class="headerlink" href="#hemm" title="Permalink to this headline">¶</a></h3>
-<p>Sample text.</p>
+<p>Hermitian matrix-matrix multiplication: updates
+<img class="math" src="_images/math/f980f131f0e109dbe01adada5a8e5f194e70345a.png" alt="C := \alpha A B + \beta C"/>, or
+<img class="math" src="_images/math/3fa7ed72fd8dc0e08dd0b92d41448b7a3c2b4f78.png" alt="C := \alpha B A + \beta C"/>, depending upon whether <em>side</em> is set to
+<tt class="docutils literal"><span class="pre">LEFT</span></tt> or <tt class="docutils literal"><span class="pre">RIGHT</span></tt>, respectively. In both of these types of updates,
+<img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is implicitly Hermitian and only the triangle specified by <em>shape</em> is
+accessed.</p>
+<dl class="function">
+<dt id="basic::Hemm__Side.Shape.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Hemm</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Hemm__Side.Shape.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Hemm__Side.Shape.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Hemm</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Hemm__Side.Shape.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 <div class="section" id="her2k">
 <h3>Her2k<a class="headerlink" href="#her2k" title="Permalink to this headline">¶</a></h3>
-<p>Sample text.</p>
+<p>Hermitian rank-2K update: updates
+<img class="math" src="_images/math/39e0e9c1f6472238311ce754f2890f4c7c679e6b.png" alt="C := \alpha (A B^H + B A^H) + \beta C"/>, or
+<img class="math" src="_images/math/de809a6c7cd850bdc81d2366d8ef24d9682a6d91.png" alt="C := \alpha (A^H B + B^H A) + \beta C"/>, depending upon whether
+<em>orientation</em> is set to <tt class="docutils literal"><span class="pre">NORMAL</span></tt> or <tt class="docutils literal"><span class="pre">ADJOINT</span></tt>, respectively. Only the
+triangle of <img class="math" src="_images/math/c3355896da590fc491a10150a50416687626d7cc.png" alt="C"/> specified by the <em>shape</em> parameter is modified.</p>
+<dl class="function">
+<dt id="basic::Her2k__Shape.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Her2k</tt><big>(</big>Shape <em>shape</em>, Orientation <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Her2k__Shape.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Her2k__Shape.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Her2k</tt><big>(</big>Shape <em>shape</em>, Orientation <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Her2k__Shape.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 <div class="section" id="herk">
 <h3>Herk<a class="headerlink" href="#herk" title="Permalink to this headline">¶</a></h3>
-<p>Sample text.</p>
+<p>Hermitian rank-K update: updates
+<img class="math" src="_images/math/cbde9ec0e5372dc6d0b4936c72ba85dcce83dc02.png" alt="C := \alpha A A^H + \beta C"/>, or
+<img class="math" src="_images/math/2a781ef3a1335e208bd55c2f437b209e071fa18b.png" alt="C := \alpha A^H A + \beta C"/>, depending upon whether <em>orientation</em> is
+set to <tt class="docutils literal"><span class="pre">NORMAL</span></tt> or <tt class="docutils literal"><span class="pre">ADJOINT</span></tt>, respectively. Only the triangle of <img class="math" src="_images/math/c3355896da590fc491a10150a50416687626d7cc.png" alt="C"/>
+specified by the <em>shape</em> parameter is modified.</p>
+<dl class="function">
+<dt id="basic::Herk__Shape.Orientation.T.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Herk</tt><big>(</big>Shape <em>shape</em>, Orientation <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Herk__Shape.Orientation.T.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Herk__Shape.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Herk</tt><big>(</big>Shape <em>shape</em>, Orientation <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Herk__Shape.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 <div class="section" id="hetrmm">
 <h3>Hetrmm<a class="headerlink" href="#hetrmm" title="Permalink to this headline">¶</a></h3>
-<p>Performs <img class="math" src="_images/math/68afa5aecfd8680d607920b5fcd513ead5812f04.png" alt="L := L L^H"/> or <img class="math" src="_images/math/b2a7b4a040f563084708f163d065441b422d875d.png" alt="U := U^H U"/>. This can be thought of
-as the reverse of a Cholesky factorization. While this algorithm exists as
-the LAPACK routines ?lauum, it fits in just as naturally as a BLAS-like routine,
-as it only requires matrix-matrix multiplication.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This routine directly corresponds with the LAPACK routines ?lauum, but it
+only involves matrix-matrix multiplication, so it is lumped in with the
+BLAS-like routines in Elemental.</p>
+</div>
+<p>Hermitian triangular matrix-matrix multiply: performs
+<img class="math" src="_images/math/68afa5aecfd8680d607920b5fcd513ead5812f04.png" alt="L := L L^H"/> or <img class="math" src="_images/math/b2a7b4a040f563084708f163d065441b422d875d.png" alt="U := U^H U"/>, depending upon the choice of the
+<em>shape</em> parameter. This can be thought of as the reverse of a Cholesky
+factorization.</p>
+<dl class="function">
+<dt id="basic::Hetrmm__Shape.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Hetrmm</tt><big>(</big>Shape <em>shape</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Hetrmm__Shape.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Hetrmm__Shape.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Hetrmm</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Hetrmm__Shape.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 <div class="section" id="symm">
 <h3>Symm<a class="headerlink" href="#symm" title="Permalink to this headline">¶</a></h3>
-<p>Sample text.</p>
+<p>Symmetric matrix-matrix multiplication: updates
+<img class="math" src="_images/math/f980f131f0e109dbe01adada5a8e5f194e70345a.png" alt="C := \alpha A B + \beta C"/>, or
+<img class="math" src="_images/math/3fa7ed72fd8dc0e08dd0b92d41448b7a3c2b4f78.png" alt="C := \alpha B A + \beta C"/>, depending upon whether <em>side</em> is set to
+<tt class="docutils literal"><span class="pre">LEFT</span></tt> or <tt class="docutils literal"><span class="pre">RIGHT</span></tt>, respectively. In both of these types of updates,
+<img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is implicitly symmetric and only the triangle specified by <em>shape</em>
+is accessed.</p>
+<dl class="function">
+<dt id="basic::Symm__Side.Shape.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Symm</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Symm__Side.Shape.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Symm__Side.Shape.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Symm</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Symm__Side.Shape.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 <div class="section" id="syr2k">
 <h3>Syr2k<a class="headerlink" href="#syr2k" title="Permalink to this headline">¶</a></h3>
-<p>Sample text.</p>
+<p>Symmetric rank-2K update: updates
+<img class="math" src="_images/math/81d1671f8ae1079bace61450650529b20213fa17.png" alt="C := \alpha (A B^T + B A^T) + \beta C"/>, or
+<img class="math" src="_images/math/9ea53cfccb29051ad9909132dfc5ec0e608035fc.png" alt="C := \alpha (A^T B + B^T A) + \beta C"/>, depending upon whether
+<em>orientation</em> is set to <tt class="docutils literal"><span class="pre">NORMAL</span></tt> or <tt class="docutils literal"><span class="pre">TRANSPOSE</span></tt>, respectively. Only the
+triangle of <img class="math" src="_images/math/c3355896da590fc491a10150a50416687626d7cc.png" alt="C"/> specified by the <em>shape</em> parameter is modified.</p>
+<dl class="function">
+<dt id="basic::Syr2k__Shape.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Syr2k</tt><big>(</big>Shape <em>shape</em>, Orientation <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Syr2k__Shape.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Syr2k__Shape.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Syr2k</tt><big>(</big>Shape <em>shape</em>, Orientation <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Syr2k__Shape.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 <div class="section" id="syrk">
 <h3>Syrk<a class="headerlink" href="#syrk" title="Permalink to this headline">¶</a></h3>
-<p>Sample text.</p>
+<p>Symmetric rank-K update: updates
+<img class="math" src="_images/math/41caf8b3a96a5a4730da1640647ada46edf3196b.png" alt="C := \alpha A A^T + \beta C"/>, or
+<img class="math" src="_images/math/4b972ba19230412c74ea6caecb271ffead249de7.png" alt="C := \alpha A^T A + \beta C"/>, depending upon whether <em>orientation</em> is
+set to <tt class="docutils literal"><span class="pre">NORMAL</span></tt> or <tt class="docutils literal"><span class="pre">TRANSPOSE</span></tt>, respectively. Only the triangle of <img class="math" src="_images/math/c3355896da590fc491a10150a50416687626d7cc.png" alt="C"/>
+specified by the <em>shape</em> parameter is modified.</p>
+<dl class="function">
+<dt id="basic::Syrk__Shape.Orientation.T.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Syrk</tt><big>(</big>Shape <em>shape</em>, Orientation <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Syrk__Shape.Orientation.T.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Syrk__Shape.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Syrk</tt><big>(</big>Shape <em>shape</em>, Orientation <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Syrk__Shape.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 <div class="section" id="trmm">
 <h3>Trmm<a class="headerlink" href="#trmm" title="Permalink to this headline">¶</a></h3>
-<p>Sample text.</p>
+<p>Triangular matrix-matrix multiplication: performs
+<img class="math" src="_images/math/a49f2dc2af62ed4c7474120fdd9b3f34abb3332b.png" alt="C := \alpha \mbox{op}(A) B"/>, or
+<img class="math" src="_images/math/3296b833f2ca7b1e8cf84ec2c4bdb67318416e27.png" alt="C := \alpha B \mbox{op}(A)"/>, depending upon whether <em>side</em> was chosen
+to be <tt class="docutils literal"><span class="pre">LEFT</span></tt> or <tt class="docutils literal"><span class="pre">RIGHT</span></tt>, respectively. Whether <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is treated as
+lower or upper triangular is determined by <em>shape</em>, and <img class="math" src="_images/math/7fc24681030cd4fbb78b30e05fb2ca510195f6f5.png" alt="\mbox{op}(A)"/>
+can be any of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, <img class="math" src="_images/math/4a113a49a168242ef8398e336b3e7bd9bef597e6.png" alt="A^T"/>, and <img class="math" src="_images/math/7b82dd68a42b65efdc9ac248cb183e9b6982c654.png" alt="A^H"/> (and <em>diagonal</em> determines
+whether <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is treated as unit diagonal or not).</p>
+<dl class="function">
+<dt id="basic::Trmm__Side.Shape.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Trmm</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, Orientation <em>orientation</em>, Diagonal <em>diagonal</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Trmm__Side.Shape.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Trmm__Side.Shape.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Trmm</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, Orientation <em>orientation</em>, Diagonal <em>diagonal</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Trmm__Side.Shape.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 <div class="section" id="trsm">
 <h3>Trsm<a class="headerlink" href="#trsm" title="Permalink to this headline">¶</a></h3>
-<p>Sample text.</p>
+<p>Triangular solve with multiple right-hand sides: performs
+<img class="math" src="_images/math/fcf8d0df825dd022b69ebb076ef134a193d9007c.png" alt="C := \alpha \mbox{op}(A)^{-1} B"/>, or
+<img class="math" src="_images/math/e93470dea0bf7e41ae7aa4e286eea63740c80437.png" alt="C := \alpha B \mbox{op}(A)^{-1}"/>, depending upon whether <em>side</em> was
+chosen to be <tt class="docutils literal"><span class="pre">LEFT</span></tt> or <tt class="docutils literal"><span class="pre">RIGHT</span></tt>, respectively. Whether <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is treated
+as lower or upper triangular is determined by <em>shape</em>, and <img class="math" src="_images/math/7fc24681030cd4fbb78b30e05fb2ca510195f6f5.png" alt="\mbox{op}(A)"/>
+can be any of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, <img class="math" src="_images/math/4a113a49a168242ef8398e336b3e7bd9bef597e6.png" alt="A^T"/>, and <img class="math" src="_images/math/7b82dd68a42b65efdc9ac248cb183e9b6982c654.png" alt="A^H"/> (and <em>diagonal</em> determines
+whether <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is treated as unit diagonal or not).</p>
+<dl class="function">
+<dt id="basic::Trsm__Side.Shape.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Trsm</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, Orientation <em>orientation</em>, Diagonal <em>diagonal</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Trsm__Side.Shape.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Trsm__Side.Shape.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Trsm</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, Orientation <em>orientation</em>, Diagonal <em>diagonal</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Trsm__Side.Shape.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
 </div>
 </div>
-<div class="section" id="environment-routines">
-<h2>Environment routines<a class="headerlink" href="#environment-routines" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="tuning-parameters">
+<h2>Tuning parameters<a class="headerlink" href="#tuning-parameters" title="Permalink to this headline">¶</a></h2>
+<p>The following tuning parameters have been exposed since they are
+system-dependent and can have a large impact on performance. The first two sets
+of tuning parameters, those of <tt class="docutils literal"><span class="pre">LocalHemvBlocksize</span></tt> and
+<tt class="docutils literal"><span class="pre">LocalSymvBlocksize</span></tt>, should probably be combined.</p>
+<div class="section" id="localhemvblocksize">
+<h3>LocalHemvBlocksize<a class="headerlink" href="#localhemvblocksize" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="basic::SetLocalHemvBlocksize:T:__i">
+void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalHemvBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalHemvBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local blocksize for the distributed <tt class="docutils literal"><span class="pre">basic::Hemv</span></tt> routine for
+datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is set to 64 by
+default and is important for the Householder reduction of a Hermitian
+matrix to symmetric tridiagonal form.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::LocalHemvBlocksize:T:">
+int <tt class="descclassname">basic::</tt><tt class="descname">LocalHemvBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalHemvBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the local <tt class="docutils literal"><span class="pre">Hemv</span></tt> blocksize for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="localsymvblocksize">
+<h3>LocalSymvBlocksize<a class="headerlink" href="#localsymvblocksize" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="basic::SetLocalSymvBlocksize:T:__i">
+void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalSymvBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalSymvBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local blocksize for the distributed <tt class="docutils literal"><span class="pre">basic::Symv</span></tt> routine for
+datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is set to 64 by default.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::LocalSymvBlocksize:T:">
+int <tt class="descclassname">basic::</tt><tt class="descname">LocalSymvBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalSymvBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the local <tt class="docutils literal"><span class="pre">Symv</span></tt> blocksize for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="localtriangularrankkblocksize">
+<h3>LocalTriangularRankKBlocksize<a class="headerlink" href="#localtriangularrankkblocksize" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="basic::SetLocalTriangularRankKBlocksize:T:__i">
+void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalTriangularRankKBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalTriangularRankKBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local blocksize for the distributed
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRankK</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
+set to 64 by default and is important for routines that perform distributed
+<tt class="docutils literal"><span class="pre">basic::Syrk</span></tt> or <tt class="docutils literal"><span class="pre">basic::Herk</span></tt> updates, e.g., Cholesky factorization.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::LocalTriangularRankKBlocksize:T:">
+int <tt class="descclassname">basic::</tt><tt class="descname">LocalTriangularRankKBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalTriangularRankKBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the local blocksize for the distributed
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRankK</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="localtriangularrank2kblocksize">
+<h3>LocalTriangularRank2KBlocksize<a class="headerlink" href="#localtriangularrank2kblocksize" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="basic::SetLocalTriangularRank2KBlocksize:T:__i">
+void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalTriangularRank2KBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalTriangularRank2KBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local blocksize for the distributed
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRank2K</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
+set to 64 by default and is important for routines that perform distributed
+<tt class="docutils literal"><span class="pre">basic::Syr2k</span></tt> or <tt class="docutils literal"><span class="pre">basic::Her2k</span></tt> updates, e.g., Householder
+tridiagonalization.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::LocalTriangularRank2KBlocksize:T:">
+int <tt class="descclassname">basic::</tt><tt class="descname">LocalTriangularRank2KBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalTriangularRank2KBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the local blocksize for the distributed
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRank2K</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+</dd></dl>
+
+</div>
 </div>
 </div>
 
@@ -604,7 +864,13 @@ as it only requires matrix-matrix multiplication.</p>
 <li><a class="reference internal" href="#trsm">Trsm</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#environment-routines">Environment routines</a></li>
+<li><a class="reference internal" href="#tuning-parameters">Tuning parameters</a><ul>
+<li><a class="reference internal" href="#localhemvblocksize">LocalHemvBlocksize</a></li>
+<li><a class="reference internal" href="#localsymvblocksize">LocalSymvBlocksize</a></li>
+<li><a class="reference internal" href="#localtriangularrankkblocksize">LocalTriangularRankKBlocksize</a></li>
+<li><a class="reference internal" href="#localtriangularrank2kblocksize">LocalTriangularRank2KBlocksize</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
