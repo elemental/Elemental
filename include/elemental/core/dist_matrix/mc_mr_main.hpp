@@ -718,10 +718,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetDiagonal");
-    this->AssertNotLockedView();
 #endif
-    const int height = this->Height();
-    const int width = this->Width();
     const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
     if( d.Viewing() && diagLength != d.Height() )
@@ -795,10 +792,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetDiagonal");
-    this->AssertNotLockedView();
 #endif
-    const int height = this->Height();
-    const int width = this->Width();
     const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
     if( d.Viewing() && diagLength != d.Width() )
@@ -876,8 +870,6 @@ DistMatrix<T,MC,MR>::SetDiagonal
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
     {
-        const int height = this->Height();
-        const int width = this->Width();
         const int diagLength = this->DiagonalLength(offset);
         if( diagLength != d.Height() )
         {
@@ -946,8 +938,6 @@ DistMatrix<T,MC,MR>::SetDiagonal
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
     {
-        const int height = this->Height();
-        const int width = this->Width();
         const int diagLength = this->DiagonalLength(offset);
         if( diagLength != d.Width() )
         {

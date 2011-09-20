@@ -369,7 +369,6 @@ DistMatrix<T,MR,MC>::GetRealDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetRealDiagonal([MD,* ])");
-    parent.AssertNotLockedView();
 #endif
     int height = parent.Height();
     int width = parent.Width();
@@ -449,7 +448,6 @@ DistMatrix<T,MR,MC>::GetImagDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetImagDiagonal([MD,* ])");
-    parent.AssertNotLockedView();
 #endif
     int height = parent.Height();
     int width = parent.Width();
@@ -529,7 +527,6 @@ DistMatrix<T,MR,MC>::GetRealDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetRealDiagonal([* ,MD])");
-    parent.AssertNotLockedView();
 #endif
     int height = parent.Height();
     int width = parent.Width();
@@ -612,7 +609,6 @@ DistMatrix<T,MR,MC>::GetImagDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetImagDiagonal([* ,MD])");
-    parent.AssertNotLockedView();
 #endif
     int height = parent.Height();
     int width = parent.Width();

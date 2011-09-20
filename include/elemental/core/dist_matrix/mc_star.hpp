@@ -155,6 +155,11 @@ public:
     // Collective routines
     //
 
+    void GetDiagonal( DistMatrix<T,MC,STAR>& d, int offset=0 ) const;
+    void GetDiagonal( DistMatrix<T,STAR,MC>& d, int offset=0 ) const;
+    void SetDiagonal( const DistMatrix<T,MC,STAR>& d, int offset=0 ) const;
+    void SetDiagonal( const DistMatrix<T,STAR,MC>& d, int offset=0 ) const;
+
     // Set the alignments
     void Align( int colAlignment );
     void AlignCols( int colAlignment );
@@ -190,6 +195,16 @@ public:
     // templating over distribution parameters.
     template<typename S,Distribution U,Distribution V>
     void AlignRowsWith( const DistMatrix<S,U,V>& A ) { }
+
+    template<typename S>
+    bool AlignedWithDiag( const DistMatrix<S,MC,STAR>& A, int offset=0 ) const;
+    template<typename S>
+    bool AlignedWithDiag( const DistMatrix<S,STAR,MC>& A, int offset=0 ) const;
+
+    template<typename S>
+    void AlignWithDiag( const DistMatrix<S,MC,STAR>& A, int offset=0 );
+    template<typename S>
+    void AlignWithDiag( const DistMatrix<S,STAR,MC>& A, int offset=0 );
 
     // (Immutable) view of a distributed matrix
     void View( DistMatrix<T,MC,STAR>& A );
@@ -235,6 +250,27 @@ public:
 
     // AllReduce sum over process row
     void SumOverRow();
+
+    //
+    // Routines that are only valid for complex datatypes
+    //
+
+    void GetRealDiagonal
+    ( DistMatrix<typename RealBase<T>::type,MC,STAR>& d, int offset=0 ) const;
+    void GetImagDiagonal
+    ( DistMatrix<typename RealBase<T>::type,MC,STAR>& d, int offset=0 ) const;
+    void GetRealDiagonal
+    ( DistMatrix<typename RealBase<T>::type,STAR,MC>& d, int offset=0 ) const;
+    void GetImagDiagonal
+    ( DistMatrix<typename RealBase<T>::type,STAR,MC>& d, int offset=0 ) const;
+    void SetRealDiagonal
+    ( const DistMatrix<typename RealBase<T>::type,MC,STAR>& d, int offset=0 );
+    void SetImagDiagonal
+    ( const DistMatrix<typename RealBase<T>::type,MC,STAR>& d, int offset=0 );
+    void SetRealDiagonal
+    ( const DistMatrix<typename RealBase<T>::type,STAR,MC>& d, int offset=0 );
+    void SetImagDiagonal
+    ( const DistMatrix<typename RealBase<T>::type,STAR,MC>& d, int offset=0 );
 
 private:
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
@@ -348,6 +384,93 @@ private:
         ( DistMatrix<std::complex<Z>,MC,STAR>& parent, int i, int j, Z alpha );
     };
     template<typename Z> friend struct UpdateImagHelper;
+
+    template<typename Z>
+    struct GetRealDiagonalHelper
+    {
+        static void Func
+        ( const DistMatrix<Z,MC,STAR>& parent,
+                DistMatrix<Z,MC,STAR>& d, int offset );
+        static void Func
+        ( const DistMatrix<Z,MC,STAR>& parent,
+                DistMatrix<Z,STAR,MC>& d, int offset );
+    };
+    template<typename Z>
+    struct GetRealDiagonalHelper<std::complex<Z> >
+    {
+        static void Func
+        ( const DistMatrix<std::complex<Z>,MC,STAR>& parent,
+                DistMatrix<Z,MC,STAR>& d, int offset );
+        static void Func
+        ( const DistMatrix<std::complex<Z>,MC,STAR>& parent,
+                DistMatrix<Z,STAR,MC>& d, int offset );
+    };
+    template<typename Z> friend struct GetRealDiagonalHelper;
+
+    template<typename Z>
+    struct GetImagDiagonalHelper
+    {
+        static void Func
+        ( const DistMatrix<Z,MC,STAR>& parent,
+                DistMatrix<Z,MC,STAR>& d, int offset );
+        static void Func
+        ( const DistMatrix<Z,MC,STAR>& parent,
+                DistMatrix<Z,STAR,MC>& d, int offset );
+    };
+    template<typename Z>
+    struct GetImagDiagonalHelper<std::complex<Z> >
+    {
+        static void Func
+        ( const DistMatrix<std::complex<Z>,MC,STAR>& parent,
+                DistMatrix<Z,MC,STAR>& d, int offset );
+        static void Func
+        ( const DistMatrix<std::complex<Z>,MC,STAR>& parent,
+                DistMatrix<Z,STAR,MC>& d, int offset );
+    };
+    template<typename Z> friend struct GetImagDiagonalHelper;
+    template<typename Z>
+    struct SetRealDiagonalHelper
+    {
+        static void Func
+        (       DistMatrix<Z,MC,STAR>& parent,
+          const DistMatrix<Z,MC,STAR>& d, int offset );
+        static void Func
+        (       DistMatrix<Z,MC,STAR>& parent,
+          const DistMatrix<Z,STAR,MC>& d, int offset );
+    };
+    template<typename Z>
+    struct SetRealDiagonalHelper<std::complex<Z> >
+    {
+        static void Func
+        (       DistMatrix<std::complex<Z>,MC,STAR>& parent,
+          const DistMatrix<Z,MC,STAR>& d, int offset );
+        static void Func
+        (       DistMatrix<std::complex<Z>,MC,STAR>& parent,
+          const DistMatrix<Z,STAR,MC>& d, int offset );
+    };
+    template<typename Z> friend struct SetRealDiagonalHelper;
+
+    template<typename Z>
+    struct SetImagDiagonalHelper
+    {
+        static void Func
+        (       DistMatrix<Z,MC,STAR>& parent,
+          const DistMatrix<Z,MC,STAR>& d, int offset );
+        static void Func
+        (       DistMatrix<Z,MC,STAR>& parent,
+          const DistMatrix<Z,STAR,MC>& d, int offset );
+    };
+    template<typename Z>
+    struct SetImagDiagonalHelper<std::complex<Z> >
+    {
+        static void Func
+        (       DistMatrix<std::complex<Z>,MC,STAR>& parent,
+          const DistMatrix<Z,MC,STAR>& d, int offset );
+        static void Func
+        (       DistMatrix<std::complex<Z>,MC,STAR>& parent,
+          const DistMatrix<Z,STAR,MC>& d, int offset );
+    };
+    template<typename Z> friend struct SetImagDiagonalHelper;
 };
 
 } // namespace elemental
@@ -645,6 +768,140 @@ inline void
 DistMatrix<T,MC,STAR>::AlignColsWith( const DistMatrix<S,STAR,VC>& A )
 { AlignWith( A ); }
 
+template<typename T>
+template<typename S>
+inline bool
+DistMatrix<T,MC,STAR>::AlignedWithDiag
+( const DistMatrix<S,MC,STAR>& A, int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::AlignedWithDiag([MC,* ])");
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const int r = g.Height();
+    const int colAlignment = A.ColAlignment();
+    bool aligned;
+
+    if( offset >= 0 )
+    {
+        const int ownerRow = colAlignment;
+        aligned = ( this->ColAlignment() == ownerRow );
+    }
+    else
+    {
+        const int ownerRow = (colAlignment-offset) % r;
+        aligned = ( this->ColAlignment() == ownerRow );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return aligned;
+}
+
+template<typename T>
+template<typename S>
+inline bool
+DistMatrix<T,MC,STAR>::AlignedWithDiag
+( const DistMatrix<S,STAR,MC>& A, int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::AlignedWithDiag([* ,MC])");
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const int r = g.Height();
+    const int rowAlignment = A.RowAlignment();
+    bool aligned;
+
+    if( offset >= 0 )
+    {
+        const int ownerRow = (rowAlignment + offset) % r;
+        aligned = ( this->ColAlignment() == ownerRow );
+    }
+    else
+    {
+        const int ownerRow = rowAlignment;
+        aligned = ( this->ColAlignment() == ownerRow );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return aligned;
+}
+
+template<typename T>
+template<typename S>
+inline void
+DistMatrix<T,MC,STAR>::AlignWithDiag
+( const DistMatrix<S,MC,STAR>& A, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::AlignWithDiag([MC,* ])");
+    this->AssertFreeColAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const int r = g.Height();
+    const int colAlignment = A.ColAlignment();
+
+    if( offset >= 0 )
+    {
+        const int ownerRow = colAlignment;
+        this->_colAlignment = ownerRow;
+    }
+    else 
+    {
+        const int ownerRow = (colAlignment-offset) % r;
+        this->_colAlignment = ownerRow;
+    }
+    if( g.InGrid() )
+        this->_colShift = Shift(g.MCRank(),this->_colAlignment,r);
+    this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+template<typename S>
+inline void
+DistMatrix<T,MC,STAR>::AlignWithDiag
+( const DistMatrix<S,STAR,MC>& A, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::AlignWithDiag([* ,MC])");
+    this->AssertFreeColAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const int r = g.Height();
+    const int rowAlignment = A.RowAlignment();
+
+    if( offset >= 0 )
+    {
+        const int ownerRow = (rowAlignment+offset) % r;
+        this->_colAlignment = ownerRow;
+    }
+    else
+    {
+        const int ownerRow = rowAlignment;
+        this->_colAlignment = ownerRow;
+    }
+    if( g.InGrid() )
+        this->_colShift = Shift(g.MCRank(),this->_colAlignment,r);
+    this->_constrainedColAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 //
 // The remainder of the file is for implementing the helpers
 //
@@ -763,7 +1020,150 @@ DistMatrix<T,MC,STAR>::UpdateImagHelper<Z>::Func
     throw std::logic_error("Called complex-only routine with real datatype");
 }
 
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::GetRealDiagonal
+( DistMatrix<typename RealBase<T>::type,MC,STAR>& d, int offset ) const
+{ GetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR>::GetRealDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MC,STAR>& parent, DistMatrix<Z,MC,STAR>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetRealDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::GetRealDiagonal
+( DistMatrix<typename RealBase<T>::type,STAR,MC>& d, int offset ) const
+{ GetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR>::GetRealDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MC,STAR>& parent, DistMatrix<Z,STAR,MC>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetRealDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::GetImagDiagonal
+( DistMatrix<typename RealBase<T>::type,MC,STAR>& d, int offset ) const
+{ GetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR>::GetImagDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MC,STAR>& parent, DistMatrix<Z,MC,STAR>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::GetImagDiagonal
+( DistMatrix<typename RealBase<T>::type,STAR,MC>& d, int offset ) const
+{ GetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR>::GetImagDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MC,STAR>& parent, DistMatrix<Z,STAR,MC>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::SetRealDiagonal
+( const DistMatrix<typename RealBase<T>::type,MC,STAR>& d, int offset )
+{ SetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR>::SetRealDiagonalHelper<Z>::Func
+( DistMatrix<Z,MC,STAR>& parent, const DistMatrix<Z,MC,STAR>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetRealDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::SetRealDiagonal
+( const DistMatrix<typename RealBase<T>::type,STAR,MC>& d, int offset )
+{ SetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR>::SetRealDiagonalHelper<Z>::Func
+( DistMatrix<Z,MC,STAR>& parent, const DistMatrix<Z,STAR,MC>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetRealDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::SetImagDiagonal
+( const DistMatrix<typename RealBase<T>::type,MC,STAR>& d, int offset )
+{ SetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR>::SetImagDiagonalHelper<Z>::Func
+( DistMatrix<Z,MC,STAR>& parent, const DistMatrix<Z,MC,STAR>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::SetImagDiagonal
+( const DistMatrix<typename RealBase<T>::type,STAR,MC>& d, int offset )
+{ SetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR>::SetImagDiagonalHelper<Z>::Func
+( DistMatrix<Z,MC,STAR>& parent, const DistMatrix<Z,STAR,MC>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
 } // elemental
 
 #endif /* ELEMENTAL_DIST_MATRIX_MC_STAR_HPP */
-

@@ -599,6 +599,31 @@ DistMatrix<T,MC,STAR>::Update( int i, int j, T u )
 #endif
 }
 
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::GetDiagonal
+( DistMatrix<T,MC,STAR>& d, int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetDiagonal");
+#endif
+    const int diagLength = this->DiagonalLength(offset);
+#ifndef RELEASE
+    if( d.Viewing() && diagLength != d.Height() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << diagLength << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( (d.Viewing() || d.ConstrainedColAlignment() ) &&
+        !d.AlignedWithDiag( *this, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+}
+
 //
 // Utility functions, e.g., SetToIdentity and MakeTrapezoidal
 //

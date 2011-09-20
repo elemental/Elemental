@@ -668,7 +668,6 @@ DistMatrix<T,MR,MC>::GetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetDiagonal([MD,* ])");
-    this->AssertNotLockedView();
 #endif
     const int height = this->Height();
     const int width = this->Width();
@@ -739,7 +738,6 @@ DistMatrix<T,MR,MC>::GetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetDiagonal([* ,MD])");
-    this->AssertNotLockedView();
 #endif
     const int height = this->Height();
     const int width = this->Width();

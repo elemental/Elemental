@@ -624,14 +624,14 @@ DistMatrix<T,MD,STAR>::AlignedWithDiag
 
     if( offset >= 0 )
     {
-        const int ownerRow = rowAlignment;
-        const int ownerCol = (colAlignment + offset) % c;
+        const int ownerCol = colAlignment;
+        const int ownerRow = (rowAlignment + offset) % r;
         aligned = ( this->ColAlignment() == ownerRow + r*ownerCol );
     }
     else
     {
-        const int ownerRow = (rowAlignment-offset) % r;
-        const int ownerCol = colAlignment;
+        const int ownerCol = (colAlignment-offset) % c;
+        const int ownerRow = rowAlignment;
         aligned = ( this->ColAlignment() == ownerRow + r*ownerCol );
     }
 #ifndef RELEASE
