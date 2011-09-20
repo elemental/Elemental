@@ -143,8 +143,8 @@ DistMatrix<T,VR,STAR>::View( DistMatrix<T,VR,STAR>& A )
     PushCallStack("[VR,* ]::View(A)");
     this->AssertFreeColAlignment();
     this->AssertNotStoringData();
-    this->AssertSameGrid( A );
 #endif
+    this->_grid = A._grid;
     this->_height = A.Height();
     this->_width = A.Width();
     this->_colAlignment = A.ColAlignment();
@@ -165,8 +165,8 @@ DistMatrix<T,VR,STAR>::LockedView( const DistMatrix<T,VR,STAR>& A )
     PushCallStack("[VR,* ]::LockedView(A)");
     this->AssertFreeColAlignment();
     this->AssertNotStoringData();
-    this->AssertSameGrid( A );
 #endif
+    this->_grid = A._grid;
     this->_height = A.Height();
     this->_width = A.Width();
     this->_colAlignment = A.ColAlignment();
@@ -188,9 +188,9 @@ DistMatrix<T,VR,STAR>::View
     PushCallStack("[VR,* ]::View(A,i,j,height,width)");
     this->AssertFreeColAlignment();
     this->AssertNotStoringData();
-    this->AssertSameGrid( A );
     this->AssertValidSubmatrix( A, i, j, height, width );
 #endif
+    this->_grid = A._grid;
     this->_height = height;
     this->_width = width;
     {
@@ -223,9 +223,9 @@ DistMatrix<T,VR,STAR>::LockedView
     PushCallStack("[VR,* ]::LockedView");
     this->AssertFreeColAlignment();
     this->AssertNotStoringData();
-    this->AssertSameGrid( A );
     this->AssertValidSubmatrix( A, i, j, height, width );
 #endif
+    this->_grid = A._grid;
     this->_height = height;
     this->_width = width;
     {
@@ -258,10 +258,10 @@ DistMatrix<T,VR,STAR>::View1x2
     PushCallStack("[VR,* ]::View1x2");
     this->AssertFreeColAlignment();
     this->AssertNotStoringData();
-    this->AssertSameGrid( AL );
-    this->AssertSameGrid( AR );
     this->AssertConforming1x2( AL, AR );
+    AL.AssertSameGrid( AR );
 #endif
+    this->_grid = AL._grid;
     this->_height = AL.Height();
     this->_width = AL.Width() + AR.Width();
     this->_colAlignment = AL.ColAlignment();
@@ -283,10 +283,10 @@ DistMatrix<T,VR,STAR>::LockedView1x2
     PushCallStack("[VR,* ]::LockedView1x2");
     this->AssertFreeColAlignment();
     this->AssertNotStoringData();
-    this->AssertSameGrid( AL );
-    this->AssertSameGrid( AR );
     this->AssertConforming1x2( AL, AR );
+    AL.AssertSameGrid( AR );
 #endif
+    this->_grid = AL._grid;
     this->_height = AL.Height();
     this->_width = AL.Width() + AR.Width();
     this->_colAlignment = AL.ColAlignment();
@@ -310,10 +310,10 @@ DistMatrix<T,VR,STAR>::View2x1
     PushCallStack("[VR,* ]::View2x1");
     this->AssertFreeColAlignment();
     this->AssertNotStoringData();
-    this->AssertSameGrid( AT );
-    this->AssertSameGrid( AB );
     this->AssertConforming2x1( AT, AB );
+    AT.AssertSameGrid( AB );
 #endif
+    this->_grid = AT._grid;
     this->_height = AT.Height() + AB.Height();
     this->_width = AT.Width();
     this->_colAlignment = AT.ColAlignment();
@@ -336,10 +336,10 @@ DistMatrix<T,VR,STAR>::LockedView2x1
     PushCallStack("[VR,* ]::LockedView2x1");
     this->AssertFreeColAlignment();
     this->AssertNotStoringData();
-    this->AssertSameGrid( AT );
-    this->AssertSameGrid( AB );
     this->AssertConforming2x1( AT, AB );
+    AT.AssertSameGrid( AB );
 #endif
+    this->_grid = AT._grid;
     this->_height = AT.Height() + AB.Height();
     this->_width = AT.Width();
     this->_colAlignment = AT.ColAlignment();
@@ -364,12 +364,12 @@ DistMatrix<T,VR,STAR>::View2x2
     PushCallStack("[VR,* ]::View2x2");
     this->AssertFreeColAlignment();
     this->AssertNotStoringData();
-    this->AssertSameGrid( ATL );
-    this->AssertSameGrid( ATR );
-    this->AssertSameGrid( ABL );
-    this->AssertSameGrid( ABR );
     this->AssertConforming2x2( ATL, ATR, ABL, ABR );
+    ATL.AssertSameGrid( ATR );
+    ATL.AssertSameGrid( ABL );
+    ATL.AssertSameGrid( ABR );
 #endif
+    this->_grid = ATL._grid;
     this->_height = ATL.Height() + ABL.Height();
     this->_width = ABL.Width() + ABR.Width();
     this->_colAlignment = ATL.ColAlignment();
@@ -394,12 +394,12 @@ DistMatrix<T,VR,STAR>::LockedView2x2
     PushCallStack("[VR,* ]::LockedView2x2");
     this->AssertFreeColAlignment();
     this->AssertNotStoringData();
-    this->AssertSameGrid( ATL );
-    this->AssertSameGrid( ATR );
-    this->AssertSameGrid( ABL );
-    this->AssertSameGrid( ABR );
     this->AssertConforming2x2( ATL, ATR, ABL, ABR );
+    ATL.AssertSameGrid( ATR );
+    ATL.AssertSameGrid( ABL );
+    ATL.AssertSameGrid( ABR );
 #endif
+    this->_grid = ATL._grid;
     this->_height = ATL.Height() + ABL.Height();
     this->_width = ABL.Width() + ABR.Width();
     this->_colAlignment = ATL.ColAlignment();
