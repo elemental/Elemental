@@ -139,6 +139,13 @@ Basic information
 
    Return the width of the matrix.
 
+.. cpp:function:: int Matrix<T>::DiagonalLength( int offset=0 ) const
+
+   Return the length of the specified diagonal of the matrix: an offset of 
+   :math:`0` refers to the main diagonal, an offset of :math:`1` refers to 
+   the superdiagonal, an offset of :math:`-1` refers to the subdiagonal, 
+   etc.
+
 .. cpp:function:: int Matrix<T>::LDim() const
 
    Return the leading dimension of the underlying buffer.

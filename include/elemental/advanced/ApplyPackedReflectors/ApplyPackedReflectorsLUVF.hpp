@@ -172,7 +172,7 @@ elemental::advanced::internal::ApplyPackedReflectorsLUVF
         throw std::logic_error
               ("Width of transforms must equal height of target matrix");
     if( t.Height() != H.DiagonalLength( offset ) )
-        throw std::logic_error("t must be the same length as H's 'offset' diag");
+        throw std::logic_error("t must be the same length as H's offset diag");
     if( !t.AlignedWithDiag( H, offset ) )
         throw std::logic_error("t must be aligned with H's 'offset' diagonal");
 #endif

@@ -658,7 +658,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
 #endif
     const int height = this->Height();
     const int width = this->Width();
-    const int diagLength = DiagonalLength(height,width,offset);
+    const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
     if( d.Viewing() && diagLength != d.Height() )
     {
@@ -735,7 +735,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
 #endif
     const int height = this->Height();
     const int width = this->Width();
-    const int diagLength = DiagonalLength(height,width,offset);
+    const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
     if( d.Viewing() && diagLength != d.Width() )
     {
@@ -814,7 +814,7 @@ DistMatrix<T,MC,MR>::SetDiagonal
     {
         const int height = this->Height();
         const int width = this->Width();
-        const int diagLength = DiagonalLength(height,width,offset);
+        const int diagLength = this->DiagonalLength(offset);
         if( diagLength != d.Height() )
         {
             std::ostringstream msg;
@@ -884,7 +884,7 @@ DistMatrix<T,MC,MR>::SetDiagonal
     {
         const int height = this->Height();
         const int width = this->Width();
-        const int diagLength = DiagonalLength(height,width,offset);
+        const int diagLength = this->DiagonalLength(offset);
         if( diagLength != d.Width() )
         {
             std::ostringstream msg;

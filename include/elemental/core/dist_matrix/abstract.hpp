@@ -92,6 +92,7 @@ public:
 
     int Height() const;
     int Width() const;
+    int DiagonalLength( int offset=0 ) const;
     int LocalHeight() const;
     int LocalWidth() const;
     int LocalLDim() const;
@@ -576,6 +577,11 @@ template<typename T>
 inline int
 AbstractDistMatrix<T>::Height() const
 { return _height; }
+
+template<typename T>
+inline int
+AbstractDistMatrix<T>::DiagonalLength( int offset ) const
+{ return elemental::DiagonalLength(_height,_width,offset); }
 
 template<typename T>
 inline int

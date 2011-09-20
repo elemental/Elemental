@@ -65,6 +65,7 @@ public:
 
     int Height() const;
     int Width() const;
+    int DiagonalLength( int offset=0 ) const;
     int LDim() const;
     int MemorySize() const;
 
@@ -414,6 +415,11 @@ Matrix<T>::Width() const
 
 template<typename T>
 inline int
+Matrix<T>::DiagonalLength( int offset ) const
+{ return elemental::DiagonalLength(_height,_width,offset); }
+
+template<typename T>
+inline int
 Matrix<T>::LDim() const
 { return _ldim; }
 
@@ -637,11 +643,10 @@ Matrix<T>::GetDiagonal( Matrix<T>& d, int offset ) const
     if( d.LockedView() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
-        (d.Height() != DiagonalLength(_height,_width,offset) || 
-         d.Width() != 1 ))
+        (d.Height() != DiagonalLength(offset) || d.Width() != 1 ))
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const int diagLength = DiagonalLength(_height,_width,offset);
+    const int diagLength = DiagonalLength(offset);
     if( !d.Viewing() )    
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
@@ -661,10 +666,10 @@ Matrix<T>::SetDiagonal( const Matrix<T>& d, int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetDiagonal");
-    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const int diagLength = DiagonalLength(_height,_width,offset);
+    const int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( int j=0; j<diagLength; ++j )
             Set( j, j+offset, d.Get(j,0) );
@@ -682,10 +687,10 @@ Matrix<T>::UpdateDiagonal( const Matrix<T>& d, int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateDiagonal");
-    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const int diagLength = DiagonalLength(_height,_width,offset);
+    const int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( int j=0; j<diagLength; ++j )
             Update( j, j+offset, d.Get(j,0) );
@@ -979,10 +984,10 @@ Matrix<T>::GetRealDiagonal
     if( d.LockedView() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
-        (d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1))
+        (d.Height() != DiagonalLength(offset) || d.Width() != 1))
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const int diagLength = DiagonalLength(_height,_width,offset);
+    const int diagLength = DiagonalLength(offset);
     if( !d.Viewing() )    
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
@@ -1006,10 +1011,10 @@ Matrix<T>::GetImagDiagonal
     if( d.LockedView() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
-        (d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1))
+        (d.Height() != DiagonalLength(offset) || d.Width() != 1))
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const int diagLength = DiagonalLength(_height,_width,offset);
+    const int diagLength = DiagonalLength(offset);
     if( !d.Viewing() )    
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
@@ -1030,10 +1035,10 @@ Matrix<T>::SetRealDiagonal
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetRealDiagonal");
-    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const int diagLength = DiagonalLength(_height,_width,offset);
+    const int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( int j=0; j<diagLength; ++j )
             SetReal( j, j+offset, d.Get(j,0) );
@@ -1052,10 +1057,10 @@ Matrix<T>::SetImagDiagonal
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetImagDiagonal");
-    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const int diagLength = DiagonalLength(_height,_width,offset);
+    const int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( int j=0; j<diagLength; ++j )
             SetImag( j, j+offset, d.Get(j,0) );
@@ -1074,10 +1079,10 @@ Matrix<T>::UpdateRealDiagonal
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateRealDiagonal");
-    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const int diagLength = DiagonalLength(_height,_width,offset);
+    const int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( int j=0; j<diagLength; ++j )
             UpdateReal( j, j+offset, d.Get(j,0) );
@@ -1096,10 +1101,10 @@ Matrix<T>::UpdateImagDiagonal
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateImagDiagonal");
-    if( d.Height() != DiagonalLength(_height,_width,offset) || d.Width() != 1 )
+    if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const int diagLength = DiagonalLength(_height,_width,offset);
+    const int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( int j=0; j<diagLength; ++j )
             UpdateImag( j, j+offset, d.Get(j,0) );

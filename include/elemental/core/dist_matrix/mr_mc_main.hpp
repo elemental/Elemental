@@ -614,7 +614,7 @@ DistMatrix<T,MR,MC>::GetDiagonal
 #endif
     const int height = this->Height();
     const int width = this->Width();
-    const int diagLength = DiagonalLength(height,width,offset);
+    const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
     if( d.Viewing() && diagLength != d.Height() )
         throw logic_error( "d is not of the correct length." );
@@ -685,7 +685,7 @@ DistMatrix<T,MR,MC>::GetDiagonal
 #endif
     const int height = this->Height();
     const int width = this->Width();
-    const int diagLength = DiagonalLength(height,width,offset);
+    const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
     if( d.Viewing() && diagLength != d.Width() )
         throw logic_error( "d is not of the correct length." );
@@ -758,7 +758,7 @@ DistMatrix<T,MR,MC>::SetDiagonal
     {
         const int height = this->Height();
         const int width = this->Width();
-        const int diagLength = DiagonalLength(height,width,offset);
+        const int diagLength = this->DiagonalLength(offset);
         if( diagLength != d.Height() )
         {
             ostringstream msg;
@@ -829,7 +829,7 @@ DistMatrix<T,MR,MC>::SetDiagonal
     {
         const int height = this->Height();
         const int width = this->Width();
-        const int diagLength = DiagonalLength(height,width,offset);
+        const int diagLength = this->DiagonalLength(offset);
         if( diagLength != d.Width() )
         {
             ostringstream msg;
