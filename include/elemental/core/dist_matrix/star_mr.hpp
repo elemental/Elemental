@@ -214,6 +214,15 @@ public:
     void View( DistMatrix<T,STAR,MR>& A );
     void LockedView( const DistMatrix<T,STAR,MR>& A );
 
+    // (Immutable) view of a distributed matrix's buffer
+    // Create a 0 x 0 distributed matrix using the default grid
+    void View
+    ( int height, int width, int rowAlignment,
+      T* buffer, int ldim, const elemental::Grid& grid );
+    void LockedView
+    ( int height, int width, int rowAlignment,
+      const T* buffer, int ldim, const elemental::Grid& grid );
+
     // (Immutable) view of a portion of a distributed matrix
     void View( DistMatrix<T,STAR,MR>& A, int i, int j, int height, int width );
     void LockedView

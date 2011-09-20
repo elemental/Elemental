@@ -204,6 +204,15 @@ public:
     void View( DistMatrix<T,MC,MR>& A );
     void LockedView( const DistMatrix<T,MC,MR>& A );
 
+    // (Immutable) view of a distributed matrix's buffer
+    // Create a 0 x 0 distributed matrix using the default grid
+    void View
+    ( int height, int width, int colAlignment, int rowAlignment,
+      T* buffer, int ldim, const elemental::Grid& grid );
+    void LockedView
+    ( int height, int width, int colAlignment, int rowAlignment,
+      const T* buffer, int ldim, const elemental::Grid& grid );      
+
     // (Immutable) view of a portion of a distributed matrix
     void View( DistMatrix<T,MC,MR>& A, int i, int j, int height, int width );
     void LockedView
@@ -487,39 +496,39 @@ namespace elemental {
 
 template<typename T>
 inline
-DistMatrix<T,MC,MR>::DistMatrix( const elemental::Grid& g )
+DistMatrix<T,MC,MR>::DistMatrix( const elemental::Grid& grid )
 : AbstractDistMatrix<T>
   (0,0,false,false,0,0,
-   (g.InGrid() ? g.MCRank() : 0), 
-   (g.InGrid() ? g.MRRank() : 0),
-    0,0,g)
+   (grid.InGrid() ? grid.MCRank() : 0), 
+   (grid.InGrid() ? grid.MRRank() : 0),
+    0,0,grid)
 { } 
 
 template<typename T>
 inline
 DistMatrix<T,MC,MR>::DistMatrix
-( int height, int width, const elemental::Grid& g )
+( int height, int width, const elemental::Grid& grid )
 : AbstractDistMatrix<T>
   (height,width,false,false,0,0,
-   (g.InGrid() ? g.MCRank() : 0),
-   (g.InGrid() ? g.MRRank() : 0),
-   (g.InGrid() ? LocalLength(height,g.MCRank(),0,g.Height()) : 0),
-   (g.InGrid() ? LocalLength(width,g.MRRank(),0,g.Width()) : 0),
-    g)
+   (grid.InGrid() ? grid.MCRank() : 0),
+   (grid.InGrid() ? grid.MRRank() : 0),
+   (grid.InGrid() ? LocalLength(height,grid.MCRank(),0,grid.Height()) : 0),
+   (grid.InGrid() ? LocalLength(width,grid.MRRank(),0,grid.Width()) : 0),
+    grid)
 { } 
 
 template<typename T>
 inline
 DistMatrix<T,MC,MR>::DistMatrix
 ( bool constrainedColAlignment, bool constrainedRowAlignment, 
-  int colAlignment, int rowAlignment, const elemental::Grid& g )
+  int colAlignment, int rowAlignment, const elemental::Grid& grid )
 : AbstractDistMatrix<T>
   (0,0,
    constrainedColAlignment,constrainedRowAlignment,
    colAlignment,rowAlignment,
-   (g.InGrid() ? Shift(g.MCRank(),colAlignment,g.Height()) : 0),
-   (g.InGrid() ? Shift(g.MRRank(),rowAlignment,g.Width()) : 0),
-   0,0,g)
+   (grid.InGrid() ? Shift(grid.MCRank(),colAlignment,grid.Height()) : 0),
+   (grid.InGrid() ? Shift(grid.MRRank(),rowAlignment,grid.Width()) : 0),
+   0,0,grid)
 { } 
 
 template<typename T>

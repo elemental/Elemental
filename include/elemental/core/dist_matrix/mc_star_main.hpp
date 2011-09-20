@@ -173,6 +173,34 @@ DistMatrix<T,MC,STAR>::View( DistMatrix<T,MC,STAR>& A )
 
 template<typename T>
 inline void
+DistMatrix<T,MC,STAR>::View
+( int height, int width, int colAlignment,
+  T* buffer, int ldim, const elemental::Grid& g )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::View");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+#endif
+    this->_grid = g;
+    this->_height = height;
+    this->_width = width;
+    this->_colAlignmnet = colAlignment;
+    this->_viewing = true;
+    this->_lockedView = false;
+    if( this->_grid.InGrid() )
+    {
+        this->_colShift = Shift(g.MCRank(),colAlignment,g.Height());
+        const int localHeight = LocalLength(height,this->_colShift,g.Height());
+        this->_localMatrix.View( localHeight, width, buffer, ldim );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 DistMatrix<T,MC,STAR>::LockedView( const DistMatrix<T,MC,STAR>& A )
 {
 #ifndef RELEASE
@@ -190,6 +218,34 @@ DistMatrix<T,MC,STAR>::LockedView( const DistMatrix<T,MC,STAR>& A )
     {
         this->_colShift = A.ColShift();
         this->_localMatrix.LockedView( A.LockedLocalMatrix() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::LockedView
+( int height, int width, int colAlignment,
+  const T* buffer, int ldim, const elemental::Grid& g )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::LockedView");
+    this->AssertFreeColAlignment();
+    this->AssertNotStoringData();
+#endif
+    this->_grid = g;
+    this->_height = height;
+    this->_width = width;
+    this->_colAlignmnet = colAlignment;
+    this->_viewing = true;
+    this->_lockedView = true; 
+    if( this->_grid.InGrid() )
+    {
+        this->_colShift = Shift(g.MCRank(),colAlignment,g.Height());
+        const int localHeight = LocalLength(height,this->_colShift,g.Height());
+        this->_localMatrix.LockedView( localHeight, width, buffer, ldim );
     }
 #ifndef RELEASE
     PopCallStack();

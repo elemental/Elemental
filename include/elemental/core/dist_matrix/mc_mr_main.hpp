@@ -224,6 +224,38 @@ DistMatrix<T,MC,MR>::View( DistMatrix<T,MC,MR>& A )
 
 template<typename T>
 inline void
+DistMatrix<T,MC,MR>::View
+( int height, int width, int colAlignment, int rowAlignment, 
+  T* buffer, int ldim, const elemental::Grid& g )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::View");
+    this->AssertFreeColAlignment();
+    this->AssertFreeRowAlignment();
+    this->AssertNotStoringData();
+#endif
+    this->_grid = g;
+    this->_height = height;
+    this->_width = width;
+    this->_colAlignmnet = colAlignment;
+    this->_rowAlignment = rowAlignment;
+    this->_viewing = true;
+    this->_lockedView = false;
+    if( this->_grid.InGrid() )
+    {
+        this->_colShift = Shift(g.MCRank(),colAlignment,g.Height());
+        this->_rowShift = Shift(g.MRRank(),rowAlignment,g.Width());
+        const int localHeight = LocalLength(height,this->_colShift,g.Height());
+        const int localWidth = LocalLength(width,this->_rowShift,g.Width());
+        this->_localMatrix.View( localHeight, localWidth, buffer, ldim );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 DistMatrix<T,MC,MR>::LockedView( const DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -244,6 +276,38 @@ DistMatrix<T,MC,MR>::LockedView( const DistMatrix<T,MC,MR>& A )
         this->_colShift = A.ColShift();
         this->_rowShift = A.RowShift();
         this->_localMatrix.LockedView( A.LockedLocalMatrix() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,MR>::LockedView
+( int height, int width, int colAlignment, int rowAlignment, 
+  const T* buffer, int ldim, const elemental::Grid& g )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::LockedView");
+    this->AssertFreeColAlignment();
+    this->AssertFreeRowAlignment();
+    this->AssertNotStoringData();
+#endif
+    this->_grid = g;
+    this->_height = height;
+    this->_width = width;
+    this->_colAlignmnet = colAlignment;
+    this->_rowAlignment = rowAlignment;
+    this->_viewing = true;
+    this->_lockedView = true;
+    if( this->_grid.InGrid() )
+    {
+        this->_colShift = Shift(g.MCRank(),colAlignment,g.Height());
+        this->_rowShift = Shift(g.MRRank(),rowAlignment,g.Width());
+        const int localHeight = LocalLength(height,this->_colShift,g.Height());
+        const int localWidth = LocalLength(width,this->_rowShift,g.Width());
+        this->_localMatrix.LockedView( localHeight, localWidth, buffer, ldim );
     }
 #ifndef RELEASE
     PopCallStack();

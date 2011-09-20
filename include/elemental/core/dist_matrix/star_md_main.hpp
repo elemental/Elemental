@@ -168,6 +168,39 @@ DistMatrix<T,STAR,MD>::View( DistMatrix<T,STAR,MD>& A )
 
 template<typename T>
 inline void
+DistMatrix<T,STAR,MD>::View
+( int height, int width, int rowAlignment,
+  T* buffer, int ldim, const elemental::Grid& grid )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MD]::View");
+    this->AssertFreeRowAlignment();
+    this->AssertNotStoringData();
+#endif
+    this->_grid = grid;
+    this->_height = height;
+    this->_width = width;
+    this->_rowAlignment = rowAlignment;
+    this->_inDiagonal = 
+        grid.InGrid() && grid.DiagPath()==grid.DiagPath(rowAlignment);
+    if( this->_inDiagonal )
+    {
+        this->_rowShift =
+            Shift(grid.DiagPathRank(),
+                  grid.DiagPathRank(rowAlignment),
+                  grid.LCM());
+        const int localWidth = LocalLength(width,this->_rowShift,grid.LCM());
+        this->_localMatrix.View( height, localWidth, buffer, ldim );
+    }
+    this->_viewing = true;
+    this->_lockedView = false;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 DistMatrix<T,STAR,MD>::LockedView( const DistMatrix<T,STAR,MD>& A )
 {
 #ifndef RELEASE
@@ -184,6 +217,39 @@ DistMatrix<T,STAR,MD>::LockedView( const DistMatrix<T,STAR,MD>& A )
     {
         this->_rowShift = A.RowShift();
         this->_localMatrix.LockedView( A.LockedLocalMatrix() );
+    }
+    this->_viewing = true;
+    this->_lockedView = true;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+DistMatrix<T,STAR,MD>::LockedView
+( int height, int width, int rowAlignment,
+  const T* buffer, int ldim, const elemental::Grid& grid )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MD]::LockedView");
+    this->AssertFreeRowAlignment();
+    this->AssertNotStoringData();
+#endif
+    this->_grid = grid;
+    this->_height = height;
+    this->_width = width;
+    this->_rowAlignment = rowAlignment;
+    this->_inDiagonal = 
+        grid.InGrid() && grid.DiagPath()==grid.DiagPath(rowAlignment);
+    if( this->_inDiagonal )
+    {
+        this->_rowShift =
+            Shift(grid.DiagPathRank(),
+                  grid.DiagPathRank(rowAlignment),
+                  grid.LCM());
+        const int localWidth = LocalLength(width,this->_rowShift,grid.LCM());
+        this->_localMatrix.LockedView( height, localWidth, buffer, ldim );
     }
     this->_viewing = true;
     this->_lockedView = true;

@@ -98,6 +98,28 @@ DistMatrix<T,STAR,STAR>::View( DistMatrix<T,STAR,STAR>& A )
 
 template<typename T>
 inline void
+DistMatrix<T,STAR,STAR>::View
+( int height, int width, 
+  T* buffer, int ldim, const elemental::Grid& grid )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,* ]::View");
+    this->AssertNotStoringData();
+#endif
+    this->_grid = grid;
+    this->_height = height;
+    this->_width = width;
+    this->_viewing = true;
+    this->_lockedView = false;
+    if( this->Grid().InGrid() )
+        this->_localMatrix.View( height, width, buffer, ldim );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 DistMatrix<T,STAR,STAR>::LockedView
 ( const DistMatrix<T,STAR,STAR>& A )
 {
@@ -112,6 +134,28 @@ DistMatrix<T,STAR,STAR>::LockedView
     this->_lockedView = true;
     if( this->Grid().InGrid() )
         this->_localMatrix.LockedView( A.LockedLocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+DistMatrix<T,STAR,STAR>::LockedView
+( int height, int width, 
+  const T* buffer, int ldim, const elemental::Grid& grid )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,* ]::LockedView");
+    this->AssertNotStoringData();
+#endif
+    this->_grid = grid;
+    this->_height = height;
+    this->_width = width;
+    this->_viewing = true;
+    this->_lockedView = true;
+    if( this->Grid().InGrid() )
+        this->_localMatrix.LockedView( height, width, buffer, ldim );
 #ifndef RELEASE
     PopCallStack();
 #endif

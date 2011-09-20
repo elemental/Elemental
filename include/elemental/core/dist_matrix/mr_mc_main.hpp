@@ -206,6 +206,35 @@ DistMatrix<T,MR,MC>::View( DistMatrix<T,MR,MC>& A )
 
 template<typename T>
 inline void
+DistMatrix<T,MR,MC>::View
+( int height, int width, int colAlignment, int rowAlignment,
+  T* buffer, int ldim, const elemental::Grid& grid )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::View");
+    this->AssertFreeColAlignment();
+    this->AssertFreeRowAlignment();
+    this->AssertNotStoringData();
+#endif
+    this->_grid = grid;
+    this->_height = height;
+    this->_width = width;
+    this->_colAlignment = colAlignment;
+    this->_rowAlignment = rowAlignment;
+    this->_colShift = Shift(grid.MRRank(),colAlignment,grid.Width());
+    this->_rowShift = Shift(grid.MCRank(),rowAlignment,grid.Height());
+    const int localHeight = LocalLength(height,this->_colShift,grid.Width());
+    const int localWidth = LocalLength(width,this->_rowShift,grid.Height());
+    this->_localMatrix.View( localHeight, localWidth, buffer, ldim );
+    this->_viewing = true;
+    this->_lockedView = false;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 DistMatrix<T,MR,MC>::LockedView( const DistMatrix<T,MR,MC>& A )
 {
 #ifndef RELEASE
@@ -222,6 +251,35 @@ DistMatrix<T,MR,MC>::LockedView( const DistMatrix<T,MR,MC>& A )
     this->_colShift     = A.ColShift();
     this->_rowShift     = A.RowShift();
     this->_localMatrix.LockedView( A.LockedLocalMatrix() );
+    this->_viewing = true;
+    this->_lockedView = true;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MR,MC>::LockedView
+( int height, int width, int colAlignment, int rowAlignment,
+  const T* buffer, int ldim, const elemental::Grid& grid )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::LockedView");
+    this->AssertFreeColAlignment();
+    this->AssertFreeRowAlignment();
+    this->AssertNotStoringData();
+#endif
+    this->_grid = grid;
+    this->_height = height;
+    this->_width = width;
+    this->_colAlignment = colAlignment;
+    this->_rowAlignment = rowAlignment;
+    this->_colShift = Shift(grid.MRRank(),colAlignment,grid.Width());
+    this->_rowShift = Shift(grid.MCRank(),rowAlignment,grid.Height());
+    const int localHeight = LocalLength(height,this->_colShift,grid.Width());
+    const int localWidth = LocalLength(width,this->_rowShift,grid.Height());
+    this->_localMatrix.LockedView( localHeight, localWidth, buffer, ldim );
     this->_viewing = true;
     this->_lockedView = true;
 #ifndef RELEASE
