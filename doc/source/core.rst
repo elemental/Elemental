@@ -290,9 +290,17 @@ Views
 
    Return whether or not we can modify the data we are viewing.
 
+.. cpp:function:: void Matrix<T>::View( int height, int width, T* buffer, int ldim )
+
+   Reconfigure the matrix around the specified buffer.
+
 .. cpp:function:: void Matrix<T>::View( Matrix<T>& A )
 
    Reconfigure the matrix around the modifiable buffer underlying ``A``.
+
+.. cpp:function:: void Matrix<T>::LockedView( int height, int width, const T* buffer, int ldim )
+
+   Reconfigure the matrix around the specified unmodifiable buffer.
 
 .. cpp:function:: void Matrix<T>::LockedView( const Matrix<T>& A )
 

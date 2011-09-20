@@ -118,12 +118,13 @@ public:
     ( const Matrix<typename RealBase<T>::type>& d, int offset=0 );
 
     //
-    // Viewing other matrix instances
+    // Viewing other matrix instances (or buffers)
     //
 
     bool Viewing() const;
     bool LockedView() const;
 
+    void View( int height, int width, T* buffer, int ldim );
     void View( Matrix<T>& A);
     void View( Matrix<T>& A, int i, int j, int height, int width );
     void View1x2( Matrix<T>& AL, Matrix<T>& AR );
@@ -132,6 +133,7 @@ public:
     void View2x2( Matrix<T>& ATL, Matrix<T>& ATR,
                   Matrix<T>& ABL, Matrix<T>& ABR );
 
+    void LockedView( int height, int width, const T* buffer, int ldim );
     void LockedView( const Matrix<T>& A );
     void LockedView
     ( const Matrix<T>& A, int i, int j, int height, int width );
@@ -1125,6 +1127,26 @@ Matrix<T>::LockedView() const
 
 template<typename T>
 inline void
+Matrix<T>::View( int height, int width, T* buffer, int ldim )
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::View(buffer)");
+    if( _memory.Size() > 0 )
+        throw std::logic_error("Viewing with Matrix after allocating memory");
+#endif
+    _height = height;
+    _width = width;
+    _ldim = ldim;
+    _data = buffer;
+    _viewing = true;
+    _lockedView = false;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 Matrix<T>::View( Matrix<T>& A )
 {
 #ifndef RELEASE
@@ -1138,6 +1160,26 @@ Matrix<T>::View( Matrix<T>& A )
     _data   = A.Buffer();
     _viewing = true;
     _lockedView = false;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Matrix<T>::LockedView( int height, int width, const T* buffer, int ldim )
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::LockedView(buffer)");
+    if( _memory.Size() > 0 )
+        throw std::logic_error("Viewing with Matrix after allocating memory");
+#endif
+    _height = height;
+    _width = width;
+    _ldim = ldim;
+    _lockedData = buffer;
+    _viewing = true;
+    _lockedView = true;
 #ifndef RELEASE
     PopCallStack();
 #endif

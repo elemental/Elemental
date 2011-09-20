@@ -414,9 +414,21 @@ bool <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Locked
 </dd></dl>
 
 <dl class="function">
+<dt id="Matrix:T:::View__i.i.TP.i">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">View</tt><big>(</big>int <em>height</em>, int <em>width</em>, T* <em>buffer</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::View__i.i.TP.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconfigure the matrix around the specified buffer.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="Matrix:T:::View__Matrix:T:R">
 void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">View</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Matrix:T:::View__Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix around the modifiable buffer underlying <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Matrix:T:::LockedView__i.i.TCP.i">
+void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedView</tt><big>(</big>int <em>height</em>, int <em>width</em>, const T* <em>buffer</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView__i.i.TCP.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconfigure the matrix around the specified unmodifiable buffer.</p>
 </dd></dl>
 
 <dl class="function">
