@@ -106,7 +106,7 @@ DistMatrix<T,STAR,STAR>::View
     PushCallStack("[* ,* ]::View");
     this->AssertNotStoringData();
 #endif
-    this->_grid = grid;
+    this->_grid = &grid;
     this->_height = height;
     this->_width = width;
     this->_viewing = true;
@@ -149,7 +149,7 @@ DistMatrix<T,STAR,STAR>::LockedView
     PushCallStack("[* ,* ]::LockedView");
     this->AssertNotStoringData();
 #endif
-    this->_grid = grid;
+    this->_grid = &grid;
     this->_height = height;
     this->_width = width;
     this->_viewing = true;

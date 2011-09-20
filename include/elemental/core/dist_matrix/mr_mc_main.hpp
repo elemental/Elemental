@@ -216,7 +216,7 @@ DistMatrix<T,MR,MC>::View
     this->AssertFreeRowAlignment();
     this->AssertNotStoringData();
 #endif
-    this->_grid = grid;
+    this->_grid = &grid;
     this->_height = height;
     this->_width = width;
     this->_colAlignment = colAlignment;
@@ -270,7 +270,7 @@ DistMatrix<T,MR,MC>::LockedView
     this->AssertFreeRowAlignment();
     this->AssertNotStoringData();
 #endif
-    this->_grid = grid;
+    this->_grid = &grid;
     this->_height = height;
     this->_width = width;
     this->_colAlignment = colAlignment;
