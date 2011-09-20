@@ -622,6 +622,120 @@ DistMatrix<T,MC,STAR>::GetDiagonal
         !d.AlignedWithDiag( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
+    if( !d.Viewing() )
+    {
+        if( !d.ConstrainedColAlignment() )
+            d.AlignWithDiag( *this, offset );
+        d.ResizeTo( diagLength, 1 );
+    }
+
+    const elemental::Grid& g = this->Grid();
+    if( g.InGrid() )
+    {
+        const int r = g.Height();
+        const int colShift = this->ColShift();
+        const int diagShift = d.ColShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift) / r;
+        const int localDiagLength = d.LocalHeight();
+        T* dLocalBuffer = d.LocalBuffer();
+        const T* thisLocalBuffer = this->LockedLocalBuffer();
+        const int thisLDim = this->LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k;
+            dLocalBuffer[k] = thisLocalBuffer[iLocal+jLocal*thisLDim];
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::GetDiagonal
+( DistMatrix<T,STAR,MC>& d, int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetDiagonal");
+#endif
+    const int diagLength = this->DiagonalLength(offset);
+#ifndef RELEASE
+    if( d.Viewing() && diagLength != d.Width() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << diagLength << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
+        !d.AlignedWithDiag( *this, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    if( !d.Viewing() )
+    {
+        if( !d.ConstrainedRowAlignment() )
+            d.AlignWithDiag( *this, offset );
+        d.ResizeTo( 1, diagLength );
+    }
+
+    const elemental::Grid& g = this->Grid();
+    if( g.InGrid() )
+    {
+        const int r = g.Height();
+        const int colShift = this->ColShift();
+        const int diagShift = d.RowShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift) / r;
+        const int localDiagLength = d.LocalWidth();
+        T* dLocalBuffer = d.LocalBuffer();
+        const int dLDim = d.LocalLDim();
+        const T* thisLocalBuffer = this->LockedLocalBuffer();
+        const int thisLDim = this->LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k;
+            dLocalBuffer[k*dLDim] = thisLocalBuffer[iLocal+jLocal*thisLDim];
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
 }
 
 //

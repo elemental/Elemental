@@ -718,6 +718,8 @@ DistMatrix<T,MC,MR>::GetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetDiagonal");
+    if( d.Viewing() )
+        this->AssertSameGrid( d );
 #endif
     const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
@@ -734,8 +736,10 @@ DistMatrix<T,MC,MR>::GetDiagonal
         !d.AlignedWithDiag( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
+    const elemental::Grid& g = this->Grid();
     if( !d.Viewing() )
     {
+        d.SetGrid( g );
         if( !d.ConstrainedColAlignment() )
             d.AlignWithDiag( *this, offset );
         d.ResizeTo( diagLength, 1 );
@@ -743,7 +747,6 @@ DistMatrix<T,MC,MR>::GetDiagonal
 
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -768,7 +771,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
 
         const int localDiagLength = d.LocalHeight();
         T* dLocalBuffer = d.LocalBuffer();
-        const T* thisLocalBuffer = this->LockedLocalBuffer(0,0);
+        const T* thisLocalBuffer = this->LockedLocalBuffer();
         const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
@@ -792,6 +795,8 @@ DistMatrix<T,MC,MR>::GetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetDiagonal");
+    if( d.Viewing() )
+        this->AssertSameGrid( d );
 #endif
     const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
@@ -808,8 +813,10 @@ DistMatrix<T,MC,MR>::GetDiagonal
         !d.AlignedWithDiag( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
+    const elemental::Grid& g = this->Grid();
     if( !d.Viewing() )
     {
+        d.SetGrid( g );
         if( !d.ConstrainedRowAlignment() )
             d.AlignWithDiag( *this, offset );
         d.ResizeTo( 1, diagLength );
@@ -817,7 +824,6 @@ DistMatrix<T,MC,MR>::GetDiagonal
 
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -867,6 +873,7 @@ DistMatrix<T,MC,MR>::SetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetDiagonal");
+    this->AssertSameGrid( d );
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
     {
@@ -935,6 +942,7 @@ DistMatrix<T,MC,MR>::SetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetDiagonal");
+    this->AssertSameGrid( d );
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
     {

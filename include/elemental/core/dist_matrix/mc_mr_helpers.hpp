@@ -366,20 +366,10 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetRealDiagonal");
+    if( d.Viewing() )
+        parent.AssertSameGrid( d );
 #endif
-    int width = parent.Width();
-    int height = parent.Height();
-    int length;
-    if( offset > 0 )
-    {
-        const int remainingWidth = max(width-offset,0);
-        length = min(height,remainingWidth);
-    }
-    else
-    {
-        const int remainingHeight = max(height+offset,0);
-        length = min(remainingHeight,width);
-    }
+    const int length = parent.DiagonalLength(offset);
 #ifndef RELEASE
     if( d.Viewing() && length != d.Height() )
     {
@@ -392,8 +382,10 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
     }
 #endif
 
+    const elemental::Grid& g = parent.Grid();
     if( !d.Viewing() )
     {
+        d.SetGrid( g );
         if( !d.ConstrainedColAlignment() )
             d.AlignWithDiag( parent, offset );
         d.ResizeTo( length, 1 );
@@ -401,7 +393,6 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
 
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = parent.Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -453,6 +444,8 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetImagDiagonal");
+    if( d.Viewing() )
+        parent.AssertSameGrid( d );
 #endif
     int width = parent.Width();
     int height = parent.Height();
@@ -479,8 +472,10 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
     }
 #endif
 
+    const elemental::Grid& g = parent.Grid();
     if( !d.Viewing() )
     {
+        d.SetGrid( g );
         if( !d.ConstrainedColAlignment() )
             d.AlignWithDiag( parent, offset );
         d.ResizeTo( length, 1 );
@@ -488,7 +483,6 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
 
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = parent.Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -540,6 +534,8 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetRealDiagonal");
+    if( d.Viewing() )
+        parent.AssertSameGrid( d );
 #endif
     int height = parent.Height();
     int width = parent.Width();
@@ -566,8 +562,10 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
     }
 #endif
 
+    const elemental::Grid& g = parent.Grid();
     if( !d.Viewing() )
     {
+        d.SetGrid( g );
         if( !d.ConstrainedRowAlignment() )
             d.AlignWithDiag( parent, offset );
         d.ResizeTo( 1, length );
@@ -575,7 +573,6 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
 
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = parent.Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -629,6 +626,8 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetImagDiagonal");
+    if( d.Viewing() )
+        parent.AssertSameGrid( d );
 #endif
     int height = parent.Height();
     int width = parent.Width();
@@ -655,8 +654,10 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
     }
 #endif
 
+    const elemental::Grid& g = parent.Grid();
     if( !d.Viewing() )
     {
+        d.SetGrid( g );
         if( !d.ConstrainedRowAlignment() )
             d.AlignWithDiag( parent, offset );
         d.ResizeTo( 1, length );
@@ -664,7 +665,6 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
 
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = parent.Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -718,6 +718,7 @@ DistMatrix<T,MC,MR>::SetRealDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetRealDiagonal");
+    parent.AssertSameGrid( d );
     if( d.Width() != 1 )
         throw logic_error( "d must be a column vector." );
     {
@@ -801,6 +802,7 @@ DistMatrix<T,MC,MR>::SetImagDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImagDiagonal");
+    parent.AssertSameGrid( d );
     if( d.Width() != 1 )
         throw logic_error( "d must be a column vector." );
     {
@@ -884,6 +886,7 @@ DistMatrix<T,MC,MR>::SetRealDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetRealDiagonal");
+    parent.AssertSameGrid( d );
     if( d.Height() != 1 )
         throw logic_error( "d must be a row vector." );
     {
@@ -969,6 +972,7 @@ DistMatrix<T,MC,MR>::SetImagDiagonalHelper<complex<Z> >::Func
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImagDiagonal");
+    parent.AssertSameGrid( d );
     if( d.Height() != 1 )
         throw logic_error( "d must be a row vector." );
     {
