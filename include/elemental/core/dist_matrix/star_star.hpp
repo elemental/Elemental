@@ -43,10 +43,10 @@ class DistMatrix<T,STAR,STAR> : public AbstractDistMatrix<T>
 {
 public:
     // Create a 0 x 0 distributed matrix
-    DistMatrix( const elemental::Grid& g );
+    DistMatrix( const elemental::Grid& g=DefaultGrid() );
 
     // Create a height x width distributed matrix
-    DistMatrix( int height, int width, const elemental::Grid& g );
+    DistMatrix( int height, int width, const elemental::Grid& g=DefaultGrid() );
 
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension

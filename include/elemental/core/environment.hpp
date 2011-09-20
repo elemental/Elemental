@@ -90,6 +90,8 @@ void SetBlocksize( int blocksize );
 void PushBlocksizeStack( int blocksize );
 void PopBlocksizeStack();
 
+const Grid& DefaultGrid();
+
 template<typename Z>
 Z Abs( Z alpha );
 

@@ -40,6 +40,7 @@ using namespace elemental;
 namespace {
 bool elementalInitializedMpi;
 std::stack<int> blocksizeStack;
+Grid* defaultGrid = 0;
 }
 
 void
@@ -72,10 +73,15 @@ elemental::Init
         ::elementalInitializedMpi = false;
     }
 
+    // Queue a default algorithmic blocksize
     while( ! ::blocksizeStack.empty() )
         ::blocksizeStack.pop();
     ::blocksizeStack.push( 128 );
 
+    // Build the default grid
+    defaultGrid = new Grid( mpi::COMM_WORLD );
+
+    // Build the pivot operations needed by the distributed LU
     advanced::internal::CreatePivotOp<float>();
     advanced::internal::CreatePivotOp<double>();
 #ifndef WITHOUT_COMPLEX
@@ -83,7 +89,7 @@ elemental::Init
     advanced::internal::CreatePivotOp<dcomplex>();
 #endif
 
-    // Seed the parallel LCG
+    // Seed the parallel random number generator, PLCG
     plcg::UInt64 seed;
     seed.d[0] = time(0);
     seed.d[1] = time(0);
@@ -105,12 +111,18 @@ elemental::Finalize()
                   << std::endl;
     else if( ::elementalInitializedMpi )
     {
+        // Destroy the pivot ops needed by the distributed LU
         advanced::internal::DestroyPivotOp<float>();
         advanced::internal::DestroyPivotOp<double>();
 #ifndef WITHOUT_COMPLEX
         advanced::internal::DestroyPivotOp<scomplex>();
         advanced::internal::DestroyPivotOp<dcomplex>();
 #endif
+
+        // Delete the default grid
+        delete ::defaultGrid;
+        ::defaultGrid = 0;
+
         mpi::Finalize();
     }
 #ifndef RELEASE
@@ -133,6 +145,20 @@ elemental::PushBlocksizeStack( int blocksize )
 void
 elemental::PopBlocksizeStack()
 { ::blocksizeStack.pop(); }
+
+const Grid&
+elemental::DefaultGrid()
+{
+#ifndef RELEASE
+    PushCallStack("DefaultGrid");
+    if( ::defaultGrid == 0 )
+        throw std::logic_error
+        ("Attempted to return a non-existant default grid. Please ensure that "
+         "Elemental is initialized before creating a DistMatrix.");
+    PopCallStack();
+#endif
+    return *::defaultGrid;
+}
 
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
 #ifndef RELEASE

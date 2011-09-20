@@ -46,10 +46,10 @@ class DistMatrix<T,MC,STAR> : public AbstractDistMatrix<T>
 {
 public:
     // Create a 0 x 0 distributed matrix
-    DistMatrix( const elemental::Grid& g );
+    DistMatrix( const elemental::Grid& g=DefaultGrid() );
 
     // Create a height x width distributed matrix
-    DistMatrix( int height, int width, const elemental::Grid& g );
+    DistMatrix( int height, int width, const elemental::Grid& g=DefaultGrid() );
 
     // Create a 0 x 0 distributed matrix with specified alignments
     DistMatrix
@@ -357,7 +357,7 @@ inline
 DistMatrix<T,MC,STAR>::DistMatrix( const elemental::Grid& g )
 : AbstractDistMatrix<T>
   (0,0,false,false,0,0,
-   (g.InGrid() ? g.MCRank() : 0 ),0,
+   (g.InGrid() ? g.MCRank() : 0),0,
    0,0,g)
 { }
 

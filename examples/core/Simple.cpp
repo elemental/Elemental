@@ -40,8 +40,8 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
     const int commSize = mpi::CommSize( comm );
-
     const int n = 8;
+
     try
     {
         if( commRank == 0 )
@@ -52,11 +52,9 @@ main( int argc, char* argv[] )
             else
                 std::cout << " process.\n" << std::endl;
         }
-        const Grid grid( comm );
-        DistMatrix<double,MC,MR> I( n, n, grid );
+        DistMatrix<double,MC,MR> I( n, n );
         I.SetToIdentity();
         I.Print("Identity");
-        I.Write( "identity.txt", "Identity" );
     }
     catch( std::exception& e )
     {
