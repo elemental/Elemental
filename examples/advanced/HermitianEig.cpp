@@ -41,9 +41,9 @@ typedef complex<R> C;
 int
 main( int argc, char* argv[] )
 {
-    // Initialize Elemental. The full routine is elemental::Init.
-    // It detects whether or not you have already initialized MPI.
-    Init( argc, argv );
+    // This detects whether or not you have already initialized MPI and 
+    // does so if necessary. The full routine is elemental::Initialize.
+    Initialize( argc, argv );
 
     // Extract our MPI rank
     mpi::Comm comm = mpi::COMM_WORLD;

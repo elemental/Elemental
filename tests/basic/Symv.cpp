@@ -105,7 +105,7 @@ void TestSymv
 int 
 main( int argc, char* argv[] )
 {
-    Init( argc, argv );
+    Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int rank = mpi::CommRank( comm );
 

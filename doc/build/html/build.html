@@ -221,7 +221,7 @@ distributed matrix, sets it to the identity matrix, then prints it:</p>
 <span class="kt">int</span>
 <span class="n">main</span><span class="p">(</span> <span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[]</span> <span class="p">)</span>
 <span class="p">{</span>
-    <span class="n">Init</span><span class="p">(</span> <span class="n">argc</span><span class="p">,</span> <span class="n">argv</span> <span class="p">);</span>
+    <span class="n">Initialize</span><span class="p">(</span> <span class="n">argc</span><span class="p">,</span> <span class="n">argv</span> <span class="p">);</span>
     <span class="n">mpi</span><span class="o">::</span><span class="n">Comm</span> <span class="n">comm</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">::</span><span class="n">COMM_WORLD</span><span class="p">;</span>
     <span class="k">const</span> <span class="kt">int</span> <span class="n">commRank</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">::</span><span class="n">CommRank</span><span class="p">(</span> <span class="n">comm</span> <span class="p">);</span>
     <span class="k">const</span> <span class="kt">int</span> <span class="n">commSize</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">::</span><span class="n">CommSize</span><span class="p">(</span> <span class="n">comm</span> <span class="p">);</span>

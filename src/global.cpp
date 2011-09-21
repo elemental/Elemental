@@ -33,20 +33,27 @@
 #include "elemental.hpp"
 using namespace elemental;
 
-
 //----------------------------------------------------------------------------//
 // Variables for core routines                                                //
 //----------------------------------------------------------------------------//
 namespace {
+bool initializedElemental = false;
 bool elementalInitializedMpi;
 std::stack<int> blocksizeStack;
 Grid* defaultGrid = 0;
 }
 
+bool
+elemental::Initialized()
+{ return ::initializedElemental; }
+
 void
-elemental::Init
-( int& argc, char**& argv )
+elemental::Initialize( int& argc, char**& argv )
 {
+    // If Elemental is currently initialized, then this is a no-op
+    if( ::initializedElemental )
+        return;
+
     if( !mpi::Initialized() )
     {
         if( mpi::Finalized() )
@@ -98,6 +105,8 @@ elemental::Init
     mpi::Broadcast
     ( (byte*)seed.d, 2*sizeof(unsigned), 0, mpi::COMM_WORLD );
     plcg::SeedParallelLcg( rank, size, seed );
+
+    ::initializedElemental = true;
 }
 
 void
@@ -106,9 +115,15 @@ elemental::Finalize()
 #ifndef RELEASE
     PushCallStack("Finalize");
 #endif
+    // If Elemental is not currently initialized, then this is a no-op
+    if( !::initializedElemental )
+        return;
+
     if( mpi::Finalized() )
+    {
         std::cerr << "Warning: MPI was finalized before Elemental." 
                   << std::endl;
+    }
     else if( ::elementalInitializedMpi )
     {
         // Destroy the pivot ops needed by the distributed LU
@@ -125,6 +140,12 @@ elemental::Finalize()
 
         mpi::Finalize();
     }
+
+    delete ::defaultGrid;
+    ::defaultGrid = 0;
+    while( ! ::blocksizeStack.empty() )
+        ::blocksizeStack.pop();
+    ::initializedElemental = false;
 #ifndef RELEASE
     PopCallStack();
 #endif

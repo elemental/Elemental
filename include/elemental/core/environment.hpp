@@ -80,8 +80,11 @@ void DumpCallStack();
 
 namespace elemental {
 
-void Init( int& argc, char**& argv );
+void Initialize( int& argc, char**& argv );
 void Finalize();
+bool Initialized();
+// Elemental can be finalized more than once, so there is no need
+// to query for whether or not it has been finalized already.
 
 // Naive blocksize set and get
 int Blocksize();

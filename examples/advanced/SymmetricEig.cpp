@@ -40,9 +40,10 @@ typedef double R;
 int
 main( int argc, char* argv[] )
 {
-    // Initialize Elemental. The full routine is elemental::Init.
-    // It detects whether or not you have already initialized MPI.
-    Init( argc, argv );
+    // Initialize Elemental. The full routine is elemental::Initialize.
+    // It detects whether or not you have already initialized MPI and 
+    // does so if necessary.
+    Initialize( argc, argv );
 
     // Extract our MPI rank
     mpi::Comm comm = mpi::COMM_WORLD;

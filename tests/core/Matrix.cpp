@@ -77,7 +77,7 @@ void TestMatrix( int m, int n, int ldim )
 int 
 main( int argc, char* argv[] )
 {
-    Init( argc, argv );
+    Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     int rank = mpi::CommRank( comm );
 
