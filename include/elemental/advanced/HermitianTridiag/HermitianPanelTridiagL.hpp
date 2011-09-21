@@ -65,7 +65,7 @@ elemental::advanced::internal::HermitianPanelTridiagL
 
     // Create a distributed matrix for storing the subdiagonal
     DistMatrix<R,MD,STAR> e(g);
-    e.AlignWithDiag( A, -1 );
+    e.AlignWithDiagonal( A, -1 );
     e.ResizeTo( panelSize, 1 );
 
     // Matrix views 
@@ -814,7 +814,7 @@ elemental::advanced::internal::HermitianPanelTridiagL
     if( t.Height() != W.Width() || t.Width() != 1 )
         throw std::logic_error
         ("t must be a column vector of the same length as W's width");
-    if( !t.AlignedWithDiag(A,-1) )
+    if( !t.AlignedWithDiagonal(A,-1) )
         throw std::logic_error("t is not aligned with A's subdiagonal.");
 #endif
     typedef std::complex<R> C;
@@ -826,7 +826,7 @@ elemental::advanced::internal::HermitianPanelTridiagL
 
     // Create a distributed matrix for storing the subdiagonal
     DistMatrix<R,MD,STAR> e(g);
-    e.AlignWithDiag( A, -1 );
+    e.AlignWithDiagonal( A, -1 );
     e.ResizeTo( panelSize, 1 );
 
     // Matrix views 

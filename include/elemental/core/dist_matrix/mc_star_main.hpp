@@ -606,30 +606,33 @@ DistMatrix<T,MC,STAR>::GetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetDiagonal");
+    if( d.Viewing() )
+        this->AssertSameGrid( d );
 #endif
     const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
-    if( d.Viewing() && diagLength != d.Height() )
+    if( d.Viewing() && (diagLength != d.Height() || d.Width() != 1) )
     {
         std::ostringstream msg;
-        msg << "d is not of the same length as the diagonal:\n"
+        msg << "d is not a column vec of the same length as the diagonal:\n"
             << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
             << "  A diag length: " << diagLength << "\n";
         throw std::logic_error( msg.str().c_str() );
     }
     if( (d.Viewing() || d.ConstrainedColAlignment() ) &&
-        !d.AlignedWithDiag( *this, offset ) )
+        !d.AlignedWithDiagonal( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
+    const elemental::Grid& g = this->Grid();
     if( !d.Viewing() )
     {
+        d.SetGrid( g );
         if( !d.ConstrainedColAlignment() )
-            d.AlignWithDiag( *this, offset );
+            d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( diagLength, 1 );
     }
 
-    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int r = g.Height();
@@ -659,7 +662,7 @@ DistMatrix<T,MC,STAR>::GetDiagonal
         for( int k=0; k<localDiagLength; ++k )
         {
             const int iLocal = iLocalStart+k;
-            const int jLocal = jStart+k;
+            const int jLocal = jStart+k*r;
             dLocalBuffer[k] = thisLocalBuffer[iLocal+jLocal*thisLDim];
         }
     }
@@ -675,30 +678,33 @@ DistMatrix<T,MC,STAR>::GetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetDiagonal");
+    if( d.Viewing() )
+        this->AssertSameGrid( d );
 #endif
     const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
-    if( d.Viewing() && diagLength != d.Width() )
+    if( d.Viewing() && (diagLength != d.Width() || d.Height() != 1) )
     {
         std::ostringstream msg;
-        msg << "d is not of the same length as the diagonal:\n"
+        msg << "d is not a row vec of the same length as the diagonal:\n"
             << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
             << "  A diag length: " << diagLength << "\n";
         throw std::logic_error( msg.str().c_str() );
     }
     if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
-        !d.AlignedWithDiag( *this, offset ) )
+        !d.AlignedWithDiagonal( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
+    const elemental::Grid& g = this->Grid();
     if( !d.Viewing() )
     {
+        d.SetGrid( g );
         if( !d.ConstrainedRowAlignment() )
-            d.AlignWithDiag( *this, offset );
+            d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( 1, diagLength );
     }
 
-    const elemental::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const int r = g.Height();
@@ -729,8 +735,133 @@ DistMatrix<T,MC,STAR>::GetDiagonal
         for( int k=0; k<localDiagLength; ++k )
         {
             const int iLocal = iLocalStart+k;
-            const int jLocal = jStart+k;
+            const int jLocal = jStart+k*r;
             dLocalBuffer[k*dLDim] = thisLocalBuffer[iLocal+jLocal*thisLDim];
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::SetDiagonal
+( const DistMatrix<T,MC,STAR>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetDiagonal");
+    this->AssertSameGrid( d );
+    if( d.Width() != 1 )
+        throw std::logic_error("d must be a column vector");
+    const int diagLength = this->DiagonalLength(offset);
+    if( diagLength != d.Height() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << diagLength << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( *this, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    const elemental::Grid& g = this->Grid();
+    if( g.InGrid() )
+    {
+        const int r = g.Height();
+        const int colShift = this->ColShift();
+        const int diagShift = d.ColShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift)/r;
+        const int localDiagLength = d.LocalHeight();
+        const T* dLocalBuffer = d.LockedLocalBuffer();
+        T* thisLocalBuffer = this->LocalBuffer();
+        const int thisLDim = this->LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k*r;
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = dLocalBuffer[k];
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+DistMatrix<T,MC,STAR>::SetDiagonal
+( const DistMatrix<T,STAR,MC>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetDiagonal");
+    this->AssertSameGrid( d );
+    if( d.Height() != 1 )
+        throw std::logic_error("d must be a row vector");
+    const int diagLength = this->DiagonalLength(offset);
+    if( diagLength != d.Width() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << diagLength << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( *this, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    const elemental::Grid& g = this->Grid();
+    if( g.InGrid() )
+    {
+        const int r = g.Height();
+        const int colShift = this->ColShift();
+        const int diagShift = d.RowShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift)/r;
+        const int localDiagLength = d.LocalWidth();
+        const T* dLocalBuffer = d.LockedLocalBuffer();
+        T* thisLocalBuffer = this->LocalBuffer();
+        const int dLDim = d.LocalLDim();
+        const int thisLDim = this->LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k*r;
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = dLocalBuffer[k*dLDim];
         }
     }
 #ifndef RELEASE

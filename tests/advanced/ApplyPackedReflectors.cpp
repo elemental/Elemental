@@ -282,7 +282,7 @@ void TestUT< complex<double> >
     A.ResizeTo( m, m );
 
     const int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
-    t.AlignWithDiag( H, offset );
+    t.AlignWithDiagonal( H, offset );
     t.ResizeTo( diagLength, 1 );
 
     H.SetToRandom();

@@ -76,7 +76,7 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
     DistMatrix<R,MD,STAR> e(g);
     DistMatrix<R,MC,MR> expandedABR(g);
     expandedABR.View( A, topSize-1, topSize-1, panelSize+1, panelSize+1 );
-    e.AlignWithDiag( expandedABR, 1 );
+    e.AlignWithDiagonal( expandedABR, 1 );
     e.ResizeTo( panelSize, 1 );
 
     // Matrix views 
@@ -801,7 +801,7 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
     DistMatrix<R,MD,STAR> e(g);
     DistMatrix<C,MC,MR> expandedABR(g);
     expandedABR.View( A, topSize-1, topSize-1, panelSize+1, panelSize+1 );
-    e.AlignWithDiag( expandedABR, 1 );
+    e.AlignWithDiagonal( expandedABR, 1 );
     e.ResizeTo( panelSize, 1 );
 
     // Matrix views 

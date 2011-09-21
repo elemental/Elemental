@@ -733,7 +733,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
         throw std::logic_error( msg.str().c_str() );
     }
     if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
-        !d.AlignedWithDiag( *this, offset ) )
+        !d.AlignedWithDiagonal( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
     const elemental::Grid& g = this->Grid();
@@ -741,7 +741,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
     {
         d.SetGrid( g );
         if( !d.ConstrainedColAlignment() )
-            d.AlignWithDiag( *this, offset );
+            d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( diagLength, 1 );
     }
 
@@ -810,7 +810,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
         throw std::logic_error( msg.str().c_str() );
     }
     if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
-        !d.AlignedWithDiag( *this, offset ) )
+        !d.AlignedWithDiagonal( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
     const elemental::Grid& g = this->Grid();
@@ -818,7 +818,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
     {
         d.SetGrid( g );
         if( !d.ConstrainedRowAlignment() )
-            d.AlignWithDiag( *this, offset );
+            d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( 1, diagLength );
     }
 
@@ -876,19 +876,17 @@ DistMatrix<T,MC,MR>::SetDiagonal
     this->AssertSameGrid( d );
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
+    const int diagLength = this->DiagonalLength(offset);
+    if( diagLength != d.Height() )
     {
-        const int diagLength = this->DiagonalLength(offset);
-        if( diagLength != d.Height() )
-        {
-            std::ostringstream msg;
-            msg << "d is not of the same length as the diagonal:\n"
-                << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
-                << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-                << "  A diag length: " << diagLength << "\n";
-            throw std::logic_error( msg.str().c_str() );
-        }
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << diagLength << "\n";
+        throw std::logic_error( msg.str().c_str() );
     }
-    if( !d.AlignedWithDiag( *this, offset ) )
+    if( !d.AlignedWithDiagonal( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
     if( d.InDiagonal() )
@@ -945,19 +943,17 @@ DistMatrix<T,MC,MR>::SetDiagonal
     this->AssertSameGrid( d );
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
+    const int diagLength = this->DiagonalLength(offset);
+    if( diagLength != d.Width() )
     {
-        const int diagLength = this->DiagonalLength(offset);
-        if( diagLength != d.Width() )
-        {
-            std::ostringstream msg;
-            msg << "d is not of the same length as the diagonal:\n"
-                << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
-                << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-                << "  A diag length: " << diagLength << "\n";
-            throw std::logic_error( msg.str().c_str() );
-        }
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << diagLength << "\n";
+        throw std::logic_error( msg.str().c_str() );
     }
-    if( !d.AlignedWithDiag( *this, offset ) )
+    if( !d.AlignedWithDiagonal( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
     if( d.InDiagonal() )
@@ -987,8 +983,8 @@ DistMatrix<T,MC,MR>::SetDiagonal
 
         const int localDiagLength = d.LocalWidth();
         const T* dLocalBuffer = d.LockedLocalBuffer();
-        const int dLDim = d.LocalLDim();
         T* thisLocalBuffer = this->LocalBuffer();
+        const int dLDim = d.LocalLDim();
         const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for

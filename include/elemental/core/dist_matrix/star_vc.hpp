@@ -210,6 +210,18 @@ public:
     template<typename S> void AlignRowsWith( const DistMatrix<S,STAR,VC  >& A );
     template<typename S> void AlignRowsWith( const DistMatrix<S,VC,  STAR>& A );
 
+    template<typename S>
+    bool AlignedWithDiagonal
+    ( const DistMatrix<S,VC,STAR>& A, int offset=0 ) const;
+    template<typename S>
+    bool AlignedWithDiagonal
+    ( const DistMatrix<S,STAR,VC>& A, int offset=0 ) const;
+
+    template<typename S>
+    void AlignWithDiagonal( const DistMatrix<S,VC,STAR>& A, int offset=0 );
+    template<typename S>
+    void AlignWithDiagonal( const DistMatrix<S,STAR,VC>& A, int offset=0 );
+
     // (Immutable) view of a distributed matrix
     void View( DistMatrix<T,STAR,VC>& A );
     void LockedView( const DistMatrix<T,STAR,VC>& A );
@@ -649,6 +661,140 @@ template<typename S>
 inline void
 DistMatrix<T,STAR,VC>::AlignRowsWith( const DistMatrix<S,VC,STAR>& A )
 { AlignWith( A ); }
+
+template<typename T>
+template<typename S>
+inline bool
+DistMatrix<T,STAR,VC>::AlignedWithDiagonal
+( const DistMatrix<S,VC,STAR>& A, int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignedWithDiagonal([* ,MC])");
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const int p = g.Size();
+    const int colAlignment = A.ColAlignment();
+    bool aligned;
+
+    if( offset >= 0 )
+    {
+        const int ownerRank = colAlignment;
+        aligned = ( this->RowAlignment() == ownerRank );
+    }
+    else
+    {
+        const int ownerRank = (colAlignment-offset) % p;
+        aligned = ( this->RowAlignment() == ownerRank );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return aligned;
+}
+
+template<typename T>
+template<typename S>
+inline bool
+DistMatrix<T,STAR,VC>::AlignedWithDiagonal
+( const DistMatrix<S,STAR,VC>& A, int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignedWithDiagonal([* ,VC])");
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const int p = g.Size();
+    const int rowAlignment = A.RowAlignment();
+    bool aligned;
+
+    if( offset >= 0 )
+    {
+        const int ownerRank = (rowAlignment + offset) % p;
+        aligned = ( this->RowAlignment() == ownerRank );
+    }
+    else
+    {
+        const int ownerRank = rowAlignment;
+        aligned = ( this->RowAlignment() == ownerRank );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return aligned;
+}
+
+template<typename T>
+template<typename S>
+inline void
+DistMatrix<T,STAR,VC>::AlignWithDiagonal
+( const DistMatrix<S,VC,STAR>& A, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignWithDiagonal([VC,* ])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const int p = g.Size();
+    const int colAlignment = A.ColAlignment();
+
+    if( offset >= 0 )
+    {
+        const int ownerRank = colAlignment;
+        this->_rowAlignment = ownerRank;
+    }
+    else
+    {
+        const int ownerRank = (colAlignment-offset) % p;
+        this->_rowAlignment = ownerRank;
+    }
+    if( g.InGrid() )
+        this->_rowShift = Shift(g.VCRank(),this->_rowAlignment,p);
+    this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+template<typename S>
+inline void
+DistMatrix<T,STAR,VC>::AlignWithDiagonal
+( const DistMatrix<S,STAR,VC>& A, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignWithDiagonal([* ,VC])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const int p = g.Size();
+    const int rowAlignment = A.RowAlignment();
+
+    if( offset >= 0 )
+    {
+        const int ownerRank = (rowAlignment+offset) % p;
+        this->_rowAlignment = ownerRank;
+    }
+    else
+    {
+        const int ownerRank = rowAlignment;
+        this->_rowAlignment = ownerRank;
+    }
+    if( g.InGrid() )
+        this->_rowShift = Shift(g.VCRank(),this->_rowAlignment,p);
+    this->_constrainedRowAlignment = true;
+    this->_height = 0;
+    this->_width = 0;
+    this->_localMatrix.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 //
 // The remainder of the file is for implementing the helpers

@@ -112,14 +112,14 @@ elemental::advanced::QR
 
     if( t.Viewing() )
     {
-        if( !t.AlignedWithDiag( A ) ) 
+        if( !t.AlignedWithDiagonal( A ) ) 
             throw std::logic_error("t was not aligned with A");
         if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
             throw std::logic_error("t was not the appropriate shape");
     }
     else
     {
-        t.AlignWithDiag( A );
+        t.AlignWithDiagonal( A );
         t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
     }
 

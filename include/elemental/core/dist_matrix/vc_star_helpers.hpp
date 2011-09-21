@@ -315,6 +315,576 @@ DistMatrix<T,VC,STAR>::UpdateImagHelper<complex<Z> >::Func
     PopCallStack();
 #endif
 }
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,VC,STAR>::GetRealDiagonalHelper<complex<Z> >::Func
+( const DistMatrix<complex<Z>,VC,STAR>& parent,
+        DistMatrix<Z,VC,STAR>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::GetRealDiagonal");
+    if( d.Viewing() )
+        parent.AssertSameGrid( d );
+#endif
+    const int length = parent.DiagonalLength(offset);
+#ifndef RELEASE
+    if( d.Viewing() && (length != d.Height() || d.Width() != 1) )
+    {
+        ostringstream msg;
+        msg << "d is not a column vec of the same length as the diagonal:\n"
+            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw logic_error( msg.str().c_str() );
+    }
+    if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
+        !d.AlignedWithDiagonal( parent, offset ) )
+        throw std::logic_error("d must be aligned with the offset diag");
+#endif
+    const elemental::Grid& g = parent.Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.ConstrainedColAlignment() )
+            d.AlignWithDiagonal( parent, offset );
+        d.ResizeTo( length, 1 );
+    }
+
+    if( g.InGrid() )
+    {
+        const int p = g.Size();
+        const int colShift = parent.ColShift();
+        const int diagShift = d.ColShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift) / p;
+        const int localDiagLength = d.LocalHeight();
+        const complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const int thisLDim = parent.LocalLDim();
+        Z* dLocalBuffer = d.LocalBuffer();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k*p;
+            dLocalBuffer[k] = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,VC,STAR>::GetImagDiagonalHelper<complex<Z> >::Func
+( const DistMatrix<complex<Z>,VC,STAR>& parent,
+        DistMatrix<Z,VC,STAR>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::GetImagDiagonal");
+    if( d.Viewing() )
+        parent.AssertSameGrid( d );
+#endif
+    const int length = parent.DiagonalLength(offset);
+#ifndef RELEASE
+    if( d.Viewing() && length != d.Height() )
+    {
+        ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw logic_error( msg.str().c_str() );
+    }
+    if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
+        !d.AlignedWithDiagonal( parent, offset ) )
+        throw std::logic_error("d must be aligned with the offset diag");
+#endif
+    const elemental::Grid& g = parent.Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.ConstrainedColAlignment() )
+            d.AlignWithDiagonal( parent, offset );
+        d.ResizeTo( length, 1 );
+    }
+
+    if( g.InGrid() )
+    {
+        const int p = g.Size();
+        const int colShift = parent.ColShift();
+        const int diagShift = d.ColShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift) / p;
+        const int localDiagLength = d.LocalHeight();
+        const complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const int thisLDim = parent.LocalLDim();
+        Z* dLocalBuffer = d.LocalBuffer();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k*p;
+            dLocalBuffer[k] = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,VC,STAR>::GetRealDiagonalHelper<complex<Z> >::Func
+( const DistMatrix<complex<Z>,VC,STAR>& parent,
+        DistMatrix<Z,STAR,VC>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::GetRealDiagonal");
+    if( d.Viewing() )
+        parent.AssertSameGrid( d );
+#endif
+    const int length = parent.DiagonalLength(offset);
+#ifndef RELEASE
+    if( d.Viewing() && length != d.Width() )
+    {
+        ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw logic_error( msg.str().c_str() );
+    }
+    if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
+        !d.AlignedWithDiagonal( parent, offset ) )
+        throw std::logic_error("d must be aligned with the offset diag");
+#endif
+    const elemental::Grid& g = parent.Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.ConstrainedRowAlignment() )
+            d.AlignWithDiagonal( parent, offset );
+        d.ResizeTo( 1, length );
+    }
+
+    if( g.InGrid() )
+    {
+        const int p = g.Size();
+        const int colShift = parent.ColShift();
+        const int diagShift = d.RowShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift) / p;
+        const int localDiagLength = d.LocalWidth();
+        const complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const int thisLDim = parent.LocalLDim();
+        Z* dLocalBuffer = d.LocalBuffer();
+        const int dLDim = d.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k*p;
+            dLocalBuffer[k*dLDim] =
+                real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,VC,STAR>::GetImagDiagonalHelper<complex<Z> >::Func
+( const DistMatrix<complex<Z>,VC,STAR>& parent,
+        DistMatrix<Z,STAR,VC>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::GetImagDiagonal");
+    if( d.Viewing() )
+        parent.AssertSameGrid( d );
+#endif
+    const int length = parent.DiagonalLength(offset);
+#ifndef RELEASE
+    if( d.Viewing() && length != d.Width() )
+    {
+        ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw logic_error( msg.str().c_str() );
+    }
+    if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
+        !d.AlignedWithDiagonal( parent, offset ) )
+        throw std::logic_error("d must be aligned with the offset diag");
+#endif
+    const elemental::Grid& g = parent.Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.ConstrainedRowAlignment() )
+            d.AlignWithDiagonal( parent, offset );
+        d.ResizeTo( 1, length );
+    }
+
+    if( g.InGrid() )
+    {
+        const int p = g.Size();
+        const int colShift = parent.ColShift();
+        const int diagShift = d.RowShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift) / p;
+        const int localDiagLength = d.LocalWidth();
+        const complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const int thisLDim = parent.LocalLDim();
+        Z* dLocalBuffer = d.LocalBuffer();
+        const int dLDim = d.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k*p;
+            dLocalBuffer[k*dLDim] =
+                imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,VC,STAR>::SetRealDiagonalHelper<complex<Z> >::Func
+(      DistMatrix<complex<Z>,VC,STAR>& parent,
+ const DistMatrix<Z,VC,STAR>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::SetRealDiagonal");
+    parent.AssertSameGrid( d );
+    if( d.Width() != 1 )
+        throw std::logic_error("d must be a column vector");
+    const int length = parent.DiagonalLength(offset);
+    if( length != d.Height() )
+    {
+        ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( parent, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    const elemental::Grid& g = parent.Grid();
+    if( g.InGrid() )
+    {
+        const int p = g.Size();
+        const int colShift = parent.ColShift();
+        const int diagShift = d.ColShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift)/p;
+        const int localDiagLength = d.LocalHeight();
+
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        const int thisLDim = parent.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k*p;
+            const Z u = dLocalBuffer[k];
+            const Z v = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,VC,STAR>::SetImagDiagonalHelper<complex<Z> >::Func
+(      DistMatrix<complex<Z>,VC,STAR>& parent,
+ const DistMatrix<Z,VC,STAR>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::SetImagDiagonal");
+    parent.AssertSameGrid( d );
+    if( d.Width() != 1 )
+        throw std::logic_error("d must be a column vector");
+    const int length = parent.DiagonalLength(offset);
+    if( length != d.Height() )
+    {
+        ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( parent, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    const elemental::Grid& g = parent.Grid();
+    if( g.InGrid() )
+    {
+        const int p = g.Size();
+        const int colShift = parent.ColShift();
+        const int diagShift = d.ColShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift)/p;
+        const int localDiagLength = d.LocalHeight();
+
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        const int thisLDim = parent.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k*p;
+            const Z u = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            const Z v = dLocalBuffer[k];
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,VC,STAR>::SetRealDiagonalHelper<complex<Z> >::Func
+(      DistMatrix<complex<Z>,VC,STAR>& parent,
+ const DistMatrix<Z,STAR,VC>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::SetRealDiagonal");
+    parent.AssertSameGrid( d );
+    if( d.Height() != 1 )
+        throw std::logic_error("d must be a row vector");
+    const int length = parent.DiagonalLength(offset);
+    if( length != d.Width() )
+    {
+        ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( parent, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    const elemental::Grid& g = parent.Grid();
+    if( g.InGrid() )
+    {
+        const int p = g.Size();
+        const int colShift = parent.ColShift();
+        const int diagShift = d.RowShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift)/p;
+        const int localDiagLength = d.LocalWidth();
+
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        const int dLDim = d.LocalLDim();
+        const int thisLDim = parent.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k*p;
+            const Z u = dLocalBuffer[k*dLDim];
+            const Z v = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+template<typename Z>
+inline void
+DistMatrix<T,VC,STAR>::SetImagDiagonalHelper<complex<Z> >::Func
+(      DistMatrix<complex<Z>,VC,STAR>& parent,
+ const DistMatrix<Z,STAR,VC>& d, int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[VC,* ]::SetImagDiagonal");
+    parent.AssertSameGrid( d );
+    if( d.Height() != 1 )
+        throw std::logic_error("d must be a row vector");
+    const int length = parent.DiagonalLength(offset);
+    if( length != d.Width() )
+    {
+        ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( parent, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    const elemental::Grid& g = parent.Grid();
+    if( g.InGrid() )
+    {
+        const int p = g.Size();
+        const int colShift = parent.ColShift();
+        const int diagShift = d.RowShift();
+
+        int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const int iLocalStart = (iStart-colShift)/p;
+        const int localDiagLength = d.LocalWidth();
+
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        const int dLDim = d.LocalLDim();
+        const int thisLDim = parent.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int k=0; k<localDiagLength; ++k )
+        {
+            const int iLocal = iLocalStart+k;
+            const int jLocal = jStart+k*p;
+            const Z u = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            const Z v = dLocalBuffer[k*dLDim];
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 #endif // WITHOUT_COMPLEX
 
 } // namespace elemental

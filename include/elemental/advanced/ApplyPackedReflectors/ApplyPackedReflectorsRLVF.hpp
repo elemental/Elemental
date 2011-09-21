@@ -160,7 +160,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRLVF
               ("Height of transforms must equal width of target matrix");
     if( t.Height() != H.DiagonalLength( offset ) )
         throw std::logic_error("t must be the same length as H's offset diag");
-    if( !t.AlignedWithDiag( H, offset ) )
+    if( !t.AlignedWithDiagonal( H, offset ) )
         throw std::logic_error("t must be aligned with H's offset diagonal");
 #endif
     typedef complex<R> C;

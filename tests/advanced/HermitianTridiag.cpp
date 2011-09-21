@@ -77,7 +77,7 @@ void TestCorrectness
     DistMatrix<R,STAR,STAR> e_STAR_STAR(g);
     DistMatrix<R,MD,STAR> eOpposite(g);
     e_STAR_STAR = e;
-    eOpposite.AlignWithDiag( A, -subdiagonal );
+    eOpposite.AlignWithDiagonal( A, -subdiagonal );
     eOpposite = e_STAR_STAR;
     
     // Zero B and then fill its tridiagonal
@@ -151,7 +151,7 @@ void TestCorrectness
     DistMatrix<R,STAR,STAR> e_STAR_STAR(g);
     DistMatrix<R,MD,STAR> eOpposite(g);
     e_STAR_STAR = e;
-    eOpposite.AlignWithDiag( A, -subdiagonal );
+    eOpposite.AlignWithDiagonal( A, -subdiagonal );
     eOpposite = e_STAR_STAR;
     
     // Zero B and then fill its tridiagonal

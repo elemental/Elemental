@@ -131,7 +131,7 @@ elemental::advanced::internal::PanelQR
     if( t.Height() != min(A.Height(),A.Width()) || t.Width() != 1 )
         throw std::logic_error
         ("t must be a vector of height equal to the minimum dimension of A");
-    if( !t.AlignedWithDiag( A, 0 ) )
+    if( !t.AlignedWithDiagonal( A, 0 ) )
         throw std::logic_error("t must be aligned with A's main diagonal");
 #endif
     typedef std::complex<R> C;

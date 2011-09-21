@@ -166,7 +166,7 @@ elemental::advanced::internal::HermitianTridiagU
     typedef std::complex<R> C;
 
     DistMatrix<C,MD,STAR> tDiag(g);
-    tDiag.AlignWithDiag( A, 1 );
+    tDiag.AlignWithDiagonal( A, 1 );
     tDiag.ResizeTo( A.Height()-1, 1 );
 
     if( g.InGrid() )

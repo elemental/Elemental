@@ -214,7 +214,7 @@ elemental::advanced::ApplyPackedReflectors
     PushCallStack("advanced::ApplyPackedReflectors");
 #endif
     DistMatrix<complex<R>,MD,STAR> tDiag(A.Grid());
-    tDiag.AlignWithDiag( A, offset );
+    tDiag.AlignWithDiagonal( A, offset );
     tDiag = t;
     advanced::ApplyPackedReflectors
     ( side, shape, direction, order, conjugation, offset, H, tDiag, A );

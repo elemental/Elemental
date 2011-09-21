@@ -113,9 +113,9 @@ DistMatrix<T,MR,MC>::Align( int colAlignment, int rowAlignment )
     const elemental::Grid& g = this->Grid();
 #ifndef RELEASE
     if( colAlignment < 0 || colAlignment >= g.Width() )
-        throw runtime_error( "Invalid column alignment for [MR,MC]" );
+        throw runtime_error("Invalid column alignment for [MR,MC]");
     if( rowAlignment < 0 || rowAlignment >= g.Height() )
-        throw runtime_error( "Invalid row alignment for [MR,MC]" );
+        throw runtime_error("Invalid row alignment for [MR,MC]");
 #endif
     this->_colAlignment = colAlignment;
     this->_rowAlignment = rowAlignment;
@@ -142,7 +142,7 @@ DistMatrix<T,MR,MC>::AlignCols( int colAlignment )
     const elemental::Grid& g = this->Grid();
 #ifndef RELEASE
     if( colAlignment < 0 || colAlignment >= g.Width() )
-        throw runtime_error( "Invalid column alignment for [MR,MC]" );
+        throw runtime_error("Invalid column alignment for [MR,MC]");
 #endif
     this->_colAlignment = colAlignment;
     this->_colShift = Shift( g.MRRank(), colAlignment, g.Width() );
@@ -166,7 +166,7 @@ DistMatrix<T,MR,MC>::AlignRows( int rowAlignment )
     const elemental::Grid& g = this->Grid();
 #ifndef RELEASE
     if( rowAlignment < 0 || rowAlignment >= g.Height() )
-        throw runtime_error( "Invalid row alignment for [MR,MC]" );
+        throw runtime_error("Invalid row alignment for [MR,MC]");
 #endif
     this->_rowAlignment = rowAlignment;
     this->_rowShift = Shift( g.MCRank(), rowAlignment, g.Height() );
@@ -570,7 +570,7 @@ DistMatrix<T,MR,MC>::ResizeTo( int height, int width )
     PushCallStack("[MR,MC]::ResizeTo");
     this->AssertNotLockedView();
     if( height < 0 || width < 0 )
-        throw logic_error( "Height and width must be non-negative." );
+        throw logic_error("Height and width must be non-negative");
 #endif
     const elemental::Grid& g = this->Grid();
     this->_height = height;
@@ -668,27 +668,28 @@ DistMatrix<T,MR,MC>::GetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetDiagonal([MD,* ])");
+    if( d.Viewing() )
+        this->AssertSameGrid( d );
 #endif
-    const int height = this->Height();
-    const int width = this->Width();
     const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
-    if( d.Viewing() && diagLength != d.Height() )
-        throw logic_error( "d is not of the correct length." );
+    if( d.Viewing() && (diagLength != d.Height() || d.Width() != 1) )
+        throw logic_error("d is not of the correct dimensions");
     if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
-        !d.AlignedWithDiag( *this, offset ) )
-        throw logic_error( "d must be aligned with the 'offset' diagonal." );
+        !d.AlignedWithDiagonal( *this, offset ) )
+        throw logic_error("d must be aligned with the 'offset' diagonal");
 #endif
+    const elemental::Grid& g = this->Grid();
     if( !d.Viewing() )
     {
+        d.SetGrid( g );
         if( !d.ConstrainedColAlignment() )
-            d.AlignWithDiag( *this, offset );
+            d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( diagLength, 1 );
     }
 
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -738,27 +739,28 @@ DistMatrix<T,MR,MC>::GetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetDiagonal([* ,MD])");
+    if( d.Viewing() )
+        this->AssertSameGrid( d );
 #endif
-    const int height = this->Height();
-    const int width = this->Width();
     const int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
-    if( d.Viewing() && diagLength != d.Width() )
-        throw logic_error( "d is not of the correct length." );
+    if( d.Viewing() && (diagLength != d.Width() || d.Height() != 1) )
+        throw logic_error("d is not of the correct dimensions");
     if( ( d.Viewing() && d.ConstrainedRowAlignment() ) &&
-        !d.AlignedWithDiag( *this, offset ) )
-        throw logic_error( "d must be aligned with the 'offset' diagonal." );
+        !d.AlignedWithDiagonal( *this, offset ) )
+        throw logic_error("d must be aligned with the 'offset' diagonal");
 #endif
+    const elemental::Grid& g = this->Grid();
     if( !d.Viewing() )
     {
+        d.SetGrid( g );
         if( !d.ConstrainedRowAlignment() )
-            d.AlignWithDiag( *this, offset );
+            d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( 1, diagLength );
     }
 
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = this->Grid();
         const int r = g.Height();
         const int c = g.Width();
         const int lcm = g.LCM();
@@ -809,24 +811,21 @@ DistMatrix<T,MR,MC>::SetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetDiagonal([MD,* ])");
+    this->AssertSameGrid( d );
     if( d.Width() != 1 )
-        throw logic_error( "d must be a column vector." );
+        throw logic_error("d must be a column vector");
+    const int diagLength = this->DiagonalLength(offset);
+    if( diagLength != d.Height() )
     {
-        const int height = this->Height();
-        const int width = this->Width();
-        const int diagLength = this->DiagonalLength(offset);
-        if( diagLength != d.Height() )
-        {
-            ostringstream msg;
-            msg << "d is not of the same length as the diagonal:" << endl
-                << "  A ~ " << this->Height() << " x " << this->Width() << endl
-                << "  d ~ " << d.Height() << " x " << d.Width() << endl
-                << "  A diag length: " << diagLength << endl;
-            throw logic_error( msg.str() );
-        }
+        ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << diagLength << "\n";
+        throw logic_error( msg.str().c_str() );
     }
-    if( !d.AlignedWithDiag( *this, offset ) )
-        throw logic_error( "d must be aligned with the 'offset' diagonal." );
+    if( !d.AlignedWithDiagonal( *this, offset ) )
+        throw logic_error("d must be aligned with the 'offset' diagonal");
 #endif
     if( d.InDiagonal() )
     {
@@ -880,24 +879,21 @@ DistMatrix<T,MR,MC>::SetDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetDiagonal([* ,MD])");
+    this->AssertSameGrid( d );
     if( d.Height() != 1 )
-        throw logic_error( "d must be a row vector." );
+        throw logic_error("d must be a row vector");
+    const int diagLength = this->DiagonalLength(offset);
+    if( diagLength != d.Width() )
     {
-        const int height = this->Height();
-        const int width = this->Width();
-        const int diagLength = this->DiagonalLength(offset);
-        if( diagLength != d.Width() )
-        {
-            ostringstream msg;
-            msg << "d is not of the same length as the diagonal:" << endl
-                << "  A ~ " << this->Height() << " x " << this->Width() << endl
-                << "  d ~ " << d.Height() << " x " << d.Width() << endl
-                << "  A diag length: " << diagLength << endl;
-            throw logic_error( msg.str() );
-        }
+        ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << diagLength << "\n";
+        throw logic_error( msg.str().c_str() );
     }
-    if( !d.AlignedWithDiag( *this, offset ) )
-        throw logic_error( "d must be aligned with the 'offset' diagonal." );
+    if( !d.AlignedWithDiagonal( *this, offset ) )
+        throw logic_error("d must be aligned with the 'offset' diagonal");
 #endif
     if( d.InDiagonal() )
     {
@@ -1429,7 +1425,7 @@ DistMatrix<T,MR,MC>::operator=( const DistMatrix<T,MD,STAR>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw logic_error( "[MR,MC] = [MD,* ] not yet implemented." );
+    throw logic_error("[MR,MC] = [MD,* ] not yet implemented");
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1447,7 +1443,7 @@ DistMatrix<T,MR,MC>::operator=( const DistMatrix<T,STAR,MD>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw logic_error( "[MR,MC] = [* ,MD] not yet implemented." );
+    throw logic_error("[MR,MC] = [* ,MD] not yet implemented");
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1490,7 +1486,7 @@ DistMatrix<T,MR,MC>::operator=( const DistMatrix<T,MR,MC>& A )
         const elemental::Grid& g = this->Grid();
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned [MR,MC] <- [MR,MC]." << endl;
+            cerr << "Unaligned [MR,MC] <- [MR,MC]" << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1610,7 +1606,7 @@ DistMatrix<T,MR,MC>::operator=( const DistMatrix<T,MR,STAR>& A )
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned [MR,MC] <- [MR,* ]." << endl;
+            cerr << "Unaligned [MR,MC] <- [MR,* ]" << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1721,7 +1717,7 @@ DistMatrix<T,MR,MC>::operator=( const DistMatrix<T,STAR,MC>& A )
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned [MR,MC] <- [* ,MC]." << endl;
+            cerr << "Unaligned [MR,MC] <- [* ,MC]" << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1912,7 +1908,7 @@ DistMatrix<T,MR,MC>::operator=( const DistMatrix<T,STAR,VC>& A )
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned [MR,MC] <- [* ,VC]." << endl;
+            cerr << "Unaligned [MR,MC] <- [* ,VC]" << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -2115,7 +2111,7 @@ DistMatrix<T,MR,MC>::operator=( const DistMatrix<T,VR,STAR>& A )
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned [MR,MC] <- [* ,VC]." << endl;
+            cerr << "Unaligned [MR,MC] <- [* ,VC]" << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -2400,7 +2396,7 @@ DistMatrix<T,MR,MC>::SumScatterFrom( const DistMatrix<T,MR,STAR>& A )
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned SumScatterFrom [MR,MC] <- [MR,* ]." << endl;
+            cerr << "Unaligned SumScatterFrom [MR,MC] <- [MR,* ]" << endl;
 #endif
         if( this->Width() == 1 )
         {
@@ -2554,7 +2550,7 @@ DistMatrix<T,MR,MC>::SumScatterFrom( const DistMatrix<T,STAR,MC>& A )
         cerr <<    
           "The vector version of [MR,MC].SumScatterFrom([* ,MC]) is not yet"
           " written, but it only requires a modification of the vector "
-          "version of [MR,MC].SumScatterFrom([MR,* ])." << endl;
+          "version of [MR,MC].SumScatterFrom([MR,* ])" << endl;
     }
 #endif
 #ifdef CACHE_WARNINGS
@@ -2643,7 +2639,7 @@ DistMatrix<T,MR,MC>::SumScatterFrom( const DistMatrix<T,STAR,MC>& A )
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned SumScatterFrom [MR,MC] <- [* ,MC]." << endl;
+            cerr << "Unaligned SumScatterFrom [MR,MC] <- [* ,MC]" << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -2936,7 +2932,7 @@ DistMatrix<T,MR,MC>::SumScatterUpdate
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned SumScatterUpdate [MR,MC] <- [MR,* ]." << endl;
+            cerr << "Unaligned SumScatterUpdate [MR,MC] <- [MR,* ]" << endl;
 #endif
         if( this->Width() == 1 )
         {
@@ -3173,7 +3169,7 @@ DistMatrix<T,MR,MC>::SumScatterUpdate
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned SumScatterUpdate [MR,MC] <- [* ,MC]." << endl;
+            cerr << "Unaligned SumScatterUpdate [MR,MC] <- [* ,MC]" << endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();

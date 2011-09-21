@@ -157,8 +157,8 @@ public:
 
     void GetDiagonal( DistMatrix<T,MC,STAR>& d, int offset=0 ) const;
     void GetDiagonal( DistMatrix<T,STAR,MC>& d, int offset=0 ) const;
-    void SetDiagonal( const DistMatrix<T,MC,STAR>& d, int offset=0 ) const;
-    void SetDiagonal( const DistMatrix<T,STAR,MC>& d, int offset=0 ) const;
+    void SetDiagonal( const DistMatrix<T,MC,STAR>& d, int offset=0 );
+    void SetDiagonal( const DistMatrix<T,STAR,MC>& d, int offset=0 );
 
     // Set the alignments
     void Align( int colAlignment );
@@ -197,14 +197,16 @@ public:
     void AlignRowsWith( const DistMatrix<S,U,V>& A ) { }
 
     template<typename S>
-    bool AlignedWithDiag( const DistMatrix<S,MC,STAR>& A, int offset=0 ) const;
+    bool AlignedWithDiagonal
+    ( const DistMatrix<S,MC,STAR>& A, int offset=0 ) const;
     template<typename S>
-    bool AlignedWithDiag( const DistMatrix<S,STAR,MC>& A, int offset=0 ) const;
+    bool AlignedWithDiagonal
+    ( const DistMatrix<S,STAR,MC>& A, int offset=0 ) const;
 
     template<typename S>
-    void AlignWithDiag( const DistMatrix<S,MC,STAR>& A, int offset=0 );
+    void AlignWithDiagonal( const DistMatrix<S,MC,STAR>& A, int offset=0 );
     template<typename S>
-    void AlignWithDiag( const DistMatrix<S,STAR,MC>& A, int offset=0 );
+    void AlignWithDiagonal( const DistMatrix<S,STAR,MC>& A, int offset=0 );
 
     // (Immutable) view of a distributed matrix
     void View( DistMatrix<T,MC,STAR>& A );
@@ -771,11 +773,11 @@ DistMatrix<T,MC,STAR>::AlignColsWith( const DistMatrix<S,STAR,VC>& A )
 template<typename T>
 template<typename S>
 inline bool
-DistMatrix<T,MC,STAR>::AlignedWithDiag
+DistMatrix<T,MC,STAR>::AlignedWithDiagonal
 ( const DistMatrix<S,MC,STAR>& A, int offset ) const
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::AlignedWithDiag([MC,* ])");
+    PushCallStack("[MC,* ]::AlignedWithDiagonal([MC,* ])");
     this->AssertSameGrid( A );
 #endif
     const elemental::Grid& g = this->Grid();
@@ -802,11 +804,11 @@ DistMatrix<T,MC,STAR>::AlignedWithDiag
 template<typename T>
 template<typename S>
 inline bool
-DistMatrix<T,MC,STAR>::AlignedWithDiag
+DistMatrix<T,MC,STAR>::AlignedWithDiagonal
 ( const DistMatrix<S,STAR,MC>& A, int offset ) const
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::AlignedWithDiag([* ,MC])");
+    PushCallStack("[MC,* ]::AlignedWithDiagonal([* ,MC])");
     this->AssertSameGrid( A );
 #endif
     const elemental::Grid& g = this->Grid();
@@ -833,11 +835,11 @@ DistMatrix<T,MC,STAR>::AlignedWithDiag
 template<typename T>
 template<typename S>
 inline void
-DistMatrix<T,MC,STAR>::AlignWithDiag
+DistMatrix<T,MC,STAR>::AlignWithDiagonal
 ( const DistMatrix<S,MC,STAR>& A, int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::AlignWithDiag([MC,* ])");
+    PushCallStack("[MC,* ]::AlignWithDiagonal([MC,* ])");
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
@@ -869,11 +871,11 @@ DistMatrix<T,MC,STAR>::AlignWithDiag
 template<typename T>
 template<typename S>
 inline void
-DistMatrix<T,MC,STAR>::AlignWithDiag
+DistMatrix<T,MC,STAR>::AlignWithDiagonal
 ( const DistMatrix<S,STAR,MC>& A, int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::AlignWithDiag([* ,MC])");
+    PushCallStack("[MC,* ]::AlignWithDiagonal([* ,MC])");
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
