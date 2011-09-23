@@ -97,7 +97,7 @@ public:
     int LocalWidth() const;
     int LocalLDim() const;
     size_t AllocatedMemory() const;
-    void SetGrid( const elemental::Grid& grid );
+
     const elemental::Grid& Grid() const;
 
           T* LocalBuffer( int iLocal=0, int jLocal=0 );
@@ -166,6 +166,12 @@ public:
     //------------------------------------------------------------------------//
     // Routines that MUST be implemented in non-abstract derived classes      //
     //------------------------------------------------------------------------//
+
+    //
+    // Basic information
+    //
+
+    virtual void SetGrid( const elemental::Grid& grid ) = 0;
 
     //
     // Entry manipulation
@@ -627,14 +633,6 @@ AbstractDistMatrix<T>::RowShift() const
 { return _rowShift; }
 
 template<typename T>
-inline void
-AbstractDistMatrix<T>::SetGrid( const elemental::Grid& grid )
-{
-    Empty();
-    _grid = &grid;
-}
-
-template<typename T>
 inline const elemental::Grid&
 AbstractDistMatrix<T>::Grid() const
 { return *_grid; }
@@ -714,12 +712,8 @@ AbstractDistMatrix<T>::Empty()
     _viewing = false;
     _height = 0;
     _width = 0;
-    _colAlignment = 0;
-    _rowAlignment = 0;
     _constrainedColAlignment = false;
     _constrainedRowAlignment = false;
-    _colShift = 0;
-    _rowShift = 0;
 }
 
 template<typename T>

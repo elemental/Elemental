@@ -113,12 +113,10 @@ public:
     // Collective routines
     //
 
-    // Every process receives a copy of the global entry (i,j)
+    virtual void SetGrid( const elemental::Grid& grid );
+
     virtual T Get( int i, int j ) const;
-    // Every process contributes the new value of the global entry (i,j)
     virtual void Set( int i, int j, T alpha );
-    // Every process contributes the update to global entry(i,j),
-    // i.e., A(i,j) += alpha
     virtual void Update( int i, int j, T alpha );
 
     virtual void MakeTrapezoidal
@@ -610,6 +608,18 @@ template<typename T>
 inline
 DistMatrix<T,MR,MC>::~DistMatrix()
 { }
+
+template<typename T>
+inline void
+DistMatrix<T,MR,MC>::SetGrid( const elemental::Grid& grid )
+{
+    this->Empty();
+    this->_grid = &grid;
+    this->_colAlignment = 0;
+    this->_rowAlignment = 0;
+    this->_colShift = grid.MRRank();
+    this->_rowShift = grid.MCRank();
+}
 
 template<typename T>
 template<typename S>
