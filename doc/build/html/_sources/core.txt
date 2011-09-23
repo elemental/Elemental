@@ -93,302 +93,301 @@ since the bottom-right :math:`6 \times 7` submatrix beings at index
 :math:`(4,3)`. In general, to view the :math:`M \times N` submatrix starting
 at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
-Constructors
-------------
+.. cpp:class:: Matrix<T>
 
-.. cpp:function:: Matrix<T>::Matrix()
+   .. rubric:: Constructors
 
-   This simply creates a default :math:`0 \times 0` matrix with a leading 
-   dimension of one (BLAS and LAPACK require positive leading dimensions).
+   .. cpp:function:: Matrix()
 
-.. cpp:function:: Matrix<T>::Matrix( int height, int width )
+      This simply creates a default :math:`0 \times 0` matrix with a leading 
+      dimension of one (BLAS and LAPACK require positive leading dimensions).
 
-   A *height* :math:`\times` *width* matrix is created with an unspecified
-   leading dimension (though it is currently implemented as 
-   ``std::max(height,1)``).
+   .. cpp:function:: Matrix( int height, int width )
 
-.. cpp:function:: Matrix<T>::Matrix( int height, int width, int ldim )
+      A *height* :math:`\times` *width* matrix is created with an unspecified
+      leading dimension (though it is currently implemented as 
+      ``std::max(height,1)``).
 
-   A *height* :math:`\times` *width* matrix is created with a leading dimension
-   equal to *ldim* (which must be greater than or equal ``std::min(height,1)``).
+   .. cpp:function:: Matrix( int height, int width, int ldim )
 
-.. cpp:function:: Matrix<T>::Matrix( int height, int width, const T* buffer, int ldim )
+      A *height* :math:`\times` *width* matrix is created with a leading 
+      dimension equal to *ldim* (which must be greater than or equal 
+      ``std::min(height,1)``).
 
-   A matrix is built around column-major constant buffer ``const T* buffer`` 
-   with the specified dimensions. The memory pointed to by ``buffer`` should
-   not be freed until after the ``Matrix`` object is destructed.
+   .. cpp:function:: Matrix( int height, int width, const T* buffer, int ldim )
 
-.. cpp:function:: Matrix<T>::Matrix( int height, int width, T* buffer, int ldim )
+      A matrix is built around column-major constant buffer ``const T* buffer`` 
+      with the specified dimensions. The memory pointed to by ``buffer`` should
+      not be freed until after the ``Matrix`` object is destructed.
 
-   A matrix is built around the column-major modifiable buffer ``T* buffer``
-   with the specified dimensions. The memory pointed to by ``buffer`` should
-   not be freed until after the ``Matrix`` object is destructed.
+   .. cpp:function:: Matrix( int height, int width, T* buffer, int ldim )
 
-.. cpp:function:: Matrix<T>::Matrix( const Matrix<T>& A )
+      A matrix is built around the column-major modifiable buffer ``T* buffer``
+      with the specified dimensions. The memory pointed to by ``buffer`` should
+      not be freed until after the ``Matrix`` object is destructed.
 
-   A copy (not a view) of the matrix :math:`A` is built.
+   .. cpp:function:: Matrix( const Matrix<T>& A )
 
-Basic information
------------------
+      A copy (not a view) of the matrix :math:`A` is built.
 
-.. cpp:function:: int Matrix<T>::Height() const
+   .. rubric:: Basic information
 
-   Return the height of the matrix.
+   .. cpp:function:: int Height() const
 
-.. cpp:function:: int Matrix<T>::Width() const
+      Return the height of the matrix.
 
-   Return the width of the matrix.
+   .. cpp:function:: int Width() const
 
-.. cpp:function:: int Matrix<T>::DiagonalLength( int offset=0 ) const
+      Return the width of the matrix.
 
-   Return the length of the specified diagonal of the matrix: an offset of 
-   :math:`0` refers to the main diagonal, an offset of :math:`1` refers to 
-   the superdiagonal, an offset of :math:`-1` refers to the subdiagonal, 
-   etc.
+   .. cpp:function:: int DiagonalLength( int offset=0 ) const
 
-.. cpp:function:: int Matrix<T>::LDim() const
+      Return the length of the specified diagonal of the matrix: an offset of 
+      :math:`0` refers to the main diagonal, an offset of :math:`1` refers to 
+      the superdiagonal, an offset of :math:`-1` refers to the subdiagonal, 
+      etc.
 
-   Return the leading dimension of the underlying buffer.
+   .. cpp:function:: int LDim() const
 
-.. cpp:function:: int Matrix<T>::MemorySize() const
+      Return the leading dimension of the underlying buffer.
 
-   Return the number of entries of type ``T`` that this ``Matrix`` instance 
-   has allocated space for.
+   .. cpp:function:: int MemorySize() const
 
-.. cpp:function:: T* Matrix<T>::Buffer()
+      Return the number of entries of type ``T`` that this ``Matrix`` instance 
+      has allocated space for.
 
-   Return a pointer to the underlying buffer.
+   .. cpp:function:: T* Buffer()
 
-.. cpp:function:: const T* Matrix<T>::LockedBuffer() const
+      Return a pointer to the underlying buffer.
 
-   Return a pointer to the underlying buffer that does not allow for modifying
-   the data.
+   .. cpp:function:: const T* LockedBuffer() const
 
-.. cpp:function:: T* Matrix<T>::Buffer( int i, int j )
+      Return a pointer to the underlying buffer that does not allow for 
+      modifying the data.
 
-   Return a pointer to the portion of the buffer that holds entry :math:`(i,j)`.
+   .. cpp:function:: T* Buffer( int i, int j )
 
-.. cpp:function:: const T* Matrix<T>::LockedBuffer( int i, int j ) const
+      Return a pointer to the portion of the buffer that holds entry 
+      :math:`(i,j)`.
 
-   Return a pointer to the portion of the buffer that holds entry
-   :math:`(i,j)` that does not allow for modifying the data.
+   .. cpp:function:: const T* LockedBuffer( int i, int j ) const
 
-.. cpp:function:: T* Matrix<T>::Buffer( int i, int j, int height, int width )
+      Return a pointer to the portion of the buffer that holds entry
+      :math:`(i,j)` that does not allow for modifying the data.
 
-   Same as the version without *height* and *width*, but in **Debug** modes 
-   it will ensure that the *height* :math:`\times` *width* submatrix starting
-   at entry :math:`(i,j)` does not go out of bounds.
+   .. cpp:function:: T* Buffer( int i, int j, int height, int width )
 
-.. cpp:function:: const T* Matrix<T>::LockedBuffer( int i, int j, int height, int width ) const
+      Same as the version without *height* and *width*, but in **Debug** modes 
+      it will ensure that the *height* :math:`\times` *width* submatrix starting
+      at entry :math:`(i,j)` does not go out of bounds.
 
-   Same as above, but the data cannot be modified using the returned pointer.
+   .. cpp:function:: const T* LockedBuffer( int i, int j, int height, int width ) const
 
-I/O
----
+      Same as above, but the data cannot be modified using the returned pointer.
 
-.. cpp:function:: void Matrix<T>::Print( const std::string msg="" ) const
+   .. rubric:: I/O
+
+   .. cpp:function:: void Print( const std::string msg="" ) const
 
    The matrix is printed to standard output (``std::cout``) with the preceding
    message ``msg`` (which is empty if unspecified).
 
-.. cpp:function:: void Matrix<T>::Print( std::ostream& os, const std::string msg="" ) const
+   .. cpp:function:: void Print( std::ostream& os, const std::string msg="" ) const
 
-   The matrix is printed to the output stream ``os`` with the preceding message
-   ``msg`` (which is empty if unspecified).
+      The matrix is printed to the output stream ``os`` with the preceding 
+      message ``msg`` (which is empty if unspecified).
 
-Entry manipulation
-------------------
+   .. rubric:: Entry manipulation
 
-.. cpp:function:: T Matrix<T>::Get( int i, int j ) const
+   .. cpp:function:: T Get( int i, int j ) const
 
-   Return entry :math:`(i,j)`.
+      Return entry :math:`(i,j)`.
 
-.. cpp:function:: void Matrix<T>::Set( int i, int j, T alpha )
+   .. cpp:function:: void Set( int i, int j, T alpha )
 
-   Set entry :math:`(i,j)` to :math:`\alpha`.
+      Set entry :math:`(i,j)` to :math:`\alpha`.
 
-.. cpp:function:: void Matrix<T>::Update( int i, int j, T alpha )
+   .. cpp:function:: void Update( int i, int j, T alpha )
 
-   Add :math:`\alpha` to entry :math:`(i,j)`.
+      Add :math:`\alpha` to entry :math:`(i,j)`.
 
-.. cpp:function:: void Matrix<T>::GetDiagonal( Matrix<T>& d, int offset=0 ) const
+   .. cpp:function:: void GetDiagonal( Matrix<T>& d, int offset=0 ) const
 
-   Modify :math:`d` into a column-vector containing the entries lying on the 
-   ``offset`` diagonal of our matrix (for instance, the main diagonal has 
-   offset :math:`0`, the subdiagonal has offset :math:`-1`, and the 
-   superdiagonal has offset :math:`+1`).
+      Modify :math:`d` into a column-vector containing the entries lying on the 
+      ``offset`` diagonal of our matrix (for instance, the main diagonal has 
+      offset :math:`0`, the subdiagonal has offset :math:`-1`, and the 
+      superdiagonal has offset :math:`+1`).
 
-.. cpp:function:: void Matrix<T>::SetDiagonal( const Matrix<T>& d, int offset=0 )
+   .. cpp:function:: void SetDiagonal( const Matrix<T>& d, int offset=0 )
 
-   Set the entries in the ``offset`` diagonal entries from the contents of the 
-   column-vector :math:`d`.
+      Set the entries in the ``offset`` diagonal entries from the contents of 
+      the column-vector :math:`d`.
 
-.. cpp:function:: void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, int offset=0 )
+   .. cpp:function:: void UpdateDiagonal( const Matrix<T>& d, int offset=0 )
 
-   Add the contents of :math:`d` onto the entries in the ``offset`` diagonal.
+      Add the contents of :math:`d` onto the entries in the ``offset`` diagonal.
 
-.. note::
+   .. note::
 
-   The remaining functions in this subsection are only valid when ``T`` is a
-   complex datatype.
+      The remainder of this group is only valid for complex datatypes.
 
-.. cpp:function:: typename RealBase<T>::type Matrix<T>::GetReal( int i, int j ) const
+   .. cpp:function:: typename RealBase<T>::type GetReal( int i, int j ) const
 
-   Return the real part of entry :math:`(i,j)`.
+      Return the real part of entry :math:`(i,j)`.
 
-.. cpp:function:: typename RealBase<T>::type Matrix<T>::GetImag( int i, int j ) const
+   .. cpp:function:: typename RealBase<T>::type GetImag( int i, int j ) const
 
-   Return the imaginary part of entry :math:`(i,j)`.
+      Return the imaginary part of entry :math:`(i,j)`.
 
-.. cpp:function:: void Matrix<T>::SetReal( int i, int j, typename RealBase<T>::type alpha )
+   .. cpp:function:: void SetReal( int i, int j, typename RealBase<T>::type alpha )
 
-   Set the real part of entry :math:`(i,j)` to :math:`\alpha`.
+      Set the real part of entry :math:`(i,j)` to :math:`\alpha`.
 
-.. cpp:function:: void Matrix<T>::SetImag( int i, int j, typename RealBase<T>::type alpha )
+   .. cpp:function:: void SetImag( int i, int j, typename RealBase<T>::type alpha )
 
-   Set the imaginary part of entry :math:`(i,j)` to :math:`\alpha`.
+      Set the imaginary part of entry :math:`(i,j)` to :math:`\alpha`.
 
-.. cpp:function:: void Matrix<T>::UpdateReal( int i, int j, typename RealBase<T>::type alpha )
+   .. cpp:function:: void UpdateReal( int i, int j, typename RealBase<T>::type alpha )
 
-   Add :math:`\alpha` to the real part of entry :math:`(i,j)`.
+      Add :math:`\alpha` to the real part of entry :math:`(i,j)`.
 
-.. cpp:function:: void Matrix<T>::UpdateImag( int i, int j, typename RealBase<T>::type alpha ) 
+   .. cpp:function:: void UpdateImag( int i, int j, typename RealBase<T>::type alpha ) 
 
-   Add :math:`\alpha` to the imaginary part of entry :math:`(i,j)`.
+      Add :math:`\alpha` to the imaginary part of entry :math:`(i,j)`.
 
-.. cpp:function:: void Matrix<T>::GetRealDiagonal( Matrix<typename RealBase<T>::type>& d, int offset=0 ) const
+   .. cpp:function:: void GetRealDiagonal( Matrix<typename RealBase<T>::type>& d, int offset=0 ) const
 
-   Modify :math:`d` into a column-vector containing the real parts of the
-   entries in the ``offset`` diagonal.
+      Modify :math:`d` into a column-vector containing the real parts of the
+      entries in the ``offset`` diagonal.
 
-.. cpp:function:: void Matrix<T>::GetImagDiagonal( Matrix<typename RealBase<T>::type>& d, int offset=0 ) const
+   .. cpp:function:: void GetImagDiagonal( Matrix<typename RealBase<T>::type>& d, int offset=0 ) const
 
-   Modify :math:`d` into a column-vector containing the imaginary parts of the
-   entries in the ``offset`` diagonal.
+      Modify :math:`d` into a column-vector containing the imaginary parts of 
+      the entries in the ``offset`` diagonal.
 
-.. cpp:function:: void Matrix<T>::SetRealDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
+   .. cpp:function:: void SetRealDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
 
-   Set the real parts of the entries in the ``offset`` diagonal from the 
-   contents of the column-vector :math:`d`.
+      Set the real parts of the entries in the ``offset`` diagonal from the 
+      contents of the column-vector :math:`d`.
 
-.. cpp:function:: void Matrix<T>::SetImagDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
+   .. cpp:function:: void SetImagDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
 
-   Set the imaginary parts of the entries in the ``offset`` diagonal from the 
-   column-vector :math:`d`.
+      Set the imaginary parts of the entries in the ``offset`` diagonal from 
+      the column-vector :math:`d`.
 
-.. cpp:function:: void Matrix<T>::UpdateRealDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
+   .. cpp:function:: void UpdateRealDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
 
-   Add the contents of the column-vector :math:`d` onto the real parts of the
-   entries in the ``offset`` diagonal.
+      Add the contents of the column-vector :math:`d` onto the real parts of the
+      entries in the ``offset`` diagonal.
 
-.. cpp:function:: void Matrix<T>::UpdateImagDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
+   .. cpp:function:: void UpdateImagDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
 
-   Add the contents of the column-vector :math:`d` onto the imaginary parts of 
-   the entries in the ``offset`` diagonal.
+      Add the contents of the column-vector :math:`d` onto the imaginary parts 
+      of the entries in the ``offset`` diagonal.
 
-Views
------
+   .. rubric:: Views
 
-.. cpp:function:: bool Matrix<T>::Viewing() const
+   .. cpp:function:: bool Viewing() const
 
-   Return whether or not this matrix is currently viewing another matrix.
+      Return whether or not this matrix is currently viewing another matrix.
 
-.. cpp:function:: bool Matrix<T>::LockedView() const
+   .. cpp:function:: bool LockedView() const
 
-   Return whether or not we can modify the data we are viewing.
+      Return whether or not we can modify the data we are viewing.
 
-.. cpp:function:: void Matrix<T>::View( int height, int width, T* buffer, int ldim )
+   .. cpp:function:: void View( int height, int width, T* buffer, int ldim )
 
-   Reconfigure the matrix around the specified buffer.
+      Reconfigure the matrix around the specified buffer.
 
-.. cpp:function:: void Matrix<T>::View( Matrix<T>& A )
+   .. cpp:function:: void View( Matrix<T>& A )
 
-   Reconfigure the matrix around the modifiable buffer underlying ``A``.
+      Reconfigure the matrix around the modifiable buffer underlying ``A``.
 
-.. cpp:function:: void Matrix<T>::LockedView( int height, int width, const T* buffer, int ldim )
+   .. cpp:function:: void LockedView( int height, int width, const T* buffer, int ldim )
 
-   Reconfigure the matrix around the specified unmodifiable buffer.
+      Reconfigure the matrix around the specified unmodifiable buffer.
 
-.. cpp:function:: void Matrix<T>::LockedView( const Matrix<T>& A )
+   .. cpp:function:: void LockedView( const Matrix<T>& A )
 
-   Reconfigure the matrix around the unmodifiable buffer underlying ``A``.
+      Reconfigure the matrix around the unmodifiable buffer underlying ``A``.
 
-.. cpp:function:: void Matrix<T>::View( Matrix<T>& A, int i, int j, int height, int width )
+   .. cpp:function:: void View( Matrix<T>& A, int i, int j, int height, int width )
 
-   Reconfigure the matrix around the modifiable buffer underlying ``A``, but
-   only the portion that holds the *height* :math:`\times` *width* submatrix 
-   starting at entry ``(i,j)``
+      Reconfigure the matrix around the modifiable buffer underlying ``A``, but
+      only the portion that holds the *height* :math:`\times` *width* submatrix 
+      starting at entry ``(i,j)``
 
-.. cpp:function:: void Matrix<T>::LockedView( const Matrix<T>& A, int i, int j, int height, int width )
+   .. cpp:function:: void LockedView( const Matrix<T>& A, int i, int j, int height, int width )
 
-   Same as above, but the resulting matrix data is unmodifiable.
+      Same as above, but the resulting matrix data is unmodifiable.
 
-.. cpp:function:: void Matrix<T>::View1x2( Matrix<T>& AL, Matrix<T>& AR )
+   .. cpp:function:: void View1x2( Matrix<T>& AL, Matrix<T>& AR )
 
-   Reconfigure the matrix to use the modifiable buffer that spans the 
-   matrices :math:`A_L` and :math:`A_R` such that it behaves like 
-   :math:`[A_L A_R]` (this routine requires that :math:`A_R`'s buffer begins 
-   at the same memory location that an extra column of :math:`A_L` would have).
+      Reconfigure the matrix to use the modifiable buffer that spans the 
+      matrices :math:`A_L` and :math:`A_R` such that it behaves like 
+      :math:`[A_L A_R]` (this routine requires that :math:`A_R`'s buffer begins 
+      at the same memory location that an extra column of :math:`A_L` would 
+      have).
 
-.. cpp:function:: void Matrix<T>::LockedView1x2( const Matrix<T>& AL, const Matrix<T>& AR )
+   .. cpp:function:: void LockedView1x2( const Matrix<T>& AL, const Matrix<T>& AR )
 
-   Same as above, but the resulting matrix data is unmodifiable.
+      Same as above, but the resulting matrix data is unmodifiable.
 
-.. cpp:function:: void Matrix<T>::View2x1( Matrix<T>& AT, Matrix<T>& AB )
+   .. cpp:function:: void View2x1( Matrix<T>& AT, Matrix<T>& AB )
 
-   Reconfigure the matrix to use the modifiable buffer that spans the 
-   matrices :math:`A_T` and :math:`A_B` such that it behaves like 
-   :math:`[A_T;A_B]` (this routine requires that :math:`A_B`'s buffer begins 
-   at the same memory location that an extra row of :math:`A_T` would have).
+      Reconfigure the matrix to use the modifiable buffer that spans the 
+      matrices :math:`A_T` and :math:`A_B` such that it behaves like 
+      :math:`[A_T;A_B]` (this routine requires that :math:`A_B`'s buffer begins 
+      at the same memory location that an extra row of :math:`A_T` would have).
 
-.. cpp:function:: void Matrix<T>::LockedView2x1( const Matrix<T>& AT, const Matrix<T>& AB )
+   .. cpp:function:: void LockedView2x1( const Matrix<T>& AT, const Matrix<T>& AB )
 
-   Same as above, but the resulting matrix data is unmodifiable.
+      Same as above, but the resulting matrix data is unmodifiable.
 
-.. cpp:function:: void Matrix<T>::View2x2( Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR )
+   .. cpp:function:: void View2x2( Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR )
 
-   Reconfigure the matrix to behave like :math:`[A_{TL} A_{TR}; A_{BL} A_{BR}]`
-   (the buffer requirements are similar to ``View1x2`` and ``View2x1``).
+      Reconfigure the matrix to behave like 
+      :math:`[A_{TL} A_{TR}; A_{BL} A_{BR}]`
+      (the buffer requirements are similar to ``View1x2`` and ``View2x1``).
 
-.. cpp:function:: void Matrix<T>::LockedView2x2( const Matrix<T>& ATL, const Matrix<T>& ATR, const Matrix<T>& ABL, const Matrix<T>& ABR )
+   .. cpp:function:: void LockedView2x2( const Matrix<T>& ATL, const Matrix<T>& ATR, const Matrix<T>& ABL, const Matrix<T>& ABR )
 
-   Same as above, but the resulting matrix data is unmodifiable.
+      Same as above, but the resulting matrix data is unmodifiable.
 
-Utilities
----------
+   .. rubric:: Utilities
 
-.. cpp:function:: const Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
+   .. cpp:function:: const Matrix<T>& operator=( const Matrix<T>& A )
 
-   Create a copy of matrix :math:`A`.
+      Create a copy of matrix :math:`A`.
 
-.. cpp:function:: void Matrix<T>::Empty()
+   .. cpp:function:: void Empty()
 
-   Sets the matrix to :math:`0 \times 0` and frees the underlying buffer.
+      Sets the matrix to :math:`0 \times 0` and frees the underlying buffer.
 
-.. cpp:function:: void Matrix<T>::ResizeTo( int height, int width )
+   .. cpp:function:: void ResizeTo( int height, int width )
 
-   Reconfigures the matrix to be *height* :math:`\times` *width*.
+      Reconfigures the matrix to be *height* :math:`\times` *width*.
 
-.. cpp:function:: void Matrix<T>::ResizeTo( int height, int width, int ldim )
+   .. cpp:function:: void ResizeTo( int height, int width, int ldim )
 
-   Reconfigures the matrix to be *height* :math:`\times` *width*, but with 
-   leading dimension equal to *ldim* (which must be greater than or equal to 
-   ``std::min(height,1)``).
+      Reconfigures the matrix to be *height* :math:`\times` *width*, but with 
+      leading dimension equal to *ldim* (which must be greater than or equal to 
+      ``std::min(height,1)``).
 
-.. cpp:function:: void Matrix<T>::SetToIdentity()
+   .. cpp:function:: void SetToIdentity()
 
-   Sets the entire matrix to zero, with the exception of the main diagonal 
-   being set to one. For square matrices, this corresponds to the identity 
-   operator.
+      Sets the entire matrix to zero, with the exception of the main diagonal 
+      being set to one. For square matrices, this corresponds to the identity 
+      operator.
 
-.. cpp:function:: void Matrix<T>::SetToRandom()
+   .. cpp:function:: void SetToRandom()
 
-   Sets each entry in the matrix to a uniform sample from the most natural 
-   interpretation of the unit ball specified by the datatype.
+      Sets each entry in the matrix to a uniform sample from the most natural 
+      interpretation of the unit ball specified by the datatype.
 
-.. cpp:function:: void Matrix<T>::SetToZero()
+   .. cpp:function:: void SetToZero()
 
-   Sets every entry of the matrix to zero.
+      Sets every entry of the matrix to zero.
 
 The DistMatrix class
 ====================
@@ -419,255 +418,253 @@ AbstractDistMatrix
 This abstract class defines the list of member functions that are guaranteed 
 to be available for all matrix distributions.
 
-Basic information
------------------
+.. cpp:class:: AbstractDistMatrix<T>
 
-.. cpp:function:: int AbstractDistMatrix<T>::Height() const
+   .. rubric:: Basic information
 
-   Return the height of the matrix.
+   .. cpp:function:: int Height() const
 
-.. cpp:function:: int AbstractDistMatrix<T>::Width() const
+      Return the height of the matrix.
 
-   Return the width of the matrix.
+   .. cpp:function:: int Width() const
 
-.. cpp:function:: int AbstractDistMatrix<T>::LocalHeight() const
+      Return the width of the matrix.
 
-   Return the local height of the matrix.
+   .. cpp:function:: int LocalHeight() const
 
-.. cpp:function:: int AbstractDistMatrix<T>::LocalWidth() const
+      Return the local height of the matrix.
 
-   Return the local width of the matrix.
+   .. cpp:function:: int LocalWidth() const
 
-.. cpp:function:: int AbstractDistMatrix<T>::LocalLDim() const
+      Return the local width of the matrix.
 
-   Return the local leading dimension of the matrix.
+   .. cpp:function:: int LocalLDim() const
 
-.. cpp:function:: size_t AbstractDistMatrix<T>::AllocatedMemory() const
+      Return the local leading dimension of the matrix.
 
-   Return the number of entries of type ``T`` that we have locally allocated
-   space for.
+   .. cpp:function:: size_t AllocatedMemory() const
 
-.. cpp:function:: const Grid& AbstractDistMatrix<T>::Grid() const
+      Return the number of entries of type ``T`` that we have locally allocated
+      space for.
 
-   Return the grid that this distributed matrix is distributed over.
+   .. cpp:function:: const elemental::Grid& Grid() const
 
-.. cpp:function:: T* AbstractDistMatrix<T>::LocalBuffer( int iLocal=0, int jLocal=0 )
+      Return the grid that this distributed matrix is distributed over.
 
-   Return a pointer to the portion of the local buffer that stores entry 
-   ``(iLocal,jLocal)``.
+   .. cpp:function:: T* LocalBuffer( int iLocal=0, int jLocal=0 )
 
-.. cpp:function:: const T* AbstractDistMatrix<T>::LockedLocalBuffer( int iLocal=0, int jLocal=0 ) const
+      Return a pointer to the portion of the local buffer that stores entry 
+      ``(iLocal,jLocal)``.
 
-   Return a pointer to the portion of the local buffer that stores entry
-   ``(iLocal,jLocal)``, but do not allow for the data to be modified through
-   the returned pointer.
+   .. cpp:function:: const T* LockedLocalBuffer( int iLocal=0, int jLocal=0 ) const
 
-.. cpp:function:: Matrix<T>& AbstractDistMatrix<T>::LocalMatrix()
+      Return a pointer to the portion of the local buffer that stores entry
+      ``(iLocal,jLocal)``, but do not allow for the data to be modified through
+      the returned pointer.
 
-   Return a reference to the local matrix.
+   .. cpp:function:: Matrix<T>& LocalMatrix()
 
-.. cpp:function:: const Matrix<T>& AbstractDistMatrix<T>::LockedLocalMatrix() const
+      Return a reference to the local matrix.
 
-   Return an unmodifiable reference to the local matrix.
+   .. cpp:function:: const Matrix<T>& LockedLocalMatrix() const
 
-I/O
-^^^
+      Return an unmodifiable reference to the local matrix.
 
-.. cpp:function:: void AbstractDistMatrix<T>::Print( const std::string msg="" ) const
+   .. rubric:: I/O
 
-   Print the distributed matrix to standard output (``std::cout``).
+   .. cpp:function:: void Print( const std::string msg="" ) const
 
-.. cpp:function:: void AbstractDistMatrix<T>::Print( std::ostream& os, const std::string msg="" ) const
+      Print the distributed matrix to standard output (``std::cout``).
 
-   Print the distributed matrix to the output stream ``os``.
+   .. cpp:function:: void Print( std::ostream& os, const std::string msg="" ) const
 
-.. cpp:function:: void AbstractDistMatrix<T>::Write( const std::string filename, const std::string msg="" ) const
+      Print the distributed matrix to the output stream ``os``.
 
-   Print the distributed matrix to the file named ``filename``.
+   .. cpp:function:: void Write( const std::string filename, const std::string msg="" ) const
 
-Alignments
-^^^^^^^^^^
+      Print the distributed matrix to the file named ``filename``.
 
-.. cpp:function:: void AbstractDistMatrix<T>::FreeAlignments()
+   .. rubric:: Alignments
 
-   Free all alignment constaints.
+   .. cpp:function:: void FreeAlignments()
 
-.. cpp:function:: bool AbstractDistMatrix<T>::ConstrainedColAlignment() const
+      Free all alignment constaints.
 
-   Return whether or not the column alignment is constrained.
+   .. cpp:function:: bool ConstrainedColAlignment() const
 
-.. cpp:function:: bool AbstractDistMatrix<T>::ConstrainedRowAlignment() const
+      Return whether or not the column alignment is constrained.
 
-   Return whether or not the row alignment is constrained.
+   .. cpp:function:: bool ConstrainedRowAlignment() const
 
-.. cpp:function:: int AbstractDistMatrix<T>::ColAlignment() const
+      Return whether or not the row alignment is constrained.
 
-   Return the alignment of the columns of the matrix.
+   .. cpp:function:: int ColAlignment() const
 
-.. cpp:function:: int AbstractDistMatrix<T>::RowAlignment() const
+      Return the alignment of the columns of the matrix.
 
-   Return the alignment of the rows of the matrix.
+   .. cpp:function:: int RowAlignment() const
 
-.. cpp:function:: int AbstractDistMatrix<T>::ColShift() const
+      Return the alignment of the rows of the matrix.
 
-   Return the first global row that our process owns.
+   .. cpp:function:: int ColShift() const
 
-.. cpp:function:: int AbstractDistMatrix<T>::RowShift() const
+      Return the first global row that our process owns.
 
-   Return the first global column that our process owns.
+   .. cpp:function:: int RowShift() const
 
-Entry manipulation
-^^^^^^^^^^^^^^^^^^^^^^^^
+      Return the first global column that our process owns.
 
-.. cpp:function:: T AbstractDistMatrix<T>::Get( int i, int j ) const
+   .. rubric:: Entry manipulation
 
-   Return the ``(i,j)`` entry of the global matrix. This operation is 
-   collective.
+   .. cpp:function:: T Get( int i, int j ) const
 
-.. cpp:function:: void AbstractDistMatrix<T>::Set( int i, int j, T alpha )
+      Return the ``(i,j)`` entry of the global matrix. This operation is 
+      collective.
 
-   Set the ``(i,j)`` entry of the global matrix to :math:`\alpha`. This 
-   operation is collective.
+   .. cpp:function:: void Set( int i, int j, T alpha )
 
-.. cpp:function:: void AbstractDistMatrix<T>::Update( int i, int j, T alpha )
+      Set the ``(i,j)`` entry of the global matrix to :math:`\alpha`. This 
+      operation is collective.
 
-   Add :math:`\alpha` to the ``(i,j)`` entry of the global matrix. This 
-   operation is collective.
+   .. cpp:function:: void Update( int i, int j, T alpha )
 
-.. cpp:function:: T AbstractDistMatrix<T>::GetLocalEntry( int iLocal, int jLocal ) const
+      Add :math:`\alpha` to the ``(i,j)`` entry of the global matrix. This 
+      operation is collective.
 
-   Return the ``(iLocal,jLocal)`` entry of our local matrix.
+   .. cpp:function:: T GetLocalEntry( int iLocal, int jLocal ) const
 
-.. cpp:function:: void AbstractDistMatrix<T>::SetLocalEntry( int iLocal, int jLocal, T alpha )
+      Return the ``(iLocal,jLocal)`` entry of our local matrix.
 
-   Set the ``(iLocal,jLocal)`` entry of our local matrix to :math:`\alpha`.
+   .. cpp:function:: void SetLocalEntry( int iLocal, int jLocal, T alpha )
 
-.. cpp:function:: void AbstractDistMatrix<T>::UpdateLocalEntry( int iLoca, int jLocal, T alpha )
+      Set the ``(iLocal,jLocal)`` entry of our local matrix to :math:`\alpha`.
 
-   Add :math:`\alpha` to the ``(iLocal,jLocal)`` entry of our local matrix.
+   .. cpp:function:: void UpdateLocalEntry( int iLoca, int jLocal, T alpha )
 
-.. note::
+      Add :math:`\alpha` to the ``(iLocal,jLocal)`` entry of our local matrix.
 
-   The remainder of this subsubsection is only valid for complex datatypes.
+   .. note::
 
-.. cpp:function:: typename RealBase<T>::type AbstractDistMatrix<T>::GetReal( int i, int j ) const
+      The remainder of this group is only valid for complex datatypes.
 
-   Return the real part of the ``(i,j)`` entry of the global matrix. This
-   operation is collective.
+   .. cpp:function:: typename RealBase<T>::type GetReal( int i, int j ) const
 
-.. cpp:function:: typename RealBase<T>::type AbstractDistMatrix<T>::GetImag( int i, int j ) const
+      Return the real part of the ``(i,j)`` entry of the global matrix. This
+      operation is collective.
 
-   Return the imaginary part of the ``(i,j)`` entry of the global matrix. This
-   operation is collective.
+   .. cpp:function:: typename RealBase<T>::type GetImag( int i, int j ) const
 
-.. cpp:function:: void AbstractDistMatrix<T>::SetReal( int i, int j, typename RealBase<T>::type alpha )
+      Return the imaginary part of the ``(i,j)`` entry of the global matrix. 
+      This operation is collective.
 
-   Set the real part of the ``(i,j)`` entry of the global matrix to 
-   :math:`\alpha`.
+   .. cpp:function:: void SetReal( int i, int j, typename RealBase<T>::type alpha )
 
-.. cpp:function:: void AbstractDistMatrix<T>::SetImag( int i, int j, typename RealBase<T>::type alpha )
+      Set the real part of the ``(i,j)`` entry of the global matrix to 
+      :math:`\alpha`.
 
-   Set the imaginary part of the ``(i,j)`` entry of the global matrix to 
-   :math:`\alpha`.
+   .. cpp:function:: void SetImag( int i, int j, typename RealBase<T>::type alpha )
 
-.. cpp:function:: void AbstractDistMatrix<T>::UpdateReal( int i, int j, typename RealBase<T>::type alpha )
+      Set the imaginary part of the ``(i,j)`` entry of the global matrix to 
+      :math:`\alpha`.
 
-   Add :math:`\alpha` to the real part of the ``(i,j)`` entry of the global 
-   matrix.
+   .. cpp:function:: void UpdateReal( int i, int j, typename RealBase<T>::type alpha )
 
-.. cpp:function:: void AbstractDistMatrix<T>::UpdateImag( int i, int j, typename RealBase<T>::type alpha )
+      Add :math:`\alpha` to the real part of the ``(i,j)`` entry of the global 
+      matrix.
 
-   Add :math:`\alpha` to the imaginary part of the ``(i,j)`` entry of the global
-   matrix.
+   .. cpp:function:: void UpdateImag( int i, int j, typename RealBase<T>::type alpha )
 
-.. cpp:function:: typename RealBase<T>::type AbstractDistMatrix<T>::GetRealLocalEntry( int iLocal, int jLocal ) const
+      Add :math:`\alpha` to the imaginary part of the ``(i,j)`` entry of the 
+      global matrix.
 
-   Return the real part of the ``(iLocal,jLocal)`` entry of our local matrix.
+   .. cpp:function:: typename RealBase<T>::type GetRealLocalEntry( int iLocal, int jLocal ) const
 
-.. cpp:function:: typename RealBase<T>::type AbstractDistMatrix<T>::GetImagLocalEntry( int iLocal, int jLocal ) const
+      Return the real part of the ``(iLocal,jLocal)`` entry of our local matrix.
 
-   Return the imaginary part of the ``(iLocal,jLocal)`` entry of our local 
-   matrix.
+   .. cpp:function:: typename RealBase<T>::type GetImagLocalEntry( int iLocal, int jLocal ) const
 
-.. cpp:function:: void AbstractDistMatrix<T>::SetRealLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+      Return the imaginary part of the ``(iLocal,jLocal)`` entry of our local 
+      matrix.
 
-   Set the real part of the ``(iLocal,jLocal)`` entry of our local matrix.
+   .. cpp:function:: void SetRealLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 
-.. cpp:function:: void AbstractDistMatrix<T>::SetImagLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+      Set the real part of the ``(iLocal,jLocal)`` entry of our local matrix.
 
-   Set the imaginary part of the ``(iLocal,jLocal)`` entry of our local matrix.
+   .. cpp:function:: void SetImagLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 
-.. cpp:function:: void AbstractDistMatrix<T>::UpdateRealLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+      Set the imaginary part of the ``(iLocal,jLocal)`` entry of our local 
+      matrix.
 
-   Add :math:`\alpha` to the real part of the ``(iLocal,jLocal)`` entry of 
-   our local matrix.
+   .. cpp:function:: void UpdateRealLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 
-.. cpp:function:: void AbstractDistMatrix<T>::UpdateImagLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+      Add :math:`\alpha` to the real part of the ``(iLocal,jLocal)`` entry of 
+      our local matrix.
 
-   Add :math:`\alpha` to the imaginary part of the ``(iLocal,jLocal)`` entry 
-   of our local matrix.
+   .. cpp:function:: void UpdateImagLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 
-Viewing
-^^^^^^^
+      Add :math:`\alpha` to the imaginary part of the ``(iLocal,jLocal)`` entry 
+      of our local matrix.
 
-.. cpp:function:: bool AbstractDistMatrix<T>::Viewing() const
+   .. rubric:: Viewing
 
-   Return whether or not this ``DistMatrix`` is viewing another.
+   .. cpp:function:: bool Viewing() const
 
-.. cpp:function:: bool AbstractDistMatrix<T>::LockedView() const
+      Return whether or not this ``DistMatrix`` is viewing another.
 
-   Return whether or not this ``DistMatrix`` is viewing another in a manner
-   that does not allow for modifying the viewed data.
+   .. cpp:function:: bool LockedView() const
 
-Utilities
-^^^^^^^^^
+      Return whether or not this ``DistMatrix`` is viewing another in a manner
+      that does not allow for modifying the viewed data.
 
-.. cpp:function:: void AbstractDistMatrix<T>::Empty()
+   .. rubric:: Utilities
 
-   Resize the distributed matrix so that it is :math:`0 \times 0` and free all
-   allocated storage.
+   .. cpp:function:: void Empty()
 
-.. cpp:function:: void AbstractDistMatrix<T>::MakeTrapezoidal( Side side, Shape shape, int offset=0 )
+      Resize the distributed matrix so that it is :math:`0 \times 0` and free 
+      all allocated storage.
 
-   Explicitly introduce zeroes into the distributed matrix such that it is 
-   trapezoidal with respect to the left or right diagonal (as chosen by the 
-   ``side`` parameter). Whether or not the matrix is lower or upper trapezoidal
-   is determined by the ``shape`` parameter, and the diagonal offset is chosen
-   by the ``offset`` parameter (:math:`0` denotes the main diagonal,
-   :math:`-1` denotes the subdiagonal, and :math:`+1` denotes the 
-   superdiagonal).
+   .. cpp:function:: void MakeTrapezoidal( Side side, Shape shape, int offset=0 )
 
-.. cpp:function:: void AbstractDistMatrix<T>::ScaleTrapezoidal( T alpha, Side side, Shape shape, int offset=0 )
+      Explicitly introduce zeroes into the distributed matrix such that it is 
+      trapezoidal with respect to the left or right diagonal (as chosen by the 
+      ``side`` parameter). Whether or not the matrix is lower or upper 
+      trapezoidal is determined by the ``shape`` parameter, and the diagonal 
+      offset is chosen by the ``offset`` parameter (:math:`0` denotes the main 
+      diagonal, :math:`-1` denotes the subdiagonal, and :math:`+1` denotes the 
+      superdiagonal).
 
-   Scale the portion of the matrix determined by the above discussion by the 
-   scalar :math:`\alpha`.
+   .. cpp:function:: void ScaleTrapezoidal( T alpha, Side side, Shape shape, int offset=0 )
 
-.. cpp:function:: void AbstractDistMatrix<T>::ResizeTo( int height, int width )
+      Scale the portion of the matrix determined by the above discussion by the 
+      scalar :math:`\alpha`.
 
-   Reconfigure the matrix so that it is *height* :math:`\times` *width*.
+   .. cpp:function:: void ResizeTo( int height, int width )
 
-.. cpp:function:: void AbstractDistMatrix<T>::SetToIdentity()
+      Reconfigure the matrix so that it is *height* :math:`\times` *width*.
 
-   Set the entire matrix to zero and then introduce ones onto the main diagonal.
+   .. cpp:function:: void SetToIdentity()
 
-.. cpp:function:: void AbstractDistMatrix<T>::SetToRandom()
+      Set the entire matrix to zero and then introduce ones onto the main 
+      diagonal.
 
-   Independently draw each entry of the matrix from the uniform distribution
-   over the unit ball.
+   .. cpp:function:: void SetToRandom()
 
-.. cpp:function:: void AbstractDistMatrix<T>::SetToRandomHermitian()
+      Independently draw each entry of the matrix from the uniform distribution
+      over the unit ball.
 
-   Same as above, but the diagonal is forced to be real-valued
-   (the rest of the symmetry is implicit).
+   .. cpp:function:: void SetToRandomHermitian()
 
-.. cpp:function:: void AbstractDistMatrix<T>::SetToRandomHPD()
+      Same as above, but the diagonal is forced to be real-valued
+      (the rest of the symmetry is implicit).
 
-   Same as above, but a sufficiently large constant is added to every diagonal
-   entry in order to ensure that the matrix is positive-definite.
+   .. cpp:function:: void SetToRandomHPD()
 
-.. cpp:function:: void AbstractDistMatrix<T>::SetToZero()
+      Same as above, but a sufficiently large constant is added to every 
+      diagonal entry in order to ensure that the matrix is positive-definite.
 
-   Set all entries of the distributed matrix to zero.
+   .. cpp:function:: void SetToZero()
+
+      Set all entries of the distributed matrix to zero.
 
 ``[MC,MR]``
 -----------

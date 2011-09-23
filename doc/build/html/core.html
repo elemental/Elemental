@@ -141,18 +141,20 @@ to view the bottom-right <img class="math" src="_images/math/92df365f89d2233aa41
 <p>since the bottom-right <img class="math" src="_images/math/92df365f89d2233aa41e31e83c02c8993ad73e75.png" alt="6 \times 7"/> submatrix beings at index
 <img class="math" src="_images/math/563948106c3332662355412547d99acab218c16f.png" alt="(4,3)"/>. In general, to view the <img class="math" src="_images/math/c974ce563a0da50b16b3b28b389de6ccd4aceb8a.png" alt="M \times N"/> submatrix starting
 at entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/>, one would call <tt class="docutils literal"><span class="pre">ABR.View(</span> <span class="pre">A,</span> <span class="pre">i,</span> <span class="pre">j,</span> <span class="pre">M,</span> <span class="pre">N</span> <span class="pre">);</span></tt>.</p>
-<div class="section" id="constructors">
-<h3>Constructors<a class="headerlink" href="#constructors" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="Matrix:T:">
+<em class="property">class </em><tt class="descname">Matrix&lt;T&gt;</tt><a class="headerlink" href="#Matrix:T:" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Constructors</p>
 <dl class="function">
 <dt id="Matrix:T:::Matrix">
- <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Matrix</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">Matrix</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>This simply creates a default <img class="math" src="_images/math/43205564ab7e64a12e040330eb778d2812a4701f.png" alt="0 \times 0"/> matrix with a leading
 dimension of one (BLAS and LAPACK require positive leading dimensions).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::Matrix__i.i">
- <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Matrix</tt><big>(</big>int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__i.i" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">Matrix</tt><big>(</big>int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>A <em>height</em> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em> matrix is created with an unspecified
 leading dimension (though it is currently implemented as
 <tt class="docutils literal"><span class="pre">std::max(height,1)</span></tt>).</p>
@@ -160,14 +162,15 @@ leading dimension (though it is currently implemented as
 
 <dl class="function">
 <dt id="Matrix:T:::Matrix__i.i.i">
- <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Matrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__i.i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <em>height</em> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em> matrix is created with a leading dimension
-equal to <em>ldim</em> (which must be greater than or equal <tt class="docutils literal"><span class="pre">std::min(height,1)</span></tt>).</p>
+ <tt class="descname">Matrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__i.i.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <em>height</em> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em> matrix is created with a leading
+dimension equal to <em>ldim</em> (which must be greater than or equal
+<tt class="docutils literal"><span class="pre">std::min(height,1)</span></tt>).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::Matrix__i.i.TCP.i">
- <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Matrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, const T* <em>buffer</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__i.i.TCP.i" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">Matrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, const T* <em>buffer</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__i.i.TCP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>A matrix is built around column-major constant buffer <tt class="docutils literal"><span class="pre">const</span> <span class="pre">T*</span> <span class="pre">buffer</span></tt>
 with the specified dimensions. The memory pointed to by <tt class="docutils literal"><span class="pre">buffer</span></tt> should
 not be freed until after the <tt class="docutils literal"><span class="pre">Matrix</span></tt> object is destructed.</p>
@@ -175,7 +178,7 @@ not be freed until after the <tt class="docutils literal"><span class="pre">Matr
 
 <dl class="function">
 <dt id="Matrix:T:::Matrix__i.i.TP.i">
- <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Matrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, T* <em>buffer</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__i.i.TP.i" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">Matrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, T* <em>buffer</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__i.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>A matrix is built around the column-major modifiable buffer <tt class="docutils literal"><span class="pre">T*</span> <span class="pre">buffer</span></tt>
 with the specified dimensions. The memory pointed to by <tt class="docutils literal"><span class="pre">buffer</span></tt> should
 not be freed until after the <tt class="docutils literal"><span class="pre">Matrix</span></tt> object is destructed.</p>
@@ -183,28 +186,26 @@ not be freed until after the <tt class="docutils literal"><span class="pre">Matr
 
 <dl class="function">
 <dt id="Matrix:T:::Matrix__Matrix:T:CR">
- <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Matrix</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">Matrix</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>A copy (not a view) of the matrix <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is built.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="basic-information">
-<h3>Basic information<a class="headerlink" href="#basic-information" title="Permalink to this headline">¶</a></h3>
+<p class="rubric">Basic information</p>
 <dl class="function">
 <dt id="Matrix:T:::HeightC">
-int <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Height</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::HeightC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">Height</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::HeightC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the height of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::WidthC">
-int <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Width</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::WidthC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">Width</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::WidthC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the width of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::DiagonalLength__iC">
-int <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">DiagonalLength</tt><big>(</big>int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::DiagonalLength__iC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">DiagonalLength</tt><big>(</big>int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::DiagonalLength__iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the length of the specified diagonal of the matrix: an offset of
 <img class="math" src="_images/math/bc1f9d9bf8a1b606a4188b5ce9a2af1809e27a89.png" alt="0"/> refers to the main diagonal, an offset of <img class="math" src="_images/math/dce34f4dfb2406144304ad0d6106c5382ddd1446.png" alt="1"/> refers to
 the superdiagonal, an offset of <img class="math" src="_images/math/bae5aba07d37ff6ff813107e76260fb31ad5794e.png" alt="-1"/> refers to the subdiagonal,
@@ -213,46 +214,47 @@ etc.</p>
 
 <dl class="function">
 <dt id="Matrix:T:::LDimC">
-int <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LDim</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LDimC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">LDim</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LDimC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the leading dimension of the underlying buffer.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::MemorySizeC">
-int <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">MemorySize</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::MemorySizeC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">MemorySize</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::MemorySizeC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of entries of type <tt class="docutils literal"><span class="pre">T</span></tt> that this <tt class="docutils literal"><span class="pre">Matrix</span></tt> instance
 has allocated space for.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::Buffer">
-T* <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Buffer</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::Buffer" title="Permalink to this definition">¶</a></dt>
+T* <tt class="descname">Buffer</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::Buffer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a pointer to the underlying buffer.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::LockedBufferC">
-const T* <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedBuffer</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LockedBufferC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a pointer to the underlying buffer that does not allow for modifying
-the data.</p>
+const T* <tt class="descname">LockedBuffer</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LockedBufferC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a pointer to the underlying buffer that does not allow for
+modifying the data.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::Buffer__i.i">
-T* <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Buffer</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><a class="headerlink" href="#Matrix:T:::Buffer__i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a pointer to the portion of the buffer that holds entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/>.</p>
+T* <tt class="descname">Buffer</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><a class="headerlink" href="#Matrix:T:::Buffer__i.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a pointer to the portion of the buffer that holds entry
+<img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::LockedBuffer__i.iC">
-const T* <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedBuffer</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LockedBuffer__i.iC" title="Permalink to this definition">¶</a></dt>
+const T* <tt class="descname">LockedBuffer</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LockedBuffer__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a pointer to the portion of the buffer that holds entry
 <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/> that does not allow for modifying the data.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::Buffer__i.i.i.i">
-T* <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Buffer</tt><big>(</big>int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::Buffer__i.i.i.i" title="Permalink to this definition">¶</a></dt>
+T* <tt class="descname">Buffer</tt><big>(</big>int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::Buffer__i.i.i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as the version without <em>height</em> and <em>width</em>, but in <strong>Debug</strong> modes
 it will ensure that the <em>height</em> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em> submatrix starting
 at entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/> does not go out of bounds.</p>
@@ -260,51 +262,47 @@ at entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a
 
 <dl class="function">
 <dt id="Matrix:T:::LockedBuffer__i.i.i.iC">
-const T* <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedBuffer</tt><big>(</big>int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LockedBuffer__i.i.i.iC" title="Permalink to this definition">¶</a></dt>
+const T* <tt class="descname">LockedBuffer</tt><big>(</big>int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LockedBuffer__i.i.i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the data cannot be modified using the returned pointer.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="i-o">
-<h3>I/O<a class="headerlink" href="#i-o" title="Permalink to this headline">¶</a></h3>
+<p class="rubric">I/O</p>
 <dl class="function">
 <dt id="Matrix:T:::Print__ssCC">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Print</tt><big>(</big>const std::string <em>msg</em><em>=&quot;&quot;</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::Print__ssCC" title="Permalink to this definition">¶</a></dt>
-<dd><p>The matrix is printed to standard output (<tt class="docutils literal"><span class="pre">std::cout</span></tt>) with the preceding
+void <tt class="descname">Print</tt><big>(</big>const std::string <em>msg</em><em>=&quot;&quot;</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::Print__ssCC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The matrix is printed to standard output (<tt class="docutils literal"><span class="pre">std::cout</span></tt>) with the preceding
+message <tt class="docutils literal"><span class="pre">msg</span></tt> (which is empty if unspecified).</p>
+<dl class="function">
+<dt id="Matrix:T:::Print__osR.ssCC">
+void <tt class="descname">Print</tt><big>(</big>std::ostream&amp; <em>os</em>, const std::string <em>msg</em><em>=&quot;&quot;</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::Print__osR.ssCC" title="Permalink to this definition">¶</a></dt>
+<dd><p>The matrix is printed to the output stream <tt class="docutils literal"><span class="pre">os</span></tt> with the preceding
 message <tt class="docutils literal"><span class="pre">msg</span></tt> (which is empty if unspecified).</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="Matrix:T:::Print__osR.ssCC">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Print</tt><big>(</big>std::ostream&amp; <em>os</em>, const std::string <em>msg</em><em>=&quot;&quot;</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::Print__osR.ssCC" title="Permalink to this definition">¶</a></dt>
-<dd><p>The matrix is printed to the output stream <tt class="docutils literal"><span class="pre">os</span></tt> with the preceding message
-<tt class="docutils literal"><span class="pre">msg</span></tt> (which is empty if unspecified).</p>
-</dd></dl>
-
-</div>
-<div class="section" id="entry-manipulation">
-<h3>Entry manipulation<a class="headerlink" href="#entry-manipulation" title="Permalink to this headline">¶</a></h3>
+<p class="rubric">Entry manipulation</p>
 <dl class="function">
 <dt id="Matrix:T:::Get__i.iC">
-T <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Get</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::Get__i.iC" title="Permalink to this definition">¶</a></dt>
+T <tt class="descname">Get</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::Get__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::Set__i.i.T">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Set</tt><big>(</big>int <em>i</em>, int <em>j</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::Set__i.i.T" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">Set</tt><big>(</big>int <em>i</em>, int <em>j</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::Set__i.i.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/> to <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::Update__i.i.T">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Update</tt><big>(</big>int <em>i</em>, int <em>j</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::Update__i.i.T" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">Update</tt><big>(</big>int <em>i</em>, int <em>j</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::Update__i.i.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::GetDiagonal__Matrix:T:R.iC">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetDiagonal</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetDiagonal__Matrix:T:R.iC" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">GetDiagonal</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetDiagonal__Matrix:T:R.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Modify <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> into a column-vector containing the entries lying on the
 <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal of our matrix (for instance, the main diagonal has
 offset <img class="math" src="_images/math/bc1f9d9bf8a1b606a4188b5ce9a2af1809e27a89.png" alt="0"/>, the subdiagonal has offset <img class="math" src="_images/math/bae5aba07d37ff6ff813107e76260fb31ad5794e.png" alt="-1"/>, and the
@@ -313,142 +311,139 @@ superdiagonal has offset <img class="math" src="_images/math/1178af8fcc5f3f3acb9
 
 <dl class="function">
 <dt id="Matrix:T:::SetDiagonal__Matrix:T:CR.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetDiagonal</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::SetDiagonal__Matrix:T:CR.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal entries from the contents of the
-column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>.</p>
+void <tt class="descname">SetDiagonal</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::SetDiagonal__Matrix:T:CR.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal entries from the contents of
+the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::UpdateDiagonal__Matrix:T:CR.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateDiagonal</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateDiagonal__Matrix:T:CR.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">UpdateDiagonal</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateDiagonal__Matrix:T:CR.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the contents of <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> onto the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
 </dd></dl>
 
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The remaining functions in this subsection are only valid when <tt class="docutils literal"><span class="pre">T</span></tt> is a
-complex datatype.</p>
+<p class="last">The remainder of this group is only valid for complex datatypes.</p>
 </div>
 <dl class="function">
 <dt id="Matrix:T:::GetReal__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetReal</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetReal__i.iC" title="Permalink to this definition">¶</a></dt>
+typename RealBase&lt;T&gt;::type <tt class="descname">GetReal</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetReal__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the real part of entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::GetImag__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetImag</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetImag__i.iC" title="Permalink to this definition">¶</a></dt>
+typename RealBase&lt;T&gt;::type <tt class="descname">GetImag</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetImag__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the imaginary part of entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::SetReal__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetReal</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::SetReal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetReal</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::SetReal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the real part of entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/> to <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::SetImag__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetImag</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::SetImag__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetImag</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::SetImag__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the imaginary part of entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/> to <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::UpdateReal__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateReal</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateReal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">UpdateReal</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateReal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the real part of entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::UpdateImag__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateImag</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateImag__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">UpdateImag</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateImag__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the imaginary part of entry <img class="math" src="_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::GetRealDiagonal__Matrix:typename-RealBase:T:::type:R.iC">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetRealDiagonal</tt><big>(</big>Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetRealDiagonal__Matrix:typename-RealBase:T:::type:R.iC" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">GetRealDiagonal</tt><big>(</big>Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetRealDiagonal__Matrix:typename-RealBase:T:::type:R.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Modify <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> into a column-vector containing the real parts of the
 entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::GetImagDiagonal__Matrix:typename-RealBase:T:::type:R.iC">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">GetImagDiagonal</tt><big>(</big>Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetImagDiagonal__Matrix:typename-RealBase:T:::type:R.iC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Modify <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> into a column-vector containing the imaginary parts of the
-entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
+void <tt class="descname">GetImagDiagonal</tt><big>(</big>Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::GetImagDiagonal__Matrix:typename-RealBase:T:::type:R.iC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> into a column-vector containing the imaginary parts of
+the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::SetRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetRealDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::SetRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetRealDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::SetRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the real parts of the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal from the
 contents of the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::SetImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetImagDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::SetImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the imaginary parts of the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal from the
-column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>.</p>
+void <tt class="descname">SetImagDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::SetImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the imaginary parts of the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal from
+the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::UpdateRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateRealDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">UpdateRealDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the contents of the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> onto the real parts of the
 entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::UpdateImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">UpdateImagDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the contents of the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> onto the imaginary parts of
-the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
+void <tt class="descname">UpdateImagDiagonal</tt><big>(</big>const Matrix&lt;typename RealBase&lt;T&gt;::type&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::UpdateImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the contents of the column-vector <img class="math" src="_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> onto the imaginary parts
+of the entries in the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="views">
-<h3>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h3>
+<p class="rubric">Views</p>
 <dl class="function">
 <dt id="Matrix:T:::ViewingC">
-bool <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Viewing</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::ViewingC" title="Permalink to this definition">¶</a></dt>
+bool <tt class="descname">Viewing</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::ViewingC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether or not this matrix is currently viewing another matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::LockedViewC">
-bool <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedView</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LockedViewC" title="Permalink to this definition">¶</a></dt>
+bool <tt class="descname">LockedView</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LockedViewC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether or not we can modify the data we are viewing.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::View__i.i.TP.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">View</tt><big>(</big>int <em>height</em>, int <em>width</em>, T* <em>buffer</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::View__i.i.TP.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">View</tt><big>(</big>int <em>height</em>, int <em>width</em>, T* <em>buffer</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::View__i.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix around the specified buffer.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::View__Matrix:T:R">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">View</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Matrix:T:::View__Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">View</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Matrix:T:::View__Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix around the modifiable buffer underlying <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::LockedView__i.i.TCP.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedView</tt><big>(</big>int <em>height</em>, int <em>width</em>, const T* <em>buffer</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView__i.i.TCP.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">LockedView</tt><big>(</big>int <em>height</em>, int <em>width</em>, const T* <em>buffer</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView__i.i.TCP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix around the specified unmodifiable buffer.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::LockedView__Matrix:T:CR">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedView</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView__Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">LockedView</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView__Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix around the unmodifiable buffer underlying <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::View__Matrix:T:R.i.i.i.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">View</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>A</em>, int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::View__Matrix:T:R.i.i.i.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">View</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>A</em>, int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::View__Matrix:T:R.i.i.i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix around the modifiable buffer underlying <tt class="docutils literal"><span class="pre">A</span></tt>, but
 only the portion that holds the <em>height</em> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em> submatrix
 starting at entry <tt class="docutils literal"><span class="pre">(i,j)</span></tt></p>
@@ -456,28 +451,29 @@ starting at entry <tt class="docutils literal"><span class="pre">(i,j)</span></t
 
 <dl class="function">
 <dt id="Matrix:T:::LockedView__Matrix:T:CR.i.i.i.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedView</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em>, int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView__Matrix:T:CR.i.i.i.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">LockedView</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em>, int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView__Matrix:T:CR.i.i.i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the resulting matrix data is unmodifiable.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::View1x2__Matrix:T:R.Matrix:T:R">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">View1x2</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>AL</em>, Matrix&lt;T&gt;&amp; <em>AR</em><big>)</big><a class="headerlink" href="#Matrix:T:::View1x2__Matrix:T:R.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">View1x2</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>AL</em>, Matrix&lt;T&gt;&amp; <em>AR</em><big>)</big><a class="headerlink" href="#Matrix:T:::View1x2__Matrix:T:R.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix to use the modifiable buffer that spans the
 matrices <img class="math" src="_images/math/4b6dbcd4d8a9f72ba6ddffbe2d3e2428b2fe3253.png" alt="A_L"/> and <img class="math" src="_images/math/9e39fc5ec4cb6d67a9b3453b75fd4f47a22aade0.png" alt="A_R"/> such that it behaves like
 <img class="math" src="_images/math/51ee936517ae9b8b7db5dd4fcc956f9cb52ff97c.png" alt="[A_L A_R]"/> (this routine requires that <img class="math" src="_images/math/9e39fc5ec4cb6d67a9b3453b75fd4f47a22aade0.png" alt="A_R"/>&#8216;s buffer begins
-at the same memory location that an extra column of <img class="math" src="_images/math/4b6dbcd4d8a9f72ba6ddffbe2d3e2428b2fe3253.png" alt="A_L"/> would have).</p>
+at the same memory location that an extra column of <img class="math" src="_images/math/4b6dbcd4d8a9f72ba6ddffbe2d3e2428b2fe3253.png" alt="A_L"/> would
+have).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::LockedView1x2__Matrix:T:CR.Matrix:T:CR">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedView1x2</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>AL</em>, const Matrix&lt;T&gt;&amp; <em>AR</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView1x2__Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">LockedView1x2</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>AL</em>, const Matrix&lt;T&gt;&amp; <em>AR</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView1x2__Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the resulting matrix data is unmodifiable.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::View2x1__Matrix:T:R.Matrix:T:R">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">View2x1</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>AT</em>, Matrix&lt;T&gt;&amp; <em>AB</em><big>)</big><a class="headerlink" href="#Matrix:T:::View2x1__Matrix:T:R.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">View2x1</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>AT</em>, Matrix&lt;T&gt;&amp; <em>AB</em><big>)</big><a class="headerlink" href="#Matrix:T:::View2x1__Matrix:T:R.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix to use the modifiable buffer that spans the
 matrices <img class="math" src="_images/math/fc55393e35cd8e5ad8e51af742e33e65c6a5a5f1.png" alt="A_T"/> and <img class="math" src="_images/math/55ca74bc7e97ebc1f4a4562b1d5aa676a2877f4f.png" alt="A_B"/> such that it behaves like
 <img class="math" src="_images/math/49695ac506bf5c6840192a7444f45736184c33b0.png" alt="[A_T;A_B]"/> (this routine requires that <img class="math" src="_images/math/55ca74bc7e97ebc1f4a4562b1d5aa676a2877f4f.png" alt="A_B"/>&#8216;s buffer begins
@@ -486,47 +482,46 @@ at the same memory location that an extra row of <img class="math" src="_images/
 
 <dl class="function">
 <dt id="Matrix:T:::LockedView2x1__Matrix:T:CR.Matrix:T:CR">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedView2x1</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>AT</em>, const Matrix&lt;T&gt;&amp; <em>AB</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView2x1__Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">LockedView2x1</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>AT</em>, const Matrix&lt;T&gt;&amp; <em>AB</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView2x1__Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the resulting matrix data is unmodifiable.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::View2x2__Matrix:T:R.Matrix:T:R.Matrix:T:R.Matrix:T:R">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">View2x2</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>ATL</em>, Matrix&lt;T&gt;&amp; <em>ATR</em>, Matrix&lt;T&gt;&amp; <em>ABL</em>, Matrix&lt;T&gt;&amp; <em>ABR</em><big>)</big><a class="headerlink" href="#Matrix:T:::View2x2__Matrix:T:R.Matrix:T:R.Matrix:T:R.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reconfigure the matrix to behave like <img class="math" src="_images/math/f48c43b5c776fad7576a03afd389a6be677f48be.png" alt="[A_{TL} A_{TR}; A_{BL} A_{BR}]"/>
+void <tt class="descname">View2x2</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>ATL</em>, Matrix&lt;T&gt;&amp; <em>ATR</em>, Matrix&lt;T&gt;&amp; <em>ABL</em>, Matrix&lt;T&gt;&amp; <em>ABR</em><big>)</big><a class="headerlink" href="#Matrix:T:::View2x2__Matrix:T:R.Matrix:T:R.Matrix:T:R.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconfigure the matrix to behave like
+<img class="math" src="_images/math/f48c43b5c776fad7576a03afd389a6be677f48be.png" alt="[A_{TL} A_{TR}; A_{BL} A_{BR}]"/>
 (the buffer requirements are similar to <tt class="docutils literal"><span class="pre">View1x2</span></tt> and <tt class="docutils literal"><span class="pre">View2x1</span></tt>).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::LockedView2x2__Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">LockedView2x2</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>ATL</em>, const Matrix&lt;T&gt;&amp; <em>ATR</em>, const Matrix&lt;T&gt;&amp; <em>ABL</em>, const Matrix&lt;T&gt;&amp; <em>ABR</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView2x2__Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">LockedView2x2</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>ATL</em>, const Matrix&lt;T&gt;&amp; <em>ATR</em>, const Matrix&lt;T&gt;&amp; <em>ABL</em>, const Matrix&lt;T&gt;&amp; <em>ABR</em><big>)</big><a class="headerlink" href="#Matrix:T:::LockedView2x2__Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the resulting matrix data is unmodifiable.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="utilities">
-<h3>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h3>
+<p class="rubric">Utilities</p>
 <dl class="function">
 <dt id="Matrix:T:::assign-operator__Matrix:T:CR">
-const Matrix&lt;T&gt;&amp; <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">operator=</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Matrix:T:::assign-operator__Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
+const Matrix&lt;T&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Matrix:T:::assign-operator__Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a copy of matrix <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::Empty">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">Empty</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::Empty" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">Empty</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::Empty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the matrix to <img class="math" src="_images/math/43205564ab7e64a12e040330eb778d2812a4701f.png" alt="0 \times 0"/> and frees the underlying buffer.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::ResizeTo__i.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::ResizeTo__i.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::ResizeTo__i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigures the matrix to be <em>height</em> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::ResizeTo__i.i.i">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::ResizeTo__i.i.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::ResizeTo__i.i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigures the matrix to be <em>height</em> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em>, but with
 leading dimension equal to <em>ldim</em> (which must be greater than or equal to
 <tt class="docutils literal"><span class="pre">std::min(height,1)</span></tt>).</p>
@@ -534,7 +529,7 @@ leading dimension equal to <em>ldim</em> (which must be greater than or equal to
 
 <dl class="function">
 <dt id="Matrix:T:::SetToIdentity">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetToIdentity</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::SetToIdentity" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetToIdentity</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::SetToIdentity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the entire matrix to zero, with the exception of the main diagonal
 being set to one. For square matrices, this corresponds to the identity
 operator.</p>
@@ -542,18 +537,19 @@ operator.</p>
 
 <dl class="function">
 <dt id="Matrix:T:::SetToRandom">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetToRandom</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::SetToRandom" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetToRandom</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::SetToRandom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets each entry in the matrix to a uniform sample from the most natural
 interpretation of the unit ball specified by the datatype.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::SetToZero">
-void <tt class="descclassname">Matrix&lt;T&gt;::</tt><tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::SetToZero" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::SetToZero" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets every entry of the matrix to zero.</p>
 </dd></dl>
 
-</div>
+</dd></dl>
+
 </div>
 <div class="section" id="the-distmatrix-class">
 <h2>The DistMatrix class<a class="headerlink" href="#the-distmatrix-class" title="Permalink to this headline">¶</a></h2>
@@ -580,62 +576,63 @@ the following datatypes are fully supported for <tt class="docutils literal"><sp
 <h3>AbstractDistMatrix<a class="headerlink" href="#abstractdistmatrix" title="Permalink to this headline">¶</a></h3>
 <p>This abstract class defines the list of member functions that are guaranteed
 to be available for all matrix distributions.</p>
-</div>
-<div class="section" id="id1">
-<h3>Basic information<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="AbstractDistMatrix:T:">
+<em class="property">class </em><tt class="descname">AbstractDistMatrix&lt;T&gt;</tt><a class="headerlink" href="#AbstractDistMatrix:T:" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Basic information</p>
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::HeightC">
-int <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Height</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::HeightC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">Height</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::HeightC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the height of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::WidthC">
-int <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Width</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::WidthC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">Width</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::WidthC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the width of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::LocalHeightC">
-int <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">LocalHeight</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LocalHeightC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">LocalHeight</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LocalHeightC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the local height of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::LocalWidthC">
-int <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">LocalWidth</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LocalWidthC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">LocalWidth</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LocalWidthC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the local width of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::LocalLDimC">
-int <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">LocalLDim</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LocalLDimC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">LocalLDim</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LocalLDimC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the local leading dimension of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::AllocatedMemoryC">
-size_t <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">AllocatedMemory</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::AllocatedMemoryC" title="Permalink to this definition">¶</a></dt>
+size_t <tt class="descname">AllocatedMemory</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::AllocatedMemoryC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of entries of type <tt class="docutils literal"><span class="pre">T</span></tt> that we have locally allocated
 space for.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::GridC">
-const Grid&amp; <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Grid</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GridC" title="Permalink to this definition">¶</a></dt>
+const elemental::Grid&amp; <tt class="descname">Grid</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GridC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the grid that this distributed matrix is distributed over.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::LocalBuffer__i.i">
-T* <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">LocalBuffer</tt><big>(</big>int <em>iLocal</em><em>=0</em>, int <em>jLocal</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::LocalBuffer__i.i" title="Permalink to this definition">¶</a></dt>
+T* <tt class="descname">LocalBuffer</tt><big>(</big>int <em>iLocal</em><em>=0</em>, int <em>jLocal</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::LocalBuffer__i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a pointer to the portion of the local buffer that stores entry
 <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::LockedLocalBuffer__i.iC">
-const T* <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">LockedLocalBuffer</tt><big>(</big>int <em>iLocal</em><em>=0</em>, int <em>jLocal</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LockedLocalBuffer__i.iC" title="Permalink to this definition">¶</a></dt>
+const T* <tt class="descname">LockedLocalBuffer</tt><big>(</big>int <em>iLocal</em><em>=0</em>, int <em>jLocal</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LockedLocalBuffer__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a pointer to the portion of the local buffer that stores entry
 <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt>, but do not allow for the data to be modified through
 the returned pointer.</p>
@@ -643,293 +640,287 @@ the returned pointer.</p>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::LocalMatrix">
-Matrix&lt;T&gt;&amp; <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">LocalMatrix</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::LocalMatrix" title="Permalink to this definition">¶</a></dt>
+Matrix&lt;T&gt;&amp; <tt class="descname">LocalMatrix</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::LocalMatrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a reference to the local matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::LockedLocalMatrixC">
-const Matrix&lt;T&gt;&amp; <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">LockedLocalMatrix</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LockedLocalMatrixC" title="Permalink to this definition">¶</a></dt>
+const Matrix&lt;T&gt;&amp; <tt class="descname">LockedLocalMatrix</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LockedLocalMatrixC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an unmodifiable reference to the local matrix.</p>
 </dd></dl>
 
-<div class="section" id="id2">
-<h4>I/O<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p class="rubric">I/O</p>
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::Print__ssCC">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Print</tt><big>(</big>const std::string <em>msg</em><em>=&quot;&quot;</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::Print__ssCC" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">Print</tt><big>(</big>const std::string <em>msg</em><em>=&quot;&quot;</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::Print__ssCC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print the distributed matrix to standard output (<tt class="docutils literal"><span class="pre">std::cout</span></tt>).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::Print__osR.ssCC">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Print</tt><big>(</big>std::ostream&amp; <em>os</em>, const std::string <em>msg</em><em>=&quot;&quot;</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::Print__osR.ssCC" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">Print</tt><big>(</big>std::ostream&amp; <em>os</em>, const std::string <em>msg</em><em>=&quot;&quot;</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::Print__osR.ssCC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print the distributed matrix to the output stream <tt class="docutils literal"><span class="pre">os</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::Write__ssC.ssCC">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Write</tt><big>(</big>const std::string <em>filename</em>, const std::string <em>msg</em><em>=&quot;&quot;</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::Write__ssC.ssCC" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">Write</tt><big>(</big>const std::string <em>filename</em>, const std::string <em>msg</em><em>=&quot;&quot;</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::Write__ssC.ssCC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print the distributed matrix to the file named <tt class="docutils literal"><span class="pre">filename</span></tt>.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="alignments">
-<h4>Alignments<a class="headerlink" href="#alignments" title="Permalink to this headline">¶</a></h4>
+<p class="rubric">Alignments</p>
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::FreeAlignments">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">FreeAlignments</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::FreeAlignments" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">FreeAlignments</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::FreeAlignments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Free all alignment constaints.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::ConstrainedColAlignmentC">
-bool <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">ConstrainedColAlignment</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ConstrainedColAlignmentC" title="Permalink to this definition">¶</a></dt>
+bool <tt class="descname">ConstrainedColAlignment</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ConstrainedColAlignmentC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether or not the column alignment is constrained.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::ConstrainedRowAlignmentC">
-bool <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">ConstrainedRowAlignment</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ConstrainedRowAlignmentC" title="Permalink to this definition">¶</a></dt>
+bool <tt class="descname">ConstrainedRowAlignment</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ConstrainedRowAlignmentC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether or not the row alignment is constrained.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::ColAlignmentC">
-int <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">ColAlignment</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ColAlignmentC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">ColAlignment</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ColAlignmentC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the alignment of the columns of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::RowAlignmentC">
-int <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">RowAlignment</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::RowAlignmentC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">RowAlignment</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::RowAlignmentC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the alignment of the rows of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::ColShiftC">
-int <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">ColShift</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ColShiftC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">ColShift</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ColShiftC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the first global row that our process owns.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::RowShiftC">
-int <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">RowShift</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::RowShiftC" title="Permalink to this definition">¶</a></dt>
+int <tt class="descname">RowShift</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::RowShiftC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the first global column that our process owns.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="id3">
-<h4>Entry manipulation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p class="rubric">Entry manipulation</p>
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::Get__i.iC">
-T <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Get</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::Get__i.iC" title="Permalink to this definition">¶</a></dt>
+T <tt class="descname">Get</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::Get__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix. This operation is
 collective.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::Set__i.i.T">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Set</tt><big>(</big>int <em>i</em>, int <em>j</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::Set__i.i.T" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">Set</tt><big>(</big>int <em>i</em>, int <em>j</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::Set__i.i.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix to <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>. This
 operation is collective.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::Update__i.i.T">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Update</tt><big>(</big>int <em>i</em>, int <em>j</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::Update__i.i.T" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">Update</tt><big>(</big>int <em>i</em>, int <em>j</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::Update__i.i.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix. This
 operation is collective.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::GetLocalEntry__i.iC">
-T <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">GetLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetLocalEntry__i.iC" title="Permalink to this definition">¶</a></dt>
+T <tt class="descname">GetLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetLocalEntry__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::SetLocalEntry__i.i.T">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">SetLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetLocalEntry__i.i.T" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetLocalEntry__i.i.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix to <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::UpdateLocalEntry__i.i.T">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">UpdateLocalEntry</tt><big>(</big>int <em>iLoca</em>, int <em>jLocal</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateLocalEntry__i.i.T" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">UpdateLocalEntry</tt><big>(</big>int <em>iLoca</em>, int <em>jLocal</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateLocalEntry__i.i.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
 </dd></dl>
 
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The remainder of this subsubsection is only valid for complex datatypes.</p>
+<p class="last">The remainder of this group is only valid for complex datatypes.</p>
 </div>
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::GetReal__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">GetReal</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetReal__i.iC" title="Permalink to this definition">¶</a></dt>
+typename RealBase&lt;T&gt;::type <tt class="descname">GetReal</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetReal__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the real part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix. This
 operation is collective.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::GetImag__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">GetImag</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetImag__i.iC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the imaginary part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix. This
-operation is collective.</p>
+typename RealBase&lt;T&gt;::type <tt class="descname">GetImag</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetImag__i.iC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the imaginary part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix.
+This operation is collective.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::SetReal__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">SetReal</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetReal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetReal</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetReal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the real part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix to
 <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::SetImag__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">SetImag</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetImag__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetImag</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetImag__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the imaginary part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix to
 <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::UpdateReal__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">UpdateReal</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateReal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">UpdateReal</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateReal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the real part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global
 matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::UpdateImag__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">UpdateImag</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateImag__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the imaginary part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global
-matrix.</p>
+void <tt class="descname">UpdateImag</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateImag__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the imaginary part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the
+global matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::GetRealLocalEntry__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">GetRealLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetRealLocalEntry__i.iC" title="Permalink to this definition">¶</a></dt>
+typename RealBase&lt;T&gt;::type <tt class="descname">GetRealLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetRealLocalEntry__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the real part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::GetImagLocalEntry__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">GetImagLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetImagLocalEntry__i.iC" title="Permalink to this definition">¶</a></dt>
+typename RealBase&lt;T&gt;::type <tt class="descname">GetImagLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetImagLocalEntry__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the imaginary part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local
 matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::SetRealLocalEntry__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">SetRealLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetRealLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetRealLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetRealLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the real part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::SetImagLocalEntry__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">SetImagLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetImagLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the imaginary part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
+void <tt class="descname">SetImagLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetImagLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the imaginary part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local
+matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::UpdateRealLocalEntry__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">UpdateRealLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateRealLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">UpdateRealLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateRealLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the real part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of
 our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::UpdateImagLocalEntry__i.i.typename-RealBase:T:::type">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">UpdateImagLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateImagLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">UpdateImagLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateImagLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the imaginary part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry
 of our local matrix.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="viewing">
-<h4>Viewing<a class="headerlink" href="#viewing" title="Permalink to this headline">¶</a></h4>
+<p class="rubric">Viewing</p>
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::ViewingC">
-bool <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Viewing</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ViewingC" title="Permalink to this definition">¶</a></dt>
+bool <tt class="descname">Viewing</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ViewingC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether or not this <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> is viewing another.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::LockedViewC">
-bool <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">LockedView</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LockedViewC" title="Permalink to this definition">¶</a></dt>
+bool <tt class="descname">LockedView</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::LockedViewC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether or not this <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> is viewing another in a manner
 that does not allow for modifying the viewed data.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="id4">
-<h4>Utilities<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<p class="rubric">Utilities</p>
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::Empty">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">Empty</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::Empty" title="Permalink to this definition">¶</a></dt>
-<dd><p>Resize the distributed matrix so that it is <img class="math" src="_images/math/43205564ab7e64a12e040330eb778d2812a4701f.png" alt="0 \times 0"/> and free all
-allocated storage.</p>
+void <tt class="descname">Empty</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::Empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resize the distributed matrix so that it is <img class="math" src="_images/math/43205564ab7e64a12e040330eb778d2812a4701f.png" alt="0 \times 0"/> and free
+all allocated storage.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::MakeTrapezoidal__Side.Shape.i">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">MakeTrapezoidal</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::MakeTrapezoidal__Side.Shape.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">MakeTrapezoidal</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::MakeTrapezoidal__Side.Shape.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Explicitly introduce zeroes into the distributed matrix such that it is
 trapezoidal with respect to the left or right diagonal (as chosen by the
-<tt class="docutils literal"><span class="pre">side</span></tt> parameter). Whether or not the matrix is lower or upper trapezoidal
-is determined by the <tt class="docutils literal"><span class="pre">shape</span></tt> parameter, and the diagonal offset is chosen
-by the <tt class="docutils literal"><span class="pre">offset</span></tt> parameter (<img class="math" src="_images/math/bc1f9d9bf8a1b606a4188b5ce9a2af1809e27a89.png" alt="0"/> denotes the main diagonal,
-<img class="math" src="_images/math/bae5aba07d37ff6ff813107e76260fb31ad5794e.png" alt="-1"/> denotes the subdiagonal, and <img class="math" src="_images/math/1178af8fcc5f3f3acb9f151f7dcc2c4eefe88fd9.png" alt="+1"/> denotes the
+<tt class="docutils literal"><span class="pre">side</span></tt> parameter). Whether or not the matrix is lower or upper
+trapezoidal is determined by the <tt class="docutils literal"><span class="pre">shape</span></tt> parameter, and the diagonal
+offset is chosen by the <tt class="docutils literal"><span class="pre">offset</span></tt> parameter (<img class="math" src="_images/math/bc1f9d9bf8a1b606a4188b5ce9a2af1809e27a89.png" alt="0"/> denotes the main
+diagonal, <img class="math" src="_images/math/bae5aba07d37ff6ff813107e76260fb31ad5794e.png" alt="-1"/> denotes the subdiagonal, and <img class="math" src="_images/math/1178af8fcc5f3f3acb9f151f7dcc2c4eefe88fd9.png" alt="+1"/> denotes the
 superdiagonal).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::ScaleTrapezoidal__T.Side.Shape.i">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">ScaleTrapezoidal</tt><big>(</big>T <em>alpha</em>, Side <em>side</em>, Shape <em>shape</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::ScaleTrapezoidal__T.Side.Shape.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">ScaleTrapezoidal</tt><big>(</big>T <em>alpha</em>, Side <em>side</em>, Shape <em>shape</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::ScaleTrapezoidal__T.Side.Shape.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale the portion of the matrix determined by the above discussion by the
 scalar <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::ResizeTo__i.i">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::ResizeTo__i.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::ResizeTo__i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix so that it is <em>height</em> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::SetToIdentity">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">SetToIdentity</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToIdentity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the entire matrix to zero and then introduce ones onto the main diagonal.</p>
+void <tt class="descname">SetToIdentity</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToIdentity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the entire matrix to zero and then introduce ones onto the main
+diagonal.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::SetToRandom">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">SetToRandom</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToRandom" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetToRandom</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToRandom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Independently draw each entry of the matrix from the uniform distribution
 over the unit ball.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::SetToRandomHermitian">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">SetToRandomHermitian</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToRandomHermitian" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetToRandomHermitian</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToRandomHermitian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the diagonal is forced to be real-valued
 (the rest of the symmetry is implicit).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::SetToRandomHPD">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">SetToRandomHPD</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToRandomHPD" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as above, but a sufficiently large constant is added to every diagonal
-entry in order to ensure that the matrix is positive-definite.</p>
+void <tt class="descname">SetToRandomHPD</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToRandomHPD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but a sufficiently large constant is added to every
+diagonal entry in order to ensure that the matrix is positive-definite.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::SetToZero">
-void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToZero" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToZero" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all entries of the distributed matrix to zero.</p>
 </dd></dl>
 
-</div>
+</dd></dl>
+
 </div>
 <div class="section" id="mc-mr">
 <h3><tt class="docutils literal"><span class="pre">[MC,MR]</span></tt><a class="headerlink" href="#mc-mr" title="Permalink to this headline">¶</a></h3>
@@ -944,38 +935,38 @@ void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="desc
 <div class="section" id="mr-mc">
 <h3><tt class="docutils literal"><span class="pre">[MR,MC]</span></tt><a class="headerlink" href="#mr-mc" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id5">
-<h3><tt class="docutils literal"><span class="pre">[MR,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h3><tt class="docutils literal"><span class="pre">[MR,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id6">
-<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MC]</span></tt><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MC]</span></tt><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="md">
 <h3><tt class="docutils literal"><span class="pre">[MD,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#md" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id7">
-<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MD]</span></tt><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MD]</span></tt><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="vc">
 <h3><tt class="docutils literal"><span class="pre">[VC,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#vc" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id8">
-<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VC]</span></tt><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VC]</span></tt><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="vr">
 <h3><tt class="docutils literal"><span class="pre">[VR,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#vr" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id9">
-<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VR]</span></tt><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VR]</span></tt><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id10">
-<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id6">
+<h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 <div class="section" id="the-grid-class">
 <h2>The Grid class<a class="headerlink" href="#the-grid-class" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id11">
-<h3>Constructors<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="constructors">
+<h3>Constructors<a class="headerlink" href="#constructors" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 <div class="section" id="the-axpy-interface">
@@ -998,42 +989,26 @@ void <tt class="descclassname">AbstractDistMatrix&lt;T&gt;::</tt><tt class="desc
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Core functionality</a><ul>
-<li><a class="reference internal" href="#the-matrix-class">The Matrix class</a><ul>
-<li><a class="reference internal" href="#constructors">Constructors</a></li>
-<li><a class="reference internal" href="#basic-information">Basic information</a></li>
-<li><a class="reference internal" href="#i-o">I/O</a></li>
-<li><a class="reference internal" href="#entry-manipulation">Entry manipulation</a></li>
-<li><a class="reference internal" href="#views">Views</a></li>
-<li><a class="reference internal" href="#utilities">Utilities</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#the-matrix-class">The Matrix class</a></li>
 <li><a class="reference internal" href="#the-distmatrix-class">The DistMatrix class</a><ul>
 <li><a class="reference internal" href="#abstractdistmatrix">AbstractDistMatrix</a></li>
-<li><a class="reference internal" href="#id1">Basic information</a><ul>
-<li><a class="reference internal" href="#id2">I/O</a></li>
-<li><a class="reference internal" href="#alignments">Alignments</a></li>
-<li><a class="reference internal" href="#id3">Entry manipulation</a></li>
-<li><a class="reference internal" href="#viewing">Viewing</a></li>
-<li><a class="reference internal" href="#id4">Utilities</a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#mc-mr"><tt class="docutils literal"><span class="pre">[MC,MR]</span></tt></a></li>
 <li><a class="reference internal" href="#mc"><tt class="docutils literal"><span class="pre">[MC,*</span> <span class="pre">]</span></tt></a></li>
 <li><a class="reference internal" href="#mr"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MR]</span></tt></a></li>
 <li><a class="reference internal" href="#mr-mc"><tt class="docutils literal"><span class="pre">[MR,MC]</span></tt></a></li>
-<li><a class="reference internal" href="#id5"><tt class="docutils literal"><span class="pre">[MR,*</span> <span class="pre">]</span></tt></a></li>
-<li><a class="reference internal" href="#id6"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MC]</span></tt></a></li>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">[MR,*</span> <span class="pre">]</span></tt></a></li>
+<li><a class="reference internal" href="#id2"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MC]</span></tt></a></li>
 <li><a class="reference internal" href="#md"><tt class="docutils literal"><span class="pre">[MD,*</span> <span class="pre">]</span></tt></a></li>
-<li><a class="reference internal" href="#id7"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MD]</span></tt></a></li>
+<li><a class="reference internal" href="#id3"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MD]</span></tt></a></li>
 <li><a class="reference internal" href="#vc"><tt class="docutils literal"><span class="pre">[VC,*</span> <span class="pre">]</span></tt></a></li>
-<li><a class="reference internal" href="#id8"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VC]</span></tt></a></li>
+<li><a class="reference internal" href="#id4"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VC]</span></tt></a></li>
 <li><a class="reference internal" href="#vr"><tt class="docutils literal"><span class="pre">[VR,*</span> <span class="pre">]</span></tt></a></li>
-<li><a class="reference internal" href="#id9"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VR]</span></tt></a></li>
-<li><a class="reference internal" href="#id10"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,*</span> <span class="pre">]</span></tt></a></li>
+<li><a class="reference internal" href="#id5"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VR]</span></tt></a></li>
+<li><a class="reference internal" href="#id6"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,*</span> <span class="pre">]</span></tt></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#the-grid-class">The Grid class</a><ul>
-<li><a class="reference internal" href="#id11">Constructors</a></li>
+<li><a class="reference internal" href="#constructors">Constructors</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#the-axpy-interface">The Axpy interface</a></li>
