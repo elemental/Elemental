@@ -125,22 +125,22 @@ if(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
 endif(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
 
 if(NOT WIN32)
-  if(HYBRID_DEBUG)
+  if(HYBRID_DEBUG AND NOT CXX_HYBRID_DEBUG_FLAGS)
     set(CXX_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
         "CXX optimization/debug flags for hybrid OpenMP/MPI debug build")
-  endif(HYBRID_DEBUG)
-  if(HYBRID_RELEASE)
+  endif(HYBRID_DEBUG AND NOT CXX_HYBRID_DEBUG_FLAGS)
+  if(HYBRID_RELEASE AND NOT CXX_HYBRID_RELEASE_FLAGS)
     set(CXX_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
         "CXX optimization flags for hybrid OpenMP/MPI release build")
-  endif(HYBRID_RELEASE)
-  if(PURE_DEBUG)
+  endif(HYBRID_RELEASE AND NOT CXX_HYBRID_RELEASE_FLAGS)
+  if(PURE_DEBUG AND NOT CXX_PURE_DEBUG_FLAGS)
     set(CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
         "CXX optimization/debugging flags for pure MPI debug build")
-  endif(PURE_DEBUG)
-  if(PURE_RELEASE)
+  endif(PURE_DEBUG AND NOT CXX_PURE_DEBUG_FLAGS)
+  if(PURE_RELEASE AND NOT CXX_PURE_RELEASE_FLAGS)
     set(CXX_PURE_RELEASE_FLAGS "-O3" CACHE STRING
         "CXX optimization flags for pure MPI release build")
-  endif(PURE_RELEASE)
+  endif(PURE_RELEASE AND NOT CXX_PURE_RELEASE_FLAGS)
 endif(NOT WIN32)
 
 find_package(MPI)
