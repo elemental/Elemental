@@ -175,7 +175,7 @@ public:
     template<typename S> void AlignWith( const DistMatrix<S,VR,  STAR>& A ) {}
 
     // Aligns our column distribution (i.e., Star) with the matching 
-    // distribution of the argumnet. These are all no-ops and exist solely
+    // distribution of the argument. These are all no-ops and exist solely
     // to allow for templating over distribution parameters.
     template<typename S>
     void AlignColsWith( const DistMatrix<S,STAR,MC  >& A ) {}

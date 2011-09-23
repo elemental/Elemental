@@ -237,11 +237,11 @@ DistMatrix<T,MC,MR>::View
     this->_grid = &g;
     this->_height = height;
     this->_width = width;
-    this->_colAlignmnet = colAlignment;
+    this->_colAlignment = colAlignment;
     this->_rowAlignment = rowAlignment;
     this->_viewing = true;
     this->_lockedView = false;
-    if( this->_grid.InGrid() )
+    if( this->_grid->InGrid() )
     {
         this->_colShift = Shift(g.MCRank(),colAlignment,g.Height());
         this->_rowShift = Shift(g.MRRank(),rowAlignment,g.Width());
@@ -297,11 +297,11 @@ DistMatrix<T,MC,MR>::LockedView
     this->_grid = &g;
     this->_height = height;
     this->_width = width;
-    this->_colAlignmnet = colAlignment;
+    this->_colAlignment = colAlignment;
     this->_rowAlignment = rowAlignment;
     this->_viewing = true;
     this->_lockedView = true;
-    if( this->_grid.InGrid() )
+    if( this->_grid->InGrid() )
     {
         this->_colShift = Shift(g.MCRank(),colAlignment,g.Height());
         this->_rowShift = Shift(g.MRRank(),rowAlignment,g.Width());

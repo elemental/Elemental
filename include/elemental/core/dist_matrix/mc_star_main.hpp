@@ -185,10 +185,10 @@ DistMatrix<T,MC,STAR>::View
     this->_grid = &g;
     this->_height = height;
     this->_width = width;
-    this->_colAlignmnet = colAlignment;
+    this->_colAlignment = colAlignment;
     this->_viewing = true;
     this->_lockedView = false;
-    if( this->_grid.InGrid() )
+    if( this->_grid->InGrid() )
     {
         this->_colShift = Shift(g.MCRank(),colAlignment,g.Height());
         const int localHeight = LocalLength(height,this->_colShift,g.Height());
@@ -238,10 +238,10 @@ DistMatrix<T,MC,STAR>::LockedView
     this->_grid = &g;
     this->_height = height;
     this->_width = width;
-    this->_colAlignmnet = colAlignment;
+    this->_colAlignment = colAlignment;
     this->_viewing = true;
     this->_lockedView = true; 
-    if( this->_grid.InGrid() )
+    if( this->_grid->InGrid() )
     {
         this->_colShift = Shift(g.MCRank(),colAlignment,g.Height());
         const int localHeight = LocalLength(height,this->_colShift,g.Height());
