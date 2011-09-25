@@ -702,7 +702,7 @@ void Herk
 //
 // Hetrmm (HErmitian TRiangular Matrix-Matrix multiply):
 //
-// Either L := tril(L L') or U := triu(U' U)
+// Either L := tril(L' L) or U := triu(U U')
 //
 // NOTE: This is not a standard BLAS routine and is in fact the same operation
 //       as the LAPACK routine ?LAUUM. Since it is similar in spirit to many

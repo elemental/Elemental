@@ -443,9 +443,8 @@ Hetrmm
    BLAS-like routines in Elemental.
 
 Hermitian triangular matrix-matrix multiply: performs 
-:math:`L := L L^H` or :math:`U := U^H U`, depending upon the choice of the 
-*shape* parameter. This can be thought of as the reverse of a Cholesky 
-factorization.  
+:math:`L := L^H L` or :math:`U := U U^H`, depending upon the choice of the 
+*shape* parameter. 
 
 .. cpp:function:: void basic::Hetrmm( Shape shape, Matrix<T>& A )
 
