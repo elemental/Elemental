@@ -417,15 +417,6 @@ elemental::Grid::SetUpGrid()
     _gcd = elemental::GCD( _r, _c );
     int lcm = _p / _gcd;
 
-#ifndef RELEASE
-    if( _owningRank == 0 )
-    {
-        std::cout << "Building process grid with:\n"
-                  << "  p=" << _p << ", (r,c)=(" << _r << "," << _c << ")\n"
-                  << "  gcd=" << _gcd << std::endl;
-    }
-#endif
-
     // Split the viewing comm into the owning and not owning subsets
     if( _inGrid )
         mpi::CommSplit( _viewingComm, true, _owningRank, _owningComm );
