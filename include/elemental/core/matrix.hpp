@@ -375,7 +375,8 @@ template<typename T>
 inline
 Matrix<T>::Matrix
 ( const Matrix<T>& A )
-: _viewing(false), _lockedView(false), _lockedData(false)
+: _viewing(false), _lockedView(false), 
+  _height(0), _width(0), _data(0), _lockedData(0), _ldim(1)
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix( const Matrix& )");
