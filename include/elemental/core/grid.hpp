@@ -37,12 +37,43 @@ namespace elemental {
 
 class Grid
 {
-    int _p;
-    int _c;
-    int _r;
-    int _gcd;
-    int _col;
-    int _row;
+public:
+    // Basic routines
+    Grid( mpi::Comm comm=mpi::COMM_WORLD );
+    Grid( mpi::Comm comm, int height, int width );
+    ~Grid();
+    bool InGrid() const;
+    int Size() const;
+    int Height() const;
+    int Width() const;
+    int GCD() const;
+    int LCM() const;
+    int MCRank() const;
+    int MRRank() const;
+    int VCRank() const;
+    int VRRank() const;
+    mpi::Comm MCComm() const;
+    mpi::Comm MRComm() const;
+    mpi::Comm VCComm() const;
+    mpi::Comm VRComm() const;
+
+    // Advanced routines
+    Grid( mpi::Comm viewingComm, mpi::Group owningGroup );
+    Grid( mpi::Comm viewingComm, mpi::Group owningGroup, 
+          int height, int width );
+    int OwningRank() const;
+    int ViewingRank() const;
+    int VCToViewingMap( int VCRank ) const;
+    mpi::Group OwningGroup() const;
+    mpi::Comm OwningComm() const;
+    mpi::Comm ViewingComm() const;
+    int DiagPath() const;
+    int DiagPath( int vectorColRank ) const;
+    int DiagPathRank() const;
+    int DiagPathRank( int vectorColRank ) const;
+
+private:
+    int _height, _width, _size, _gcd;
     int _matrixColRank;
     int _matrixRowRank;
     int _vectorColRank;
@@ -81,49 +112,8 @@ class Grid
     // Disable copying this class due to MPI_Comm/MPI_Group ownership issues
     // and potential performance loss from duplicating MPI communicators, e.g.,
     // on Blue Gene/P there is supposedly a performance loss
-    void operator=( Grid& );
+    const Grid& operator=( Grid& );
     Grid( const Grid& );
-
-    public:
-
-    // For constructing grids where every process is a member
-    Grid( mpi::Comm comm );
-    Grid( mpi::Comm comm, int r, int c );
-    
-    // For constructing grids where only the 'owningGroup' processes are in the
-    // grid. viewingComm must be valid for all processes creating the 
-    // grid, not just those in the owning group.
-    Grid( mpi::Comm viewingComm, mpi::Group owningGroup );
-    Grid( mpi::Comm viewingComm, mpi::Group owningGroup, 
-          int r, int c );
-
-    ~Grid();
-
-    bool InGrid() const;
-        
-    int Size() const;
-    int Height() const;
-    int Width() const;
-    int GCD() const;
-    int LCM() const;
-    int DiagPath() const;
-    int DiagPath( int vectorColRank ) const;
-    int DiagPathRank() const;
-    int DiagPathRank( int vectorColRank ) const;
-    int MCRank() const;
-    int MRRank() const;
-    int VCRank() const;
-    int VRRank() const;
-    int OwningRank() const;
-    int ViewingRank() const;
-    int VCToViewingMap( int VCRank ) const;
-    mpi::Group OwningGroup() const;
-    mpi::Comm OwningComm() const;
-    mpi::Comm ViewingComm() const;
-    mpi::Comm MCComm() const;
-    mpi::Comm MRComm() const;
-    mpi::Comm VCComm() const;
-    mpi::Comm VRComm() const;
 };
 
 bool operator== ( const Grid& A, const Grid& B );
@@ -141,15 +131,15 @@ elemental::Grid::InGrid() const
 
 inline int
 elemental::Grid::Size() const
-{ return _p; }
+{ return _size; }
 
 inline int
 elemental::Grid::Height() const
-{ return _r; }
+{ return _height; }
 
 inline int
 elemental::Grid::Width() const
-{ return _c; }
+{ return _width; }
 
 inline int
 elemental::Grid::GCD() const
@@ -157,7 +147,7 @@ elemental::Grid::GCD() const
 
 inline int
 elemental::Grid::LCM() const
-{ return _p/_gcd; }
+{ return _size/_gcd; }
 
 inline int
 elemental::Grid::DiagPath() const
@@ -272,7 +262,7 @@ elemental::Grid::Grid
     mpi::CommDup( comm, _viewingComm );
     mpi::CommGroup( _viewingComm, _viewingGroup );
     _viewingRank = mpi::CommRank( _viewingComm );
-    _p = mpi::CommSize( _viewingComm );
+    _size = mpi::CommSize( _viewingComm );
 
     // All processes own the grid, so we have to trivially split _viewingGroup
     _owningGroup = _viewingGroup;
@@ -280,10 +270,10 @@ elemental::Grid::Grid
     _owningRank = _viewingRank;
 
     // Factor p
-    _r = static_cast<int>(sqrt(static_cast<double>(_p)));
-    while( _p % _r != 0 )
-        ++_r;
-    _c = _p / _r;
+    _height = static_cast<int>(sqrt(static_cast<double>(_size)));
+    while( _size % _height != 0 )
+        ++_height;
+    _width = _size / _height;
 
     SetUpGrid();
 
@@ -294,7 +284,7 @@ elemental::Grid::Grid
 
 inline
 elemental::Grid::Grid
-( mpi::Comm comm, int r, int c )
+( mpi::Comm comm, int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
@@ -305,16 +295,16 @@ elemental::Grid::Grid
     mpi::CommDup( comm, _viewingComm );
     mpi::CommGroup( _viewingComm, _viewingGroup );
     _viewingRank = mpi::CommRank( _viewingComm );
-    _p = mpi::CommSize( _viewingComm );
+    _size = mpi::CommSize( _viewingComm );
 
     // All processes own the grid, so we have to trivially split _viewingGroup
     _owningGroup = _viewingGroup;
     _notOwningGroup = mpi::GROUP_EMPTY;
     _owningRank = _viewingRank;
 
-    _r = r;
-    _c = c;
-    if( _r < 0 || _c < 0 )
+    _height = height;
+    _width = width;
+    if( _height < 0 || _width < 0 )
         throw std::logic_error
         ("Process grid dimensions must be non-negative");
 
@@ -340,19 +330,18 @@ elemental::Grid::Grid
 
     // Extract our rank and the number of processes from the owning group
     _owningGroup = owningGroup;
-    _p = mpi::GroupSize( _owningGroup );
+    _size = mpi::GroupSize( _owningGroup );
     _owningRank = mpi::GroupRank( _owningGroup );
     _inGrid = ( _owningRank != mpi::UNDEFINED );
 
     // Create the complement of the owning group
-    mpi::GroupDifference
-    ( _viewingGroup, _owningGroup, _notOwningGroup );
+    mpi::GroupDifference( _viewingGroup, _owningGroup, _notOwningGroup );
 
-    // Factor p
-    _r = static_cast<int>(sqrt(static_cast<double>(_p)));
-    while( _p % _r != 0 )
-        ++_r;
-    _c = _p / _r;
+    // Factor the grid size
+    _height = static_cast<int>(sqrt(static_cast<double>(_size)));
+    while( _size % _height != 0 )
+        ++_height;
+    _width = _size / _height;
 
     SetUpGrid();
 
@@ -364,8 +353,7 @@ elemental::Grid::Grid
 // Currently forces a columnMajor absolute rank on the grid
 inline
 elemental::Grid::Grid
-( mpi::Comm viewingComm, mpi::Group owningGroup, 
-  int r, int c )
+( mpi::Comm viewingComm, mpi::Group owningGroup, int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
@@ -378,18 +366,17 @@ elemental::Grid::Grid
 
     // Extract our rank and the number of processes from the owning group
     _owningGroup = owningGroup;
-    _p = mpi::GroupSize( _owningGroup );
+    _size = mpi::GroupSize( _owningGroup );
     _owningRank = mpi::GroupRank( _owningGroup );
     _inGrid = ( _owningRank != mpi::UNDEFINED );
 
     // Create the complement of the owning group
-    mpi::GroupDifference
-    ( _viewingGroup, _owningGroup, _notOwningGroup );
+    mpi::GroupDifference( _viewingGroup, _owningGroup, _notOwningGroup );
 
-    _r = r;
-    _c = c;
+    _height = height;
+    _width = width;
 
-    if( _r < 0 || _c < 0 )
+    if( _height < 0 || _width < 0 )
         throw std::logic_error
         ("Process grid dimensions must be non-negative");
 
@@ -406,16 +393,17 @@ elemental::Grid::SetUpGrid()
 #ifndef RELEASE
     PushCallStack("Grid::SetUpGrid");
 #endif
-    if( _p != _r*_c )
+    if( _size != _height*_width )
     {
         std::ostringstream msg;
         msg << "Number of processes must match grid size:\n"
-            << "  p=" << _p << ", (r,c)=(" << _r << "," << _c << ")";
+            << "  size=" << _size << ", (height,width)=(" 
+            << _height << "," << _width << ")";
         throw std::logic_error( msg.str().c_str() );
     }
 
-    _gcd = elemental::GCD( _r, _c );
-    int lcm = _p / _gcd;
+    _gcd = elemental::GCD( _height, _width );
+    int lcm = _size / _gcd;
 
     // Split the viewing comm into the owning and not owning subsets
     if( _inGrid )
@@ -426,7 +414,7 @@ elemental::Grid::SetUpGrid()
     if( _inGrid )
     {
         // Create a cartesian communicator
-        int dimensions[2] = { _c, _r };
+        int dimensions[2] = { _width, _height };
         int periods[2] = { true, true };
         int reorder = false;
         mpi::CartCreate
@@ -444,16 +432,16 @@ elemental::Grid::SetUpGrid()
         _matrixRowRank = mpi::CommRank( _matrixRowComm );
 
         // Set up the VectorCol and VectorRow communicators
-        _vectorColRank = _matrixColRank + _r*_matrixRowRank;
-        _vectorRowRank = _matrixRowRank + _c*_matrixColRank;
+        _vectorColRank = _matrixColRank + _height*_matrixRowRank;
+        _vectorRowRank = _matrixRowRank + _width*_matrixColRank;
         mpi::CommSplit( _cartComm, 0, _vectorColRank, _vectorColComm );
         mpi::CommSplit( _cartComm, 0, _vectorRowRank, _vectorRowComm );
 
         // Compute which diagonal 'path' we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
-        _diagPathsAndRanks.resize(2*_p);
+        _diagPathsAndRanks.resize(2*_size);
         std::vector<int> myDiagPathAndRank(2);
-        myDiagPathAndRank[0] = (_matrixRowRank+_r-_matrixColRank) % _gcd;
+        myDiagPathAndRank[0] = (_matrixRowRank+_height-_matrixColRank) % _gcd;
         int diagPathRank = 0;
         int row = 0;
         int col = myDiagPathAndRank[0];
@@ -466,8 +454,8 @@ elemental::Grid::SetUpGrid()
             }
             else
             {
-                row = (row + 1) % _r;
-                col = (col + 1) % _c;
+                row = (row + 1) % _height;
+                col = (col + 1) % _width;
                 ++diagPathRank;
             }
         }
@@ -497,12 +485,13 @@ elemental::Grid::SetUpGrid()
     // Set up the map from the VC group to the _viewingGroup ranks.
     // Since the VC communicator preserves the ordering of the _owningGroup
     // ranks, we can simply translate from _owningGroup.
-    std::vector<int> ranks(_p);
-    for( int i=0; i<_p; ++i )
+    std::vector<int> ranks(_size);
+    for( int i=0; i<_size; ++i )
         ranks[i] = i;
-    _vectorColToViewingMap.resize(_p);
+    _vectorColToViewingMap.resize(_size);
     mpi::GroupTranslateRanks
-    ( _owningGroup, _p, &ranks[0], _viewingGroup, &_vectorColToViewingMap[0] );
+    ( _owningGroup, _size, &ranks[0], _viewingGroup, 
+      &_vectorColToViewingMap[0] );
 #ifndef RELEASE
     PopCallStack();
 #endif
