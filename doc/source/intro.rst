@@ -46,6 +46,23 @@ why ScaLAPACK or PLAPACK might be more appropriate:
   an element-wise distribution format after construction, this might add 
   an unnecessary level of complexity.
 
+.. note::
+   At this point, the vast majority of Elemental's source code is in header 
+   files, so do not be surprised by the sparsity of the ``src/`` folder; please
+   also look in ``include/``. There were essentially two reasons for moving as 
+   much of Elemental as possible into header files:
+
+   1. In practice, most executables only require a small subset of the library, 
+      so avoiding the overhead of compiling the entire library beforehand can be
+      significant. On the other hand, if one naively builds many such 
+      executables with overlapping functionality, then the mainly-header 
+      approach becomes slower. 
+   2. Though Elemental does not yet fully support computation over arbitrary 
+      fields, the vast majority of its pieces do. Moving templated 
+      implementations into header files is a necessary step in the process and 
+      also allowed for certain templating techniques to exploited in order to 
+      simplify the class hierarchy.
+
 Dependencies
 ============
 * Functioning C++03 and ANSI C compilers.
@@ -59,8 +76,7 @@ Dependencies
 
 Elemental should successfully build on nearly every platform, as it has been
 verified to build on most major desktop platforms (including Linux, Mac OS X, 
-Microsoft Windows, and Cygwin), as well as a wide variety of Linux clusters (including Blue Gene/P) and, with some minor modifications, on Intel's SCC
-research chip.
+Microsoft Windows, and Cygwin), as well as a wide variety of Linux clusters (including Blue Gene/P).
 
 License and Copyright
 =====================

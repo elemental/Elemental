@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Elemental v0.70 documentation" href="index.html" />
     <link rel="next" title="Basic linear algebra" href="basic.html" />
-    <link rel="prev" title="Building Elemental" href="build.html" /> 
+    <link rel="prev" title="Imported libraries" href="imports.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,7 +37,7 @@
           <a href="basic.html" title="Basic linear algebra"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="build.html" title="Building Elemental"
+          <a href="imports.html" title="Imported libraries"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Elemental v0.70 documentation</a> &raquo;</li> 
       </ul>
@@ -562,7 +562,7 @@ soon-to-be-discussed <tt class="docutils literal"><span class="pre">DistMatrix</
 <dd><p class="rubric">Basic constructors</p>
 <dl class="function">
 <dt id="Grid::Grid__mpi::Comm">
- <tt class="descname">Grid</tt><big>(</big>mpi::Comm <em>comm</em><em>=mpi::COMM_WORLD </em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">Grid</tt><big>(</big><a class="reference internal" href="imports.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><em>=mpi::COMM_WORLD </em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a process grid over the specified communicator and let Elemental
 decide the process grid dimensions. If no communicator is specified,
 mpi::COMM_WORLD is used.</p>
@@ -570,7 +570,7 @@ mpi::COMM_WORLD is used.</p>
 
 <dl class="function">
 <dt id="Grid::Grid__mpi::Comm.i.i">
- <tt class="descname">Grid</tt><big>(</big>mpi::Comm <em>comm</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm.i.i" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">Grid</tt><big>(</big><a class="reference internal" href="imports.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm.i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a process grid over the specified communicator with the
 given dimensions. Note that the size of the communicator should be
 <em>height</em> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em>.</p>
@@ -647,28 +647,28 @@ corresponds to our rank in a row-major ordering of the process grid.</p>
 
 <dl class="function">
 <dt id="Grid::MCCommC">
-mpi::Comm <tt class="descname">MCComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::MCCommC" title="Permalink to this definition">¶</a></dt>
+<a class="reference internal" href="imports.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">MCComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::MCCommC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>MC</em> (Matrix Column) communicator. This consists of the set
 of processes within our column of the grid (ordered top-to-bottom).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Grid::MRCommC">
-mpi::Comm <tt class="descname">MRComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::MRCommC" title="Permalink to this definition">¶</a></dt>
+<a class="reference internal" href="imports.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">MRComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::MRCommC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>MR</em> (Matrix Row) communicator. This consists of the set of
 processes within our row of the grid (ordered left-to-right).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Grid::VCCommC">
-mpi::Comm <tt class="descname">VCComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::VCCommC" title="Permalink to this definition">¶</a></dt>
+<a class="reference internal" href="imports.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">VCComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::VCCommC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>VC</em> (Vector Column) communicator. This consists of the entire
 set of processes in the grid, but ordered in a column-major fashion.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Grid::VRCommC">
-mpi::Comm <tt class="descname">VRComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::VRCommC" title="Permalink to this definition">¶</a></dt>
+<a class="reference internal" href="imports.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">VRComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::VRCommC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>VR</em> (Vector Row) communicator. This consists of the entire
 set of processes in the grid, but ordered in a row-major fashion.</p>
 </dd></dl>
@@ -676,7 +676,7 @@ set of processes in the grid, but ordered in a row-major fashion.</p>
 <p class="rubric">Advanced routines</p>
 <dl class="function">
 <dt id="Grid::Grid__mpi::Comm.mpi::Group">
- <tt class="descname">Grid</tt><big>(</big>mpi::Comm <em>viewingComm</em>, mpi::Group <em>owningGroup</em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm.mpi::Group" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">Grid</tt><big>(</big><a class="reference internal" href="imports.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>viewingComm</em>, <a class="reference internal" href="imports.html#mpi::Group" title="mpi::Group">mpi::Group</a> <em>owningGroup</em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm.mpi::Group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a process grid where only a subset of the participating
 processes should actively participate in the process grid. In particular,
 <em>viewingComm</em> should consist of the set of all processes constructing
@@ -688,7 +688,7 @@ supported for a few <tt class="docutils literal"><span class="pre">DistMatrix</s
 
 <dl class="function">
 <dt id="Grid::Grid__mpi::Comm.mpi::Group.i.i">
- <tt class="descname">Grid</tt><big>(</big>mpi::Comm <em>viewingComm</em>, mpi::Group <em>owningGroup</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm.mpi::Group.i.i" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">Grid</tt><big>(</big><a class="reference internal" href="imports.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>viewingComm</em>, <a class="reference internal" href="imports.html#mpi::Group" title="mpi::Group">mpi::Group</a> <em>owningGroup</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm.mpi::Group.i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the same as the previous routine, but the process grid dimensions
 are explicitly specified, and it is required that <em>height</em> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/>
 <em>width</em> equals the size of <em>owningGroup</em>. Most users should not call this
@@ -718,14 +718,14 @@ larger set of processes which constructed the grid.</p>
 
 <dl class="function">
 <dt id="Grid::OwningGroupC">
-mpi::Group <tt class="descname">OwningGroup</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::OwningGroupC" title="Permalink to this definition">¶</a></dt>
+<a class="reference internal" href="imports.html#mpi::Group" title="mpi::Group">mpi::Group</a> <tt class="descname">OwningGroup</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::OwningGroupC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the group of processes which is actively participating in the
 grid.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Grid::OwningCommC">
-mpi::Comm <tt class="descname">OwningComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::OwningCommC" title="Permalink to this definition">¶</a></dt>
+<a class="reference internal" href="imports.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">OwningComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::OwningCommC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the communicator for the set of processes actively participating
 in the grid. Note that this can only be valid if the calling process
 is an active member of the grid!</p>
@@ -733,7 +733,7 @@ is an active member of the grid!</p>
 
 <dl class="function">
 <dt id="Grid::ViewingCommC">
-mpi::Comm <tt class="descname">ViewingComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::ViewingCommC" title="Permalink to this definition">¶</a></dt>
+<a class="reference internal" href="imports.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">ViewingComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::ViewingCommC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the communicator for the entire set of processes which constructed
 the grid.</p>
 </dd></dl>
@@ -1226,8 +1226,8 @@ void <tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="header
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="build.html"
-                        title="previous chapter">Building Elemental</a></p>
+  <p class="topless"><a href="imports.html"
+                        title="previous chapter">Imported libraries</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="basic.html"
                         title="next chapter">Basic linear algebra</a></p>
@@ -1263,7 +1263,7 @@ void <tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="header
           <a href="basic.html" title="Basic linear algebra"
              >next</a> |</li>
         <li class="right" >
-          <a href="build.html" title="Building Elemental"
+          <a href="imports.html" title="Imported libraries"
              >previous</a> |</li>
         <li><a href="index.html">Elemental v0.70 documentation</a> &raquo;</li> 
       </ul>

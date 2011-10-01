@@ -1,5 +1,5 @@
-Building Elemental
-******************
+Build system
+************
 Elemental's build system relies on `CMake <http://www.cmake.org>`_ 
 in order to manage a large number of configuration options in a 
 platform-independent manner; it can be easily configured to build on Linux and 
@@ -247,6 +247,11 @@ eight processes would be::
 
 Only the first line of the output should change with respect to when run on 
 a single process.
+
+Elemental as a subproject
+=========================
+**TODO:** Describe the convenient mechanism for building a project on top of 
+Elemental's ``CMakeLists.txt``.
 
 Troubleshooting
 ===============

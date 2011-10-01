@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Elemental v0.70 documentation" href="index.html" />
-    <link rel="next" title="Building Elemental" href="build.html" />
+    <link rel="next" title="Build system" href="build.html" />
     <link rel="prev" title="Welcome to Elemental’s documentation!" href="index.html" /> 
   </head>
   <body>
@@ -34,7 +34,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="build.html" title="Building Elemental"
+          <a href="build.html" title="Build system"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to Elemental’s documentation!"
@@ -95,6 +95,25 @@ construction. Though it is clearly possible to redistribute the matrix into
 an element-wise distribution format after construction, this might add
 an unnecessary level of complexity.</li>
 </ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>At this point, the vast majority of Elemental&#8217;s source code is in header
+files, so do not be surprised by the sparsity of the <tt class="docutils literal"><span class="pre">src/</span></tt> folder; please
+also look in <tt class="docutils literal"><span class="pre">include/</span></tt>. There were essentially two reasons for moving as
+much of Elemental as possible into header files:</p>
+<ol class="last arabic simple">
+<li>In practice, most executables only require a small subset of the library,
+so avoiding the overhead of compiling the entire library beforehand can be
+significant. On the other hand, if one naively builds many such
+executables with overlapping functionality, then the mainly-header
+approach becomes slower.</li>
+<li>Though Elemental does not yet fully support computation over arbitrary
+fields, the vast majority of its pieces do. Moving templated
+implementations into header files is a necessary step in the process and
+also allowed for certain templating techniques to exploited in order to
+simplify the class hierarchy.</li>
+</ol>
+</div>
 </div>
 <div class="section" id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
@@ -110,8 +129,7 @@ requires recent LAPACK routines).</li>
 </ul>
 <p>Elemental should successfully build on nearly every platform, as it has been
 verified to build on most major desktop platforms (including Linux, Mac OS X,
-Microsoft Windows, and Cygwin), as well as a wide variety of Linux clusters (including Blue Gene/P) and, with some minor modifications, on Intel&#8217;s SCC
-research chip.</p>
+Microsoft Windows, and Cygwin), as well as a wide variety of Linux clusters (including Blue Gene/P).</p>
 </div>
 <div class="section" id="license-and-copyright">
 <h2>License and Copyright<a class="headerlink" href="#license-and-copyright" title="Permalink to this headline">¶</a></h2>
@@ -192,7 +210,7 @@ copyright Jack Poulson, Lexing Ying, and The University of Texas at Austin.</li>
                         title="previous chapter">Welcome to Elemental&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="build.html"
-                        title="next chapter">Building Elemental</a></p>
+                        title="next chapter">Build system</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/intro.txt"
@@ -222,7 +240,7 @@ copyright Jack Poulson, Lexing Ying, and The University of Texas at Austin.</li>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="build.html" title="Building Elemental"
+          <a href="build.html" title="Build system"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to Elemental’s documentation!"

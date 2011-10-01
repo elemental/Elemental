@@ -11,6 +11,7 @@ Welcome to Elemental's documentation!
 
    intro
    build
+   imports
    core
    basic
    advanced 

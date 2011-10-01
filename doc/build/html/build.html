@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Building Elemental &mdash; Elemental v0.70 documentation</title>
+    <title>Build system &mdash; Elemental v0.70 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Elemental v0.70 documentation" href="index.html" />
-    <link rel="next" title="Core functionality" href="core.html" />
+    <link rel="next" title="Imported libraries" href="imports.html" />
     <link rel="prev" title="Introduction" href="intro.html" /> 
   </head>
   <body>
@@ -34,7 +34,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="core.html" title="Core functionality"
+          <a href="imports.html" title="Imported libraries"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="intro.html" title="Introduction"
@@ -48,8 +48,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="building-elemental">
-<h1>Building Elemental<a class="headerlink" href="#building-elemental" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="build-system">
+<h1>Build system<a class="headerlink" href="#build-system" title="Permalink to this headline">¶</a></h1>
 <p>Elemental&#8217;s build system relies on <a class="reference external" href="http://www.cmake.org">CMake</a>
 in order to manage a large number of configuration options in a
 platform-independent manner; it can be easily configured to build on Linux and
@@ -138,8 +138,8 @@ the repository by running</p>
 </li>
 </ol>
 </div>
-<div class="section" id="id1">
-<h2>Building Elemental<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="building-elemental">
+<h2>Building Elemental<a class="headerlink" href="#building-elemental" title="Permalink to this headline">¶</a></h2>
 <p>On *nix machines with <a class="reference external" href="http://www.netlib.org/blas/">BLAS</a>,
 <a class="reference external" href="http://www.netlib.org/lapack/">LAPACK</a>, and
 <a class="reference external" href="http://en.wikipedia.org/wiki/Message_Passing_Interface">MPI</a> installed in
@@ -283,6 +283,11 @@ eight processes would be:</p>
 <p>Only the first line of the output should change with respect to when run on
 a single process.</p>
 </div>
+<div class="section" id="elemental-as-a-subproject">
+<h2>Elemental as a subproject<a class="headerlink" href="#elemental-as-a-subproject" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO:</strong> Describe the convenient mechanism for building a project on top of
+Elemental&#8217;s <tt class="docutils literal"><span class="pre">CMakeLists.txt</span></tt>.</p>
+</div>
 <div class="section" id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
 <p>If you run into build problems, please email
@@ -304,16 +309,17 @@ your build directory. Please only direct general usage questions to
             </a></p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Building Elemental</a><ul>
+<li><a class="reference internal" href="#">Build system</a><ul>
 <li><a class="reference internal" href="#installing-cmake">Installing CMake</a></li>
 <li><a class="reference internal" href="#working-with-cmake">Working with CMake</a></li>
 <li><a class="reference internal" href="#getting-elemental-s-source">Getting Elemental&#8217;s source</a></li>
-<li><a class="reference internal" href="#id1">Building Elemental</a><ul>
+<li><a class="reference internal" href="#building-elemental">Building Elemental</a><ul>
 <li><a class="reference internal" href="#build-modes">Build Modes</a></li>
 <li><a class="reference internal" href="#building-pmrrr">Building PMRRR</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#testing-the-installation">Testing the installation</a></li>
+<li><a class="reference internal" href="#elemental-as-a-subproject">Elemental as a subproject</a></li>
 <li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
@@ -323,8 +329,8 @@ your build directory. Please only direct general usage questions to
   <p class="topless"><a href="intro.html"
                         title="previous chapter">Introduction</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="core.html"
-                        title="next chapter">Core functionality</a></p>
+  <p class="topless"><a href="imports.html"
+                        title="next chapter">Imported libraries</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/build.txt"
@@ -354,7 +360,7 @@ your build directory. Please only direct general usage questions to
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="core.html" title="Core functionality"
+          <a href="imports.html" title="Imported libraries"
              >next</a> |</li>
         <li class="right" >
           <a href="intro.html" title="Introduction"
