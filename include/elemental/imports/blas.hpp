@@ -457,32 +457,32 @@ void Syrk
 
 void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
-  float alpha, const float* A, int lda, float* X, int ldb );
+  float alpha, const float* A, int lda, float* B, int ldb );
 void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
-  double alpha, const double* A, int lda, double* X, int ldb );
+  double alpha, const double* A, int lda, double* B, int ldb );
 #ifndef WITHOUT_COMPLEX
 void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
-  scomplex alpha, const scomplex* A, int lda, scomplex* X, int ldb );
+  scomplex alpha, const scomplex* A, int lda, scomplex* B, int ldb );
 void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
-  dcomplex alpha, const dcomplex* A, int lda, dcomplex* X, int ldb );
+  dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb );
 #endif
 
 void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
-  float alpha, const float* A, int lda, float* X, int ldb );
+  float alpha, const float* A, int lda, float* B, int ldb );
 void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
-  double alpha, const double* A, int lda, double* X, int ldb );
+  double alpha, const double* A, int lda, double* B, int ldb );
 #ifndef WITHOUT_COMPLEX
 void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
-  scomplex alpha, const scomplex* A, int lda, scomplex* X, int ldb );
+  scomplex alpha, const scomplex* A, int lda, scomplex* B, int ldb );
 void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
-  dcomplex alpha, const dcomplex* A, int lda, dcomplex* X, int ldb );
+  dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb );
 #endif
 } // blas
 } // elemental
