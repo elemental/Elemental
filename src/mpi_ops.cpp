@@ -84,7 +84,7 @@ elemental::advanced::internal::CreatePivotOp<float>()
         throw std::logic_error("Already created pivot op");
 #endif
     mpi::OpCreate
-    ( (mpi::UserFunction*)PivotFunc<float>, 1, ::pivotOpFloat );
+    ( (mpi::UserFunction*)PivotFunc<float>, true, ::pivotOpFloat );
     ::createdPivotOpFloat = true;
 #ifndef RELEASE
     PopCallStack();
@@ -101,7 +101,7 @@ elemental::advanced::internal::CreatePivotOp<double>()
         throw std::logic_error("Already created pivot op");
 #endif  
     mpi::OpCreate
-    ( (mpi::UserFunction*)PivotFunc<double>, 1, ::pivotOpDouble );
+    ( (mpi::UserFunction*)PivotFunc<double>, true, ::pivotOpDouble );
     ::createdPivotOpDouble = true;
 #ifndef RELEASE
     PopCallStack();
@@ -119,7 +119,7 @@ elemental::advanced::internal::CreatePivotOp<scomplex>()
         throw std::logic_error("Alread created pivot op");
 #endif
     mpi::OpCreate
-    ( (mpi::UserFunction*)PivotFunc<scomplex>, 1, ::pivotOpScomplex );
+    ( (mpi::UserFunction*)PivotFunc<scomplex>, true, ::pivotOpScomplex );
     ::createdPivotOpScomplex = true;
 #ifndef RELEASE
     PopCallStack();
@@ -136,7 +136,7 @@ elemental::advanced::internal::CreatePivotOp<dcomplex>()
         throw std::logic_error("Already created pivot op");
 #endif
     mpi::OpCreate
-    ( (mpi::UserFunction*)PivotFunc<dcomplex>, 1, ::pivotOpDcomplex );
+    ( (mpi::UserFunction*)PivotFunc<dcomplex>, true, ::pivotOpDcomplex );
     ::createdPivotOpDcomplex = true;
 #ifndef RELEASE
     PopCallStack();

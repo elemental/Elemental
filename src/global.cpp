@@ -63,7 +63,7 @@ elemental::Initialize( int& argc, char**& argv )
         }
 #ifdef _OPENMP
         const int provided = 
-            mpi::InitThread
+            mpi::InitializeThread
             ( argc, argv, mpi::THREAD_MULTIPLE );
         if( provided != mpi::THREAD_MULTIPLE )
         {
@@ -71,7 +71,7 @@ elemental::Initialize( int& argc, char**& argv )
                       << std::endl;
         }
 #else
-        mpi::Init( argc, argv );
+        mpi::Initialize( argc, argv );
 #endif
         ::elementalInitializedMpi = true;
     }

@@ -168,9 +168,9 @@
     <dt><a href="core.html#Grid::MCRankC">Grid::MCRank (C++ function)</a></dt>
     <dt><a href="core.html#Grid::MRCommC">Grid::MRComm (C++ function)</a></dt>
     <dt><a href="core.html#Grid::MRRankC">Grid::MRRank (C++ function)</a></dt>
+    <dt><a href="core.html#Grid::OwningCommC">Grid::OwningComm (C++ function)</a></dt>
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
-    <dt><a href="core.html#Grid::OwningCommC">Grid::OwningComm (C++ function)</a></dt>
     <dt><a href="core.html#Grid::OwningGroupC">Grid::OwningGroup (C++ function)</a></dt>
     <dt><a href="core.html#Grid::OwningRankC">Grid::OwningRank (C++ function)</a></dt>
     <dt><a href="core.html#Grid::SizeC">Grid::Size (C++ function)</a></dt>
@@ -182,6 +182,7 @@
     <dt><a href="core.html#Grid::VRCommC">Grid::VRComm (C++ function)</a></dt>
     <dt><a href="core.html#Grid::VRRankC">Grid::VRRank (C++ function)</a></dt>
     <dt><a href="core.html#Grid::WidthC">Grid::Width (C++ function)</a></dt>
+    <dt><a href="imports.html#GroupTranslateRanks__mpi::Group.i.iCP.mpi::Group.iP">GroupTranslateRanks (C++ function)</a></dt>
 </dl></td>
 </tr></table>
 
@@ -221,8 +222,6 @@
     <dt><a href="core.html#Matrix:T:::SetToZero">Matrix&lt;T&gt;::SetToZero (C++ function)</a></dt>
     <dt><a href="core.html#Matrix:T:::Update__i.i.T">Matrix&lt;T&gt;::Update (C++ function)</a></dt>
     <dt><a href="core.html#Matrix:T:::UpdateDiagonal__Matrix:T:CR.i">Matrix&lt;T&gt;::UpdateDiagonal (C++ function)</a></dt>
-</dl></td>
-  <td style="width: 33%" valign="top"><dl>
     <dt><a href="core.html#Matrix:T:::UpdateImag__i.i.typename-RealBase:T:::type">Matrix&lt;T&gt;::UpdateImag (C++ function)</a></dt>
     <dt><a href="core.html#Matrix:T:::UpdateImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i">Matrix&lt;T&gt;::UpdateImagDiagonal (C++ function)</a></dt>
     <dt><a href="core.html#Matrix:T:::UpdateReal__i.i.typename-RealBase:T:::type">Matrix&lt;T&gt;::UpdateReal (C++ function)</a></dt>
@@ -233,29 +232,74 @@
     <dt><a href="core.html#Matrix:T:::View2x2__Matrix:T:R.Matrix:T:R.Matrix:T:R.Matrix:T:R">Matrix&lt;T&gt;::View2x2 (C++ function)</a></dt>
     <dt><a href="core.html#Matrix:T:::ViewingC">Matrix&lt;T&gt;::Viewing (C++ function)</a></dt>
     <dt><a href="core.html#Matrix:T:::WidthC">Matrix&lt;T&gt;::Width (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::AllGather__TCP.i.TP.i.mpi::Comm">mpi::AllGather (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::AllReduce__TCP.TP.i.mpi::Op.mpi::Comm">mpi::AllReduce (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::AllToAll__TCP.i.TP.i.mpi::Comm">mpi::AllToAll (C++ function)</a>, <a href="imports.html#mpi::AllToAll__TCP.iCP.iCP.TP.iCP.iCP.mpi::Comm">[1]</a></dt>
     <dt><a href="imports.html#mpi::ANY_SOURCE__iC">mpi::ANY_SOURCE (C++ member)</a></dt>
     <dt><a href="imports.html#mpi::ANY_TAG__iC">mpi::ANY_TAG (C++ member)</a></dt>
+    <dt><a href="imports.html#mpi::Barrier__mpi::Comm">mpi::Barrier (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::Broadcast__TP.i.i.mpi::Comm">mpi::Broadcast (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::CartCreate__mpi::Comm.i.iCP.iCP.b.mpi::CommR">mpi::CartCreate (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::CartSub__mpi::Comm.iCP.mpi::CommR">mpi::CartSub (C++ function)</a></dt>
     <dt><a href="imports.html#mpi::Comm">mpi::Comm (C++ type)</a></dt>
     <dt><a href="imports.html#mpi::COMM_WORLD__mpi::CommC">mpi::COMM_WORLD (C++ member)</a></dt>
+    <dt><a href="imports.html#mpi::CommCreate__mpi::Comm.mpi::Group.mpi::CommR">mpi::CommCreate (C++ function)</a></dt>
+</dl></td>
+  <td style="width: 33%" valign="top"><dl>
+    <dt><a href="imports.html#mpi::CommDup__mpi::Comm.mpi::CommR">mpi::CommDup (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::CommFree__mpi::CommR">mpi::CommFree (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::CommGroup__mpi::Comm.mpi::GroupR">mpi::CommGroup (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::CommRank__mpi::Comm">mpi::CommRank (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::CommSize__mpi::Comm">mpi::CommSize (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::CommSplit__mpi::Comm.i.i.mpi::CommR">mpi::CommSplit (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::CongruentComms__mpi::Comm.mpi::Comm">mpi::CongruentComms (C++ function)</a></dt>
     <dt><a href="imports.html#mpi::Datatype">mpi::Datatype (C++ type)</a></dt>
     <dt><a href="imports.html#mpi::ErrorHandler">mpi::ErrorHandler (C++ type)</a></dt>
+    <dt><a href="imports.html#mpi::ErrorHandlerSet__mpi::Comm.mpi::ErrorHandler">mpi::ErrorHandlerSet (C++ function)</a></dt>
     <dt><a href="imports.html#mpi::ERRORS_ARE_FATAL__mpi::ErrorHandlerC">mpi::ERRORS_ARE_FATAL (C++ member)</a></dt>
     <dt><a href="imports.html#mpi::ERRORS_RETURN__mpi::ErrorHandlerC">mpi::ERRORS_RETURN (C++ member)</a></dt>
+    <dt><a href="imports.html#mpi::Finalize">mpi::Finalize (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::Finalized">mpi::Finalized (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::Gather__TCP.i.TP.i.i.mpi::Comm">mpi::Gather (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::GetCount:T:__mpi::StatusR">mpi::GetCount&lt;T&gt; (C++ function)</a></dt>
     <dt><a href="imports.html#mpi::Group">mpi::Group (C++ type)</a></dt>
     <dt><a href="imports.html#mpi::GROUP_EMPTY__mpi::GroupC">mpi::GROUP_EMPTY (C++ member)</a></dt>
+    <dt><a href="imports.html#mpi::GroupDifference__mpi::Group.mpi::Group.mpi::GroupR">mpi::GroupDifference (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::GroupFree__mpI::GroupR">mpi::GroupFree (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::GroupIncl__mpi::Group.i.iCP.mpi::GroupR">mpi::GroupIncl (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::GroupRank__mpi::Group">mpi::GroupRank (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::GroupSize__mpi::Group">mpi::GroupSize (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::Initialize__iR.cPPR">mpi::Initialize (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::Initialized">mpi::Initialized (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::InitializeThread__iR.cPPR.i">mpi::InitializeThread (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::IProbe__i.i.mpi::Comm.mpi::StatusR">mpi::IProbe (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::IRecv__TP.i.i.i.mpi::Comm.mpi::RequestR">mpi::IRecv (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::ISend__TCP.i.i.i.mpi::Comm.mpi::RequestR">mpi::ISend (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::ISSend__TCP.i.i.i.mpi::Comm.mpi::RequestR">mpi::ISSend (C++ function)</a></dt>
     <dt><a href="imports.html#mpi::MAX__mpi::OpC">mpi::MAX (C++ member)</a></dt>
     <dt><a href="imports.html#mpi::MIN_COLL_MSG__iC">mpi::MIN_COLL_MSG (C++ member)</a></dt>
     <dt><a href="imports.html#mpi::Op">mpi::Op (C++ type)</a></dt>
+    <dt><a href="imports.html#mpi::OpCreate__mpi::UserFunctionP.b.OpR">mpi::OpCreate (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::OpFree__mpi::OpR">mpi::OpFree (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::Recv__TP.i.i.i.mpi::Comm">mpi::Recv (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::Reduce__TCP.TP.i.mpi::Op.i.mpi::Comm">mpi::Reduce (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::ReduceScatter__TCP.TP.iCP.mpi::Op.mpi::Comm">mpi::ReduceScatter (C++ function)</a></dt>
     <dt><a href="imports.html#mpi::Request">mpi::Request (C++ type)</a></dt>
     <dt><a href="imports.html#mpi::REQUEST_NULL__mpi::RequestC">mpi::REQUEST_NULL (C++ member)</a></dt>
+    <dt><a href="imports.html#mpi::Scatter__TCP.i.TP.i.i.mpi::Comm">mpi::Scatter (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::Send__TCP.i.i.i.mpi::Comm">mpi::Send (C++ function)</a></dt>
+    <dt><a href="imports.html#mpi::SendRecv__TCP.i.i.i.TP.i.i.i.mpi::Comm">mpi::SendRecv (C++ function)</a></dt>
     <dt><a href="imports.html#mpi::Status">mpi::Status (C++ type)</a></dt>
     <dt><a href="imports.html#mpi::SUM__mpi::OpC">mpi::SUM (C++ member)</a></dt>
+    <dt><a href="imports.html#mpi::Test__mpi::RequestR">mpi::Test (C++ function)</a></dt>
     <dt><a href="imports.html#mpi::THREAD_FUNNELED__iC">mpi::THREAD_FUNNELED (C++ member)</a></dt>
     <dt><a href="imports.html#mpi::THREAD_MULTIPLE__iC">mpi::THREAD_MULTIPLE (C++ member)</a></dt>
     <dt><a href="imports.html#mpi::THREAD_SERIALIZED__iC">mpi::THREAD_SERIALIZED (C++ member)</a></dt>
     <dt><a href="imports.html#mpi::THREAD_SINGLE__iC">mpi::THREAD_SINGLE (C++ member)</a></dt>
+    <dt><a href="imports.html#mpi::Time">mpi::Time (C++ function)</a></dt>
     <dt><a href="imports.html#mpi::UNDEFINED__iC">mpi::UNDEFINED (C++ member)</a></dt>
     <dt><a href="imports.html#mpi::UserFunction">mpi::UserFunction (C++ type)</a></dt>
+    <dt><a href="imports.html#mpi::Wait__mpi::RequestR">mpi::Wait (C++ function)</a></dt>
 </dl></td>
 </tr></table>
 

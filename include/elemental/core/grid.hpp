@@ -416,7 +416,7 @@ elemental::Grid::SetUpGrid()
         // Create a cartesian communicator
         int dimensions[2] = { _width, _height };
         int periods[2] = { true, true };
-        int reorder = false;
+        bool reorder = false;
         mpi::CartCreate
         ( _owningComm, 2, dimensions, periods, reorder, _cartComm );
 

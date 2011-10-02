@@ -69,14 +69,14 @@ const int MIN_COLL_MSG = 1; // minimum message size for collectives
 // Routines                                                                   //
 //----------------------------------------------------------------------------//
 
-// MPI environmental routines
-void Init( int& argc, char**& argv );
-int InitThread( int& argc, char**& argv, int required );
+// Environment routines
+void Initialize( int& argc, char**& argv );
+int InitializeThread( int& argc, char**& argv, int required );
 void Finalize();
-int Initialized();
-int Finalized();
+bool Initialized();
+bool Finalized();
 double Time();
-void OpCreate( UserFunction* func, int commutes, Op& op );
+void OpCreate( UserFunction* func, bool commutes, Op& op );
 void OpFree( Op& op );
 
 // Communicator manipulation
@@ -92,7 +92,7 @@ void ErrorHandlerSet( Comm comm, ErrorHandler errorHandler );
 // Cartesian communicator routines
 void CartCreate
 ( Comm comm, int numDims, const int* dimensions, const int* periods, 
-  int reorder, Comm& cartComm );
+  bool reorder, Comm& cartComm );
 void CartSub
 ( Comm comm, const int* remainingDims, Comm& subComm );
 
@@ -107,22 +107,13 @@ void GroupTranslateRanks
 ( Group origGroup, int size, const int* origRanks, 
   Group newGroup,                  int* newRanks );
 
-// Wait until every process in comm reaches this statement
+// Utilities
 void Barrier( Comm comm );
-
-// Ensure that the request finishes before continuing
 void Wait( Request& request );
-
-// Test for completion
-int Test( Request& request );
-
-// Nonblocking test for message completion
-void IProbe
-( int source, int tag, Comm comm, int& flag, Status& status );
-
+bool Test( Request& request );
+bool IProbe( int source, int tag, Comm comm, Status& status );
 template<typename T>
 int GetCount( Status& status );
-
 template<> int GetCount<byte>( Status& status );
 template<> int GetCount<int>( Status& status );
 template<> int GetCount<float>( Status& status );
@@ -132,403 +123,254 @@ template<> int GetCount<scomplex>( Status& status );
 template<> int GetCount<dcomplex>( Status& status );
 #endif
 
-void
-Send
-( const byte* buf, int count, int to, int tag, Comm comm );
-void
-ISend
-( const byte* buf, int count, int to, int tag, Comm comm, Request& request );
-void
-ISSend
-( const byte* buf, int count, int to, int tag, Comm comm, Request& request );
+// Point-to-point communication
 
-void
-Send
-( const int* buf, int count, int to, int tag, Comm comm );
-void
-ISend
-( const int* buf, int count, int to, int tag, Comm comm, Request& request );
-void
-ISSend
-( const int* buf, int count, int to, int tag, Comm comm, Request& request );
-
-void
-Send
-( const float* buf, int count, int to, int tag, Comm comm );
-void
-ISend
-( const float* buf, int count, int to, int tag, Comm comm, Request& request );
-void
-ISSend
-( const float* buf, int count, int to, int tag, Comm comm, Request& request );
-
-void 
-Send
-( const double* buf, int count, int to, int tag, Comm comm );
-void
-ISend
-( const double* buf, int count, int to, int tag, Comm comm, Request& request );
-void
-ISSend
-( const double* buf, int count, int to, int tag, Comm comm, Request& request );
-
+void Send( const byte* buf, int count, int to, int tag, Comm comm );
+void Send( const int* buf, int count, int to, int tag, Comm comm );
+void Send( const float* buf, int count, int to, int tag, Comm comm );
+void Send( const double* buf, int count, int to, int tag, Comm comm );
 #ifndef WITHOUT_COMPLEX
-void
-Send
-( const scomplex* buf, int count, int to, int tag, Comm comm );
-void
-ISend
-( const scomplex* buf, int count, int to, int tag, Comm comm, 
-  Request& request );
-void
-ISSend
-( const scomplex* buf, int count, int to, int tag, Comm comm, 
-  Request& request );
+void Send( const scomplex* buf, int count, int to, int tag, Comm comm );
+void Send( const dcomplex* buf, int count, int to, int tag, Comm comm );
+#endif
 
-void
-Send
-( const dcomplex* buf, int count, int to, int tag, Comm comm );
-void
-ISend
+void ISend
+( const byte* buf, int count, int to, int tag, Comm comm, Request& request );
+void ISend
+( const int* buf, int count, int to, int tag, Comm comm, Request& request );
+void ISend
+( const float* buf, int count, int to, int tag, Comm comm, Request& request );
+void ISend
+( const double* buf, int count, int to, int tag, Comm comm, Request& request );
+#ifndef WITHOUT_COMPLEX
+void ISend
+( const scomplex* buf, int count, int to, int tag, Comm comm, 
+  Request& request );
+void ISend
 ( const dcomplex* buf, int count, int to, int tag, Comm comm, 
   Request& request );
-void
-ISSend
+#endif
+
+void ISSend
+( const byte* buf, int count, int to, int tag, Comm comm, Request& request );
+void ISSend
+( const int* buf, int count, int to, int tag, Comm comm, Request& request );
+void ISSend
+( const float* buf, int count, int to, int tag, Comm comm, Request& request );
+void ISSend
+( const double* buf, int count, int to, int tag, Comm comm, Request& request );
+#ifndef WITHOUT_COMPLEX
+void ISSend
+( const scomplex* buf, int count, int to, int tag, Comm comm, 
+  Request& request );
+void ISSend
 ( const dcomplex* buf, int count, int to, int tag, Comm comm, 
  Request& request );
 #endif
  
-void
-Recv
-( byte* buf, int count, int from, int tag, Comm comm );
-void
-IRecv
-( byte* buf, int count, int from, int tag, Comm comm, Request& request );
-       
-void
-Recv
-( int* buf, int count, int from, int tag, Comm comm );
-void
-IRecv
-( int* buf, int count, int from, int tag, Comm comm, Request& request );
-
-void
-Recv
-( float* buf, int count, int from, int tag, Comm comm );
-void
-IRecv
-( float* buf, int count, int from, int tag, Comm comm, Request& request );
-
-void
-Recv
-( double* buf, int count, int from, int tag, Comm comm );
-void
-IRecv
-( double* buf, int count, int from, int tag, Comm comm, Request& request );
-
+void Recv( byte* buf, int count, int from, int tag, Comm comm );
+void Recv( int* buf, int count, int from, int tag, Comm comm );
+void Recv( float* buf, int count, int from, int tag, Comm comm );
+void Recv( double* buf, int count, int from, int tag, Comm comm );
 #ifndef WITHOUT_COMPLEX
-void
-Recv
-( scomplex* buf, int count, int from, int tag, Comm comm );
-void
-IRecv
-( scomplex* buf, int count, int from, int tag, Comm comm, Request& request );
+void Recv( scomplex* buf, int count, int from, int tag, Comm comm );
+void Recv( dcomplex* buf, int count, int from, int tag, Comm comm );
+#endif
 
-void
-Recv
-( dcomplex* buf, int count, int from, int tag, Comm comm );
-void
-IRecv
+void IRecv
+( byte* buf, int count, int from, int tag, Comm comm, Request& request );
+void IRecv
+( int* buf, int count, int from, int tag, Comm comm, Request& request );
+void IRecv
+( float* buf, int count, int from, int tag, Comm comm, Request& request );
+void IRecv
+( double* buf, int count, int from, int tag, Comm comm, Request& request );
+#ifndef WITHOUT_COMPLEX
+void IRecv
+( scomplex* buf, int count, int from, int tag, Comm comm, Request& request );
+void IRecv
 ( dcomplex* buf, int count, int from, int tag, Comm comm, Request& request );
 #endif
 
-void
-SendRecv
+void SendRecv
 ( const byte* sbuf, int sc, int to,   int stag,
         byte* rbuf, int rc, int from, int rtag, Comm comm );
-
-void
-SendRecv
+void SendRecv
 ( const int* sbuf, int sc, int to,   int stag,
         int* rbuf, int rc, int from, int rtag, Comm comm );
-
-void
-SendRecv
+void SendRecv
 ( const float* sbuf, int sc, int to,   int stag,
         float* rbuf, int rc, int from, int rtag, Comm comm );
-
-void
-SendRecv
+void SendRecv
 ( const double* sbuf, int sc, int to,   int stag,
         double* rbuf, int rc, int from, int rtag, Comm comm );
-
 #ifndef WITHOUT_COMPLEX
-void
-SendRecv
+void SendRecv
 ( const scomplex* sbuf, int sc, int to,   int stag,
         scomplex* rbuf, int rc, int from, int rtag, Comm comm );
-
-void
-SendRecv
+void SendRecv
 ( const dcomplex* sbuf, int sc, int to,   int stag,
         dcomplex* rbuf, int rc, int from, int rtag, Comm comm );
 #endif
 
-void
-Broadcast( byte* buf, int count, int root, Comm comm );
+// Collective communication
 
-void
-Broadcast( int* buf, int count, int root, Comm comm );
-
-void
-Broadcast( float* buf, int count, int root, Comm comm );
-
-void
-Broadcast( double* buf, int count, int root, Comm comm );
-
+void Broadcast( byte* buf, int count, int root, Comm comm );
+void Broadcast( int* buf, int count, int root, Comm comm );
+void Broadcast( float* buf, int count, int root, Comm comm );
+void Broadcast( double* buf, int count, int root, Comm comm );
 #ifndef WITHOUT_COMPLEX
-void
-Broadcast
-( scomplex* buf, int count, int root, Comm comm );
-
-void
-Broadcast
-( dcomplex* buf, int count, int root, Comm comm );
+void Broadcast( scomplex* buf, int count, int root, Comm comm );
+void Broadcast( dcomplex* buf, int count, int root, Comm comm );
 #endif
 
-void
-Gather
+void Gather
 ( const byte* sbuf, int sc,
         byte* rbuf, int rc, int root, Comm comm );
-
-void
-Gather
+void Gather
 ( const int* sbuf, int sc,
         int* rbuf, int rc, int root, Comm comm );
-
-void
-Gather
+void Gather
 ( const float* sbuf, int sc,
         float* rbuf, int rc, int root, Comm comm );
-
-void
-Gather
+void Gather
 ( const double* sbuf, int sc,
         double* rbuf, int rc, int root, Comm comm );
-
 #ifndef WITHOUT_COMPLEX
-void 
-Gather
+void  Gather
 ( const scomplex* sbuf, int sc,
         scomplex* rbuf, int rc, int root, Comm comm );
-
-void
-Gather
+void Gather
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, int root, Comm comm );
 #endif
  
-void
-AllGather
+void AllGather
 ( const byte* sbuf, int sc,
         byte* rbuf, int rc, Comm comm );
-   
-void
-AllGather
+void AllGather
 ( const int* sbuf, int sc,
         int* rbuf, int rc, Comm comm );
-
-void
-AllGather
+void AllGather
 ( const float* sbuf, int sc,
         float* rbuf, int rc, Comm comm );
-
-void
-AllGather
+void AllGather
 ( const double* sbuf, int sc,
         double* rbuf, int rc, Comm comm );
-
 #ifndef WITHOUT_COMPLEX
-void
-AllGather
+void AllGather
 ( const scomplex* sbuf, int sc,
         scomplex* rbuf, int rc, Comm comm );
-
-void
-AllGather
+void AllGather
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, Comm comm );
 #endif
 
-void
-Scatter
+void Scatter
 ( const byte* sbuf, int sc,
         byte* rbuf, int rc, int root, Comm comm );
-
-void
-Scatter
+void Scatter
 ( const int* sbuf, int sc,
         int* rbuf, int rc, int root, Comm comm );
-
-void
-Scatter
+void Scatter
 ( const float* sbuf, int sc,
         float* rbuf, int rc, int root, Comm comm );
-
-void
-Scatter
+void Scatter
 ( const double* sbuf, int sc,
         double* rbuf, int rc, int root, Comm comm );
-
 #ifndef WITHOUT_COMPLEX
-void
-Scatter
+void Scatter
 ( const scomplex* sbuf, int sc,
         scomplex* rbuf, int rc, int root, Comm comm );
-
-void
-Scatter
+void Scatter
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, int root, Comm comm );
 #endif
  
-void
-AllToAll
+void AllToAll
 ( const byte* sbuf, int sc,
         byte* rbuf, int rc, Comm comm );
-   
-void
-AllToAll
+void AllToAll
 ( const int* sbuf, int sc,
         int* rbuf, int rc, Comm comm );
-
-void
-AllToAll
+void AllToAll
 ( const float* sbuf, int sc,
         float* rbuf, int rc, Comm comm );
-
-void
-AllToAll
+void AllToAll
 ( const double* sbuf, int sc,
         double* rbuf, int rc, Comm comm );
-
 #ifndef WITHOUT_COMPLEX
-void
-AllToAll
+void AllToAll
 ( const scomplex* sbuf, int sc,
         scomplex* rbuf, int rc, Comm comm );
-
-void
-AllToAll
+void AllToAll
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, Comm comm );
 #endif
 
-void
-AllToAll
+void AllToAll
 ( const byte* sbuf, const int* scs, const int* sds,
         byte* rbuf, const int* rcs, const int* rds, Comm comm );
-
-void
-AllToAll
+void AllToAll
 ( const int* sbuf, const int* scs, const int* sds,
         int* rbuf, const int* rcs, const int* rds, Comm comm );
-
-void
-AllToAll
+void AllToAll
 ( const float* sbuf, const int* scs, const int* sds,
         float* rbuf, const int* rcs, const int* rds, Comm comm );
-
-void
-AllToAll
+void AllToAll
 ( const double* sbuf, const int* scs, const int* sds,
         double* rbuf, const int* rcs, const int* rds, Comm comm );
-
 #ifndef WITHOUT_COMPLEX
-void
-AllToAll
+void AllToAll
 ( const scomplex* sbuf, const int* scs, const int* sds,
         scomplex* rbuf, const int* rcs, const int* rds, Comm comm );
-
-void
-AllToAll
+void AllToAll
 ( const dcomplex* sbuf, const int* scs, const int* sds,
         dcomplex* rbuf, const int* rcs, const int* rds, Comm comm );
 #endif
 
-void
-Reduce
+void Reduce
 ( const byte* sbuf, byte* rbuf, int count, Op op, int root, Comm comm );
-
-void
-Reduce
+void Reduce
 ( const int* sbuf, int* rbuf, int count, Op op, int root, Comm comm );
-
-void
-Reduce
+void Reduce
 ( const float* sbuf, float* rbuf, int count, Op op, int root, Comm comm );
-
-void
-Reduce
+void Reduce
 ( const double* sbuf, double* rbuf, int count, Op op, int root, Comm comm );
-
 #ifndef WITHOUT_COMPLEX
-void
-Reduce
+void Reduce
 ( const scomplex* sbuf, scomplex* rbuf, int count, Op op, int root, Comm comm );
-
-void
-Reduce
+void Reduce
 ( const dcomplex* sbuf, dcomplex* rbuf, int count, Op op, int root, Comm comm );
 #endif
     
-void
-AllReduce
+void AllReduce
 ( const byte* sbuf, byte* rbuf, int count, Op op, Comm comm );
-
-void
-AllReduce
+void AllReduce
 ( const int* sbuf, int* rbuf, int count, Op op, Comm comm );
-
-void
-AllReduce
+void AllReduce
 ( const float* sbuf, float* rbuf, int count, Op op, Comm comm );
-
-void
-AllReduce
+void AllReduce
 ( const double* sbuf, double* rbuf, int count, Op op, Comm comm );
 #ifndef WITHOUT_COMPLEX
-void
-AllReduce
+void AllReduce
 ( const scomplex* sbuf, scomplex* rbuf, int count, Op op, Comm comm );
-
-void
-AllReduce
+void AllReduce
 ( const dcomplex* sbuf, dcomplex* rbuf, int count, Op op, Comm comm );
 #endif
         
-void
-ReduceScatter
+void ReduceScatter
 ( const byte* sbuf, byte* rbuf, const int* rcs, Op op, Comm comm );
-
-void
-ReduceScatter
+void ReduceScatter
 ( const int* sbuf, int* rbuf, const int* rcs, Op op, Comm comm );
-
-void
-ReduceScatter
+void ReduceScatter
 ( const float* sbuf, float* rbuf, const int* rcs, Op op, Comm comm );
-
-void
-ReduceScatter
+void ReduceScatter
 ( const double* sbuf, double* rbuf, const int* rcs, Op op, Comm comm );
 #ifndef WITHOUT_COMPLEX
-void
-ReduceScatter
+void ReduceScatter
 ( const scomplex* sbuf, scomplex* rbuf, const int* rcs, Op op, Comm comm );
-
-void
-ReduceScatter
+void ReduceScatter
 ( const dcomplex* sbuf, dcomplex* rbuf, const int* rcs, Op op, Comm comm );
 #endif
 

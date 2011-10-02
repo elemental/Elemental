@@ -202,12 +202,8 @@ AxpyInterface<T>::HandleEoms()
         }
     }
 
-    int haveEom;
     mpi::Status status;
-    mpi::IProbe
-    ( mpi::ANY_SOURCE, EOM_TAG, g.VCComm(), haveEom, status );
-
-    if( haveEom )
+    if( mpi::IProbe( mpi::ANY_SOURCE, EOM_TAG, g.VCComm(), status ) )
     {
         const int source = status.MPI_SOURCE;
         mpi::Recv( &_recvDummy, 1, source, EOM_TAG, g.VCComm() );
@@ -232,11 +228,8 @@ AxpyInterface<T>::HandleLocalToGlobalData()
     const int myRow = g.MCRank();
     const int myCol = g.MRRank();
 
-    int haveData;
     mpi::Status status;
-    mpi::IProbe( mpi::ANY_SOURCE, DATA_TAG, g.VCComm(), haveData, status );
-
-    if( haveData )
+    if( mpi::IProbe( mpi::ANY_SOURCE, DATA_TAG, g.VCComm(), status ) )
     {
         // Message exists, so recv and pack    
         const int count = mpi::GetCount<byte>( status );
@@ -345,12 +338,8 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
     const int myRow = g.MCRank();
     const int myCol = g.MRRank();
 
-    int haveRequest;
     mpi::Status status;
-    mpi::IProbe
-    ( mpi::ANY_SOURCE, DATA_REQUEST_TAG, g.VCComm(), haveRequest, status );
-
-    if( haveRequest )
+    if( mpi::IProbe( mpi::ANY_SOURCE, DATA_REQUEST_TAG, g.VCComm(), status ) )
     {
         // Request exists, so recv
         const int source = status.MPI_SOURCE;
@@ -794,12 +783,8 @@ AxpyInterface<T>::AxpyGlobalToLocal
     {
         HandleGlobalToLocalRequest();
 
-        int haveReply;
         mpi::Status status;
-        mpi::IProbe
-        ( mpi::ANY_SOURCE, DATA_REPLY_TAG, g.VCComm(), haveReply, status );
-
-        if( haveReply )
+        if( mpi::IProbe( mpi::ANY_SOURCE, DATA_REPLY_TAG, g.VCComm(), status ) )
         {
             const int source = status.MPI_SOURCE;
 
