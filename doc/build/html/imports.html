@@ -65,15 +65,15 @@ and support for higher precision arithmetic is in the works.</p>
 <dl class="function">
 <dt id="blas::Axpy__i.T.TCP.i.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Axpy</tt><big>(</big>int <em>n</em>, T <em>alpha</em>, const T* <em>x</em>, int <em>incx</em>, T* <em>y</em>, int <em>incy</em><big>)</big><a class="headerlink" href="#blas::Axpy__i.T.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs <img class="math" src="_images/math/bd70329c27be47243c014dfe8f1cb530dd10736c.png" alt="y := \alpha x + y`"/> for vectors <img class="math" src="_images/math/7d3f43d1ae3bbc4948212afe60c50a18c245f651.png" alt="x,y \in T^n"/> and
+<dd><p>Performs <img class="math" src="_images/math/51606bf346a9b6d973d3ea2c1412d61642ba63e6.png" alt="y := \alpha x + y"/> for vectors <img class="math" src="_images/math/7d3f43d1ae3bbc4948212afe60c50a18c245f651.png" alt="x,y \in T^n"/> and
 scalar <img class="math" src="_images/math/82269ec48a95972264c17f9e72022e38d5675939.png" alt="\alpha \in T"/>. <tt class="docutils literal"><span class="pre">x</span></tt> and <tt class="docutils literal"><span class="pre">y</span></tt> must be stored such that
-<img class="math" src="_images/math/52565b376bd1e699ebcbbb0e09c38f2790887702.png" alt="x_i`"/> occurs at <tt class="docutils literal"><span class="pre">x[i*incx]</span></tt> (and likewise for <tt class="docutils literal"><span class="pre">y</span></tt>).</p>
+<img class="math" src="_images/math/67bc6daa9d6b964201d6cef60cbeb1ac5fd26ead.png" alt="x_i"/> occurs at <tt class="docutils literal"><span class="pre">x[i*incx]</span></tt> (and likewise for <tt class="docutils literal"><span class="pre">y</span></tt>).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blas::Dot__i.TCP.i.TP.i">
 T <tt class="descclassname">blas::</tt><tt class="descname">Dot</tt><big>(</big>int <em>n</em>, const T* <em>x</em>, int <em>incx</em>, T* <em>y</em>, int <em>incy</em><big>)</big><a class="headerlink" href="#blas::Dot__i.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns <img class="math" src="_images/math/b040b7ed626d7b1bb22127e72b539c488ab65e97.png" alt="\alpha := x^H y`"/>, where <tt class="docutils literal"><span class="pre">x</span></tt> and <tt class="docutils literal"><span class="pre">y</span></tt> are stored in the
+<dd><p>Returns <img class="math" src="_images/math/fc6715896da12cae298023634d788c78ef4c4a22.png" alt="\alpha := x^H y"/>, where <tt class="docutils literal"><span class="pre">x</span></tt> and <tt class="docutils literal"><span class="pre">y</span></tt> are stored in the
 same manner as in <tt class="docutils literal"><span class="pre">blas::Axpy</span></tt>.</p>
 </dd></dl>
 
@@ -119,7 +119,7 @@ void <tt class="descclassname">blas::</tt><tt class="descname">Gemv</tt><big>(</
 <img class="math" src="_images/math/94ec2b01152e3d51f3471e69f3052c67e93b003d.png" alt="\mbox{op}(A) \in \left\{A,A^T,A^H\right\}"/> is chosen by choosing
 <tt class="docutils literal"><span class="pre">trans</span></tt> from <img class="math" src="_images/math/ecc2c198c6c5db56ec8ae6acf9caa8bc78c7b926.png" alt="\{N,T,C\}"/>, respectively. Note that <tt class="docutils literal"><span class="pre">x</span></tt> is stored
 in the manner repeatedly described in the Level 1 routines, e.g.,
-<tt class="docutils literal"><span class="pre">blas::Axpy</span></tt>, but <tt class="docutils literal"><span class="pre">A</span></tt> is stored such that <img class="math" src="_images/math/5d92ebfca9f5f090718d77d8496c97ba39032bd4.png" alt="A(i,j)`"/> is located
+<tt class="docutils literal"><span class="pre">blas::Axpy</span></tt>, but <tt class="docutils literal"><span class="pre">A</span></tt> is stored such that <img class="math" src="_images/math/2387492dcc075889d91293d6df8ef260cdbf2b12.png" alt="A(i,j)"/> is located
 at <tt class="docutils literal"><span class="pre">A[i+j*lda]</span></tt>.</p>
 </dd></dl>
 
@@ -231,7 +231,7 @@ the inner dimension of <img class="math" src="_images/math/4defe469ae42550d5a841
 <dl class="function">
 <dt id="blas::Hemm__c.c.i.i.T.TCP.i.TCP.i.T.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Hemm</tt><big>(</big>char <em>side</em>, char <em>uplo</em>, int <em>m</em>, int <em>n</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, const T* <em>B</em>, int <em>ldb</em>, T <em>beta</em>, T* <em>C</em>, int <em>ldc</em><big>)</big><a class="headerlink" href="#blas::Hemm__c.c.i.i.T.TCP.i.TCP.i.T.TP.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform either <img class="math" src="_images/math/d4495ad66e560d2d8af78ec05ee286b888eefb73.png" alt="C := \alpha A B + \beta C`"/> or
+<dd><p>Perform either <img class="math" src="_images/math/f980f131f0e109dbe01adada5a8e5f194e70345a.png" alt="C := \alpha A B + \beta C"/> or
 <img class="math" src="_images/math/3fa7ed72fd8dc0e08dd0b92d41448b7a3c2b4f78.png" alt="C := \alpha B A + \beta C"/>
 (depending upon whether <tt class="docutils literal"><span class="pre">side</span></tt> is respectively &#8216;L&#8217; or &#8216;R&#8217;) where
 <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is assumed to be Hermitian with its data stored in either the
@@ -274,7 +274,7 @@ is overwritten in order to store the Hermitian product.</p>
 <dl class="function">
 <dt id="blas::Symm__c.c.i.i.T.TCP.i.TCP.i.T.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Symm</tt><big>(</big>char <em>side</em>, char <em>uplo</em>, int <em>m</em>, int <em>n</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, const T* <em>B</em>, int <em>ldb</em>, T <em>beta</em>, T* <em>C</em>, int <em>ldc</em><big>)</big><a class="headerlink" href="#blas::Symm__c.c.i.i.T.TCP.i.TCP.i.T.TP.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform either <img class="math" src="_images/math/d4495ad66e560d2d8af78ec05ee286b888eefb73.png" alt="C := \alpha A B + \beta C`"/> or
+<dd><p>Perform either <img class="math" src="_images/math/f980f131f0e109dbe01adada5a8e5f194e70345a.png" alt="C := \alpha A B + \beta C"/> or
 <img class="math" src="_images/math/3fa7ed72fd8dc0e08dd0b92d41448b7a3c2b4f78.png" alt="C := \alpha B A + \beta C"/>
 (depending upon whether <tt class="docutils literal"><span class="pre">side</span></tt> is respectively &#8216;L&#8217; or &#8216;R&#8217;) where
 <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is assumed to be symmetric with its data stored in either the

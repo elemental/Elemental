@@ -18,13 +18,13 @@ Level 1
 
 .. cpp:function:: void blas::Axpy( int n, T alpha, const T* x, int incx, T* y, int incy )
 
-   Performs :math:`y := \alpha x + y`` for vectors :math:`x,y \in T^n` and 
+   Performs :math:`y := \alpha x + y` for vectors :math:`x,y \in T^n` and 
    scalar :math:`\alpha \in T`. ``x`` and ``y`` must be stored such that 
-   :math:`x_i`` occurs at ``x[i*incx]`` (and likewise for ``y``).
+   :math:`x_i` occurs at ``x[i*incx]`` (and likewise for ``y``).
 
 .. cpp:function:: T blas::Dot( int n, const T* x, int incx, T* y, int incy )
 
-   Returns :math:`\alpha := x^H y``, where ``x`` and ``y`` are stored in the 
+   Returns :math:`\alpha := x^H y`, where ``x`` and ``y`` are stored in the 
    same manner as in ``blas::Axpy``.
 
 .. cpp:function:: T blas::Dotc( int n, const T* x, int incx, T* y, int incy )
@@ -60,7 +60,7 @@ Level 2
    :math:`\mbox{op}(A) \in \left\{A,A^T,A^H\right\}` is chosen by choosing 
    ``trans`` from :math:`\{N,T,C\}`, respectively. Note that ``x`` is stored
    in the manner repeatedly described in the Level 1 routines, e.g., 
-   ``blas::Axpy``, but ``A`` is stored such that :math:`A(i,j)`` is located
+   ``blas::Axpy``, but ``A`` is stored such that :math:`A(i,j)` is located
    at ``A[i+j*lda]``.
 
 .. cpp:function:: void blas::Ger( int m, int n, T alpha, const T* x, int incx, const T* y, int incy, T* A, int lda )
@@ -146,7 +146,7 @@ Level 3
 
 .. cpp:function:: void blas::Hemm( char side, char uplo, int m, int n, T alpha, const T* A, int lda, const T* B, int ldb, T beta, T* C, int ldc )
 
-    Perform either :math:`C := \alpha A B + \beta C`` or 
+    Perform either :math:`C := \alpha A B + \beta C` or 
     :math:`C := \alpha B A + \beta C` 
     (depending upon whether ``side`` is respectively 'L' or 'R') where 
     :math:`A` is assumed to be Hermitian with its data stored in either the
@@ -181,7 +181,7 @@ Level 3
 
 .. cpp:function:: void blas::Symm( char side, char uplo, int m, int n, T alpha, const T* A, int lda, const T* B, int ldb, T beta, T* C, int ldc )
 
-    Perform either :math:`C := \alpha A B + \beta C`` or
+    Perform either :math:`C := \alpha A B + \beta C` or
     :math:`C := \alpha B A + \beta C`
     (depending upon whether ``side`` is respectively 'L' or 'R') where
     :math:`A` is assumed to be symmetric with its data stored in either the
