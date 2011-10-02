@@ -264,7 +264,7 @@ Routines
 
    Free the specified group.
 
-.. cpp:function:: void GroupTranslateRanks( mpi::Group origGroup, int size, const int* origRanks, mpi::Group newGroup, int* newRanks )
+.. cpp:function:: void mpi::GroupTranslateRanks( mpi::Group origGroup, int size, const int* origRanks, mpi::Group newGroup, int* newRanks )
 
    Return the ranks within ``newGroup`` of the ``size`` processes specified 
    by their ranks in the ``origGroup`` communicator using the ``origRanks`` 
