@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Imported libraries &mdash; Elemental v0.70 documentation</title>
+    <title>Imported library routines &mdash; Elemental v0.70 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -48,15 +48,16 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="imported-libraries">
-<h1>Imported libraries<a class="headerlink" href="#imported-libraries" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="imported-library-routines">
+<h1>Imported library routines<a class="headerlink" href="#imported-library-routines" title="Permalink to this headline">¶</a></h1>
 <p>Since one of the goals of Elemental is to provide high-performance
 datatype-independent parallel routines, yet Elemental&#8217;s dependencies are
 datatype-dependent, it is convenient to first build a thin datatype-independent
-abstraction on top of BLAS, LAPACK, and MPI. The &#8220;first-class&#8221; datatypes are
-<tt class="docutils literal"><span class="pre">float</span></tt>, <tt class="docutils literal"><span class="pre">double</span></tt>, <tt class="docutils literal"><span class="pre">std::complex&lt;float&gt;</span></tt>, and <tt class="docutils literal"><span class="pre">std::complex&lt;double&gt;</span></tt>,
-but <tt class="docutils literal"><span class="pre">int</span></tt> and <tt class="docutils literal"><span class="pre">byte</span></tt> (<tt class="docutils literal"><span class="pre">unsigned</span> <span class="pre">char</span></tt>) are supported for many cases,
-and support for higher precision arithmetic is in the works.</p>
+abstraction on top of the necessary routines from BLAS, LAPACK, and MPI. The
+&#8220;first-class&#8221; datatypes are <tt class="docutils literal"><span class="pre">float</span></tt>, <tt class="docutils literal"><span class="pre">double</span></tt>, <tt class="docutils literal"><span class="pre">std::complex&lt;float&gt;</span></tt>, and
+<tt class="docutils literal"><span class="pre">std::complex&lt;double&gt;</span></tt>, but <tt class="docutils literal"><span class="pre">int</span></tt> and <tt class="docutils literal"><span class="pre">byte</span></tt> (<tt class="docutils literal"><span class="pre">unsigned</span> <span class="pre">char</span></tt>) are
+supported for many cases, and support for higher precision arithmetic is in the
+works.</p>
 <div class="section" id="blas">
 <h2>BLAS<a class="headerlink" href="#blas" title="Permalink to this headline">¶</a></h2>
 <p><strong>TODO:</strong> Short introduction to the BLAS.</p>
@@ -332,7 +333,108 @@ be set to &#8216;N&#8217;). <img class="math" src="_images/math/e35702a7785f5cac
 </div>
 <div class="section" id="lapack">
 <h2>LAPACK<a class="headerlink" href="#lapack" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Describe overloaded wrappers around LAPACK.</p>
+<div class="section" id="machine-information">
+<h3>Machine information<a class="headerlink" href="#machine-information" title="Permalink to this headline">¶</a></h3>
+<p>In all of the following functions, <tt class="docutils literal"><span class="pre">R</span></tt> can be equal to either <tt class="docutils literal"><span class="pre">float</span></tt> or
+<tt class="docutils literal"><span class="pre">double</span></tt>.</p>
+<dl class="function">
+<dt id="lapack::MachineEpsilon:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineEpsilon&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineEpsilon:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the relative machine precision.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachineSafeMin:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineSafeMin&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineSafeMin:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the minimum number which can be inverted without underflow.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachinePrecision:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachinePrecision&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachinePrecision:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the relative machine precision multiplied by the base.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachineUnderflowExponent:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineUnderflowExponent&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineUnderflowExponent:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the minimum exponent before (gradual) underflow occurs.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachineUnderflowThreshold:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineUnderflowThreshold&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineUnderflowThreshold:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the underflow threshold: <tt class="docutils literal"><span class="pre">(base)^((underflow</span> <span class="pre">exponent)-1)</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachineOverflowExponent:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineOverflowExponent&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineOverflowExponent:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the largest exponent before overflow.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachineOverflowThreshold:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineOverflowThreshold&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineOverflowThreshold:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the overflow threshold:
+<tt class="docutils literal"><span class="pre">(1-rel.</span> <span class="pre">prec.))</span> <span class="pre">*</span> <span class="pre">(base)^(overflow</span> <span class="pre">exponent)</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="factorizations">
+<h3>Factorizations<a class="headerlink" href="#factorizations" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="lapack::Cholesky__c.i.FCP.i">
+void <tt class="descclassname">lapack::</tt><tt class="descname">Cholesky</tt><big>(</big>char <em>uplo</em>, int <em>n</em>, const F* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#lapack::Cholesky__c.i.FCP.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a Cholesky factorization on <img class="math" src="_images/math/63d9b7b01a6ac29b4f42241b6f1ad0da72ff1813.png" alt="A \in F^{n \times n}"/>, where
+<img class="math" src="_images/math/2387492dcc075889d91293d6df8ef260cdbf2b12.png" alt="A(i,j)"/> can be accessed at <tt class="docutils literal"><span class="pre">A[i+j*lda]</span></tt> and <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is implicitly
+Hermitian, with the data stored in the lower triangle if <tt class="docutils literal"><span class="pre">uplo</span></tt> equals
+&#8216;L&#8217;, or in the upper triangle if <tt class="docutils literal"><span class="pre">uplo</span></tt> equals &#8216;U&#8217;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::LU__i.i.FP.i.iP">
+void <tt class="descclassname">lapack::</tt><tt class="descname">LU</tt><big>(</big>int <em>m</em>, int <em>n</em>, F* <em>A</em>, int <em>lda</em>, int* <em>p</em><big>)</big><a class="headerlink" href="#lapack::LU__i.i.FP.i.iP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an LU factorization with partial pivoting on
+<img class="math" src="_images/math/14987ac3cddbb7d2d1ea5e4f344f8c2a7553b811.png" alt="A \in F^{m \times n}"/>, where <img class="math" src="_images/math/2387492dcc075889d91293d6df8ef260cdbf2b12.png" alt="A(i,j)"/> can be accessed at
+<tt class="docutils literal"><span class="pre">A[i+j*lda]</span></tt>. On exit, the pivots are stored in the vector <tt class="docutils literal"><span class="pre">p</span></tt>, which
+should be at least as large as <tt class="docutils literal"><span class="pre">min(m,n)</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="utilities">
+<h3>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="lapack::Hegst__i.c.i.FP.i.FCP.i">
+void <tt class="descclassname">lapack::</tt><tt class="descname">Hegst</tt><big>(</big>int <em>itype</em>, char <em>uplo</em>, int <em>n</em>, F* <em>A</em>, int <em>lda</em>, const F* <em>B</em>, int <em>ldb</em><big>)</big><a class="headerlink" href="#lapack::Hegst__i.c.i.FP.i.FCP.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce a generalized Hermitian-definite eigenvalue problem to Hermitian
+standard form. <strong>TODO:</strong> Explain in more detail.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::SafeNorm__R.R">
+R <tt class="descclassname">lapack::</tt><tt class="descname">SafeNorm</tt><big>(</big>R <em>alpha</em>, R <em>beta</em><big>)</big><a class="headerlink" href="#lapack::SafeNorm__R.R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <img class="math" src="_images/math/bec8c1da98d4eb69c134fb00d4cb63c762f15bac.png" alt="\sqrt{\alpha^2+\beta^2}"/> in a manner which avoids
+under/overflow. <tt class="docutils literal"><span class="pre">R</span></tt> can be equal to either <tt class="docutils literal"><span class="pre">float</span></tt> or <tt class="docutils literal"><span class="pre">double</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::SafeNorm__R.R.R">
+R <tt class="descclassname">lapack::</tt><tt class="descname">SafeNorm</tt><big>(</big>R <em>alpha</em>, R <em>beta</em>, R <em>gamma</em><big>)</big><a class="headerlink" href="#lapack::SafeNorm__R.R.R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <img class="math" src="_images/math/9a566e53b62a2fda38d9fff093446069b4310949.png" alt="\sqrt{\alpha^2+\beta^2+\gamma^2}"/> in a manner which avoids
+under/overflow. <tt class="docutils literal"><span class="pre">R</span></tt> can be equal to either <tt class="docutils literal"><span class="pre">float</span></tt> or <tt class="docutils literal"><span class="pre">double</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::TriangularInverse__c.c.i.FCP.i">
+void <tt class="descclassname">lapack::</tt><tt class="descname">TriangularInverse</tt><big>(</big>char <em>uplo</em>, char <em>diag</em>, int <em>n</em>, const F* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#lapack::TriangularInverse__c.c.i.FCP.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite either the lower or upper triangle of <img class="math" src="_images/math/63d9b7b01a6ac29b4f42241b6f1ad0da72ff1813.png" alt="A \in F^{n \times n}"/>
+with its inverse. Which triangle is accessed is determined by <tt class="docutils literal"><span class="pre">uplo</span></tt> (&#8216;L&#8217; for lower or &#8216;U&#8217; for upper), and setting <tt class="docutils literal"><span class="pre">diag</span></tt> equal to &#8216;U&#8217; results in the
+triangular matrix being treated as unit diagonal (set <tt class="docutils literal"><span class="pre">diag</span></tt> to &#8216;N&#8217;
+otherwise).</p>
+</dd></dl>
+
+</div>
 </div>
 <div class="section" id="mpi">
 <h2>MPI<a class="headerlink" href="#mpi" title="Permalink to this headline">¶</a></h2>
@@ -841,9 +943,85 @@ etc.</p>
 
 </div>
 </div>
-<div class="section" id="plcg">
-<h2>PLCG<a class="headerlink" href="#plcg" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Describe the Parallel Linear Congruential Generator.</p>
+<div class="section" id="parallel-lcg">
+<h2>Parallel LCG<a class="headerlink" href="#parallel-lcg" title="Permalink to this headline">¶</a></h2>
+<p>Since it is often necessary to generate a large matrix with pseudo-random
+entries in parallel, a method for ensuring that a large set of processes can
+each generate independent uniformly random samples is required. The purpose of
+Parallel LCG (PLCG) is to provide a provably independent generalization of a
+simple (but well-studied) Linear Congruential Generator. Knuth&#8217;s constants from
+The Art of Computer Programming Vol. 2 are used.</p>
+<div class="section" id="id1">
+<h3>Datatypes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<dl class="type">
+<dt id="plcg::UInt32">
+<em class="property">type </em><tt class="descclassname">plcg::</tt><tt class="descname">UInt32</tt><a class="headerlink" href="#plcg::UInt32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Since the vast majority of modern systems make use of <tt class="docutils literal"><span class="pre">unsigned</span></tt> for
+storing 32-bit unsigned integers, we simply hardcode the type. If your
+system does not follow this convention, then this typedef will need to be
+changed!</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="plcg::UInt64__struct">
+<em class="property">type </em>struct <tt class="descclassname">plcg::</tt><tt class="descname">UInt64</tt><a class="headerlink" href="#plcg::UInt64__struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom 64-bit unsigned integer which is simply the concatenation of two
+32-bit unsigned integers (<tt class="docutils literal"><span class="pre">UInt32</span></tt>).</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="plcg::ExpandedUInt64__struct">
+<em class="property">type </em>struct <tt class="descclassname">plcg::</tt><tt class="descname">ExpandedUInt64</tt><a class="headerlink" href="#plcg::ExpandedUInt64__struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom 64-bit unsigned integer which is stores each of the four 16-bit
+pieces within the first 16 bits of a 32-bit unsigned integer. This is done
+so that two such expanded 16-bit numbers can be multiplied without any
+chance of overflow.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="plcg::Lower16Bits__plcg::UInt32">
+<a class="reference internal" href="#plcg::UInt32" title="plcg::UInt32">plcg::UInt32</a> <tt class="descclassname">plcg::</tt><tt class="descname">Lower16Bits</tt><big>(</big><a class="reference internal" href="#plcg::UInt32" title="plcg::UInt32">plcg::UInt32</a> <em>a</em><big>)</big><a class="headerlink" href="#plcg::Lower16Bits__plcg::UInt32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the lower 16 bits of <tt class="docutils literal"><span class="pre">a</span></tt> in the lower 16 bits of the returned
+32-bit unsigned integer.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::Upper16Bits__plcg::UInt32">
+<a class="reference internal" href="#plcg::UInt32" title="plcg::UInt32">plcg::UInt32</a> <tt class="descclassname">plcg::</tt><tt class="descname">Upper16Bits</tt><big>(</big><a class="reference internal" href="#plcg::UInt32" title="plcg::UInt32">plcg::UInt32</a> <em>a</em><big>)</big><a class="headerlink" href="#plcg::Upper16Bits__plcg::UInt32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the upper 16 bits of <tt class="docutils literal"><span class="pre">a</span></tt> in the lower 16 bits of the returned
+32-bit unsigned integer.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::Expand__plcg::UInt32">
+<a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <tt class="descclassname">plcg::</tt><tt class="descname">Expand</tt><big>(</big><a class="reference internal" href="#plcg::UInt32" title="plcg::UInt32">plcg::UInt32</a> <em>a</em><big>)</big><a class="headerlink" href="#plcg::Expand__plcg::UInt32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand a 32-bit unsigned integer into a 64-bit expanded representation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::Expand__plcg::UInt64">
+<a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <tt class="descclassname">plcg::</tt><tt class="descname">Expand</tt><big>(</big><a class="reference internal" href="#plcg::UInt64__struct" title="plcg::UInt64">plcg::UInt64</a> <em>a</em><big>)</big><a class="headerlink" href="#plcg::Expand__plcg::UInt64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand a 64-bit unsigned integer into a 64-bit expanded representation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::Deflate__plcg::ExpandedUInt64">
+<a class="reference internal" href="#plcg::UInt64__struct" title="plcg::UInt64">plcg::UInt64</a> <tt class="descclassname">plcg::</tt><tt class="descname">Deflate</tt><big>(</big><a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <em>a</em><big>)</big><a class="headerlink" href="#plcg::Deflate__plcg::ExpandedUInt64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deflate an expanded 64-bit unsigned integer into the standard 64-bit form.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::CarryUpper16Bits__plcg::ExpandedUInt64R">
+void <tt class="descclassname">plcg::</tt><tt class="descname">CarryUpper16Bits</tt><big>(</big><a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64&amp;</a> <em>a</em><big>)</big><a class="headerlink" href="#plcg::CarryUpper16Bits__plcg::ExpandedUInt64R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Carry the results stored in the upper 16-bits of each of the four pieces
+into the next lower 16 bits.</p>
+</dd></dl>
+
+<p><strong>Left off here...</strong></p>
+</div>
 </div>
 </div>
 
@@ -858,21 +1036,30 @@ etc.</p>
             </a></p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Imported libraries</a><ul>
+<li><a class="reference internal" href="#">Imported library routines</a><ul>
 <li><a class="reference internal" href="#blas">BLAS</a><ul>
 <li><a class="reference internal" href="#level-1">Level 1</a></li>
 <li><a class="reference internal" href="#level-2">Level 2</a></li>
 <li><a class="reference internal" href="#level-3">Level 3</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#lapack">LAPACK</a></li>
+<li><a class="reference internal" href="#lapack">LAPACK</a><ul>
+<li><a class="reference internal" href="#machine-information">Machine information</a></li>
+<li><a class="reference internal" href="#factorizations">Factorizations</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#mpi">MPI</a><ul>
 <li><a class="reference internal" href="#datatypes">Datatypes</a></li>
 <li><a class="reference internal" href="#constants">Constants</a></li>
 <li><a class="reference internal" href="#routines">Routines</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#plcg">PLCG</a></li>
+<li><a class="reference internal" href="#parallel-lcg">Parallel LCG</a><ul>
+<li><a class="reference internal" href="#id1">Datatypes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

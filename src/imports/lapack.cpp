@@ -32,7 +32,10 @@
 */
 #include "elemental/core/environment.hpp"
 
+//
 // Machine constants
+//
+
 template<> float 
 elemental::lapack::MachineEpsilon<float>()
 {
@@ -145,6 +148,10 @@ elemental::lapack::MachineOverflowThreshold<double>()
     return LAPACK(dlamch)( &cmach );
 }
 
+//
+// Factorizations
+//
+
 void
 elemental::lapack::Cholesky
 ( char uplo, int n, const float* A, int lda )
@@ -219,92 +226,6 @@ elemental::lapack::Cholesky
     {
         std::ostringstream msg;
         msg << "zpotrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif // WITHOUT_COMPLEX
-
-void
-elemental::lapack::Hegst
-( int itype, char uplo, int n,
-  float* A, int lda, const float* B, int ldb )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Hegst");
-#endif
-    int info;
-    LAPACK(ssygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "ssygst returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void
-elemental::lapack::Hegst
-( int itype, char uplo, int n,
-  double* A, int lda, const double* B, int ldb )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Hegst");
-#endif
-    int info;
-    LAPACK(dsygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "dsygst returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-#ifndef WITHOUT_COMPLEX
-void
-elemental::lapack::Hegst
-( int itype, char uplo, int n,
-  scomplex* A, int lda, const scomplex* B, int ldb )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Hegst");
-#endif
-    int info;
-    LAPACK(chegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "chegst returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void
-elemental::lapack::Hegst
-( int itype, char uplo, int n,
-  dcomplex* A, int lda, const dcomplex* B, int ldb )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Hegst");
-#endif
-    int info;
-    LAPACK(zhegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "zhegst returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
 #ifndef RELEASE
@@ -395,31 +316,24 @@ elemental::lapack::LU
 }
 #endif // WITHOUT_COMPLEX
 
+//
+// Utilities
+//
+
 void
-elemental::lapack::LQ
-( int m, int n, float* A, int lda )
+elemental::lapack::Hegst
+( int itype, char uplo, int n,
+  float* A, int lda, const float* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::LQ");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
-    int lwork;
-    float workSize;
-
-    std::vector<float> t(std::min(m,n));
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(sgelqf)( &m, &n, A, &lda, &t[0], &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)workSize;
-    std::vector<float> work(lwork); 
-    LAPACK(sgelqf)( &m, &n, A, &lda, &t[0], &work[0], &lwork, &info );
+    LAPACK(ssygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
     if( info != 0 )
     {
         std::ostringstream msg;
-        msg << "sgelqf returned with info = " << info;
+        msg << "ssygst returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
 #ifndef RELEASE
@@ -428,30 +342,19 @@ elemental::lapack::LQ
 }
 
 void
-elemental::lapack::LQ
-( int m, int n, double* A, int lda )
+elemental::lapack::Hegst
+( int itype, char uplo, int n,
+  double* A, int lda, const double* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::LQ");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
-    int lwork;
-    double workSize;
-
-    std::vector<double> t(std::min(m,n));
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(dgelqf)( &m, &n, A, &lda, &t[0], &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)workSize;
-    std::vector<double> work(lwork); 
-    LAPACK(dgelqf)( &m, &n, A, &lda, &t[0], &work[0], &lwork, &info );
+    LAPACK(dsygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
     if( info != 0 )
     {
         std::ostringstream msg;
-        msg << "dgelqf returned with info = " << info;
+        msg << "dsygst returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
 #ifndef RELEASE
@@ -461,28 +364,19 @@ elemental::lapack::LQ
 
 #ifndef WITHOUT_COMPLEX
 void
-elemental::lapack::LQ
-( int m, int n, scomplex* A, int lda, scomplex* t )
+elemental::lapack::Hegst
+( int itype, char uplo, int n,
+  scomplex* A, int lda, const scomplex* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::LQ");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
-    int lwork;
-    scomplex workSize;
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(cgelqf)( &m, &n, A, &lda, t, &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)std::real(workSize);
-    std::vector<scomplex> work(lwork); 
-    LAPACK(cgelqf)( &m, &n, A, &lda, t, &work[0], &lwork, &info );
+    LAPACK(chegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
     if( info != 0 )
     {
         std::ostringstream msg;
-        msg << "cgelqf returned with info = " << info;
+        msg << "chegst returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
 #ifndef RELEASE
@@ -491,154 +385,19 @@ elemental::lapack::LQ
 }
 
 void
-elemental::lapack::LQ
-( int m, int n, dcomplex* A, int lda, dcomplex* t )
+elemental::lapack::Hegst
+( int itype, char uplo, int n,
+  dcomplex* A, int lda, const dcomplex* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::LQ");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
-    int lwork;
-    dcomplex workSize;
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(zgelqf)( &m, &n, A, &lda, t, &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)std::real(workSize);
-    std::vector<dcomplex> work(lwork); 
-    LAPACK(zgelqf)( &m, &n, A, &lda, t, &work[0], &lwork, &info );
+    LAPACK(zhegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
     if( info != 0 )
     {
         std::ostringstream msg;
-        msg << "zgelqf returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif // WITHOUT_COMPLEX
-
-void
-elemental::lapack::QR
-( int m, int n, float* A, int lda )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::QR");
-#endif
-    int info;
-    int lwork;
-    float workSize;
-
-    std::vector<float> t(std::min(m,n));
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(sgeqrf)( &m, &n, A, &lda, &t[0], &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)workSize;
-    std::vector<float> work(lwork); 
-    LAPACK(sgeqrf)( &m, &n, A, &lda, &t[0], &work[0], &lwork, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "sgeqrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void
-elemental::lapack::QR
-( int m, int n, double* A, int lda )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::QR");
-#endif
-    int info;
-    int lwork;
-    double workSize;
-
-    std::vector<double> t(std::min(m,n));
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(dgeqrf)( &m, &n, A, &lda, &t[0], &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)workSize;
-    std::vector<double> work(lwork); 
-    LAPACK(dgeqrf)( &m, &n, A, &lda, &t[0], &work[0], &lwork, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "dgeqrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-#ifndef WITHOUT_COMPLEX
-void
-elemental::lapack::QR
-( int m, int n, scomplex* A, int lda, scomplex* t )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::QR");
-#endif
-    int info;
-    int lwork;
-    scomplex workSize;
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(cgeqrf)( &m, &n, A, &lda, t, &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)std::real(workSize);
-    std::vector<scomplex> work(lwork); 
-    LAPACK(cgeqrf)( &m, &n, A, &lda, t, &work[0], &lwork, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "cgeqrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void
-elemental::lapack::QR
-( int m, int n, dcomplex* A, int lda, dcomplex* t )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::QR");
-#endif
-    int info;
-    int lwork;
-    dcomplex workSize;
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(zgeqrf)( &m, &n, A, &lda, t, &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)std::real(workSize);
-    std::vector<dcomplex> work(lwork); 
-    LAPACK(zgeqrf)( &m, &n, A, &lda, t, &work[0], &lwork, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "zgeqrf returned with info = " << info;
+        msg << "zhegst returned with info = " << info;
         throw std::logic_error( msg.str() );
     }
 #ifndef RELEASE
@@ -702,294 +461,6 @@ elemental::lapack::SafeNorm
 #endif
     return delta;
 }
-
-void
-elemental::lapack::SVD
-( char UColumns, char VColumns, int m, int n, float* A, int lda,
-  float* SigmaDiag, float* U, int ldu, float* VT, int ldvt )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::SVD");
-#endif
-    int info;
-    int lwork;
-    float workSize;
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(sgesvd)
-    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
-      &workSize, &lwork, &info );
-
-    // Allocate the work buffer and make the actual call
-    lwork = (int)workSize;
-    std::vector<float> work(lwork);
-    LAPACK(sgesvd)
-    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
-      &work[0], &lwork, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "sgesvd returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void
-elemental::lapack::SVD
-( char UColumns, char VColumns, int m, int n, double* A, int lda,
-  double* SigmaDiag, double* U, int ldu, double* VT, int ldvt )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::SVD");
-#endif
-    int info;
-    int lwork;
-    double workSize;
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(dgesvd)
-    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
-      &workSize, &lwork, &info );
-
-    // Allocate the work buffer and make the actual call
-    lwork = (int)workSize;
-    std::vector<double> work(lwork);
-    LAPACK(dgesvd)
-    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
-      &work[0], &lwork, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "dgesvd returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-#ifndef WITHOUT_COMPLEX
-void
-elemental::lapack::SVD
-( char UColumns, char VColumns, int m, int n, scomplex* A, int lda,
-  float* SigmaDiag, scomplex* U, int ldu, scomplex* VT, int ldvt )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::SVD");
-#endif
-    int info;
-    int lwork;
-    scomplex workSize;
-    std::vector<float> realWork(5*std::min(m,n));
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(cgesvd)
-    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
-      &workSize, &lwork, &realWork[0], &info );
-
-    // Allocate the work buffer and make the actual call
-    lwork = (int)std::real(workSize);
-    std::vector<scomplex> work(lwork);
-    LAPACK(cgesvd)
-    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
-      &work[0], &lwork, &realWork[0], &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "cgesvd returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void
-elemental::lapack::SVD
-( char UColumns, char VColumns, int m, int n, dcomplex* A, int lda,
-  double* SigmaDiag, dcomplex* U, int ldu, dcomplex* VT, int ldvt )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::SVD");
-#endif
-    int info;
-    int lwork;
-    dcomplex workSize;
-    std::vector<double> realWork(5*std::min(m,n));
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(zgesvd)
-    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
-      &workSize, &lwork, &realWork[0], &info );
-
-    // Allocate the work buffer and make the actual call
-    lwork = (int)std::real(workSize);
-    std::vector<dcomplex> work(lwork);
-    LAPACK(zgesvd)
-    ( &UColumns, &VColumns, &m, &n, A, &lda, SigmaDiag, U, &ldu, VT, &ldvt,
-      &work[0], &lwork, &realWork[0], &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "zgesvd returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif // WITHOUT_COMPLEX
-
-void
-elemental::lapack::HermitianTridiag
-( char uplo, int n, float* A, int lda )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::HermitianTridiag");
-#endif
-    int info;
-    int lwork;
-    float workSize;
-
-    std::vector<float> d(n);
-    std::vector<float> e(n-1);
-    std::vector<float> t(n-1);
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(ssytrd)
-    ( &uplo, &n, A, &lda, &d[0], &e[0], &t[0], &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)workSize;
-    std::vector<float> work(lwork); 
-    LAPACK(ssytrd)
-    ( &uplo, &n, A, &lda, &d[0], &e[0], &t[0], &work[0], &lwork, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "ssytrd returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void
-elemental::lapack::HermitianTridiag
-( char uplo, int n, double* A, int lda )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::HermitianTridiag");
-#endif
-    int info;
-    int lwork;
-    double workSize;
-
-    std::vector<double> d(n);
-    std::vector<double> e(n-1);
-    std::vector<double> t(n-1);
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(dsytrd)
-    ( &uplo, &n, A, &lda, &d[0], &e[0], &t[0], &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)workSize;
-    std::vector<double> work(lwork); 
-    LAPACK(dsytrd)
-    ( &uplo, &n, A, &lda, &d[0], &e[0], &t[0], &work[0], &lwork, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "dsytrd returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-#ifndef WITHOUT_COMPLEX
-void
-elemental::lapack::HermitianTridiag
-( char uplo, int n, scomplex* A, int lda, scomplex* t )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::HermitianTridiag");
-#endif
-    int info;
-    int lwork;
-    scomplex workSize;
-
-    std::vector<float> d(n);
-    std::vector<float> e(n-1);
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(chetrd)
-    ( &uplo, &n, A, &lda, &d[0], &e[0], t, &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)std::real(workSize);
-    std::vector<scomplex> work(lwork); 
-    LAPACK(chetrd)
-    ( &uplo, &n, A, &lda, &d[0], &e[0], t, &work[0], &lwork, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "chetrd returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void
-elemental::lapack::HermitianTridiag
-( char uplo, int n, dcomplex* A, int lda, dcomplex* t )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::HermitianTridiag");
-#endif
-    int info;
-    int lwork;
-    dcomplex workSize;
-
-    std::vector<double> d(n);
-    std::vector<double> e(n-1);
-
-    // Retrieve the optimal worksize
-    lwork = -1;
-    LAPACK(zhetrd)
-    ( &uplo, &n, A, &lda, &d[0], &e[0], t, &workSize, &lwork, &info );
-    
-    // Allocate the work buffer and make the actual call
-    lwork = (int)std::real(workSize);
-    std::vector<dcomplex> work(lwork); 
-    LAPACK(zhetrd)
-    ( &uplo, &n, A, &lda, &d[0], &e[0], t, &work[0], &lwork, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "zhetrd returned with info = " << info;
-        throw std::logic_error( msg.str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::lapack::TriangularInverse

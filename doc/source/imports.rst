@@ -1,12 +1,13 @@
-Imported libraries
-******************
+Imported library routines
+*************************
 Since one of the goals of Elemental is to provide high-performance 
 datatype-independent parallel routines, yet Elemental's dependencies are 
 datatype-dependent, it is convenient to first build a thin datatype-independent
-abstraction on top of BLAS, LAPACK, and MPI. The "first-class" datatypes are 
-``float``, ``double``, ``std::complex<float>``, and ``std::complex<double>``, 
-but ``int`` and ``byte`` (``unsigned char``) are supported for many cases, 
-and support for higher precision arithmetic is in the works.
+abstraction on top of the necessary routines from BLAS, LAPACK, and MPI. The 
+"first-class" datatypes are ``float``, ``double``, ``std::complex<float>``, and 
+``std::complex<double>``, but ``int`` and ``byte`` (``unsigned char``) are 
+supported for many cases, and support for higher precision arithmetic is in the
+works.
 
 BLAS
 ====
@@ -229,7 +230,83 @@ Level 3
 
 LAPACK
 ======
-**TODO:** Describe overloaded wrappers around LAPACK.
+
+Machine information
+-------------------
+
+In all of the following functions, ``R`` can be equal to either ``float`` or
+``double``.
+
+.. cpp:function:: R lapack::MachineEpsilon<R>()
+
+   Return the relative machine precision.
+
+.. cpp:function:: R lapack::MachineSafeMin<R>()
+
+   Return the minimum number which can be inverted without underflow.
+
+.. cpp:function:: R lapack::MachinePrecision<R>()
+
+   Return the relative machine precision multiplied by the base.
+
+.. cpp:function:: R lapack::MachineUnderflowExponent<R>()
+
+   Return the minimum exponent before (gradual) underflow occurs.
+
+.. cpp:function:: R lapack::MachineUnderflowThreshold<R>()
+
+   Return the underflow threshold: ``(base)^((underflow exponent)-1)``.
+
+.. cpp:function:: R lapack::MachineOverflowExponent<R>()
+
+   Return the largest exponent before overflow.
+    
+.. cpp:function:: R lapack::MachineOverflowThreshold<R>()
+
+   Return the overflow threshold: 
+   ``(1-rel. prec.)) * (base)^(overflow exponent)``.
+
+Factorizations
+--------------
+
+.. cpp:function:: void lapack::Cholesky( char uplo, int n, const F* A, int lda )
+
+   Perform a Cholesky factorization on :math:`A \in F^{n \times n}`, where 
+   :math:`A(i,j)` can be accessed at ``A[i+j*lda]`` and :math:`A` is implicitly
+   Hermitian, with the data stored in the lower triangle if ``uplo`` equals 
+   'L', or in the upper triangle if ``uplo`` equals 'U'.
+
+.. cpp:function:: void lapack::LU( int m, int n, F* A, int lda, int* p )
+
+   Perform an LU factorization with partial pivoting on 
+   :math:`A \in F^{m \times n}`, where :math:`A(i,j)` can be accessed at 
+   ``A[i+j*lda]``. On exit, the pivots are stored in the vector ``p``, which 
+   should be at least as large as ``min(m,n)``.
+
+Utilities
+---------
+
+.. cpp:function:: void lapack::Hegst( int itype, char uplo, int n, F* A, int lda, const F* B, int ldb )
+
+   Reduce a generalized Hermitian-definite eigenvalue problem to Hermitian 
+   standard form. **TODO:** Explain in more detail.
+
+.. cpp:function:: R lapack::SafeNorm( R alpha, R beta )
+
+   Return :math:`\sqrt{\alpha^2+\beta^2}` in a manner which avoids 
+   under/overflow. ``R`` can be equal to either ``float`` or ``double``.
+
+.. cpp:function:: R lapack::SafeNorm( R alpha, R beta, R gamma )
+
+   Return :math:`\sqrt{\alpha^2+\beta^2+\gamma^2}` in a manner which avoids
+   under/overflow. ``R`` can be equal to either ``float`` or ``double``.
+
+.. cpp:function:: void lapack::TriangularInverse( char uplo, char diag, int n, const F* A, int lda )
+
+   Overwrite either the lower or upper triangle of :math:`A \in F^{n \times n}`
+   with its inverse. Which triangle is accessed is determined by ``uplo`` ('L' for lower or 'U' for upper), and setting ``diag`` equal to 'U' results in the 
+   triangular matrix being treated as unit diagonal (set ``diag`` to 'N' 
+   otherwise).
 
 MPI
 ===
@@ -614,6 +691,65 @@ Routines
    ``[recvCounts[0],recvCounts[0]+recvCounts[1])`` portion of the result, 
    etc.
 
-PLCG
-====
-**TODO:** Describe the Parallel Linear Congruential Generator. 
+Parallel LCG
+============
+Since it is often necessary to generate a large matrix with pseudo-random 
+entries in parallel, a method for ensuring that a large set of processes can 
+each generate independent uniformly random samples is required. The purpose of
+Parallel LCG (PLCG) is to provide a provably independent generalization of a
+simple (but well-studied) Linear Congruential Generator. Knuth's constants from
+The Art of Computer Programming Vol. 2 are used.
+
+Datatypes
+---------
+
+.. cpp:type:: plcg::UInt32
+
+   Since the vast majority of modern systems make use of ``unsigned`` for
+   storing 32-bit unsigned integers, we simply hardcode the type. If your 
+   system does not follow this convention, then this typedef will need to be
+   changed!
+
+.. cpp:type:: struct plcg::UInt64
+
+   A custom 64-bit unsigned integer which is simply the concatenation of two 
+   32-bit unsigned integers (``UInt32``).
+
+.. cpp:type:: struct plcg::ExpandedUInt64
+
+   A custom 64-bit unsigned integer which is stores each of the four 16-bit
+   pieces within the first 16 bits of a 32-bit unsigned integer. This is done
+   so that two such expanded 16-bit numbers can be multiplied without any 
+   chance of overflow.
+
+Functions
+---------
+
+.. cpp:function:: plcg::UInt32 plcg::Lower16Bits( plcg::UInt32 a )
+
+   Return the lower 16 bits of ``a`` in the lower 16 bits of the returned 
+   32-bit unsigned integer.
+
+.. cpp:function:: plcg::UInt32 plcg::Upper16Bits( plcg::UInt32 a )
+
+   Return the upper 16 bits of ``a`` in the lower 16 bits of the returned
+   32-bit unsigned integer.
+
+.. cpp:function:: plcg::ExpandedUInt64 plcg::Expand( plcg::UInt32 a )
+
+   Expand a 32-bit unsigned integer into a 64-bit expanded representation.
+
+.. cpp:function:: plcg::ExpandedUInt64 plcg::Expand( plcg::UInt64 a )
+
+   Expand a 64-bit unsigned integer into a 64-bit expanded representation.
+
+.. cpp:function:: plcg::UInt64 plcg::Deflate( plcg::ExpandedUInt64 a )
+
+   Deflate an expanded 64-bit unsigned integer into the standard 64-bit form.
+
+.. cpp:function:: void plcg::CarryUpper16Bits( plcg::ExpandedUInt64& a )
+
+   Carry the results stored in the upper 16-bits of each of the four pieces 
+   into the next lower 16 bits.
+
+**Left off here...**

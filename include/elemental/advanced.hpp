@@ -437,15 +437,7 @@ void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 // matrix.                                                                    //
 //----------------------------------------------------------------------------//
 
-// Serial version for real datatypes
-template<typename R>
-void LQ( Matrix<R>& A );
-
-#ifndef WITHOUT_COMPLEX
-// Serial version for complex datatypes
-template<typename R>
-void LQ( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t );
-#endif
+// TODO: Serial versions
 
 // Parallel version for real datatypes
 template<typename R>
@@ -561,15 +553,7 @@ R SymmetricNorm
 // transform / UT transform to be computed mainly with Level 3 BLAS.          //
 //----------------------------------------------------------------------------//
 
-// Serial version for real datatypes
-template<typename R>
-void QR( Matrix<R>& A );
-
-#ifndef WITHOUT_COMPLEX
-// Serial version for complex datatypes
-template<typename R>
-void QR( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t );
-#endif
+// TODO: Serial versions
 
 // Parallel version for real datatypes
 template<typename R>
@@ -708,44 +692,6 @@ void SkewHermitianEig
   double a, double b, bool tryForHighAccuracy = false );
 #endif // WITHOUT_PMRRR
 #endif // WITHOUT_COMPLEX
-
-//----------------------------------------------------------------------------//
-// SVD (Singular Value Decomposition):                                        //
-//                                                                            //
-// Two approaches:                                                            //
-// (1)                                                                        //
-//   Compute the skinny SVD of A, A = U Sigma V^T, where, if A is m x n,      //
-//   U is m x min(m,n) and V^T is min(m,n) x n. We store U in A, V^T in V,    //
-//   and Sigma in SigmaDiag.                                                  //
-// (2)                                                                        //
-//   Compute the skinny SVD of A, A = U Sigma V^T, where, if A is m x n,      //
-//   U is m x min(m,n) and V^T is min(m,n) x n. We store U in U, V^T in V,    //
-//   and Sigma in SigmaDiag.                                                  //
-//----------------------------------------------------------------------------//
-
-// Serial versions where A is overwritten by U
-template<typename R>
-void SVD( Matrix<R>& A, Matrix<R>& VT, std::vector<R>& SigmaDiag );
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-void SVD
-( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& VT, 
-  std::vector<R>& SigmaDiag );     
-#endif
-
-// Serial versions where A is not overwritten
-template<typename R>
-void
-SVD( Matrix<R>& A, Matrix<R>& U, Matrix<R>& VT, std::vector<R>& SigmaDiag );
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-void
-SVD
-( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& U, 
-  Matrix<std::complex<R> >& VT, std::vector<R>& SigmaDiag );
-#endif
 
 //----------------------------------------------------------------------------//
 // HermitianTridiag (Reduce Hermitian matrix to tridiagonal form):            //
@@ -958,42 +904,6 @@ elemental::advanced::LU
 }
 
 template<typename R>
-inline void
-elemental::advanced::LQ
-( Matrix<R>& A )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::LQ");
-#endif
-    lapack::LQ( A.Height(), A.Width(), A.Buffer(), A.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-inline void
-elemental::advanced::LQ
-( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::LQ");
-    if( t.Viewing() && 
-        (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
-        throw std::logic_error
-              ( "t must be a vector of length equal to the min. dim. of A." );
-#endif
-    if( !t.Viewing() )
-        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
-    lapack::LQ( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif
-
-template<typename R>
 inline R
 elemental::advanced::SymmetricNorm
 ( Shape shape, const Matrix<R>& A, NormType type )
@@ -1050,130 +960,6 @@ elemental::advanced::SymmetricNorm
 #endif
 }
 #endif // WITHOUT_COMPLEX
-
-template<typename R>
-inline void
-elemental::advanced::QR
-( Matrix<R>& A )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::QR");
-#endif
-    lapack::QR( A.Height(), A.Width(), A.Buffer(), A.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-inline void
-elemental::advanced::QR
-( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::QR");
-    if( t.Viewing() && 
-        (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
-        throw std::logic_error
-              ( "t must be a vector of length equal to the min. dim. of A." );
-#endif
-    if( !t.Viewing() )
-        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
-    lapack::QR( A.Height(), A.Width(), A.Buffer(), A.LDim(), t.Buffer() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif
-
-template<typename R>
-inline void
-elemental::advanced::SVD
-( Matrix<R>& A, Matrix<R>& VT, std::vector<R>& SigmaDiag )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::SVD");
-#endif
-    const int m = A.Height();
-    const int n = A.Width();
-    SigmaDiag.resize( std::min(m,n) );
-    VT.ResizeTo( std::min(m,n), n );
-    lapack::SVD
-    ( 'O', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], 0, 0, 
-      VT.Buffer(), VT.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-inline void
-elemental::advanced::SVD
-( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& VT, 
-  std::vector<R>& SigmaDiag )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::SVD");
-#endif
-    const int m = A.Height();
-    const int n = A.Width();
-    SigmaDiag.resize( std::min(m,n) );
-    VT.ResizeTo( std::min(m,n), n );
-    lapack::SVD
-    ( 'O', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], 0, 0, 
-      VT.Buffer(), VT.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif
-
-template<typename R>
-inline void
-elemental::advanced::SVD
-( Matrix<R>& A, Matrix<R>& U, Matrix<R>& VT, std::vector<R>& SigmaDiag )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::SVD");
-#endif
-    const int m = A.Height();
-    const int n = A.Width();
-    SigmaDiag.resize( std::min(m,n) );
-    U.ResizeTo( m, std::min(m,n) );
-    VT.ResizeTo( std::min(m,n), n );
-    lapack::SVD
-    ( 'S', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], U.Buffer(), U.LDim(),
-      VT.Buffer(), VT.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-inline void
-elemental::advanced::SVD
-( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& U, 
-  Matrix<std::complex<R> >& VT, std::vector<R>& SigmaDiag )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::SVD");
-#endif
-    const int m = A.Height();
-    const int n = A.Width();
-    SigmaDiag.resize( std::min(m,n) );
-    U.ResizeTo( m, std::min(m,n) );
-    VT.ResizeTo( std::min(m,n), n );
-    lapack::SVD
-    ( 'S', 'S', m, n, A.Buffer(), A.LDim(), &SigmaDiag[0], U.Buffer(), U.LDim(),
-      VT.Buffer(), VT.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif
 
 template<typename F>
 inline void
