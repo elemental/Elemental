@@ -259,4 +259,4 @@ If you run into build problems, please email
 `jack.poulson@gmail.com <mailto:jack.poulson@gmail.com>`_ and make sure to 
 attach the file ``include/elemental/config.h`` that should be generated within 
 your build directory. Please only direct general usage questions to 
-`elemental-framework@googlegroups.com <mailto:elemental-framework@googlegroups.com>`_.
+`elemental-dev@googlegroups.com <mailto:elemental-dev@googlegroups.com>`_.
