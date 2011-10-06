@@ -1103,6 +1103,13 @@ void <tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>
 </dd></dl>
 
 <dl class="function">
+<dt id="AbstractDistMatrix:T:::SetGrid__elemental::GridCR">
+void <tt class="descname">SetGrid</tt><big>(</big>const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetGrid__elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the distributed matrix&#8217;s contents and reconfigure for the new
+process grid.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="AbstractDistMatrix:T:::SetToIdentity">
 void <tt class="descname">SetToIdentity</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToIdentity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the entire matrix to zero and then introduce ones onto the main
@@ -1148,20 +1155,20 @@ void <tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="header
 <dd><p class="rubric">Constructors</p>
 <dl class="function">
 <dt>
-<tt class="descname">DistMatrix( const elemental::Grid&amp; g=DefaultGrid() )</tt></dt>
+<tt class="descname">DistMatrix( const elemental::Grid&amp; grid=DefaultGrid() )</tt></dt>
 <dd><p>Create a <img class="math" src="_images/math/43205564ab7e64a12e040330eb778d2812a4701f.png" alt="0 \times 0"/> distributed matrix over the specified grid.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
-<tt class="descname">DistMatrix( int height, int width, const elemental::Grid&amp; g=DefaultGrid() )</tt></dt>
+<tt class="descname">DistMatrix( int height, int width, const elemental::Grid&amp; grid=DefaultGrid() )</tt></dt>
 <dd><p>Create a <tt class="docutils literal"><span class="pre">height</span></tt> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <tt class="docutils literal"><span class="pre">width</span></tt> distributed matrix over the
 specified grid.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.elemental::GridCR">
- <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, bool <em>constrainedColAlignment</em>, bool <em>constrainedRowAlignment</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const elemental::Grid&amp; <em>g</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, bool <em>constrainedColAlignment</em>, bool <em>constrainedRowAlignment</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <tt class="docutils literal"><span class="pre">height</span></tt> <img class="math" src="_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <tt class="docutils literal"><span class="pre">width</span></tt> distributed matrix
 distributed over the specified process grid, but with the top-left entry
 owned by the <tt class="docutils literal"><span class="pre">colAlignment</span></tt> process row and the <tt class="docutils literal"><span class="pre">rowAlignment</span></tt>
@@ -1171,13 +1178,13 @@ constant when redistributing data into this <tt class="docutils literal"><span c
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.i.elemental::GridCR">
- <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, bool <em>constrainedColAlignment</em>, bool <em>constrainedRowAlignment</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>g</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, bool <em>constrainedColAlignment</em>, bool <em>constrainedRowAlignment</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the local leading dimension is also specified.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TCP.i.elemental::GridCR">
- <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>g</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TCP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TCP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>View a constant distributed matrix&#8217;s buffer; the buffer must correspond
 to the local portion of an elemental distributed matrix with the
 specified row and column alignments and leading dimension, <tt class="docutils literal"><span class="pre">ldim</span></tt>.</p>
@@ -1185,7 +1192,7 @@ specified row and column alignments and leading dimension, <tt class="docutils l
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TP.i.elemental::GridCR">
- <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>g</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the contents of the matrix are modifiable.</p>
 </dd></dl>
 
@@ -1196,6 +1203,185 @@ specified row and column alignments and leading dimension, <tt class="docutils l
 <tt class="docutils literal"><span class="pre">[MC,MR]</span></tt> distribution.</p>
 </dd></dl>
 
+<p class="rubric">Redistribution</p>
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MC.MR:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>If this matrix can be properly aligned with <tt class="docutils literal"><span class="pre">A</span></tt>, then perform a local
+copy, otherwise perform an <tt class="docutils literal"><span class="pre">mpi::SendRecv</span></tt> permutation first.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MC.STAR:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, MC, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MC.STAR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a local (filtered) copy to form an <tt class="docutils literal"><span class="pre">[MC,MR</span> <span class="pre">]</span></tt> distribution and
+then, if necessary, fix the alignment of the <tt class="docutils literal"><span class="pre">MC</span></tt> distribution via an
+<tt class="docutils literal"><span class="pre">mpi::SendRecv</span></tt> within process columns.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MR:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, STAR, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a local (filtered) copy to form an <tt class="docutils literal"><span class="pre">[MC,MR</span> <span class="pre">]</span></tt> distribution and
+then, if necessary, fix the alignment of the <tt class="docutils literal"><span class="pre">MR</span></tt> distribution via an
+<tt class="docutils literal"><span class="pre">mpi::SendRecv</span></tt> within process rows.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MD.STAR:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, MD, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MD.STAR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TODO</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MD:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, STAR, MD&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MD:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TODO</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MR.MC:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, MR, MC&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MR.MC:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TODO</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MR.STAR:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, MR, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MR.STAR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TODO</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MC:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, STAR, MC&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MC:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TODO</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.VC.STAR:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, VC, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.VC.STAR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an <tt class="docutils literal"><span class="pre">mpi::AllToAll</span></tt> within process rows in order to redistribute
+to the <tt class="docutils literal"><span class="pre">[MC,MR]</span></tt> distribution (an <tt class="docutils literal"><span class="pre">mpi::SendRecv</span></tt> within process
+columns may be required for alignment).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.VC:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, STAR, VC&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.VC:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TODO</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.VR.STAR:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, VR, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.VR.STAR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TODO</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.VR:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, STAR, VR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.VR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an <tt class="docutils literal"><span class="pre">mpi::AllToAll</span></tt> within process columns in order to
+redistribute to the <tt class="docutils literal"><span class="pre">[MC,MR]</span></tt> distribution (an <tt class="docutils literal"><span class="pre">mpi::SendRecv</span></tt> within
+process rows may be required for alignment).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.STAR:CR">
+const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, STAR, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.STAR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an <tt class="docutils literal"><span class="pre">mpi::AllGather</span></tt> over the entire grid in order to give every
+process a full copy of <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<p class="rubric">Diagonal manipulation</p>
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::GetDiagonal__DistMatrix:T.MD.STAR:R.iC">
+void <tt class="descname">GetDiagonal</tt><big>(</big>DistMatrix&lt;T, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetDiagonal__DistMatrix:T.MD.STAR:R.iC" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TODO</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::GetDiagonal__DistMatrix:T.STAR.MD:R.iC">
+void <tt class="descname">GetDiagonal</tt><big>(</big>DistMatrix&lt;T, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetDiagonal__DistMatrix:T.STAR.MD:R.iC" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TODO</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::SetDiagonal__DistMatrix:T.MD.STAR:CR.i">
+void <tt class="descname">SetDiagonal</tt><big>(</big>const DistMatrix&lt;T, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetDiagonal__DistMatrix:T.MD.STAR:CR.i" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TODO</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::SetDiagonal__DistMatrix:T.STAR.MD:CR.i">
+void <tt class="descname">SetDiagonal</tt><big>(</big>const DistMatrix&lt;T, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetDiagonal__DistMatrix:T.STAR.MD:CR.i" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Alignment</p>
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::Align__i.i">
+void <tt class="descname">Align</tt><big>(</big>int <em>colAlignment</em>, int <em>rowAlignment</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::Align__i.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the distributed matrix&#8217;s contents and reconfigure for the new
+alignments (essentially, they specify the process which owns the top-left
+entry of the distributed matrix).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::AlignCols__i">
+void <tt class="descname">AlignCols</tt><big>(</big>int <em>colAlignment</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::AlignCols__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the distributed matrix&#8217;s content and force the top-left entry to
+be owned by the specified process row.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::AlignRows__i">
+void <tt class="descname">AlignRows</tt><big>(</big>int <em>rowAlignment</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::AlignRows__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the distributed matrix&#8217;s content and force the top-left entry to
+be owned by the specified process column.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MC.MR:CR">
+void <tt class="descname">AlignWith</tt><big>(</big>const DistMatrix&lt;S, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the distributed matrix&#8217;s contents and force the alignments to match
+those of <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MC.STAR:CR">
+void <tt class="descname">AlignWith</tt><big>(</big>const DistMatrix&lt;S, MC, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MC.STAR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the distributed matrix&#8217;s contents and force the column alignment
+to match that of <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.STAR.MR:CR">
+void <tt class="descname">AlignWith</tt><big>(</big>const DistMatrix&lt;S, STAR, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.STAR.MR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the distributed matrix&#8217;s content and force the row alignment to
+match that of <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MR.MC:CR">
+void <tt class="descname">AlignWith</tt><big>(</big>const DistMatrix&lt;S, MR, MC&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MR.MC:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the distributed matrix&#8217;s content and force the column alignment to
+match the row alignment of <tt class="docutils literal"><span class="pre">A</span></tt> (and vice-versa).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MR.STAR:CR">
+void <tt class="descname">AlignWith</tt><big>(</big>const DistMatrix&lt;S, MR, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MR.STAR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the distributed matrix&#8217;s content and force the row alignment to
+match the column alignment of <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.STAR.MC:CR">
+void <tt class="descname">AlignWith</tt><big>(</big>const DistMatrix&lt;S, STAR, MC&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.STAR.MC:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the distributed matrix&#8217;s content and force the column alignment to
+match the row alignment of <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<p><strong>Left off here...</strong></p>
 </dd></dl>
 
 </div>

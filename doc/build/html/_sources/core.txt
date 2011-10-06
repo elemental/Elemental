@@ -804,6 +804,11 @@ to be available for all matrix distributions.
 
       Reconfigure the matrix so that it is *height* :math:`\times` *width*.
 
+   .. cpp:function:: void SetGrid( const elemental::Grid& grid )
+
+      Clear the distributed matrix's contents and reconfigure for the new 
+      process grid.
+
    .. cpp:function:: void SetToIdentity()
 
       Set the entire matrix to zero and then introduce ones onto the main 
@@ -837,16 +842,16 @@ This is the standard matrix distribution... **left off here**
 
    .. rubric:: Constructors
 
-   .. cpp:function:: DistMatrix( const elemental::Grid& g=DefaultGrid() )
+   .. cpp:function:: DistMatrix( const elemental::Grid& grid=DefaultGrid() )
       
       Create a :math:`0 \times 0` distributed matrix over the specified grid.
 
-   .. cpp:function:: DistMatrix( int height, int width, const elemental::Grid& g=DefaultGrid() )
+   .. cpp:function:: DistMatrix( int height, int width, const elemental::Grid& grid=DefaultGrid() )
 
       Create a ``height`` :math:`\times` ``width`` distributed matrix over the
       specified grid.
 
-   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, const elemental::Grid& g )
+   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, const elemental::Grid& grid )
 
       Create a ``height`` :math:`\times` ``width`` distributed matrix 
       distributed over the specified process grid, but with the top-left entry
@@ -854,17 +859,17 @@ This is the standard matrix distribution... **left off here**
       process column. Each of these alignments may be *constrained* to remain
       constant when redistributing data into this ``DistMatrix``.
 
-   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, int ldim, const elemental::Grid& g )
+   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, int ldim, const elemental::Grid& grid )
 
       Same as above, but the local leading dimension is also specified.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elemental::Grid& g )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elemental::Grid& grid )
 
       View a constant distributed matrix's buffer; the buffer must correspond 
       to the local portion of an elemental distributed matrix with the 
       specified row and column alignments and leading dimension, ``ldim``.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elemental::Grid& g )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elemental::Grid& grid )
 
       Same as above, but the contents of the matrix are modifiable.
 
@@ -873,6 +878,135 @@ This is the standard matrix distribution... **left off here**
       Build a copy of the distributed matrix ``A``, but force it to be in the
       ``[MC,MR]`` distribution.
 
+   .. rubric:: Redistribution
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MC,MR>& A )
+
+      If this matrix can be properly aligned with ``A``, then perform a local
+      copy, otherwise perform an ``mpi::SendRecv`` permutation first.
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MC,STAR>& A )
+
+      Perform a local (filtered) copy to form an ``[MC,MR ]`` distribution and 
+      then, if necessary, fix the alignment of the ``MC`` distribution via an 
+      ``mpi::SendRecv`` within process columns.
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,MR>& A )
+       
+      Perform a local (filtered) copy to form an ``[MC,MR ]`` distribution and 
+      then, if necessary, fix the alignment of the ``MR`` distribution via an 
+      ``mpi::SendRecv`` within process rows.
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MD,STAR>& A )
+
+      **TODO**
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,MD>& A )
+
+      **TODO**
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MR,MC>& A )
+
+      **TODO**
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MR,STAR>& A )
+
+      **TODO**
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,MC>& A )
+
+      **TODO**
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,VC,STAR>& A )
+
+      Perform an ``mpi::AllToAll`` within process rows in order to redistribute
+      to the ``[MC,MR]`` distribution (an ``mpi::SendRecv`` within process 
+      columns may be required for alignment).
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,VC>& A )
+
+      **TODO**
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,VR,STAR>& A )
+
+      **TODO**
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,VR>& A )
+
+      Perform an ``mpi::AllToAll`` within process columns in order to 
+      redistribute to the ``[MC,MR]`` distribution (an ``mpi::SendRecv`` within
+      process rows may be required for alignment).
+
+   .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,STAR>& A )
+
+      Perform an ``mpi::AllGather`` over the entire grid in order to give every
+      process a full copy of ``A``.
+
+   .. rubric:: Diagonal manipulation
+
+   .. cpp:function:: void GetDiagonal( DistMatrix<T,MD,STAR>& d, int offset=0 ) const
+
+      **TODO**
+
+   .. cpp:function:: void GetDiagonal( DistMatrix<T,STAR,MD>& d, int offset=0 ) const
+
+      **TODO**
+
+   .. cpp:function:: void SetDiagonal( const DistMatrix<T,MD,STAR>& d, int offset=0 )
+
+      **TODO**
+
+   .. cpp:function:: void SetDiagonal( const DistMatrix<T,STAR,MD>& d, int offset=0 )
+
+   .. rubric:: Alignment
+
+   .. cpp:function:: void Align( int colAlignment, int rowAlignment )
+
+      Clear the distributed matrix's contents and reconfigure for the new 
+      alignments (essentially, they specify the process which owns the top-left
+      entry of the distributed matrix).
+
+   .. cpp:function:: void AlignCols( int colAlignment )
+
+      Clear the distributed matrix's content and force the top-left entry to 
+      be owned by the specified process row.
+
+   .. cpp:function:: void AlignRows( int rowAlignment )
+
+      Clear the distributed matrix's content and force the top-left entry to 
+      be owned by the specified process column.
+
+   .. cpp:function:: void AlignWith( const DistMatrix<S,MC,MR>& A )
+
+      Clear the distributed matrix's contents and force the alignments to match
+      those of ``A``.
+
+   .. cpp:function:: void AlignWith( const DistMatrix<S,MC,STAR>& A )
+
+      Clear the distributed matrix's contents and force the column alignment
+      to match that of ``A``.
+
+   .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,MR>& A )
+
+      Clear the distributed matrix's content and force the row alignment to 
+      match that of ``A``.
+
+   .. cpp:function:: void AlignWith( const DistMatrix<S,MR,MC>& A )
+
+      Clear the distributed matrix's content and force the column alignment to 
+      match the row alignment of ``A`` (and vice-versa).
+
+   .. cpp:function:: void AlignWith( const DistMatrix<S,MR,STAR>& A )
+
+      Clear the distributed matrix's content and force the row alignment to 
+      match the column alignment of ``A``.
+
+   .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,MC>& A )
+
+      Clear the distributed matrix's content and force the column alignment to
+      match the row alignment of ``A``.
+
+   **Left off here...**
 
 ``[MC,* ]``
 -----------

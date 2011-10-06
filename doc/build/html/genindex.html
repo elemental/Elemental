@@ -74,14 +74,15 @@
     <dt><a href="core.html#AbstractDistMatrix:T:::LockedLocalMatrixC">AbstractDistMatrix&lt;T&gt;::LockedLocalMatrix (C++ function)</a></dt>
     <dt><a href="core.html#AbstractDistMatrix:T:::LockedViewC">AbstractDistMatrix&lt;T&gt;::LockedView (C++ function)</a></dt>
     <dt><a href="core.html#AbstractDistMatrix:T:::MakeTrapezoidal__Side.Shape.i">AbstractDistMatrix&lt;T&gt;::MakeTrapezoidal (C++ function)</a></dt>
+    <dt><a href="core.html#AbstractDistMatrix:T:::Print__ssCC">AbstractDistMatrix&lt;T&gt;::Print (C++ function)</a>, <a href="core.html#AbstractDistMatrix:T:::Print__osR.ssCC">[1]</a></dt>
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
-    <dt><a href="core.html#AbstractDistMatrix:T:::Print__ssCC">AbstractDistMatrix&lt;T&gt;::Print (C++ function)</a>, <a href="core.html#AbstractDistMatrix:T:::Print__osR.ssCC">[1]</a></dt>
     <dt><a href="core.html#AbstractDistMatrix:T:::ResizeTo__i.i">AbstractDistMatrix&lt;T&gt;::ResizeTo (C++ function)</a></dt>
     <dt><a href="core.html#AbstractDistMatrix:T:::RowAlignmentC">AbstractDistMatrix&lt;T&gt;::RowAlignment (C++ function)</a></dt>
     <dt><a href="core.html#AbstractDistMatrix:T:::RowShiftC">AbstractDistMatrix&lt;T&gt;::RowShift (C++ function)</a></dt>
     <dt><a href="core.html#AbstractDistMatrix:T:::ScaleTrapezoidal__T.Side.Shape.i">AbstractDistMatrix&lt;T&gt;::ScaleTrapezoidal (C++ function)</a></dt>
     <dt><a href="core.html#AbstractDistMatrix:T:::Set__i.i.T">AbstractDistMatrix&lt;T&gt;::Set (C++ function)</a></dt>
+    <dt><a href="core.html#AbstractDistMatrix:T:::SetGrid__elemental::GridCR">AbstractDistMatrix&lt;T&gt;::SetGrid (C++ function)</a></dt>
     <dt><a href="core.html#AbstractDistMatrix:T:::SetImag__i.i.typename-RealBase:T:::type">AbstractDistMatrix&lt;T&gt;::SetImag (C++ function)</a></dt>
     <dt><a href="core.html#AbstractDistMatrix:T:::SetImagLocalEntry__i.i.typename-RealBase:T:::type">AbstractDistMatrix&lt;T&gt;::SetImagLocalEntry (C++ function)</a></dt>
     <dt><a href="core.html#AbstractDistMatrix:T:::SetLocalEntry__i.i.T">AbstractDistMatrix&lt;T&gt;::SetLocalEntry (C++ function)</a></dt>
@@ -185,9 +186,16 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
     <dt><a href="core.html#DistMatrix:T.MC.MR:">DistMatrix&lt;T, MC, MR&gt; (C++ class)</a></dt>
+    <dt><a href="core.html#DistMatrix:T.MC.MR:::Align__i.i">DistMatrix&lt;T, MC, MR&gt;::Align (C++ function)</a></dt>
+    <dt><a href="core.html#DistMatrix:T.MC.MR:::AlignCols__i">DistMatrix&lt;T, MC, MR&gt;::AlignCols (C++ function)</a></dt>
+    <dt><a href="core.html#DistMatrix:T.MC.MR:::AlignRows__i">DistMatrix&lt;T, MC, MR&gt;::AlignRows (C++ function)</a></dt>
+    <dt><a href="core.html#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MC.MR:CR">DistMatrix&lt;T, MC, MR&gt;::AlignWith (C++ function)</a>, <a href="core.html#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MC.STAR:CR">[1]</a>, <a href="core.html#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.STAR.MR:CR">[2]</a>, <a href="core.html#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MR.MC:CR">[3]</a>, <a href="core.html#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.MR.STAR:CR">[4]</a>, <a href="core.html#DistMatrix:T.MC.MR:::AlignWith__DistMatrix:S.STAR.MC:CR">[5]</a></dt>
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
     <dt><a href="core.html#DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.elemental::GridCR">DistMatrix&lt;T, MC, MR&gt;::DistMatrix (C++ function)</a>, <a href="core.html#DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.i.elemental::GridCR">[1]</a>, <a href="core.html#DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TCP.i.elemental::GridCR">[2]</a>, <a href="core.html#DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TP.i.elemental::GridCR">[3]</a>, <a href="core.html#DistMatrix:T.MC.MR:::DistMatrix__DistMatrix:T.U.V:CR">[4]</a></dt>
+    <dt><a href="core.html#DistMatrix:T.MC.MR:::GetDiagonal__DistMatrix:T.MD.STAR:R.iC">DistMatrix&lt;T, MC, MR&gt;::GetDiagonal (C++ function)</a>, <a href="core.html#DistMatrix:T.MC.MR:::GetDiagonal__DistMatrix:T.STAR.MD:R.iC">[1]</a></dt>
+    <dt><a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MC.MR:CR">DistMatrix&lt;T, MC, MR&gt;::operator= (C++ function)</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MC.STAR:CR">[1]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MR:CR">[2]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MD.STAR:CR">[3]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MD:CR">[4]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MR.MC:CR">[5]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MR.STAR:CR">[6]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MC:CR">[7]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.VC.STAR:CR">[8]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.VC:CR">[9]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.VR.STAR:CR">[10]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.VR:CR">[11]</a>, <a href="core.html#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.STAR:CR">[12]</a></dt>
+    <dt><a href="core.html#DistMatrix:T.MC.MR:::SetDiagonal__DistMatrix:T.MD.STAR:CR.i">DistMatrix&lt;T, MC, MR&gt;::SetDiagonal (C++ function)</a>, <a href="core.html#DistMatrix:T.MC.MR:::SetDiagonal__DistMatrix:T.STAR.MD:CR.i">[1]</a></dt>
 </dl></td>
 </tr></table>
 
