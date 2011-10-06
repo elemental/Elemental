@@ -833,6 +833,47 @@ to be available for all matrix distributions.
 
 This is the standard matrix distribution... **left off here**
 
+.. cpp:class:: DistMatrix<T,MC,MR>
+
+   .. rubric:: Constructors
+
+   .. cpp:function:: DistMatrix( const elemental::Grid& g=DefaultGrid() )
+      
+      Create a :math:`0 \times 0` distributed matrix over the specified grid.
+
+   .. cpp:function:: DistMatrix( int height, int width, const elemental::Grid& g=DefaultGrid() )
+
+      Create a ``height`` :math:`\times` ``width`` distributed matrix over the
+      specified grid.
+
+   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, const elemental::Grid& g )
+
+      Create a ``height`` :math:`\times` ``width`` distributed matrix 
+      distributed over the specified process grid, but with the top-left entry
+      owned by the ``colAlignment`` process row and the ``rowAlignment`` 
+      process column. Each of these alignments may be *constrained* to remain
+      constant when redistributing data into this ``DistMatrix``.
+
+   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, int ldim, const elemental::Grid& g )
+
+      Same as above, but the local leading dimension is also specified.
+
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elemental::Grid& g )
+
+      View a constant distributed matrix's buffer; the buffer must correspond 
+      to the local portion of an elemental distributed matrix with the 
+      specified row and column alignments and leading dimension, ``ldim``.
+
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elemental::Grid& g )
+
+      Same as above, but the contents of the matrix are modifiable.
+
+   .. cpp:function:: DistMatrix( const DistMatrix<T,U,V>& A )
+
+      Build a copy of the distributed matrix ``A``, but force it to be in the
+      ``[MC,MR]`` distribution.
+
+
 ``[MC,* ]``
 -----------
 

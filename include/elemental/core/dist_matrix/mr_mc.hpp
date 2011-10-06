@@ -81,7 +81,8 @@ public:
       T* buffer, int ldim, const elemental::Grid& g );
 
     // Create a copy of distributed matrix A
-    DistMatrix( const DistMatrix<T,MR,MC>& A );
+    template<Distribution U,Distribution V>
+    DistMatrix( const DistMatrix<T,U,V>& A );
 
     ~DistMatrix();
 
@@ -588,8 +589,9 @@ DistMatrix<T,MR,MC>::DistMatrix
 { }
 
 template<typename T>
+template<Distribution U,Distribution V>
 inline
-DistMatrix<T,MR,MC>::DistMatrix( const DistMatrix<T,MR,MC>& A )
+DistMatrix<T,MR,MC>::DistMatrix( const DistMatrix<T,U,V>& A )
 : AbstractDistMatrix<T>(0,0,false,false,0,0,0,0,0,0,A.Grid())
 {
 #ifndef RELEASE
