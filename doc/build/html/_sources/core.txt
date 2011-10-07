@@ -958,55 +958,234 @@ This is the standard matrix distribution... **left off here**
 
    .. cpp:function:: void SetDiagonal( const DistMatrix<T,STAR,MD>& d, int offset=0 )
 
+   .. note:: 
+
+      The following are only valid for complex datatypes and are analogous to
+      their general counterparts from above in the obvious manner.
+
+   .. cpp:function:: void GetRealDiagonal( DistMatrix<typename RealBase<T>::type,MD,STAR>& d, int offset=0 ) const
+
+   .. cpp:function:: void GetImagDiagonal( DistMatrix<typename RealBase<T>::type,MD,STAR>& d, int offset=0 ) const
+
+   .. cpp:function:: void GetRealDiagonal( DistMatrix<typename RealBase<T>::type,STAR,MD>& d, int offset=0 ) const
+
+   .. cpp:function:: void GetImagDiagonal( DistMatrix<typename RealBase<T>::type,STAR,MD>& d, int offset=0 ) const
+
+   .. cpp:function:: void SetRealDiagonal( const DistMatrix<typename RealBase<T>::type,MD,STAR>& d, int offset=0 )
+
+   .. cpp:function:: void SetImagDiagonal( const DistMatrix<typename RealBase<T>::type,MD,STAR>& d, int offset=0 )
+
+   .. cpp:function:: void SetRealDiagonal( const DistMatrix<typename RealBase<T>::type,STAR,MD>& d, int offset=0 )
+
+   .. cpp:function:: void SetImagDiagonal( const DistMatrix<typename RealBase<T>::type,STAR,MD>& d, int offset=0 )
+
    .. rubric:: Alignment
+
+   All of the following clear the distributed matrix's contents and then 
+   reconfigure the alignments as described.
 
    .. cpp:function:: void Align( int colAlignment, int rowAlignment )
 
-      Clear the distributed matrix's contents and reconfigure for the new 
-      alignments (essentially, they specify the process which owns the top-left
-      entry of the distributed matrix).
+      Specify the process row, ``colAlignment``, and process column,
+      ``rowAlignment``, which own the top-left entry.
 
    .. cpp:function:: void AlignCols( int colAlignment )
 
-      Clear the distributed matrix's content and force the top-left entry to 
-      be owned by the specified process row.
+      Specify the process row which owns the top-left entry.
 
    .. cpp:function:: void AlignRows( int rowAlignment )
 
-      Clear the distributed matrix's content and force the top-left entry to 
-      be owned by the specified process column.
+      Specify the process column which owns the top-left entry.
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,MC,MR>& A )
 
-      Clear the distributed matrix's contents and force the alignments to match
-      those of ``A``.
+      Force the alignments to match those of ``A``.
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,MC,STAR>& A )
 
-      Clear the distributed matrix's contents and force the column alignment
-      to match that of ``A``.
+      Force the column alignment to match that of ``A``.
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,MR>& A )
 
-      Clear the distributed matrix's content and force the row alignment to 
-      match that of ``A``.
+      Force the row alignment to match that of ``A``.
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,MR,MC>& A )
 
-      Clear the distributed matrix's content and force the column alignment to 
-      match the row alignment of ``A`` (and vice-versa).
+      Force the column alignment to match the row alignment of ``A`` (and 
+      vice-versa).
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,MR,STAR>& A )
 
-      Clear the distributed matrix's content and force the row alignment to 
-      match the column alignment of ``A``.
+      Force the row alignment to match the column alignment of ``A``.
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,MC>& A )
 
-      Clear the distributed matrix's content and force the column alignment to
-      match the row alignment of ``A``.
+      Force the column alignment to match the row alignment of ``A``.
 
-   **Left off here...**
+   .. cpp:function:: void AlignWith( const DistMatrix<S,VC,STAR>& A )
+
+      Force the column alignment to be equal to that of ``A`` (modulo 
+      the number of process rows).
+
+   .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,VC>& A )
+
+      Force the column alignment to equal the row alignment of ``A`` (modulo
+      the number of process rows).
+
+   .. cpp:function:: void AlignWith( const DistMatrix<S,VR,STAR>& A )
+
+      Force the row alignment to equal the column alignment of ``A`` (modulo
+      the number of process columns).
+
+   .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,VR>& A )
+
+      Force the row alignment to equal the row alignment of ``A`` (modulo
+      the number of process columns).
+
+   .. cpp:function:: void AlignColsWith( const DistMatrix<S,MC,MR>& A )
+
+      Force the column alignment to match that of ``A``.
+
+   .. cpp:function:: void AlignColsWith( const DistMatrix<S,MC,STAR>& A )
+
+      Force the column alignment to match that of ``A``.
+
+   .. cpp:function:: void AlignColsWith( const DistMatrix<S,MR,MC>& A )
+
+      Force the column alignment to match the row alignment of ``A``.
+
+   .. cpp:function:: void AlignColsWith( const DistMatrix<S,STAR,MC>& A )
+
+      Force the column alignment to match the row alignment of ``A``.
+
+   .. cpp:function:: void AlignColsWith( const DistMatrix<S,VC,STAR>& A )
+
+      Force the column alignment to match the column alignment of ``A`` 
+      (modulo the number of process rows).
+
+   .. cpp:function:: void AlignColsWith( const DistMatrix<S,STAR,VC>& A )
+
+      Force the column alignment to match the row alignment of ``A`` 
+      (modulo the number of process rows).
+
+   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,MC,MR>& A )
+
+      Force the row alignment to match that of ``A``.
+
+   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,STAR,MR>& A )
+
+      Force the row alignment to match that of ``A``.
+
+   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,MR,MC>& A )
+
+      Force the row alignment to match the column alignment of ``A``.
+
+   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,MR,STAR>& A )
+
+      Force the row alignment to match the column alignment of ``A``.
+
+   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,VR,STAR>& A )
+
+      Force the row alignment to match the column alignment of ``A`` (modulo
+      the number of process columns).
+
+   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,STAR,VR>& A )
+
+      Force the row alignment to match the row alignment of ``A`` (modulo
+      the number of process columns).
+
+   .. rubric:: Views
+
+   .. cpp:function:: void View( DistMatrix<T,MC,MR>& A )
+
+      **TODO**
+
+   .. cpp:function:: void LockedView( DistMatrix<T,MC,MR>& A )
+
+      **TODO**
+
+   .. cpp:function:: void View( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elemental::Grid& grid )
+
+      **TODO**
+
+   .. cpp:function:: void LockedView( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elemental::Grid& grid )
+
+      **TODO**
+
+   .. cpp:function:: void View( DistMatrix<T,MC,MR>& A, int i, int j, int height, int width )
+
+      **TODO**
+
+   .. cpp:function:: void LockedView( const DistMatrix<T,MC,MR>& A, int i, int j, int height, int width )
+
+      **TODO**
+
+   .. cpp:function:: void View1x2( DistMatrix<T,MC,MR>& AL, DistMatrix<T,MC,MR>& AR )
+
+      **TODO**
+
+   .. cpp:function:: void LockedView1x2( const DistMatrix<T,MC,MR>& AL, const DistMatrix<T,MC,MR>& AR )
+
+      **TODO**
+
+   .. cpp:function:: void View2x1( DistMatrix<T,MC,MR>& AT, DistMatrix<T,MC,MR>& AB )
+
+      **TODO**
+
+   .. cpp:function:: void LockedView2x1( const DistMatrix<T,MC,MR>& AT, const DistMatrix<T,MC,MR>& AB )
+
+      **TODO**
+
+   .. cpp:function:: void View2x2( DistMatrix<T,MC,MR>& ATL, DistMatrix<T,MC,MR>& ATR, DistMatrix<T,MC,MR>& ABL, DistMatrix<T,MC,MR>& ABR )
+
+      **TODO**
+
+   .. cpp:function:: void LockedView2x2( const DistMatrix<T,MC,MR>& ATL, const DistMatrix<T,MC,MR>& ATR, const DistMatrix<T,MC,MR>& ABL, const DistMatrix<T,MC,MR>& ABR )
+
+      **TODO**
+
+   .. rubric:: Custom communication routines
+
+   .. cpp:function:: void SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
+
+      **TODO**
+
+   .. cpp:function:: void SumScatterUpdate( T alpha, const DistMatrix<T,MC,STAR>& A )
+
+      **TODO**
+
+   .. cpp:function:: void SumScatterFrom( const DistMatrix<T,STAR,MR>& A )
+
+      **TODO**
+
+   .. cpp:function:: void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,MR>& A )
+
+      **TODO**
+
+   .. cpp:function:: void SumScatterFrom( const DistMatrix<T,STAR,STAR>& A )
+
+      **TODO**
+
+   .. cpp:function:: void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR>& A )
+
+      **TODO**
+
+   .. cpp:function:: void AdjointFrom( const DistMatrix<T,STAR,MC>& A )
+
+      **TODO**
+
+   .. cpp:function:: void AdjointFrom( const DistMatrix<T,MR,STAR>& A )
+
+      **TODO**
+
+   .. cpp:function:: void TransposeFrom( const DistMatrix<T,STAR,MC>& A )
+
+      **TODO**
+
+   .. cpp:function:: void TransposeFrom( const DistMatrix<T,MR,STAR>& A )
+
+      **TODO**
+
 
 ``[MC,* ]``
 -----------
