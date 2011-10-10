@@ -1680,7 +1680,7 @@ DistMatrix<T,VC,STAR>::operator=( const DistMatrix<T,STAR,STAR>& A )
     const int colShift = this->ColShift();
 
     const int localHeight = this->LocalHeight();
-    const int localWidth = this->LocalWidth();
+    const int width = this->Width();
 
     T* thisLocalBuffer = this->LocalBuffer();
     const int thisLDim = this->LocalLDim();
@@ -1689,10 +1689,10 @@ DistMatrix<T,VC,STAR>::operator=( const DistMatrix<T,STAR,STAR>& A )
 #ifdef _OPENMP
     #pragma omp parallel for COLLAPSE(2)
 #endif
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int j=0; j<width; ++j )
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            thisLocalBuffer[iLocal+jLocal*thisLDim] = 
-                ALocalBuffer[(colShift+iLocal*p)+jLocal*ALDim];
+            thisLocalBuffer[iLocal+j*thisLDim] = 
+                ALocalBuffer[(colShift+iLocal*p)+j*ALDim];
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1742,11 +1742,11 @@ DistMatrix<T,VC,STAR>::SumScatterFrom
         const int colShiftOfA = A.ColShift();
 
         const int height = this->Height();
+        const int width = this->Width();
         const int localHeight = this->LocalHeight();
-        const int localWidth = this->LocalWidth();
         const int maxLocalHeight = MaxLocalLength( height, p );
 
-        const int recvSize = max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
+        const int recvSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
         const int sendSize = c*recvSize;
 
         this->_auxMemory.Require( sendSize + recvSize );
@@ -1776,10 +1776,10 @@ DistMatrix<T,VC,STAR>::SumScatterFrom
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for COLLAPSE(2)
 #endif
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int j=0; j<width; ++j )
                 for( int iLocal=0; iLocal<thisLocalHeight; ++iLocal )
-                    data[iLocal+jLocal*thisLocalHeight] = 
-                        ALocalBuffer[(thisColOffset+iLocal*c)+jLocal*ALDim];
+                    data[iLocal+j*thisLocalHeight] = 
+                        ALocalBuffer[(thisColOffset+iLocal*c)+j*ALDim];
         }
 
         // Reduce-scatter over each process row
@@ -1792,10 +1792,10 @@ DistMatrix<T,VC,STAR>::SumScatterFrom
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int j=0; j<width; ++j )
         {
-            const T* recvBufferCol = &recvBuffer[jLocal*localHeight];
-            T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
+            const T* recvBufferCol = &recvBuffer[j*localHeight];
+            T* thisCol = &thisLocalBuffer[j*thisLDim];
             memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
         }
         this->_auxMemory.Release();
@@ -1830,14 +1830,13 @@ DistMatrix<T,VC,STAR>::SumScatterFrom
     const int p = g.Size();
     const int VCRank = g.VCRank();
     const int colAlignment = this->ColAlignment();
-    const int colShiftOfA = A.ColShift();
 
     const int height = this->Height();
+    const int width = this->Width();
     const int localHeight = this->LocalHeight();
-    const int localWidth = this->LocalWidth();
     const int maxLocalHeight = MaxLocalLength( height, p );
 
-    const int recvSize = max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
+    const int recvSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
     const int sendSize = p*recvSize;
 
     this->_auxMemory.Require( sendSize + recvSize );
@@ -1855,20 +1854,19 @@ DistMatrix<T,VC,STAR>::SumScatterFrom
 #endif
     for( int k=0; k<p; ++k )
     {
-        T* data = &sendBuffer[p*recvSize];
+        T* data = &sendBuffer[k*recvSize];
         recvSizes[k] = recvSize;
 
         const int thisColShift = RawShift( k, colAlignment, p );
-        const int thisColOffset = thisColShift-colShiftOfA;
         const int thisLocalHeight = RawLocalLength( height, thisColShift, p );
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for COLLAPSE(2)
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int j=0; j<width; ++j )
             for( int iLocal=0; iLocal<thisLocalHeight; ++iLocal )
-                data[iLocal+jLocal*thisLocalHeight] = 
-                    ALocalBuffer[(thisColOffset+iLocal*p)+jLocal*ALDim];
+                data[iLocal+j*thisLocalHeight] = 
+                    ALocalBuffer[(thisColShift+iLocal*p)+j*ALDim];
     }
 
     // Reduce-scatter over each process row
@@ -1881,10 +1879,10 @@ DistMatrix<T,VC,STAR>::SumScatterFrom
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int j=0; j<width; ++j )
     {
-        const T* recvBufferCol = &recvBuffer[jLocal*localHeight];
-        T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
+        const T* recvBufferCol = &recvBuffer[j*localHeight];
+        T* thisCol = &thisLocalBuffer[j*thisLDim];
         memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
     }
     this->_auxMemory.Release();
@@ -1924,11 +1922,11 @@ DistMatrix<T,VC,STAR>::SumScatterUpdate
         const int colShiftOfA = A.ColShift();
 
         const int height = this->Height();
+        const int width = this->Width();
         const int localHeight = this->LocalHeight();
-        const int localWidth = this->LocalWidth();
         const int maxLocalHeight = MaxLocalLength( height, p );
 
-        const int recvSize = max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
+        const int recvSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
         const int sendSize = c*recvSize;
 
         this->_auxMemory.Require( sendSize + recvSize );
@@ -1958,10 +1956,10 @@ DistMatrix<T,VC,STAR>::SumScatterUpdate
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for COLLAPSE(2)
 #endif
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int j=0; j<width; ++j )
                 for( int iLocal=0; iLocal<thisLocalHeight; ++iLocal )
-                    data[iLocal+jLocal*thisLocalHeight] = 
-                        ALocalBuffer[(thisColOffset+iLocal*c)+jLocal*ALDim];
+                    data[iLocal+j*thisLocalHeight] = 
+                        ALocalBuffer[(thisColOffset+iLocal*c)+j*ALDim];
         }
 
         // Reduce-scatter over each process row
@@ -1974,10 +1972,10 @@ DistMatrix<T,VC,STAR>::SumScatterUpdate
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int j=0; j<width; ++j )
         {
-            const T* recvBufferCol = &recvBuffer[jLocal*localHeight];
-            T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
+            const T* recvBufferCol = &recvBuffer[j*localHeight];
+            T* thisCol = &thisLocalBuffer[j*thisLDim];
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
                 thisCol[iLocal] += alpha*recvBufferCol[iLocal];
         }
@@ -2010,14 +2008,13 @@ DistMatrix<T,VC,STAR>::SumScatterUpdate
     const int p = g.Size();
     const int VCRank = g.VCRank();
     const int colAlignment = this->ColAlignment();
-    const int colShiftOfA = A.ColShift();
 
     const int height = this->Height();
+    const int width = this->Width();
     const int localHeight = this->LocalHeight();
-    const int localWidth = this->LocalWidth();
     const int maxLocalHeight = MaxLocalLength( height, p );
 
-    const int recvSize = max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
+    const int recvSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
     const int sendSize = p*recvSize;
 
     this->_auxMemory.Require( sendSize + recvSize );
@@ -2035,20 +2032,19 @@ DistMatrix<T,VC,STAR>::SumScatterUpdate
 #endif
     for( int k=0; k<p; ++k )
     {
-        T* data = &sendBuffer[p*recvSize];
+        T* data = &sendBuffer[k*recvSize];
         recvSizes[k] = recvSize;
 
         const int thisColShift = RawShift( k, colAlignment, p );
-        const int thisColOffset = thisColShift-colShiftOfA;
         const int thisLocalHeight = RawLocalLength( height, thisColShift, p );
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for COLLAPSE(2)
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int j=0; j<width; ++j )
             for( int iLocal=0; iLocal<thisLocalHeight; ++iLocal )
-                data[iLocal+jLocal*thisLocalHeight] = 
-                    ALocalBuffer[(thisColOffset+iLocal*p)+jLocal*ALDim];
+                data[iLocal+j*thisLocalHeight] = 
+                    ALocalBuffer[(thisColShift+iLocal*p)+j*ALDim];
     }
 
     // Reduce-scatter over each process row
@@ -2061,10 +2057,10 @@ DistMatrix<T,VC,STAR>::SumScatterUpdate
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int j=0; j<width; ++j )
     {
-        const T* recvBufferCol = &recvBuffer[jLocal*localHeight];
-        T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
+        const T* recvBufferCol = &recvBuffer[j*localHeight];
+        T* thisCol = &thisLocalBuffer[j*thisLDim];
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
             thisCol[iLocal] += alpha*recvBufferCol[iLocal];
     }

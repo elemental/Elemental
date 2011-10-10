@@ -1707,12 +1707,12 @@ DistMatrix<T,STAR,VR>::SumScatterFrom
         const int rowAlignment = this->RowAlignment();
         const int rowShiftOfA = A.RowShift();
 
+        const int height = this->Height();
         const int width = this->Width();
-        const int localHeight = this->LocalHeight();
         const int localWidth = this->LocalWidth();
         const int maxLocalWidth = MaxLocalLength( width, p );
 
-        const int recvSize = max(localHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
+        const int recvSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
         const int sendSize = r*recvSize;
 
         this->_auxMemory.Require( sendSize + recvSize );
@@ -1744,8 +1744,8 @@ DistMatrix<T,STAR,VR>::SumScatterFrom
             for( int jLocal=0; jLocal<thisLocalWidth; ++jLocal )
             {
                 const T* ACol = &ALocalBuffer[(thisRowOffset+jLocal*r)*ALDim];
-                T* dataCol = &data[jLocal*localHeight];
-                memcpy( dataCol, ACol, localHeight*sizeof(T) );
+                T* dataCol = &data[jLocal*height];
+                memcpy( dataCol, ACol, height*sizeof(T) );
             }
         }
 
@@ -1761,9 +1761,9 @@ DistMatrix<T,STAR,VR>::SumScatterFrom
 #endif
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            const T* recvBufferCol = &recvBuffer[jLocal*localHeight];
+            const T* recvBufferCol = &recvBuffer[jLocal*height];
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-            memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
+            memcpy( thisCol, recvBufferCol, height*sizeof(T) );
         }
         this->_auxMemory.Release();
     }
@@ -1799,12 +1799,12 @@ DistMatrix<T,STAR,VR>::SumScatterUpdate
         const int rowAlignment = this->RowAlignment();
         const int rowShiftOfA = A.RowShift();
 
+        const int height = this->Height();
         const int width = this->Width();
-        const int localHeight = this->LocalHeight();
         const int localWidth = this->LocalWidth();
         const int maxLocalWidth = MaxLocalLength( width, p );
 
-        const int recvSize = max(localHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
+        const int recvSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
         const int sendSize = r*recvSize;
 
         this->_auxMemory.Require( sendSize + recvSize );
@@ -1836,8 +1836,8 @@ DistMatrix<T,STAR,VR>::SumScatterUpdate
             for( int jLocal=0; jLocal<thisLocalWidth; ++jLocal )
             {
                 const T* ACol = &ALocalBuffer[(thisRowOffset+jLocal*r)*ALDim];
-                T* dataCol = &data[jLocal*localHeight];
-                memcpy( dataCol, ACol, localHeight*sizeof(T) );
+                T* dataCol = &data[jLocal*height];
+                memcpy( dataCol, ACol, height*sizeof(T) );
             }
         }
 
@@ -1853,10 +1853,10 @@ DistMatrix<T,STAR,VR>::SumScatterUpdate
 #endif
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            const T* recvBufferCol = &recvBuffer[jLocal*localHeight];
+            const T* recvBufferCol = &recvBuffer[jLocal*height];
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                thisCol[iLocal] += alpha*recvBufferCol[iLocal];
+            for( int i=0; i<height; ++i )
+                thisCol[i] += alpha*recvBufferCol[i];
         }
         this->_auxMemory.Release();
     }
