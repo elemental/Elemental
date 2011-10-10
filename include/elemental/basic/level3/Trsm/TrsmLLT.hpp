@@ -258,7 +258,134 @@ elemental::basic::internal::TrsmLLTMedium
 #endif
 }
 
+namespace elemental {
+namespace basic {
+namespace internal {
+template<typename F>
+inline void AddInLocalData
+( const DistMatrix<F,VC,STAR>& X1, DistMatrix<F,STAR,STAR>& Z )
+{
+#ifndef RELEASE
+    PushCallStack("basic::internal::AddInLocalData");
+#endif
+    const int width = X1.Width();
+    const int localHeight = X1.LocalHeight();
+    const int stride = X1.Grid().Size();
+    const int offset = X1.ColShift();
+    for( int j=0; j<width; ++j )
+    {
+        F* ZColBuffer = Z.LocalBuffer(0,j);
+        const F* X1ColBuffer = X1.LockedLocalBuffer(0,j);
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            ZColBuffer[offset+stride*iLocal] += X1ColBuffer[iLocal];
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+} // namespace internal
+} // namespace basic
+} // namespace elemental
+
 // width(X) << p
+template<typename F>
+inline void
+elemental::basic::internal::TrsmLLTSmall
+( Orientation orientation, 
+  Diagonal diagonal,
+  F alpha, 
+  const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X,
+  bool checkIfSingular )
+{
+#ifndef RELEASE
+    PushCallStack("basic::internal::TrsmLLTSmall");
+    if( L.Grid() != X.Grid() )
+        throw std::logic_error
+        ("L and X must be distributed over the same grid");
+    if( orientation == NORMAL )
+        throw std::logic_error("TrsmLLT expects a (Conjugate)Transpose option");
+    if( L.Height() != L.Width() || L.Height() != X.Height() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal TrsmLLT: \n"
+            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
+            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( L.ColAlignment() != X.ColAlignment() )
+        throw std::logic_error("L and X must be aligned");
+#endif
+    const Grid& g = L.Grid();
+
+    // Matrix views
+    DistMatrix<F,VC,STAR> 
+        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
+        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
+                         L20(g), L21(g), L22(g);
+
+    DistMatrix<F,VC,STAR> XT(g),  X0(g),
+                          XB(g),  X1(g),
+                                  X2(g);
+
+    // Temporary distributions
+    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> Z1_STAR_STAR(g);
+
+    // Start the algorithm
+    basic::Scal( alpha, X );
+    LockedPartitionUpDiagonal
+    ( L, LTL, LTR,
+         LBL, LBR, 0 );
+    PartitionUp
+    ( X, XT,
+         XB, 0 );
+    while( XT.Height() > 0 )
+    {
+        LockedRepartitionUpDiagonal
+        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
+               /**/       L10, L11, /**/ L12,
+         /*************/ /******************/
+          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+
+        RepartitionUp
+        ( XT,  X0,
+               X1,
+         /**/ /**/
+          XB,  X2 ); 
+
+        //--------------------------------------------------------------------//
+        // X1 -= L21' X2
+        Z1_STAR_STAR.ResizeTo( X1.Height(), X1.Width() );
+        basic::internal::LocalGemm
+        ( orientation, NORMAL, (F)-1, L21, X2, (F)0, Z1_STAR_STAR );
+        basic::internal::AddInLocalData( X1, Z1_STAR_STAR );
+        Z1_STAR_STAR.SumOverGrid();
+
+        // X1 := L11^-1 X1
+        L11_STAR_STAR = L11;
+        basic::internal::LocalTrsm
+        ( LEFT, LOWER, orientation, UNIT, (F)1, L11_STAR_STAR, Z1_STAR_STAR );
+        X1 = Z1_STAR_STAR;
+        //--------------------------------------------------------------------//
+
+        SlideLockedPartitionUpDiagonal
+        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
+         /*************/ /******************/
+               /**/       L10, /**/ L11, L12,
+          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+
+        SlidePartitionUp
+        ( XT,  X0,
+         /**/ /**/
+               X1,
+          XB,  X2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename F>
 inline void
 elemental::basic::internal::TrsmLLTSmall

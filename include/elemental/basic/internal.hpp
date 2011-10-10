@@ -1239,6 +1239,11 @@ void TrsmLLTMedium
 template<typename F>
 void TrsmLLTSmall
 ( Orientation orientation, Diagonal diagonal,
+  F alpha, const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
+  bool checkIfSingular=false );
+template<typename F>
+void TrsmLLTSmall
+( Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,STAR,VR>& L, DistMatrix<F,VR,STAR>& X,
   bool checkIfSingular=false );
 
