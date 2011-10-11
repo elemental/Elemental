@@ -77,16 +77,16 @@ elemental::advanced::internal::CholeskyUVar3Square
     const int r = g.Height();
     int transposeRank;
     {
-        int colAlignment = A.ColAlignment();
-        int rowAlignment = A.RowAlignment();
-        int colShift = A.ColShift();
-        int rowShift = A.RowShift();
+        const int colAlignment = A.ColAlignment();
+        const int rowAlignment = A.RowAlignment();
+        const int colShift = A.ColShift();
+        const int rowShift = A.RowShift();
 
-        int transposeRow = (colAlignment+rowShift) % r;
-        int transposeCol = (rowAlignment+colShift) % r;
+        const int transposeRow = (colAlignment+rowShift) % r;
+        const int transposeCol = (rowAlignment+colShift) % r;
         transposeRank = transposeRow + r*transposeCol;
     }
-    bool onDiagonal = ( transposeRank == g.VCRank() );
+    const bool onDiagonal = ( transposeRank == g.VCRank() );
 
     // Matrix views
     DistMatrix<F,MC,MR> 
@@ -130,15 +130,15 @@ elemental::advanced::internal::CholeskyUVar3Square
         {
             if( onDiagonal )
             {
-                int size = A11.Height()*A22.LocalWidth();
+                const int size = A11.Height()*A22.LocalWidth();
                 memcpy
                 ( A12_STAR_MC.LocalBuffer(), A12_STAR_MR.LocalBuffer(),
                   size*sizeof(F) );
             }
             else
             {
-                int sendSize = A11.Height()*A22.LocalWidth();
-                int recvSize = A11.Width()*A22.LocalHeight();
+                const int sendSize = A11.Height()*A22.LocalWidth();
+                const int recvSize = A11.Width()*A22.LocalHeight();
                 // We know that the ldim is the height since we have manually
                 // created both temporary matrices.
                 mpi::SendRecv

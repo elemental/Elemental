@@ -77,16 +77,16 @@ elemental::advanced::internal::CholeskyLVar3Square
     const int r = g.Height();
     int transposeRank;
     {
-        int colAlignment = A.ColAlignment();
-        int rowAlignment = A.RowAlignment();
-        int colShift = A.ColShift();
-        int rowShift = A.RowShift();
+        const int colAlignment = A.ColAlignment();
+        const int rowAlignment = A.RowAlignment();
+        const int colShift = A.ColShift();
+        const int rowShift = A.RowShift();
 
-        int transposeRow = (colAlignment+rowShift) % r;
-        int transposeCol = (rowAlignment+colShift) % r;
+        const int transposeRow = (colAlignment+rowShift) % r;
+        const int transposeCol = (rowAlignment+colShift) % r;
         transposeRank = transposeRow + r*transposeCol;
     }
-    bool onDiagonal = ( transposeRank == g.VCRank() );
+    const bool onDiagonal = ( transposeRank == g.VCRank() );
 
     // Matrix views
     DistMatrix<F,MC,MR> 
@@ -125,21 +125,21 @@ elemental::advanced::internal::CholeskyLVar3Square
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
 
         A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
-        // SendRecv to from A21^T[* ,MR] from A21^T[* ,MC], then conjugate
-        // the buffer to from A21^H[* ,MR]
+        // SendRecv to form A21^T[* ,MR] from A21^T[* ,MC], then conjugate
+        // the buffer to form A21^H[* ,MR]
         A21Adj_STAR_MR.ResizeTo( A21.Width(), A21.Height() ); 
         {
             if( onDiagonal )
             { 
-                int size = A11.Height()*A22.LocalWidth();
+                const int size = A11.Height()*A22.LocalWidth();
                 memcpy
                 ( A21Adj_STAR_MR.LocalBuffer(), A21Trans_STAR_MC.LocalBuffer(),
                   size*sizeof(F) );
             }
             else
             {
-                int sendSize = A22.LocalHeight()*A11.Width();
-                int recvSize = A22.LocalWidth()*A11.Height();
+                const int sendSize = A22.LocalHeight()*A11.Width();
+                const int recvSize = A22.LocalWidth()*A11.Height();
                 // We know that the ldim is the height since we have manually 
                 // created both temporary matrices.
                 mpi::SendRecv 
