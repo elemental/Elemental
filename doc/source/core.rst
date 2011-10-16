@@ -836,7 +836,45 @@ to be available for all matrix distributions.
 ``[MC,MR]``
 -----------
 
-This is the standard matrix distribution... **left off here**
+This is by far the most important matrix distribution in Elemental, as the vast
+majority of parallel routines expect the input to be in this form. For a
+:math:`7 \times 7` matrix distributed over a :math:`2 \times 3` process grid,
+individual entries would be owned by the following processes (assuming the 
+column and row alignments are both 0):
+
+.. math::
+   :nowrap:
+
+   $
+   \left(\begin{array}{cccccccccc}
+     0 & 2 & 4 & 0 & 2 & 4 & 0 \\
+     1 & 3 & 5 & 1 & 3 & 5 & 1 \\ 
+     0 & 2 & 4 & 0 & 2 & 4 & 0 \\
+     1 & 3 & 5 & 1 & 3 & 5 & 1 \\ 
+     0 & 2 & 4 & 0 & 2 & 4 & 0 \\
+     1 & 3 & 5 & 1 & 3 & 5 & 1 \\ 
+     0 & 2 & 4 & 0 & 2 & 4 & 0  
+   \end{array}\right)
+   $
+
+Similarly, if the column alignment is kept at 0 and the row alignment is changed
+to 2 (meaning that the third process column owns the first column of the 
+matrix), the individual entries would be owned as follows:
+
+.. math::
+   :nowrap:
+
+   $
+   \left(\begin{array}{cccccccccc}
+     4 & 0 & 2 & 4 & 0 & 2 & 4 \\
+     5 & 1 & 3 & 5 & 1 & 3 & 5 \\ 
+     4 & 0 & 2 & 4 & 0 & 2 & 4 \\
+     5 & 1 & 3 & 5 & 1 & 3 & 5 \\ 
+     4 & 0 & 2 & 4 & 0 & 2 & 4 \\
+     5 & 1 & 3 & 5 & 1 & 3 & 5 \\ 
+     4 & 0 & 2 & 4 & 0 & 2 & 4 
+   \end{array}\right)
+   $
 
 .. cpp:class:: DistMatrix<T,MC,MR>
 
@@ -899,23 +937,35 @@ This is the standard matrix distribution... **left off here**
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MD,STAR>& A )
 
-      **TODO**
+      Since the ``[MD,STAR]`` distribution is defined such that its columns are
+      distributed like a diagonal of an ``[MC,MR]`` distributed matrix, this 
+      operation is not very common. **This redistribution is not yet 
+      implemented.**
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,MD>& A )
 
-      **TODO**
+      Just like the above routine, **this redistribution is not yet 
+      implemented.**
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MR,MC>& A )
 
-      **TODO**
+      This routine serves to transpose the distribution of ``A[MR,MC]`` into 
+      the standard matrix distribution, ``A[MC,MR]``. This redistribution is 
+      implemented with four different approaches: one for matrices that are 
+      taller than they are wide, one for matrices that are wider than they are 
+      tall, one for column vectors, and one for row vectors.
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MR,STAR>& A )
 
-      **TODO**
+      This is similar to the above routine, but with each row of ``A`` being 
+      undistributed, and only one approach is needed: 
+      :math:`A[M_C,M_R] \leftarrow A[V_C,\star] \leftarrow A[V_R,\star] \leftarrow A[M_R,\star]`.
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,MC>& A )
 
-      **TODO**
+      This routine is dual to the :math:`A[M_C,M_R] \leftarrow A[M_R,\star]` 
+      redistribution and is accomplished through the sequence: 
+      :math:`A[M_C,M_R] \leftarrow A[\star,V_R] \leftarrow A[\star,V_C] \leftarrow A[\star,M_C]`.
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,VC,STAR>& A )
 
@@ -925,11 +975,13 @@ This is the standard matrix distribution... **left off here**
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,VC>& A )
 
-      **TODO**
+      Accomplished through the sequence 
+      :math:`A[M_C,M_R] \leftarrow A[\star,V_R] \leftarrow A[\star,V_C]`.
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,VR,STAR>& A )
 
-      **TODO**
+      Accomplished through the sequence
+      :math:`A[M_C,M_R] \leftarrow A[V_C,\star] \leftarrow A[V_R,\star]`.
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,VR>& A )
 
@@ -946,17 +998,23 @@ This is the standard matrix distribution... **left off here**
 
    .. cpp:function:: void GetDiagonal( DistMatrix<T,MD,STAR>& d, int offset=0 ) const
 
-      **TODO**
+      The :math:`[M_D,\star]` distribution is defined such that its columns 
+      are distributed like diagonals of the standard matrix distribution, 
+      `[M_C,M_R]`. Thus, ``d`` can be formed locally if the distribution can
+      be aligned with that of the ``offset`` diagonal of :math:`A[M_C,M_R]`. 
 
    .. cpp:function:: void GetDiagonal( DistMatrix<T,STAR,MD>& d, int offset=0 ) const
 
-      **TODO**
+      This is the same as above, but ``d`` is a row-vector instead of a 
+      column-vector.
 
    .. cpp:function:: void SetDiagonal( const DistMatrix<T,MD,STAR>& d, int offset=0 )
 
-      **TODO**
+      Same as ``GetDiagonal``, but in reverse.
 
    .. cpp:function:: void SetDiagonal( const DistMatrix<T,STAR,MD>& d, int offset=0 )
+
+      Same as ``GetDiagonal``, but in reverse.
 
    .. note:: 
 
@@ -1098,27 +1156,36 @@ This is the standard matrix distribution... **left off here**
 
    .. cpp:function:: void View( DistMatrix<T,MC,MR>& A )
 
-      **TODO**
+      Reconfigure this matrix such that it is essentially a copy of the 
+      distributed matrix ``A``, but the local data buffer simply points to 
+      the one from ``A``.
 
-   .. cpp:function:: void LockedView( DistMatrix<T,MC,MR>& A )
+   .. cpp:function:: void LockedView( const DistMatrix<T,MC,MR>& A )
 
-      **TODO**
-
-   .. cpp:function:: void View( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elemental::Grid& grid )
-
-      **TODO**
-
-   .. cpp:function:: void LockedView( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elemental::Grid& grid )
-
-      **TODO**
+      Same as above, but this matrix is "locked", meaning that it cannot 
+      change the data from ``A`` that it points to.
 
    .. cpp:function:: void View( DistMatrix<T,MC,MR>& A, int i, int j, int height, int width )
 
-      **TODO**
+      View a subset of ``A`` rather than the entire matrix. In particular, 
+      reconfigure this matrix to behave like the submatrix defined from the 
+      ``[i,i+height)`` rows and ``[j,j+width)`` columns of ``A``.
 
    .. cpp:function:: void LockedView( const DistMatrix<T,MC,MR>& A, int i, int j, int height, int width )
 
-      **TODO**
+      Same as above, but this matrix is "locked", meaning that it cannot
+      change the data from ``A`` that it points to.
+
+   .. cpp:function:: void View( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elemental::Grid& grid )
+
+      Reconfigure this distributed matrix around an implicit ``[M_C,M_R]`` 
+      distributed matrix of the specified dimensions, alignments, local buffer, 
+      local leading dimension, and process grid.
+
+   .. cpp:function:: void LockedView( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elemental::Grid& grid )
+
+      Same as above, but the resulting matrix is "locked", meaning that it 
+      cannot modify the underlying local data.
 
    .. cpp:function:: void View1x2( DistMatrix<T,MC,MR>& AL, DistMatrix<T,MC,MR>& AR )
 

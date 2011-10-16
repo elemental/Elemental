@@ -1148,8 +1148,39 @@ void <tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="header
 </div>
 <div class="section" id="mc-mr">
 <h3><tt class="docutils literal"><span class="pre">[MC,MR]</span></tt><a class="headerlink" href="#mc-mr" title="Permalink to this headline">¶</a></h3>
-<p>This is the standard matrix distribution... <strong>left off here</strong></p>
-<dl class="class">
+<p>This is by far the most important matrix distribution in Elemental, as the vast
+majority of parallel routines expect the input to be in this form. For a
+<img class="math" src="_images/math/5d4f93df0d5696a7a30826c6a7c604d1352c6198.png" alt="7 \times 7"/> matrix distributed over a <img class="math" src="_images/math/a832b76c4f4a4ec13ac1b557da4fed6006e64d00.png" alt="2 \times 3"/> process grid,
+individual entries would be owned by the following processes (assuming the
+column and row alignments are both 0):</p>
+<div class="math">
+<p><img src="_images/math/b67f366a66d5ae3950f7add20f00475fe1c88c07.png" alt="$
+\left(\begin{array}{cccccccccc}
+  0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4 &amp; 0 \\
+  1 &amp; 3 &amp; 5 &amp; 1 &amp; 3 &amp; 5 &amp; 1 \\
+  0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4 &amp; 0 \\
+  1 &amp; 3 &amp; 5 &amp; 1 &amp; 3 &amp; 5 &amp; 1 \\
+  0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4 &amp; 0 \\
+  1 &amp; 3 &amp; 5 &amp; 1 &amp; 3 &amp; 5 &amp; 1 \\
+  0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4 &amp; 0
+\end{array}\right)
+$" /></p>
+</div><p>Similarly, if the column alignment is kept at 0 and the row alignment is changed
+to 2 (meaning that the third process column owns the first column of the
+matrix), the individual entries would be owned as follows:</p>
+<div class="math">
+<p><img src="_images/math/d606d5cbd32d11e38827334c6324fff9e20d2524.png" alt="$
+\left(\begin{array}{cccccccccc}
+  4 &amp; 0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4 \\
+  5 &amp; 1 &amp; 3 &amp; 5 &amp; 1 &amp; 3 &amp; 5 \\
+  4 &amp; 0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4 \\
+  5 &amp; 1 &amp; 3 &amp; 5 &amp; 1 &amp; 3 &amp; 5 \\
+  4 &amp; 0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4 \\
+  5 &amp; 1 &amp; 3 &amp; 5 &amp; 1 &amp; 3 &amp; 5 \\
+  4 &amp; 0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4
+\end{array}\right)
+$" /></p>
+</div><dl class="class">
 <dt id="DistMatrix:T.MC.MR:">
 <em class="property">class </em><tt class="descname">DistMatrix&lt;T, MC, MR&gt;</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:" title="Permalink to this definition">¶</a></dt>
 <dd><p class="rubric">Constructors</p>
@@ -1230,31 +1261,43 @@ then, if necessary, fix the alignment of the <tt class="docutils literal"><span 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MD.STAR:CR">
 const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, MD, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MD.STAR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Since the <tt class="docutils literal"><span class="pre">[MD,STAR]</span></tt> distribution is defined such that its columns are
+distributed like a diagonal of an <tt class="docutils literal"><span class="pre">[MC,MR]</span></tt> distributed matrix, this
+operation is not very common. <strong>This redistribution is not yet
+implemented.</strong></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MD:CR">
 const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, STAR, MD&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MD:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Just like the above routine, <strong>this redistribution is not yet
+implemented.</strong></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MR.MC:CR">
 const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, MR, MC&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MR.MC:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>This routine serves to transpose the distribution of <tt class="docutils literal"><span class="pre">A[MR,MC]</span></tt> into
+the standard matrix distribution, <tt class="docutils literal"><span class="pre">A[MC,MR]</span></tt>. This redistribution is
+implemented with four different approaches: one for matrices that are
+taller than they are wide, one for matrices that are wider than they are
+tall, one for column vectors, and one for row vectors.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MR.STAR:CR">
 const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, MR, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MR.STAR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>This is similar to the above routine, but with each row of <tt class="docutils literal"><span class="pre">A</span></tt> being
+undistributed, and only one approach is needed:
+<img class="math" src="_images/math/c75c1a6bfe9e657dbcaf93d74b3414116073ebed.png" alt="A[M_C,M_R] \leftarrow A[V_C,\star] \leftarrow A[V_R,\star] \leftarrow A[M_R,\star]"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MC:CR">
 const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, STAR, MC&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MC:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>This routine is dual to the <img class="math" src="_images/math/a3826449d4aba420175cce04976c7d001f297c21.png" alt="A[M_C,M_R] \leftarrow A[M_R,\star]"/>
+redistribution and is accomplished through the sequence:
+<img class="math" src="_images/math/607dab3ec7b942ff3ba39e02ad04e2ce55cf62e6.png" alt="A[M_C,M_R] \leftarrow A[\star,V_R] \leftarrow A[\star,V_C] \leftarrow A[\star,M_C]"/>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -1268,13 +1311,15 @@ columns may be required for alignment).</p>
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.VC:CR">
 const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, STAR, VC&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.VC:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Accomplished through the sequence
+<img class="math" src="_images/math/6f9c91e6242c5f450bb783c7d5cf50ca5c2cb60f.png" alt="A[M_C,M_R] \leftarrow A[\star,V_R] \leftarrow A[\star,V_C]"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.VR.STAR:CR">
 const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, VR, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.VR.STAR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Accomplished through the sequence
+<img class="math" src="_images/math/9ca7e43a07e55dcedffc9561ad1e48bb65b3f0a9.png" alt="A[M_C,M_R] \leftarrow A[V_C,\star] \leftarrow A[V_R,\star]"/>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -1296,25 +1341,30 @@ process a full copy of <tt class="docutils literal"><span class="pre">A</span></
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::GetDiagonal__DistMatrix:T.MD.STAR:R.iC">
 void <tt class="descname">GetDiagonal</tt><big>(</big>DistMatrix&lt;T, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetDiagonal__DistMatrix:T.MD.STAR:R.iC" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>The <img class="math" src="_images/math/3d407b2fd63762cb84f9b1521cc899fca4508a1c.png" alt="[M_D,\star]"/> distribution is defined such that its columns
+are distributed like diagonals of the standard matrix distribution,
+<cite>[M_C,M_R]</cite>. Thus, <tt class="docutils literal"><span class="pre">d</span></tt> can be formed locally if the distribution can
+be aligned with that of the <tt class="docutils literal"><span class="pre">offset</span></tt> diagonal of <img class="math" src="_images/math/aac4afd3843221540fdb93d2028e4bf6c95a7990.png" alt="A[M_C,M_R]"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::GetDiagonal__DistMatrix:T.STAR.MD:R.iC">
 void <tt class="descname">GetDiagonal</tt><big>(</big>DistMatrix&lt;T, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetDiagonal__DistMatrix:T.STAR.MD:R.iC" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>This is the same as above, but <tt class="docutils literal"><span class="pre">d</span></tt> is a row-vector instead of a
+column-vector.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::SetDiagonal__DistMatrix:T.MD.STAR:CR.i">
 void <tt class="descname">SetDiagonal</tt><big>(</big>const DistMatrix&lt;T, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetDiagonal__DistMatrix:T.MD.STAR:CR.i" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Same as <tt class="docutils literal"><span class="pre">GetDiagonal</span></tt>, but in reverse.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::SetDiagonal__DistMatrix:T.STAR.MD:CR.i">
 void <tt class="descname">SetDiagonal</tt><big>(</big>const DistMatrix&lt;T, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetDiagonal__DistMatrix:T.STAR.MD:CR.i" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Same as <tt class="docutils literal"><span class="pre">GetDiagonal</span></tt>, but in reverse.</p>
+</dd></dl>
 
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1528,37 +1578,46 @@ the number of process columns).</p>
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::View__DistMatrix:T.MC.MR:R">
 void <tt class="descname">View</tt><big>(</big>DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::View__DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Reconfigure this matrix such that it is essentially a copy of the
+distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt>, but the local data buffer simply points to
+the one from <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::LockedView__DistMatrix:T.MC.MR:R">
-void <tt class="descname">LockedView</tt><big>(</big>DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::LockedView__DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="DistMatrix:T.MC.MR:::View__i.i.i.i.TP.i.elemental::GridCR">
-void <tt class="descname">View</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::View__i.i.i.i.TP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="DistMatrix:T.MC.MR:::LockedView__i.i.i.i.TCP.i.elemental::GridCR">
-void <tt class="descname">LockedView</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::LockedView__i.i.i.i.TCP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dt id="DistMatrix:T.MC.MR:::LockedView__DistMatrix:T.MC.MR:CR">
+void <tt class="descname">LockedView</tt><big>(</big>const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::LockedView__DistMatrix:T.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but this matrix is &#8220;locked&#8221;, meaning that it cannot
+change the data from <tt class="docutils literal"><span class="pre">A</span></tt> that it points to.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::View__DistMatrix:T.MC.MR:R.i.i.i.i">
 void <tt class="descname">View</tt><big>(</big>DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::View__DistMatrix:T.MC.MR:R.i.i.i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>View a subset of <tt class="docutils literal"><span class="pre">A</span></tt> rather than the entire matrix. In particular,
+reconfigure this matrix to behave like the submatrix defined from the
+<tt class="docutils literal"><span class="pre">[i,i+height)</span></tt> rows and <tt class="docutils literal"><span class="pre">[j,j+width)</span></tt> columns of <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::LockedView__DistMatrix:T.MC.MR:CR.i.i.i.i">
 void <tt class="descname">LockedView</tt><big>(</big>const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::LockedView__DistMatrix:T.MC.MR:CR.i.i.i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Same as above, but this matrix is &#8220;locked&#8221;, meaning that it cannot
+change the data from <tt class="docutils literal"><span class="pre">A</span></tt> that it points to.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::View__i.i.i.i.TP.i.elemental::GridCR">
+void <tt class="descname">View</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::View__i.i.i.i.TP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconfigure this distributed matrix around an implicit <tt class="docutils literal"><span class="pre">[M_C,M_R]</span></tt>
+distributed matrix of the specified dimensions, alignments, local buffer,
+local leading dimension, and process grid.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DistMatrix:T.MC.MR:::LockedView__i.i.i.i.TCP.i.elemental::GridCR">
+void <tt class="descname">LockedView</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::LockedView__i.i.i.i.TCP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but the resulting matrix is &#8220;locked&#8221;, meaning that it
+cannot modify the underlying local data.</p>
 </dd></dl>
 
 <dl class="function">
