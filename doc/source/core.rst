@@ -939,13 +939,15 @@ matrix), the individual entries would be owned as follows:
 
       Since the ``[MD,STAR]`` distribution is defined such that its columns are
       distributed like a diagonal of an ``[MC,MR]`` distributed matrix, this 
-      operation is not very common. **This redistribution is not yet 
-      implemented.**
+      operation is not very common. 
+
+      .. note::
+         This redistribution routine is not yet implemented.
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,MD>& A )
 
-      Just like the above routine, **this redistribution is not yet 
-      implemented.**
+      .. note::
+         This redistribution routine is not yet implemented.
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MR,MC>& A )
 
@@ -1187,111 +1189,185 @@ matrix), the individual entries would be owned as follows:
       Same as above, but the resulting matrix is "locked", meaning that it 
       cannot modify the underlying local data.
 
+   .. note::
+
+      The following functions have strict requirements on the input matrices 
+      and must be used with care in ``PureRelease`` and ``HybridRelease`` modes.
+
    .. cpp:function:: void View1x2( DistMatrix<T,MC,MR>& AL, DistMatrix<T,MC,MR>& AR )
 
-      **TODO**
+      Recombine two adjacent submatrices to form :math:`[A_L A_R]`. 
 
    .. cpp:function:: void LockedView1x2( const DistMatrix<T,MC,MR>& AL, const DistMatrix<T,MC,MR>& AR )
 
-      **TODO**
+      Same as above, but the result is "locked" (the data is not modifiable).
 
    .. cpp:function:: void View2x1( DistMatrix<T,MC,MR>& AT, DistMatrix<T,MC,MR>& AB )
 
-      **TODO**
+      Recombine two adjacent submatrices to form :math:`[A_T; A_B]`.
 
    .. cpp:function:: void LockedView2x1( const DistMatrix<T,MC,MR>& AT, const DistMatrix<T,MC,MR>& AB )
 
-      **TODO**
+      Same as above, but the result is "locked" (the data is not modifiable).
 
    .. cpp:function:: void View2x2( DistMatrix<T,MC,MR>& ATL, DistMatrix<T,MC,MR>& ATR, DistMatrix<T,MC,MR>& ABL, DistMatrix<T,MC,MR>& ABR )
 
-      **TODO**
+      Recombine four adjacent submatrices to form 
+      :math:`[A_{TL} A_{TR}; A_{BL} A_{BR}]`.
 
    .. cpp:function:: void LockedView2x2( const DistMatrix<T,MC,MR>& ATL, const DistMatrix<T,MC,MR>& ATR, const DistMatrix<T,MC,MR>& ABL, const DistMatrix<T,MC,MR>& ABR )
 
-      **TODO**
+      Same as above, but the result is "locked" (the data is not modifiable).
 
    .. rubric:: Custom communication routines
 
+   The following routines primarily exist as a means of avoiding the poor 
+   memory bandwidth which results from packing or unpacking large amounts of 
+   data without a unit stride. PLAPACK noticed this issue and avoided the 
+   problem by carefully (conjugate-)transposing matrices in strategic places,
+   usually before a gather or after a scatter, and we follow suit.
+
    .. cpp:function:: void SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
 
-      **TODO**
+      Simultaneously sum :math:`A[M_C,\star]` within each process row and scatter 
+      the entries in each row to form the result in an :math:`[M_C,M_R]` 
+      distribution.
 
    .. cpp:function:: void SumScatterUpdate( T alpha, const DistMatrix<T,MC,STAR>& A )
 
-      **TODO**
+      Same as above, but add :math:`\alpha` times the result onto the parent
+      distributed matrix rather than simply assigning the result to it.
 
    .. cpp:function:: void SumScatterFrom( const DistMatrix<T,STAR,MR>& A )
 
-      **TODO**
+      Simultaenously sum :math:`A[\star,M_R]` within each process column and 
+      scatter the entries in each column to form the result in an 
+      :math:`[M_C,M_R]` distribution.
 
    .. cpp:function:: void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,MR>& A )
 
-      **TODO**
+      Same as above, but add :math:`\alpha` times the result onto the parent
+      distributed matrix rather than simply assigning the result to it.
 
    .. cpp:function:: void SumScatterFrom( const DistMatrix<T,STAR,STAR>& A )
 
-      **TODO**
+      Simultaneously sum :math:`A[\star,\star]` over the entire process grid and 
+      scatter the entries in each row and column to form the result in an 
+      :math:`[M_C,M_R]` distribution.
 
    .. cpp:function:: void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR>& A )
 
-      **TODO**
+      Same as above, but add :math:`\alpha` times the result onto the parent
+      distributed matrix rather than simply assigning the result to it.
 
    .. cpp:function:: void AdjointFrom( const DistMatrix<T,STAR,MC>& A )
 
-      **TODO**
+      Set the parent matrix equal to the redistributed adjoint of 
+      :math:`A[\star,M_C]`; in particular, 
+      :math:`(A[\star,M_C])^H = A^H[M_C,\star]`, so perform an 
+      :math:`[M_C,M_R] \leftarrow [M_C,\star]` redistribution on the adjoint of
+      ``A``, which typically just consists of locally copying (and conjugating) 
+      subsets of the data from :math:`A[\star,M_C]`.
 
    .. cpp:function:: void AdjointFrom( const DistMatrix<T,MR,STAR>& A )
 
-      **TODO**
+      This routine is the dual of the above routine, and performs an
+      :math:`[M_C,M_R] \leftarrow [\star,M_R]` redistribution on the adjoint of 
+      ``A``.
 
    .. cpp:function:: void TransposeFrom( const DistMatrix<T,STAR,MC>& A )
 
-      **TODO**
+      Same as the corresponding ``AdjointFrom``, but with no conjugation.
 
    .. cpp:function:: void TransposeFrom( const DistMatrix<T,MR,STAR>& A )
 
-      **TODO**
-
+      Same as the corresponding ``AdjointFrom``, but with no conjugation.
 
 ``[MC,* ]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[M_C,\star]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[* ,MR]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[\star,M_R]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[MR,MC]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[M_R,M_C]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[MR,* ]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[M_R,\star]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[* ,MC]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[\star,M_C]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[MD,* ]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[M_D,\star]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[* ,MD]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[\star,M_D]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[VC,* ]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[V_C,\star]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[* ,VC]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[\star,V_C]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[VR,* ]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[V_R,\star]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[* ,VR]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[\star,V_R]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
 
 ``[* ,* ]``
 -----------
+**TODO**, but not as high of a priority since the :math:`[\star,\star]` 
+distribution is not as crucial for end users as many other details that have 
+not yet been documented.
+
+Partitioning
+============
+The following routines are slight tweaks of the FLAME project's 
+(as well as PLAPACK's) approach to submatrix tracking; the difference is that 
+they have "locked" versions, which are meant for creating partitionings where 
+the submatrices cannot be modified.
+
+.. cpp:function:: void PartitionUp( Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, int heightAB=Blocksize() )
+
+   **Left off here**
 
 The Axpy interface
-======================
+==================
 
 Environment routines
 ====================

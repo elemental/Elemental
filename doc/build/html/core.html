@@ -1263,15 +1263,20 @@ then, if necessary, fix the alignment of the <tt class="docutils literal"><span 
 const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, MD, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.MD.STAR:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Since the <tt class="docutils literal"><span class="pre">[MD,STAR]</span></tt> distribution is defined such that its columns are
 distributed like a diagonal of an <tt class="docutils literal"><span class="pre">[MC,MR]</span></tt> distributed matrix, this
-operation is not very common. <strong>This redistribution is not yet
-implemented.</strong></p>
+operation is not very common.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This redistribution routine is not yet implemented.</p>
+</div>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MD:CR">
 const DistMatrix&lt;T, MC, MR&gt;&amp; <tt class="descname">operator=</tt><big>(</big>const DistMatrix&lt;T, STAR, MD&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::assign-operator__DistMatrix:T.STAR.MD:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Just like the above routine, <strong>this redistribution is not yet
-implemented.</strong></p>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This redistribution routine is not yet implemented.</p>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -1620,101 +1625,128 @@ void <tt class="descname">LockedView</tt><big>(</big>int <em>height</em>, int <e
 cannot modify the underlying local data.</p>
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The following functions have strict requirements on the input matrices
+and must be used with care in <tt class="docutils literal"><span class="pre">PureRelease</span></tt> and <tt class="docutils literal"><span class="pre">HybridRelease</span></tt> modes.</p>
+</div>
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::View1x2__DistMatrix:T.MC.MR:R.DistMatrix:T.MC.MR:R">
 void <tt class="descname">View1x2</tt><big>(</big>DistMatrix&lt;T, MC, MR&gt;&amp; <em>AL</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>AR</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::View1x2__DistMatrix:T.MC.MR:R.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Recombine two adjacent submatrices to form <img class="math" src="_images/math/51ee936517ae9b8b7db5dd4fcc956f9cb52ff97c.png" alt="[A_L A_R]"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::LockedView1x2__DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR">
 void <tt class="descname">LockedView1x2</tt><big>(</big>const DistMatrix&lt;T, MC, MR&gt;&amp; <em>AL</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>AR</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::LockedView1x2__DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Same as above, but the result is &#8220;locked&#8221; (the data is not modifiable).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::View2x1__DistMatrix:T.MC.MR:R.DistMatrix:T.MC.MR:R">
 void <tt class="descname">View2x1</tt><big>(</big>DistMatrix&lt;T, MC, MR&gt;&amp; <em>AT</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>AB</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::View2x1__DistMatrix:T.MC.MR:R.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Recombine two adjacent submatrices to form <img class="math" src="_images/math/4781672298c6230569613282614cbc05c894edf1.png" alt="[A_T; A_B]"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::LockedView2x1__DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR">
 void <tt class="descname">LockedView2x1</tt><big>(</big>const DistMatrix&lt;T, MC, MR&gt;&amp; <em>AT</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>AB</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::LockedView2x1__DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Same as above, but the result is &#8220;locked&#8221; (the data is not modifiable).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::View2x2__DistMatrix:T.MC.MR:R.DistMatrix:T.MC.MR:R.DistMatrix:T.MC.MR:R.DistMatrix:T.MC.MR:R">
 void <tt class="descname">View2x2</tt><big>(</big>DistMatrix&lt;T, MC, MR&gt;&amp; <em>ATL</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>ATR</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>ABL</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>ABR</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::View2x2__DistMatrix:T.MC.MR:R.DistMatrix:T.MC.MR:R.DistMatrix:T.MC.MR:R.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Recombine four adjacent submatrices to form
+<img class="math" src="_images/math/f48c43b5c776fad7576a03afd389a6be677f48be.png" alt="[A_{TL} A_{TR}; A_{BL} A_{BR}]"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::LockedView2x2__DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR">
 void <tt class="descname">LockedView2x2</tt><big>(</big>const DistMatrix&lt;T, MC, MR&gt;&amp; <em>ATL</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>ATR</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>ABL</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>ABR</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::LockedView2x2__DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Same as above, but the result is &#8220;locked&#8221; (the data is not modifiable).</p>
 </dd></dl>
 
 <p class="rubric">Custom communication routines</p>
+<p>The following routines primarily exist as a means of avoiding the poor
+memory bandwidth which results from packing or unpacking large amounts of
+data without a unit stride. PLAPACK noticed this issue and avoided the
+problem by carefully (conjugate-)transposing matrices in strategic places,
+usually before a gather or after a scatter, and we follow suit.</p>
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::SumScatterFrom__DistMatrix:T.MC.STAR:CR">
 void <tt class="descname">SumScatterFrom</tt><big>(</big>const DistMatrix&lt;T, MC, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SumScatterFrom__DistMatrix:T.MC.STAR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Simultaneously sum <img class="math" src="_images/math/8b2922c9a18c50a5953fcabc56089f4d4b283785.png" alt="A[M_C,\star]"/> within each process row and scatter
+the entries in each row to form the result in an <img class="math" src="_images/math/4e292cbacca212d077e7af235e4e9de62fdd1147.png" alt="[M_C,M_R]"/>
+distribution.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::SumScatterUpdate__T.DistMatrix:T.MC.STAR:CR">
 void <tt class="descname">SumScatterUpdate</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, MC, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SumScatterUpdate__T.DistMatrix:T.MC.STAR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Same as above, but add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> times the result onto the parent
+distributed matrix rather than simply assigning the result to it.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::SumScatterFrom__DistMatrix:T.STAR.MR:CR">
 void <tt class="descname">SumScatterFrom</tt><big>(</big>const DistMatrix&lt;T, STAR, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SumScatterFrom__DistMatrix:T.STAR.MR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Simultaenously sum <img class="math" src="_images/math/d0087dce8c09781814b80a67d74e2b00965e89d5.png" alt="A[\star,M_R]"/> within each process column and
+scatter the entries in each column to form the result in an
+<img class="math" src="_images/math/4e292cbacca212d077e7af235e4e9de62fdd1147.png" alt="[M_C,M_R]"/> distribution.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::SumScatterUpdate__T.DistMatrix:T.STAR.MR:CR">
 void <tt class="descname">SumScatterUpdate</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, STAR, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SumScatterUpdate__T.DistMatrix:T.STAR.MR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Same as above, but add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> times the result onto the parent
+distributed matrix rather than simply assigning the result to it.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::SumScatterFrom__DistMatrix:T.STAR.STAR:CR">
 void <tt class="descname">SumScatterFrom</tt><big>(</big>const DistMatrix&lt;T, STAR, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SumScatterFrom__DistMatrix:T.STAR.STAR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Simultaneously sum <img class="math" src="_images/math/d9bf1777b618000cb1f68a01fcb7fd500e3a5a49.png" alt="A[\star,\star]"/> over the entire process grid and
+scatter the entries in each row and column to form the result in an
+<img class="math" src="_images/math/4e292cbacca212d077e7af235e4e9de62fdd1147.png" alt="[M_C,M_R]"/> distribution.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::SumScatterUpdate__T.DistMatrix:T.STAR.STAR:CR">
 void <tt class="descname">SumScatterUpdate</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, STAR, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SumScatterUpdate__T.DistMatrix:T.STAR.STAR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Same as above, but add <img class="math" src="_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> times the result onto the parent
+distributed matrix rather than simply assigning the result to it.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::AdjointFrom__DistMatrix:T.STAR.MC:CR">
 void <tt class="descname">AdjointFrom</tt><big>(</big>const DistMatrix&lt;T, STAR, MC&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::AdjointFrom__DistMatrix:T.STAR.MC:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Set the parent matrix equal to the redistributed adjoint of
+<img class="math" src="_images/math/1652fdab8f18ccdf255780b06dca42ab54ceecd0.png" alt="A[\star,M_C]"/>; in particular,
+<img class="math" src="_images/math/5b0a0c7533313f58fe7b07d7e74b6395483ef08c.png" alt="(A[\star,M_C])^H = A^H[M_C,\star]"/>, so perform an
+<img class="math" src="_images/math/cad36159ce5fb354ae37edb3fcdeba5f1852d842.png" alt="[M_C,M_R] \leftarrow [M_C,\star]"/> redistribution on the adjoint of
+<tt class="docutils literal"><span class="pre">A</span></tt>, which typically just consists of locally copying (and conjugating)
+subsets of the data from <img class="math" src="_images/math/1652fdab8f18ccdf255780b06dca42ab54ceecd0.png" alt="A[\star,M_C]"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::AdjointFrom__DistMatrix:T.MR.STAR:CR">
 void <tt class="descname">AdjointFrom</tt><big>(</big>const DistMatrix&lt;T, MR, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::AdjointFrom__DistMatrix:T.MR.STAR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>This routine is the dual of the above routine, and performs an
+<img class="math" src="_images/math/db6cd47abec754a70709bd33d8e7bb313e854f49.png" alt="[M_C,M_R] \leftarrow [\star,M_R]"/> redistribution on the adjoint of
+<tt class="docutils literal"><span class="pre">A</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::TransposeFrom__DistMatrix:T.STAR.MC:CR">
 void <tt class="descname">TransposeFrom</tt><big>(</big>const DistMatrix&lt;T, STAR, MC&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::TransposeFrom__DistMatrix:T.STAR.MC:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Same as the corresponding <tt class="docutils literal"><span class="pre">AdjointFrom</span></tt>, but with no conjugation.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="DistMatrix:T.MC.MR:::TransposeFrom__DistMatrix:T.MR.STAR:CR">
 void <tt class="descname">TransposeFrom</tt><big>(</big>const DistMatrix&lt;T, MR, STAR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::TransposeFrom__DistMatrix:T.MR.STAR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TODO</strong></p>
+<dd><p>Same as the corresponding <tt class="docutils literal"><span class="pre">AdjointFrom</span></tt>, but with no conjugation.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1722,40 +1754,89 @@ void <tt class="descname">TransposeFrom</tt><big>(</big>const DistMatrix&lt;T, M
 </div>
 <div class="section" id="mc">
 <h3><tt class="docutils literal"><span class="pre">[MC,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#mc" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/659909c2f92aac280b3f2d11ac84e38313a41fdd.png" alt="[M_C,\star]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="mr">
 <h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MR]</span></tt><a class="headerlink" href="#mr" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/449ba3a16553994cd3b4d890cec49f5c984d332e.png" alt="[\star,M_R]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="mr-mc">
 <h3><tt class="docutils literal"><span class="pre">[MR,MC]</span></tt><a class="headerlink" href="#mr-mc" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/c1150f177b5cfca855922215fcda85bc592d12a2.png" alt="[M_R,M_C]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="id1">
 <h3><tt class="docutils literal"><span class="pre">[MR,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/caad1543dc520968ecbbb531dbb9fbc029f2cd4f.png" alt="[M_R,\star]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="id2">
 <h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MC]</span></tt><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/e7605d1b22bf834901c958fe296fe194ef3f2b18.png" alt="[\star,M_C]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="md">
 <h3><tt class="docutils literal"><span class="pre">[MD,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#md" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/3d407b2fd63762cb84f9b1521cc899fca4508a1c.png" alt="[M_D,\star]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="id3">
 <h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,MD]</span></tt><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/19a252ae8817093da143e0fabcf3f05d1120ee27.png" alt="[\star,M_D]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="vc">
 <h3><tt class="docutils literal"><span class="pre">[VC,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#vc" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/4efd982816c0f44ed5053f0bdf0b5cd1a570fe4a.png" alt="[V_C,\star]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="id4">
 <h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VC]</span></tt><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/6048412c241fa656ac00c80de03f04999acc9be6.png" alt="[\star,V_C]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="vr">
 <h3><tt class="docutils literal"><span class="pre">[VR,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#vr" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/8e39b3d705bb3fd14be42d976d37f4d711687373.png" alt="[V_R,\star]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="id5">
 <h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,VR]</span></tt><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/024e91f01ca2f4ee170ec40522071bfcdcd8299c.png" alt="[\star,V_R]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
 <div class="section" id="id6">
 <h3><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,*</span> <span class="pre">]</span></tt><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong>, but not as high of a priority since the <img class="math" src="_images/math/0c4313458151f309c2f0a1130f497119197680b8.png" alt="[\star,\star]"/>
+distribution is not as crucial for end users as many other details that have
+not yet been documented.</p>
 </div>
+</div>
+<div class="section" id="partitioning">
+<h2>Partitioning<a class="headerlink" href="#partitioning" title="Permalink to this headline">¶</a></h2>
+<p>The following routines are slight tweaks of the FLAME project&#8217;s
+(as well as PLAPACK&#8217;s) approach to submatrix tracking; the difference is that
+they have &#8220;locked&#8221; versions, which are meant for creating partitionings where
+the submatrices cannot be modified.</p>
+<dl class="function">
+<dt>
+<tt class="descname">void PartitionUp( Matrix&lt;T&gt;&amp; A, Matrix&lt;T&gt;&amp; AT, Matrix&lt;T&gt;&amp; AB, int heightAB=Blocksize() )</tt></dt>
+<dd><p><strong>Left off here</strong></p>
+</dd></dl>
+
 </div>
 <div class="section" id="the-axpy-interface">
 <h2>The Axpy interface<a class="headerlink" href="#the-axpy-interface" title="Permalink to this headline">¶</a></h2>
@@ -1796,6 +1877,7 @@ void <tt class="descname">TransposeFrom</tt><big>(</big>const DistMatrix&lt;T, M
 <li><a class="reference internal" href="#id6"><tt class="docutils literal"><span class="pre">[*</span> <span class="pre">,*</span> <span class="pre">]</span></tt></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#partitioning">Partitioning</a></li>
 <li><a class="reference internal" href="#the-axpy-interface">The Axpy interface</a></li>
 <li><a class="reference internal" href="#environment-routines">Environment routines</a></li>
 </ul>
