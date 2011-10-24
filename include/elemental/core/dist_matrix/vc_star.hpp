@@ -594,7 +594,8 @@ DistMatrix<T,VC,STAR>::DistMatrix( const DistMatrix<T,U,V>& A )
 #ifndef RELEASE
     PushCallStack("DistMatrix[VC,* ]::DistMatrix");
 #endif
-    if( &A != this )
+    if( VC != U || STAR != V || 
+        reinterpret_cast<const DistMatrix<T,VC,STAR>*>(&A) != this )
         *this = A;
     else
         throw std::logic_error("Tried to construct [VC,* ] with itself");

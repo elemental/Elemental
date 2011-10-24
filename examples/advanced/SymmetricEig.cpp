@@ -105,8 +105,8 @@ main( int argc, char* argv[] )
         H.Print("H:");
 
         // Call the eigensolver. We first create an empty eigenvector 
-        // matrix, X[MC,MR], and an eigenvalue row vector, w[* ,VR]
-        DistMatrix<R,STAR,VR> w( g );
+        // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
+        DistMatrix<R,VR,STAR> w( g );
         DistMatrix<R,MC,MR> X( g );
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
@@ -115,6 +115,11 @@ main( int argc, char* argv[] )
         // Print the eigensolution
         w.Print("Eigenvalues of H:");
         X.Print("Eigenvectors of H:");
+
+        // Sort the eigensolution, then reprint
+        advanced::SortEig( w, X );
+        w.Print("Sorted eigenvalues of H:");
+        X.Print("Sorted eigenvectors of H:");
     }
     catch( exception& e )
     {

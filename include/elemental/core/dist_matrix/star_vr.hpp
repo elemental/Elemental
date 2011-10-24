@@ -483,7 +483,8 @@ DistMatrix<T,STAR,VR>::DistMatrix( const DistMatrix<T,U,V>& A )
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,VR]::DistMatrix");
 #endif
-    if( &A != this )
+    if( STAR != U || VR != V || 
+        reinterpret_cast<const DistMatrix<T,STAR,VR>*>(&A) != this ) 
         *this = A;
     else
         throw std::logic_error("Tried to construct [* ,VR] with itself");

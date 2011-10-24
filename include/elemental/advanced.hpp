@@ -81,7 +81,6 @@ void GaussianElimination( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
 // HermitianGenDefiniteEig (Hermitian Generalized-Definite Eigensolver)       //
-//                                                                            //
 //----------------------------------------------------------------------------//
 
 #ifndef WITHOUT_PMRRR
@@ -91,7 +90,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A, 
   DistMatrix<R,MC,  MR>& B, 
-  DistMatrix<R,STAR,VR>& w,
+  DistMatrix<R,VR,STAR>& w,
   DistMatrix<R,MC,  MR>& X );
 // Grab a partial set of eigenpairs. 
 // The partial set is determined by the inclusive zero-indexed range 
@@ -102,7 +101,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w,
+  DistMatrix<R,VR,STAR>& w,
   DistMatrix<R,MC,  MR>& X,
   int a, int b );
 // Grab a partial set of eigenpairs.
@@ -112,7 +111,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w,
+  DistMatrix<R,VR,STAR>& w,
   DistMatrix<R,MC,  MR>& X,
   R a, R b );
 // Grab the full set of eigenvalues of real symmetric A and SPD B
@@ -121,7 +120,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A, 
   DistMatrix<R,MC,  MR>& B, 
-  DistMatrix<R,STAR,VR>& w );
+  DistMatrix<R,VR,STAR>& w );
 // Grab a partial set of eigenvalues. 
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
@@ -131,7 +130,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w,
+  DistMatrix<R,VR,STAR>& w,
   int a, int b );
 // Grab a partial set of eigenvalues.
 // The partial set is determined by the half-open interval (a,b]
@@ -140,7 +139,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w,
+  DistMatrix<R,VR,STAR>& w,
   R a, R b );
 
 #ifndef WITHOUT_COMPLEX
@@ -150,7 +149,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
+  DistMatrix<             R, VR,STAR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X );
 // Grab a partial set of eigenpairs. 
 // The partial set is determined by the inclusive zero-indexed range 
@@ -161,7 +160,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
+  DistMatrix<             R, VR,STAR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X,
   int a, int b );
 // Grab a partial set of eigenpairs.
@@ -171,7 +170,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
+  DistMatrix<             R, VR,STAR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X,
   R a, R b );
 // Grab the full set of eigenvalues of complex Hermitian A and HPD B
@@ -180,7 +179,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w );
+  DistMatrix<             R, VR,STAR>& w );
 // Grab a partial set of eigenvalues. 
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
@@ -190,7 +189,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
+  DistMatrix<             R, VR,STAR>& w,
   int a, int b );
 // Grab a partial set of eigenvalues.
 // The partial set is determined by the half-open interval (a,b]
@@ -199,7 +198,7 @@ void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
+  DistMatrix<             R, VR,STAR>& w,
   R a, R b );
 #endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
@@ -240,7 +239,7 @@ void Hegst
 void HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A, 
-  DistMatrix<double,STAR,VR>& w,
+  DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& Z );
 // Grab a partial set of eigenpairs of the real, symmetric n x n matrix A. 
 // The partial set is determined by the inclusive zero-indexed range 
@@ -249,7 +248,7 @@ void HermitianEig
 void HermitianEig
 ( Shape shape,
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w,
+  DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& Z,
   int a, int b );
 // Grab a partial set of eigenpairs of the real, symmetric n x n matrix A. 
@@ -257,14 +256,14 @@ void HermitianEig
 void HermitianEig
 ( Shape shape,
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w,
+  DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& Z,
   double a, double b );
 // Grab the full set of eigenvalues of the real, symmetric matrix A
 void HermitianEig
 ( Shape shape,
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w );
+  DistMatrix<double,VR,STAR>& w );
 // Grab a partial set of eigenvalues of the real, symmetric n x n matrix A. 
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
@@ -272,21 +271,21 @@ void HermitianEig
 void HermitianEig
 ( Shape shape,
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w,
+  DistMatrix<double,VR,STAR>& w,
   int a, int b );
 // Grab a partial set of eigenvalues of the real, symmetric n x n matrix A. 
 // The partial set is determined by the half-open interval (a,b]
 void HermitianEig
 ( Shape shape,
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w,
+  DistMatrix<double,VR,STAR>& w,
   double a, double b );
 #ifndef WITHOUT_COMPLEX
 // Grab the full set of eigenpairs of the complex, Hermitian matrix A
 void HermitianEig    
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w,
+  DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z );
 // Grab a partial set of eigenpairs of the complex, Hermitian n x n matrix A. 
 // The partial set is determined by the inclusive zero-indexed range 
@@ -295,7 +294,7 @@ void HermitianEig
 void HermitianEig
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w,
+  DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   int a, int b );
 // Grab a partial set of eigenpairs of the complex, Hermitian n x n matrix A. 
@@ -303,14 +302,14 @@ void HermitianEig
 void HermitianEig
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w,
+  DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   double a, double b );
 // Grab the full set of eigenvalues of the complex, Hermitian matrix A
 void HermitianEig
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w );
+  DistMatrix<             double, VR,STAR>& w );
 // Grab a partial set of eigenvalues of the complex, Hermitian n x n matrix A. 
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
@@ -318,14 +317,14 @@ void HermitianEig
 void HermitianEig
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w,
+  DistMatrix<             double, VR,STAR>& w,
   int a, int b );
 // Grab a partial set of eigenvalues of the complex, Hermitian n x n matrix A. 
 // The partial set is determined by the half-open interval (a,b]
 void HermitianEig
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w,
+  DistMatrix<             double, VR,STAR>& w,
   double a, double b );
 #endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
@@ -582,7 +581,6 @@ Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x );
 
 //----------------------------------------------------------------------------//
 // SkewHermitianEig (Skew-Hermitian Eigensolver)                              //
-//                                                                            //
 //----------------------------------------------------------------------------//
 
 #ifndef WITHOUT_COMPLEX
@@ -591,7 +589,7 @@ Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x );
 void SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G, 
-  DistMatrix<std::complex<double>,STAR,VR>& w,
+  DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z );
 // Grab a partial set of eigenpairs of the real, skew-symmetric n x n matrix G. 
 // The partial set is determined by the inclusive zero-indexed range 
@@ -600,7 +598,7 @@ void SkewHermitianEig
 void SkewHermitianEig
 ( Shape shape,
   DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
+  DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   int a, int b );
 // Grab a partial set of eigenpairs of the real, skew-symmetric n x n matrix G. 
@@ -608,36 +606,36 @@ void SkewHermitianEig
 void SkewHermitianEig
 ( Shape shape,
   DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
+  DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   double a, double b );
 // Grab the full set of eigenvalues of the real, skew-symmetric matrix G 
 void SkewHermitianEig
 ( Shape shape,
-  DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w );
+  DistMatrix<double,MC,  MR>& G,
+  DistMatrix<double,VR,STAR>& wImag );
 // Grab a partial set of eigenvalues of the real, skew-symmetric n x n matrix G.
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 void SkewHermitianEig
 ( Shape shape,
-  DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
+  DistMatrix<double,MC,  MR>& G,
+  DistMatrix<double,VR,STAR>& wImag,
   int a, int b );
 // Grab a partial set of eigenvalues of the real, skew-symmetric n x n matrix G.
 // The partial set is determined by the half-open imaginary interval (a,b]
 void SkewHermitianEig
 ( Shape shape,
-  DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
+  DistMatrix<double,MC,  MR>& G,
+  DistMatrix<double,VR,STAR>& wImag,
   double a, double b );
 
 // Grab the full set of eigenpairs of the complex, skew-Hermitian matrix G 
 void SkewHermitianEig    
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
+  DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z );
 // Grab a partial set of eigenpairs of the complex, skew-Hermitian n x n matrix
 // G. The partial set is determined by the inclusive zero-indexed range 
@@ -646,7 +644,7 @@ void SkewHermitianEig
 void SkewHermitianEig
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
+  DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   int a, int b );
 // Grab a partial set of eigenpairs of the complex, skew-Hermitian n x n matrix
@@ -654,14 +652,14 @@ void SkewHermitianEig
 void SkewHermitianEig
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
+  DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   double a, double b );
 // Grab the full set of eigenvalues of the complex, skew-Hermitian matrix G 
 void SkewHermitianEig
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w );
+  DistMatrix<double,              VR,STAR>& wImag );
 // Grab a partial set of eigenvalues of the complex, skew-Hermitian n x n matrix
 // G. The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
@@ -669,17 +667,27 @@ void SkewHermitianEig
 void SkewHermitianEig
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
+  DistMatrix<double,              VR,STAR>& wImag,
   int a, int b );
 // Grab a partial set of eigenvalues of the complex, skew-Hermitian n x n matrix
 // G. The partial set is determined by the half-open imaginary interval (a,b]
 void SkewHermitianEig
 ( Shape shape,
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
+  DistMatrix<double,              VR,STAR>& wImag,
   double a, double b );
 #endif // WITHOUT_PMRRR
 #endif // WITHOUT_COMPLEX
+
+//----------------------------------------------------------------------------//
+// SortEig                                                                    //
+//----------------------------------------------------------------------------//
+
+template<typename R>
+void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R,MC,MR>& Z );
+
+template<typename R>
+void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z );
 
 //----------------------------------------------------------------------------//
 // HermitianTridiag (Reduce Hermitian matrix to tridiagonal form):            //
@@ -831,6 +839,7 @@ void ApplyPackedReflectors
 #include "./advanced/QR.hpp"
 #include "./advanced/Reflector.hpp"
 #include "./advanced/SkewHermitianEig.hpp"
+#include "./advanced/SortEig.hpp"
 #include "./advanced/TriangularInverse.hpp"
 
 template<typename F>

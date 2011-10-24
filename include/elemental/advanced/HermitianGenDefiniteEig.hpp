@@ -40,7 +40,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w,
+  DistMatrix<R,VR,STAR>& w,
   DistMatrix<R,MC,  MR>& X )
 {
 #ifndef RELEASE
@@ -83,7 +83,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w,
+  DistMatrix<R,VR,STAR>& w,
   DistMatrix<R,MC,  MR>& X,
   int a, int b )
 {
@@ -125,7 +125,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w,
+  DistMatrix<R,VR,STAR>& w,
   DistMatrix<R,MC,  MR>& X,
   R a, R b )
 {
@@ -166,7 +166,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w )
+  DistMatrix<R,VR,STAR>& w )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -194,7 +194,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w,
+  DistMatrix<R,VR,STAR>& w,
   int a, int b )
 {
 #ifndef RELEASE
@@ -221,7 +221,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w,
+  DistMatrix<R,VR,STAR>& w,
   R a, R b )
 {
 #ifndef RELEASE
@@ -248,7 +248,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
+  DistMatrix<             R, VR,STAR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X )
 {
 #ifndef RELEASE
@@ -295,7 +295,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
+  DistMatrix<             R, VR,STAR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X,
   int a, int b )
 {
@@ -341,7 +341,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
+  DistMatrix<             R, VR,STAR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X,
   R a, R b )
 {
@@ -386,7 +386,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w )
+  DistMatrix<             R, VR,STAR>& w )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -414,7 +414,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
+  DistMatrix<             R, VR,STAR>& w,
   int a, int b )
 {
 #ifndef RELEASE
@@ -441,7 +441,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
+  DistMatrix<             R, VR,STAR>& w,
   R a, R b )
 {
 #ifndef RELEASE

@@ -222,7 +222,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w,
+  DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& paddedZ )
 {
 #ifndef RELEASE
@@ -246,10 +246,10 @@ elemental::advanced::HermitianEig
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly padded.");
+            ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly aligned.");
+            ("paddedZ was a view but was not properly aligned");
     }
     else
     {
@@ -259,17 +259,15 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != k )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != k || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
         w.Align( 0 );
-        w.ResizeTo( 1, k );
+        w.ResizeTo( k, 1 );
     }
 
     // Check if we need to scale the matrix, and do so if necessary
@@ -330,9 +328,9 @@ elemental::advanced::HermitianEig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
 
-        // Copy wVector into the distributed matrix w[* ,VR]
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        // Copy wVector into the distributed matrix w[VR,* ]
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
@@ -380,7 +378,7 @@ elemental::advanced::HermitianEig
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
-    paddedZ.ResizeTo( A.Height(), w.Width() ); // We can simply shrink matrices
+    paddedZ.ResizeTo( A.Height(), w.Height() ); // We can simply shrink matrices
     if( shape == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
@@ -407,7 +405,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w,
+  DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& paddedZ,
   int lowerBound, int upperBound )
 {
@@ -432,10 +430,10 @@ elemental::advanced::HermitianEig
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly padded.");
+            ("paddedZ was a view but was not properly padded.");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly aligned.");
+            ("paddedZ was a view but was not properly aligned.");
     }
     else
     {
@@ -445,17 +443,15 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != k )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != k || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
         w.Align( 0 );
-        w.ResizeTo( 1, k );
+        w.ResizeTo( k, 1 );
     }
 
     // Check if we need to scale the matrix, and do so if necessary
@@ -517,9 +513,9 @@ elemental::advanced::HermitianEig
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
 
-        // Copy wVector into the distributed matrix w[* ,VR]
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        // Copy wVector into the distributed matrix w[VR,* ]
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
@@ -567,7 +563,7 @@ elemental::advanced::HermitianEig
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
-    paddedZ.ResizeTo( A.Height(), w.Width() );
+    paddedZ.ResizeTo( A.Height(), w.Height() );
     if( shape == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
@@ -592,7 +588,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w,
+  DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& paddedZ,
   double lowerBound, double upperBound )
 {
@@ -626,12 +622,10 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != n )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != n || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
@@ -713,10 +707,10 @@ elemental::advanced::HermitianEig
           lowerBound, upperBound );
         k = info.numGlobalEigenvalues;
 
-        // Copy wVector into the distributed matrix 
-        w.ResizeTo( 1, k );
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        // Copy wVector into the distributed matrix w[VR,* ]
+        w.ResizeTo( k, 1 );
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
@@ -764,7 +758,7 @@ elemental::advanced::HermitianEig
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
-    paddedZ.ResizeTo( A.Height(), w.Width() );
+    paddedZ.ResizeTo( A.Height(), w.Height() );
     if( shape == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
@@ -787,7 +781,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w )
+  DistMatrix<double,VR,STAR>& w )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
@@ -803,17 +797,15 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != k )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != k || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
         w.Align( 0 );
-        w.ResizeTo( 1, k );
+        w.ResizeTo( k, 1 );
     }
 
     // Check if we need to scale the matrix, and do so if necessary
@@ -861,9 +853,9 @@ elemental::advanced::HermitianEig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm() );
 
-        // Copy wVector into the distributed matrix w[* ,VR]
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        // Copy wVector into the distributed matrix w[VR,* ]
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -885,7 +877,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w,
+  DistMatrix<double,VR,STAR>& w,
   int lowerBound, int upperBound ) 
 {
 #ifndef RELEASE
@@ -902,17 +894,15 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != k )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != k || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
         w.Align( 0 );
-        w.ResizeTo( 1, k );
+        w.ResizeTo( k, 1 );
     }
 
     // Check if we need to scale the matrix, and do so if necessary
@@ -960,9 +950,9 @@ elemental::advanced::HermitianEig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
-        // Copy wVector into the distributed matrix w[* ,VR]
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        // Copy wVector into the distributed matrix w[VR,* ]
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -982,7 +972,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<double,MC,  MR>& A,
-  DistMatrix<double,STAR,VR>& w,
+  DistMatrix<double,VR,STAR>& w,
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
@@ -998,12 +988,10 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != n )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != n || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
@@ -1055,12 +1043,12 @@ elemental::advanced::HermitianEig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
-        // Copy wVector into the distributed matrix w[* ,VR]
+        // Copy wVector into the distributed matrix w[VR,* ]
         const int k = info.numGlobalEigenvalues;
         const int kLocal = info.numLocalEigenvalues;
-        w.ResizeTo( 1, k );
-        for( int j=0; j<kLocal; ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        w.ResizeTo( k, 1 );
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -1079,7 +1067,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w,
+  DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ )
 {
 #ifndef RELEASE
@@ -1103,10 +1091,10 @@ elemental::advanced::HermitianEig
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly padded.");
+            ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly aligned.");
+            ("paddedZ was a view but was not properly aligned");
     }
     else
     {
@@ -1116,17 +1104,15 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != k )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != k || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
         w.Align( 0 );
-        w.ResizeTo( 1, k );
+        w.ResizeTo( k, 1 );
     }
 
     // Check if we need to scale the matrix, and do so if necessary
@@ -1188,9 +1174,9 @@ elemental::advanced::HermitianEig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
         
-        // Copy wVector into the distributed matrix w[* ,VR]
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        // Copy wVector into the distributed matrix w[VR,* ]
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the
         // send/recv buffer memory usage low.
@@ -1238,7 +1224,7 @@ elemental::advanced::HermitianEig
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
-    paddedZ.ResizeTo( A.Height(), w.Width() ); 
+    paddedZ.ResizeTo( A.Height(), w.Height() ); 
     if( shape == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
@@ -1266,7 +1252,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w,
+  DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   int lowerBound, int upperBound )
 {
@@ -1291,10 +1277,10 @@ elemental::advanced::HermitianEig
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly padded.");
+            ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly aligned.");
+            ("paddedZ was a view but was not properly aligned");
     }
     else
     {
@@ -1304,17 +1290,15 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != k )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != k || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
         w.Align( 0 );
-        w.ResizeTo( 1, k );
+        w.ResizeTo( k, 1 );
     }
 
     // Check if we need to scale the matrix, and do so if necessary
@@ -1377,9 +1361,9 @@ elemental::advanced::HermitianEig
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
 
-        // Copy wVector into the distributed matrix w[* ,VR]
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        // Copy wVector into the distributed matrix w[VR,* ]
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
@@ -1427,7 +1411,7 @@ elemental::advanced::HermitianEig
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
-    paddedZ.ResizeTo( A.Height(), w.Width() );
+    paddedZ.ResizeTo( A.Height(), w.Height() );
     if( shape == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
@@ -1453,7 +1437,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w,
+  DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   double lowerBound, double upperBound )
 {
@@ -1479,20 +1463,18 @@ elemental::advanced::HermitianEig
         const int K = MaxLocalLength(n,g.Size())*g.Size();
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly padded.");
+            ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly aligned.");
+            ("paddedZ was a view but was not properly aligned");
     }
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != n )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != n || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
@@ -1573,11 +1555,11 @@ elemental::advanced::HermitianEig
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
 
-        // Copy wVector into the distributed matrix
+        // Copy wVector into the distributed matrix w[VR,* ]
         k = info.numGlobalEigenvalues;
-        w.ResizeTo( 1, k );
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        w.ResizeTo( k, 1 );
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
@@ -1625,7 +1607,7 @@ elemental::advanced::HermitianEig
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
-    paddedZ.ResizeTo( A.Height(), w.Width() );
+    paddedZ.ResizeTo( A.Height(), w.Height() );
     if( shape == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
@@ -1650,7 +1632,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w )
+  DistMatrix<             double, VR,STAR>& w )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
@@ -1666,17 +1648,15 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != k )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != k || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
         w.Align( 0 );
-        w.ResizeTo( 1, k );
+        w.ResizeTo( k, 1 );
     }
 
     // Check if we need to scale the matrix, and do so if necessary
@@ -1725,9 +1705,9 @@ elemental::advanced::HermitianEig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm() );
 
-        // Copy wVector into the distributed matrix w[* ,VR]
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        // Copy wVector into the distributed matrix w[VR,* ]
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -1748,7 +1728,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w,
+  DistMatrix<             double, VR,STAR>& w,
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
@@ -1765,17 +1745,15 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != k )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned");
+        if( w.Height() != k || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
         w.Align( 0 );
-        w.ResizeTo( 1, k );
+        w.ResizeTo( k, 1 );
     }
 
     // Check if we need to scale the matrix, and do so if necessary
@@ -1824,9 +1802,9 @@ elemental::advanced::HermitianEig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
-        // Copy wVector into the distributed matrix w[* ,VR]
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        // Copy wVector into the distributed matrix w[VR,* ]
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -1845,7 +1823,7 @@ inline void
 elemental::advanced::HermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
-  DistMatrix<             double, STAR,VR>& w,
+  DistMatrix<             double, VR,STAR>& w,
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
@@ -1861,12 +1839,10 @@ elemental::advanced::HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.RowAlignment() != 0 )
-            throw std::logic_error
-                  ("w was a view but was not properly aligned.");
-        if( w.Height() != 1 || w.Width() != n )
-            throw std::logic_error
-                  ("w was a view but was not the proper size.");
+        if( w.ColAlignment() != 0 )
+            throw std::logic_error("w was a view but was not properly aligned.");
+        if( w.Height() != n || w.Width() != 1 )
+            throw std::logic_error("w was a view but was not the proper size.");
     }
     else
     {
@@ -1919,11 +1895,11 @@ elemental::advanced::HermitianEig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
-        // Copy wVector into the distributed matrix w[* ,VR]
+        // Copy wVector into the distributed matrix w[VR,* ]
         const int k = info.numGlobalEigenvalues;
-        w.ResizeTo( 1, k );
-        for( int j=0; j<w.LocalWidth(); ++j )
-            w.SetLocalEntry(0,j,wVector[j]);
+        w.ResizeTo( k, 1 );
+        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -1935,3 +1911,5 @@ elemental::advanced::HermitianEig
 }
 #endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
+
+#undef TARGET_CHUNKS
