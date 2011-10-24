@@ -84,7 +84,7 @@ static int refine_to_highrac(proc_t*, char*, double*, double*,
  * See README or 'pmrrr.h' for details.
  */
 
-int pmrrr(char *jobz, char *range, int *np, double  *D,
+int PMRRR(char *jobz, char *range, int *np, double  *D,
 	  double *E, double *vl, double *vu, int *il,
 	  int *iu, int *tryracp, MPI_Comm comm, int *nzp,
 	  int *offsetp, double *W, double *Z, int *ldz,
@@ -929,7 +929,7 @@ int cmp(const void *a1, const void *a2)
 /*
  * Routine to communicate eigenvalues such that every process has
  * all computed eigenvalues (iu-il+1) in W; this routine is designed 
- * to be called right after 'pmrrr'.
+ * to be called right after 'PMRRR'.
  */
 int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *myfirstp, double *W)
 {
@@ -978,7 +978,7 @@ void pmrrr_(char *jobz, char *range, int *n, double  *D,
 {
   MPI_Comm c_comm = MPI_Comm_f2c(*comm);
 
-  *info = pmrrr(jobz, range, n, D, E, vl, vu, il, iu, tryracp, 
+  *info = PMRRR(jobz, range, n, D, E, vl, vu, il, iu, tryracp, 
 		c_comm, nz, myfirst, W, Z, ldz, Zsupp);
 }
 

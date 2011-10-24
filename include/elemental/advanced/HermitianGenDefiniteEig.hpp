@@ -41,8 +41,7 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,STAR,VR>& w,
-  DistMatrix<R,MC,  MR>& X,
-  bool tryForHighAccuracy )
+  DistMatrix<R,MC,  MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -54,7 +53,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w, X );
     if( type == AXBX || type == ABX )
     {
         if( shape == LOWER )
@@ -86,7 +85,7 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,STAR,VR>& w,
   DistMatrix<R,MC,  MR>& X,
-  int a, int b, bool tryForHighAccuracy )
+  int a, int b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -98,7 +97,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
         if( shape == LOWER )
@@ -128,7 +127,7 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,STAR,VR>& w,
   DistMatrix<R,MC,  MR>& X,
-  R a, R b, bool tryForHighAccuracy )
+  R a, R b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -140,7 +139,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
         if( shape == LOWER )
@@ -167,8 +166,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
-  DistMatrix<R,STAR,VR>& w,
-  bool tryForHighAccuracy )
+  DistMatrix<R,STAR,VR>& w )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -180,7 +178,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -197,7 +195,7 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,STAR,VR>& w,
-  int a, int b, bool tryForHighAccuracy )
+  int a, int b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -209,7 +207,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -224,7 +222,7 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,STAR,VR>& w,
-  R a, R b, bool tryForHighAccuracy )
+  R a, R b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -236,7 +234,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -251,8 +249,7 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, STAR,VR>& w,
-  DistMatrix<std::complex<R>,MC,  MR>& X,
-  bool tryForHighAccuracy )
+  DistMatrix<std::complex<R>,MC,  MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -264,7 +261,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w, X );
     if( type == AXBX || type == ABX )
     {
         if( shape == LOWER )
@@ -300,7 +297,7 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, STAR,VR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X,
-  int a, int b, bool tryForHighAccuracy )
+  int a, int b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -312,7 +309,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
         if( shape == LOWER )
@@ -346,7 +343,7 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, STAR,VR>& w,
   DistMatrix<std::complex<R>,MC,  MR>& X,
-  R a, R b, bool tryForHighAccuracy )
+  R a, R b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -358,7 +355,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
         if( shape == LOWER )
@@ -389,8 +386,7 @@ elemental::advanced::HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, Shape shape, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, STAR,VR>& w,
-  bool tryForHighAccuracy )
+  DistMatrix<             R, STAR,VR>& w )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -402,7 +398,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -419,7 +415,7 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, STAR,VR>& w,
-  int a, int b, bool tryForHighAccuracy )
+  int a, int b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -431,7 +427,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -446,7 +442,7 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, STAR,VR>& w,
-  R a, R b, bool tryForHighAccuracy )
+  R a, R b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianGenDefiniteEig");
@@ -458,7 +454,7 @@ elemental::advanced::HermitianGenDefiniteEig
 
     advanced::Cholesky( shape, B );
     advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif

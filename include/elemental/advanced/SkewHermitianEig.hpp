@@ -42,8 +42,7 @@ elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<std::complex<double>,STAR,VR>& w,
-  DistMatrix<std::complex<double>,MC,  MR>& Z,
-  bool tryForHighAccuracy )
+  DistMatrix<std::complex<double>,MC,  MR>& Z )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -72,7 +71,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, A, s, Z, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, s, Z );
 
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -99,7 +98,7 @@ elemental::advanced::SkewHermitianEig
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<std::complex<double>,STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
-  int a, int b, bool tryForHighAccuracy )
+  int a, int b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -128,7 +127,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, A, s, Z, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, s, Z, a, b );
     
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -153,7 +152,7 @@ elemental::advanced::SkewHermitianEig
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<std::complex<double>,STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
-  double a, double b, bool tryForHighAccuracy )
+  double a, double b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -182,7 +181,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, A, s, Z, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, s, Z, a, b );
     
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -204,8 +203,7 @@ inline void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
-  bool tryForHighAccuracy )
+  DistMatrix<std::complex<double>,STAR,VR>& w )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -234,7 +232,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, A, s, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, s );
     
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -260,7 +258,7 @@ elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<std::complex<double>,STAR,VR>& w,
-  int a, int b, bool tryForHighAccuracy )
+  int a, int b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -289,7 +287,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, A, s, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, s, a, b );
     
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -313,7 +311,7 @@ elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<std::complex<double>,STAR,VR>& w,
-  double a, double b, bool tryForHighAccuracy )
+  double a, double b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -342,7 +340,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, A, s, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, A, s, a, b );
     
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -365,8 +363,7 @@ elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<std::complex<double>,STAR,VR>& w,
-  DistMatrix<std::complex<double>,MC,  MR>& Z,
-  bool tryForHighAccuracy )
+  DistMatrix<std::complex<double>,MC,  MR>& Z )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -382,7 +379,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, G, s, Z, tryForHighAccuracy );
+    advanced::HermitianEig( shape, G, s, Z );
 
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -410,7 +407,7 @@ elemental::advanced::SkewHermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<std::complex<double>,STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
-  int a, int b, bool tryForHighAccuracy )
+  int a, int b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -426,7 +423,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, G, s, Z, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, G, s, Z, a, b );
 
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -452,7 +449,7 @@ elemental::advanced::SkewHermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<std::complex<double>,STAR,VR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
-  double a, double b, bool tryForHighAccuracy )
+  double a, double b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -468,7 +465,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, G, s, Z, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, G, s, Z, a, b );
 
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -490,8 +487,7 @@ inline void
 elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<std::complex<double>,STAR,VR>& w,
-  bool tryForHighAccuracy )
+  DistMatrix<std::complex<double>,STAR,VR>& w )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -507,7 +503,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, G, s, tryForHighAccuracy );
+    advanced::HermitianEig( shape, G, s );
 
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -534,7 +530,7 @@ elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<std::complex<double>,STAR,VR>& w,
-  int a, int b, bool tryForHighAccuracy )
+  int a, int b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -550,7 +546,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, G, s, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, G, s, a, b );
 
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );
@@ -575,7 +571,7 @@ elemental::advanced::SkewHermitianEig
 ( Shape shape, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<std::complex<double>,STAR,VR>& w,
-  double a, double b, bool tryForHighAccuracy )
+  double a, double b )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SkewHermitianEig");
@@ -591,7 +587,7 @@ elemental::advanced::SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     DistMatrix<double,STAR,VR> s(grid);
-    advanced::HermitianEig( shape, G, s, a, b, tryForHighAccuracy );
+    advanced::HermitianEig( shape, G, s, a, b );
 
     // Backtransform the eigenvalues by multiplying by i
     w.Align( s.RowAlignment() );

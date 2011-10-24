@@ -55,7 +55,7 @@
  *
  * Function prototype: */
 
-int pmrrr(char *jobz, char *range, int *n, double  *D,
+int PMRRR(char *jobz, char *range, int *n, double  *D,
 	  double *E, double *vl, double *vu, int *il, int *iu,
 	  int *tryrac, MPI_Comm comm, int *nz, int *offset,
 	  double *W, double *Z, int *ldz, int *Zsupp);
@@ -134,7 +134,7 @@ int pmrrr(char *jobz, char *range, int *n, double  *D,
  *                   computed eigenvalues in W, instead of only 
  *                   those computed locally. In this case the 
  *                   routine 'PMR_comm_eigvals' can be called right 
- *                   after 'pmrrr' returns (see below).
+ *                   after 'PMRRR' returns (see below).
  * Z                 Locally computed eigenvectors.
  * (double[n*nz])    Enough space must be provided to store the
  *                   vectors. 'nz' should be bigger or equal 
@@ -182,7 +182,7 @@ int pmrrr(char *jobz, char *range, int *n, double  *D,
 /* Make sure that eigenpairs are sorted globally; if set to false
  * they are in most cases sorted, but it is not double checked and 
  * can therefore not be guaranteed; default: true */
-#define ASSERT_SORTED_EIGENPAIRS true
+#define ASSERT_SORTED_EIGENPAIRS false
 
 /* Set flag if Rayleigh Quotient Correction should be used, 
  * which is usually faster; default: true */
@@ -210,7 +210,7 @@ int pmrrr(char *jobz, char *range, int *n, double  *D,
 /*
  * Routine to communicate eigenvalues such that every process has
  * all computed eigenvalues (iu-il+1) in W; this routine is designed 
- * to be called right after 'pmrrr'.
+ * to be called right after 'PMRRR'.
  */
 int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
 /* Arguments:
@@ -220,7 +220,7 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
  * -------
  * comm              MPI communicator; commonly: MPI_COMM_WORLD.
  * nz                Number of eigenvalues local in W as returned 
- *                   from 'pmrrr'.
+ *                   from 'PMRRR'.
  * offset            Index, relative to the computed eigenvalues, of 
  *                   the smallest eigenvalue computed locally
  *                   (0-based indexing).

@@ -60,7 +60,11 @@ supported for many cases, and support for higher precision arithmetic is in the
 works.</p>
 <div class="section" id="blas">
 <h2>BLAS<a class="headerlink" href="#blas" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Short introduction to the BLAS.</p>
+<p>The Basic Linear Algebra Subprograms (BLAS) are heavily exploited within
+Elemental in order to achieve high performance whenever possible. Since the
+official BLAS interface uses different routine names for different datatypes,
+the following interfaces are built directly on top of the datatype-specific
+versions.</p>
 <div class="section" id="level-1">
 <h3>Level 1<a class="headerlink" href="#level-1" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
@@ -333,6 +337,9 @@ be set to &#8216;N&#8217;). <img class="math" src="_images/math/e35702a7785f5cac
 </div>
 <div class="section" id="lapack">
 <h2>LAPACK<a class="headerlink" href="#lapack" title="Permalink to this headline">¶</a></h2>
+<p>Only a handful of LAPACK routines are currently used by Elemental: a few
+routines for querying floating point characteristics, serial Cholesky and LU
+factorization kernels, and a few random utilities.</p>
 <div class="section" id="machine-information">
 <h3>Machine information<a class="headerlink" href="#machine-information" title="Permalink to this headline">¶</a></h3>
 <p>In all of the following functions, <tt class="docutils literal"><span class="pre">R</span></tt> can be equal to either <tt class="docutils literal"><span class="pre">float</span></tt> or
@@ -438,7 +445,12 @@ otherwise).</p>
 </div>
 <div class="section" id="mpi">
 <h2>MPI<a class="headerlink" href="#mpi" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Short introduction to the Message Passing Interface (MPI).</p>
+<p>All communication within Elemental is built on top of the Message Passing
+Interface (MPI). Just like with BLAS and LAPACK, a minimal set of datatype
+independent abstractions has been built directly on top of the standard
+MPI interface. This has the added benefit of localizing the changes required
+for porting Elemental to architectures that do not have full MPI
+implementations available.</p>
 <div class="section" id="datatypes">
 <h3>Datatypes<a class="headerlink" href="#datatypes" title="Permalink to this headline">¶</a></h3>
 <dl class="type">
@@ -979,8 +991,8 @@ chance of overflow.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="lcg-primitives">
+<h3>LCG primitives<a class="headerlink" href="#lcg-primitives" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="plcg::Lower16Bits__plcg::UInt32">
 <a class="reference internal" href="#plcg::UInt32" title="plcg::UInt32">plcg::UInt32</a> <tt class="descclassname">plcg::</tt><tt class="descname">Lower16Bits</tt><big>(</big><a class="reference internal" href="#plcg::UInt32" title="plcg::UInt32">plcg::UInt32</a> <em>a</em><big>)</big><a class="headerlink" href="#plcg::Lower16Bits__plcg::UInt32" title="Permalink to this definition">¶</a></dt>
@@ -1020,7 +1032,228 @@ void <tt class="descclassname">plcg::</tt><tt class="descname">CarryUpper16Bits<
 into the next lower 16 bits.</p>
 </dd></dl>
 
-<p><strong>Left off here...</strong></p>
+<dl class="function">
+<dt id="plcg::AddWith64BitMod__plcg::ExpandedUInt64.plcg::ExpandedUInt64">
+<a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <tt class="descclassname">plcg::</tt><tt class="descname">AddWith64BitMod</tt><big>(</big><a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <em>a</em>, <a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <em>b</em><big>)</big><a class="headerlink" href="#plcg::AddWith64BitMod__plcg::ExpandedUInt64.plcg::ExpandedUInt64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <img class="math" src="_images/math/2825a0824bcdf253459598863e27c77047145027.png" alt="a+b \mod 2^{64}"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::MultiplyWith64BitMod__plcg::ExpandedUInt64.plcg::ExpandedUInt64">
+<a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <tt class="descclassname">plcg::</tt><tt class="descname">MultiplyWith64BitMod</tt><big>(</big><a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <em>a</em>, <a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <em>b</em><big>)</big><a class="headerlink" href="#plcg::MultiplyWith64BitMod__plcg::ExpandedUInt64.plcg::ExpandedUInt64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <img class="math" src="_images/math/3701aef25cfbceaf9b1cc3cb9362b9796bae6801.png" alt="ab \mod 2^{64}"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::IntegerPowerWith64BitMod__plcg::ExpandedUInt64.plcg::ExpandedUInt64">
+<a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <tt class="descclassname">plcg::</tt><tt class="descname">IntegerPowerWith64BitMod</tt><big>(</big><a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <em>x</em>, <a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <em>n</em><big>)</big><a class="headerlink" href="#plcg::IntegerPowerWith64BitMod__plcg::ExpandedUInt64.plcg::ExpandedUInt64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <img class="math" src="_images/math/b58f610822e21ee8e4381b6302d5be01d057a6f0.png" alt="x^n \mod 2^{64}"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::Halve__plcg::ExpandedUInt64R">
+void <tt class="descclassname">plcg::</tt><tt class="descname">Halve</tt><big>(</big><a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64&amp;</a> <em>a</em><big>)</big><a class="headerlink" href="#plcg::Halve__plcg::ExpandedUInt64R" title="Permalink to this definition">¶</a></dt>
+<dd><p><img class="math" src="_images/math/308aefeef1cc5d038e8ce97fe87d2cdfa9fac1d5.png" alt="a := a/2"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::SeedSerialLcg__plcg::UInt64">
+void <tt class="descclassname">plcg::</tt><tt class="descname">SeedSerialLcg</tt><big>(</big><a class="reference internal" href="#plcg::UInt64__struct" title="plcg::UInt64">plcg::UInt64</a> <em>globalSeed</em><big>)</big><a class="headerlink" href="#plcg::SeedSerialLcg__plcg::UInt64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the initial state of the serial Linear Congruential Generator.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::SeedParallelLcg__plcg::UInt32.plcg::UInt32.plcg::UInt64">
+void <tt class="descclassname">plcg::</tt><tt class="descname">SeedParallelLcg</tt><big>(</big><a class="reference internal" href="#plcg::UInt32" title="plcg::UInt32">plcg::UInt32</a> <em>rank</em>, <a class="reference internal" href="#plcg::UInt32" title="plcg::UInt32">plcg::UInt32</a> <em>commSize</em>, <a class="reference internal" href="#plcg::UInt64__struct" title="plcg::UInt64">plcg::UInt64</a> <em>globalSeed</em><big>)</big><a class="headerlink" href="#plcg::SeedParallelLcg__plcg::UInt32.plcg::UInt32.plcg::UInt64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Have our process seed a separate LCG meant for parallel computation, where
+the calling process has the given rank within a communicator of the
+specified size.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::SerialLcg">
+<a class="reference internal" href="#plcg::UInt64__struct" title="plcg::UInt64">plcg::UInt64</a> <tt class="descclassname">plcg::</tt><tt class="descname">SerialLcg</tt><big>(</big><big>)</big><a class="headerlink" href="#plcg::SerialLcg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current state of the serial LCG, and then advance to the next one.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::ParallelLcg">
+<a class="reference internal" href="#plcg::UInt64__struct" title="plcg::UInt64">plcg::UInt64</a> <tt class="descclassname">plcg::</tt><tt class="descname">ParallelLcg</tt><big>(</big><big>)</big><a class="headerlink" href="#plcg::ParallelLcg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current state of our process&#8217;s portion of the parallel LCG,
+and then advance to our next local state.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::ManualLcg__plcg::ExpandedUInt64.plcg::ExpandedUInt64.plcg::ExpandedUInt64R">
+void <tt class="descclassname">plcg::</tt><tt class="descname">ManualLcg</tt><big>(</big><a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <em>a</em>, <a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64</a> <em>c</em>, <a class="reference internal" href="#plcg::ExpandedUInt64__struct" title="plcg::ExpandedUInt64">plcg::ExpandedUInt64&amp;</a> <em>X</em><big>)</big><a class="headerlink" href="#plcg::ManualLcg__plcg::ExpandedUInt64.plcg::ExpandedUInt64.plcg::ExpandedUInt64R" title="Permalink to this definition">¶</a></dt>
+<dd><p><img class="math" src="_images/math/c6d4cda2205e29bfa583acb8b862cad6a579aff2.png" alt="X := a X + c \mod 2^{64}"/>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="sampling">
+<h3>Sampling<a class="headerlink" href="#sampling" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="plcg::SerialUniform">
+R <tt class="descclassname">plcg::</tt><tt class="descname">SerialUniform</tt><big>(</big><big>)</big><a class="headerlink" href="#plcg::SerialUniform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a uniform sample from <img class="math" src="_images/math/101678300d1aa11009468da8419aaf2c57b795bd.png" alt="(0,1]"/> using the serial LCG.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::ParallelUniform">
+R <tt class="descclassname">plcg::</tt><tt class="descname">ParallelUniform</tt><big>(</big><big>)</big><a class="headerlink" href="#plcg::ParallelUniform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a uniform sample from <img class="math" src="_images/math/101678300d1aa11009468da8419aaf2c57b795bd.png" alt="(0,1]"/> using the parallel LCG.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::SerialBoxMuller__RR.RR">
+void <tt class="descclassname">plcg::</tt><tt class="descname">SerialBoxMuller</tt><big>(</big>R&amp; <em>X</em>, R&amp; <em>Y</em><big>)</big><a class="headerlink" href="#plcg::SerialBoxMuller__RR.RR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return two samples from a normal distribution with mean 0 and standard
+deviation of 1 using the serial LCG.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::ParallelBoxMuller__RR.RR">
+void <tt class="descclassname">plcg::</tt><tt class="descname">ParallelBoxMuller</tt><big>(</big>R&amp; <em>X</em>, R&amp; <em>Y</em><big>)</big><a class="headerlink" href="#plcg::ParallelBoxMuller__RR.RR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return two samples from a normal distribution with mean 0 and standard
+deviation 1, but using the parallel LCG.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::SerialGaussianRandomVariable__RR">
+void <tt class="descclassname">plcg::</tt><tt class="descname">SerialGaussianRandomVariable</tt><big>(</big>R&amp; <em>X</em><big>)</big><a class="headerlink" href="#plcg::SerialGaussianRandomVariable__RR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a single sample from a normal distribution with mean 0 and
+standard deviation 1 using the serial LCG.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::ParallelGaussianRandomVariable__RR">
+void <tt class="descclassname">plcg::</tt><tt class="descname">ParallelGaussianRandomVariable</tt><big>(</big>R&amp; <em>X</em><big>)</big><a class="headerlink" href="#plcg::ParallelGaussianRandomVariable__RR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a single sample from a normal distribution with mean 0 and
+standard deviation 1, but using the parallel LCG.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::SerialGaussianRandomVariable__std::complex:R:R">
+void <tt class="descclassname">plcg::</tt><tt class="descname">SerialGaussianRandomVariable</tt><big>(</big>std::complex&lt;R&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#plcg::SerialGaussianRandomVariable__std::complex:R:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a single complex sample from a normal distribution with mean 0 and
+standard deviation 1 using the serial LCG.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plcg::ParallelGaussianRandomVariable__std::complex:R:R">
+void <tt class="descclassname">plcg::</tt><tt class="descname">ParallelGaussianRandomVariable</tt><big>(</big>std::complex&lt;R&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#plcg::ParallelGaussianRandomVariable__std::complex:R:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a single complex sample from a normal distribution with mean 0 and
+standard deviation 1, but using the parallel LCG.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="pmrrr">
+<h2>PMRRR<a class="headerlink" href="#pmrrr" title="Permalink to this headline">¶</a></h2>
+<p>Rather than directly using Petschow and Bientinesi&#8217;s parallel implementation of
+the Multiple Relatively Robust Representations (MRRR) algorithm, several
+simplified interfaces have been exposed.</p>
+<div class="section" id="data-structures">
+<h3>Data structures<a class="headerlink" href="#data-structures" title="Permalink to this headline">¶</a></h3>
+<dl class="type">
+<dt id="pmrrr::Estimate__struct">
+<em class="property">type </em>struct <tt class="descclassname">pmrrr::</tt><tt class="descname">Estimate</tt><a class="headerlink" href="#pmrrr::Estimate__struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>For returning upper bounds on the number of local and global eigenvalues
+with eigenvalues lying in the specified interval, <img class="math" src="_images/math/cdf3085063293f29962808ba253dec1faa9866fb.png" alt="(a,b]"/>.</p>
+<dl class="member">
+<dt id="pmrrr::Estimate::numLocalEigenvalues__i">
+int <tt class="descname">numLocalEigenvalues</tt><a class="headerlink" href="#pmrrr::Estimate::numLocalEigenvalues__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>The upper bound on the number of eigenvalues in the specified interval
+that our process stores locally.</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="pmrrr::Estimate::numGlobalEigenvalues__i">
+int <tt class="descname">numGlobalEigenvalues</tt><a class="headerlink" href="#pmrrr::Estimate::numGlobalEigenvalues__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>The upper bound on the number of eigenvalues in the specified interval.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="type">
+<dt id="pmrrr::Info__struct">
+<em class="property">type </em>struct <tt class="descclassname">pmrrr::</tt><tt class="descname">Info</tt><a class="headerlink" href="#pmrrr::Info__struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>For returning information about the computed eigenvalues.</p>
+<dl class="member">
+<dt id="pmrrr::Info::numLocalEigenvalues__i">
+int <tt class="descname">numLocalEigenvalues</tt><a class="headerlink" href="#pmrrr::Info::numLocalEigenvalues__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of computed eigenvalues that our process locally stores.</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="pmrrr::Info::numGlobalEigenvalues__i">
+int <tt class="descname">numGlobalEigenvalues</tt><a class="headerlink" href="#pmrrr::Info::numGlobalEigenvalues__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of computed eigenvalues.</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="pmrrr::Info::firstLocalEigenvalue__i">
+int <tt class="descname">firstLocalEigenvalue</tt><a class="headerlink" href="#pmrrr::Info::firstLocalEigenvalue__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>The index of the first eigenvalue stored locally on our process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="compute-all-eigenvalues">
+<h3>Compute all eigenvalues<a class="headerlink" href="#compute-all-eigenvalues" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute all of the eigenvalues of the real symmetric tridiagonal matrix with
+diagonal <tt class="docutils literal"><span class="pre">d</span></tt> and subdiagonal <tt class="docutils literal"><span class="pre">e</span></tt>: the eigenvalues will be stored in
+<tt class="docutils literal"><span class="pre">w</span></tt> and the work will be divided among the processors in <tt class="docutils literal"><span class="pre">comm</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, double* <em>Z</em>, int <em>ldz</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but also compute the corresponding eigenvectors.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="compute-eigenvalues-within-interval">
+<h3>Compute eigenvalues within interval<a class="headerlink" href="#compute-eigenvalues-within-interval" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm.double.double">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, double <em>a</em>, double <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm.double.double" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only compute the eigenvalues lying within the interval <img class="math" src="_images/math/cdf3085063293f29962808ba253dec1faa9866fb.png" alt="(a,b]"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm.double.double">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, double* <em>Z</em>, int <em>ldz</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, double <em>a</em>, double <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm.double.double" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but also compute the corresponding eigenvectors.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pmrrr::EigEstimate__i.doubleCP.doubleCP.mpi::Comm.double.double">
+<a class="reference internal" href="#pmrrr::Estimate__struct" title="pmrrr::Estimate">pmrrr::Estimate</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">EigEstimate</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>w</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, double <em>a</em>, double <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::EigEstimate__i.doubleCP.doubleCP.mpi::Comm.double.double" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return upper bounds on the number of local and global eigenvalues lying
+within the specified interval.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="compute-eigenvalues-in-index-range">
+<h3>Compute eigenvalues in index range<a class="headerlink" href="#compute-eigenvalues-in-index-range" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm.i.i">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, int <em>a</em>, int <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm.i.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only compute the <tt class="docutils literal"><span class="pre">a-b</span></tt> eigenvalues of the tridiagonal matrix, where
+<img class="math" src="_images/math/7981a36d5e79f5ce44bc0ca8bccd33fa5167000b.png" alt="0 \le a \le b &lt; n"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm.i.i">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, double* <em>Z</em>, int <em>ldz</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, int <em>a</em>, int <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm.i.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but also compute the corresponding eigenvectors.</p>
+</dd></dl>
+
 </div>
 </div>
 </div>
@@ -1057,7 +1290,15 @@ into the next lower 16 bits.</p>
 </li>
 <li><a class="reference internal" href="#parallel-lcg">Parallel LCG</a><ul>
 <li><a class="reference internal" href="#id1">Datatypes</a></li>
-<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#lcg-primitives">LCG primitives</a></li>
+<li><a class="reference internal" href="#sampling">Sampling</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pmrrr">PMRRR</a><ul>
+<li><a class="reference internal" href="#data-structures">Data structures</a></li>
+<li><a class="reference internal" href="#compute-all-eigenvalues">Compute all eigenvalues</a></li>
+<li><a class="reference internal" href="#compute-eigenvalues-within-interval">Compute eigenvalues within interval</a></li>
+<li><a class="reference internal" href="#compute-eigenvalues-in-index-range">Compute eigenvalues in index range</a></li>
 </ul>
 </li>
 </ul>

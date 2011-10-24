@@ -40,9 +40,8 @@ void Usage()
     cout << "Generates random Hermitian A and random HPD B then solves for "
          << "their eigenpairs.\n\n"
          << "  HermitianGenDefiniteEig <r> <c> <eigType> <only eigenvalues?>"
-            " <range> <a> <b> <highAccuracy?> <shape> <m> <nb> "
-            "<local nb symv/hemv> <correctness?> "
-            "<print?>\n\n"
+            " <range> <a> <b> <shape> <m> <nb> <local nb symv/hemv> "
+            "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  eigType: 1 -> AX=BXW, 2 -> ABX=XW, 3-> BAX=XW\n"
@@ -53,7 +52,6 @@ void Usage()
             "     if range=='V', lower-bound on eigenvalues\n"
          << "  b: if range=='I', 0-indexed last eigenpair to compute\n"
             "     if range=='V', upper-bound on eigenvalues\n"
-         << "  highAccuracy? try for high acc. iff != 0\n"
          << "  shape: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
@@ -541,8 +539,7 @@ void TestHermitianGenDefiniteEigDouble
 ( bool testCorrectness, bool printMatrices,
   HermitianGenDefiniteEigType eigType, 
   bool onlyEigenvalues, Shape shape, 
-  int m, char range, double vl, double vu, int il, int iu,
-  bool tryForHighAccuracy, const Grid& g )
+  int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<double,MC,MR> A(m,m,g);
@@ -592,26 +589,25 @@ void TestHermitianGenDefiniteEigDouble
     if( onlyEigenvalues )
     {
         if( range == 'A' )
-            advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, tryForHighAccuracy );
+            advanced::HermitianGenDefiniteEig( eigType, shape, A, B, w );
         else if( range == 'I' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, il, iu, tryForHighAccuracy );
+            ( eigType, shape, A, B, w, il, iu );
         else
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, vl, vu, tryForHighAccuracy );
+            ( eigType, shape, A, B, w, vl, vu );
     }
     else
     {
         if( range == 'A' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X, tryForHighAccuracy );
+            ( eigType, shape, A, B, w, X );
         else if( range == 'I' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X, il, iu, tryForHighAccuracy );
+            ( eigType, shape, A, B, w, X, il, iu );
         else
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X, vl, vu, tryForHighAccuracy );
+            ( eigType, shape, A, B, w, X, vl, vu );
     }
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
@@ -639,8 +635,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
   HermitianGenDefiniteEigType eigType, 
   bool onlyEigenvalues, Shape shape, 
-  int m, char range, double vl, double vu, int il, int iu, 
-  bool tryForHighAccuracy, const Grid& g )
+  int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<std::complex<double>,MC,  MR> A(m,m,g);
@@ -695,25 +690,25 @@ void TestHermitianGenDefiniteEigDoubleComplex
     {
         if( range == 'A' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, tryForHighAccuracy );
+            ( eigType, shape, A, B, w );
         else if( range == 'I' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, il, iu, tryForHighAccuracy );
+            ( eigType, shape, A, B, w, il, iu );
         else
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, vl, vu, tryForHighAccuracy );
+            ( eigType, shape, A, B, w, vl, vu );
     }
     else
     {
         if( range == 'A' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X, tryForHighAccuracy );
+            ( eigType, shape, A, B, w, X );
         else if( range == 'I' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X, il, iu, tryForHighAccuracy );
+            ( eigType, shape, A, B, w, X, il, iu );
         else
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X, vl, vu, tryForHighAccuracy );
+            ( eigType, shape, A, B, w, X, vl, vu );
     }
     mpi::Barrier( g.VCComm() );
     endTime = mpi::Time();
@@ -744,7 +739,7 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int rank = mpi::CommRank( comm );
 
-    if( argc < 15 )
+    if( argc < 14 )
     {
         if( rank == 0 )
             Usage();
@@ -778,7 +773,6 @@ main( int argc, char* argv[] )
         {
             argNum += 2;
         }
-        const bool tryForHighAccuracy = atoi(argv[++argNum]);
         const Shape shape = CharToShape(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
@@ -840,8 +834,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianGenDefiniteEigDouble
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,
-          tryForHighAccuracy, g );
+          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -855,8 +848,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianGenDefiniteEigDouble
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,
-          tryForHighAccuracy, g );
+          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -870,8 +862,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianGenDefiniteEigDouble
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu,
-          tryForHighAccuracy, g );
+          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -883,8 +874,7 @@ main( int argc, char* argv[] )
         }
         TestHermitianGenDefiniteEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, 
-          tryForHighAccuracy, g );
+          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -898,8 +888,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianGenDefiniteEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, 
-          tryForHighAccuracy, g );
+          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -913,8 +902,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianGenDefiniteEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, 
-          tryForHighAccuracy, g );
+          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
 #endif 
     }
     catch( exception& e )

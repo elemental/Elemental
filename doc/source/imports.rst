@@ -11,8 +11,11 @@ works.
 
 BLAS
 ====
-
-**TODO:** Short introduction to the BLAS.
+The Basic Linear Algebra Subprograms (BLAS) are heavily exploited within 
+Elemental in order to achieve high performance whenever possible. Since the 
+official BLAS interface uses different routine names for different datatypes, 
+the following interfaces are built directly on top of the datatype-specific 
+versions.
 
 Level 1
 -------
@@ -230,6 +233,9 @@ Level 3
 
 LAPACK
 ======
+Only a handful of LAPACK routines are currently used by Elemental: a few
+routines for querying floating point characteristics, serial Cholesky and LU 
+factorization kernels, and a few random utilities.
 
 Machine information
 -------------------
@@ -310,8 +316,12 @@ Utilities
 
 MPI
 ===
-
-**TODO:** Short introduction to the Message Passing Interface (MPI).
+All communication within Elemental is built on top of the Message Passing 
+Interface (MPI). Just like with BLAS and LAPACK, a minimal set of datatype 
+independent abstractions has been built directly on top of the standard 
+MPI interface. This has the added benefit of localizing the changes required
+for porting Elemental to architectures that do not have full MPI 
+implementations available.
 
 Datatypes
 ---------
@@ -722,8 +732,8 @@ Datatypes
    so that two such expanded 16-bit numbers can be multiplied without any 
    chance of overflow.
 
-Functions
----------
+LCG primitives
+--------------
 
 .. cpp:function:: plcg::UInt32 plcg::Lower16Bits( plcg::UInt32 a )
 
@@ -752,4 +762,162 @@ Functions
    Carry the results stored in the upper 16-bits of each of the four pieces 
    into the next lower 16 bits.
 
-**Left off here...**
+.. cpp:function:: plcg::ExpandedUInt64 plcg::AddWith64BitMod( plcg::ExpandedUInt64 a, plcg::ExpandedUInt64 b )
+
+   Return :math:`a+b \mod 2^{64}`.
+
+.. cpp:function:: plcg::ExpandedUInt64 plcg::MultiplyWith64BitMod( plcg::ExpandedUInt64 a, plcg::ExpandedUInt64 b )
+
+   Return :math:`ab \mod 2^{64}`.
+
+.. cpp:function:: plcg::ExpandedUInt64 plcg::IntegerPowerWith64BitMod( plcg::ExpandedUInt64 x, plcg::ExpandedUInt64 n )
+
+   Return :math:`x^n \mod 2^{64}`.
+
+.. cpp:function:: void plcg::Halve( plcg::ExpandedUInt64& a )
+
+   :math:`a := a/2`.
+
+.. cpp:function:: void plcg::SeedSerialLcg( plcg::UInt64 globalSeed )
+
+   Set the initial state of the serial Linear Congruential Generator.
+
+.. cpp:function:: void plcg::SeedParallelLcg( plcg::UInt32 rank, plcg::UInt32 commSize, plcg::UInt64 globalSeed )
+
+   Have our process seed a separate LCG meant for parallel computation, where 
+   the calling process has the given rank within a communicator of the 
+   specified size.
+
+.. cpp:function:: plcg::UInt64 plcg::SerialLcg()
+
+   Return the current state of the serial LCG, and then advance to the next one.
+
+.. cpp:function:: plcg::UInt64 plcg::ParallelLcg()
+
+   Return the current state of our process's portion of the parallel LCG, 
+   and then advance to our next local state.
+
+.. cpp:function:: void plcg::ManualLcg( plcg::ExpandedUInt64 a, plcg::ExpandedUInt64 c, plcg::ExpandedUInt64& X )
+
+   :math:`X := a X + c \mod 2^{64}`.
+
+Sampling
+--------
+
+.. cpp:function:: R plcg::SerialUniform()
+
+   Return a uniform sample from :math:`(0,1]` using the serial LCG.
+
+.. cpp:function:: R plcg::ParallelUniform()
+
+   Return a uniform sample from :math:`(0,1]` using the parallel LCG.
+
+.. cpp:function:: void plcg::SerialBoxMuller( R& X, R& Y )
+
+   Return two samples from a normal distribution with mean 0 and standard 
+   deviation of 1 using the serial LCG.
+
+.. cpp:function:: void plcg::ParallelBoxMuller( R& X, R& Y )
+
+   Return two samples from a normal distribution with mean 0 and standard
+   deviation 1, but using the parallel LCG.
+
+.. cpp:function:: void plcg::SerialGaussianRandomVariable( R& X )
+
+   Return a single sample from a normal distribution with mean 0 and 
+   standard deviation 1 using the serial LCG.
+
+.. cpp:function:: void plcg::ParallelGaussianRandomVariable( R& X )
+
+   Return a single sample from a normal distribution with mean 0 and 
+   standard deviation 1, but using the parallel LCG.
+   
+.. cpp:function:: void plcg::SerialGaussianRandomVariable( std::complex<R>& X )
+
+   Return a single complex sample from a normal distribution with mean 0 and 
+   standard deviation 1 using the serial LCG.
+
+.. cpp:function:: void plcg::ParallelGaussianRandomVariable( std::complex<R>& X )
+
+   Return a single complex sample from a normal distribution with mean 0 and 
+   standard deviation 1, but using the parallel LCG.
+
+PMRRR
+=====
+Rather than directly using Petschow and Bientinesi's parallel implementation of 
+the Multiple Relatively Robust Representations (MRRR) algorithm, several 
+simplified interfaces have been exposed.
+
+Data structures
+---------------
+
+.. cpp:type:: struct pmrrr::Estimate
+
+   For returning upper bounds on the number of local and global eigenvalues
+   with eigenvalues lying in the specified interval, :math:`(a,b]`.
+
+   .. cpp:member:: int numLocalEigenvalues
+
+      The upper bound on the number of eigenvalues in the specified interval 
+      that our process stores locally.
+
+   .. cpp:member:: int numGlobalEigenvalues
+
+      The upper bound on the number of eigenvalues in the specified interval.
+
+.. cpp:type:: struct pmrrr::Info
+
+   For returning information about the computed eigenvalues.
+
+   .. cpp:member:: int numLocalEigenvalues
+
+      The number of computed eigenvalues that our process locally stores.
+
+   .. cpp:member:: int numGlobalEigenvalues
+
+      The number of computed eigenvalues.
+
+   .. cpp:member:: int firstLocalEigenvalue
+
+      The index of the first eigenvalue stored locally on our process.
+
+Compute all eigenvalues
+-----------------------
+
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, mpi::Comm comm )
+
+   Compute all of the eigenvalues of the real symmetric tridiagonal matrix with 
+   diagonal ``d`` and subdiagonal ``e``: the eigenvalues will be stored in 
+   ``w`` and the work will be divided among the processors in ``comm``.
+
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, double* Z, int ldz, mpi::Comm comm )
+
+   Same as above, but also compute the corresponding eigenvectors.
+
+Compute eigenvalues within interval
+-----------------------------------
+
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, mpi::Comm comm, double a, double b )
+
+   Only compute the eigenvalues lying within the interval :math:`(a,b]`.
+
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, double* Z, int ldz, mpi::Comm comm, double a, double b )
+
+   Same as above, but also compute the corresponding eigenvectors.
+
+.. cpp:function:: pmrrr::Estimate pmrrr::EigEstimate( int n, const double* d, const double* w, mpi::Comm comm, double a, double b )
+
+   Return upper bounds on the number of local and global eigenvalues lying 
+   within the specified interval.
+
+Compute eigenvalues in index range
+----------------------------------
+
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, mpi::Comm comm, int a, int b )
+
+   Only compute the ``a-b`` eigenvalues of the tridiagonal matrix, where 
+   :math:`0 \le a \le b < n`.
+
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, double* Z, int ldz, mpi::Comm comm, int a, int b )
+
+   Same as above, but also compute the corresponding eigenvectors.

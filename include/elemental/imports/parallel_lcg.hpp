@@ -78,7 +78,7 @@ UInt64 SerialLcg();
 UInt64 ParallelLcg();
 void ManualLcg( ExpandedUInt64 a, ExpandedUInt64 c, ExpandedUInt64& X );
 
-// For grabbing uniform samples from [0,1]
+// For grabbing uniform samples from (0,1]
 template<typename R> R SerialUniform();
 template<> float SerialUniform<float>();
 template<> double SerialUniform<double>();
@@ -87,18 +87,18 @@ template<> float ParallelUniform<float>();
 template<> double ParallelUniform<double>();
 
 // For generating Gaussian random variables/vectors
-template<typename Real>
-void SerialBoxMuller( Real& X, Real& Y );
-template<typename Real>
-void ParallelBoxMuller( Real& X, Real& Y );
-template<typename Real>
-void SerialGaussianRandomVariable( Real& X );
-template<typename Real>
-void ParallelGaussianRandomVariable( Real& X );
-template<typename Real>
-void SerialGaussianRandomVariable( std::complex<Real>& X );
-template<typename Real>
-void ParallelGaussianRandomVariable( std::complex<Real>& X );
+template<typename R>
+void SerialBoxMuller( R& X, R& Y );
+template<typename R>
+void ParallelBoxMuller( R& X, R& Y );
+template<typename R>
+void SerialGaussianRandomVariable( R& X );
+template<typename R>
+void ParallelGaussianRandomVariable( R& X );
+template<typename R>
+void SerialGaussianRandomVariable( std::complex<R>& X );
+template<typename R>
+void ParallelGaussianRandomVariable( std::complex<R>& X );
 
 } // namespace plcg
 

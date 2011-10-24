@@ -478,7 +478,7 @@ int init_workQ(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
 
 	    if (k == new_last-1)
 	      cl_last = new_last;
-	    else if (Wgap[k] > 0.5*avggap)
+             else if (k != cl_first && Wgap[k] > 0.8*avggap) 
 	      cl_last = k;
 	    else
 	      continue;
