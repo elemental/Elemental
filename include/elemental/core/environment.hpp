@@ -34,6 +34,7 @@
 #define ELEMENTAL_ENVIRONMENT_HPP 1
 
 #include "mpi.h"
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
