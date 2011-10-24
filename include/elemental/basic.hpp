@@ -868,7 +868,7 @@ elemental::basic::Axpy
 #ifndef RELEASE
         const unsigned YLength = ( Y.Width()==1 ? Y.Height() : Y.Width() );
         if( XLength != YLength )
-            throw std::logic_error( "Nonconformal Axpy." );
+            throw std::logic_error("Nonconformal Axpy");
 #endif
         if( X.Width()==1 && Y.Width()==1 )
         {
@@ -896,7 +896,7 @@ elemental::basic::Axpy
     {
 #ifndef RELEASE
         if( X.Height() != Y.Height() || X.Width() != Y.Width() )
-            throw std::logic_error( "Nonconformal Axpy." );
+            throw std::logic_error("Nonconformal Axpy");
 #endif
         if( X.Width() <= X.Height() )
         {
@@ -997,7 +997,7 @@ elemental::basic::DiagonalSolve
         {
             const F delta = d.Get(i,0);
             if( checkIfSingular && delta == (F)0 )
-                throw std::logic_error("diagonal entry was zero");
+                throw SingularMatrixException();
             const F deltaInv = static_cast<F>(1)/delta;
             F* XBuffer = X.Buffer(i,0);
             if( orientation == ADJOINT )
@@ -1014,7 +1014,7 @@ elemental::basic::DiagonalSolve
         {
             const F delta = d.Get(j,0);
             if( checkIfSingular && delta == (F)0 )
-                throw std::logic_error("diagonal entry was zero");
+                throw SingularMatrixException();
             const F deltaInv = static_cast<F>(1)/delta;
             F* XBuffer = X.Buffer(0,j);
             if( orientation == ADJOINT )
@@ -1039,11 +1039,11 @@ elemental::basic::Dot
     PushCallStack("basic::Dot");
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
-        throw std::logic_error( "Expected vector inputs." );
+        throw std::logic_error("Expected vector inputs");
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-        throw std::logic_error( "x and y must be the same length." );
+        throw std::logic_error("x and y must be the same length");
 #endif
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -1085,11 +1085,11 @@ elemental::basic::Dotc
     PushCallStack("basic::Dotc");
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
-        throw std::logic_error( "Expected vector inputs." );
+        throw std::logic_error("Expected vector inputs");
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-        throw std::logic_error( "x and y must be the same length." );
+        throw std::logic_error("x and y must be the same length");
 #endif
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -1131,11 +1131,11 @@ elemental::basic::Dotu
     PushCallStack("basic::Dotu");
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
-        throw std::logic_error( "Expected vector inputs." );
+        throw std::logic_error("Expected vector inputs");
     int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
     if( xLength != yLength )
-        throw std::logic_error( "x and y must be the same length." );
+        throw std::logic_error("x and y must be the same length");
 #endif
     T dotProduct;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -1176,7 +1176,7 @@ elemental::basic::Nrm2
 #ifndef RELEASE
     PushCallStack("basic::Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
-        throw std::logic_error( "Expected vector input." );
+        throw std::logic_error("Expected vector input");
 #endif
     R norm;
     if( x.Width() == 1 )
@@ -1198,7 +1198,7 @@ elemental::basic::Nrm2
 #ifndef RELEASE
     PushCallStack("basic::Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
-        throw std::logic_error( "Expected vector input." );
+        throw std::logic_error("Expected vector input");
 #endif
     R norm;
     if( x.Width() == 1 )
@@ -1297,7 +1297,7 @@ elemental::basic::Adjoint( const Matrix<T>& A, Matrix<T>& B )
         B.ResizeTo( n, m );
     else if( B.Height() != n || B.Width() != m )
         throw std::logic_error
-              ("If Adjoint'ing into a view, it must be the right size.");
+        ("If Adjoint'ing into a view, it must be the right size");
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             B.Set(j,i,Conj(A.Get(i,j)));
@@ -1319,7 +1319,7 @@ elemental::basic::Transpose( const Matrix<T>& A, Matrix<T>& B )
         B.ResizeTo( n, m );
     else if( B.Height() != n || B.Width() != m )
         throw std::logic_error
-              ("If Transposing into a view, it must be the right size.");
+        ("If Transposing into a view, it must be the right size");
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             B.Set(j,i,A.Get(i,j));
@@ -1344,10 +1344,10 @@ elemental::basic::Gemv
         ( y.Height() != 1 && y.Width() != 1 ) )
     {
         std::ostringstream msg;
-        msg << "x and y must be vectors: " << std::endl
-            << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
-            << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
-        throw std::logic_error( msg.str() );
+        msg << "x and y must be vectors:\n"
+            << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
+            << "  y ~ " << y.Height() << " x " << y.Width();
+        throw std::logic_error( msg.str().c_str() );
     }
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
@@ -1356,11 +1356,11 @@ elemental::basic::Gemv
         if( A.Height() != yLength || A.Width() != xLength )
         {
             std::ostringstream msg;
-            msg << "A must conform with x and y:" << std::endl
-                << "  A ~ " << A.Height() << " x " << A.Width() << std::endl
-                << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
-                << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
-            throw std::logic_error( msg.str() );
+            msg << "A must conform with x and y:\n"
+                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+                << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
+                << "  y ~ " << y.Height() << " x " << y.Width();
+            throw std::logic_error( msg.str().c_str() );
         }
     }
     else
@@ -1368,11 +1368,11 @@ elemental::basic::Gemv
         if( A.Width() != yLength || A.Height() != xLength )
         {
             std::ostringstream msg;
-            msg << "A must conform with x and y:" << std::endl
-                << "  A ~ " << A.Height() << " x " << A.Width() << std::endl
-                << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
-                << "  y ~ " << y.Height() << " x " << y.Width() << std::endl;
-            throw std::logic_error( msg.str() );
+            msg << "A must conform with x and y:\n"
+                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+                << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
+                << "  y ~ " << y.Height() << " x " << y.Width();
+            throw std::logic_error( msg.str().c_str() );
         }
     }
 #endif
@@ -1407,17 +1407,17 @@ elemental::basic::Ger
     PushCallStack("basic::Ger");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
-        throw std::logic_error( "x and y must be vectors." );
+        throw std::logic_error("x and y must be vectors");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Width() )
     {
         std::ostringstream msg;
-        msg << "Nonconformal Ger: " << std::endl
-            << "  x ~ " << x.Height() << " x " << x.Width() << std::endl
-            << "  y ~ " << y.Height() << " x " << y.Width() << std::endl
-            << "  A ~ " << A.Height() << " x " << A.Width() << std::endl;
-        throw std::logic_error( msg.str() );
+        msg << "Nonconformal Ger:\n"
+            << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
+            << "  y ~ " << y.Height() << " x " << y.Width() << "\n"
+            << "  A ~ " << A.Height() << " x " << A.Width();
+        throw std::logic_error( msg.str().c_str() );
     }
 #endif
     const int m = A.Height(); 
@@ -1441,11 +1441,11 @@ elemental::basic::Gerc
     PushCallStack("basic::Gerc");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
-        throw std::logic_error( "x and y must be vectors." );
+        throw std::logic_error("x and y must be vectors");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Width() )
-        throw std::logic_error( "Nonconformal Gerc." );
+        throw std::logic_error("Nonconformal Gerc");
 #endif
     const int m = A.Height(); 
     const int n = A.Width();
@@ -1468,11 +1468,11 @@ elemental::basic::Geru
     PushCallStack("basic::Geru");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
-        throw std::logic_error( "x and y must be vectors." );
+        throw std::logic_error("x and y must be vectors");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Width() )
-        throw std::logic_error( "Nonconformal Geru." );
+        throw std::logic_error("Nonconformal Geru");
 #endif
     const int m = A.Height(); 
     const int n = A.Width();
@@ -1495,14 +1495,14 @@ elemental::basic::Hemv
 #ifndef RELEASE
     PushCallStack("basic::Hemv");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
-        throw std::logic_error( "x and y must be vectors." );
+        throw std::logic_error("x and y must be vectors");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
-        throw std::logic_error( "A must conform with x and y." );
+        throw std::logic_error("A must conform with x and y");
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1525,12 +1525,12 @@ elemental::basic::Her
 #ifndef RELEASE
     PushCallStack("basic::Her");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
     if( x.Width() != 1 && x.Height() != 1 )
-        throw std::logic_error( "x must be a vector." );
+        throw std::logic_error("x must be a vector");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     if( xLength != A.Height() )
-        throw std::logic_error( "x must conform with A." );
+        throw std::logic_error("x must conform with A");
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1551,14 +1551,14 @@ elemental::basic::Her2
 #ifndef RELEASE
     PushCallStack("basic::Her2");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
     if( (x.Width() != 1 && x.Height() != 1) || 
         (y.Width() != 1 && y.Height() != 1) )
-        throw std::logic_error( "x and y must be vectors." );
+        throw std::logic_error("x and y must be vectors");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Height() )
-        throw std::logic_error( "x and y must conform with A." );
+        throw std::logic_error("x and y must conform with A");
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1582,14 +1582,14 @@ elemental::basic::Symv
 #ifndef RELEASE
     PushCallStack("basic::Symv");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
-        throw std::logic_error( "x and y must be vectors." );
+        throw std::logic_error("x and y must be vectors");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
-        throw std::logic_error( "A must conform with x and y." );
+        throw std::logic_error("A must conform with x and y");
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1612,12 +1612,12 @@ elemental::basic::Syr
 #ifndef RELEASE
     PushCallStack("basic::Syr");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
     if( x.Width() != 1 && x.Height() != 1 )
-        throw std::logic_error( "x must be a vector." );
+        throw std::logic_error("x must be a vector");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     if( xLength != A.Height() )
-        throw std::logic_error( "x must conform with A." );
+        throw std::logic_error("x must conform with A");
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1637,14 +1637,14 @@ elemental::basic::Syr2
 #ifndef RELEASE
     PushCallStack("basic::Syr2");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
     if( (x.Width() != 1 && x.Height() != 1) || 
         (y.Width() != 1 && y.Height() != 1) )
-        throw std::logic_error( "x and y must be vectors." );
+        throw std::logic_error("x and y must be vectors");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Height() )
-        throw std::logic_error( "x and y must conform with A." );
+        throw std::logic_error("x and y must conform with A");
 #endif
     const char uploChar = ShapeToChar( shape );
     const int m = A.Height();
@@ -1668,12 +1668,12 @@ elemental::basic::Trmv
 #ifndef RELEASE
     PushCallStack("basic::Trmv");
     if( x.Height() != 1 && x.Width() != 1 )
-        throw std::logic_error( "x must be a vector." );
+        throw std::logic_error("x must be a vector");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     if( xLength != A.Height() )
-        throw std::logic_error( "x must conform with A." );
+        throw std::logic_error("x must conform with A");
 #endif
     const char uploChar = ShapeToChar( shape );
     const char transChar = OrientationToChar( orientation );
@@ -1697,12 +1697,12 @@ elemental::basic::Trsv
 #ifndef RELEASE
     PushCallStack("basic::Trsv");
     if( x.Height() != 1 && x.Width() != 1 )
-        throw std::logic_error( "x must be a vector." );
+        throw std::logic_error("x must be a vector");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
     const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
     if( xLength != A.Height() )
-        throw std::logic_error( "x must conform with A." );
+        throw std::logic_error("x must conform with A");
 #endif
     const char uploChar = ShapeToChar( shape );
     const char transChar = OrientationToChar( orientation );
@@ -1734,28 +1734,28 @@ elemental::basic::Gemm
         if( A.Height() != C.Height() ||
             B.Width()  != C.Width()  ||
             A.Width()  != B.Height() )
-            throw std::logic_error( "Nonconformal GemmNN." );
+            throw std::logic_error("Nonconformal GemmNN");
     }
     else if( orientationOfA == NORMAL )
     {
         if( A.Height() != C.Height() ||
             B.Height() != C.Width()  ||
             A.Width()  != B.Width() )
-            throw std::logic_error( "Nonconformal GemmN(T/C)." );
+            throw std::logic_error("Nonconformal GemmN(T/C)");
     }
     else if( orientationOfB == NORMAL )
     {
         if( A.Width()  != C.Height() ||
             B.Width()  != C.Width()  ||
             A.Height() != B.Height() )
-            throw std::logic_error( "Nonconformal Gemm(T/C)N." );
+            throw std::logic_error("Nonconformal Gemm(T/C)N");
     }
     else
     {
         if( A.Width()  != C.Height() ||
             B.Height() != C.Width()  ||
             A.Height() != B.Width() )
-            throw std::logic_error( "Nonconformal Gemm(T/C)(T/C)." );
+            throw std::logic_error("Nonconformal Gemm(T/C)(T/C)");
     }
 #endif
     const char transA = OrientationToChar( orientationOfA );
@@ -1812,17 +1812,17 @@ elemental::basic::Her2k
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
             B.Height() != C.Height() ||B.Height() != C.Width() )
-            throw std::logic_error( "Nonconformal Her2k." );
+            throw std::logic_error("Nonconformal Her2k");
     }
     else if( orientation == ADJOINT )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() ||
             B.Width() != C.Height() || B.Width() != C.Width() )
-            throw std::logic_error( "Nonconformal Her2k." );
+            throw std::logic_error("Nonconformal Her2k");
     }
     else
         throw std::logic_error
-        ( "Her2k only accepts NORMAL and ADJOINT options." );
+        ("Her2k only accepts NORMAL and ADJOINT options");
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
@@ -1848,12 +1848,12 @@ elemental::basic::Herk
     if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() )
-            throw std::logic_error( "Nonconformal Herk." );
+            throw std::logic_error("Nonconformal Herk");
     }
     else if( orientation == ADJOINT )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() )
-            throw std::logic_error( "Nonconformal Herk." );
+            throw std::logic_error("Nonconformal Herk");
     }
     else
         throw std::logic_error("Herk only accepts NORMAL and ADJOINT options.");
@@ -1917,17 +1917,17 @@ elemental::basic::Syr2k
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
             B.Height() != C.Height() ||B.Height() != C.Width()    )
-            throw std::logic_error( "Nonconformal Syr2k." );
+            throw std::logic_error("Nonconformal Syr2k");
     }
     else if( orientation == TRANSPOSE )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() ||
             B.Width() != C.Height() || B.Width() != C.Width()   )
-            throw std::logic_error( "Nonconformal Syr2k." );
+            throw std::logic_error("Nonconformal Syr2k");
     }
     else
         throw std::logic_error
-        ( "Syr2k only accepts NORMAL and TRANSPOSE options." );
+        ("Syr2k only accepts NORMAL and TRANSPOSE options");
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
@@ -1953,16 +1953,16 @@ elemental::basic::Syrk
     if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() )
-            throw std::logic_error( "Nonconformal Syrk." );
+            throw std::logic_error("Nonconformal Syrk");
     }
     else if( orientation == TRANSPOSE )
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() )
-            throw std::logic_error( "Nonconformal Syrk." );
+            throw std::logic_error("Nonconformal Syrk");
     }
     else
         throw std::logic_error
-        ( "Syrk only accepts NORMAL and TRANSPOSE options." );
+        ("Syrk only accepts NORMAL and TRANSPOSE options");
 #endif
     const char uplo = ShapeToChar( shape );
     const char trans = OrientationToChar( orientation );
@@ -1986,16 +1986,16 @@ elemental::basic::Trmm
 #ifndef RELEASE
     PushCallStack("basic::Trmm");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "Triangular matrix must be square." );
+        throw std::logic_error("Triangular matrix must be square");
     if( side == LEFT )
     {
         if( A.Height() != B.Height() )
-            throw std::logic_error( "Nonconformal Trmm." );
+            throw std::logic_error("Nonconformal Trmm");
     }
     else
     {
         if( A.Height() != B.Width() )
-            throw std::logic_error( "Nonconformal Trmm." );
+            throw std::logic_error("Nonconformal Trmm");
     }
 #endif
     const char sideChar = SideToChar( side );
@@ -2021,16 +2021,16 @@ elemental::basic::Trsm
 #ifndef RELEASE
     PushCallStack("basic::Trsm");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "Triangular matrix must be square." );
+        throw std::logic_error("Triangular matrix must be square");
     if( side == LEFT )
     {
         if( A.Height() != B.Height() )
-            throw std::logic_error( "Nonconformal Trsm." );
+            throw std::logic_error("Nonconformal Trsm");
     }
     else
     {
         if( A.Height() != B.Width() )
-            throw std::logic_error( "Nonconformal Trsm." );
+            throw std::logic_error("Nonconformal Trsm");
     }
 #endif
     const char sideChar = SideToChar( side );
@@ -2042,7 +2042,7 @@ elemental::basic::Trsm
         const int n = A.Height();
         for( int j=0; j<n; ++j )
             if( A.Get(j,j) == (F)0 )
-                throw std::runtime_error("Triangular matrix was singular");
+                throw SingularMatrixException();
     }
     blas::Trsm
     ( sideChar, uploChar, transChar, diagChar, B.Height(), B.Width(),
@@ -2065,10 +2065,10 @@ elemental::basic::Axpy
     PushCallStack("basic::Axpy");
     if( X.Grid() != Y.Grid() )
         throw std::logic_error
-        ( "X and Y must be distributed over the same grid." );
+        ("X and Y must be distributed over the same grid");
     if( X.ColAlignment() != Y.ColAlignment() ||
         X.RowAlignment() != Y.RowAlignment() )
-        throw std::logic_error( "Axpy requires X and Y be aligned." );
+        throw std::logic_error("Axpy requires X and Y be aligned");
 #endif
     basic::Axpy( alpha, X.LockedLocalMatrix(), Y.LocalMatrix() );
 #ifndef RELEASE
@@ -2288,7 +2288,7 @@ elemental::basic::Adjoint
         else if( B.Height() != A.Width() || B.Width() != A.Height() )
         {
             throw std::logic_error
-                  ("If Adjoint'ing into a view, it must be the right size.");
+            ("If Adjoint'ing into a view, it must be the right size");
         }
         basic::Adjoint( C.LockedLocalMatrix(), B.LocalMatrix() );
     }
@@ -2332,7 +2332,7 @@ elemental::basic::Transpose
         else if( B.Height() != A.Width() || B.Width() != A.Height() )
         {
             throw std::logic_error
-            ("If Transposing into a view, it must be the right size.");
+            ("If Transposing into a view, it must be the right size");
         }
         basic::Transpose( C.LockedLocalMatrix(), B.LocalMatrix() );
     }

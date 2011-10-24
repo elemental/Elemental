@@ -45,7 +45,12 @@
 #include <sstream>
 #include <stack>
 #include <stdexcept>
+#include <string>
 #include <vector>
+
+#ifndef WITHOUT_COMPLEX
+#include <complex>
+#endif
 
 #include "elemental/config.h"
 
@@ -66,8 +71,20 @@ void PushCallStack( std::string s );
 void PopCallStack();
 void DumpCallStack();
 
-}
+// For extracting the underlying real datatype, 
+// e.g., typename RealBase<Scalar>::type a = 3.0;
+template<typename R>
+struct RealBase
+{ typedef R type; };
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+struct RealBase<std::complex<R> >
+{ typedef R type; };
 #endif
+
+} // namespace elemental
+#endif // ifndef RELEASE
 
 #include "elemental/core/types.hpp"
 #include "elemental/core/utilities.hpp"
@@ -120,15 +137,21 @@ template<typename Z>
 std::complex<Z> Conj( std::complex<Z> alpha );
 #endif
 
-// For extracting the underlying real datatype, 
-// e.g., typename RealBase<Scalar>::type a = 3.0;
-template<typename R>
-struct RealBase
-{ typedef R type; };
+// An exception which signifies that a matrix was unexpectedly singular.
+class SingularMatrixException : public std::runtime_error 
+{
+public:
+    SingularMatrixException( const char* msg="Matrix was singular" ) 
+    : std::runtime_error( msg ) { }
+};
 
-template<typename R>
-struct RealBase<std::complex<R> >
-{ typedef R type; };
+// An exception which signifies that a matrix was unexpectedly non-HPD
+class NonHPDMatrixException  : public std::runtime_error
+{
+public:
+    NonHPDMatrixException( const char* msg="Matrix was not HPD" )
+    : std::runtime_error( msg ) { }
+};
 
 // We define an output stream that does nothing. This is done so that the 
 // root process can be used to print data to a file's ostream while all other 
@@ -207,13 +230,9 @@ ScalarWrapper<std::complex<R> > WrapScalar( std::complex<R> alpha );
 
 #endif // ifdef DISABLE_SCALAR_WRAPPER
 
-} // elemental
-
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
-
-namespace elemental {
 
 #ifdef DISABLE_SCALAR_WRAPPER
 

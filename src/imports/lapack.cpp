@@ -161,12 +161,14 @@ elemental::lapack::Cholesky
 #endif
     int info;
     LAPACK(spotrf)( &uplo, &n, A, &lda, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "spotrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw NonHPDMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -181,12 +183,14 @@ elemental::lapack::Cholesky
 #endif
     int info;
     LAPACK(dpotrf)( &uplo, &n, A, &lda, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "dpotrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw NonHPDMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -202,12 +206,14 @@ elemental::lapack::Cholesky
 #endif
     int info;
     LAPACK(cpotrf)( &uplo, &n, A, &lda, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "cpotrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw NonHPDMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -222,12 +228,14 @@ elemental::lapack::Cholesky
 #endif
     int info;
     LAPACK(zpotrf)( &uplo, &n, A, &lda, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "zpotrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw NonHPDMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -243,12 +251,14 @@ elemental::lapack::LU
 #endif
     int info;
     LAPACK(sgetrf)( &m, &n, A, &lda, p, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "sgetrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw SingularMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -263,12 +273,14 @@ elemental::lapack::LU
 #endif
     int info;
     LAPACK(dgetrf)( &m, &n, A, &lda, p, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "dgetrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw SingularMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -284,12 +296,14 @@ elemental::lapack::LU
 #endif
     int info;
     LAPACK(cgetrf)( &m, &n, A, &lda, p, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "cgetrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw SingularMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -304,12 +318,14 @@ elemental::lapack::LU
 #endif
     int info;
     LAPACK(zgetrf)( &m, &n, A, &lda, p, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "zgetrf returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw SingularMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -334,7 +350,7 @@ elemental::lapack::Hegst
     {
         std::ostringstream msg;
         msg << "ssygst returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -355,7 +371,7 @@ elemental::lapack::Hegst
     {
         std::ostringstream msg;
         msg << "dsygst returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -377,7 +393,7 @@ elemental::lapack::Hegst
     {
         std::ostringstream msg;
         msg << "chegst returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -398,7 +414,7 @@ elemental::lapack::Hegst
     {
         std::ostringstream msg;
         msg << "zhegst returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -471,12 +487,14 @@ elemental::lapack::TriangularInverse
 #endif
     int info;
     LAPACK(strtri)( &uplo, &diag, &n, A, &lda, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "strtri returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw SingularMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -491,12 +509,14 @@ elemental::lapack::TriangularInverse
 #endif
     int info;
     LAPACK(dtrtri)( &uplo, &diag, &n, A, &lda, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "dtrtri returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw SingularMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -512,12 +532,14 @@ elemental::lapack::TriangularInverse
 #endif
     int info;
     LAPACK(ctrtri)( &uplo, &diag, &n, A, &lda, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "ctrtri returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw SingularMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -532,12 +554,14 @@ elemental::lapack::TriangularInverse
 #endif
     int info;
     LAPACK(ztrtri)( &uplo, &diag, &n, A, &lda, &info );
-    if( info != 0 )
+    if( info < 0 )
     {
         std::ostringstream msg;
         msg << "ztrtri returned with info = " << info;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
+    else if( info > 0 )
+        throw SingularMatrixException();
 #ifndef RELEASE
     PopCallStack();
 #endif

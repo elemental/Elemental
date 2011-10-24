@@ -94,6 +94,8 @@ elemental::advanced::internal::LDLVar3
 
         // Extract and store the diagonal of D
         const F alpha11 = ABuffer[j+j*lda];
+        if( alpha11 == (F)0 )
+            throw SingularMatrixException();
         dBuffer[j] = alpha11; 
 
         // Make a copy of a21 in s21 before scaling

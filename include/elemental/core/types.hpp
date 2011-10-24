@@ -33,11 +33,6 @@
 #ifndef ELEMENTAL_TYPES_HPP
 #define ELEMENTAL_TYPES_HPP 1
 
-#ifndef WITHOUT_COMPLEX
-#include <complex>
-#endif
-#include <string>
-
 namespace elemental {
 
 typedef unsigned char byte;
@@ -46,6 +41,19 @@ typedef unsigned char byte;
 typedef std::complex<float>  scomplex; 
 typedef std::complex<double> dcomplex;
 #endif
+
+// For the safe computation of products. The result is given by 
+//   product = rho * exp(log(K))^n = rho * exp(log(K)*n),
+// where rho lies on the unit circle and logK is real-valued.
+template<typename F>
+struct SafeProduct
+{
+    F rho;
+    typename RealBase<F>::type logK;
+    int n;
+
+    SafeProduct( int numEntries ) : rho(1), logK(0), n(numEntries) { }
+};
 
 enum Diagonal
 {

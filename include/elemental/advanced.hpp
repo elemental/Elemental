@@ -68,6 +68,29 @@ void CholeskySolve
 ( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& X );
 
 //----------------------------------------------------------------------------//
+// Determinant:                                                               //
+//                                                                            //
+// Return (rho,log(K),n) such that det(A) = rho K^n.                          //
+// This decomposition of the determinant is done in order to reduce the       //
+// possibility of (under/over)flow.                                           //
+//----------------------------------------------------------------------------//
+
+// These will be written in the near future
+/*
+template<typename F>
+SafeProduct Determinant( DistMatrix<F,MC,MR>& A );
+
+template<typename F>
+SafeProduct HermitianDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
+
+template<typename F>
+SafeProduct HPDDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
+
+template<typename F>
+SafeProduct SymmetricDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
+*/
+
+//----------------------------------------------------------------------------//
 // GaussianElimination:                                                       //
 //                                                                            //
 // Uses an LU factorization with partial pivoting to overwrite B := A^-1 B    //
@@ -850,7 +873,7 @@ elemental::advanced::Cholesky
 #ifndef RELEASE
     PushCallStack("advanced::Cholesky");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
 #endif
     const char uplo = ShapeToChar( shape );
     lapack::Cholesky( uplo, A.Height(), A.Buffer(), A.LDim() );
@@ -867,11 +890,11 @@ elemental::advanced::Hegst
 #ifndef RELEASE
     PushCallStack("advanced::Hegst");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
     if( B.Height() != B.Width() )
-        throw std::logic_error( "B must be square." );
+        throw std::logic_error("B must be square");
     if( A.Height() != B.Height() )
-        throw std::logic_error( "A and B must be the same size." );
+        throw std::logic_error("A and B must be the same size");
 #endif
     const int itype = ( side==LEFT ? 2 : 1 );
     const char uplo = ShapeToChar( shape );
@@ -891,7 +914,7 @@ elemental::advanced::LU
 #ifndef RELEASE
     PushCallStack("advanced::LU");
     if( p.Height() != A.Height() )
-        throw std::logic_error( "A and p must be the same height." );
+        throw std::logic_error("A and p must be the same height");
 #endif
     lapack::LU
     ( A.Height(), A.Width(), A.Buffer(), A.LDim(), p.Buffer() );
@@ -966,7 +989,7 @@ elemental::advanced::TriangularInverse
 #ifndef RELEASE
     PushCallStack("advanced::TriangularInverse");
     if( A.Height() != A.Width() )
-        throw std::logic_error( "A must be square." );
+        throw std::logic_error("A must be square");
 #endif
     const char uplo = ShapeToChar( shape );
     const char diag = DiagonalToChar( diagonal );

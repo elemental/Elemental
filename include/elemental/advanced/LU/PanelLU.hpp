@@ -198,7 +198,10 @@ elemental::advanced::internal::PanelLU
         }
 
         // Now we can perform the update of the current panel
-        F alpha11Inv = ((F)1) / alpha11.GetLocalEntry(0,0);
+        F alpha = alpha11.GetLocalEntry(0,0);
+        if( alpha == (F)0 )
+            throw SingularMatrixException();
+        F alpha11Inv = ((F)1) / alpha;
         basic::Scal( alpha11Inv, a21.LocalMatrix() );
         basic::Scal( alpha11Inv, b1.LocalMatrix()  );
         basic::Geru
