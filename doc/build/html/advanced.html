@@ -46,82 +46,174 @@
             
   <div class="section" id="advanced-linear-algebra">
 <h1>Advanced linear algebra<a class="headerlink" href="#advanced-linear-algebra" title="Permalink to this headline">¶</a></h1>
+<p>This chapter describes all of the linear algebra operations which are not basic
+enough to fall within the BLAS (Basic Linear Algebra Subprograms) framework, and
+are therefore in the domain of LAPACK-like software.</p>
 <div class="section" id="norms">
 <h2>Norms<a class="headerlink" href="#norms" title="Permalink to this headline">¶</a></h2>
+<p>Several matrix norm routines are provided for general, Hermitian, and symmetric
+(distributed) matrices; each of the following routines can return either
+<img class="math" src="_images/math/6df3655a46bcf05e69c17b473e1be8e1151d3164.png" alt="||A||_1"/>, <img class="math" src="_images/math/a5e88845fceee36f68644bfd6965b1255b607143.png" alt="||A||_\infty"/>, <img class="math" src="_images/math/266b0b4d1ae415f1b4b5d681ea5aa30ef9acbf95.png" alt="||A||_F"/> (the Frobenius norm), or
+the maximum entrywise norm. The matrix two-norm is quite expensive to directly
+compute, so a probabilistic algorithm (based upon Dixon&#8217;s approach) will be added
+in the near future.</p>
 <div class="section" id="norm">
 <h3>Norm<a class="headerlink" href="#norm" title="Permalink to this headline">¶</a></h3>
-<p>Describe <img class="math" src="_images/math/6df3655a46bcf05e69c17b473e1be8e1151d3164.png" alt="||A||_1"/>, <img class="math" src="_images/math/a5e88845fceee36f68644bfd6965b1255b607143.png" alt="||A||_\infty"/>, and
-<img class="math" src="_images/math/266b0b4d1ae415f1b4b5d681ea5aa30ef9acbf95.png" alt="||A||_F"/>, and the maximum norm.</p>
+<dl class="function">
+<dt id="advanced::Norm__Matrix:R:CR.NormType">
+R <tt class="descclassname">advanced::</tt><tt class="descname">Norm</tt><big>(</big>const Matrix&lt;R&gt;&amp; <em>A</em>, NormType <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#advanced::Norm__Matrix:R:CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the norm of the real matrix <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::Norm__DistMatrix:R.MC.MR:CR.NormType">
+R <tt class="descclassname">advanced::</tt><tt class="descname">Norm</tt><big>(</big>const DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em>, NormType <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#advanced::Norm__DistMatrix:R.MC.MR:CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the norm of the real distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::Norm__Matrix:std::complex:R::CR.NormType">
+R <tt class="descclassname">advanced::</tt><tt class="descname">Norm</tt><big>(</big>const Matrix&lt;std::complex&lt;R&gt;&gt;&amp; <em>A</em>, NormType <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#advanced::Norm__Matrix:std::complex:R::CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the norm of the complex matrix <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::Norm__DistMatrix:std::complex:R:.MC.MR:CR.NormType">
+R <tt class="descclassname">advanced::</tt><tt class="descname">Norm</tt><big>(</big>const DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, NormType <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#advanced::Norm__DistMatrix:std::complex:R:.MC.MR:CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the norm of the complex distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="hermitiannorm">
 <h3>HermitianNorm<a class="headerlink" href="#hermitiannorm" title="Permalink to this headline">¶</a></h3>
-<p>Same, but with added Shape parameter. Give examples.</p>
+<p>Same as <tt class="docutils literal"><span class="pre">advanced::Norm</span></tt>, but the (distributed) matrix is implicitly Hermitian
+with the data stored in the triangle specified by <tt class="docutils literal"><span class="pre">shape</span></tt>.</p>
 </div>
 <div class="section" id="symmetricnorm">
 <h3>SymmetricNorm<a class="headerlink" href="#symmetricnorm" title="Permalink to this headline">¶</a></h3>
-<p>Meant for symmetric matrices. Currenty a wrapper around <tt class="docutils literal"><span class="pre">HermitianNorm</span></tt>.</p>
+<p>Same as <tt class="docutils literal"><span class="pre">advanced::Norm</span></tt>, but the (distributed) matrix is implicitly symmetric
+with the data stored in the triangle specified by <tt class="docutils literal"><span class="pre">shape</span></tt>.</p>
 </div>
 </div>
 <div class="section" id="factorizations">
 <h2>Factorizations<a class="headerlink" href="#factorizations" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="cholesky-factorization">
 <h3>Cholesky factorization<a class="headerlink" href="#cholesky-factorization" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::Cholesky</span></tt> here.</p>
+<p>It is well-known that Hermitian positive-definite (HPD) matrices can be decomposed
+into the form <img class="math" src="_images/math/ca933b554415dd7d2a237b58d30efca48f7ec6fa.png" alt="A = L L^H"/> or <img class="math" src="_images/math/02578cfe6f06b317410d2505d9105fe146e719dd.png" alt="A = U^H U"/>, where <img class="math" src="_images/math/0c8f8ffdd9a7883937052d43dd13b0e5143e3c4b.png" alt="L=U^H"/> is lower
+triangular, and Cholesky factorization provides such an <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (or <img class="math" src="_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/>)
+given an HPD <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>.</p>
+<dl class="function">
+<dt id="advanced::Cholesky__Shape.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big>Shape <em>shape</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__Shape.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the <tt class="docutils literal"><span class="pre">shape</span></tt> triangle of the HPD matrix <cite>A</cite> with its Cholesky factor.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::Cholesky__Shape.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__Shape.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the <tt class="docutils literal"><span class="pre">shape</span></tt> triangle of the distributed HPD matrix <tt class="docutils literal"><span class="pre">A</span></tt> with its
+Cholesky factor.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="factorization">
 <h3><img class="math" src="_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization<a class="headerlink" href="#factorization" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::LDLH</span></tt> here.</p>
+<p>Though the Cholesky factorization is ideal for most HPD matrices, there exist
+many Hermitian matrices whose eigenvalues are not all positive. The
+<img class="math" src="_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization exists as slight relaxation of the Cholesky
+factorization, i.e., it computes lower-triangular (with unit diagonal) <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>
+and diagonal <img class="math" src="_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/> such that <img class="math" src="_images/math/3f4b793dfcea5224f0856af622de1316bd7c481c.png" alt="A = L D L^H"/>.</p>
+<dl class="function">
+<dt id="advanced::LDLH__Matrix:F:R.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LDLH</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#advanced::LDLH__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the strictly lower triangle of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the strictly lower
+portion of <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (<img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> implicitly has ones on its diagonal) and
+the diagonal with <img class="math" src="_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>, and then also return the diagonal of <img class="math" src="_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>
+in the vector <tt class="docutils literal"><span class="pre">d</span></tt>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">No pivoting is currently performed, so please use with caution.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::LDLH__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LDLH</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, STAR&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#advanced::LDLH__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but for distributed matrices.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="id1">
 <h3><img class="math" src="_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::LDLT</span></tt> here.</p>
+<p>While the <img class="math" src="_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization targets Hermitian matrices, the
+<img class="math" src="_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization targets symmetric matrices.</p>
+<dl class="function">
+<dt id="advanced::LDLT__Matrix:F:R.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LDLT</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#advanced::LDLT__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the strictly lower triangle of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the strictly lower
+portion of <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (<img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> implicitly has ones on its diagonal) and
+the diagonal with <img class="math" src="_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>, and then also return the diagonal of <img class="math" src="_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>
+in the vector <tt class="docutils literal"><span class="pre">d</span></tt>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">No pivoting is currently performed, so please use with caution.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::LDLT__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LDLT</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, STAR&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#advanced::LDLT__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but for distributed matrices.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="id2">
 <h3><img class="math" src="_images/math/f41c1b0893f231128abe8ae33a92b366d6c65db3.png" alt="LU"/> factorization<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::LU</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::LU</span></tt> here.</p>
 </div>
 <div class="section" id="id3">
 <h3><img class="math" src="_images/math/74a751df89f77e97ef080654dfb03f981240a469.png" alt="LQ"/> factorization<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::LQ</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::LQ</span></tt> here.</p>
 </div>
 <div class="section" id="id4">
 <h3><img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> factorization<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::QR</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::QR</span></tt> here.</p>
 </div>
 </div>
 <div class="section" id="linear-solvers">
 <h2>Linear solvers<a class="headerlink" href="#linear-solvers" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="cholesky-solve">
 <h3>Cholesky solve<a class="headerlink" href="#cholesky-solve" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::CholeskySolve</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::CholeskySolve</span></tt> here.</p>
 </div>
 <div class="section" id="gaussian-elimination">
 <h3>Gaussian Elimination<a class="headerlink" href="#gaussian-elimination" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::GaussianElimination</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::GaussianElimination</span></tt> here.</p>
 </div>
 <div class="section" id="householder-solve">
 <h3>Householder solve<a class="headerlink" href="#householder-solve" title="Permalink to this headline">¶</a></h3>
-<p>Solves a general overdetermined or underdetermined linear systems using
-a <img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> or <img class="math" src="_images/math/74a751df89f77e97ef080654dfb03f981240a469.png" alt="LQ"/> factorization, respectively. The routine is named
-<tt class="docutils literal"><span class="pre">advanced::HouseholderSolve</span></tt>.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::HouseholderSolve</span></tt>.
+Solves a general overdetermined or underdetermined linear systems using
+a <img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> or <img class="math" src="_images/math/74a751df89f77e97ef080654dfb03f981240a469.png" alt="LQ"/> factorization, respectively.</p>
 </div>
 </div>
 <div class="section" id="direct-inversion">
 <h2>Direct inversion<a class="headerlink" href="#direct-inversion" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="hpd-inversion">
 <h3>HPD inversion<a class="headerlink" href="#hpd-inversion" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::HPDInverse</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::HPDInverse</span></tt> here.</p>
 </div>
 <div class="section" id="triangular-inversion">
 <h3>Triangular inversion<a class="headerlink" href="#triangular-inversion" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::TriangularInverse</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::TriangularInverse</span></tt> here.</p>
 </div>
 </div>
 <div class="section" id="reduction-to-condensed-form">
 <h2>Reduction to Condensed Form<a class="headerlink" href="#reduction-to-condensed-form" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="hermitian-to-tridiagonal">
 <h3>Hermitian to tridiagonal<a class="headerlink" href="#hermitian-to-tridiagonal" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::HermitianTridiag</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::HermitianTridiag</span></tt> here.</p>
 </div>
 <div class="section" id="general-to-hessenberg">
 <h3>General to Hessenberg<a class="headerlink" href="#general-to-hessenberg" title="Permalink to this headline">¶</a></h3>
@@ -136,48 +228,64 @@ a <img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.p
 <h2>Eigensolvers and SVD<a class="headerlink" href="#eigensolvers-and-svd" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="hermitian-eigensolver">
 <h3>Hermitian eigensolver<a class="headerlink" href="#hermitian-eigensolver" title="Permalink to this headline">¶</a></h3>
-<p>Describe <img class="math" src="_images/math/ce1b74268edddc941676389e70780233b1b7e8c1.png" alt="Ax=\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::HermitianEig</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <img class="math" src="_images/math/ce1b74268edddc941676389e70780233b1b7e8c1.png" alt="Ax=\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::HermitianEig</span></tt> here.</p>
 </div>
 <div class="section" id="skew-hermitian-eigensolver">
 <h3>Skew-Hermitian eigensolver<a class="headerlink" href="#skew-hermitian-eigensolver" title="Permalink to this headline">¶</a></h3>
-<p>Describe <img class="math" src="_images/math/6c977466b52927687f65a7e1bae3502a939a8b76.png" alt="Gx=\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::SkewHermitianEig</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <img class="math" src="_images/math/6c977466b52927687f65a7e1bae3502a939a8b76.png" alt="Gx=\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::SkewHermitianEig</span></tt> here.</p>
 </div>
 <div class="section" id="hermitian-generalized-definite-eigensolvers">
 <h3>Hermitian generalized-definite eigensolvers<a class="headerlink" href="#hermitian-generalized-definite-eigensolvers" title="Permalink to this headline">¶</a></h3>
-<p>Describe <img class="math" src="_images/math/33ec4d2f57d5893939e581d8a3538d8bd62fb2c5.png" alt="ABx=\lambda x"/>, <img class="math" src="_images/math/718dc759ba10ce51232a298a45e2668bfc9cda7c.png" alt="BAx=\lambda x"/>, and
+<p><strong>TODO:</strong> Describe <img class="math" src="_images/math/33ec4d2f57d5893939e581d8a3538d8bd62fb2c5.png" alt="ABx=\lambda x"/>, <img class="math" src="_images/math/718dc759ba10ce51232a298a45e2668bfc9cda7c.png" alt="BAx=\lambda x"/>, and
 <img class="math" src="_images/math/00f280d5da3e2314cfa8f3fe00886f894d1b3bab.png" alt="Ax=\lambda Bx"/> cases and <tt class="docutils literal"><span class="pre">advanced::HermitianGenDefiniteEig</span></tt>.</p>
 </div>
-<div class="section" id="non-hermitian-eigensolver">
-<h3>Non-Hermitian eigensolver<a class="headerlink" href="#non-hermitian-eigensolver" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="unitary-eigensolver">
+<h3>Unitary eigensolver<a class="headerlink" href="#unitary-eigensolver" title="Permalink to this headline">¶</a></h3>
+<p>Not yet written.</p>
+</div>
+<div class="section" id="normal-eigensolver">
+<h3>Normal eigensolver<a class="headerlink" href="#normal-eigensolver" title="Permalink to this headline">¶</a></h3>
 <p>Not yet written and probably not in the near future.</p>
 </div>
-<div class="section" id="svd">
-<h3>SVD<a class="headerlink" href="#svd" title="Permalink to this headline">¶</a></h3>
-<p>Not yet written but planned. Note that an SVD of a Hermitian matrix can easily be computed from the eigenvalue decomposition.</p>
+<div class="section" id="general-eigensolver">
+<h3>General eigensolver<a class="headerlink" href="#general-eigensolver" title="Permalink to this headline">¶</a></h3>
+<p>Not yet written and probably not in the near future.</p>
+</div>
+<div class="section" id="schur-decomposition">
+<h3>Schur decomposition<a class="headerlink" href="#schur-decomposition" title="Permalink to this headline">¶</a></h3>
+<p>Not yet written and probably not in the near future.</p>
+</div>
+<div class="section" id="hermitian-svd">
+<h3>Hermitian SVD<a class="headerlink" href="#hermitian-svd" title="Permalink to this headline">¶</a></h3>
+<p>Not yet written, but planned. Note that an SVD of a Hermitian matrix can easily be computed from the eigenvalue decomposition.</p>
+</div>
+<div class="section" id="general-svd">
+<h3>General SVD<a class="headerlink" href="#general-svd" title="Permalink to this headline">¶</a></h3>
+<p>Not yet written, but planned.</p>
 </div>
 </div>
 <div class="section" id="utilities">
 <h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="householder-reflectors">
 <h3>Householder reflectors<a class="headerlink" href="#householder-reflectors" title="Permalink to this headline">¶</a></h3>
-<p>Describe major difference from LAPACK&#8217;s conventions (i.e., we do not treat
-the identity matrix as a Householder transform since it requires the
-<img class="math" src="_images/math/9ad99798ec4c38e165cf517cb9e02b1c9e824103.png" alt="u"/> in <img class="math" src="_images/math/189fff52d48f8bcd5ef98b9b18c3409e5cc3a47b.png" alt="H-I^2uu'"/> to have norm zero rather than one). Describe
-<tt class="docutils literal"><span class="pre">advanced::Reflector</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe major difference from LAPACK&#8217;s conventions (i.e., we do not
+treat the identity matrix as a Householder transform since it requires the
+<img class="math" src="_images/math/9ad99798ec4c38e165cf517cb9e02b1c9e824103.png" alt="u"/> in <img class="math" src="_images/math/189fff52d48f8bcd5ef98b9b18c3409e5cc3a47b.png" alt="H-I^2uu'"/> to have norm zero rather than one).</p>
 </div>
 <div class="section" id="reduction-of-hermitian-generalized-definite-evps">
 <h3>Reduction of Hermitian generalized-definite EVPs<a class="headerlink" href="#reduction-of-hermitian-generalized-definite-evps" title="Permalink to this headline">¶</a></h3>
-<p>Describe the reduction steps of <img class="math" src="_images/math/33ec4d2f57d5893939e581d8a3538d8bd62fb2c5.png" alt="ABx=\lambda x"/>, <img class="math" src="_images/math/718dc759ba10ce51232a298a45e2668bfc9cda7c.png" alt="BAx=\lambda x"/>,
-and <img class="math" src="_images/math/00f280d5da3e2314cfa8f3fe00886f894d1b3bab.png" alt="Ax=\lambda Bx"/> using the operations <img class="math" src="_images/math/5d3c78e81441136d2f11a1f2fbd66b78cdc420a4.png" alt="A := L^H A L"/> and
-<img class="math" src="_images/math/af56dce77b4d4f2488bbfe44448e9a61f98202b8.png" alt="A := L^{-1} A L^{-H}"/>.</p>
+<p><strong>TODO:</strong> Describe the reduction steps of <img class="math" src="_images/math/33ec4d2f57d5893939e581d8a3538d8bd62fb2c5.png" alt="ABx=\lambda x"/>,
+<img class="math" src="_images/math/718dc759ba10ce51232a298a45e2668bfc9cda7c.png" alt="BAx=\lambda x"/>, and <img class="math" src="_images/math/00f280d5da3e2314cfa8f3fe00886f894d1b3bab.png" alt="Ax=\lambda Bx"/> using the operations
+<img class="math" src="_images/math/5d3c78e81441136d2f11a1f2fbd66b78cdc420a4.png" alt="A := L^H A L"/> and <img class="math" src="_images/math/af56dce77b4d4f2488bbfe44448e9a61f98202b8.png" alt="A := L^{-1} A L^{-H}"/>.</p>
 </div>
 <div class="section" id="applying-packed-householder-transforms">
 <h3>Applying packed Householder transforms<a class="headerlink" href="#applying-packed-householder-transforms" title="Permalink to this headline">¶</a></h3>
-<p>Describe <tt class="docutils literal"><span class="pre">advanced::ApplyPackedReflectors</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::ApplyPackedReflectors</span></tt> here.</p>
 </div>
 </div>
-<div class="section" id="environment-routines">
-<h2>Environment routines<a class="headerlink" href="#environment-routines" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="tuning-parameters">
+<h2>Tuning parameters<a class="headerlink" href="#tuning-parameters" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO:</strong> Describe the tuning parameters.</p>
 </div>
 </div>
 
@@ -229,8 +337,12 @@ and <img class="math" src="_images/math/00f280d5da3e2314cfa8f3fe00886f894d1b3bab
 <li><a class="reference internal" href="#hermitian-eigensolver">Hermitian eigensolver</a></li>
 <li><a class="reference internal" href="#skew-hermitian-eigensolver">Skew-Hermitian eigensolver</a></li>
 <li><a class="reference internal" href="#hermitian-generalized-definite-eigensolvers">Hermitian generalized-definite eigensolvers</a></li>
-<li><a class="reference internal" href="#non-hermitian-eigensolver">Non-Hermitian eigensolver</a></li>
-<li><a class="reference internal" href="#svd">SVD</a></li>
+<li><a class="reference internal" href="#unitary-eigensolver">Unitary eigensolver</a></li>
+<li><a class="reference internal" href="#normal-eigensolver">Normal eigensolver</a></li>
+<li><a class="reference internal" href="#general-eigensolver">General eigensolver</a></li>
+<li><a class="reference internal" href="#schur-decomposition">Schur decomposition</a></li>
+<li><a class="reference internal" href="#hermitian-svd">Hermitian SVD</a></li>
+<li><a class="reference internal" href="#general-svd">General SVD</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#utilities">Utilities</a><ul>
@@ -239,7 +351,7 @@ and <img class="math" src="_images/math/00f280d5da3e2314cfa8f3fe00886f894d1b3bab
 <li><a class="reference internal" href="#applying-packed-householder-transforms">Applying packed Householder transforms</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#environment-routines">Environment routines</a></li>
+<li><a class="reference internal" href="#tuning-parameters">Tuning parameters</a></li>
 </ul>
 </li>
 </ul>

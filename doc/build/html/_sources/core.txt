@@ -845,7 +845,7 @@ column and row alignments are both 0):
 .. math::
    :nowrap:
 
-   $
+   \[
    \left(\begin{array}{cccccccccc}
      0 & 2 & 4 & 0 & 2 & 4 & 0 \\
      1 & 3 & 5 & 1 & 3 & 5 & 1 \\ 
@@ -855,7 +855,7 @@ column and row alignments are both 0):
      1 & 3 & 5 & 1 & 3 & 5 & 1 \\ 
      0 & 2 & 4 & 0 & 2 & 4 & 0  
    \end{array}\right)
-   $
+   \]
 
 Similarly, if the column alignment is kept at 0 and the row alignment is changed
 to 2 (meaning that the third process column owns the first column of the 
@@ -864,7 +864,7 @@ matrix), the individual entries would be owned as follows:
 .. math::
    :nowrap:
 
-   $
+   \[
    \left(\begin{array}{cccccccccc}
      4 & 0 & 2 & 4 & 0 & 2 & 4 \\
      5 & 1 & 3 & 5 & 1 & 3 & 5 \\ 
@@ -874,7 +874,7 @@ matrix), the individual entries would be owned as follows:
      5 & 1 & 3 & 5 & 1 & 3 & 5 \\ 
      4 & 0 & 2 & 4 & 0 & 2 & 4 
    \end{array}\right)
-   $
+   \]
 
 .. cpp:class:: DistMatrix<T,MC,MR>
 

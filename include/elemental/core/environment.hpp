@@ -64,12 +64,14 @@
 # endif 
 #endif
 
-#ifndef RELEASE
+
 namespace elemental {
 
+#ifndef RELEASE
 void PushCallStack( std::string s );
 void PopCallStack();
 void DumpCallStack();
+#endif // ifndef RELEASE
 
 // For extracting the underlying real datatype, 
 // e.g., typename RealBase<Scalar>::type a = 3.0;
@@ -84,7 +86,6 @@ struct RealBase<std::complex<R> >
 #endif
 
 } // namespace elemental
-#endif // ifndef RELEASE
 
 #include "elemental/core/types.hpp"
 #include "elemental/core/utilities.hpp"
