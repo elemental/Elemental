@@ -57,14 +57,11 @@ int Shift( int index, int alignment, int modulus );
 
 int RawShift( int index, int alignment, int modulus );
 
-} // elemental
-
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-inline int
-elemental::DiagonalLength( int height, int width, int offset )
+inline int DiagonalLength( int height, int width, int offset )
 {
     if( offset > 0 )
     {
@@ -78,18 +75,16 @@ elemental::DiagonalLength( int height, int width, int offset )
     }
 }
 
-inline int
-elemental::GCD( int a, int b )
+inline int GCD( int a, int b )
 {
 #ifndef RELEASE
     if( a < 0 || b < 0 )
-        throw std::logic_error( "GCD called with negative argument." );
+        throw std::logic_error("GCD called with negative argument");
 #endif
-    return elemental::RawGCD( a, b );
+    return RawGCD( a, b );
 }
 
-inline int
-elemental::RawGCD( int a, int b )
+inline int RawGCD( int a, int b )
 {
     if( b == 0 )
         return a;
@@ -97,36 +92,32 @@ elemental::RawGCD( int a, int b )
         return RawGCD( b, a-b*(a/b) );
 }
 
-inline int
-elemental::LocalLength( int n, int shift, int modulus )
+inline int LocalLength( int n, int shift, int modulus )
 {
 #ifndef RELEASE
     PushCallStack("LocalLength");
     if( n < 0 )
-        throw std::logic_error( "n must be non-negative." );
+        throw std::logic_error("n must be non-negative");
     if( shift < 0 || shift >= modulus )
     {
         std::ostringstream msg;
         msg << "Invalid shift: "
             << "shift=" << shift << ", modulus=" << modulus;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
     if( modulus <= 0 )
-        throw std::logic_error( "Modulus must be positive." );
+        throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return elemental::RawLocalLength( n, shift, modulus );
+    return RawLocalLength( n, shift, modulus );
 }
 
-inline int
-elemental::RawLocalLength( int n, int shift, int modulus )
+inline int RawLocalLength( int n, int shift, int modulus )
 {
     return ( n > shift ? (n - shift - 1)/modulus + 1 : 0 );
 }
 
-inline int
-elemental::LocalLength
-( int n, int index, int alignment, int modulus )
+inline int LocalLength( int n, int index, int alignment, int modulus )
 {
 #ifndef RELEASE
     PushCallStack("LocalLength");
@@ -139,31 +130,27 @@ elemental::LocalLength
     return localLength;
 }
 
-inline int
-elemental::RawLocalLength
-( int n, int index, int alignment, int modulus )
+inline int RawLocalLength( int n, int index, int alignment, int modulus )
 {
     int shift = RawShift( index, alignment, modulus );
     int localLength = RawLocalLength( n, shift, modulus );
     return localLength;
 }
 
-inline int
-elemental::MaxLocalLength( int n, int modulus )
+inline int MaxLocalLength( int n, int modulus )
 {
 #ifndef RELEASE
     PushCallStack("MaxLocalLength");
     if( n < 0 )
-        throw std::logic_error( "n must be non-negative." );
+        throw std::logic_error("n must be non-negative");
     if( modulus <= 0 )
-        throw std::logic_error( "Modulus must be positive." );
+        throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return elemental::RawMaxLocalLength( n, modulus );
+    return RawMaxLocalLength( n, modulus );
 }
 
-inline int
-elemental::RawMaxLocalLength( int n, int modulus )
+inline int RawMaxLocalLength( int n, int modulus )
 {
     return ( n > 0 ? (n - 1)/modulus + 1 : 0 );
 }
@@ -171,8 +158,7 @@ elemental::RawMaxLocalLength( int n, int modulus )
 // For determining the first global element of process row/column 
 // 'index', with distribution alignment 'alignment' and number of process 
 // rows/cols 'modulus'
-inline int
-elemental::Shift( int index, int alignment, int modulus )
+inline int Shift( int index, int alignment, int modulus )
 {
 #ifndef RELEASE
     PushCallStack("Shift");
@@ -181,27 +167,28 @@ elemental::Shift( int index, int alignment, int modulus )
         std::ostringstream msg;
         msg << "Invalid index: "
             << "index=" << index << ", modulus=" << modulus;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
     if( alignment < 0 || alignment >= modulus )
     {
         std::ostringstream msg;
         msg << "Invalid alignment: "
             << "alignment=" << alignment << ", modulus=" << modulus;
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
     if( modulus <= 0 )
-        throw std::logic_error( "Modulus must be positive." );
+        throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return elemental::RawShift( index, alignment, modulus );
+    return RawShift( index, alignment, modulus );
 }
 
-inline int
-elemental::RawShift( int index, int alignment, int modulus )
+inline int RawShift( int index, int alignment, int modulus )
 {
     return (index + modulus - alignment) % modulus;
 }
+
+} // namespace elemental
 
 #endif /* ELEMENTAL_UTILITIES_HPP */
 

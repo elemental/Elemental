@@ -33,18 +33,6 @@
 #ifndef ELEMENTAL_MEMORY_HPP
 #define ELEMENTAL_MEMORY_HPP 1
 
-// Template conventions:
-//   G: general datatype
-//
-//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
-//   Z: representation of a real ring, e.g., the integers or real numbers
-//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
-//                    or complex numbers
-//
-//   F: representation of real or complex number
-//   R: representation of real number
-//   std::complex<R>: representation of complex number
-
 namespace elemental {
 
 template<typename G>
@@ -65,43 +53,34 @@ public:
     void   Empty();
 };
 
-} // elemental
-
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
 template<typename G>
-inline
-elemental::Memory<G>::Memory()
+inline Memory<G>::Memory()
 : _size(0), _buffer(NULL)
 { }
 
 template<typename G>
-inline
-elemental::Memory<G>::Memory( size_t size )
+inline Memory<G>::Memory( size_t size )
 : _size(size), _buffer(new G[size])
 { }
 
 template<typename G>
-inline
-elemental::Memory<G>::~Memory()
+inline Memory<G>::~Memory()
 { delete[] _buffer; }
 
 template<typename G>
-inline G*
-elemental::Memory<G>::Buffer() const
+inline G* Memory<G>::Buffer() const
 { return _buffer; }
 
 template<typename G>
-inline size_t
-elemental::Memory<G>::Size() const
+inline size_t Memory<G>::Size() const
 { return _size; }
 
 template<typename G>
-inline void
-elemental::Memory<G>::Require
-( size_t size )
+inline void Memory<G>::Require( size_t size )
 {
     if( size > _size )
     {
@@ -112,8 +91,7 @@ elemental::Memory<G>::Require
 }
 
 template<typename G>
-inline void
-elemental::Memory<G>::Release()
+inline void Memory<G>::Release()
 {
 #ifndef POOL_MEMORY
     this->Empty();
@@ -121,13 +99,14 @@ elemental::Memory<G>::Release()
 }
 
 template<typename G>
-inline void
-elemental::Memory<G>::Empty()
+inline void Memory<G>::Empty()
 {
     delete[] _buffer;
     _size = 0;
     _buffer = 0;
 }
+
+} // namespace elemental
 
 #endif /* ELEMENTAL_MEMORY_HPP */
 

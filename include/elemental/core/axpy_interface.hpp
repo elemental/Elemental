@@ -54,7 +54,10 @@
 
 namespace elemental {
 
+namespace axpy_type_wrapper {
 enum AxpyType { LOCAL_TO_GLOBAL, GLOBAL_TO_LOCAL };
+}
+using namespace axpy_type_wrapper;
 
 template<typename T>
 class AxpyInterface

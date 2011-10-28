@@ -53,24 +53,24 @@ public:
     double Time() const;
 };
 
-} // elemental
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
 
-// Implementations
-inline elemental::Timer::Timer()
+inline Timer::Timer()
 : _running(false), _time(0), _name("[blank]")
 { }
 
-inline elemental::Timer::Timer( const std::string name )
+inline Timer::Timer( const std::string name )
 : _running(false), _time(0), _name(name)
 { }
 
-inline void
-elemental::Timer::Start()
+inline void Timer::Start()
 {
 #ifndef RELEASE
     PushCallStack("Timer::Start");
     if( _running )
-        throw std::logic_error("Forgot to stop timer before restarting.");
+        throw std::logic_error("Forgot to stop timer before restarting");
 #endif
     _lastStartTime = mpi::Time();
     _running = true;
@@ -80,13 +80,12 @@ elemental::Timer::Start()
 #endif
 }
 
-inline void
-elemental::Timer::Stop()
+inline void Timer::Stop()
 {
 #ifndef RELEASE
     PushCallStack("Timer::Stop");
     if( !_running )
-        throw std::logic_error("Tried to stop a timer before starting it.");
+        throw std::logic_error("Tried to stop a timer before starting it");
 #endif
     _time += mpi::Time()-_lastStartTime;
     _running = false;
@@ -95,25 +94,24 @@ elemental::Timer::Stop()
 #endif
 }
 
-inline void
-elemental::Timer::Reset()
+inline void Timer::Reset()
 { _time = 0; }
 
-inline const std::string
-elemental::Timer::Name() const
+inline const std::string Timer::Name() const
 { return _name; }
 
-inline double
-elemental::Timer::Time() const
+inline double Timer::Time() const
 {
 #ifndef RELEASE
     PushCallStack("Timer::Time");
     if( _running )
-        throw std::logic_error("Asked for time while still timing.");
+        throw std::logic_error("Asked for time while still timing");
     PopCallStack();
 #endif
     return _time;
 }
+
+} // namespace elemental
 
 #endif /* ELEMENTAL_TIMER_HPP */
 

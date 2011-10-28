@@ -119,38 +119,29 @@ private:
 bool operator== ( const Grid& A, const Grid& B );
 bool operator!= ( const Grid& A, const Grid& B );
 
-} // elemental
-
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-inline bool
-elemental::Grid::InGrid() const
+inline bool Grid::InGrid() const
 { return _inGrid; }
 
-inline int
-elemental::Grid::Size() const
+inline int Grid::Size() const
 { return _size; }
 
-inline int
-elemental::Grid::Height() const
+inline int Grid::Height() const
 { return _height; }
 
-inline int
-elemental::Grid::Width() const
+inline int Grid::Width() const
 { return _width; }
 
-inline int
-elemental::Grid::GCD() const
+inline int Grid::GCD() const
 { return _gcd; }
 
-inline int
-elemental::Grid::LCM() const
+inline int Grid::LCM() const
 { return _size/_gcd; }
 
-inline int
-elemental::Grid::DiagPath() const
+inline int Grid::DiagPath() const
 { 
     if( _inGrid )
         return _diagPathsAndRanks[2*_vectorColRank]; 
@@ -158,8 +149,7 @@ elemental::Grid::DiagPath() const
         return mpi::UNDEFINED;
 }
 
-inline int
-elemental::Grid::DiagPath( int vectorColRank ) const
+inline int Grid::DiagPath( int vectorColRank ) const
 { 
     if( vectorColRank != mpi::UNDEFINED )
         return _diagPathsAndRanks[2*vectorColRank]; 
@@ -167,8 +157,7 @@ elemental::Grid::DiagPath( int vectorColRank ) const
         return mpi::UNDEFINED;
 }
 
-inline int
-elemental::Grid::DiagPathRank() const
+inline int Grid::DiagPathRank() const
 { 
     if( _inGrid )
         return _diagPathsAndRanks[2*_vectorColRank+1];
@@ -176,8 +165,7 @@ elemental::Grid::DiagPathRank() const
         return mpi::UNDEFINED;
 }
 
-inline int
-elemental::Grid::DiagPathRank( int vectorColRank ) const
+inline int Grid::DiagPathRank( int vectorColRank ) const
 { 
     if( vectorColRank != mpi::UNDEFINED )
         return _diagPathsAndRanks[2*vectorColRank+1]; 
@@ -185,73 +173,55 @@ elemental::Grid::DiagPathRank( int vectorColRank ) const
         return mpi::UNDEFINED;
 }
 
-inline int
-elemental::Grid::MCRank() const
+inline int Grid::MCRank() const
 { return _matrixColRank; }
 
-inline int
-elemental::Grid::MRRank() const
+inline int Grid::MRRank() const
 { return _matrixRowRank; }
 
-inline int
-elemental::Grid::VCRank() const
+inline int Grid::VCRank() const
 { return _vectorColRank; }
 
-inline int
-elemental::Grid::VRRank() const
+inline int Grid::VRRank() const
 { return _vectorRowRank; }
 
-inline int
-elemental::Grid::OwningRank() const
+inline int Grid::OwningRank() const
 { return _owningRank; }
 
-inline int
-elemental::Grid::ViewingRank() const
+inline int Grid::ViewingRank() const
 { return _viewingRank; }
 
-inline int
-elemental::Grid::VCToViewingMap( int VCRank ) const
+inline int Grid::VCToViewingMap( int VCRank ) const
 { return _vectorColToViewingMap[VCRank]; }
 
-inline elemental::mpi::Group
-elemental::Grid::OwningGroup() const
+inline mpi::Group Grid::OwningGroup() const
 { return _owningGroup; }
 
-inline elemental::mpi::Comm
-elemental::Grid::OwningComm() const
+inline mpi::Comm Grid::OwningComm() const
 { return _owningComm; }
 
-inline elemental::mpi::Comm
-elemental::Grid::ViewingComm() const
+inline mpi::Comm Grid::ViewingComm() const
 { return _viewingComm; }
 
-inline elemental::mpi::Comm
-elemental::Grid::MCComm() const
+inline mpi::Comm Grid::MCComm() const
 { return _matrixColComm; }
 
-inline elemental::mpi::Comm
-elemental::Grid::MRComm() const
+inline mpi::Comm Grid::MRComm() const
 { return _matrixRowComm; }
 
-inline elemental::mpi::Comm
-elemental::Grid::VCComm() const
+inline mpi::Comm Grid::VCComm() const
 { return _vectorColComm; }
 
-inline elemental::mpi::Comm
-elemental::Grid::VRComm() const
+inline mpi::Comm Grid::VRComm() const
 { return _vectorRowComm; }
 
-inline bool 
-elemental::operator== ( const Grid& A, const Grid& B )
+inline bool operator== ( const Grid& A, const Grid& B )
 { return &A == &B; }
 
-inline bool 
-elemental::operator!= ( const Grid& A, const Grid& B )
+inline bool operator!= ( const Grid& A, const Grid& B )
 { return &A != &B; }
 
-inline 
-elemental::Grid::Grid
-( mpi::Comm comm )
+inline Grid::Grid( mpi::Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
@@ -282,9 +252,7 @@ elemental::Grid::Grid
 #endif
 }
 
-inline
-elemental::Grid::Grid
-( mpi::Comm comm, int height, int width )
+inline Grid::Grid( mpi::Comm comm, int height, int width )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
@@ -315,9 +283,7 @@ elemental::Grid::Grid
 #endif
 }
 
-inline
-elemental::Grid::Grid
-( mpi::Comm viewingComm, mpi::Group owningGroup )
+inline Grid::Grid( mpi::Comm viewingComm, mpi::Group owningGroup )
 {
 #ifndef RELEASE
     PushCallStack("Grid::Grid");
@@ -351,8 +317,7 @@ elemental::Grid::Grid
 }
 
 // Currently forces a columnMajor absolute rank on the grid
-inline
-elemental::Grid::Grid
+inline Grid::Grid
 ( mpi::Comm viewingComm, mpi::Group owningGroup, int height, int width )
 {
 #ifndef RELEASE
@@ -387,8 +352,7 @@ elemental::Grid::Grid
 #endif
 }
 
-inline void
-elemental::Grid::SetUpGrid()
+inline void Grid::SetUpGrid()
 {
 #ifndef RELEASE
     PushCallStack("Grid::SetUpGrid");
@@ -497,8 +461,7 @@ elemental::Grid::SetUpGrid()
 #endif
 }
 
-inline
-elemental::Grid::~Grid()
+inline Grid::~Grid()
 {
     if( !mpi::Finalized() )
     {
@@ -522,6 +485,8 @@ elemental::Grid::~Grid()
         mpi::CommFree( _viewingComm );
     }
 }
+
+} // namespace elemental
 
 #endif /* ELEMENTAL_PROCESSGRID_HPP */
 

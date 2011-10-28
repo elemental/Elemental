@@ -55,15 +55,19 @@ struct SafeProduct
     SafeProduct( int numEntries ) : rho(1), logK(0), n(numEntries) { }
 };
 
+namespace diagonal_wrapper {
 enum Diagonal
 {
     NON_UNIT,
     UNIT
 };
+}
+using namespace diagonal_wrapper;
 
 char DiagonalToChar( Diagonal diagonal );
 Diagonal CharToDiagonal( char c );
 
+namespace distribution_wrapper {
 enum Distribution
 {
     MC,  // Col of a matrix distribution
@@ -73,61 +77,84 @@ enum Distribution
     VR,  // Row-major vector distribution
     STAR // Do not distribute
 };
+}
+using namespace distribution_wrapper; 
 
 std::string DistToString( Distribution distribution );
 Distribution StringToDist( std::string s );
 
+namespace orientation_wrapper {
 enum Orientation
 {
     NORMAL,
     TRANSPOSE,
     ADJOINT
 };
+}
+using namespace orientation_wrapper;
 
 char OrientationToChar( Orientation orientation );
 Orientation CharToOrientation( char c );
 
+namespace shape_wrapper {
 enum Shape
 {
     LOWER,
     UPPER
 };
+}
+using namespace shape_wrapper;
 
 char ShapeToChar( Shape shape );
 Shape CharToShape( char c );
 
+namespace side_wrapper {
 enum Side
 {
     LEFT,
     RIGHT
 };
+}
+using namespace side_wrapper;
 
 char SideToChar( Side side );
 Side CharToSide( char c );
 
+namespace vector_direction_wrapper {
 enum VectorDirection
 {
     VERTICAL,
     HORIZONTAL
 };
+}
+using namespace vector_direction_wrapper;
 
+namespace forward_or_backward_wrapper {
 enum ForwardOrBackward
 {
     FORWARD,
     BACKWARD
 };
+}
+using namespace forward_or_backward_wrapper;
 
+namespace conjugation_wrapper {
 enum Conjugation
 {
     UNCONJUGATED,
     CONJUGATED
 };
+}
+using namespace conjugation_wrapper;
 
+namespace grid_order_wrapper {
 enum GridOrder
 {
     ROW_MAJOR,
     COLUMN_MAJOR
 };
+}
+using namespace grid_order_wrapper;
 
 //
 // We ensure that all enums are lifted into the elemental namespace so that
@@ -139,6 +166,7 @@ enum GridOrder
 // double norm = advanced::Norm( A, ONE_NORM );
 //
 
+namespace norm_type_wrapper {
 enum NormType
 {
     FROBENIUS_NORM, // Compute the "vector" L_2 norm of the matrix
@@ -146,28 +174,34 @@ enum NormType
     MAX_NORM,       // Compute the "vector" L_oo norm of the matrix
     ONE_NORM        // Compute the L_1 norm of the matrix
 };
+}
+using namespace norm_type_wrapper;
 
+namespace hermitian_gen_definite_eig_type_wrapper {
 enum HermitianGenDefiniteEigType
 {
     AXBX=1,
     ABX=2,
     BAX=3
 };
+}
+using namespace hermitian_gen_definite_eig_type_wrapper;
 
+namespace hermitian_tridiag_approach_wrapper {
 enum HermitianTridiagApproach
 {
     HERMITIAN_TRIDIAG_NORMAL, // Keep the current grid
     HERMITIAN_TRIDIAG_SQUARE, // Drop to a square process grid
     HERMITIAN_TRIDIAG_DEFAULT // Square grid algorithm only if already square
 };
-
-} // elemental
+}
+using namespace hermitian_tridiag_approach_wrapper;
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-inline char elemental::DiagonalToChar( Diagonal diagonal )
+inline char DiagonalToChar( Diagonal diagonal )
 {
     char diagonalChar;
     switch( diagonal )
@@ -178,7 +212,7 @@ inline char elemental::DiagonalToChar( Diagonal diagonal )
     return diagonalChar;
 }
 
-inline elemental::Diagonal elemental::CharToDiagonal( char c )
+inline Diagonal CharToDiagonal( char c )
 {
     Diagonal diagonal;
     switch( c )
@@ -186,12 +220,12 @@ inline elemental::Diagonal elemental::CharToDiagonal( char c )
         case 'N': diagonal = NON_UNIT; break;
         case 'U': diagonal = UNIT;     break;
         default:
-            throw std::logic_error("CharToDiagonal expects char in {N,U}.");
+            throw std::logic_error("CharToDiagonal expects char in {N,U}");
     }
     return diagonal;
 }
 
-inline std::string elemental::DistToString
+inline std::string DistToString
 ( Distribution distribution )
 {
     std::string distString;
@@ -207,7 +241,7 @@ inline std::string elemental::DistToString
     return distString;
 }
 
-inline elemental::Distribution elemental::StringToDist( std::string s )
+inline Distribution StringToDist( std::string s )
 {
     Distribution distribution;
     if( s == "MC" )
@@ -224,13 +258,14 @@ inline elemental::Distribution elemental::StringToDist( std::string s )
         distribution = STAR;
     else
     {
-        throw std::logic_error("StringToDist expects string in "
-              "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}.");
+        throw std::logic_error
+        ("StringToDist expects string in "
+         "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}");
     }
     return distribution;
 }
 
-inline char elemental::OrientationToChar( Orientation orientation )
+inline char OrientationToChar( Orientation orientation )
 {
     char orientationChar;
     switch( orientation )
@@ -242,7 +277,7 @@ inline char elemental::OrientationToChar( Orientation orientation )
     return orientationChar;
 }
 
-inline elemental::Orientation elemental::CharToOrientation( char c )
+inline Orientation CharToOrientation( char c )
 {
     Orientation orientation;
     switch( c )
@@ -252,12 +287,12 @@ inline elemental::Orientation elemental::CharToOrientation( char c )
         case 'C': orientation = ADJOINT;   break;
         default:
             throw std::logic_error
-            ("CharToOrientation expects char in {N,T,C}.");
+            ("CharToOrientation expects char in {N,T,C}");
     }
     return orientation;
 }
 
-inline char elemental::ShapeToChar( Shape shape )
+inline char ShapeToChar( Shape shape )
 {
     char shapeChar;
     switch( shape )
@@ -268,7 +303,7 @@ inline char elemental::ShapeToChar( Shape shape )
     return shapeChar;
 }
 
-inline elemental::Shape elemental::CharToShape( char c )
+inline Shape CharToShape( char c )
 {
     Shape shape;
     switch( c )
@@ -276,12 +311,12 @@ inline elemental::Shape elemental::CharToShape( char c )
         case 'L': shape = LOWER; break;
         case 'U': shape = UPPER; break;
         default:
-            throw std::logic_error("CharToShape expects char in {L,U}.");
+            throw std::logic_error("CharToShape expects char in {L,U}");
     }
     return shape;
 }
 
-inline char elemental::SideToChar( Side side )
+inline char SideToChar( Side side )
 {
     char sideChar;
     switch( side )
@@ -292,7 +327,7 @@ inline char elemental::SideToChar( Side side )
     return sideChar;
 }
     
-inline elemental::Side elemental::CharToSide( char c )
+inline Side CharToSide( char c )
 {
     Side side;
     switch( c )
@@ -300,10 +335,12 @@ inline elemental::Side elemental::CharToSide( char c )
         case 'L': side = LEFT;  break;
         case 'R': side = RIGHT; break;
         default:
-            throw std::logic_error("CharToSide expects char in {L,R}.");
+            throw std::logic_error("CharToSide expects char in {L,R}");
     }
     return side;
 }
+
+} // namespace elemental
 
 #endif /* ELEMENTAL_TYPES_HPP */
 
