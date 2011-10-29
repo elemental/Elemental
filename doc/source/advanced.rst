@@ -168,6 +168,8 @@ Hermitian eigensolver
 ---------------------
 **TODO:** Describe :math:`Ax=\lambda x` and ``advanced::HermitianEig`` here.
 
+**TODO:** Describe ``advanced::SortEig`` here.
+
 Skew-Hermitian eigensolver
 --------------------------
 **TODO:** Describe :math:`Gx=\lambda x` and ``advanced::SkewHermitianEig`` here.

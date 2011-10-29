@@ -707,6 +707,9 @@ void SkewHermitianEig
 //----------------------------------------------------------------------------//
 
 template<typename R>
+void SortEig( DistMatrix<R,VR,STAR>& w );
+
+template<typename R>
 void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R,MC,MR>& Z );
 
 template<typename R>

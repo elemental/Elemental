@@ -55,7 +55,28 @@ struct IndexValuePair<std::complex<R> > {
 
 } // anonymous namespace
 
-template<typename R> // F represents a real or complex field
+template<typename R>
+inline void
+elemental::advanced::SortEig( DistMatrix<R,VR,STAR>& w )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::SortEig");
+#endif
+    const int k = w.Height();
+
+    // Gather a full copy of w on each process and locally sort
+    DistMatrix<R,STAR,STAR> w_STAR_STAR( w );
+    R* wBuffer = w_STAR_STAR.LocalBuffer();
+    std::sort( &wBuffer[0], &wBuffer[k] );
+
+    // Refill the distributed w with the sorted values
+    w = w_STAR_STAR;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
 inline void
 elemental::advanced::SortEig
 ( DistMatrix<R,VR,STAR>& w, DistMatrix<R,MC,MR>& Z )
@@ -101,7 +122,7 @@ elemental::advanced::SortEig
 #endif
 }
 
-template<typename R> // F represents a real or complex field
+template<typename R> 
 inline void
 elemental::advanced::SortEig
 ( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z )
