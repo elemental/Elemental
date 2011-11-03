@@ -413,6 +413,10 @@ Constants
 
    Equivalent to ``MPI_MAX``.
 
+.. cpp:member:: const mpi::Op mpi::PROD
+
+   Equivalent to ``MPI_PROD``.
+
 .. cpp:member:: const mpi::Op mpi::SUM
 
    Equivalent to ``MPI_SUM``.

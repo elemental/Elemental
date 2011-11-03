@@ -35,6 +35,7 @@
 #include "./LU/ComposePivots.hpp"
 #include "./LU/LocalLU.hpp"
 #include "./LU/PanelLU.hpp"
+#include "./LU/Parity.hpp"
 
 // Performs LU factorization without pivoting
 template<typename F> // represents a real or complex number
@@ -184,8 +185,7 @@ elemental::advanced::LU
         A11_STAR_STAR = A11;
         advanced::internal::PanelLU
         ( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, pivotOffset );
-
-        advanced::internal::ComposePivots
+        advanced::internal::ComposePanelPivots
         ( p1_STAR_STAR, image, preimage, pivotOffset );
         advanced::internal::ApplyRowPivots( AB, image, preimage, pivotOffset );
 

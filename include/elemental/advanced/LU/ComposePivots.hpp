@@ -31,50 +31,174 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Meant for composing an entire pivot vector for an n x n matrix.
+// Requires O(n) work for an n x n matrix.
 inline void
 elemental::advanced::internal::ComposePivots
+( const DistMatrix<int,STAR,STAR>& p, 
+  std::vector<int>& image, std::vector<int>& preimage )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::ComposePivots");
+    if( p.Width() != 1 )
+        throw std::logic_error("p must be a column vector");
+#endif
+    const int n = p.Height();
+    const int* pBuffer = p.LockedLocalBuffer();
+
+    // Construct the image of {0,...,n-1} under the permutation in O(n) work
+    image.resize( n );
+    for( int i=0; i<n; ++i )
+        image[i] = i;
+    for( int i=0; i<n; ++i )
+    {
+        const int j = pBuffer[i];
+        const int k = image[j];
+        image[j] = image[i];
+        image[i] = k;
+    }
+
+    // Construct the preimage of {0,...,n-1} under the permutation in O(n) work
+    preimage.resize( n );
+    for( int i=0; i<n; ++i )
+        preimage[image[i]] = i;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline void
+elemental::advanced::internal::ComposePivots
+( const Matrix<int>& p,
+  std::vector<int>& image, std::vector<int>& preimage )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::internal::ComposePivots");
+    if( p.Width() != 1 )
+        throw std::logic_error("p must be a column vector");
+#endif
+    const int n = p.Height();
+    const int* pBuffer = p.LockedBuffer();
+
+    // Construct the image of {0,...,n-1} under the permutation in O(n) work
+    image.resize( n );
+    for( int i=0; i<n; ++i )
+        image[i] = i;
+    for( int i=0; i<n; ++i )
+    {
+        const int j = pBuffer[i];
+        const int temp = image[j];
+        image[j] = image[i];
+        image[i] = temp;
+    }
+
+    // Construct the preimage of {0,...,n-1} under the permutation in O(n) work
+    preimage.resize( n );
+    for( int i=0; i<n; ++i )
+        preimage[image[i]] = i;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Meant for composing the pivots from a panel factorization, where b pivots
+// were performed in an n x n matrix. 
+// Requires O(b^2) work.
+inline void
+elemental::advanced::internal::ComposePanelPivots
 ( const DistMatrix<int,STAR,STAR>& p, 
   std::vector<int>& image, std::vector<int>& preimage, int pivotOffset )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ComposePivots");
+    PushCallStack("advanced::internal::ComposePanelPivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( pivotOffset < 0 )
         throw std::logic_error("pivotOffset must be non-negative");
 #endif
     const int b = p.Height();
+    const int* pBuffer = p.LockedLocalBuffer();
+
+    // Construct the image of {0,...,b-1} under the permutation in O(b^2) work
     image.resize( b );
-    preimage.resize( b );
-
-    // Construct the image of {0,...,b-1} under the permutation
     for( int i=0; i<b; ++i )
     {
-        int row = i;
-        for( int j=0; j<min(b,row+1); ++j )
-        {
-            if( p.GetLocalEntry(j,0)-pivotOffset == row )
-                row = j;
-            else if( j == row )
-                row = p.GetLocalEntry(j,0)-pivotOffset;
-        }
-        image[i] = row;
-    }
-
-    // Construct the preimage of {0,...,b-1} under the permutation
-    for( int i=0; i<b; ++i )
-    {
-        int row = p.GetLocalEntry(i,0)-pivotOffset;
+        int k = pBuffer[i]-pivotOffset;
         for( int j=i-1; j>=0; --j )
         {
-            if( p.GetLocalEntry(j,0)-pivotOffset == row )
-                row = j;
-            else if( j == row )
-                row = p.GetLocalEntry(j,0)-pivotOffset;
+            if( pBuffer[j]-pivotOffset == k )
+                k = j;
+            else if( j == k )
+                k = pBuffer[j]-pivotOffset;
         }
-        preimage[i] = row;
+        image[i] = k;
     }
+    
+    // Construct the preimage of {0,...,b-1} under the permutation in 
+    // O(b^2) work
+    preimage.resize( b );
+    for( int i=0; i<b; ++i )
+    {
+        int k = i;
+        for( int j=0; j<std::min(k+1,b); ++j )
+        {
+            if( pBuffer[j]-pivotOffset == k )
+                k = j;
+            else if( j == k )
+                k = pBuffer[j]-pivotOffset;
+        }
+        preimage[i] = k;
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
+inline void
+elemental::advanced::internal::ComposePanelPivots
+( const Matrix<int>& p,
+  std::vector<int>& image, std::vector<int>& preimage, int pivotOffset )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::internal::ComposePanelPivots");
+    if( p.Width() != 1 )
+        throw std::logic_error("p must be a column vector");
+    if( pivotOffset < 0 )
+        throw std::logic_error("pivotOffset must be non-negative");
+#endif
+    const int b = p.Height();
+    const int* pBuffer = p.LockedBuffer();
+
+    // Construct the image of {0,...,b-1} under the permutation in O(b^2) work
+    image.resize( b );
+    for( int i=0; i<b; ++i )
+    {
+        int k = pBuffer[i]-pivotOffset;
+        for( int j=i-1; j>=0; --j )
+        {
+            if( pBuffer[j]-pivotOffset == k )
+                k = j;
+            else if( j == k )
+                k = pBuffer[j]-pivotOffset;
+        }
+        image[i] = k;
+    }
+    
+    // Construct the preimage of {0,...,b-1} under the permutation in 
+    // O(b^2) work
+    preimage.resize( b );
+    for( int i=0; i<b; ++i )
+    {
+        int k = i;
+        for( int j=0; j<std::min(k+1,b); ++j )
+        {
+            if( pBuffer[j]-pivotOffset == k )
+                k = j;
+            else if( j == k )
+                k = pBuffer[j]-pivotOffset;
+        }
+        preimage[i] = k;
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

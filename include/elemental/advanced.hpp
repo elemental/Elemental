@@ -39,17 +39,69 @@ namespace elemental {
 namespace advanced {
 
 //----------------------------------------------------------------------------//
+// ApplyPackedReflectors                                                      //
+//                                                                            //
+// Applies the accumulated Householder transforms that are stored in the      //
+// triangle of H specified by 'shape' to the matrix A.                        //
+//                                                                            //
+// If 'shape' is set to 'LOWER', then offset determines the diagonal that the //
+// transforms are stored above (they are implicitly one on that diagonal).    //
+//                                                                            //
+// If 'shape' is set to 'UPPER', then offset determines the diagonal that the //
+// transforms are stored below (they are implicitly one on that diagonal).    //
+//                                                                            //
+// 'direction' determines whether the reflectors are stored vertically or     //
+// horizontally.                                                              //
+//                                                                            //
+// 'conjugation' determines whether or not the Householder scalars should be  //
+// conjugated.                                                                //
+//                                                                            //
+// If 'order' is set to forward, then the reflectors are applied              //
+// left-to-right, or top-to-bottom, depending on 'direction'. Otherwise, they //
+// are applied in the opposite order.
+//                                                                            //
+// See the above note for QR factorizations regarding the vector 't' and      //
+// Householder early-exit conditions.                                         //
+//----------------------------------------------------------------------------//
+
+// TODO: Serial versions
+
+template<typename R>
+void ApplyPackedReflectors
+( Side side, Shape shape, VectorDirection direction, ForwardOrBackward order,
+  int offset,
+  const DistMatrix<R,MC,MR>& H, 
+        DistMatrix<R,MC,MR>& A );
+
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void ApplyPackedReflectors
+( Side side, Shape shape,
+  VectorDirection direction, ForwardOrBackward order, Conjugation conjugation,
+  int offset,
+  const DistMatrix<std::complex<R>,MC,  MR  >& H,
+  const DistMatrix<std::complex<R>,MD,  STAR>& t,
+        DistMatrix<std::complex<R>,MC,  MR  >& A );
+template<typename R>
+void ApplyPackedReflectors
+( Side side, Shape shape, 
+  VectorDirection direction, ForwardOrBackward order, Conjugation conjugation,
+  int offset,
+  const DistMatrix<std::complex<R>,MC,  MR  >& H,
+  const DistMatrix<std::complex<R>,STAR,STAR>& t,
+        DistMatrix<std::complex<R>,MC,  MR  >& A );
+#endif
+
+//----------------------------------------------------------------------------//
 // Cholesky:                                                                  //
 //                                                                            //
 // Overwrite a triangle of A with the Cholesky factor of A. 'shape'           //
 // determines whether it is the upper or lower triangle.                      //
 //----------------------------------------------------------------------------//
 
-// Serial version
 template<typename F>
 void Cholesky( Shape shape, Matrix<F>& A );
 
-// Parallel version
 template<typename F>
 void Cholesky( Shape shape, DistMatrix<F,MC,MR>& A );
 
@@ -60,9 +112,8 @@ void Cholesky( Shape shape, DistMatrix<F,MC,MR>& A );
 // Cholesky factorization of A.                                               //
 //----------------------------------------------------------------------------//
 
-//TODO: Serial version
+// TODO: Serial version
 
-// Parallel version
 template<typename F>
 void CholeskySolve
 ( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& X );
@@ -70,24 +121,36 @@ void CholeskySolve
 //----------------------------------------------------------------------------//
 // Determinant:                                                               //
 //                                                                            //
-// Return (rho,log(K),n) such that det(A) = rho K^n.                          //
+// Return the determinant of the matrix A.                                    //
+//                                                                            //
+// SafeDeterminant:                                                           //
+//                                                                            //
+// Return (rho,kappa,n) such that det(A) = rho exp(kappa n).                  //
 // This decomposition of the determinant is done in order to reduce the       //
 // possibility of (under/over)flow.                                           //
 //----------------------------------------------------------------------------//
 
-// These will be written in the near future
+template<typename F>
+F Determinant( Matrix<F>& A );
+template<typename F>
+SafeProduct<F> SafeDeterminant( Matrix<F>& A );
+
+template<typename F>
+F Determinant( DistMatrix<F,MC,MR>& A );
+template<typename F>
+SafeProduct<F> SafeDeterminant( DistMatrix<F,MC,MR>& A );
+
+// TODO
 /*
 template<typename F>
-SafeProduct Determinant( DistMatrix<F,MC,MR>& A );
+F HPDDeterminant( Shape shape, Matrix<F>& A );
+template<typename F>
+SafeProduct<F> SafeHPDDeterminant( Shape shape, Matrix<F>& A );
 
 template<typename F>
-SafeProduct HermitianDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
-
+F HPDDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
 template<typename F>
-SafeProduct HPDDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
-
-template<typename F>
-SafeProduct SymmetricDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
+SafeProduct<F> SafeHPDDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
 */
 
 //----------------------------------------------------------------------------//
@@ -96,9 +159,8 @@ SafeProduct SymmetricDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
 // Uses an LU factorization with partial pivoting to overwrite B := A^-1 B    //
 //----------------------------------------------------------------------------//
 
-// TODO: Add a serial version
+// TODO: Serial version
 
-// Parallel version
 template<typename F>
 void GaussianElimination( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 
@@ -240,13 +302,11 @@ void HermitianGenDefiniteEig
 // parameter 'shape'.                                                         //
 //----------------------------------------------------------------------------//
 
-// Serial version
 template<typename F>
 void Hegst
 ( Side side, Shape shape, 
   Matrix<F>& A, const Matrix<F>& B );
 
-// Parallel version
 template<typename F>
 void Hegst
 ( Side side, Shape shape, 
@@ -254,7 +314,6 @@ void Hegst
 
 //----------------------------------------------------------------------------//
 // HermitianEig (Hermitian Eigensolver)                                       //
-//                                                                            //
 //----------------------------------------------------------------------------//
 
 #ifndef WITHOUT_PMRRR
@@ -361,9 +420,8 @@ void HermitianEig
 // of X, if the underdetermined matrix is m x n.                              //
 //----------------------------------------------------------------------------//
 
-//TODO: Write the serial version
+// TODO: Serial version
 
-// Parallel versions
 template<typename R>
 void HouseholderSolve
 ( Orientation orientation, DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& X );
@@ -379,9 +437,8 @@ void HouseholderSolve
 // Inverts a Hermitian positive-definite matrix.                              //
 //----------------------------------------------------------------------------//
 
-//TODO: Write the serial version
+// TODO: Serial version
 
-// Parallel version
 template<typename F>
 void HPDInverse( Shape shape, DistMatrix<F,MC,MR>& A );
 
@@ -394,11 +451,10 @@ void HPDInverse( Shape shape, DistMatrix<F,MC,MR>& A );
 // Partial pivoting is not yet supported.                                     //
 //----------------------------------------------------------------------------//
 
-// Serial version (currently unblocked)
+// NOTE: Currently unblocked
 template<typename F>
 void LDLH( Matrix<F>& A, Matrix<F>& d );
 
-// Parallel version
 template<typename F>
 void LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d );
 
@@ -411,11 +467,10 @@ void LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d );
 // Partial pivoting is not yet supported.                                     //
 //----------------------------------------------------------------------------//
 
-// Serial version (currently unblocked)
+// NOTE: Currently unblocked
 template<typename F>
 void LDLT( Matrix<F>& A, Matrix<F>& d );
 
-// Parallel version
 template<typename F>
 void LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d );
 
@@ -453,18 +508,15 @@ void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 
 // TODO: Serial versions
 
-// Parallel version for real datatypes
 template<typename R>
 void LQ( DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-// Parallel version for complex datatypes
 template<typename R>
 void LQ
 ( DistMatrix<std::complex<R>,MC,MR  >& A, 
   DistMatrix<std::complex<R>,MD,STAR>& t );
 #endif
-
 
 //----------------------------------------------------------------------------//
 // Norm                                                                       //
@@ -569,12 +621,10 @@ R SymmetricNorm
 
 // TODO: Serial versions
 
-// Parallel version for real datatypes
 template<typename R>
 void QR( DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-// Parallel version for complex datatypes
 template<typename R>
 void QR
 ( DistMatrix<std::complex<R>,MC,MR  >& A, 
@@ -585,22 +635,17 @@ void QR
 // Reflector (Householder reflector):                                         //
 //----------------------------------------------------------------------------//
 
-// Serial version for real datatypes
 template<typename R>
-R
-Reflector( Matrix<R>& chi, Matrix<R>& x );
+R Reflector( Matrix<R>& chi, Matrix<R>& x );
 
 #ifndef WITHOUT_COMPLEX
-// Serial version for complex datatypes
 template<typename R>
 std::complex<R>
 Reflector( Matrix<std::complex<R> >& chi, Matrix<std::complex<R> >& x );
 #endif
 
-// Parallel version
 template<typename F>
-F
-Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x );
+F Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x );
 
 //----------------------------------------------------------------------------//
 // SkewHermitianEig (Skew-Hermitian Eigensolver)                              //
@@ -731,23 +776,21 @@ void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z );
 // routines.                                                                  //
 //----------------------------------------------------------------------------//
 
-// Serial version for real datatypes (currently unblocked)
+// NOTE: Currently unblocked
 template<typename R>
 void HermitianTridiag( Shape shape, Matrix<R>& A );
 
 #ifndef WITHOUT_COMPLEX
-// Serial version for complex datatypes (currently unblocked)
+// NOTE: Currently unblocked
 template<typename R>
 void HermitianTridiag
 ( Shape shape, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t );
 #endif
 
-// Parallel version for real datatypes
 template<typename R>
 void HermitianTridiag( Shape shape, DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
-// Parallel version for complex datatypes
 template<typename R>
 void HermitianTridiag
 ( Shape shape,
@@ -765,6 +808,18 @@ void SetHermitianTridiagGridOrder( GridOrder order );
 GridOrder GetHermitianTridiagGridOrder();
 
 //----------------------------------------------------------------------------//
+// Trace                                                                      //
+//                                                                            //
+// Returns the sum of the diagonal entries of a square matrix.                //
+//----------------------------------------------------------------------------//
+
+template<typename F>
+F Trace( const Matrix<F>& A );
+
+template<typename F>
+F Trace( const DistMatrix<F,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
 // TriangularInverse                                                          //
 //                                                                            //
 // Inverts a triangular matrix. 'shape' determines whether A is assumed to be //
@@ -772,72 +827,13 @@ GridOrder GetHermitianTridiagGridOrder();
 // to be treated as having a unit diagonal.                                   //
 //----------------------------------------------------------------------------//
 
-// Serial version
 template<typename F>
-void
-TriangularInverse
+void TriangularInverse
 ( Shape shape, Diagonal diagonal, Matrix<F>& A );
 
-// Parallel version
 template<typename F>
-void
-TriangularInverse
+void TriangularInverse
 ( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
-
-//----------------------------------------------------------------------------//
-// ApplyPackedReflectors                                                      //
-//                                                                            //
-// Applies the accumulated Householder transforms that are stored in the      //
-// triangle of H specified by 'shape' to the matrix A.                        //
-//                                                                            //
-// If 'shape' is set to 'LOWER', then offset determines the diagonal that the //
-// transforms are stored above (they are implicitly one on that diagonal).    //
-//                                                                            //
-// If 'shape' is set to 'UPPER', then offset determines the diagonal that the //
-// transforms are stored below (they are implicitly one on that diagonal).    //
-//                                                                            //
-// 'direction' determines whether the reflectors are stored vertically or     //
-// horizontally.                                                              //
-//                                                                            //
-// 'conjugation' determines whether or not the Householder scalars should be  //
-// conjugated.                                                                //
-//                                                                            //
-// If 'order' is set to forward, then the reflectors are applied              //
-// left-to-right, or top-to-bottom, depending on 'direction'. Otherwise, they //
-// are applied in the opposite order.
-//                                                                            //
-// See the above note for QR factorizations regarding the vector 't' and      //
-// Householder early-exit conditions.                                         //
-//----------------------------------------------------------------------------//
-
-// TODO: Add serial versions
-
-// Parallel version for real datatypes
-template<typename R>
-void ApplyPackedReflectors
-( Side side, Shape shape, VectorDirection direction, ForwardOrBackward order,
-  int offset,
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-
-#ifndef WITHOUT_COMPLEX
-template<typename R>
-void ApplyPackedReflectors
-( Side side, Shape shape,
-  VectorDirection direction, ForwardOrBackward order, Conjugation conjugation,
-  int offset,
-  const DistMatrix<std::complex<R>,MC,  MR  >& H,
-  const DistMatrix<std::complex<R>,MD,  STAR>& t,
-        DistMatrix<std::complex<R>,MC,  MR  >& A );
-template<typename R>
-void ApplyPackedReflectors
-( Side side, Shape shape, 
-  VectorDirection direction, ForwardOrBackward order, Conjugation conjugation,
-  int offset,
-  const DistMatrix<std::complex<R>,MC,  MR  >& H,
-  const DistMatrix<std::complex<R>,STAR,STAR>& t,
-        DistMatrix<std::complex<R>,MC,  MR  >& A );
-#endif
 
 } // advanced
 } // elemental
@@ -850,6 +846,7 @@ void ApplyPackedReflectors
 #include "./advanced/ApplyPackedReflectors.hpp"
 #include "./advanced/Cholesky.hpp"
 #include "./advanced/CholeskySolve.hpp"
+#include "./advanced/Determinant.hpp"
 #include "./advanced/GaussianElimination.hpp"
 #include "./advanced/Hegst.hpp"
 #include "./advanced/HermitianEig.hpp"
@@ -866,6 +863,7 @@ void ApplyPackedReflectors
 #include "./advanced/Reflector.hpp"
 #include "./advanced/SkewHermitianEig.hpp"
 #include "./advanced/SortEig.hpp"
+#include "./advanced/Trace.hpp"
 #include "./advanced/TriangularInverse.hpp"
 
 template<typename F>
@@ -921,6 +919,12 @@ elemental::advanced::LU
 #endif
     lapack::LU
     ( A.Height(), A.Width(), A.Buffer(), A.LDim(), p.Buffer() );
+
+    // Convert from Fortran to C indexing
+    int* pBuffer = p.Buffer();
+    const int n = A.Height();
+    for( int i=0; i<n; ++i )
+        --pBuffer[i];
 #ifndef RELEASE
     PopCallStack();
 #endif

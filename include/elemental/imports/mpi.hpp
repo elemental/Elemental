@@ -60,6 +60,7 @@ const ErrorHandler ERRORS_ARE_FATAL = MPI_ERRORS_ARE_FATAL;
 const Group GROUP_EMPTY = MPI_GROUP_EMPTY;
 const Request REQUEST_NULL = MPI_REQUEST_NULL;
 const Op MAX = MPI_MAX;
+const Op PROD = MPI_PROD;
 const Op SUM = MPI_SUM;
 
 // Added constant(s)

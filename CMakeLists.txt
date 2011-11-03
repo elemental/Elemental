@@ -34,7 +34,7 @@ cmake_minimum_required(VERSION 2.8.5)
 project(Elemental)
 
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 70)
+set(Elemental_VERSION_MINOR 71)
 
 # Check if an in-source build was attempted
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
