@@ -38,20 +38,6 @@
 #ifndef ELEMENTAL_AXPY_INTERFACE_HPP
 #define ELEMENTAL_AXPY_INTERFACE_HPP 1
 
-/* 
-   Template conventions:
-     G: general datatype
-  
-     T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
-     Z: representation of a real ring, e.g., the integers or real numbers
-     std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
-                      or complex numbers
-
-     F: representation of real or complex number
-     R: representation of real number
-     std::complex<R>: representation of complex number
-*/
-
 namespace elemental {
 
 namespace axpy_type_wrapper {
@@ -62,8 +48,27 @@ using namespace axpy_type_wrapper;
 template<typename T>
 class AxpyInterface
 {   
-    static const int DATA_TAG=1, EOM_TAG=2, 
-                     DATA_REQUEST_TAG=3, DATA_REPLY_TAG=4;
+public:
+    AxpyInterface();
+    ~AxpyInterface();
+
+    AxpyInterface( AxpyType type,       DistMatrix<T,MC,MR>& Z );
+    AxpyInterface( AxpyType type, const DistMatrix<T,MC,MR>& Z ); 
+
+    void Attach( AxpyType type,       DistMatrix<T,MC,MR>& Z ); 
+    void Attach( AxpyType type, const DistMatrix<T,MC,MR>& Z ); 
+
+    void Axpy( T alpha,       Matrix<T>& Z, int i, int j );
+    void Axpy( T alpha, const Matrix<T>& Z, int i, int j );
+
+    void Detach();
+
+private:
+    static const int 
+        DATA_TAG        =1, 
+        EOM_TAG         =2, 
+        DATA_REQUEST_TAG=3, 
+        DATA_REPLY_TAG  =4;
 
     bool _attachedForLocalToGlobal, _attachedForGlobalToLocal;
     byte _sendDummy, _recvDummy;
@@ -100,22 +105,6 @@ class AxpyInterface
       std::deque<std::vector<byte> >& sendVectors,
       std::deque<mpi::Request>& requests, 
       std::deque<bool>& requestStatuses );
-
-public:
-    AxpyInterface( AxpyType axpyType, DistMatrix<T,MC,MR>& Z );
-    void Attach( AxpyType axpyType, DistMatrix<T,MC,MR>& Z ); 
-    void Axpy( T alpha, Matrix<T>& Z, int i, int j );
-
-    // Even though axpyType == LOCAL_TO_GLOBAL is illegal for these 
-    // routines, this approach was chosen to keep the calling code consistent
-    // and will throw an error with the illegal option.
-    AxpyInterface( AxpyType axpyType, const DistMatrix<T,MC,MR>& Z ); 
-    void Attach( AxpyType axpyType, const DistMatrix<T,MC,MR>& Z ); 
-    void Axpy( T alpha, const Matrix<T>& Z, int i, int j );
-
-    AxpyInterface();
-    ~AxpyInterface();
-    void Detach();
 };
 
 //----------------------------------------------------------------------------//
@@ -413,12 +402,12 @@ AxpyInterface<T>::AxpyInterface()
 
 template<typename T>
 inline
-AxpyInterface<T>::AxpyInterface( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
+AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::AxpyInterface");
 #endif
-    if( axpyType == LOCAL_TO_GLOBAL )
+    if( type == LOCAL_TO_GLOBAL )
     {
         _attachedForLocalToGlobal = true;
         _attachedForGlobalToLocal = false;
@@ -458,12 +447,12 @@ AxpyInterface<T>::AxpyInterface( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
 template<typename T>
 inline
 AxpyInterface<T>::AxpyInterface
-( AxpyType axpyType, const DistMatrix<T,MC,MR>& X )
+( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::AxpyInterface");
 #endif
-    if( axpyType == LOCAL_TO_GLOBAL )
+    if( type == LOCAL_TO_GLOBAL )
     {
         throw std::logic_error("Cannot update a constant matrix");
     }
@@ -530,7 +519,7 @@ AxpyInterface<T>::~AxpyInterface()
 
 template<typename T>
 inline void
-AxpyInterface<T>::Attach( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
+AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Attach");
@@ -538,7 +527,7 @@ AxpyInterface<T>::Attach( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
     if( _attachedForLocalToGlobal || _attachedForGlobalToLocal )
         throw std::logic_error("Must detach before reattaching.");
 
-    if( axpyType == LOCAL_TO_GLOBAL )
+    if( type == LOCAL_TO_GLOBAL )
     {
         _attachedForLocalToGlobal = true;
         _localToGlobalMat = &Z;
@@ -573,7 +562,7 @@ AxpyInterface<T>::Attach( AxpyType axpyType, DistMatrix<T,MC,MR>& Z )
 
 template<typename T>
 inline void
-AxpyInterface<T>::Attach( AxpyType axpyType, const DistMatrix<T,MC,MR>& X )
+AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Attach");
@@ -581,7 +570,7 @@ AxpyInterface<T>::Attach( AxpyType axpyType, const DistMatrix<T,MC,MR>& X )
     if( _attachedForLocalToGlobal || _attachedForGlobalToLocal )
         throw std::logic_error("Must detach before reattaching.");
 
-    if( axpyType == LOCAL_TO_GLOBAL )
+    if( type == LOCAL_TO_GLOBAL )
     {
         throw std::logic_error("Cannot update a constant matrix");
     }
@@ -656,7 +645,7 @@ AxpyInterface<T>::AxpyLocalToGlobal
 ( T alpha, const Matrix<T>& X, int i, int j )
 {
 #ifndef RELEASE
-    PushCallStack("axpy_interface::AxpyLocalToGlobal");
+    PushCallStack("AxpyInterface::AxpyLocalToGlobal");
 #endif
     DistMatrix<T,MC,MR>& Y = *_localToGlobalMat;
     if( i < 0 || j < 0 )
@@ -743,7 +732,7 @@ AxpyInterface<T>::AxpyGlobalToLocal
 ( T alpha, Matrix<T>& Y, int i, int j )
 {
 #ifndef RELEASE
-    PushCallStack("axpy_interface::AxpyGlobalToLocal");
+    PushCallStack("AxpyInterface::AxpyGlobalToLocal");
 #endif
     const DistMatrix<T,MC,MR>& X = *_globalToLocalMat;
 
