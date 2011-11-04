@@ -37,6 +37,28 @@
 
 inline bool
 elemental::advanced::internal::Parity
+( const Matrix<int>& p, int pivotOffset )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::internal::Parity");
+    if( p.Width() != 1 )
+        throw std::logic_error("p must be a column vector");
+    if( pivotOffset < 0 )
+        throw std::logic_error("pivot offset cannot be negative");
+#endif
+    const int n = p.Height();
+    bool isOdd = false;
+    for( int i=0; i<n; ++i )
+        if( p.Get(i,0) != i+pivotOffset )
+            isOdd = !isOdd;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return isOdd;
+}
+
+inline bool
+elemental::advanced::internal::Parity
 ( const DistMatrix<int,VC,STAR>& p, int pivotOffset ) 
 {
 #ifndef RELEASE
@@ -66,28 +88,6 @@ elemental::advanced::internal::Parity
     globalContribution = globalContribution % 2;
 
     bool isOdd = globalContribution;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return isOdd;
-}
-
-inline bool
-elemental::advanced::internal::Parity
-( const Matrix<int>& p, int pivotOffset )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::internal::Parity");
-    if( p.Width() != 1 )
-        throw std::logic_error("p must be a column vector");
-    if( pivotOffset < 0 )
-        throw std::logic_error("pivot offset cannot be negative");
-#endif
-    const int n = p.Height();
-    bool isOdd = false;
-    for( int i=0; i<n; ++i )
-        if( p.Get(i,0) != i+pivotOffset )
-            isOdd = !isOdd;
 #ifndef RELEASE
     PopCallStack();
 #endif

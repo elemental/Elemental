@@ -206,12 +206,12 @@ distributed matrix, sets it to the identity matrix, then prints it:
       }
 
 As you can see, the only required header is ``elemental.hpp``, which must be
-in the include path when compiling this simple driver, say ``Simple.cpp``. 
+in the include path when compiling this simple driver, say ``Identity.cpp``. 
 If Elemental was installed in ``/usr/local/elemental``, then 
 ``/usr/local/elemental/include`` must be in the include path. Supposing that
-the file ``Simple.cpp`` is in the current folder, a typical build would be ::
+the file ``Identity.cpp`` is in the current folder, a typical build would be ::
 
-    mpicxx Simple.cpp -o Simple \
+    mpicxx Identity.cpp -o Identity \
         -I/usr/local/elemental/include \
         -L/usr/local/elemental/lib -lelemental -llapack -lblas -lm
 
@@ -219,11 +219,11 @@ Of course, ``/usr/local/elemental`` should be replaced with your installation
 prefix and ``-llapack -lblas -lm`` should be replaced with the ``MATH_LIBS`` 
 set during configuration (it is written into the file 
 ``include/elemental/config.h`` in the build directory). A slightly modified 
-version of the above driver is available in ``tests/core/Simple.cpp``.
+version of the above driver is available in ``tests/core/Identity.cpp``.
 
 The executable can then typically be run with a single process using ::
 
-    ./Simple
+    ./Identity
 
 and the output should be ::
 
@@ -240,10 +240,10 @@ and the output should be ::
     0 0 0 0 0 0 0 1 
 
 The driver can be run with several processes using the MPI launcher provided
-by your MPI implementation; a typical way to run the ``Simple`` driver on 
+by your MPI implementation; a typical way to run the ``Identity`` driver on 
 eight processes would be::
 
-    mpirun -np 8 ./Simple
+    mpirun -np 8 ./Identity
 
 Only the first line of the output should change with respect to when run on 
 a single process.

@@ -186,8 +186,8 @@ elemental::advanced::LU
         advanced::internal::PanelLU
         ( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, pivotOffset );
         advanced::internal::ComposePanelPivots
-        ( p1_STAR_STAR, image, preimage, pivotOffset );
-        advanced::internal::ApplyRowPivots( AB, image, preimage, pivotOffset );
+        ( p1_STAR_STAR, pivotOffset, image, preimage );
+        advanced::ApplyRowPivots( AB, image, preimage );
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)

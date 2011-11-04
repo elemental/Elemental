@@ -69,6 +69,8 @@ inline SafeProduct<F> advanced::SafeDeterminant( DistMatrix<F,MC,MR>& A )
         }
         mpi::AllReduce( &localRho, &det.rho, 1, mpi::PROD, g.VCComm() );
         mpi::AllReduce( &localKappa, &det.kappa, 1, mpi::SUM, g.VCComm() );
+        if( isOdd )
+            det.rho = -det.rho;
     }
     catch( SingularMatrixException& e )
     {
@@ -124,6 +126,8 @@ inline SafeProduct<F> advanced::SafeDeterminant( Matrix<F>& A )
             det.rho *= delta/alpha;
             det.kappa += std::log(alpha)/n;
         }
+        if( isOdd )
+            det.rho = -det.rho;
     }
     catch( SingularMatrixException& e )
     {

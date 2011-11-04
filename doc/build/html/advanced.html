@@ -3,16 +3,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Advanced linear algebra &mdash; Elemental 0.71 documentation</title>
-    
+    <title>Advanced linear algebra &mdash; Elemental v0.71 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
@@ -25,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Elemental 0.71 documentation" href="index.html" />
+    <link rel="top" title="Elemental v0.71 documentation" href="index.html" />
     <link rel="prev" title="Basic linear algebra" href="basic.html" /> 
   </head>
   <body>
@@ -38,7 +35,7 @@
         <li class="right" >
           <a href="basic.html" title="Basic linear algebra"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Elemental 0.71 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Elemental v0.71 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -115,7 +112,7 @@ the product of the eigenvalues (including multiplicity):</p>
 <div class="math">
 <p><img src="_images/math/4cfa69537fbf45a84fca2b72b23596cee5911fc1.png" alt="\[
 \mbox{det}(A) = \prod_{i=0}^{n-1} \lambda_i.
-\]"/></p>
+\]" /></p>
 </div><p>Since <img class="math" src="_images/math/d13588b3335e422418e96554ee604f63d355f37b.png" alt="\mbox{det}(AB)=\mbox{det}(A)\mbox{det}(B)"/>, we can compute the
 determinant of an arbitrary matrix in <img class="math" src="_images/math/02efe75fee022db7fc9f5f3e78c5e9c79ba510dc.png" alt="\mathcal{O}(n^3)"/> work by
 computing its LU decomposition (with partial pivoting), <img class="math" src="_images/math/d38165f6cb26decf3c20b44fe86276382079540a.png" alt="PA=LU"/>,
@@ -126,7 +123,7 @@ recognizing that <img class="math" src="_images/math/347aaf19d43d29ffaf21a192c82
 \mbox{det}(A) = \mbox{det}(P)\mbox{det}(L)\mbox{det}(U)
               = \mbox{det}(P) \prod_{i=0}^{n-1} \upsilon_{i,i}
               = \pm \prod_{i=0}^{n-1} \upsilon_{i,i}.
-\]"/></p>
+\]" /></p>
 </div><dl class="function">
 <dt id="advanced::Determinant__Matrix:F:R">
 F <tt class="descclassname">advanced::</tt><tt class="descname">Determinant</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Determinant__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
@@ -190,12 +187,12 @@ expanded form which is less likely to over/under-flow.</p>
 <div class="math">
 <p><img src="_images/math/f56f85600e1a0f9c5353f85842b5a3592552b3cd.png" alt="\[
 \mbox{tr}(A) = \sum_{i=0}^{n-1} \alpha_{i,i},
-\]"/></p>
+\]" /></p>
 </div><p>and</p>
 <div class="math">
 <p><img src="_images/math/7df92458fd002b9650c0292048b3bef8e00af908.png" alt="\[
 \mbox{tr}(A) = \sum_{i=0}^{n-1} \lambda_i.
-\]"/></p>
+\]" /></p>
 </div><p>Clearly the former equation is easier to compute, but the latter is an
 important characterization.</p>
 <dl class="function">
@@ -513,12 +510,12 @@ treat the identity matrix as a Householder transform since it requires the
         <li class="right" >
           <a href="basic.html" title="Basic linear algebra"
              >previous</a> |</li>
-        <li><a href="index.html">Elemental 0.71 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Elemental v0.71 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
     </div>
   </body>
 </html>

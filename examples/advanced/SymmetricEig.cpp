@@ -104,6 +104,11 @@ main( int argc, char* argv[] )
         // Print our matrix.
         H.Print("H:");
 
+        // Print its trace
+        const R trace = advanced::Trace( H );
+        if( g.VCRank() == 0 )
+            std::cout << "Tr(H) = " << trace << std::endl;
+
         // Call the eigensolver. We first create an empty eigenvector 
         // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
         DistMatrix<R,VR,STAR> w( g );

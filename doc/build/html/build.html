@@ -3,16 +3,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Build system &mdash; Elemental 0.71 documentation</title>
-    
+    <title>Build system &mdash; Elemental v0.71 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
@@ -25,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Elemental 0.71 documentation" href="index.html" />
+    <link rel="top" title="Elemental v0.71 documentation" href="index.html" />
     <link rel="next" title="Imported library routines" href="imports.html" />
     <link rel="prev" title="Introduction" href="intro.html" /> 
   </head>
@@ -42,7 +39,7 @@
         <li class="right" >
           <a href="intro.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Elemental 0.71 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Elemental v0.71 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -249,11 +246,11 @@ distributed matrix, sets it to the identity matrix, then prints it:</p>
 </div>
 </div></blockquote>
 <p>As you can see, the only required header is <tt class="docutils literal"><span class="pre">elemental.hpp</span></tt>, which must be
-in the include path when compiling this simple driver, say <tt class="docutils literal"><span class="pre">Simple.cpp</span></tt>.
+in the include path when compiling this simple driver, say <tt class="docutils literal"><span class="pre">Identity.cpp</span></tt>.
 If Elemental was installed in <tt class="docutils literal"><span class="pre">/usr/local/elemental</span></tt>, then
 <tt class="docutils literal"><span class="pre">/usr/local/elemental/include</span></tt> must be in the include path. Supposing that
-the file <tt class="docutils literal"><span class="pre">Simple.cpp</span></tt> is in the current folder, a typical build would be</p>
-<div class="highlight-python"><pre>mpicxx Simple.cpp -o Simple \
+the file <tt class="docutils literal"><span class="pre">Identity.cpp</span></tt> is in the current folder, a typical build would be</p>
+<div class="highlight-python"><pre>mpicxx Identity.cpp -o Identity \
     -I/usr/local/elemental/include \
     -L/usr/local/elemental/lib -lelemental -llapack -lblas -lm</pre>
 </div>
@@ -261,9 +258,9 @@ the file <tt class="docutils literal"><span class="pre">Simple.cpp</span></tt> i
 prefix and <tt class="docutils literal"><span class="pre">-llapack</span> <span class="pre">-lblas</span> <span class="pre">-lm</span></tt> should be replaced with the <tt class="docutils literal"><span class="pre">MATH_LIBS</span></tt>
 set during configuration (it is written into the file
 <tt class="docutils literal"><span class="pre">include/elemental/config.h</span></tt> in the build directory). A slightly modified
-version of the above driver is available in <tt class="docutils literal"><span class="pre">tests/core/Simple.cpp</span></tt>.</p>
+version of the above driver is available in <tt class="docutils literal"><span class="pre">tests/core/Identity.cpp</span></tt>.</p>
 <p>The executable can then typically be run with a single process using</p>
-<div class="highlight-python"><pre>./Simple</pre>
+<div class="highlight-python"><pre>./Identity</pre>
 </div>
 <p>and the output should be</p>
 <div class="highlight-python"><pre>Creating a matrix distributed over 1 process.
@@ -279,9 +276,9 @@ Identity
 0 0 0 0 0 0 0 1</pre>
 </div>
 <p>The driver can be run with several processes using the MPI launcher provided
-by your MPI implementation; a typical way to run the <tt class="docutils literal"><span class="pre">Simple</span></tt> driver on
+by your MPI implementation; a typical way to run the <tt class="docutils literal"><span class="pre">Identity</span></tt> driver on
 eight processes would be:</p>
-<div class="highlight-python"><pre>mpirun -np 8 ./Simple</pre>
+<div class="highlight-python"><pre>mpirun -np 8 ./Identity</pre>
 </div>
 <p>Only the first line of the output should change with respect to when run on
 a single process.</p>
@@ -368,12 +365,12 @@ your build directory. Please only direct general usage questions to
         <li class="right" >
           <a href="intro.html" title="Introduction"
              >previous</a> |</li>
-        <li><a href="index.html">Elemental 0.71 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Elemental v0.71 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
     </div>
   </body>
 </html>

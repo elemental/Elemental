@@ -55,6 +55,12 @@ main( int argc, char* argv[] )
         DistMatrix<double,MC,MR> I( n, n );
         I.SetToIdentity();
         I.Print("Identity");
+
+        const double trace = advanced::Trace( I );
+        const double det = advanced::Determinant( I );
+        if( commRank == 0 )
+            std::cout << "Tr(I) = " << trace << "\n"
+                      << "Det(I) = " << det << std::endl;
     }
     catch( std::exception& e )
     {

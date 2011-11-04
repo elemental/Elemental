@@ -185,46 +185,17 @@ void LDLVar3
 // LU                                                                         //
 //----------------------------------------------------------------------------//
 
-template<typename F>
-void ApplyRowPivots
-(       DistMatrix<F,  MC,MR  >& A,
-  const DistMatrix<int,VC,STAR>& p,
-        int pivotOffset=0 );
-
-template<typename F>
-void ApplyRowPivots
-(       DistMatrix<F,  MC,  MR  >& A,
-  const DistMatrix<int,STAR,STAR>& p,
-        int pivotOffset=0 );
-
-template<typename F>
-void ApplyRowPivots
-(       DistMatrix<F,MC,MR>& A, 
-  const std::vector<int>& image,
-  const std::vector<int>& preimage,
-        int pivotOffset=0 );
-
-void ComposePivots
-( const DistMatrix<int,STAR,STAR>& p,
-        std::vector<int>& image,
-        std::vector<int>& preimage );
-
-void ComposePivots
+void ComposePanelPivots
 ( const Matrix<int>& p,
+        int pivotOffset,
         std::vector<int>& image,
         std::vector<int>& preimage );
 
 void ComposePanelPivots
 ( const DistMatrix<int,STAR,STAR>& p,
+        int pivotOffset,
         std::vector<int>& image,
-        std::vector<int>& preimage,
-        int pivotOffset=0 );
-
-void ComposePanelPivots
-( const Matrix<int>& p,
-        std::vector<int>& image,
-        std::vector<int>& preimage,
-        int pivotOffset=0 );
+        std::vector<int>& preimage );
 
 bool Parity( const Matrix<int>& p, int pivotOffset=0 );
 bool Parity( const DistMatrix<int,VC,STAR>& p, int pivotOffset=0 );

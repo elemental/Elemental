@@ -33,14 +33,14 @@
 
 template<typename F>
 inline void
-elemental::advanced::internal::ApplyRowPivots
-( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p, int pivotOffset )
+elemental::advanced::ApplyRowPivots
+( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ApplyRowPivots");
+    PushCallStack("advanced::ApplyRowPivots");
 #endif
     DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
-    advanced::internal::ApplyRowPivots( A, p_STAR_STAR, pivotOffset );
+    advanced::ApplyRowPivots( A, p_STAR_STAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -48,25 +48,15 @@ elemental::advanced::internal::ApplyRowPivots
 
 template<typename F>
 inline void
-elemental::advanced::internal::ApplyRowPivots
-( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p, int pivotOffset )
+elemental::advanced::ApplyRowPivots
+( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ApplyRowPivots");
+    PushCallStack("advanced::ApplyRowPivots");
 #endif
     std::vector<int> image, preimage;
-    if( pivotOffset == 0 && p.Height() == A.Height() )
-    {
-        advanced::internal::ComposePivots( p, image, preimage );
-        advanced::internal::ApplyRowPivots( A, image, preimage );
-    }
-    else
-    {
-        advanced::internal::ComposePanelPivots
-        ( p, image, preimage, pivotOffset );
-        advanced::internal::ApplyRowPivots
-        ( A, image, preimage, pivotOffset );
-    }
+    advanced::ComposePivots( p, image, preimage );
+    advanced::ApplyRowPivots( A, image, preimage );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -74,21 +64,18 @@ elemental::advanced::internal::ApplyRowPivots
 
 template<typename F> // represents a real or complex number
 inline void
-elemental::advanced::internal::ApplyRowPivots
+elemental::advanced::ApplyRowPivots
 ( DistMatrix<F,MC,MR>& A, 
   const std::vector<int>& image,
-  const std::vector<int>& preimage,
-  int pivotOffset )
+  const std::vector<int>& preimage )
 {
     const int b = image.size();
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ApplyRowPivots");
+    PushCallStack("advanced::ApplyRowPivots");
     if( A.Height() < b || b != preimage.size() )
         throw std::logic_error
         ("image and preimage must be vectors of equal length that are not "
          "taller than A.");
-    if( pivotOffset < 0 )
-        throw std::logic_error("pivot offset must be non-negative");
 #endif
     const int localWidth = A.LocalWidth();
     if( A.Width() == 0 )
@@ -99,7 +86,7 @@ elemental::advanced::internal::ApplyRowPivots
     const int r = g.Height();
     const int colAlignment = A.ColAlignment();
     const int colShift = A.ColShift();
-    const int myRank = g.MCRank();
+    const int myRow = g.MCRank();
 
     // Extract the send and recv counts from the image and preimage.
     // This process's sends may be logically partitioned into two sets:
@@ -123,7 +110,7 @@ elemental::advanced::internal::ApplyRowPivots
         if( sendRow >= b )
         {
             const int sendTo = (colAlignment+sendRow) % r;
-            if( sendTo == myRank )
+            if( sendTo == myRow )
             {
                 const int sendFrom = (colAlignment+i) % r;
                 recvCounts[sendFrom] += localWidth;
@@ -134,7 +121,7 @@ elemental::advanced::internal::ApplyRowPivots
         if( recvRow >= b )
         {
             const int recvFrom = (colAlignment+recvRow) % r;
-            if( recvFrom == myRank )
+            if( recvFrom == myRow )
             {
                 const int recvTo = (colAlignment+i) % r;
                 sendCounts[recvTo] += localWidth;
@@ -167,6 +154,7 @@ elemental::advanced::internal::ApplyRowPivots
 #endif
 
     // Fill vectors with the send data
+    const int ALDim = A.LocalLDim();
     std::vector<F> sendData(max(1,totalSend));
     std::vector<int> offsets(r,0);
     const int localHeight = LocalLength( b, colShift, r );
@@ -175,7 +163,6 @@ elemental::advanced::internal::ApplyRowPivots
         const int sendRow = preimage[colShift+i*r];
         const int sendTo = (colAlignment+sendRow) % r;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
-        const int ALDim = A.LocalLDim();
         const F* ABuffer = A.LocalBuffer(i,0);
         for( int j=0; j<localWidth; ++j )     
             sendData[offset+j] = ABuffer[j*ALDim];
@@ -187,12 +174,11 @@ elemental::advanced::internal::ApplyRowPivots
         if( recvRow >= b )
         {
             const int recvFrom = (colAlignment+recvRow) % r; 
-            if( recvFrom == myRank )
+            if( recvFrom == myRow )
             {
                 const int recvTo = (colAlignment+i) % r;
                 const int iLocal = (recvRow-colShift) / r;
                 const int offset = sendDispls[recvTo]+offsets[recvTo];
-                const int ALDim = A.LocalLDim();
                 const F* ABuffer = A.LocalBuffer(iLocal,0);
                 for( int j=0; j<localWidth; ++j )
                     sendData[offset+j] = ABuffer[j*ALDim];
@@ -216,11 +202,10 @@ elemental::advanced::internal::ApplyRowPivots
         {
             const int sendRow = preimage[i];
             const int sendTo = (colAlignment+sendRow) % r;
-            if( sendTo == myRank )
+            if( sendTo == myRow )
             {
                 const int offset = recvDispls[k]+offsets[k];
                 const int iLocal = (sendRow-colShift) / r;
-                const int ALDim = A.LocalLDim();
                 F* ABuffer = A.LocalBuffer(iLocal,0);
                 for( int j=0; j<localWidth; ++j )
                     ABuffer[j*ALDim] = recvData[offset+j];
@@ -234,12 +219,11 @@ elemental::advanced::internal::ApplyRowPivots
         if( recvRow >= b )
         {
             const int recvTo = (colAlignment+i) % r;
-            if( recvTo == myRank )
+            if( recvTo == myRow )
             {
                 const int recvFrom = (colAlignment+recvRow) % r; 
                 const int iLocal = (i-colShift) / r;
                 const int offset = recvDispls[recvFrom]+offsets[recvFrom];
-                const int ALDim = A.LocalLDim();
                 F* ABuffer = A.LocalBuffer(iLocal,0);
                 for( int j=0; j<localWidth; ++j )
                     ABuffer[j*ALDim] = recvData[offset+j];

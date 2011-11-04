@@ -136,11 +136,9 @@ elemental::advanced::internal::ReduceToRowEchelon
         advanced::internal::PanelLU
         ( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, A00.Height() );
         advanced::internal::ComposePanelPivots
-        ( p1_STAR_STAR, image, preimage, A00.Height() );
-        advanced::internal::ApplyRowPivots
-        ( APan, image, preimage, A00.Height() );
-        advanced::internal::ApplyRowPivots
-        ( BB,   image, preimage, A00.Height() );
+        ( p1_STAR_STAR, A00.Height(), image, preimage );
+        advanced::ApplyRowPivots( APan, image, preimage );
+        advanced::ApplyRowPivots( BB,   image, preimage );
 
         A12_STAR_VR = A12;
         B1_STAR_VR = B1;

@@ -93,6 +93,33 @@ void ApplyPackedReflectors
 #endif
 
 //----------------------------------------------------------------------------//
+// ApplyRowPivots                                                             //
+//                                                                            //
+// Pivot the rows of the matrix A using the pivot vector (or the image and    //
+// preimage of the associated permutation).                                   //
+//                                                                            //
+// SEE: ComposePivots                                                         //
+//----------------------------------------------------------------------------//
+
+// TODO: Serial versions
+
+template<typename F>
+void ApplyRowPivots
+(       DistMatrix<F,  MC,MR  >& A,
+  const DistMatrix<int,VC,STAR>& p );
+
+template<typename F>
+void ApplyRowPivots
+(       DistMatrix<F,  MC,  MR  >& A,
+  const DistMatrix<int,STAR,STAR>& p );
+
+template<typename F>
+void ApplyRowPivots
+(       DistMatrix<F,MC,MR>& A,
+  const std::vector<int>& image,
+  const std::vector<int>& preimage );
+
+//----------------------------------------------------------------------------//
 // Cholesky:                                                                  //
 //                                                                            //
 // Overwrite a triangle of A with the Cholesky factor of A. 'shape'           //
@@ -117,6 +144,30 @@ void Cholesky( Shape shape, DistMatrix<F,MC,MR>& A );
 template<typename F>
 void CholeskySolve
 ( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& X );
+
+//----------------------------------------------------------------------------//
+// ComposePivots                                                              //
+//                                                                            //
+// Explicitly form the image and preimage of the permutation associated with  //
+// the given pivot vector.                                                    //
+//                                                                            //
+// SEE: ApplyRowPivots                                                        //
+//----------------------------------------------------------------------------//
+
+void ComposePivots
+( const Matrix<int>& p, 
+        std::vector<int>& image, 
+        std::vector<int>& preimage );
+
+void ComposePivots
+( const DistMatrix<int,VC,STAR>& p, 
+        std::vector<int>& image, 
+        std::vector<int>& preimage );
+
+void ComposePivots
+( const DistMatrix<int,STAR,STAR>& p, 
+        std::vector<int>& image, 
+        std::vector<int>& preimage );
 
 //----------------------------------------------------------------------------//
 // Determinant:                                                               //

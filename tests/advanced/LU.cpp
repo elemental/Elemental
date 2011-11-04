@@ -69,12 +69,8 @@ void TestCorrectness
     F infNormOfX = advanced::Norm( X, INFINITY_NORM );
     F frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
     Y = X;
-
     if( pivoted )
-    {
-        // Apply the pivots to our random right-hand sides
-        advanced::internal::ApplyRowPivots( Y, p );
-    }
+        advanced::ApplyRowPivots( Y, p );
 
     // Solve against the (pivoted) right-hand sides
     basic::Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A, Y );
