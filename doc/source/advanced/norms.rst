@@ -1,0 +1,44 @@
+Norms
+=====
+
+Several matrix norm routines are provided for general, Hermitian, and symmetric 
+(distributed) matrices; each of the following routines can return either
+:math:`||A||_1`, :math:`||A||_\infty`, :math:`||A||_F` (the Frobenius norm), or 
+the maximum entrywise norm. The matrix two-norm is quite expensive to directly 
+compute, so a probabilistic algorithm (based upon Dixon's approach) will be 
+added in the near future.
+
+.. cpp:type:: enum NormType
+
+   Can be set to either ``FROBENIUS_NORM``, ``INFINITY_NORM``, ``MAX_NORM``, 
+   or ``ONE_NORM``.
+
+Norm
+----
+
+.. cpp:function:: R advanced::Norm( const Matrix<R>& A, NormType type=FROBENIUS_NORM )
+
+   Return the norm of the real matrix ``A``.
+
+.. cpp:function:: R advanced::Norm( const DistMatrix<R,MC,MR>& A, NormType type=FROBENIUS_NORM )
+
+   Return the norm of the real distributed matrix ``A``.
+
+.. cpp:function:: R advanced::Norm( const Matrix<std::complex<R> >& A, NormType type=FROBENIUS_NORM )
+
+   Return the norm of the complex matrix ``A``.
+
+.. cpp:function:: R advanced::Norm( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type=FROBENIUS_NORM )
+
+   Return the norm of the complex distributed matrix ``A``.
+
+HermitianNorm
+-------------
+Same as ``advanced::Norm``, but the (distributed) matrix is implicitly Hermitian 
+with the data stored in the triangle specified by ``shape``.
+
+SymmetricNorm
+-------------
+Same as ``advanced::Norm``, but the (distributed) matrix is implicitly symmetric
+with the data stored in the triangle specified by ``shape``.
+
