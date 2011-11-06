@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LAPACK &mdash; Elemental 0.71 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.71',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Elemental 0.71 documentation" href="../index.html" />
+    <link rel="up" title="Imported library routines" href="../imports.html" />
+    <link rel="next" title="MPI" href="mpi.html" />
+    <link rel="prev" title="BLAS" href="blas.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mpi.html" title="MPI"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="blas.html" title="BLAS"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
+          <li><a href="../imports.html" accesskey="U">Imported library routines</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="lapack">
+<h1>LAPACK<a class="headerlink" href="#lapack" title="Permalink to this headline">¶</a></h1>
+<p>A handful of LAPACK routines are currently used by Elemental: a few
+routines for querying floating point characteristics, serial Cholesky and LU
+factorization, triangular inversion, and a few other utilities. In addition,
+there are several BLAS-like routines which are technically part of LAPACK
+(e.g., <tt class="docutils literal"><span class="pre">csyr</span></tt>) which were included in the BLAS imports section.</p>
+<div class="section" id="machine-information">
+<h2>Machine information<a class="headerlink" href="#machine-information" title="Permalink to this headline">¶</a></h2>
+<p>In all of the following functions, <tt class="docutils literal"><span class="pre">R</span></tt> can be equal to either <tt class="docutils literal"><span class="pre">float</span></tt> or
+<tt class="docutils literal"><span class="pre">double</span></tt>.</p>
+<dl class="function">
+<dt id="lapack::MachineEpsilon:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineEpsilon&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineEpsilon:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the relative machine precision.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachineSafeMin:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineSafeMin&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineSafeMin:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the minimum number which can be inverted without underflow.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachinePrecision:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachinePrecision&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachinePrecision:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the relative machine precision multiplied by the base.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachineUnderflowExponent:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineUnderflowExponent&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineUnderflowExponent:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the minimum exponent before (gradual) underflow occurs.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachineUnderflowThreshold:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineUnderflowThreshold&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineUnderflowThreshold:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the underflow threshold: <tt class="docutils literal"><span class="pre">(base)^((underflow</span> <span class="pre">exponent)-1)</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachineOverflowExponent:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineOverflowExponent&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineOverflowExponent:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the largest exponent before overflow.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::MachineOverflowThreshold:R:">
+R <tt class="descclassname">lapack::</tt><tt class="descname">MachineOverflowThreshold&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineOverflowThreshold:R:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the overflow threshold:
+<tt class="docutils literal"><span class="pre">(1-rel.</span> <span class="pre">prec.))</span> <span class="pre">*</span> <span class="pre">(base)^(overflow</span> <span class="pre">exponent)</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="factorizations">
+<h2>Factorizations<a class="headerlink" href="#factorizations" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="lapack::Cholesky__c.i.FCP.i">
+void <tt class="descclassname">lapack::</tt><tt class="descname">Cholesky</tt><big>(</big>char <em>uplo</em>, int <em>n</em>, const F* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#lapack::Cholesky__c.i.FCP.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a Cholesky factorization on <img class="math" src="../_images/math/63d9b7b01a6ac29b4f42241b6f1ad0da72ff1813.png" alt="A \in F^{n \times n}"/>, where
+<img class="math" src="../_images/math/2387492dcc075889d91293d6df8ef260cdbf2b12.png" alt="A(i,j)"/> can be accessed at <tt class="docutils literal"><span class="pre">A[i+j*lda]</span></tt> and <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is implicitly
+Hermitian, with the data stored in the lower triangle if <tt class="docutils literal"><span class="pre">uplo</span></tt> equals
+&#8216;L&#8217;, or in the upper triangle if <tt class="docutils literal"><span class="pre">uplo</span></tt> equals &#8216;U&#8217;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::LU__i.i.FP.i.iP">
+void <tt class="descclassname">lapack::</tt><tt class="descname">LU</tt><big>(</big>int <em>m</em>, int <em>n</em>, F* <em>A</em>, int <em>lda</em>, int* <em>p</em><big>)</big><a class="headerlink" href="#lapack::LU__i.i.FP.i.iP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an LU factorization with partial pivoting on
+<img class="math" src="../_images/math/14987ac3cddbb7d2d1ea5e4f344f8c2a7553b811.png" alt="A \in F^{m \times n}"/>, where <img class="math" src="../_images/math/2387492dcc075889d91293d6df8ef260cdbf2b12.png" alt="A(i,j)"/> can be accessed at
+<tt class="docutils literal"><span class="pre">A[i+j*lda]</span></tt>. On exit, the pivots are stored in the vector <tt class="docutils literal"><span class="pre">p</span></tt>, which
+should be at least as large as <tt class="docutils literal"><span class="pre">min(m,n)</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="inversion">
+<h2>Inversion<a class="headerlink" href="#inversion" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="lapack::TriangularInverse__c.c.i.FCP.i">
+void <tt class="descclassname">lapack::</tt><tt class="descname">TriangularInverse</tt><big>(</big>char <em>uplo</em>, char <em>diag</em>, int <em>n</em>, const F* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#lapack::TriangularInverse__c.c.i.FCP.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite either the lower or upper triangle of <img class="math" src="../_images/math/63d9b7b01a6ac29b4f42241b6f1ad0da72ff1813.png" alt="A \in F^{n \times n}"/>
+with its inverse. Which triangle is accessed is determined by <tt class="docutils literal"><span class="pre">uplo</span></tt> (&#8216;L&#8217; for lower or &#8216;U&#8217; for upper), and setting <tt class="docutils literal"><span class="pre">diag</span></tt> equal to &#8216;U&#8217; results in the
+triangular matrix being treated as unit diagonal (set <tt class="docutils literal"><span class="pre">diag</span></tt> to &#8216;N&#8217;
+otherwise).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="lapack::Hegst__i.c.i.FP.i.FCP.i">
+void <tt class="descclassname">lapack::</tt><tt class="descname">Hegst</tt><big>(</big>int <em>itype</em>, char <em>uplo</em>, int <em>n</em>, F* <em>A</em>, int <em>lda</em>, const F* <em>B</em>, int <em>ldb</em><big>)</big><a class="headerlink" href="#lapack::Hegst__i.c.i.FP.i.FCP.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce a generalized Hermitian-definite eigenvalue problem to Hermitian
+standard form. <strong>TODO:</strong> Explain in more detail.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::SafeNorm__R.R">
+R <tt class="descclassname">lapack::</tt><tt class="descname">SafeNorm</tt><big>(</big>R <em>alpha</em>, R <em>beta</em><big>)</big><a class="headerlink" href="#lapack::SafeNorm__R.R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <img class="math" src="../_images/math/bec8c1da98d4eb69c134fb00d4cb63c762f15bac.png" alt="\sqrt{\alpha^2+\beta^2}"/> in a manner which avoids
+under/overflow. <tt class="docutils literal"><span class="pre">R</span></tt> can be equal to either <tt class="docutils literal"><span class="pre">float</span></tt> or <tt class="docutils literal"><span class="pre">double</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lapack::SafeNorm__R.R.R">
+R <tt class="descclassname">lapack::</tt><tt class="descname">SafeNorm</tt><big>(</big>R <em>alpha</em>, R <em>beta</em>, R <em>gamma</em><big>)</big><a class="headerlink" href="#lapack::SafeNorm__R.R.R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <img class="math" src="../_images/math/9a566e53b62a2fda38d9fff093446069b4310949.png" alt="\sqrt{\alpha^2+\beta^2+\gamma^2}"/> in a manner which avoids
+under/overflow. <tt class="docutils literal"><span class="pre">R</span></tt> can be equal to either <tt class="docutils literal"><span class="pre">float</span></tt> or <tt class="docutils literal"><span class="pre">double</span></tt>.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">LAPACK</a><ul>
+<li><a class="reference internal" href="#machine-information">Machine information</a></li>
+<li><a class="reference internal" href="#factorizations">Factorizations</a></li>
+<li><a class="reference internal" href="#inversion">Inversion</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="blas.html"
+                        title="previous chapter">BLAS</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mpi.html"
+                        title="next chapter">MPI</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/imports/lapack.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mpi.html" title="MPI"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="blas.html" title="BLAS"
+             >previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
+          <li><a href="../imports.html" >Imported library routines</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

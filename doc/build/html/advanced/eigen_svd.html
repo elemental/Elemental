@@ -1,0 +1,172 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Eigensolvers and SVD &mdash; Elemental 0.71 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.71',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Elemental 0.71 documentation" href="../index.html" />
+    <link rel="up" title="Advanced linear algebra" href="../advanced.html" />
+    <link rel="next" title="Utilities" href="util.html" />
+    <link rel="prev" title="Reduction to condensed form" href="condensed.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="util.html" title="Utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="condensed.html" title="Reduction to condensed form"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
+          <li><a href="../advanced.html" accesskey="U">Advanced linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="eigensolvers-and-svd">
+<h1>Eigensolvers and SVD<a class="headerlink" href="#eigensolvers-and-svd" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="hermitian-eigensolver">
+<h2>Hermitian eigensolver<a class="headerlink" href="#hermitian-eigensolver" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO:</strong> Describe <img class="math" src="../_images/math/ce1b74268edddc941676389e70780233b1b7e8c1.png" alt="Ax=\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::HermitianEig</span></tt> here.</p>
+<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::SortEig</span></tt> here.</p>
+</div>
+<div class="section" id="skew-hermitian-eigensolver">
+<h2>Skew-Hermitian eigensolver<a class="headerlink" href="#skew-hermitian-eigensolver" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO:</strong> Describe <img class="math" src="../_images/math/6c977466b52927687f65a7e1bae3502a939a8b76.png" alt="Gx=\lambda x"/> and <tt class="docutils literal"><span class="pre">advanced::SkewHermitianEig</span></tt> here.</p>
+</div>
+<div class="section" id="hermitian-generalized-definite-eigensolvers">
+<h2>Hermitian generalized-definite eigensolvers<a class="headerlink" href="#hermitian-generalized-definite-eigensolvers" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO:</strong> Describe <img class="math" src="../_images/math/33ec4d2f57d5893939e581d8a3538d8bd62fb2c5.png" alt="ABx=\lambda x"/>, <img class="math" src="../_images/math/718dc759ba10ce51232a298a45e2668bfc9cda7c.png" alt="BAx=\lambda x"/>, and
+<img class="math" src="../_images/math/00f280d5da3e2314cfa8f3fe00886f894d1b3bab.png" alt="Ax=\lambda Bx"/> cases and <tt class="docutils literal"><span class="pre">advanced::HermitianGenDefiniteEig</span></tt>.</p>
+</div>
+<div class="section" id="unitary-eigensolver">
+<h2>Unitary eigensolver<a class="headerlink" href="#unitary-eigensolver" title="Permalink to this headline">¶</a></h2>
+<p>Not yet written.</p>
+</div>
+<div class="section" id="normal-eigensolver">
+<h2>Normal eigensolver<a class="headerlink" href="#normal-eigensolver" title="Permalink to this headline">¶</a></h2>
+<p>Not yet written and probably not in the near future.</p>
+</div>
+<div class="section" id="general-eigensolver">
+<h2>General eigensolver<a class="headerlink" href="#general-eigensolver" title="Permalink to this headline">¶</a></h2>
+<p>Not yet written and probably not in the near future.</p>
+</div>
+<div class="section" id="schur-decomposition">
+<h2>Schur decomposition<a class="headerlink" href="#schur-decomposition" title="Permalink to this headline">¶</a></h2>
+<p>Not yet written and probably not in the near future.</p>
+</div>
+<div class="section" id="hermitian-svd">
+<h2>Hermitian SVD<a class="headerlink" href="#hermitian-svd" title="Permalink to this headline">¶</a></h2>
+<p>Not yet written, but planned. Note that an SVD of a Hermitian matrix can easily be computed from the eigenvalue decomposition.</p>
+</div>
+<div class="section" id="general-svd">
+<h2>General SVD<a class="headerlink" href="#general-svd" title="Permalink to this headline">¶</a></h2>
+<p>Not yet written, but planned.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Eigensolvers and SVD</a><ul>
+<li><a class="reference internal" href="#hermitian-eigensolver">Hermitian eigensolver</a></li>
+<li><a class="reference internal" href="#skew-hermitian-eigensolver">Skew-Hermitian eigensolver</a></li>
+<li><a class="reference internal" href="#hermitian-generalized-definite-eigensolvers">Hermitian generalized-definite eigensolvers</a></li>
+<li><a class="reference internal" href="#unitary-eigensolver">Unitary eigensolver</a></li>
+<li><a class="reference internal" href="#normal-eigensolver">Normal eigensolver</a></li>
+<li><a class="reference internal" href="#general-eigensolver">General eigensolver</a></li>
+<li><a class="reference internal" href="#schur-decomposition">Schur decomposition</a></li>
+<li><a class="reference internal" href="#hermitian-svd">Hermitian SVD</a></li>
+<li><a class="reference internal" href="#general-svd">General SVD</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="condensed.html"
+                        title="previous chapter">Reduction to condensed form</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="util.html"
+                        title="next chapter">Utilities</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/advanced/eigen_svd.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="util.html" title="Utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="condensed.html" title="Reduction to condensed form"
+             >previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
+          <li><a href="../advanced.html" >Advanced linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

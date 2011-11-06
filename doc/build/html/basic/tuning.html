@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tuning parameters &mdash; Elemental 0.71 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.71',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Elemental 0.71 documentation" href="../index.html" />
+    <link rel="up" title="Basic linear algebra" href="../basic.html" />
+    <link rel="next" title="Advanced linear algebra" href="../advanced.html" />
+    <link rel="prev" title="Level 3" href="level3.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../advanced.html" title="Advanced linear algebra"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="level3.html" title="Level 3"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
+          <li><a href="../basic.html" accesskey="U">Basic linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tuning-parameters">
+<h1>Tuning parameters<a class="headerlink" href="#tuning-parameters" title="Permalink to this headline">¶</a></h1>
+<p>The following tuning parameters have been exposed since they are
+system-dependent and can have a large impact on performance. The first two sets
+of tuning parameters, those of <tt class="docutils literal"><span class="pre">LocalHemvBlocksize</span></tt> and
+<tt class="docutils literal"><span class="pre">LocalSymvBlocksize</span></tt>, should probably be combined.</p>
+<div class="section" id="localhemvblocksize">
+<h2>LocalHemvBlocksize<a class="headerlink" href="#localhemvblocksize" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="basic::SetLocalHemvBlocksize:T:__i">
+void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalHemvBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalHemvBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local blocksize for the distributed <tt class="docutils literal"><span class="pre">basic::Hemv</span></tt> routine for
+datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is set to 64 by
+default and is important for the Householder reduction of a Hermitian
+matrix to symmetric tridiagonal form.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::LocalHemvBlocksize:T:">
+int <tt class="descclassname">basic::</tt><tt class="descname">LocalHemvBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalHemvBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the local <tt class="docutils literal"><span class="pre">Hemv</span></tt> blocksize for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="localsymvblocksize">
+<h2>LocalSymvBlocksize<a class="headerlink" href="#localsymvblocksize" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="basic::SetLocalSymvBlocksize:T:__i">
+void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalSymvBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalSymvBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local blocksize for the distributed <tt class="docutils literal"><span class="pre">basic::Symv</span></tt> routine for
+datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is set to 64 by default.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::LocalSymvBlocksize:T:">
+int <tt class="descclassname">basic::</tt><tt class="descname">LocalSymvBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalSymvBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the local <tt class="docutils literal"><span class="pre">Symv</span></tt> blocksize for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="localtriangularrankkblocksize">
+<h2>LocalTriangularRankKBlocksize<a class="headerlink" href="#localtriangularrankkblocksize" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="basic::SetLocalTriangularRankKBlocksize:T:__i">
+void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalTriangularRankKBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalTriangularRankKBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local blocksize for the distributed
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRankK</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
+set to 64 by default and is important for routines that perform distributed
+<tt class="docutils literal"><span class="pre">basic::Syrk</span></tt> or <tt class="docutils literal"><span class="pre">basic::Herk</span></tt> updates, e.g., Cholesky factorization.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::LocalTriangularRankKBlocksize:T:">
+int <tt class="descclassname">basic::</tt><tt class="descname">LocalTriangularRankKBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalTriangularRankKBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the local blocksize for the distributed
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRankK</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="localtriangularrank2kblocksize">
+<h2>LocalTriangularRank2KBlocksize<a class="headerlink" href="#localtriangularrank2kblocksize" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="basic::SetLocalTriangularRank2KBlocksize:T:__i">
+void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalTriangularRank2KBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalTriangularRank2KBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local blocksize for the distributed
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRank2K</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
+set to 64 by default and is important for routines that perform distributed
+<tt class="docutils literal"><span class="pre">basic::Syr2k</span></tt> or <tt class="docutils literal"><span class="pre">basic::Her2k</span></tt> updates, e.g., Householder
+tridiagonalization.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::LocalTriangularRank2KBlocksize:T:">
+int <tt class="descclassname">basic::</tt><tt class="descname">LocalTriangularRank2KBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalTriangularRank2KBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the local blocksize for the distributed
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRank2K</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tuning parameters</a><ul>
+<li><a class="reference internal" href="#localhemvblocksize">LocalHemvBlocksize</a></li>
+<li><a class="reference internal" href="#localsymvblocksize">LocalSymvBlocksize</a></li>
+<li><a class="reference internal" href="#localtriangularrankkblocksize">LocalTriangularRankKBlocksize</a></li>
+<li><a class="reference internal" href="#localtriangularrank2kblocksize">LocalTriangularRank2KBlocksize</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="level3.html"
+                        title="previous chapter">Level 3</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../advanced.html"
+                        title="next chapter">Advanced linear algebra</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/basic/tuning.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../advanced.html" title="Advanced linear algebra"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="level3.html" title="Level 3"
+             >previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
+          <li><a href="../basic.html" >Basic linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

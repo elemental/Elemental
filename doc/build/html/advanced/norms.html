@@ -1,0 +1,178 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Norms &mdash; Elemental 0.71 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.71',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Elemental 0.71 documentation" href="../index.html" />
+    <link rel="up" title="Advanced linear algebra" href="../advanced.html" />
+    <link rel="next" title="Invariants" href="invariants.html" />
+    <link rel="prev" title="Advanced linear algebra" href="../advanced.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="invariants.html" title="Invariants"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../advanced.html" title="Advanced linear algebra"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
+          <li><a href="../advanced.html" accesskey="U">Advanced linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="norms">
+<h1>Norms<a class="headerlink" href="#norms" title="Permalink to this headline">¶</a></h1>
+<p>Several matrix norm routines are provided for general, Hermitian, and symmetric
+(distributed) matrices; each of the following routines can return either
+<img class="math" src="../_images/math/6df3655a46bcf05e69c17b473e1be8e1151d3164.png" alt="||A||_1"/>, <img class="math" src="../_images/math/a5e88845fceee36f68644bfd6965b1255b607143.png" alt="||A||_\infty"/>, <img class="math" src="../_images/math/266b0b4d1ae415f1b4b5d681ea5aa30ef9acbf95.png" alt="||A||_F"/> (the Frobenius norm), or
+the maximum entrywise norm. The matrix two-norm is quite expensive to directly
+compute, so a probabilistic algorithm (based upon Dixon&#8217;s approach) will be
+added in the near future.</p>
+<dl class="type">
+<dt id="NormType__enum">
+<em class="property">type </em>enum <tt class="descname">NormType</tt><a class="headerlink" href="#NormType__enum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be set to either <tt class="docutils literal"><span class="pre">FROBENIUS_NORM</span></tt>, <tt class="docutils literal"><span class="pre">INFINITY_NORM</span></tt>, <tt class="docutils literal"><span class="pre">MAX_NORM</span></tt>,
+or <tt class="docutils literal"><span class="pre">ONE_NORM</span></tt>.</p>
+</dd></dl>
+
+<div class="section" id="norm">
+<h2>Norm<a class="headerlink" href="#norm" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="advanced::Norm__Matrix:R:CR.NormType">
+R <tt class="descclassname">advanced::</tt><tt class="descname">Norm</tt><big>(</big>const Matrix&lt;R&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType__enum" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#advanced::Norm__Matrix:R:CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the norm of the real matrix <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::Norm__DistMatrix:R.MC.MR:CR.NormType">
+R <tt class="descclassname">advanced::</tt><tt class="descname">Norm</tt><big>(</big>const DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType__enum" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#advanced::Norm__DistMatrix:R.MC.MR:CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the norm of the real distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::Norm__Matrix:std::complex:R::CR.NormType">
+R <tt class="descclassname">advanced::</tt><tt class="descname">Norm</tt><big>(</big>const Matrix&lt;std::complex&lt;R&gt;&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType__enum" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#advanced::Norm__Matrix:std::complex:R::CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the norm of the complex matrix <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::Norm__DistMatrix:std::complex:R:.MC.MR:CR.NormType">
+R <tt class="descclassname">advanced::</tt><tt class="descname">Norm</tt><big>(</big>const DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType__enum" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#advanced::Norm__DistMatrix:std::complex:R:.MC.MR:CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the norm of the complex distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="hermitiannorm">
+<h2>HermitianNorm<a class="headerlink" href="#hermitiannorm" title="Permalink to this headline">¶</a></h2>
+<p>Same as <tt class="docutils literal"><span class="pre">advanced::Norm</span></tt>, but the (distributed) matrix is implicitly Hermitian
+with the data stored in the triangle specified by <tt class="docutils literal"><span class="pre">shape</span></tt>.</p>
+</div>
+<div class="section" id="symmetricnorm">
+<h2>SymmetricNorm<a class="headerlink" href="#symmetricnorm" title="Permalink to this headline">¶</a></h2>
+<p>Same as <tt class="docutils literal"><span class="pre">advanced::Norm</span></tt>, but the (distributed) matrix is implicitly symmetric
+with the data stored in the triangle specified by <tt class="docutils literal"><span class="pre">shape</span></tt>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Norms</a><ul>
+<li><a class="reference internal" href="#norm">Norm</a></li>
+<li><a class="reference internal" href="#hermitiannorm">HermitianNorm</a></li>
+<li><a class="reference internal" href="#symmetricnorm">SymmetricNorm</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../advanced.html"
+                        title="previous chapter">Advanced linear algebra</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="invariants.html"
+                        title="next chapter">Invariants</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/advanced/norms.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="invariants.html" title="Invariants"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../advanced.html" title="Advanced linear algebra"
+             >previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
+          <li><a href="../advanced.html" >Advanced linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Factorizations &mdash; Elemental 0.71 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.71',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Elemental 0.71 documentation" href="../index.html" />
+    <link rel="up" title="Advanced linear algebra" href="../advanced.html" />
+    <link rel="next" title="Linear solvers" href="solvers.html" />
+    <link rel="prev" title="Invariants" href="invariants.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="solvers.html" title="Linear solvers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="invariants.html" title="Invariants"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
+          <li><a href="../advanced.html" accesskey="U">Advanced linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="factorizations">
+<h1>Factorizations<a class="headerlink" href="#factorizations" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="cholesky-factorization">
+<h2>Cholesky factorization<a class="headerlink" href="#cholesky-factorization" title="Permalink to this headline">¶</a></h2>
+<p>It is well-known that Hermitian positive-definite (HPD) matrices can be decomposed
+into the form <img class="math" src="../_images/math/ca933b554415dd7d2a237b58d30efca48f7ec6fa.png" alt="A = L L^H"/> or <img class="math" src="../_images/math/02578cfe6f06b317410d2505d9105fe146e719dd.png" alt="A = U^H U"/>, where <img class="math" src="../_images/math/0c8f8ffdd9a7883937052d43dd13b0e5143e3c4b.png" alt="L=U^H"/> is lower
+triangular, and Cholesky factorization provides such an <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (or <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/>)
+given an HPD <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>.</p>
+<dl class="function">
+<dt id="advanced::Cholesky__Shape.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big>Shape <em>shape</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__Shape.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the <tt class="docutils literal"><span class="pre">shape</span></tt> triangle of the HPD matrix <cite>A</cite> with its Cholesky factor.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::Cholesky__Shape.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__Shape.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the <tt class="docutils literal"><span class="pre">shape</span></tt> triangle of the distributed HPD matrix <tt class="docutils literal"><span class="pre">A</span></tt> with its
+Cholesky factor.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="factorization">
+<h2><img class="math" src="../_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization<a class="headerlink" href="#factorization" title="Permalink to this headline">¶</a></h2>
+<p>Though the Cholesky factorization is ideal for most HPD matrices, there exist
+many Hermitian matrices whose eigenvalues are not all positive. The
+<img class="math" src="../_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization exists as slight relaxation of the Cholesky
+factorization, i.e., it computes lower-triangular (with unit diagonal) <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>
+and diagonal <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/> such that <img class="math" src="../_images/math/3f4b793dfcea5224f0856af622de1316bd7c481c.png" alt="A = L D L^H"/>.</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The following routines do not pivot, so please use with caution.</p>
+</div>
+</div></blockquote>
+<dl class="function">
+<dt id="advanced::LDLH__Matrix:F:R.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LDLH</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#advanced::LDLH__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the strictly lower triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the strictly lower
+portion of <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (<img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> implicitly has ones on its diagonal) and
+the diagonal with <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>, and then also return the diagonal of <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>
+in the vector <tt class="docutils literal"><span class="pre">d</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::LDLH__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LDLH</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, STAR&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#advanced::LDLH__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but for distributed matrices.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id1">
+<h2><img class="math" src="../_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>While the <img class="math" src="../_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization targets Hermitian matrices, the
+<img class="math" src="../_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization targets symmetric matrices.</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The following routines do not pivot, so please use with caution.</p>
+</div>
+</div></blockquote>
+<dl class="function">
+<dt id="advanced::LDLT__Matrix:F:R.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LDLT</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#advanced::LDLT__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the strictly lower triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the strictly lower
+portion of <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (<img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> implicitly has ones on its diagonal) and
+the diagonal with <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>, and then also return the diagonal of <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>
+in the vector <tt class="docutils literal"><span class="pre">d</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::LDLT__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LDLT</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, STAR&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#advanced::LDLT__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but for distributed matrices.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id2">
+<h2><img class="math" src="../_images/math/f41c1b0893f231128abe8ae33a92b366d6c65db3.png" alt="LU"/> factorization<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Given <img class="math" src="../_images/math/1c2fab72748873ecfc7df7bdce77d384a402b85e.png" alt="A \in \mathbb{F}^{m \times n}"/>, an LU factorization
+(without pivoting) finds a unit lower-trapezoidal
+<img class="math" src="../_images/math/9640bc9cb5eb21d4658c0927606cae77c54307a1.png" alt="L \in \mathbb{F}^{m \times \mbox{min}(m,n)}"/> and upper-trapezoidal
+<img class="math" src="../_images/math/96c7e15222187caa96d9c26ee8d6529a283a7cb1.png" alt="U \in \mathbb{F}^{\mbox{min}(m,n) \times n}"/> such that <img class="math" src="../_images/math/e0e894fc27280eb4f3c8090acd60bd31469dd325.png" alt="A=LU"/>.
+Since <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> is required to have its diaganal entries set to one: the upper
+portion of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can be overwritten with <cite>U</cite>, and the strictly lower
+portion of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can be overwritten with the strictly lower portion of
+<img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>.</p>
+<dl class="function">
+<dt id="advanced::LU__Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::LU__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with its LU decomposition.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::LU__DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::LU__DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with its LU decomposition.</p>
+</dd></dl>
+
+<p>Since LU factorization without pivoting is known to be unstable for general
+matrices, it is standard practice to pivot the rows of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> during the
+factorization (this is called partial pivoting since the columns are not also
+pivoted). An LU factorization with partial pivoting therefore computes
+<img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/>, <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>, and <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> such that <img class="math" src="../_images/math/d38165f6cb26decf3c20b44fe86276382079540a.png" alt="PA=LU"/>, where <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>
+and <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> are as described above and <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is a permutation matrix.</p>
+<dl class="function">
+<dt id="advanced::LU__Matrix:F:R.Matrix:i:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;int&gt;&amp; <em>p</em><big>)</big><a class="headerlink" href="#advanced::LU__Matrix:F:R.Matrix:i:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ovewrites <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the LU decomposition of <img class="math" src="../_images/math/377291318df52e4f013ab2bf28ee82454a9e57da.png" alt="PA"/>, where
+<img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is represented by the pivot vector <tt class="docutils literal"><span class="pre">p</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::LU__DistMatrix:F.MC.MR:R.DistMatrix:F.VC.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, VC, STAR&gt;&amp; <em>p</em><big>)</big><a class="headerlink" href="#advanced::LU__DistMatrix:F.MC.MR:R.DistMatrix:F.VC.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites the distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the LU decomposition of
+<img class="math" src="../_images/math/377291318df52e4f013ab2bf28ee82454a9e57da.png" alt="PA"/>, where <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is represented by the pivot vector <tt class="docutils literal"><span class="pre">p</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id3">
+<h2><img class="math" src="../_images/math/74a751df89f77e97ef080654dfb03f981240a469.png" alt="LQ"/> factorization<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>Given <img class="math" src="../_images/math/1c2fab72748873ecfc7df7bdce77d384a402b85e.png" alt="A \in \mathbb{F}^{m \times n}"/>, an LQ factorization typically
+computes an implicit unitary matrix <img class="math" src="../_images/math/350b87880eb3ff999ce290afe5bf0b37772b2619.png" alt="\hat Q \in \mathbb{F}^{n \times n}"/>
+such that <img class="math" src="../_images/math/0ea6c3f8acf02fd0bc642d3830a01b862c4ec102.png" alt="\hat L \equiv A\hat Q^H"/> is lower trapezoidal. One can then
+form the thin factors <img class="math" src="../_images/math/9640bc9cb5eb21d4658c0927606cae77c54307a1.png" alt="L \in \mathbb{F}^{m \times \mbox{min}(m,n)}"/> and
+<img class="math" src="../_images/math/d49ab7cc53001411840bd21b11551361cce2d5b0.png" alt="Q \in \mathbb{F}^{\mbox{min}(m,n) \times n}"/> by setting
+<img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and <img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> to first <img class="math" src="../_images/math/10bced5734b166a2b3e98bd41b9a685058d00276.png" alt="\mbox{min}(m,n)"/> columns and rows of
+<img class="math" src="../_images/math/2c7a47d0801ad18fef7eb893049d253206414038.png" alt="\hat L"/> and <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>, respectively. Upon completion <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> is
+stored in the lower trapezoid of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and the Householder reflectors
+representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/> are stored within the rows of the strictly upper
+trapezoid.</p>
+<dl class="function">
+<dt id="advanced::LQ__DistMatrix:R.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LQ</tt><big>(</big>DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::LQ__DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the real distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
+Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::LQ__DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.MD.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LQ</tt><big>(</big>DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;std::complex&lt;R&gt;, MD, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#advanced::LQ__DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.MD.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the complex distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
+Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>; unlike the real case,
+phase information is needed in order to define the (generalized)
+Householder transformations and is stored in the column vector <tt class="docutils literal"><span class="pre">t</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id4">
+<h2><img class="math" src="../_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> factorization<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>Given <img class="math" src="../_images/math/1c2fab72748873ecfc7df7bdce77d384a402b85e.png" alt="A \in \mathbb{F}^{m \times n}"/>, a QR factorization typically
+computes an implicit unitary matrix <img class="math" src="../_images/math/f6619777f036b478a6a5e2a71655fc5984de09b8.png" alt="\hat Q \in \mathbb{F}^{m \times m}"/>
+such that <img class="math" src="../_images/math/d6fc02a2f5c982cdf2cf24648efc7344cd124836.png" alt="\hat R \equiv \hat Q^H A"/> is upper trapezoidal. One can then
+form the thin factors <img class="math" src="../_images/math/68460bcd70ed6627ee7778301eee28a1f8a3ec81.png" alt="Q \in \mathbb{F}^{m \times \mbox{min}(m,n)}"/> and
+<img class="math" src="../_images/math/4328076fdd1a3436949d56c98c084ab409835d7a.png" alt="R \in \mathbb{F}^{\mbox{min}(m,n) \times n}"/> by setting
+<img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> and <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> to first <img class="math" src="../_images/math/10bced5734b166a2b3e98bd41b9a685058d00276.png" alt="\mbox{min}(m,n)"/> columns and rows of
+<img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/> and <img class="math" src="../_images/math/58512140524ff3265930c33ef59a0aef537fe271.png" alt="\hat R"/>, respectively. Upon completion <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> is
+stored in the upper trapezoid of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and the Householder reflectors
+representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/> are stored within the columns of the strictly lower
+trapezoid.</p>
+<dl class="function">
+<dt id="advanced::QR__DistMatrix:R.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">QR</tt><big>(</big>DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::QR__DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the real distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
+Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::QR__DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.MD.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">QR</tt><big>(</big>DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;std::complex&lt;R&gt;, MD, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#advanced::QR__DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.MD.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the complex distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
+Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>; unlike the real case,
+phase information is needed in order to define the (generalized)
+Householder transformations and is stored in the column vector <tt class="docutils literal"><span class="pre">t</span></tt>.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Factorizations</a><ul>
+<li><a class="reference internal" href="#cholesky-factorization">Cholesky factorization</a></li>
+<li><a class="reference internal" href="#factorization"><img class="math" src="../_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization</a></li>
+<li><a class="reference internal" href="#id1"><img class="math" src="../_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization</a></li>
+<li><a class="reference internal" href="#id2"><img class="math" src="../_images/math/f41c1b0893f231128abe8ae33a92b366d6c65db3.png" alt="LU"/> factorization</a></li>
+<li><a class="reference internal" href="#id3"><img class="math" src="../_images/math/74a751df89f77e97ef080654dfb03f981240a469.png" alt="LQ"/> factorization</a></li>
+<li><a class="reference internal" href="#id4"><img class="math" src="../_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> factorization</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="invariants.html"
+                        title="previous chapter">Invariants</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="solvers.html"
+                        title="next chapter">Linear solvers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/advanced/factorizations.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="solvers.html" title="Linear solvers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="invariants.html" title="Invariants"
+             >previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
+          <li><a href="../advanced.html" >Advanced linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
