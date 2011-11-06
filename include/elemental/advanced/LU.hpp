@@ -38,7 +38,7 @@
 #include "./LU/Parity.hpp"
 
 // Performs LU factorization without pivoting
-template<typename F> // represents a real or complex number
+template<typename F> 
 inline void
 elemental::advanced::LU( DistMatrix<F,MC,MR>& A )
 {
@@ -111,8 +111,8 @@ elemental::advanced::LU( DistMatrix<F,MC,MR>& A )
 #endif
 }
 
-// Performs LU factorization with pivoting
-template<typename F> // represents a real or complex number
+// Performs LU factorization with partial pivoting
+template<typename F> 
 inline void
 elemental::advanced::LU
 ( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p )

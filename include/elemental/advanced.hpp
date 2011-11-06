@@ -538,14 +538,22 @@ void LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d );
 // stability.                                                                 //
 //----------------------------------------------------------------------------//
 
+//
+// LU without pivoting
+//
+
 template<typename F>
 void LU( Matrix<F>& A );
 
-template<typename F> 
-void LU( Matrix<F>& A, Matrix<int>& p );
-
 template<typename F>
 void LU( DistMatrix<F,MC,MR>& A );
+
+//
+// LU with partial pivoting
+//
+
+template<typename F> 
+void LU( Matrix<F>& A, Matrix<int>& p );
 
 template<typename F>
 void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p );

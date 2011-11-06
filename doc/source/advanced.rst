@@ -77,8 +77,15 @@ recognizing that :math:`\mbox{det}(P)=\pm 1`
    \[
    \mbox{det}(A) = \mbox{det}(P)\mbox{det}(L)\mbox{det}(U) 
                  = \mbox{det}(P) \prod_{i=0}^{n-1} \upsilon_{i,i}
-                 = \pm \prod_{i=0}^{n-1} \upsilon_{i,i}.
+                 = \pm \prod_{i=0}^{n-1} \upsilon_{i,i},
    \]
+
+where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
+
+.. note:: 
+
+   The following functions overwrite the input matrix with its LU factorization
+   in order to efficiently compute the determinant.
 
 .. cpp:function:: F advanced::Determinant( Matrix<F>& A )
 
@@ -128,17 +135,11 @@ The two equally useful definitions of the trace of a square matrix
    :nowrap:
 
    \[
-   \mbox{tr}(A) = \sum_{i=0}^{n-1} \alpha_{i,i},
+   \mbox{tr}(A) = \sum_{i=0}^{n-1} \alpha_{i,i} = \sum_{i=0}^{n-1} \lambda_i,
    \]
 
-and
-
-.. math::
-   :nowrap:
-
-   \[
-   \mbox{tr}(A) = \sum_{i=0}^{n-1} \lambda_i.
-   \]
+where :math:`\alpha_{i,i}` is the i'th diagonal entry of :math:`A` and 
+:math:`\lambda_i` is the i'th eigenvalue (counting multiplicity) of :math:`A`.
 
 Clearly the former equation is easier to compute, but the latter is an 
 important characterization.
@@ -175,8 +176,12 @@ given an HPD :math:`A`.
 Though the Cholesky factorization is ideal for most HPD matrices, there exist 
 many Hermitian matrices whose eigenvalues are not all positive. The 
 :math:`LDL^H` factorization exists as slight relaxation of the Cholesky 
-factorization, i.e., it computes lower-triangular (with unit diagonal) :math:`L` 
+factorization, i.e., it computes lower-triangular (with unit diagonal) :math:`L`
 and diagonal :math:`D` such that :math:`A = L D L^H`.
+
+   .. warning::
+
+      The following routines do not pivot, so please use with caution.
 
 .. cpp:function:: void advanced::LDLH( Matrix<F>& A, Matrix<F>& d )
 
@@ -184,10 +189,6 @@ and diagonal :math:`D` such that :math:`A = L D L^H`.
    portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
    the diagonal with :math:`D`, and then also return the diagonal of :math:`D` 
    in the vector ``d``. 
-
-   .. warning::
-
-      No pivoting is currently performed, so please use with caution.
 
 .. cpp:function:: void advanced::LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 
@@ -198,6 +199,10 @@ and diagonal :math:`D` such that :math:`A = L D L^H`.
 While the :math:`LDL^H` factorization targets Hermitian matrices, the 
 :math:`LDL^T` factorization targets symmetric matrices.
 
+   .. warning::
+
+      The following routines do not pivot, so please use with caution.
+
 .. cpp:function:: void advanced::LDLT( Matrix<F>& A, Matrix<F>& d )
 
    Overwrite the strictly lower triangle of :math:`A` with the strictly lower 
@@ -205,25 +210,95 @@ While the :math:`LDL^H` factorization targets Hermitian matrices, the
    the diagonal with :math:`D`, and then also return the diagonal of :math:`D` 
    in the vector ``d``. 
 
-   .. warning::
-      
-      No pivoting is currently performed, so please use with caution.
-
 .. cpp:function:: void advanced::LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 
    Same as above, but for distributed matrices.
 
 :math:`LU` factorization
 ------------------------
-**TODO:** Describe ``advanced::LU`` here.
+Given :math:`A \in \mathbb{F}^{m \times n}`, an LU factorization 
+(without pivoting) finds a unit lower-trapezoidal 
+:math:`L \in \mathbb{F}^{m \times \mbox{min}(m,n)}` and upper-trapezoidal 
+:math:`U \in \mathbb{F}^{\mbox{min}(m,n) \times n}` such that :math:`A=LU`. 
+Since :math:`L` is required to have its diaganal entries set to one: the upper 
+portion of :math:`A` can be overwritten with `U`, and the strictly lower 
+portion of :math:`A` can be overwritten with the strictly lower portion of 
+:math:`L`.
+
+.. cpp:function:: void advanced::LU( Matrix<F>& A )
+
+   Overwrites :math:`A` with its LU decomposition.
+
+.. cpp:function:: void advanced::LU( DistMatrix<F,MC,MR>& A )
+
+   Overwrites :math:`A` with its LU decomposition.
+
+Since LU factorization without pivoting is known to be unstable for general 
+matrices, it is standard practice to pivot the rows of :math:`A` during the 
+factorization (this is called partial pivoting since the columns are not also 
+pivoted). An LU factorization with partial pivoting therefore computes 
+:math:`P`, :math:`L`, and :math:`U` such that :math:`PA=LU`, where :math:`L` 
+and :math:`U` are as described above and :math:`P` is a permutation matrix.
+
+.. cpp:function:: void advanced::LU( Matrix<F>& A, Matrix<int>& p )
+
+   Ovewrites :math:`A` with the LU decomposition of :math:`PA`, where 
+   :math:`P` is represented by the pivot vector ``p``.
+
+.. cpp:function:: void advanced::LU( DistMatrix<F,MC,MR>& A, DistMatrix<F,VC,STAR>& p )
+
+   Overwrites the distributed matrix :math:`A` with the LU decomposition of 
+   :math:`PA`, where :math:`P` is represented by the pivot vector ``p``.
 
 :math:`LQ` factorization
 ------------------------
-**TODO:** Describe ``advanced::LQ`` here.
+Given :math:`A \in \mathbb{F}^{m \times n}`, an LQ factorization typically 
+computes an implicit unitary matrix :math:`\hat Q \in \mathbb{F}^{n \times n}` 
+such that :math:`\hat L \equiv A\hat Q^H` is lower trapezoidal. One can then 
+form the thin factors :math:`L \in \mathbb{F}^{m \times \mbox{min}(m,n)}` and 
+:math:`Q \in \mathbb{F}^{\mbox{min}(m,n) \times n}` by setting 
+:math:`L` and :math:`Q` to first :math:`\mbox{min}(m,n)` columns and rows of 
+:math:`\hat L` and :math:`\hat Q`, respectively. Upon completion :math:`L` is 
+stored in the lower trapezoid of :math:`A` and the Householder reflectors 
+representing :math:`\hat Q` are stored within the rows of the strictly upper 
+trapezoid.
+
+.. cpp:function:: void advanced::LQ( DistMatrix<R,MC,MR>& A )
+
+   Overwrite the real distributed matrix :math:`A` with :math:`L` and the 
+   Householder reflectors representing :math:`\hat Q`.
+
+.. cpp:function:: void advanced::LQ( DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,MD,STAR>& t )
+
+   Overwrite the complex distributed matrix :math:`A` with :math:`L` and the 
+   Householder reflectors representing :math:`\hat Q`; unlike the real case, 
+   phase information is needed in order to define the (generalized) 
+   Householder transformations and is stored in the column vector ``t``.
 
 :math:`QR` factorization
 ------------------------
-**TODO:** Describe ``advanced::QR`` here.
+Given :math:`A \in \mathbb{F}^{m \times n}`, a QR factorization typically 
+computes an implicit unitary matrix :math:`\hat Q \in \mathbb{F}^{m \times m}` 
+such that :math:`\hat R \equiv \hat Q^H A` is upper trapezoidal. One can then 
+form the thin factors :math:`Q \in \mathbb{F}^{m \times \mbox{min}(m,n)}` and
+:math:`R \in \mathbb{F}^{\mbox{min}(m,n) \times n}` by setting 
+:math:`Q` and :math:`R` to first :math:`\mbox{min}(m,n)` columns and rows of 
+:math:`\hat Q` and :math:`\hat R`, respectively. Upon completion :math:`R` is 
+stored in the upper trapezoid of :math:`A` and the Householder reflectors 
+representing :math:`\hat Q` are stored within the columns of the strictly lower 
+trapezoid.
+
+.. cpp:function:: void advanced::QR( DistMatrix<R,MC,MR>& A )
+
+   Overwrite the real distributed matrix :math:`A` with :math:`R` and the 
+   Householder reflectors representing :math:`\hat Q`.
+
+.. cpp:function:: void advanced::QR( DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,MD,STAR>& t )
+
+   Overwrite the complex distributed matrix :math:`A` with :math:`R` and the 
+   Householder reflectors representing :math:`\hat Q`; unlike the real case, 
+   phase information is needed in order to define the (generalized) 
+   Householder transformations and is stored in the column vector ``t``.
 
 Linear solvers
 ==============
@@ -317,7 +392,7 @@ Householder reflectors
 ----------------------
 **TODO:** Describe major difference from LAPACK's conventions (i.e., we do not 
 treat the identity matrix as a Householder transform since it requires the 
-:math:`u` in :math:`H-I^2uu'` to have norm zero rather than one). 
+:math:`u` in :math:`H=I-2uu'` to have norm zero rather than one). 
 
 Reduction of Hermitian generalized-definite EVPs
 ------------------------------------------------

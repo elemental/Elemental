@@ -119,12 +119,18 @@ computing its LU decomposition (with partial pivoting), <img class="math" src="_
 recognizing that <img class="math" src="_images/math/347aaf19d43d29ffaf21a192c82e4a99293eee51.png" alt="\mbox{det}(P)=\pm 1"/>
 (the <em>signature</em> of the permutation), and computing</p>
 <div class="math">
-<p><img src="_images/math/f0afbe43d57c6bfd9425766db5ea0c384bf92978.png" alt="\[
+<p><img src="_images/math/04ca8930219362507fc2cf2287cd85567a83f9f2.png" alt="\[
 \mbox{det}(A) = \mbox{det}(P)\mbox{det}(L)\mbox{det}(U)
               = \mbox{det}(P) \prod_{i=0}^{n-1} \upsilon_{i,i}
-              = \pm \prod_{i=0}^{n-1} \upsilon_{i,i}.
+              = \pm \prod_{i=0}^{n-1} \upsilon_{i,i},
 \]" /></p>
-</div><dl class="function">
+</div><p>where <img class="math" src="_images/math/9d4d3bca48056b5b4fbaecc6037889e0cd247a0d.png" alt="\upsilon_{i,i}"/> is the i&#8217;th diagonal entry of <img class="math" src="_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The following functions overwrite the input matrix with its LU factorization
+in order to efficiently compute the determinant.</p>
+</div>
+<dl class="function">
 <dt id="advanced::Determinant__Matrix:F:R">
 F <tt class="descclassname">advanced::</tt><tt class="descname">Determinant</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Determinant__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the determinant of the square matrix <tt class="docutils literal"><span class="pre">A</span></tt>, which is overwritten
@@ -185,15 +191,12 @@ expanded form which is less likely to over/under-flow.</p>
 <p>The two equally useful definitions of the trace of a square matrix
 <img class="math" src="_images/math/9e7c8c786f31166e1bb01ec3ee6ad60640641701.png" alt="A \in \mathbb{F}^{n \times n}"/> are</p>
 <div class="math">
-<p><img src="_images/math/f56f85600e1a0f9c5353f85842b5a3592552b3cd.png" alt="\[
-\mbox{tr}(A) = \sum_{i=0}^{n-1} \alpha_{i,i},
+<p><img src="_images/math/8f8904d60943c1e6bb6498861fb4f977f20f653f.png" alt="\[
+\mbox{tr}(A) = \sum_{i=0}^{n-1} \alpha_{i,i} = \sum_{i=0}^{n-1} \lambda_i,
 \]" /></p>
-</div><p>and</p>
-<div class="math">
-<p><img src="_images/math/7df92458fd002b9650c0292048b3bef8e00af908.png" alt="\[
-\mbox{tr}(A) = \sum_{i=0}^{n-1} \lambda_i.
-\]" /></p>
-</div><p>Clearly the former equation is easier to compute, but the latter is an
+</div><p>where <img class="math" src="_images/math/5544b20d6339d971b56be8329ac83a29c14de99e.png" alt="\alpha_{i,i}"/> is the i&#8217;th diagonal entry of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and
+<img class="math" src="_images/math/f9092807df2606b64909623baacf32bf722daff7.png" alt="\lambda_i"/> is the i&#8217;th eigenvalue (counting multiplicity) of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>.</p>
+<p>Clearly the former equation is easier to compute, but the latter is an
 important characterization.</p>
 <dl class="function">
 <dt id="advanced::Trace__Matrix:F:CR">
@@ -238,6 +241,12 @@ many Hermitian matrices whose eigenvalues are not all positive. The
 <img class="math" src="_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization exists as slight relaxation of the Cholesky
 factorization, i.e., it computes lower-triangular (with unit diagonal) <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>
 and diagonal <img class="math" src="_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/> such that <img class="math" src="_images/math/3f4b793dfcea5224f0856af622de1316bd7c481c.png" alt="A = L D L^H"/>.</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The following routines do not pivot, so please use with caution.</p>
+</div>
+</div></blockquote>
 <dl class="function">
 <dt id="advanced::LDLH__Matrix:F:R.Matrix:F:R">
 void <tt class="descclassname">advanced::</tt><tt class="descname">LDLH</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#advanced::LDLH__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
@@ -245,10 +254,6 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">LDLH</tt><big
 portion of <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (<img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> implicitly has ones on its diagonal) and
 the diagonal with <img class="math" src="_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>, and then also return the diagonal of <img class="math" src="_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>
 in the vector <tt class="docutils literal"><span class="pre">d</span></tt>.</p>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">No pivoting is currently performed, so please use with caution.</p>
-</div>
 </dd></dl>
 
 <dl class="function">
@@ -262,6 +267,12 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">LDLH</tt><big
 <h3><img class="math" src="_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>While the <img class="math" src="_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization targets Hermitian matrices, the
 <img class="math" src="_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization targets symmetric matrices.</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The following routines do not pivot, so please use with caution.</p>
+</div>
+</div></blockquote>
 <dl class="function">
 <dt id="advanced::LDLT__Matrix:F:R.Matrix:F:R">
 void <tt class="descclassname">advanced::</tt><tt class="descname">LDLT</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#advanced::LDLT__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
@@ -269,10 +280,6 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">LDLT</tt><big
 portion of <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (<img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> implicitly has ones on its diagonal) and
 the diagonal with <img class="math" src="_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>, and then also return the diagonal of <img class="math" src="_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>
 in the vector <tt class="docutils literal"><span class="pre">d</span></tt>.</p>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">No pivoting is currently performed, so please use with caution.</p>
-</div>
 </dd></dl>
 
 <dl class="function">
@@ -284,15 +291,104 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">LDLT</tt><big
 </div>
 <div class="section" id="id2">
 <h3><img class="math" src="_images/math/f41c1b0893f231128abe8ae33a92b366d6c65db3.png" alt="LU"/> factorization<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::LU</span></tt> here.</p>
+<p>Given <img class="math" src="_images/math/1c2fab72748873ecfc7df7bdce77d384a402b85e.png" alt="A \in \mathbb{F}^{m \times n}"/>, an LU factorization
+(without pivoting) finds a unit lower-trapezoidal
+<img class="math" src="_images/math/9640bc9cb5eb21d4658c0927606cae77c54307a1.png" alt="L \in \mathbb{F}^{m \times \mbox{min}(m,n)}"/> and upper-trapezoidal
+<img class="math" src="_images/math/96c7e15222187caa96d9c26ee8d6529a283a7cb1.png" alt="U \in \mathbb{F}^{\mbox{min}(m,n) \times n}"/> such that <img class="math" src="_images/math/e0e894fc27280eb4f3c8090acd60bd31469dd325.png" alt="A=LU"/>.
+Since <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> is required to have its diaganal entries set to one: the upper
+portion of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can be overwritten with <cite>U</cite>, and the strictly lower
+portion of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can be overwritten with the strictly lower portion of
+<img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>.</p>
+<dl class="function">
+<dt id="advanced::LU__Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::LU__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with its LU decomposition.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::LU__DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::LU__DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with its LU decomposition.</p>
+</dd></dl>
+
+<p>Since LU factorization without pivoting is known to be unstable for general
+matrices, it is standard practice to pivot the rows of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> during the
+factorization (this is called partial pivoting since the columns are not also
+pivoted). An LU factorization with partial pivoting therefore computes
+<img class="math" src="_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/>, <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>, and <img class="math" src="_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> such that <img class="math" src="_images/math/d38165f6cb26decf3c20b44fe86276382079540a.png" alt="PA=LU"/>, where <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>
+and <img class="math" src="_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> are as described above and <img class="math" src="_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is a permutation matrix.</p>
+<dl class="function">
+<dt id="advanced::LU__Matrix:F:R.Matrix:i:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;int&gt;&amp; <em>p</em><big>)</big><a class="headerlink" href="#advanced::LU__Matrix:F:R.Matrix:i:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ovewrites <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the LU decomposition of <img class="math" src="_images/math/377291318df52e4f013ab2bf28ee82454a9e57da.png" alt="PA"/>, where
+<img class="math" src="_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is represented by the pivot vector <tt class="docutils literal"><span class="pre">p</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::LU__DistMatrix:F.MC.MR:R.DistMatrix:F.VC.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, VC, STAR&gt;&amp; <em>p</em><big>)</big><a class="headerlink" href="#advanced::LU__DistMatrix:F.MC.MR:R.DistMatrix:F.VC.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites the distributed matrix <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the LU decomposition of
+<img class="math" src="_images/math/377291318df52e4f013ab2bf28ee82454a9e57da.png" alt="PA"/>, where <img class="math" src="_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is represented by the pivot vector <tt class="docutils literal"><span class="pre">p</span></tt>.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="id3">
 <h3><img class="math" src="_images/math/74a751df89f77e97ef080654dfb03f981240a469.png" alt="LQ"/> factorization<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::LQ</span></tt> here.</p>
+<p>Given <img class="math" src="_images/math/1c2fab72748873ecfc7df7bdce77d384a402b85e.png" alt="A \in \mathbb{F}^{m \times n}"/>, an LQ factorization typically
+computes an implicit unitary matrix <img class="math" src="_images/math/350b87880eb3ff999ce290afe5bf0b37772b2619.png" alt="\hat Q \in \mathbb{F}^{n \times n}"/>
+such that <img class="math" src="_images/math/0ea6c3f8acf02fd0bc642d3830a01b862c4ec102.png" alt="\hat L \equiv A\hat Q^H"/> is lower trapezoidal. One can then
+form the thin factors <img class="math" src="_images/math/9640bc9cb5eb21d4658c0927606cae77c54307a1.png" alt="L \in \mathbb{F}^{m \times \mbox{min}(m,n)}"/> and
+<img class="math" src="_images/math/d49ab7cc53001411840bd21b11551361cce2d5b0.png" alt="Q \in \mathbb{F}^{\mbox{min}(m,n) \times n}"/> by setting
+<img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and <img class="math" src="_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> to first <img class="math" src="_images/math/10bced5734b166a2b3e98bd41b9a685058d00276.png" alt="\mbox{min}(m,n)"/> columns and rows of
+<img class="math" src="_images/math/2c7a47d0801ad18fef7eb893049d253206414038.png" alt="\hat L"/> and <img class="math" src="_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>, respectively. Upon completion <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> is
+stored in the lower trapezoid of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and the Householder reflectors
+representing <img class="math" src="_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/> are stored within the rows of the strictly upper
+trapezoid.</p>
+<dl class="function">
+<dt id="advanced::LQ__DistMatrix:R.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LQ</tt><big>(</big>DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::LQ__DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the real distributed matrix <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
+Householder reflectors representing <img class="math" src="_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::LQ__DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.MD.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">LQ</tt><big>(</big>DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;std::complex&lt;R&gt;, MD, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#advanced::LQ__DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.MD.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the complex distributed matrix <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
+Householder reflectors representing <img class="math" src="_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>; unlike the real case,
+phase information is needed in order to define the (generalized)
+Householder transformations and is stored in the column vector <tt class="docutils literal"><span class="pre">t</span></tt>.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="id4">
 <h3><img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> factorization<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::QR</span></tt> here.</p>
+<p>Given <img class="math" src="_images/math/1c2fab72748873ecfc7df7bdce77d384a402b85e.png" alt="A \in \mathbb{F}^{m \times n}"/>, a QR factorization typically
+computes an implicit unitary matrix <img class="math" src="_images/math/f6619777f036b478a6a5e2a71655fc5984de09b8.png" alt="\hat Q \in \mathbb{F}^{m \times m}"/>
+such that <img class="math" src="_images/math/d6fc02a2f5c982cdf2cf24648efc7344cd124836.png" alt="\hat R \equiv \hat Q^H A"/> is upper trapezoidal. One can then
+form the thin factors <img class="math" src="_images/math/68460bcd70ed6627ee7778301eee28a1f8a3ec81.png" alt="Q \in \mathbb{F}^{m \times \mbox{min}(m,n)}"/> and
+<img class="math" src="_images/math/4328076fdd1a3436949d56c98c084ab409835d7a.png" alt="R \in \mathbb{F}^{\mbox{min}(m,n) \times n}"/> by setting
+<img class="math" src="_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> and <img class="math" src="_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> to first <img class="math" src="_images/math/10bced5734b166a2b3e98bd41b9a685058d00276.png" alt="\mbox{min}(m,n)"/> columns and rows of
+<img class="math" src="_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/> and <img class="math" src="_images/math/58512140524ff3265930c33ef59a0aef537fe271.png" alt="\hat R"/>, respectively. Upon completion <img class="math" src="_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> is
+stored in the upper trapezoid of <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and the Householder reflectors
+representing <img class="math" src="_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/> are stored within the columns of the strictly lower
+trapezoid.</p>
+<dl class="function">
+<dt id="advanced::QR__DistMatrix:R.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">QR</tt><big>(</big>DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::QR__DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the real distributed matrix <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
+Householder reflectors representing <img class="math" src="_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::QR__DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.MD.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">QR</tt><big>(</big>DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;std::complex&lt;R&gt;, MD, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#advanced::QR__DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.MD.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the complex distributed matrix <img class="math" src="_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
+Householder reflectors representing <img class="math" src="_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>; unlike the real case,
+phase information is needed in order to define the (generalized)
+Householder transformations and is stored in the column vector <tt class="docutils literal"><span class="pre">t</span></tt>.</p>
+</dd></dl>
+
 </div>
 </div>
 <div class="section" id="linear-solvers">
@@ -385,7 +481,7 @@ a <img class="math" src="_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.p
 <h3>Householder reflectors<a class="headerlink" href="#householder-reflectors" title="Permalink to this headline">¶</a></h3>
 <p><strong>TODO:</strong> Describe major difference from LAPACK&#8217;s conventions (i.e., we do not
 treat the identity matrix as a Householder transform since it requires the
-<img class="math" src="_images/math/9ad99798ec4c38e165cf517cb9e02b1c9e824103.png" alt="u"/> in <img class="math" src="_images/math/189fff52d48f8bcd5ef98b9b18c3409e5cc3a47b.png" alt="H-I^2uu'"/> to have norm zero rather than one).</p>
+<img class="math" src="_images/math/9ad99798ec4c38e165cf517cb9e02b1c9e824103.png" alt="u"/> in <img class="math" src="_images/math/923b5a9e87b68e3e31bad110c566caf6dc463709.png" alt="H=I-2uu'"/> to have norm zero rather than one).</p>
 </div>
 <div class="section" id="reduction-of-hermitian-generalized-definite-evps">
 <h3>Reduction of Hermitian generalized-definite EVPs<a class="headerlink" href="#reduction-of-hermitian-generalized-definite-evps" title="Permalink to this headline">¶</a></h3>
