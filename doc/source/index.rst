@@ -15,10 +15,4 @@ Welcome to Elemental's documentation!
    core
    basic
    advanced 
-
-Indices and tables
-******************
-
-* :ref:`genindex`
-* :ref:`search`
-
+   indices
