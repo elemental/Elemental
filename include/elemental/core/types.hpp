@@ -67,22 +67,6 @@ using namespace diagonal_wrapper;
 char DiagonalToChar( Diagonal diagonal );
 Diagonal CharToDiagonal( char c );
 
-namespace distribution_wrapper {
-enum Distribution
-{
-    MC,  // Col of a matrix distribution
-    MD,  // Diagonal of a matrix distribution
-    MR,  // Row of a matrix distribution
-    VC,  // Col-major vector distribution
-    VR,  // Row-major vector distribution
-    STAR // Do not distribute
-};
-}
-using namespace distribution_wrapper; 
-
-std::string DistToString( Distribution distribution );
-Distribution StringToDist( std::string s );
-
 namespace orientation_wrapper {
 enum Orientation
 {
@@ -147,6 +131,22 @@ enum Conjugation
 }
 using namespace conjugation_wrapper;
 
+namespace distribution_wrapper {
+enum Distribution
+{
+    MC,  // Col of a matrix distribution
+    MD,  // Diagonal of a matrix distribution
+    MR,  // Row of a matrix distribution
+    VC,  // Col-major vector distribution
+    VR,  // Row-major vector distribution
+    STAR // Do not distribute
+};
+}
+using namespace distribution_wrapper;
+
+std::string DistToString( Distribution distribution );
+Distribution StringToDist( std::string s );
+
 namespace grid_order_wrapper {
 enum GridOrder
 {
@@ -155,47 +155,6 @@ enum GridOrder
 };
 }
 using namespace grid_order_wrapper;
-
-//
-// We ensure that all enums are lifted into the elemental namespace so that
-// they can be conveniently used as function arguments, e.g., 
-//
-// using namespace elemental;
-// Matrix<double> A;
-// ...
-// double norm = advanced::Norm( A, ONE_NORM );
-//
-
-namespace norm_type_wrapper {
-enum NormType
-{
-    FROBENIUS_NORM, // Compute the "vector" L_2 norm of the matrix
-    INFINITY_NORM,  // Compute the L_oo norm of the matrix
-    MAX_NORM,       // Compute the "vector" L_oo norm of the matrix
-    ONE_NORM        // Compute the L_1 norm of the matrix
-};
-}
-using namespace norm_type_wrapper;
-
-namespace hermitian_gen_definite_eig_type_wrapper {
-enum HermitianGenDefiniteEigType
-{
-    AXBX=1,
-    ABX=2,
-    BAX=3
-};
-}
-using namespace hermitian_gen_definite_eig_type_wrapper;
-
-namespace hermitian_tridiag_approach_wrapper {
-enum HermitianTridiagApproach
-{
-    HERMITIAN_TRIDIAG_NORMAL, // Keep the current grid
-    HERMITIAN_TRIDIAG_SQUARE, // Drop to a square process grid
-    HERMITIAN_TRIDIAG_DEFAULT // Square grid algorithm only if already square
-};
-}
-using namespace hermitian_tridiag_approach_wrapper;
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //

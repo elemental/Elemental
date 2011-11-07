@@ -27,7 +27,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Elemental 0.71 documentation" href="../index.html" />
     <link rel="up" title="Core functionality" href="../core.html" />
-    <link rel="next" title="Environment routines" href="environment.html" />
+    <link rel="next" title="Basic linear algebra" href="../basic.html" />
     <link rel="prev" title="Partitioning" href="partitioning.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="environment.html" title="Environment routines"
+          <a href="../basic.html" title="Basic linear algebra"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="partitioning.html" title="Partitioning"
@@ -163,10 +163,10 @@ Process 0's local copy of A
 0 0 0 0 0 0 0 2</pre>
 </div>
 <dl class="type">
-<dt id="AxpyType__enum">
-<em class="property">type </em>enum <tt class="descname">AxpyType</tt><a class="headerlink" href="#AxpyType__enum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Can take on the value of either <tt class="docutils literal"><span class="pre">LOCAL_TO_GLOBAL</span></tt> or <tt class="docutils literal"><span class="pre">GLOBAL_TO_LOCAL</span></tt>,
-with the meanings described above.</p>
+<dt id="AxpyType">
+<em class="property">type </em><tt class="descname">AxpyType</tt><a class="headerlink" href="#AxpyType" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enum that can take on the value of either
+<tt class="docutils literal"><span class="pre">LOCAL_TO_GLOBAL</span></tt> or <tt class="docutils literal"><span class="pre">GLOBAL_TO_LOCAL</span></tt>, with the meanings described above.</p>
 </dd></dl>
 
 <dl class="class">
@@ -181,14 +181,14 @@ attached to a distributed matrix before any Axpy&#8217;s can occur.</p>
 
 <dl class="function">
 <dt id="AxpyInterface:T:::AxpyInterface__AxpyType.DistMatrix:T.MC.MR:R">
- <tt class="descname">AxpyInterface</tt><big>(</big><a class="reference internal" href="#AxpyType__enum" title="AxpyType">AxpyType</a> <em>type</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>Z</em><big>)</big><a class="headerlink" href="#AxpyInterface:T:::AxpyInterface__AxpyType.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">AxpyInterface</tt><big>(</big><a class="reference internal" href="#AxpyType" title="AxpyType">AxpyType</a> <em>type</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>Z</em><big>)</big><a class="headerlink" href="#AxpyInterface:T:::AxpyInterface__AxpyType.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an interface to the distributed matrix <tt class="docutils literal"><span class="pre">Z</span></tt>, where <tt class="docutils literal"><span class="pre">type</span></tt>
 can be either <tt class="docutils literal"><span class="pre">LOCAL_TO_GLOBAL</span></tt> or <tt class="docutils literal"><span class="pre">GLOBAL_TO_LOCAL</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AxpyInterface:T:::AxpyInterface__AxpyType.DistMatrix:T.MC.MR:CR">
- <tt class="descname">AxpyInterface</tt><big>(</big><a class="reference internal" href="#AxpyType__enum" title="AxpyType">AxpyType</a> <em>type</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>Z</em><big>)</big><a class="headerlink" href="#AxpyInterface:T:::AxpyInterface__AxpyType.DistMatrix:T.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
+ <tt class="descname">AxpyInterface</tt><big>(</big><a class="reference internal" href="#AxpyType" title="AxpyType">AxpyType</a> <em>type</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>Z</em><big>)</big><a class="headerlink" href="#AxpyInterface:T:::AxpyInterface__AxpyType.DistMatrix:T.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an interface to the (unmodifiable) distributed matrix <tt class="docutils literal"><span class="pre">Z</span></tt>;
 since <tt class="docutils literal"><span class="pre">Z</span></tt> cannot be modified, the only sensical <tt class="docutils literal"><span class="pre">AxpyType</span></tt> is
 <tt class="docutils literal"><span class="pre">GLOBAL_TO_LOCAL</span></tt>. The <tt class="docutils literal"><span class="pre">AxpyType</span></tt> argument was kept in order to be
@@ -197,14 +197,14 @@ consistent with the previous routine.</p>
 
 <dl class="function">
 <dt id="AxpyInterface:T:::Attach__AxpyType.DistMatrix:T.MC.MR:R">
-void <tt class="descname">Attach</tt><big>(</big><a class="reference internal" href="#AxpyType__enum" title="AxpyType">AxpyType</a> <em>type</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>Z</em><big>)</big><a class="headerlink" href="#AxpyInterface:T:::Attach__AxpyType.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">Attach</tt><big>(</big><a class="reference internal" href="#AxpyType" title="AxpyType">AxpyType</a> <em>type</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>Z</em><big>)</big><a class="headerlink" href="#AxpyInterface:T:::Attach__AxpyType.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Attach to the distributed matrix <tt class="docutils literal"><span class="pre">Z</span></tt>, where <tt class="docutils literal"><span class="pre">type</span></tt> can be either
 <tt class="docutils literal"><span class="pre">LOCAL_TO_GLOBAL</span></tt> or <tt class="docutils literal"><span class="pre">GLOBAL_TO_LOCAL</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="AxpyInterface:T:::Attach__AxpyType.DistMatrix:T.MC.MR:CR">
-void <tt class="descname">Attach</tt><big>(</big><a class="reference internal" href="#AxpyType__enum" title="AxpyType">AxpyType</a> <em>type</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>Z</em><big>)</big><a class="headerlink" href="#AxpyInterface:T:::Attach__AxpyType.DistMatrix:T.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">Attach</tt><big>(</big><a class="reference internal" href="#AxpyType" title="AxpyType">AxpyType</a> <em>type</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>Z</em><big>)</big><a class="headerlink" href="#AxpyInterface:T:::Attach__AxpyType.DistMatrix:T.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Attach to the (unmodifiable) distributed matrix <tt class="docutils literal"><span class="pre">Z</span></tt>; as mentioned above,
 the only sensical value of <tt class="docutils literal"><span class="pre">type</span></tt> is <tt class="docutils literal"><span class="pre">GLOBAL_TO_LOCAL</span></tt>, but the
 <tt class="docutils literal"><span class="pre">AxpyType</span></tt> argument was kept for consistency.</p>
@@ -252,8 +252,8 @@ detach from the associated distributed matrix.</p>
   <p class="topless"><a href="partitioning.html"
                         title="previous chapter">Partitioning</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="environment.html"
-                        title="next chapter">Environment routines</a></p>
+  <p class="topless"><a href="../basic.html"
+                        title="next chapter">Basic linear algebra</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/core/axpy_interface.txt"
@@ -283,7 +283,7 @@ detach from the associated distributed matrix.</p>
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="environment.html" title="Environment routines"
+          <a href="../basic.html" title="Basic linear algebra"
              >next</a> |</li>
         <li class="right" >
           <a href="partitioning.html" title="Partitioning"

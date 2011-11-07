@@ -8,10 +8,41 @@ the maximum entrywise norm. The matrix two-norm is quite expensive to directly
 compute, so a probabilistic algorithm (based upon Dixon's approach) will be 
 added in the near future.
 
-.. cpp:type:: enum NormType
+.. cpp:type:: NormType
 
-   Can be set to either ``FROBENIUS_NORM``, ``INFINITY_NORM``, ``MAX_NORM``, 
-   or ``ONE_NORM``.
+   An enum that can be set to either
+
+   * ``FROBENIUS_NORM``:
+
+     .. math::
+
+        ||A||_F = \sqrt{\sum_{i,j=0}^{n-1} |\alpha_{i,j}|^2}
+
+   * ``INFINITY_NORM``: 
+
+     .. math:: 
+        :nowrap:
+
+        \[
+        ||A||_{\infty} = \max_{||x||_{\infty}=1} ||Ax||_{\infty} 
+                       = \max_i \sum_{j=0}^{n-1} |\alpha_{i,j}|
+        \]
+
+   * ``ONE_NORM``: 
+     
+     .. math:: 
+        :nowrap:
+
+        \[
+        ||A||_1 = \max_{||x||_1=1} ||Ax||_1 
+                = \max_j \sum_{i=0}^{n-1} |\alpha_{i,j}|
+        \]
+
+   * ``MAX_NORM``: 
+     
+     .. math::
+     
+        ||A||_{\mbox{max}} = \max_{i,j} |\alpha_{i,j}|
 
 Norm
 ----

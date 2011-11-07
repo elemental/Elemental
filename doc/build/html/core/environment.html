@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Environment routines &mdash; Elemental 0.71 documentation</title>
+    <title>Environment &mdash; Elemental 0.71 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -27,8 +27,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Elemental 0.71 documentation" href="../index.html" />
     <link rel="up" title="Core functionality" href="../core.html" />
-    <link rel="next" title="Basic linear algebra" href="../basic.html" />
-    <link rel="prev" title="The Axpy interface" href="axpy_interface.html" /> 
+    <link rel="next" title="The Matrix class" href="matrix.html" />
+    <link rel="prev" title="Core functionality" href="../core.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,10 +38,10 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../basic.html" title="Basic linear algebra"
+          <a href="matrix.html" title="The Matrix class"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="axpy_interface.html" title="The Axpy interface"
+          <a href="../core.html" title="Core functionality"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
           <li><a href="../core.html" accesskey="U">Core functionality</a> &raquo;</li> 
@@ -53,9 +53,295 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="environment-routines">
-<h1>Environment routines<a class="headerlink" href="#environment-routines" title="Permalink to this headline">¶</a></h1>
-<p><strong>TODO</strong></p>
+  <div class="section" id="environment">
+<h1>Environment<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="set-up-and-clean-up">
+<h2>Set up and clean up<a class="headerlink" href="#set-up-and-clean-up" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="Initialize__iR.cPPR">
+void <tt class="descname">Initialize</tt><big>(</big>int&amp; <em>argc</em>, char**&amp; <em>argv</em><big>)</big><a class="headerlink" href="#Initialize__iR.cPPR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes Elemental and (if necessary) MPI. The usage is very similar to
+<tt class="docutils literal"><span class="pre">MPI_Init</span></tt>, but the <tt class="docutils literal"><span class="pre">argc</span></tt> and <tt class="docutils literal"><span class="pre">argv</span></tt> can be directly passed in.</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="cp">#include &quot;elemental.hpp&quot;</span>
+
+<span class="kt">int</span>
+<span class="n">main</span><span class="p">(</span> <span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[]</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">elemental</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span> <span class="n">argc</span><span class="p">,</span> <span class="n">argv</span> <span class="p">);</span>
+
+    <span class="c1">// ...</span>
+
+    <span class="n">elemental</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="Finalize">
+void <tt class="descname">Finalize</tt><big>(</big><big>)</big><a class="headerlink" href="#Finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Frees all resources allocated by Elemental and (if necessary) MPI.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Initialized">
+bool <tt class="descname">Initialized</tt><big>(</big><big>)</big><a class="headerlink" href="#Initialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether or not Elemental is currently initialized.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="blocksize-manipulation">
+<h2>Blocksize manipulation<a class="headerlink" href="#blocksize-manipulation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="Blocksize">
+int <tt class="descname">Blocksize</tt><big>(</big><big>)</big><a class="headerlink" href="#Blocksize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the currently chosen algorithmic blocksize. The optimal value
+depends on the problem size, algorithm, and architecture; the default value
+is 128.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="SetBlocksize__i">
+void <tt class="descname">SetBlocksize</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#SetBlocksize__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the algorithmic blocksize to the specified value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PushBlocksizeStack__i">
+void <tt class="descname">PushBlocksizeStack</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#PushBlocksizeStack__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>It is frequently useful to temporarily change the algorithmic blocksize, so
+rather than having to manually store and reset the current state, one can
+simply push a new value onto a stack
+(and later pop the stack to reset the value).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PopBlocksizeStack">
+void <tt class="descname">PopBlocksizeStack</tt><big>(</big><big>)</big><a class="headerlink" href="#PopBlocksizeStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pops the stack of blocksizes. See above.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="scalar-manipulation">
+<h2>Scalar manipulation<a class="headerlink" href="#scalar-manipulation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="Abs__Z">
+Z <tt class="descname">Abs</tt><big>(</big>Z <em>alpha</em><big>)</big><a class="headerlink" href="#Abs__Z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the absolute value of non-complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Abs__std::complex:Z:">
+Z <tt class="descname">Abs</tt><big>(</big>std::complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#Abs__std::complex:Z:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the absolute value of complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>:</p>
+<div class="math">
+<p><img src="../_images/math/6116edc70d651f8bb7a736be40b41286cac67728.png" alt="|\alpha| = \sqrt{|\mathcal{R}(\alpha)|^2+|\mathcal{I}(\alpha)|^2}"/></p>
+</div></dd></dl>
+
+<dl class="function">
+<dt id="FastAbs__Z">
+Z <tt class="descname">FastAbs</tt><big>(</big>Z <em>alpha</em><big>)</big><a class="headerlink" href="#FastAbs__Z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as :cpp:function::Abs: for non-complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FastAbs__std::complex:Z:">
+Z <tt class="descname">FastAbs</tt><big>(</big>std::complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#FastAbs__std::complex:Z:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a cheaper norm of the complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>:</p>
+<div class="math">
+<p><img src="../_images/math/e162513b2f86191ee0cb9bef2f46e5581ec6ae54.png" alt="|\alpha|_{\mbox{fast}} = |\mathcal{R}(\alpha)| + |\mathcal{I}(\alpha)|"/></p>
+</div></dd></dl>
+
+<dl class="function">
+<dt id="Conj__Z">
+Z <tt class="descname">Conj</tt><big>(</big>Z <em>alpha</em><big>)</big><a class="headerlink" href="#Conj__Z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the complex conjugate of the non-complex variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>,
+which is simply <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Conj__std::complex:Z:">
+std::complex&lt;Z&gt; <tt class="descname">Conj</tt><big>(</big>std::complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#Conj__std::complex:Z:" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the complex conjugate of the complex variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>,</p>
+<div class="math">
+<p><img src="../_images/math/0222e01aafe874b9c99cfa1c9cc8f3fa2c1b3796.png" alt="\bar \alpha = \mathcal{R}(\alpha) - \mathcal{I}(\alpha) i"/></p>
+</div></dd></dl>
+
+<dl class="class">
+<dt id="RealBase:F:">
+<em class="property">class </em><tt class="descname">RealBase&lt;F&gt;</tt><a class="headerlink" href="#RealBase:F:" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="type">
+<dt id="RealBase:F:::type">
+<em class="property">type </em><tt class="descname">type</tt><a class="headerlink" href="#RealBase:F:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>The underlying real datatype of the (potentially complex) datatype <tt class="docutils literal"><span class="pre">F</span></tt>.
+For example, <tt class="docutils literal"><span class="pre">typename</span> <span class="pre">RealBase&lt;</span> <span class="pre">std::complex&lt;double&gt;</span> <span class="pre">&gt;::type</span></tt> and
+<tt class="docutils literal"><span class="pre">typename</span> <span class="pre">RealBase&lt;double&gt;::type</span></tt> are both equivalent to <tt class="docutils literal"><span class="pre">double</span></tt>.
+This is often extremely useful in implementing routines which are
+templated over real and complex datatypes but still make use of real
+datatypes.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="custom-datatypes">
+<h2>Custom datatypes<a class="headerlink" href="#custom-datatypes" title="Permalink to this headline">¶</a></h2>
+<dl class="type">
+<dt id="byte">
+<em class="property">type </em><tt class="descname">byte</tt><a class="headerlink" href="#byte" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">typedef</span> <span class="pre">unsigned</span> <span class="pre">char</span> <span class="pre">byte;</span></tt></p>
+</dd></dl>
+
+<dl class="type">
+<dt id="scomplex">
+<em class="property">type </em><tt class="descname">scomplex</tt><a class="headerlink" href="#scomplex" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">typedef</span> <span class="pre">std::complex&lt;float&gt;</span> <span class="pre">scomplex;</span></tt></p>
+</dd></dl>
+
+<dl class="type">
+<dt id="dcomplex">
+<em class="property">type </em><tt class="descname">dcomplex</tt><a class="headerlink" href="#dcomplex" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">typedef</span> <span class="pre">std::complex&lt;double&gt;</span> <span class="pre">dcomplex;</span></tt></p>
+</dd></dl>
+
+<dl class="type">
+<dt id="Diagonal">
+<em class="property">type </em><tt class="descname">Diagonal</tt><a class="headerlink" href="#Diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enum specifying whether a triangular matrix&#8217;s diagonal is explicitly stored
+(<tt class="docutils literal"><span class="pre">NON_UNIT</span></tt>) or is implicitly unit diaognal (<tt class="docutils literal"><span class="pre">UNIT</span></tt>).</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="Orientation">
+<em class="property">type </em><tt class="descname">Orientation</tt><a class="headerlink" href="#Orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enum for specifying whether a matrix, say <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, should be implicitly
+treated as <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> (<tt class="docutils literal"><span class="pre">NORMAL</span></tt>), <img class="math" src="../_images/math/7b82dd68a42b65efdc9ac248cb183e9b6982c654.png" alt="A^H"/> (<tt class="docutils literal"><span class="pre">ADJOINT</span></tt>), or <img class="math" src="../_images/math/4a113a49a168242ef8398e336b3e7bd9bef597e6.png" alt="A^T"/>
+(<tt class="docutils literal"><span class="pre">TRANSPOSE</span></tt>).</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="Side">
+<em class="property">type </em><tt class="descname">Side</tt><a class="headerlink" href="#Side" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enum for specifying <tt class="docutils literal"><span class="pre">LEFT</span></tt> or <tt class="docutils literal"><span class="pre">RIGHT</span></tt>.</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="VectorDirection">
+<em class="property">type </em><tt class="descname">VectorDirection</tt><a class="headerlink" href="#VectorDirection" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enum for specifying <tt class="docutils literal"><span class="pre">VERTICAL</span></tt> or <tt class="docutils literal"><span class="pre">HORIZONTAL</span></tt>.</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="ForwardOrBackward">
+<em class="property">type </em><tt class="descname">ForwardOrBackward</tt><a class="headerlink" href="#ForwardOrBackward" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enum for specifying <tt class="docutils literal"><span class="pre">FORWARD</span></tt> or <tt class="docutils literal"><span class="pre">BACKWARD</span></tt>.</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="Distribution">
+<em class="property">type </em><tt class="descname">Distribution</tt><a class="headerlink" href="#Distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enum for specifying the distribution of a row or column of a distributed
+matrix:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">MC</span></tt>: Column of a matrix distribution</li>
+<li><tt class="docutils literal"><span class="pre">MD</span></tt>: Diagonal of a matrix distribution</li>
+<li><tt class="docutils literal"><span class="pre">MR</span></tt>: Row of a matrix distribution</li>
+<li><tt class="docutils literal"><span class="pre">VC</span></tt>: Column-major vector distribution</li>
+<li><tt class="docutils literal"><span class="pre">VR</span></tt>: Row-major vector distribution</li>
+<li><tt class="docutils literal"><span class="pre">STAR</span></tt>: Redundantly stored</li>
+</ul>
+</dd></dl>
+
+<dl class="type">
+<dt id="GridOrder">
+<em class="property">type </em><tt class="descname">GridOrder</tt><a class="headerlink" href="#GridOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enum for specifying either <tt class="docutils literal"><span class="pre">ROW_MAJOR</span></tt> or <tt class="docutils literal"><span class="pre">COLUMN_MAJOR</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="custom-exceptions">
+<h2>Custom exceptions<a class="headerlink" href="#custom-exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="SingularMatrixException">
+<em class="property">class </em><tt class="descname">SingularMatrixException</tt><a class="headerlink" href="#SingularMatrixException" title="Permalink to this definition">¶</a></dt>
+<dd><p>An extension of <tt class="docutils literal"><span class="pre">std::runtime_error</span></tt> which is meant to be thrown when
+a singular matrix is unexpectedly encountered.</p>
+<dl class="function">
+<dt id="SingularMatrixException::SingularMatrixException__cCP">
+ <tt class="descname">SingularMatrixException</tt><big>(</big>const char* <em>msg</em><em>=&quot;Matrix was singular&quot;</em><big>)</big><a class="headerlink" href="#SingularMatrixException::SingularMatrixException__cCP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds an instance of the exception which allows one to optionally
+specify the error message.</p>
+</dd></dl>
+
+<div class="highlight-cpp"><div class="highlight"><pre><span class="k">throw</span> <span class="n">elemental</span><span class="o">::</span><span class="n">SingularMatrixException</span><span class="p">();</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="NonHPDMatrixException">
+<em class="property">class </em><tt class="descname">NonHPDMatrixException</tt><a class="headerlink" href="#NonHPDMatrixException" title="Permalink to this definition">¶</a></dt>
+<dd><p>An extension of <tt class="docutils literal"><span class="pre">std::runtime_error</span></tt> which is meant to be thrown when
+a non positive-definite Hermitian matrix is unexpectedly encountered
+(e.g., during Cholesky factorization).</p>
+<dl class="function">
+<dt id="NonHPDMatrixException::NonHPDMatrixException__cCP">
+ <tt class="descname">NonHPDMatrixException</tt><big>(</big>const char* <em>msg</em><em>=&quot;Matrix was not HPD&quot;</em><big>)</big><a class="headerlink" href="#NonHPDMatrixException::NonHPDMatrixException__cCP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds an instance of the exception which allows one to optionally
+specify the error message.</p>
+</dd></dl>
+
+<div class="highlight-cpp"><div class="highlight"><pre><span class="k">throw</span> <span class="n">elemental</span><span class="o">::</span><span class="n">NonHPDMatrixException</span><span class="p">();</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="call-stack-manipulation">
+<h2>Call stack manipulation<a class="headerlink" href="#call-stack-manipulation" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The following call stack manipulation routines are only available in
+non-release builds (i.e., PureDebug and HybridDebug) and are meant to allow
+for the call stack to be printed (ala DumpCallStack) when an
+exception is caught.</p>
+</div>
+<dl class="function">
+<dt id="PushCallStack__ss">
+void <tt class="descname">PushCallStack</tt><big>(</big>std::string <em>s</em><big>)</big><a class="headerlink" href="#PushCallStack__ss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push the given routine name onto the call stack.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PopCallStack">
+void <tt class="descname">PopCallStack</tt><big>(</big><big>)</big><a class="headerlink" href="#PopCallStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the routine name at the top of the call stack.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="DumpCallStack">
+void <tt class="descname">DumpCallStack</tt><big>(</big><big>)</big><a class="headerlink" href="#DumpCallStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print (and empty) the contents of the call stack.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="default-process-grid">
+<h2>Default process grid<a class="headerlink" href="#default-process-grid" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="DefaultGrid">
+Grid&amp; <tt class="descname">DefaultGrid</tt><big>(</big><big>)</big><a class="headerlink" href="#DefaultGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a process grid built over <tt class="xref cpp cpp-type docutils literal"><span class="pre">mpi::COMM_WORLD</span></tt>. This is
+typically used as a means of allowing instances of the
+<a class="reference internal" href="dist_matrix.html#DistMatrix:T.MC.MR:" title="DistMatrix&lt;T, MC, MR&gt;"><tt class="xref cpp cpp-class docutils literal"><span class="pre">DistMatrix&lt;T,MC,MR&gt;</span></tt></a> class to be constructed without having to
+manually specify a process grid, e.g.,</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="c1">// Build a 10 x 10 distributed matrix over mpi::COMM_WORLD</span>
+<span class="n">elemental</span><span class="o">::</span><span class="n">DistMatrix</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">MC</span><span class="p">,</span><span class="n">MR</span><span class="o">&gt;</span> <span class="n">A</span><span class="p">(</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span> <span class="p">);</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -67,12 +353,26 @@
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
             </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Environment</a><ul>
+<li><a class="reference internal" href="#set-up-and-clean-up">Set up and clean up</a></li>
+<li><a class="reference internal" href="#blocksize-manipulation">Blocksize manipulation</a></li>
+<li><a class="reference internal" href="#scalar-manipulation">Scalar manipulation</a></li>
+<li><a class="reference internal" href="#custom-datatypes">Custom datatypes</a></li>
+<li><a class="reference internal" href="#custom-exceptions">Custom exceptions</a></li>
+<li><a class="reference internal" href="#call-stack-manipulation">Call stack manipulation</a></li>
+<li><a class="reference internal" href="#default-process-grid">Default process grid</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
-  <p class="topless"><a href="axpy_interface.html"
-                        title="previous chapter">The Axpy interface</a></p>
+  <p class="topless"><a href="../core.html"
+                        title="previous chapter">Core functionality</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../basic.html"
-                        title="next chapter">Basic linear algebra</a></p>
+  <p class="topless"><a href="matrix.html"
+                        title="next chapter">The Matrix class</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/core/environment.txt"
@@ -102,10 +402,10 @@
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../basic.html" title="Basic linear algebra"
+          <a href="matrix.html" title="The Matrix class"
              >next</a> |</li>
         <li class="right" >
-          <a href="axpy_interface.html" title="The Axpy interface"
+          <a href="../core.html" title="Core functionality"
              >previous</a> |</li>
         <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
           <li><a href="../core.html" >Core functionality</a> &raquo;</li> 

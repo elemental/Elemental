@@ -60,7 +60,8 @@
 <p>It is well-known that Hermitian positive-definite (HPD) matrices can be decomposed
 into the form <img class="math" src="../_images/math/ca933b554415dd7d2a237b58d30efca48f7ec6fa.png" alt="A = L L^H"/> or <img class="math" src="../_images/math/02578cfe6f06b317410d2505d9105fe146e719dd.png" alt="A = U^H U"/>, where <img class="math" src="../_images/math/0c8f8ffdd9a7883937052d43dd13b0e5143e3c4b.png" alt="L=U^H"/> is lower
 triangular, and Cholesky factorization provides such an <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (or <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/>)
-given an HPD <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>.</p>
+given an HPD <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>. If <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is found to be numerically indefinite, then
+a <tt class="docutils literal"><span class="pre">NonHPDMatrixException</span></tt> will be thrown.</p>
 <dl class="function">
 <dt id="advanced::Cholesky__Shape.Matrix:F:R">
 void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big>Shape <em>shape</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__Shape.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
@@ -81,7 +82,8 @@ Cholesky factor.</p>
 many Hermitian matrices whose eigenvalues are not all positive. The
 <img class="math" src="../_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization exists as slight relaxation of the Cholesky
 factorization, i.e., it computes lower-triangular (with unit diagonal) <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>
-and diagonal <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/> such that <img class="math" src="../_images/math/3f4b793dfcea5224f0856af622de1316bd7c481c.png" alt="A = L D L^H"/>.</p>
+and diagonal <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/> such that <img class="math" src="../_images/math/3f4b793dfcea5224f0856af622de1316bd7c481c.png" alt="A = L D L^H"/>. If <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is found to
+be numerically singular, then a <tt class="docutils literal"><span class="pre">SingularMatrixException</span></tt> will be thrown.</p>
 <blockquote>
 <div><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -107,7 +109,8 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">LDLH</tt><big
 <div class="section" id="id1">
 <h2><img class="math" src="../_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>While the <img class="math" src="../_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization targets Hermitian matrices, the
-<img class="math" src="../_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization targets symmetric matrices.</p>
+<img class="math" src="../_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization targets symmetric matrices. If <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is found to
+be numerically singular, then a <tt class="docutils literal"><span class="pre">SingularMatrixException</span></tt> will be thrown.</p>
 <blockquote>
 <div><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -139,7 +142,8 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">LDLT</tt><big
 Since <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> is required to have its diaganal entries set to one: the upper
 portion of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can be overwritten with <cite>U</cite>, and the strictly lower
 portion of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can be overwritten with the strictly lower portion of
-<img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>.</p>
+<img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/>. If <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is found to be numerically singular, then a
+<tt class="docutils literal"><span class="pre">SingularMatrixException</span></tt> will be thrown.</p>
 <dl class="function">
 <dt id="advanced::LU__Matrix:F:R">
 void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::LU__Matrix:F:R" title="Permalink to this definition">¶</a></dt>

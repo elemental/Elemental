@@ -3,15 +3,42 @@ Linear solvers
 
 Cholesky solve
 --------------
-**TODO:** Describe ``advanced::CholeskySolve`` here.
+Solves :math:`AX=B` for :math:`X` given Hermitian positive-definite (HPD) 
+:math:`A` and right-hand side matrix :math:`B`. The solution is computed by 
+first finding the Cholesky factorization of :math:`A` and then performing two
+successive triangular solves against :math:`B`.
 
-Gaussian Elimination
+.. cpp:function:: void advanced::CholeskySolve( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
+
+   Only the triangle of :math:`A` specified by ``shape`` is accessed.
+
+Gaussian elimination
 --------------------
-**TODO:** Describe ``advanced::GaussianElimination`` here.
+Solves :math:`AX=B` for :math:`X` given a general square nonsingular matrix 
+:math:`A` and right-hand side matrix :math:`B`. The solution is computed through 
+(partially pivoted) Gaussian elimination.
+
+.. cpp:function:: void advanced::GaussianElimination( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
+
+   Upon completion, :math:`A` will have been overwritten with Gaussian elimination
+   and :math:`B` will be overwritten with :math:`X`.
 
 Householder solve
 -----------------
-**TODO:** Describe ``advanced::HouseholderSolve``. 
-Solves a general overdetermined or underdetermined linear systems using 
-a :math:`QR` or :math:`LQ` factorization, respectively. 
+Solves :math:`AX=B` or :math:`A^H X = B` for :math:`X` in a least-squares sense 
+given a general full-rank matrix :math:`A \in \mathbb{F}^{m \times n}`. 
+If :math:`m \ge n`, then the first step is to form the QR factorization of 
+:math:`A`, otherwise the LQ factorization is computed. 
 
+* If solving :math:`AX=B`, then either :math:`X=R^{-1} Q^H B` or 
+  :math:`X=Q^H L^{-1} B`.
+
+* If solving :math:`A^H X=B`, then either :math:`X=Q R^{-H} B` or 
+  :math:`X=L^{-H} Q B`.
+
+.. cpp:function:: void advanced::HouseholderSolve( Orientation orientation, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
+
+   If ``orientation`` is set to ``NORMAL``, then solve :math:`AX=B`, otherwise 
+   ``orientation`` must be equal to ``ADJOINT`` and :math:`A^H X=B` will 
+   be solved. Upon completion, :math:`A` is overwritten with its QR or LQ 
+   factorization, and :math:`B` is overwritten with :math:`X`.

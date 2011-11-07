@@ -7,9 +7,9 @@ Hermitian to tridiagonal
 
 General to Hessenberg
 ---------------------
-Not yet written.
+Not yet written but planned.
 
 General to bidiagonal
 ---------------------
-Not yet written.
+Not yet written but planned.
 

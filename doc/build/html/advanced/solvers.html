@@ -57,17 +57,51 @@
 <h1>Linear solvers<a class="headerlink" href="#linear-solvers" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="cholesky-solve">
 <h2>Cholesky solve<a class="headerlink" href="#cholesky-solve" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::CholeskySolve</span></tt> here.</p>
+<p>Solves <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/> for <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/> given Hermitian positive-definite (HPD)
+<img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and right-hand side matrix <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>. The solution is computed by
+first finding the Cholesky factorization of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and then performing two
+successive triangular solves against <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>.</p>
+<dl class="function">
+<dt id="advanced::CholeskySolve__Shape.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">CholeskySolve</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#advanced::CholeskySolve__Shape.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only the triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> specified by <tt class="docutils literal"><span class="pre">shape</span></tt> is accessed.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="gaussian-elimination">
-<h2>Gaussian Elimination<a class="headerlink" href="#gaussian-elimination" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::GaussianElimination</span></tt> here.</p>
+<h2>Gaussian elimination<a class="headerlink" href="#gaussian-elimination" title="Permalink to this headline">¶</a></h2>
+<p>Solves <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/> for <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/> given a general square nonsingular matrix
+<img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and right-hand side matrix <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>. The solution is computed through
+(partially pivoted) Gaussian elimination.</p>
+<dl class="function">
+<dt id="advanced::GaussianElimination__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">GaussianElimination</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#advanced::GaussianElimination__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upon completion, <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> will have been overwritten with Gaussian elimination
+and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/> will be overwritten with <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="householder-solve">
 <h2>Householder solve<a class="headerlink" href="#householder-solve" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::HouseholderSolve</span></tt>.
-Solves a general overdetermined or underdetermined linear systems using
-a <img class="math" src="../_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bdb.png" alt="QR"/> or <img class="math" src="../_images/math/74a751df89f77e97ef080654dfb03f981240a469.png" alt="LQ"/> factorization, respectively.</p>
+<p>Solves <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/> or <img class="math" src="../_images/math/1087e6a02d88b1442170232a20cdbd4d3eb84a95.png" alt="A^H X = B"/> for <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/> in a least-squares sense
+given a general full-rank matrix <img class="math" src="../_images/math/1c2fab72748873ecfc7df7bdce77d384a402b85e.png" alt="A \in \mathbb{F}^{m \times n}"/>.
+If <img class="math" src="../_images/math/8da67e35e9c517fa132e6b7d8b548f3940e80d2f.png" alt="m \ge n"/>, then the first step is to form the QR factorization of
+<img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, otherwise the LQ factorization is computed.</p>
+<ul class="simple">
+<li>If solving <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/>, then either <img class="math" src="../_images/math/68e2df9d76523f1964eff9f4bf77d1de02afd1b1.png" alt="X=R^{-1} Q^H B"/> or
+<img class="math" src="../_images/math/4522bbdaeac782cdf61ff4bef33981b9f9ffbc43.png" alt="X=Q^H L^{-1} B"/>.</li>
+<li>If solving <img class="math" src="../_images/math/584fa1222622b11d609820d2acf93680aeb80598.png" alt="A^H X=B"/>, then either <img class="math" src="../_images/math/94395c624045e61ea8f5470554605ae9438fa00f.png" alt="X=Q R^{-H} B"/> or
+<img class="math" src="../_images/math/ec7d23ff5de8a2760bc4f057671e8756652e375b.png" alt="X=L^{-H} Q B"/>.</li>
+</ul>
+<dl class="function">
+<dt id="advanced::HouseholderSolve__Orientation.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">HouseholderSolve</tt><big>(</big>Orientation <em>orientation</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#advanced::HouseholderSolve__Orientation.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <tt class="docutils literal"><span class="pre">orientation</span></tt> is set to <tt class="docutils literal"><span class="pre">NORMAL</span></tt>, then solve <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/>, otherwise
+<tt class="docutils literal"><span class="pre">orientation</span></tt> must be equal to <tt class="docutils literal"><span class="pre">ADJOINT</span></tt> and <img class="math" src="../_images/math/584fa1222622b11d609820d2acf93680aeb80598.png" alt="A^H X=B"/> will
+be solved. Upon completion, <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is overwritten with its QR or LQ
+factorization, and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/> is overwritten with <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>.</p>
+</dd></dl>
+
 </div>
 </div>
 
@@ -84,7 +118,7 @@ a <img class="math" src="../_images/math/9a7c52aff9dd9987076c0ac4fecccf59b6ed8bd
   <ul>
 <li><a class="reference internal" href="#">Linear solvers</a><ul>
 <li><a class="reference internal" href="#cholesky-solve">Cholesky solve</a></li>
-<li><a class="reference internal" href="#gaussian-elimination">Gaussian Elimination</a></li>
+<li><a class="reference internal" href="#gaussian-elimination">Gaussian elimination</a></li>
 <li><a class="reference internal" href="#householder-solve">Householder solve</a></li>
 </ul>
 </li>

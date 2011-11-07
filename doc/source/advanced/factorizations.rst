@@ -6,7 +6,8 @@ Cholesky factorization
 It is well-known that Hermitian positive-definite (HPD) matrices can be decomposed
 into the form :math:`A = L L^H` or :math:`A = U^H U`, where :math:`L=U^H` is lower
 triangular, and Cholesky factorization provides such an :math:`L` (or :math:`U`) 
-given an HPD :math:`A`.
+given an HPD :math:`A`. If :math:`A` is found to be numerically indefinite, then 
+a ``NonHPDMatrixException`` will be thrown.
 
 .. cpp:function:: void advanced::Cholesky( Shape shape, Matrix<F>& A )
 
@@ -23,7 +24,8 @@ Though the Cholesky factorization is ideal for most HPD matrices, there exist
 many Hermitian matrices whose eigenvalues are not all positive. The 
 :math:`LDL^H` factorization exists as slight relaxation of the Cholesky 
 factorization, i.e., it computes lower-triangular (with unit diagonal) :math:`L`
-and diagonal :math:`D` such that :math:`A = L D L^H`.
+and diagonal :math:`D` such that :math:`A = L D L^H`. If :math:`A` is found to 
+be numerically singular, then a ``SingularMatrixException`` will be thrown.
 
    .. warning::
 
@@ -43,7 +45,8 @@ and diagonal :math:`D` such that :math:`A = L D L^H`.
 :math:`LDL^T` factorization
 ---------------------------
 While the :math:`LDL^H` factorization targets Hermitian matrices, the 
-:math:`LDL^T` factorization targets symmetric matrices.
+:math:`LDL^T` factorization targets symmetric matrices. If :math:`A` is found to 
+be numerically singular, then a ``SingularMatrixException`` will be thrown.
 
    .. warning::
 
@@ -69,7 +72,8 @@ Given :math:`A \in \mathbb{F}^{m \times n}`, an LU factorization
 Since :math:`L` is required to have its diaganal entries set to one: the upper 
 portion of :math:`A` can be overwritten with `U`, and the strictly lower 
 portion of :math:`A` can be overwritten with the strictly lower portion of 
-:math:`L`.
+:math:`L`. If :math:`A` is found to be numerically singular, then a 
+``SingularMatrixException`` will be thrown.
 
 .. cpp:function:: void advanced::LU( Matrix<F>& A )
 

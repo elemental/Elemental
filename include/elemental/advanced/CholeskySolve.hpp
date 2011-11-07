@@ -34,25 +34,25 @@
 template<typename F> // F represents a real or complex field
 inline void
 elemental::advanced::CholeskySolve
-( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& X )
+( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 {
 #ifndef RELEASE
     PushCallStack("advanced::CholeskySolve");
-    if( A.Width() != X.Height() )
-        throw std::logic_error("A and X do not conform");
+    if( A.Width() != B.Height() )
+        throw std::logic_error("A and B do not conform");
 #endif
     advanced::Cholesky( shape, A );
     if( shape == LOWER )
     {
-        // X := inv(L L^H) X = inv(L)^H inv(L) X
-        basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, X );
-        basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, X );
+        // B := inv(L L^H) B = inv(L)^H inv(L) B
+        basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, B );
+        basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, B );
     }
     else // shape == UPPER
     {
-        // X := inv(U^H U) X = inv(U) inv(U)^H X
-        basic::Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, X );
-        basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, X );
+        // B := inv(U^H U) B = inv(U) inv(U)^H B
+        basic::Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, B );
+        basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
     }
 #ifndef RELEASE
     PopCallStack();

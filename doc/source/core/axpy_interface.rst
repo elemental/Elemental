@@ -111,10 +111,10 @@ The output would be ::
     0 0 0 0 0 0 2 0
     0 0 0 0 0 0 0 2
 
-.. cpp:type:: enum AxpyType
+.. cpp:type:: AxpyType
 
-   Can take on the value of either ``LOCAL_TO_GLOBAL`` or ``GLOBAL_TO_LOCAL``, 
-   with the meanings described above.
+   An enum that can take on the value of either 
+   ``LOCAL_TO_GLOBAL`` or ``GLOBAL_TO_LOCAL``, with the meanings described above.
 
 .. cpp:class:: AxpyInterface<T>
 

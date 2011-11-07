@@ -36,6 +36,48 @@
 #include "elemental/basic.hpp"
 
 namespace elemental {
+
+//
+// We ensure that all enums are lifted into the elemental namespace so that
+// they can be conveniently used as function arguments, e.g., 
+//
+// using namespace elemental;
+// Matrix<double> A;
+// ...
+// double norm = advanced::Norm( A, ONE_NORM );
+//
+
+namespace norm_type_wrapper {
+enum NormType
+{
+    FROBENIUS_NORM, // Compute the "vector" L_2 norm of the matrix
+    INFINITY_NORM,  // Compute the L_oo norm of the matrix
+    MAX_NORM,       // Compute the "vector" L_oo norm of the matrix
+    ONE_NORM        // Compute the L_1 norm of the matrix
+};
+}
+using namespace norm_type_wrapper;
+
+namespace hermitian_gen_definite_eig_type_wrapper {
+enum HermitianGenDefiniteEigType
+{
+    AXBX=1,
+    ABX=2,
+    BAX=3
+};
+}
+using namespace hermitian_gen_definite_eig_type_wrapper;
+
+namespace hermitian_tridiag_approach_wrapper {
+enum HermitianTridiagApproach
+{
+    HERMITIAN_TRIDIAG_NORMAL, // Keep the current grid
+    HERMITIAN_TRIDIAG_SQUARE, // Drop to a square process grid
+    HERMITIAN_TRIDIAG_DEFAULT // Square grid algorithm only if already square
+};
+}
+using namespace hermitian_tridiag_approach_wrapper;
+
 namespace advanced {
 
 //----------------------------------------------------------------------------//
@@ -135,7 +177,7 @@ void Cholesky( Shape shape, DistMatrix<F,MC,MR>& A );
 //----------------------------------------------------------------------------//
 // CholeskySolve:                                                             //
 //                                                                            //
-// Overwrites X := inv(A) X, where A is Hermitian positive-definite, using a  //
+// Overwrites B := inv(A) B, where A is Hermitian positive-definite, using a  //
 // Cholesky factorization of A.                                               //
 //----------------------------------------------------------------------------//
 
@@ -143,7 +185,7 @@ void Cholesky( Shape shape, DistMatrix<F,MC,MR>& A );
 
 template<typename F>
 void CholeskySolve
-( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& X );
+( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
 // ComposePivots                                                              //
@@ -465,22 +507,22 @@ void HermitianEig
 //----------------------------------------------------------------------------//
 // HouseholderSolve:                                                          //
 //                                                                            //
-// Overwrite X with the solution of inv(A) X or inv(A)^H X, where A need not  //
-// be square. NOTE: If the system is underdetermined, then X should be the    //
+// Overwrite B with the solution of inv(A) B or inv(A)^H B, where A need not  //
+// be square. NOTE: If the system is underdetermined, then B should be the    //
 // size of the solution and the input RHS should be stored in the top m rows  //
-// of X, if the underdetermined matrix is m x n.                              //
+// of B, if the underdetermined matrix is m x n.                              //
 //----------------------------------------------------------------------------//
 
 // TODO: Serial version
 
 template<typename R>
 void HouseholderSolve
-( Orientation orientation, DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& X );
+( Orientation orientation, DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& B );
 template<typename R>
 void HouseholderSolve
 ( Orientation orientation, 
   DistMatrix<std::complex<R>,MC,MR>& A,
-  DistMatrix<std::complex<R>,MC,MR>& X );
+  DistMatrix<std::complex<R>,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
 // HPDInverse:                                                              //

@@ -34,11 +34,11 @@
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HouseholderSolve
-( Orientation orientation, DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& X )
+( Orientation orientation, DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& B )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HouseholderSolve");
-    if( A.Grid() != X.Grid() )
+    if( A.Grid() != B.Grid() )
         throw std::logic_error("Grids do not match");
 #endif
     // TODO: Add scaling
@@ -48,81 +48,81 @@ elemental::advanced::HouseholderSolve
     {
         if( m >= n )
         {
-            if( m != X.Height() )
-                throw std::logic_error("A and X do not conform");
+            if( m != B.Height() )
+                throw std::logic_error("A and B do not conform");
 
             advanced::QR( A );
-            // Apply Q' to X
+            // Apply Q' to B
             advanced::ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, FORWARD, 0, A, X );
-            // Shrink X to its new height
-            X.Resize( n, X.Width() );
+            ( LEFT, LOWER, VERTICAL, FORWARD, 0, A, B );
+            // Shrink B to its new height
+            B.ResizeTo( n, B.Width() );
             // Solve against R (checking for singularities)
             DistMatrix<R,MC,MR> AT;
             AT.LockedView( A, 0, 0, n, n );
-            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, AT, X, true );
+            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, AT, B, true );
         }
         else
         {
-            if( n != X.Height() )
+            if( n != B.Height() )
                 throw std::logic_error
-                ("X should be passed in with padding for the solution");
+                ("B should be passed in with padding for the solution");
 
-            DistMatrix<R,MC,MR> XT,
-                                XB;
-            PartitionDown( X, XT,
-                              XB, m );
+            DistMatrix<R,MC,MR> BT,
+                                BB;
+            PartitionDown( B, BT,
+                              BB, m );
 
             advanced::LQ( A );
             // Solve against L (checking for singularities)
             DistMatrix<R,MC,MR> AL;
             AL.LockedView( A, 0, 0, m, m );
-            basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, AL, XT, true );
-            // Apply Q' to X (explicitly zero the bottom of X first)
-            XB.SetToZero();
+            basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, AL, BT, true );
+            // Apply Q' to B (explicitly zero the bottom of B first)
+            BB.SetToZero();
             advanced::ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, FORWARD, 0, A, X );
+            ( LEFT, UPPER, HORIZONTAL, FORWARD, 0, A, B );
         }
     }
     else // orientation == ADJOINT
     {
         if( m >= n )
         {
-            if( m != X.Height() )
+            if( m != B.Height() )
                 throw std::logic_error
-                ("X should be passed in with padding for the solution");
+                ("B should be passed in with padding for the solution");
 
-            DistMatrix<R,MC,MR> XT,
-                                XB;
-            PartitionDown( X, XT,
-                              XB, n );
+            DistMatrix<R,MC,MR> BT,
+                                BB;
+            PartitionDown( B, BT,
+                              BB, n );
 
             advanced::QR( A );
             // Solve against R' (checking for singularities)
             DistMatrix<R,MC,MR> AT;
             AT.LockedView( A, 0, 0, n, n );
             basic::Trsm
-            ( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, AT, XT, true );
-            // Apply Q to X (explicitly zero the bottom of X first)
-            XB.SetToZero();
+            ( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, AT, BT, true );
+            // Apply Q to B (explicitly zero the bottom of B first)
+            BB.SetToZero();
             advanced::ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, X );
+            ( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, B );
         }
         else
         {
-            if( n != X.Height() )
-                throw std::logic_error("A and X do not conform");
+            if( n != B.Height() )
+                throw std::logic_error("A and B do not conform");
 
             advanced::LQ( A );
-            // Apply Q to X
+            // Apply Q to B
             advanced::ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, A, X );
-            X.Resize( m, X.Width() );
+            ( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, A, B );
+            B.ResizeTo( m, B.Width() );
             // Solve against L' (check for singularities)
             DistMatrix<R,MC,MR> AL;
             AL.LockedView( A, 0, 0, m, m );
             basic::Trsm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, AL, X, true );
+            ( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, AL, B, true );
         }
     }
 #ifndef RELEASE
@@ -136,11 +136,11 @@ inline void
 elemental::advanced::HouseholderSolve
 ( Orientation orientation, 
   DistMatrix<std::complex<R>,MC,MR>& A, 
-  DistMatrix<std::complex<R>,MC,MR>& X )
+  DistMatrix<std::complex<R>,MC,MR>& B )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HouseholderSolve");
-    if( A.Grid() != X.Grid() )
+    if( A.Grid() != B.Grid() )
         throw std::logic_error("Grids do not match");
     if( orientation == TRANSPOSE )
         throw std::logic_error("Invalid orientation");
@@ -154,81 +154,81 @@ elemental::advanced::HouseholderSolve
     {
         if( m >= n )
         {
-            if( m != X.Height() )
-                throw std::logic_error("A and X do not conform");
+            if( m != B.Height() )
+                throw std::logic_error("A and B do not conform");
 
             advanced::QR( A, t );
-            // Apply Q' to X
+            // Apply Q' to B
             advanced::ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, X );
-            // Shrink X to its new height
-            X.Resize( n, X.Width() );
+            ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, B );
+            // Shrink B to its new height
+            B.ResizeTo( n, B.Width() );
             // Solve against R (checking for singularities)
             DistMatrix<C,MC,MR> AT;
             AT.LockedView( A, 0, 0, n, n );
-            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, AT, X, true );
+            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, AT, B, true );
         }
         else
         {
-            if( n != X.Height() )
+            if( n != B.Height() )
                 throw std::logic_error
-                ("X should be passed in with padding for the solution");
+                ("B should be passed in with padding for the solution");
 
-            DistMatrix<C,MC,MR> XT,
-                                XB;
-            PartitionDown( X, XT,
-                              XB, m );
+            DistMatrix<C,MC,MR> BT,
+                                BB;
+            PartitionDown( B, BT,
+                              BB, m );
 
             advanced::LQ( A, t );
             // Solve against L (checking for singularities)
             DistMatrix<C,MC,MR> AL;
             AL.LockedView( A, 0, 0, m, m );
-            basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, AL, XT, true );
-            // Apply Q' to X (explicitly zero the bottom of X first)
-            XB.SetToZero();
+            basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, AL, BT, true );
+            // Apply Q' to B (explicitly zero the bottom of B first)
+            BB.SetToZero();
             advanced::ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, FORWARD, CONJUGATED, 0, A, t, X );
+            ( LEFT, UPPER, HORIZONTAL, FORWARD, CONJUGATED, 0, A, t, B );
         }
     }
     else // orientation == ADJOINT
     {
         if( m >= n )
         {
-            if( m != X.Height() )
+            if( m != B.Height() )
                 throw std::logic_error
-                ("X should be passed in with padding for the solution");
+                ("B should be passed in with padding for the solution");
 
-            DistMatrix<C,MC,MR> XT,
-                                XB;
-            PartitionDown( X, XT,
-                              XB, n );
+            DistMatrix<C,MC,MR> BT,
+                                BB;
+            PartitionDown( B, BT,
+                              BB, n );
 
             advanced::QR( A, t );
             // Solve against R' (checking for singularities)
             DistMatrix<C,MC,MR> AT;
             AT.LockedView( A, 0, 0, n, n );
             basic::Trsm
-            ( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, AT, XT, true );
-            // Apply Q to X (explicitly zero the bottom of X first)
-            XB.SetToZero();
+            ( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, AT, BT, true );
+            // Apply Q to B (explicitly zero the bottom of B first)
+            BB.SetToZero();
             advanced::ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, X );
+            ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, B );
         }
         else
         {
-            if( n != X.Height() )
-                throw std::logic_error("A and X do not conform");
+            if( n != B.Height() )
+                throw std::logic_error("A and B do not conform");
 
             advanced::LQ( A, t );
-            // Apply Q to X
+            // Apply Q to B
             advanced::ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, X );
-            X.Resize( m, X.Width() );
+            ( LEFT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, B );
+            B.ResizeTo( m, B.Width() );
             // Solve against L' (check for singularities)
             DistMatrix<C,MC,MR> AL;
             AL.LockedView( A, 0, 0, m, m );
             basic::Trsm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, (C)1, AL, X, true );
+            ( LEFT, LOWER, ADJOINT, NON_UNIT, (C)1, AL, B, true );
         }
     }
 #ifndef RELEASE
