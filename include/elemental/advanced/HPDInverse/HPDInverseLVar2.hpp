@@ -31,6 +31,12 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+//
+// This approach is based upon a (conjugate)-transposition of the reordered 
+// Variant 2 algorithm from Fig. 9 in Bientinesi et al.'s "Families of 
+// Algorithms Related to the Inversion of a Symmetric Positive Definite Matrix".
+//
+
 template<typename F> // represents a real or complex number
 inline void
 elemental::advanced::internal::HPDInverseLVar2( DistMatrix<F,MC,MR>& A )
@@ -49,7 +55,14 @@ elemental::advanced::internal::HPDInverseLVar2( DistMatrix<F,MC,MR>& A )
                          A20(g), A21(g), A22(g);
 
     // Temporary distributions
-    // TODO
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,STAR,VR  > A10_STAR_VR(g);
+    DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
+    DistMatrix<F,STAR,MC  > A10_STAR_MC(g);
+    DistMatrix<F,STAR,MR  > A10_STAR_MR(g);
+    DistMatrix<F,STAR,MC  > A21Trans_STAR_MC(g);
+    DistMatrix<F,VR,  STAR> A21_VR_STAR(g);
+    DistMatrix<F,STAR,MR  > A21Adj_STAR_MR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -63,9 +76,63 @@ elemental::advanced::internal::HPDInverseLVar2( DistMatrix<F,MC,MR>& A )
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
+        A10_STAR_VR.AlignWith( A00 );
+        A21_VC_STAR.AlignWith( A20 );
+        A10_STAR_MC.AlignWith( A00 );
+        A10_STAR_MR.AlignWith( A00 );
+        A21Trans_STAR_MC.AlignWith( A20 );
+        A21_VR_STAR.AlignWith( A22 );
+        A21Adj_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
-        throw std::logic_error("This version is not yet written");
+        A11_STAR_STAR = A11;
+        advanced::internal::LocalCholesky( LOWER, A11_STAR_STAR );
+
+        A10_STAR_VR = A10;
+        basic::internal::LocalTrsm
+        ( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A11_STAR_STAR, A10_STAR_VR );
+
+        A21_VC_STAR = A21;
+        basic::internal::LocalTrsm
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
+
+        A10_STAR_MC = A10_STAR_VR;
+        A10_STAR_MR = A10_STAR_VR;
+        basic::internal::LocalTriangularRankK
+        ( LOWER, ADJOINT,
+          (F)1, A10_STAR_MC, A10_STAR_MR, (F)1, A00 );
+
+        A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
+        basic::internal::LocalGemm
+        ( TRANSPOSE, NORMAL, (F)-1, A21Trans_STAR_MC, A10_STAR_MR, (F)1, A20 );
+
+        A21_VR_STAR = A21_VC_STAR;
+        A21Adj_STAR_MR.AdjointFrom( A21_VR_STAR );
+        basic::internal::LocalTriangularRankK
+        ( LOWER, TRANSPOSE,
+          (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
+
+        basic::internal::LocalTrsm
+        ( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A10_STAR_VR );
+
+        basic::internal::LocalTrsm
+        ( RIGHT, LOWER, NORMAL, NON_UNIT, (F)-1, A11_STAR_STAR, A21_VC_STAR );
+
+        advanced::internal::LocalTriangularInverse
+        ( LOWER, NON_UNIT, A11_STAR_STAR );
+
+        basic::internal::LocalHetrmm( LOWER, A11_STAR_STAR );
+
+        A11 = A11_STAR_STAR;
+        A10 = A10_STAR_VR;
+        A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
+        A10_STAR_VR.FreeAlignments();
+        A21_VC_STAR.FreeAlignments();
+        A10_STAR_MC.FreeAlignments();
+        A10_STAR_MR.FreeAlignments();
+        A21Trans_STAR_MC.FreeAlignments();
+        A21_VR_STAR.FreeAlignments();
+        A21Adj_STAR_MR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

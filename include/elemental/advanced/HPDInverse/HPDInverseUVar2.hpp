@@ -31,7 +31,13 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // represents a real or complex number
+//
+// This approach is based upon the reordered Variant 2 algorithm from Fig. 9 in 
+// Bientinesi et al.'s "Families of Algorithms Related to the Inversion of 
+// a Symmetric Positive Definite Matrix".
+//
+
+template<typename F> 
 inline void
 elemental::advanced::internal::HPDInverseUVar2( DistMatrix<F,MC,MR>& A )
 {
@@ -95,7 +101,7 @@ elemental::advanced::internal::HPDInverseUVar2( DistMatrix<F,MC,MR>& A )
         A01Adj_STAR_MR.AdjointFrom( A01_VR_STAR );
         basic::internal::LocalTriangularRankK
         ( UPPER, TRANSPOSE,
-          (F)-1, A01Trans_STAR_MC, A01Adj_STAR_MR, (F)1, A00 );
+          (F)1, A01Trans_STAR_MC, A01Adj_STAR_MR, (F)1, A00 );
 
         A12_STAR_MR = A12_STAR_VR;
         basic::internal::LocalGemm
