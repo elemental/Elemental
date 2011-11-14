@@ -64,19 +64,21 @@ elemental::advanced::Reflector
     else
         beta = -lapack::SafeNorm( alpha, norm );
 
-    const R safeMin = lapack::MachineSafeMin<R>() /
-                      lapack::MachineEpsilon<R>();
+    const R one = 1;
+    const R safeMin = lapack::MachineSafeMin<R>();
+    const R epsilon = lapack::MachineEpsilon<R>();
+    const R safeInv = safeMin/epsilon;
     int count = 0;
-    if( Abs( beta ) < safeMin )
+    if( Abs(beta) < safeInv )
     {
-        R invOfSafeMin = static_cast<R>(1) / safeMin;
+        R invOfSafeInv = one/safeInv;
         do
         {
             ++count;
-            basic::Scal( invOfSafeMin, x );
-            alpha *= invOfSafeMin;
-            beta *= invOfSafeMin;
-        } while( Abs( beta ) < safeMin );
+            basic::Scal( invOfSafeInv, x );
+            alpha *= invOfSafeInv;
+            beta *= invOfSafeInv;
+        } while( Abs(beta) < safeInv );
 
         norm = basic::Nrm2( x );
         if( alpha <= 0 )
@@ -85,11 +87,11 @@ elemental::advanced::Reflector
             beta = -lapack::SafeNorm( alpha, norm );
     }
 
-    R tau = ( beta - alpha ) / beta;
-    basic::Scal( static_cast<R>(1)/(alpha-beta), x );
+    R tau = (beta-alpha) / beta;
+    basic::Scal( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
-        beta *= safeMin;
+        beta *= safeInv;
     chi.Set(0,0,beta);
 #ifndef RELEASE
     PopCallStack();
@@ -126,34 +128,34 @@ elemental::advanced::Reflector
     else
         beta = -lapack::SafeNorm( real(alpha), imag(alpha), norm );
 
-    const R safeMin = lapack::MachineSafeMin<R>() /
-                      lapack::MachineEpsilon<R>();
+    const R one = 1;
+    const R safeMin = lapack::MachineSafeMin<R>();
+    const R epsilon = lapack::MachineEpsilon<R>();
+    const R safeInv = safeMin/epsilon;
     int count = 0;
-    if( Abs( beta ) < safeMin )
+    if( Abs(beta) < safeInv )
     {
-        R invOfSafeMin = static_cast<R>(1) / safeMin;
+        R invOfSafeInv = one/safeInv;
         do
         {
             ++count;
-            basic::Scal( (C)invOfSafeMin, x );
-            alpha *= invOfSafeMin;
-            beta *= invOfSafeMin;
-        } while( Abs( beta ) < safeMin );
+            basic::Scal( (C)invOfSafeInv, x );
+            alpha *= invOfSafeInv;
+            beta *= invOfSafeInv;
+        } while( Abs(beta) < safeInv );
 
         norm = basic::Nrm2( x );
         if( real(alpha) <= 0 )
-            beta = lapack::SafeNorm
-                   ( real(alpha), imag(alpha), norm );
+            beta = lapack::SafeNorm( real(alpha), imag(alpha), norm );
         else
-            beta = -lapack::SafeNorm
-                    ( real(alpha), imag(alpha), norm );
+            beta = -lapack::SafeNorm( real(alpha), imag(alpha), norm );
     }
 
     C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );
-    basic::Scal( static_cast<C>(1)/(alpha-beta), x );
+    basic::Scal( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
-        beta *= safeMin;
+        beta *= safeInv;
     chi.Set(0,0,beta);
 #ifndef RELEASE
     PopCallStack();
@@ -177,22 +179,17 @@ elemental::advanced::Reflector
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("x must be a vector");
 #endif
-    if( std::max( x.Height(), x.Width() ) == 0 )
-        return (F)0;
-
     const Grid& g = x.Grid();
     F tau;
     if( x.Width() == 1 && x.RowAlignment() == chi.RowAlignment() )
     {
-        const bool thisIsMyColumn = ( g.MRRank() == x.RowAlignment() );
-        if( thisIsMyColumn )
+        if( g.MRRank() == x.RowAlignment() )
             tau = advanced::internal::ColReflector( chi, x );
         mpi::Broadcast( &tau, 1, x.RowAlignment(), g.MRComm() );
     }
     else
     {
-        const bool thisIsMyRow = ( g.MCRank() == x.ColAlignment() );
-        if( thisIsMyRow )
+        if( g.MCRank() == x.ColAlignment() )
             tau = advanced::internal::RowReflector( chi, x );
         mpi::Broadcast( &tau, 1, x.ColAlignment(), g.MCComm() );
     }

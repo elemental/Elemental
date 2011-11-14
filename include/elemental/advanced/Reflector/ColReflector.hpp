@@ -35,7 +35,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
 elemental::advanced::internal::ColReflector
 ( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
@@ -54,14 +54,15 @@ elemental::advanced::internal::ColReflector
     if( x.Grid().MRRank() != x.RowAlignment() )
         throw std::logic_error("Reflecting with incorrect column of processes");
 #endif
-
-    const Grid& g = x.Grid();
-    const int r = g.Height();
-    const int myRow = g.MCRank();
+    const Grid& grid = x.Grid();
+    mpi::Comm colComm = grid.MCComm();
+    const int gridHeight = grid.Height();
+    const int gridRow = grid.MCRank();
+    const int colAlignment = chi.ColAlignment();
 
     if( x.Height() == 0 )
     {
-        if( myRow == chi.ColAlignment() )
+        if( gridRow == colAlignment )
             chi.SetLocalEntry(0,0,-chi.GetLocalEntry(0,0));
 #ifndef RELEASE
         PopCallStack();
@@ -69,15 +70,15 @@ elemental::advanced::internal::ColReflector
         return (R)2;
     }
 
-    std::vector<R> localNorms(r);
+    std::vector<R> localNorms(gridHeight);
     R localNorm = basic::Nrm2( x.LockedLocalMatrix() ); 
-    mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
-    R norm = blas::Nrm2( r, &localNorms[0], 1 );
+    mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
+    R norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
 
     R alpha;
-    if( myRow == chi.ColAlignment() )
+    if( gridRow == colAlignment )
         alpha = chi.GetLocalEntry(0,0);
-    mpi::Broadcast( &alpha, 1, chi.ColAlignment(), g.MCComm() );
+    mpi::Broadcast( &alpha, 1, colAlignment, colComm );
 
     R beta;
     if( alpha <= 0 )
@@ -85,34 +86,37 @@ elemental::advanced::internal::ColReflector
     else
         beta = -lapack::SafeNorm( alpha, norm );
 
-    const R safeMin = lapack::MachineSafeMin<R>() / lapack::MachineEpsilon<R>();
+    const R one = 1;
+    const R safeMin = lapack::MachineSafeMin<R>();
+    const R epsilon = lapack::MachineEpsilon<R>();
+    const R safeInv = safeMin/epsilon;
     int count = 0;
-    if( Abs( beta ) < safeMin )
+    if( Abs(beta) < safeInv )
     {
-        R invOfSafeMin = static_cast<R>(1) / safeMin;
+        R invOfSafeInv = one/safeInv;
         do
         {
             ++count;
-            basic::Scal( invOfSafeMin, x );
-            alpha *= invOfSafeMin;
-            beta *= invOfSafeMin;
-        } while( Abs( beta ) < safeMin );
+            basic::Scal( invOfSafeInv, x );
+            alpha *= invOfSafeInv;
+            beta *= invOfSafeInv;
+        } while( Abs(beta) < safeInv );
 
         localNorm = basic::Nrm2( x.LockedLocalMatrix() );
-        mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
-        norm = blas::Nrm2( r, &localNorms[0], 1 );
+        mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
+        norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
         if( alpha <= 0 )
             beta = lapack::SafeNorm( alpha, norm );
         else
             beta = -lapack::SafeNorm( alpha, norm );
     }
 
-    R tau = ( beta-alpha ) / beta;
-    basic::Scal( static_cast<R>(1)/(alpha-beta), x );
+    R tau = (beta-alpha)/beta;
+    basic::Scal( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
-        beta *= safeMin;
-    if( myRow == chi.ColAlignment() )
+        beta *= safeInv;
+    if( gridRow == colAlignment )
         chi.SetLocalEntry(0,0,beta);
         
 #ifndef RELEASE
@@ -122,7 +126,7 @@ elemental::advanced::internal::ColReflector
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R> // representation of a real number
+template<typename R> 
 inline std::complex<R>
 elemental::advanced::internal::ColReflector
 ( DistMatrix<std::complex<R>,MC,MR>& chi, DistMatrix<std::complex<R>,MC,MR>& x )
@@ -142,24 +146,25 @@ elemental::advanced::internal::ColReflector
         throw std::logic_error("Reflecting with incorrect column of processes");
 #endif
     typedef std::complex<R> C;
+    const Grid& grid = x.Grid();
+    mpi::Comm colComm = grid.MCComm();
+    const int gridHeight = grid.Height();
+    const int gridRow = grid.MCRank();
+    const int colAlignment = chi.ColAlignment();
 
-    const Grid& g = x.Grid();
-    const int r = g.Height();
-    const int myRow = g.MCRank();
-
-    std::vector<R> localNorms(r);
+    std::vector<R> localNorms(gridHeight);
     R localNorm = basic::Nrm2( x.LockedLocalMatrix() ); 
-    mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
-    R norm = blas::Nrm2( r, &localNorms[0], 1 );
+    mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
+    R norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
 
     C alpha;
-    if( myRow == chi.ColAlignment() )
+    if( gridRow == colAlignment )
         alpha = chi.GetLocalEntry(0,0);
-    mpi::Broadcast( &alpha, 1, chi.ColAlignment(), g.MCComm() );
+    mpi::Broadcast( &alpha, 1, colAlignment, colComm );
 
     if( norm == (R)0 && imag(alpha) == (R)0 )
     {
-        if( myRow == chi.ColAlignment() )
+        if( gridRow == colAlignment )
             chi.SetLocalEntry(0,0,-chi.GetLocalEntry(0,0));
 #ifndef RELEASE
         PopCallStack();
@@ -173,22 +178,25 @@ elemental::advanced::internal::ColReflector
     else
         beta = -lapack::SafeNorm( real(alpha), imag(alpha), norm );
 
-    const R safeMin = lapack::MachineSafeMin<R>() / lapack::MachineEpsilon<R>();
+    const R one = 1;
+    const R safeMin = lapack::MachineSafeMin<R>();
+    const R epsilon = lapack::MachineEpsilon<R>();
+    const R safeInv = safeMin/epsilon;
     int count = 0;
-    if( Abs( beta ) < safeMin )
+    if( Abs(beta) < safeInv )
     {
-        R invOfSafeMin = static_cast<R>(1) / safeMin;
+        R invOfSafeInv = one/safeInv;
         do
         {
             ++count;
-            basic::Scal( (C)invOfSafeMin, x );
-            alpha *= invOfSafeMin;
-            beta *= invOfSafeMin;
-        } while( Abs( beta ) < safeMin );
+            basic::Scal( (C)invOfSafeInv, x );
+            alpha *= invOfSafeInv;
+            beta *= invOfSafeInv;
+        } while( Abs(beta) < safeInv );
 
         localNorm = basic::Nrm2( x.LockedLocalMatrix() );
-        mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
-        norm = blas::Nrm2( r, &localNorms[0], 1 );
+        mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
+        norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
         if( real(alpha) <= 0 )
             beta = lapack::SafeNorm( real(alpha), imag(alpha), norm );
         else
@@ -196,11 +204,11 @@ elemental::advanced::internal::ColReflector
     }
 
     C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );
-    basic::Scal( static_cast<C>(1)/(alpha-beta), x );
+    basic::Scal( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
-        beta *= safeMin;
-    if( myRow == chi.ColAlignment() )
+        beta *= safeInv;
+    if( gridRow == colAlignment )
         chi.SetLocalEntry(0,0,beta);
         
 #ifndef RELEASE
