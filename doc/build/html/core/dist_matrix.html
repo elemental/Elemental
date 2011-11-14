@@ -364,7 +364,7 @@ all allocated storage.</p>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::MakeTrapezoidal__Side.Shape.i">
-void <tt class="descname">MakeTrapezoidal</tt><big>(</big>Side <em>side</em>, Shape <em>shape</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::MakeTrapezoidal__Side.Shape.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">MakeTrapezoidal</tt><big>(</big><a class="reference internal" href="environment.html#Side" title="Side">Side</a> <em>side</em>, Shape <em>shape</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::MakeTrapezoidal__Side.Shape.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Explicitly introduce zeroes into the distributed matrix such that it is
 trapezoidal with respect to the left or right diagonal (as chosen by the
 <tt class="docutils literal"><span class="pre">side</span></tt> parameter). Whether or not the matrix is lower or upper
@@ -376,7 +376,7 @@ superdiagonal).</p>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::ScaleTrapezoidal__T.Side.Shape.i">
-void <tt class="descname">ScaleTrapezoidal</tt><big>(</big>T <em>alpha</em>, Side <em>side</em>, Shape <em>shape</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::ScaleTrapezoidal__T.Side.Shape.i" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">ScaleTrapezoidal</tt><big>(</big>T <em>alpha</em>, <a class="reference internal" href="environment.html#Side" title="Side">Side</a> <em>side</em>, Shape <em>shape</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::ScaleTrapezoidal__T.Side.Shape.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale the portion of the matrix determined by the above discussion by the
 scalar <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
@@ -465,7 +465,9 @@ matrix), the individual entries would be owned as follows:</p>
   4 &amp; 0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4
 \end{array}\right)
 \]"/></p>
-</div><dl class="class">
+</div><p>It should also be noted that this is the default distribution format for the
+<tt class="docutils literal"><span class="pre">DistMatrix</span></tt> class, as <tt class="docutils literal"><span class="pre">DistMatrix&lt;T&gt;</span></tt> defaults to <tt class="docutils literal"><span class="pre">DistMatrix&lt;T,MC,MR&gt;</span></tt>.</p>
+<dl class="class">
 <dt id="DistMatrix:T.MC.MR:">
 <em class="property">class </em><tt class="descname">DistMatrix&lt;T, MC, MR&gt;</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:" title="Permalink to this definition">¶</a></dt>
 <dd><p class="rubric">Constructors</p>

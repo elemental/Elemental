@@ -74,7 +74,7 @@ void TestGemm
     C.ResizeTo( m, n );
 
     // Test the variant of Gemm that keeps A stationary
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "Stationary A Algorithm:" << endl;
     A.SetToRandom();
     B.SetToRandom();
@@ -85,20 +85,20 @@ void TestGemm
         B.Print("B");
         C.Print("C");
     }
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Gemm...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     basic::internal::GemmA
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = basic::internal::GemmGFlops<T>(m,n,k,runTime);
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -112,7 +112,7 @@ void TestGemm
     }
 
     // Test the variant of Gemm that keeps B stationary
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << endl << "Stationary B Algorithm:" << endl;
     A.SetToRandom();
     B.SetToRandom();
@@ -123,20 +123,20 @@ void TestGemm
         B.Print("B");
         C.Print("C");
     }
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Gemm...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     basic::internal::GemmB
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = basic::internal::GemmGFlops<T>(m,n,k,runTime);
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl 
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -150,7 +150,7 @@ void TestGemm
     }
 
     // Test the variant of Gemm that keeps C stationary
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << endl << "Stationary C Algorithm:" << endl;
     A.SetToRandom();
     B.SetToRandom();
@@ -161,20 +161,20 @@ void TestGemm
         B.Print("B");
         C.Print("C");
     }
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Gemm...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     basic::internal::GemmC
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = basic::internal::GemmGFlops<T>(m,n,k,runTime);
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -190,7 +190,7 @@ void TestGemm
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         // Test the variant of Gemm for panel-panel dot products
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << endl << "Dot Product Algorithm:" << endl;
         A.SetToRandom();
         B.SetToRandom();
@@ -201,20 +201,20 @@ void TestGemm
             B.Print("B");
             C.Print("C");
         }
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Starting Gemm...";
             cout.flush();
         }
-        mpi::Barrier( g.VCComm() );
+        mpi::Barrier( g.Comm() );
         startTime = mpi::Time();
         basic::internal::GemmDot
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-        mpi::Barrier( g.VCComm() );
+        mpi::Barrier( g.Comm() );
         endTime = mpi::Time();
         runTime = endTime - startTime;
         gFlops = basic::internal::GemmGFlops<T>(m,n,k,runTime);
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "DONE. " << endl
                  << "  Time = " << runTime << " seconds. GFlops = " 

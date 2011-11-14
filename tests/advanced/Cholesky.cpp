@@ -79,7 +79,7 @@ void TestCorrectness
         F oneNormOfX = advanced::Norm( X, ONE_NORM );
         F infNormOfX = advanced::Norm( X, INFINITY_NORM );
         F frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << Abs(infNormOfA) << "\n"
                  << "||A||_F              = " << Abs(frobNormOfA) << "\n"
@@ -106,7 +106,7 @@ void TestCorrectness
         F oneNormOfX = advanced::Norm( X, ONE_NORM );
         F infNormOfX = advanced::Norm( X, INFINITY_NORM );
         F frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << Abs(infNormOfA) << "\n"
                  << "||A||_F              = " << Abs(frobNormOfA) << "\n"
@@ -134,31 +134,31 @@ void TestCholesky
     A.SetToRandomHPD();
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         AOrig = A;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
         A.Print("A");
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Cholesky factorization...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::Cholesky( shape, A );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = advanced::internal::CholeskyGFlops<F>( m, runTime );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE.\n"
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -208,8 +208,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         basic::SetLocalTriangularRankKBlocksize<double>( nbLocal );
 #ifndef WITHOUT_COMPLEX
-        basic::SetLocalTriangularRankKBlocksize< std::complex<double> >
-        ( nbLocal );
+        basic::SetLocalTriangularRankKBlocksize<complex<double> >( nbLocal );
 #endif
 
         if( rank == 0 )

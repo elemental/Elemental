@@ -52,7 +52,7 @@ main( int argc, char* argv[] )
             else
                 std::cout << " process.\n" << std::endl;
         }
-        DistMatrix<double,MC,MR> X( n, n );
+        DistMatrix<double> X( n, n );
         X.SetToRandom();
         X.Print("X");
 

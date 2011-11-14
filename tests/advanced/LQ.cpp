@@ -59,7 +59,7 @@ void TestCorrectness
     const int n = A.Width();
     const int minDim = std::min(m,n);
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q^H Q as an approximation to identity
@@ -83,14 +83,14 @@ void TestCorrectness
     R oneNormOfError = advanced::Norm( X, ONE_NORM );
     R infNormOfError = advanced::Norm( X, INFINITY_NORM );
     R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
              << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
              << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
     }
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Testing if A = LQ..." << endl;
     }
@@ -110,7 +110,7 @@ void TestCorrectness
     oneNormOfError = advanced::Norm( L, ONE_NORM );
     infNormOfError = advanced::Norm( L, INFINITY_NORM );
     frobNormOfError = advanced::Norm( L, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"
              << "    ||A||_oo      = " << infNormOfA << "\n"
@@ -136,7 +136,7 @@ void TestCorrectness
     const int n = A.Width();
     const int minDim = std::min(m,n);
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q^H Q as an approximation to identity
@@ -160,14 +160,14 @@ void TestCorrectness
     R oneNormOfError = advanced::Norm( X, ONE_NORM );
     R infNormOfError = advanced::Norm( X, INFINITY_NORM );
     R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
              << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
              << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
     }
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "  Testing if A = LQ..." << endl;
 
     // Form L Q
@@ -185,7 +185,7 @@ void TestCorrectness
     oneNormOfError = advanced::Norm( L, ONE_NORM );
     infNormOfError = advanced::Norm( L, INFINITY_NORM );
     frobNormOfError = advanced::Norm( L, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"
              << "    ||A||_oo      = " << infNormOfA << "\n"
@@ -218,31 +218,31 @@ void TestLQ<double>
     A.SetToRandom();
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         AOrig = A;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
         A.Print("A");
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting LQ factorization...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::LQ( A );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = advanced::internal::LQGFlops<R>( m, n, runTime );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -272,31 +272,31 @@ void TestLQ< complex<double> >
     A.SetToRandom();
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         AOrig = A;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
         A.Print("A");
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting LQ factorization...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::LQ( A, t );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = advanced::internal::LQGFlops<C>( m, n, runTime );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 

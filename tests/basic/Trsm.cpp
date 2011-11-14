@@ -76,19 +76,19 @@ void TestTrsm
         A.Print("A");
         X.Print("X");
     }
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Trsm...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     basic::Trsm( side, shape, orientation, diagonal, alpha, A, X );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = basic::internal::TrsmGFlops<F>(side,m,n,runTime);
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 

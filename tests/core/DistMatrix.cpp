@@ -33,17 +33,17 @@
 #include <cstdlib>
 #include <ctime>
 #include "elemental.hpp"
-using namespace std;
 using namespace elemental;
 
 void Usage()
 {
-    cout << "Test all of the aligned redistributions of DistMatrix class.\n\n"
-         << "  DistMatrix <r> <c> <m> <n>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  m: height of matrices\n"
-         << "  n: width of matrices\n" << endl;
+    std::cout 
+        << "Test all of the aligned redistributions of DistMatrix class.\n\n"
+        << "  DistMatrix <r> <c> <m> <n>\n\n"
+        << "  r: number of process rows\n"
+        << "  c: number of process cols\n"
+        << "  m: height of matrices\n"
+        << "  n: width of matrices\n" << std::endl;
 }
 
 // represents a real or complex ring
@@ -58,19 +58,19 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
 #endif
     const Grid& g = A.Grid();
 
-    int rank = g.VCRank();
-    int height = B.Height();
-    int width = B.Width();
+    const int rank = g.Rank();
+    const int height = B.Height();
+    const int width = B.Width();
     DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
     DistMatrix<T,STAR,STAR> B_STAR_STAR(g);
 
     if( rank == 0 )
     {
-        cout << "Testing [" << DistToString(AColDist) << ","
-                            << DistToString(ARowDist) << "]"
-             << " <- ["     << DistToString(BColDist) << ","
-                            << DistToString(BRowDist) << "]...";
-        cout.flush();
+        std::cout << "Testing [" << DistToString(AColDist) << ","
+                                 << DistToString(ARowDist) << "]"
+                  << " <- ["     << DistToString(BColDist) << ","
+                                 << DistToString(BRowDist) << "]...";
+        std::cout.flush();
     }
     A = B;
 
@@ -94,17 +94,13 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     }
 
     int summedErrorFlag;
-    mpi::AllReduce( &myErrorFlag, &summedErrorFlag, 1, mpi::SUM, g.VCComm() );
+    mpi::AllReduce( &myErrorFlag, &summedErrorFlag, 1, mpi::SUM, g.Comm() );
 
     if( summedErrorFlag == 0 )
-    {
         if( rank == 0 )
-            cout << "PASSED" << endl;
-    }
+            std::cout << "PASSED" << std::endl;
     else
-    {
-        throw logic_error("Redistribution failed.");
-    }
+        throw std::logic_error("Redistribution failed");
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -292,11 +288,11 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    int rank = mpi::CommRank( comm );
+    const int commRank = mpi::CommRank( comm );
 
     if( argc < 5 )
     {
-        if( rank == 0 )
+        if( commRank == 0 )
             Usage();
         Finalize();
         return 0;
@@ -310,56 +306,57 @@ main( int argc, char* argv[] )
         const int m = atoi(argv[++argNum]);
         const int n = atoi(argv[++argNum]);
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
+            std::cout << "==========================================\n"
+                      << " In debug mode! Performance will be poor! \n"
+                      << "==========================================" 
+                      << std::endl;
         }
 #endif
         const Grid g( comm, r, c );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
-            cout << "--------------------\n"
-                 << "Testing with floats:\n"
-                 << "--------------------" << endl;
+            std::cout << "--------------------\n"
+                      << "Testing with floats:\n"
+                      << "--------------------" << std::endl;
         }
         DistMatrixTest<float>( m, n, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
+            std::cout << "---------------------\n"
+                      << "Testing with doubles:\n"
+                      << "---------------------" << std::endl;
         }
         DistMatrixTest<double>( m, n, g );
 
 #ifndef WITHOUT_COMPLEX
-        if( rank == 0 )
+        if( commRank == 0 )
         {
-            cout << "--------------------------------------\n"
-                 << "Testing with single-precision complex:\n"
-                 << "--------------------------------------" << endl;
+            std::cout << "--------------------------------------\n"
+                      << "Testing with single-precision complex:\n"
+                      << "--------------------------------------" << std::endl;
         }
         DistMatrixTest<scomplex>( m, n, g );
         
-        if( rank == 0 )
+        if( commRank == 0 )
         {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
+            std::cout << "--------------------------------------\n"
+                      << "Testing with double-precision complex:\n"
+                      << "--------------------------------------" << std::endl;
         }
         DistMatrixTest<dcomplex>( m, n, g );
 #endif
     }
-    catch( exception& e )
+    catch( std::exception& e )
     {
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
+        std::cerr << "Process " << commRank << " caught error message:\n"
+                  << e.what() << std::endl;
     }
     Finalize();
     return 0;

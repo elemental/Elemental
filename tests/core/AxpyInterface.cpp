@@ -32,12 +32,11 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 #include "elemental.hpp"
-using namespace std;
 using namespace elemental;
 
 void Usage()
 {
-    cout << "AxpyInterface\n" << std::endl;
+    std::cout << "AxpyInterface\n" << std::endl;
 }
 
 int
@@ -45,34 +44,34 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-    const int p = mpi::CommSize( comm );
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try 
     {
-        const int m = 3*p;
-        const int n = 2*p;
+        const int m = 3*commSize;
+        const int n = 2*commSize;
 
         Grid g( comm );
 
         for( int k=0; k<50; ++k )
         {
-            if( rank == 0 )
+            if( commRank == 0 )
                 std::cout << "Iteration " << k << std::endl;
 
-            DistMatrix<double,MC,MR> A( m, n, g );
+            DistMatrix<double> A( m, n, g );
             A.SetToZero();
 
             AxpyInterface<double> interface;
             interface.Attach( LOCAL_TO_GLOBAL, A );
-            Matrix<double> X( p, 1 );
+            Matrix<double> X( commSize, 1 );
             for( int j=0; j<X.Width(); ++j )
-                for( int i=0; i<p; ++i )
-                    X.Set(i,j,rank+1);
+                for( int i=0; i<commSize; ++i )
+                    X.Set(i,j,commRank+1);
             for( int i=0; i<5; ++i )
             {
-                interface.Axpy( 2, X, 2*rank, rank );
-                interface.Axpy( 2, X, 2*rank, rank+1 );
+                interface.Axpy( 2, X, 2*commRank, commRank );
+                interface.Axpy( 2, X, 2*commRank, commRank+1 );
             }
             interface.Detach();
 
@@ -80,7 +79,7 @@ main( int argc, char* argv[] )
 
             interface.Attach( GLOBAL_TO_LOCAL, A );
             Matrix<double> Y;
-            if( rank == 0 )
+            if( commRank == 0 )
             {
                 Y.ResizeTo( m, n );
                 Y.SetToZero();
@@ -88,19 +87,19 @@ main( int argc, char* argv[] )
             }
             interface.Detach();
 
-            if( rank == 0 )
+            if( commRank == 0 )
                 Y.Print( "Copy of global matrix on root process:" );
 
             // TODO: Check to ensure that the result is correct
         }
     }
-    catch( exception& e )
+    catch( std::exception& e )
     {
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
+        std::cerr << "Process " << commRank << " caught error message:\n"
+                  << e.what() << std::endl;
     }
 
     Finalize();

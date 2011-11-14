@@ -68,7 +68,7 @@ void TestSymm
     C.ResizeTo( m, n );
 
     // Test Symm
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "Symm:" << endl;
     A.SetToRandom();
     B.SetToRandom();
@@ -79,20 +79,20 @@ void TestSymm
         B.Print("B");
         C.Print("C");
     }
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Parallel Symm...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     basic::Symm
     ( side, shape, alpha, A, B, beta, C );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = basic::internal::SymmGFlops<T>(side,m,n,runTime);
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 

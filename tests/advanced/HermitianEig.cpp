@@ -71,7 +71,7 @@ void TestCorrectnessDouble
     const int n = Z.Height();
     const int k = Z.Width();
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Gathering computed eigenvalues...";
         cout.flush();
@@ -79,10 +79,10 @@ void TestCorrectnessDouble
     DistMatrix<double,MR,STAR> w_MR_STAR(g); 
     w_MR_STAR.AlignWith( Z );
     w_MR_STAR = w;
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "DONE" << endl;
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<double,MC,MR> X(k,k,g);
     X.SetToIdentity();
@@ -90,7 +90,7 @@ void TestCorrectnessDouble
     double oneNormOfError = advanced::Norm( X, ONE_NORM );
     double infNormOfError = advanced::Norm( X, INFINITY_NORM );
     double frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
              << "    ||Z^H Z - I||_oo = " << infNormOfError << "\n"
@@ -123,7 +123,7 @@ void TestCorrectnessDouble
     oneNormOfError = advanced::Norm( X, ONE_NORM );
     infNormOfError = advanced::Norm( X, INFINITY_NORM );
     frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
              << "    ||A||_F            = " << frobNormOfA << "\n"
@@ -140,36 +140,37 @@ void TestCorrectnessDouble
 void TestCorrectnessDoubleComplex
 ( bool printMatrices,
   Shape shape,
-  const DistMatrix<std::complex<double>,MC,  MR>& A,
-  const DistMatrix<             double, VR,STAR>& w,
-  const DistMatrix<std::complex<double>,MC,  MR>& Z,
-  const DistMatrix<std::complex<double>,MC  ,MR>& AOrig )
+  const DistMatrix<complex<double>,MC,  MR>& A,
+  const DistMatrix<        double, VR,STAR>& w,
+  const DistMatrix<complex<double>,MC,  MR>& Z,
+  const DistMatrix<complex<double>,MC  ,MR>& AOrig )
 {
     const Grid& g = A.Grid();
     const int n = Z.Height();
     const int k = Z.Width();
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Gathering computed eigenvalues...";
         cout.flush();
     }
     DistMatrix<double,MR,STAR> w_MR_STAR(true,Z.RowAlignment(),g); 
     w_MR_STAR = w;
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "DONE" << endl;
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
-    DistMatrix<std::complex<double>,MC,MR> X( k, k, g );
+    DistMatrix<complex<double>,MC,MR> X( k, k, g );
     X.SetToIdentity();
     basic::Herk
     ( shape, ADJOINT, 
-      std::complex<double>(-1), Z, std::complex<double>(1), X );
+      complex<double>(-1), Z, 
+      complex<double>(1), X );
     double oneNormOfError = advanced::Norm( X, ONE_NORM );
     double infNormOfError = advanced::Norm( X, INFINITY_NORM );
     double frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
              << "    ||Z^H Z - I||_oo = " << infNormOfError << "\n"
@@ -180,16 +181,17 @@ void TestCorrectnessDoubleComplex
     X.AlignWith( Z );
     X.ResizeTo( n, k );
     basic::Hemm
-    ( LEFT, shape, std::complex<double>(1), AOrig, Z, 
-      std::complex<double>(0), X );
+    ( LEFT, shape, 
+      complex<double>(1), AOrig, Z, 
+      complex<double>(0), X );
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
     for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
     {
         const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
         for( int iLocal=0; iLocal<X.LocalHeight(); ++iLocal )
         {
-            const std::complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
-            const std::complex<double> zeta = Z.GetLocalEntry(iLocal,jLocal);
+            const complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
+            const complex<double> zeta = Z.GetLocalEntry(iLocal,jLocal);
             X.SetLocalEntry(iLocal,jLocal,chi-omega*zeta);
         }
     }
@@ -204,7 +206,7 @@ void TestCorrectnessDoubleComplex
     oneNormOfError = advanced::Norm( X, ONE_NORM );
     infNormOfError = advanced::Norm( X, INFINITY_NORM );
     frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
              << "    ||A||_F            = " << frobNormOfA << "\n"
@@ -232,24 +234,24 @@ void TestHermitianEigDouble
     A.SetToRandomHermitian();
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         AOrig = A;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
         A.Print("A");
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Hermitian eigensolver...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     if( onlyEigenvalues )
     {
@@ -269,10 +271,10 @@ void TestHermitianEigDouble
         else
             advanced::HermitianEig( shape, A, w, Z, vl, vu );
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds." << endl;
@@ -296,21 +298,21 @@ void TestHermitianEigDoubleComplex
   double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<std::complex<double>,MC,  MR> A(m,m,g);
-    DistMatrix<std::complex<double>,MC,  MR> AOrig(g);
-    DistMatrix<             double, VR,STAR> w(g);
-    DistMatrix<std::complex<double>,MC,  MR> Z(g);
+    DistMatrix<complex<double>,MC,  MR> A(m,m,g);
+    DistMatrix<complex<double>,MC,  MR> AOrig(g);
+    DistMatrix<        double, VR,STAR> w(g);
+    DistMatrix<complex<double>,MC,  MR> Z(g);
 
     A.SetToRandomHermitian();
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         AOrig = A;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -318,12 +320,12 @@ void TestHermitianEigDoubleComplex
         A.Print("A");
     }
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Hermitian eigensolver...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     if( onlyEigenvalues )
     {
@@ -343,10 +345,10 @@ void TestHermitianEigDoubleComplex
         else
             advanced::HermitianEig( shape, A, w, Z, vl, vu );
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds." << endl;
@@ -387,7 +389,7 @@ main( int argc, char* argv[] )
         const bool onlyEigenvalues = atoi(argv[++argNum]);
         const char range = *argv[++argNum];
         if( range != 'A' && range != 'I' && range != 'V' )
-            throw std::runtime_error("'range' must be 'A', 'I', or 'V'");
+            throw runtime_error("'range' must be 'A', 'I', or 'V'");
         double vl = 0, vu = 0;
         int il = 0, iu = 0;
         if( range == 'I' )
@@ -429,7 +431,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         basic::SetLocalSymvBlocksize<double>( nbLocalSymv );
 #ifndef WITHOUT_COMPLEX
-        basic::SetLocalHemvBlocksize< std::complex<double> >( nbLocalSymv );
+        basic::SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
 #endif
 
         if( rank == 0 )

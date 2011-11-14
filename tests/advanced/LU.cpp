@@ -58,7 +58,7 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "Testing error..." << endl;
 
     // Generate random right-hand sides
@@ -85,7 +85,7 @@ void TestCorrectness
     F infNormOfA = advanced::Norm( AOrig, INFINITY_NORM );
     F frobNormOfA = advanced::Norm( AOrig, FROBENIUS_NORM );
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "||A||_1                  = " << Abs(oneNormOfA) << "\n"
              << "||A||_oo                 = " << Abs(infNormOfA) << "\n"
@@ -115,34 +115,34 @@ void TestLU
     A.SetToRandom();
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         ARef = A;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
         A.Print("A");
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting LU factorization...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     if( pivot )
         advanced::LU( A, p );
     else
         advanced::LU( A );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = advanced::internal::LUGFlops<F>( m, runTime );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 

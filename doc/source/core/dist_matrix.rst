@@ -323,6 +323,9 @@ matrix), the individual entries would be owned as follows:
    \end{array}\right)
    \]
 
+It should also be noted that this is the default distribution format for the 
+``DistMatrix`` class, as ``DistMatrix<T>`` defaults to ``DistMatrix<T,MC,MR>``.
+
 .. cpp:class:: DistMatrix<T,MC,MR>
 
    .. rubric:: Constructors

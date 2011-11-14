@@ -65,7 +65,7 @@ void TestSymv
     y.ResizeTo( m, 1 );
 
     // Test Symm
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "Symm:" << endl;
     A.SetToRandom();
     x.SetToRandom();
@@ -76,19 +76,19 @@ void TestSymv
         x.Print("x");
         y.Print("y");
     }
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Parallel Symv...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     basic::Symv( shape, alpha, A, x, beta, y );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = basic::internal::SymvGFlops<T>(m,runTime);
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -144,8 +144,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         basic::SetLocalSymvBlocksize<double>( nbLocalDouble );
 #ifndef WITHOUT_COMPLEX
-        basic::SetLocalSymvBlocksize<std::complex<double> >
-        ( nbLocalComplexDouble );
+        basic::SetLocalSymvBlocksize<complex<double> >( nbLocalComplexDouble );
 #endif
 
         if( rank == 0 )

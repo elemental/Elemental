@@ -120,6 +120,14 @@ grid.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="Grid::RankC">
+int <tt class="descname">Rank</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::RankC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return our process&#8217;s rank in the grid. The result is equivalent to the
+<tt class="docutils literal"><span class="pre">VCRank()</span></tt> function described below, but this interface is provided for
+simplicity.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="Grid::MCRankC">
 int <tt class="descname">MCRank</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::MCRankC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return our process&#8217;s rank in the <em>MC</em> (Matrix Column) communicator. This
@@ -145,6 +153,14 @@ corresponds to our rank in a column-major ordering of the process grid.</p>
 int <tt class="descname">VRRank</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::VRRankC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return our process&#8217;s rank in the <em>VR</em> (Vector Row) communicator. This
 corresponds to our rank in a row-major ordering of the process grid.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Grid::CommC">
+<a class="reference internal" href="../imports/mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">Comm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::CommC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the communicator for the grid. The result is equivalent to the
+<tt class="docutils literal"><span class="pre">VCComm()</span></tt> function described below, but this interface is provided
+for simplicity.</p>
 </dd></dl>
 
 <dl class="function">

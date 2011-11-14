@@ -73,7 +73,7 @@ void TestCorrectness
     F oneNormOfError = advanced::Norm( Y, ONE_NORM );
     F infNormOfError = advanced::Norm( Y, INFINITY_NORM );
     F frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "||A A^-1 - I||_1  = " << Abs(oneNormOfError) << "\n"
              << "||A A^-1 - I||_oo = " << Abs(infNormOfError) << "\n"
@@ -96,31 +96,31 @@ void TestTriangularInverse
     A.MakeTrapezoidal( LEFT, shape );
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         AOrig = A;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
         A.Print("A");
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting triangular inversion...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::TriangularInverse( shape, diagonal, A );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = advanced::internal::TriangularInverseGFlops<F>( m, runTime );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 

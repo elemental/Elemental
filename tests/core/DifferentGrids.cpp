@@ -33,15 +33,15 @@
 #include <cstdlib>
 #include <ctime>
 #include "elemental.hpp"
-using namespace std;
 using namespace elemental;
 
 void Usage()
 {
-    cout << "Run some tests for creating matrices with different grids.\n\n"
-         << "  DifferentGrids <m> <n>\n\n"
-         << "  m: height of matrices\n"
-         << "  n: width of matrices\n" << endl;
+    std::cout 
+        << "Run some tests for creating matrices with different grids.\n\n"
+        << "  DifferentGrids <m> <n>\n\n"
+        << "  m: height of matrices\n"
+        << "  n: width of matrices\n" << std::endl;
 }
 
 int 
@@ -49,11 +49,12 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    int rank = mpi::CommRank( comm );
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
     
     if( argc < 3 )
     {
-        if( rank == 0 )
+        if( commRank == 0 )
             Usage();
         Finalize();
         return 0;
@@ -65,20 +66,21 @@ main( int argc, char* argv[] )
         const int m = atoi(argv[++argNum]);
         const int n = atoi(argv[++argNum]);
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
+            std::cout 
+                << "==========================================\n"
+                << " In debug mode! Performance will be poor! \n"
+                << "==========================================" << std::endl;
         }
 #endif
-        int p = mpi::CommSize( comm );
 
         // Drop down to a square grid, change the matrix, and redistribute back
-        int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
+        const int commSqrt = 
+            static_cast<int>(sqrt(static_cast<double>(commSize)));
 
-        std::vector<int> sqrtRanks(pSqrt*pSqrt);
-        for( int i=0; i<pSqrt*pSqrt; ++i )
+        std::vector<int> sqrtRanks(commSqrt*commSqrt);
+        for( int i=0; i<commSqrt*commSqrt; ++i )
             sqrtRanks[i] = i;
 
         mpi::Group group, sqrtGroup;
@@ -89,8 +91,8 @@ main( int argc, char* argv[] )
         const Grid grid( comm );
         const Grid sqrtGrid( comm, sqrtGroup );
 
-        DistMatrix<double,MC,MR> A( m, n, grid );
-        DistMatrix<double,MC,MR> ASqrt( m, n, sqrtGrid );
+        DistMatrix<double> A( m, n, grid );
+        DistMatrix<double> ASqrt( m, n, sqrtGrid );
 
         A.SetToIdentity();
         A.Print("A");
@@ -104,13 +106,13 @@ main( int argc, char* argv[] )
         A = ASqrt;
         A.Print("A := ASqrt");
     }
-    catch( exception& e )
+    catch( std::exception& e )
     {
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
+        std::cerr << "Process " << commRank << " caught error message:\n"
+                  << e.what() << std::endl;
     }
     Finalize();
     return 0;

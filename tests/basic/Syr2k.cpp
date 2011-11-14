@@ -84,19 +84,19 @@ void TestSyr2k
         B.Print("B");
         C.Print("C");
     }
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Syr2k...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     basic::Syr2k( shape, orientation, alpha, A, B, beta, C );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = basic::internal::Syr2kGFlops<T>(m,k,runTime);
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -152,8 +152,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         basic::SetLocalTriangularRank2KBlocksize<double>( nbLocal );
 #ifndef WITHOUT_COMPLEX
-        basic::SetLocalTriangularRank2KBlocksize< std::complex<double> >
-        ( nbLocal );
+        basic::SetLocalTriangularRank2KBlocksize<complex<double> >( nbLocal );
 #endif
 
         if( rank == 0 )

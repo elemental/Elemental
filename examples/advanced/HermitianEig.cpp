@@ -47,7 +47,7 @@ main( int argc, char* argv[] )
 
     // Extract our MPI rank
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
+    const int commRank = mpi::CommRank( comm );
 
     // Surround the Elemental calls with try/catch statements in order to 
     // safely handle any exceptions that were thrown during execution.
@@ -106,7 +106,7 @@ main( int argc, char* argv[] )
 
         // Print its trace
         const C trace = advanced::Trace( H );
-        if( g.VCRank() == 0 )
+        if( commRank == 0 )
             std::cout << "Tr(H) = " << trace << std::endl;
 
         // Call the eigensolver. We first create an empty complex eigenvector 
@@ -128,7 +128,7 @@ main( int argc, char* argv[] )
     }
     catch( exception& e )
     {
-        cerr << "Process " << rank << " caught exception with message: "
+        cerr << "Process " << commRank << " caught exception with message: "
              << e.what() << endl;
     }
 

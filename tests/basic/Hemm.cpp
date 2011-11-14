@@ -68,7 +68,7 @@ void TestHemm
     C.ResizeTo( m, n );
 
     // Test Hemm
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "Hemm:" << endl;
     A.SetToRandomHPD();
     B.SetToRandom();
@@ -80,19 +80,19 @@ void TestHemm
         B.Print("B");
         C.Print("C");
     }
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Parallel Hemm...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     basic::Hemm( side, shape, alpha, A, B, beta, C );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = basic::internal::HemmGFlops<T>(side,m,n,runTime);
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 

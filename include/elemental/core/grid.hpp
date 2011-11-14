@@ -48,10 +48,12 @@ public:
     int Width() const;
     int GCD() const;
     int LCM() const;
+    int Rank() const; // same as VCRank(), but provided for simplicity
     int MCRank() const;
     int MRRank() const;
     int VCRank() const;
     int VRRank() const;
+    mpi::Comm Comm() const; // same as VCComm(), but provided for simplicity
     mpi::Comm MCComm() const;
     mpi::Comm MRComm() const;
     mpi::Comm VCComm() const;
@@ -173,6 +175,9 @@ inline int Grid::DiagPathRank( int vectorColRank ) const
         return mpi::UNDEFINED;
 }
 
+inline int Grid::Rank() const
+{ return _vectorColRank; }
+
 inline int Grid::MCRank() const
 { return _matrixColRank; }
 
@@ -202,6 +207,9 @@ inline mpi::Comm Grid::OwningComm() const
 
 inline mpi::Comm Grid::ViewingComm() const
 { return _viewingComm; }
+
+inline mpi::Comm Grid::Comm() const
+{ return _vectorColComm; }
 
 inline mpi::Comm Grid::MCComm() const
 { return _matrixColComm; }

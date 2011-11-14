@@ -62,7 +62,7 @@ void TestCorrectness
 
     int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "Testing error..." << endl;
 
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
@@ -114,7 +114,7 @@ void TestCorrectness
     R frobNormOfAOrig = advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
     R infNormOfError = advanced::HermitianNorm( shape, B, INFINITY_NORM );
     R frobNormOfError = advanced::HermitianNorm( shape, B, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
              << "    ||AOrig||_F                = " << frobNormOfAOrig << "\n"
@@ -138,7 +138,7 @@ void TestCorrectness
 
     int subdiagonal = ( shape==LOWER ? -1 : +1 );
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "Testing error..." << endl;
 
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
@@ -192,7 +192,7 @@ void TestCorrectness
     R frobNormOfAOrig = advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
     R infNormOfError = advanced::HermitianNorm( shape, B, INFINITY_NORM );
     R frobNormOfError = advanced::HermitianNorm( shape, B, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
              << "    ||AOrig||_F                = " << frobNormOfAOrig << "\n"
@@ -223,31 +223,31 @@ void TestHermitianTridiag<double>
     A.SetToRandomHermitian();
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         AOrig = A;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
         A.Print("A");
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting tridiagonalization...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::HermitianTridiag( shape, A );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = advanced::internal::HermitianTridiagGFlops<R>( m, runTime );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -278,32 +278,32 @@ void TestHermitianTridiag< complex<double> >
     A.SetToRandomHermitian();
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         AOrig = A;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
         A.Print("A");
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting tridiagonalization...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::HermitianTridiag( shape, A, t );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = 
         advanced::internal::HermitianTridiagGFlops<complex<R> >( m, runTime );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -357,7 +357,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         basic::SetLocalSymvBlocksize<double>( nbLocalSymv );
 #ifndef WITHOUT_COMPLEX
-        basic::SetLocalHemvBlocksize< std::complex<double> >( nbLocalSymv );
+        basic::SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
 #endif
 
         if( rank == 0 )

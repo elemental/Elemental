@@ -51,6 +51,12 @@ soon-to-be-discussed ``DistMatrix`` class).
       Return the lowest common multiple of the height and width of the process
       grid.
 
+   .. cpp:function:: int Rank() const
+
+      Return our process's rank in the grid. The result is equivalent to the 
+      ``VCRank()`` function described below, but this interface is provided for
+      simplicity.
+
    .. cpp:function:: int MCRank() const
 
       Return our process's rank in the *MC* (Matrix Column) communicator. This 
@@ -70,6 +76,12 @@ soon-to-be-discussed ``DistMatrix`` class).
 
       Return our process's rank in the *VR* (Vector Row) communicator. This 
       corresponds to our rank in a row-major ordering of the process grid.
+
+   .. cpp:function:: mpi::Comm Comm() const
+
+      Return the communicator for the grid. The result is equivalent to the 
+      ``VCComm()`` function described below, but this interface is provided 
+      for simplicity.
 
    .. cpp:function:: mpi::Comm MCComm() const
 

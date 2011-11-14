@@ -75,7 +75,7 @@ void TestCorrectnessDouble
     const int n = X.Height();
     const int k = X.Width();
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Gathering computed eigenvalues...";
         cout.flush();
@@ -83,12 +83,12 @@ void TestCorrectnessDouble
     DistMatrix<double,MR,STAR> w_MR_STAR(g); 
     w_MR_STAR.AlignWith( X );
     w_MR_STAR = w;
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "DONE" << endl;
 
     if( eigType == AXBX )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "  Testing for deviation of AX from BXW..." << endl;
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
         DistMatrix<double,MC,MR> Y( g );
@@ -118,7 +118,7 @@ void TestCorrectnessDouble
         double oneNormOfError = advanced::Norm( Y, ONE_NORM );
         double infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         double frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
                  << "    ||A||_F            = " << frobNormOfA << "\n"
@@ -145,7 +145,7 @@ void TestCorrectnessDouble
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
         infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
@@ -154,7 +154,7 @@ void TestCorrectnessDouble
     }
     else if( eigType == ABX )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "  Testing for deviation of ABX from XW..." << endl;
         // Set Y := BX
         DistMatrix<double,MC,MR> Y( g );
@@ -190,7 +190,7 @@ void TestCorrectnessDouble
         double oneNormOfError = advanced::Norm( Z, ONE_NORM );
         double infNormOfError = advanced::Norm( Z, INFINITY_NORM );
         double frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
                  << "    ||A||_F            = " << frobNormOfA << "\n"
@@ -216,14 +216,14 @@ void TestCorrectnessDouble
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
         infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
     }
     else /* eigType == BAX */
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "  Testing for deviation of BAX from XW..." << endl;
         // Set Y := AX
         DistMatrix<double,MC,MR> Y( g );
@@ -259,7 +259,7 @@ void TestCorrectnessDouble
         double oneNormOfError = advanced::Norm( Z, ONE_NORM );
         double infNormOfError = advanced::Norm( Z, INFINITY_NORM );
         double frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
                  << "    ||A||_F            = " << frobNormOfA << "\n"
@@ -285,7 +285,7 @@ void TestCorrectnessDouble
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
         infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "    ||X^H B^-1 X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B^-1 X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B^-1 X - I||_F  = " << frobNormOfError << endl;
@@ -297,38 +297,39 @@ void TestCorrectnessDoubleComplex
 ( bool printMatrices,
   HermitianGenDefiniteEigType eigType,
   Shape shape,
-  const DistMatrix<std::complex<double>,MC,MR  >& A,
-  const DistMatrix<std::complex<double>,MC,MR  >& B,
-  const DistMatrix<             double, VR,STAR>& w,
-  const DistMatrix<std::complex<double>,MC,MR  >& X,
-  const DistMatrix<std::complex<double>,MC,MR  >& AOrig,
-  const DistMatrix<std::complex<double>,MC,MR  >& BOrig )
+  const DistMatrix<complex<double>,MC,MR  >& A,
+  const DistMatrix<complex<double>,MC,MR  >& B,
+  const DistMatrix<        double, VR,STAR>& w,
+  const DistMatrix<complex<double>,MC,MR  >& X,
+  const DistMatrix<complex<double>,MC,MR  >& AOrig,
+  const DistMatrix<complex<double>,MC,MR  >& BOrig )
 {
     const Grid& g = A.Grid();
     const int n = X.Height();
     const int k = X.Width();
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Gathering computed eigenvalues...";
         cout.flush();
     }
     DistMatrix<double,MR,STAR> w_MR_STAR(true,X.RowAlignment(),g); 
     w_MR_STAR = w;
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "DONE" << endl;
 
     if( eigType == AXBX )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "  Testing for deviation of AX from BXW..." << endl;
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
-        DistMatrix<std::complex<double>,MC,MR> Y( g );
+        DistMatrix<complex<double>,MC,MR> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         basic::Hemm
-        ( LEFT, shape, std::complex<double>(1), BOrig, X, 
-          std::complex<double>(0), Y );
+        ( LEFT, shape, 
+          complex<double>(1), BOrig, X, 
+          complex<double>(0), Y );
         for( int jLocal=0; jLocal<Y.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
@@ -337,8 +338,9 @@ void TestCorrectnessDoubleComplex
         }
         // Y := Y - AX = BXW - AX
         basic::Hemm
-        ( LEFT, shape, std::complex<double>(-1), AOrig, X, 
-        std::complex<double>(1), Y );
+        ( LEFT, shape, 
+          complex<double>(-1), AOrig, X, 
+          complex<double>(1), Y );
         // Find the infinity norms of A, B, X, and AX-BXW
         double infNormOfA = 
             advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
@@ -354,7 +356,7 @@ void TestCorrectnessDoubleComplex
         double oneNormOfError = advanced::Norm( Y, ONE_NORM );
         double infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         double frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
                  << "    ||A||_F            = " << frobNormOfA << "\n"
@@ -369,51 +371,54 @@ void TestCorrectnessDoubleComplex
                  << "  Testing orthonormality of eigenvectors w.r.t. B..."
                  << endl;
         }
-        DistMatrix<std::complex<double>,MC,MR> Z(g);
+        DistMatrix<complex<double>,MC,MR> Z(g);
         Z = X;
         if( shape == LOWER )
             basic::Trmm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<double>(1), B, Z );
+            ( LEFT, LOWER, ADJOINT, NON_UNIT, complex<double>(1), B, Z );
         else
             basic::Trmm
-            ( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<double>(1), B, Z );
+            ( LEFT, UPPER, NORMAL, NON_UNIT, complex<double>(1), B, Z );
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk
-        ( shape, ADJOINT, std::complex<double>(-1), Z, 
-          std::complex<double>(1), Y );
+        ( shape, ADJOINT, 
+          complex<double>(-1), Z, 
+          complex<double>(1), Y );
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
         infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
     }
     else if( eigType == ABX )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "  Testing for deviation of ABX from XW..." << endl;
         // Set Y := BX
-        DistMatrix<std::complex<double>,MC,MR> Y( g );
+        DistMatrix<complex<double>,MC,MR> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         basic::Hemm
-        ( LEFT, shape, std::complex<double>(1), BOrig, X, 
-          std::complex<double>(0), Y );
+        ( LEFT, shape, 
+          complex<double>(1), BOrig, X, 
+          complex<double>(0), Y );
         // Set Z := AY = ABX
-        DistMatrix<std::complex<double>,MC,MR> Z( n, k, g );
+        DistMatrix<complex<double>,MC,MR> Z( n, k, g );
         basic::Hemm
-        ( LEFT, shape, std::complex<double>(1), AOrig, Y, 
-          std::complex<double>(0), Z );
+        ( LEFT, shape, 
+          complex<double>(1), AOrig, Y, 
+          complex<double>(0), Z );
         // Set Z := Z - XW = ABX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocalEntry(jLocal,0); 
             for( int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
             {
-                const std::complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
-                const std::complex<double> zeta = 
+                const complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
+                const complex<double> zeta = 
                     Z.GetLocalEntry(iLocal,jLocal);
                 Z.SetLocalEntry(iLocal,jLocal,zeta-omega*chi);
             }
@@ -433,7 +438,7 @@ void TestCorrectnessDoubleComplex
         double oneNormOfError = advanced::Norm( Z, ONE_NORM );
         double infNormOfError = advanced::Norm( Z, INFINITY_NORM );
         double frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
                  << "    ||A||_F            = " << frobNormOfA << "\n"
@@ -451,48 +456,50 @@ void TestCorrectnessDoubleComplex
         Z = X;
         if( shape == LOWER )
             basic::Trmm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<double>(1), B, Z );
+            ( LEFT, LOWER, ADJOINT, NON_UNIT, complex<double>(1), B, Z );
         else
             basic::Trmm
-            ( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<double>(1), B, Z );
+            ( LEFT, UPPER, NORMAL, NON_UNIT, complex<double>(1), B, Z );
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk
-        ( shape, ADJOINT, std::complex<double>(-1), Z, 
-          std::complex<double>(1), Y );
+        ( shape, ADJOINT, 
+          complex<double>(-1), Z, 
+          complex<double>(1), Y );
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
         infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
     }
     else /* eigType == BAX */
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "  Testing for deviation of BAX from XW..." << endl;
         // Set Y := AX
-        DistMatrix<std::complex<double>,MC,MR> Y( g );
+        DistMatrix<complex<double>,MC,MR> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         basic::Hemm
-        ( LEFT, shape, std::complex<double>(1), AOrig, X, 
-          std::complex<double>(0), Y );
+        ( LEFT, shape, 
+          complex<double>(1), AOrig, X, 
+          complex<double>(0), Y );
         // Set Z := BY = BAX
-        DistMatrix<std::complex<double>,MC,MR> Z( n, k, g );
+        DistMatrix<complex<double>,MC,MR> Z( n, k, g );
         basic::Hemm
-        ( LEFT, shape, std::complex<double>(1), BOrig, Y, 
-          std::complex<double>(0), Z );
+        ( LEFT, shape, 
+          complex<double>(1), BOrig, Y, 
+          complex<double>(0), Z );
         // Set Z := Z - XW = BAX-XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocalEntry(jLocal,0); 
             for( int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
             {
-                const std::complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
-                const std::complex<double> zeta = 
-                    Z.GetLocalEntry(iLocal,jLocal);
+                const complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
+                const complex<double> zeta = Z.GetLocalEntry(iLocal,jLocal);
                 Z.SetLocalEntry(iLocal,jLocal,zeta-omega*chi);
             }
         }
@@ -511,7 +518,7 @@ void TestCorrectnessDoubleComplex
         double oneNormOfError = advanced::Norm( Z, ONE_NORM );
         double infNormOfError = advanced::Norm( Z, INFINITY_NORM );
         double frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
                  << "    ||A||_F            = " << frobNormOfA << "\n"
@@ -529,19 +536,20 @@ void TestCorrectnessDoubleComplex
         Z = X;
         if( shape == LOWER )
             basic::Trsm
-            ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<double>(1), B, Z );
+            ( LEFT, LOWER, NORMAL, NON_UNIT, complex<double>(1), B, Z );
         else
             basic::Trsm
-            ( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<double>(1), B, Z );
+            ( LEFT, UPPER, ADJOINT, NON_UNIT, complex<double>(1), B, Z );
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk
-        ( shape, ADJOINT, std::complex<double>(-1), Z, 
-          std::complex<double>(1), Y );
+        ( shape, ADJOINT, 
+          complex<double>(-1), Z, 
+          complex<double>(1), Y );
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
         infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "    ||X^H B^-1 X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B^-1 X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B^-1 X - I||_F  = " << frobNormOfError << endl;
@@ -577,14 +585,14 @@ void TestHermitianGenDefiniteEigDouble
 
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
         AOrig = A;
         BOrig = B;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -593,12 +601,12 @@ void TestHermitianGenDefiniteEigDouble
         B.Print("B");
     }
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Hermitian Generalized-Definite Eigensolver...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     if( onlyEigenvalues )
     {
@@ -623,10 +631,10 @@ void TestHermitianGenDefiniteEigDouble
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, X, vl, vu );
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds." << endl;
@@ -652,23 +660,24 @@ void TestHermitianGenDefiniteEigDoubleComplex
   int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<std::complex<double>,MC,MR  > A(m,m,g);
-    DistMatrix<std::complex<double>,MC,MR  > B(m,m,g);
-    DistMatrix<std::complex<double>,MC,MR  > AOrig(g);
-    DistMatrix<std::complex<double>,MC,MR  > BOrig(g);
-    DistMatrix<             double, VR,STAR> w(g);
-    DistMatrix<std::complex<double>,MC,MR  > X(g);
+    DistMatrix<complex<double>,MC,MR  > A(m,m,g);
+    DistMatrix<complex<double>,MC,MR  > B(m,m,g);
+    DistMatrix<complex<double>,MC,MR  > AOrig(g);
+    DistMatrix<complex<double>,MC,MR  > BOrig(g);
+    DistMatrix<        double, VR,STAR> w(g);
+    DistMatrix<complex<double>,MC,MR  > X(g);
 
     A.SetToRandomHPD();
     if( eigType == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
-        DistMatrix<std::complex<double>,MC,MR> C(m,m,g);
+        DistMatrix<complex<double>,MC,MR> C(m,m,g);
         C.SetToRandom();
         basic::Herk
         ( shape, ADJOINT, 
-          std::complex<double>(1), C, std::complex<double>(0), B );
+          complex<double>(1), C, 
+          complex<double>(0), B );
     }
     else
     {
@@ -677,14 +686,14 @@ void TestHermitianGenDefiniteEigDoubleComplex
 
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copies of original matrices...";
             cout.flush();
         }
         AOrig = A;
         BOrig = B;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -693,12 +702,12 @@ void TestHermitianGenDefiniteEigDoubleComplex
         B.Print("B");
     }
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting Hermitian Generalized-Definite Eigensolver...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     if( onlyEigenvalues )
     {
@@ -724,10 +733,10 @@ void TestHermitianGenDefiniteEigDoubleComplex
             advanced::HermitianGenDefiniteEig
             ( eigType, shape, A, B, w, X, vl, vu );
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds." << endl;
@@ -770,7 +779,7 @@ main( int argc, char* argv[] )
         const bool onlyEigenvalues = atoi(argv[++argNum]);
         const char range = *argv[++argNum];
         if( range != 'A' && range != 'I' && range != 'V' )
-            throw std::runtime_error("'range' must be 'A', 'I', or 'V'");
+            throw runtime_error("'range' must be 'A', 'I', or 'V'");
         double vl = 0, vu = 0;
         int il = 0, iu = 0;
         if( range == 'I' )
@@ -798,7 +807,7 @@ main( int argc, char* argv[] )
             cout << "Cannot test correctness with only eigenvalues." << endl;
 
         HermitianGenDefiniteEigType eigType;
-        std::string eigTypeString;
+        string eigTypeString;
         if( eigInt == 1 )
         {
             eigType = AXBX;
@@ -815,8 +824,8 @@ main( int argc, char* argv[] )
             eigTypeString = "BAX";
         }
         else
-            throw std::runtime_error
-                  ( "Invalid HermitianGenDefiniteEigType, choose from {1,2,3}" );
+            throw runtime_error
+            ("Invalid HermitianGenDefiniteEigType, choose from {1,2,3}");
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -829,7 +838,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         basic::SetLocalSymvBlocksize<double>( nbLocalSymv );
 #ifndef WITHOUT_COMPLEX
-        basic::SetLocalHemvBlocksize< std::complex<double> >( nbLocalSymv );
+        basic::SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
 #endif
 
         if( rank == 0 )

@@ -87,7 +87,7 @@ void TestCorrectness
             F oneNormOfError = advanced::Norm( Z, ONE_NORM );
             F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
             F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
-            if( g.VCRank() == 0 )
+            if( g.Rank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo     = "
                      << Abs(infNormOfAOrig) << "\n"
@@ -123,7 +123,7 @@ void TestCorrectness
             F oneNormOfError = advanced::Norm( Z, ONE_NORM );
             F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
             F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
-            if( g.VCRank() == 0 )
+            if( g.Rank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo     = "
                      << Abs(infNormOfAOrig) << "\n"
@@ -164,7 +164,7 @@ void TestCorrectness
             F oneNormOfError = advanced::Norm( Z, ONE_NORM );
             F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
             F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
-            if( g.VCRank() == 0 )
+            if( g.Rank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo = "
                      << Abs(infNormOfAOrig) << "\n"
@@ -202,7 +202,7 @@ void TestCorrectness
             F oneNormOfError = advanced::Norm( Z, ONE_NORM );
             F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
             F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
-            if( g.VCRank() == 0 )
+            if( g.Rank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo = "
                      << Abs(infNormOfAOrig) << "\n"
@@ -253,13 +253,13 @@ void TestHegst
     B.MakeTrapezoidal( LEFT, shape );
     if( testCorrectness )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         AOrig = A;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
     if( printMatrices )
@@ -268,19 +268,19 @@ void TestHegst
         B.Print("B");
     }
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting reduction to Hermitian standard EVP...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::Hegst( side, shape, A, B );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = advanced::internal::HegstGFlops<F>( m, runTime );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = "

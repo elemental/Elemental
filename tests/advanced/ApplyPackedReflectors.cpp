@@ -65,7 +65,7 @@ void TestCorrectness
     const Grid& g = H.Grid();
     const int m = H.Height();
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "  Testing orthogonality of transform..." << endl;
 
     // Form Z := Q^H Q or Q^H Q as an approximation to identity
@@ -111,7 +111,7 @@ void TestCorrectness
     R oneNormOfError = advanced::Norm( X, ONE_NORM );
     R infNormOfError = advanced::Norm( X, INFINITY_NORM );
     R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         if( order == FORWARD )
         {
@@ -145,7 +145,7 @@ void TestCorrectness
     const Grid& g = H.Grid();
     const int m = H.Height();
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
         cout << "  Testing orthogonality of transform..." << endl;
 
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
@@ -192,7 +192,7 @@ void TestCorrectness
     R oneNormOfError = advanced::Norm( X, ONE_NORM );
     R infNormOfError = advanced::Norm( X, INFINITY_NORM );
     R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         if( order == FORWARD )
         {
@@ -239,20 +239,20 @@ void TestUT<double>
         A.Print("A");
     }
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting UT transform...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::ApplyPackedReflectors
     ( side, shape, VERTICAL, order, offset, H, A );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = advanced::internal::ApplyPackedReflectorsGFlops<R>( m, runTime );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -318,20 +318,20 @@ void TestUT< complex<double> >
         t.Print("t");
     }
 
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "  Starting UT transform...";
         cout.flush();
     }
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::ApplyPackedReflectors
     ( side, shape, VERTICAL, order, conjugation, offset, H, t, A );
-    mpi::Barrier( g.VCComm() );
+    mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     gFlops = advanced::internal::ApplyPackedReflectorsGFlops<C>( m, runTime );
-    if( g.VCRank() == 0 )
+    if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds. GFlops = " 
@@ -379,17 +379,11 @@ main( int argc, char* argv[] )
         const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
         if( shape == LOWER && offset > 0 )
-        {
-            throw std::runtime_error
-                  ("The offset cannot be positive if the transforms are in "
-                   "the lower triangle.");
-        }
+            throw runtime_error
+            ("Offset cannot be positive if transforms are in lower triangle");
         else if( shape == UPPER && offset < 0 )
-        {
-            throw std::runtime_error
-                  ("The offset cannot be negative if the transforms are in "
-                   "the upper triangle.");
-        }
+            throw runtime_error
+            ("Offset cannot be negative if transforms are in upper triangle");
 #ifndef RELEASE
         if( rank == 0 )
         {

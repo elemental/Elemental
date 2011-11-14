@@ -197,7 +197,7 @@ distributed matrix, sets it to the identity matrix, then prints it:
               else
                   std::cout << " process.\n" << std::endl;
           }
-          DistMatrix<double,MC,MR> I( n, n );
+          DistMatrix<double> I( n, n );
           I.SetToIdentity();
           I.Print("Identity");
 

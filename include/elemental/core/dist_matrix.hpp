@@ -40,7 +40,7 @@ namespace elemental {
 template<typename T>
 class AbstractDistMatrix;
 
-template<typename T, Distribution ColDist, Distribution RowDist>
+template<typename T, Distribution ColDist=MC, Distribution RowDist=MR>
 class DistMatrix;
 
 }

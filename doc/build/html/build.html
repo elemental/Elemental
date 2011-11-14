@@ -238,7 +238,7 @@ distributed matrix, sets it to the identity matrix, then prints it:</p>
         <span class="k">else</span>
             <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; process.</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
     <span class="p">}</span>
-    <span class="n">DistMatrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="n">MC</span><span class="p">,</span><span class="n">MR</span><span class="o">&gt;</span> <span class="n">I</span><span class="p">(</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span> <span class="p">);</span>
+    <span class="n">DistMatrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">I</span><span class="p">(</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span> <span class="p">);</span>
     <span class="n">I</span><span class="p">.</span><span class="n">SetToIdentity</span><span class="p">();</span>
     <span class="n">I</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;Identity&quot;</span><span class="p">);</span>
 
