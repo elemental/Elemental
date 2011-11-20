@@ -28,7 +28,7 @@
     <link rel="top" title="Elemental 0.71 documentation" href="../index.html" />
     <link rel="up" title="Core functionality" href="../core.html" />
     <link rel="next" title="The Grid class" href="grid.html" />
-    <link rel="prev" title="Core functionality" href="../core.html" /> 
+    <link rel="prev" title="Environment" href="environment.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,7 +41,7 @@
           <a href="grid.html" title="The Grid class"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../core.html" title="Core functionality"
+          <a href="environment.html" title="Environment"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
           <li><a href="../core.html" accesskey="U">Core functionality</a> &raquo;</li> 
@@ -158,7 +158,7 @@ dimension of one (BLAS and LAPACK require positive leading dimensions).</p>
 <dl class="function">
 <dt id="Matrix:T:::Matrix__i.i">
  <tt class="descname">Matrix</tt><big>(</big>int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <em>height</em> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em> matrix is created with an unspecified
+<dd><p>A <cite>height</cite> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <cite>width</cite> matrix is created with an unspecified
 leading dimension (though it is currently implemented as
 <tt class="docutils literal"><span class="pre">std::max(height,1)</span></tt>).</p>
 </dd></dl>
@@ -166,8 +166,8 @@ leading dimension (though it is currently implemented as
 <dl class="function">
 <dt id="Matrix:T:::Matrix__i.i.i">
  <tt class="descname">Matrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::Matrix__i.i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <em>height</em> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em> matrix is created with a leading
-dimension equal to <em>ldim</em> (which must be greater than or equal
+<dd><p>A <cite>height</cite> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <cite>width</cite> matrix is created with a leading
+dimension equal to <cite>ldim</cite> (which must be greater than or equal
 <tt class="docutils literal"><span class="pre">std::min(height,1)</span></tt>).</p>
 </dd></dl>
 
@@ -258,8 +258,8 @@ const T* <tt class="descname">LockedBuffer</tt><big>(</big>int <em>i</em>, int <
 <dl class="function">
 <dt id="Matrix:T:::Buffer__i.i.i.i">
 T* <tt class="descname">Buffer</tt><big>(</big>int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::Buffer__i.i.i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as the version without <em>height</em> and <em>width</em>, but in <strong>Debug</strong> modes
-it will ensure that the <em>height</em> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em> submatrix starting
+<dd><p>Same as the version without <cite>height</cite> and <cite>width</cite>, but in <strong>Debug</strong> modes
+it will ensure that the <cite>height</cite> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <cite>width</cite> submatrix starting
 at entry <img class="math" src="../_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/> does not go out of bounds.</p>
 </dd></dl>
 
@@ -448,7 +448,7 @@ void <tt class="descname">LockedView</tt><big>(</big>const Matrix&lt;T&gt;&amp; 
 <dt id="Matrix:T:::View__Matrix:T:R.i.i.i.i">
 void <tt class="descname">View</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>A</em>, int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::View__Matrix:T:R.i.i.i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix around the modifiable buffer underlying <tt class="docutils literal"><span class="pre">A</span></tt>, but
-only the portion that holds the <em>height</em> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em> submatrix
+only the portion that holds the <cite>height</cite> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <cite>width</cite> submatrix
 starting at entry <tt class="docutils literal"><span class="pre">(i,j)</span></tt></p>
 </dd></dl>
 
@@ -519,14 +519,14 @@ void <tt class="descname">Empty</tt><big>(</big><big>)</big><a class="headerlink
 <dl class="function">
 <dt id="Matrix:T:::ResizeTo__i.i">
 void <tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::ResizeTo__i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reconfigures the matrix to be <em>height</em> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em>.</p>
+<dd><p>Reconfigures the matrix to be <cite>height</cite> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <cite>width</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Matrix:T:::ResizeTo__i.i.i">
 void <tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>ldim</em><big>)</big><a class="headerlink" href="#Matrix:T:::ResizeTo__i.i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reconfigures the matrix to be <em>height</em> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em>, but with
-leading dimension equal to <em>ldim</em> (which must be greater than or equal to
+<dd><p>Reconfigures the matrix to be <cite>height</cite> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <cite>width</cite>, but with
+leading dimension equal to <cite>ldim</cite> (which must be greater than or equal to
 <tt class="docutils literal"><span class="pre">std::min(height,1)</span></tt>).</p>
 </dd></dl>
 
@@ -565,8 +565,8 @@ void <tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="header
               <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
             </a></p>
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../core.html"
-                        title="previous chapter">Core functionality</a></p>
+  <p class="topless"><a href="environment.html"
+                        title="previous chapter">Environment</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="grid.html"
                         title="next chapter">The Grid class</a></p>
@@ -602,7 +602,7 @@ void <tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="header
           <a href="grid.html" title="The Grid class"
              >next</a> |</li>
         <li class="right" >
-          <a href="../core.html" title="Core functionality"
+          <a href="environment.html" title="Environment"
              >previous</a> |</li>
         <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
           <li><a href="../core.html" >Core functionality</a> &raquo;</li> 

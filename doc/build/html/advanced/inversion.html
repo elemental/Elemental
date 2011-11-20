@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Explicit inversion &mdash; Elemental 0.71 documentation</title>
+    <title>In-place inversion &mdash; Elemental 0.71 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -53,19 +53,58 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="explicit-inversion">
-<h1>Explicit inversion<a class="headerlink" href="#explicit-inversion" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="in-place-inversion">
+<h1>In-place inversion<a class="headerlink" href="#in-place-inversion" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="general-inversion">
 <h2>General inversion<a class="headerlink" href="#general-inversion" title="Permalink to this headline">¶</a></h2>
 <p>Not yet written, but relatively trivial and planned.</p>
 </div>
 <div class="section" id="hpd-inversion">
 <h2>HPD inversion<a class="headerlink" href="#hpd-inversion" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::HPDInverse</span></tt> here.</p>
+<p>This routine uses a custom algorithm for computing the inverse of a
+Hermitian positive-definite matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> as</p>
+<div class="math">
+<p><img src="../_images/math/2fbf1af98250da6bc759d638325f09a369b35849.png" alt="\[
+A^{-1} = (L L^H)^{-1} = L^{-H} L^{-1},
+\]"/></p>
+</div><p>where <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> is the lower Cholesky factor of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> (the upper Cholesky
+factor is computed in the case of upper-triangular storage). Rather than
+performing Cholesky factorization, triangular inversion, and then the Hermitian
+triangular outer product in sequence, this routine makes use of the single-sweep
+algorithm described in Bientinesi et al.&#8217;s &#8220;Families of algorithms related to the
+inversion of a symmetric positive definite matrix&#8221;, in particular, the variant 2
+algorithm from Fig. 9.</p>
+<p>If the matrix is found to not be HPD, then a <tt class="docutils literal"><span class="pre">NonHPDMatrixException</span></tt> is thrown.</p>
+<dl class="function">
+<dt id="advanced::HPDInverse__Shape.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">HPDInverse</tt><big>(</big>Shape <em>shape</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HPDInverse__Shape.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the <cite>shape</cite> triangle of the HPD matrix <cite>A</cite> with the same
+triangle of the inverse of <cite>A</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::HPDInverse__Shape.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">HPDInverse</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HPDInverse__Shape.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but for a distributed matrix.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="triangular-inversion">
 <h2>Triangular inversion<a class="headerlink" href="#triangular-inversion" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::TriangularInverse</span></tt> here.</p>
+<p>Inverts a (possibly unit-diagonal) triangular matrix in-place.</p>
+<dl class="function">
+<dt id="advanced::TriangularInverse__Shape.Diagonal.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">TriangularInverse</tt><big>(</big>Shape <em>shape</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::TriangularInverse__Shape.Diagonal.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inverts the triangle of <cite>A</cite> specified by the parameter <cite>shape</cite>;
+if <cite>diagonal</cite> is set to <cite>UNIT</cite>, then <cite>A</cite> is treated as unit-diagonal.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::TriangularInverse__Shape.Diagonal.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">TriangularInverse</tt><big>(</big>Shape <em>shape</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::TriangularInverse__Shape.Diagonal.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but for a distributed matrix.</p>
+</dd></dl>
+
 </div>
 </div>
 
@@ -80,7 +119,7 @@
             </a></p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Explicit inversion</a><ul>
+<li><a class="reference internal" href="#">In-place inversion</a><ul>
 <li><a class="reference internal" href="#general-inversion">General inversion</a></li>
 <li><a class="reference internal" href="#hpd-inversion">HPD inversion</a></li>
 <li><a class="reference internal" href="#triangular-inversion">Triangular inversion</a></li>

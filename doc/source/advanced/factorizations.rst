@@ -11,11 +11,11 @@ a ``NonHPDMatrixException`` will be thrown.
 
 .. cpp:function:: void advanced::Cholesky( Shape shape, Matrix<F>& A )
 
-   Overwrite the ``shape`` triangle of the HPD matrix `A` with its Cholesky factor.
+   Overwrite the `shape` triangle of the HPD matrix `A` with its Cholesky factor.
 
 .. cpp:function:: void advanced::Cholesky( Shape shape, DistMatrix<F,MC,MR>& A )
 
-   Overwrite the ``shape`` triangle of the distributed HPD matrix ``A`` with its 
+   Overwrite the `shape` triangle of the distributed HPD matrix `A` with its 
    Cholesky factor.
 
 :math:`LDL^H` factorization
@@ -36,7 +36,7 @@ be numerically singular, then a ``SingularMatrixException`` will be thrown.
    Overwrite the strictly lower triangle of :math:`A` with the strictly lower 
    portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
    the diagonal with :math:`D`, and then also return the diagonal of :math:`D` 
-   in the vector ``d``. 
+   in the vector `d`. 
 
 .. cpp:function:: void advanced::LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 
@@ -57,7 +57,7 @@ be numerically singular, then a ``SingularMatrixException`` will be thrown.
    Overwrite the strictly lower triangle of :math:`A` with the strictly lower 
    portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
    the diagonal with :math:`D`, and then also return the diagonal of :math:`D` 
-   in the vector ``d``. 
+   in the vector `d`. 
 
 .. cpp:function:: void advanced::LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 
@@ -93,12 +93,12 @@ and :math:`U` are as described above and :math:`P` is a permutation matrix.
 .. cpp:function:: void advanced::LU( Matrix<F>& A, Matrix<int>& p )
 
    Ovewrites :math:`A` with the LU decomposition of :math:`PA`, where 
-   :math:`P` is represented by the pivot vector ``p``.
+   :math:`P` is represented by the pivot vector `p`.
 
 .. cpp:function:: void advanced::LU( DistMatrix<F,MC,MR>& A, DistMatrix<F,VC,STAR>& p )
 
    Overwrites the distributed matrix :math:`A` with the LU decomposition of 
-   :math:`PA`, where :math:`P` is represented by the pivot vector ``p``.
+   :math:`PA`, where :math:`P` is represented by the pivot vector `p`.
 
 :math:`LQ` factorization
 ------------------------
@@ -123,7 +123,7 @@ trapezoid.
    Overwrite the complex distributed matrix :math:`A` with :math:`L` and the 
    Householder reflectors representing :math:`\hat Q`; unlike the real case, 
    phase information is needed in order to define the (generalized) 
-   Householder transformations and is stored in the column vector ``t``.
+   Householder transformations and is stored in the column vector `t`.
 
 :math:`QR` factorization
 ------------------------
@@ -148,5 +148,5 @@ trapezoid.
    Overwrite the complex distributed matrix :math:`A` with :math:`R` and the 
    Householder reflectors representing :math:`\hat Q`; unlike the real case, 
    phase information is needed in order to define the (generalized) 
-   Householder transformations and is stored in the column vector ``t``.
+   Householder transformations and is stored in the column vector `t`.
 

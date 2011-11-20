@@ -249,7 +249,7 @@ to be available for all matrix distributions.
 
    .. cpp:function:: void ResizeTo( int height, int width )
 
-      Reconfigure the matrix so that it is *height* :math:`\times` *width*.
+      Reconfigure the matrix so that it is `height` :math:`\times` `width`.
 
    .. cpp:function:: void SetGrid( const elemental::Grid& grid )
 

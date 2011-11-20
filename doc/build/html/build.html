@@ -288,8 +288,71 @@ a single process.</p>
 </div>
 <div class="section" id="elemental-as-a-subproject">
 <h2>Elemental as a subproject<a class="headerlink" href="#elemental-as-a-subproject" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Describe the convenient mechanism for building a project on top of
-Elemental&#8217;s <tt class="docutils literal"><span class="pre">CMakeLists.txt</span></tt>.</p>
+<p>Building your project, say <tt class="docutils literal"><span class="pre">Foo</span></tt>, with Elemental as a dependency is reasonably
+straightforward: simply put an entire copy of the Elemental source tree in a
+subdirectory of your main project folder, say <tt class="docutils literal"><span class="pre">external/elemental</span></tt>, and uncomment
+out the bottom section of Elemental&#8217;s <tt class="docutils literal"><span class="pre">CMakeLists.txt</span></tt>, i.e., change</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Simplify the inclusion of Elemental as a subproject in another build system</span>
+<span class="c">#</span>
+<span class="c">#set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)</span>
+<span class="c">#set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)</span>
+<span class="c">#set(MPI_C_COMPILE_FLAGS ${MPI_C_COMPILE_FLAGS} PARENT_SCOPE)</span>
+<span class="c">#set(MPI_C_LINK_FLAGS ${MPI_C_LINK_FLAGS} PARENT_SCOPE)</span>
+<span class="c">#set(MPI_C_LIBRARIES ${MPI_C_LIBRARIES} PARENT_SCOPE)</span>
+<span class="c">#set(MPI_CXX_COMPILER ${MPI_CXX_COMPILER} PARENT_SCOPE)</span>
+<span class="c">#set(MPI_CXX_INCLUDE_PATH ${MPI_CXX_INCLUDE_PATH} PARENT_SCOPE)</span>
+<span class="c">#set(MPI_CXX_COMPILE_FLAGS ${MPI_CXX_COMPILE_FLAGS} PARENT_SCOPE)</span>
+<span class="c">#set(MPI_CXX_LINK_FLAGS ${MPI_CXX_LINK_FLAGS} PARENT_SCOPE)</span>
+<span class="c">#set(MPI_CXX_LIBRARIES ${MPI_CXX_LIBRARIES} PARENT_SCOPE)</span>
+<span class="c">#set(MATH_LIBS ${MATH_LIBS} PARENT_SCOPE)</span>
+<span class="c">#set(RESTRICT ${RESTRICT} PARENT_SCOPE)</span>
+<span class="c">#set(RELEASE ${RELEASE} PARENT_SCOPE)</span>
+<span class="c">#set(BLAS_POST ${BLAS_POST} PARENT_SCOPE)</span>
+<span class="c">#set(LAPACK_POST ${LAPACK_POST} PARENT_SCOPE)</span>
+<span class="c">#set(WITHOUT_PMRRR ${WITHOUT_PMRRR} PARENT_SCOPE)</span>
+<span class="c">#set(DISABLE_SCALAR_WRAPPER ${DISABLE_SCALAR_WRAPPER} PARENT_SCOPE)</span>
+<span class="c">#set(WITHOUT_COMPLEX ${WITHOUT_COMPLEX} PARENT_SCOPE)</span>
+<span class="c">#set(AVOID_COMPLEX_MPI ${AVOID_COMPLEX_MPI} PARENT_SCOPE)</span>
+<span class="c">#set(USE_BYTE_ALLGATHERS ${USE_BYTE_ALLGATHERS} PARENT_SCOPE)</span>
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-python"><pre># Simplify the inclusion of Elemental as a subproject in another build system
+set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
+set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)
+set(MPI_C_COMPILE_FLAGS ${MPI_C_COMPILE_FLAGS} PARENT_SCOPE)
+set(MPI_C_LINK_FLAGS ${MPI_C_LINK_FLAGS} PARENT_SCOPE)
+set(MPI_C_LIBRARIES ${MPI_C_LIBRARIES} PARENT_SCOPE)
+set(MPI_CXX_COMPILER ${MPI_CXX_COMPILER} PARENT_SCOPE)
+set(MPI_CXX_INCLUDE_PATH ${MPI_CXX_INCLUDE_PATH} PARENT_SCOPE)
+set(MPI_CXX_COMPILE_FLAGS ${MPI_CXX_COMPILE_FLAGS} PARENT_SCOPE)
+set(MPI_CXX_LINK_FLAGS ${MPI_CXX_LINK_FLAGS} PARENT_SCOPE)
+set(MPI_CXX_LIBRARIES ${MPI_CXX_LIBRARIES} PARENT_SCOPE)
+set(MATH_LIBS ${MATH_LIBS} PARENT_SCOPE)
+set(RESTRICT ${RESTRICT} PARENT_SCOPE)
+set(RELEASE ${RELEASE} PARENT_SCOPE)
+set(BLAS_POST ${BLAS_POST} PARENT_SCOPE)
+set(LAPACK_POST ${LAPACK_POST} PARENT_SCOPE)
+set(WITHOUT_PMRRR ${WITHOUT_PMRRR} PARENT_SCOPE)
+set(DISABLE_SCALAR_WRAPPER ${DISABLE_SCALAR_WRAPPER} PARENT_SCOPE)
+set(WITHOUT_COMPLEX ${WITHOUT_COMPLEX} PARENT_SCOPE)
+set(AVOID_COMPLEX_MPI ${AVOID_COMPLEX_MPI} PARENT_SCOPE)
+set(USE_BYTE_ALLGATHERS ${USE_BYTE_ALLGATHERS} PARENT_SCOPE)</pre>
+</div>
+<p>Afterwards, create a <tt class="docutils literal"><span class="pre">CMakeLists.txt</span></tt> in your main project folder that builds
+off of the following snippet:</p>
+<div class="highlight-python"><pre>cmake_minimum_required(VERSION 2.8.5)
+project(Foo)
+
+add_subdirectory(external/elemental)
+include_directories("${PROJECT_BINARY_DIR}/external/elemental/include")
+include_directories(${MPI_CXX_INCLUDE_PATH})
+
+# Build your project here
+# e.g.,
+#   add_library(foo STATIC ${FOO_SRC})
+#   target_link_libraries(foo elemental)</pre>
+</div>
 </div>
 <div class="section" id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>

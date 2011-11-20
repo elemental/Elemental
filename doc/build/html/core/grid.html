@@ -75,7 +75,7 @@ mpi::COMM_WORLD is used.</p>
  <tt class="descname">Grid</tt><big>(</big><a class="reference internal" href="../imports/mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm.i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a process grid over the specified communicator with the
 given dimensions. Note that the size of the communicator should be
-<em>height</em> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>width</em>.</p>
+<cite>height</cite> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <cite>width</cite>.</p>
 </dd></dl>
 
 <p class="rubric">Basic information</p>
@@ -90,7 +90,7 @@ grid.</p>
 <dt id="Grid::SizeC">
 int <tt class="descname">Size</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::SizeC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of active processes in the process grid. This number
-is equal to <em>Height()</em> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <em>Width()</em>.</p>
+is equal to <tt class="docutils literal"><span class="pre">Height()</span></tt> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <tt class="docutils literal"><span class="pre">Width()</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -130,28 +130,28 @@ simplicity.</p>
 <dl class="function">
 <dt id="Grid::MCRankC">
 int <tt class="descname">MCRank</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::MCRankC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return our process&#8217;s rank in the <em>MC</em> (Matrix Column) communicator. This
+<dd><p>Return our process&#8217;s rank in the <tt class="docutils literal"><span class="pre">MC</span></tt> (Matrix Column) communicator. This
 corresponds to our row in the process grid.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Grid::MRRankC">
 int <tt class="descname">MRRank</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::MRRankC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return our process&#8217;s rank in the <em>MR</em> (Matrix Row) communicator. This
+<dd><p>Return our process&#8217;s rank in the <tt class="docutils literal"><span class="pre">MR</span></tt> (Matrix Row) communicator. This
 corresponds to our column in the process grid.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Grid::VCRankC">
 int <tt class="descname">VCRank</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::VCRankC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return our process&#8217;s rank in the <em>VC</em> (Vector Column) communicator. This
+<dd><p>Return our process&#8217;s rank in the <tt class="docutils literal"><span class="pre">VC</span></tt> (Vector Column) communicator. This
 corresponds to our rank in a column-major ordering of the process grid.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Grid::VRRankC">
 int <tt class="descname">VRRank</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::VRRankC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return our process&#8217;s rank in the <em>VR</em> (Vector Row) communicator. This
+<dd><p>Return our process&#8217;s rank in the <tt class="docutils literal"><span class="pre">VR</span></tt> (Vector Row) communicator. This
 corresponds to our rank in a row-major ordering of the process grid.</p>
 </dd></dl>
 
@@ -166,28 +166,28 @@ for simplicity.</p>
 <dl class="function">
 <dt id="Grid::MCCommC">
 <a class="reference internal" href="../imports/mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">MCComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::MCCommC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>MC</em> (Matrix Column) communicator. This consists of the set
+<dd><p>Return the <tt class="docutils literal"><span class="pre">MC</span></tt> (Matrix Column) communicator. This consists of the set
 of processes within our column of the grid (ordered top-to-bottom).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Grid::MRCommC">
 <a class="reference internal" href="../imports/mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">MRComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::MRCommC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>MR</em> (Matrix Row) communicator. This consists of the set of
+<dd><p>Return the <tt class="docutils literal"><span class="pre">MR</span></tt> (Matrix Row) communicator. This consists of the set of
 processes within our row of the grid (ordered left-to-right).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Grid::VCCommC">
 <a class="reference internal" href="../imports/mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">VCComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::VCCommC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>VC</em> (Vector Column) communicator. This consists of the entire
+<dd><p>Return the <tt class="docutils literal"><span class="pre">VC</span></tt> (Vector Column) communicator. This consists of the entire
 set of processes in the grid, but ordered in a column-major fashion.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Grid::VRCommC">
 <a class="reference internal" href="../imports/mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <tt class="descname">VRComm</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Grid::VRCommC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>VR</em> (Vector Row) communicator. This consists of the entire
+<dd><p>Return the <tt class="docutils literal"><span class="pre">VR</span></tt> (Vector Row) communicator. This consists of the entire
 set of processes in the grid, but ordered in a row-major fashion.</p>
 </dd></dl>
 
@@ -197,9 +197,9 @@ set of processes in the grid, but ordered in a row-major fashion.</p>
  <tt class="descname">Grid</tt><big>(</big><a class="reference internal" href="../imports/mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>viewingComm</em>, <a class="reference internal" href="../imports/mpi.html#mpi::Group" title="mpi::Group">mpi::Group</a> <em>owningGroup</em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm.mpi::Group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a process grid where only a subset of the participating
 processes should actively participate in the process grid. In particular,
-<em>viewingComm</em> should consist of the set of all processes constructing
-this <tt class="docutils literal"><span class="pre">Grid</span></tt> instance, and <em>owningGroup</em> should define a subset of the
-processes in <em>viewingComm</em>. Elemental then chooses the grid dimensions.
+<cite>viewingComm</cite> should consist of the set of all processes constructing
+this <tt class="docutils literal"><span class="pre">Grid</span></tt> instance, and <cite>owningGroup</cite> should define a subset of the
+processes in <cite>viewingComm</cite>. Elemental then chooses the grid dimensions.
 Most users should not call this routine, as this type of grid is only
 supported for a few <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> types.</p>
 </dd></dl>
@@ -208,8 +208,8 @@ supported for a few <tt class="docutils literal"><span class="pre">DistMatrix</s
 <dt id="Grid::Grid__mpi::Comm.mpi::Group.i.i">
  <tt class="descname">Grid</tt><big>(</big><a class="reference internal" href="../imports/mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>viewingComm</em>, <a class="reference internal" href="../imports/mpi.html#mpi::Group" title="mpi::Group">mpi::Group</a> <em>owningGroup</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Grid::Grid__mpi::Comm.mpi::Group.i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the same as the previous routine, but the process grid dimensions
-are explicitly specified, and it is required that <em>height</em> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/>
-<em>width</em> equals the size of <em>owningGroup</em>. Most users should not call this
+are explicitly specified, and it is required that <cite>height</cite> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/>
+<cite>width</cite> equals the size of <cite>owningGroup</cite>. Most users should not call this
 routine, as it is only supported for a few <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> types.</p>
 </dd></dl>
 

@@ -19,7 +19,7 @@ soon-to-be-discussed ``DistMatrix`` class).
 
       Construct a process grid over the specified communicator with the 
       given dimensions. Note that the size of the communicator should be 
-      *height* :math:`\times` *width*.
+      `height` :math:`\times` `width`.
 
    .. rubric:: Basic information
 
@@ -31,7 +31,7 @@ soon-to-be-discussed ``DistMatrix`` class).
    .. cpp:function:: int Size() const
 
       Return the number of active processes in the process grid. This number 
-      is equal to *Height()* :math:`\times` *Width()*.
+      is equal to ``Height()`` :math:`\times` ``Width()``.
 
    .. cpp:function:: int Height() const
 
@@ -59,22 +59,22 @@ soon-to-be-discussed ``DistMatrix`` class).
 
    .. cpp:function:: int MCRank() const
 
-      Return our process's rank in the *MC* (Matrix Column) communicator. This 
+      Return our process's rank in the ``MC`` (Matrix Column) communicator. This 
       corresponds to our row in the process grid.
 
    .. cpp:function:: int MRRank() const
      
-      Return our process's rank in the *MR* (Matrix Row) communicator. This
+      Return our process's rank in the ``MR`` (Matrix Row) communicator. This
       corresponds to our column in the process grid.
 
    .. cpp:function:: int VCRank() const
 
-      Return our process's rank in the *VC* (Vector Column) communicator. This
+      Return our process's rank in the ``VC`` (Vector Column) communicator. This
       corresponds to our rank in a column-major ordering of the process grid.
 
    .. cpp:function:: int VRRank() const
 
-      Return our process's rank in the *VR* (Vector Row) communicator. This 
+      Return our process's rank in the ``VR`` (Vector Row) communicator. This 
       corresponds to our rank in a row-major ordering of the process grid.
 
    .. cpp:function:: mpi::Comm Comm() const
@@ -85,22 +85,22 @@ soon-to-be-discussed ``DistMatrix`` class).
 
    .. cpp:function:: mpi::Comm MCComm() const
 
-      Return the *MC* (Matrix Column) communicator. This consists of the set
+      Return the ``MC`` (Matrix Column) communicator. This consists of the set
       of processes within our column of the grid (ordered top-to-bottom).
 
    .. cpp:function:: mpi::Comm MRComm() const
 
-      Return the *MR* (Matrix Row) communicator. This consists of the set of
+      Return the ``MR`` (Matrix Row) communicator. This consists of the set of
       processes within our row of the grid (ordered left-to-right).
 
    .. cpp:function:: mpi::Comm VCComm() const
 
-      Return the *VC* (Vector Column) communicator. This consists of the entire
+      Return the ``VC`` (Vector Column) communicator. This consists of the entire
       set of processes in the grid, but ordered in a column-major fashion.
 
    .. cpp:function:: mpi::Comm VRComm() const
 
-      Return the *VR* (Vector Row) communicator. This consists of the entire 
+      Return the ``VR`` (Vector Row) communicator. This consists of the entire 
       set of processes in the grid, but ordered in a row-major fashion.
 
    .. rubric:: Advanced routines
@@ -109,17 +109,17 @@ soon-to-be-discussed ``DistMatrix`` class).
 
       Construct a process grid where only a subset of the participating 
       processes should actively participate in the process grid. In particular,
-      *viewingComm* should consist of the set of all processes constructing 
-      this ``Grid`` instance, and *owningGroup* should define a subset of the
-      processes in *viewingComm*. Elemental then chooses the grid dimensions. 
+      `viewingComm` should consist of the set of all processes constructing 
+      this ``Grid`` instance, and `owningGroup` should define a subset of the
+      processes in `viewingComm`. Elemental then chooses the grid dimensions. 
       Most users should not call this routine, as this type of grid is only 
       supported for a few ``DistMatrix`` types.
 
    .. cpp:function:: Grid( mpi::Comm viewingComm, mpi::Group owningGroup, int height, int width )
 
       This is the same as the previous routine, but the process grid dimensions
-      are explicitly specified, and it is required that *height* :math:`\times`
-      *width* equals the size of *owningGroup*. Most users should not call this
+      are explicitly specified, and it is required that `height` :math:`\times`
+      `width` equals the size of `owningGroup`. Most users should not call this
       routine, as it is only supported for a few ``DistMatrix`` types.
 
    .. cpp:function:: int OwningRank() const

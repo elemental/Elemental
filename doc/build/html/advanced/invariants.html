@@ -84,34 +84,33 @@ in order to efficiently compute the determinant.</p>
 <dl class="function">
 <dt id="advanced::Determinant__Matrix:F:R">
 F <tt class="descclassname">advanced::</tt><tt class="descname">Determinant</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Determinant__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the determinant of the square matrix <tt class="docutils literal"><span class="pre">A</span></tt>, which is overwritten
+<dd><p>Returns the determinant of the square matrix <cite>A</cite>, which is overwritten
 during the computation.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="advanced::Determinant__DistMatrix:F.MC.MR:R">
 F <tt class="descclassname">advanced::</tt><tt class="descname">Determinant</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Determinant__DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the determinant of the square distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt>, which is
-overwritten during the computation.</p>
+<dd><p>Same as above, but for a distributed matrix.</p>
 </dd></dl>
 
 <dl class="type">
 <dt id="SafeProduct:F:__struct">
 <em class="property">type </em>struct <tt class="descname">SafeProduct&lt;F&gt;</tt><a class="headerlink" href="#SafeProduct:F:__struct" title="Permalink to this definition">¶</a></dt>
-<dd><p>Represents the product of <tt class="docutils literal"><span class="pre">n</span></tt> values as <img class="math" src="../_images/math/fcdfc5ac96b9b18d362982aa7bc5482c67e139ce.png" alt="\rho \exp(\kappa n)"/>,
+<dd><p>Represents the product of <cite>n</cite> values as <img class="math" src="../_images/math/fcdfc5ac96b9b18d362982aa7bc5482c67e139ce.png" alt="\rho \exp(\kappa n)"/>,
 where <img class="math" src="../_images/math/d98cc130579250f3a86f6b163f8da8753f7f5308.png" alt="|\rho| \le 1"/> and <img class="math" src="../_images/math/edbcfd52337f6f326a969a4cfc277fe4a7652388.png" alt="\kappa \in \mathbb{R}"/>.</p>
 <dl class="member">
 <dt id="SafeProduct:F:::rho__F">
 F <tt class="descname">rho</tt><a class="headerlink" href="#SafeProduct:F:::rho__F" title="Permalink to this definition">¶</a></dt>
-<dd><p>For nonzero values, <tt class="docutils literal"><span class="pre">rho</span></tt> is the modulus and lies <em>on</em> the unit
-circle; in order to represent a value that is precisely zero, <tt class="docutils literal"><span class="pre">rho</span></tt>
+<dd><p>For nonzero values, <cite>rho</cite> is the modulus and lies <em>on</em> the unit
+circle; in order to represent a value that is precisely zero, <cite>rho</cite>
 is set to zero.</p>
 </dd></dl>
 
 <dl class="member">
 <dt id="SafeProduct:F:::kappa__typename-RealBase:F:::type">
-typename RealBase&lt;F&gt;::type <tt class="descname">kappa</tt><a class="headerlink" href="#SafeProduct:F:::kappa__typename-RealBase:F:::type" title="Permalink to this definition">¶</a></dt>
-<dd><p><tt class="docutils literal"><span class="pre">kappa</span></tt> can be an arbitrary real number.</p>
+<a class="reference internal" href="../core/environment.html#RealBase:F:::type" title="RealBase&lt;F&gt;::type">typename RealBase&lt;F&gt;::type</a> <tt class="descname">kappa</tt><a class="headerlink" href="#SafeProduct:F:::kappa__typename-RealBase:F:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>kappa</cite> can be an arbitrary real number.</p>
 </dd></dl>
 
 <dl class="member">
@@ -125,15 +124,14 @@ int <tt class="descname">n</tt><a class="headerlink" href="#SafeProduct:F:::n__i
 <dl class="function">
 <dt id="advanced::SafeDeterminant__Matrix:F:R">
 <a class="reference internal" href="#SafeProduct:F:__struct" title="SafeProduct&lt;F&gt;">SafeProduct&lt;F&gt;</a> <tt class="descclassname">advanced::</tt><tt class="descname">SafeDeterminant</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::SafeDeterminant__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the determinant of the square matrix <tt class="docutils literal"><span class="pre">A</span></tt> in an expanded form
+<dd><p>Returns the determinant of the square matrix <cite>A</cite> in an expanded form
 which is less likely to over/under-flow.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="advanced::SafeDeterminant__DistMatrix:F.MC.MR:R">
 <a class="reference internal" href="#SafeProduct:F:__struct" title="SafeProduct&lt;F&gt;">SafeProduct&lt;F&gt;</a> <tt class="descclassname">advanced::</tt><tt class="descname">SafeDeterminant</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::SafeDeterminant__DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the determinant of the square distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt> in an
-expanded form which is less likely to over/under-flow.</p>
+<dd><p>Same as above, but for a distributed matrix.</p>
 </dd></dl>
 
 </div>
@@ -152,13 +150,13 @@ important characterization.</p>
 <dl class="function">
 <dt id="advanced::Trace__Matrix:F:CR">
 F <tt class="descclassname">advanced::</tt><tt class="descname">Trace</tt><big>(</big>const Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Trace__Matrix:F:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the trace of the square matrix <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+<dd><p>Return the trace of the square matrix <cite>A</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="advanced::Trace__DistMatrix:F.MC.MR:CR">
 F <tt class="descclassname">advanced::</tt><tt class="descname">Trace</tt><big>(</big>const DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Trace__DistMatrix:F.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the trace of the square distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt>.</p>
+<dd><p>Same as above, but for a distributed matrix.</p>
 </dd></dl>
 
 </div>

@@ -65,13 +65,13 @@ a <tt class="docutils literal"><span class="pre">NonHPDMatrixException</span></t
 <dl class="function">
 <dt id="advanced::Cholesky__Shape.Matrix:F:R">
 void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big>Shape <em>shape</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__Shape.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrite the <tt class="docutils literal"><span class="pre">shape</span></tt> triangle of the HPD matrix <cite>A</cite> with its Cholesky factor.</p>
+<dd><p>Overwrite the <cite>shape</cite> triangle of the HPD matrix <cite>A</cite> with its Cholesky factor.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="advanced::Cholesky__Shape.DistMatrix:F.MC.MR:R">
 void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__Shape.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrite the <tt class="docutils literal"><span class="pre">shape</span></tt> triangle of the distributed HPD matrix <tt class="docutils literal"><span class="pre">A</span></tt> with its
+<dd><p>Overwrite the <cite>shape</cite> triangle of the distributed HPD matrix <cite>A</cite> with its
 Cholesky factor.</p>
 </dd></dl>
 
@@ -96,7 +96,7 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">LDLH</tt><big
 <dd><p>Overwrite the strictly lower triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the strictly lower
 portion of <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (<img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> implicitly has ones on its diagonal) and
 the diagonal with <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>, and then also return the diagonal of <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>
-in the vector <tt class="docutils literal"><span class="pre">d</span></tt>.</p>
+in the vector <cite>d</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -123,7 +123,7 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">LDLT</tt><big
 <dd><p>Overwrite the strictly lower triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the strictly lower
 portion of <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (<img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> implicitly has ones on its diagonal) and
 the diagonal with <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>, and then also return the diagonal of <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>
-in the vector <tt class="docutils literal"><span class="pre">d</span></tt>.</p>
+in the vector <cite>d</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -166,14 +166,14 @@ and <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7
 <dt id="advanced::LU__Matrix:F:R.Matrix:i:R">
 void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;int&gt;&amp; <em>p</em><big>)</big><a class="headerlink" href="#advanced::LU__Matrix:F:R.Matrix:i:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ovewrites <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the LU decomposition of <img class="math" src="../_images/math/377291318df52e4f013ab2bf28ee82454a9e57da.png" alt="PA"/>, where
-<img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is represented by the pivot vector <tt class="docutils literal"><span class="pre">p</span></tt>.</p>
+<img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is represented by the pivot vector <cite>p</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="advanced::LU__DistMatrix:F.MC.MR:R.DistMatrix:F.VC.STAR:R">
 void <tt class="descclassname">advanced::</tt><tt class="descname">LU</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, VC, STAR&gt;&amp; <em>p</em><big>)</big><a class="headerlink" href="#advanced::LU__DistMatrix:F.MC.MR:R.DistMatrix:F.VC.STAR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrites the distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the LU decomposition of
-<img class="math" src="../_images/math/377291318df52e4f013ab2bf28ee82454a9e57da.png" alt="PA"/>, where <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is represented by the pivot vector <tt class="docutils literal"><span class="pre">p</span></tt>.</p>
+<img class="math" src="../_images/math/377291318df52e4f013ab2bf28ee82454a9e57da.png" alt="PA"/>, where <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is represented by the pivot vector <cite>p</cite>.</p>
 </dd></dl>
 
 </div>
@@ -202,7 +202,7 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">LQ</tt><big>(
 <dd><p>Overwrite the complex distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
 Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>; unlike the real case,
 phase information is needed in order to define the (generalized)
-Householder transformations and is stored in the column vector <tt class="docutils literal"><span class="pre">t</span></tt>.</p>
+Householder transformations and is stored in the column vector <cite>t</cite>.</p>
 </dd></dl>
 
 </div>
@@ -231,7 +231,7 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">QR</tt><big>(
 <dd><p>Overwrite the complex distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
 Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>; unlike the real case,
 phase information is needed in order to define the (generalized)
-Householder transformations and is stored in the column vector <tt class="docutils literal"><span class="pre">t</span></tt>.</p>
+Householder transformations and is stored in the column vector <cite>t</cite>.</p>
 </dd></dl>
 
 </div>

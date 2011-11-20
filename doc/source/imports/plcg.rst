@@ -34,12 +34,12 @@ LCG primitives
 
 .. cpp:function:: plcg::UInt32 plcg::Lower16Bits( plcg::UInt32 a )
 
-   Return the lower 16 bits of ``a`` in the lower 16 bits of the returned 
+   Return the lower 16 bits of `a` in the lower 16 bits of the returned 
    32-bit unsigned integer.
 
 .. cpp:function:: plcg::UInt32 plcg::Upper16Bits( plcg::UInt32 a )
 
-   Return the upper 16 bits of ``a`` in the lower 16 bits of the returned
+   Return the upper 16 bits of `a` in the lower 16 bits of the returned
    32-bit unsigned integer.
 
 .. cpp:function:: plcg::ExpandedUInt64 plcg::Expand( plcg::UInt32 a )

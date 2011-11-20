@@ -62,8 +62,8 @@ there are several BLAS-like routines which are technically part of LAPACK
 (e.g., <tt class="docutils literal"><span class="pre">csyr</span></tt>) which were included in the BLAS imports section.</p>
 <div class="section" id="machine-information">
 <h2>Machine information<a class="headerlink" href="#machine-information" title="Permalink to this headline">¶</a></h2>
-<p>In all of the following functions, <tt class="docutils literal"><span class="pre">R</span></tt> can be equal to either <tt class="docutils literal"><span class="pre">float</span></tt> or
-<tt class="docutils literal"><span class="pre">double</span></tt>.</p>
+<p>In all of the following functions, <cite>R</cite> can be equal to either <cite>float</cite> or
+<cite>double</cite>.</p>
 <dl class="function">
 <dt id="lapack::MachineEpsilon:R:">
 R <tt class="descclassname">lapack::</tt><tt class="descname">MachineEpsilon&lt;R&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#lapack::MachineEpsilon:R:" title="Permalink to this definition">¶</a></dt>
@@ -115,8 +115,8 @@ R <tt class="descclassname">lapack::</tt><tt class="descname">MachineOverflowThr
 void <tt class="descclassname">lapack::</tt><tt class="descname">Cholesky</tt><big>(</big>char <em>uplo</em>, int <em>n</em>, const F* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#lapack::Cholesky__c.i.FCP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a Cholesky factorization on <img class="math" src="../_images/math/63d9b7b01a6ac29b4f42241b6f1ad0da72ff1813.png" alt="A \in F^{n \times n}"/>, where
 <img class="math" src="../_images/math/2387492dcc075889d91293d6df8ef260cdbf2b12.png" alt="A(i,j)"/> can be accessed at <tt class="docutils literal"><span class="pre">A[i+j*lda]</span></tt> and <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is implicitly
-Hermitian, with the data stored in the lower triangle if <tt class="docutils literal"><span class="pre">uplo</span></tt> equals
-&#8216;L&#8217;, or in the upper triangle if <tt class="docutils literal"><span class="pre">uplo</span></tt> equals &#8216;U&#8217;.</p>
+Hermitian, with the data stored in the lower triangle if <cite>uplo</cite> equals
+&#8216;L&#8217;, or in the upper triangle if <cite>uplo</cite> equals &#8216;U&#8217;.</p>
 </dd></dl>
 
 <dl class="function">
@@ -124,7 +124,7 @@ Hermitian, with the data stored in the lower triangle if <tt class="docutils lit
 void <tt class="descclassname">lapack::</tt><tt class="descname">LU</tt><big>(</big>int <em>m</em>, int <em>n</em>, F* <em>A</em>, int <em>lda</em>, int* <em>p</em><big>)</big><a class="headerlink" href="#lapack::LU__i.i.FP.i.iP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform an LU factorization with partial pivoting on
 <img class="math" src="../_images/math/14987ac3cddbb7d2d1ea5e4f344f8c2a7553b811.png" alt="A \in F^{m \times n}"/>, where <img class="math" src="../_images/math/2387492dcc075889d91293d6df8ef260cdbf2b12.png" alt="A(i,j)"/> can be accessed at
-<tt class="docutils literal"><span class="pre">A[i+j*lda]</span></tt>. On exit, the pivots are stored in the vector <tt class="docutils literal"><span class="pre">p</span></tt>, which
+<tt class="docutils literal"><span class="pre">A[i+j*lda]</span></tt>. On exit, the pivots are stored in the vector <cite>p</cite>, which
 should be at least as large as <tt class="docutils literal"><span class="pre">min(m,n)</span></tt>.</p>
 </dd></dl>
 
@@ -135,8 +135,8 @@ should be at least as large as <tt class="docutils literal"><span class="pre">mi
 <dt id="lapack::TriangularInverse__c.c.i.FCP.i">
 void <tt class="descclassname">lapack::</tt><tt class="descname">TriangularInverse</tt><big>(</big>char <em>uplo</em>, char <em>diag</em>, int <em>n</em>, const F* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#lapack::TriangularInverse__c.c.i.FCP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite either the lower or upper triangle of <img class="math" src="../_images/math/63d9b7b01a6ac29b4f42241b6f1ad0da72ff1813.png" alt="A \in F^{n \times n}"/>
-with its inverse. Which triangle is accessed is determined by <tt class="docutils literal"><span class="pre">uplo</span></tt> (&#8216;L&#8217; for lower or &#8216;U&#8217; for upper), and setting <tt class="docutils literal"><span class="pre">diag</span></tt> equal to &#8216;U&#8217; results in the
-triangular matrix being treated as unit diagonal (set <tt class="docutils literal"><span class="pre">diag</span></tt> to &#8216;N&#8217;
+with its inverse. Which triangle is accessed is determined by <cite>uplo</cite> (&#8216;L&#8217; for lower or &#8216;U&#8217; for upper), and setting <cite>diag</cite> equal to &#8216;U&#8217; results in the
+triangular matrix being treated as unit diagonal (set <cite>diag</cite> to &#8216;N&#8217;
 otherwise).</p>
 </dd></dl>
 
@@ -154,14 +154,14 @@ standard form. <strong>TODO:</strong> Explain in more detail.</p>
 <dt id="lapack::SafeNorm__R.R">
 R <tt class="descclassname">lapack::</tt><tt class="descname">SafeNorm</tt><big>(</big>R <em>alpha</em>, R <em>beta</em><big>)</big><a class="headerlink" href="#lapack::SafeNorm__R.R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <img class="math" src="../_images/math/bec8c1da98d4eb69c134fb00d4cb63c762f15bac.png" alt="\sqrt{\alpha^2+\beta^2}"/> in a manner which avoids
-under/overflow. <tt class="docutils literal"><span class="pre">R</span></tt> can be equal to either <tt class="docutils literal"><span class="pre">float</span></tt> or <tt class="docutils literal"><span class="pre">double</span></tt>.</p>
+under/overflow. <cite>R</cite> can be equal to either <cite>float</cite> or <cite>double</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="lapack::SafeNorm__R.R.R">
 R <tt class="descclassname">lapack::</tt><tt class="descname">SafeNorm</tt><big>(</big>R <em>alpha</em>, R <em>beta</em>, R <em>gamma</em><big>)</big><a class="headerlink" href="#lapack::SafeNorm__R.R.R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <img class="math" src="../_images/math/9a566e53b62a2fda38d9fff093446069b4310949.png" alt="\sqrt{\alpha^2+\beta^2+\gamma^2}"/> in a manner which avoids
-under/overflow. <tt class="docutils literal"><span class="pre">R</span></tt> can be equal to either <tt class="docutils literal"><span class="pre">float</span></tt> or <tt class="docutils literal"><span class="pre">double</span></tt>.</p>
+under/overflow. <cite>R</cite> can be equal to either <cite>float</cite> or <cite>double</cite>.</p>
 </dd></dl>
 
 </div>

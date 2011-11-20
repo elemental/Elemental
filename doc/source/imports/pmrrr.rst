@@ -43,8 +43,8 @@ Compute all eigenvalues
 .. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, mpi::Comm comm )
 
    Compute all of the eigenvalues of the real symmetric tridiagonal matrix with 
-   diagonal ``d`` and subdiagonal ``e``: the eigenvalues will be stored in 
-   ``w`` and the work will be divided among the processors in ``comm``.
+   diagonal `d` and subdiagonal `e`: the eigenvalues will be stored in 
+   `w` and the work will be divided among the processors in `comm`.
 
 .. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, double* Z, int ldz, mpi::Comm comm )
 
@@ -71,7 +71,7 @@ Compute eigenvalues in index range
 
 .. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, mpi::Comm comm, int a, int b )
 
-   Only compute the ``a-b`` eigenvalues of the tridiagonal matrix, where 
+   Only compute the eigenvalues with indices ranging from ``a`` to ``b``, where 
    :math:`0 \le a \le b < n`.
 
 .. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, double* Z, int ldz, mpi::Comm comm, int a, int b )

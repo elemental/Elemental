@@ -66,14 +66,14 @@ versions.</p>
 <dt id="blas::Axpy__i.T.TCP.i.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Axpy</tt><big>(</big>int <em>n</em>, T <em>alpha</em>, const T* <em>x</em>, int <em>incx</em>, T* <em>y</em>, int <em>incy</em><big>)</big><a class="headerlink" href="#blas::Axpy__i.T.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs <img class="math" src="../_images/math/51606bf346a9b6d973d3ea2c1412d61642ba63e6.png" alt="y := \alpha x + y"/> for vectors <img class="math" src="../_images/math/7d3f43d1ae3bbc4948212afe60c50a18c245f651.png" alt="x,y \in T^n"/> and
-scalar <img class="math" src="../_images/math/82269ec48a95972264c17f9e72022e38d5675939.png" alt="\alpha \in T"/>. <tt class="docutils literal"><span class="pre">x</span></tt> and <tt class="docutils literal"><span class="pre">y</span></tt> must be stored such that
-<img class="math" src="../_images/math/67bc6daa9d6b964201d6cef60cbeb1ac5fd26ead.png" alt="x_i"/> occurs at <tt class="docutils literal"><span class="pre">x[i*incx]</span></tt> (and likewise for <tt class="docutils literal"><span class="pre">y</span></tt>).</p>
+scalar <img class="math" src="../_images/math/82269ec48a95972264c17f9e72022e38d5675939.png" alt="\alpha \in T"/>. <cite>x</cite> and <cite>y</cite> must be stored such that
+<img class="math" src="../_images/math/67bc6daa9d6b964201d6cef60cbeb1ac5fd26ead.png" alt="x_i"/> occurs at <tt class="docutils literal"><span class="pre">x[i*incx]</span></tt> (and likewise for <cite>y</cite>).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blas::Dot__i.TCP.i.TP.i">
 T <tt class="descclassname">blas::</tt><tt class="descname">Dot</tt><big>(</big>int <em>n</em>, const T* <em>x</em>, int <em>incx</em>, T* <em>y</em>, int <em>incy</em><big>)</big><a class="headerlink" href="#blas::Dot__i.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns <img class="math" src="../_images/math/fc6715896da12cae298023634d788c78ef4c4a22.png" alt="\alpha := x^H y"/>, where <tt class="docutils literal"><span class="pre">x</span></tt> and <tt class="docutils literal"><span class="pre">y</span></tt> are stored in the
+<dd><p>Returns <img class="math" src="../_images/math/fc6715896da12cae298023634d788c78ef4c4a22.png" alt="\alpha := x^H y"/>, where <cite>x</cite> and <cite>y</cite> are stored in the
 same manner as in <tt class="docutils literal"><span class="pre">blas::Axpy</span></tt>.</p>
 </dd></dl>
 
@@ -88,17 +88,17 @@ T <tt class="descclassname">blas::</tt><tt class="descname">Dotc</tt><big>(</big
 <dt id="blas::Dotu__i.TCP.i.TP.i">
 T <tt class="descclassname">blas::</tt><tt class="descname">Dotu</tt><big>(</big>int <em>n</em>, const T* <em>x</em>, int <em>incx</em>, T* <em>y</em>, int <em>incy</em><big>)</big><a class="headerlink" href="#blas::Dotu__i.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Similar to <tt class="docutils literal"><span class="pre">blas::Dot</span></tt>, but this routine instead returns
-<img class="math" src="../_images/math/51d107f66e817e47ef78d78d2ea115c6092ba140.png" alt="\alpha := x^T y"/> (<tt class="docutils literal"><span class="pre">x</span></tt> is not conjugated).</p>
+<img class="math" src="../_images/math/51d107f66e817e47ef78d78d2ea115c6092ba140.png" alt="\alpha := x^T y"/> (<cite>x</cite> is not conjugated).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blas::Nrm2__i.TCP.i">
 RealBase&lt;T&gt;::type <tt class="descclassname">blas::</tt><tt class="descname">Nrm2</tt><big>(</big>int <em>n</em>, const T* <em>x</em>, int <em>incx</em><big>)</big><a class="headerlink" href="#blas::Nrm2__i.TCP.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Euclidean two-norm of the vector <tt class="docutils literal"><span class="pre">x</span></tt>, where
-<img class="math" src="../_images/math/9d509c08269ad874d02c9306ce61259a8aecebb2.png" alt="||x||_2 = \sqrt{\sum_{i=0}^{n-1} |x_i|^2}"/>. Note that if <tt class="docutils literal"><span class="pre">T</span></tt>
+<dd><p>Return the Euclidean two-norm of the vector <cite>x</cite>, where
+<img class="math" src="../_images/math/9d509c08269ad874d02c9306ce61259a8aecebb2.png" alt="||x||_2 = \sqrt{\sum_{i=0}^{n-1} |x_i|^2}"/>. Note that if <cite>T</cite>
 represents a complex field, then the return type is the underlying real field
-(e.g., <tt class="docutils literal"><span class="pre">T=std::complex&lt;double&gt;</span></tt> results in a return type of <tt class="docutils literal"><span class="pre">double</span></tt>),
-otherwise <tt class="docutils literal"><span class="pre">T</span></tt> equals the return type.</p>
+(e.g., <tt class="docutils literal"><span class="pre">T=std::complex&lt;double&gt;</span></tt> results in a return type of <cite>double</cite>),
+otherwise <cite>T</cite> equals the return type.</p>
 </dd></dl>
 
 <dl class="function">
@@ -117,9 +117,9 @@ void <tt class="descclassname">blas::</tt><tt class="descname">Gemv</tt><big>(</
 <dd><p>Updates <img class="math" src="../_images/math/fa4dd1ded1d16242a5c69461e7678dfb2e5d0afa.png" alt="y := \alpha \mbox{op}(A) x + \beta y"/>, where
 <img class="math" src="../_images/math/ed733e10da3a507e22eb621ae3ab78c3d0791e61.png" alt="A \in T^{m \times n}"/> and
 <img class="math" src="../_images/math/94ec2b01152e3d51f3471e69f3052c67e93b003d.png" alt="\mbox{op}(A) \in \left\{A,A^T,A^H\right\}"/> is chosen by choosing
-<tt class="docutils literal"><span class="pre">trans</span></tt> from <img class="math" src="../_images/math/ecc2c198c6c5db56ec8ae6acf9caa8bc78c7b926.png" alt="\{N,T,C\}"/>, respectively. Note that <tt class="docutils literal"><span class="pre">x</span></tt> is stored
+<cite>trans</cite> from <img class="math" src="../_images/math/ecc2c198c6c5db56ec8ae6acf9caa8bc78c7b926.png" alt="\{N,T,C\}"/>, respectively. Note that <cite>x</cite> is stored
 in the manner repeatedly described in the Level 1 routines, e.g.,
-<tt class="docutils literal"><span class="pre">blas::Axpy</span></tt>, but <tt class="docutils literal"><span class="pre">A</span></tt> is stored such that <img class="math" src="../_images/math/2387492dcc075889d91293d6df8ef260cdbf2b12.png" alt="A(i,j)"/> is located
+<tt class="docutils literal"><span class="pre">blas::Axpy</span></tt>, but <cite>A</cite> is stored such that <img class="math" src="../_images/math/2387492dcc075889d91293d6df8ef260cdbf2b12.png" alt="A(i,j)"/> is located
 at <tt class="docutils literal"><span class="pre">A[i+j*lda]</span></tt>.</p>
 </dd></dl>
 
@@ -127,7 +127,7 @@ at <tt class="docutils literal"><span class="pre">A[i+j*lda]</span></tt>.</p>
 <dt id="blas::Ger__i.i.T.TCP.i.TCP.i.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Ger</tt><big>(</big>int <em>m</em>, int <em>n</em>, T <em>alpha</em>, const T* <em>x</em>, int <em>incx</em>, const T* <em>y</em>, int <em>incy</em>, T* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#blas::Ger__i.i.T.TCP.i.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates <img class="math" src="../_images/math/a715601517104d722795af8c095d7984ef909101.png" alt="A := \alpha x y^H + A"/>, where <img class="math" src="../_images/math/ed733e10da3a507e22eb621ae3ab78c3d0791e61.png" alt="A \in T^{m \times n}"/> and
-<tt class="docutils literal"><span class="pre">x</span></tt>, <tt class="docutils literal"><span class="pre">y</span></tt>, and <tt class="docutils literal"><span class="pre">A</span></tt> are stored in the manner described in <tt class="docutils literal"><span class="pre">blas::Gemv</span></tt>.</p>
+<cite>x</cite>, <cite>y</cite>, and <cite>A</cite> are stored in the manner described in <tt class="docutils literal"><span class="pre">blas::Gemv</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -141,7 +141,7 @@ reasons (the BLAS provides <tt class="docutils literal"><span class="pre">?gerc<
 <dt id="blas::Geru__i.i.T.TCP.i.TCP.i.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Geru</tt><big>(</big>int <em>m</em>, int <em>n</em>, T <em>alpha</em>, const T* <em>x</em>, int <em>incx</em>, const T* <em>y</em>, int <em>incy</em>, T* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#blas::Geru__i.i.T.TCP.i.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <tt class="docutils literal"><span class="pre">blas::Ger</span></tt>, but instead perform <img class="math" src="../_images/math/c0cc4dd2635666312c73134781b03a13833b902d.png" alt="A := \alpha x y^T + A"/>
-(<tt class="docutils literal"><span class="pre">y</span></tt> is not conjugated).</p>
+(<cite>y</cite> is not conjugated).</p>
 </dd></dl>
 
 <dl class="function">
@@ -149,8 +149,8 @@ void <tt class="descclassname">blas::</tt><tt class="descname">Geru</tt><big>(</
 void <tt class="descclassname">blas::</tt><tt class="descname">Hemv</tt><big>(</big>char <em>uplo</em>, int <em>m</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, const T* <em>x</em>, int <em>incx</em>, T <em>beta</em>, T* <em>y</em>, int <em>incy</em><big>)</big><a class="headerlink" href="#blas::Hemv__c.i.T.TCP.i.TCP.i.T.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs <img class="math" src="../_images/math/8b1bf0f00fbd87968ea839435c17c78efbc6eded.png" alt="y := \alpha A x + \beta y"/>, where
 <img class="math" src="../_images/math/ed733e10da3a507e22eb621ae3ab78c3d0791e61.png" alt="A \in T^{m \times n}"/> is assumed to be Hermitian with the data stored
-in either the lower or upper triangle of <tt class="docutils literal"><span class="pre">A</span></tt> (depending upon whether
-<tt class="docutils literal"><span class="pre">uplo</span></tt> is equal to &#8216;L&#8217; or &#8216;U&#8217;, respectively).</p>
+in either the lower or upper triangle of <cite>A</cite> (depending upon whether
+<cite>uplo</cite> is equal to &#8216;L&#8217; or &#8216;U&#8217;, respectively).</p>
 </dd></dl>
 
 <dl class="function">
@@ -158,7 +158,7 @@ in either the lower or upper triangle of <tt class="docutils literal"><span clas
 void <tt class="descclassname">blas::</tt><tt class="descname">Her</tt><big>(</big>char <em>uplo</em>, int <em>m</em>, T <em>alpha</em>, const T* <em>x</em>, int <em>incx</em>, T* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#blas::Her__c.i.T.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs <img class="math" src="../_images/math/b25fc235dcb33b88a863aed9585ac583c27bf04a.png" alt="A := \alpha x x^H + A"/>, where <img class="math" src="../_images/math/d6c6da8b953fe102fdb4a43af722f2d6c067d322.png" alt="A \in T^{m \times m}"/>
 is assumed to be Hermitian, with the data stored in the triangle specified
-by <tt class="docutils literal"><span class="pre">uplo</span></tt> (depending upon whether <tt class="docutils literal"><span class="pre">uplo</span></tt> is equal to &#8216;L&#8217; or &#8216;U&#8217;,
+by <cite>uplo</cite> (depending upon whether <cite>uplo</cite> is equal to &#8216;L&#8217; or &#8216;U&#8217;,
 respectively).</p>
 </dd></dl>
 
@@ -167,7 +167,7 @@ respectively).</p>
 void <tt class="descclassname">blas::</tt><tt class="descname">Her2</tt><big>(</big>char <em>uplo</em>, int <em>m</em>, T <em>alpha</em>, const T* <em>x</em>, int <em>incx</em>, const T* <em>y</em>, int <em>incy</em>, T* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#blas::Her2__c.i.T.TCP.i.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs <img class="math" src="../_images/math/2ba80f9399575769c5dcd374933b8e3acdad7e06.png" alt="A := \alpha ( x y^H + y x^H ) + A"/>, where
 <img class="math" src="../_images/math/d6c6da8b953fe102fdb4a43af722f2d6c067d322.png" alt="A \in T^{m \times m}"/> is assumed to be Hermitian, with the data
-stored in the triangle specified by <tt class="docutils literal"><span class="pre">uplo</span></tt> (depending upon whether <tt class="docutils literal"><span class="pre">uplo</span></tt>
+stored in the triangle specified by <cite>uplo</cite> (depending upon whether <cite>uplo</cite>
 is equal to &#8216;L&#8217; or &#8216;U&#8217;, respectively).</p>
 </dd></dl>
 
@@ -216,9 +216,9 @@ in Elemental.</p>
 void <tt class="descclassname">blas::</tt><tt class="descname">Trmv</tt><big>(</big>char <em>uplo</em>, char <em>trans</em>, char <em>diag</em>, int <em>m</em>, const T* <em>A</em>, int <em>lda</em>, T* <em>x</em>, int <em>incx</em><big>)</big><a class="headerlink" href="#blas::Trmv__c.c.c.i.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform the update <img class="math" src="../_images/math/750a031f3d6311f943a2b3c7c61a864167b15290.png" alt="x := \alpha \mbox{op}(A) x"/>,
 where <img class="math" src="../_images/math/d6c6da8b953fe102fdb4a43af722f2d6c067d322.png" alt="A \in T^{m \times m}"/> is assumed to be either lower or upper
-triangular (depending on whether <tt class="docutils literal"><span class="pre">uplo</span></tt> is &#8216;L&#8217; or &#8216;U&#8217;), unit diagonal if
-<tt class="docutils literal"><span class="pre">diag</span></tt> equals &#8216;U&#8217;, and <img class="math" src="../_images/math/94ec2b01152e3d51f3471e69f3052c67e93b003d.png" alt="\mbox{op}(A) \in \left\{A,A^T,A^H\right\}"/>
-is determined by <tt class="docutils literal"><span class="pre">trans</span></tt> being chosen as &#8216;N&#8217;, &#8216;T&#8217;, or &#8216;C&#8217;, respectively.</p>
+triangular (depending on whether <cite>uplo</cite> is &#8216;L&#8217; or &#8216;U&#8217;), unit diagonal if
+<cite>diag</cite> equals &#8216;U&#8217;, and <img class="math" src="../_images/math/94ec2b01152e3d51f3471e69f3052c67e93b003d.png" alt="\mbox{op}(A) \in \left\{A,A^T,A^H\right\}"/>
+is determined by <cite>trans</cite> being chosen as &#8216;N&#8217;, &#8216;T&#8217;, or &#8216;C&#8217;, respectively.</p>
 </dd></dl>
 
 <dl class="function">
@@ -226,9 +226,9 @@ is determined by <tt class="docutils literal"><span class="pre">trans</span></tt
 void <tt class="descclassname">blas::</tt><tt class="descname">Trsv</tt><big>(</big>char <em>uplo</em>, char <em>trans</em>, char <em>diag</em>, int <em>m</em>, const T* <em>A</em>, int <em>lda</em>, T* <em>x</em>, int <em>incx</em><big>)</big><a class="headerlink" href="#blas::Trsv__c.c.c.i.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform the update <img class="math" src="../_images/math/2242914f81176a6f72c1e65afbd553e4739a35dd.png" alt="x := \alpha \mbox{op}(A)^{-1} x"/>,
 where <img class="math" src="../_images/math/d6c6da8b953fe102fdb4a43af722f2d6c067d322.png" alt="A \in T^{m \times m}"/> is assumed to be either lower or upper
-triangular (depending on whether <tt class="docutils literal"><span class="pre">uplo</span></tt> is &#8216;L&#8217; or &#8216;U&#8217;), unit diagonal if
-<tt class="docutils literal"><span class="pre">diag</span></tt> equals &#8216;U&#8217;, and <img class="math" src="../_images/math/94ec2b01152e3d51f3471e69f3052c67e93b003d.png" alt="\mbox{op}(A) \in \left\{A,A^T,A^H\right\}"/>
-is determined by <tt class="docutils literal"><span class="pre">trans</span></tt> being chosen as &#8216;N&#8217;, &#8216;T&#8217;, or &#8216;C&#8217;, respectively.</p>
+triangular (depending on whether <cite>uplo</cite> is &#8216;L&#8217; or &#8216;U&#8217;), unit diagonal if
+<cite>diag</cite> equals &#8216;U&#8217;, and <img class="math" src="../_images/math/94ec2b01152e3d51f3471e69f3052c67e93b003d.png" alt="\mbox{op}(A) \in \left\{A,A^T,A^H\right\}"/>
+is determined by <cite>trans</cite> being chosen as &#8216;N&#8217;, &#8216;T&#8217;, or &#8216;C&#8217;, respectively.</p>
 </dd></dl>
 
 </div>
@@ -240,9 +240,9 @@ void <tt class="descclassname">blas::</tt><tt class="descname">Gemm</tt><big>(</
 <dd><p>Perform the update
 <img class="math" src="../_images/math/2263aafd9ddbb451a150aed5a7fb321c095377a7.png" alt="C := \alpha \mbox{op}_A(A) \mbox{op}_B(B) + \beta C"/>,
 where <img class="math" src="../_images/math/f4c5fa72439b6e405ef68fa857ba14b5e122351c.png" alt="\mbox{op}_A"/> and <img class="math" src="../_images/math/79fc0b8d73b817966d34d136a47ea15ad9051da3.png" alt="\mbox{op}_B"/> are each determined
-(according to <tt class="docutils literal"><span class="pre">transA</span></tt> and <tt class="docutils literal"><span class="pre">transB</span></tt>) in the manner described for
+(according to <cite>transA</cite> and <cite>transB</cite>) in the manner described for
 <tt class="docutils literal"><span class="pre">blas::Trmv</span></tt>; it is required that <img class="math" src="../_images/math/f1b1c4568ec99e603cd058b88b042a35dbf9040c.png" alt="C \in T^{m \times n}"/> and that
-the inner dimension of <img class="math" src="../_images/math/4defe469ae42550d5a841a9de32727c2e345f7b3.png" alt="\mbox{op}_A(A) \mbox{op}_B(B)"/> is <tt class="docutils literal"><span class="pre">k</span></tt>.</p>
+the inner dimension of <img class="math" src="../_images/math/4defe469ae42550d5a841a9de32727c2e345f7b3.png" alt="\mbox{op}_A(A) \mbox{op}_B(B)"/> is <cite>k</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -250,9 +250,9 @@ the inner dimension of <img class="math" src="../_images/math/4defe469ae42550d5a
 void <tt class="descclassname">blas::</tt><tt class="descname">Hemm</tt><big>(</big>char <em>side</em>, char <em>uplo</em>, int <em>m</em>, int <em>n</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, const T* <em>B</em>, int <em>ldb</em>, T <em>beta</em>, T* <em>C</em>, int <em>ldc</em><big>)</big><a class="headerlink" href="#blas::Hemm__c.c.i.i.T.TCP.i.TCP.i.T.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform either <img class="math" src="../_images/math/f980f131f0e109dbe01adada5a8e5f194e70345a.png" alt="C := \alpha A B + \beta C"/> or
 <img class="math" src="../_images/math/3fa7ed72fd8dc0e08dd0b92d41448b7a3c2b4f78.png" alt="C := \alpha B A + \beta C"/>
-(depending upon whether <tt class="docutils literal"><span class="pre">side</span></tt> is respectively &#8216;L&#8217; or &#8216;R&#8217;) where
+(depending upon whether <cite>side</cite> is respectively &#8216;L&#8217; or &#8216;R&#8217;) where
 <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is assumed to be Hermitian with its data stored in either the
-lower or upper triangle (depending upon whether <tt class="docutils literal"><span class="pre">uplo</span></tt> is set to &#8216;L&#8217; or
+lower or upper triangle (depending upon whether <cite>uplo</cite> is set to &#8216;L&#8217; or
 &#8216;U&#8217;, respectively) and <img class="math" src="../_images/math/f1b1c4568ec99e603cd058b88b042a35dbf9040c.png" alt="C \in T^{m \times n}"/>.</p>
 </dd></dl>
 
@@ -261,30 +261,30 @@ lower or upper triangle (depending upon whether <tt class="docutils literal"><sp
 void <tt class="descclassname">blas::</tt><tt class="descname">Her2k</tt><big>(</big>char <em>uplo</em>, char <em>trans</em>, int <em>n</em>, int <em>k</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, const T* <em>B</em>, int <em>ldb</em>, T <em>beta</em>, T* <em>C</em>, int <em>ldc</em><big>)</big><a class="headerlink" href="#blas::Her2k__c.c.i.i.T.TCP.i.TCP.i.T.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform either <img class="math" src="../_images/math/d2e0effab4f52d2db4e04738aef5bb2acdbc8bef.png" alt="C := \alpha ( A B^H + B A^H ) \beta C"/> or
 <img class="math" src="../_images/math/6f726ca404cfeb2c90117bcfbc183576d113159e.png" alt="C := \alpha ( A^H B + B^H A ) \beta C"/> (depending upon whether
-<tt class="docutils literal"><span class="pre">trans</span></tt> is respectively &#8216;N&#8217; or &#8216;C&#8217;), where <img class="math" src="../_images/math/5af1ad671f831797750c0f96c149433423f7a0b5.png" alt="C \in T^{n \times n}"/>
+<cite>trans</cite> is respectively &#8216;N&#8217; or &#8216;C&#8217;), where <img class="math" src="../_images/math/5af1ad671f831797750c0f96c149433423f7a0b5.png" alt="C \in T^{n \times n}"/>
 is assumed to be Hermitian, with the data stored in the triangle specified
-by <tt class="docutils literal"><span class="pre">uplo</span></tt> (see <tt class="docutils literal"><span class="pre">blas::Hemv</span></tt>) and the inner dimension of <img class="math" src="../_images/math/7dac715b66b41a4c5534f0228d71b78d2ba02458.png" alt="A B^H"/> or
-<img class="math" src="../_images/math/33fedcdce9d69f98224de0283e7675c813ea3005.png" alt="A^H B"/> is equal to <tt class="docutils literal"><span class="pre">k</span></tt>.</p>
+by <cite>uplo</cite> (see <tt class="docutils literal"><span class="pre">blas::Hemv</span></tt>) and the inner dimension of <img class="math" src="../_images/math/7dac715b66b41a4c5534f0228d71b78d2ba02458.png" alt="A B^H"/> or
+<img class="math" src="../_images/math/33fedcdce9d69f98224de0283e7675c813ea3005.png" alt="A^H B"/> is equal to <cite>k</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blas::Herk__c.c.i.i.T.TCP.i.T.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Herk</tt><big>(</big>char <em>uplo</em>, char <em>trans</em>, int <em>n</em>, int <em>k</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, T <em>beta</em>, T* <em>C</em>, int <em>ldc</em><big>)</big><a class="headerlink" href="#blas::Herk__c.c.i.i.T.TCP.i.T.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform either <img class="math" src="../_images/math/cbde9ec0e5372dc6d0b4936c72ba85dcce83dc02.png" alt="C := \alpha A A^H + \beta C"/> or
-<img class="math" src="../_images/math/2a781ef3a1335e208bd55c2f437b209e071fa18b.png" alt="C := \alpha A^H A + \beta C"/> (depending upon whether <tt class="docutils literal"><span class="pre">trans</span></tt> is
+<img class="math" src="../_images/math/2a781ef3a1335e208bd55c2f437b209e071fa18b.png" alt="C := \alpha A^H A + \beta C"/> (depending upon whether <cite>trans</cite> is
 respectively &#8216;N&#8217; or &#8216;C&#8217;), where <img class="math" src="../_images/math/5af1ad671f831797750c0f96c149433423f7a0b5.png" alt="C \in T^{n \times n}"/> is assumed to
-be Hermitian with the data stored in the triangle specified by <tt class="docutils literal"><span class="pre">uplo</span></tt>
+be Hermitian with the data stored in the triangle specified by <cite>uplo</cite>
 (see <tt class="docutils literal"><span class="pre">blas::Hemv</span></tt>) and the inner dimension of <img class="math" src="../_images/math/5823f08efda4aed563af923dd9e053a0d3bca484.png" alt="A A^H"/> or
-<img class="math" src="../_images/math/06b093cb92beaa6867227f02ceffa4ee0c2264dd.png" alt="A^H A"/> equal to <tt class="docutils literal"><span class="pre">k</span></tt>.</p>
+<img class="math" src="../_images/math/06b093cb92beaa6867227f02ceffa4ee0c2264dd.png" alt="A^H A"/> equal to <cite>k</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blas::Hetrmm__c.i.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Hetrmm</tt><big>(</big>char <em>uplo</em>, int <em>n</em>, T* <em>A</em>, int <em>lda</em><big>)</big><a class="headerlink" href="#blas::Hetrmm__c.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Form either <img class="math" src="../_images/math/f990ca0643f98b3c0693cc31def11ce51defbc58.png" alt="A := L^H L"/> or <img class="math" src="../_images/math/5b7737c00aed9b202be7c342ba396f44e5315c31.png" alt="A := U U^H"/>, depending upon the
-choice of <tt class="docutils literal"><span class="pre">uplo</span></tt>: if <tt class="docutils literal"><span class="pre">uplo</span></tt> equals &#8216;L&#8217;, then <img class="math" src="../_images/math/3dbeac972f72548effed8d520fb30f445bb4d26e.png" alt="L \in T^{n \times n}"/>
-is equal to the lower triangle of <tt class="docutils literal"><span class="pre">A</span></tt>, otherwise <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> is read from
-the upper triangle of <tt class="docutils literal"><span class="pre">A</span></tt>. In both cases, the relevant triangle of <tt class="docutils literal"><span class="pre">A</span></tt>
+choice of <cite>uplo</cite>: if <cite>uplo</cite> equals &#8216;L&#8217;, then <img class="math" src="../_images/math/3dbeac972f72548effed8d520fb30f445bb4d26e.png" alt="L \in T^{n \times n}"/>
+is equal to the lower triangle of <cite>A</cite>, otherwise <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> is read from
+the upper triangle of <cite>A</cite>. In both cases, the relevant triangle of <cite>A</cite>
 is overwritten in order to store the Hermitian product.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -299,9 +299,9 @@ is extremely BLAS-like.</p>
 void <tt class="descclassname">blas::</tt><tt class="descname">Symm</tt><big>(</big>char <em>side</em>, char <em>uplo</em>, int <em>m</em>, int <em>n</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, const T* <em>B</em>, int <em>ldb</em>, T <em>beta</em>, T* <em>C</em>, int <em>ldc</em><big>)</big><a class="headerlink" href="#blas::Symm__c.c.i.i.T.TCP.i.TCP.i.T.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform either <img class="math" src="../_images/math/f980f131f0e109dbe01adada5a8e5f194e70345a.png" alt="C := \alpha A B + \beta C"/> or
 <img class="math" src="../_images/math/3fa7ed72fd8dc0e08dd0b92d41448b7a3c2b4f78.png" alt="C := \alpha B A + \beta C"/>
-(depending upon whether <tt class="docutils literal"><span class="pre">side</span></tt> is respectively &#8216;L&#8217; or &#8216;R&#8217;) where
+(depending upon whether <cite>side</cite> is respectively &#8216;L&#8217; or &#8216;R&#8217;) where
 <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is assumed to be symmetric with its data stored in either the
-lower or upper triangle (depending upon whether <tt class="docutils literal"><span class="pre">uplo</span></tt> is set to &#8216;L&#8217; or
+lower or upper triangle (depending upon whether <cite>uplo</cite> is set to &#8216;L&#8217; or
 &#8216;U&#8217;, respectively) and <img class="math" src="../_images/math/f1b1c4568ec99e603cd058b88b042a35dbf9040c.png" alt="C \in T^{m \times n}"/>.</p>
 </dd></dl>
 
@@ -310,31 +310,31 @@ lower or upper triangle (depending upon whether <tt class="docutils literal"><sp
 void <tt class="descclassname">blas::</tt><tt class="descname">Syr2k</tt><big>(</big>char <em>uplo</em>, char <em>trans</em>, int <em>n</em>, int <em>k</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, const T* <em>B</em>, int <em>ldb</em>, T <em>beta</em>, T* <em>C</em>, int <em>ldc</em><big>)</big><a class="headerlink" href="#blas::Syr2k__c.c.i.i.T.TCP.i.TCP.i.T.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform either <img class="math" src="../_images/math/ca8fff8f38f5e7e294589a9a2c6c0dff76880682.png" alt="C := \alpha ( A B^T + B A^T ) \beta C"/> or
 <img class="math" src="../_images/math/4c95f26c11a927d03c62f8c5b267d2512cb6c40a.png" alt="C := \alpha ( A^T B + B^T A ) \beta C"/> (depending upon whether
-<tt class="docutils literal"><span class="pre">trans</span></tt> is respectively &#8216;N&#8217; or &#8216;T&#8217;), where <img class="math" src="../_images/math/5af1ad671f831797750c0f96c149433423f7a0b5.png" alt="C \in T^{n \times n}"/>
+<cite>trans</cite> is respectively &#8216;N&#8217; or &#8216;T&#8217;), where <img class="math" src="../_images/math/5af1ad671f831797750c0f96c149433423f7a0b5.png" alt="C \in T^{n \times n}"/>
 is assumed to be symmetric, with the data stored in the triangle specified
-by <tt class="docutils literal"><span class="pre">uplo</span></tt> (see <tt class="docutils literal"><span class="pre">blas::Symv</span></tt>) and the inner dimension of <img class="math" src="../_images/math/a9422811fd62b62fba2916a6558cf99d507ab4d7.png" alt="A B^T"/> or
-<img class="math" src="../_images/math/5979323a4c458b725e3e6ed044d8223c951a55cb.png" alt="A^T B"/> is equal to <tt class="docutils literal"><span class="pre">k</span></tt>.</p>
+by <cite>uplo</cite> (see <tt class="docutils literal"><span class="pre">blas::Symv</span></tt>) and the inner dimension of <img class="math" src="../_images/math/a9422811fd62b62fba2916a6558cf99d507ab4d7.png" alt="A B^T"/> or
+<img class="math" src="../_images/math/5979323a4c458b725e3e6ed044d8223c951a55cb.png" alt="A^T B"/> is equal to <cite>k</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blas::Syrk__c.c.i.i.T.TCP.i.T.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Syrk</tt><big>(</big>char <em>uplo</em>, char <em>trans</em>, int <em>n</em>, int <em>k</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, T <em>beta</em>, T* <em>C</em>, int <em>ldc</em><big>)</big><a class="headerlink" href="#blas::Syrk__c.c.i.i.T.TCP.i.T.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform either <img class="math" src="../_images/math/41caf8b3a96a5a4730da1640647ada46edf3196b.png" alt="C := \alpha A A^T + \beta C"/> or
-<img class="math" src="../_images/math/4b972ba19230412c74ea6caecb271ffead249de7.png" alt="C := \alpha A^T A + \beta C"/> (depending upon whether <tt class="docutils literal"><span class="pre">trans</span></tt> is
+<img class="math" src="../_images/math/4b972ba19230412c74ea6caecb271ffead249de7.png" alt="C := \alpha A^T A + \beta C"/> (depending upon whether <cite>trans</cite> is
 respectively &#8216;N&#8217; or &#8216;T&#8217;), where <img class="math" src="../_images/math/5af1ad671f831797750c0f96c149433423f7a0b5.png" alt="C \in T^{n \times n}"/> is assumed to
-be symmetric with the data stored in the triangle specified by <tt class="docutils literal"><span class="pre">uplo</span></tt>
+be symmetric with the data stored in the triangle specified by <cite>uplo</cite>
 (see <tt class="docutils literal"><span class="pre">blas::Symv</span></tt>) and the inner dimension of <img class="math" src="../_images/math/09119e925f3e97200c39bcb6e02e355a48dbcdfc.png" alt="A A^T"/> or
-<img class="math" src="../_images/math/d462bb806df6b5f9e8fb6875a8cd36327227659f.png" alt="A^T A"/> equal to <tt class="docutils literal"><span class="pre">k</span></tt>.</p>
+<img class="math" src="../_images/math/d462bb806df6b5f9e8fb6875a8cd36327227659f.png" alt="A^T A"/> equal to <cite>k</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blas::Trmm__c.c.c.c.i.i.T.TCP.i.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Trmm</tt><big>(</big>char <em>side</em>, char <em>uplo</em>, char <em>trans</em>, char <em>unit</em>, int <em>m</em>, int <em>n</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, T* <em>B</em>, int <em>ldb</em><big>)</big><a class="headerlink" href="#blas::Trmm__c.c.c.c.i.i.T.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs <img class="math" src="../_images/math/a49f2dc2af62ed4c7474120fdd9b3f34abb3332b.png" alt="C := \alpha \mbox{op}(A) B"/> or
-<img class="math" src="../_images/math/3296b833f2ca7b1e8cf84ec2c4bdb67318416e27.png" alt="C := \alpha B \mbox{op}(A)"/>, depending upon whether <tt class="docutils literal"><span class="pre">side</span></tt> was
+<img class="math" src="../_images/math/3296b833f2ca7b1e8cf84ec2c4bdb67318416e27.png" alt="C := \alpha B \mbox{op}(A)"/>, depending upon whether <cite>side</cite> was
 chosen as &#8216;L&#8217; or &#8216;R&#8217;, respectively. Whether <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is treated as lower
-or upper triangular is determined by whether <tt class="docutils literal"><span class="pre">uplo</span></tt> is &#8216;L&#8217; or &#8216;U&#8217; (setting
-<tt class="docutils literal"><span class="pre">unit</span></tt> equal to &#8216;U&#8217; treats <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> as unit diagonal, otherwise it should
+or upper triangular is determined by whether <cite>uplo</cite> is &#8216;L&#8217; or &#8216;U&#8217; (setting
+<cite>unit</cite> equal to &#8216;U&#8217; treats <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> as unit diagonal, otherwise it should
 be set to &#8216;N&#8217;). <img class="math" src="../_images/math/e35702a7785f5cac12907d8175705861a8592e68.png" alt="\mbox{op}"/> is determined in the same manner as in
 <tt class="docutils literal"><span class="pre">blas::Trmv</span></tt>.</p>
 </dd></dl>
@@ -343,10 +343,10 @@ be set to &#8216;N&#8217;). <img class="math" src="../_images/math/e35702a7785f5
 <dt id="blas::Trsm__c.c.c.c.i.i.T.TCP.i.TP.i">
 void <tt class="descclassname">blas::</tt><tt class="descname">Trsm</tt><big>(</big>char <em>side</em>, char <em>uplo</em>, char <em>trans</em>, char <em>unit</em>, int <em>m</em>, int <em>n</em>, T <em>alpha</em>, const T* <em>A</em>, int <em>lda</em>, T* <em>B</em>, int <em>ldb</em><big>)</big><a class="headerlink" href="#blas::Trsm__c.c.c.c.i.i.T.TCP.i.TP.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs <img class="math" src="../_images/math/fcf8d0df825dd022b69ebb076ef134a193d9007c.png" alt="C := \alpha \mbox{op}(A)^{-1} B"/> or
-<img class="math" src="../_images/math/e93470dea0bf7e41ae7aa4e286eea63740c80437.png" alt="C := \alpha B \mbox{op}(A)^{-1}"/>, depending upon whether <tt class="docutils literal"><span class="pre">side</span></tt> was
+<img class="math" src="../_images/math/e93470dea0bf7e41ae7aa4e286eea63740c80437.png" alt="C := \alpha B \mbox{op}(A)^{-1}"/>, depending upon whether <cite>side</cite> was
 chosen as &#8216;L&#8217; or &#8216;R&#8217;, respectively. Whether <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is treated as lower
-or upper triangular is determined by whether <tt class="docutils literal"><span class="pre">uplo</span></tt> is &#8216;L&#8217; or &#8216;U&#8217; (setting
-<tt class="docutils literal"><span class="pre">unit</span></tt> equal to &#8216;U&#8217; treats <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> as unit diagonal, otherwise it should
+or upper triangular is determined by whether <cite>uplo</cite> is &#8216;L&#8217; or &#8216;U&#8217; (setting
+<cite>unit</cite> equal to &#8216;U&#8217; treats <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> as unit diagonal, otherwise it should
 be set to &#8216;N&#8217;). <img class="math" src="../_images/math/e35702a7785f5cac12907d8175705861a8592e68.png" alt="\mbox{op}"/> is determined in the same manner as in
 <tt class="docutils literal"><span class="pre">blas::Trmv</span></tt>.</p>
 </dd></dl>

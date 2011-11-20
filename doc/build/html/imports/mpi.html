@@ -209,8 +209,8 @@ const int <tt class="descclassname">mpi::</tt><tt class="descname">UNDEFINED</tt
 const int <tt class="descclassname">mpi::</tt><tt class="descname">MIN_COLL_MSG</tt><a class="headerlink" href="#mpi::MIN_COLL_MSG__iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>The minimum message size for collective communication, e.g., the minimum
 number of elements contributed by each process in an <tt class="docutils literal"><span class="pre">MPI_Allgather</span></tt>.
-By default, it is hardcoded to <tt class="docutils literal"><span class="pre">1</span></tt> in order to avoid problems with
-MPI implementations that do not support the <tt class="docutils literal"><span class="pre">0</span></tt> corner case.</p>
+By default, it is hardcoded to <cite>1</cite> in order to avoid problems with
+MPI implementations that do not support the <cite>0</cite> corner case.</p>
 </dd></dl>
 
 </div>
@@ -278,7 +278,7 @@ void <tt class="descclassname">mpi::</tt><tt class="descname">OpCreate</tt><big>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <tt class="docutils literal"><span class="pre">commutes</span></tt> parameter is also important, as it specifies whether or not
+<p>The <cite>commutes</cite> parameter is also important, as it specifies whether or not
 the operation <tt class="docutils literal"><span class="pre">b[i]</span> <span class="pre">=</span> <span class="pre">a[i]</span> <span class="pre">op</span> <span class="pre">b[i],</span> <span class="pre">for</span> <span class="pre">i=0,...,length-1</span></tt>, can be
 performed in an arbitrary order (for example, using a minimum spanning tree).</p>
 </dd></dl>
@@ -305,8 +305,8 @@ int <tt class="descclassname">mpi::</tt><tt class="descname">CommSize</tt><big>(
 <dl class="function">
 <dt id="mpi::CommCreate__mpi::Comm.mpi::Group.mpi::CommR">
 void <tt class="descclassname">mpi::</tt><tt class="descname">CommCreate</tt><big>(</big><a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>parentComm</em>, <a class="reference internal" href="#mpi::Group" title="mpi::Group">mpi::Group</a> <em>subsetGroup</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm&amp;</a> <em>subsetComm</em><big>)</big><a class="headerlink" href="#mpi::CommCreate__mpi::Comm.mpi::Group.mpi::CommR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a communicator (<tt class="docutils literal"><span class="pre">subsetComm</span></tt>) which is a subset of <tt class="docutils literal"><span class="pre">parentComm</span></tt>
-consisting of the processes specified by <tt class="docutils literal"><span class="pre">subsetGroup</span></tt>.</p>
+<dd><p>Create a communicator (<cite>subsetComm</cite>) which is a subset of <cite>parentComm</cite>
+consisting of the processes specified by <cite>subsetGroup</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -318,9 +318,9 @@ void <tt class="descclassname">mpi::</tt><tt class="descname">CommDup</tt><big>(
 <dl class="function">
 <dt id="mpi::CommSplit__mpi::Comm.i.i.mpi::CommR">
 void <tt class="descclassname">mpi::</tt><tt class="descname">CommSplit</tt><big>(</big><a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, int <em>color</em>, int <em>key</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm&amp;</a> <em>newComm</em><big>)</big><a class="headerlink" href="#mpi::CommSplit__mpi::Comm.i.i.mpi::CommR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split the communicator <tt class="docutils literal"><span class="pre">comm</span></tt> into different subcommunicators, where each
-process specifies the <tt class="docutils literal"><span class="pre">color</span></tt> (unique integer) of the subcommunicator it
-will reside in, as well as its <tt class="docutils literal"><span class="pre">key</span></tt> (rank) for the new subcommunicator.</p>
+<dd><p>Split the communicator <cite>comm</cite> into different subcommunicators, where each
+process specifies the <cite>color</cite> (unique integer) of the subcommunicator it
+will reside in, as well as its <cite>key</cite> (rank) for the new subcommunicator.</p>
 </dd></dl>
 
 <dl class="function">
@@ -347,18 +347,18 @@ approach.</p>
 <dl class="function">
 <dt id="mpi::CartCreate__mpi::Comm.i.iCP.iCP.b.mpi::CommR">
 void <tt class="descclassname">mpi::</tt><tt class="descname">CartCreate</tt><big>(</big><a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, int <em>numDims</em>, const int* <em>dimensions</em>, const int* <em>periods</em>, bool <em>reorder</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm&amp;</a> <em>cartComm</em><big>)</big><a class="headerlink" href="#mpi::CartCreate__mpi::Comm.i.iCP.iCP.b.mpi::CommR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a Cartesian communicator (<tt class="docutils literal"><span class="pre">cartComm</span></tt>) from the specified
-communicator (<tt class="docutils literal"><span class="pre">comm</span></tt>), given the number of dimensions (<tt class="docutils literal"><span class="pre">numDims</span></tt>),
-the sizes of each dimension (<tt class="docutils literal"><span class="pre">dimensions</span></tt>), whether or not each
-dimension is periodic (<tt class="docutils literal"><span class="pre">periods</span></tt>), and whether or not the ordering of the
-processes may be changed (<tt class="docutils literal"><span class="pre">reorder</span></tt>).</p>
+<dd><p>Create a Cartesian communicator (<cite>cartComm</cite>) from the specified
+communicator (<cite>comm</cite>), given the number of dimensions (<cite>numDims</cite>),
+the sizes of each dimension (<cite>dimensions</cite>), whether or not each
+dimension is periodic (<cite>periods</cite>), and whether or not the ordering of the
+processes may be changed (<cite>reorder</cite>).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="mpi::CartSub__mpi::Comm.iCP.mpi::CommR">
 void <tt class="descclassname">mpi::</tt><tt class="descname">CartSub</tt><big>(</big><a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, const int* <em>remainingDims</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm&amp;</a> <em>subComm</em><big>)</big><a class="headerlink" href="#mpi::CartSub__mpi::Comm.iCP.mpi::CommR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create this process&#8217;s subcommunicator of <tt class="docutils literal"><span class="pre">comm</span></tt> that results from only
-keeping the specified dimensions (<tt class="docutils literal"><span class="pre">0</span></tt> for ignoring and <tt class="docutils literal"><span class="pre">1</span></tt> for keeping).</p>
+<dd><p>Create this process&#8217;s subcommunicator of <cite>comm</cite> that results from only
+keeping the specified dimensions (0 for ignoring and 1 for keeping).</p>
 </dd></dl>
 
 <p class="rubric">Group manipulation</p>
@@ -383,15 +383,15 @@ void <tt class="descclassname">mpi::</tt><tt class="descname">CommGroup</tt><big
 <dl class="function">
 <dt id="mpi::GroupIncl__mpi::Group.i.iCP.mpi::GroupR">
 void <tt class="descclassname">mpi::</tt><tt class="descname">GroupIncl</tt><big>(</big><a class="reference internal" href="#mpi::Group" title="mpi::Group">mpi::Group</a> <em>group</em>, int <em>n</em>, const int* <em>ranks</em>, <a class="reference internal" href="#mpi::Group" title="mpi::Group">mpi::Group&amp;</a> <em>subGroup</em><big>)</big><a class="headerlink" href="#mpi::GroupIncl__mpi::Group.i.iCP.mpi::GroupR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a subgroup of <tt class="docutils literal"><span class="pre">group</span></tt> that consists of the <tt class="docutils literal"><span class="pre">n</span></tt> processes whose
-ranks are specified in the <tt class="docutils literal"><span class="pre">ranks</span></tt> array.</p>
+<dd><p>Create a subgroup of <cite>group</cite> that consists of the <cite>n</cite> processes whose
+ranks are specified in the <cite>ranks</cite> array.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="mpi::GroupDifference__mpi::Group.mpi::Group.mpi::GroupR">
 void <tt class="descclassname">mpi::</tt><tt class="descname">GroupDifference</tt><big>(</big><a class="reference internal" href="#mpi::Group" title="mpi::Group">mpi::Group</a> <em>parent</em>, <a class="reference internal" href="#mpi::Group" title="mpi::Group">mpi::Group</a> <em>subset</em>, <a class="reference internal" href="#mpi::Group" title="mpi::Group">mpi::Group&amp;</a> <em>complement</em><big>)</big><a class="headerlink" href="#mpi::GroupDifference__mpi::Group.mpi::Group.mpi::GroupR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Form a group (<tt class="docutils literal"><span class="pre">complement</span></tt>) out of the set of processes which are in
-the <tt class="docutils literal"><span class="pre">parent</span></tt> communicator, but not in the <tt class="docutils literal"><span class="pre">subset</span></tt> communicator.</p>
+<dd><p>Form a group (<cite>complement</cite>) out of the set of processes which are in
+the <cite>parent</cite> communicator, but not in the <cite>subset</cite> communicator.</p>
 </dd></dl>
 
 <dl class="function">
@@ -403,17 +403,17 @@ void <tt class="descclassname">mpi::</tt><tt class="descname">GroupFree</tt><big
 <dl class="function">
 <dt id="mpi::GroupTranslateRanks__mpi::Group.i.iCP.mpi::Group.iP">
 void <tt class="descclassname">mpi::</tt><tt class="descname">GroupTranslateRanks</tt><big>(</big><a class="reference internal" href="#mpi::Group" title="mpi::Group">mpi::Group</a> <em>origGroup</em>, int <em>size</em>, const int* <em>origRanks</em>, <a class="reference internal" href="#mpi::Group" title="mpi::Group">mpi::Group</a> <em>newGroup</em>, int* <em>newRanks</em><big>)</big><a class="headerlink" href="#mpi::GroupTranslateRanks__mpi::Group.i.iCP.mpi::Group.iP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the ranks within <tt class="docutils literal"><span class="pre">newGroup</span></tt> of the <tt class="docutils literal"><span class="pre">size</span></tt> processes specified
-by their ranks in the <tt class="docutils literal"><span class="pre">origGroup</span></tt> communicator using the <tt class="docutils literal"><span class="pre">origRanks</span></tt>
-array. The result will be in the <tt class="docutils literal"><span class="pre">newRanks</span></tt> array, which must have been
-preallocated to a length at least as large as <tt class="docutils literal"><span class="pre">size</span></tt>.</p>
+<dd><p>Return the ranks within <cite>newGroup</cite> of the <cite>size</cite> processes specified
+by their ranks in the <cite>origGroup</cite> communicator using the <cite>origRanks</cite>
+array. The result will be in the <cite>newRanks</cite> array, which must have been
+preallocated to a length at least as large as <cite>size</cite>.</p>
 </dd></dl>
 
 <p class="rubric">Utilities</p>
 <dl class="function">
 <dt id="mpi::Barrier__mpi::Comm">
 void <tt class="descclassname">mpi::</tt><tt class="descname">Barrier</tt><big>(</big><a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#mpi::Barrier__mpi::Comm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pause until all processes within the <tt class="docutils literal"><span class="pre">comm</span></tt> communicator have called this
+<dd><p>Pause until all processes within the <cite>comm</cite> communicator have called this
 routine.</p>
 </dd></dl>
 
@@ -434,11 +434,11 @@ bool <tt class="descclassname">mpi::</tt><tt class="descname">Test</tt><big>(</b
 bool <tt class="descclassname">mpi::</tt><tt class="descname">IProbe</tt><big>(</big>int <em>source</em>, int <em>tag</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, <a class="reference internal" href="#mpi::Status" title="mpi::Status">mpi::Status&amp;</a> <em>status</em><big>)</big><a class="headerlink" href="#mpi::IProbe__i.i.mpi::Comm.mpi::StatusR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether or not there is a message ready which</p>
 <ul class="simple">
-<li>is from the process with rank <tt class="docutils literal"><span class="pre">source</span></tt> in the communicator <tt class="docutils literal"><span class="pre">comm</span></tt>
+<li>is from the process with rank <cite>source</cite> in the communicator <cite>comm</cite>
 (note that <tt class="docutils literal"><span class="pre">mpi::ANY_SOURCE</span></tt> is allowed)</li>
-<li>had the integer tag <tt class="docutils literal"><span class="pre">tag</span></tt></li>
+<li>had the integer tag <cite>tag</cite></li>
 </ul>
-<p>If <tt class="docutils literal"><span class="pre">true</span></tt> was returned, then <tt class="docutils literal"><span class="pre">status</span></tt> will have been filled with the
+<p>If <cite>true</cite> was returned, then <cite>status</cite> will have been filled with the
 relevant information, e.g., the source&#8217;s rank.</p>
 </dd></dl>
 
@@ -453,8 +453,8 @@ be received.</p>
 <dl class="function">
 <dt id="mpi::Send__TCP.i.i.i.mpi::Comm">
 void <tt class="descclassname">mpi::</tt><tt class="descname">Send</tt><big>(</big>const T* <em>buf</em>, int <em>count</em>, int <em>to</em>, int <em>tag</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#mpi::Send__TCP.i.i.i.mpi::Comm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Send <tt class="docutils literal"><span class="pre">count</span></tt> entries of type <tt class="docutils literal"><span class="pre">T</span></tt> to the process with rank <tt class="docutils literal"><span class="pre">to</span></tt> in the
-communicator <tt class="docutils literal"><span class="pre">comm</span></tt>, and tag the message with the integer <tt class="docutils literal"><span class="pre">tag</span></tt>.</p>
+<dd><p>Send <cite>count</cite> entries of type <cite>T</cite> to the process with rank <cite>to</cite> in the
+communicator <cite>comm</cite>, and tag the message with the integer <cite>tag</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -472,9 +472,9 @@ void <tt class="descclassname">mpi::</tt><tt class="descname">ISSend</tt><big>(<
 <dl class="function">
 <dt id="mpi::Recv__TP.i.i.i.mpi::Comm">
 void <tt class="descclassname">mpi::</tt><tt class="descname">Recv</tt><big>(</big>T* <em>buf</em>, int <em>count</em>, int <em>from</em>, int <em>tag</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#mpi::Recv__TP.i.i.i.mpi::Comm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Receive <tt class="docutils literal"><span class="pre">count</span></tt> entries of type <tt class="docutils literal"><span class="pre">T</span></tt> from the process with rank <tt class="docutils literal"><span class="pre">from</span></tt>
-in the communicator <tt class="docutils literal"><span class="pre">comm</span></tt>, where the message must have been tagged with
-the integer <tt class="docutils literal"><span class="pre">tag</span></tt>.</p>
+<dd><p>Receive <cite>count</cite> entries of type <cite>T</cite> from the process with rank <cite>from</cite>
+in the communicator <cite>comm</cite>, where the message must have been tagged with
+the integer <cite>tag</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -486,26 +486,26 @@ void <tt class="descclassname">mpi::</tt><tt class="descname">IRecv</tt><big>(</
 <dl class="function">
 <dt id="mpi::SendRecv__TCP.i.i.i.TP.i.i.i.mpi::Comm">
 void <tt class="descclassname">mpi::</tt><tt class="descname">SendRecv</tt><big>(</big>const T* <em>sendBuf</em>, int <em>sendCount</em>, int <em>to</em>, int <em>sendTag</em>, T* <em>recvBuf</em>, int <em>recvCount</em>, int <em>from</em>, int <em>recvTag</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#mpi::SendRecv__TCP.i.i.i.TP.i.i.i.mpi::Comm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Send <tt class="docutils literal"><span class="pre">sendCount</span></tt> entries of type <tt class="docutils literal"><span class="pre">T</span></tt> to process <tt class="docutils literal"><span class="pre">to</span></tt>, and
-simultaneously receive <tt class="docutils literal"><span class="pre">recvCount</span></tt> entries of type <tt class="docutils literal"><span class="pre">T</span></tt> from process
-<tt class="docutils literal"><span class="pre">from</span></tt>.</p>
+<dd><p>Send <cite>sendCount</cite> entries of type <cite>T</cite> to process <cite>to</cite>, and
+simultaneously receive <cite>recvCount</cite> entries of type <cite>T</cite> from process
+<cite>from</cite>.</p>
 </dd></dl>
 
 <p class="rubric">Collective communication</p>
 <dl class="function">
 <dt id="mpi::Broadcast__TP.i.i.mpi::Comm">
 void <tt class="descclassname">mpi::</tt><tt class="descname">Broadcast</tt><big>(</big>T* <em>buf</em>, int <em>count</em>, int <em>root</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#mpi::Broadcast__TP.i.i.mpi::Comm" title="Permalink to this definition">¶</a></dt>
-<dd><p>The contents of <tt class="docutils literal"><span class="pre">buf</span></tt> (<tt class="docutils literal"><span class="pre">count</span></tt> entries of type <tt class="docutils literal"><span class="pre">T</span></tt>) on process <tt class="docutils literal"><span class="pre">root</span></tt>
+<dd><p>The contents of <cite>buf</cite> (<cite>count</cite> entries of type <cite>T</cite>) on process <cite>root</cite>
 are duplicated in the local buffers of every process in the communicator.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="mpi::Gather__TCP.i.TP.i.i.mpi::Comm">
 void <tt class="descclassname">mpi::</tt><tt class="descname">Gather</tt><big>(</big>const T* <em>sendBuf</em>, int <em>sendCount</em>, T* <em>recvBuf</em>, int <em>recvCount</em>, int <em>root</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#mpi::Gather__TCP.i.TP.i.i.mpi::Comm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Each process sends an independent amount of data (i.e., <tt class="docutils literal"><span class="pre">sendCount</span></tt>
-entries of type <tt class="docutils literal"><span class="pre">T</span></tt>) to the process with rank <tt class="docutils literal"><span class="pre">root</span></tt>; the <tt class="docutils literal"><span class="pre">root</span></tt>
+<dd><p>Each process sends an independent amount of data (i.e., <cite>sendCount</cite>
+entries of type <cite>T</cite>) to the process with rank <cite>root</cite>; the <cite>root</cite>
 process must specify the maximum number of entries sent from each process,
-<tt class="docutils literal"><span class="pre">recvCount</span></tt>, so that the data received from process <tt class="docutils literal"><span class="pre">i</span></tt> lies within the
+<cite>recvCount</cite>, so that the data received from process <cite>i</cite> lies within the
 <tt class="docutils literal"><span class="pre">[i*recvCount,(i+1)*recvCount)</span></tt> range of the receive buffer.</p>
 </dd></dl>
 
@@ -520,7 +520,7 @@ void <tt class="descclassname">mpi::</tt><tt class="descname">AllGather</tt><big
 void <tt class="descclassname">mpi::</tt><tt class="descname">Scatter</tt><big>(</big>const T* <em>sendBuf</em>, int <em>sendCount</em>, T* <em>recvBuf</em>, int <em>recvCount</em>, int <em>root</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#mpi::Scatter__TCP.i.TP.i.i.mpi::Comm" title="Permalink to this definition">¶</a></dt>
 <dd><p>The same as <tt class="docutils literal"><span class="pre">mpi::Gather</span></tt>, but in reverse: the root process starts with
 an array of data and sends the <tt class="docutils literal"><span class="pre">[i*sendCount,(i+1)*sendCount)</span></tt> entries
-to process <tt class="docutils literal"><span class="pre">i</span></tt>.</p>
+to process <cite>i</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -528,10 +528,10 @@ to process <tt class="docutils literal"><span class="pre">i</span></tt>.</p>
 void <tt class="descclassname">mpi::</tt><tt class="descname">AllToAll</tt><big>(</big>const T* <em>sendBuf</em>, int <em>sendCount</em>, T* <em>recvBuf</em>, int <em>recvCount</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#mpi::AllToAll__TCP.i.TP.i.mpi::Comm" title="Permalink to this definition">¶</a></dt>
 <dd><p>This can be thought of as every process simultaneously scattering data: after
 completion, the <tt class="docutils literal"><span class="pre">[i*recvCount,(i+1)*recvCount)</span></tt> portion of the receive
-buffer on process <tt class="docutils literal"><span class="pre">j</span></tt> will contain the <tt class="docutils literal"><span class="pre">[j*sendCount,(j+1)*sendCount)</span></tt>
-portion of the send buffer on process <tt class="docutils literal"><span class="pre">i</span></tt>, where <tt class="docutils literal"><span class="pre">sendCount</span></tt> refers to
-the value specified on process <tt class="docutils literal"><span class="pre">i</span></tt>, and <tt class="docutils literal"><span class="pre">recvCount</span></tt> refers to the value
-specified on process <tt class="docutils literal"><span class="pre">j</span></tt>.</p>
+buffer on process <cite>j</cite> will contain the <tt class="docutils literal"><span class="pre">[j*sendCount,(j+1)*sendCount)</span></tt>
+portion of the send buffer on process <cite>i</cite>, where <cite>sendCount</cite> refers to
+the value specified on process <cite>i</cite>, and <cite>recvCount</cite> refers to the value
+specified on process <cite>j</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -540,18 +540,18 @@ void <tt class="descclassname">mpi::</tt><tt class="descname">AllToAll</tt><big>
 <dd><p>Same as previous <tt class="docutils literal"><span class="pre">mpi::AllToAll</span></tt>, but the amount of data sent to and
 received from each process is allowed to vary; after completion, the
 <tt class="docutils literal"><span class="pre">[recvDispls[i],recvDispls[i]+recvCounts[i])</span></tt> portion of the receive buffer
-on process <tt class="docutils literal"><span class="pre">j</span></tt> will contain the
+on process <cite>j</cite> will contain the
 <tt class="docutils literal"><span class="pre">[sendDispls[j],sendDispls[j]+sendCounts[j])</span></tt> portion of the send buffer
-on process <tt class="docutils literal"><span class="pre">i</span></tt>.</p>
+on process <cite>i</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="mpi::Reduce__TCP.TP.i.mpi::Op.i.mpi::Comm">
 void <tt class="descclassname">mpi::</tt><tt class="descname">Reduce</tt><big>(</big>const T* <em>sendBuf</em>, T* <em>recvBuf</em>, int <em>count</em>, <a class="reference internal" href="#mpi::Op" title="mpi::Op">mpi::Op</a> <em>op</em>, int <em>root</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#mpi::Reduce__TCP.TP.i.mpi::Op.i.mpi::Comm" title="Permalink to this definition">¶</a></dt>
-<dd><p>The <tt class="docutils literal"><span class="pre">root</span></tt> process receives the result of performing</p>
+<dd><p>The <cite>root</cite> process receives the result of performing</p>
 <p><img class="math" src="../_images/math/6e83a9b5aaaaeb498df4731faf8441e46bee1f8b.png" alt="S_{p-1} + (S_{n-2} + \cdots (S_2 + (S_1 + S_0)) \cdots )"/>,
-where <img class="math" src="../_images/math/9e0ec34cd8860ceb97113f81ba768ba739ad5166.png" alt="S_i"/> represents the send buffer of process <tt class="docutils literal"><span class="pre">i</span></tt>, and <img class="math" src="../_images/math/77cf26be132ef93923e082ee4153b2cb0ef44a50.png" alt="+"/>
-represents the operation specified by <tt class="docutils literal"><span class="pre">op</span></tt>.</p>
+where <img class="math" src="../_images/math/9e0ec34cd8860ceb97113f81ba768ba739ad5166.png" alt="S_i"/> represents the send buffer of process <cite>i</cite>, and <img class="math" src="../_images/math/77cf26be132ef93923e082ee4153b2cb0ef44a50.png" alt="+"/>
+represents the operation specified by <cite>op</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -563,8 +563,8 @@ void <tt class="descclassname">mpi::</tt><tt class="descname">AllReduce</tt><big
 <dl class="function">
 <dt id="mpi::ReduceScatter__TCP.TP.iCP.mpi::Op.mpi::Comm">
 void <tt class="descclassname">mpi::</tt><tt class="descname">ReduceScatter</tt><big>(</big>const T* <em>sendBuf</em>, T* <em>recvBuf</em>, const int* <em>recvCounts</em>, <a class="reference internal" href="#mpi::Op" title="mpi::Op">mpi::Op</a> <em>op</em>, <a class="reference internal" href="#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#mpi::ReduceScatter__TCP.TP.iCP.mpi::Op.mpi::Comm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as <tt class="docutils literal"><span class="pre">mpi::AllReduce</span></tt>, but process <tt class="docutils literal"><span class="pre">0</span></tt> only receives the
-<tt class="docutils literal"><span class="pre">[0,recvCounts[0])</span></tt> portion of the result, process <tt class="docutils literal"><span class="pre">1</span></tt> only receives the
+<dd><p>Same as <tt class="docutils literal"><span class="pre">mpi::AllReduce</span></tt>, but process 0 only receives the
+<tt class="docutils literal"><span class="pre">[0,recvCounts[0])</span></tt> portion of the result, process 1 only receives the
 <tt class="docutils literal"><span class="pre">[recvCounts[0],recvCounts[0]+recvCounts[1])</span></tt> portion of the result,
 etc.</p>
 </dd></dl>

@@ -156,13 +156,13 @@ where <img class="math" src="../_images/math/471ba291329d771104a53e59a4f8d97e367
 <img class="math" src="../_images/math/3e097736f719e84a4f83273b9239a33b59a32964.png" alt="D = \mbox{diag}(d)"/> and <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> is a column vector.</p>
 <dl class="function">
 <dt id="basic::DiagonalScale__Side.Orientation.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalScale</tt><big>(</big>Side <em>side</em>, Orientation <em>orientation</em>, const Matrix&lt;T&gt;&amp; <em>d</em>, Matrix&lt;T&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#basic::DiagonalScale__Side.Orientation.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalScale</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;T&gt;&amp; <em>d</em>, Matrix&lt;T&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#basic::DiagonalScale__Side.Orientation.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="basic::DiagonalScale__Side.Orientation.DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalScale</tt><big>(</big>Side <em>side</em>, Orientation <em>orientation</em>, const DistMatrix&lt;T, U, V&gt;&amp; <em>d</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#basic::DiagonalScale__Side.Orientation.DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
+void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalScale</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;T, U, V&gt;&amp; <em>d</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#basic::DiagonalScale__Side.Orientation.DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype and the
 individual distributions of <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> and <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>).</p>
 </dd></dl>
@@ -179,13 +179,13 @@ individual distributions of <img class="math" src="../_images/math/96ab646de7704
 is a column vector.</p>
 <dl class="function">
 <dt id="basic::DiagonalSolve__Side.Orientation.Matrix:F:CR.Matrix:F:R.b">
-void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalSolve</tt><big>(</big>Side <em>side</em>, Orientation <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>d</em>, Matrix&lt;F&gt;&amp; <em>X</em>, bool <em>checkIfSingular</em><em>=false </em><big>)</big><a class="headerlink" href="#basic::DiagonalSolve__Side.Orientation.Matrix:F:CR.Matrix:F:R.b" title="Permalink to this definition">¶</a></dt>
+void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>d</em>, Matrix&lt;F&gt;&amp; <em>X</em>, bool <em>checkIfSingular</em><em>=false </em><big>)</big><a class="headerlink" href="#basic::DiagonalSolve__Side.Orientation.Matrix:F:CR.Matrix:F:R.b" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="basic::DiagonalSolve__Side.Orientation.DistMatrix:F.U.V:CR.DistMatrix:F.W.Z:R.b">
-void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalSolve</tt><big>(</big>Side <em>side</em>, Orientation <em>orientation</em>, const DistMatrix&lt;F, U, V&gt;&amp; <em>d</em>, DistMatrix&lt;F, W, Z&gt;&amp; <em>X</em>, bool <em>checkIfSingular</em><em>=false </em><big>)</big><a class="headerlink" href="#basic::DiagonalSolve__Side.Orientation.DistMatrix:F.U.V:CR.DistMatrix:F.W.Z:R.b" title="Permalink to this definition">¶</a></dt>
+void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;F, U, V&gt;&amp; <em>d</em>, DistMatrix&lt;F, W, Z&gt;&amp; <em>X</em>, bool <em>checkIfSingular</em><em>=false </em><big>)</big><a class="headerlink" href="#basic::DiagonalSolve__Side.Orientation.DistMatrix:F.U.V:CR.DistMatrix:F.W.Z:R.b" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype and the
 individual distributions of <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> and <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>).</p>
 </dd></dl>

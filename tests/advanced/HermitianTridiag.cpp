@@ -38,7 +38,7 @@ using namespace elemental;
 void Usage()
 {
     cout << "Tridiagonalizes a symmetric matrix.\n\n"
-         << "  Tridiag <r> <c> <shape> <m> <nb> <local nb symv/hemv> "
+         << "  HermitianTridiag <r> <c> <shape> <m> <nb> <local nb symv/hemv> "
             "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"

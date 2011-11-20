@@ -20,9 +20,9 @@ Hemm
 ----
 Hermitian matrix-matrix multiplication: updates
 :math:`C := \alpha A B + \beta C`, or 
-:math:`C := \alpha B A + \beta C`, depending upon whether *side* is set to 
+:math:`C := \alpha B A + \beta C`, depending upon whether `side` is set to 
 ``LEFT`` or ``RIGHT``, respectively. In both of these types of updates, 
-:math:`A` is implicitly Hermitian and only the triangle specified by *shape* is 
+:math:`A` is implicitly Hermitian and only the triangle specified by `shape` is 
 accessed.
 
 .. cpp:function:: void basic::Hemm( Side side, Shape shape, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
@@ -38,8 +38,8 @@ Her2k
 Hermitian rank-2K update: updates
 :math:`C := \alpha (A B^H + B A^H) + \beta C`, or 
 :math:`C := \alpha (A^H B + B^H A) + \beta C`, depending upon whether 
-*orientation* is set to ``NORMAL`` or ``ADJOINT``, respectively. Only the 
-triangle of :math:`C` specified by the *shape* parameter is modified.
+`orientation` is set to ``NORMAL`` or ``ADJOINT``, respectively. Only the 
+triangle of :math:`C` specified by the `shape` parameter is modified.
 
 .. cpp:function:: void basic::Her2k( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 
@@ -53,9 +53,9 @@ Herk
 ----
 Hermitian rank-K update: updates
 :math:`C := \alpha A A^H + \beta C`, or 
-:math:`C := \alpha A^H A + \beta C`, depending upon whether *orientation* is
+:math:`C := \alpha A^H A + \beta C`, depending upon whether `orientation` is
 set to ``NORMAL`` or ``ADJOINT``, respectively. Only the triangle of :math:`C` 
-specified by the *shape* parameter is modified.
+specified by the `shape` parameter is modified.
 
 .. cpp:function:: void basic::Herk( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 
@@ -75,7 +75,7 @@ Hetrmm
 
 Hermitian triangular matrix-matrix multiply: performs 
 :math:`L := L^H L` or :math:`U := U U^H`, depending upon the choice of the 
-*shape* parameter. 
+`shape` parameter. 
 
 .. cpp:function:: void basic::Hetrmm( Shape shape, Matrix<T>& A )
 
@@ -89,9 +89,9 @@ Symm
 ----
 Symmetric matrix-matrix multiplication: updates
 :math:`C := \alpha A B + \beta C`, or 
-:math:`C := \alpha B A + \beta C`, depending upon whether *side* is set to 
+:math:`C := \alpha B A + \beta C`, depending upon whether `side` is set to 
 ``LEFT`` or ``RIGHT``, respectively. In both of these types of updates, 
-:math:`A` is implicitly symmetric and only the triangle specified by *shape* 
+:math:`A` is implicitly symmetric and only the triangle specified by `shape` 
 is accessed.
 
 .. cpp:function:: void basic::Symm( Side side, Shape shape, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
@@ -107,8 +107,8 @@ Syr2k
 Symmetric rank-2K update: updates
 :math:`C := \alpha (A B^T + B A^T) + \beta C`, or 
 :math:`C := \alpha (A^T B + B^T A) + \beta C`, depending upon whether 
-*orientation* is set to ``NORMAL`` or ``TRANSPOSE``, respectively. Only the 
-triangle of :math:`C` specified by the *shape* parameter is modified.
+`orientation` is set to ``NORMAL`` or ``TRANSPOSE``, respectively. Only the 
+triangle of :math:`C` specified by the `shape` parameter is modified.
 
 .. cpp:function:: void basic::Syr2k( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 
@@ -122,9 +122,9 @@ Syrk
 ----
 Symmetric rank-K update: updates
 :math:`C := \alpha A A^T + \beta C`, or 
-:math:`C := \alpha A^T A + \beta C`, depending upon whether *orientation* is
+:math:`C := \alpha A^T A + \beta C`, depending upon whether `orientation` is
 set to ``NORMAL`` or ``TRANSPOSE``, respectively. Only the triangle of :math:`C`
-specified by the *shape* parameter is modified.
+specified by the `shape` parameter is modified.
 
 .. cpp:function:: void basic::Syrk( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 
@@ -138,10 +138,10 @@ Trmm
 ----
 Triangular matrix-matrix multiplication: performs
 :math:`C := \alpha \mbox{op}(A) B`, or 
-:math:`C := \alpha B \mbox{op}(A)`, depending upon whether *side* was chosen
+:math:`C := \alpha B \mbox{op}(A)`, depending upon whether `side` was chosen
 to be ``LEFT`` or ``RIGHT``, respectively. Whether :math:`A` is treated as 
-lower or upper triangular is determined by *shape*, and :math:`\mbox{op}(A)` 
-can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and *diagonal* determines
+lower or upper triangular is determined by `shape`, and :math:`\mbox{op}(A)` 
+can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and `diagonal` determines
 whether :math:`A` is treated as unit diagonal or not).
 
 .. cpp:function:: void basic::Trmm( Side side, Shape shape, Orientation orientation, Diagonal diagonal, T alpha, const Matrix<T>& A, Matrix<T>& B )
@@ -156,10 +156,10 @@ Trsm
 ----
 Triangular solve with multiple right-hand sides: performs
 :math:`C := \alpha \mbox{op}(A)^{-1} B`, or 
-:math:`C := \alpha B \mbox{op}(A)^{-1}`, depending upon whether *side* was 
+:math:`C := \alpha B \mbox{op}(A)^{-1}`, depending upon whether `side` was 
 chosen to be ``LEFT`` or ``RIGHT``, respectively. Whether :math:`A` is treated 
-as lower or upper triangular is determined by *shape*, and :math:`\mbox{op}(A)` 
-can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and *diagonal* determines
+as lower or upper triangular is determined by `shape`, and :math:`\mbox{op}(A)` 
+can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and `diagonal` determines
 whether :math:`A` is treated as unit diagonal or not).
 
 .. cpp:function:: void basic::Trsm( Side side, Shape shape, Orientation orientation, Diagonal diagonal, T alpha, const Matrix<T>& A, Matrix<T>& B )

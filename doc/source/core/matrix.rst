@@ -101,14 +101,14 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
    .. cpp:function:: Matrix( int height, int width )
 
-      A *height* :math:`\times` *width* matrix is created with an unspecified
+      A `height` :math:`\times` `width` matrix is created with an unspecified
       leading dimension (though it is currently implemented as 
       ``std::max(height,1)``).
 
    .. cpp:function:: Matrix( int height, int width, int ldim )
 
-      A *height* :math:`\times` *width* matrix is created with a leading 
-      dimension equal to *ldim* (which must be greater than or equal 
+      A `height` :math:`\times` `width` matrix is created with a leading 
+      dimension equal to `ldim` (which must be greater than or equal 
       ``std::min(height,1)``).
 
    .. cpp:function:: Matrix( int height, int width, const T* buffer, int ldim )
@@ -174,8 +174,8 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
    .. cpp:function:: T* Buffer( int i, int j, int height, int width )
 
-      Same as the version without *height* and *width*, but in **Debug** modes 
-      it will ensure that the *height* :math:`\times` *width* submatrix starting
+      Same as the version without `height` and `width`, but in **Debug** modes 
+      it will ensure that the `height` :math:`\times` `width` submatrix starting
       at entry :math:`(i,j)` does not go out of bounds.
 
    .. cpp:function:: const T* LockedBuffer( int i, int j, int height, int width ) const
@@ -311,7 +311,7 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
    .. cpp:function:: void View( Matrix<T>& A, int i, int j, int height, int width )
 
       Reconfigure the matrix around the modifiable buffer underlying ``A``, but
-      only the portion that holds the *height* :math:`\times` *width* submatrix 
+      only the portion that holds the `height` :math:`\times` `width` submatrix 
       starting at entry ``(i,j)``
 
    .. cpp:function:: void LockedView( const Matrix<T>& A, int i, int j, int height, int width )
@@ -363,12 +363,12 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
    .. cpp:function:: void ResizeTo( int height, int width )
 
-      Reconfigures the matrix to be *height* :math:`\times` *width*.
+      Reconfigures the matrix to be `height` :math:`\times` `width`.
 
    .. cpp:function:: void ResizeTo( int height, int width, int ldim )
 
-      Reconfigures the matrix to be *height* :math:`\times` *width*, but with 
-      leading dimension equal to *ldim* (which must be greater than or equal to 
+      Reconfigures the matrix to be `height` :math:`\times` `width`, but with 
+      leading dimension equal to `ldim` (which must be greater than or equal to 
       ``std::min(height,1)``).
 
    .. cpp:function:: void SetToIdentity()

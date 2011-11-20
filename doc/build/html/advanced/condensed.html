@@ -28,7 +28,7 @@
     <link rel="top" title="Elemental 0.71 documentation" href="../index.html" />
     <link rel="up" title="Advanced linear algebra" href="../advanced.html" />
     <link rel="next" title="Eigensolvers and SVD" href="eigen_svd.html" />
-    <link rel="prev" title="Explicit inversion" href="inversion.html" /> 
+    <link rel="prev" title="In-place inversion" href="inversion.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,7 +41,7 @@
           <a href="eigen_svd.html" title="Eigensolvers and SVD"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="inversion.html" title="Explicit inversion"
+          <a href="inversion.html" title="In-place inversion"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" accesskey="U">Advanced linear algebra</a> &raquo;</li> 
@@ -57,7 +57,28 @@
 <h1>Reduction to condensed form<a class="headerlink" href="#reduction-to-condensed-form" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="hermitian-to-tridiagonal">
 <h2>Hermitian to tridiagonal<a class="headerlink" href="#hermitian-to-tridiagonal" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO:</strong> Describe <tt class="docutils literal"><span class="pre">advanced::HermitianTridiag</span></tt> here.</p>
+<p>The currently best-known algorithms for computing eigenpairs of dense Hermitian
+matrices begin by performing a similarity transformation which reduces the matrix
+to tridiagonal form (usually through Householder transformations). This routine
+performs said reduction on a Hermitian matrix and stores the scaled Householder
+vectors in place of the introduced zeroes.</p>
+<dl class="function">
+<dt id="advanced::HermitianTridiag__Shape.DistMatrix:R.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">HermitianTridiag</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HermitianTridiag__Shape.DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites the main and sub (super) diagonal of the real distributed matrix <cite>A</cite>
+with its similar triangular matrix and stores the scaled Householder transforms
+below (above) its tridiagonal entries.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::HermitianTridiag__Shape.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">HermitianTridiag</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;std::complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#advanced::HermitianTridiag__Shape.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but for complex distributed matrices. For technical reasons,
+the phase information cannot be inferred for the Householder vectors, so these
+phases are returned in the column vector <cite>t</cite>.</p>
+</dd></dl>
+
+<p><strong>TODO:</strong> Describe the routines for choosing between the various algorithms.</p>
 </div>
 <div class="section" id="general-to-hessenberg">
 <h2>General to Hessenberg<a class="headerlink" href="#general-to-hessenberg" title="Permalink to this headline">¶</a></h2>
@@ -90,7 +111,7 @@
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="inversion.html"
-                        title="previous chapter">Explicit inversion</a></p>
+                        title="previous chapter">In-place inversion</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="eigen_svd.html"
                         title="next chapter">Eigensolvers and SVD</a></p>
@@ -126,7 +147,7 @@
           <a href="eigen_svd.html" title="Eigensolvers and SVD"
              >next</a> |</li>
         <li class="right" >
-          <a href="inversion.html" title="Explicit inversion"
+          <a href="inversion.html" title="In-place inversion"
              >previous</a> |</li>
         <li><a href="../index.html">Elemental 0.71 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" >Advanced linear algebra</a> &raquo;</li> 

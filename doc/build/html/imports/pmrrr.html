@@ -111,8 +111,8 @@ int <tt class="descname">firstLocalEigenvalue</tt><a class="headerlink" href="#p
 <dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm">
 <a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, <a class="reference internal" href="mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute all of the eigenvalues of the real symmetric tridiagonal matrix with
-diagonal <tt class="docutils literal"><span class="pre">d</span></tt> and subdiagonal <tt class="docutils literal"><span class="pre">e</span></tt>: the eigenvalues will be stored in
-<tt class="docutils literal"><span class="pre">w</span></tt> and the work will be divided among the processors in <tt class="docutils literal"><span class="pre">comm</span></tt>.</p>
+diagonal <cite>d</cite> and subdiagonal <cite>e</cite>: the eigenvalues will be stored in
+<cite>w</cite> and the work will be divided among the processors in <cite>comm</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -149,7 +149,7 @@ within the specified interval.</p>
 <dl class="function">
 <dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm.i.i">
 <a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, <a class="reference internal" href="mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, int <em>a</em>, int <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm.i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Only compute the <tt class="docutils literal"><span class="pre">a-b</span></tt> eigenvalues of the tridiagonal matrix, where
+<dd><p>Only compute the eigenvalues with indices ranging from <tt class="docutils literal"><span class="pre">a</span></tt> to <tt class="docutils literal"><span class="pre">b</span></tt>, where
 <img class="math" src="../_images/math/7981a36d5e79f5ce44bc0ca8bccd33fa5167000b.png" alt="0 \le a \le b &lt; n"/>.</p>
 </dd></dl>
 

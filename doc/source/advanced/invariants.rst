@@ -38,28 +38,27 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
 
 .. cpp:function:: F advanced::Determinant( Matrix<F>& A )
 
-   Returns the determinant of the square matrix ``A``, which is overwritten 
+   Returns the determinant of the square matrix `A`, which is overwritten 
    during the computation.
 
 .. cpp:function:: F advanced::Determinant( DistMatrix<F,MC,MR>& A )
 
-   Returns the determinant of the square distributed matrix ``A``, which is 
-   overwritten during the computation.
+   Same as above, but for a distributed matrix.
 
 .. cpp:type:: struct SafeProduct<F>
 
-   Represents the product of ``n`` values as :math:`\rho \exp(\kappa n)`, 
+   Represents the product of `n` values as :math:`\rho \exp(\kappa n)`, 
    where :math:`|\rho| \le 1` and :math:`\kappa \in \mathbb{R}`.
 
    .. cpp:member:: F rho
 
-      For nonzero values, ``rho`` is the modulus and lies *on* the unit 
-      circle; in order to represent a value that is precisely zero, ``rho`` 
+      For nonzero values, `rho` is the modulus and lies *on* the unit 
+      circle; in order to represent a value that is precisely zero, `rho` 
       is set to zero.
 
    .. cpp:member:: typename RealBase<F>::type kappa
 
-      ``kappa`` can be an arbitrary real number.
+      `kappa` can be an arbitrary real number.
 
    .. cpp:member:: int n
 
@@ -67,13 +66,12 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
 
 .. cpp:function:: SafeProduct<F> advanced::SafeDeterminant( Matrix<F>& A )
 
-   Returns the determinant of the square matrix ``A`` in an expanded form 
+   Returns the determinant of the square matrix `A` in an expanded form 
    which is less likely to over/under-flow.
 
 .. cpp:function:: SafeProduct<F> advanced::SafeDeterminant( DistMatrix<F,MC,MR>& A )
 
-   Returns the determinant of the square distributed matrix ``A`` in an 
-   expanded form which is less likely to over/under-flow.
+   Same as above, but for a distributed matrix.
 
 Trace
 -----
@@ -95,9 +93,9 @@ important characterization.
 
 .. cpp:function:: F advanced::Trace( const Matrix<F>& A )
 
-   Return the trace of the square matrix ``A``.
+   Return the trace of the square matrix `A`.
 
 .. cpp:function:: F advanced::Trace( const DistMatrix<F,MC,MR>& A )
 
-   Return the trace of the square distributed matrix ``A``.
+   Same as above, but for a distributed matrix.
 
