@@ -13,8 +13,8 @@ LocalHemvBlocksize
 
    Sets the local blocksize for the distributed ``basic::Hemv`` routine for 
    datatype ``T``. It is set to 64 by 
-   default and is important for the Householder reduction of a Hermitian 
-   matrix to symmetric tridiagonal form.
+   default and is important for the reduction of a complex Hermitian
+   matrix to real symmetric tridiagonal form.
 
 .. cpp:function:: int basic::LocalHemvBlocksize<T>()
 
@@ -26,7 +26,8 @@ LocalSymvBlocksize
 .. cpp:function:: void basic::SetLocalSymvBlocksize<T>( int blocksize )
 
    Sets the local blocksize for the distributed ``basic::Symv`` routine for 
-   datatype ``T``. It is set to 64 by default.
+   datatype ``T``. It is set to 64 by default and is important for the reduction
+   of a real symmetric matrix to symmetric tridiagonal form.
 
 .. cpp:function:: int basic::LocalSymvBlocksize<T>()
 

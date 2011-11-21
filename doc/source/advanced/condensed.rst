@@ -4,30 +4,35 @@ Reduction to condensed form
 Hermitian to tridiagonal
 ------------------------
 The currently best-known algorithms for computing eigenpairs of dense Hermitian 
-matrices begin by performing a similarity transformation which reduces the matrix 
-to tridiagonal form (usually through Householder transformations). This routine 
-performs said reduction on a Hermitian matrix and stores the scaled Householder 
-vectors in place of the introduced zeroes. 
+matrices begin by performing a unitary similarity transformation which reduces 
+the matrix to real symmetric tridiagonal form (usually through Householder 
+transformations). This routine performs said reduction on a Hermitian matrix 
+and stores the scaled Householder vectors in place of the introduced zeroes. 
 
 .. cpp:function:: void advanced::HermitianTridiag( Shape shape, DistMatrix<R,MC,MR>& A )
 
-   Overwrites the main and sub (super) diagonal of the real distributed matrix `A` 
-   with its similar triangular matrix and stores the scaled Householder transforms 
-   below (above) its tridiagonal entries.
+   Overwrites the main and sub (super) diagonal of the real distributed matrix 
+   `A` with its similar symmetric tridiagonal matrix and stores the scaled 
+   Householder vectors below (above) its tridiagonal entries.
 
 .. cpp:function:: void advanced::HermitianTridiag( Shape shape, DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,STAR,STAR>& t )
 
-   Same as above, but for complex distributed matrices. For technical reasons, 
-   the phase information cannot be inferred for the Householder vectors, so these 
-   phases are returned in the column vector `t`.
+   Similar to above, but the complex Hermitian matrix is reduced to 
+   real symmetric tridiagonal form, with the added complication of needing to 
+   store the phase information for the Householder vectors (the scaling can 
+   be inferred since the Householder vectors must be unit length); the phases
+   are returned in the column vector `t`.
 
-**TODO:** Describe the routines for choosing between the various algorithms.
+Please see the *Tuning parameters* section for extensive information on maximizing the 
+performance of Householder tridiagonalization.
 
 General to Hessenberg
 ---------------------
-Not yet written but planned.
+Not yet written, but it is planned and relatively straightforward after 
+writing the reduction to tridiagonal form.
 
 General to bidiagonal
 ---------------------
-Not yet written but planned.
+Not yet written, but it is planned and relatively straightforward after 
+writing the reduction to tridiagonal form.
 

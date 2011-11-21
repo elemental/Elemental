@@ -55,6 +55,7 @@
  | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
@@ -217,8 +218,6 @@
   <dt><a href="core/dist_matrix.html#AbstractDistMatrix:T:::SetReal__i.i.typename-RealBase:T:::type">AbstractDistMatrix&lt;T&gt;::SetReal (C++ function)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="core/dist_matrix.html#AbstractDistMatrix:T:::SetRealLocalEntry__i.i.typename-RealBase:T:::type">AbstractDistMatrix&lt;T&gt;::SetRealLocalEntry (C++ function)</a>
   </dt>
@@ -227,6 +226,8 @@
   <dt><a href="core/dist_matrix.html#AbstractDistMatrix:T:::SetToIdentity">AbstractDistMatrix&lt;T&gt;::SetToIdentity (C++ function)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="core/dist_matrix.html#AbstractDistMatrix:T:::SetToRandom">AbstractDistMatrix&lt;T&gt;::SetToRandom (C++ function)</a>
   </dt>
@@ -296,6 +297,14 @@
   </dt>
 
       
+  <dt><a href="advanced/tuning.html#advanced::GetHermitianTridiagApproach">advanced::GetHermitianTridiagApproach (C++ function)</a>
+  </dt>
+
+      
+  <dt><a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:double.MC.MR:R.DistMatrix:double.VR.STAR:R">advanced::HermitianEig (C++ function)</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:std::complex:double:.MC.MR:R.DistMatrix:double.VR.STAR:R">[1]</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:double.MC.MR:R.DistMatrix:double.VR.STAR:R.DistMatrix:double.MC.MR:R">[2]</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:std::complex:double:.MC.MR:R.DistMatrix:double.VR.STAR:R.DistMatrix:double.MC.MR:R">[3]</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:double.MC.MR:R.DistMatrix:double.VR.STAR:R.i.i">[4]</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:std::complex:double:.MC.MR:R.DistMatrix:double.VR.STAR:R.i.i">[5]</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:double.MC.MR:R.DistMatrix:double.VR.STAR:R.DistMatrix:double.MC.MR:R.i.i">[6]</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:std::complex:double:.MC.MR:R.DistMatrix:double.VR.STAR:R.DistMatrix:double.MC.MR:R">[7]</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:double.MC.MR:R.DistMatrix:double.VR.STAR:R.double.double">[8]</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:std::complex:double:.MC.MR:R.DistMatrix:double.VR.STAR:R.double.double">[9]</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:double.MC.MR:R.DistMatrix:double.VR.STAR:R.DistMatrix:double.MC.MR:R.double.double">[10]</a>, <a href="advanced/eigen_svd.html#advanced::HermitianEig__Shape.DistMatrix:std::complex:double:.MC.MR:R.DistMatrix:double.VR.STAR:R.DistMatrix:double.MC.MR:R">[11]</a>
+  </dt>
+
+      
   <dt><a href="advanced/condensed.html#advanced::HermitianTridiag__Shape.DistMatrix:R.MC.MR:R">advanced::HermitianTridiag (C++ function)</a>, <a href="advanced/condensed.html#advanced::HermitianTridiag__Shape.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R">[1]</a>
   </dt>
 
@@ -333,6 +342,14 @@
 
       
   <dt><a href="advanced/invariants.html#advanced::SafeDeterminant__Matrix:F:R">advanced::SafeDeterminant (C++ function)</a>, <a href="advanced/invariants.html#advanced::SafeDeterminant__DistMatrix:F.MC.MR:R">[1]</a>
+  </dt>
+
+      
+  <dt><a href="advanced/tuning.html#advanced::SetHermitianTridiagApproach__HermitianTridiagApproach">advanced::SetHermitianTridiagApproach (C++ function)</a>
+  </dt>
+
+      
+  <dt><a href="advanced/eigen_svd.html#advanced::SortEig__DistMatrix:R.VR.STAR:R">advanced::SortEig (C++ function)</a>, <a href="advanced/eigen_svd.html#advanced::SortEig__DistMatrix:R.VR.STAR:R.DistMatrix:R.MC.MR:R">[1]</a>, <a href="advanced/eigen_svd.html#advanced::SortEig__DistMatrix:R.VR.STAR:R.DistMatrix:std::complex:R:.MC.MR:R">[2]</a>
   </dt>
 
       
@@ -832,6 +849,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="advanced/tuning.html#GetHermitianTridiagGridOrder">GetHermitianTridiagGridOrder (C++ function)</a>
+  </dt>
+
+      
   <dt><a href="core/grid.html#Grid">Grid (C++ class)</a>
   </dt>
 
@@ -883,12 +904,12 @@
   <dt><a href="core/grid.html#Grid::MRRankC">Grid::MRRank (C++ function)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="core/grid.html#Grid::OwningCommC">Grid::OwningComm (C++ function)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="core/grid.html#Grid::OwningGroupC">Grid::OwningGroup (C++ function)</a>
   </dt>
@@ -939,6 +960,16 @@
 
       
   <dt><a href="core/environment.html#GridOrder">GridOrder (C++ type)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="advanced/tuning.html#HermitianTridiagApproach">HermitianTridiagApproach (C++ type)</a>
   </dt>
 
   </dl></td>
@@ -1693,6 +1724,10 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="core/environment.html#SetBlocksize__i">SetBlocksize (C++ function)</a>
+  </dt>
+
+      
+  <dt><a href="advanced/tuning.html#SetHermitianTridiagGridOrder__GridOrder">SetHermitianTridiagGridOrder (C++ function)</a>
   </dt>
 
       

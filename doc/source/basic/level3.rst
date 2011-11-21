@@ -49,6 +49,11 @@ triangle of :math:`C` specified by the `shape` parameter is modified.
 
    The distributed implementation (templated over the datatype).
 
+Please see ``basic::SetLocalTriangularRank2KBlocksize<T>( int blocksize )`` 
+and ``int basic::LocalTriangularRank2KBlocksize<T>()`` in the 
+*Tuning parameters* section for information on tuning the distributed 
+``basic::Her2k``.
+
 Herk
 ----
 Hermitian rank-K update: updates
@@ -64,6 +69,10 @@ specified by the `shape` parameter is modified.
 .. cpp:function:: void basic::Herk( Shape shape, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C )
 
    The distributed implementation (templated over the datatype).
+
+Please see ``basic::SetLocalTriangularRankKBlocksize<T>( int blocksize )`` 
+and ``int basic::LocalTriangularRankKBlocksize<T>()`` in the *Tuning parameters*
+section for information on tuning the distributed ``basic::Herk``.
 
 Hetrmm
 ------
@@ -118,6 +127,11 @@ triangle of :math:`C` specified by the `shape` parameter is modified.
 
    The distributed implementation (templated over the datatype).
 
+Please see ``basic::SetLocalTriangularRank2KBlocksize<T>( int blocksize )`` 
+and ``int basic::LocalTriangularRank2KBlocksize<T>()`` in the 
+*Tuning parameters* section for information on tuning the distributed 
+``basic::Syr2k``.
+
 Syrk
 ----
 Symmetric rank-K update: updates
@@ -133,6 +147,10 @@ specified by the `shape` parameter is modified.
 .. cpp:function:: void basic::Syrk( Shape shape, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C )
 
    The distributed implementation (templated over the datatype).
+
+Please see ``basic::SetLocalTriangularRankKBlocksize<T>( int blocksize )`` 
+and ``int basic::LocalTriangularRankKBlocksize<T>()`` in the *Tuning parameters*
+section for information on tuning the distributed ``basic::Syrk``.
 
 Trmm
 ----

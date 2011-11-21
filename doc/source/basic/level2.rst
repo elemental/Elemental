@@ -71,6 +71,10 @@ Hermitian matrix-vector multiply: :math:`y := \alpha A x + \beta y`, where
 
    The distributed implementation (templated over the datatype).
 
+Please see ``basic::SetLocalHemvBlocksize<T>( int blocksize )`` and 
+``int basic::LocalHemvBlocksize<T>()`` in the *Tuning parameters* section for 
+information on tuning the distributed ``basic::Hemv``.
+
 Her
 ---
 Hermitian rank-one update: implicitly performs :math:`A := \alpha x x^H + A`, 
@@ -110,6 +114,10 @@ Symmetric matrix-vector multiply: :math:`y := \alpha A x + \beta y`, where
 .. cpp:function:: void basic::Symv( Shape shape, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x, T beta, DistMatrix<T,MC,MR>& y )
 
    The distributed implementation (templated over the datatype).
+
+Please see ``basic::SetLocalSymvBlocksize<T>( int blocksize )`` and 
+``int basic::LocalSymvBlocksize<T>()`` in the *Tuning parameters* section for 
+information on tuning the distributed ``basic::Symv``.
 
 Syr
 ---

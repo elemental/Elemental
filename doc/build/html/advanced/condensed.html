@@ -58,35 +58,40 @@
 <div class="section" id="hermitian-to-tridiagonal">
 <h2>Hermitian to tridiagonal<a class="headerlink" href="#hermitian-to-tridiagonal" title="Permalink to this headline">¶</a></h2>
 <p>The currently best-known algorithms for computing eigenpairs of dense Hermitian
-matrices begin by performing a similarity transformation which reduces the matrix
-to tridiagonal form (usually through Householder transformations). This routine
-performs said reduction on a Hermitian matrix and stores the scaled Householder
-vectors in place of the introduced zeroes.</p>
+matrices begin by performing a unitary similarity transformation which reduces
+the matrix to real symmetric tridiagonal form (usually through Householder
+transformations). This routine performs said reduction on a Hermitian matrix
+and stores the scaled Householder vectors in place of the introduced zeroes.</p>
 <dl class="function">
 <dt id="advanced::HermitianTridiag__Shape.DistMatrix:R.MC.MR:R">
 void <tt class="descclassname">advanced::</tt><tt class="descname">HermitianTridiag</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HermitianTridiag__Shape.DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrites the main and sub (super) diagonal of the real distributed matrix <cite>A</cite>
-with its similar triangular matrix and stores the scaled Householder transforms
-below (above) its tridiagonal entries.</p>
+<dd><p>Overwrites the main and sub (super) diagonal of the real distributed matrix
+<cite>A</cite> with its similar symmetric tridiagonal matrix and stores the scaled
+Householder vectors below (above) its tridiagonal entries.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="advanced::HermitianTridiag__Shape.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R">
 void <tt class="descclassname">advanced::</tt><tt class="descname">HermitianTridiag</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;std::complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#advanced::HermitianTridiag__Shape.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as above, but for complex distributed matrices. For technical reasons,
-the phase information cannot be inferred for the Householder vectors, so these
-phases are returned in the column vector <cite>t</cite>.</p>
+<dd><p>Similar to above, but the complex Hermitian matrix is reduced to
+real symmetric tridiagonal form, with the added complication of needing to
+store the phase information for the Householder vectors (the scaling can
+be inferred since the Householder vectors must be unit length); the phases
+are returned in the column vector <cite>t</cite>.</p>
 </dd></dl>
 
-<p><strong>TODO:</strong> Describe the routines for choosing between the various algorithms.</p>
+<p>Please see the <em>Tuning parameters</em> section for extensive information on maximizing the
+performance of Householder tridiagonalization.</p>
 </div>
 <div class="section" id="general-to-hessenberg">
 <h2>General to Hessenberg<a class="headerlink" href="#general-to-hessenberg" title="Permalink to this headline">¶</a></h2>
-<p>Not yet written but planned.</p>
+<p>Not yet written, but it is planned and relatively straightforward after
+writing the reduction to tridiagonal form.</p>
 </div>
 <div class="section" id="general-to-bidiagonal">
 <h2>General to bidiagonal<a class="headerlink" href="#general-to-bidiagonal" title="Permalink to this headline">¶</a></h2>
-<p>Not yet written but planned.</p>
+<p>Not yet written, but it is planned and relatively straightforward after
+writing the reduction to tridiagonal form.</p>
 </div>
 </div>
 

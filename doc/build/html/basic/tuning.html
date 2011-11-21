@@ -66,8 +66,8 @@ of tuning parameters, those of <tt class="docutils literal"><span class="pre">Lo
 void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalHemvBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalHemvBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the local blocksize for the distributed <tt class="docutils literal"><span class="pre">basic::Hemv</span></tt> routine for
 datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is set to 64 by
-default and is important for the Householder reduction of a Hermitian
-matrix to symmetric tridiagonal form.</p>
+default and is important for the reduction of a complex Hermitian
+matrix to real symmetric tridiagonal form.</p>
 </dd></dl>
 
 <dl class="function">
@@ -83,7 +83,8 @@ int <tt class="descclassname">basic::</tt><tt class="descname">LocalHemvBlocksiz
 <dt id="basic::SetLocalSymvBlocksize:T:__i">
 void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalSymvBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalSymvBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the local blocksize for the distributed <tt class="docutils literal"><span class="pre">basic::Symv</span></tt> routine for
-datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is set to 64 by default.</p>
+datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is set to 64 by default and is important for the reduction
+of a real symmetric matrix to symmetric tridiagonal form.</p>
 </dd></dl>
 
 <dl class="function">

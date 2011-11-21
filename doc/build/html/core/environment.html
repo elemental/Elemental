@@ -256,7 +256,11 @@ matrix:</p>
 <dl class="type">
 <dt id="GridOrder">
 <em class="property">type </em><tt class="descname">GridOrder</tt><a class="headerlink" href="#GridOrder" title="Permalink to this definition">¶</a></dt>
-<dd><p>An enum for specifying either <tt class="docutils literal"><span class="pre">ROW_MAJOR</span></tt> or <tt class="docutils literal"><span class="pre">COLUMN_MAJOR</span></tt>.</p>
+<dd><p>An enum for specifying either a <tt class="docutils literal"><span class="pre">ROW_MAJOR</span></tt> or <tt class="docutils literal"><span class="pre">COLUMN_MAJOR</span></tt> ordering;
+it is used to tune one of the algorithms in <tt class="docutils literal"><span class="pre">advanced::HermitianTridiag</span></tt>
+which requires building a smaller square process grid from a rectangular
+process grid, as the ordering of the processes can greatly impact
+performance. See <tt class="docutils literal"><span class="pre">advanced::SetHermitianTridiagGridOrder</span></tt>.</p>
 </dd></dl>
 
 </div>
