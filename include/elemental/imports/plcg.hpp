@@ -78,7 +78,7 @@ UInt64 SerialLcg();
 UInt64 ParallelLcg();
 void ManualLcg( ExpandedUInt64 a, ExpandedUInt64 c, ExpandedUInt64& X );
 
-// For grabbing uniform samples from [0,1]
+// For grabbing uniform samples from (0,1]
 template<typename R> R SerialUniform();
 template<> float SerialUniform<float>();
 template<> double SerialUniform<double>();
@@ -87,39 +87,37 @@ template<> float ParallelUniform<float>();
 template<> double ParallelUniform<double>();
 
 // For generating Gaussian random variables/vectors
-template<typename Real>
-void SerialBoxMuller( Real& X, Real& Y );
-template<typename Real>
-void ParallelBoxMuller( Real& X, Real& Y );
-template<typename Real>
-void SerialGaussianRandomVariable( Real& X );
-template<typename Real>
-void ParallelGaussianRandomVariable( Real& X );
-template<typename Real>
-void SerialGaussianRandomVariable( std::complex<Real>& X );
-template<typename Real>
-void ParallelGaussianRandomVariable( std::complex<Real>& X );
-
-} // namespace plcg
+template<typename R>
+void SerialBoxMuller( R& X, R& Y );
+template<typename R>
+void ParallelBoxMuller( R& X, R& Y );
+template<typename R>
+void SerialGaussianRandomVariable( R& X );
+template<typename R>
+void ParallelGaussianRandomVariable( R& X );
+template<typename R>
+void SerialGaussianRandomVariable( std::complex<R>& X );
+template<typename R>
+void ParallelGaussianRandomVariable( std::complex<R>& X );
 
 //----------------------------------------------------------------------------//
 // Header implementations                                                     //
 //----------------------------------------------------------------------------//
 
-inline plcg::UInt32
-plcg::Lower16Bits( UInt32 a )
+inline UInt32
+Lower16Bits( UInt32 a )
 {
     return a & 0xFFFF;
 }
 
-inline plcg::UInt32
-plcg::Upper16Bits( UInt32 a )
+inline UInt32
+Upper16Bits( UInt32 a )
 {
     return (a >> 16) & 0xFFFF;
 }
 
-inline plcg::ExpandedUInt64
-plcg::Expand( UInt32 a )
+inline ExpandedUInt64
+Expand( UInt32 a )
 {
     ExpandedUInt64 b;
     b[0] = Lower16Bits( a );
@@ -130,8 +128,8 @@ plcg::Expand( UInt32 a )
     return b;
 }
 
-inline plcg::ExpandedUInt64
-plcg::Expand( UInt64 a )
+inline ExpandedUInt64
+Expand( UInt64 a )
 {
     ExpandedUInt64 b;
     b[0] = Lower16Bits( a[0] );
@@ -142,8 +140,8 @@ plcg::Expand( UInt64 a )
     return b;
 }
 
-inline plcg::UInt64
-plcg::Deflate( ExpandedUInt64 a )
+inline UInt64
+Deflate( ExpandedUInt64 a )
 {
     UInt64 b;
     b[0] = a[0] + ( a[1] << 16 );
@@ -153,7 +151,7 @@ plcg::Deflate( ExpandedUInt64 a )
 }
 
 inline void
-plcg::CarryUpper16Bits( ExpandedUInt64& c )
+CarryUpper16Bits( ExpandedUInt64& c )
 {
     c[1] += Upper16Bits(c[0]);
     c[0] = Lower16Bits(c[0]);
@@ -184,8 +182,8 @@ plcg::CarryUpper16Bits( ExpandedUInt64& c )
 //   2^0  ( a0 b0 )
 //
 // Since c := a b (mod 2^64), only the last four terms must be computed.
-inline plcg::ExpandedUInt64 
-plcg::MultiplyWith64BitMod( ExpandedUInt64 a, ExpandedUInt64 b )
+inline ExpandedUInt64 
+MultiplyWith64BitMod( ExpandedUInt64 a, ExpandedUInt64 b )
 {
     UInt32 temp;
     ExpandedUInt64 c;
@@ -228,8 +226,8 @@ plcg::MultiplyWith64BitMod( ExpandedUInt64 a, ExpandedUInt64 b )
     return c;
 }
 
-inline plcg::ExpandedUInt64 
-plcg::AddWith64BitMod( ExpandedUInt64 a, ExpandedUInt64 b )
+inline ExpandedUInt64 
+AddWith64BitMod( ExpandedUInt64 a, ExpandedUInt64 b )
 {
     ExpandedUInt64 c;
     c[0] = a[0] + b[0];
@@ -242,7 +240,7 @@ plcg::AddWith64BitMod( ExpandedUInt64 a, ExpandedUInt64 b )
 }
 
 inline void
-plcg::ManualLcg( ExpandedUInt64 a, ExpandedUInt64 c, ExpandedUInt64& X )
+ManualLcg( ExpandedUInt64 a, ExpandedUInt64 c, ExpandedUInt64& X )
 {
     X = MultiplyWith64BitMod( a, X );
     X = AddWith64BitMod( c, X );
@@ -250,7 +248,7 @@ plcg::ManualLcg( ExpandedUInt64 a, ExpandedUInt64 c, ExpandedUInt64& X )
 
 // Provide a uniform sample from (0,1]
 template<>
-inline float plcg::SerialUniform<float>()
+inline float SerialUniform<float>()
 {
     const UInt64 state = SerialLcg();
     // Use the upper 32-bits of the LCG since they are the most random.
@@ -259,7 +257,7 @@ inline float plcg::SerialUniform<float>()
 
 // Provide a uniform sample from (0,1]
 template<>
-inline double plcg::SerialUniform<double>()
+inline double SerialUniform<double>()
 {
     const UInt64 state = SerialLcg();
     // Use the upper 32-bits of the LCG since they are the most random
@@ -269,7 +267,7 @@ inline double plcg::SerialUniform<double>()
 
 // Provide a uniform sample from (0,1]
 template<>
-inline float plcg::ParallelUniform<float>()
+inline float ParallelUniform<float>()
 {
     const UInt64 state = ParallelLcg();
     // Use the upper 32-bits of the LCG since they are the most random.
@@ -278,7 +276,7 @@ inline float plcg::ParallelUniform<float>()
 
 // Provide a uniform sample from (0,1]
 template<>
-inline double plcg::ParallelUniform<double>()
+inline double ParallelUniform<double>()
 {
     const UInt64 state = ParallelLcg();
     // Use the upper 32-bits of the LCG since they are the most random
@@ -286,78 +284,73 @@ inline double plcg::ParallelUniform<double>()
     return (static_cast<double>(state[1])+1.) / 4294967296.;
 }
 
-/*
- *  For generating Gaussian random variables/vectors
- */
+//
+// For generating Gaussian random variables/vectors
+//
 
-template<typename Real>
+template<typename R>
 inline void
-plcg::SerialBoxMuller
-( Real& X, Real& Y )
+SerialBoxMuller( R& X, R& Y )
 {
-    const Real U = SerialUniform<Real>();
-    const Real V = SerialUniform<Real>();
-    const Real A = sqrt(-2*log(U));
-    const Real c = cos(2*M_PI*V);
-    const Real s = sin(2*M_PI*V);
+    const R U = SerialUniform<R>();
+    const R V = SerialUniform<R>();
+    const R A = sqrt(-2*log(U));
+    const R c = cos(2*M_PI*V);
+    const R s = sin(2*M_PI*V);
     X = A*c;
     Y = A*s;
 }
 
-template<typename Real>
+template<typename R>
 inline void
-plcg::ParallelBoxMuller
-( Real& X, Real& Y )
+ParallelBoxMuller( R& X, R& Y )
 {
-    const Real U = ParallelUniform<Real>();
-    const Real V = ParallelUniform<Real>();
-    const Real A = sqrt(-2*log(U));
-    const Real c = cos(2*M_PI*V);
-    const Real s = sin(2*M_PI*V);
+    const R U = ParallelUniform<R>();
+    const R V = ParallelUniform<R>();
+    const R A = sqrt(-2*log(U));
+    const R c = cos(2*M_PI*V);
+    const R s = sin(2*M_PI*V);
     X = A*c;
     Y = A*s;
 }
 
-template<typename Real>
+template<typename R>
 inline void
-plcg::SerialGaussianRandomVariable
-( Real& X )
+SerialGaussianRandomVariable( R& X )
 {
     // Use half of Box-Muller
-    const Real U = SerialUniform<Real>();
-    const Real V = SerialUniform<Real>();
+    const R U = SerialUniform<R>();
+    const R V = SerialUniform<R>();
     X = sqrt(-2*log(U)) * cos(2*M_PI*V);
 }
 
-template<typename Real>
+template<typename R>
 inline void
-plcg::ParallelGaussianRandomVariable
-( Real& X )
+ParallelGaussianRandomVariable( R& X )
 {
     // Use half of Box-Muller
-    const Real U = ParallelUniform<Real>();
-    const Real V = ParallelUniform<Real>();
+    const R U = ParallelUniform<R>();
+    const R V = ParallelUniform<R>();
     X = sqrt(-2*log(U)) * cos(2*M_PI*V);
 }
 
-template<typename Real>
+template<typename R>
 inline void
-plcg::SerialGaussianRandomVariable
-( std::complex<Real>& X )
+SerialGaussianRandomVariable( std::complex<R>& X )
 {
-    Real Y, Z;
+    R Y, Z;
     SerialBoxMuller( Y, Z );
-    X = std::complex<Real>( Y, Z );
+    X = std::complex<R>( Y, Z );
 }
 
-template<typename Real>
-inline void
-plcg::ParallelGaussianRandomVariable
-( std::complex<Real>& X )
+template<typename R>
+inline void ParallelGaussianRandomVariable( std::complex<R>& X )
 {
-    Real Y, Z;
+    R Y, Z;
     ParallelBoxMuller( Y, Z );
-    X = std::complex<Real>( Y, Z );
+    X = std::complex<R>( Y, Z );
 }
+
+} // namespace plcg
 
 #endif // PARALLEL_LCG_HPP

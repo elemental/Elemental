@@ -78,7 +78,7 @@ UInt64 SerialLcg();
 UInt64 ParallelLcg();
 void ManualLcg( ExpandedUInt64 a, ExpandedUInt64 c, ExpandedUInt64& X );
 
-// For grabbing uniform samples from (0,1]
+// For grabbing uniform samples from [0,1]
 template<typename R> R SerialUniform();
 template<> float SerialUniform<float>();
 template<> double SerialUniform<double>();
@@ -286,78 +286,78 @@ inline double plcg::ParallelUniform<double>()
     return (static_cast<double>(state[1])+1.) / 4294967296.;
 }
 
-/*
- *  For generating Gaussian random variables/vectors
- */
+//
+// For generating Gaussian random variables/vectors
+//
 
-template<typename Real>
+template<typename R>
 inline void
 plcg::SerialBoxMuller
-( Real& X, Real& Y )
+( R& X, R& Y )
 {
-    const Real U = SerialUniform<Real>();
-    const Real V = SerialUniform<Real>();
-    const Real A = sqrt(-2*log(U));
-    const Real c = cos(2*M_PI*V);
-    const Real s = sin(2*M_PI*V);
+    const R U = SerialUniform<R>();
+    const R V = SerialUniform<R>();
+    const R A = sqrt(-2*log(U));
+    const R c = cos(2*M_PI*V);
+    const R s = sin(2*M_PI*V);
     X = A*c;
     Y = A*s;
 }
 
-template<typename Real>
+template<typename R>
 inline void
 plcg::ParallelBoxMuller
-( Real& X, Real& Y )
+( R& X, R& Y )
 {
-    const Real U = ParallelUniform<Real>();
-    const Real V = ParallelUniform<Real>();
-    const Real A = sqrt(-2*log(U));
-    const Real c = cos(2*M_PI*V);
-    const Real s = sin(2*M_PI*V);
+    const R U = ParallelUniform<R>();
+    const R V = ParallelUniform<R>();
+    const R A = sqrt(-2*log(U));
+    const R c = cos(2*M_PI*V);
+    const R s = sin(2*M_PI*V);
     X = A*c;
     Y = A*s;
 }
 
-template<typename Real>
+template<typename R>
 inline void
 plcg::SerialGaussianRandomVariable
-( Real& X )
+( R& X )
 {
     // Use half of Box-Muller
-    const Real U = SerialUniform<Real>();
-    const Real V = SerialUniform<Real>();
+    const R U = SerialUniform<R>();
+    const R V = SerialUniform<R>();
     X = sqrt(-2*log(U)) * cos(2*M_PI*V);
 }
 
-template<typename Real>
+template<typename R>
 inline void
 plcg::ParallelGaussianRandomVariable
-( Real& X )
+( R& X )
 {
     // Use half of Box-Muller
-    const Real U = ParallelUniform<Real>();
-    const Real V = ParallelUniform<Real>();
+    const R U = ParallelUniform<R>();
+    const R V = ParallelUniform<R>();
     X = sqrt(-2*log(U)) * cos(2*M_PI*V);
 }
 
-template<typename Real>
+template<typename R>
 inline void
 plcg::SerialGaussianRandomVariable
-( std::complex<Real>& X )
+( std::complex<R>& X )
 {
-    Real Y, Z;
+    R Y, Z;
     SerialBoxMuller( Y, Z );
-    X = std::complex<Real>( Y, Z );
+    X = std::complex<R>( Y, Z );
 }
 
-template<typename Real>
+template<typename R>
 inline void
 plcg::ParallelGaussianRandomVariable
-( std::complex<Real>& X )
+( std::complex<R>& X )
 {
-    Real Y, Z;
+    R Y, Z;
     ParallelBoxMuller( Y, Z );
-    X = std::complex<Real>( Y, Z );
+    X = std::complex<R>( Y, Z );
 }
 
 #endif // PARALLEL_LCG_HPP

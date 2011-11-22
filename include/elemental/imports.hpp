@@ -48,7 +48,7 @@
 #include "elemental/imports/blas.hpp"
 #include "elemental/imports/lapack.hpp"
 #include "elemental/imports/mpi.hpp"
-#include "elemental/imports/parallel_lcg.hpp"
+#include "elemental/imports/plcg.hpp"
 #include "elemental/imports/pmrrr.hpp"
 
 #endif /* ELEMENTAL_IMPORTS_HPP */
