@@ -78,7 +78,7 @@ elemental::basic::internal::HerkUN
         A1_VR_STAR = A1_MC_STAR = A1;
         A1Adj_STAR_MR.AdjointFrom( A1_VR_STAR );
 
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( UPPER, alpha, A1_MC_STAR, A1Adj_STAR_MR, (T)1, C ); 
         //--------------------------------------------------------------------//
         A1_MC_STAR.FreeAlignments();

@@ -99,7 +99,7 @@ elemental::advanced::internal::HPDInverseUVar2( DistMatrix<F,MC,MR>& A )
         A01Trans_STAR_MC.TransposeFrom( A01_VC_STAR );
         A01_VR_STAR = A01_VC_STAR;
         A01Adj_STAR_MR.AdjointFrom( A01_VR_STAR );
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( UPPER, TRANSPOSE,
           (F)1, A01Trans_STAR_MC, A01Adj_STAR_MR, (F)1, A00 );
 
@@ -108,7 +108,7 @@ elemental::advanced::internal::HPDInverseUVar2( DistMatrix<F,MC,MR>& A )
         ( TRANSPOSE, NORMAL, (F)-1, A01Trans_STAR_MC, A12_STAR_MR, (F)1, A02 );
 
         A12_STAR_MC = A12_STAR_VR;
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( UPPER, ADJOINT,
           (F)-1, A12_STAR_MC, A12_STAR_MR, (F)1, A22 );
 

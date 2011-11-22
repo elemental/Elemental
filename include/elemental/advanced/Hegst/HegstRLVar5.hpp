@@ -136,10 +136,10 @@ elemental::advanced::internal::HegstRLVar5
         L21_VR_STAR = L21_VC_STAR;
         A21Adj_STAR_MR.AdjointFrom( A21_VR_STAR );
         L21Adj_STAR_MR.AdjointFrom( L21_VR_STAR );
-        basic::internal::LocalTriangularRank2K
+        basic::internal::LocalTrr2k
         ( LOWER,
-          (F)-1, L21_MC_STAR, A21_MC_STAR,
-                 L21Adj_STAR_MR, A21Adj_STAR_MR,
+          (F)-1, L21_MC_STAR, A21Adj_STAR_MR,
+                 A21_MC_STAR, L21Adj_STAR_MR,
           (F)1, A22 );
 
         // A21 := A21 - 1/2 Y21

@@ -33,7 +33,7 @@
 
 template<typename R> // representation of a real number
 inline R
-advanced::internal::MaxNorm( const Matrix<R>& A )
+elemental::advanced::internal::MaxNorm( const Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::MaxNorm");
@@ -56,7 +56,7 @@ advanced::internal::MaxNorm( const Matrix<R>& A )
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::internal::MaxNorm( const Matrix<std::complex<R> >& A )
+elemental::advanced::internal::MaxNorm( const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::MaxNorm");
@@ -79,7 +79,7 @@ advanced::internal::MaxNorm( const Matrix<std::complex<R> >& A )
 
 template<typename R> // representation of a real number
 inline R
-advanced::internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
+elemental::advanced::internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::MaxNorm");
@@ -107,7 +107,8 @@ advanced::internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::internal::MaxNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
+elemental::advanced::internal::MaxNorm
+( const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::MaxNorm");

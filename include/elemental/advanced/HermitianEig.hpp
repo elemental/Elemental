@@ -43,8 +43,10 @@
 // We create specialized redistribution routines for redistributing the 
 // real eigenvectors of the symmetric tridiagonal matrix at the core of our 
 // eigensolver in order to minimize the temporary memory usage.
-namespace {
-void
+namespace elemental {
+namespace advanced {
+namespace hermitian_eig_util {
+inline void
 RealToRealInPlaceRedist
 ( DistMatrix<double,MC,MR>& paddedZ,
   int height,
@@ -127,7 +129,7 @@ RealToRealInPlaceRedist
 }
 
 #ifndef WITHOUT_COMPLEX
-void
+inline void
 RealToComplexInPlaceRedist
 ( DistMatrix<std::complex<double>,MC,MR>& paddedZ,
   int height,
@@ -213,7 +215,10 @@ RealToComplexInPlaceRedist
     }
 }
 #endif // WITHOUT_COMPLEX
-} // anonymous namespace
+
+} // namespace hermitian_eig_util
+} // namespace advanced
+} // namespace elemental
 
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs of the real, symmetric matrix A            //
@@ -225,6 +230,7 @@ elemental::advanced::HermitianEig
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& paddedZ )
 {
+    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -409,6 +415,7 @@ elemental::advanced::HermitianEig
   DistMatrix<double,MC,  MR>& paddedZ,
   int lowerBound, int upperBound )
 {
+    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -592,6 +599,7 @@ elemental::advanced::HermitianEig
   DistMatrix<double,MC,  MR>& paddedZ,
   double lowerBound, double upperBound )
 {
+    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -1070,6 +1078,7 @@ elemental::advanced::HermitianEig
   DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ )
 {
+    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -1256,6 +1265,7 @@ elemental::advanced::HermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   int lowerBound, int upperBound )
 {
+    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -1441,6 +1451,7 @@ elemental::advanced::HermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   double lowerBound, double upperBound )
 {
+    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif

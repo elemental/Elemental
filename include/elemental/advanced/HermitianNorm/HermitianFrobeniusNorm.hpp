@@ -33,7 +33,7 @@
 
 template<typename R> // representation of a real number
 inline R
-advanced::internal::HermitianFrobeniusNorm
+elemental::advanced::internal::HermitianFrobeniusNorm
 ( Shape shape, const Matrix<R>& A )
 {
 #ifndef RELEASE
@@ -80,7 +80,7 @@ advanced::internal::HermitianFrobeniusNorm
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::internal::HermitianFrobeniusNorm
+elemental::advanced::internal::HermitianFrobeniusNorm
 ( Shape shape, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
@@ -129,7 +129,7 @@ advanced::internal::HermitianFrobeniusNorm
 
 template<typename R> // representation of a real number
 inline R
-advanced::internal::HermitianFrobeniusNorm
+elemental::advanced::internal::HermitianFrobeniusNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -195,7 +195,7 @@ advanced::internal::HermitianFrobeniusNorm
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::internal::HermitianFrobeniusNorm
+elemental::advanced::internal::HermitianFrobeniusNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE

@@ -33,7 +33,7 @@
 
 template<typename R> // representation of a real number
 inline R
-advanced::internal::HermitianOneNorm
+elemental::advanced::internal::HermitianOneNorm
 ( Shape shape, const Matrix<R>& A )
 {
 #ifndef RELEASE
@@ -75,7 +75,7 @@ advanced::internal::HermitianOneNorm
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::internal::HermitianOneNorm
+elemental::advanced::internal::HermitianOneNorm
 ( Shape shape, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
@@ -118,7 +118,7 @@ advanced::internal::HermitianOneNorm
 
 template<typename R> // representation of a real number
 inline R
-advanced::internal::HermitianOneNorm
+elemental::advanced::internal::HermitianOneNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -239,7 +239,7 @@ advanced::internal::HermitianOneNorm
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
-advanced::internal::HermitianOneNorm
+elemental::advanced::internal::HermitianOneNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE

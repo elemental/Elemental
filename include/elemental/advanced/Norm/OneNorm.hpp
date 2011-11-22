@@ -33,7 +33,7 @@
 
 template<typename R> // represents a real number
 inline R
-advanced::internal::OneNorm( const Matrix<R>& A )
+elemental::advanced::internal::OneNorm( const Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::OneNorm");
@@ -55,7 +55,7 @@ advanced::internal::OneNorm( const Matrix<R>& A )
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::internal::OneNorm( const Matrix<std::complex<R> >& A )
+elemental::advanced::internal::OneNorm( const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::OneNorm");
@@ -77,7 +77,7 @@ advanced::internal::OneNorm( const Matrix<std::complex<R> >& A )
 
 template<typename R> // representation of a real number
 inline R
-advanced::internal::OneNorm( const DistMatrix<R,MC,MR>& A )
+elemental::advanced::internal::OneNorm( const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::OneNorm");
@@ -115,7 +115,8 @@ advanced::internal::OneNorm( const DistMatrix<R,MC,MR>& A )
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::internal::OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
+elemental::advanced::internal::OneNorm
+( const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::OneNorm");

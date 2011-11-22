@@ -99,9 +99,11 @@ elemental::basic::internal::Her2kLN
         B1_VR_STAR = B1_MC_STAR = B1;
         B1Adj_STAR_MR.AdjointFrom( B1_VR_STAR );
 
-        basic::internal::LocalTriangularRank2K
-        ( LOWER, alpha,
-          A1_MC_STAR, B1_MC_STAR, A1Adj_STAR_MR, B1Adj_STAR_MR, (T)1, C );
+        basic::internal::LocalTrr2k
+        ( LOWER, 
+          alpha, A1_MC_STAR, B1Adj_STAR_MR, 
+                 B1_MC_STAR, A1Adj_STAR_MR,
+          (T)1,  C );
         //--------------------------------------------------------------------//
         A1_MC_STAR.FreeAlignments();
         B1_MC_STAR.FreeAlignments();

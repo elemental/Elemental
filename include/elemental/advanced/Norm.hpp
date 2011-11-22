@@ -38,7 +38,7 @@
 
 template<typename R> // representation of a real number
 inline R
-advanced::Norm( const Matrix<R>& A, NormType type )
+elemental::advanced::Norm( const Matrix<R>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Norm");
@@ -68,7 +68,7 @@ advanced::Norm( const Matrix<R>& A, NormType type )
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::Norm( const Matrix<std::complex<R> >& A, NormType type )
+elemental::advanced::Norm( const Matrix<std::complex<R> >& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Norm");
@@ -98,7 +98,7 @@ advanced::Norm( const Matrix<std::complex<R> >& A, NormType type )
 
 template<typename R> // representation of a real number
 inline R
-advanced::Norm( const DistMatrix<R,MC,MR>& A, NormType type )
+elemental::advanced::Norm( const DistMatrix<R,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Norm");
@@ -128,7 +128,8 @@ advanced::Norm( const DistMatrix<R,MC,MR>& A, NormType type )
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::Norm( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
+elemental::advanced::Norm
+( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Norm");

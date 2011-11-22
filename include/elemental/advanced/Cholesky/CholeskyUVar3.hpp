@@ -66,7 +66,7 @@ elemental::advanced::internal::CholeskyUVar3
 */
 template<typename F> // representation of real or complex number
 inline void
-advanced::internal::CholeskyUVar3Naive
+elemental::advanced::internal::CholeskyUVar3Naive
 ( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -115,7 +115,7 @@ advanced::internal::CholeskyUVar3Naive
 
         A12_STAR_MC = A12_STAR_VR;
         A12_STAR_MR = A12_STAR_VR;
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( UPPER, ADJOINT, (F)-1, A12_STAR_MC, A12_STAR_MR, (F)1, A22 );
         A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//

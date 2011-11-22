@@ -136,9 +136,10 @@ elemental::advanced::internal::HegstRUVar5
         U12_STAR_MC = U12_STAR_VC;
         A12_STAR_MR = A12_STAR_VR;
         U12_STAR_MR = U12_STAR_VR;
-        basic::internal::LocalTriangularRank2K
+        basic::internal::LocalTrr2k
         ( UPPER, ADJOINT, ADJOINT,
-          (F)-1, U12_STAR_MC, A12_STAR_MC, U12_STAR_MR, A12_STAR_MR, 
+          (F)-1, U12_STAR_MC, A12_STAR_MR,
+                 A12_STAR_MC, U12_STAR_MR,
           (F)1, A22 );
 
         // A12 := A12 - 1/2 Y12

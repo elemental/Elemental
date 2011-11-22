@@ -31,9 +31,48 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace {
+namespace elemental {
+namespace basic {
+namespace trrk_util {
 
 #ifndef RELEASE
+// C := alpha A B + beta C
+template<typename T>
+inline void 
+CheckInput
+( const DistMatrix<T,MC,  STAR>& A, 
+  const DistMatrix<T,STAR,MR  >& B,
+  const DistMatrix<T,MC,  MR  >& C )
+{
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        throw std::logic_error
+        ("A, B, and C must be distributed over the same grid");
+    if( A.Height() != C.Height() || B.Width()  != C.Width() ||
+        A.Width()  != B.Height() || A.Height() != B.Width() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal LocalTrrk: \n"
+            << "  A[MC,* ] ~ " << A.Height() << " x "
+                               << A.Width()  << "\n"
+            << "  B[* ,MR] ~ " << B.Height() << " x "
+                               << B.Width()  << "\n"
+            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( A.ColAlignment() != C.ColAlignment() ||
+        B.RowAlignment() != C.RowAlignment() )
+    {
+        std::ostringstream msg;
+        msg << "Misaligned LocalTrrk: \n"
+            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
+            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
+                                  C.RowAlignment() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+}
+
+// C := alpha A B^{T/H} + beta C
 template<typename T>
 inline void
 CheckInput
@@ -48,10 +87,10 @@ CheckInput
         throw std::logic_error
         ("A, B, and C must be distributed over the same grid");
     if( A.Height() != C.Height() || B.Height() != C.Width() ||
-        A.Width() != B.Width() || A.Height() != B.Height() )
+        A.Width()  != B.Width()  || A.Height() != B.Height() )
     {
         std::ostringstream msg;
-        msg << "Nonconformal LocalTriangularRankK: \n"
+        msg << "Nonconformal LocalTrrk: \n"
             << "  A[MC,* ] ~ " << A.Height() << " x "
                                << A.Width()  << "\n"
             << "  B[MR,* ] ~ " << B.Height() << " x "
@@ -63,7 +102,7 @@ CheckInput
         B.ColAlignment() != C.RowAlignment() )
     {
         std::ostringstream msg;
-        msg << "Misaligned LocalTriangularRankK: \n"
+        msg << "Misaligned LocalTrrk: \n"
             << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
             << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
             << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
@@ -72,6 +111,46 @@ CheckInput
     }
 }
 
+// C := alpha A^{T/H} B + beta C
+template<typename T>
+inline void
+CheckInput
+( Orientation orientationOfA,
+  const DistMatrix<T,STAR,MC>& A,
+  const DistMatrix<T,STAR,MR>& B,
+  const DistMatrix<T,MC,  MR>& C )
+{
+    if( orientationOfA == NORMAL )
+        throw std::logic_error("A[* ,MC] must be (Conjugate)Transpose'd");
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        throw std::logic_error
+        ("A, B, and C must be distributed over the same grid");
+    if( A.Width() != C.Height() || B.Width() != C.Width() ||
+        A.Height() != B.Height() || A.Width() != B.Width() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal LocalTrrk: \n"
+            << "  A[* ,MC] ~ " << A.Height() << " x "
+                               << A.Width()  << "\n"
+            << "  B[* ,MR] ~ " << B.Height() << " x "
+                               << B.Width()  << "\n"
+            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( A.RowAlignment() != C.ColAlignment() ||
+        B.RowAlignment() != C.RowAlignment() )
+    {
+        std::ostringstream msg;
+        msg << "Misaligned LocalTrrk: \n"
+            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
+            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
+                                  C.RowAlignment() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+}
+
+// C := alpha A^{T/H} B^{T/H} + beta C
 template<typename T>
 inline void
 CheckInput
@@ -92,7 +171,7 @@ CheckInput
         A.Height() != B.Width() || A.Width() != B.Height() )
     {
         std::ostringstream msg;
-        msg << "Nonconformal LocalTriangularRankK: \n"
+        msg << "Nonconformal LocalTrrk: \n"
             << "  A[* ,MC] ~ " << A.Height() << " x "
                                << A.Width()  << "\n"
             << "  B[MR,* ] ~ " << B.Height() << " x "
@@ -104,7 +183,7 @@ CheckInput
         B.ColAlignment() != C.RowAlignment() )
     {
         std::ostringstream msg;
-        msg << "Misaligned LocalTriangularRankK: \n"
+        msg << "Misaligned LocalTrrk: \n"
             << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
             << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
             << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
@@ -112,84 +191,84 @@ CheckInput
         throw std::logic_error( msg.str().c_str() );
     }
 }
-
-template<typename T>
-inline void 
-CheckInput
-( const DistMatrix<T,MC,  STAR>& A, 
-  const DistMatrix<T,STAR,MR  >& B,
-  const DistMatrix<T,MC,  MR  >& C )
-{
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("A, B, and C must be distributed over the same grid");
-    if( A.Height() != C.Height() || B.Width() != C.Width() ||
-        A.Width() != B.Height()  || A.Height() != B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTriangularRankK: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
-    if( A.ColAlignment() != C.ColAlignment() ||
-        B.RowAlignment() != C.RowAlignment() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTriangularRankK: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                  C.RowAlignment() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
-}
-
-template<typename T>
-inline void
-CheckInput
-( Orientation orientationOfA,
-  const DistMatrix<T,STAR,MC>& A,
-  const DistMatrix<T,STAR,MR>& B,
-  const DistMatrix<T,MC,  MR>& C )
-{
-    if( orientationOfA == NORMAL )
-        throw std::logic_error("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("A, B, and C must be distributed over the same grid");
-    if( A.Width() != C.Height() || B.Width() != C.Width() ||
-        A.Height() != B.Height() || A.Width() != B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTriangularRankK: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
-    if( A.RowAlignment() != C.ColAlignment() ||
-        B.RowAlignment() != C.RowAlignment() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTriangularRankK: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                  C.RowAlignment() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
-}
 #endif // WITHOUT_COMPLEX
 
+// C := alpha A B + beta C
 template<typename T>
 inline void
-LocalTriangularRankKKernel
+LocalTrrkKernel
+( Shape shape, 
+  T alpha, const DistMatrix<T,MC,  STAR>& A,
+           const DistMatrix<T,STAR,MR  >& B,
+  T beta,        DistMatrix<T,MC,  MR  >& C )
+{
+#ifndef RELEASE
+    PushCallStack("LocalTrrkKernel");
+    CheckInput( A, B, C );
+#endif
+    const Grid& g = C.Grid();
+
+    DistMatrix<T,MC,STAR> AT(g), 
+                          AB(g);
+
+    DistMatrix<T,STAR,MR> BL(g), BR(g);
+
+    DistMatrix<T,MC,MR> CTL(g), CTR(g),
+                        CBL(g), CBR(g);
+
+    DistMatrix<T,MC,MR> DTL(g), DBR(g);
+
+    const unsigned half = C.Height()/2;
+
+    basic::Scal( beta, C );
+
+    LockedPartitionDown
+    ( A, AT,
+         AB, half );
+
+    LockedPartitionRight( B, BL, BR, half );
+
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
+
+    DTL.AlignWith( CTL );
+    DBR.AlignWith( CBR );
+    DTL.ResizeTo( CTL.Height(), CTL.Width() );
+    DBR.ResizeTo( CBR.Height(), CBR.Width() );
+    //------------------------------------------------------------------------//
+    if( shape == LOWER )
+    {
+        basic::internal::LocalGemm
+        ( NORMAL, NORMAL, alpha, AB, BL, (T)1, CBL );
+    }
+    else
+    {
+        basic::internal::LocalGemm
+        ( NORMAL, NORMAL, alpha, AT, BR, (T)1, CTR );
+    }
+
+    basic::internal::LocalGemm
+    ( NORMAL, NORMAL, alpha, AT, BL, (T)0, DTL );
+
+    DTL.MakeTrapezoidal( LEFT, shape );
+    basic::Axpy( (T)1, DTL, CTL );
+
+    basic::internal::LocalGemm
+    ( NORMAL, NORMAL, alpha, AB, BR, (T)0, DBR );
+
+    DBR.MakeTrapezoidal( LEFT, shape );
+    basic::Axpy( (T)1, DBR, CBR );
+    //------------------------------------------------------------------------//
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// C := alpha A B^{T/H} + beta C
+template<typename T>
+inline void
+LocalTrrkKernel
 ( Shape shape,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A,
@@ -197,7 +276,7 @@ LocalTriangularRankKKernel
   T beta,        DistMatrix<T,MC,MR  >& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTriangularRankKKernel");
+    PushCallStack("LocalTrrkKernel");
     CheckInput( orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -264,9 +343,79 @@ LocalTriangularRankKKernel
 #endif
 }
 
+// C := alpha A^{T/H} B + beta C
 template<typename T>
 inline void
-LocalTriangularRankKKernel
+LocalTrrkKernel
+( Shape shape,
+  Orientation orientationOfA,
+  T alpha, const DistMatrix<T,STAR,MC>& A,
+           const DistMatrix<T,STAR,MR>& B,
+  T beta,        DistMatrix<T,MC,  MR>& C )
+{
+#ifndef RELEASE
+    PushCallStack("LocalTrrkKernel");
+    CheckInput( orientationOfA, A, B, C );
+#endif
+    const Grid& g = C.Grid();
+
+    DistMatrix<T,STAR,MC> AL(g), AR(g);
+
+    DistMatrix<T,STAR,MR> BL(g), BR(g);
+
+    DistMatrix<T,MC,MR> CTL(g), CTR(g),
+                        CBL(g), CBR(g);
+
+    DistMatrix<T,MC,MR> DTL(g), DBR(g);
+
+    const unsigned half = C.Height()/2;
+
+    basic::Scal( beta, C );
+
+    LockedPartitionRight( A, AL, AR, half );
+    LockedPartitionRight( B, BL, BR, half );
+
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
+
+    DTL.AlignWith( CTL );
+    DBR.AlignWith( CBR );
+    DTL.ResizeTo( CTL.Height(), CTL.Width() );
+    DBR.ResizeTo( CBR.Height(), CBR.Width() );
+    //------------------------------------------------------------------------//
+    if( shape == LOWER )
+    {
+        basic::internal::LocalGemm
+        ( orientationOfA, NORMAL, alpha, AR, BL, (T)1, CBL );
+    }
+    else
+    {
+        basic::internal::LocalGemm
+        ( orientationOfA, NORMAL, alpha, AL, BR, (T)1, CTR );
+    }
+
+    basic::internal::LocalGemm
+    ( orientationOfA, NORMAL, alpha, AL, BL, (T)0, DTL );
+
+    DTL.MakeTrapezoidal( LEFT, shape );
+    basic::Axpy( (T)1, DTL, CTL );
+
+    basic::internal::LocalGemm
+    ( orientationOfA, NORMAL, alpha, AR, BR, (T)0, DBR );
+
+    DBR.MakeTrapezoidal( LEFT, shape );
+    basic::Axpy( (T)1, DBR, CBR );
+    //------------------------------------------------------------------------//
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// C := alpha A^{T/H} B^{T/H} + beta C
+template<typename T>
+inline void
+LocalTrrkKernel
 ( Shape shape,
   Orientation orientationOfA,
   Orientation orientationOfB,
@@ -275,7 +424,7 @@ LocalTriangularRankKKernel
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTriangularRankKKernel");
+    PushCallStack("LocalTrrkKernel");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -337,165 +486,99 @@ LocalTriangularRankKKernel
 #endif
 }
 
+} // namespace trrk_util
+} // namespace basic
+} // namespace elemental
+
+// C := alpha A B + beta C
 template<typename T>
 inline void
-LocalTriangularRankKKernel
-( Shape shape, 
+elemental::basic::internal::LocalTrrk
+( Shape shape,
   T alpha, const DistMatrix<T,MC,  STAR>& A,
            const DistMatrix<T,STAR,MR  >& B,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
+    using namespace trrk_util;
 #ifndef RELEASE
-    PushCallStack("LocalTriangularRankKKernel");
+    PushCallStack("basic::internal::LocalTrrk");
     CheckInput( A, B, C );
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g), 
-                          AB(g);
-
-    DistMatrix<T,STAR,MR> BL(g), BR(g);
-
-    DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                        CBL(g), CBR(g);
-
-    DistMatrix<T,MC,MR> DTL(g), DBR(g);
-
-    const unsigned half = C.Height()/2;
-
-    basic::Scal( beta, C );
-
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
-
-    LockedPartitionRight( B, BL, BR, half );
-
-    PartitionDownDiagonal
-    ( C, CTL, CTR,
-         CBL, CBR, half );
-
-    DTL.AlignWith( CTL );
-    DBR.AlignWith( CBR );
-    DTL.ResizeTo( CTL.Height(), CTL.Width() );
-    DBR.ResizeTo( CBR.Height(), CBR.Width() );
-    //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
-        basic::internal::LocalGemm
-        ( NORMAL, NORMAL, alpha, AB, BL, (T)1, CBL );
+        LocalTrrkKernel
+        ( shape, alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::LocalGemm
-        ( NORMAL, NORMAL, alpha, AT, BR, (T)1, CTR );
+        // Split C in four roughly equal pieces, perform a large gemm on corner
+        // and recurse on CTL and CBR.
+
+        DistMatrix<T,MC,STAR> AT(g),
+                              AB(g);
+
+        DistMatrix<T,STAR,MR> BL(g), BR(g);
+
+        DistMatrix<T,MC,MR> CTL(g), CTR(g),
+                            CBL(g), CBR(g);
+
+        const unsigned half = C.Height() / 2;
+
+        LockedPartitionDown
+        ( A, AT,
+             AB, half );
+
+        LockedPartitionRight( B, BL, BR, half );
+
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
+
+        if( shape == LOWER )
+        { 
+            basic::internal::LocalGemm
+            ( NORMAL, NORMAL, alpha, AB, BL, beta, CBL );
+        }
+        else
+        {
+            basic::internal::LocalGemm
+            ( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
+        }
+
+        // Recurse
+        basic::internal::LocalTrrk
+        ( shape, alpha, AT, BL, beta, CTL );
+
+        basic::internal::LocalTrrk
+        ( shape, alpha, AB, BR, beta, CBR );
     }
-
-    basic::internal::LocalGemm
-    ( NORMAL, NORMAL, alpha, AT, BL, (T)0, DTL );
-
-    DTL.MakeTrapezoidal( LEFT, shape );
-    basic::Axpy( (T)1, DTL, CTL );
-
-    basic::internal::LocalGemm
-    ( NORMAL, NORMAL, alpha, AB, BR, (T)0, DBR );
-
-    DBR.MakeTrapezoidal( LEFT, shape );
-    basic::Axpy( (T)1, DBR, CBR );
-    //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+// C := alpha A B^{T/H} + beta C
 template<typename T>
 inline void
-LocalTriangularRankKKernel
-( Shape shape,
-  Orientation orientationOfA,
-  T alpha, const DistMatrix<T,STAR,MC>& A,
-           const DistMatrix<T,STAR,MR>& B,
-  T beta,        DistMatrix<T,MC,  MR>& C )
-{
-#ifndef RELEASE
-    PushCallStack("LocalTriangularRankKKernel");
-    CheckInput( orientationOfA, A, B, C );
-#endif
-    const Grid& g = C.Grid();
-
-    DistMatrix<T,STAR,MC> AL(g), AR(g);
-
-    DistMatrix<T,STAR,MR> BL(g), BR(g);
-
-    DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                        CBL(g), CBR(g);
-
-    DistMatrix<T,MC,MR> DTL(g), DBR(g);
-
-    const unsigned half = C.Height()/2;
-
-    basic::Scal( beta, C );
-
-    LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionRight( B, BL, BR, half );
-
-    PartitionDownDiagonal
-    ( C, CTL, CTR,
-         CBL, CBR, half );
-
-    DTL.AlignWith( CTL );
-    DBR.AlignWith( CBR );
-    DTL.ResizeTo( CTL.Height(), CTL.Width() );
-    DBR.ResizeTo( CBR.Height(), CBR.Width() );
-    //------------------------------------------------------------------------//
-    if( shape == LOWER )
-    {
-        basic::internal::LocalGemm
-        ( orientationOfA, NORMAL, alpha, AR, BL, (T)1, CBL );
-    }
-    else
-    {
-        basic::internal::LocalGemm
-        ( orientationOfA, NORMAL, alpha, AL, BR, (T)1, CTR );
-    }
-
-    basic::internal::LocalGemm
-    ( orientationOfA, NORMAL, alpha, AL, BL, (T)0, DTL );
-
-    DTL.MakeTrapezoidal( LEFT, shape );
-    basic::Axpy( (T)1, DTL, CTL );
-
-    basic::internal::LocalGemm
-    ( orientationOfA, NORMAL, alpha, AR, BR, (T)0, DBR );
-
-    DBR.MakeTrapezoidal( LEFT, shape );
-    basic::Axpy( (T)1, DBR, CBR );
-    //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-} // anonymous namespace
-
-template<typename T>
-inline void
-elemental::basic::internal::LocalTriangularRankK
+elemental::basic::internal::LocalTrrk
 ( Shape shape,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A,
            const DistMatrix<T,MR,STAR>& B,
   T beta,        DistMatrix<T,MC,MR  >& C )
 {
+    using namespace trrk_util;
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTriangularRankK");
+    PushCallStack("basic::internal::LocalTrrk");
     CheckInput( orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < g.Width()*LocalTriangularRankKBlocksize<T>() )
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
-        LocalTriangularRankKKernel
+        LocalTrrkKernel
         ( shape, orientationOfB, alpha, A, B, beta, C );
     }
     else
@@ -538,10 +621,10 @@ elemental::basic::internal::LocalTriangularRankK
         }
 
         // Recurse
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( shape, orientationOfB, alpha, AT, BT, beta, CTL );
 
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( shape, orientationOfB, alpha, AB, BB, beta, CBR );
     }
 #ifndef RELEASE
@@ -549,9 +632,77 @@ elemental::basic::internal::LocalTriangularRankK
 #endif
 }
 
+// C := alpha A^{T/H} B + beta C
 template<typename T>
 inline void
-elemental::basic::internal::LocalTriangularRankK
+elemental::basic::internal::LocalTrrk
+( Shape shape,
+  Orientation orientationOfA,
+  T alpha, const DistMatrix<T,STAR,MC>& A,
+           const DistMatrix<T,STAR,MR>& B,
+  T beta,        DistMatrix<T,MC,  MR>& C )
+{
+    using namespace trrk_util;
+#ifndef RELEASE
+    PushCallStack("basic::internal::LocalTrrk");
+    CheckInput( orientationOfA, A, B, C );
+#endif
+    const Grid& g = C.Grid();
+
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
+    {
+        LocalTrrkKernel
+        ( shape, orientationOfA, alpha, A, B, beta, C );
+    }
+    else
+    {
+        // Split C in four roughly equal pieces, perform a large gemm on corner
+        // and recurse on CTL and CBR.
+
+        DistMatrix<T,STAR,MC> AL(g), AR(g);
+
+        DistMatrix<T,STAR,MR> BL(g), BR(g);
+
+        DistMatrix<T,MC,MR> CTL(g), CTR(g),
+                            CBL(g), CBR(g);
+
+        const unsigned half = C.Height() / 2;
+
+        LockedPartitionRight( A, AL, AR, half );
+
+        LockedPartitionRight( B, BL, BR, half );
+
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
+
+        if( shape == LOWER )
+        { 
+            basic::internal::LocalGemm
+            ( orientationOfA, NORMAL, alpha, AR, BL, beta, CBL );
+        }
+        else
+        {
+            basic::internal::LocalGemm
+            ( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
+        }
+
+        // Recurse
+        basic::internal::LocalTrrk
+        ( shape, orientationOfA, alpha, AL, BL, beta, CTL );
+
+        basic::internal::LocalTrrk
+        ( shape, orientationOfA, alpha, AR, BR, beta, CBR );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// C := alpha A^{T/H} B^{T/H} + beta C
+template<typename T>
+inline void
+elemental::basic::internal::LocalTrrk
 ( Shape shape,
   Orientation orientationOfA,
   Orientation orientationOfB,
@@ -559,15 +710,16 @@ elemental::basic::internal::LocalTriangularRankK
            const DistMatrix<T,MR,  STAR>& B,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
+    using namespace trrk_util;
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTriangularRankK");
+    PushCallStack("basic::internal::LocalTrrk");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
 
-    if( C.Height() < g.Width()*LocalTriangularRankKBlocksize<T>() )
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
-        LocalTriangularRankKKernel
+        LocalTrrkKernel
         ( shape, orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else
@@ -607,143 +759,11 @@ elemental::basic::internal::LocalTriangularRankK
         }
 
         // Recurse
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( shape, orientationOfA, orientationOfB, alpha, AL, BT, beta, CTL );
 
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( shape, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-inline void
-elemental::basic::internal::LocalTriangularRankK
-( Shape shape,
-  T alpha, const DistMatrix<T,MC,  STAR>& A,
-           const DistMatrix<T,STAR,MR  >& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C )
-{
-#ifndef RELEASE
-    PushCallStack("basic::internal::LocalTriangularRankK");
-    CheckInput( A, B, C );
-#endif
-    const Grid& g = C.Grid();
-
-    if( C.Height() < g.Width()*LocalTriangularRankKBlocksize<T>() )
-    {
-        LocalTriangularRankKKernel
-        ( shape, alpha, A, B, beta, C );
-    }
-    else
-    {
-        // Split C in four roughly equal pieces, perform a large gemm on corner
-        // and recurse on CTL and CBR.
-
-        DistMatrix<T,MC,STAR> AT(g),
-                              AB(g);
-
-        DistMatrix<T,STAR,MR> BL(g), BR(g);
-
-        DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                            CBL(g), CBR(g);
-
-        const unsigned half = C.Height() / 2;
-
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
-
-        LockedPartitionRight( B, BL, BR, half );
-
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
-
-        if( shape == LOWER )
-        { 
-            basic::internal::LocalGemm
-            ( NORMAL, NORMAL, alpha, AB, BL, beta, CBL );
-        }
-        else
-        {
-            basic::internal::LocalGemm
-            ( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
-        }
-
-        // Recurse
-        basic::internal::LocalTriangularRankK
-        ( shape, alpha, AT, BL, beta, CTL );
-
-        basic::internal::LocalTriangularRankK
-        ( shape, alpha, AB, BR, beta, CBR );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-inline void
-elemental::basic::internal::LocalTriangularRankK
-( Shape shape,
-  Orientation orientationOfA,
-  T alpha, const DistMatrix<T,STAR,MC>& A,
-           const DistMatrix<T,STAR,MR>& B,
-  T beta,        DistMatrix<T,MC,  MR>& C )
-{
-#ifndef RELEASE
-    PushCallStack("basic::internal::LocalTriangularRankK");
-    CheckInput( orientationOfA, A, B, C );
-#endif
-    const Grid& g = C.Grid();
-
-    if( C.Height() < g.Width()*LocalTriangularRankKBlocksize<T>() )
-    {
-        LocalTriangularRankKKernel
-        ( shape, orientationOfA, alpha, A, B, beta, C );
-    }
-    else
-    {
-        // Split C in four roughly equal pieces, perform a large gemm on corner
-        // and recurse on CTL and CBR.
-
-        DistMatrix<T,STAR,MC> AL(g), AR(g);
-
-        DistMatrix<T,STAR,MR> BL(g), BR(g);
-
-        DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                            CBL(g), CBR(g);
-
-        const unsigned half = C.Height() / 2;
-
-        LockedPartitionRight( A, AL, AR, half );
-
-        LockedPartitionRight( B, BL, BR, half );
-
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
-
-        if( shape == LOWER )
-        { 
-            basic::internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AR, BL, beta, CBL );
-        }
-        else
-        {
-            basic::internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
-        }
-
-        // Recurse
-        basic::internal::LocalTriangularRankK
-        ( shape, orientationOfA, alpha, AL, BL, beta, CTL );
-
-        basic::internal::LocalTriangularRankK
-        ( shape, orientationOfA, alpha, AR, BR, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();

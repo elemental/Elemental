@@ -31,7 +31,6 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Syrk/LocalTriangularRankK.hpp"
 #include "./Syrk/SyrkLN.hpp"
 #include "./Syrk/SyrkLT.hpp"
 #include "./Syrk/SyrkUN.hpp"

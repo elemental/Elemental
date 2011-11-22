@@ -75,7 +75,7 @@ elemental::basic::internal::HetrmmUVar1( DistMatrix<T,MC,MR>& U )
         U01_VC_STAR = U01_MC_STAR;
         U01_VR_STAR = U01_VC_STAR;
         U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( UPPER, (T)1, U01_MC_STAR, U01Adj_STAR_MR, (T)1, U22 );
 
         U11_STAR_STAR = U11;

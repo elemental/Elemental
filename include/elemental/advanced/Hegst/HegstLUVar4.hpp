@@ -126,10 +126,10 @@ elemental::advanced::internal::HegstLUVar4
         U01_VR_STAR = U01_VC_STAR;
         A01Adj_STAR_MR.AdjointFrom( A01_VR_STAR );
         U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
-        basic::internal::LocalTriangularRank2K
-        ( UPPER, ADJOINT, ADJOINT, 
-          (F)1, A01Adj_STAR_MC, U01Adj_STAR_MC, 
-                A01Adj_STAR_MR, U01Adj_STAR_MR,
+        basic::internal::LocalTrr2k
+        ( UPPER, ADJOINT, ADJOINT,
+          (F)1, U01Adj_STAR_MC, A01Adj_STAR_MR, 
+                A01Adj_STAR_MC, U01Adj_STAR_MR,
           (F)1, A00 );
 
         // A01 := A01 + 1/2 Y01

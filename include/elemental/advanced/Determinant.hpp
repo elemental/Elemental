@@ -32,7 +32,8 @@
 */
 
 template<typename F> 
-inline SafeProduct<F> advanced::SafeDeterminant( DistMatrix<F,MC,MR>& A )
+inline elemental::SafeProduct<F> 
+elemental::advanced::SafeDeterminant( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SafeDeterminant");
@@ -84,7 +85,7 @@ inline SafeProduct<F> advanced::SafeDeterminant( DistMatrix<F,MC,MR>& A )
 }
 
 template<typename F> 
-inline F advanced::Determinant( DistMatrix<F,MC,MR>& A )
+inline F elemental::advanced::Determinant( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Determinant");
@@ -98,7 +99,8 @@ inline F advanced::Determinant( DistMatrix<F,MC,MR>& A )
 }
 
 template<typename F>
-inline SafeProduct<F> advanced::SafeDeterminant( Matrix<F>& A )
+inline elemental::SafeProduct<F> 
+elemental::advanced::SafeDeterminant( Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::SafeDeterminant");
@@ -141,7 +143,7 @@ inline SafeProduct<F> advanced::SafeDeterminant( Matrix<F>& A )
 }
 
 template<typename F>
-inline F advanced::Determinant( Matrix<F>& A )
+inline F elemental::advanced::Determinant( Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Determinant");

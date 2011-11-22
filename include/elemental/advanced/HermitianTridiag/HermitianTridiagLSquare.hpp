@@ -115,9 +115,10 @@ elemental::advanced::internal::HermitianTridiagLSquare
                 advanced::internal::HermitianPanelTridiagLSquare
                 ( ABR, WPan, 
                   APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
-                basic::internal::LocalTriangularRank2K
+                basic::internal::LocalTrr2k
                 ( LOWER, TRANSPOSE, TRANSPOSE,
-                  (R)-1, A21_MC_STAR, W21_MC_STAR, A21_MR_STAR, W21_MR_STAR,
+                  (R)-1, A21_MC_STAR, W21_MR_STAR,
+                         W21_MC_STAR, A21_MR_STAR,
                   (R)1, A22 );
                 //------------------------------------------------------------//
                 APan_MC_STAR.FreeAlignments();
@@ -256,9 +257,10 @@ elemental::advanced::internal::HermitianTridiagLSquare
                 advanced::internal::HermitianPanelTridiagLSquare
                 ( ABR, WPan, t1,
                   APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
-                basic::internal::LocalTriangularRank2K
+                basic::internal::LocalTrr2k
                 ( LOWER, ADJOINT, ADJOINT,
-                  (C)-1, A21_MC_STAR, W21_MC_STAR, A21_MR_STAR, W21_MR_STAR,
+                  (C)-1, A21_MC_STAR, W21_MR_STAR,
+                         W21_MC_STAR, A21_MR_STAR,
                   (C)1, A22 );
                 //------------------------------------------------------------//
                 APan_MC_STAR.FreeAlignments();

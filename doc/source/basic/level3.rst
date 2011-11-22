@@ -49,8 +49,8 @@ triangle of :math:`C` specified by the `shape` parameter is modified.
 
    The distributed implementation (templated over the datatype).
 
-Please see ``basic::SetLocalTriangularRank2KBlocksize<T>( int blocksize )`` 
-and ``int basic::LocalTriangularRank2KBlocksize<T>()`` in the 
+Please see ``basic::SetLocalTrr2kBlocksize<T>( int blocksize )`` 
+and ``int basic::LocalTrr2kBlocksize<T>()`` in the 
 *Tuning parameters* section for information on tuning the distributed 
 ``basic::Her2k``.
 
@@ -70,8 +70,8 @@ specified by the `shape` parameter is modified.
 
    The distributed implementation (templated over the datatype).
 
-Please see ``basic::SetLocalTriangularRankKBlocksize<T>( int blocksize )`` 
-and ``int basic::LocalTriangularRankKBlocksize<T>()`` in the *Tuning parameters*
+Please see ``basic::SetLocalTrrkBlocksize<T>( int blocksize )`` 
+and ``int basic::LocalTrrkBlocksize<T>()`` in the *Tuning parameters*
 section for information on tuning the distributed ``basic::Herk``.
 
 Hetrmm
@@ -127,8 +127,8 @@ triangle of :math:`C` specified by the `shape` parameter is modified.
 
    The distributed implementation (templated over the datatype).
 
-Please see ``basic::SetLocalTriangularRank2KBlocksize<T>( int blocksize )`` 
-and ``int basic::LocalTriangularRank2KBlocksize<T>()`` in the 
+Please see ``basic::SetLocalTrr2kBlocksize<T>( int blocksize )`` 
+and ``int basic::LocalTrr2kBlocksize<T>()`` in the 
 *Tuning parameters* section for information on tuning the distributed 
 ``basic::Syr2k``.
 
@@ -148,8 +148,8 @@ specified by the `shape` parameter is modified.
 
    The distributed implementation (templated over the datatype).
 
-Please see ``basic::SetLocalTriangularRankKBlocksize<T>( int blocksize )`` 
-and ``int basic::LocalTriangularRankKBlocksize<T>()`` in the *Tuning parameters*
+Please see ``basic::SetLocalTrrkBlocksize<T>( int blocksize )`` 
+and ``int basic::LocalTrrkBlocksize<T>()`` in the *Tuning parameters*
 section for information on tuning the distributed ``basic::Syrk``.
 
 Trmm

@@ -149,9 +149,9 @@ main( int argc, char* argv[] )
 #endif
         const Grid g( comm, r, c );
         SetBlocksize( nb );
-        basic::SetLocalTriangularRank2KBlocksize<double>( nbLocal );
+        basic::SetLocalTrr2kBlocksize<double>( nbLocal );
 #ifndef WITHOUT_COMPLEX
-        basic::SetLocalTriangularRank2KBlocksize<complex<double> >( nbLocal );
+        basic::SetLocalTrr2kBlocksize<complex<double> >( nbLocal );
 #endif
 
         if( rank == 0 )

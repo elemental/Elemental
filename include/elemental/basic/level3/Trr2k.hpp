@@ -31,50 +31,47 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> 
-inline F elemental::advanced::Trace( const DistMatrix<F,MC,MR>& A )
+#include "./Trr2k/LocalTrr2k.hpp"
+/*
+#include "./Trr2k/Trr2kLNN.hpp"
+#include "./Trr2k/Trr2kLNT.hpp"
+#include "./Trr2k/Trr2kLTN.hpp"
+#include "./Trr2k/Trr2kLTT.hpp"
+#include "./Trr2k/Trr2kUNN.hpp"
+#include "./Trr2k/Trr2kUNT.hpp"
+#include "./Trr2k/Trr2kUTN.hpp"
+#include "./Trr2k/Trr2kUTT.hpp"
+*/
+
+template<typename T>
+inline void
+elemental::basic::Trr2k
+( Shape shape, 
+  Orientation orientationOfA,
+  Orientation orientationOfB,
+  Orientation orientationOfC,
+  Orientation orientationOfD,
+  T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+           const DistMatrix<T,MC,MR>& C,
+           const DistMatrix<T,MC,MR>& D,
+  T beta,        DistMatrix<T,MC,MR>& E )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Trace");
+    PushCallStack("basic::Trr2k");
 #endif
-    if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot compute trace of nonsquare matrix");
-    const Grid& g = A.Grid();
-
-    DistMatrix<F,MD,STAR> d(g);
-    A.GetDiagonal( d );
-    F localTrace = 0;
-    if( d.InDiagonal() )
+    throw std::logic_error("basic::Trr2k is not yet written");
+    /*
+    if( shape == LOWER )
     {
-        const int nLocalDiag = d.LocalHeight();
-        for( int iLocal=0; iLocal<nLocalDiag; ++iLocal )
-            localTrace += d.GetLocalEntry(iLocal,0);
+        // TODO
     }
-    F trace;
-    mpi::AllReduce( &localTrace, &trace, 1, mpi::SUM, g.VCComm() );
+    else
+    {
+        // TODO
+    }
+    */
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return trace;
-}
-
-template<typename F>
-inline F elemental::advanced::Trace( const Matrix<F>& A )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::Trace");
-#endif
-    if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot compute trace of nonsquare matrix");
-
-    Matrix<F> d;
-    A.GetDiagonal( d );
-    F trace = 0;
-    const int n = A.Height();
-    for( int i=0; i<n; ++i )
-        trace += d.Get(i,0);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return trace;
 }

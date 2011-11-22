@@ -75,7 +75,7 @@ elemental::basic::internal::HetrmmLVar1( DistMatrix<T,MC,MR>& L )
         L10_STAR_VC = L10_STAR_VR;
         L10_STAR_MC = L10_STAR_VC;
         L10_STAR_MR = L10_STAR_VR;
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( LOWER, ADJOINT, (T)1, L10_STAR_MC, L10_STAR_MR, (T)1, L22 );
 
         L11_STAR_STAR = L11;

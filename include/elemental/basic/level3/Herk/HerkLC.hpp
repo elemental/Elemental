@@ -83,7 +83,7 @@ elemental::basic::internal::HerkLC
         A1_STAR_VR.TransposeFrom( A1Trans_MR_STAR );
         A1_STAR_MC = A1_STAR_VR;
 
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( LOWER, ADJOINT, TRANSPOSE,
           alpha, A1_STAR_MC, A1Trans_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//

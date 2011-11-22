@@ -147,7 +147,7 @@ elemental::advanced::internal::CholeskyUVar3Square
                   g.VCComm() );
             }
         }
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( UPPER, ADJOINT, (F)-1, A12_STAR_MC, A12_STAR_MR, (F)1, A22 );
         A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//

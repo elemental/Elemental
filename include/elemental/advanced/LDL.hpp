@@ -148,7 +148,7 @@ elemental::advanced::internal::LDLVar3
         else
             A21AdjOrTrans_STAR_MR.TransposeFrom( A21_VR_STAR );
 
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( LOWER, TRANSPOSE,
           (F)-1, S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, (F)1, A22 );
 

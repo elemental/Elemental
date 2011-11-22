@@ -40,5 +40,7 @@
 #include "./level3/Syr2k.hpp"
 #include "./level3/Syrk.hpp"
 #include "./level3/Trmm.hpp"
+#include "./level3/Trr2k.hpp"
+#include "./level3/Trrk.hpp"
 #include "./level3/Trsm.hpp"
 

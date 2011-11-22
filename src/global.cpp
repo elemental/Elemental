@@ -224,18 +224,18 @@ int localSymvComplexFloatBlocksize = 64;
 int localSymvComplexDoubleBlocksize = 64;
 #endif // WITHOUT_COMPLEX
 
-int localTriangularRank2KFloatBlocksize = 64;
-int localTriangularRank2KDoubleBlocksize = 64;
+int localTrr2kFloatBlocksize = 64;
+int localTrr2kDoubleBlocksize = 64;
 #ifndef WITHOUT_COMPLEX
-int localTriangularRank2KComplexFloatBlocksize = 64;
-int localTriangularRank2KComplexDoubleBlocksize = 64;
+int localTrr2kComplexFloatBlocksize = 64;
+int localTrr2kComplexDoubleBlocksize = 64;
 #endif // WITHOUT_COMPLEX
 
-int localTriangularRankKFloatBlocksize = 64;
-int localTriangularRankKDoubleBlocksize = 64;
+int localTrrkFloatBlocksize = 64;
+int localTrrkDoubleBlocksize = 64;
 #ifndef WITHOUT_COMPLEX
-int localTriangularRankKComplexFloatBlocksize = 64;
-int localTriangularRankKComplexDoubleBlocksize = 64;
+int localTrrkComplexFloatBlocksize = 64;
+int localTrrkComplexDoubleBlocksize = 64;
 #endif // WITHOUT_COMPLEX
 }
 
@@ -337,98 +337,98 @@ elemental::basic::LocalSymvBlocksize<dcomplex>()
 
 template<>
 void
-elemental::basic::SetLocalTriangularRank2KBlocksize<float>
+elemental::basic::SetLocalTrr2kBlocksize<float>
 ( int blocksize )
-{ ::localTriangularRank2KFloatBlocksize = blocksize; }
+{ ::localTrr2kFloatBlocksize = blocksize; }
 
 template<>
 void
-elemental::basic::SetLocalTriangularRank2KBlocksize<double>
+elemental::basic::SetLocalTrr2kBlocksize<double>
 ( int blocksize )
-{ ::localTriangularRank2KDoubleBlocksize = blocksize; }
+{ ::localTrr2kDoubleBlocksize = blocksize; }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 void
-elemental::basic::SetLocalTriangularRank2KBlocksize< std::complex<float> >
+elemental::basic::SetLocalTrr2kBlocksize< std::complex<float> >
 ( int blocksize )
-{ ::localTriangularRank2KComplexFloatBlocksize = blocksize; }
+{ ::localTrr2kComplexFloatBlocksize = blocksize; }
 
 template<>
 void
-elemental::basic::SetLocalTriangularRank2KBlocksize< std::complex<double> >
+elemental::basic::SetLocalTrr2kBlocksize< std::complex<double> >
 ( int blocksize )
-{ ::localTriangularRank2KComplexDoubleBlocksize = blocksize; }
+{ ::localTrr2kComplexDoubleBlocksize = blocksize; }
 #endif // WITHOUT_COMPLEX
 
 template<>
 int
-elemental::basic::LocalTriangularRank2KBlocksize<float>()
-{ return ::localTriangularRank2KFloatBlocksize; }
+elemental::basic::LocalTrr2kBlocksize<float>()
+{ return ::localTrr2kFloatBlocksize; }
 
 template<>
 int
-elemental::basic::LocalTriangularRank2KBlocksize<double>()
-{ return ::localTriangularRank2KDoubleBlocksize; }
+elemental::basic::LocalTrr2kBlocksize<double>()
+{ return ::localTrr2kDoubleBlocksize; }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 int
-elemental::basic::LocalTriangularRank2KBlocksize<scomplex>()
-{ return ::localTriangularRank2KComplexFloatBlocksize; }
+elemental::basic::LocalTrr2kBlocksize<scomplex>()
+{ return ::localTrr2kComplexFloatBlocksize; }
 
 template<>
 int
-elemental::basic::LocalTriangularRank2KBlocksize<dcomplex>()
-{ return ::localTriangularRank2KComplexDoubleBlocksize; }
+elemental::basic::LocalTrr2kBlocksize<dcomplex>()
+{ return ::localTrr2kComplexDoubleBlocksize; }
 #endif // WITHOUT_COMPLEX
 
 template<>
 void
-elemental::basic::SetLocalTriangularRankKBlocksize<float>
+elemental::basic::SetLocalTrrkBlocksize<float>
 ( int blocksize )
-{ ::localTriangularRankKFloatBlocksize = blocksize; }
+{ ::localTrrkFloatBlocksize = blocksize; }
 
 template<>
 void
-elemental::basic::SetLocalTriangularRankKBlocksize<double>
+elemental::basic::SetLocalTrrkBlocksize<double>
 ( int blocksize )
-{ ::localTriangularRankKDoubleBlocksize = blocksize; }
+{ ::localTrrkDoubleBlocksize = blocksize; }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 void
-elemental::basic::SetLocalTriangularRankKBlocksize< std::complex<float> >
+elemental::basic::SetLocalTrrkBlocksize< std::complex<float> >
 ( int blocksize )
-{ ::localTriangularRankKComplexFloatBlocksize = blocksize; }
+{ ::localTrrkComplexFloatBlocksize = blocksize; }
 
 template<>
 void
-elemental::basic::SetLocalTriangularRankKBlocksize< std::complex<double> >
+elemental::basic::SetLocalTrrkBlocksize< std::complex<double> >
 ( int blocksize )
-{ ::localTriangularRankKComplexDoubleBlocksize = blocksize; }
+{ ::localTrrkComplexDoubleBlocksize = blocksize; }
 #endif // WITHOUT_COMPLEX
 
 template<>
 int
-elemental::basic::LocalTriangularRankKBlocksize<float>()
-{ return ::localTriangularRankKFloatBlocksize; }
+elemental::basic::LocalTrrkBlocksize<float>()
+{ return ::localTrrkFloatBlocksize; }
 
 template<>
 int
-elemental::basic::LocalTriangularRankKBlocksize<double>()
-{ return ::localTriangularRankKDoubleBlocksize; }
+elemental::basic::LocalTrrkBlocksize<double>()
+{ return ::localTrrkDoubleBlocksize; }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 int
-elemental::basic::LocalTriangularRankKBlocksize<scomplex>()
-{ return ::localTriangularRankKComplexFloatBlocksize; }
+elemental::basic::LocalTrrkBlocksize<scomplex>()
+{ return ::localTrrkComplexFloatBlocksize; }
 
 template<>
 int
-elemental::basic::LocalTriangularRankKBlocksize<dcomplex>()
-{ return ::localTriangularRankKComplexDoubleBlocksize; }
+elemental::basic::LocalTrrkBlocksize<dcomplex>()
+{ return ::localTrrkComplexDoubleBlocksize; }
 #endif // WITHOUT_COMPLEX
 
 //----------------------------------------------------------------------------//

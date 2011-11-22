@@ -121,9 +121,10 @@ elemental::advanced::internal::HegstLUVar5
         A01_VC_STAR = A01_MC_STAR;
         A01_MR_STAR = A01_VC_STAR;
         U01_MR_STAR = U01_MC_STAR;
-        basic::internal::LocalTriangularRank2K
+        basic::internal::LocalTrr2k
         ( UPPER, ADJOINT, ADJOINT,
-          (F)1, U01_MC_STAR, A01_MC_STAR, U01_MR_STAR, A01_MR_STAR,
+          (F)1, U01_MC_STAR, A01_MR_STAR, 
+                A01_MC_STAR, U01_MR_STAR,
           (F)1, A00 );
 
         // A01 := A01 + 1/2 Y01

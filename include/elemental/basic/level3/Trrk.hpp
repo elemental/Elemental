@@ -31,50 +31,59 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> 
-inline F elemental::advanced::Trace( const DistMatrix<F,MC,MR>& A )
+#include "./Trrk/LocalTrrk.hpp"
+/*
+#include "./Trrk/TrrkLNN.hpp"
+#include "./Trrk/TrrkLNT.hpp"
+#include "./Trrk/TrrkLTN.hpp"
+#include "./Trrk/TrrkLTT.hpp"
+#include "./Trrk/TrrkUNN.hpp"
+#include "./Trrk/TrrkUNT.hpp"
+#include "./Trrk/TrrkUTN.hpp"
+#include "./Trrk/TrrkUTT.hpp"
+*/
+
+template<typename T>
+inline void
+elemental::basic::Trrk
+( Shape shape, 
+  Orientation orientationOfA,
+  Orientation orientationOfB,
+  T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Trace");
+    PushCallStack("basic::Trrk");
 #endif
-    if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot compute trace of nonsquare matrix");
-    const Grid& g = A.Grid();
-
-    DistMatrix<F,MD,STAR> d(g);
-    A.GetDiagonal( d );
-    F localTrace = 0;
-    if( d.InDiagonal() )
+    throw std::logic_error("basic::Trrk is not yet written");
+    /*
+    if( shape == LOWER )
     {
-        const int nLocalDiag = d.LocalHeight();
-        for( int iLocal=0; iLocal<nLocalDiag; ++iLocal )
-            localTrace += d.GetLocalEntry(iLocal,0);
+        if( orientationOfA==NORMAL && orientationOfB==NORMAL )
+            basic::internal::TrrkLNN( alpha, A, B, beta, C );
+        else if( orientationOfA==NORMAL )
+            basic::internal::TrrkLNT( orientationOfB, alpha, A, B, beta, C );
+        else if( orientationOfB==NORMAL )
+            basic::internal::TrrkLTN( orientationOfA, alpha, A, B, beta, C );
+        else
+            basic::internal::TrrkLTT
+            ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
-    F trace;
-    mpi::AllReduce( &localTrace, &trace, 1, mpi::SUM, g.VCComm() );
+    else
+    {
+        if( orientationOfA==NORMAL && orientationOfB==NORMAL )
+            basic::internal::TrrkUNN( alpha, A, B, beta, C );
+        else if( orientationOfA==NORMAL )
+            basic::internal::TrrkUNT( orientationOfB, alpha, A, B, beta, C );
+        else if( orientationOfB==NORMAL )
+            basic::internal::TrrkUTN( orientationOfA, alpha, A, B, beta, C );
+        else
+            basic::internal::TrrkUTT
+            ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
+    }
+    */
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return trace;
-}
-
-template<typename F>
-inline F elemental::advanced::Trace( const Matrix<F>& A )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::Trace");
-#endif
-    if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot compute trace of nonsquare matrix");
-
-    Matrix<F> d;
-    A.GetDiagonal( d );
-    F trace = 0;
-    const int n = A.Height();
-    for( int i=0; i<n; ++i )
-        trace += d.Get(i,0);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return trace;
 }

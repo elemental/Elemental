@@ -58,24 +58,22 @@ template<> void SetLocalSymvBlocksize<std::complex<float> >( int blocksize );
 template<> void SetLocalSymvBlocksize<std::complex<double> >( int blocksize );
 #endif // WITHOUT_COMPLEX
 
-template<typename T> void SetLocalTriangularRankKBlocksize( int blocksize );
-template<> void SetLocalTriangularRankKBlocksize<float>( int blocksize );
-template<> void SetLocalTriangularRankKBlocksize<double>( int blocksize );
+template<typename T> void SetLocalTrrkBlocksize( int blocksize );
+template<> void SetLocalTrrkBlocksize<float>( int blocksize );
+template<> void SetLocalTrrkBlocksize<double>( int blocksize );
 #ifndef WITHOUT_COMPLEX
 template<> void 
-SetLocalTriangularRankKBlocksize<std::complex<float> >( int blocksize );
+SetLocalTrrkBlocksize<std::complex<float> >( int blocksize );
 template<> void 
-SetLocalTriangularRankKBlocksize<std::complex<double> >( int blocksize );
+SetLocalTrrkBlocksize<std::complex<double> >( int blocksize );
 #endif // WITHOUT_COMPLEX
 
-template<typename T> void SetLocalTriangularRank2KBlocksize( int blocksize );
-template<> void SetLocalTriangularRank2KBlocksize<float>( int blocksize );
-template<> void SetLocalTriangularRank2KBlocksize<double>( int blocksize );
+template<typename T> void SetLocalTrr2kBlocksize( int blocksize );
+template<> void SetLocalTrr2kBlocksize<float>( int blocksize );
+template<> void SetLocalTrr2kBlocksize<double>( int blocksize );
 #ifndef WITHOUT_COMPLEX
-template<> void 
-SetLocalTriangularRank2KBlocksize<std::complex<float> >( int blocksize );
-template<> void 
-SetLocalTriangularRank2KBlocksize<std::complex<double> >( int blocksize );
+template<> void SetLocalTrr2kBlocksize<std::complex<float> >( int blocksize );
+template<> void SetLocalTrr2kBlocksize<std::complex<double> >( int blocksize );
 #endif // WITHOUT_COMPLEX
 
 template<typename T> int LocalHemvBlocksize();
@@ -94,20 +92,20 @@ template<> int LocalSymvBlocksize<scomplex>();
 template<> int LocalSymvBlocksize<dcomplex>();
 #endif // WITHOUT_COMPLEX
 
-template<typename T> int LocalTriangularRankKBlocksize();
-template<> int LocalTriangularRankKBlocksize<float>();
-template<> int LocalTriangularRankKBlocksize<double>();
+template<typename T> int LocalTrrkBlocksize();
+template<> int LocalTrrkBlocksize<float>();
+template<> int LocalTrrkBlocksize<double>();
 #ifndef WITHOUT_COMPLEX
-template<> int LocalTriangularRankKBlocksize<scomplex>();
-template<> int LocalTriangularRankKBlocksize<dcomplex>();
+template<> int LocalTrrkBlocksize<scomplex>();
+template<> int LocalTrrkBlocksize<dcomplex>();
 #endif // WITHOUT_COMPLEX
 
-template<typename T> int LocalTriangularRank2KBlocksize();
-template<> int LocalTriangularRank2KBlocksize<float>();
-template<> int LocalTriangularRank2KBlocksize<double>();
+template<typename T> int LocalTrr2kBlocksize();
+template<> int LocalTrr2kBlocksize<float>();
+template<> int LocalTrr2kBlocksize<double>();
 #ifndef WITHOUT_COMPLEX
-template<> int LocalTriangularRank2KBlocksize<scomplex>();
-template<> int LocalTriangularRank2KBlocksize<dcomplex>();
+template<> int LocalTrr2kBlocksize<scomplex>();
+template<> int LocalTrr2kBlocksize<dcomplex>();
 #endif // WITHOUT_COMPLEX
 
 //----------------------------------------------------------------------------//
@@ -809,6 +807,49 @@ template<typename T>
 void Trmm
 ( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
+
+//
+// Trr2k (TRiangular Rank-2K update):
+//
+// Performs the update:
+//
+//   E := alpha (op(A) op(B) + op(C) op(D)) + beta E
+//
+// where op(X) is determined by 'orientationOfX', and only the triangle of 
+// X specified by 'shape' is updated.
+//
+
+// TODO: Serial version
+
+// Parallel version (NOT YET WRITTEN!)
+template<typename T>
+void Trr2k
+( Shape shape, 
+  Orientation orientationOfA, Orientation orientationOfB,
+  Orientation orientationOfC, Orientation orientationOfD,
+  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, 
+           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
+  T beta,        DistMatrix<T,MC,MR>& E );
+
+//
+// Trrk (TRiangular Rank-K update):
+//
+// Performs the update:
+//
+//   C := alpha op(A) op(B) + beta C
+//
+// where op(A) and op(B) are respectively determined by 'orientationOfA'
+// and 'orientationOfB'. Only the triangle of C specified by 'shape' is updated.
+//
+
+// TODO: Serial version
+
+// Parallel version (NOT YET WRITTEN!)
+template<typename T>
+void Trrk
+( Shape shape, Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, 
+  T beta,        DistMatrix<T,MC,MR>& C );
 
 //
 // Trsm (TRiangular Solve with Multiple right-hand sides):

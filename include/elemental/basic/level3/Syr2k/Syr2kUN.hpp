@@ -99,9 +99,11 @@ elemental::basic::internal::Syr2kUN
         B1_VR_STAR = B1_MC_STAR = B1;
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
 
-        basic::internal::LocalTriangularRank2K
-        ( UPPER, alpha,
-          A1_MC_STAR, B1_MC_STAR, A1Trans_STAR_MR, B1Trans_STAR_MR, (T)1, C );
+        basic::internal::LocalTrr2k
+        ( UPPER, 
+          alpha, A1_MC_STAR, B1Trans_STAR_MR,
+                 B1_MC_STAR, A1Trans_STAR_MR,
+          (T)1,  C );
         //--------------------------------------------------------------------//
         A1_MC_STAR.FreeAlignments();
         B1_MC_STAR.FreeAlignments();

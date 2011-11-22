@@ -97,7 +97,7 @@ elemental::advanced::internal::HPDInverseLVar2( DistMatrix<F,MC,MR>& A )
 
         A10_STAR_MC = A10_STAR_VR;
         A10_STAR_MR = A10_STAR_VR;
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( LOWER, ADJOINT,
           (F)1, A10_STAR_MC, A10_STAR_MR, (F)1, A00 );
 
@@ -107,7 +107,7 @@ elemental::advanced::internal::HPDInverseLVar2( DistMatrix<F,MC,MR>& A )
 
         A21_VR_STAR = A21_VC_STAR;
         A21Adj_STAR_MR.AdjointFrom( A21_VR_STAR );
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( LOWER, TRANSPOSE,
           (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
 

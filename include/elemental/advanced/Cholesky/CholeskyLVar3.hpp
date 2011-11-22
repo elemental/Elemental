@@ -114,7 +114,7 @@ elemental::advanced::internal::CholeskyLVar3
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( LOWER, TRANSPOSE, 
           (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
 
@@ -221,7 +221,7 @@ elemental::advanced::internal::CholeskyLVar3Naive
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( LOWER, ADJOINT, (F)-1, A21_MC_STAR, A21_MR_STAR, (F)1, A22 );
 
         A21 = A21_MC_STAR;

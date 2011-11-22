@@ -31,7 +31,9 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace {
+namespace elemental {
+namespace advanced {
+namespace hermitian_tridiag_util {
 
 template<typename R> // representation of a real number
 void
@@ -337,13 +339,16 @@ HermitianTridiagU
 }
 #endif // WITHOUT_COMPLEX
 
-} // anonymous namespace
+} // namespace hermitian_tridiag_util
+} // namespace advanced
+} // namespace elemental
 
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianTridiag
 ( Shape shape, Matrix<R>& A )
 {
+    using namespace hermitian_tridiag_util;
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");
 #endif
@@ -362,6 +367,7 @@ inline void
 elemental::advanced::HermitianTridiag
 ( Shape shape, Matrix< complex<R> >& A, Matrix< complex<R> >& t )
 {
+    using namespace hermitian_tridiag_util;
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");
 #endif

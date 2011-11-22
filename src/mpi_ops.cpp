@@ -111,7 +111,7 @@ elemental::advanced::internal::CreatePivotOp<double>()
 #ifndef WITHOUT_COMPLEX
 template<>
 void
-elemental::advanced::internal::CreatePivotOp<scomplex>()
+elemental::advanced::internal::CreatePivotOp<elemental::scomplex>()
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::CreatePivotOp<scomplex>");
@@ -128,7 +128,7 @@ elemental::advanced::internal::CreatePivotOp<scomplex>()
 
 template<>
 void
-elemental::advanced::internal::CreatePivotOp<dcomplex>()
+elemental::advanced::internal::CreatePivotOp<elemental::dcomplex>()
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::CreatePivotOp<dcomplex>");
@@ -181,7 +181,7 @@ elemental::advanced::internal::DestroyPivotOp<double>()
 #ifndef WITHOUT_COMPLEX
 template<>
 void
-elemental::advanced::internal::DestroyPivotOp<scomplex>()
+elemental::advanced::internal::DestroyPivotOp<elemental::scomplex>()
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::DestroyPivotOp<scomplex>");
@@ -198,7 +198,7 @@ elemental::advanced::internal::DestroyPivotOp<scomplex>()
 
 template<>
 void
-elemental::advanced::internal::DestroyPivotOp<dcomplex>()
+elemental::advanced::internal::DestroyPivotOp<elemental::dcomplex>()
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::DestroyPivotOp<dcomplex>");
@@ -243,7 +243,7 @@ elemental::advanced::internal::PivotOp<double>()
 #ifndef WITHOUT_COMPLEX
 template<>
 elemental::mpi::Op
-elemental::advanced::internal::PivotOp<scomplex>()
+elemental::advanced::internal::PivotOp<elemental::scomplex>()
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::PivotOp<scomplex>");
@@ -256,7 +256,7 @@ elemental::advanced::internal::PivotOp<scomplex>()
 
 template<>
 elemental::mpi::Op
-elemental::advanced::internal::PivotOp<dcomplex>()
+elemental::advanced::internal::PivotOp<elemental::dcomplex>()
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::PivotOp<dcomplex>");
@@ -278,10 +278,10 @@ elemental::advanced::internal::PivotFunc<double>
 
 #ifndef WITHOUT_COMPLEX
 template void
-elemental::advanced::internal::PivotFunc<scomplex>
+elemental::advanced::internal::PivotFunc<elemental::scomplex>
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
 template void
-elemental::advanced::internal::PivotFunc<dcomplex>
+elemental::advanced::internal::PivotFunc<elemental::dcomplex>
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 #endif

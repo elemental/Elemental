@@ -115,15 +115,16 @@ elemental::advanced::internal::HegstLLVar5
         // A10 := A10 + 1/2 Y10
         basic::Axpy( (F)0.5, Y10, A10 );
 
-        // A00 := A00 + (A10' L10 + L10' A10)
+        // A00 := A00 + (L10' A10 + A10' L10)
         A10Trans_MR_STAR.TransposeFrom( A10 );
         L10_STAR_MR = L10_STAR_VR;
         A10_STAR_VR = A10;
         A10_STAR_MC = A10_STAR_VR;
         L10_STAR_MC = L10_STAR_VR;
-        basic::internal::LocalTriangularRank2K
-        ( LOWER, ADJOINT, ADJOINT, TRANSPOSE,
-          (F)1, L10_STAR_MC, A10_STAR_MC, L10_STAR_MR, A10Trans_MR_STAR, 
+        basic::internal::LocalTrr2k
+        ( LOWER, ADJOINT, TRANSPOSE, ADJOINT,
+          (F)1, L10_STAR_MC, A10Trans_MR_STAR, 
+                A10_STAR_MC, L10_STAR_MR, 
           (F)1, A00 );
 
         // A10 := A10 + 1/2 Y10

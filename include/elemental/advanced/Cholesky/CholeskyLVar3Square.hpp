@@ -152,7 +152,7 @@ elemental::advanced::internal::CholeskyLVar3Square
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
-        basic::internal::LocalTriangularRankK
+        basic::internal::LocalTrrk
         ( LOWER, TRANSPOSE, 
           (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
 

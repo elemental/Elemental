@@ -38,7 +38,7 @@
 
 template<typename R> // representation of a real number
 inline R
-advanced::HermitianNorm
+elemental::advanced::HermitianNorm
 ( Shape shape, const Matrix<R>& A, NormType type )
 {
 #ifndef RELEASE
@@ -69,7 +69,7 @@ advanced::HermitianNorm
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::HermitianNorm
+elemental::advanced::HermitianNorm
 ( Shape shape, const Matrix<std::complex<R> >& A, NormType type )
 {
 #ifndef RELEASE
@@ -100,7 +100,7 @@ advanced::HermitianNorm
 
 template<typename R> // representation of a real number
 inline R
-advanced::HermitianNorm
+elemental::advanced::HermitianNorm
 ( Shape shape, const DistMatrix<R,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
@@ -131,7 +131,7 @@ advanced::HermitianNorm
 #ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
-advanced::HermitianNorm
+elemental::advanced::HermitianNorm
 ( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE

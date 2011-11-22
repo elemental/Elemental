@@ -146,15 +146,16 @@ elemental::advanced::internal::HegstRUVar4
         // A12 := A12 - 1/2 Y12
         basic::Axpy( (F)-0.5, Y12_STAR_VR, A12_STAR_VR );
 
-        // A22 := A22 - (A12 U12' + U12 A12')
+        // A22 := A22 - (A12' U12 + U12' A12)
         A12_STAR_MR = A12_STAR_VR;
         A12_STAR_VC = A12_STAR_VR;
         U12_STAR_VC = U12_STAR_VR;
         A12_STAR_MC = A12_STAR_VC;
         U12_STAR_MC = U12_STAR_VC;
-        basic::internal::LocalTriangularRank2K
-        ( UPPER, ADJOINT, ADJOINT, TRANSPOSE,
-          (F)-1, A12_STAR_MC, U12_STAR_MC, A12_STAR_MR, U12Trans_MR_STAR,
+        basic::internal::LocalTrr2k
+        ( UPPER, ADJOINT, TRANSPOSE, ADJOINT,
+          (F)-1, A12_STAR_MC, U12Trans_MR_STAR,
+                 U12_STAR_MC, A12_STAR_MR,
           (F)1, A22 );
 
         // A12 := A12 - 1/2 Y12

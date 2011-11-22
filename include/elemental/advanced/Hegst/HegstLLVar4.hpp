@@ -120,9 +120,11 @@ elemental::advanced::internal::HegstLLVar4
         A10_STAR_MC = A10_STAR_VR;
         L10_STAR_MR = L10_STAR_VR;
         L10_STAR_MC = L10_STAR_VR;
-        basic::internal::LocalTriangularRank2K
+        basic::internal::LocalTrr2k
         ( LOWER, ADJOINT, ADJOINT,
-          (F)1, A10_STAR_MC, L10_STAR_MC, A10_STAR_MR, L10_STAR_MR, (F)1, A00 );
+          (F)1, A10_STAR_MC, L10_STAR_MR, 
+                L10_STAR_MC, A10_STAR_MR, 
+          (F)1, A00 );
 
         // A10 := A10 + 1/2 Y10
         basic::Axpy( (F)1, Y10_STAR_VR, A10_STAR_VR );

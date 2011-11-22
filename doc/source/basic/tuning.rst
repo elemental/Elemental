@@ -33,33 +33,33 @@ LocalSymvBlocksize
 
    Retrieves the local ``Symv`` blocksize for datatype ``T``.
 
-LocalTriangularRankKBlocksize
------------------------------
+LocalTrrkBlocksize
+------------------
 
-.. cpp:function:: void basic::SetLocalTriangularRankKBlocksize<T>( int blocksize )
+.. cpp:function:: void basic::SetLocalTrrkBlocksize<T>( int blocksize )
 
    Sets the local blocksize for the distributed 
-   ``basic::internal::LocalTriangularRankK`` routine for datatype ``T``. It is
+   ``basic::internal::LocalTrrk`` routine for datatype ``T``. It is
    set to 64 by default and is important for routines that perform distributed
    ``basic::Syrk`` or ``basic::Herk`` updates, e.g., Cholesky factorization.
 
-.. cpp:function:: int basic::LocalTriangularRankKBlocksize<T>()
+.. cpp:function:: int basic::LocalTrrkBlocksize<T>()
 
    Retrieves the local blocksize for the distributed 
-   ``basic::internal::LocalTriangularRankK`` routine for datatype ``T``.
+   ``basic::internal::LocalTrrk`` routine for datatype ``T``.
 
-LocalTriangularRank2KBlocksize
-------------------------------
+LocalTrr2kBlocksize
+-------------------
 
-.. cpp:function:: void basic::SetLocalTriangularRank2KBlocksize<T>( int blocksize )
+.. cpp:function:: void basic::SetLocalTrr2kBlocksize<T>( int blocksize )
 
    Sets the local blocksize for the distributed
-   ``basic::internal::LocalTriangularRank2K`` routine for datatype ``T``. It is
+   ``basic::internal::LocalTrr2k`` routine for datatype ``T``. It is
    set to 64 by default and is important for routines that perform distributed
    ``basic::Syr2k`` or ``basic::Her2k`` updates, e.g., Householder 
    tridiagonalization.
 
-.. cpp:function:: int basic::LocalTriangularRank2KBlocksize<T>()
+.. cpp:function:: int basic::LocalTrr2kBlocksize<T>()
 
    Retrieves the local blocksize for the distributed 
-   ``basic::internal::LocalTriangularRank2K`` routine for datatype ``T``.
+   ``basic::internal::LocalTrr2k`` routine for datatype ``T``.
