@@ -887,7 +887,7 @@ void LocalTrr2k
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
-  T beta,        DistMatrix<T,MC,MR  >& C );
+  T beta,        DistMatrix<T,MC,MR  >& E );
 
 // Triangular Rank-2k Update:
 // tril(E) := alpha tril( A B^{T/H} + C^{T/H} D ) + beta tril(E)
