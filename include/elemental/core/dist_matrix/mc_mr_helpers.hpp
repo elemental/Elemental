@@ -32,19 +32,18 @@
 */
 
 namespace elemental {
-using namespace std;
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::SetToRandomHermitianHelper<Z>::Func
-( DistMatrix<Z,MC,MR>& parent )
+DistMatrix<T,MC,MR,Int>::SetToRandomHermitianHelper<Z>::Func
+( DistMatrix<Z,MC,MR,Int>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetToRandomHermitian");
     parent.AssertNotLockedView();
     if( parent.height_ != parent.width_ )
-        throw logic_error("Hermitian matrices must be square");
+        throw std::logic_error("Hermitian matrices must be square");
 #endif
     parent.SetToRandom();
 #ifndef RELEASE
@@ -53,39 +52,39 @@ DistMatrix<T,MC,MR>::SetToRandomHermitianHelper<Z>::Func
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::SetToRandomHermitianHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,MC,MR>& parent )
+DistMatrix<T,MC,MR,Int>::SetToRandomHermitianHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,MC,MR,Int>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetToRandomHermitian");
     parent.AssertNotLockedView();
     if( parent.height_ != parent.width_ )
-        throw logic_error("Hermitian matrices must be square");
+        throw std::logic_error("Hermitian matrices must be square");
 #endif
-    const int r = parent.Grid().Height();
-    const int c = parent.Grid().Width();
+    const Int r = parent.Grid().Height();
+    const Int c = parent.Grid().Width();
 
-    const int localHeight = parent.LocalHeight();
-    const int localWidth = parent.LocalWidth();
-    const int colShift = parent.ColShift();
-    const int rowShift = parent.RowShift();
+    const Int localHeight = parent.LocalHeight();
+    const Int localWidth = parent.LocalWidth();
+    const Int colShift = parent.ColShift();
+    const Int rowShift = parent.RowShift();
 
     parent.SetToRandom();
 
-    complex<Z>* thisLocalBuffer = parent.LocalBuffer();
-    const int thisLDim = parent.LocalLDim();
+    std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+    const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int iLocal=0; iLocal<localHeight; ++iLocal )
+    for( Int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int i = colShift + iLocal*r;                
+        const Int i = colShift + iLocal*r;                
         if( i % c == rowShift )
         {
-            const int jLocal = (i-rowShift) / c;
+            const Int jLocal = (i-rowShift) / c;
             if( jLocal < localWidth )
             {
                 const Z value = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
@@ -99,40 +98,40 @@ DistMatrix<T,MC,MR>::SetToRandomHermitianHelper<complex<Z> >::Func
 }
 #endif // WITHOUT_COMPLEX
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::SetToRandomHPDHelper<Z>::Func
-( DistMatrix<Z,MC,MR>& parent )
+DistMatrix<T,MC,MR,Int>::SetToRandomHPDHelper<Z>::Func
+( DistMatrix<Z,MC,MR,Int>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetToRandomHPD");
     parent.AssertNotLockedView();
     if( parent.height_ != parent.width_ )
-        throw logic_error("Positive-definite matrices must be square");
+        throw std::logic_error("Positive-definite matrices must be square");
 #endif
-    const int r = parent.Grid().Height();
-    const int c = parent.Grid().Width();
+    const Int r = parent.Grid().Height();
+    const Int c = parent.Grid().Width();
 
-    const int width = parent.width_;
-    const int localHeight = parent.LocalHeight();
-    const int localWidth = parent.LocalWidth();
-    const int colShift = parent.ColShift();
-    const int rowShift = parent.RowShift();
+    const Int width = parent.width_;
+    const Int localHeight = parent.LocalHeight();
+    const Int localWidth = parent.LocalWidth();
+    const Int colShift = parent.ColShift();
+    const Int rowShift = parent.RowShift();
 
     parent.SetToRandom();
 
     Z* thisLocalBuffer = parent.LocalBuffer();
-    const int thisLDim = parent.LocalLDim();
+    const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int iLocal=0; iLocal<localHeight; ++iLocal )
+    for( Int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int i = colShift + iLocal*r;                
+        const Int i = colShift + iLocal*r;                
         if( i % c == rowShift )
         {
-            const int jLocal = (i-rowShift) / c;
+            const Int jLocal = (i-rowShift) / c;
             if( jLocal < localWidth )
                 thisLocalBuffer[iLocal+jLocal*thisLDim] += width;
         }
@@ -143,40 +142,40 @@ DistMatrix<T,MC,MR>::SetToRandomHPDHelper<Z>::Func
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::SetToRandomHPDHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,MC,MR>& parent )
+DistMatrix<T,MC,MR,Int>::SetToRandomHPDHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,MC,MR,Int>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetToRandomHPD");
     parent.AssertNotLockedView();
     if( parent.Height() != parent.Width() )
-        throw logic_error("Positive-definite matrices must be square");
+        throw std::logic_error("Positive-definite matrices must be square");
 #endif
-    const int r = parent.Grid().Height();
-    const int c = parent.Grid().Width();
+    const Int r = parent.Grid().Height();
+    const Int c = parent.Grid().Width();
 
-    const int width = parent.Width();
-    const int localHeight = parent.LocalHeight();
-    const int localWidth = parent.LocalWidth();
-    const int colShift = parent.ColShift();
-    const int rowShift = parent.RowShift();
+    const Int width = parent.Width();
+    const Int localHeight = parent.LocalHeight();
+    const Int localWidth = parent.LocalWidth();
+    const Int colShift = parent.ColShift();
+    const Int rowShift = parent.RowShift();
 
     parent.SetToRandom();
 
-    complex<Z>* thisLocalBuffer = parent.LocalBuffer();
-    const int thisLDim = parent.LocalLDim();
+    std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+    const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( int iLocal=0; iLocal<localHeight; ++iLocal )
+    for( Int iLocal=0; iLocal<localHeight; ++iLocal )
     {
-        const int i = colShift + iLocal*r;                
+        const Int i = colShift + iLocal*r;                
         if( i % c == rowShift )
         {
-            const int jLocal = (i-rowShift) / c;
+            const Int jLocal = (i-rowShift) / c;
             if( jLocal < localWidth )
             {
                 const Z value = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
@@ -189,11 +188,11 @@ DistMatrix<T,MC,MR>::SetToRandomHPDHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline Z
-DistMatrix<T,MC,MR>::GetRealHelper<complex<Z> >::Func
-( const DistMatrix<complex<Z>,MC,MR>& parent, int i, int j ) 
+DistMatrix<T,MC,MR,Int>::GetRealHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,MC,MR,Int>& parent, Int i, Int j ) 
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetReal");
@@ -202,15 +201,15 @@ DistMatrix<T,MC,MR>::GetRealHelper<complex<Z> >::Func
     // We will determine the owner of the (i,j) entry and have him Broadcast
     // throughout the entire process grid
     const elemental::Grid& g = parent.Grid();
-    const int ownerRow = (i + parent.ColAlignment()) % g.Height();
-    const int ownerCol = (j + parent.RowAlignment()) % g.Width();
-    const int ownerRank = ownerRow + ownerCol * g.Height();
+    const Int ownerRow = (i + parent.ColAlignment()) % g.Height();
+    const Int ownerCol = (j + parent.RowAlignment()) % g.Width();
+    const Int ownerRank = ownerRow + ownerCol * g.Height();
 
     Z u;
     if( g.VCRank() == ownerRank )
     {
-        const int iLocal = (i-parent.ColShift()) / g.Height();
-        const int jLocal = (j-parent.RowShift()) / g.Width();
+        const Int iLocal = (i-parent.ColShift()) / g.Height();
+        const Int jLocal = (j-parent.RowShift()) / g.Width();
         u = parent.GetRealLocalEntry(iLocal,jLocal);
     }
     mpi::Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
@@ -221,11 +220,11 @@ DistMatrix<T,MC,MR>::GetRealHelper<complex<Z> >::Func
     return u;
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline Z
-DistMatrix<T,MC,MR>::GetImagHelper<complex<Z> >::Func
-( const DistMatrix<complex<Z>,MC,MR>& parent, int i, int j )
+DistMatrix<T,MC,MR,Int>::GetImagHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,MC,MR,Int>& parent, Int i, Int j )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetImag");
@@ -234,15 +233,15 @@ DistMatrix<T,MC,MR>::GetImagHelper<complex<Z> >::Func
     // We will determine the owner of the (i,j) entry and have him Broadcast
     // throughout the entire process grid
     const elemental::Grid& g = parent.Grid();
-    const int ownerRow = (i + parent.ColAlignment()) % g.Height();
-    const int ownerCol = (j + parent.RowAlignment()) % g.Width();
-    const int ownerRank = ownerRow + ownerCol * g.Height();
+    const Int ownerRow = (i + parent.ColAlignment()) % g.Height();
+    const Int ownerCol = (j + parent.RowAlignment()) % g.Width();
+    const Int ownerRank = ownerRow + ownerCol * g.Height();
 
     Z u;
     if( g.VCRank() == ownerRank )
     {
-        const int iLocal = (i-parent.ColShift()) / g.Height();
-        const int jLocal = (j-parent.RowShift()) / g.Width();
+        const Int iLocal = (i-parent.ColShift()) / g.Height();
+        const Int jLocal = (j-parent.RowShift()) / g.Width();
         u = parent.GetImagLocalEntry(iLocal,jLocal);
     }
     mpi::Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
@@ -253,25 +252,25 @@ DistMatrix<T,MC,MR>::GetImagHelper<complex<Z> >::Func
     return u;
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::SetRealHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,MC,MR>& parent, int i, int j, Z u )
+DistMatrix<T,MC,MR,Int>::SetRealHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,MC,MR,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetReal");
     parent.AssertValidEntry( i, j );
 #endif
     const elemental::Grid& g = parent.Grid();
-    const int ownerRow = (i + parent.ColAlignment()) % g.Height();
-    const int ownerCol = (j + parent.RowAlignment()) % g.Width();
-    const int ownerRank = ownerRow + ownerCol * g.Height();
+    const Int ownerRow = (i + parent.ColAlignment()) % g.Height();
+    const Int ownerCol = (j + parent.RowAlignment()) % g.Width();
+    const Int ownerRank = ownerRow + ownerCol * g.Height();
 
     if( g.VCRank() == ownerRank )
     {
-        const int iLocal = (i-parent.ColShift()) / g.Height();
-        const int jLocal = (j-parent.RowShift()) / g.Width();
+        const Int iLocal = (i-parent.ColShift()) / g.Height();
+        const Int jLocal = (j-parent.RowShift()) / g.Width();
         parent.SetRealLocalEntry(iLocal,jLocal,u);
     }
 #ifndef RELEASE
@@ -279,25 +278,25 @@ DistMatrix<T,MC,MR>::SetRealHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::SetImagHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,MC,MR>& parent, int i, int j, Z u )
+DistMatrix<T,MC,MR,Int>::SetImagHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,MC,MR,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImag");
     parent.AssertValidEntry( i, j );
 #endif
     const elemental::Grid& g = parent.Grid();
-    const int ownerRow = (i + parent.ColAlignment()) % g.Height();
-    const int ownerCol = (j + parent.RowAlignment()) % g.Width();
-    const int ownerRank = ownerRow + ownerCol * g.Height();
+    const Int ownerRow = (i + parent.ColAlignment()) % g.Height();
+    const Int ownerCol = (j + parent.RowAlignment()) % g.Width();
+    const Int ownerRank = ownerRow + ownerCol * g.Height();
 
     if( g.VCRank() == ownerRank )
     {
-        const int iLocal = (i-parent.ColShift()) / g.Height();
-        const int jLocal = (j-parent.RowShift()) / g.Width();
+        const Int iLocal = (i-parent.ColShift()) / g.Height();
+        const Int jLocal = (j-parent.RowShift()) / g.Width();
         parent.SetImagLocalEntry(iLocal,jLocal,u);
     }
 #ifndef RELEASE
@@ -305,25 +304,25 @@ DistMatrix<T,MC,MR>::SetImagHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::UpdateRealHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,MC,MR>& parent, int i, int j, Z u )
+DistMatrix<T,MC,MR,Int>::UpdateRealHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,MC,MR,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::UpdateReal");
     parent.AssertValidEntry( i, j );
 #endif
     const elemental::Grid& g = parent.Grid();
-    const int ownerRow = (i + parent.ColAlignment()) % g.Height();
-    const int ownerCol = (j + parent.RowAlignment()) % g.Width();
-    const int ownerRank = ownerRow + ownerCol * g.Height();
+    const Int ownerRow = (i + parent.ColAlignment()) % g.Height();
+    const Int ownerCol = (j + parent.RowAlignment()) % g.Width();
+    const Int ownerRank = ownerRow + ownerCol * g.Height();
 
     if( g.VCRank() == ownerRank )
     {
-        const int iLocal = (i-parent.ColShift()) / g.Height();
-        const int jLocal = (j-parent.RowShift()) / g.Width();
+        const Int iLocal = (i-parent.ColShift()) / g.Height();
+        const Int jLocal = (j-parent.RowShift()) / g.Width();
         parent.UpdateRealLocalEntry(iLocal,jLocal,u);
     }
 #ifndef RELEASE
@@ -331,25 +330,25 @@ DistMatrix<T,MC,MR>::UpdateRealHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::UpdateImagHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,MC,MR>& parent, int i, int j, Z u )
+DistMatrix<T,MC,MR,Int>::UpdateImagHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,MC,MR,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::UpdateImag");
     parent.AssertValidEntry( i, j );
 #endif
     const elemental::Grid& g = parent.Grid();
-    const int ownerRow = (i + parent.ColAlignment()) % g.Height();
-    const int ownerCol = (j + parent.RowAlignment()) % g.Width();
-    const int ownerRank = ownerRow + ownerCol * g.Height();
+    const Int ownerRow = (i + parent.ColAlignment()) % g.Height();
+    const Int ownerCol = (j + parent.RowAlignment()) % g.Width();
+    const Int ownerRank = ownerRow + ownerCol * g.Height();
 
     if( g.VCRank() == ownerRank )
     {
-        const int iLocal = (i-parent.ColShift()) / g.Height();
-        const int jLocal = (j-parent.RowShift()) / g.Width();
+        const Int iLocal = (i-parent.ColShift()) / g.Height();
+        const Int jLocal = (j-parent.RowShift()) / g.Width();
         parent.UpdateImagLocalEntry(iLocal,jLocal,u);
     }
 #ifndef RELEASE
@@ -357,28 +356,28 @@ DistMatrix<T,MC,MR>::UpdateImagHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
-( const DistMatrix<complex<Z>,MC,MR>& parent, 
-        DistMatrix<Z,MD,STAR>& d, int offset )
+DistMatrix<T,MC,MR,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,MC,MR,Int>& parent, 
+        DistMatrix<Z,MD,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetRealDiagonal");
     if( d.Viewing() )
         parent.AssertSameGrid( d );
 #endif
-    const int length = parent.DiagonalLength(offset);
+    const Int length = parent.DiagonalLength(offset);
 #ifndef RELEASE
     if( d.Viewing() && length != d.Height() )
     {
-        ostringstream msg;
+        std::ostringstream msg;
         msg << "d is not of the same length as the diagonal:\n"
             << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
             << "  A diag length: " << length << "\n";
-        throw logic_error( msg.str().c_str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #endif
     const elemental::Grid& g = parent.Grid();
@@ -392,14 +391,14 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
 
     if( d.InDiagonal() )
     {
-        const int r = g.Height();
-        const int c = g.Width();
-        const int lcm = g.LCM();
-        const int colShift = parent.ColShift();
-        const int rowShift = parent.RowShift();
-        const int diagShift = d.ColShift();
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int lcm = g.LCM();
+        const Int colShift = parent.ColShift();
+        const Int rowShift = parent.RowShift();
+        const Int diagShift = d.ColShift();
 
-        int iStart, jStart;
+        Int iStart, jStart;
         if( offset >= 0 )
         {
             iStart = diagShift;
@@ -411,21 +410,21 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
             jStart = diagShift;
         }
 
-        const int iLocalStart = (iStart-colShift) / r;
-        const int jLocalStart = (jStart-rowShift) / c;
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int jLocalStart = (jStart-rowShift) / c;
 
-        const int localDiagLength = d.LocalHeight();
+        const Int localDiagLength = d.LocalHeight();
 
-        const complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        const std::complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const Int thisLDim = parent.LocalLDim();
         Z* dLocalBuffer = d.LocalBuffer();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int k=0; k<localDiagLength; ++k )
+        for( Int k=0; k<localDiagLength; ++k )
         {
-            const int iLocal = iLocalStart + k*(lcm/r);
-            const int jLocal = jLocalStart + k*(lcm/c);
+            const Int iLocal = iLocalStart + k*(lcm/r);
+            const Int jLocal = jLocalStart + k*(lcm/c);
             dLocalBuffer[k] = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
     }
@@ -434,40 +433,40 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
-( const DistMatrix<complex<Z>,MC,MR>& parent,
-        DistMatrix<Z,MD,STAR>& d, int offset ) 
+DistMatrix<T,MC,MR,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,MC,MR,Int>& parent,
+        DistMatrix<Z,MD,STAR,Int>& d, Int offset ) 
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetImagDiagonal");
     if( d.Viewing() )
         parent.AssertSameGrid( d );
 #endif
-    int width = parent.Width();
-    int height = parent.Height();
-    int length;
+    Int width = parent.Width();
+    Int height = parent.Height();
+    Int length;
     if( offset > 0 )
     {
-        const int remainingWidth = max(width-offset,0);
+        const Int remainingWidth = max(width-offset,0);
         length = min(height,remainingWidth);
     }
     else
     {
-        const int remainingHeight = max(height+offset,0);
+        const Int remainingHeight = max(height+offset,0);
         length = min(remainingHeight,width);
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Height() )
     {
-        ostringstream msg;
+        std::ostringstream msg;
         msg << "d is not of the same length as the diagonal:\n"
             << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
             << "  A diag length: " << length << "\n";
-        throw logic_error( msg.str().c_str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #endif
 
@@ -482,14 +481,14 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
 
     if( d.InDiagonal() )
     {
-        const int r = g.Height();
-        const int c = g.Width();
-        const int lcm = g.LCM();
-        const int colShift = parent.ColShift();
-        const int rowShift = parent.RowShift();
-        const int diagShift = d.ColShift();
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int lcm = g.LCM();
+        const Int colShift = parent.ColShift();
+        const Int rowShift = parent.RowShift();
+        const Int diagShift = d.ColShift();
 
-        int iStart, jStart;
+        Int iStart, jStart;
         if( offset >= 0 )
         {
             iStart = diagShift;
@@ -501,21 +500,21 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
             jStart = diagShift;
         }
 
-        const int iLocalStart = (iStart-colShift) / r;
-        const int jLocalStart = (jStart-rowShift) / c;
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int jLocalStart = (jStart-rowShift) / c;
 
-        const int localDiagLength = d.LocalHeight();
+        const Int localDiagLength = d.LocalHeight();
 
-        const complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        const std::complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const Int thisLDim = parent.LocalLDim();
         Z* dLocalBuffer = d.LocalBuffer();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int k=0; k<localDiagLength; ++k )
+        for( Int k=0; k<localDiagLength; ++k )
         {
-            const int iLocal = iLocalStart + k*(lcm/r);
-            const int jLocal = jLocalStart + k*(lcm/c);
+            const Int iLocal = iLocalStart + k*(lcm/r);
+            const Int jLocal = jLocalStart + k*(lcm/c);
             dLocalBuffer[k] = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
     }
@@ -524,40 +523,40 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
-( const DistMatrix<complex<Z>,MC,MR>& parent,
-        DistMatrix<Z,STAR,MD>& d, int offset ) 
+DistMatrix<T,MC,MR,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,MC,MR,Int>& parent,
+        DistMatrix<Z,STAR,MD,Int>& d, Int offset ) 
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetRealDiagonal");
     if( d.Viewing() )
         parent.AssertSameGrid( d );
 #endif
-    int height = parent.Height();
-    int width = parent.Width();
-    int length;
+    Int height = parent.Height();
+    Int width = parent.Width();
+    Int length;
     if( offset > 0 )
     {
-        const int remainingWidth = max(width-offset,0);
+        const Int remainingWidth = max(width-offset,0);
         length = min(height,remainingWidth);
     }
     else
     {
-        const int remainingHeight = max(height+offset,0);
+        const Int remainingHeight = max(height+offset,0);
         length = min(remainingHeight,width);
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Width() )
     {
-        ostringstream msg;
+        std::ostringstream msg;
         msg << "d is not of the same length as the diagonal:\n"
             << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
             << "  A diag length: " << length << "\n";
-        throw logic_error( msg.str().c_str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #endif
 
@@ -572,14 +571,14 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
 
     if( d.InDiagonal() )
     {
-        const int r = g.Height();
-        const int c = g.Width();
-        const int lcm = g.LCM();
-        const int colShift = parent.ColShift();
-        const int rowShift = parent.RowShift();
-        const int diagShift = d.RowShift();
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int lcm = g.LCM();
+        const Int colShift = parent.ColShift();
+        const Int rowShift = parent.RowShift();
+        const Int diagShift = d.RowShift();
 
-        int iStart, jStart;
+        Int iStart, jStart;
         if( offset >= 0 )
         {
             iStart = diagShift;
@@ -591,22 +590,22 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
             jStart = diagShift;
         }
 
-        const int iLocalStart = (iStart-colShift) / r;
-        const int jLocalStart = (jStart-rowShift) / c;
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int jLocalStart = (jStart-rowShift) / c;
 
-        const int localDiagLength = d.LocalWidth();
+        const Int localDiagLength = d.LocalWidth();
 
-        const complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        const std::complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const Int thisLDim = parent.LocalLDim();
         Z* dLocalBuffer = d.LocalBuffer();
-        const int dLDim = d.LocalLDim();
+        const Int dLDim = d.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int k=0; k<localDiagLength; ++k )
+        for( Int k=0; k<localDiagLength; ++k )
         {
-            const int iLocal = iLocalStart + k*(lcm/r);
-            const int jLocal = jLocalStart + k*(lcm/c);
+            const Int iLocal = iLocalStart + k*(lcm/r);
+            const Int jLocal = jLocalStart + k*(lcm/c);
             dLocalBuffer[k*dLDim] = 
                 real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
@@ -616,40 +615,40 @@ DistMatrix<T,MC,MR>::GetRealDiagonalHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
-( const DistMatrix<complex<Z>,MC,MR>& parent,
-        DistMatrix<Z,STAR,MD>& d, int offset )
+DistMatrix<T,MC,MR,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,MC,MR,Int>& parent,
+        DistMatrix<Z,STAR,MD,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetImagDiagonal");
     if( d.Viewing() )
         parent.AssertSameGrid( d );
 #endif
-    int height = parent.Height();
-    int width = parent.Width();
-    int length;
+    Int height = parent.Height();
+    Int width = parent.Width();
+    Int length;
     if( offset > 0 )
     {
-        const int remainingWidth = max(width-offset,0);
+        const Int remainingWidth = max(width-offset,0);
         length = min(height,remainingWidth);
     }
     else
     {
-        const int remainingHeight = max(height+offset,0);
+        const Int remainingHeight = max(height+offset,0);
         length = min(remainingHeight,width);
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Width() )
     {
-        ostringstream msg;
+        std::ostringstream msg;
         msg << "d is not of the same length as the diagonal:\n"
             << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
             << "  A diag length: " << length << "\n";
-        throw logic_error( msg.str().c_str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #endif
 
@@ -664,14 +663,14 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
 
     if( d.InDiagonal() )
     {
-        const int r = g.Height();
-        const int c = g.Width();
-        const int lcm = g.LCM();
-        const int colShift = parent.ColShift();
-        const int rowShift = parent.RowShift();
-        const int diagShift = d.RowShift();
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int lcm = g.LCM();
+        const Int colShift = parent.ColShift();
+        const Int rowShift = parent.RowShift();
+        const Int diagShift = d.RowShift();
 
-        int iStart, jStart;
+        Int iStart, jStart;
         if( offset >= 0 )
         {
             iStart = diagShift;
@@ -683,22 +682,22 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
             jStart = diagShift;
         }
 
-        const int iLocalStart = (iStart-colShift) / r;
-        const int jLocalStart = (jStart-rowShift) / c;
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int jLocalStart = (jStart-rowShift) / c;
 
-        const int localDiagLength = d.LocalWidth();
+        const Int localDiagLength = d.LocalWidth();
 
-        const complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        const std::complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const Int thisLDim = parent.LocalLDim();
         Z* dLocalBuffer = d.LocalBuffer();
-        const int dLDim = d.LocalLDim();
+        const Int dLDim = d.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int k=0; k<localDiagLength; ++k )
+        for( Int k=0; k<localDiagLength; ++k )
         {
-            const int iLocal = iLocalStart + k*(lcm/r);
-            const int jLocal = jLocalStart + k*(lcm/c);
+            const Int iLocal = iLocalStart + k*(lcm/r);
+            const Int jLocal = jLocalStart + k*(lcm/c);
             dLocalBuffer[k*dLDim] = 
                 imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
@@ -708,40 +707,40 @@ DistMatrix<T,MC,MR>::GetImagDiagonalHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::SetRealDiagonalHelper<complex<Z> >::Func
-(       DistMatrix<complex<Z>,MC,MR>& parent,
-  const DistMatrix<Z,MD,STAR>& d, int offset )
+DistMatrix<T,MC,MR,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
+(       DistMatrix<std::complex<Z>,MC,MR,Int>& parent,
+  const DistMatrix<Z,MD,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetRealDiagonal");
     parent.AssertSameGrid( d );
     if( d.Width() != 1 )
-        throw logic_error("d must be a column vector");
-    const int length = parent.DiagonalLength(offset);
+        throw std::logic_error("d must be a column vector");
+    const Int length = parent.DiagonalLength(offset);
     if( length != d.Height() )
     {
-        ostringstream msg;
+        std::ostringstream msg;
         msg << "d is not of the same length as the diagonal:\n"
             << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
             << "  A diag length: " << length << "\n";
-        throw logic_error( msg.str().c_str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #endif
     if( d.InDiagonal() )
     {
         const elemental::Grid& g = parent.Grid();
-        const int r = g.Height();
-        const int c = g.Width();
-        const int lcm = g.LCM();
-        const int colShift = parent.ColShift();
-        const int rowShift = parent.RowShift();
-        const int diagShift = d.ColShift();
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int lcm = g.LCM();
+        const Int colShift = parent.ColShift();
+        const Int rowShift = parent.RowShift();
+        const Int diagShift = d.ColShift();
 
-        int iStart,jStart;
+        Int iStart,jStart;
         if( offset >= 0 )
         {
             iStart = diagShift;
@@ -753,24 +752,24 @@ DistMatrix<T,MC,MR>::SetRealDiagonalHelper<complex<Z> >::Func
             jStart = diagShift;
         }
 
-        const int iLocalStart = (iStart-colShift) / r;
-        const int jLocalStart = (jStart-rowShift) / c;
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int jLocalStart = (jStart-rowShift) / c;
 
-        const int localDiagLength = d.LocalHeight();
+        const Int localDiagLength = d.LocalHeight();
 
         const Z* dLocalBuffer = d.LockedLocalBuffer(); 
-        complex<Z>* thisLocalBuffer = parent.LocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int k=0; k<localDiagLength; ++k )
+        for( Int k=0; k<localDiagLength; ++k )
         {
-            const int iLocal = iLocalStart + k*(lcm/r);
-            const int jLocal = jLocalStart + k*(lcm/c);
+            const Int iLocal = iLocalStart + k*(lcm/r);
+            const Int jLocal = jLocalStart + k*(lcm/c);
             const Z u = dLocalBuffer[k];
             const Z v = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
-            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = std::complex<Z>(u,v);
         }
     }
 #ifndef RELEASE
@@ -778,40 +777,40 @@ DistMatrix<T,MC,MR>::SetRealDiagonalHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::SetImagDiagonalHelper<complex<Z> >::Func
-(       DistMatrix<complex<Z>,MC,MR>& parent,
-  const DistMatrix<Z,MD,STAR>& d, int offset )
+DistMatrix<T,MC,MR,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
+(       DistMatrix<std::complex<Z>,MC,MR,Int>& parent,
+  const DistMatrix<Z,MD,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImagDiagonal");
     parent.AssertSameGrid( d );
     if( d.Width() != 1 )
-        throw logic_error("d must be a column vector");
-    const int length = parent.DiagonalLength(offset);
+        throw std::logic_error("d must be a column vector");
+    const Int length = parent.DiagonalLength(offset);
     if( length != d.Height() )
     {
-        ostringstream msg;
+        std::ostringstream msg;
         msg << "d is not of the same length as the diagonal:\n"
             << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
             << "  A diag length: " << length << "\n";
-        throw logic_error( msg.str().c_str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #endif
     if( d.InDiagonal() )
     {
         const elemental::Grid& g = parent.Grid();
-        const int r = g.Height();
-        const int c = g.Width();
-        const int lcm = g.LCM();
-        const int colShift = parent.ColShift();
-        const int rowShift = parent.RowShift();
-        const int diagShift = d.ColShift();
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int lcm = g.LCM();
+        const Int colShift = parent.ColShift();
+        const Int rowShift = parent.RowShift();
+        const Int diagShift = d.ColShift();
 
-        int iStart,jStart;
+        Int iStart,jStart;
         if( offset >= 0 )
         {
             iStart = diagShift;
@@ -823,24 +822,24 @@ DistMatrix<T,MC,MR>::SetImagDiagonalHelper<complex<Z> >::Func
             jStart = diagShift;
         }
 
-        const int iLocalStart = (iStart-colShift) / r;
-        const int jLocalStart = (jStart-rowShift) / c;
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int jLocalStart = (jStart-rowShift) / c;
 
-        const int localDiagLength = d.LocalHeight();
+        const Int localDiagLength = d.LocalHeight();
 
         const Z* dLocalBuffer = d.LockedLocalBuffer();
-        complex<Z>* thisLocalBuffer = parent.LocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int k=0; k<localDiagLength; ++k )
+        for( Int k=0; k<localDiagLength; ++k )
         {
-            const int iLocal = iLocalStart + k*(lcm/r);
-            const int jLocal = jLocalStart + k*(lcm/c);
+            const Int iLocal = iLocalStart + k*(lcm/r);
+            const Int jLocal = jLocalStart + k*(lcm/c);
             const Z u = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
             const Z v = dLocalBuffer[k];
-            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = std::complex<Z>(u,v);
         }
     }
 #ifndef RELEASE
@@ -848,40 +847,40 @@ DistMatrix<T,MC,MR>::SetImagDiagonalHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::SetRealDiagonalHelper<complex<Z> >::Func
-(       DistMatrix<complex<Z>,MC,MR>& parent,
-  const DistMatrix<Z,STAR,MD>& d, int offset )
+DistMatrix<T,MC,MR,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
+(       DistMatrix<std::complex<Z>,MC,MR,Int>& parent,
+  const DistMatrix<Z,STAR,MD,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetRealDiagonal");
     parent.AssertSameGrid( d );
     if( d.Height() != 1 )
-        throw logic_error("d must be a row vector");
-    const int length = parent.DiagonalLength(offset);
+        throw std::logic_error("d must be a row vector");
+    const Int length = parent.DiagonalLength(offset);
     if( length != d.Width() )
     {
-        ostringstream msg;
+        std::ostringstream msg;
         msg << "d is not of the same length as the diagonal:\n"
             << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
             << "  A diag length: " << length << "\n";
-        throw logic_error( msg.str().c_str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #endif
     if( d.InDiagonal() )
     {
         const elemental::Grid& g = parent.Grid();
-        const int r = g.Height();
-        const int c = g.Width();
-        const int lcm = g.LCM();
-        const int colShift = parent.ColShift();
-        const int rowShift = parent.RowShift();
-        const int diagShift = d.RowShift();
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int lcm = g.LCM();
+        const Int colShift = parent.ColShift();
+        const Int rowShift = parent.RowShift();
+        const Int diagShift = d.RowShift();
 
-        int iStart,jStart;
+        Int iStart,jStart;
         if( offset >= 0 )
         {
             iStart = diagShift;
@@ -893,25 +892,25 @@ DistMatrix<T,MC,MR>::SetRealDiagonalHelper<complex<Z> >::Func
             jStart = diagShift;
         }
 
-        const int iLocalStart = (iStart-colShift) / r;
-        const int jLocalStart = (jStart-rowShift) / c;
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int jLocalStart = (jStart-rowShift) / c;
 
-        const int localDiagLength = d.LocalWidth();
+        const Int localDiagLength = d.LocalWidth();
 
         const Z* dLocalBuffer = d.LockedLocalBuffer();
-        const int dLDim = d.LocalLDim();
-        complex<Z>* thisLocalBuffer = parent.LocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        const Int dLDim = d.LocalLDim();
+        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int k=0; k<localDiagLength; ++k )
+        for( Int k=0; k<localDiagLength; ++k )
         {
-            const int iLocal = iLocalStart + k*(lcm/r);
-            const int jLocal = jLocalStart + k*(lcm/c);
+            const Int iLocal = iLocalStart + k*(lcm/r);
+            const Int jLocal = jLocalStart + k*(lcm/c);
             const Z u = dLocalBuffer[k*dLDim];
             const Z v = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
-            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = std::complex<Z>(u,v);
         }
     }
 #ifndef RELEASE
@@ -919,40 +918,40 @@ DistMatrix<T,MC,MR>::SetRealDiagonalHelper<complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,MR>::SetImagDiagonalHelper<complex<Z> >::Func
-(       DistMatrix<complex<Z>,MC,MR>& parent,
-  const DistMatrix<Z,STAR,MD>& d, int offset )
+DistMatrix<T,MC,MR,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
+(       DistMatrix<std::complex<Z>,MC,MR,Int>& parent,
+  const DistMatrix<Z,STAR,MD,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImagDiagonal");
     parent.AssertSameGrid( d );
     if( d.Height() != 1 )
-        throw logic_error("d must be a row vector");
-    const int length = parent.DiagonalLength(offset);
+        throw std::logic_error("d must be a row vector");
+    const Int length = parent.DiagonalLength(offset);
     if( length != d.Width() )
     {
-        ostringstream msg;
+        std::ostringstream msg;
         msg << "d is not of the same length as the diagonal:\n"
             << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
             << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
             << "  A diag length: " << length << "\n";
-        throw logic_error( msg.str().c_str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 #endif
     if( d.InDiagonal() )
     {
         const elemental::Grid& g = parent.Grid();
-        const int r = g.Height();
-        const int c = g.Width();
-        const int lcm = g.LCM();
-        const int colShift = parent.ColShift();
-        const int rowShift = parent.RowShift();
-        const int diagShift = d.RowShift();
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int lcm = g.LCM();
+        const Int colShift = parent.ColShift();
+        const Int rowShift = parent.RowShift();
+        const Int diagShift = d.RowShift();
 
-        int iStart,jStart;
+        Int iStart,jStart;
         if( offset >= 0 )
         {
             iStart = diagShift;
@@ -964,25 +963,25 @@ DistMatrix<T,MC,MR>::SetImagDiagonalHelper<complex<Z> >::Func
             jStart = diagShift;
         }
 
-        const int iLocalStart = (iStart-colShift) / r;
-        const int jLocalStart = (jStart-rowShift) / c;
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int jLocalStart = (jStart-rowShift) / c;
 
-        const int localDiagLength = d.LocalWidth();
+        const Int localDiagLength = d.LocalWidth();
 
         const Z* dLocalBuffer = d.LockedLocalBuffer();
-        const int dLDim = d.LocalLDim();
-        complex<Z>* thisLocalBuffer = parent.LocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        const Int dLDim = d.LocalLDim();
+        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int k=0; k<localDiagLength; ++k )
+        for( Int k=0; k<localDiagLength; ++k )
         {
-            const int iLocal = iLocalStart + k*(lcm/r);
-            const int jLocal = jLocalStart + k*(lcm/c);
+            const Int iLocal = iLocalStart + k*(lcm/r);
+            const Int jLocal = jLocalStart + k*(lcm/c);
             const Z u = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
             const Z v = dLocalBuffer[k*dLDim];
-            thisLocalBuffer[iLocal+jLocal*thisLDim] = complex<Z>(u,v);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = std::complex<Z>(u,v);
         }
     }
 #ifndef RELEASE

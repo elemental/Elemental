@@ -85,7 +85,19 @@ inline void Memory<G>::Require( size_t size )
     if( size > size_ )
     {
         delete[] buffer_;
+#ifndef RELEASE
+        try {
+#endif
         buffer_ = new G[size];
+#ifndef RELEASE
+        } 
+        catch( std::bad_alloc& exception )
+        {
+            std::cerr << "Failed to allocate " << size*sizeof(G) 
+                      << " bytes" << std::endl;
+            throw exception;
+        }
+#endif
         size_ = size;
     }
 }
