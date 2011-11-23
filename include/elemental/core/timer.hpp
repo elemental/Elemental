@@ -37,10 +37,10 @@ namespace elemental {
 
 class Timer
 {
-    bool _running;
-    double _lastStartTime;
-    double _time;
-    const std::string _name;
+    bool running_;
+    double lastStartTime_;
+    double time_;
+    const std::string name_;
 public:
     Timer();
     Timer( const std::string name );
@@ -58,23 +58,23 @@ public:
 //----------------------------------------------------------------------------//
 
 inline Timer::Timer()
-: _running(false), _time(0), _name("[blank]")
+: running_(false), time_(0), name_("[blank]")
 { }
 
 inline Timer::Timer( const std::string name )
-: _running(false), _time(0), _name(name)
+: running_(false), time_(0), name_(name)
 { }
 
 inline void Timer::Start()
 {
 #ifndef RELEASE
     PushCallStack("Timer::Start");
-    if( _running )
+    if( running_ )
         throw std::logic_error("Forgot to stop timer before restarting");
 #endif
-    _lastStartTime = mpi::Time();
-    _running = true;
-    _running = true;
+    lastStartTime_ = mpi::Time();
+    running_ = true;
+    running_ = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -84,31 +84,31 @@ inline void Timer::Stop()
 {
 #ifndef RELEASE
     PushCallStack("Timer::Stop");
-    if( !_running )
+    if( !running_ )
         throw std::logic_error("Tried to stop a timer before starting it");
 #endif
-    _time += mpi::Time()-_lastStartTime;
-    _running = false;
+    time_ += mpi::Time()-lastStartTime_;
+    running_ = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
 inline void Timer::Reset()
-{ _time = 0; }
+{ time_ = 0; }
 
 inline const std::string Timer::Name() const
-{ return _name; }
+{ return name_; }
 
 inline double Timer::Time() const
 {
 #ifndef RELEASE
     PushCallStack("Timer::Time");
-    if( _running )
+    if( running_ )
         throw std::logic_error("Asked for time while still timing");
     PopCallStack();
 #endif
-    return _time;
+    return time_;
 }
 
 } // namespace elemental

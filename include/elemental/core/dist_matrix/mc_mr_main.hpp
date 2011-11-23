@@ -123,17 +123,17 @@ DistMatrix<T,MC,MR>::Align( int colAlignment, int rowAlignment )
     if( rowAlignment < 0 || rowAlignment >= g.Width() )
         throw std::runtime_error("Invalid row alignment for [MC,MR]");
 #endif
-    this->_colAlignment = colAlignment;
-    this->_rowAlignment = rowAlignment;
-    this->_constrainedColAlignment = true;
-    this->_constrainedRowAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
+    this->colAlignment_ = colAlignment;
+    this->rowAlignment_ = rowAlignment;
+    this->constrainedColAlignment_ = true;
+    this->constrainedRowAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
     if( g.InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
-        this->_colShift = Shift( g.MCRank(), colAlignment, g.Height() );
-        this->_rowShift = Shift( g.MRRank(), rowAlignment, g.Width() );
+        this->localMatrix_.ResizeTo( 0, 0 );
+        this->colShift_ = Shift( g.MCRank(), colAlignment, g.Height() );
+        this->rowShift_ = Shift( g.MRRank(), rowAlignment, g.Width() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -153,14 +153,14 @@ DistMatrix<T,MC,MR>::AlignCols( int colAlignment )
     if( colAlignment < 0 || colAlignment >= g.Height() )
         throw std::runtime_error( "Invalid column alignment for [MC,MR]" );
 #endif
-    this->_colAlignment = colAlignment;
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
+    this->colAlignment_ = colAlignment;
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
     if( g.InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
-        this->_colShift = Shift( g.MCRank(), colAlignment, g.Height() );
+        this->localMatrix_.ResizeTo( 0, 0 );
+        this->colShift_ = Shift( g.MCRank(), colAlignment, g.Height() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -180,14 +180,14 @@ DistMatrix<T,MC,MR>::AlignRows( int rowAlignment )
     if( rowAlignment < 0 || rowAlignment >= g.Width() )
         throw std::runtime_error( "Invalid row alignment for [MC,MR]" );
 #endif
-    this->_rowAlignment = rowAlignment;
-    this->_constrainedRowAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
+    this->rowAlignment_ = rowAlignment;
+    this->constrainedRowAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
     if( g.InGrid() )
     {
-        this->_localMatrix.ResizeTo( 0, 0 );
-        this->_rowShift = Shift( g.MRRank(), rowAlignment, g.Width() );
+        this->localMatrix_.ResizeTo( 0, 0 );
+        this->rowShift_ = Shift( g.MRRank(), rowAlignment, g.Width() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -204,18 +204,18 @@ DistMatrix<T,MC,MR>::View( DistMatrix<T,MC,MR>& A )
     this->AssertFreeRowAlignment();
     this->AssertNotStoringData();
 #endif
-    this->_grid = A._grid;
-    this->_height = A.Height();
-    this->_width = A.Width();
-    this->_colAlignment = A.ColAlignment();
-    this->_rowAlignment = A.RowAlignment();
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->grid_ = A.grid_;
+    this->height_ = A.Height();
+    this->width_ = A.Width();
+    this->colAlignment_ = A.ColAlignment();
+    this->rowAlignment_ = A.RowAlignment();
+    this->viewing_ = true;
+    this->lockedView_ = false;
     if( this->Grid().InGrid() )
     {
-        this->_colShift = A.ColShift();
-        this->_rowShift = A.RowShift();
-        this->_localMatrix.View( A.LocalMatrix() );
+        this->colShift_ = A.ColShift();
+        this->rowShift_ = A.RowShift();
+        this->localMatrix_.View( A.LocalMatrix() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -234,20 +234,20 @@ DistMatrix<T,MC,MR>::View
     this->AssertFreeRowAlignment();
     this->AssertNotStoringData();
 #endif
-    this->_grid = &g;
-    this->_height = height;
-    this->_width = width;
-    this->_colAlignment = colAlignment;
-    this->_rowAlignment = rowAlignment;
-    this->_viewing = true;
-    this->_lockedView = false;
-    if( this->_grid->InGrid() )
+    this->grid_ = &g;
+    this->height_ = height;
+    this->width_ = width;
+    this->colAlignment_ = colAlignment;
+    this->rowAlignment_ = rowAlignment;
+    this->viewing_ = true;
+    this->lockedView_ = false;
+    if( this->grid_->InGrid() )
     {
-        this->_colShift = Shift(g.MCRank(),colAlignment,g.Height());
-        this->_rowShift = Shift(g.MRRank(),rowAlignment,g.Width());
-        const int localHeight = LocalLength(height,this->_colShift,g.Height());
-        const int localWidth = LocalLength(width,this->_rowShift,g.Width());
-        this->_localMatrix.View( localHeight, localWidth, buffer, ldim );
+        this->colShift_ = Shift(g.MCRank(),colAlignment,g.Height());
+        this->rowShift_ = Shift(g.MRRank(),rowAlignment,g.Width());
+        const int localHeight = LocalLength(height,this->colShift_,g.Height());
+        const int localWidth = LocalLength(width,this->rowShift_,g.Width());
+        this->localMatrix_.View( localHeight, localWidth, buffer, ldim );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -264,18 +264,18 @@ DistMatrix<T,MC,MR>::LockedView( const DistMatrix<T,MC,MR>& A )
     this->AssertFreeRowAlignment();
     this->AssertNotStoringData();
 #endif
-    this->_grid = A._grid;
-    this->_height = A.Height();
-    this->_width  = A.Width();
-    this->_colAlignment = A.ColAlignment();
-    this->_rowAlignment = A.RowAlignment();
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->grid_ = A.grid_;
+    this->height_ = A.Height();
+    this->width_  = A.Width();
+    this->colAlignment_ = A.ColAlignment();
+    this->rowAlignment_ = A.RowAlignment();
+    this->viewing_ = true;
+    this->lockedView_ = true;
     if( this->Grid().InGrid() )
     {
-        this->_colShift = A.ColShift();
-        this->_rowShift = A.RowShift();
-        this->_localMatrix.LockedView( A.LockedLocalMatrix() );
+        this->colShift_ = A.ColShift();
+        this->rowShift_ = A.RowShift();
+        this->localMatrix_.LockedView( A.LockedLocalMatrix() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -294,20 +294,20 @@ DistMatrix<T,MC,MR>::LockedView
     this->AssertFreeRowAlignment();
     this->AssertNotStoringData();
 #endif
-    this->_grid = &g;
-    this->_height = height;
-    this->_width = width;
-    this->_colAlignment = colAlignment;
-    this->_rowAlignment = rowAlignment;
-    this->_viewing = true;
-    this->_lockedView = true;
-    if( this->_grid->InGrid() )
+    this->grid_ = &g;
+    this->height_ = height;
+    this->width_ = width;
+    this->colAlignment_ = colAlignment;
+    this->rowAlignment_ = rowAlignment;
+    this->viewing_ = true;
+    this->lockedView_ = true;
+    if( this->grid_->InGrid() )
     {
-        this->_colShift = Shift(g.MCRank(),colAlignment,g.Height());
-        this->_rowShift = Shift(g.MRRank(),rowAlignment,g.Width());
-        const int localHeight = LocalLength(height,this->_colShift,g.Height());
-        const int localWidth = LocalLength(width,this->_rowShift,g.Width());
-        this->_localMatrix.LockedView( localHeight, localWidth, buffer, ldim );
+        this->colShift_ = Shift(g.MCRank(),colAlignment,g.Height());
+        this->rowShift_ = Shift(g.MRRank(),rowAlignment,g.Width());
+        const int localHeight = LocalLength(height,this->colShift_,g.Height());
+        const int localWidth = LocalLength(width,this->rowShift_,g.Width());
+        this->localMatrix_.LockedView( localHeight, localWidth, buffer, ldim );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -326,9 +326,9 @@ DistMatrix<T,MC,MR>::View
     this->AssertNotStoringData();
     this->AssertValidSubmatrix( A, i, j, height, width );
 #endif
-    this->_grid = A._grid;
-    this->_height = height;
-    this->_width  = width;
+    this->grid_ = A.grid_;
+    this->height_ = height;
+    this->width_  = width;
 
     const elemental::Grid& g = this->Grid();
     const int r   = g.Height();
@@ -336,15 +336,15 @@ DistMatrix<T,MC,MR>::View
     const int row = g.MCRank();
     const int col = g.MRRank();
 
-    this->_colAlignment = (A.ColAlignment()+i) % r;
-    this->_rowAlignment = (A.RowAlignment()+j) % c;
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->colAlignment_ = (A.ColAlignment()+i) % r;
+    this->rowAlignment_ = (A.RowAlignment()+j) % c;
+    this->viewing_ = true;
+    this->lockedView_ = false;
   
     if( g.InGrid() )
     {
-        this->_colShift = Shift( row, this->ColAlignment(), r );
-        this->_rowShift = Shift( col, this->RowAlignment(), c );
+        this->colShift_ = Shift( row, this->ColAlignment(), r );
+        this->rowShift_ = Shift( col, this->RowAlignment(), c );
 
         const int localHeightBehind = LocalLength(i,A.ColShift(),r);
         const int localWidthBehind  = LocalLength(j,A.RowShift(),c);
@@ -352,7 +352,7 @@ DistMatrix<T,MC,MR>::View
         const int localHeight = LocalLength( height, this->ColShift(), r );
         const int localWidth  = LocalLength( width,  this->RowShift(), c );
 
-        this->_localMatrix.View
+        this->localMatrix_.View
         ( A.LocalMatrix(), localHeightBehind, localWidthBehind,
                            localHeight,       localWidth );
     }
@@ -373,9 +373,9 @@ DistMatrix<T,MC,MR>::LockedView
     this->AssertNotStoringData();
     this->AssertValidSubmatrix( A, i, j, height, width );
 #endif
-    this->_grid = A._grid;
-    this->_height = height;
-    this->_width  = width;
+    this->grid_ = A.grid_;
+    this->height_ = height;
+    this->width_  = width;
 
     const elemental::Grid& g = this->Grid();
     const int r   = g.Height();
@@ -383,15 +383,15 @@ DistMatrix<T,MC,MR>::LockedView
     const int row = g.MCRank();
     const int col = g.MRRank();
 
-    this->_colAlignment = (A.ColAlignment()+i) % r;
-    this->_rowAlignment = (A.RowAlignment()+j) % c;
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->colAlignment_ = (A.ColAlignment()+i) % r;
+    this->rowAlignment_ = (A.RowAlignment()+j) % c;
+    this->viewing_ = true;
+    this->lockedView_ = true;
   
     if( g.InGrid() )
     {
-        this->_colShift = Shift( row, this->ColAlignment(), r );
-        this->_rowShift = Shift( col, this->RowAlignment(), c );
+        this->colShift_ = Shift( row, this->ColAlignment(), r );
+        this->rowShift_ = Shift( col, this->RowAlignment(), c );
 
         const int localHeightBehind = LocalLength(i,A.ColShift(),r);
         const int localWidthBehind  = LocalLength(j,A.RowShift(),c);
@@ -399,7 +399,7 @@ DistMatrix<T,MC,MR>::LockedView
         const int localHeight = LocalLength( height, this->ColShift(), r );
         const int localWidth  = LocalLength( width,  this->RowShift(), c );
 
-        this->_localMatrix.LockedView
+        this->localMatrix_.LockedView
         ( A.LockedLocalMatrix(), localHeightBehind, localWidthBehind,
                                  localHeight,       localWidth );
     }
@@ -421,18 +421,18 @@ DistMatrix<T,MC,MR>::View1x2
     this->AssertConforming1x2( AL, AR );
     AL.AssertSameGrid( AR );
 #endif
-    this->_grid = AL._grid;
-    this->_height = AL.Height();
-    this->_width = AL.Width() + AR.Width();
-    this->_colAlignment = AL.ColAlignment();
-    this->_rowAlignment = AL.RowAlignment();
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->grid_ = AL.grid_;
+    this->height_ = AL.Height();
+    this->width_ = AL.Width() + AR.Width();
+    this->colAlignment_ = AL.ColAlignment();
+    this->rowAlignment_ = AL.RowAlignment();
+    this->viewing_ = true;
+    this->lockedView_ = false;
     if( this->Grid().InGrid() )
     {
-        this->_colShift = AL.ColShift();
-        this->_rowShift = AL.RowShift();
-        this->_localMatrix.View1x2( AL.LocalMatrix(), AR.LocalMatrix() );
+        this->colShift_ = AL.ColShift();
+        this->rowShift_ = AL.RowShift();
+        this->localMatrix_.View1x2( AL.LocalMatrix(), AR.LocalMatrix() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -452,18 +452,18 @@ DistMatrix<T,MC,MR>::LockedView1x2
     this->AssertConforming1x2( AL, AR );
     AL.AssertSameGrid( AR );
 #endif
-    this->_grid = AL._grid;
-    this->_height = AL.Height();
-    this->_width = AL.Width() + AR.Width();
-    this->_colAlignment = AL.ColAlignment();
-    this->_rowAlignment = AL.RowAlignment();
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->grid_ = AL.grid_;
+    this->height_ = AL.Height();
+    this->width_ = AL.Width() + AR.Width();
+    this->colAlignment_ = AL.ColAlignment();
+    this->rowAlignment_ = AL.RowAlignment();
+    this->viewing_ = true;
+    this->lockedView_ = true;
     if( this->Grid().InGrid() )
     {
-        this->_colShift = AL.ColShift();
-        this->_rowShift = AL.RowShift();
-        this->_localMatrix.LockedView1x2
+        this->colShift_ = AL.ColShift();
+        this->rowShift_ = AL.RowShift();
+        this->localMatrix_.LockedView1x2
         ( AL.LockedLocalMatrix(), AR.LockedLocalMatrix() );
     }
 #ifndef RELEASE
@@ -485,18 +485,18 @@ DistMatrix<T,MC,MR>::View2x1
     this->AssertConforming2x1( AT, AB );
     AT.AssertSameGrid( AB );
 #endif
-    this->_grid = AT._grid;
-    this->_height = AT.Height() + AB.Height();
-    this->_width = AT.Width();
-    this->_colAlignment = AT.ColAlignment();
-    this->_rowAlignment = AT.RowAlignment();
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->grid_ = AT.grid_;
+    this->height_ = AT.Height() + AB.Height();
+    this->width_ = AT.Width();
+    this->colAlignment_ = AT.ColAlignment();
+    this->rowAlignment_ = AT.RowAlignment();
+    this->viewing_ = true;
+    this->lockedView_ = false;
     if( this->Grid().InGrid() )
     {
-        this->_colShift = AT.ColShift();
-        this->_rowShift = AT.RowShift();
-        this->_localMatrix.View2x1
+        this->colShift_ = AT.ColShift();
+        this->rowShift_ = AT.RowShift();
+        this->localMatrix_.View2x1
         ( AT.LocalMatrix(), 
           AB.LocalMatrix() );
     }
@@ -519,18 +519,18 @@ DistMatrix<T,MC,MR>::LockedView2x1
     this->AssertConforming2x1( AT, AB );
     AT.AssertSameGrid( AB );
 #endif
-    this->_grid = AT._grid;
-    this->_height = AT.Height() + AB.Height();
-    this->_width = AT.Width();
-    this->_colAlignment = AT.ColAlignment();
-    this->_rowAlignment = AT.RowAlignment();
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->grid_ = AT.grid_;
+    this->height_ = AT.Height() + AB.Height();
+    this->width_ = AT.Width();
+    this->colAlignment_ = AT.ColAlignment();
+    this->rowAlignment_ = AT.RowAlignment();
+    this->viewing_ = true;
+    this->lockedView_ = true;
     if( this->Grid().InGrid() )
     {
-        this->_colShift = AT.ColShift();
-        this->_rowShift = AT.RowShift();
-        this->_localMatrix.LockedView2x1
+        this->colShift_ = AT.ColShift();
+        this->rowShift_ = AT.RowShift();
+        this->localMatrix_.LockedView2x1
         ( AT.LockedLocalMatrix(), 
           AB.LockedLocalMatrix() );
     }
@@ -555,18 +555,18 @@ DistMatrix<T,MC,MR>::View2x2
     ATL.AssertSameGrid( ABL );
     ATL.AssertSameGrid( ABR );
 #endif
-    this->_grid = ATL._grid;
-    this->_height = ATL.Height() + ABL.Height();
-    this->_width = ATL.Width() + ATR.Width();
-    this->_colAlignment = ATL.ColAlignment();
-    this->_rowAlignment = ATL.RowAlignment();
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->grid_ = ATL.grid_;
+    this->height_ = ATL.Height() + ABL.Height();
+    this->width_ = ATL.Width() + ATR.Width();
+    this->colAlignment_ = ATL.ColAlignment();
+    this->rowAlignment_ = ATL.RowAlignment();
+    this->viewing_ = true;
+    this->lockedView_ = false;
     if( this->Grid().InGrid() )
     {
-        this->_colShift = ATL.ColShift();
-        this->_rowShift = ATL.RowShift();
-        this->_localMatrix.View2x2
+        this->colShift_ = ATL.ColShift();
+        this->rowShift_ = ATL.RowShift();
+        this->localMatrix_.View2x2
         ( ATL.LocalMatrix(), ATR.LocalMatrix(),
           ABL.LocalMatrix(), ABR.LocalMatrix() );
     }
@@ -591,18 +591,18 @@ DistMatrix<T,MC,MR>::LockedView2x2
     ATL.AssertSameGrid( ABL );
     ATL.AssertSameGrid( ABR );
 #endif
-    this->_grid = ATL._grid;
-    this->_height = ATL.Height() + ABL.Height();
-    this->_width = ATL.Width() + ATR.Width();
-    this->_colAlignment = ATL.ColAlignment();
-    this->_rowAlignment = ATL.RowAlignment();
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->grid_ = ATL.grid_;
+    this->height_ = ATL.Height() + ABL.Height();
+    this->width_ = ATL.Width() + ATR.Width();
+    this->colAlignment_ = ATL.ColAlignment();
+    this->rowAlignment_ = ATL.RowAlignment();
+    this->viewing_ = true;
+    this->lockedView_ = true;
     if( this->Grid().InGrid() )
     {
-        this->_colShift = ATL.ColShift();
-        this->_rowShift = ATL.RowShift();
-        this->_localMatrix.LockedView2x2
+        this->colShift_ = ATL.ColShift();
+        this->rowShift_ = ATL.RowShift();
+        this->localMatrix_.LockedView2x2
         ( ATL.LockedLocalMatrix(), ATR.LockedLocalMatrix(),
           ABL.LockedLocalMatrix(), ABR.LockedLocalMatrix() );
     }
@@ -619,11 +619,11 @@ DistMatrix<T,MC,MR>::ResizeTo( int height, int width )
     PushCallStack("[MC,MR]::ResizeTo");
     this->AssertNotLockedView(); // this should be relaxed...
 #endif
-    this->_height = height;
-    this->_width = width;
+    this->height_ = height;
+    this->width_ = width;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.ResizeTo
+        this->localMatrix_.ResizeTo
         ( LocalLength(height,this->ColShift(),this->Grid().Height()),
           LocalLength(width, this->RowShift(),this->Grid().Width()) );
     }
@@ -1144,7 +1144,7 @@ DistMatrix<T,MC,MR>::SetToIdentity()
     const int colShift = this->ColShift();
     const int rowShift = this->RowShift();
 
-    this->_localMatrix.SetToZero();
+    this->localMatrix_.SetToZero();
     T* thisLocalBuffer = this->LocalBuffer();
     const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
@@ -1199,10 +1199,10 @@ DistMatrix<T,MC,MR>::AdjointFrom( const DistMatrix<T,STAR,MC>& A )
     {
         if( !this->ConstrainedColAlignment() )
         {
-            this->_colAlignment = A.RowAlignment();
+            this->colAlignment_ = A.RowAlignment();
             if( g.InGrid() )
             {
-                this->_colShift = 
+                this->colShift_ = 
                     Shift( g.MCRank(), this->ColAlignment(), g.Height() );
             }
         }
@@ -1254,9 +1254,9 @@ DistMatrix<T,MC,MR>::AdjointFrom( const DistMatrix<T,STAR,MC>& A )
             const int sendSize = localWidthOfA * localWidth;
             const int recvSize = localHeight * localWidth;
 
-            this->_auxMemory.Require( sendSize + recvSize );
+            this->auxMemory_.Require( sendSize + recvSize );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* sendBuffer = &buffer[0];
             T* recvBuffer = &buffer[sendSize];
 
@@ -1288,7 +1288,7 @@ DistMatrix<T,MC,MR>::AdjointFrom( const DistMatrix<T,STAR,MC>& A )
                 T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
                 memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
     }
 #ifndef RELEASE
@@ -1312,14 +1312,14 @@ DistMatrix<T,MC,MR>::AdjointFrom( const DistMatrix<T,MR,STAR>& A )
     {
         if( !this->ConstrainedRowAlignment() )
         {
-            this->_rowAlignment = A.ColAlignment();
+            this->rowAlignment_ = A.ColAlignment();
             if( g.InGrid() )
-                this->_rowShift = 
+                this->rowShift_ = 
                     Shift( g.MRRank(), this->RowAlignment(), g.Height() );
         }
         this->ResizeTo( A.Width(), A.Height() );
     }
-    if( this->_rowAlignment != A.ColAlignment() )
+    if( this->rowAlignment_ != A.ColAlignment() )
         throw std::logic_error("Unaligned AdjointFrom");
 
     if( g.InGrid() ) 
@@ -1363,10 +1363,10 @@ DistMatrix<T,MC,MR>::TransposeFrom( const DistMatrix<T,STAR,MC>& A )
     {
         if( !this->ConstrainedColAlignment() )
         {
-            this->_colAlignment = A.RowAlignment();
+            this->colAlignment_ = A.RowAlignment();
             if( g.InGrid() )
             {
-                this->_colShift = 
+                this->colShift_ = 
                     Shift( g.MCRank(), this->ColAlignment(), g.Height() );
             }
         }
@@ -1418,9 +1418,9 @@ DistMatrix<T,MC,MR>::TransposeFrom( const DistMatrix<T,STAR,MC>& A )
             const int sendSize = localWidthOfA * localWidth;
             const int recvSize = localHeight * localWidth;
 
-            this->_auxMemory.Require( sendSize + recvSize );
+            this->auxMemory_.Require( sendSize + recvSize );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* sendBuffer = &buffer[0];
             T* recvBuffer = &buffer[sendSize];
 
@@ -1452,7 +1452,7 @@ DistMatrix<T,MC,MR>::TransposeFrom( const DistMatrix<T,STAR,MC>& A )
                 T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
                 memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
     } 
 #ifndef RELEASE
@@ -1476,16 +1476,16 @@ DistMatrix<T,MC,MR>::TransposeFrom( const DistMatrix<T,MR,STAR>& A )
     {
         if( !this->ConstrainedRowAlignment() )
         {
-            this->_rowAlignment = A.ColAlignment();
+            this->rowAlignment_ = A.ColAlignment();
             if( g.InGrid() )
             {
-                this->_rowShift = 
+                this->rowShift_ = 
                     Shift( g.MRRank(), this->RowAlignment(), g.Height() );
             }
         }
         this->ResizeTo( A.Width(), A.Height() );
     }
-    if( this->_rowAlignment != A.ColAlignment() )
+    if( this->rowAlignment_ != A.ColAlignment() )
         throw std::logic_error("Unaligned TransposeFrom");
 
     if( g.InGrid() ) 
@@ -1529,15 +1529,15 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,MR>& A )
         {
             if( !this->ConstrainedColAlignment() )
             {
-                this->_colAlignment = A.ColAlignment();
+                this->colAlignment_ = A.ColAlignment();
                 if( this->Grid().InGrid() )
-                    this->_colShift = A.ColShift();
+                    this->colShift_ = A.ColShift();
             }
             if( !this->ConstrainedRowAlignment() )
             {
-                this->_rowAlignment = A.RowAlignment();
+                this->rowAlignment_ = A.RowAlignment();
                 if( this->Grid().InGrid() )
-                    this->_rowShift = A.RowShift();
+                    this->rowShift_ = A.RowShift();
             }
             this->ResizeTo( A.Height(), A.Width() );
         }
@@ -1547,7 +1547,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,MR>& A )
             if( this->ColAlignment() == A.ColAlignment() &&
                 this->RowAlignment() == A.RowAlignment() )
             {
-                this->_localMatrix = A.LockedLocalMatrix();
+                this->localMatrix_ = A.LockedLocalMatrix();
             }
             else
             {
@@ -1581,9 +1581,9 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,MR>& A )
                 const int sendSize = localHeightOfA * localWidthOfA;
                 const int recvSize = localHeight * localWidth;
 
-                this->_auxMemory.Require( sendSize + recvSize );
+                this->auxMemory_.Require( sendSize + recvSize );
 
-                T* buffer = this->_auxMemory.Buffer();
+                T* buffer = this->auxMemory_.Buffer();
                 T* sendBuffer = &buffer[0];
                 T* recvBuffer = &buffer[sendSize];
 
@@ -1617,7 +1617,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,MR>& A )
                     T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
                     memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
                 }
-                this->_auxMemory.Release();
+                this->auxMemory_.Release();
             }
         } 
     }
@@ -1673,8 +1673,8 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,MR>& A )
             requiredMemory += maxSendSize;
         if( inThisGrid )
             requiredMemory += maxSendSize;
-        this->_auxMemory.Require( requiredMemory );
-        T* buffer = this->_auxMemory.Buffer();
+        this->auxMemory_.Require( requiredMemory );
+        T* buffer = this->auxMemory_.Buffer();
         int offset = 0;
         T* sendBuffer = &buffer[offset];
         if( inAGrid )
@@ -1812,7 +1812,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,MR>& A )
             if( inAGrid )
                 recvRow = (recvRow + rA) % r0;
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1836,10 +1836,10 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,STAR>& A )
     {
         if( !this->ConstrainedColAlignment() )
         {
-            this->_colAlignment = A.ColAlignment();
+            this->colAlignment_ = A.ColAlignment();
             if( g.InGrid() )
             {
-                this->_colShift = 
+                this->colShift_ = 
                     Shift( g.MCRank(), this->ColAlignment(), g.Height() );
             }
         }
@@ -1893,9 +1893,9 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,STAR>& A )
             const int sendSize = localHeightOfA * localWidth;
             const int recvSize = localHeight * localWidth;
 
-            this->_auxMemory.Require( sendSize + recvSize );
+            this->auxMemory_.Require( sendSize + recvSize );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* sendBuffer = &buffer[0];
             T* recvBuffer = &buffer[sendSize];
 
@@ -1929,7 +1929,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,STAR>& A )
                 T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
                 memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
     } 
 #ifndef RELEASE
@@ -1954,10 +1954,10 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,STAR,MR>& A )
     {
         if( !this->ConstrainedRowAlignment() )
         {
-            this->_rowAlignment = A.RowAlignment();
+            this->rowAlignment_ = A.RowAlignment();
             if( g.InGrid() )
             {
-                this->_rowShift = 
+                this->rowShift_ = 
                     Shift( g.MRRank(), this->RowAlignment(), g.Width() );
             }
         }
@@ -2009,9 +2009,9 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,STAR,MR>& A )
             const int sendSize = localHeight * localWidthOfA;
             const int recvSize = localHeight * localWidth;
 
-            this->_auxMemory.Require( sendSize + recvSize );
+            this->auxMemory_.Require( sendSize + recvSize );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* sendBuffer = &buffer[0];
             T* recvBuffer = &buffer[sendSize];
 
@@ -2043,7 +2043,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,STAR,MR>& A )
                 T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
                 memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
     } 
 #ifndef RELEASE
@@ -2132,8 +2132,8 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MR,MC>& A )
             const int recvRankRM = (rankRM+(p+colShiftVC-colShiftVROfA)) % p;
             const int recvRankCM = (recvRankRM/c)+r*(recvRankRM%c);
 
-            this->_auxMemory.Require( (r+c)*portionSize );
-            T* buffer = this->_auxMemory.Buffer();
+            this->auxMemory_.Require( (r+c)*portionSize );
+            T* buffer = this->auxMemory_.Buffer();
             T* sendBuf = &buffer[0];
             T* recvBuf = &buffer[c*portionSize];
 
@@ -2191,7 +2191,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MR,MC>& A )
                         thisLocalBuffer[offset+iLocal*c] = data[iLocal];
                 }
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
         else if( A.Height() == 1 )
         {
@@ -2223,8 +2223,8 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MR,MC>& A )
             const int recvRankCM = (rankCM+(p+rowShiftVR-rowShiftVCOfA)) % p;
             const int recvRankRM = (recvRankCM/r)+c*(recvRankCM%r);
 
-            this->_auxMemory.Require( (r+c)*portionSize );
-            T* buffer = this->_auxMemory.Buffer();
+            this->auxMemory_.Require( (r+c)*portionSize );
+            T* buffer = this->auxMemory_.Buffer();
             T* sendBuf = &buffer[0];
             T* recvBuf = &buffer[r*portionSize];
 
@@ -2286,7 +2286,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MR,MC>& A )
                 }
             }
 
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
         else
         {
@@ -2405,10 +2405,10 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,VC,STAR>& A )
     {
         if( !this->ConstrainedColAlignment() )
         {
-            this->_colAlignment = A.ColAlignment() % g.Height();
+            this->colAlignment_ = A.ColAlignment() % g.Height();
             if( g.InGrid() )
             {
-                this->_colShift = 
+                this->colShift_ = 
                     Shift( g.MCRank(), this->ColAlignment(), g.Height() );
             }
         }
@@ -2437,9 +2437,9 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,VC,STAR>& A )
             const int portionSize = 
                 std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
 
-            this->_auxMemory.Require( 2*c*portionSize );
+            this->auxMemory_.Require( 2*c*portionSize );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* sendBuffer = &buffer[0];
             T* recvBuffer = &buffer[c*portionSize];
 
@@ -2502,7 +2502,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,VC,STAR>& A )
                     }
                 }
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
         else
         {
@@ -2532,9 +2532,9 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,VC,STAR>& A )
             const int portionSize = 
                 std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
 
-            this->_auxMemory.Require( 2*c*portionSize );
+            this->auxMemory_.Require( 2*c*portionSize );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* firstBuffer = &buffer[0];
             T* secondBuffer = &buffer[c*portionSize];
 
@@ -2603,7 +2603,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,VC,STAR>& A )
                     }
                 }
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
     }
 #ifndef RELEASE
@@ -2672,10 +2672,10 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,STAR,VR>& A )
     {
         if( !this->ConstrainedRowAlignment() )
         {
-            this->_rowAlignment = A.RowAlignment() % g.Width();
+            this->rowAlignment_ = A.RowAlignment() % g.Width();
             if( g.InGrid() )
             {
-                this->_rowShift = 
+                this->rowShift_ = 
                     Shift( g.MRRank(), this->RowAlignment(), g.Width() );
             }
         }
@@ -2704,9 +2704,9 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,STAR,VR>& A )
             const int portionSize = 
                 std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
 
-            this->_auxMemory.Require( 2*r*portionSize );
+            this->auxMemory_.Require( 2*r*portionSize );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* sendBuffer = &buffer[0];
             T* recvBuffer = &buffer[r*portionSize];
 
@@ -2769,7 +2769,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,STAR,VR>& A )
                     memcpy( thisCol, dataCol, localHeight*sizeof(T) );
                 }
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
         else
         {
@@ -2799,9 +2799,9 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,STAR,VR>& A )
             const int portionSize = 
                 std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
 
-            this->_auxMemory.Require( 2*r*portionSize );
+            this->auxMemory_.Require( 2*r*portionSize );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* firstBuffer = &buffer[0];
             T* secondBuffer = &buffer[r*portionSize];
 
@@ -2870,7 +2870,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,STAR,VR>& A )
                     memcpy( thisCol, dataCol, localHeight*sizeof(T) );
                 }
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
     }
 #ifndef RELEASE
@@ -2934,10 +2934,10 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
     {
         if( !this->ConstrainedColAlignment() )
         {
-            this->_colAlignment = A.ColAlignment();
+            this->colAlignment_ = A.ColAlignment();
             if( g.InGrid() )
             {
-                this->_colShift = 
+                this->colShift_ = 
                     Shift( g.MCRank(), this->ColAlignment(), g.Height() );
             }
         }
@@ -2958,9 +2958,9 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
                 const int recvSize = std::max(localHeight,mpi::MIN_COLL_MSG);
                 const int sendSize = recvSize;
 
-                this->_auxMemory.Require( sendSize + recvSize );
+                this->auxMemory_.Require( sendSize + recvSize );
 
-                T* buffer = this->_auxMemory.Buffer();
+                T* buffer = this->auxMemory_.Buffer();
                 T* sendBuffer = &buffer[0];
                 T* recvBuffer = &buffer[sendSize];
 
@@ -2979,7 +2979,7 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
                     memcpy( thisCol, recvBuffer, localHeight*sizeof(T) );
                 }
 
-                this->_auxMemory.Release();
+                this->auxMemory_.Release();
             }
             else
             {
@@ -2995,9 +2995,9 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
                     std::max(localHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
                 const int sendSize = c * recvSize;
 
-                this->_auxMemory.Require( sendSize + recvSize );
+                this->auxMemory_.Require( sendSize + recvSize );
 
-                T* buffer = this->_auxMemory.Buffer();
+                T* buffer = this->auxMemory_.Buffer();
                 T* sendBuffer = &buffer[0];
                 T* recvBuffer = &buffer[sendSize];
             
@@ -3045,7 +3045,7 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
                     T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
                     memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
                 }
-                this->_auxMemory.Release();
+                this->auxMemory_.Release();
             }
         }
         else
@@ -3075,9 +3075,9 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
                 const int sendRow = (myRow+r+colAlignment-colAlignmentOfA) % r;
                 const int recvRow = (myRow+r+colAlignmentOfA-colAlignment) % r;
 
-                this->_auxMemory.Require( 2*portionSize );
+                this->auxMemory_.Require( 2*portionSize );
 
-                T* buffer = this->_auxMemory.Buffer();
+                T* buffer = this->auxMemory_.Buffer();
                 T* sendBuffer = &buffer[0];
                 T* recvBuffer = &buffer[portionSize];
 
@@ -3101,7 +3101,7 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
                     memcpy( thisCol, sendBuffer, localHeight*sizeof(T) );
                 }
 
-                this->_auxMemory.Release();
+                this->auxMemory_.Release();
             }
             else
             {
@@ -3126,10 +3126,10 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
                 const int sendSize_RS = c * recvSize_RS;
                 const int recvSize_SR = localHeight * localWidth;
 
-                this->_auxMemory.Require
+                this->auxMemory_.Require
                 ( recvSize_RS + std::max(sendSize_RS,recvSize_SR) );
 
-                T* buffer = this->_auxMemory.Buffer();
+                T* buffer = this->auxMemory_.Buffer();
                 T* firstBuffer = &buffer[0];
                 T* secondBuffer = &buffer[recvSize_RS];
 
@@ -3183,7 +3183,7 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,MC,STAR>& A )
                     T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
                     memcpy( thisCol, secondBufferCol, localHeight*sizeof(T) );
                 }
-                this->_auxMemory.Release();
+                this->auxMemory_.Release();
             }
         }
     }
@@ -3227,10 +3227,10 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,STAR,MR>& A )
     {
         if( !this->ConstrainedRowAlignment() )
         {
-            this->_rowAlignment = A.RowAlignment();
+            this->rowAlignment_ = A.RowAlignment();
             if( g.InGrid() )
             {
-                this->_rowShift = 
+                this->rowShift_ = 
                     Shift( g.MRRank(), this->RowAlignment(), g.Width() );
             }
         }
@@ -3253,9 +3253,9 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,STAR,MR>& A )
                 std::max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
             const int sendSize = r * recvSize;
 
-            this->_auxMemory.Require( sendSize + recvSize );
+            this->auxMemory_.Require( sendSize + recvSize );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* sendBuffer = &buffer[0];
             T* recvBuffer = &buffer[sendSize];
 
@@ -3305,7 +3305,7 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,STAR,MR>& A )
                 T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
                 memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
         else
         {
@@ -3335,10 +3335,10 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,STAR,MR>& A )
             const int sendSize_RS = r * recvSize_RS;
             const int recvSize_SR = localHeight * localWidth;
 
-            this->_auxMemory.Require
+            this->auxMemory_.Require
                 ( recvSize_RS + std::max(sendSize_RS,recvSize_SR) );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* firstBuffer = &buffer[0];
             T* secondBuffer = &buffer[recvSize_RS];
 
@@ -3393,7 +3393,7 @@ DistMatrix<T,MC,MR>::SumScatterFrom( const DistMatrix<T,STAR,MR>& A )
                 T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
                 memcpy( thisCol, secondBufferCol, localHeight*sizeof(T) );
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
     }
 #ifndef RELEASE
@@ -3435,9 +3435,9 @@ DistMatrix<T,MC,MR>::SumScatterFrom
             std::max(maxLocalHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
         const int sendSize = r*c*recvSize;
 
-        this->_auxMemory.Require( sendSize + recvSize );
+        this->auxMemory_.Require( sendSize + recvSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* sendBuffer = &buffer[0];
         T* recvBuffer = &buffer[sendSize];
 
@@ -3489,7 +3489,7 @@ DistMatrix<T,MC,MR>::SumScatterFrom
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
             memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -3521,9 +3521,9 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
 
                 const int portionSize = std::max(localHeight,mpi::MIN_COLL_MSG);
 
-                this->_auxMemory.Require( 2*portionSize );
+                this->auxMemory_.Require( 2*portionSize );
 
-                T* buffer = this->_auxMemory.Buffer();
+                T* buffer = this->auxMemory_.Buffer();
                 T* sendBuffer = &buffer[0];
                 T* recvBuffer = &buffer[portionSize];
 
@@ -3546,7 +3546,7 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
                         thisCol[iLocal] += alpha*recvBuffer[iLocal];
                 }
 
-                this->_auxMemory.Release();
+                this->auxMemory_.Release();
             }
             else
             {
@@ -3561,9 +3561,9 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
                 const int portionSize = 
                     std::max(localHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
 
-                this->_auxMemory.Require( (c+1)*portionSize );
+                this->auxMemory_.Require( (c+1)*portionSize );
 
-                T* buffer = this->_auxMemory.Buffer();
+                T* buffer = this->auxMemory_.Buffer();
                 T* sendBuffer = &buffer[0];
                 T* recvBuffer = &buffer[c*portionSize];
 
@@ -3612,7 +3612,7 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
                     blas::Axpy
                     ( localHeight, alpha, recvBufferCol, 1, thisCol, 1 );
                 }
-                this->_auxMemory.Release();
+                this->auxMemory_.Release();
             }
         }
         else
@@ -3644,9 +3644,9 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
                 const int sendRow = (myRow+r+colAlignment-colAlignmentOfA) % r;
                 const int recvRow = (myRow+r+colAlignmentOfA-colAlignment) % r;
 
-                this->_auxMemory.Require( 2*portionSize );
+                this->auxMemory_.Require( 2*portionSize );
 
-                T* buffer = this->_auxMemory.Buffer();
+                T* buffer = this->auxMemory_.Buffer();
                 T* sendBuffer = &buffer[0];
                 T* recvBuffer = &buffer[portionSize];
 
@@ -3673,7 +3673,7 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
                     for( int iLocal=0; iLocal<localHeight; ++iLocal )
                         thisCol[iLocal] += alpha*sendBuffer[iLocal];
                 }
-                this->_auxMemory.Release();
+                this->auxMemory_.Release();
             }
             else
             {
@@ -3698,10 +3698,10 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
                 const int sendSize_RS = c * recvSize_RS;
                 const int recvSize_SR = localHeight * localWidth;
 
-                this->_auxMemory.Require
+                this->auxMemory_.Require
                 ( recvSize_RS + std::max(sendSize_RS,recvSize_SR) );
 
-                T* buffer = this->_auxMemory.Buffer();
+                T* buffer = this->auxMemory_.Buffer();
                 T* firstBuffer = &buffer[0];
                 T* secondBuffer = &buffer[recvSize_RS];
 
@@ -3758,7 +3758,7 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
                     for( int iLocal=0; iLocal<localHeight; ++iLocal )
                         thisCol[iLocal] += alpha*secondBufferCol[iLocal];
                 }
-                this->_auxMemory.Release();
+                this->auxMemory_.Release();
             }
         }
     }
@@ -3814,9 +3814,9 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
                 std::max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
             const int sendSize = r*recvSize;
 
-            this->_auxMemory.Require( sendSize + recvSize );
+            this->auxMemory_.Require( sendSize + recvSize );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* sendBuffer = &buffer[0];
             T* recvBuffer = &buffer[sendSize];
 
@@ -3862,7 +3862,7 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
                 for( int iLocal=0; iLocal<localHeight; ++iLocal )
                     thisCol[iLocal] += alpha*recvBufferCol[iLocal];
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
         else
         {
@@ -3894,10 +3894,10 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
             const int sendSize_RS = r * recvSize_RS;
             const int recvSize_SR = localHeight * localWidth;
 
-            this->_auxMemory.Require
+            this->auxMemory_.Require
                 ( recvSize_RS + std::max(sendSize_RS,recvSize_SR) );
 
-            T* buffer = this->_auxMemory.Buffer();
+            T* buffer = this->auxMemory_.Buffer();
             T* firstBuffer = &buffer[0];
             T* secondBuffer = &buffer[recvSize_RS];
 
@@ -3949,7 +3949,7 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
                 for( int iLocal=0; iLocal<localHeight; ++iLocal )
                     thisCol[iLocal] += alpha*secondBufferCol[iLocal];
             }
-            this->_auxMemory.Release();
+            this->auxMemory_.Release();
         }
     }
 #ifndef RELEASE
@@ -3991,9 +3991,9 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
             std::max(maxLocalHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
         const int sendSize = r * c * recvSize;
 
-        this->_auxMemory.Require( sendSize + recvSize );
+        this->auxMemory_.Require( sendSize + recvSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* sendBuffer = &buffer[0];
         T* recvBuffer = &buffer[sendSize];
 
@@ -4046,7 +4046,7 @@ DistMatrix<T,MC,MR>::SumScatterUpdate
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
                 thisCol[iLocal] += alpha*recvBufferCol[iLocal];
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();

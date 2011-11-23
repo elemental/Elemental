@@ -70,21 +70,21 @@ private:
         DATA_REQUEST_TAG=3, 
         DATA_REPLY_TAG  =4;
 
-    bool _attachedForLocalToGlobal, _attachedForGlobalToLocal;
-    byte _sendDummy, _recvDummy;
-    DistMatrix<T,MC,MR>* _localToGlobalMat;
-    const DistMatrix<T,MC,MR>* _globalToLocalMat;
+    bool attachedForLocalToGlobal_, attachedForGlobalToLocal_;
+    byte sendDummy_, recvDummy_;
+    DistMatrix<T,MC,MR>* localToGlobalMat_;
+    const DistMatrix<T,MC,MR>* globalToLocalMat_;
 
-    std::vector<bool> _sentEomTo, _haveEomFrom;
-    std::vector<byte> _recvVector;
-    std::vector<mpi::Request> _eomSendRequests;
+    std::vector<bool> sentEomTo_, haveEomFrom_;
+    std::vector<byte> recvVector_;
+    std::vector<mpi::Request> eomSendRequests_;
 
     std::vector<std::deque<std::vector<byte> > >
-        _dataVectors, _requestVectors, _replyVectors;
+        dataVectors_, requestVectors_, replyVectors_;
     std::vector<std::deque<bool> > 
-        _sendingData, _sendingRequest, _sendingReply;
+        sendingData_, sendingRequest_, sendingReply_;
     std::vector<std::deque<mpi::Request> > 
-        _dataSendRequests, _requestSendRequests, _replySendRequests;
+        dataSendRequests_, requestSendRequests_, replySendRequests_;
 
     // Check if we are done with this attachment's work
     bool Finished();
@@ -117,18 +117,18 @@ AxpyInterface<T>::Finished()
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Finished");
-    if( !_attachedForLocalToGlobal && !_attachedForGlobalToLocal )
+    if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
         throw std::logic_error("Not attached!");
 #endif
-    const Grid& g = ( _attachedForLocalToGlobal ? 
-                      _localToGlobalMat->Grid() : 
-                      _globalToLocalMat->Grid() );
+    const Grid& g = ( attachedForLocalToGlobal_ ? 
+                      localToGlobalMat_->Grid() : 
+                      globalToLocalMat_->Grid() );
     const int p = g.Size();
 
     bool finished = true; 
     for( int rank=0; rank<p; ++rank )
     {
-        if( !_sentEomTo[rank] || !_haveEomFrom[rank] )
+        if( !sentEomTo_[rank] || !haveEomFrom_[rank] )
         {
             finished = false;
             break;
@@ -147,9 +147,9 @@ AxpyInterface<T>::HandleEoms()
 #ifndef RELEASE
     PushCallStack("AxpyInterface::HandleEoms");
 #endif
-    const Grid& g = ( _attachedForLocalToGlobal ? 
-                      _localToGlobalMat->Grid() : 
-                      _globalToLocalMat->Grid() );
+    const Grid& g = ( attachedForLocalToGlobal_ ? 
+                      localToGlobalMat_->Grid() : 
+                      globalToLocalMat_->Grid() );
     const int p = g.Size();
 
     UpdateRequestStatuses();
@@ -157,28 +157,28 @@ AxpyInterface<T>::HandleEoms()
     // Try to progress our EOM sends
     for( int i=0; i<p; ++i )
     {
-        if( !_sentEomTo[i] )
+        if( !sentEomTo_[i] )
         {
             bool shouldSendEom = true;
-            for( int j=0; j<_sendingData[i].size(); ++j )
+            for( int j=0; j<sendingData_[i].size(); ++j )
             {
-                if( _sendingData[i][j] )
+                if( sendingData_[i][j] )
                 {
                     shouldSendEom = false;
                     break;
                 }
             }
-            for( int j=0; j<_sendingRequest[i].size(); ++j )
+            for( int j=0; j<sendingRequest_[i].size(); ++j )
             {
-                if( !shouldSendEom || _sendingRequest[i][j] )
+                if( !shouldSendEom || sendingRequest_[i][j] )
                 {
                     shouldSendEom = false; 
                     break;
                 }
             }
-            for( int j=0; j<_sendingReply[i].size(); ++j )
+            for( int j=0; j<sendingReply_[i].size(); ++j )
             {
-                if( !shouldSendEom || _sendingReply[i][j] )
+                if( !shouldSendEom || sendingReply_[i][j] )
                 {
                     shouldSendEom = false;
                     break;
@@ -186,10 +186,10 @@ AxpyInterface<T>::HandleEoms()
             }
             if( shouldSendEom )
             {
-                mpi::Request& request = _eomSendRequests[i];
+                mpi::Request& request = eomSendRequests_[i];
                 mpi::ISSend
-                ( &_sendDummy, 1, i, EOM_TAG, g.VCComm(), request );
-                _sentEomTo[i] = true;
+                ( &sendDummy_, 1, i, EOM_TAG, g.VCComm(), request );
+                sentEomTo_[i] = true;
             }
         }
     }
@@ -198,8 +198,8 @@ AxpyInterface<T>::HandleEoms()
     if( mpi::IProbe( mpi::ANY_SOURCE, EOM_TAG, g.VCComm(), status ) )
     {
         const int source = status.MPI_SOURCE;
-        mpi::Recv( &_recvDummy, 1, source, EOM_TAG, g.VCComm() );
-        _haveEomFrom[source] = true;
+        mpi::Recv( &recvDummy_, 1, source, EOM_TAG, g.VCComm() );
+        haveEomFrom_[source] = true;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -213,7 +213,7 @@ AxpyInterface<T>::HandleLocalToGlobalData()
 #ifndef RELEASE
     PushCallStack("AxpyInterface::HandleLocalToGlobalData");
 #endif
-    DistMatrix<T,MC,MR>& Y = *_localToGlobalMat;
+    DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
     const Grid& g = Y.Grid();
     const int r = g.Height();
     const int c = g.Width();
@@ -230,8 +230,8 @@ AxpyInterface<T>::HandleLocalToGlobalData()
             throw std::logic_error("Count was too small");
 #endif
         const int source = status.MPI_SOURCE;
-        _recvVector.resize( count );
-        byte* recvBuffer = &_recvVector[0];
+        recvVector_.resize( count );
+        byte* recvBuffer = &recvVector_[0];
         mpi::Recv( recvBuffer, count, source, DATA_TAG, g.VCComm() );
 
         // Extract the header
@@ -309,7 +309,7 @@ AxpyInterface<T>::HandleLocalToGlobalData()
         }
 
         // Free the memory for the recv buffer
-        _recvVector.clear();
+        recvVector_.clear();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -323,7 +323,7 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
 #ifndef RELEASE
     PushCallStack("AxpyInterface::HandleGlobalToLocalRequest");
 #endif
-    const DistMatrix<T,MC,MR>& X = *_globalToLocalMat;
+    const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
     const Grid& g = X.Grid();
     const int r = g.Height();
     const int c = g.Width();
@@ -335,8 +335,8 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
     {
         // Request exists, so recv
         const int source = status.MPI_SOURCE;
-        _recvVector.resize( 4*sizeof(int) );
-        byte* recvBuffer = &_recvVector[0];
+        recvVector_.resize( 4*sizeof(int) );
+        byte* recvBuffer = &recvVector_[0];
         mpi::Recv
         ( recvBuffer, 4*sizeof(int), source, DATA_REQUEST_TAG, g.VCComm() );
 
@@ -365,11 +365,11 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
         const int bufferSize = 2*sizeof(int) + numEntries*sizeof(T);
         const int index = 
             ReadyForSend
-            ( bufferSize, _replyVectors[source], 
-              _replySendRequests[source], _sendingReply[source] );
+            ( bufferSize, replyVectors_[source], 
+              replySendRequests_[source], sendingReply_[source] );
 
         // Pack the reply header
-        byte* sendBuffer = &_replyVectors[source][index][0];
+        byte* sendBuffer = &replyVectors_[source][index][0];
         byte* sendHead = sendBuffer;
         *reinterpret_cast<int*>(sendHead) = myRow; sendHead += sizeof(int);
         *reinterpret_cast<int*>(sendHead) = myCol; sendHead += sizeof(int);
@@ -386,7 +386,7 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
         // Fire off non-blocking send
         mpi::ISSend
         ( sendBuffer, bufferSize, source, DATA_REPLY_TAG, g.VCComm(), 
-          _replySendRequests[source][index] );
+          replySendRequests_[source][index] );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -396,8 +396,8 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
 template<typename T>
 inline
 AxpyInterface<T>::AxpyInterface()
-: _attachedForLocalToGlobal(false), _attachedForGlobalToLocal(false), 
-  _localToGlobalMat(0), _globalToLocalMat(0)
+: attachedForLocalToGlobal_(false), attachedForGlobalToLocal_(false), 
+  localToGlobalMat_(0), globalToLocalMat_(0)
 { }
 
 template<typename T>
@@ -409,36 +409,36 @@ AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
 #endif
     if( type == LOCAL_TO_GLOBAL )
     {
-        _attachedForLocalToGlobal = true;
-        _attachedForGlobalToLocal = false;
-        _localToGlobalMat = &Z;
-        _globalToLocalMat = 0;
+        attachedForLocalToGlobal_ = true;
+        attachedForGlobalToLocal_ = false;
+        localToGlobalMat_ = &Z;
+        globalToLocalMat_ = 0;
     }
     else
     {
-        _attachedForLocalToGlobal = false;
-        _attachedForGlobalToLocal = true;
-        _localToGlobalMat = 0;
-        _globalToLocalMat = &Z;
+        attachedForLocalToGlobal_ = false;
+        attachedForGlobalToLocal_ = true;
+        localToGlobalMat_ = 0;
+        globalToLocalMat_ = &Z;
     }
 
     const int p = Z.Grid().Size();
-    _sentEomTo.resize( p, false );
-    _haveEomFrom.resize( p, false );
+    sentEomTo_.resize( p, false );
+    haveEomFrom_.resize( p, false );
 
-    _sendingData.resize( p );
-    _sendingRequest.resize( p );
-    _sendingReply.resize( p );
+    sendingData_.resize( p );
+    sendingRequest_.resize( p );
+    sendingReply_.resize( p );
 
-    _dataVectors.resize( p );
-    _requestVectors.resize( p );
-    _replyVectors.resize( p );
+    dataVectors_.resize( p );
+    requestVectors_.resize( p );
+    replyVectors_.resize( p );
 
-    _dataSendRequests.resize( p );
-    _requestSendRequests.resize( p );
-    _replySendRequests.resize( p );
+    dataSendRequests_.resize( p );
+    requestSendRequests_.resize( p );
+    replySendRequests_.resize( p );
 
-    _eomSendRequests.resize( p );
+    eomSendRequests_.resize( p );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -458,29 +458,29 @@ AxpyInterface<T>::AxpyInterface
     }
     else
     {
-        _attachedForLocalToGlobal = false;
-        _attachedForGlobalToLocal = true;
-        _localToGlobalMat = 0;
-        _globalToLocalMat = &X;
+        attachedForLocalToGlobal_ = false;
+        attachedForGlobalToLocal_ = true;
+        localToGlobalMat_ = 0;
+        globalToLocalMat_ = &X;
     }
 
     const int p = X.Grid().Size();
-    _sentEomTo.resize( p, false );
-    _haveEomFrom.resize( p, false );
+    sentEomTo_.resize( p, false );
+    haveEomFrom_.resize( p, false );
 
-    _sendingData.resize( p );
-    _sendingRequest.resize( p );
-    _sendingReply.resize( p );
+    sendingData_.resize( p );
+    sendingRequest_.resize( p );
+    sendingReply_.resize( p );
 
-    _dataVectors.resize( p );
-    _requestVectors.resize( p );
-    _replyVectors.resize( p );
+    dataVectors_.resize( p );
+    requestVectors_.resize( p );
+    replyVectors_.resize( p );
 
-    _dataSendRequests.resize( p );
-    _requestSendRequests.resize( p );
-    _replySendRequests.resize( p );
+    dataSendRequests_.resize( p );
+    requestSendRequests_.resize( p );
+    replySendRequests_.resize( p );
 
-    _eomSendRequests.resize( p );
+    eomSendRequests_.resize( p );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -490,13 +490,13 @@ template<typename T>
 inline
 AxpyInterface<T>::~AxpyInterface()
 { 
-    if( _attachedForLocalToGlobal || _attachedForGlobalToLocal )
+    if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
     {
         if( std::uncaught_exception() )
         {
-           const Grid& g = ( _attachedForLocalToGlobal ? 
-                             _localToGlobalMat->Grid() : 
-                             _globalToLocalMat->Grid() );
+           const Grid& g = ( attachedForLocalToGlobal_ ? 
+                             localToGlobalMat_->Grid() : 
+                             globalToLocalMat_->Grid() );
            std::ostringstream os;
            os << g.VCRank()
               << "Uncaught exception detected during AxpyInterface destructor "
@@ -524,37 +524,37 @@ AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Attach");
 #endif
-    if( _attachedForLocalToGlobal || _attachedForGlobalToLocal )
+    if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
         throw std::logic_error("Must detach before reattaching.");
 
     if( type == LOCAL_TO_GLOBAL )
     {
-        _attachedForLocalToGlobal = true;
-        _localToGlobalMat = &Z;
+        attachedForLocalToGlobal_ = true;
+        localToGlobalMat_ = &Z;
     }
     else
     {
-        _attachedForGlobalToLocal = true;
-        _globalToLocalMat = &Z;
+        attachedForGlobalToLocal_ = true;
+        globalToLocalMat_ = &Z;
     }
 
     const int p = Z.Grid().Size();
-    _sentEomTo.resize( p, false );
-    _haveEomFrom.resize( p, false );
+    sentEomTo_.resize( p, false );
+    haveEomFrom_.resize( p, false );
 
-    _sendingData.resize( p );
-    _sendingRequest.resize( p );
-    _sendingReply.resize( p );
+    sendingData_.resize( p );
+    sendingRequest_.resize( p );
+    sendingReply_.resize( p );
 
-    _dataVectors.resize( p );
-    _requestVectors.resize( p );
-    _replyVectors.resize( p );
+    dataVectors_.resize( p );
+    requestVectors_.resize( p );
+    replyVectors_.resize( p );
 
-    _dataSendRequests.resize( p );
-    _requestSendRequests.resize( p );
-    _replySendRequests.resize( p );
+    dataSendRequests_.resize( p );
+    requestSendRequests_.resize( p );
+    replySendRequests_.resize( p );
 
-    _eomSendRequests.resize( p );
+    eomSendRequests_.resize( p );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -567,7 +567,7 @@ AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Attach");
 #endif
-    if( _attachedForLocalToGlobal || _attachedForGlobalToLocal )
+    if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
         throw std::logic_error("Must detach before reattaching.");
 
     if( type == LOCAL_TO_GLOBAL )
@@ -576,27 +576,27 @@ AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
     }
     else
     {
-        _attachedForGlobalToLocal = true;
-        _globalToLocalMat = &X;
+        attachedForGlobalToLocal_ = true;
+        globalToLocalMat_ = &X;
     }
 
     const int p = X.Grid().Size();
-    _sentEomTo.resize( p, false );
-    _haveEomFrom.resize( p, false );
+    sentEomTo_.resize( p, false );
+    haveEomFrom_.resize( p, false );
 
-    _sendingData.resize( p );
-    _sendingRequest.resize( p );
-    _sendingReply.resize( p );
+    sendingData_.resize( p );
+    sendingRequest_.resize( p );
+    sendingReply_.resize( p );
 
-    _dataVectors.resize( p );
-    _requestVectors.resize( p );
-    _replyVectors.resize( p );
+    dataVectors_.resize( p );
+    requestVectors_.resize( p );
+    replyVectors_.resize( p );
 
-    _dataSendRequests.resize( p );
-    _requestSendRequests.resize( p );
-    _replySendRequests.resize( p );
+    dataSendRequests_.resize( p );
+    requestSendRequests_.resize( p );
+    replySendRequests_.resize( p );
 
-    _eomSendRequests.resize( p );
+    eomSendRequests_.resize( p );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -609,9 +609,9 @@ AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, int i, int j )
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Axpy");
 #endif
-    if( _attachedForLocalToGlobal )
+    if( attachedForLocalToGlobal_ )
         AxpyLocalToGlobal( alpha, Z, i, j );
-    else if( _attachedForGlobalToLocal )
+    else if( attachedForGlobalToLocal_ )
         AxpyGlobalToLocal( alpha, Z, i, j );
     else
         throw std::logic_error("Cannot axpy before attaching.");
@@ -627,9 +627,9 @@ AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, int i, int j )
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Axpy");
 #endif
-    if( _attachedForLocalToGlobal )
+    if( attachedForLocalToGlobal_ )
         AxpyLocalToGlobal( alpha, Z, i, j );
-    else if( _attachedForGlobalToLocal )
+    else if( attachedForGlobalToLocal_ )
         throw std::logic_error("Cannot update a constant matrix.");
     else
         throw std::logic_error("Cannot axpy before attaching.");
@@ -647,7 +647,7 @@ AxpyInterface<T>::AxpyLocalToGlobal
 #ifndef RELEASE
     PushCallStack("AxpyInterface::AxpyLocalToGlobal");
 #endif
-    DistMatrix<T,MC,MR>& Y = *_localToGlobalMat;
+    DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
     if( i < 0 || j < 0 )
         throw std::logic_error("Submatrix offsets must be non-negative");
     if( i+X.Height() > Y.Height() || j+X.Width() > Y.Width() )
@@ -682,15 +682,15 @@ AxpyInterface<T>::AxpyLocalToGlobal
 
             const int index = 
                 ReadyForSend
-                ( bufferSize, _dataVectors[destination], 
-                  _dataSendRequests[destination], _sendingData[destination] );
+                ( bufferSize, dataVectors_[destination], 
+                  dataSendRequests_[destination], sendingData_[destination] );
 #ifndef RELEASE
-            if( _dataVectors[destination][index].size() != bufferSize )
+            if( dataVectors_[destination][index].size() != bufferSize )
                 throw std::logic_error("Error in ReadyForSend");
 #endif
 
             // Pack the header
-            byte* sendBuffer = &_dataVectors[destination][index][0];
+            byte* sendBuffer = &dataVectors_[destination][index][0];
             byte* head = sendBuffer;
             *reinterpret_cast<int*>(head) = i; head += sizeof(int);
             *reinterpret_cast<int*>(head) = j; head += sizeof(int);
@@ -713,7 +713,7 @@ AxpyInterface<T>::AxpyLocalToGlobal
             // Fire off the non-blocking send
             mpi::ISSend
             ( sendBuffer, bufferSize, destination, DATA_TAG, g.VCComm(), 
-              _dataSendRequests[destination][index] );
+              dataSendRequests_[destination][index] );
         }
 
         receivingRow = (receivingRow + 1) % r;
@@ -734,7 +734,7 @@ AxpyInterface<T>::AxpyGlobalToLocal
 #ifndef RELEASE
     PushCallStack("AxpyInterface::AxpyGlobalToLocal");
 #endif
-    const DistMatrix<T,MC,MR>& X = *_globalToLocalMat;
+    const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
 
     const int height = Y.Height();
     const int width = Y.Width();
@@ -752,11 +752,11 @@ AxpyInterface<T>::AxpyGlobalToLocal
         const int bufferSize = 4*sizeof(int);
         const int index = 
             ReadyForSend
-            ( bufferSize, _requestVectors[rank], 
-              _requestSendRequests[rank], _sendingRequest[rank] );
+            ( bufferSize, requestVectors_[rank], 
+              requestSendRequests_[rank], sendingRequest_[rank] );
 
         // Copy the request header into the send buffer
-        byte* sendBuffer = &_requestVectors[rank][index][0];
+        byte* sendBuffer = &requestVectors_[rank][index][0];
         byte* head = sendBuffer;
         *reinterpret_cast<int*>(head) = i; head += sizeof(int);
         *reinterpret_cast<int*>(head) = j; head += sizeof(int);
@@ -766,7 +766,7 @@ AxpyInterface<T>::AxpyGlobalToLocal
         // Begin the non-blocking send
         mpi::ISSend
         ( sendBuffer, bufferSize, rank, DATA_REQUEST_TAG, g.VCComm(), 
-          _requestSendRequests[rank][index] );
+          requestSendRequests_[rank][index] );
     }
 
     // Receive all of the replies
@@ -782,8 +782,8 @@ AxpyInterface<T>::AxpyGlobalToLocal
 
             // Ensure that we have a recv buffer
             const int count = mpi::GetCount<byte>( status );
-            _recvVector.resize( count );
-            byte* recvBuffer = &_recvVector[0];
+            recvVector_.resize( count );
+            byte* recvBuffer = &recvVector_[0];
 
             // Receive the data
             mpi::Recv( recvBuffer, count, source, DATA_REPLY_TAG, g.VCComm() );
@@ -877,25 +877,25 @@ AxpyInterface<T>::UpdateRequestStatuses()
 #ifndef RELEASE
     PushCallStack("AxpyInterface::UpdateRequestStatuses");
 #endif
-    const Grid& g = ( _attachedForLocalToGlobal ? 
-                      _localToGlobalMat->Grid() : 
-                      _globalToLocalMat->Grid() );
+    const Grid& g = ( attachedForLocalToGlobal_ ? 
+                      localToGlobalMat_->Grid() : 
+                      globalToLocalMat_->Grid() );
     const int p = g.Size();
 
     for( int i=0; i<p; ++i )
     {
-        for( int j=0; j<_dataSendRequests[i].size(); ++j )
-            if( _sendingData[i][j] )
-                _sendingData[i][j] = 
-                    !mpi::Test( _dataSendRequests[i][j] );
-        for( int j=0; j<_requestSendRequests[i].size(); ++j )
-            if( _sendingRequest[i][j] )
-                _sendingRequest[i][j] = 
-                    !mpi::Test( _requestSendRequests[i][j] );
-        for( int j=0; j<_replySendRequests[i].size(); ++j )
-            if( _sendingReply[i][j] )
-                _sendingReply[i][j] = 
-                    !mpi::Test( _replySendRequests[i][j] );
+        for( int j=0; j<dataSendRequests_[i].size(); ++j )
+            if( sendingData_[i][j] )
+                sendingData_[i][j] = 
+                    !mpi::Test( dataSendRequests_[i][j] );
+        for( int j=0; j<requestSendRequests_[i].size(); ++j )
+            if( sendingRequest_[i][j] )
+                sendingRequest_[i][j] = 
+                    !mpi::Test( requestSendRequests_[i][j] );
+        for( int j=0; j<replySendRequests_[i].size(); ++j )
+            if( sendingReply_[i][j] )
+                sendingReply_[i][j] = 
+                    !mpi::Test( replySendRequests_[i][j] );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -909,16 +909,16 @@ AxpyInterface<T>::Detach()
 #ifndef RELEASE    
     PushCallStack("AxpyInterface::Detach");
 #endif
-    if( !_attachedForLocalToGlobal && !_attachedForGlobalToLocal )
+    if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
         throw std::logic_error("Must attach before detaching.");
 
-    const Grid& g = ( _attachedForLocalToGlobal ? 
-                      _localToGlobalMat->Grid() : 
-                      _globalToLocalMat->Grid() );
+    const Grid& g = ( attachedForLocalToGlobal_ ? 
+                      localToGlobalMat_->Grid() : 
+                      globalToLocalMat_->Grid() );
 
     while( !Finished() )
     {
-        if( _attachedForLocalToGlobal )
+        if( attachedForLocalToGlobal_ )
             HandleLocalToGlobalData();
         else
             HandleGlobalToLocalRequest();
@@ -927,25 +927,25 @@ AxpyInterface<T>::Detach()
 
     mpi::Barrier( g.VCComm() );
 
-    _attachedForLocalToGlobal = false;
-    _attachedForGlobalToLocal = false;
-    _recvVector.clear();
-    _sentEomTo.clear();
-    _haveEomFrom.clear();
+    attachedForLocalToGlobal_ = false;
+    attachedForGlobalToLocal_ = false;
+    recvVector_.clear();
+    sentEomTo_.clear();
+    haveEomFrom_.clear();
 
-    _sendingData.clear();
-    _sendingRequest.clear();
-    _sendingReply.clear();
+    sendingData_.clear();
+    sendingRequest_.clear();
+    sendingReply_.clear();
 
-    _dataVectors.clear();
-    _requestVectors.clear();
-    _replyVectors.clear();
+    dataVectors_.clear();
+    requestVectors_.clear();
+    replyVectors_.clear();
     
-    _dataSendRequests.clear();
-    _requestSendRequests.clear();
-    _replySendRequests.clear();
+    dataSendRequests_.clear();
+    requestSendRequests_.clear();
+    replySendRequests_.clear();
 
-    _eomSendRequests.clear();
+    eomSendRequests_.clear();
 #ifndef RELEASE
     PopCallStack();
 #endif

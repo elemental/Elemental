@@ -614,9 +614,9 @@ inline void
 DistMatrix<T,VC,STAR>::SetGrid( const elemental::Grid& grid )
 {
     this->Empty();
-    this->_grid = &grid;
-    this->_colAlignment = 0;
-    this->_colShift = grid.VCRank();
+    this->grid_ = &grid;
+    this->colAlignment_ = 0;
+    this->colShift_ = grid.VCRank();
 }
 
 template<typename T>
@@ -630,12 +630,12 @@ DistMatrix<T,VC,STAR>::AlignWith( const DistMatrix<S,MC,MR>& A )
     this->AssertSameGrid( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    this->_colAlignment = A.ColAlignment();
-    this->_colShift = Shift( g.VCRank(), this->ColAlignment(), g.Size() );
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    this->colAlignment_ = A.ColAlignment();
+    this->colShift_ = Shift( g.VCRank(), this->ColAlignment(), g.Size() );
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -652,12 +652,12 @@ DistMatrix<T,VC,STAR>::AlignWith( const DistMatrix<S,MR,MC>& A )
     this->AssertSameGrid( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    this->_colAlignment = A.RowAlignment();
-    this->_colShift = Shift( g.VCRank(), this->ColAlignment(), g.Size() );
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    this->colAlignment_ = A.RowAlignment();
+    this->colShift_ = Shift( g.VCRank(), this->ColAlignment(), g.Size() );
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -674,12 +674,12 @@ DistMatrix<T,VC,STAR>::AlignWith( const DistMatrix<S,MC,STAR>& A )
     this->AssertSameGrid( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    this->_colAlignment = A.ColAlignment();
-    this->_colShift = Shift( g.VCRank(), this->ColAlignment(), g.Size() );
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    this->colAlignment_ = A.ColAlignment();
+    this->colShift_ = Shift( g.VCRank(), this->ColAlignment(), g.Size() );
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -696,12 +696,12 @@ DistMatrix<T,VC,STAR>::AlignWith( const DistMatrix<S,STAR,MC>& A )
     this->AssertSameGrid( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    this->_colAlignment = A.RowAlignment();
-    this->_colShift = Shift( g.VCRank(), this->ColAlignment(), g.Size() );
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    this->colAlignment_ = A.RowAlignment();
+    this->colShift_ = Shift( g.VCRank(), this->ColAlignment(), g.Size() );
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -717,12 +717,12 @@ DistMatrix<T,VC,STAR>::AlignWith( const DistMatrix<S,VC,STAR>& A )
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
-    this->_colAlignment = A.ColAlignment();
-    this->_colShift = A.ColShift();
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    this->colAlignment_ = A.ColAlignment();
+    this->colShift_ = A.ColShift();
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -738,12 +738,12 @@ DistMatrix<T,VC,STAR>::AlignWith( const DistMatrix<S,STAR,VC>& A )
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
-    this->_colAlignment = A.RowAlignment();
-    this->_colShift = A.RowShift();
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    this->colAlignment_ = A.RowAlignment();
+    this->colShift_ = A.RowShift();
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -865,19 +865,19 @@ DistMatrix<T,VC,STAR>::AlignWithDiagonal
     if( offset >= 0 )
     {
         const int ownerRank = colAlignment;
-        this->_colAlignment = ownerRank;
+        this->colAlignment_ = ownerRank;
     }
     else
     {
         const int ownerRank = (colAlignment-offset) % p;
-        this->_colAlignment = ownerRank;
+        this->colAlignment_ = ownerRank;
     }
     if( g.InGrid() )
-        this->_colShift = Shift(g.VCRank(),this->_colAlignment,p);
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+        this->colShift_ = Shift(g.VCRank(),this->colAlignment_,p);
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -901,19 +901,19 @@ DistMatrix<T,VC,STAR>::AlignWithDiagonal
     if( offset >= 0 )
     {
         const int ownerRank = (rowAlignment+offset) % p;
-        this->_colAlignment = ownerRank;
+        this->colAlignment_ = ownerRank;
     }
     else
     {
         const int ownerRank = rowAlignment;
-        this->_colAlignment = ownerRank;
+        this->colAlignment_ = ownerRank;
     }
     if( g.InGrid() )
-        this->_colShift = Shift(g.VCRank(),this->_colAlignment,p);
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+        this->colShift_ = Shift(g.VCRank(),this->colAlignment_,p);
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif

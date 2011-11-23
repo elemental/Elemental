@@ -393,7 +393,7 @@ inline void
 DistMatrix<T,STAR,STAR>::SetGrid( const elemental::Grid& grid )
 {
     this->Empty();
-    this->_grid = &grid;
+    this->grid_ = &grid;
 }
 
 //

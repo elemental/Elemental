@@ -38,8 +38,8 @@ namespace elemental {
 template<typename G>
 class Memory
 {
-    size_t _size;
-    G*     _buffer;
+    size_t size_;
+    G*     buffer_;
 public:
     Memory();
     Memory( size_t size );
@@ -59,34 +59,34 @@ public:
 
 template<typename G>
 inline Memory<G>::Memory()
-: _size(0), _buffer(NULL)
+: size_(0), buffer_(NULL)
 { }
 
 template<typename G>
 inline Memory<G>::Memory( size_t size )
-: _size(size), _buffer(new G[size])
+: size_(size), buffer_(new G[size])
 { }
 
 template<typename G>
 inline Memory<G>::~Memory()
-{ delete[] _buffer; }
+{ delete[] buffer_; }
 
 template<typename G>
 inline G* Memory<G>::Buffer() const
-{ return _buffer; }
+{ return buffer_; }
 
 template<typename G>
 inline size_t Memory<G>::Size() const
-{ return _size; }
+{ return size_; }
 
 template<typename G>
 inline void Memory<G>::Require( size_t size )
 {
-    if( size > _size )
+    if( size > size_ )
     {
-        delete[] _buffer;
-        _buffer = new G[size];
-        _size = size;
+        delete[] buffer_;
+        buffer_ = new G[size];
+        size_ = size;
     }
 }
 
@@ -101,9 +101,9 @@ inline void Memory<G>::Release()
 template<typename G>
 inline void Memory<G>::Empty()
 {
-    delete[] _buffer;
-    _size = 0;
-    _buffer = 0;
+    delete[] buffer_;
+    size_ = 0;
+    buffer_ = 0;
 }
 
 } // namespace elemental

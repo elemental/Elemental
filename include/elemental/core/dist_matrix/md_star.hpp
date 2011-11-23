@@ -260,7 +260,7 @@ public:
       const DistMatrix<T,MD,STAR>& ABL, const DistMatrix<T,MD,STAR>& ABR );
 
 private:
-    bool _inDiagonal;
+    bool inDiagonal_;
 
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
 
@@ -394,7 +394,7 @@ DistMatrix<T,MD,STAR>::DistMatrix( const elemental::Grid& g )
    (g.InGrid() && g.DiagPath()==g.DiagPath(0) ? 
     Shift(g.DiagPathRank(),g.DiagPathRank(0),g.LCM()) : 0),0,
    0,0,g)
-{ _inDiagonal = ( g.InGrid() && g.DiagPath()==g.DiagPath(0) ); }
+{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(0) ); }
 
 template<typename T>
 inline
@@ -407,7 +407,7 @@ DistMatrix<T,MD,STAR>::DistMatrix
    (g.InGrid() && g.DiagPath()==g.DiagPath(0) ?
     LocalLength(height,g.DiagPathRank(),g.DiagPathRank(0),g.LCM()) : 0),width,
    g)
-{ _inDiagonal = ( g.InGrid() && g.DiagPath()==g.DiagPath(0) ); }
+{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(0) ); }
 
 template<typename T>
 inline
@@ -418,7 +418,7 @@ DistMatrix<T,MD,STAR>::DistMatrix
    (g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ?
     Shift(g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) : 0),0,
    0,0,g)
-{ _inDiagonal = ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ); }
+{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ); }
 
 template<typename T>
 inline
@@ -433,7 +433,7 @@ DistMatrix<T,MD,STAR>::DistMatrix
     LocalLength(height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
     0),
    width,g)
-{ _inDiagonal = ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ); }
+{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ); }
 
 template<typename T>
 inline
@@ -448,7 +448,7 @@ DistMatrix<T,MD,STAR>::DistMatrix
     LocalLength(height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
     0),
    width,ldim,g)
-{ _inDiagonal = ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ); }
+{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ); }
 
 template<typename T>
 inline
@@ -463,7 +463,7 @@ DistMatrix<T,MD,STAR>::DistMatrix
     LocalLength(height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
     0),
    width,buffer,ldim,g)
-{ _inDiagonal = ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ); }
+{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ); }
 
 template<typename T>
 inline
@@ -478,7 +478,7 @@ DistMatrix<T,MD,STAR>::DistMatrix
     LocalLength(height,g.DiagPathRank(),g.DiagPathRank(colAlignment),g.LCM()) :
     0),
    width,buffer,ldim,g)
-{ _inDiagonal = ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ); }
+{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(colAlignment) ); }
 
 template<typename T>
 template<Distribution U,Distribution V>
@@ -509,21 +509,21 @@ inline void
 DistMatrix<T,MD,STAR>::SetGrid( const elemental::Grid& g )
 {
     this->Empty();
-    this->_grid = &g;
-    this->_colAlignment = 0;
+    this->grid_ = &g;
+    this->colAlignment_ = 0;
     if( g.InGrid() && g.DiagPath()==g.DiagPath(0) )
     {
-        _inDiagonal = true;
-        this->_colShift = Shift(g.DiagPathRank(),g.DiagPathRank(0),g.LCM());
+        inDiagonal_ = true;
+        this->colShift_ = Shift(g.DiagPathRank(),g.DiagPathRank(0),g.LCM());
     }
     else
-        _inDiagonal = false;
+        inDiagonal_ = false;
 }
 
 template<typename T>
 inline bool
 DistMatrix<T,MD,STAR>::InDiagonal() const
-{ return _inDiagonal; }
+{ return inDiagonal_; }
 
 template<typename T>
 template<typename S>
@@ -535,16 +535,16 @@ DistMatrix<T,MD,STAR>::AlignWith( const DistMatrix<S,MD,STAR>& A )
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
-    this->_colAlignment = A.ColAlignment();
-    this->_inDiagonal = A.InDiagonal();
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
+    this->colAlignment_ = A.ColAlignment();
+    this->inDiagonal_ = A.InDiagonal();
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
     if( this->Grid().InGrid() )
     {
         if( this->InDiagonal() )
-            this->_colShift = A.ColShift();
-        this->_localMatrix.ResizeTo( 0, 0 );
+            this->colShift_ = A.ColShift();
+        this->localMatrix_.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -561,16 +561,16 @@ DistMatrix<T,MD,STAR>::AlignWith( const DistMatrix<S,STAR,MD>& A )
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
-    this->_colAlignment = A.RowAlignment();
-    this->_inDiagonal = A.InDiagonal();
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
+    this->colAlignment_ = A.RowAlignment();
+    this->inDiagonal_ = A.InDiagonal();
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
     if( this->Grid().InGrid() )
     {
         if( this->InDiagonal() )
-            this->_colShift = A.RowShift();
-        this->_localMatrix.ResizeTo( 0, 0 );
+            this->colShift_ = A.RowShift();
+        this->localMatrix_.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -681,38 +681,38 @@ DistMatrix<T,MD,STAR>::AlignWithDiagonal
     {
         const int ownerRow = colAlignment;
         const int ownerCol = (rowAlignment + offset) % c;
-        this->_colAlignment = ownerRow + r*ownerCol;
+        this->colAlignment_ = ownerRow + r*ownerCol;
         if( g.InGrid() )
         {
-            this->_inDiagonal =
+            this->inDiagonal_ =
                 ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
         }
         else
-            this->_inDiagonal = false;
+            this->inDiagonal_ = false;
     }
     else
     {
         const int ownerRow = (colAlignment-offset) % r;
         const int ownerCol = rowAlignment;
-        this->_colAlignment = ownerRow + r*ownerCol;
+        this->colAlignment_ = ownerRow + r*ownerCol;
         if( g.InGrid() )
         {
-            this->_inDiagonal =
+            this->inDiagonal_ =
                 ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
         }
         else
-            this->_inDiagonal = false;
+            this->inDiagonal_ = false;
     }
     if( this->InDiagonal() )
     {
-        this->_colShift =
+        this->colShift_ =
             ( g.DiagPathRank() + lcm -
               g.DiagPathRank( this->ColAlignment() ) ) % lcm;
     }
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -740,38 +740,38 @@ DistMatrix<T,MD,STAR>::AlignWithDiagonal
     {
         const int ownerRow = rowAlignment;
         const int ownerCol = (colAlignment + offset) % c;
-        this->_colAlignment = ownerRow + r*ownerCol;
+        this->colAlignment_ = ownerRow + r*ownerCol;
         if( g.InGrid() )
         {
-            this->_inDiagonal =
+            this->inDiagonal_ =
                 ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
         }
         else
-            this->_inDiagonal = false;
+            this->inDiagonal_ = false;
     }
     else
     {
         const int ownerRow = (rowAlignment-offset) % r;
         const int ownerCol = colAlignment;
-        this->_colAlignment = ownerRow + r*ownerCol;
+        this->colAlignment_ = ownerRow + r*ownerCol;
         if( g.InGrid() )
         {
-            this->_inDiagonal =
+            this->inDiagonal_ =
                 ( g.DiagPath() == g.DiagPath( this->ColAlignment() ) );
         }
         else
-            this->_inDiagonal = false;
+            this->inDiagonal_ = false;
     }
     if( this->InDiagonal() )
     {
-        this->_colShift =
+        this->colShift_ =
             ( g.DiagPathRank() + lcm -
               g.DiagPathRank( this->ColAlignment() ) ) % lcm;
     }
-    this->_constrainedColAlignment = true;
-    this->_height = 0;
-    this->_width = 0;
-    this->_localMatrix.ResizeTo( 0, 0 );
+    this->constrainedColAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
 #ifndef RELEASE
     PopCallStack();
 #endif

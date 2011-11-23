@@ -84,13 +84,13 @@ DistMatrix<T,STAR,STAR>::View( DistMatrix<T,STAR,STAR>& A )
     PushCallStack("[* ,* ]::View");
     this->AssertNotStoringData();
 #endif
-    this->_grid = A._grid;
-    this->_height = A.Height();
-    this->_width = A.Width();
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->grid_ = A.grid_;
+    this->height_ = A.Height();
+    this->width_ = A.Width();
+    this->viewing_ = true;
+    this->lockedView_ = false;
     if( this->Grid().InGrid() )
-        this->_localMatrix.View( A.LocalMatrix() );
+        this->localMatrix_.View( A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -106,13 +106,13 @@ DistMatrix<T,STAR,STAR>::View
     PushCallStack("[* ,* ]::View");
     this->AssertNotStoringData();
 #endif
-    this->_grid = &grid;
-    this->_height = height;
-    this->_width = width;
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->grid_ = &grid;
+    this->height_ = height;
+    this->width_ = width;
+    this->viewing_ = true;
+    this->lockedView_ = false;
     if( this->Grid().InGrid() )
-        this->_localMatrix.View( height, width, buffer, ldim );
+        this->localMatrix_.View( height, width, buffer, ldim );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -127,13 +127,13 @@ DistMatrix<T,STAR,STAR>::LockedView
     PushCallStack("[* ,* ]::LockedView");
     this->AssertNotStoringData();
 #endif
-    this->_grid = A._grid;
-    this->_height = A.Height();
-    this->_width = A.Width();
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->grid_ = A.grid_;
+    this->height_ = A.Height();
+    this->width_ = A.Width();
+    this->viewing_ = true;
+    this->lockedView_ = true;
     if( this->Grid().InGrid() )
-        this->_localMatrix.LockedView( A.LockedLocalMatrix() );
+        this->localMatrix_.LockedView( A.LockedLocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -149,13 +149,13 @@ DistMatrix<T,STAR,STAR>::LockedView
     PushCallStack("[* ,* ]::LockedView");
     this->AssertNotStoringData();
 #endif
-    this->_grid = &grid;
-    this->_height = height;
-    this->_width = width;
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->grid_ = &grid;
+    this->height_ = height;
+    this->width_ = width;
+    this->viewing_ = true;
+    this->lockedView_ = true;
     if( this->Grid().InGrid() )
-        this->_localMatrix.LockedView( height, width, buffer, ldim );
+        this->localMatrix_.LockedView( height, width, buffer, ldim );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -171,13 +171,13 @@ DistMatrix<T,STAR,STAR>::View
     this->AssertNotStoringData();
     this->AssertValidSubmatrix( A, i, j, height, width );
 #endif
-    this->_grid = A._grid;
-    this->_height = height;
-    this->_width = width;
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->grid_ = A.grid_;
+    this->height_ = height;
+    this->width_ = width;
+    this->viewing_ = true;
+    this->lockedView_ = false;
     if( this->Grid().InGrid() )
-        this->_localMatrix.View( A.LocalMatrix(), i, j, height, width );
+        this->localMatrix_.View( A.LocalMatrix(), i, j, height, width );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -193,14 +193,14 @@ DistMatrix<T,STAR,STAR>::LockedView
     this->AssertNotStoringData();
     this->AssertValidSubmatrix( A, i, j, height, width );
 #endif
-    this->_grid = A._grid;
-    this->_height = height;
-    this->_width = width;
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->grid_ = A.grid_;
+    this->height_ = height;
+    this->width_ = width;
+    this->viewing_ = true;
+    this->lockedView_ = true;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.LockedView
+        this->localMatrix_.LockedView
         ( A.LockedLocalMatrix(), i, j, height, width );
     }
 #ifndef RELEASE
@@ -219,13 +219,13 @@ DistMatrix<T,STAR,STAR>::View1x2
     this->AssertConforming1x2( AL, AR );
     AL.AssertSameGrid( AR );
 #endif
-    this->_grid = AL._grid;
-    this->_height = AL.Height();
-    this->_width = AL.Width() + AR.Width();
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->grid_ = AL.grid_;
+    this->height_ = AL.Height();
+    this->width_ = AL.Width() + AR.Width();
+    this->viewing_ = true;
+    this->lockedView_ = false;
     if( this->Grid().InGrid() )
-        this->_localMatrix.View1x2( AL.LocalMatrix(), AR.LocalMatrix() );
+        this->localMatrix_.View1x2( AL.LocalMatrix(), AR.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -242,14 +242,14 @@ DistMatrix<T,STAR,STAR>::LockedView1x2
     this->AssertConforming1x2( AL, AR );
     AL.AssertSameGrid( AR );
 #endif
-    this->_grid = AL._grid;
-    this->_height = AL.Height();
-    this->_width = AL.Width() + AR.Width();
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->grid_ = AL.grid_;
+    this->height_ = AL.Height();
+    this->width_ = AL.Width() + AR.Width();
+    this->viewing_ = true;
+    this->lockedView_ = true;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.LockedView1x2
+        this->localMatrix_.LockedView1x2
         ( AL.LockedLocalMatrix(), AR.LockedLocalMatrix() );
     }
 #ifndef RELEASE
@@ -269,14 +269,14 @@ DistMatrix<T,STAR,STAR>::View2x1
     this->AssertConforming2x1( AT, AB );
     AT.AssertSameGrid( AB );
 #endif
-    this->_grid = AT._grid;
-    this->_height = AT.Height() + AB.Height();
-    this->_width = AT.Width();
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->grid_ = AT.grid_;
+    this->height_ = AT.Height() + AB.Height();
+    this->width_ = AT.Width();
+    this->viewing_ = true;
+    this->lockedView_ = false;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.View2x1
+        this->localMatrix_.View2x1
         ( AT.LocalMatrix(),
           AB.LocalMatrix() );
     }
@@ -297,14 +297,14 @@ DistMatrix<T,STAR,STAR>::LockedView2x1
     this->AssertConforming2x1( AT, AB );
     AT.AssertSameGrid( AB );
 #endif
-    this->_grid = AT._grid;
-    this->_height = AT.Height() + AB.Height();
-    this->_width = AT.Width();
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->grid_ = AT.grid_;
+    this->height_ = AT.Height() + AB.Height();
+    this->width_ = AT.Width();
+    this->viewing_ = true;
+    this->lockedView_ = true;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.LockedView2x1
+        this->localMatrix_.LockedView2x1
         ( AT.LockedLocalMatrix(),
           AB.LockedLocalMatrix() );
     }
@@ -327,14 +327,14 @@ DistMatrix<T,STAR,STAR>::View2x2
     ATL.AssertSameGrid( ABL );
     ATL.AssertSameGrid( ABR );
 #endif
-    this->_grid = ATL._grid;
-    this->_height = ATL.Height() + ABL.Height();
-    this->_width = ATL.Width() + ATR.Width();
-    this->_viewing = true;
-    this->_lockedView = false;
+    this->grid_ = ATL.grid_;
+    this->height_ = ATL.Height() + ABL.Height();
+    this->width_ = ATL.Width() + ATR.Width();
+    this->viewing_ = true;
+    this->lockedView_ = false;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.View2x2
+        this->localMatrix_.View2x2
         ( ATL.LocalMatrix(), ATR.LocalMatrix(),
           ABL.LocalMatrix(), ABR.LocalMatrix() );
     }
@@ -357,14 +357,14 @@ DistMatrix<T,STAR,STAR>::LockedView2x2
     ATL.AssertSameGrid( ABL );
     ATL.AssertSameGrid( ABR );
 #endif
-    this->_grid = ATL._grid;
-    this->_height = ATL.Height() + ABL.Height();
-    this->_width = ATL.Width() + ATR.Width();
-    this->_viewing = true;
-    this->_lockedView = true;
+    this->grid_ = ATL.grid_;
+    this->height_ = ATL.Height() + ABL.Height();
+    this->width_ = ATL.Width() + ATR.Width();
+    this->viewing_ = true;
+    this->lockedView_ = true;
     if( this->Grid().InGrid() )
     {
-        this->_localMatrix.LockedView2x2
+        this->localMatrix_.LockedView2x2
         ( ATL.LockedLocalMatrix(), ATR.LockedLocalMatrix(),
           ABL.LockedLocalMatrix(), ABR.LockedLocalMatrix() );
     }
@@ -383,10 +383,10 @@ DistMatrix<T,STAR,STAR>::ResizeTo( int height, int width )
     if( height < 0 || width < 0 )
         throw logic_error( "Height and width must be non-negative." );
 #endif
-    this->_height = height;
-    this->_width = width;
+    this->height_ = height;
+    this->width_ = width;
     if( this->Grid().InGrid() )
-        this->_localMatrix.ResizeTo( height, width );
+        this->localMatrix_.ResizeTo( height, width );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -614,9 +614,9 @@ DistMatrix<T,STAR,STAR>::SetToRandom()
 
     if( g.InGrid() )
     {
-        this->_auxMemory.Require( bufSize );
+        this->auxMemory_.Require( bufSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         if( g.VCRank() == 0 )
         {
             for( int j=0; j<width; ++j )
@@ -637,7 +637,7 @@ DistMatrix<T,STAR,STAR>::SetToRandom()
             T* thisCol = &thisLocalBuffer[j*thisLDim];
             memcpy( thisCol, bufferCol, height*sizeof(T) );
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -675,9 +675,9 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,MC,MR>& A )
         const int portionSize = 
             max(maxLocalHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
 
-        this->_auxMemory.Require( (p+1)*portionSize );
+        this->auxMemory_.Require( (p+1)*portionSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -729,7 +729,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,MC,MR>& A )
                             data[iLocal+jLocal*localHeight];
             }
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -762,9 +762,9 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,MC,STAR>& A )
 
         const int portionSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
 
-        this->_auxMemory.Require( (r+1)*portionSize );
+        this->auxMemory_.Require( (r+1)*portionSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -808,7 +808,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,MC,STAR>& A )
                     thisLocalBuffer[(colShift+iLocal*r)+j*thisLDim] =
                         data[iLocal+j*localHeight];
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -841,9 +841,9 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,MR>& A )
 
         const int portionSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
 
-        this->_auxMemory.Require( (c+1)*portionSize );
+        this->auxMemory_.Require( (c+1)*portionSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -889,7 +889,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,MR>& A )
                 memcpy( thisCol, dataCol, height*sizeof(T) );
             }
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -928,8 +928,8 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,MD,STAR>& A )
         // Since a MD communicator has not been implemented, we will take
         // the suboptimal route of 'rounding up' everyone's contribution over 
         // the VC communicator.
-        this->_auxMemory.Require( (p+1)*portionSize );
-        T* buffer = this->_auxMemory.Buffer();
+        this->auxMemory_.Require( (p+1)*portionSize );
+        T* buffer = this->auxMemory_.Buffer();
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[portionSize];
 
@@ -981,7 +981,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,MD,STAR>& A )
                             data[iLocal+j*thisLocalHeight];
             }
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1020,8 +1020,8 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,MD>& A )
         // Since a MD communicator has not been implemented, we will take
         // the suboptimal route of 'rounding up' everyone's contribution over 
         // the VC communicator.
-        this->_auxMemory.Require( (p+1)*portionSize );
-        T* buffer = this->_auxMemory.Buffer();
+        this->auxMemory_.Require( (p+1)*portionSize );
+        T* buffer = this->auxMemory_.Buffer();
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[portionSize];
 
@@ -1076,7 +1076,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,MD>& A )
                 }
             }
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1115,9 +1115,9 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,MR,MC>& A )
         const int portionSize = 
             max(maxLocalHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
 
-        this->_auxMemory.Require( (p+1)*portionSize );
+        this->auxMemory_.Require( (p+1)*portionSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -1169,7 +1169,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,MR,MC>& A )
                             data[iLocal+jLocal*localHeight];
             }
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1202,9 +1202,9 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,MR,STAR>& A )
 
         const int portionSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
 
-        this->_auxMemory.Require( (c+1)*portionSize );
+        this->auxMemory_.Require( (c+1)*portionSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -1248,7 +1248,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,MR,STAR>& A )
                     thisLocalBuffer[(colShift+iLocal*c)+j*thisLDim] = 
                         data[iLocal+j*localHeight];
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1281,9 +1281,9 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,MC>& A )
 
         const int portionSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
 
-        this->_auxMemory.Require( (r+1)*portionSize );
+        this->auxMemory_.Require( (r+1)*portionSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -1329,7 +1329,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,MC>& A )
                 memcpy( thisCol, dataCol, height*sizeof(T) );
             }
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1362,9 +1362,9 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,VC,STAR>& A )
 
         const int portionSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
 
-        this->_auxMemory.Require( (p+1)*portionSize );
+        this->auxMemory_.Require( (p+1)*portionSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -1408,7 +1408,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,VC,STAR>& A )
                     thisLocalBuffer[(colShift+iLocal*p)+j*thisLDim] = 
                         data[iLocal+j*localHeight];
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1441,9 +1441,9 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,VC>& A )
 
         const int portionSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
 
-        this->_auxMemory.Require( (p+1)*portionSize );
+        this->auxMemory_.Require( (p+1)*portionSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -1489,7 +1489,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,VC>& A )
                 memcpy( thisCol, dataCol, height*sizeof(T) );
             }
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1522,9 +1522,9 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,VR,STAR>& A )
 
         const int portionSize = max(maxLocalHeight*width,mpi::MIN_COLL_MSG);
 
-        this->_auxMemory.Require( (p+1)*portionSize );
+        this->auxMemory_.Require( (p+1)*portionSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -1568,7 +1568,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,VR,STAR>& A )
                     thisLocalBuffer[(colShift+iLocal*p)+j*thisLDim] = 
                         data[iLocal+j*localHeight];
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1601,9 +1601,9 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,VR>& A )
 
         const int portionSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
 
-        this->_auxMemory.Require( (p+1)*portionSize );
+        this->auxMemory_.Require( (p+1)*portionSize );
 
-        T* buffer = this->_auxMemory.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
         T* originalData = &buffer[0];
         T* gatheredData = &buffer[portionSize];
 
@@ -1649,7 +1649,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,VR>& A )
                 memcpy( thisCol, dataCol, height*sizeof(T) );
             }
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1671,7 +1671,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,STAR>& A )
         this->ResizeTo( A.Height(), A.Width() );
     if( this->Grid() == A.Grid() )
     {
-        this->_localMatrix = A.LockedLocalMatrix();
+        this->localMatrix_ = A.LockedLocalMatrix();
     }
     else
     {
@@ -1687,8 +1687,8 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,STAR>& A )
             requiredMemory += A.Height()*A.Width();
         if( this->Grid().InGrid() )
             requiredMemory += A.Height()*A.Width();
-        this->_auxMemory.Require( requiredMemory );
-        T* buffer = this->_auxMemory.Buffer();
+        this->auxMemory_.Require( requiredMemory );
+        T* buffer = this->auxMemory_.Buffer();
         int offset = 0;
         T* sendBuffer = &buffer[offset];
         if( A.Grid().VCRank() == 0 )
@@ -1730,7 +1730,7 @@ DistMatrix<T,STAR,STAR>::operator=( const DistMatrix<T,STAR,STAR>& A )
 
         if( A.Grid().VCRank() == 0 )
             mpi::Wait( sendRequest );
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1751,8 +1751,8 @@ DistMatrix<T,STAR,STAR>::SumOverCol()
         const int localHeight = this->LocalHeight();
         const int localWidth = this->LocalWidth();
         const int localSize = localHeight*localWidth;
-        this->_auxMemory.Require( 2*localSize );
-        T* buffer = this->_auxMemory.Buffer();
+        this->auxMemory_.Require( 2*localSize );
+        T* buffer = this->auxMemory_.Buffer();
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[localSize];
 
@@ -1783,7 +1783,7 @@ DistMatrix<T,STAR,STAR>::SumOverCol()
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
             memcpy( thisCol, recvBufCol, localHeight*sizeof(T) );
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1803,8 +1803,8 @@ DistMatrix<T,STAR,STAR>::SumOverRow()
         const int localHeight = this->LocalHeight();
         const int localWidth = this->LocalWidth();
         const int localSize = localHeight*localWidth;
-        this->_auxMemory.Require( 2*localSize );
-        T* buffer = this->_auxMemory.Buffer();
+        this->auxMemory_.Require( 2*localSize );
+        T* buffer = this->auxMemory_.Buffer();
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[localSize];
 
@@ -1835,7 +1835,7 @@ DistMatrix<T,STAR,STAR>::SumOverRow()
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
             memcpy( thisCol, recvBufCol, localHeight*sizeof(T) );
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1855,8 +1855,8 @@ DistMatrix<T,STAR,STAR>::SumOverGrid()
         const int localHeight = this->LocalHeight();
         const int localWidth = this->LocalWidth();
         const int localSize = localHeight*localWidth;
-        this->_auxMemory.Require( 2*localSize );
-        T* buffer = this->_auxMemory.Buffer();
+        this->auxMemory_.Require( 2*localSize );
+        T* buffer = this->auxMemory_.Buffer();
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[localSize];
 
@@ -1887,7 +1887,7 @@ DistMatrix<T,STAR,STAR>::SumOverGrid()
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
             memcpy( thisCol, recvBufCol, localHeight*sizeof(T) );
         }
-        this->_auxMemory.Release();
+        this->auxMemory_.Release();
     }
 #ifndef RELEASE
     PopCallStack();

@@ -43,7 +43,7 @@ DistMatrix<T,MC,MR>::SetToRandomHermitianHelper<Z>::Func
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetToRandomHermitian");
     parent.AssertNotLockedView();
-    if( parent._height != parent._width )
+    if( parent.height_ != parent.width_ )
         throw logic_error("Hermitian matrices must be square");
 #endif
     parent.SetToRandom();
@@ -62,7 +62,7 @@ DistMatrix<T,MC,MR>::SetToRandomHermitianHelper<complex<Z> >::Func
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetToRandomHermitian");
     parent.AssertNotLockedView();
-    if( parent._height != parent._width )
+    if( parent.height_ != parent.width_ )
         throw logic_error("Hermitian matrices must be square");
 #endif
     const int r = parent.Grid().Height();
@@ -108,13 +108,13 @@ DistMatrix<T,MC,MR>::SetToRandomHPDHelper<Z>::Func
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetToRandomHPD");
     parent.AssertNotLockedView();
-    if( parent._height != parent._width )
+    if( parent.height_ != parent.width_ )
         throw logic_error("Positive-definite matrices must be square");
 #endif
     const int r = parent.Grid().Height();
     const int c = parent.Grid().Width();
 
-    const int width = parent._width;
+    const int width = parent.width_;
     const int localHeight = parent.LocalHeight();
     const int localWidth = parent.LocalWidth();
     const int colShift = parent.ColShift();

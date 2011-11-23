@@ -207,20 +207,20 @@ public:
     virtual void SetToRandomHPD() = 0;
 
 protected:
-    bool      _viewing;
-    bool      _lockedView;
-    int       _height;
-    int       _width;
-    Memory<T> _auxMemory;
-    Matrix<T> _localMatrix;
+    bool      viewing_;
+    bool      lockedView_;
+    int       height_;
+    int       width_;
+    Memory<T> auxMemory_;
+    Matrix<T> localMatrix_;
     
-    bool _constrainedColAlignment;
-    bool _constrainedRowAlignment;
-    int _colAlignment;
-    int _rowAlignment;
-    int _colShift;
-    int _rowShift;
-    const elemental::Grid* _grid;
+    bool constrainedColAlignment_;
+    bool constrainedRowAlignment_;
+    int colAlignment_;
+    int rowAlignment_;
+    int colShift_;
+    int rowShift_;
+    const elemental::Grid* grid_;
 
     // Initialize with particular local dimensions
     AbstractDistMatrix
@@ -300,19 +300,19 @@ AbstractDistMatrix<T>::AbstractDistMatrix
   int localHeight,
   int localWidth,
   const elemental::Grid& grid )
-: _viewing(false), 
-  _lockedView(false), 
-  _height(height), 
-  _width(width), 
-  _auxMemory(), 
-  _localMatrix(localHeight,localWidth), 
-  _constrainedColAlignment(constrainedColAlignment), 
-  _constrainedRowAlignment(constrainedRowAlignment),
-  _colAlignment(colAlignment), 
-  _rowAlignment(rowAlignment),
-  _colShift(colShift),
-  _rowShift(rowShift),
-  _grid(&grid)
+: viewing_(false), 
+  lockedView_(false), 
+  height_(height), 
+  width_(width), 
+  auxMemory_(), 
+  localMatrix_(localHeight,localWidth), 
+  constrainedColAlignment_(constrainedColAlignment), 
+  constrainedRowAlignment_(constrainedRowAlignment),
+  colAlignment_(colAlignment), 
+  rowAlignment_(rowAlignment),
+  colShift_(colShift),
+  rowShift_(rowShift),
+  grid_(&grid)
 { } 
 
 template<typename T>
@@ -330,19 +330,19 @@ AbstractDistMatrix<T>::AbstractDistMatrix
   int localWidth,
   int ldim,
   const elemental::Grid& grid )
-: _viewing(false), 
-  _lockedView(false), 
-  _height(height), 
-  _width(width), 
-  _auxMemory(), 
-  _localMatrix(localHeight,localWidth,ldim), 
-  _constrainedColAlignment(constrainedColAlignment), 
-  _constrainedRowAlignment(constrainedRowAlignment),
-  _colAlignment(colAlignment), 
-  _rowAlignment(rowAlignment),
-  _colShift(colShift),
-  _rowShift(rowShift),
-  _grid(&grid)
+: viewing_(false), 
+  lockedView_(false), 
+  height_(height), 
+  width_(width), 
+  auxMemory_(), 
+  localMatrix_(localHeight,localWidth,ldim), 
+  constrainedColAlignment_(constrainedColAlignment), 
+  constrainedRowAlignment_(constrainedRowAlignment),
+  colAlignment_(colAlignment), 
+  rowAlignment_(rowAlignment),
+  colShift_(colShift),
+  rowShift_(rowShift),
+  grid_(&grid)
 { } 
 
 template<typename T>
@@ -359,19 +359,19 @@ AbstractDistMatrix<T>::AbstractDistMatrix
   const T* buffer,
   int ldim,
   const elemental::Grid& grid )
-: _viewing(true), 
-  _lockedView(true), 
-  _height(height), 
-  _width(width), 
-  _auxMemory(), 
-  _localMatrix(localHeight,localWidth,buffer,ldim), 
-  _constrainedColAlignment(true), 
-  _constrainedRowAlignment(true),
-  _colAlignment(colAlignment), 
-  _rowAlignment(rowAlignment),
-  _colShift(colShift),
-  _rowShift(rowShift),
-  _grid(&grid)
+: viewing_(true), 
+  lockedView_(true), 
+  height_(height), 
+  width_(width), 
+  auxMemory_(), 
+  localMatrix_(localHeight,localWidth,buffer,ldim), 
+  constrainedColAlignment_(true), 
+  constrainedRowAlignment_(true),
+  colAlignment_(colAlignment), 
+  rowAlignment_(rowAlignment),
+  colShift_(colShift),
+  rowShift_(rowShift),
+  grid_(&grid)
 { } 
 
 template<typename T>
@@ -388,19 +388,19 @@ AbstractDistMatrix<T>::AbstractDistMatrix
   T* buffer,
   int ldim,
   const elemental::Grid& grid )
-: _viewing(true), 
-  _lockedView(false), 
-  _height(height), 
-  _width(width), 
-  _auxMemory(), 
-  _localMatrix(localHeight,localWidth,buffer,ldim), 
-  _constrainedColAlignment(true), 
-  _constrainedRowAlignment(true),
-  _colAlignment(colAlignment), 
-  _rowAlignment(rowAlignment),
-  _colShift(colShift),
-  _rowShift(rowShift),
-  _grid(&grid)
+: viewing_(true), 
+  lockedView_(false), 
+  height_(height), 
+  width_(width), 
+  auxMemory_(), 
+  localMatrix_(localHeight,localWidth,buffer,ldim), 
+  constrainedColAlignment_(true), 
+  constrainedRowAlignment_(true),
+  colAlignment_(colAlignment), 
+  rowAlignment_(rowAlignment),
+  colShift_(colShift),
+  rowShift_(rowShift),
+  grid_(&grid)
 { } 
 
 template<typename T>
@@ -413,7 +413,7 @@ template<typename T>
 inline void
 AbstractDistMatrix<T>::AssertNotLockedView() const
 {
-    if( _viewing && _lockedView )
+    if( viewing_ && lockedView_ )
         throw std::logic_error
         ( "Assertion that matrix not be a locked view failed." );
 }
@@ -422,7 +422,7 @@ template<typename T>
 inline void
 AbstractDistMatrix<T>::AssertNotStoringData() const
 {
-    if( _localMatrix.MemorySize() > 0 )
+    if( localMatrix_.MemorySize() > 0 )
         throw std::logic_error
         ( "Assertion that matrix not be storing data failed." );
 }
@@ -465,7 +465,7 @@ template<typename T>
 inline void
 AbstractDistMatrix<T>::AssertFreeColAlignment() const
 {
-    if( _constrainedColAlignment )
+    if( constrainedColAlignment_ )
         throw std::logic_error
         ( "Assertion that column alignment be free failed." );
 }
@@ -474,7 +474,7 @@ template<typename T>
 inline void
 AbstractDistMatrix<T>::AssertFreeRowAlignment() const
 {
-    if( _constrainedRowAlignment )
+    if( constrainedRowAlignment_ )
         throw std::logic_error
         ( "Assertion that row alignment be free failed." );
 }
@@ -572,148 +572,148 @@ AbstractDistMatrix<T>::AssertConforming2x2
 template<typename T>
 inline bool
 AbstractDistMatrix<T>::Viewing() const
-{ return _viewing; }
+{ return viewing_; }
 
 template<typename T>
 inline bool
 AbstractDistMatrix<T>::LockedView() const
-{ return _lockedView; }
+{ return lockedView_; }
 
 template<typename T>
 inline int
 AbstractDistMatrix<T>::Height() const
-{ return _height; }
+{ return height_; }
 
 template<typename T>
 inline int
 AbstractDistMatrix<T>::DiagonalLength( int offset ) const
-{ return elemental::DiagonalLength(_height,_width,offset); }
+{ return elemental::DiagonalLength(height_,width_,offset); }
 
 template<typename T>
 inline int
 AbstractDistMatrix<T>::Width() const
-{ return _width; }
+{ return width_; }
 
 template<typename T>
 inline void
 AbstractDistMatrix<T>::FreeAlignments() 
 { 
-    _constrainedColAlignment = false;
-    _constrainedRowAlignment = false;
+    constrainedColAlignment_ = false;
+    constrainedRowAlignment_ = false;
 }
     
 template<typename T>
 inline bool
 AbstractDistMatrix<T>::ConstrainedColAlignment() const
-{ return _constrainedColAlignment; }
+{ return constrainedColAlignment_; }
 
 template<typename T>
 inline bool
 AbstractDistMatrix<T>::ConstrainedRowAlignment() const
-{ return _constrainedRowAlignment; }
+{ return constrainedRowAlignment_; }
 
 template<typename T>
 inline int
 AbstractDistMatrix<T>::ColAlignment() const
-{ return _colAlignment; }
+{ return colAlignment_; }
 
 template<typename T>
 inline int
 AbstractDistMatrix<T>::RowAlignment() const
-{ return _rowAlignment; }
+{ return rowAlignment_; }
 
 template<typename T>
 inline int
 AbstractDistMatrix<T>::ColShift() const
-{ return _colShift; }
+{ return colShift_; }
 
 template<typename T>
 inline int
 AbstractDistMatrix<T>::RowShift() const
-{ return _rowShift; }
+{ return rowShift_; }
 
 template<typename T>
 inline const elemental::Grid&
 AbstractDistMatrix<T>::Grid() const
-{ return *_grid; }
+{ return *grid_; }
 
 template<typename T>
 inline size_t
 AbstractDistMatrix<T>::AllocatedMemory() const
-{ return _localMatrix.MemorySize(); }
+{ return localMatrix_.MemorySize(); }
 
 template<typename T>
 inline int
 AbstractDistMatrix<T>::LocalHeight() const
-{ return _localMatrix.Height(); }
+{ return localMatrix_.Height(); }
 
 template<typename T>
 inline int
 AbstractDistMatrix<T>::LocalWidth() const
-{ return _localMatrix.Width(); }
+{ return localMatrix_.Width(); }
 
 template<typename T>
 inline int
 AbstractDistMatrix<T>::LocalLDim() const
-{ return _localMatrix.LDim(); }
+{ return localMatrix_.LDim(); }
 
 template<typename T>
 inline T
 AbstractDistMatrix<T>::GetLocalEntry
 ( int i, int j ) const
-{ return _localMatrix.Get(i,j); }
+{ return localMatrix_.Get(i,j); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::SetLocalEntry
 ( int iLocal, int jLocal, T alpha )
-{ _localMatrix.Set(iLocal,jLocal,alpha); }
+{ localMatrix_.Set(iLocal,jLocal,alpha); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateLocalEntry
 ( int iLocal, int jLocal, T alpha )
-{ _localMatrix.Update(iLocal,jLocal,alpha); }
+{ localMatrix_.Update(iLocal,jLocal,alpha); }
 
 template<typename T>
 inline T*
 AbstractDistMatrix<T>::LocalBuffer
 ( int iLocal, int jLocal )
-{ return _localMatrix.Buffer(iLocal,jLocal); }
+{ return localMatrix_.Buffer(iLocal,jLocal); }
 
 template<typename T>
 inline const T*
 AbstractDistMatrix<T>::LockedLocalBuffer
 ( int iLocal, int jLocal ) const
-{ return _localMatrix.LockedBuffer(iLocal,jLocal); }
+{ return localMatrix_.LockedBuffer(iLocal,jLocal); }
 
 template<typename T>
 inline Matrix<T>&
 AbstractDistMatrix<T>::LocalMatrix()
-{ return _localMatrix; }
+{ return localMatrix_; }
 
 template<typename T>
 inline const Matrix<T>&
 AbstractDistMatrix<T>::LockedLocalMatrix() const
-{ return _localMatrix; }
+{ return localMatrix_; }
 
 template<typename T>
 inline void
 AbstractDistMatrix<T>::SetToZero()
-{ _localMatrix.SetToZero(); }
+{ localMatrix_.SetToZero(); }
 
 template<typename T>
 inline void
 AbstractDistMatrix<T>::Empty()
 {
-    _localMatrix.Empty();
-    _auxMemory.Empty();
-    _lockedView = false;
-    _viewing = false;
-    _height = 0;
-    _width = 0;
-    _constrainedColAlignment = false;
-    _constrainedRowAlignment = false;
+    localMatrix_.Empty();
+    auxMemory_.Empty();
+    lockedView_ = false;
+    viewing_ = false;
+    height_ = 0;
+    width_ = 0;
+    constrainedColAlignment_ = false;
+    constrainedRowAlignment_ = false;
 }
 
 template<typename T>
@@ -763,37 +763,37 @@ template<typename T>
 inline typename RealBase<T>::type
 AbstractDistMatrix<T>::GetRealLocalEntry
 ( int iLocal, int jLocal ) const
-{ return this->_localMatrix.GetReal(iLocal,jLocal); }
+{ return this->localMatrix_.GetReal(iLocal,jLocal); }
 
 template<typename T>
 inline typename RealBase<T>::type
 AbstractDistMatrix<T>::GetImagLocalEntry
 ( int iLocal, int jLocal ) const
-{ return this->_localMatrix.GetImag(iLocal,jLocal); }
+{ return this->localMatrix_.GetImag(iLocal,jLocal); }
 
 template<typename T>
 inline void
 AbstractDistMatrix<T>::SetRealLocalEntry
 ( int iLocal, int jLocal, typename RealBase<T>::type alpha )
-{ this->_localMatrix.SetReal(iLocal,jLocal,alpha); }
+{ this->localMatrix_.SetReal(iLocal,jLocal,alpha); }
 
 template<typename T>
 inline void
 AbstractDistMatrix<T>::SetImagLocalEntry
 ( int iLocal, int jLocal, typename RealBase<T>::type alpha )
-{ this->_localMatrix.SetImag(iLocal,jLocal,alpha); }
+{ this->localMatrix_.SetImag(iLocal,jLocal,alpha); }
 
 template<typename T>
 inline void
 AbstractDistMatrix<T>::UpdateRealLocalEntry
 ( int iLocal, int jLocal, typename RealBase<T>::type alpha )
-{ this->_localMatrix.UpdateReal(iLocal,jLocal,alpha); }
+{ this->localMatrix_.UpdateReal(iLocal,jLocal,alpha); }
 
 template<typename T>
 inline void
 AbstractDistMatrix<T>::UpdateImagLocalEntry
 ( int iLocal, int jLocal, typename RealBase<T>::type alpha )
-{ this->_localMatrix.UpdateImag(iLocal,jLocal,alpha); }
+{ this->localMatrix_.UpdateImag(iLocal,jLocal,alpha); }
 
 } // elemental
 
