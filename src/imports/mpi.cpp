@@ -2054,6 +2054,25 @@ elemental::mpi::Reduce
 
 void
 elemental::mpi::Reduce
+( byte* buf, int count, mpi::Op op, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Reduce");
+#endif
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Reduce
+            ( MPI_IN_PLACE, buf, count, MPI_UNSIGNED_CHAR, op, root, comm )
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::Reduce
 ( const int* sbuf, int* rbuf, int count, mpi::Op op, int root, mpi::Comm comm )
 {
 #ifndef RELEASE
@@ -2064,6 +2083,24 @@ elemental::mpi::Reduce
         SafeMpi( 
             MPI_Reduce
             ( const_cast<int*>(sbuf), rbuf, count, MPI_INT, op, root, comm ) 
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::Reduce
+( int* buf, int count, mpi::Op op, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Reduce");
+#endif
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Reduce( MPI_IN_PLACE, buf, count, MPI_INT, op, root, comm ) 
         );
     }
 #ifndef RELEASE
@@ -2093,6 +2130,24 @@ elemental::mpi::Reduce
 
 void
 elemental::mpi::Reduce
+( float* buf, int count, mpi::Op op, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Reduce");
+#endif
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Reduce( MPI_IN_PLACE, buf, count, MPI_FLOAT, op, root, comm ) 
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::Reduce
 ( const double* sbuf, double* rbuf, int count, mpi::Op op, int root, 
   mpi::Comm comm )
 {
@@ -2105,6 +2160,25 @@ elemental::mpi::Reduce
             MPI_Reduce
             ( const_cast<double*>(sbuf), rbuf, count, MPI_DOUBLE, op, root, 
               comm ) 
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::Reduce
+( double* buf, int count, mpi::Op op, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Reduce");
+#endif
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Reduce
+            ( MPI_IN_PLACE, buf, count, MPI_DOUBLE, op, root, comm )
         );
     }
 #ifndef RELEASE
@@ -2155,6 +2229,41 @@ elemental::mpi::Reduce
 
 void
 elemental::mpi::Reduce
+( scomplex* buf, int count, mpi::Op op, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Reduce");
+#endif
+    if( count != 0 )
+    {
+#ifdef AVOID_COMPLEX_MPI
+        if( op == mpi::SUM )
+        {
+            SafeMpi(
+                MPI_Reduce
+                ( MPI_IN_PLACE, buf, 2*count, MPI_FLOAT, op, root, comm )
+            );
+        }
+        else
+        {
+            SafeMpi(
+                MPI_Reduce
+                ( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, root, comm )
+            );
+        }
+#else
+        SafeMpi( 
+            MPI_Reduce( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, root, comm )
+        );
+#endif
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::Reduce
 ( const dcomplex* sbuf, dcomplex* rbuf, int count, mpi::Op op, int root, 
   mpi::Comm comm )
 {
@@ -2192,6 +2301,42 @@ elemental::mpi::Reduce
     PopCallStack();
 #endif
 }
+
+void
+elemental::mpi::Reduce
+( dcomplex* buf, int count, mpi::Op op, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Reduce");
+#endif
+    if( count != 0 )
+    {
+#ifdef AVOID_COMPLEX_MPI
+        if( op == mpi::SUM )
+        {
+            SafeMpi(
+                MPI_Reduce
+                ( MPI_IN_PLACE, buf, 2*count, MPI_DOUBLE, op, root, comm )
+            );
+        }
+        else
+        {
+            SafeMpi(
+                MPI_Reduce
+                ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
+            );
+        }
+#else
+        SafeMpi( 
+            MPI_Reduce
+            ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
+        );
+#endif
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 #endif // WITHOUT_COMPLEX
 
 void
@@ -2207,6 +2352,25 @@ elemental::mpi::AllReduce
             MPI_Allreduce
             ( const_cast<byte*>(sbuf), rbuf, count, MPI_UNSIGNED_CHAR, op, 
               comm ) 
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::AllReduce
+( byte* buf, int count, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllReduce");
+#endif
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Allreduce
+            ( MPI_IN_PLACE, buf, count, MPI_UNSIGNED_CHAR, op, comm )
         );
     }
 #ifndef RELEASE
@@ -2235,6 +2399,24 @@ elemental::mpi::AllReduce
 
 void
 elemental::mpi::AllReduce
+( int* buf, int count, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllReduce");
+#endif
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_INT, op, comm )
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::AllReduce
 ( const float* sbuf, float* rbuf, int count, mpi::Op op, mpi::Comm comm )
 {
 #ifndef RELEASE
@@ -2254,6 +2436,24 @@ elemental::mpi::AllReduce
 
 void
 elemental::mpi::AllReduce
+( float* buf, int count, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllReduce");
+#endif
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_FLOAT, op, comm )
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::AllReduce
 ( const double* sbuf, double* rbuf, int count, mpi::Op op, mpi::Comm comm )
 {
 #ifndef RELEASE
@@ -2264,6 +2464,24 @@ elemental::mpi::AllReduce
         SafeMpi( 
             MPI_Allreduce
             ( const_cast<double*>(sbuf), rbuf, count, MPI_DOUBLE, op, comm ) 
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::AllReduce
+( double* buf, int count, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllReduce");
+#endif
+    if( count != 0 )
+    {
+        SafeMpi( 
+            MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_DOUBLE, op, comm )
         );
     }
 #ifndef RELEASE
@@ -2313,6 +2531,39 @@ elemental::mpi::AllReduce
 
 void
 elemental::mpi::AllReduce
+( scomplex* buf, int count, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllReduce");
+#endif
+    if( count != 0 )
+    {
+#ifdef AVOID_COMPLEX_MPI
+        if( op == mpi::SUM )
+        {
+            SafeMpi(
+                MPI_Allreduce( MPI_IN_PLACE, buf, 2*count, MPI_FLOAT, op, comm )
+            );
+        }
+        else
+        {
+            SafeMpi(
+                MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, comm )
+            );
+        }
+#else
+        SafeMpi( 
+            MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, comm )
+        );
+#endif
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::AllReduce
 ( const dcomplex* sbuf, dcomplex* rbuf, int count, mpi::Op op, mpi::Comm comm )
 {
 #ifndef RELEASE
@@ -2342,6 +2593,42 @@ elemental::mpi::AllReduce
             MPI_Allreduce
             ( const_cast<dcomplex*>(sbuf), 
               rbuf, count, MPI_DOUBLE_COMPLEX, op, comm )
+        );
+#endif
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::AllReduce
+( dcomplex* buf, int count, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllReduce");
+#endif
+    if( count != 0 )
+    {
+#ifdef AVOID_COMPLEX_MPI
+        if( op == mpi::SUM )
+        {
+            SafeMpi(
+                MPI_Allreduce
+                ( MPI_IN_PLACE, buf, 2*count, MPI_DOUBLE, op, comm )
+            );
+        }
+        else
+        {
+            SafeMpi(
+                MPI_Allreduce
+                ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, comm )
+            );
+        }
+#else
+        SafeMpi( 
+            MPI_Allreduce
+            ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, comm )
         );
 #endif
     }

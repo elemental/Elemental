@@ -344,6 +344,16 @@ void Reduce
 void Reduce
 ( const dcomplex* sbuf, dcomplex* rbuf, int count, Op op, int root, Comm comm );
 #endif
+
+// In-place option
+void Reduce( byte* buf, int count, Op op, int root, Comm comm );
+void Reduce( int* buf, int count, Op op, int root, Comm comm );
+void Reduce( float* buf, int count, Op op, int root, Comm comm );
+void Reduce( double* buf, int count, Op op, int root, Comm comm );
+#ifndef WITHOUT_COMPLEX
+void Reduce( scomplex* buf, int count, Op op, int root, Comm comm );
+void Reduce( dcomplex* buf, int count, Op op, int root, Comm comm );
+#endif
     
 void AllReduce
 ( const byte* sbuf, byte* rbuf, int count, Op op, Comm comm );
@@ -358,6 +368,16 @@ void AllReduce
 ( const scomplex* sbuf, scomplex* rbuf, int count, Op op, Comm comm );
 void AllReduce
 ( const dcomplex* sbuf, dcomplex* rbuf, int count, Op op, Comm comm );
+#endif
+
+// In-place option
+void AllReduce( byte* buf, int count, Op op, Comm comm );
+void AllReduce( int* buf, int count, Op op, Comm comm );
+void AllReduce( float* buf, int count, Op op, Comm comm );
+void AllReduce( double* buf, int count, Op op, Comm comm );
+#ifndef WITHOUT_COMPLEX
+void AllReduce( scomplex* buf, int count, Op op, Comm comm );
+void AllReduce( dcomplex* buf, int count, Op op, Comm comm );
 #endif
         
 void ReduceScatter
