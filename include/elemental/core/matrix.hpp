@@ -280,7 +280,7 @@ template<typename T,typename Integer>
 inline
 Matrix<T,Integer>::Matrix()
 : viewing_(false), lockedView_(false),
-  height_(0), width_(0), data_(0), lockedData_(0), ldim_(0),
+  height_(0), width_(0), data_(0), lockedData_(0), ldim_(1),
   memory_()
 { }
 
