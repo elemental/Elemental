@@ -1514,7 +1514,7 @@ Matrix<T,Integer>::Empty()
     memory_.Empty();
     height_ = 0;
     width_ = 0;
-    ldim_ = 0;
+    ldim_ = 1;
     data_ = 0;
     lockedData_ = 0;
     viewing_ = false;
