@@ -37,7 +37,7 @@
 template<typename T>
 inline void
 elemental::basic::Hemv
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y )
@@ -90,7 +90,7 @@ elemental::basic::Hemv
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
         x_MR_STAR = x_MC_STAR;
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             basic::internal::LocalHemvColAccumulateL
             ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
@@ -138,7 +138,7 @@ elemental::basic::Hemv
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
         x_MR_STAR = x_MC_STAR;
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             basic::internal::LocalHemvColAccumulateL
             ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
@@ -188,7 +188,7 @@ elemental::basic::Hemv
         //--------------------------------------------------------------------//
         x_STAR_MR = x;
         x_STAR_MC = x_STAR_MR;
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             basic::internal::LocalHemvRowAccumulateL
             ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR );
@@ -237,7 +237,7 @@ elemental::basic::Hemv
         //--------------------------------------------------------------------//
         x_STAR_MR = x;
         x_STAR_MC = x_STAR_MR;
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             basic::internal::LocalHemvRowAccumulateL
             ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR );

@@ -34,7 +34,7 @@
 template<typename T>
 inline void
 elemental::basic::Her2
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& x,
            const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A )
@@ -84,7 +84,7 @@ elemental::basic::Her2
         y_MC_STAR = y;
         y_MR_STAR = y_MC_STAR;
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
@@ -145,7 +145,7 @@ elemental::basic::Her2
         y_STAR_MR = y;
         y_STAR_MC = y_STAR_MR;
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
@@ -206,7 +206,7 @@ elemental::basic::Her2
         y_MC_STAR = y;
         y_MR_STAR = y_MC_STAR;
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
@@ -267,7 +267,7 @@ elemental::basic::Her2
         y_STAR_MR = y;
         y_STAR_MC = y_STAR_MR;
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {

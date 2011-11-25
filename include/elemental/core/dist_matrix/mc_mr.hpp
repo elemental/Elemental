@@ -147,10 +147,10 @@ public:
     virtual void Update( Int i, Int j, T alpha );
 
     virtual void MakeTrapezoidal
-    ( Side side, Shape shape, Int offset = 0 );
+    ( Side side, UpperOrLower uplo, Int offset=0 );
 
     virtual void ScaleTrapezoidal
-    ( T alpha, Side side, Shape shape, Int offset = 0 );
+    ( T alpha, Side side, UpperOrLower uplo, Int offset=0 );
 
     virtual void ResizeTo( Int height, Int width );
     virtual void SetToIdentity();

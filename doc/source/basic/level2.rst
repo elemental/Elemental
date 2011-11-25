@@ -63,11 +63,11 @@ Hemv
 Hermitian matrix-vector multiply: :math:`y := \alpha A x + \beta y`, where 
 :math:`A` is Hermitian.
 
-.. cpp:function:: void basic::Hemv( Shape shape, T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
+.. cpp:function:: void basic::Hemv( UpperOrLower uplo, T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Hemv( Shape shape, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x, T beta, DistMatrix<T,MC,MR>& y )
+.. cpp:function:: void basic::Hemv( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x, T beta, DistMatrix<T,MC,MR>& y )
 
    The distributed implementation (templated over the datatype).
 
@@ -78,13 +78,13 @@ information on tuning the distributed ``basic::Hemv``.
 Her
 ---
 Hermitian rank-one update: implicitly performs :math:`A := \alpha x x^H + A`, 
-where only the triangle of :math:`A` specified by `shape` is updated.
+where only the triangle of :math:`A` specified by `uplo` is updated.
 
-.. cpp:function:: void basic::Her( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A )
+.. cpp:function:: void basic::Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Her( Shape shape, T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void basic::Her( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A )
 
    The distributed implementation (templated over the datatype).
 
@@ -92,13 +92,13 @@ Her2
 ----
 Hermitian rank-two update: implicitly performs 
 :math:`A := \alpha ( x y^H + y x^H ) + A`,
-where only the triangle of :math:`A` specified by `shape` is updated.
+where only the triangle of :math:`A` specified by `uplo` is updated.
 
-.. cpp:function:: void basic::Her2( Shape shape, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+.. cpp:function:: void basic::Her2( UpperOrLower uplo, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Her2( Shape shape, T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void basic::Her2( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y, DistMatrix<T,MC,MR>& A )
 
    The distributed implementation (templated over the datatype).
 
@@ -107,11 +107,11 @@ Symv
 Symmetric matrix-vector multiply: :math:`y := \alpha A x + \beta y`, where 
 :math:`A` is symmetric.
 
-.. cpp:function:: void basic::Symv( Shape shape, T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
+.. cpp:function:: void basic::Symv( UpperOrLower uplo, T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Symv( Shape shape, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x, T beta, DistMatrix<T,MC,MR>& y )
+.. cpp:function:: void basic::Symv( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x, T beta, DistMatrix<T,MC,MR>& y )
 
    The distributed implementation (templated over the datatype).
 
@@ -122,13 +122,13 @@ information on tuning the distributed ``basic::Symv``.
 Syr
 ---
 Symmetric rank-one update: implicitly performs :math:`A := \alpha x x^T + A`, 
-where only the triangle of :math:`A` specified by `shape` is updated.
+where only the triangle of :math:`A` specified by `uplo` is updated.
 
-.. cpp:function:: void basic::Syr( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A )
+.. cpp:function:: void basic::Syr( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Syr( Shape shape, T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void basic::Syr( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A )
 
    The distributed implementation (templated over the datatype).
 
@@ -136,13 +136,13 @@ Syr2
 ----
 Symmetric rank-two update: implicitly performs 
 :math:`A := \alpha ( x y^T + y x^T ) + A`,
-where only the triangle of :math:`A` specified by `shape` is updated.
+where only the triangle of :math:`A` specified by `uplo` is updated.
 
-.. cpp:function:: void basic::Syr2( Shape shape, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+.. cpp:function:: void basic::Syr2( UpperOrLower uplo, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Syr2( Shape shape, T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void basic::Syr2( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y, DistMatrix<T,MC,MR>& A )
 
    The distributed implementation (templated over the datatype).
 
@@ -155,14 +155,14 @@ Trsv
 Triangular solve with a vector: computes
 :math:`x := \mbox{op}(A)^{-1} x`, where :math:`\mbox{op}(A)` is either 
 :math:`A`, :math:`A^T`, or :math:`A^H`, and :math:`A` is treated an either a 
-lower or upper triangular matrix, depending upon `shape`. :math:`A` can also be 
+lower or upper triangular matrix, depending upon `uplo`. :math:`A` can also be 
 treated as implicitly having a unit diagonal if `diagonal` is set to ``UNIT``.
 
-.. cpp:function:: void basic::Trsv( Shape shape, Orientation orientation, Diagonal diagonal, const Matrix<F>& A, Matrix<F>& x )
+.. cpp:function:: void basic::Trsv( UpperOrLower uplo, Orientation orientation, Diagonal diagonal, const Matrix<F>& A, Matrix<F>& x )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Trsv( Shape shape, Orientation orientation, Diagonal diagonal, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& x )
+.. cpp:function:: void basic::Trsv( UpperOrLower uplo, Orientation orientation, Diagonal diagonal, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& x )
 
    The distributed implementation (templated over the datatype).
 

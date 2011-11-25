@@ -161,7 +161,7 @@ HermitianTridiagU( Matrix<R>& A )
 template<typename R> // representation of a real number
 void
 HermitianTridiagL
-( Matrix< complex<R> >& A, Matrix< complex<R> >& t )
+( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiagL");
@@ -171,7 +171,7 @@ HermitianTridiagL
         throw std::logic_error
         ("t must be a vector of the same height as A minus one");
 #endif
-    typedef complex<R> C;
+    typedef std::complex<R> C;
 
     if( !t.Viewing() )
         t.ResizeTo( A.Height()-1, 1 );
@@ -251,7 +251,7 @@ HermitianTridiagL
 template<typename R> // representation of a real number
 void
 HermitianTridiagU
-( Matrix< complex<R> >& A, Matrix< complex<R> >& t )
+( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiagU");
@@ -261,7 +261,7 @@ HermitianTridiagU
         throw std::logic_error
         ("t must be a vector of the same height as A minus one");
 #endif
-    typedef complex<R> C;
+    typedef std::complex<R> C;
     
     if( !t.Viewing() )
         t.ResizeTo( A.Height()-1, 1 );
@@ -346,13 +346,13 @@ HermitianTridiagU
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianTridiag
-( Shape shape, Matrix<R>& A )
+( UpperOrLower uplo, Matrix<R>& A )
 {
     using namespace hermitian_tridiag_util;
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");
 #endif
-    if( shape == LOWER )
+    if( uplo == LOWER )
         HermitianTridiagL( A );
     else
         HermitianTridiagU( A );
@@ -365,13 +365,13 @@ elemental::advanced::HermitianTridiag
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianTridiag
-( Shape shape, Matrix< complex<R> >& A, Matrix< complex<R> >& t )
+( UpperOrLower uplo, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {
     using namespace hermitian_tridiag_util;
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");
 #endif
-    if( shape == LOWER )
+    if( uplo == LOWER )
         HermitianTridiagL( A, t );
     else
         HermitianTridiagU( A, t );

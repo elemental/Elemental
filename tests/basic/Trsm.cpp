@@ -38,12 +38,12 @@ using namespace elemental;
 void Usage()
 {
     cout << "TRiangular Solve with Multiple right-hand sides.\n\n"
-         << "  Trsm <r> <c> <side> <shape> <orientation> <unit diag?> <m> <n> "
+         << "  Trsm <r> <c> <side> <uplo> <orientation> <unit diag?> <m> <n> "
             "<nb> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  side: {L,R}\n"
-         << "  shape: {L,U}\n"
+         << "  uplo: {L,U}\n"
          << "  orientation: {N,T,C}\n"
          << "  diag?: {N,U}\n"
          << "  m: height of right-hand sides\n"
@@ -55,7 +55,7 @@ void Usage()
 template<typename F> // represents a real or complex field
 void TestTrsm
 ( bool printMatrices,
-  Side side, Shape shape, 
+  Side side, UpperOrLower uplo, 
   Orientation orientation, Diagonal diagonal,
   int m, int n, F alpha, const Grid& g )
 {
@@ -83,7 +83,7 @@ void TestTrsm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::Trsm( side, shape, orientation, diagonal, alpha, A, X );
+    basic::Trsm( side, uplo, orientation, diagonal, alpha, A, X );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -119,7 +119,7 @@ main( int argc, char* argv[] )
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
         const Side side = CharToSide(*argv[++argNum]);
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const Orientation orientation = CharToOrientation(*argv[++argNum]);
         const Diagonal diagonal = CharToDiagonal(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
@@ -140,7 +140,7 @@ main( int argc, char* argv[] )
         if( rank == 0 )
         {
             cout << "Will test Trsm" << SideToChar(side) 
-                                     << ShapeToChar(shape)
+                                     << UpperOrLowerToChar(uplo)
                                      << OrientationToChar(orientation) 
                                      << DiagonalToChar(diagonal) << endl;
         }
@@ -152,7 +152,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestTrsm<double>
-        ( printMatrices, side, shape, orientation, diagonal, 
+        ( printMatrices, side, uplo, orientation, diagonal, 
           m, n, (double)3, g );
 
 #ifndef WITHOUT_COMPLEX
@@ -163,7 +163,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestTrsm<dcomplex>
-        ( printMatrices, side, shape, orientation, diagonal, 
+        ( printMatrices, side, uplo, orientation, diagonal, 
           m, n, (dcomplex)3, g );
 #endif
     }

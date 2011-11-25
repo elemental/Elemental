@@ -9,13 +9,13 @@ triangular, and Cholesky factorization provides such an :math:`L` (or :math:`U`)
 given an HPD :math:`A`. If :math:`A` is found to be numerically indefinite, then 
 a ``NonHPDMatrixException`` will be thrown.
 
-.. cpp:function:: void advanced::Cholesky( Shape shape, Matrix<F>& A )
+.. cpp:function:: void advanced::Cholesky( UpperOrLower uplo, Matrix<F>& A )
 
-   Overwrite the `shape` triangle of the HPD matrix `A` with its Cholesky factor.
+   Overwrite the `uplo` triangle of the HPD matrix `A` with its Cholesky factor.
 
-.. cpp:function:: void advanced::Cholesky( Shape shape, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void advanced::Cholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 
-   Overwrite the `shape` triangle of the distributed HPD matrix `A` with its 
+   Overwrite the `uplo` triangle of the distributed HPD matrix `A` with its 
    Cholesky factor.
 
 :math:`LDL^H` factorization

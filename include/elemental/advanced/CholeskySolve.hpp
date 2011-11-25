@@ -34,21 +34,21 @@
 template<typename F> // F represents a real or complex field
 inline void
 elemental::advanced::CholeskySolve
-( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
+( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 {
 #ifndef RELEASE
     PushCallStack("advanced::CholeskySolve");
     if( A.Width() != B.Height() )
         throw std::logic_error("A and B do not conform");
 #endif
-    advanced::Cholesky( shape, A );
-    if( shape == LOWER )
+    advanced::Cholesky( uplo, A );
+    if( uplo == LOWER )
     {
         // B := inv(L L^H) B = inv(L)^H inv(L) B
         basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, B );
         basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, B );
     }
-    else // shape == UPPER
+    else // uplo == UPPER
     {
         // B := inv(U^H U) B = inv(U) inv(U)^H B
         basic::Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, B );

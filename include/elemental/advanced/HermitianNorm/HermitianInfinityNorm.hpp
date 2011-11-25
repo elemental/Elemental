@@ -38,12 +38,12 @@
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianInfinityNorm
-( Shape shape, const Matrix<R>& A )
+( UpperOrLower uplo, const Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::internal::HermitianOneNorm( shape, A );
+    R maxRowSum = advanced::internal::HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -54,12 +54,12 @@ elemental::advanced::internal::HermitianInfinityNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianInfinityNorm
-( Shape shape, const Matrix<std::complex<R> >& A )
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::internal::HermitianOneNorm( shape, A );
+    R maxRowSum = advanced::internal::HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -70,12 +70,12 @@ elemental::advanced::internal::HermitianInfinityNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianInfinityNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::internal::HermitianOneNorm( shape, A );
+    R maxRowSum = advanced::internal::HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -86,12 +86,12 @@ elemental::advanced::internal::HermitianInfinityNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianInfinityNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::internal::HermitianOneNorm( shape, A );
+    R maxRowSum = advanced::internal::HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif

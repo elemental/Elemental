@@ -155,7 +155,7 @@ elemental::advanced::ApplyRowPivots
 
     // Fill vectors with the send data
     const int ALDim = A.LocalLDim();
-    std::vector<F> sendData(max(1,totalSend));
+    std::vector<F> sendData(std::max(1,totalSend));
     std::vector<int> offsets(r,0);
     const int localHeight = LocalLength( b, colShift, r );
     for( int i=0; i<localHeight; ++i )

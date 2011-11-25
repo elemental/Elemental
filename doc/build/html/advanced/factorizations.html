@@ -63,15 +63,15 @@ triangular, and Cholesky factorization provides such an <img class="math" src=".
 given an HPD <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>. If <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is found to be numerically indefinite, then
 a <tt class="docutils literal"><span class="pre">NonHPDMatrixException</span></tt> will be thrown.</p>
 <dl class="function">
-<dt id="advanced::Cholesky__Shape.Matrix:F:R">
-void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big>Shape <em>shape</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__Shape.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrite the <cite>shape</cite> triangle of the HPD matrix <cite>A</cite> with its Cholesky factor.</p>
+<dt id="advanced::Cholesky__UpperOrLower.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__UpperOrLower.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the <cite>uplo</cite> triangle of the HPD matrix <cite>A</cite> with its Cholesky factor.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="advanced::Cholesky__Shape.DistMatrix:F.MC.MR:R">
-void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__Shape.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrite the <cite>shape</cite> triangle of the distributed HPD matrix <cite>A</cite> with its
+<dt id="advanced::Cholesky__UpperOrLower.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Cholesky__UpperOrLower.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the <cite>uplo</cite> triangle of the distributed HPD matrix <cite>A</cite> with its
 Cholesky factor.</p>
 </dd></dl>
 

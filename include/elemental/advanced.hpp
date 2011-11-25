@@ -84,12 +84,12 @@ namespace advanced {
 // ApplyPackedReflectors                                                      //
 //                                                                            //
 // Applies the accumulated Householder transforms that are stored in the      //
-// triangle of H specified by 'shape' to the matrix A.                        //
+// triangle of H specified by 'uplo' to the matrix A.                         //
 //                                                                            //
-// If 'shape' is set to 'LOWER', then offset determines the diagonal that the //
+// If 'uplo' is set to 'LOWER', then offset determines the diagonal that the  //
 // transforms are stored above (they are implicitly one on that diagonal).    //
 //                                                                            //
-// If 'shape' is set to 'UPPER', then offset determines the diagonal that the //
+// If 'uplo' is set to 'UPPER', then offset determines the diagonal that the  //
 // transforms are stored below (they are implicitly one on that diagonal).    //
 //                                                                            //
 // 'direction' determines whether the reflectors are stored vertically or     //
@@ -110,7 +110,8 @@ namespace advanced {
 
 template<typename R>
 void ApplyPackedReflectors
-( Side side, Shape shape, VectorDirection direction, ForwardOrBackward order,
+( Side side, UpperOrLower uplo, 
+  VectorDirection direction, ForwardOrBackward order,
   int offset,
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A );
@@ -118,7 +119,7 @@ void ApplyPackedReflectors
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void ApplyPackedReflectors
-( Side side, Shape shape,
+( Side side, UpperOrLower uplo,
   VectorDirection direction, ForwardOrBackward order, Conjugation conjugation,
   int offset,
   const DistMatrix<std::complex<R>,MC,  MR  >& H,
@@ -126,7 +127,7 @@ void ApplyPackedReflectors
         DistMatrix<std::complex<R>,MC,  MR  >& A );
 template<typename R>
 void ApplyPackedReflectors
-( Side side, Shape shape, 
+( Side side, UpperOrLower uplo, 
   VectorDirection direction, ForwardOrBackward order, Conjugation conjugation,
   int offset,
   const DistMatrix<std::complex<R>,MC,  MR  >& H,
@@ -164,15 +165,15 @@ void ApplyRowPivots
 //----------------------------------------------------------------------------//
 // Cholesky:                                                                  //
 //                                                                            //
-// Overwrite a triangle of A with the Cholesky factor of A. 'shape'           //
+// Overwrite a triangle of A with the Cholesky factor of A. 'uplo'            //
 // determines whether it is the upper or lower triangle.                      //
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void Cholesky( Shape shape, Matrix<F>& A );
+void Cholesky( UpperOrLower uplo, Matrix<F>& A );
 
 template<typename F>
-void Cholesky( Shape shape, DistMatrix<F,MC,MR>& A );
+void Cholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A );
 
 //----------------------------------------------------------------------------//
 // CholeskySolve:                                                             //
@@ -185,7 +186,7 @@ void Cholesky( Shape shape, DistMatrix<F,MC,MR>& A );
 
 template<typename F>
 void CholeskySolve
-( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
+( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
 // ComposePivots                                                              //
@@ -236,14 +237,14 @@ SafeProduct<F> SafeDeterminant( DistMatrix<F,MC,MR>& A );
 // TODO
 /*
 template<typename F>
-F HPDDeterminant( Shape shape, Matrix<F>& A );
+F HPDDeterminant( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-SafeProduct<F> SafeHPDDeterminant( Shape shape, Matrix<F>& A );
+SafeProduct<F> SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A );
 
 template<typename F>
-F HPDDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
+F HPDDeterminant( UpperOrLower uplo, DistMatrix<F,MC,MR>& A );
 template<typename F>
-SafeProduct<F> SafeHPDDeterminant( Shape shape, DistMatrix<F,MC,MR>& A );
+SafeProduct<F> SafeHPDDeterminant( UpperOrLower uplo, DistMatrix<F,MC,MR>& A );
 */
 
 //----------------------------------------------------------------------------//
@@ -265,7 +266,7 @@ void GaussianElimination( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
 // Grab the full set of eigenpairs of real symmetric A and SPD B
 template<typename R>
 void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A, 
   DistMatrix<R,MC,  MR>& B, 
   DistMatrix<R,VR,STAR>& w,
@@ -276,7 +277,7 @@ void HermitianGenDefiniteEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape,
+( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w,
@@ -286,7 +287,7 @@ void HermitianGenDefiniteEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R>
 void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape,
+( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w,
@@ -295,7 +296,7 @@ void HermitianGenDefiniteEig
 // Grab the full set of eigenvalues of real symmetric A and SPD B
 template<typename R>
 void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A, 
   DistMatrix<R,MC,  MR>& B, 
   DistMatrix<R,VR,STAR>& w );
@@ -305,7 +306,7 @@ void HermitianGenDefiniteEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape,
+( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w,
@@ -314,7 +315,7 @@ void HermitianGenDefiniteEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R>
 void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape,
+( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w,
@@ -324,7 +325,7 @@ void HermitianGenDefiniteEig
 // Grab the full set of eigenpairs of complex Hermitian A and HPD B
 template<typename R>
 void HermitianGenDefiniteEig    
-( HermitianGenDefiniteEigType type, Shape shape,
+( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
@@ -335,7 +336,7 @@ void HermitianGenDefiniteEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape,
+( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
@@ -345,7 +346,7 @@ void HermitianGenDefiniteEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R>
 void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape,
+( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
@@ -354,7 +355,7 @@ void HermitianGenDefiniteEig
 // Grab the full set of eigenvalues of complex Hermitian A and HPD B
 template<typename R>
 void HermitianGenDefiniteEig    
-( HermitianGenDefiniteEigType type, Shape shape,
+( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w );
@@ -364,7 +365,7 @@ void HermitianGenDefiniteEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 template<typename R>
 void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape,
+( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
@@ -373,7 +374,7 @@ void HermitianGenDefiniteEig
 // The partial set is determined by the half-open interval (a,b]
 template<typename R>
 void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape,
+( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
@@ -392,17 +393,17 @@ void HermitianGenDefiniteEig
 //   reduce the problem A X = B X Lambda to A X = X Lambda                    //
 //                                                                            //
 // D contains the Cholesky factor of B in the triangle corresponding to the   //
-// parameter 'shape'.                                                         //
+// parameter 'uplo'.                                                          //
 //----------------------------------------------------------------------------//
 
 template<typename F>
 void Hegst
-( Side side, Shape shape, 
+( Side side, UpperOrLower uplo, 
   Matrix<F>& A, const Matrix<F>& B );
 
 template<typename F>
 void Hegst
-( Side side, Shape shape, 
+( Side side, UpperOrLower uplo, 
   DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
@@ -412,7 +413,7 @@ void Hegst
 #ifndef WITHOUT_PMRRR
 // Grab the full set of eigenpairs of the real, symmetric matrix A
 void HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A, 
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& Z );
@@ -421,7 +422,7 @@ void HermitianEig
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 void HermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& Z,
@@ -429,14 +430,14 @@ void HermitianEig
 // Grab a partial set of eigenpairs of the real, symmetric n x n matrix A. 
 // The partial set is determined by the half-open interval (a,b]
 void HermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& Z,
   double a, double b );
 // Grab the full set of eigenvalues of the real, symmetric matrix A
 void HermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w );
 // Grab a partial set of eigenvalues of the real, symmetric n x n matrix A. 
@@ -444,21 +445,21 @@ void HermitianEig
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 void HermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   int a, int b );
 // Grab a partial set of eigenvalues of the real, symmetric n x n matrix A. 
 // The partial set is determined by the half-open interval (a,b]
 void HermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   double a, double b );
 #ifndef WITHOUT_COMPLEX
 // Grab the full set of eigenpairs of the complex, Hermitian matrix A
 void HermitianEig    
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z );
@@ -467,7 +468,7 @@ void HermitianEig
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 void HermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
@@ -475,14 +476,14 @@ void HermitianEig
 // Grab a partial set of eigenpairs of the complex, Hermitian n x n matrix A. 
 // The partial set is determined by the half-open interval (a,b]
 void HermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   double a, double b );
 // Grab the full set of eigenvalues of the complex, Hermitian matrix A
 void HermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w );
 // Grab a partial set of eigenvalues of the complex, Hermitian n x n matrix A. 
@@ -490,14 +491,14 @@ void HermitianEig
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 void HermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   int a, int b );
 // Grab a partial set of eigenvalues of the complex, Hermitian n x n matrix A. 
 // The partial set is determined by the half-open interval (a,b]
 void HermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   double a, double b );
@@ -533,7 +534,7 @@ void HouseholderSolve
 // TODO: Serial version
 
 template<typename F>
-void HPDInverse( Shape shape, DistMatrix<F,MC,MR>& A );
+void HPDInverse( UpperOrLower uplo, DistMatrix<F,MC,MR>& A );
 
 //----------------------------------------------------------------------------//
 // LDLH (LDL^H factorization):                                                //
@@ -644,23 +645,23 @@ R Norm
 
 template<typename R>
 R HermitianNorm
-( Shape shape, const Matrix<R>& A, 
+( UpperOrLower uplo, const Matrix<R>& A, 
   NormType type=FROBENIUS_NORM );
 
 template<typename R>
 R HermitianNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A, 
+( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, 
   NormType type=FROBENIUS_NORM );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 R HermitianNorm
-( Shape shape, const Matrix<std::complex<R> >& A, 
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A, 
   NormType type=FROBENIUS_NORM );
 
 template<typename R>
 R HermitianNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A, 
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A, 
   NormType type=FROBENIUS_NORM );
 #endif
 
@@ -670,23 +671,23 @@ R HermitianNorm
 
 template<typename R>
 R SymmetricNorm
-( Shape shape, const Matrix<R>& A, 
+( UpperOrLower uplo, const Matrix<R>& A, 
   NormType type=FROBENIUS_NORM );
 
 template<typename R>
 R SymmetricNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A, 
+( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, 
   NormType type=FROBENIUS_NORM );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 R SymmetricNorm
-( Shape shape, const Matrix<std::complex<R> >& A, 
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A, 
   NormType type=FROBENIUS_NORM );
 
 template<typename R>
 R SymmetricNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A, 
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A, 
   NormType type=FROBENIUS_NORM );
 #endif
 
@@ -756,7 +757,7 @@ F Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x );
 #ifndef WITHOUT_PMRRR
 // Grab the full set of eigenpairs of the real, skew-symmetric matrix G
 void SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,              MC,  MR>& G, 
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z );
@@ -765,7 +766,7 @@ void SkewHermitianEig
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 void SkewHermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
@@ -773,14 +774,14 @@ void SkewHermitianEig
 // Grab a partial set of eigenpairs of the real, skew-symmetric n x n matrix G. 
 // The partial set is determined by the half-open imaginary interval (a,b]
 void SkewHermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   double a, double b );
 // Grab the full set of eigenvalues of the real, skew-symmetric matrix G 
 void SkewHermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<double,MC,  MR>& G,
   DistMatrix<double,VR,STAR>& wImag );
 // Grab a partial set of eigenvalues of the real, skew-symmetric n x n matrix G.
@@ -788,21 +789,21 @@ void SkewHermitianEig
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 void SkewHermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<double,MC,  MR>& G,
   DistMatrix<double,VR,STAR>& wImag,
   int a, int b );
 // Grab a partial set of eigenvalues of the real, skew-symmetric n x n matrix G.
 // The partial set is determined by the half-open imaginary interval (a,b]
 void SkewHermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<double,MC,  MR>& G,
   DistMatrix<double,VR,STAR>& wImag,
   double a, double b );
 
 // Grab the full set of eigenpairs of the complex, skew-Hermitian matrix G 
 void SkewHermitianEig    
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z );
@@ -811,7 +812,7 @@ void SkewHermitianEig
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 void SkewHermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
@@ -819,14 +820,14 @@ void SkewHermitianEig
 // Grab a partial set of eigenpairs of the complex, skew-Hermitian n x n matrix
 // G. The partial set is determined by the half-open interval (a,b]
 void SkewHermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
   double a, double b );
 // Grab the full set of eigenvalues of the complex, skew-Hermitian matrix G 
 void SkewHermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag );
 // Grab a partial set of eigenvalues of the complex, skew-Hermitian n x n matrix
@@ -834,14 +835,14 @@ void SkewHermitianEig
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
 void SkewHermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   int a, int b );
 // Grab a partial set of eigenvalues of the complex, skew-Hermitian n x n matrix
 // G. The partial set is determined by the half-open imaginary interval (a,b]
 void SkewHermitianEig
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   double a, double b );
@@ -868,7 +869,7 @@ void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z );
 // tridiagonal matrix that is found by successively applying Householder      //
 // reflections to zero the matrix outside of the tridiagonal band.            //
 //                                                                            //
-// 'shape' decided which triangle of A specifies the Hermitian matrix, and on //
+// 'uplo' decided which triangle of A specifies the Hermitian matrix, and on  //
 // exit the transforms are stored above the super/sub-diagonal and are        //
 // implicitly one on the super/sub-diagonal.                                  //
 //                                                                            //
@@ -879,22 +880,22 @@ void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z );
 
 // NOTE: Currently unblocked
 template<typename R>
-void HermitianTridiag( Shape shape, Matrix<R>& A );
+void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A );
 
 #ifndef WITHOUT_COMPLEX
 // NOTE: Currently unblocked
 template<typename R>
 void HermitianTridiag
-( Shape shape, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t );
+( UpperOrLower uplo, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t );
 #endif
 
 template<typename R>
-void HermitianTridiag( Shape shape, DistMatrix<R,MC,MR>& A );
+void HermitianTridiag( UpperOrLower uplo, DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 void HermitianTridiag
-( Shape shape,
+( UpperOrLower uplo,
   DistMatrix<std::complex<R>,MC,  MR  >& A,
   DistMatrix<std::complex<R>,STAR,STAR>& t );
 #endif
@@ -923,18 +924,18 @@ F Trace( const DistMatrix<F,MC,MR>& A );
 //----------------------------------------------------------------------------//
 // TriangularInverse                                                          //
 //                                                                            //
-// Inverts a triangular matrix. 'shape' determines whether A is assumed to be //
+// Inverts a triangular matrix. 'uplo' determines whether A is assumed to be  //
 // upper or lower triangular, and 'diagonal' determines whether or not A is   //
 // to be treated as having a unit diagonal.                                   //
 //----------------------------------------------------------------------------//
 
 template<typename F>
 void TriangularInverse
-( Shape shape, Diagonal diagonal, Matrix<F>& A );
+( UpperOrLower uplo, Diagonal diagonal, Matrix<F>& A );
 
 template<typename F>
 void TriangularInverse
-( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
+( UpperOrLower uplo, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
 } // advanced
 } // elemental
@@ -970,15 +971,15 @@ void TriangularInverse
 template<typename F>
 inline void
 elemental::advanced::Cholesky
-( Shape shape, Matrix<F>& A )
+( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Cholesky");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
-    const char uplo = ShapeToChar( shape );
-    lapack::Cholesky( uplo, A.Height(), A.Buffer(), A.LDim() );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    lapack::Cholesky( uploChar, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -987,7 +988,7 @@ elemental::advanced::Cholesky
 template<typename F>
 inline void
 elemental::advanced::Hegst
-( Side side, Shape shape, Matrix<F>& A, const Matrix<F>& B )
+( Side side, UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Hegst");
@@ -999,9 +1000,9 @@ elemental::advanced::Hegst
         throw std::logic_error("A and B must be the same size");
 #endif
     const int itype = ( side==LEFT ? 2 : 1 );
-    const char uplo = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     lapack::Hegst
-    ( itype, uplo, A.Height(), 
+    ( itype, uploChar, A.Height(), 
       A.Buffer(), A.LDim(), B.LockedBuffer(), B.LDim() );
 #ifndef RELEASE
     PopCallStack();
@@ -1034,12 +1035,12 @@ elemental::advanced::LU
 template<typename R>
 inline R
 elemental::advanced::SymmetricNorm
-( Shape shape, const Matrix<R>& A, NormType type )
+( UpperOrLower uplo, const Matrix<R>& A, NormType type )
 { 
 #ifndef RELEASE
     PushCallStack("advanced::SymmetricNorm");
 #endif
-    HermitianNorm( shape, A, type );
+    HermitianNorm( uplo, A, type );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1048,12 +1049,12 @@ elemental::advanced::SymmetricNorm
 template<typename R>
 inline R
 elemental::advanced::SymmetricNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A, NormType type )
+( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, NormType type )
 { 
 #ifndef RELEASE
     PushCallStack("advanced::SymmetricNorm");
 #endif
-    HermitianNorm( shape, A, type );
+    HermitianNorm( uplo, A, type );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1063,12 +1064,12 @@ elemental::advanced::SymmetricNorm
 template<typename R>
 inline R
 elemental::advanced::SymmetricNorm
-( Shape shape, const Matrix<std::complex<R> >& A, NormType type )
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A, NormType type )
 { 
 #ifndef RELEASE
     PushCallStack("advanced::SymmetricNorm");
 #endif
-    HermitianNorm( shape, A, type );
+    HermitianNorm( uplo, A, type );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1077,12 +1078,12 @@ elemental::advanced::SymmetricNorm
 template<typename R>
 inline R
 elemental::advanced::SymmetricNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
 { 
 #ifndef RELEASE
     PushCallStack("advanced::SymmetricNorm");
 #endif
-    HermitianNorm( shape, A, type );
+    HermitianNorm( uplo, A, type );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1092,16 +1093,17 @@ elemental::advanced::SymmetricNorm
 template<typename F>
 inline void
 elemental::advanced::TriangularInverse
-( Shape shape, Diagonal diagonal, Matrix<F>& A )
+( UpperOrLower uplo, Diagonal diagonal, Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::TriangularInverse");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
-    const char uplo = ShapeToChar( shape );
-    const char diag = DiagonalToChar( diagonal );
-    lapack::TriangularInverse( uplo, diag, A.Height(), A.Buffer(), A.LDim() );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char diagChar = DiagonalToChar( diagonal );
+    lapack::TriangularInverse
+    ( uploChar, diagChar, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif

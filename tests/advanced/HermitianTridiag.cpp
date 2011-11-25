@@ -38,11 +38,11 @@ using namespace elemental;
 void Usage()
 {
     cout << "Tridiagonalizes a symmetric matrix.\n\n"
-         << "  HermitianTridiag <r> <c> <shape> <m> <nb> <local nb symv/hemv> "
+         << "  HermitianTridiag <r> <c> <uplo> <m> <nb> <local nb symv/hemv> "
             "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
-         << "  shape: {L,U}\n"
+         << "  uplo: {L,U}\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
          << "  local nb symv/hemv: local blocksize for symv/hemv\n"
@@ -53,14 +53,14 @@ void Usage()
 template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
-  Shape shape, 
+  UpperOrLower uplo, 
   const DistMatrix<R,MC,MR>& A, 
         DistMatrix<R,MC,MR>& AOrig )
 {
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     if( g.Rank() == 0 )
         cout << "Testing error..." << endl;
@@ -90,7 +90,7 @@ void TestCorrectness
     B.SetDiagonal( eOpposite, -subdiagonal );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, B );
@@ -106,14 +106,14 @@ void TestCorrectness
     }
 
     // Compare the appropriate triangle of AOrig and B
-    AOrig.MakeTrapezoidal( LEFT, shape );
-    B.MakeTrapezoidal( LEFT, shape );
+    AOrig.MakeTrapezoidal( LEFT, uplo );
+    B.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (R)-1, AOrig, B );
 
-    R infNormOfAOrig = advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
-    R frobNormOfAOrig = advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
-    R infNormOfError = advanced::HermitianNorm( shape, B, INFINITY_NORM );
-    R frobNormOfError = advanced::HermitianNorm( shape, B, FROBENIUS_NORM );
+    R infNormOfAOrig = advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
+    R frobNormOfAOrig = advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+    R infNormOfError = advanced::HermitianNorm( uplo, B, INFINITY_NORM );
+    R frobNormOfError = advanced::HermitianNorm( uplo, B, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -127,7 +127,7 @@ void TestCorrectness
 template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
-  Shape shape, 
+  UpperOrLower uplo, 
   const DistMatrix<complex<R>,MC,  MR  >& A, 
   const DistMatrix<complex<R>,STAR,STAR>& t,
         DistMatrix<complex<R>,MC,  MR  >& AOrig )
@@ -136,7 +136,7 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     if( g.Rank() == 0 )
         cout << "Testing error..." << endl;
@@ -164,7 +164,7 @@ void TestCorrectness
     B.SetRealDiagonal( eOpposite, -subdiagonal );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, 
@@ -184,14 +184,14 @@ void TestCorrectness
     }
 
     // Compare the appropriate triangle of AOrig and B
-    AOrig.MakeTrapezoidal( LEFT, shape );
-    B.MakeTrapezoidal( LEFT, shape );
+    AOrig.MakeTrapezoidal( LEFT, uplo );
+    B.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (C)-1, AOrig, B );
 
-    R infNormOfAOrig = advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
-    R frobNormOfAOrig = advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
-    R infNormOfError = advanced::HermitianNorm( shape, B, INFINITY_NORM );
-    R frobNormOfError = advanced::HermitianNorm( shape, B, FROBENIUS_NORM );
+    R infNormOfAOrig = advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
+    R frobNormOfAOrig = advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+    R infNormOfError = advanced::HermitianNorm( uplo, B, INFINITY_NORM );
+    R frobNormOfError = advanced::HermitianNorm( uplo, B, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -205,12 +205,12 @@ void TestCorrectness
 template<typename F> // represents a real or complex number
 void TestHermitianTridiag
 ( bool testCorrectness, bool printMatrices,
-  Shape shape, int m, const Grid& g );
+  UpperOrLower uplo, int m, const Grid& g );
 
 template<>
 void TestHermitianTridiag<double>
 ( bool testCorrectness, bool printMatrices,
-  Shape shape, int m, const Grid& g )
+  UpperOrLower uplo, int m, const Grid& g )
 {
     typedef double R;
 
@@ -242,7 +242,7 @@ void TestHermitianTridiag<double>
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::HermitianTridiag( shape, A );
+    advanced::HermitianTridiag( uplo, A );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -256,14 +256,14 @@ void TestHermitianTridiag<double>
     if( printMatrices )
         A.Print("A after HermitianTridiag");
     if( testCorrectness )
-        TestCorrectness( printMatrices, shape, A, AOrig );
+        TestCorrectness( printMatrices, uplo, A, AOrig );
 }
 
 #ifndef WITHOUT_COMPLEX
 template<>
-void TestHermitianTridiag< complex<double> >
+void TestHermitianTridiag<complex<double> >
 ( bool testCorrectness, bool printMatrices,
-  Shape shape, int m, const Grid& g )
+  UpperOrLower uplo, int m, const Grid& g )
 {
     typedef double R;
     typedef complex<R> C;
@@ -297,7 +297,7 @@ void TestHermitianTridiag< complex<double> >
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::HermitianTridiag( shape, A, t );
+    advanced::HermitianTridiag( uplo, A, t );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -315,7 +315,7 @@ void TestHermitianTridiag< complex<double> >
         t.Print("t after HermitianTridiag");
     }
     if( testCorrectness )
-        TestCorrectness( printMatrices, shape, A, t, AOrig );
+        TestCorrectness( printMatrices, uplo, A, t, AOrig );
 }
 #endif // WITHOUT_COMPLEX
 
@@ -339,7 +339,7 @@ main( int argc, char* argv[] )
         int argNum = 0;
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
         const int nbLocalSymv = atoi(argv[++argNum]);
@@ -361,7 +361,8 @@ main( int argc, char* argv[] )
 #endif
 
         if( rank == 0 )
-            cout << "Will test HermitianTridiag" << ShapeToChar(shape) << endl;
+            cout << "Will test HermitianTridiag" << UpperOrLowerToChar(uplo) 
+                 << endl;
 
         if( rank == 0 )
         {
@@ -371,7 +372,7 @@ main( int argc, char* argv[] )
         }
         advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianTridiag<double>
-        ( testCorrectness, printMatrices, shape, m, g );
+        ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
         {
@@ -383,7 +384,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianTridiag<double>
-        ( testCorrectness, printMatrices, shape, m, g );
+        ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
         {
@@ -395,7 +396,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianTridiag<double>
-        ( testCorrectness, printMatrices, shape, m, g );
+        ( testCorrectness, printMatrices, uplo, m, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -405,8 +406,8 @@ main( int argc, char* argv[] )
                  << "------------------------------------------" << endl;
         }
         advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianTridiag< complex<double> >
-        ( testCorrectness, printMatrices, shape, m, g );
+        TestHermitianTridiag<complex<double> >
+        ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
         {
@@ -419,7 +420,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianTridiag<complex<double> >
-        ( testCorrectness, printMatrices, shape, m, g );
+        ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
         {
@@ -432,7 +433,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianTridiag<complex<double> >
-        ( testCorrectness, printMatrices, shape, m, g );
+        ( testCorrectness, printMatrices, uplo, m, g );
 #endif
     }
     catch( exception& e )

@@ -83,7 +83,7 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVF
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
         
         int HPanHeight = H11.Height() + H21.Height();
-        int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
+        int HPanWidth = std::min( H11.Width(), std::max(HPanHeight+offset,0) );
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         RepartitionDown
@@ -150,9 +150,9 @@ template<typename R> // representation of a real number
 inline void
 elemental::advanced::internal::ApplyPackedReflectorsLLVF
 ( Conjugation conjugation, int offset, 
-  const DistMatrix<complex<R>,MC,MR  >& H,
-  const DistMatrix<complex<R>,MD,STAR>& t,
-        DistMatrix<complex<R>,MC,MR  >& A )
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::ApplyPackedReflectorsLLVF");
@@ -171,7 +171,7 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVF
     if( !t.AlignedWithDiagonal( H, offset ) )
         throw std::logic_error("t must be aligned with H's 'offset' diagonal");
 #endif
-    typedef complex<R> C;
+    typedef std::complex<R> C;
     const Grid& g = H.Grid();
 
     // Matrix views    
@@ -213,7 +213,7 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVF
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
 
         int HPanHeight = H11.Height() + H21.Height();
-        int HPanWidth = min( H11.Width(), max(HPanHeight+offset,0) );
+        int HPanWidth = std::min( H11.Width(), std::max(HPanHeight+offset,0) );
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         LockedRepartitionDown

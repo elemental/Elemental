@@ -34,7 +34,7 @@
 template<typename T>
 inline void
 elemental::basic::Syr
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& x,
                  DistMatrix<T,MC,MR>& A )
 {
@@ -75,7 +75,7 @@ elemental::basic::Syr
         x_MC_STAR = x;
         x_MR_STAR = x_MC_STAR;
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
@@ -122,7 +122,7 @@ elemental::basic::Syr
         x_STAR_MR = x;
         x_STAR_MC = x_STAR_MR;
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {

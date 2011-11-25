@@ -37,10 +37,6 @@ namespace elemental {
 
 class Timer
 {
-    bool running_;
-    double lastStartTime_;
-    double time_;
-    const std::string name_;
 public:
     Timer();
     Timer( const std::string name );
@@ -51,6 +47,12 @@ public:
 
     const std::string Name() const;
     double Time() const;
+    
+private:
+    bool running_;
+    double lastStartTime_;
+    double time_;
+    const std::string name_;
 };
 
 //----------------------------------------------------------------------------//

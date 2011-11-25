@@ -137,13 +137,17 @@ Custom datatypes
 
    An enum for specifying ``LEFT`` or ``RIGHT``.
 
-.. cpp:type:: VectorDirection
-
-   An enum for specifying ``VERTICAL`` or ``HORIZONTAL``.
-
 .. cpp:type:: ForwardOrBackward
 
    An enum for specifying ``FORWARD`` or ``BACKWARD``.
+
+.. cpp:type:: UpperOrLower
+
+   An enum for specifying ``LOWER`` or ``UPPER`` (triangular).
+
+.. cpp:type:: VectorDirection
+
+   An enum for specifying ``VERTICAL`` or ``HORIZONTAL``.
 
 .. cpp:type:: Distribution
 

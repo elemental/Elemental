@@ -76,15 +76,15 @@ inversion of a symmetric positive definite matrix&#8221;, in particular, the var
 algorithm from Fig. 9.</p>
 <p>If the matrix is found to not be HPD, then a <tt class="docutils literal"><span class="pre">NonHPDMatrixException</span></tt> is thrown.</p>
 <dl class="function">
-<dt id="advanced::HPDInverse__Shape.Matrix:F:R">
-void <tt class="descclassname">advanced::</tt><tt class="descname">HPDInverse</tt><big>(</big>Shape <em>shape</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HPDInverse__Shape.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrite the <cite>shape</cite> triangle of the HPD matrix <cite>A</cite> with the same
+<dt id="advanced::HPDInverse__UpperOrLower.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">HPDInverse</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HPDInverse__UpperOrLower.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the <cite>uplo</cite> triangle of the HPD matrix <cite>A</cite> with the same
 triangle of the inverse of <cite>A</cite>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="advanced::HPDInverse__Shape.DistMatrix:F.MC.MR:R">
-void <tt class="descclassname">advanced::</tt><tt class="descname">HPDInverse</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HPDInverse__Shape.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="advanced::HPDInverse__UpperOrLower.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">HPDInverse</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HPDInverse__UpperOrLower.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but for a distributed matrix.</p>
 </dd></dl>
 
@@ -93,15 +93,15 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">HPDInverse</t
 <h2>Triangular inversion<a class="headerlink" href="#triangular-inversion" title="Permalink to this headline">¶</a></h2>
 <p>Inverts a (possibly unit-diagonal) triangular matrix in-place.</p>
 <dl class="function">
-<dt id="advanced::TriangularInverse__Shape.Diagonal.Matrix:F:R">
-void <tt class="descclassname">advanced::</tt><tt class="descname">TriangularInverse</tt><big>(</big>Shape <em>shape</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::TriangularInverse__Shape.Diagonal.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Inverts the triangle of <cite>A</cite> specified by the parameter <cite>shape</cite>;
+<dt id="advanced::TriangularInverse__UpperOrLower.Diagonal.Matrix:F:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">TriangularInverse</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::TriangularInverse__UpperOrLower.Diagonal.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inverts the triangle of <cite>A</cite> specified by the parameter <cite>uplo</cite>;
 if <cite>diagonal</cite> is set to <cite>UNIT</cite>, then <cite>A</cite> is treated as unit-diagonal.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="advanced::TriangularInverse__Shape.Diagonal.DistMatrix:F.MC.MR:R">
-void <tt class="descclassname">advanced::</tt><tt class="descname">TriangularInverse</tt><big>(</big>Shape <em>shape</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::TriangularInverse__Shape.Diagonal.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="advanced::TriangularInverse__UpperOrLower.Diagonal.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">TriangularInverse</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::TriangularInverse__UpperOrLower.Diagonal.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but for a distributed matrix.</p>
 </dd></dl>
 

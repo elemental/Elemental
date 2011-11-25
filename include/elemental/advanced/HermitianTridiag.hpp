@@ -44,7 +44,7 @@
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianTridiag
-( Shape shape, DistMatrix<R,MC,MR>& A )
+( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianTridiag");
@@ -55,7 +55,7 @@ elemental::advanced::HermitianTridiag
     if( approach == HERMITIAN_TRIDIAG_NORMAL )
     {
         // Use the pipelined algorithm for nonsquare meshes
-        if( shape == LOWER )
+        if( uplo == LOWER )
             advanced::internal::HermitianTridiagL( A );
         else 
             advanced::internal::HermitianTridiagU( A );
@@ -91,7 +91,7 @@ elemental::advanced::HermitianTridiag
 
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
-        if( shape == LOWER )
+        if( uplo == LOWER )
             advanced::internal::HermitianTridiagLSquare( ASquare );
         else
             advanced::internal::HermitianTridiagUSquare( ASquare ); 
@@ -105,14 +105,14 @@ elemental::advanced::HermitianTridiag
         // grid, in which case we use the fast square method.
         if( g.Height() == g.Width() )
         {
-            if( shape == LOWER )
+            if( uplo == LOWER )
                 advanced::internal::HermitianTridiagLSquare( A );
             else
                 advanced::internal::HermitianTridiagUSquare( A );
         }
         else
         {
-            if( shape == LOWER )
+            if( uplo == LOWER )
                 advanced::internal::HermitianTridiagL( A );
             else
                 advanced::internal::HermitianTridiagU( A );
@@ -127,7 +127,7 @@ elemental::advanced::HermitianTridiag
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianTridiag
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR  >& A,
   DistMatrix<std::complex<R>,STAR,STAR>& t )
 {
@@ -142,7 +142,7 @@ elemental::advanced::HermitianTridiag
     if( approach == HERMITIAN_TRIDIAG_NORMAL )
     {
         // Use the pipelined algorithm for nonsquare meshes
-        if( shape == LOWER )
+        if( uplo == LOWER )
             advanced::internal::HermitianTridiagL( A, t );
         else
             advanced::internal::HermitianTridiagU( A, t );
@@ -179,7 +179,7 @@ elemental::advanced::HermitianTridiag
 
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
-        if( shape == LOWER )
+        if( uplo == LOWER )
             advanced::internal::HermitianTridiagLSquare( ASquare, tSquare );
         else
             advanced::internal::HermitianTridiagUSquare( ASquare, tSquare ); 
@@ -194,14 +194,14 @@ elemental::advanced::HermitianTridiag
         // grid, in which case we use the fast square method.
         if( g.Height() == g.Width() )
         {
-            if( shape == LOWER )
+            if( uplo == LOWER )
                 advanced::internal::HermitianTridiagLSquare( A, t );
             else
                 advanced::internal::HermitianTridiagUSquare( A, t ); 
         }
         else
         {
-            if( shape == LOWER )
+            if( uplo == LOWER )
                 advanced::internal::HermitianTridiagL( A, t );
             else
                 advanced::internal::HermitianTridiagU( A, t );

@@ -32,7 +32,6 @@
 */
 
 namespace elemental {
-using namespace std;
 
 template<typename T>
 template<typename Z>
@@ -44,7 +43,7 @@ DistMatrix<T,STAR,STAR>::SetToRandomHermitianHelper<Z>::Func
     PushCallStack("[* ,* ]::SetToRandomHermitian");
     parent.AssertNotLockedView();
     if( parent.Height() != parent.Width() )
-        throw logic_error( "Hermitian matrices must be square." );
+        throw std::logic_error("Hermitian matrices must be square");
 #endif
     if( parent.Grid().InGrid() )
         parent.SetToRandom();
@@ -57,14 +56,14 @@ DistMatrix<T,STAR,STAR>::SetToRandomHermitianHelper<Z>::Func
 template<typename T>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::SetToRandomHermitianHelper<complex<Z> >::
-Func( DistMatrix<complex<Z>,STAR,STAR>& parent )
+DistMatrix<T,STAR,STAR>::SetToRandomHermitianHelper<std::complex<Z> >::
+Func( DistMatrix<std::complex<Z>,STAR,STAR>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHermitian");
     parent.AssertNotLockedView();
     if( parent.Height() != parent.Width() )
-        throw logic_error( "Hermitian matrices must be square." );
+        throw std::logic_error("Hermitian matrices must be square");
 #endif
     if( parent.Grid().InGrid() )
     {
@@ -73,12 +72,12 @@ Func( DistMatrix<complex<Z>,STAR,STAR>& parent )
 
         parent.SetToRandom();
 
-        complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
         const int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int j=0; j<min(height,width); ++j )
+        for( int j=0; j<std::min(height,width); ++j )
         {
             const Z value = real(thisLocalBuffer[j+j*thisLDim]);
             thisLocalBuffer[j+j*thisLDim] = value;
@@ -100,7 +99,7 @@ DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<Z>::Func
     PushCallStack("[* ,* ]::SetToRandomHPD");
     parent.AssertNotLockedView();
     if( parent.Height() != parent.Width() )
-        throw logic_error( "Positive-definite matrices must be square." );
+        throw std::logic_error("Positive-definite matrices must be square");
 #endif
     if( parent.Grid().InGrid() )
     {
@@ -114,7 +113,7 @@ DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<Z>::Func
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int j=0; j<min(height,width); ++j )
+        for( int j=0; j<std::min(height,width); ++j )
             thisLocalBuffer[j+j*thisLDim] += width;
     }
 #ifndef RELEASE
@@ -126,14 +125,14 @@ DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<Z>::Func
 template<typename T>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,STAR,STAR>& parent )
+DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,STAR,STAR>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHPD");
     parent.AssertNotLockedView();
     if( parent.Height() != parent.Width() )
-        throw logic_error( "Positive-definite matrices must be square." );
+        throw std::logic_error("Positive-definite matrices must be square");
 #endif
     if( parent.Grid().InGrid() )
     {
@@ -142,12 +141,12 @@ DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<complex<Z> >::Func
 
         parent.SetToRandom();
 
-        complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
         const int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int j=0; j<min(height,width); ++j )
+        for( int j=0; j<std::min(height,width); ++j )
         {
             const Z value = real(thisLocalBuffer[j+j*thisLDim]);
             thisLocalBuffer[j+j*thisLDim] = value + width;
@@ -161,8 +160,8 @@ DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<complex<Z> >::Func
 template<typename T>
 template<typename Z>
 inline Z
-DistMatrix<T,STAR,STAR>::GetRealHelper<complex<Z> >::Func
-( const DistMatrix<complex<Z>,STAR,STAR>& parent, int i, int j ) 
+DistMatrix<T,STAR,STAR>::GetRealHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j ) 
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::GetReal");
@@ -194,8 +193,8 @@ DistMatrix<T,STAR,STAR>::GetRealHelper<complex<Z> >::Func
 template<typename T>
 template<typename Z>
 inline Z
-DistMatrix<T,STAR,STAR>::GetImagHelper<complex<Z> >::Func
-( const DistMatrix<complex<Z>,STAR,STAR>& parent, int i, int j ) 
+DistMatrix<T,STAR,STAR>::GetImagHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j ) 
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::GetImag");
@@ -227,8 +226,8 @@ DistMatrix<T,STAR,STAR>::GetImagHelper<complex<Z> >::Func
 template<typename T>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::SetRealHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
+DistMatrix<T,STAR,STAR>::SetRealHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetReal");
@@ -244,8 +243,8 @@ DistMatrix<T,STAR,STAR>::SetRealHelper<complex<Z> >::Func
 template<typename T>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::SetImagHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
+DistMatrix<T,STAR,STAR>::SetImagHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetImag");
@@ -261,8 +260,8 @@ DistMatrix<T,STAR,STAR>::SetImagHelper<complex<Z> >::Func
 template<typename T>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::UpdateRealHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
+DistMatrix<T,STAR,STAR>::UpdateRealHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::UpdateReal");
@@ -278,8 +277,8 @@ DistMatrix<T,STAR,STAR>::UpdateRealHelper<complex<Z> >::Func
 template<typename T>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::UpdateImagHelper<complex<Z> >::Func
-( DistMatrix<complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
+DistMatrix<T,STAR,STAR>::UpdateImagHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::UpdateImag");

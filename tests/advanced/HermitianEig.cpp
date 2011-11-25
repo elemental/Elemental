@@ -40,7 +40,7 @@ void Usage()
     cout << "Generates random Hermitian matrix then solves for its eigenpairs."
 	     << "\n\n"
          << "  HermitianEig <r> <c> <only eigenvalues?> <range> <a> <b> "
-            "<shape> <m> <nb> <local nb symv/hemv> "
+            "<uplo> <m> <nb> <local nb symv/hemv> "
             "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
@@ -51,7 +51,7 @@ void Usage()
             "     if range=='V', lower-bound on eigenvalues\n"
          << "  b: if range=='I', 0-indexed last eigenpair to compute\n"
             "     if range=='V', upper-bound on eigenvalues\n"
-         << "  shape: L/U\n"
+         << "  uplo: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
          << "  local nb symv/hemv: local blocksize for symv/hemv\n"
@@ -61,7 +61,7 @@ void Usage()
 
 void TestCorrectnessDouble
 ( bool printMatrices,
-  Shape shape,
+  UpperOrLower uplo,
   const DistMatrix<double,MC,  MR>& A,
   const DistMatrix<double,VR,STAR>& w,
   const DistMatrix<double,MC,  MR>& Z,
@@ -86,7 +86,7 @@ void TestCorrectnessDouble
         cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<double,MC,MR> X(k,k,g);
     X.SetToIdentity();
-    basic::Herk( shape, ADJOINT, (double)-1, Z, (double)1, X );
+    basic::Herk( uplo, ADJOINT, (double)-1, Z, (double)1, X );
     double oneNormOfError = advanced::Norm( X, ONE_NORM );
     double infNormOfError = advanced::Norm( X, INFINITY_NORM );
     double frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
@@ -100,7 +100,7 @@ void TestCorrectnessDouble
     // Set X := AZ
     X.AlignWith( Z );
     X.ResizeTo( n, k );
-    basic::Hemm( LEFT, shape, (double)1, AOrig, Z, (double)0, X );
+    basic::Hemm( LEFT, uplo, (double)1, AOrig, Z, (double)0, X );
     // Set X := X - ZW = AZ - ZW
     for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
     {
@@ -114,9 +114,9 @@ void TestCorrectnessDouble
     }
     // Find the infinity norms of A, Z, and AZ-ZW
     double infNormOfA = 
-        advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+        advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
     double frobNormOfA = 
-        advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+        advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
     double oneNormOfZ = advanced::Norm( Z, ONE_NORM );
     double infNormOfZ = advanced::Norm( Z, INFINITY_NORM );
     double frobNormOfZ = advanced::Norm( Z, FROBENIUS_NORM );
@@ -139,7 +139,7 @@ void TestCorrectnessDouble
 #ifndef WITHOUT_COMPLEX
 void TestCorrectnessDoubleComplex
 ( bool printMatrices,
-  Shape shape,
+  UpperOrLower uplo,
   const DistMatrix<complex<double>,MC,  MR>& A,
   const DistMatrix<        double, VR,STAR>& w,
   const DistMatrix<complex<double>,MC,  MR>& Z,
@@ -164,7 +164,7 @@ void TestCorrectnessDoubleComplex
     DistMatrix<complex<double>,MC,MR> X( k, k, g );
     X.SetToIdentity();
     basic::Herk
-    ( shape, ADJOINT, 
+    ( uplo, ADJOINT, 
       complex<double>(-1), Z, 
       complex<double>(1), X );
     double oneNormOfError = advanced::Norm( X, ONE_NORM );
@@ -181,7 +181,7 @@ void TestCorrectnessDoubleComplex
     X.AlignWith( Z );
     X.ResizeTo( n, k );
     basic::Hemm
-    ( LEFT, shape, 
+    ( LEFT, uplo, 
       complex<double>(1), AOrig, Z, 
       complex<double>(0), X );
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
@@ -197,9 +197,9 @@ void TestCorrectnessDoubleComplex
     }
     // Find the infinity norms of A, Z, and AZ-ZW
     double infNormOfA = 
-        advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+        advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
     double frobNormOfA = 
-        advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+        advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
     double oneNormOfZ = advanced::Norm( Z, ONE_NORM );
     double infNormOfZ = advanced::Norm( Z, INFINITY_NORM );
     double frobNormOfZ = advanced::Norm( Z, FROBENIUS_NORM );
@@ -222,7 +222,7 @@ void TestCorrectnessDoubleComplex
 
 void TestHermitianEigDouble
 ( bool testCorrectness, bool printMatrices,
-  bool onlyEigenvalues, char range, Shape shape, int m, 
+  bool onlyEigenvalues, char range, UpperOrLower uplo, int m, 
   double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
@@ -256,20 +256,20 @@ void TestHermitianEigDouble
     if( onlyEigenvalues )
     {
         if( range == 'A' )
-            advanced::HermitianEig( shape, A, w );
+            advanced::HermitianEig( uplo, A, w );
         else if( range == 'I' )
-            advanced::HermitianEig( shape, A, w, il, iu );
+            advanced::HermitianEig( uplo, A, w, il, iu );
         else
-            advanced::HermitianEig( shape, A, w, vl, vu );
+            advanced::HermitianEig( uplo, A, w, vl, vu );
     }
     else
     {
         if( range == 'A' )
-            advanced::HermitianEig( shape, A, w, Z );
+            advanced::HermitianEig( uplo, A, w, Z );
         else if( range == 'I' )
-            advanced::HermitianEig( shape, A, w, Z, il, iu );
+            advanced::HermitianEig( uplo, A, w, Z, il, iu );
         else
-            advanced::HermitianEig( shape, A, w, Z, vl, vu );
+            advanced::HermitianEig( uplo, A, w, Z, vl, vu );
     }
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
@@ -287,14 +287,14 @@ void TestHermitianEigDouble
     }
     if( testCorrectness && !onlyEigenvalues )
     {
-        TestCorrectnessDouble( printMatrices, shape, A, w, Z, AOrig );
+        TestCorrectnessDouble( printMatrices, uplo, A, w, Z, AOrig );
     }
 }
     
 #ifndef WITHOUT_COMPLEX
 void TestHermitianEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
-  bool onlyEigenvalues, char range, Shape shape, int m, 
+  bool onlyEigenvalues, char range, UpperOrLower uplo, int m, 
   double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
@@ -330,20 +330,20 @@ void TestHermitianEigDoubleComplex
     if( onlyEigenvalues )
     {
         if( range == 'A' )
-            advanced::HermitianEig( shape, A, w );
+            advanced::HermitianEig( uplo, A, w );
         else if( range == 'I' )
-            advanced::HermitianEig( shape, A, w, il, iu );
+            advanced::HermitianEig( uplo, A, w, il, iu );
         else
-            advanced::HermitianEig( shape, A, w, vl, vu );
+            advanced::HermitianEig( uplo, A, w, vl, vu );
     }
     else
     {
         if( range == 'A' )
-            advanced::HermitianEig( shape, A, w, Z );
+            advanced::HermitianEig( uplo, A, w, Z );
         else if( range == 'I' )
-            advanced::HermitianEig( shape, A, w, Z, il, iu );
+            advanced::HermitianEig( uplo, A, w, Z, il, iu );
         else
-            advanced::HermitianEig( shape, A, w, Z, vl, vu );
+            advanced::HermitianEig( uplo, A, w, Z, vl, vu );
     }
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
@@ -361,7 +361,7 @@ void TestHermitianEigDoubleComplex
     }
     if( testCorrectness && !onlyEigenvalues )
     {
-        TestCorrectnessDoubleComplex( printMatrices, shape, A, w, Z, AOrig );
+        TestCorrectnessDoubleComplex( printMatrices, uplo, A, w, Z, AOrig );
     }
 }
 #endif // WITHOUT_COMPLEX
@@ -406,7 +406,7 @@ main( int argc, char* argv[] )
         {
             argNum += 2;
         }
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
         const int nbLocalSymv = atoi(argv[++argNum]);
@@ -436,7 +436,7 @@ main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "Will test " << ( shape==LOWER ? "lower" : "upper" )
+            cout << "Will test " << ( uplo==LOWER ? "lower" : "upper" )
                  << " HermitianEig." << endl;
         }
 
@@ -449,7 +449,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, shape, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -462,7 +462,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, shape, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
  
         if( rank == 0 )
         {
@@ -475,7 +475,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, shape, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -488,7 +488,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, shape, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -502,7 +502,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, shape, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -516,7 +516,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, shape, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
 #endif 
     }
     catch( exception& e )

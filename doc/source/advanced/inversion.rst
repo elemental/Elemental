@@ -27,12 +27,12 @@ algorithm from Fig. 9.
 
 If the matrix is found to not be HPD, then a ``NonHPDMatrixException`` is thrown.
 
-.. cpp:function:: void advanced::HPDInverse( Shape shape, Matrix<F>& A )
+.. cpp:function:: void advanced::HPDInverse( UpperOrLower uplo, Matrix<F>& A )
 
-   Overwrite the `shape` triangle of the HPD matrix `A` with the same 
+   Overwrite the `uplo` triangle of the HPD matrix `A` with the same 
    triangle of the inverse of `A`.
 
-.. cpp:function:: void advanced::HPDInverse( Shape shape, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void advanced::HPDInverse( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 
    Same as above, but for a distributed matrix.
 
@@ -41,11 +41,11 @@ Triangular inversion
 --------------------
 Inverts a (possibly unit-diagonal) triangular matrix in-place.
 
-.. cpp:function:: void advanced::TriangularInverse( Shape shape, Diagonal diagonal, Matrix<F>& A )
+.. cpp:function:: void advanced::TriangularInverse( UpperOrLower uplo, Diagonal diagonal, Matrix<F>& A )
 
-   Inverts the triangle of `A` specified by the parameter `shape`; 
+   Inverts the triangle of `A` specified by the parameter `uplo`; 
    if `diagonal` is set to `UNIT`, then `A` is treated as unit-diagonal.
 
-.. cpp:function:: void advanced::TriangularInverse( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void advanced::TriangularInverse( UpperOrLower uplo, Diagonal diagonal, DistMatrix<F,MC,MR>& A )
 
    Same as above, but for a distributed matrix.

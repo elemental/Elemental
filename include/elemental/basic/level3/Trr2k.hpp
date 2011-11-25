@@ -46,7 +46,7 @@
 template<typename T>
 inline void
 elemental::basic::Trr2k
-( Shape shape, 
+( UpperOrLower uplo, 
   Orientation orientationOfA,
   Orientation orientationOfB,
   Orientation orientationOfC,
@@ -62,7 +62,7 @@ elemental::basic::Trr2k
 #endif
     throw std::logic_error("basic::Trr2k is not yet written");
     /*
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         // TODO
     }

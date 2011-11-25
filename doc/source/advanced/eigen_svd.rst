@@ -38,22 +38,22 @@ Paolo Bientinesi's PMRRR for the tridiagonal eigenvalue problem.
 Full spectrum computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w )
 
    Compute the full set of eigenvalues of the double-precision real symmetric 
    distributed matrix `A`.
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w )
 
    Compute the full set of eigenvalues of the double-precision complex
    Hermitian distributed matrix `A`.
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
 
    Compute the full set of eigenpairs of the double-precision real symmetric 
    distributed matrix `A`.
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
 
    Compute the full set of eigenpairs of the double-precision complex Hermitian
    distributed matrix `A`.
@@ -61,22 +61,22 @@ Full spectrum computation
 Index-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, int a, int b )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, int a, int b )
 
    Compute the eigenvalues of a double-precision real symmetric distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, int a, int b )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, int a, int b )
 
    Compute the eigenvalues of a double-precision complex Hermitian distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z, int a, int b )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z, int a, int b )
 
    Compute the eigenpairs of a double-precision real symmetric distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
 
    Compute the eigenpairs of a double-precision complex Hermitian distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
@@ -84,22 +84,22 @@ Index-based subset computation
 Range-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, double a, double b )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, double a, double b )
 
    Compute the eigenvalues of a double-precision real symmetric distributed 
    matrix `A` lying in the half-open interval :math:`(a,b]`.
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, double a, double b )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, double a, double b )
 
    Compute the eigenvalues of a double-precision complex Hermitian distributed 
    matrix `A` lying in the half-open interval :math:`(a,b]`.
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z, double a, double b )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z, double a, double b )
 
    Compute the eigenpairs of a double-precision real symmetric distributed 
    matrix `A` with eigenvalues lying in the half-open interval :math:`(a,b]`.
 
-.. cpp:function:: void advanced::HermitianEig( Shape shape, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void advanced::HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
 
    Compute the eigenpairs of a double-precision complex Hermitian distributed 
    matrix `A` with eigenvalues lying in the half-open interval :math:`(a,b]`.

@@ -109,7 +109,7 @@ elemental::basic::internal::LocalHemvColAccumulateL
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const int ratio = max( g.Height(), g.Width() );
+    const int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*LocalHemvBlocksize<T>() );
                  
     LockedPartitionDownDiagonal
@@ -302,7 +302,7 @@ elemental::basic::internal::LocalHemvRowAccumulateL
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const int ratio = max( g.Height(), g.Width() );
+    const int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*LocalHemvBlocksize<T>() );
                  
     LockedPartitionDownDiagonal

@@ -39,7 +39,7 @@
 template<typename T>
 inline void
 elemental::basic::Herk
-( Shape shape, 
+( UpperOrLower uplo, 
   Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -53,9 +53,9 @@ elemental::basic::Herk
         throw std::logic_error
         ("Herk accepts NORMAL and ADJOINT options");
 #endif
-    if( shape == LOWER && orientation == NORMAL )
+    if( uplo == LOWER && orientation == NORMAL )
         basic::internal::HerkLN( alpha, A, beta, C );
-    else if( shape == LOWER )
+    else if( uplo == LOWER )
         basic::internal::HerkLC( alpha, A, beta, C );
     else if( orientation == NORMAL )
         basic::internal::HerkUN( alpha, A, beta, C );

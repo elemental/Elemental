@@ -45,7 +45,7 @@ template<typename T>
 inline void
 elemental::basic::Trmm
 ( Side side, 
-  Shape shape, 
+  UpperOrLower uplo, 
   Orientation orientation, 
   Diagonal diagonal,
   T alpha, 
@@ -55,7 +55,7 @@ elemental::basic::Trmm
 #ifndef RELEASE
     PushCallStack("basic::Trmm");
 #endif
-    if( side == LEFT && shape == LOWER )
+    if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
             basic::internal::TrmmLLN( diagonal, alpha, A, X );
@@ -69,7 +69,7 @@ elemental::basic::Trmm
         else
             basic::internal::TrmmLUT( orientation, diagonal, alpha, A, X );
     }
-    else if( shape == LOWER )
+    else if( uplo == LOWER )
     {
         if( orientation == NORMAL )
             basic::internal::TrmmRLN( diagonal, alpha, A, X );

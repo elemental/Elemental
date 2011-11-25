@@ -52,7 +52,8 @@
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::ApplyPackedReflectors
-( Side side, Shape shape, VectorDirection direction, ForwardOrBackward order,
+( Side side, UpperOrLower uplo, 
+  VectorDirection direction, ForwardOrBackward order,
   int offset,
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A )
@@ -62,7 +63,7 @@ elemental::advanced::ApplyPackedReflectors
 #endif
     if( side == LEFT )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLLVF( offset, H, A );
@@ -87,7 +88,7 @@ elemental::advanced::ApplyPackedReflectors
     }
     else
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRLVF( offset, H, A );
@@ -119,19 +120,20 @@ elemental::advanced::ApplyPackedReflectors
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::ApplyPackedReflectors
-( Side side, Shape shape, VectorDirection direction, ForwardOrBackward order, 
+( Side side, UpperOrLower uplo, 
+  VectorDirection direction, ForwardOrBackward order, 
   Conjugation conjugation,
   int offset,
-  const DistMatrix<complex<R>,MC,MR  >& H, 
-  const DistMatrix<complex<R>,MD,STAR>& t,
-        DistMatrix<complex<R>,MC,MR  >& A )
+  const DistMatrix<std::complex<R>,MC,MR  >& H, 
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::ApplyPackedReflectors");
 #endif
     if( side == LEFT )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsLLVF
@@ -164,7 +166,7 @@ elemental::advanced::ApplyPackedReflectors
     }
     else
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
                 advanced::internal::ApplyPackedReflectorsRLVF
@@ -203,21 +205,22 @@ elemental::advanced::ApplyPackedReflectors
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::ApplyPackedReflectors
-( Side side, Shape shape, VectorDirection direction, ForwardOrBackward order,
+( Side side, UpperOrLower uplo, 
+  VectorDirection direction, ForwardOrBackward order,
   Conjugation conjugation,
   int offset,
-  const DistMatrix<complex<R>,MC,  MR  >& H, 
-  const DistMatrix<complex<R>,STAR,STAR>& t,
-        DistMatrix<complex<R>,MC,  MR  >& A )
+  const DistMatrix<std::complex<R>,MC,  MR  >& H, 
+  const DistMatrix<std::complex<R>,STAR,STAR>& t,
+        DistMatrix<std::complex<R>,MC,  MR  >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::ApplyPackedReflectors");
 #endif
-    DistMatrix<complex<R>,MD,STAR> tDiag(A.Grid());
+    DistMatrix<std::complex<R>,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );
     tDiag = t;
     advanced::ApplyPackedReflectors
-    ( side, shape, direction, order, conjugation, offset, H, tDiag, A );
+    ( side, uplo, direction, order, conjugation, offset, H, tDiag, A );
 #ifndef RELEASE
     PopCallStack();
 #endif

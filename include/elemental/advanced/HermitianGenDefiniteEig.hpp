@@ -37,7 +37,7 @@
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w,
@@ -51,19 +51,19 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w, X );
     if( type == AXBX || type == ABX )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
             basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
             basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
@@ -80,7 +80,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w,
@@ -95,19 +95,19 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X, a, b );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
             basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
             basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
@@ -122,7 +122,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w,
@@ -137,19 +137,19 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X, a, b );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
             basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
             basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
@@ -163,7 +163,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w )
@@ -176,9 +176,9 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -191,7 +191,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w,
@@ -205,9 +205,9 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, a, b );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -218,7 +218,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w,
@@ -232,9 +232,9 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, a, b );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -245,7 +245,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
@@ -259,12 +259,12 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w, X );
     if( type == AXBX || type == ABX )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trsm
             ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -273,7 +273,7 @@ elemental::advanced::HermitianGenDefiniteEig
     }
     else /* type == BAX */
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trmm
             ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -292,7 +292,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
@@ -307,12 +307,12 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X, a, b );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trsm
             ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -321,7 +321,7 @@ elemental::advanced::HermitianGenDefiniteEig
     }
     else /* type == BAX */
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trmm
             ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -338,7 +338,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
@@ -353,12 +353,12 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, X, a, b );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trsm
             ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -367,7 +367,7 @@ elemental::advanced::HermitianGenDefiniteEig
     }
     else /* type == BAX */
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trmm
             ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
@@ -383,7 +383,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w )
@@ -396,9 +396,9 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -411,7 +411,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
@@ -425,9 +425,9 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, a, b );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -438,7 +438,7 @@ elemental::advanced::HermitianGenDefiniteEig
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, Shape shape, 
+( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
@@ -452,9 +452,9 @@ elemental::advanced::HermitianGenDefiniteEig
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( shape, B );
-    advanced::Hegst( side, shape, A, B );
-    advanced::HermitianEig( shape, A, w, a, b );
+    advanced::Cholesky( uplo, B );
+    advanced::Hegst( side, uplo, A, B );
+    advanced::HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif

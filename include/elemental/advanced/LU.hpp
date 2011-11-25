@@ -149,7 +149,7 @@ elemental::advanced::LU
     DistMatrix<int,STAR,STAR> p1_STAR_STAR(g);
 
     // Pivot composition
-    vector<int> image, preimage;
+    std::vector<int> image, preimage;
 
     // Start the algorithm
     PartitionDownDiagonal

@@ -38,12 +38,12 @@ using namespace elemental;
 void Usage()
 {
     cout << "Tests UT transform application.\n\n"
-         << "  ApplyPackedReflectors <r> <c> <side> <shape> <order> "
+         << "  ApplyPackedReflectors <r> <c> <side> <uplo> <order> "
             "<conjugation> <m> <offset> <nb> <correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  side: {L/R}\n"
-         << "  shape: {L/U}\n"
+         << "  uplo: {L/U}\n"
          << "  order: {0/1} for {forward/backward}\n"
          << "  conjugation: {0/1} for {Unconjugated/Conjugated}\n"
          << "  m: height of matrix\n"
@@ -56,7 +56,7 @@ void Usage()
 template<typename R> // represents a real number
 void TestCorrectness
 ( Side side, 
-  Shape shape,
+  UpperOrLower uplo,
   ForwardOrBackward order,
   int offset,
   bool printMatrices,
@@ -72,7 +72,7 @@ void TestCorrectness
     DistMatrix<R,MC,MR> Y(m,m,g);
     Y.SetToIdentity();
     advanced::ApplyPackedReflectors
-    ( side, shape, VERTICAL, order, offset, H, Y );
+    ( side, uplo, VERTICAL, order, offset, H, Y );
     if( printMatrices )
     {
         DistMatrix<R,MC,MR> W(m,m,g);
@@ -80,21 +80,21 @@ void TestCorrectness
         if( order == FORWARD )
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, VERTICAL, BACKWARD, offset, H, W );
+            ( side, uplo, VERTICAL, BACKWARD, offset, H, W );
             Y.Print("Q");
             W.Print("Q^H");
         }
         else
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, VERTICAL, FORWARD, offset, H, W );
+            ( side, uplo, VERTICAL, FORWARD, offset, H, W );
             Y.Print("Q^H");
             W.Print("Q");
         }
     }
     DistMatrix<R,MC,MR> Z(m,m,g);
     Z.SetToZero();
-    basic::Syrk( shape, NORMAL, 1.0, Y, 0.0, Z );
+    basic::Syrk( uplo, NORMAL, 1.0, Y, 0.0, Z );
 
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<R,MC,MR> X(m,m,g);
@@ -132,7 +132,7 @@ void TestCorrectness
 template<typename R> // represents a real number
 void TestCorrectness
 ( Side side,
-  Shape shape,
+  UpperOrLower uplo,
   ForwardOrBackward order,
   Conjugation conjugation,
   int offset,
@@ -152,7 +152,7 @@ void TestCorrectness
     DistMatrix<C,MC,MR> Y(m,m,g);
     Y.SetToIdentity();
     advanced::ApplyPackedReflectors
-    ( side, shape, VERTICAL, order, conjugation, offset, H, t, Y );
+    ( side, uplo, VERTICAL, order, conjugation, offset, H, t, Y );
     if( printMatrices )
     {
         DistMatrix<C,MC,MR> W(m,m,g);
@@ -160,21 +160,21 @@ void TestCorrectness
         if( order == FORWARD )
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, VERTICAL, BACKWARD, conjugation, offset, H, t, W );
+            ( side, uplo, VERTICAL, BACKWARD, conjugation, offset, H, t, W );
             Y.Print("Q");
             W.Print("Q^H");
         }
         else
         {
             advanced::ApplyPackedReflectors
-            ( side, shape, VERTICAL, FORWARD, conjugation, offset, H, t, W );
+            ( side, uplo, VERTICAL, FORWARD, conjugation, offset, H, t, W );
             Y.Print("Q^H");
             W.Print("Q");
         }
     }
     DistMatrix<C,MC,MR> Z(m,m,g);
     Z.SetToZero();
-    basic::Herk( shape, NORMAL, (C)1, Y, (C)0, Z );
+    basic::Herk( uplo, NORMAL, (C)1, Y, (C)0, Z );
     
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<C,MC,MR> X(m,m,g);
@@ -212,13 +212,13 @@ void TestCorrectness
 
 template<typename F> // represents a real or complex number
 void TestUT
-( Side side, Shape shape, ForwardOrBackward order, Conjugation conjugation,
+( Side side, UpperOrLower uplo, ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g );
 
 template<>
 void TestUT<double>
-( Side side, Shape shape, ForwardOrBackward order, Conjugation conjugation,
+( Side side, UpperOrLower uplo, ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
@@ -247,7 +247,7 @@ void TestUT<double>
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::ApplyPackedReflectors
-    ( side, shape, VERTICAL, order, offset, H, A );
+    ( side, uplo, VERTICAL, order, offset, H, A );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -261,13 +261,13 @@ void TestUT<double>
     if( printMatrices )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( side, shape, order, offset, printMatrices, H );
+        TestCorrectness( side, uplo, order, offset, printMatrices, H );
 }
 
 #ifndef WITHOUT_COMPLEX
 template<>
 void TestUT< complex<double> >
-( Side side, Shape shape, ForwardOrBackward order, Conjugation conjugation,
+( Side side, UpperOrLower uplo, ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
@@ -288,7 +288,7 @@ void TestUT< complex<double> >
     H.SetToRandom();
     A.SetToRandom();
     DistMatrix<C,MC,MR> HCol(g);
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         for( int i=0; i<t.Height(); ++i )
         {
@@ -326,7 +326,7 @@ void TestUT< complex<double> >
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     advanced::ApplyPackedReflectors
-    ( side, shape, VERTICAL, order, conjugation, offset, H, t, A );
+    ( side, uplo, VERTICAL, order, conjugation, offset, H, t, A );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -342,7 +342,7 @@ void TestUT< complex<double> >
     if( testCorrectness )
     {
         TestCorrectness
-        ( side, shape, order, conjugation, offset, printMatrices, H, t );
+        ( side, uplo, order, conjugation, offset, printMatrices, H, t );
     }
 }
 #endif
@@ -368,7 +368,7 @@ main( int argc, char* argv[] )
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
         const Side side = CharToSide(*argv[++argNum]);
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const ForwardOrBackward order = 
             ( atoi(argv[++argNum]) ? FORWARD : BACKWARD );
         const Conjugation conjugation = 
@@ -378,10 +378,10 @@ main( int argc, char* argv[] )
         const int nb = atoi(argv[++argNum]);
         const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
-        if( shape == LOWER && offset > 0 )
+        if( uplo == LOWER && offset > 0 )
             throw runtime_error
             ("Offset cannot be positive if transforms are in lower triangle");
-        else if( shape == UPPER && offset < 0 )
+        else if( uplo == UPPER && offset < 0 )
             throw runtime_error
             ("Offset cannot be negative if transforms are in upper triangle");
 #ifndef RELEASE
@@ -405,7 +405,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestUT<double>
-        ( side, shape, order, conjugation, m, offset, 
+        ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
 
 #ifndef WITHOUT_COMPLEX
@@ -416,7 +416,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestUT<dcomplex>
-        ( side, shape, order, conjugation, m, offset, 
+        ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
 #endif
     }

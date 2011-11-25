@@ -37,14 +37,14 @@
 template<typename F> // represents a real or complex number
 inline void
 elemental::advanced::TriangularInverse
-( Shape shape, 
+( UpperOrLower uplo, 
   Diagonal diagonal, 
   DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
     PushCallStack("advanced::TriangularInverse");
 #endif
-    advanced::internal::TriangularInverseVar3( shape, diagonal, A );
+    advanced::internal::TriangularInverseVar3( uplo, diagonal, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -53,14 +53,14 @@ elemental::advanced::TriangularInverse
 template<typename F>
 inline void
 elemental::advanced::internal::TriangularInverseVar3
-( Shape shape, 
+( UpperOrLower uplo, 
   Diagonal diagonal, 
   DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::TriangularInverseVar3");
 #endif
-    if( shape == LOWER )
+    if( uplo == LOWER )
         advanced::internal::TriangularInverseLVar3( diagonal, A );
     else
         advanced::internal::TriangularInverseUVar3( diagonal, A );

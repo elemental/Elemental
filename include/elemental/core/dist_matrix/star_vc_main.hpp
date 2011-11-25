@@ -32,19 +32,18 @@
 */
 
 namespace elemental {
-using namespace std;
 
 template<typename T>
 inline void
 DistMatrix<T,STAR,VC>::PrintBase
-( ostream& os, const string msg ) const
+( std::ostream& os, const std::string msg ) const
 {
 #ifndef RELEASE
     PushCallStack("[* ,VC]::PrintBase");
 #endif
     const elemental::Grid& g = this->Grid();
     if( g.VCRank() == 0 && msg != "" )
-        os << msg << endl;
+        os << msg << std::endl;
 
     const int height     = this->Height();
     const int width      = this->Width();
@@ -60,7 +59,7 @@ DistMatrix<T,STAR,VC>::PrintBase
         return;
     }
 
-    vector<T> sendBuf(height*width,0);
+    std::vector<T> sendBuf(height*width,0);
     const T* thisLocalBuffer = this->LockedLocalBuffer();
     const int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
@@ -72,7 +71,7 @@ DistMatrix<T,STAR,VC>::PrintBase
                 thisLocalBuffer[i+jLocal*thisLDim];
 
     // If we are the root, allocate a receive buffer
-    vector<T> recvBuf;
+    std::vector<T> recvBuf;
     if( g.VCRank() == 0 )
         recvBuf.resize( height*width );
 
@@ -89,7 +88,7 @@ DistMatrix<T,STAR,VC>::PrintBase
                 os << WrapScalar(recvBuf[i+j*height]) << " ";
             os << "\n";
         }
-        os << endl;
+        os << std::endl;
     }
     mpi::Barrier( g.VCComm() );
 #ifndef RELEASE
@@ -122,7 +121,7 @@ DistMatrix<T,STAR,VC>::AlignRows( int rowAlignment )
     const elemental::Grid& g = this->Grid();
 #ifndef RELEASE
     if( rowAlignment < 0 || rowAlignment >= g.Size() )
-        throw runtime_error( "Invalid row alignment for [* ,VC]" );
+        throw std::runtime_error("Invalid row alignment for [* ,VC]");
 #endif
     this->rowAlignment_ = rowAlignment;
     this->rowShift_ = Shift( g.VCRank(), rowAlignment, g.Size() );
@@ -470,7 +469,7 @@ DistMatrix<T,STAR,VC>::ResizeTo( int height, int width )
     PushCallStack("[* ,VC]::ResizeTo");
     this->AssertNotLockedView();
     if( height < 0 || width < 0 )
-        throw logic_error( "Height and width must be non-negative." );
+        throw std::logic_error("Height and width must be non-negative");
 #endif
     const elemental::Grid& g = this->Grid();
     this->height_ = height;
@@ -558,7 +557,7 @@ DistMatrix<T,STAR,VC>::Update( int i, int j, T u )
 template<typename T>
 inline void
 DistMatrix<T,STAR,VC>::MakeTrapezoidal
-( Side side, Shape shape, int offset )
+( Side side, UpperOrLower uplo, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VC]::MakeTrapezoidal");
@@ -570,7 +569,7 @@ DistMatrix<T,STAR,VC>::MakeTrapezoidal
     const int p = this->Grid().Size();
     const int rowShift = this->RowShift();
 
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         T* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
@@ -584,7 +583,7 @@ DistMatrix<T,STAR,VC>::MakeTrapezoidal
                                            : j-offset+height-width-1 );
             if( lastZeroRow >= 0 )
             {
-                int boundary = min( lastZeroRow+1, height );
+                int boundary = std::min( lastZeroRow+1, height );
                 T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
                 memset( thisCol, 0, boundary*sizeof(T) );
             }
@@ -600,8 +599,9 @@ DistMatrix<T,STAR,VC>::MakeTrapezoidal
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*p;
-            int firstZeroRow = ( side==LEFT ? max(j-offset+1,0)
-                                            : max(j-offset+height-width+1,0) );
+            int firstZeroRow = 
+                ( side==LEFT ? std::max(j-offset+1,0)
+                             : std::max(j-offset+height-width+1,0) );
             if( firstZeroRow < height )
             {
                 T* thisCol = &thisLocalBuffer[firstZeroRow+jLocal*thisLDim];
@@ -617,7 +617,7 @@ DistMatrix<T,STAR,VC>::MakeTrapezoidal
 template<typename T>
 inline void
 DistMatrix<T,STAR,VC>::ScaleTrapezoidal
-( T alpha, Side side, Shape shape, int offset )
+( T alpha, Side side, UpperOrLower uplo, int offset )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VC]::MakeTrapezoidal");
@@ -629,7 +629,7 @@ DistMatrix<T,STAR,VC>::ScaleTrapezoidal
     const int p = this->Grid().Size();
     const int rowShift = this->RowShift();
 
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         T* thisLocalBuffer = this->LocalBuffer();
         const int thisLDim = this->LocalLDim();
@@ -640,7 +640,7 @@ DistMatrix<T,STAR,VC>::ScaleTrapezoidal
         {
             int j = rowShift + jLocal*p;
             int lastRow = ( side==LEFT ? j-offset : j-offset+height-width );
-            int boundary = min( lastRow+1, height );
+            int boundary = std::min( lastRow+1, height );
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
             for( int i=0; i<boundary; ++i )
                 thisCol[i] *= alpha;
@@ -656,8 +656,8 @@ DistMatrix<T,STAR,VC>::ScaleTrapezoidal
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*p;
-            int firstRow = ( side==LEFT ? max(j-offset,0)
-                                        : max(j-offset+height-width,0) );
+            int firstRow = ( side==LEFT ? std::max(j-offset,0)
+                                        : std::max(j-offset+height-width,0) );
             T* thisCol = &thisLocalBuffer[firstRow+jLocal*thisLDim];
             for( int i=0; i<(height-firstRow); ++i )
                 thisCol[i] *= alpha;
@@ -751,11 +751,11 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,MC,STAR>& A )
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    auto_ptr< DistMatrix<T,MC,MR> > A_MC_MR
+    std::auto_ptr< DistMatrix<T,MC,MR> > A_MC_MR
     ( new DistMatrix<T,MC,MR>(g) );
     *A_MC_MR = A;
 
-    auto_ptr< DistMatrix<T,STAR,VR> > A_STAR_VR
+    std::auto_ptr< DistMatrix<T,STAR,VR> > A_STAR_VR
     ( new DistMatrix<T,STAR,VR>(g) );
     *A_STAR_VR = *A_MC_MR;
     delete A_MC_MR.release(); // lowers memory highwater
@@ -800,7 +800,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,MD,STAR>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw logic_error( "[* ,VC] = [MD,* ] not yet implemented." );
+    throw std::logic_error("[* ,VC] = [MD,* ] not yet implemented");
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -818,7 +818,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,MD>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw logic_error( "[* ,VC] = [* ,MD] not yet implemented." );
+    throw std::logic_error("[* ,VC] = [* ,MD] not yet implemented");
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -865,7 +865,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,MR,MC>& A )
 
         const int maxHeight = MaxLocalLength(height,c);
         const int maxWidth = MaxLocalLength(width,p);
-        const int portionSize = max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
+        const int portionSize = std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
 
         this->auxMemory_.Require( 2*c*portionSize );
 
@@ -931,7 +931,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,MR,MC>& A )
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned [* ,VC] <- [MR,MC]." << endl;
+            std::cerr << "Unaligned [* ,VC] <- [MR,MC]." << std::endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -952,7 +952,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,MR,MC>& A )
 
         const int maxHeight = MaxLocalLength(height,c);
         const int maxWidth = MaxLocalLength(width,p);
-        const int portionSize = max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
+        const int portionSize = std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
 
         this->auxMemory_.Require( 2*c*portionSize );
 
@@ -1099,7 +1099,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,MC>& A )
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned [* ,VC] <- [* ,MC]." << endl;
+            std::cerr << "Unaligned [* ,VC] <- [* ,MC]." << std::endl;
 #endif
         const int r = g.Height();
         const int c = g.Width();
@@ -1182,11 +1182,11 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,VC,STAR>& A )
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    auto_ptr< DistMatrix<T,MC,MR> > A_MC_MR
+    std::auto_ptr< DistMatrix<T,MC,MR> > A_MC_MR
     ( new DistMatrix<T,MC,MR>(g) );
     *A_MC_MR = A;
 
-    auto_ptr< DistMatrix<T,STAR,VR> > A_STAR_VR
+    std::auto_ptr< DistMatrix<T,STAR,VR> > A_STAR_VR
     ( new DistMatrix<T,STAR,VR>(g) );
     *A_STAR_VR = *A_MC_MR;
     delete A_MC_MR.release(); // lowers memory highwater
@@ -1228,7 +1228,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,VC>& A )
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
-            cerr << "Unaligned [* ,VC] <- [* ,VC]." << endl;
+            std::cerr << "Unaligned [* ,VC] <- [* ,VC]." << std::endl;
 #endif
         const int rank = g.VCRank();
         const int p = g.Size();
@@ -1470,7 +1470,7 @@ DistMatrix<T,STAR,VC>::SumScatterFrom( const DistMatrix<T,STAR,MC>& A )
         const int localWidth = this->LocalWidth();
         const int maxLocalWidth = MaxLocalLength( width, p );
 
-        const int recvSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
+        const int recvSize = std::max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
         const int sendSize = c*recvSize;
 
         this->auxMemory_.Require( sendSize + recvSize );
@@ -1480,7 +1480,7 @@ DistMatrix<T,STAR,VC>::SumScatterFrom( const DistMatrix<T,STAR,MC>& A )
         T* recvBuffer = &buffer[sendSize];
 
         // Pack
-        vector<int> recvSizes(c);
+        std::vector<int> recvSizes(c);
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -1527,9 +1527,8 @@ DistMatrix<T,STAR,VC>::SumScatterFrom( const DistMatrix<T,STAR,MC>& A )
     }
     else
     {
-        throw logic_error
-              ( "Unaligned [* ,VC]::ReduceScatterFrom( [* ,MC] ) is not "
-                "yet implemented." );
+        throw std::logic_error
+        ("Unaligned [* ,VC]::ReduceScatterFrom( [* ,MC] ) not yet implemented");
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1562,7 +1561,7 @@ DistMatrix<T,STAR,VC>::SumScatterUpdate
         const int localWidth = this->LocalWidth();
         const int maxLocalWidth = MaxLocalLength( width, p );
 
-        const int recvSize = max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
+        const int recvSize = std::max(height*maxLocalWidth,mpi::MIN_COLL_MSG);
         const int sendSize = c*recvSize;
 
         this->auxMemory_.Require( sendSize + recvSize );
@@ -1572,7 +1571,7 @@ DistMatrix<T,STAR,VC>::SumScatterUpdate
         T* recvBuffer = &buffer[sendSize];
 
         // Pack
-        vector<int> recvSizes(c);
+        std::vector<int> recvSizes(c);
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -1620,9 +1619,8 @@ DistMatrix<T,STAR,VC>::SumScatterUpdate
     }
     else
     {
-        throw logic_error
-              ( "Unaligned [* ,VC]::ReduceScatterUpdate( [* ,MC] ) is not "
-                "yet implemented." );
+        throw std::logic_error
+        ("Unaligned [* ,VC]::ReduceScatterUpdate( [* ,MC] ) not implemented");
     }
 #ifndef RELEASE
     PopCallStack();

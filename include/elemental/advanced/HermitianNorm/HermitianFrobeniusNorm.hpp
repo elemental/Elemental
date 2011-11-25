@@ -34,7 +34,7 @@
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianFrobeniusNorm
-( Shape shape, const Matrix<R>& A )
+( UpperOrLower uplo, const Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianFrobeniusNorm");
@@ -43,7 +43,7 @@ elemental::advanced::internal::HermitianFrobeniusNorm
         throw std::logic_error("Hermitian matrices must be square.");
 
     R normSquared = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -81,7 +81,7 @@ elemental::advanced::internal::HermitianFrobeniusNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianFrobeniusNorm
-( Shape shape, const Matrix<std::complex<R> >& A )
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianFrobeniusNorm");
@@ -92,7 +92,7 @@ elemental::advanced::internal::HermitianFrobeniusNorm
     // The std::norm function is a field norm rather than a vector norm.
 
     R normSquared = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -130,7 +130,7 @@ elemental::advanced::internal::HermitianFrobeniusNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianFrobeniusNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianFrobeniusNorm");
@@ -144,7 +144,7 @@ elemental::advanced::internal::HermitianFrobeniusNorm
     const int rowShift = A.RowShift();
 
     R localNormSquared = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
@@ -196,7 +196,7 @@ elemental::advanced::internal::HermitianFrobeniusNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianFrobeniusNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianFrobeniusNorm");
@@ -212,7 +212,7 @@ elemental::advanced::internal::HermitianFrobeniusNorm
     // The std::norm function is a field norm rather than a vector norm.
 
     R localNormSquared = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {

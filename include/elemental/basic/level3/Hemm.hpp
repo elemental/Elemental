@@ -39,7 +39,7 @@
 template<typename T>
 inline void
 elemental::basic::Hemm
-(  Side side, Shape shape,
+(  Side side, UpperOrLower uplo,
    T alpha, const DistMatrix<T,MC,MR>& A,
             const DistMatrix<T,MC,MR>& B,
    T beta,        DistMatrix<T,MC,MR>& C )
@@ -47,7 +47,7 @@ elemental::basic::Hemm
 #ifndef RELEASE
     PushCallStack("basic::Hemm");
 #endif
-    if( side == LEFT && shape == LOWER )
+    if( side == LEFT && uplo == LOWER )
     {
         basic::internal::HemmLL( alpha, A, B, beta, C );
     }
@@ -55,7 +55,7 @@ elemental::basic::Hemm
     {
         basic::internal::HemmLU( alpha, A, B, beta, C );
     }
-    else if( shape == LOWER )
+    else if( uplo == LOWER )
     {
         basic::internal::HemmRL( alpha, A, B, beta, C );
     }

@@ -40,7 +40,7 @@ void Usage()
     cout << "Generates random Hermitian A and random HPD B then solves for "
          << "their eigenpairs.\n\n"
          << "  HermitianGenDefiniteEig <r> <c> <eigType> <only eigenvalues?>"
-            " <range> <a> <b> <shape> <m> <nb> <local nb symv/hemv> "
+            " <range> <a> <b> <uplo> <m> <nb> <local nb symv/hemv> "
             "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
@@ -52,7 +52,7 @@ void Usage()
             "     if range=='V', lower-bound on eigenvalues\n"
          << "  b: if range=='I', 0-indexed last eigenpair to compute\n"
             "     if range=='V', upper-bound on eigenvalues\n"
-         << "  shape: L/U\n"
+         << "  uplo: L/U\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
          << "  local nb symv/hemv: local blocksize for symv/hemv\n"
@@ -63,7 +63,7 @@ void Usage()
 void TestCorrectnessDouble
 ( bool printMatrices,
   HermitianGenDefiniteEigType eigType,
-  Shape shape,
+  UpperOrLower uplo,
   const DistMatrix<double,MC,MR  >& A,
   const DistMatrix<double,MC,MR  >& B,
   const DistMatrix<double,VR,STAR>& w,
@@ -94,7 +94,7 @@ void TestCorrectnessDouble
         DistMatrix<double,MC,MR> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
-        basic::Hemm( LEFT, shape, (double)1, BOrig, X, (double)0, Y );
+        basic::Hemm( LEFT, uplo, (double)1, BOrig, X, (double)0, Y );
         for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
@@ -102,16 +102,16 @@ void TestCorrectnessDouble
             ( Y.LocalHeight(), omega, Y.LocalBuffer(0,jLocal), 1 );
         }
         // Y := Y - AX = BXW - AX
-        basic::Hemm( LEFT, shape, (double)-1, AOrig, X, (double)1, Y );
+        basic::Hemm( LEFT, uplo, (double)-1, AOrig, X, (double)1, Y );
         // Find the infinity norms of A, B, and X, and ||BXW-AX||
         double infNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
         double frobNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
         double infNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, BOrig, INFINITY_NORM );
         double frobNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
         double oneNormOfX = advanced::Norm( X, ONE_NORM );
         double infNormOfX = advanced::Norm( X, INFINITY_NORM );
         double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
@@ -135,13 +135,13 @@ void TestCorrectnessDouble
         }
         DistMatrix<double,MC,MR> Z(g);
         Z = X;
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (double)1, B, Z );
         else
             basic::Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (double)1, B, Z );
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
-        basic::Herk( shape, ADJOINT, (double)-1, Z, (double)1, Y );
+        basic::Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
         infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
@@ -160,10 +160,10 @@ void TestCorrectnessDouble
         DistMatrix<double,MC,MR> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
-        basic::Hemm( LEFT, shape, (double)1, BOrig, X, (double)0, Y );
+        basic::Hemm( LEFT, uplo, (double)1, BOrig, X, (double)0, Y );
         // Set Z := AY = ABX
         DistMatrix<double,MC,MR> Z( n, k, g );
-        basic::Hemm( LEFT, shape, (double)1, AOrig, Y, (double)0, Z );
+        basic::Hemm( LEFT, uplo, (double)1, AOrig, Y, (double)0, Z );
         // Set Z := Z - XW = ABX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
@@ -177,13 +177,13 @@ void TestCorrectnessDouble
         }
         // Find the infinity norms of A, B, X, and ABX-XW
         double infNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
         double frobNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
         double infNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, BOrig, INFINITY_NORM );
         double frobNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
         double oneNormOfX = advanced::Norm( X, ONE_NORM );
         double infNormOfX = advanced::Norm( X, INFINITY_NORM );
         double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
@@ -206,13 +206,13 @@ void TestCorrectnessDouble
                  << endl;
         }
         Z = X;
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (double)1, B, Z );
         else
             basic::Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (double)1, B, Z );
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
-        basic::Herk( shape, ADJOINT, (double)-1, Z, (double)1, Y );
+        basic::Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
         infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
@@ -229,10 +229,10 @@ void TestCorrectnessDouble
         DistMatrix<double,MC,MR> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
-        basic::Hemm( LEFT, shape, (double)1, AOrig, X, (double)0, Y );
+        basic::Hemm( LEFT, uplo, (double)1, AOrig, X, (double)0, Y );
         // Set Z := BY = BAX
         DistMatrix<double,MC,MR> Z( n, k, g );
-        basic::Hemm( LEFT, shape, (double)1, BOrig, Y, (double)0, Z );
+        basic::Hemm( LEFT, uplo, (double)1, BOrig, Y, (double)0, Z );
         // Set Z := Z - XW = BAX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
@@ -246,13 +246,13 @@ void TestCorrectnessDouble
         }
         // Find the infinity norms of A, B, X, and BAX-XW
         double infNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
         double frobNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
         double infNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, BOrig, INFINITY_NORM );
         double frobNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
         double oneNormOfX = advanced::Norm( X, ONE_NORM );
         double infNormOfX = advanced::Norm( X, INFINITY_NORM );
         double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
@@ -275,13 +275,13 @@ void TestCorrectnessDouble
                  << endl;
         }
         Z = X;
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (double)1, B, Z );
         else
             basic::Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (double)1, B, Z );
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
-        basic::Herk( shape, ADJOINT, (double)-1, Z, (double)1, Y );
+        basic::Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
         infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
@@ -296,7 +296,7 @@ void TestCorrectnessDouble
 void TestCorrectnessDoubleComplex
 ( bool printMatrices,
   HermitianGenDefiniteEigType eigType,
-  Shape shape,
+  UpperOrLower uplo,
   const DistMatrix<complex<double>,MC,MR  >& A,
   const DistMatrix<complex<double>,MC,MR  >& B,
   const DistMatrix<        double, VR,STAR>& w,
@@ -327,7 +327,7 @@ void TestCorrectnessDoubleComplex
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         basic::Hemm
-        ( LEFT, shape, 
+        ( LEFT, uplo, 
           complex<double>(1), BOrig, X, 
           complex<double>(0), Y );
         for( int jLocal=0; jLocal<Y.LocalWidth(); ++jLocal )
@@ -338,18 +338,18 @@ void TestCorrectnessDoubleComplex
         }
         // Y := Y - AX = BXW - AX
         basic::Hemm
-        ( LEFT, shape, 
+        ( LEFT, uplo, 
           complex<double>(-1), AOrig, X, 
           complex<double>(1), Y );
         // Find the infinity norms of A, B, X, and AX-BXW
         double infNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
         double frobNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
         double infNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, BOrig, INFINITY_NORM );
         double frobNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
         double oneNormOfX = advanced::Norm( X, ONE_NORM );
         double infNormOfX = advanced::Norm( X, INFINITY_NORM );
         double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
@@ -373,7 +373,7 @@ void TestCorrectnessDoubleComplex
         }
         DistMatrix<complex<double>,MC,MR> Z(g);
         Z = X;
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trmm
             ( LEFT, LOWER, ADJOINT, NON_UNIT, complex<double>(1), B, Z );
         else
@@ -382,7 +382,7 @@ void TestCorrectnessDoubleComplex
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk
-        ( shape, ADJOINT, 
+        ( uplo, ADJOINT, 
           complex<double>(-1), Z, 
           complex<double>(1), Y );
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
@@ -402,13 +402,13 @@ void TestCorrectnessDoubleComplex
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         basic::Hemm
-        ( LEFT, shape, 
+        ( LEFT, uplo, 
           complex<double>(1), BOrig, X, 
           complex<double>(0), Y );
         // Set Z := AY = ABX
         DistMatrix<complex<double>,MC,MR> Z( n, k, g );
         basic::Hemm
-        ( LEFT, shape, 
+        ( LEFT, uplo, 
           complex<double>(1), AOrig, Y, 
           complex<double>(0), Z );
         // Set Z := Z - XW = ABX - XW
@@ -425,13 +425,13 @@ void TestCorrectnessDoubleComplex
         }
         // Find the infinity norms of A, B, X, and ABX-XW
         double infNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
         double frobNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
         double infNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, BOrig, INFINITY_NORM );
         double frobNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
         double oneNormOfX = advanced::Norm( X, ONE_NORM );
         double infNormOfX = advanced::Norm( X, INFINITY_NORM );
         double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
@@ -454,7 +454,7 @@ void TestCorrectnessDoubleComplex
                  << endl;
         }
         Z = X;
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trmm
             ( LEFT, LOWER, ADJOINT, NON_UNIT, complex<double>(1), B, Z );
         else
@@ -463,7 +463,7 @@ void TestCorrectnessDoubleComplex
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk
-        ( shape, ADJOINT, 
+        ( uplo, ADJOINT, 
           complex<double>(-1), Z, 
           complex<double>(1), Y );
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
@@ -483,13 +483,13 @@ void TestCorrectnessDoubleComplex
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         basic::Hemm
-        ( LEFT, shape, 
+        ( LEFT, uplo, 
           complex<double>(1), AOrig, X, 
           complex<double>(0), Y );
         // Set Z := BY = BAX
         DistMatrix<complex<double>,MC,MR> Z( n, k, g );
         basic::Hemm
-        ( LEFT, shape, 
+        ( LEFT, uplo, 
           complex<double>(1), BOrig, Y, 
           complex<double>(0), Z );
         // Set Z := Z - XW = BAX-XW
@@ -505,13 +505,13 @@ void TestCorrectnessDoubleComplex
         }
         // Find the infinity norms of A, B, X, and BAX-XW
         double infNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
         double frobNormOfA = 
-            advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
         double infNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, INFINITY_NORM );
+            advanced::HermitianNorm( uplo, BOrig, INFINITY_NORM );
         double frobNormOfB = 
-            advanced::HermitianNorm( shape, BOrig, FROBENIUS_NORM );
+            advanced::HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
         double oneNormOfX = advanced::Norm( X, ONE_NORM );
         double infNormOfX = advanced::Norm( X, INFINITY_NORM );
         double frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
@@ -534,7 +534,7 @@ void TestCorrectnessDoubleComplex
                  << endl;
         }
         Z = X;
-        if( shape == LOWER )
+        if( uplo == LOWER )
             basic::Trsm
             ( LEFT, LOWER, NORMAL, NON_UNIT, complex<double>(1), B, Z );
         else
@@ -543,7 +543,7 @@ void TestCorrectnessDoubleComplex
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         basic::Herk
-        ( shape, ADJOINT, 
+        ( uplo, ADJOINT, 
           complex<double>(-1), Z, 
           complex<double>(1), Y );
         oneNormOfError = advanced::Norm( Y, ONE_NORM );
@@ -560,7 +560,7 @@ void TestCorrectnessDoubleComplex
 void TestHermitianGenDefiniteEigDouble
 ( bool testCorrectness, bool printMatrices,
   HermitianGenDefiniteEigType eigType, 
-  bool onlyEigenvalues, Shape shape, 
+  bool onlyEigenvalues, UpperOrLower uplo, 
   int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
@@ -578,7 +578,7 @@ void TestHermitianGenDefiniteEigDouble
         // carefully than just adding m to its diagonal entries.
         DistMatrix<double,MC,MR> C(m,m,g);
         C.SetToRandom();
-        basic::Herk( shape, ADJOINT, (double)1, C, (double)0, B );
+        basic::Herk( uplo, ADJOINT, (double)1, C, (double)0, B );
     }
     else
         B.SetToRandomHPD();
@@ -611,25 +611,25 @@ void TestHermitianGenDefiniteEigDouble
     if( onlyEigenvalues )
     {
         if( range == 'A' )
-            advanced::HermitianGenDefiniteEig( eigType, shape, A, B, w );
+            advanced::HermitianGenDefiniteEig( eigType, uplo, A, B, w );
         else if( range == 'I' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, il, iu );
+            ( eigType, uplo, A, B, w, il, iu );
         else
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, vl, vu );
+            ( eigType, uplo, A, B, w, vl, vu );
     }
     else
     {
         if( range == 'A' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X );
+            ( eigType, uplo, A, B, w, X );
         else if( range == 'I' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X, il, iu );
+            ( eigType, uplo, A, B, w, X, il, iu );
         else
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X, vl, vu );
+            ( eigType, uplo, A, B, w, X, vl, vu );
     }
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
@@ -648,7 +648,7 @@ void TestHermitianGenDefiniteEigDouble
     if( testCorrectness && !onlyEigenvalues )
     {
         TestCorrectnessDouble
-        ( printMatrices, eigType, shape, A, B, w, X, AOrig, BOrig );
+        ( printMatrices, eigType, uplo, A, B, w, X, AOrig, BOrig );
     }
 }
     
@@ -656,7 +656,7 @@ void TestHermitianGenDefiniteEigDouble
 void TestHermitianGenDefiniteEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
   HermitianGenDefiniteEigType eigType, 
-  bool onlyEigenvalues, Shape shape, 
+  bool onlyEigenvalues, UpperOrLower uplo, 
   int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
@@ -675,7 +675,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
         DistMatrix<complex<double>,MC,MR> C(m,m,g);
         C.SetToRandom();
         basic::Herk
-        ( shape, ADJOINT, 
+        ( uplo, ADJOINT, 
           complex<double>(1), C, 
           complex<double>(0), B );
     }
@@ -713,25 +713,25 @@ void TestHermitianGenDefiniteEigDoubleComplex
     {
         if( range == 'A' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w );
+            ( eigType, uplo, A, B, w );
         else if( range == 'I' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, il, iu );
+            ( eigType, uplo, A, B, w, il, iu );
         else
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, vl, vu );
+            ( eigType, uplo, A, B, w, vl, vu );
     }
     else
     {
         if( range == 'A' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X );
+            ( eigType, uplo, A, B, w, X );
         else if( range == 'I' )
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X, il, iu );
+            ( eigType, uplo, A, B, w, X, il, iu );
         else
             advanced::HermitianGenDefiniteEig
-            ( eigType, shape, A, B, w, X, vl, vu );
+            ( eigType, uplo, A, B, w, X, vl, vu );
     }
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
@@ -750,7 +750,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
     if( testCorrectness && !onlyEigenvalues )
     {
         TestCorrectnessDoubleComplex
-        ( printMatrices, eigType, shape, A, B, w, X, AOrig, BOrig );
+        ( printMatrices, eigType, uplo, A, B, w, X, AOrig, BOrig );
     }
 }
 #endif // WITHOUT_COMPLEX
@@ -796,7 +796,7 @@ main( int argc, char* argv[] )
         {
             argNum += 2;
         }
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
         const int nbLocalSymv = atoi(argv[++argNum]);
@@ -844,7 +844,7 @@ main( int argc, char* argv[] )
         if( rank == 0 )
         {
             cout << "Will test " 
-                 << ( shape==LOWER ? "lower" : "upper" )
+                 << ( uplo==LOWER ? "lower" : "upper" )
                  << " " << eigTypeString << " HermitianGenDefiniteEig." << endl;
         }
 
@@ -857,7 +857,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianGenDefiniteEigDouble
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigenvalues, uplo, m, range, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -871,7 +871,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianGenDefiniteEigDouble
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigenvalues, uplo, m, range, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -885,7 +885,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianGenDefiniteEigDouble
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigenvalues, uplo, m, range, vl, vu, il, iu, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -897,7 +897,7 @@ main( int argc, char* argv[] )
         }
         TestHermitianGenDefiniteEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigenvalues, uplo, m, range, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -911,7 +911,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianGenDefiniteEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigenvalues, uplo, m, range, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -925,7 +925,7 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianGenDefiniteEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          eigType, onlyEigenvalues, shape, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigenvalues, uplo, m, range, vl, vu, il, iu, g );
 #endif 
     }
     catch( exception& e )

@@ -9,13 +9,13 @@ the matrix to real symmetric tridiagonal form (usually through Householder
 transformations). This routine performs said reduction on a Hermitian matrix 
 and stores the scaled Householder vectors in place of the introduced zeroes. 
 
-.. cpp:function:: void advanced::HermitianTridiag( Shape shape, DistMatrix<R,MC,MR>& A )
+.. cpp:function:: void advanced::HermitianTridiag( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 
    Overwrites the main and sub (super) diagonal of the real distributed matrix 
    `A` with its similar symmetric tridiagonal matrix and stores the scaled 
    Householder vectors below (above) its tridiagonal entries.
 
-.. cpp:function:: void advanced::HermitianTridiag( Shape shape, DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,STAR,STAR>& t )
+.. cpp:function:: void advanced::HermitianTridiag( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,STAR,STAR>& t )
 
    Similar to above, but the complex Hermitian matrix is reduced to 
    real symmetric tridiagonal form, with the added complication of needing to 

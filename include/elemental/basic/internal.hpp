@@ -53,17 +53,17 @@ void LocalGemm
   T beta,        DistMatrix<T,CColDist,CRowDist>& C );
 
 template<typename T>
-void LocalHetrmm( Shape shape, DistMatrix<T,STAR,STAR>& A );
+void LocalHetrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A );
 
 template<typename T, Distribution BColDist, Distribution BRowDist>
 void LocalTrmm
-( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,STAR,STAR>& A,
                  DistMatrix<T,BColDist,BRowDist>& B );
 
 template<typename F, Distribution XColDist, Distribution XRowDist>
 void LocalTrsm
-( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,STAR,STAR>& A, 
                  DistMatrix<F,XColDist,XRowDist>& X,
   bool checkIfSingular=false );
@@ -778,7 +778,7 @@ void SyrkUT
 // triu(C) := alpha triu( A B ) + beta triu(C)
 template<typename T>
 void LocalTrrk
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B,
   T beta,        DistMatrix<T,MC,MR  >& C );
 
@@ -788,7 +788,7 @@ void LocalTrrk
 // triu(C) := alpha triu( A B^{T/H} ) + beta triu(C)
 template<typename T>
 void LocalTrrk
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
   T beta,        DistMatrix<T,MC,  MR>& C );
@@ -799,7 +799,7 @@ void LocalTrrk
 // triu(C) := alpha triu( A^{T/H} B ) + beta triu(C)
 template<typename T>
 void LocalTrrk
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B,
   T beta,        DistMatrix<T,MC,  MR>& C );
@@ -810,7 +810,7 @@ void LocalTrrk
 // triu(C) := alpha triu( A^{T/H} B^{T/H} ) + beta triu(C)
 template<typename T>
 void LocalTrrk
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B,
@@ -822,7 +822,7 @@ void LocalTrrk
 // triu(E) := alpha triu( A B + C D ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B, 
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
@@ -833,7 +833,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A B + C D^{T/H} ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
@@ -845,7 +845,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A B + C^{T/H} D ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfC,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
@@ -857,7 +857,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A B + C^{T/H} D^{T/H} ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfC,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B,
@@ -870,7 +870,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A B^{T/H} + C D ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
@@ -882,7 +882,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A B^{T/H} + C D^{T/H} ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
@@ -895,7 +895,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A B^{T/H} + C^{T/H} D ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfC,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
@@ -908,7 +908,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A B^{T/H} + C^{T/H} D^{T/H} ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfC,
   Orientation orientationOfD,
@@ -922,7 +922,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B + C D ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
@@ -934,7 +934,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B + C D^{T/H} ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,STAR,MR  >& B,
@@ -947,7 +947,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B + C^{T/H} D ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfC,
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B,
@@ -960,7 +960,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B + C^{T/H} D^{T/H} ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfC,
   Orientation orientationOfD,
@@ -974,7 +974,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C D ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B,
@@ -987,7 +987,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C D^{T/H} ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   Orientation orientationOfD,
@@ -1001,7 +1001,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C^{T/H} D ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   Orientation orientationOfC,
@@ -1015,7 +1015,7 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C^{T/H} D^{T/H} ) + beta triu(E)
 template<typename T>
 void LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   Orientation orientationOfC,
@@ -1460,12 +1460,12 @@ inline void LocalGemm
 
 template<typename T>
 inline void 
-LocalHetrmm( Shape shape, DistMatrix<T,STAR,STAR>& A )
+LocalHetrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalHetrmm");
 #endif
-    basic::Hetrmm( shape, A.LocalMatrix() );
+    basic::Hetrmm( uplo, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1474,7 +1474,7 @@ LocalHetrmm( Shape shape, DistMatrix<T,STAR,STAR>& A )
 template<typename T, Distribution BColDist, Distribution BRowDist>
 inline void
 LocalTrmm
-( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,STAR,STAR>& A,
                  DistMatrix<T,BColDist,BRowDist>& B )
 {
@@ -1486,7 +1486,7 @@ LocalTrmm
         ( "Distribution of RHS must conform with that of triangle." );
 #endif
     basic::Trmm
-    ( side, shape, orientation, diagonal, 
+    ( side, uplo, orientation, diagonal, 
       alpha, A.LockedLocalMatrix(), B.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
@@ -1496,7 +1496,7 @@ LocalTrmm
 template<typename F, Distribution XColDist, Distribution XRowDist>
 inline void
 LocalTrsm
-( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,STAR,STAR>& A, 
                  DistMatrix<F,XColDist,XRowDist>& X,
   bool checkIfSingular )
@@ -1509,7 +1509,7 @@ LocalTrsm
         ( "Distribution of RHS must conform with that of triangle." );
 #endif
     basic::Trsm
-    ( side, shape, orientation, diagonal,
+    ( side, uplo, orientation, diagonal,
       alpha, A.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
 #ifndef RELEASE
     PopCallStack();

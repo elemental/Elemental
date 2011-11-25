@@ -305,7 +305,7 @@ elemental::basic::internal::LocalSymmetricAccumulateRL
                                    << ZAdjOrTrans_MC_STAR.Width() << "\n"
             << "  Z^H/T[MR,* ] ~ " << ZAdjOrTrans_MR_STAR.Height() << " x " 
                                    << ZAdjOrTrans_MR_STAR.Width() << "\n";
-        throw logic_error( msg.str().c_str() );
+        throw std::logic_error( msg.str().c_str() );
     }
     if( B_STAR_MC.RowAlignment() != A.ColAlignment() ||
         BAdjOrTrans_MR_STAR.ColAlignment() != A.RowAlignment() ||

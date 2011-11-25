@@ -38,11 +38,11 @@ using namespace elemental;
 void Usage()
 {
     cout << "SYmmetric Matrix Matrix multiplication.\n\n"
-         << "  Symm <r> <c> <Side> <Shape> <m> <n> <nb> <print?>\n\n"
+         << "  Symm <r> <c> <side> <uplo> <m> <n> <nb> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
-         << "  Side: {L,R}\n"
-         << "  Shape: {L,U}\n"
+         << "  side: {L,R}\n"
+         << "  uplo: {L,U}\n"
          << "  m: height of C\n" 
          << "  n: width  of C\n"
          << "  nb: algorithmic blocksize\n"
@@ -51,7 +51,7 @@ void Usage()
 
 template<typename T> // represents a real or complex ring
 void TestSymm
-( const Side side, const Shape shape,
+( const Side side, const UpperOrLower uplo,
   const int m, const int n, const T alpha, const T beta,
   const bool printMatrices, const Grid& g )
 {
@@ -86,8 +86,7 @@ void TestSymm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::Symm
-    ( side, shape, alpha, A, B, beta, C );
+    basic::Symm( side, uplo, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -130,7 +129,7 @@ main( int argc, char* argv[] )
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
         const Side side = CharToSide(*argv[++argNum]);
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int n = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
@@ -149,7 +148,7 @@ main( int argc, char* argv[] )
         if( rank == 0 )
         {
             cout << "Will test Symm" << SideToChar(side) 
-                                     << ShapeToChar(shape) << endl;
+                                     << UpperOrLowerToChar(uplo) << endl;
         }
 
         if( rank == 0 )
@@ -159,7 +158,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestSymm<double>
-        ( side, shape, m, n, (double)3, (double)4, printMatrices, g ); 
+        ( side, uplo, m, n, (double)3, (double)4, printMatrices, g ); 
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -169,7 +168,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestSymm<dcomplex>
-        ( side, shape, m, n, (dcomplex)3, (dcomplex)4, printMatrices, g ); 
+        ( side, uplo, m, n, (dcomplex)3, (dcomplex)4, printMatrices, g ); 
 #endif
     }
     catch( exception& e )

@@ -38,11 +38,11 @@ using namespace elemental;
 void Usage()
 {
     cout << "Inverts a triangular matrix.\n\n"
-         << "  TriangularInverse <r> <c> <shape> <diag> <m> <nb> "
+         << "  TriangularInverse <r> <c> <uplo> <diag> <m> <nb> "
             "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
-         << "  shape: {L,U}\n"
+         << "  uplo: {L,U}\n"
          << "  diag: {N,U}\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
@@ -53,7 +53,7 @@ void Usage()
 template<typename F> // represents a real or complex number
 void TestCorrectness
 ( bool printMatrices,
-  Shape shape, Diagonal diagonal,
+  UpperOrLower uplo, Diagonal diagonal,
   const DistMatrix<F,MC,MR>& A,
   const DistMatrix<F,MC,MR>& AOrig )
 {
@@ -66,8 +66,8 @@ void TestCorrectness
     Y = X;
 
     // Since A o A^-1 = I, test the change introduced by the approximate comp.
-    basic::Trmm( LEFT, shape, NORMAL, NON_UNIT, (F)1, A, Y );
-    basic::Trmm( LEFT, shape, NORMAL, NON_UNIT, (F)1, AOrig, Y );
+    basic::Trmm( LEFT, uplo, NORMAL, NON_UNIT, (F)1, A, Y );
+    basic::Trmm( LEFT, uplo, NORMAL, NON_UNIT, (F)1, AOrig, Y );
     basic::Axpy( (F)-1, Y, X );
 
     F oneNormOfError = advanced::Norm( Y, ONE_NORM );
@@ -84,7 +84,7 @@ void TestCorrectness
 template<typename F> // represents a real or complex number
 void TestTriangularInverse
 ( bool testCorrectness, bool printMatrices,
-  Shape shape, Diagonal diagonal, int m, const Grid& g )
+  UpperOrLower uplo, Diagonal diagonal, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<F,MC,MR> A(g);
@@ -93,7 +93,7 @@ void TestTriangularInverse
     A.ResizeTo( m, m );
 
     A.SetToRandomHPD();
-    A.MakeTrapezoidal( LEFT, shape );
+    A.MakeTrapezoidal( LEFT, uplo );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -115,7 +115,7 @@ void TestTriangularInverse
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::TriangularInverse( shape, diagonal, A );
+    advanced::TriangularInverse( uplo, diagonal, A );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -129,7 +129,7 @@ void TestTriangularInverse
     if( printMatrices )
         A.Print("A after inversion");
     if( testCorrectness )
-        TestCorrectness( printMatrices, shape, diagonal, A, AOrig );
+        TestCorrectness( printMatrices, uplo, diagonal, A, AOrig );
 }
 
 int 
@@ -152,7 +152,7 @@ main( int argc, char* argv[] )
         int argNum = 0;
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const Diagonal diagonal = CharToDiagonal(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
@@ -170,7 +170,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         if( rank == 0 )
-            cout << "Will test TriangularInverse" << ShapeToChar(shape) 
+            cout << "Will test TriangularInverse" << UpperOrLowerToChar(uplo) 
                  << DiagonalToChar(diagonal) << endl;
 
         if( rank == 0 )
@@ -180,7 +180,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestTriangularInverse<double>
-        ( testCorrectness, printMatrices, shape, diagonal, m, g );
+        ( testCorrectness, printMatrices, uplo, diagonal, m, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -190,7 +190,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestTriangularInverse<dcomplex>
-        ( testCorrectness, printMatrices, shape, diagonal, m, g );
+        ( testCorrectness, printMatrices, uplo, diagonal, m, g );
 #endif
     }
     catch( exception& e )

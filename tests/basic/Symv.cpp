@@ -52,7 +52,7 @@ void Usage()
 
 template<typename T> // represents a real or complex ring
 void TestSymv
-( const Shape shape, const int m, const T alpha, const T beta, 
+( const UpperOrLower uplo, const int m, const T alpha, const T beta, 
   const bool printMatrices, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
@@ -83,7 +83,7 @@ void TestSymv
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::Symv( shape, alpha, A, x, beta, y );
+    basic::Symv( uplo, alpha, A, x, beta, y );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -122,7 +122,7 @@ main( int argc, char* argv[] )
         int argNum = 0;
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
         const int nbLocalDouble = atoi(argv[++argNum]);
@@ -148,7 +148,7 @@ main( int argc, char* argv[] )
 #endif
 
         if( rank == 0 )
-            cout << "Will test Symv" << ShapeToChar(shape) << endl;
+            cout << "Will test Symv" << UpperOrLowerToChar(uplo) << endl;
 
         if( rank == 0 )
         {
@@ -157,7 +157,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestSymv<double>
-        ( shape, m, (double)3, (double)4, printMatrices, g );
+        ( uplo, m, (double)3, (double)4, printMatrices, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -167,7 +167,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestSymv<dcomplex>
-        ( shape, m, (dcomplex)3, (dcomplex)4, printMatrices, g );
+        ( uplo, m, (dcomplex)3, (dcomplex)4, printMatrices, g );
 #endif
     }
     catch( exception& e )

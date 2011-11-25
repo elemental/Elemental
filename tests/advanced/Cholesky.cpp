@@ -38,11 +38,11 @@ using namespace elemental;
 void Usage()
 {
     cout << "Generates SPD matrix then solves for its Cholesky factor.\n\n"
-         << "  Cholesky <r> <c> <shape> <m> <nb> <rankK local nb> "
+         << "  Cholesky <r> <c> <uplo> <m> <nb> <rankK local nb> "
             "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
-         << "  shape: {L,U}\n"
+         << "  uplo: {L,U}\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
          << "  rankK local nb: local blocksize for triangular rank-k update\n"
@@ -52,7 +52,7 @@ void Usage()
 
 template<typename F> // represents a real or complex field
 void TestCorrectness
-( bool printMatrices, Shape shape,
+( bool printMatrices, UpperOrLower uplo,
   const DistMatrix<F,MC,MR>& A,
   const DistMatrix<F,MC,MR>& AOrig )
 {
@@ -64,7 +64,7 @@ void TestCorrectness
     X.SetToRandom();
     Y = X;
 
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         // Test correctness by comparing the application of AOrig against a 
         // random set of 100 vectors to the application of tril(A) tril(A)^H
@@ -74,8 +74,8 @@ void TestCorrectness
         F oneNormOfError = advanced::Norm( Y, ONE_NORM );
         F infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         F frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        F infNormOfA = advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
-        F frobNormOfA = advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+        F infNormOfA = advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
+        F frobNormOfA = advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
         F oneNormOfX = advanced::Norm( X, ONE_NORM );
         F infNormOfX = advanced::Norm( X, INFINITY_NORM );
         F frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
@@ -101,8 +101,8 @@ void TestCorrectness
         F oneNormOfError = advanced::Norm( Y, ONE_NORM );
         F infNormOfError = advanced::Norm( Y, INFINITY_NORM );
         F frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        F infNormOfA = advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
-        F frobNormOfA = advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+        F infNormOfA = advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
+        F frobNormOfA = advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
         F oneNormOfX = advanced::Norm( X, ONE_NORM );
         F infNormOfX = advanced::Norm( X, INFINITY_NORM );
         F frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
@@ -123,7 +123,7 @@ void TestCorrectness
 template<typename F> // represents a real or complex field
 void TestCholesky
 ( bool testCorrectness, bool printMatrices, 
-  Shape shape, int m, const Grid& g )
+  UpperOrLower uplo, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<F,MC,MR> A(g);
@@ -153,7 +153,7 @@ void TestCholesky
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::Cholesky( shape, A );
+    advanced::Cholesky( uplo, A );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -167,7 +167,7 @@ void TestCholesky
     if( printMatrices )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( printMatrices, shape, A, AOrig );
+        TestCorrectness( printMatrices, uplo, A, AOrig );
 }
 
 int 
@@ -190,7 +190,7 @@ main( int argc, char* argv[] )
         int argNum = 0;
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
         const int nbLocal = atoi(argv[++argNum]);
@@ -212,7 +212,7 @@ main( int argc, char* argv[] )
 #endif
 
         if( rank == 0 )
-            cout << "Will test Cholesky" << ShapeToChar(shape) << endl;
+            cout << "Will test Cholesky" << UpperOrLowerToChar(uplo) << endl;
 
         if( rank == 0 )
         {
@@ -221,7 +221,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestCholesky<double>
-        ( testCorrectness, printMatrices, shape, m, g );
+        ( testCorrectness, printMatrices, uplo, m, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -231,7 +231,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestCholesky<dcomplex>
-        ( testCorrectness, printMatrices, shape, m, g );
+        ( testCorrectness, printMatrices, uplo, m, g );
 #endif
     }
     catch( exception& e )

@@ -44,11 +44,11 @@ namespace internal {
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void LocalCholesky( Shape shape, DistMatrix<F,STAR,STAR>& A );
+void LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
 void LocalHegst
-( Side side, Shape shape, 
+( Side side, UpperOrLower uplo, 
   DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B );
 
 template<typename F>
@@ -60,11 +60,11 @@ template<typename F>
 void LocalLU( DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
-void LocalHPDInverse( Shape shape, DistMatrix<F,STAR,STAR>& A );
+void LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
 void LocalTriangularInverse
-( Shape shape, Diagonal diagonal, DistMatrix<F,STAR,STAR>& A );
+( UpperOrLower uplo, Diagonal diagonal, DistMatrix<F,STAR,STAR>& A );
 
 //----------------------------------------------------------------------------//
 // Cholesky helpers                                                           //
@@ -319,45 +319,49 @@ R OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A );
 //----------------------------------------------------------------------------//
 
 template<typename R>
-R HermitianFrobeniusNorm( Shape shape, const Matrix<R>& A );
+R HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<R>& A );
 template<typename R>
-R HermitianInfinityNorm( Shape shape, const Matrix<R>& A );
+R HermitianInfinityNorm( UpperOrLower uplo, const Matrix<R>& A );
 template<typename R>
-R HermitianMaxNorm( Shape shape, const Matrix<R>& A );
+R HermitianMaxNorm( UpperOrLower uplo, const Matrix<R>& A );
 template<typename R>
-R HermitianOneNorm( Shape shape, const Matrix<R>& A );
+R HermitianOneNorm( UpperOrLower uplo, const Matrix<R>& A );
 
 template<typename R>
-R HermitianFrobeniusNorm( Shape shape, const DistMatrix<R,MC,MR>& A );
+R HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A );
 template<typename R>
-R HermitianInfinityNorm( Shape shape, const DistMatrix<R,MC,MR>& A );
+R HermitianInfinityNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A );
 template<typename R>
-R HermitianMaxNorm( Shape shape, const DistMatrix<R,MC,MR>& A );
+R HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A );
 template<typename R>
-R HermitianOneNorm( Shape shape, const DistMatrix<R,MC,MR>& A );
+R HermitianOneNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A );
 
 #ifndef WITHOUT_COMPLEX
 template<typename R>
-R HermitianFrobeniusNorm( Shape shape, const Matrix<std::complex<R> >& A );
+R HermitianFrobeniusNorm
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A );
 template<typename R>
-R HermitianInfinityNorm( Shape shape, const Matrix<std::complex<R> >& A );
+R HermitianInfinityNorm
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A );
 template<typename R>
-R HermitianMaxNorm( Shape shape, const Matrix<std::complex<R> >& A );
+R HermitianMaxNorm
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A );
 template<typename R>
-R HermitianOneNorm( Shape shape, const Matrix<std::complex<R> >& A );
+R HermitianOneNorm
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A );
 
 template<typename R>
 R HermitianFrobeniusNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A );
 template<typename R>
 R HermitianInfinityNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A );
 template<typename R>
 R HermitianMaxNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A );
 template<typename R>
 R HermitianOneNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A );
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A );
 #endif
 
 //----------------------------------------------------------------------------//
@@ -520,7 +524,7 @@ void HPDInverseUVar2( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
 void TriangularInverseVar3
-( Shape shape, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
+( UpperOrLower uplo, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
 template<typename F>
 void TriangularInverseLVar3
@@ -813,12 +817,12 @@ namespace internal {
 template<typename F>
 inline void
 LocalCholesky
-( Shape shape, DistMatrix<F,STAR,STAR>& A )
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::LocalCholesky");
 #endif
-    Cholesky( shape, A.LocalMatrix() );
+    Cholesky( uplo, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -827,13 +831,13 @@ LocalCholesky
 template<typename F>
 inline void
 LocalHegst
-( Side side, Shape shape,
+( Side side, UpperOrLower uplo,
   DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::LocalHegst");
 #endif
-    Hegst( side, shape, A.LocalMatrix(), B.LockedLocalMatrix() );
+    Hegst( side, uplo, A.LocalMatrix(), B.LockedLocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -875,12 +879,12 @@ LocalLU( DistMatrix<F,STAR,STAR>& A )
 
 template<typename F>
 inline void
-LocalHPDInverse( Shape shape, DistMatrix<F,STAR,STAR>& A )
+LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 { 
 #ifndef RELEASE
     PushCallStack("advanced::internal::LocalHPDInverse");
 #endif
-    HPDInverse( shape, A.LocalMatrix() );
+    HPDInverse( uplo, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -889,12 +893,12 @@ LocalHPDInverse( Shape shape, DistMatrix<F,STAR,STAR>& A )
 template<typename F>
 inline void
 LocalTriangularInverse
-( Shape shape, Diagonal diagonal, DistMatrix<F,STAR,STAR>& A )
+( UpperOrLower uplo, Diagonal diagonal, DistMatrix<F,STAR,STAR>& A )
 { 
 #ifndef RELEASE
     PushCallStack("advanced::internal::LocalTriangularInverse");
 #endif
-    TriangularInverse( shape, diagonal, A.LocalMatrix() );
+    TriangularInverse( uplo, diagonal, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

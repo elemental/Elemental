@@ -38,8 +38,8 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
 
 .. cpp:function:: F advanced::Determinant( Matrix<F>& A )
 
-   Returns the determinant of the square matrix `A`, which is overwritten 
-   during the computation.
+   Returns the determinant of the (fully populated) square matrix `A`, which is 
+   overwritten during the computation.
 
 .. cpp:function:: F advanced::Determinant( DistMatrix<F,MC,MR>& A )
 

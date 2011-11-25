@@ -41,7 +41,7 @@
 template<typename F> // F represents a real or complex field
 inline void
 elemental::advanced::Cholesky
-( Shape shape, DistMatrix<F,MC,MR>& A )
+( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Cholesky");
@@ -51,14 +51,14 @@ elemental::advanced::Cholesky
     // TODO: Come up with a better routing mechanism
     if( g.Height() == g.Width() )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             advanced::internal::CholeskyLVar3Square( A );
         else
             advanced::internal::CholeskyUVar3Square( A );
     }
     else
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             advanced::internal::CholeskyLVar3( A );
         else
             advanced::internal::CholeskyUVar3( A );

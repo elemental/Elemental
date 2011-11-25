@@ -94,42 +94,42 @@ int <tt class="descclassname">basic::</tt><tt class="descname">LocalSymvBlocksiz
 </dd></dl>
 
 </div>
-<div class="section" id="localtriangularrankkblocksize">
-<h2>LocalTriangularRankKBlocksize<a class="headerlink" href="#localtriangularrankkblocksize" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="localtrrkblocksize">
+<h2>LocalTrrkBlocksize<a class="headerlink" href="#localtrrkblocksize" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="basic::SetLocalTriangularRankKBlocksize:T:__i">
-void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalTriangularRankKBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalTriangularRankKBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dt id="basic::SetLocalTrrkBlocksize:T:__i">
+void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalTrrkBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalTrrkBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the local blocksize for the distributed
-<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRankK</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTrrk</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
 set to 64 by default and is important for routines that perform distributed
 <tt class="docutils literal"><span class="pre">basic::Syrk</span></tt> or <tt class="docutils literal"><span class="pre">basic::Herk</span></tt> updates, e.g., Cholesky factorization.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::LocalTriangularRankKBlocksize:T:">
-int <tt class="descclassname">basic::</tt><tt class="descname">LocalTriangularRankKBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalTriangularRankKBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dt id="basic::LocalTrrkBlocksize:T:">
+int <tt class="descclassname">basic::</tt><tt class="descname">LocalTrrkBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalTrrkBlocksize:T:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the local blocksize for the distributed
-<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRankK</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTrrk</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="localtriangularrank2kblocksize">
-<h2>LocalTriangularRank2KBlocksize<a class="headerlink" href="#localtriangularrank2kblocksize" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="localtrr2kblocksize">
+<h2>LocalTrr2kBlocksize<a class="headerlink" href="#localtrr2kblocksize" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="basic::SetLocalTriangularRank2KBlocksize:T:__i">
-void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalTriangularRank2KBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalTriangularRank2KBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dt id="basic::SetLocalTrr2kBlocksize:T:__i">
+void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalTrr2kBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalTrr2kBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the local blocksize for the distributed
-<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRank2K</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTrr2k</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
 set to 64 by default and is important for routines that perform distributed
 <tt class="docutils literal"><span class="pre">basic::Syr2k</span></tt> or <tt class="docutils literal"><span class="pre">basic::Her2k</span></tt> updates, e.g., Householder
 tridiagonalization.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::LocalTriangularRank2KBlocksize:T:">
-int <tt class="descclassname">basic::</tt><tt class="descname">LocalTriangularRank2KBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalTriangularRank2KBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dt id="basic::LocalTrr2kBlocksize:T:">
+int <tt class="descclassname">basic::</tt><tt class="descname">LocalTrr2kBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalTrr2kBlocksize:T:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the local blocksize for the distributed
-<tt class="docutils literal"><span class="pre">basic::internal::LocalTriangularRank2K</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+<tt class="docutils literal"><span class="pre">basic::internal::LocalTrr2k</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
 </dd></dl>
 
 </div>
@@ -149,8 +149,8 @@ int <tt class="descclassname">basic::</tt><tt class="descname">LocalTriangularRa
 <li><a class="reference internal" href="#">Tuning parameters</a><ul>
 <li><a class="reference internal" href="#localhemvblocksize">LocalHemvBlocksize</a></li>
 <li><a class="reference internal" href="#localsymvblocksize">LocalSymvBlocksize</a></li>
-<li><a class="reference internal" href="#localtriangularrankkblocksize">LocalTriangularRankKBlocksize</a></li>
-<li><a class="reference internal" href="#localtriangularrank2kblocksize">LocalTriangularRank2KBlocksize</a></li>
+<li><a class="reference internal" href="#localtrrkblocksize">LocalTrrkBlocksize</a></li>
+<li><a class="reference internal" href="#localtrr2kblocksize">LocalTrr2kBlocksize</a></li>
 </ul>
 </li>
 </ul>

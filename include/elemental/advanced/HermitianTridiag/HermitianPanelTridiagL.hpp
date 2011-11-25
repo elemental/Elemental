@@ -329,7 +329,8 @@ elemental::advanced::internal::HermitianPanelTridiagL
             int colShiftDest = alpha11.RowShift();
 
             int height = a21.Height()+1;
-            int portionSize = max(2*MaxLocalLength(height,p),mpi::MIN_COLL_MSG);
+            int portionSize = 
+                std::max(2*MaxLocalLength(height,p),mpi::MIN_COLL_MSG);
 
             int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
             int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);
@@ -520,8 +521,8 @@ elemental::advanced::internal::HermitianPanelTridiagL
             // combine the Reduce to one of p21[MC,* ] with the redistribution 
             // of q21[MR,* ] -> q21[MC,MR] to the next process column.
             int localHeight = p21_MC_STAR.LocalHeight();
-            vector<R> reduceToOneSendBuffer(2*localHeight);
-            vector<R> reduceToOneRecvBuffer(2*localHeight);
+            std::vector<R> reduceToOneSendBuffer(2*localHeight);
+            std::vector<R> reduceToOneRecvBuffer(2*localHeight);
 
             // Pack p21[MC,* ]
             std::memcpy
@@ -1105,7 +1106,8 @@ elemental::advanced::internal::HermitianPanelTridiagL
             int colShiftDest = alpha11.RowShift();
 
             int height = a21.Height()+1;
-            int portionSize = max(2*MaxLocalLength(height,p),mpi::MIN_COLL_MSG);
+            int portionSize = 
+                std::max(2*MaxLocalLength(height,p),mpi::MIN_COLL_MSG);
 
             int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
             int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);

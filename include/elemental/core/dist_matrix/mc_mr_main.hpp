@@ -1011,7 +1011,7 @@ DistMatrix<T,MC,MR,Int>::SetDiagonal
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MC,MR,Int>::MakeTrapezoidal
-( Side side, Shape shape, Int offset )
+( Side side, UpperOrLower uplo, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::MakeTrapezoidal");
@@ -1026,7 +1026,7 @@ DistMatrix<T,MC,MR,Int>::MakeTrapezoidal
     const Int colShift = this->ColShift();
     const Int rowShift = this->RowShift();
 
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
@@ -1078,7 +1078,7 @@ DistMatrix<T,MC,MR,Int>::MakeTrapezoidal
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MC,MR,Int>::ScaleTrapezoidal
-( T alpha, Side side, Shape shape, Int offset )
+( T alpha, Side side, UpperOrLower uplo, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::ScaleTrapezoidal");
@@ -1093,7 +1093,7 @@ DistMatrix<T,MC,MR,Int>::ScaleTrapezoidal
     const Int colShift = this->ColShift();
     const Int rowShift = this->RowShift();
 
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();

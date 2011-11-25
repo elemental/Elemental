@@ -448,19 +448,19 @@ void Geru
 //
 // Implicitly performs
 //   y := alpha A x + beta y,
-// where only the triangle specified by 'shape' is referenced and the other
+// where only the triangle specified by 'uplo' is referenced and the other
 // triangle is implied by the Hermitian assumption.
 
 // Serial version
 template<typename T>
 void Hemv
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
 
 // Parallel version
 template<typename T>
 void Hemv
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y );
 
@@ -469,35 +469,37 @@ void Hemv
 //
 // Implicitly performs
 //   A := alpha x x^H + A,
-// where only the triangle specified by 'shape' is updated.
+// where only the triangle specified by 'uplo' is updated.
 //
 
 // Serial version
 template<typename T>
-void Her( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A );
+void Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
 void Her
-( Shape shape, T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A );
+( UpperOrLower uplo, 
+  T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A );
 
 //
 // Her2 (HErmitian Rank-2 update):
 //
 // Implicitly performs
 //   A := alpha ( x y^H + y x^H ) + A,
-// where only the triangle specified by 'shape' is updated.
+// where only the triangle specified by 'uplo' is updated.
 //
 
 // Serial version
 template<typename T>
 void Her2
-( Shape shape, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+( UpperOrLower uplo, 
+  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
 void Her2
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
 
@@ -506,20 +508,20 @@ void Her2
 //
 // Implicitly performs
 //   y := alpha A x + beta y,
-// where only the triangle specified by 'shape' is referenced and the other
+// where only the triangle specified by 'uplo' is referenced and the other
 // triangle is implied by the symmetry assumption.
 //
 
 // Serial version
 template<typename T>
 void Symv
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
 
 // Parallel version
 template<typename T>
 void Symv
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y );
 
@@ -528,17 +530,17 @@ void Symv
 //
 // Implicitly performs the update
 //   A := alpha x x^T + A,
-// where only the triangle specified by 'shape' is updated.
+// where only the triangle specified by 'uplo' is updated.
 //
 
 // Serial version
 template<typename T>
-void Syr( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A );
+void Syr( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
 void Syr
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A );
 
 //
@@ -546,18 +548,19 @@ void Syr
 //
 // Implicitly perform the update
 //   A := alpha ( x y^T + y x^T ) + A
-// where only the triangle specified by 'shape' is updated.
+// where only the triangle specified by 'uplo' is updated.
 //
 
 // Serial version
 template<typename T>
 void Syr2
-( Shape shape, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+( UpperOrLower uplo, 
+  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
 void Syr2
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A );
 
@@ -566,7 +569,7 @@ void Syr2
 //
 // Performs the update
 //   x := orientation( A ) x,
-// where 'shape' determines whether or not A is to be implicitly treated as 
+// where 'uplo' determines whether or not A is to be implicitly treated as 
 // lower or upper triangular, and 'diagonal' specifies whether it has an 
 // implicit unit diagonal.
 //
@@ -574,13 +577,13 @@ void Syr2
 // Serial version
 template<typename T>
 void Trmv
-( Shape shape, Orientation orientation, Diagonal diagonal,
+( UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   const Matrix<T>& A, Matrix<T>& x );
 
 // Parallel version
 template<typename T>
 void Trmv
-( Shape shape, Orientation orientation, Diagonal diagonal,
+( UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& x );
 
 //
@@ -588,7 +591,7 @@ void Trmv
 //
 // Performs the update
 //   x := orientation( A )^-1 x,
-// where 'shape' determines whether or not A is to be implicitly treated as 
+// where 'uplo' determines whether or not A is to be implicitly treated as 
 // lower or upper triangular, and 'diagonal' specifies whether it has an 
 // implicit unit diagonal.
 //
@@ -596,13 +599,13 @@ void Trmv
 // Serial version
 template<typename F>
 void Trsv
-( Shape shape, Orientation orientation, Diagonal diagonal,
+( UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   const Matrix<F>& A, Matrix<F>& x );
 
 // Parallel version
 template<typename F>
 void Trsv
-( Shape shape, Orientation orientation, Diagonal diagonal,
+( UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& x );
 
 //----------------------------------------------------------------------------//
@@ -635,20 +638,20 @@ void Gemm
 //   C := alpha A B + beta C,  { side = LEFT }
 // or
 //   C := alpha B A + beta C,  { side = RIGHT }
-// where only the triangle of 'A' specified by 'shape' is referenced, and the
+// where only the triangle of 'A' specified by 'uplo' is referenced, and the
 // other triangle is implied by the Hermitian assumption.
 //
 
 // Serial version
 template<typename T>
 void Hemm
-( Side side, Shape shape,
+( Side side, UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
 void Hemm
-( Side side, Shape shape,
+( Side side, UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
@@ -659,19 +662,19 @@ void Hemm
 //   C := alpha ( A B^H + B A^H ) + beta C, { orientation = NORMAL }
 // or
 //   C := alpha ( A^H B + B^H A ) + beta C, { orientation = ADJOINT }
-// where only the triangle of C specified by 'shape' is updated.
+// where only the triangle of C specified by 'uplo' is updated.
 //
 
 // Serial version
 template<typename T>
 void Her2k
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
 void Her2k
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
@@ -682,19 +685,19 @@ void Her2k
 //   C := alpha A B^H + beta C,  { orientation = NORMAL }
 // or
 //   C := alpha A^H B + beta C,  { orientation = ADJOINT }
-// where only the triangle of C specified by 'shape' is updated.
+// where only the triangle of C specified by 'uplo' is updated.
 //
 
 // Serial version
 template<typename T>
 void Herk
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
 void Herk
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
 //
@@ -709,11 +712,11 @@ void Herk
 
 // Serial version
 template<typename T>
-void Hetrmm( Shape shape, Matrix<T>& A );
+void Hetrmm( UpperOrLower uplo, Matrix<T>& A );
 
 // Parallel version
 template<typename T>
-void Hetrmm( Shape shape, DistMatrix<T,MC,MR>& A );
+void Hetrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A );
 
 //
 // Symm (SYmmetric Matrix-Matrix multiplication):
@@ -722,20 +725,20 @@ void Hetrmm( Shape shape, DistMatrix<T,MC,MR>& A );
 //   C := alpha A B + beta C,  { side = LEFT }
 // or
 //   C := alpha B A + beta C,  { side = RIGHT }
-// where only the triangle of A specified by 'shape' is referenced, and the 
+// where only the triangle of A specified by 'uplo' is referenced, and the 
 // other triangle is implied by the symmetry assumption.
 //
 
 // Serial version
 template<typename T>
 void Symm
-( Side side, Shape shape,
+( Side side, UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C ); 
 
 // Parallel version
 template<typename T>
 void Symm
-( Side side, Shape shape,
+( Side side, UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
@@ -746,19 +749,19 @@ void Symm
 //   C := alpha ( A B^H + B A^H ) + beta C,  { orientation = NORMAL }
 // or
 //   C := alpha ( A^H B + B^H A ) + beta C,  { orientation = TRANSPOSE }
-// where only the triangle of C specified by 'shape' is updated.
+// where only the triangle of C specified by 'uplo' is updated.
 //
 
 // Serial version
 template<typename T>
 void Syr2k
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
 void Syr2k
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C );
 
@@ -769,19 +772,19 @@ void Syr2k
 //   C := alpha A B^H + beta C,  { orientation = NORMAL }
 // or
 //   C := alpha A^H B + beta C,  { orientation = TRANSPOSE }
-// where only the triangle of C specified by 'shape' is updated.
+// where only the triangle of C specified by 'uplo' is updated.
 //
 
 // Serial version
 template<typename T>
 void Syrk
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
 
 // Parallel version
 template<typename T>
 void Syrk
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
 //
@@ -791,7 +794,7 @@ void Syrk
 //   B := alpha orientation( A ) B,  { side = LEFT }
 // or
 //   B := alpha B orientation( A ),  { side = RIGHT }
-// where 'shape' determines whether A is assumed to be upper or lower 
+// where 'uplo' determines whether A is assumed to be upper or lower 
 // triangular and 'diagonal' determines whether A has an implicit unit
 // diagonal.
 //
@@ -799,13 +802,13 @@ void Syrk
 // Serial version
 template<typename T>
 void Trmm
-( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   T alpha, const Matrix<T>& A, Matrix<T>& B );
 
 // Parallel version
 template<typename T>
 void Trmm
-( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
 
 //
@@ -816,7 +819,7 @@ void Trmm
 //   E := alpha (op(A) op(B) + op(C) op(D)) + beta E
 //
 // where op(X) is determined by 'orientationOfX', and only the triangle of 
-// X specified by 'shape' is updated.
+// X specified by 'uplo' is updated.
 //
 
 // TODO: Serial version
@@ -824,7 +827,7 @@ void Trmm
 // Parallel version (NOT YET WRITTEN!)
 template<typename T>
 void Trr2k
-( Shape shape, 
+( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, 
@@ -839,7 +842,7 @@ void Trr2k
 //   C := alpha op(A) op(B) + beta C
 //
 // where op(A) and op(B) are respectively determined by 'orientationOfA'
-// and 'orientationOfB'. Only the triangle of C specified by 'shape' is updated.
+// and 'orientationOfB'. Only the triangle of C specified by 'uplo' is updated.
 //
 
 // TODO: Serial version
@@ -847,7 +850,7 @@ void Trr2k
 // Parallel version (NOT YET WRITTEN!)
 template<typename T>
 void Trrk
-( Shape shape, Orientation orientationOfA, Orientation orientationOfB,
+( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, 
   T beta,        DistMatrix<T,MC,MR>& C );
 
@@ -858,7 +861,7 @@ void Trrk
 //   B := alpha orientation( A )^-1 B,  { side = LEFT }
 // or
 //   B := alpha B orientation( A )^-1,  { side = RIGHT }
-// where 'shape' determines whether A is assumed to be upper or lower
+// where 'uplo' determines whether A is assumed to be upper or lower
 // triangular and 'diagonal' determines whether A has an implicit unit
 // diagonal.
 //
@@ -866,14 +869,14 @@ void Trrk
 // Serial version
 template<typename F>
 void Trsm
-( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   F alpha, const Matrix<F>& A, Matrix<F>& B, 
   bool checkIfSingular=false ); 
         
 // Parallel version
 template<typename F>
 void Trsm
-( Side side, Shape shape, Orientation orientation, Diagonal diagonal,
+( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B,
   bool checkIfSingular=false );
 
@@ -1530,7 +1533,7 @@ elemental::basic::Geru
 template<typename T>
 inline void
 elemental::basic::Hemv
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
 #ifndef RELEASE
@@ -1545,7 +1548,7 @@ elemental::basic::Hemv
     if( A.Height() != xLength || A.Height() != yLength )
         throw std::logic_error("A must conform with x and y");
 #endif
-    const char uploChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
@@ -1561,7 +1564,7 @@ elemental::basic::Hemv
 template<typename T>
 inline void
 elemental::basic::Her
-( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A )
+( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Her");
@@ -1573,7 +1576,7 @@ elemental::basic::Her
     if( xLength != A.Height() )
         throw std::logic_error("x must conform with A");
 #endif
-    const char uploChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     blas::Her
@@ -1586,7 +1589,7 @@ elemental::basic::Her
 template<typename T>
 inline void
 elemental::basic::Her2
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
@@ -1601,7 +1604,7 @@ elemental::basic::Her2
     if( xLength != A.Height() || yLength != A.Height() )
         throw std::logic_error("x and y must conform with A");
 #endif
-    const char uploChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
@@ -1617,7 +1620,7 @@ elemental::basic::Her2
 template<typename T>
 inline void
 elemental::basic::Symv
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
 #ifndef RELEASE
@@ -1632,7 +1635,7 @@ elemental::basic::Symv
     if( A.Height() != xLength || A.Height() != yLength )
         throw std::logic_error("A must conform with x and y");
 #endif
-    const char uploChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
@@ -1648,7 +1651,7 @@ elemental::basic::Symv
 template<typename T>
 inline void
 elemental::basic::Syr
-( Shape shape, T alpha, const Matrix<T>& x, Matrix<T>& A )
+( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Syr");
@@ -1660,7 +1663,7 @@ elemental::basic::Syr
     if( xLength != A.Height() )
         throw std::logic_error("x must conform with A");
 #endif
-    const char uploChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     blas::Syr
@@ -1673,7 +1676,8 @@ elemental::basic::Syr
 template<typename T>
 inline void
 elemental::basic::Syr2
-( Shape shape, T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+( UpperOrLower uplo, 
+  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Syr2");
@@ -1687,7 +1691,7 @@ elemental::basic::Syr2
     if( xLength != A.Height() || yLength != A.Height() )
         throw std::logic_error("x and y must conform with A");
 #endif
-    const char uploChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
@@ -1703,7 +1707,7 @@ elemental::basic::Syr2
 template<typename T>
 inline void
 elemental::basic::Trmv
-( Shape shape, Orientation orientation, Diagonal diagonal,
+( UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   const Matrix<T>& A, Matrix<T>& x )
 {
 #ifndef RELEASE
@@ -1716,7 +1720,7 @@ elemental::basic::Trmv
     if( xLength != A.Height() )
         throw std::logic_error("x must conform with A");
 #endif
-    const char uploChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
     const char diagChar = DiagonalToChar( diagonal );
     const int m = A.Height();
@@ -1732,7 +1736,7 @@ elemental::basic::Trmv
 template<typename F>
 inline void
 elemental::basic::Trsv
-( Shape shape, Orientation orientation, Diagonal diagonal,
+( UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   const Matrix<F>& A, Matrix<F>& x )
 {
 #ifndef RELEASE
@@ -1745,7 +1749,7 @@ elemental::basic::Trsv
     if( xLength != A.Height() )
         throw std::logic_error("x must conform with A");
 #endif
-    const char uploChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
     const char diagChar = DiagonalToChar( diagonal );
     const int m = A.Height();
@@ -1823,16 +1827,16 @@ elemental::basic::Gemm
 template<typename T>
 inline void
 elemental::basic::Hemm
-( Side side, Shape shape,
+( Side side, UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("basic::Hemm");
 #endif
     const char sideChar = SideToChar( side );
-    const char shapeChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     blas::Hemm
-    ( sideChar, shapeChar, C.Height(), C.Width(),
+    ( sideChar, uploChar, C.Height(), C.Width(),
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
       beta,  C.Buffer(),       C.LDim() );
@@ -1844,7 +1848,7 @@ elemental::basic::Hemm
 template<typename T>
 inline void
 elemental::basic::Her2k
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
@@ -1865,11 +1869,11 @@ elemental::basic::Her2k
         throw std::logic_error
         ("Her2k only accepts NORMAL and ADJOINT options");
 #endif
-    const char uplo = ShapeToChar( shape );
-    const char trans = OrientationToChar( orientation );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char transChar = OrientationToChar( orientation );
     const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
     blas::Her2k
-    ( uplo, trans, C.Height(), k, 
+    ( uploChar, transChar, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
       beta,  C.Buffer(),       C.LDim() );
@@ -1881,7 +1885,7 @@ elemental::basic::Her2k
 template<typename T>
 inline void
 elemental::basic::Herk
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
@@ -1899,11 +1903,11 @@ elemental::basic::Herk
     else
         throw std::logic_error("Herk only accepts NORMAL and ADJOINT options.");
 #endif
-    const char uplo = ShapeToChar( shape );
-    const char trans = OrientationToChar( orientation );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char transChar = OrientationToChar( orientation );
     const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
     blas::Herk
-    ( uplo, trans, C.Height(), k, 
+    ( uploChar, transChar, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
       beta,  C.Buffer(),       C.LDim() );
 #ifndef RELEASE
@@ -1913,13 +1917,13 @@ elemental::basic::Herk
 
 template<typename T>
 inline void
-elemental::basic::Hetrmm( Shape shape, Matrix<T>& A )
+elemental::basic::Hetrmm( UpperOrLower uplo, Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Hetrmm");
 #endif
-    const char shapeChar = ShapeToChar( shape );
-    blas::Hetrmm( shapeChar, A.Height(), A.Buffer(), A.LDim() );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    blas::Hetrmm( uploChar, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1928,16 +1932,16 @@ elemental::basic::Hetrmm( Shape shape, Matrix<T>& A )
 template<typename T>
 inline void
 elemental::basic::Symm
-( Side side, Shape shape,
+( Side side, UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("basic::Symm");
 #endif
     const char sideChar = SideToChar( side );
-    const char shapeChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     blas::Symm
-    ( sideChar, shapeChar, C.Height(), C.Width(),
+    ( sideChar, uploChar, C.Height(), C.Width(),
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
       beta,  C.Buffer(),       C.LDim() );
@@ -1949,7 +1953,7 @@ elemental::basic::Symm
 template<typename T>
 inline void
 elemental::basic::Syr2k
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
@@ -1970,11 +1974,11 @@ elemental::basic::Syr2k
         throw std::logic_error
         ("Syr2k only accepts NORMAL and TRANSPOSE options");
 #endif
-    const char uplo = ShapeToChar( shape );
-    const char trans = OrientationToChar( orientation );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char transChar = OrientationToChar( orientation );
     const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
     blas::Syr2k
-    ( uplo, trans, C.Height(), k, 
+    ( uploChar, transChar, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
              B.LockedBuffer(), B.LDim(),
       beta,  C.Buffer(),       C.LDim() );
@@ -1986,7 +1990,7 @@ elemental::basic::Syr2k
 template<typename T>
 inline void
 elemental::basic::Syrk
-( Shape shape, Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
@@ -2005,11 +2009,11 @@ elemental::basic::Syrk
         throw std::logic_error
         ("Syrk only accepts NORMAL and TRANSPOSE options");
 #endif
-    const char uplo = ShapeToChar( shape );
-    const char trans = OrientationToChar( orientation );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char transChar = OrientationToChar( orientation );
     const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
     blas::Syrk
-    ( uplo, trans, C.Height(), k, 
+    ( uploChar, transChar, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
       beta,  C.Buffer(),       C.LDim() );
 #ifndef RELEASE
@@ -2020,7 +2024,7 @@ elemental::basic::Syrk
 template<typename T>
 inline void
 elemental::basic::Trmm
-( Side side, Shape shape, 
+( Side side, UpperOrLower uplo, 
   Orientation orientation, Diagonal diagonal,
   T alpha, const Matrix<T>& A, Matrix<T>& B )
 {
@@ -2040,7 +2044,7 @@ elemental::basic::Trmm
     }
 #endif
     const char sideChar = SideToChar( side );
-    const char uploChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
     const char diagChar = DiagonalToChar( diagonal );
     blas::Trmm
@@ -2054,7 +2058,7 @@ elemental::basic::Trmm
 template<typename F>
 inline void
 elemental::basic::Trsm
-( Side side, Shape shape,
+( Side side, UpperOrLower uplo,
   Orientation orientation,Diagonal diagonal,
   F alpha, const Matrix<F>& A, Matrix<F>& B,
   bool checkIfSingular )
@@ -2075,7 +2079,7 @@ elemental::basic::Trsm
     }
 #endif
     const char sideChar = SideToChar( side );
-    const char uploChar = ShapeToChar( shape );
+    const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
     const char diagChar = DiagonalToChar( diagonal );
     if( checkIfSingular && diagonal != UNIT )

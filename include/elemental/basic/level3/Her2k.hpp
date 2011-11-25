@@ -39,7 +39,7 @@
 template<typename T>
 inline void
 elemental::basic::Her2k
-( Shape shape, 
+( UpperOrLower uplo, 
   Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
@@ -50,9 +50,9 @@ elemental::basic::Her2k
     if( orientation == TRANSPOSE )
         throw std::logic_error("Her2k accepts NORMAL and ADJOINT options");
 #endif
-    if( shape == LOWER && orientation == NORMAL )
+    if( uplo == LOWER && orientation == NORMAL )
         basic::internal::Her2kLN( alpha, A, B, beta, C );
-    else if( shape == LOWER )
+    else if( uplo == LOWER )
         basic::internal::Her2kLC( alpha, A, B, beta, C );
     else if( orientation == NORMAL )
         basic::internal::Her2kUN( alpha, A, B, beta, C );

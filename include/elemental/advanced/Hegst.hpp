@@ -53,7 +53,7 @@
 template<typename F> // F represents a real or complex field
 inline void
 elemental::advanced::Hegst
-( Side side, Shape shape, 
+( Side side, UpperOrLower uplo, 
   DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B )
 {
 #ifndef RELEASE
@@ -61,14 +61,14 @@ elemental::advanced::Hegst
 #endif
     if( side == LEFT )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             advanced::internal::HegstLLVar4( A, B );
         else
             advanced::internal::HegstLUVar4( A, B );
     }
     else
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
             advanced::internal::HegstRLVar4( A, B );
         else
             advanced::internal::HegstRUVar4( A, B );

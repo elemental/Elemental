@@ -38,13 +38,13 @@ using namespace elemental;
 void Usage()
 {
     cout << "Reduced a Hermitian GEneralized EVP to Hermitian STandard EVP\n\n"
-         << "  Hegst <r> <c> <side> <shape> <m> <nb> <correctness?> "
+         << "  Hegst <r> <c> <side> <uplo> <m> <nb> <correctness?> "
             "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  side: we set up ABX=XW or BAX=XW if side=LEFT, \n"
          << "                            AX=BXW if side=RIGHT\n"
-         << "  shape: {L,U}\n"
+         << "  uplo: {L,U}\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
          << "  test correctness?: false iff 0\n"
@@ -53,7 +53,7 @@ void Usage()
 
 template<typename F> // represents a real or complex field
 void TestCorrectness
-( bool printMatrices, Side side, Shape shape,
+( bool printMatrices, Side side, UpperOrLower uplo,
   const DistMatrix<F,MC,MR>& A,
   const DistMatrix<F,MC,MR>& B,
   const DistMatrix<F,MC,MR>& AOrig )
@@ -69,7 +69,7 @@ void TestCorrectness
 
     if( side == RIGHT )
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
@@ -79,11 +79,11 @@ void TestCorrectness
             basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, B, Z );
             basic::Hemm( LEFT, LOWER, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
-            F infNormOfA = advanced::HermitianNorm( shape, A, INFINITY_NORM );
-            F frobNormOfA = advanced::HermitianNorm( shape, A, FROBENIUS_NORM );
+                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+            F infNormOfA = advanced::HermitianNorm( uplo, A, INFINITY_NORM );
+            F frobNormOfA = advanced::HermitianNorm( uplo, A, FROBENIUS_NORM );
             F oneNormOfError = advanced::Norm( Z, ONE_NORM );
             F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
             F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
@@ -115,11 +115,11 @@ void TestCorrectness
             basic::Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, B, Z );
             basic::Hemm( LEFT, UPPER, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
-            F infNormOfA = advanced::HermitianNorm( shape, A, INFINITY_NORM );
-            F frobNormOfA = advanced::HermitianNorm( shape, A, FROBENIUS_NORM );
+                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+            F infNormOfA = advanced::HermitianNorm( uplo, A, INFINITY_NORM );
+            F frobNormOfA = advanced::HermitianNorm( uplo, A, FROBENIUS_NORM );
             F oneNormOfError = advanced::Norm( Z, ONE_NORM );
             F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
             F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
@@ -144,7 +144,7 @@ void TestCorrectness
     }
     else
     {
-        if( shape == LOWER )
+        if( uplo == LOWER )
         {
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
@@ -154,13 +154,13 @@ void TestCorrectness
             basic::Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, B, Z );
             basic::Hemm( LEFT, LOWER, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
             F infNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
             F frobNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
             F oneNormOfError = advanced::Norm( Z, ONE_NORM );
             F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
             F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
@@ -192,13 +192,13 @@ void TestCorrectness
             basic::Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, B, Z );
             basic::Hemm( LEFT, UPPER, (F)-1, A, X, (F)1, Z );
             F infNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
             F frobNormOfAOrig = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
             F infNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, INFINITY_NORM );
+                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
             F frobNormOfA = 
-                advanced::HermitianNorm( shape, AOrig, FROBENIUS_NORM );
+                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
             F oneNormOfError = advanced::Norm( Z, ONE_NORM );
             F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
             F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
@@ -226,7 +226,7 @@ void TestCorrectness
 template<typename F> // represents a real or complex field
 void TestHegst
 ( bool testCorrectness, bool printMatrices,
-  Side side, Shape shape, int m, const Grid& g )
+  Side side, UpperOrLower uplo, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<F,MC,MR> A(g);
@@ -240,17 +240,17 @@ void TestHegst
     {
         DistMatrix<F,MC,MR> C( m, m, g );
         C.SetToRandom();
-        basic::Herk( shape, NORMAL, (F)1, C, (F)0, A );
+        basic::Herk( uplo, NORMAL, (F)1, C, (F)0, A );
         C.SetToRandom();
-        basic::Herk( shape, NORMAL, (F)1, C, (F)0, B );
-        advanced::Cholesky( shape, B );
+        basic::Herk( uplo, NORMAL, (F)1, C, (F)0, B );
+        advanced::Cholesky( uplo, B );
     }
     else
     {
         A.SetToRandomHPD();
         B.SetToRandomHPD();
     }
-    B.MakeTrapezoidal( LEFT, shape );
+    B.MakeTrapezoidal( LEFT, uplo );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -275,7 +275,7 @@ void TestHegst
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::Hegst( side, shape, A, B );
+    advanced::Hegst( side, uplo, A, B );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -289,7 +289,7 @@ void TestHegst
     if( printMatrices )
         A.Print("A after reduction");
     if( testCorrectness )
-        TestCorrectness( printMatrices, side, shape, A, B, AOrig );
+        TestCorrectness( printMatrices, side, uplo, A, B, AOrig );
 }
 
 int 
@@ -313,7 +313,7 @@ main( int argc, char* argv[] )
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
         const Side side = CharToSide(*argv[++argNum]);
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
         const bool testCorrectness = atoi(argv[++argNum]);
@@ -331,8 +331,8 @@ main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "Will test Hegst" << SideToChar(side) << ShapeToChar(shape)
-                 << endl;
+            cout << "Will test Hegst" << SideToChar(side) 
+                 << UpperOrLowerToChar(uplo) << endl;
         }
 
         if( rank == 0 )
@@ -342,7 +342,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestHegst<double>
-        ( testCorrectness, printMatrices, side, shape, m, g );
+        ( testCorrectness, printMatrices, side, uplo, m, g );
 
 #ifndef WITHOUT_COMPLEX
         if( rank == 0 )
@@ -352,7 +352,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHegst<dcomplex>
-        ( testCorrectness, printMatrices, side, shape, m, g );
+        ( testCorrectness, printMatrices, side, uplo, m, g );
 #endif
     }
     catch( exception& e )

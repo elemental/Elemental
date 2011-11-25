@@ -1371,7 +1371,7 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
             // Pairwise exchange with the transpose process
             int sendSize = A22.LocalWidth();
             int recvSize = A22.LocalHeight();
-            vector<C> recvBuffer(recvSize);
+            std::vector<C> recvBuffer(recvSize);
             mpi::SendRecv
             ( q21_MR_STAR.LocalBuffer(), sendSize, transposeRank, 0,
               &recvBuffer[0],            recvSize, transposeRank, 0,

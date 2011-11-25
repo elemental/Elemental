@@ -46,7 +46,7 @@
 template<typename T>
 inline void
 elemental::basic::Trrk
-( Shape shape, 
+( UpperOrLower uplo, 
   Orientation orientationOfA,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -58,7 +58,7 @@ elemental::basic::Trrk
 #endif
     throw std::logic_error("basic::Trrk is not yet written");
     /*
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         if( orientationOfA==NORMAL && orientationOfB==NORMAL )
             basic::internal::TrrkLNN( alpha, A, B, beta, C );

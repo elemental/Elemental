@@ -36,14 +36,14 @@
 
 template<typename T>
 inline void
-elemental::basic::Hetrmm( Shape shape, DistMatrix<T,MC,MR>& A )
+elemental::basic::Hetrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Hetrmm");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
-    if( shape == LOWER )
+    if( uplo == LOWER )
         basic::internal::HetrmmLVar1( A );
     else
         basic::internal::HetrmmUVar1( A );

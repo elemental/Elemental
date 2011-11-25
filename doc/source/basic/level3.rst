@@ -22,14 +22,14 @@ Hermitian matrix-matrix multiplication: updates
 :math:`C := \alpha A B + \beta C`, or 
 :math:`C := \alpha B A + \beta C`, depending upon whether `side` is set to 
 ``LEFT`` or ``RIGHT``, respectively. In both of these types of updates, 
-:math:`A` is implicitly Hermitian and only the triangle specified by `shape` is 
+:math:`A` is implicitly Hermitian and only the triangle specified by `uplo` is 
 accessed.
 
-.. cpp:function:: void basic::Hemm( Side side, Shape shape, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+.. cpp:function:: void basic::Hemm( Side side, UpperOrLower uplo, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Hemm( Side side, Shape shape, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void basic::Hemm( Side side, UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -39,13 +39,13 @@ Hermitian rank-2K update: updates
 :math:`C := \alpha (A B^H + B A^H) + \beta C`, or 
 :math:`C := \alpha (A^H B + B^H A) + \beta C`, depending upon whether 
 `orientation` is set to ``NORMAL`` or ``ADJOINT``, respectively. Only the 
-triangle of :math:`C` specified by the `shape` parameter is modified.
+triangle of :math:`C` specified by the `uplo` parameter is modified.
 
-.. cpp:function:: void basic::Her2k( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+.. cpp:function:: void basic::Her2k( UpperOrLower uplo, Orientation orientation, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Her2k( Shape shape, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void basic::Her2k( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -60,13 +60,13 @@ Hermitian rank-K update: updates
 :math:`C := \alpha A A^H + \beta C`, or 
 :math:`C := \alpha A^H A + \beta C`, depending upon whether `orientation` is
 set to ``NORMAL`` or ``ADJOINT``, respectively. Only the triangle of :math:`C` 
-specified by the `shape` parameter is modified.
+specified by the `uplo` parameter is modified.
 
-.. cpp:function:: void basic::Herk( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
+.. cpp:function:: void basic::Herk( UpperOrLower uplo, Orientation orientation, T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Herk( Shape shape, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void basic::Herk( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -84,13 +84,13 @@ Hetrmm
 
 Hermitian triangular matrix-matrix multiply: performs 
 :math:`L := L^H L` or :math:`U := U U^H`, depending upon the choice of the 
-`shape` parameter. 
+`uplo` parameter. 
 
-.. cpp:function:: void basic::Hetrmm( Shape shape, Matrix<T>& A )
+.. cpp:function:: void basic::Hetrmm( UpperOrLower uplo, Matrix<T>& A )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Hetrmm( Shape shape, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void basic::Hetrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
 
    The distributed implementation (templated over the datatype).
 
@@ -100,14 +100,14 @@ Symmetric matrix-matrix multiplication: updates
 :math:`C := \alpha A B + \beta C`, or 
 :math:`C := \alpha B A + \beta C`, depending upon whether `side` is set to 
 ``LEFT`` or ``RIGHT``, respectively. In both of these types of updates, 
-:math:`A` is implicitly symmetric and only the triangle specified by `shape` 
+:math:`A` is implicitly symmetric and only the triangle specified by `uplo` 
 is accessed.
 
-.. cpp:function:: void basic::Symm( Side side, Shape shape, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+.. cpp:function:: void basic::Symm( Side side, UpperOrLower uplo, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Symm( Side side, Shape shape, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void basic::Symm( Side side, UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -117,13 +117,13 @@ Symmetric rank-2K update: updates
 :math:`C := \alpha (A B^T + B A^T) + \beta C`, or 
 :math:`C := \alpha (A^T B + B^T A) + \beta C`, depending upon whether 
 `orientation` is set to ``NORMAL`` or ``TRANSPOSE``, respectively. Only the 
-triangle of :math:`C` specified by the `shape` parameter is modified.
+triangle of :math:`C` specified by the `uplo` parameter is modified.
 
-.. cpp:function:: void basic::Syr2k( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+.. cpp:function:: void basic::Syr2k( UpperOrLower uplo, Orientation orientation, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Syr2k( Shape shape, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void basic::Syr2k( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -138,13 +138,13 @@ Symmetric rank-K update: updates
 :math:`C := \alpha A A^T + \beta C`, or 
 :math:`C := \alpha A^T A + \beta C`, depending upon whether `orientation` is
 set to ``NORMAL`` or ``TRANSPOSE``, respectively. Only the triangle of :math:`C`
-specified by the `shape` parameter is modified.
+specified by the `uplo` parameter is modified.
 
-.. cpp:function:: void basic::Syrk( Shape shape, Orientation orientation, T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
+.. cpp:function:: void basic::Syrk( UpperOrLower uplo, Orientation orientation, T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Syrk( Shape shape, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void basic::Syrk( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -158,15 +158,15 @@ Triangular matrix-matrix multiplication: performs
 :math:`C := \alpha \mbox{op}(A) B`, or 
 :math:`C := \alpha B \mbox{op}(A)`, depending upon whether `side` was chosen
 to be ``LEFT`` or ``RIGHT``, respectively. Whether :math:`A` is treated as 
-lower or upper triangular is determined by `shape`, and :math:`\mbox{op}(A)` 
+lower or upper triangular is determined by `uplo`, and :math:`\mbox{op}(A)` 
 can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and `diagonal` determines
 whether :math:`A` is treated as unit diagonal or not).
 
-.. cpp:function:: void basic::Trmm( Side side, Shape shape, Orientation orientation, Diagonal diagonal, T alpha, const Matrix<T>& A, Matrix<T>& B )
+.. cpp:function:: void basic::Trmm( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal, T alpha, const Matrix<T>& A, Matrix<T>& B )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Trmm( Side side, Shape shape, Orientation orientation, Diagonal diagonal, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+.. cpp:function:: void basic::Trmm( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
 
    The distributed implementation (templated over the datatype).
 
@@ -176,14 +176,14 @@ Triangular solve with multiple right-hand sides: performs
 :math:`C := \alpha \mbox{op}(A)^{-1} B`, or 
 :math:`C := \alpha B \mbox{op}(A)^{-1}`, depending upon whether `side` was 
 chosen to be ``LEFT`` or ``RIGHT``, respectively. Whether :math:`A` is treated 
-as lower or upper triangular is determined by `shape`, and :math:`\mbox{op}(A)` 
+as lower or upper triangular is determined by `uplo`, and :math:`\mbox{op}(A)` 
 can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and `diagonal` determines
 whether :math:`A` is treated as unit diagonal or not).
 
-.. cpp:function:: void basic::Trsm( Side side, Shape shape, Orientation orientation, Diagonal diagonal, T alpha, const Matrix<T>& A, Matrix<T>& B )
+.. cpp:function:: void basic::Trsm( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal, T alpha, const Matrix<T>& A, Matrix<T>& B )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void basic::Trsm( Side side, Shape shape, Orientation orientation, Diagonal diagonal, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+.. cpp:function:: void basic::Trsm( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
 
    The distributed implementation (templated over the datatype).

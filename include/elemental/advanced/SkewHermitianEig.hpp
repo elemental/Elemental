@@ -39,7 +39,7 @@
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z )
@@ -70,7 +70,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, A, wImag, Z );
+    advanced::HermitianEig( uplo, A, wImag, Z );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -84,7 +84,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
@@ -116,7 +116,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, A, wImag, Z, a, b );
+    advanced::HermitianEig( uplo, A, wImag, Z, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -128,7 +128,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
@@ -160,7 +160,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, A, wImag, Z, a, b );
+    advanced::HermitianEig( uplo, A, wImag, Z, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -171,7 +171,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& G,
   DistMatrix<double,VR,STAR>& wImag )
 {
@@ -201,7 +201,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, A, wImag );
+    advanced::HermitianEig( uplo, A, wImag );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -215,7 +215,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& G,
   DistMatrix<double,VR,STAR>& wImag,
   int a, int b )
@@ -246,7 +246,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, A, wImag, a, b );
+    advanced::HermitianEig( uplo, A, wImag, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -258,7 +258,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& G,
   DistMatrix<double,VR,STAR>& wImag,
   double a, double b )
@@ -289,7 +289,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, A, wImag, a, b );
+    advanced::HermitianEig( uplo, A, wImag, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -300,7 +300,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z )
@@ -313,10 +313,10 @@ elemental::advanced::SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, G, wImag, Z );
+    advanced::HermitianEig( uplo, G, wImag, Z );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -331,7 +331,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
@@ -345,10 +345,10 @@ elemental::advanced::SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, G, wImag, Z, a, b );
+    advanced::HermitianEig( uplo, G, wImag, Z, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -361,7 +361,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z,
@@ -375,10 +375,10 @@ elemental::advanced::SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, G, wImag, Z, a, b );
+    advanced::HermitianEig( uplo, G, wImag, Z, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -389,7 +389,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag )
 {
@@ -401,10 +401,10 @@ elemental::advanced::SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, G, wImag );
+    advanced::HermitianEig( uplo, G, wImag );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -419,7 +419,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   int a, int b )
@@ -432,10 +432,10 @@ elemental::advanced::SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, G, wImag, a, b );
+    advanced::HermitianEig( uplo, G, wImag, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -448,7 +448,7 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::SkewHermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   double a, double b )
@@ -461,10 +461,10 @@ elemental::advanced::SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, shape );
+    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( shape, G, wImag, a, b );
+    advanced::HermitianEig( uplo, G, wImag, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif

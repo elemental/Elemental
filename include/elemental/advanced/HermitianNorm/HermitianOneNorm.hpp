@@ -34,7 +34,7 @@
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianOneNorm
-( Shape shape, const Matrix<R>& A )
+( UpperOrLower uplo, const Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianOneNorm");
@@ -42,7 +42,7 @@ elemental::advanced::internal::HermitianOneNorm
     if( A.Height() != A.Width() )
         throw std::runtime_error("Hermitian matrices must be square.");
     R maxColSum = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -76,7 +76,7 @@ elemental::advanced::internal::HermitianOneNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianOneNorm
-( Shape shape, const Matrix<std::complex<R> >& A )
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianOneNorm");
@@ -85,7 +85,7 @@ elemental::advanced::internal::HermitianOneNorm
         throw std::runtime_error("Hermitian matrices must be square.");
 
     R maxColSum = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -119,7 +119,7 @@ elemental::advanced::internal::HermitianOneNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianOneNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianOneNorm");
@@ -137,7 +137,7 @@ elemental::advanced::internal::HermitianOneNorm
     int colShift = A.ColShift();
 
     R maxColSum = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         std::vector<R> myPartialUpperColSums(A.LocalWidth());
         std::vector<R> myPartialStrictlyUpperRowSums(A.LocalHeight());
@@ -240,7 +240,7 @@ elemental::advanced::internal::HermitianOneNorm
 template<typename R> // representation of a real number
 R
 elemental::advanced::internal::HermitianOneNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianOneNorm");
@@ -257,7 +257,7 @@ elemental::advanced::internal::HermitianOneNorm
     int r = A.Grid().Height();
     int c = A.Grid().Width();
     R maxColSum = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         std::vector<R> myPartialUpperColSums(A.LocalWidth());
         std::vector<R> myPartialStrictlyUpperRowSums(A.LocalHeight());

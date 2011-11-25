@@ -871,7 +871,7 @@ CheckInput
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E )
@@ -909,11 +909,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
     }
@@ -921,27 +920,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -953,7 +949,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,MR,STAR>& D,
@@ -995,11 +991,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
     }
@@ -1007,27 +1002,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1039,7 +1031,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfC,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,STAR,MR>& D,
@@ -1077,11 +1069,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
-        
         basic::internal::LocalGemm
         ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
     }
@@ -1089,27 +1080,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1121,7 +1109,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfC, Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,MR,STAR>& D,
@@ -1162,11 +1150,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
     }
@@ -1174,27 +1161,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1206,7 +1190,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
@@ -1248,11 +1232,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
     }
@@ -1260,27 +1243,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1292,7 +1272,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
@@ -1336,11 +1316,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
     }
@@ -1348,27 +1327,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1380,7 +1356,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB, Orientation orientationOfC,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,MR,STAR>& B,
            const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,STAR,MR>& D,
@@ -1421,11 +1397,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
     }
@@ -1433,27 +1408,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1465,7 +1437,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfC,
   Orientation orientationOfD,
@@ -1511,11 +1483,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
     }
@@ -1523,27 +1494,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1555,7 +1523,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
@@ -1593,11 +1561,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA, NORMAL, alpha, AR, BL, (T)1, EBL );
-        
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
     }
@@ -1605,27 +1572,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( orientationOfA, NORMAL, alpha, AL, BR, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1637,7 +1601,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfD,
   T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,MR,STAR>& D,
@@ -1678,11 +1642,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA, NORMAL, alpha, AR, BL, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
     }
@@ -1690,27 +1653,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( orientationOfA, NORMAL, alpha, AL, BR, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1722,7 +1682,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfC,
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B,
@@ -1758,11 +1718,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA, NORMAL, alpha, AR, BL, (T)1, EBL );
-        
         basic::internal::LocalGemm
         ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
     }
@@ -1770,27 +1729,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( orientationOfA, NORMAL, alpha, AL, BR, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1802,7 +1758,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfC,
   Orientation orientationOfD,
@@ -1842,11 +1798,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA, NORMAL, alpha, AR, BL, (T)1, EBL );
-        
         basic::internal::LocalGemm
         ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
     }
@@ -1854,27 +1809,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( orientationOfA, NORMAL, alpha, AL, BR, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1886,7 +1838,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,MR,STAR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
@@ -1927,11 +1879,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
     }
@@ -1939,27 +1890,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1971,7 +1919,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   Orientation orientationOfD,
@@ -2017,11 +1965,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
     }
@@ -2029,27 +1976,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -2061,7 +2005,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   Orientation orientationOfC,
@@ -2101,11 +2045,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, EBL );
-        
         basic::internal::LocalGemm
         ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
     }
@@ -2113,27 +2056,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -2145,7 +2085,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 LocalTrr2kKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B,
@@ -2187,11 +2127,10 @@ LocalTrr2kKernel
     FTL.ResizeTo( ETL.Height(), ETL.Width() );
     FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, EBL );
-
         basic::internal::LocalGemm
         ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
     }
@@ -2199,27 +2138,24 @@ LocalTrr2kKernel
     {
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, ETR );
-
         basic::internal::LocalGemm
         ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
     }
 
     basic::internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
-
     basic::internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, shape );
+    FTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FTL, ETL );
 
     basic::internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
-
     basic::internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, shape );
+    FBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -2235,7 +2171,7 @@ LocalTrr2kKernel
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E )
@@ -2249,7 +2185,7 @@ elemental::basic::internal::LocalTrr2k
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
-        LocalTrr2kKernel( shape, alpha, A, B, C, D, beta, E );
+        LocalTrr2kKernel( uplo, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -2275,11 +2211,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
-
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
         }
@@ -2287,17 +2222,13 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
-            
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
         }
 
         // Recurse
-        basic::internal::LocalTrr2k
-        ( shape, alpha, AT, BL, CT, DL, beta, ETL );
-
-        basic::internal::LocalTrr2k
-        ( shape, alpha, AB, BR, CB, DR, beta, EBR );
+        basic::internal::LocalTrr2k( uplo, alpha, AT, BL, CT, DL, beta, ETL );
+        basic::internal::LocalTrr2k( uplo, alpha, AB, BR, CB, DR, beta, EBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2308,7 +2239,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,MR,STAR>& D,
@@ -2323,7 +2254,7 @@ elemental::basic::internal::LocalTrr2k
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
-        LocalTrr2kKernel( shape, orientationOfD, alpha, A, B, C, D, beta, E );
+        LocalTrr2kKernel( uplo, orientationOfD, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -2352,11 +2283,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
-
             basic::internal::LocalGemm
             ( NORMAL, orientationOfD, alpha, CB, DT, beta, EBL );
         }
@@ -2364,17 +2294,15 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
-
             basic::internal::LocalGemm
             ( NORMAL, orientationOfD, alpha, CT, DB, beta, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfD, alpha, AT, BL, CT, DT, beta, ETL );
-
+        ( uplo, orientationOfD, alpha, AT, BL, CT, DT, beta, ETL );
         basic::internal::LocalTrr2k
-        ( shape, orientationOfD, alpha, AB, BR, CB, DB, beta, EBR );
+        ( uplo, orientationOfD, alpha, AB, BR, CB, DB, beta, EBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2385,7 +2313,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfC,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,STAR,MR>& D,
@@ -2400,7 +2328,7 @@ elemental::basic::internal::LocalTrr2k
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
-        LocalTrr2kKernel( shape, orientationOfC, alpha, A, B, C, D, beta, E );
+        LocalTrr2kKernel( uplo, orientationOfC, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -2425,11 +2353,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
-
             basic::internal::LocalGemm
             ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
         }
@@ -2437,17 +2364,15 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
-
             basic::internal::LocalGemm
             ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfC, alpha, AT, BL, CL, DL, beta, ETL );
-
+        ( uplo, orientationOfC, alpha, AT, BL, CL, DL, beta, ETL );
         basic::internal::LocalTrr2k
-        ( shape, orientationOfC, alpha, AB, BR, CR, DR, beta, EBR );
+        ( uplo, orientationOfC, alpha, AB, BR, CR, DR, beta, EBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2458,7 +2383,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfC,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
@@ -2475,7 +2400,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfC, orientationOfD, alpha, A, B, C, D, beta, E );
+        ( uplo, orientationOfC, orientationOfD, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -2503,11 +2428,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
-
             basic::internal::LocalGemm
             ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
         }
@@ -2515,18 +2439,16 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
-
             basic::internal::LocalGemm
             ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfC, orientationOfD, 
+        ( uplo, orientationOfC, orientationOfD, 
           alpha, AT, BL, CL, DT, beta, ETL );
-
         basic::internal::LocalTrr2k
-        ( shape, orientationOfC, orientationOfD,
+        ( uplo, orientationOfC, orientationOfD,
           alpha, AB, BR, CR, DB, beta, EBR );
     }
 #ifndef RELEASE
@@ -2538,7 +2460,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,MR,STAR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
@@ -2553,7 +2475,7 @@ elemental::basic::internal::LocalTrr2k
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
-        LocalTrr2kKernel( shape, orientationOfB, alpha, A, B, C, D, beta, E );
+        LocalTrr2kKernel( uplo, orientationOfB, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -2582,11 +2504,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
-
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, CB, DL, beta, EBL );
         }
@@ -2594,17 +2515,15 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
-
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, CT, DR, beta, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfB, alpha, AT, BT, CT, DL, beta, ETL );
-
+        ( uplo, orientationOfB, alpha, AT, BT, CT, DL, beta, ETL );
         basic::internal::LocalTrr2k
-        ( shape, orientationOfB, alpha, AB, BB, CB, DR, beta, EBR );
+        ( uplo, orientationOfB, alpha, AB, BB, CB, DR, beta, EBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2615,7 +2534,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
@@ -2632,7 +2551,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfB, orientationOfD, alpha, A, B, C, D, beta, E );
+        ( uplo, orientationOfB, orientationOfD, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -2662,11 +2581,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
-
             basic::internal::LocalGemm
             ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
         }
@@ -2674,18 +2592,16 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
-
             basic::internal::LocalGemm
             ( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfB, orientationOfD,
+        ( uplo, orientationOfB, orientationOfD,
           alpha, AT, BT, CT, DT, beta, ETL );
-
         basic::internal::LocalTrr2k
-        ( shape, orientationOfB, orientationOfD,
+        ( uplo, orientationOfB, orientationOfD,
           alpha, AB, BB, CB, DB, beta, EBR );
     }
 #ifndef RELEASE
@@ -2697,7 +2613,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfC,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,MR,STAR>& B,
@@ -2714,7 +2630,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfB, orientationOfC, alpha, A, B, C, D, beta, E );
+        ( uplo, orientationOfB, orientationOfC, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -2742,11 +2658,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
-
             basic::internal::LocalGemm
             ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
         }
@@ -2754,18 +2669,16 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
-
             basic::internal::LocalGemm
             ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfB, orientationOfC,
+        ( uplo, orientationOfB, orientationOfC,
           alpha, AT, BT, CL, DL, beta, ETL );
-
         basic::internal::LocalTrr2k
-        ( shape, orientationOfB, orientationOfC,
+        ( uplo, orientationOfB, orientationOfC,
           alpha, AB, BB, CR, DR, beta, EBR );
     }
 #ifndef RELEASE
@@ -2777,7 +2690,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfC,
   Orientation orientationOfD,
@@ -2795,7 +2708,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfB, orientationOfC, orientationOfD, 
+        ( uplo, orientationOfB, orientationOfC, orientationOfD, 
           alpha, A, B, C, D, beta, E );
     }
     else
@@ -2825,11 +2738,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
-
             basic::internal::LocalGemm
             ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
         }
@@ -2837,18 +2749,16 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
-
             basic::internal::LocalGemm
             ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfB, orientationOfC, orientationOfD,
+        ( uplo, orientationOfB, orientationOfC, orientationOfD,
           alpha, AT, BT, CL, DT, beta, ETL );
-
         basic::internal::LocalTrr2k
-        ( shape, orientationOfB, orientationOfC, orientationOfD,
+        ( uplo, orientationOfB, orientationOfC, orientationOfD,
           alpha, AB, BB, CR, DB, beta, EBR );
     }
 #ifndef RELEASE
@@ -2860,7 +2770,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
@@ -2875,7 +2785,7 @@ elemental::basic::internal::LocalTrr2k
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
-        LocalTrr2kKernel( shape, orientationOfA, alpha, A, B, C, D, beta, E );
+        LocalTrr2kKernel( uplo, orientationOfA, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -2900,11 +2810,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
         }
@@ -2912,17 +2821,15 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, alpha, AL, BL, CT, DL, beta, ETL );
-
+        ( uplo, orientationOfA, alpha, AL, BL, CT, DL, beta, ETL );
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, alpha, AR, BR, CB, DR, beta, EBR );
+        ( uplo, orientationOfA, alpha, AR, BR, CB, DR, beta, EBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2933,7 +2840,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,STAR,MR>& B,
@@ -2950,7 +2857,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfA, orientationOfD, alpha, A, B, C, D, beta, E );
+        ( uplo, orientationOfA, orientationOfD, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -2978,11 +2885,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-
             basic::internal::LocalGemm
             ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
         }
@@ -2990,18 +2896,16 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-
             basic::internal::LocalGemm
             ( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfD,
+        ( uplo, orientationOfA, orientationOfD,
           alpha, AL, BL, CT, DT, beta, ETL );
-
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfD,
+        ( uplo, orientationOfA, orientationOfD,
           alpha, AR, BR, CB, DB, beta, EBR );
     }
 #ifndef RELEASE
@@ -3013,7 +2917,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfC,
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B,
@@ -3030,8 +2934,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfA, orientationOfC, 
-          alpha, A, B, C, D, beta, E );
+        ( uplo, orientationOfA, orientationOfC, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -3053,11 +2956,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-
             basic::internal::LocalGemm
             ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
         }
@@ -3065,18 +2967,16 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-
             basic::internal::LocalGemm
             ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfC,
+        ( uplo, orientationOfA, orientationOfC,
           alpha, AL, BL, CL, DL, beta, ETL );
-
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfC, 
+        ( uplo, orientationOfA, orientationOfC, 
           alpha, AR, BR, CR, DR, beta, EBR );
     }
 #ifndef RELEASE
@@ -3088,7 +2988,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfC,
   Orientation orientationOfD,
@@ -3106,7 +3006,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfA, orientationOfC, orientationOfD,
+        ( uplo, orientationOfA, orientationOfC, orientationOfD,
           alpha, A, B, C, D, beta, E );
     }
     else
@@ -3132,11 +3032,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-
             basic::internal::LocalGemm
             ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
         }
@@ -3144,18 +3043,16 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-
             basic::internal::LocalGemm
             ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfC, orientationOfD,
+        ( uplo, orientationOfA, orientationOfC, orientationOfD,
           alpha, AL, BL, CL, DT, beta, ETL );
-
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfC, orientationOfD,
+        ( uplo, orientationOfA, orientationOfC, orientationOfD,
           alpha, AR, BR, CR, DB, beta, EBR );
     }
 #ifndef RELEASE
@@ -3167,7 +3064,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,MR,STAR>& B,
@@ -3184,7 +3081,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfA, orientationOfB, alpha, A, B, C, D, beta, E );
+        ( uplo, orientationOfA, orientationOfB, alpha, A, B, C, D, beta, E );
     }
     else
     {
@@ -3212,11 +3109,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
-
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
         }
@@ -3224,18 +3120,16 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfB,
+        ( uplo, orientationOfA, orientationOfB,
           alpha, AL, BT, CT, DL, beta, ETL );
-
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfB,
+        ( uplo, orientationOfA, orientationOfB,
           alpha, AR, BB, CB, DR, beta, EBR );
     }
 #ifndef RELEASE
@@ -3247,7 +3141,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   Orientation orientationOfD,
@@ -3265,7 +3159,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfA, orientationOfB, orientationOfD, 
+        ( uplo, orientationOfA, orientationOfB, orientationOfD, 
           alpha, A, B, C, D, beta, E );
     }
     else
@@ -3295,11 +3189,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
-
             basic::internal::LocalGemm
             ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
         }
@@ -3307,18 +3200,16 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-
             basic::internal::LocalGemm
             ( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfB, orientationOfD,
+        ( uplo, orientationOfA, orientationOfB, orientationOfD,
           alpha, AL, BT, CT, DT, beta, ETL );
-
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfB, orientationOfD,
+        ( uplo, orientationOfA, orientationOfB, orientationOfD,
           alpha, AR, BB, CB, DB, beta, EBR );
     }
 #ifndef RELEASE
@@ -3330,7 +3221,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   Orientation orientationOfC,
@@ -3348,7 +3239,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfA, orientationOfB, orientationOfC,
+        ( uplo, orientationOfA, orientationOfB, orientationOfC,
           alpha, A, B, C, D, beta, E );
     }
     else
@@ -3374,11 +3265,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
-
             basic::internal::LocalGemm
             ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
         }
@@ -3386,18 +3276,16 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-
             basic::internal::LocalGemm
             ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfB, orientationOfC,
+        ( uplo, orientationOfA, orientationOfB, orientationOfC,
           alpha, AL, BT, CL, DL, beta, ETL );
-
         basic::internal::LocalTrr2k
-        ( shape, orientationOfA, orientationOfB, orientationOfC,
+        ( uplo, orientationOfA, orientationOfB, orientationOfC,
           alpha, AR, BB, CR, DR, beta, EBR );
     }
 #ifndef RELEASE
@@ -3409,7 +3297,7 @@ elemental::basic::internal::LocalTrr2k
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrr2k
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   Orientation orientationOfC,
@@ -3430,7 +3318,7 @@ elemental::basic::internal::LocalTrr2k
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
-        ( shape, orientationOfA, orientationOfB, orientationOfC, orientationOfD,
+        ( uplo, orientationOfA, orientationOfB, orientationOfC, orientationOfD,
           alpha, A, B, C, D, beta, E );
     }
     else
@@ -3457,11 +3345,10 @@ elemental::basic::internal::LocalTrr2k
         ( E, ETL, ETR,
              EBL, EBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
-
             basic::internal::LocalGemm
             ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
         }
@@ -3469,19 +3356,18 @@ elemental::basic::internal::LocalTrr2k
         {
             basic::internal::LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-
             basic::internal::LocalGemm
             ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
         }
 
         // Recurse
         basic::internal::LocalTrr2k
-        ( shape, 
+        ( uplo, 
           orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
           alpha, AL, BT, CL, DT, beta, ETL );
 
         basic::internal::LocalTrr2k
-        ( shape, 
+        ( uplo, 
           orientationOfA, orientationOfB, orientationOfC, orientationOfD,
           alpha, AR, BB, CR, DB, beta, EBR );
     }

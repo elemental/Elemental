@@ -34,7 +34,7 @@
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianMaxNorm
-( Shape shape, const Matrix<R>& A )
+( UpperOrLower uplo, const Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianMaxNorm");
@@ -43,7 +43,7 @@ elemental::advanced::internal::HermitianMaxNorm
         throw std::logic_error("Hermitian matrices must be square.");
 
     R maxAbs = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -75,7 +75,7 @@ elemental::advanced::internal::HermitianMaxNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianMaxNorm
-( Shape shape, const Matrix<std::complex<R> >& A )
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianMaxNorm");
@@ -84,7 +84,7 @@ elemental::advanced::internal::HermitianMaxNorm
         throw std::logic_error("Hermitian matrices must be square.");
 
     R maxAbs = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
@@ -116,7 +116,7 @@ elemental::advanced::internal::HermitianMaxNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianMaxNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianMaxNorm");
@@ -130,7 +130,7 @@ elemental::advanced::internal::HermitianMaxNorm
     const int rowShift = A.RowShift();
 
     R localMaxAbs = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {
@@ -171,7 +171,7 @@ elemental::advanced::internal::HermitianMaxNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianMaxNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::HermitianMaxNorm");
@@ -185,7 +185,7 @@ elemental::advanced::internal::HermitianMaxNorm
     const int rowShift = A.RowShift();
 
     R localMaxAbs = 0;
-    if( shape == UPPER )
+    if( uplo == UPPER )
     {
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
         {

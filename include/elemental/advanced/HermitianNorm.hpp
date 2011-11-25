@@ -39,7 +39,7 @@
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::HermitianNorm
-( Shape shape, const Matrix<R>& A, NormType type )
+( UpperOrLower uplo, const Matrix<R>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianNorm");
@@ -48,16 +48,16 @@ elemental::advanced::HermitianNorm
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::HermitianInfinityNorm( shape, A );
+        norm = advanced::internal::HermitianInfinityNorm( uplo, A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::HermitianFrobeniusNorm( shape, A );
+        norm = advanced::internal::HermitianFrobeniusNorm( uplo, A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::HermitianMaxNorm( shape, A );
+        norm = advanced::internal::HermitianMaxNorm( uplo, A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::HermitianOneNorm( shape, A );
+        norm = advanced::internal::HermitianOneNorm( uplo, A );
         break;
     }
 #ifndef RELEASE
@@ -70,7 +70,7 @@ elemental::advanced::HermitianNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::HermitianNorm
-( Shape shape, const Matrix<std::complex<R> >& A, NormType type )
+( UpperOrLower uplo, const Matrix<std::complex<R> >& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianNorm");
@@ -79,16 +79,16 @@ elemental::advanced::HermitianNorm
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::HermitianInfinityNorm( shape, A );
+        norm = advanced::internal::HermitianInfinityNorm( uplo, A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::HermitianFrobeniusNorm( shape, A );
+        norm = advanced::internal::HermitianFrobeniusNorm( uplo, A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::HermitianMaxNorm( shape, A );
+        norm = advanced::internal::HermitianMaxNorm( uplo, A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::HermitianOneNorm( shape, A );
+        norm = advanced::internal::HermitianOneNorm( uplo, A );
         break;
     }
 #ifndef RELEASE
@@ -101,7 +101,7 @@ elemental::advanced::HermitianNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::HermitianNorm
-( Shape shape, const DistMatrix<R,MC,MR>& A, NormType type )
+( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianNorm");
@@ -110,16 +110,16 @@ elemental::advanced::HermitianNorm
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::HermitianInfinityNorm( shape, A );
+        norm = advanced::internal::HermitianInfinityNorm( uplo, A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::HermitianFrobeniusNorm( shape, A );
+        norm = advanced::internal::HermitianFrobeniusNorm( uplo, A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::HermitianMaxNorm( shape, A );
+        norm = advanced::internal::HermitianMaxNorm( uplo, A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::HermitianOneNorm( shape, A );
+        norm = advanced::internal::HermitianOneNorm( uplo, A );
         break;
     }
 #ifndef RELEASE
@@ -132,7 +132,7 @@ elemental::advanced::HermitianNorm
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::HermitianNorm
-( Shape shape, const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
+( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianNorm");
@@ -141,16 +141,16 @@ elemental::advanced::HermitianNorm
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::HermitianInfinityNorm( shape, A );
+        norm = advanced::internal::HermitianInfinityNorm( uplo, A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::HermitianFrobeniusNorm( shape, A );
+        norm = advanced::internal::HermitianFrobeniusNorm( uplo, A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::HermitianMaxNorm( shape, A );
+        norm = advanced::internal::HermitianMaxNorm( uplo, A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::HermitianOneNorm( shape, A );
+        norm = advanced::internal::HermitianOneNorm( uplo, A );
         break;
     }
 #ifndef RELEASE

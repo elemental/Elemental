@@ -225,7 +225,7 @@ RealToComplexInPlaceRedist
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& paddedZ )
@@ -235,9 +235,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = n; // full set of eigenpairs
@@ -279,7 +279,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -288,17 +288,17 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( shape, A );
+    advanced::HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -385,7 +385,7 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() ); // We can simply shrink matrices
-    if( shape == LOWER )
+    if( uplo == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
     else
@@ -409,7 +409,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& paddedZ,
@@ -420,9 +420,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = (upperBound - lowerBound) + 1;
@@ -437,10 +437,10 @@ elemental::advanced::HermitianEig
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
-            ("paddedZ was a view but was not properly padded.");
+            ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
             throw std::logic_error
-            ("paddedZ was a view but was not properly aligned.");
+            ("paddedZ was a view but was not properly aligned");
     }
     else
     {
@@ -464,7 +464,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -473,17 +473,17 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( shape, A );
+    advanced::HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -571,7 +571,7 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
-    if( shape == LOWER )
+    if( uplo == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
     else
@@ -593,7 +593,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& paddedZ,
@@ -604,9 +604,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const Grid& g = A.Grid();
@@ -622,10 +622,10 @@ elemental::advanced::HermitianEig
         const int K = MaxLocalLength(n,g.Size())*g.Size();
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly padded.");
+            ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
             throw std::logic_error
-                  ("paddedZ was a view but was not properly aligned.");
+            ("paddedZ was a view but was not properly aligned");
     }
 
     if( w.Viewing() )
@@ -643,7 +643,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -652,17 +652,17 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( shape, A );
+    advanced::HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -767,7 +767,7 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
-    if( shape == LOWER )
+    if( uplo == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
     else
@@ -787,7 +787,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w )
 {
@@ -795,13 +795,13 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
     const int n = A.Height();
     const int k = n;
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     if( w.Viewing() )
     {
@@ -819,7 +819,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -828,17 +828,17 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( shape, A );
+    advanced::HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -883,7 +883,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   int lowerBound, int upperBound ) 
@@ -892,9 +892,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = (upperBound - lowerBound) + 1;
@@ -916,7 +916,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -925,17 +925,17 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( shape, A );
+    advanced::HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -978,7 +978,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   double lowerBound, double upperBound )
@@ -987,9 +987,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const Grid& g = A.Grid();
@@ -1009,7 +1009,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1018,17 +1018,17 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( shape, A );
+    advanced::HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1073,7 +1073,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ )
@@ -1083,9 +1083,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = n; // full set of eigenpairs
@@ -1127,7 +1127,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1136,18 +1136,18 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( shape, A, t );
+    advanced::HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1234,7 +1234,7 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() ); 
-    if( shape == LOWER )
+    if( uplo == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
@@ -1259,7 +1259,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
@@ -1270,9 +1270,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = (upperBound - lowerBound) + 1;
@@ -1314,7 +1314,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1323,18 +1323,18 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( shape, A, t );
+    advanced::HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1422,7 +1422,7 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
-    if( shape == LOWER )
+    if( uplo == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
@@ -1445,7 +1445,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
@@ -1456,9 +1456,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const Grid& g = A.Grid();
@@ -1495,7 +1495,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1504,18 +1504,18 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( shape, A, t );
+    advanced::HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1619,7 +1619,7 @@ elemental::advanced::HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
-    if( shape == LOWER )
+    if( uplo == LOWER )
         advanced::ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
@@ -1641,7 +1641,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w )
 {
@@ -1649,9 +1649,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = n;
@@ -1673,7 +1673,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1682,18 +1682,18 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( shape, A, t );
+    advanced::HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1737,7 +1737,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   int lowerBound, int upperBound )
@@ -1746,9 +1746,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const int k = (upperBound - lowerBound) + 1;
@@ -1770,7 +1770,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1779,18 +1779,18 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( shape, A, t );
+    advanced::HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1832,7 +1832,7 @@ elemental::advanced::HermitianEig
 //----------------------------------------------------------------------------//
 inline void
 elemental::advanced::HermitianEig
-( Shape shape, 
+( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   double lowerBound, double upperBound )
@@ -1841,9 +1841,9 @@ elemental::advanced::HermitianEig
     PushCallStack("advanced::HermitianEig");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        throw std::logic_error("Hermitian matrices must be square");
 
-    const int subdiagonal = ( shape==LOWER ? -1 : +1 );
+    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     const int n = A.Height();
     const Grid& g = A.Grid();
@@ -1851,9 +1851,9 @@ elemental::advanced::HermitianEig
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned.");
+            throw std::logic_error("w was a view but was not properly aligned");
         if( w.Height() != n || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size.");
+            throw std::logic_error("w was a view but was not the proper size");
     }
     else
     {
@@ -1863,7 +1863,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( shape, A, MAX_NORM );
+    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1872,18 +1872,18 @@ elemental::advanced::HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoidal( scale, LEFT, shape, 0 );
+        A.ScaleTrapezoidal( scale, LEFT, uplo, 0 );
     }
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( shape, A, t );
+    advanced::HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );

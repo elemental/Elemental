@@ -70,7 +70,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHB
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
-    PartitionLeft( A, AL, AR, max(0,A.Width()-A.Height()) );
+    PartitionLeft( A, AL, AR, std::max(0,A.Width()-A.Height()) );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -80,7 +80,8 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHB
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
         const int HPanWidth = H11.Width() + H12.Width();
-        const int HPanHeight = min( H11.Height(), max(HPanWidth-offset,0) );
+        const int HPanHeight = 
+            std::min( H11.Height(), std::max(HPanWidth-offset,0) );
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         RepartitionLeft
@@ -146,9 +147,9 @@ template<typename R> // representation of a real number
 inline void
 elemental::advanced::internal::ApplyPackedReflectorsRUHB
 ( Conjugation conjugation, int offset, 
-  const DistMatrix<complex<R>,MC,MR  >& H,
-  const DistMatrix<complex<R>,MD,STAR>& t,
-        DistMatrix<complex<R>,MC,MR  >& A )
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::ApplyPackedReflectorsRUHB");
@@ -167,7 +168,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHB
     if( !t.AlignedWithDiagonal( H, offset ) )
         throw std::logic_error("t must be aligned with H's offset diagonal");
 #endif
-    typedef complex<R> C;
+    typedef std::complex<R> C;
     const Grid& g = H.Grid();
 
     // Matrix views    
@@ -197,7 +198,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHB
     ( t, tT,
          tB, 0 );
     PartitionLeft
-    ( A, AL, AR, max(0,A.Width()-A.Height()) );
+    ( A, AL, AR, std::max(0,A.Width()-A.Height()) );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -207,7 +208,8 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHB
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
         const int HPanWidth = H11.Width() + H12.Width();
-        const int HPanHeight = min( H11.Height(), max(HPanWidth-offset,0) );
+        const int HPanHeight = 
+            std::min( H11.Height(), std::max(HPanWidth-offset,0) );
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         LockedRepartitionUp

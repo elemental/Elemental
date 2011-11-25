@@ -188,7 +188,7 @@ elemental::basic::internal::GemmDot
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
         basic::internal::GemmNNDot( alpha, A, B, beta, C );
     else
-        throw logic_error( "GemmDot currently only implemented for NN case." );
+        throw std::logic_error("GemmDot only implemented for NN case");
     // This code will be enabled when the routines are implemented
     /*
     else if( orientationOfA == NORMAL )

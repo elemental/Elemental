@@ -56,9 +56,9 @@ template<typename R> // representation of a real number
 inline void
 elemental::advanced::internal::ApplyPackedReflectorsLLHB
 ( Conjugation conjugation, int offset, 
-  const DistMatrix<complex<R>,MC,MR  >& H,
-  const DistMatrix<complex<R>,MD,STAR>& t,
-        DistMatrix<complex<R>,MC,MR  >& A )
+  const DistMatrix<std::complex<R>,MC,MR  >& H,
+  const DistMatrix<std::complex<R>,MD,STAR>& t,
+        DistMatrix<std::complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::internal::ApplyPackedReflectorsLLHB");

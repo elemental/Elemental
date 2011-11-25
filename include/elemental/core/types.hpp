@@ -80,17 +80,17 @@ using namespace orientation_wrapper;
 char OrientationToChar( Orientation orientation );
 Orientation CharToOrientation( char c );
 
-namespace shape_wrapper {
-enum Shape
+namespace upper_or_lower_wrapper {
+enum UpperOrLower
 {
     LOWER,
     UPPER
 };
 }
-using namespace shape_wrapper;
+using namespace upper_or_lower_wrapper;
 
-char ShapeToChar( Shape shape );
-Shape CharToShape( char c );
+char UpperOrLowerToChar( UpperOrLower uplo );
+UpperOrLower CharToUpperOrLower( char c );
 
 namespace side_wrapper {
 enum Side
@@ -251,28 +251,28 @@ inline Orientation CharToOrientation( char c )
     return orientation;
 }
 
-inline char ShapeToChar( Shape shape )
+inline char UpperOrLowerToChar( UpperOrLower uplo )
 {
-    char shapeChar;
-    switch( shape )
+    char uploChar;
+    switch( uplo )
     {
-        case LOWER: shapeChar = 'L'; break;
-        default:    shapeChar = 'U'; break;
+        case LOWER: uploChar = 'L'; break;
+        default:    uploChar = 'U'; break;
     }
-    return shapeChar;
+    return uploChar;
 }
 
-inline Shape CharToShape( char c )
+inline UpperOrLower CharToUpperOrLower( char c )
 {
-    Shape shape;
+    UpperOrLower uplo;
     switch( c )
     {
-        case 'L': shape = LOWER; break;
-        case 'U': shape = UPPER; break;
+        case 'L': uplo = LOWER; break;
+        case 'U': uplo = UPPER; break;
         default:
-            throw std::logic_error("CharToShape expects char in {L,U}");
+            throw std::logic_error("CharToUpperOrLower expects char in {L,U}");
     }
-    return shape;
+    return uplo;
 }
 
 inline char SideToChar( Side side )

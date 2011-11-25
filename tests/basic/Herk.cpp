@@ -38,12 +38,12 @@ using namespace elemental;
 void Usage()
 {
     cout << "HErmitian Rank-K update.\n\n"
-         << "  Herk <r> <c> <shape> <trans?> <m> <k> <nb> <nbLocal> "
+         << "  Herk <r> <c> <uplo> <trans?> <m> <k> <nb> <nbLocal> "
             "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n" 
-         << "  shape?: {L,U}\n"
-         << "  trans?: {N,C}\n"
+         << "  uplo: {L,U}\n"
+         << "  trans: {N,C}\n"
          << "  m: height of C\n"
          << "  k: inner dimension\n"
          << "  nb: algorithmic blocksize\n"
@@ -53,7 +53,7 @@ void Usage()
 
 template<typename T> // represents a real or complex ring
 void TestHerk
-( bool printMatrices, Shape shape, Orientation orientation,
+( bool printMatrices, UpperOrLower uplo, Orientation orientation,
   int m, int k, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
@@ -81,7 +81,7 @@ void TestHerk
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::Herk( shape, orientation, alpha, A, beta, C );
+    basic::Herk( uplo, orientation, alpha, A, beta, C );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -123,7 +123,7 @@ main( int argc, char* argv[] )
         int argNum = 0;
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
-        const Shape shape = CharToShape(*argv[++argNum]);
+        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const Orientation orientation = CharToOrientation(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int k = atoi(argv[++argNum]);
@@ -147,7 +147,7 @@ main( int argc, char* argv[] )
 
         if( rank == 0 )
         {
-            cout << "Will test Herk" << ShapeToChar(shape) 
+            cout << "Will test Herk" << UpperOrLowerToChar(uplo) 
                                      << OrientationToChar(orientation) << endl;
         }
 
@@ -158,7 +158,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHerk<double>
-        ( printMatrices, shape, orientation, 
+        ( printMatrices, uplo, orientation, 
           m, k, (double)3, (double)4, g );
 
 #ifndef WITHOUT_COMPLEX
@@ -169,7 +169,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestHerk<dcomplex>
-        ( printMatrices, shape, orientation, 
+        ( printMatrices, uplo, orientation, 
           m, k, (dcomplex)3, (dcomplex)4, g );
 #endif
     }

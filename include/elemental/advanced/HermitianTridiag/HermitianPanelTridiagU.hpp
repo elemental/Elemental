@@ -321,7 +321,8 @@ elemental::advanced::internal::HermitianPanelTridiagU
             int colShiftDest = A00.RowShift();
 
             int height = a01.Height()+1;
-            int portionSize = max(2*MaxLocalLength(height,p),mpi::MIN_COLL_MSG);
+            int portionSize = 
+                std::max(2*MaxLocalLength(height,p),mpi::MIN_COLL_MSG);
 
             int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
             int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);
@@ -1075,7 +1076,8 @@ elemental::advanced::internal::HermitianPanelTridiagU
             int colShiftDest = A00.RowShift();
 
             int height = a01.Height()+1;
-            int portionSize = max(2*MaxLocalLength(height,p),mpi::MIN_COLL_MSG);
+            int portionSize = 
+                std::max(2*MaxLocalLength(height,p),mpi::MIN_COLL_MSG);
 
             int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
             int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);

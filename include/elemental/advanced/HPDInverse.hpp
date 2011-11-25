@@ -37,12 +37,12 @@
 template<typename F> // represents a real or complex number
 inline void
 elemental::advanced::HPDInverse
-( Shape shape, DistMatrix<F,MC,MR>& A  )
+( UpperOrLower uplo, DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HPDInverse");
 #endif
-    if( shape == LOWER )
+    if( uplo == LOWER )
         advanced::internal::HPDInverseLVar2( A );
     else
         advanced::internal::HPDInverseUVar2( A );

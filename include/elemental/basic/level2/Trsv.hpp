@@ -39,7 +39,7 @@
 template<typename F>
 inline void
 elemental::basic::Trsv
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientation,
   Diagonal diagonal,
   const DistMatrix<F,MC,MR>& A,
@@ -48,7 +48,7 @@ elemental::basic::Trsv
 #ifndef RELEASE
     PushCallStack("basic::Trsv");
 #endif
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         if( orientation == NORMAL )
             basic::internal::TrsvLN( diagonal, A, x );

@@ -13,10 +13,10 @@ successive triangular solves against :math:`B`:
    B := A^{-1} B = (L L^H)^{-1} B = L^{-H} L^{-1} B
 
 
-.. cpp:function:: void advanced::CholeskySolve( Shape shape, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
+.. cpp:function:: void advanced::CholeskySolve( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 
    Overwrite `B` with the solution to :math:`AX=B`, where `A` is Hermitian 
-   positive-definite and only the triangle of `A` specified by `shape` is 
+   positive-definite and only the triangle of `A` specified by `uplo` is 
    accessed.
 
 Gaussian elimination

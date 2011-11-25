@@ -44,7 +44,7 @@ template<typename F>
 inline void
 elemental::basic::Trsm
 ( Side side, 
-  Shape shape, 
+  UpperOrLower uplo, 
   Orientation orientation, 
   Diagonal diagonal,
   F alpha, 
@@ -56,7 +56,7 @@ elemental::basic::Trsm
     PushCallStack("basic::Trsm");
 #endif
     const int p = X.Grid().Size();
-    if( side == LEFT && shape == LOWER )
+    if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
         {
@@ -77,7 +77,7 @@ elemental::basic::Trsm
                 ( orientation, diagonal, alpha, A, X, checkIfSingular );
         }
     }
-    else if( side == LEFT && shape == UPPER )
+    else if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )
         {
@@ -98,7 +98,7 @@ elemental::basic::Trsm
                 ( orientation, diagonal, alpha, A, X, checkIfSingular );
         }
     }
-    else if( side == RIGHT && shape == LOWER )
+    else if( side == RIGHT && uplo == LOWER )
     {
         if( orientation == NORMAL )
             basic::internal::TrsmRLN
@@ -107,7 +107,7 @@ elemental::basic::Trsm
             basic::internal::TrsmRLT
             ( orientation, diagonal, alpha, A, X, checkIfSingular );
     }
-    else if( side == RIGHT && shape == UPPER )
+    else if( side == RIGHT && uplo == UPPER )
     {
         if( orientation == NORMAL )
             basic::internal::TrsmRUN

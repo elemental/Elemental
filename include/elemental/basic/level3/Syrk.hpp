@@ -39,7 +39,7 @@
 template<typename T>
 inline void
 elemental::basic::Syrk
-( Shape shape, 
+( UpperOrLower uplo, 
   Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -49,9 +49,9 @@ elemental::basic::Syrk
     if( orientation == ADJOINT )
         throw std::logic_error("Syrk accepts NORMAL and TRANSPOSE options");
 #endif
-    if( shape == LOWER && orientation == NORMAL )
+    if( uplo == LOWER && orientation == NORMAL )
         basic::internal::SyrkLN( alpha, A, beta, C );
-    else if( shape == LOWER )
+    else if( uplo == LOWER )
         basic::internal::SyrkLT( alpha, A, beta, C );
     else if( orientation == NORMAL )
         basic::internal::SyrkUN( alpha, A, beta, C );

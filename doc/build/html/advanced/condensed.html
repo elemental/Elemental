@@ -63,16 +63,16 @@ the matrix to real symmetric tridiagonal form (usually through Householder
 transformations). This routine performs said reduction on a Hermitian matrix
 and stores the scaled Householder vectors in place of the introduced zeroes.</p>
 <dl class="function">
-<dt id="advanced::HermitianTridiag__Shape.DistMatrix:R.MC.MR:R">
-void <tt class="descclassname">advanced::</tt><tt class="descname">HermitianTridiag</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HermitianTridiag__Shape.DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="advanced::HermitianTridiag__UpperOrLower.DistMatrix:R.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">HermitianTridiag</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HermitianTridiag__UpperOrLower.DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrites the main and sub (super) diagonal of the real distributed matrix
 <cite>A</cite> with its similar symmetric tridiagonal matrix and stores the scaled
 Householder vectors below (above) its tridiagonal entries.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="advanced::HermitianTridiag__Shape.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R">
-void <tt class="descclassname">advanced::</tt><tt class="descname">HermitianTridiag</tt><big>(</big>Shape <em>shape</em>, DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;std::complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#advanced::HermitianTridiag__Shape.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="advanced::HermitianTridiag__UpperOrLower.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">HermitianTridiag</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;std::complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#advanced::HermitianTridiag__UpperOrLower.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Similar to above, but the complex Hermitian matrix is reduced to
 real symmetric tridiagonal form, with the added complication of needing to
 store the phase information for the Householder vectors (the scaling can

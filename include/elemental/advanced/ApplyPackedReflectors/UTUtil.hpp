@@ -36,7 +36,7 @@ namespace advanced {
 namespace internal {
 using namespace elemental;
 
-template<typename T> // represents a real or complex ring
+template<typename T> 
 void
 SetDiagonalToOne( Side side, int offset, DistMatrix<T,MC,MR>& H )
 {
@@ -82,7 +82,7 @@ SetDiagonalToOne( Side side, int offset, DistMatrix<T,MC,MR>& H )
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 void 
 HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
 {
@@ -100,12 +100,12 @@ HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R> // representation of a real number
+template<typename R> 
 void
 FixDiagonal
 ( Conjugation conjugation,
-  const DistMatrix<complex<R>,STAR,STAR>& t,
-        DistMatrix<complex<R>,STAR,STAR>& SInv )
+  const DistMatrix<std::complex<R>,STAR,STAR>& t,
+        DistMatrix<std::complex<R>,STAR,STAR>& SInv )
 {
 #ifndef RELEASE
     PushCallStack("FixDiagonal");
@@ -114,7 +114,8 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const complex<R> value = complex<R>(1)/t.GetLocalEntry(j,0);
+            const std::complex<R> value = 
+                std::complex<R>(1)/t.GetLocalEntry(j,0);
             SInv.SetLocalEntry(j,j,value);
         }
     }
@@ -122,7 +123,8 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const complex<R> value = complex<R>(1)/Conj(t.GetLocalEntry(j,0));
+            const std::complex<R> value = 
+                std::complex<R>(1)/Conj(t.GetLocalEntry(j,0));
             SInv.SetLocalEntry(j,j,value);
         }
     }

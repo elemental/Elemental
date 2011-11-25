@@ -197,7 +197,7 @@ CheckInput
 template<typename T>
 inline void
 LocalTrrkKernel
-( Shape shape, 
+( UpperOrLower uplo, 
   T alpha, const DistMatrix<T,MC,  STAR>& A,
            const DistMatrix<T,STAR,MR  >& B,
   T beta,        DistMatrix<T,MC,  MR  >& C )
@@ -210,24 +210,17 @@ LocalTrrkKernel
 
     DistMatrix<T,MC,STAR> AT(g), 
                           AB(g);
-
     DistMatrix<T,STAR,MR> BL(g), BR(g);
-
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
                         CBL(g), CBR(g);
-
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
-
     basic::Scal( beta, C );
-
     LockedPartitionDown
     ( A, AT,
          AB, half );
-
     LockedPartitionRight( B, BL, BR, half );
-
     PartitionDownDiagonal
     ( C, CTL, CTR,
          CBL, CBR, half );
@@ -237,7 +230,7 @@ LocalTrrkKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( NORMAL, NORMAL, alpha, AB, BL, (T)1, CBL );
@@ -251,13 +244,13 @@ LocalTrrkKernel
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, AT, BL, (T)0, DTL );
 
-    DTL.MakeTrapezoidal( LEFT, shape );
+    DTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
     ( NORMAL, NORMAL, alpha, AB, BR, (T)0, DBR );
 
-    DBR.MakeTrapezoidal( LEFT, shape );
+    DBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -269,7 +262,7 @@ LocalTrrkKernel
 template<typename T>
 inline void
 LocalTrrkKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A,
            const DistMatrix<T,MR,STAR>& B,
@@ -283,27 +276,20 @@ LocalTrrkKernel
 
     DistMatrix<T,MC,STAR> AT(g),
                           AB(g);
-
     DistMatrix<T,MR,STAR> BT(g), 
                           BB(g);
-
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
                         CBL(g), CBR(g);
-
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
-
     basic::Scal( beta, C );
-
     LockedPartitionDown
     ( A, AT,
          AB, half );
-
     LockedPartitionDown
     ( B, BT, 
          BB, half );
-
     PartitionDownDiagonal
     ( C, CTL, CTR,
          CBL, CBR, half );
@@ -313,7 +299,7 @@ LocalTrrkKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, AB, BT, (T)1, CBL );
@@ -328,14 +314,14 @@ LocalTrrkKernel
     ( NORMAL, orientationOfB, alpha, AT, BT, (T)0, DTL );
 
     // TODO: AxpyTrapezoidal?
-    DTL.MakeTrapezoidal( LEFT, shape );
+    DTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
     ( NORMAL, orientationOfB, alpha, AB, BB, (T)0, DBR );
 
     // TODO: AxpyTrapezoidal?
-    DBR.MakeTrapezoidal( LEFT, shape );
+    DBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -347,7 +333,7 @@ LocalTrrkKernel
 template<typename T>
 inline void
 LocalTrrkKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC>& A,
            const DistMatrix<T,STAR,MR>& B,
@@ -360,21 +346,15 @@ LocalTrrkKernel
     const Grid& g = C.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
-
     DistMatrix<T,STAR,MR> BL(g), BR(g);
-
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
                         CBL(g), CBR(g);
-
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
-
     basic::Scal( beta, C );
-
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
-
     PartitionDownDiagonal
     ( C, CTL, CTR,
          CBL, CBR, half );
@@ -384,7 +364,7 @@ LocalTrrkKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA, NORMAL, alpha, AR, BL, (T)1, CBL );
@@ -398,13 +378,13 @@ LocalTrrkKernel
     basic::internal::LocalGemm
     ( orientationOfA, NORMAL, alpha, AL, BL, (T)0, DTL );
 
-    DTL.MakeTrapezoidal( LEFT, shape );
+    DTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
     ( orientationOfA, NORMAL, alpha, AR, BR, (T)0, DBR );
 
-    DBR.MakeTrapezoidal( LEFT, shape );
+    DBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -416,7 +396,7 @@ LocalTrrkKernel
 template<typename T>
 inline void
 LocalTrrkKernel
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC  >& A,
@@ -430,25 +410,18 @@ LocalTrrkKernel
     const Grid& g = C.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
-
     DistMatrix<T,MR,STAR> BT(g), 
                           BB(g);
-
     DistMatrix<T,MC,MR> CTL(g), CTR(g),
                         CBL(g), CBR(g);
-
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
-
     basic::Scal( beta, C );
-
     LockedPartitionRight( A, AL, AR, half );
-
     LockedPartitionDown
     ( B, BT, 
          BB, half );
-
     PartitionDownDiagonal
     ( C, CTL, CTR,
          CBL, CBR, half );
@@ -458,7 +431,7 @@ LocalTrrkKernel
     DTL.ResizeTo( CTL.Height(), CTL.Width() );
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
-    if( shape == LOWER )
+    if( uplo == LOWER )
     {
         basic::internal::LocalGemm
         ( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, CBL );
@@ -472,13 +445,13 @@ LocalTrrkKernel
     basic::internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, DTL );
 
-    DTL.MakeTrapezoidal( LEFT, shape );
+    DTL.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, DTL, CTL );
 
     basic::internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, DBR );
 
-    DBR.MakeTrapezoidal( LEFT, shape );
+    DBR.MakeTrapezoidal( LEFT, uplo );
     basic::Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -494,7 +467,7 @@ LocalTrrkKernel
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrrk
-( Shape shape,
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,  STAR>& A,
            const DistMatrix<T,STAR,MR  >& B,
   T beta,        DistMatrix<T,MC,  MR  >& C )
@@ -508,35 +481,28 @@ elemental::basic::internal::LocalTrrk
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkKernel
-        ( shape, alpha, A, B, beta, C );
+        LocalTrrkKernel( uplo, alpha, A, B, beta, C );
     }
     else
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-
         DistMatrix<T,MC,STAR> AT(g),
                               AB(g);
-
         DistMatrix<T,STAR,MR> BL(g), BR(g);
-
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
 
         const unsigned half = C.Height() / 2;
-
         LockedPartitionDown
         ( A, AT,
              AB, half );
-
         LockedPartitionRight( B, BL, BR, half );
-
         PartitionDownDiagonal
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( NORMAL, NORMAL, alpha, AB, BL, beta, CBL );
@@ -548,11 +514,8 @@ elemental::basic::internal::LocalTrrk
         }
 
         // Recurse
-        basic::internal::LocalTrrk
-        ( shape, alpha, AT, BL, beta, CTL );
-
-        basic::internal::LocalTrrk
-        ( shape, alpha, AB, BR, beta, CBR );
+        basic::internal::LocalTrrk( uplo, alpha, AT, BL, beta, CTL );
+        basic::internal::LocalTrrk( uplo, alpha, AB, BR, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -563,7 +526,7 @@ elemental::basic::internal::LocalTrrk
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrrk
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A,
            const DistMatrix<T,MR,STAR>& B,
@@ -578,38 +541,31 @@ elemental::basic::internal::LocalTrrk
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkKernel
-        ( shape, orientationOfB, alpha, A, B, beta, C );
+        LocalTrrkKernel( uplo, orientationOfB, alpha, A, B, beta, C );
     }
     else
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-
         DistMatrix<T,MC,STAR> AT(g),
                               AB(g);
-
         DistMatrix<T,MR,STAR> BT(g), 
                               BB(g);
-
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
 
         const unsigned half = C.Height() / 2;
-
         LockedPartitionDown
         ( A, AT,
              AB, half );
-
         LockedPartitionDown
         ( B, BT, 
              BB, half );
-
         PartitionDownDiagonal
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( NORMAL, orientationOfB, alpha, AB, BT, beta, CBL );
@@ -622,10 +578,9 @@ elemental::basic::internal::LocalTrrk
 
         // Recurse
         basic::internal::LocalTrrk
-        ( shape, orientationOfB, alpha, AT, BT, beta, CTL );
-
+        ( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
         basic::internal::LocalTrrk
-        ( shape, orientationOfB, alpha, AB, BB, beta, CBR );
+        ( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -636,7 +591,7 @@ elemental::basic::internal::LocalTrrk
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrrk
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC>& A,
            const DistMatrix<T,STAR,MR>& B,
@@ -651,32 +606,25 @@ elemental::basic::internal::LocalTrrk
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkKernel
-        ( shape, orientationOfA, alpha, A, B, beta, C );
+        LocalTrrkKernel( uplo, orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-
         DistMatrix<T,STAR,MC> AL(g), AR(g);
-
         DistMatrix<T,STAR,MR> BL(g), BR(g);
-
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
 
         const unsigned half = C.Height() / 2;
-
         LockedPartitionRight( A, AL, AR, half );
-
         LockedPartitionRight( B, BL, BR, half );
-
         PartitionDownDiagonal
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA, NORMAL, alpha, AR, BL, beta, CBL );
@@ -689,10 +637,9 @@ elemental::basic::internal::LocalTrrk
 
         // Recurse
         basic::internal::LocalTrrk
-        ( shape, orientationOfA, alpha, AL, BL, beta, CTL );
-
+        ( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
         basic::internal::LocalTrrk
-        ( shape, orientationOfA, alpha, AR, BR, beta, CBR );
+        ( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -703,7 +650,7 @@ elemental::basic::internal::LocalTrrk
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrrk
-( Shape shape,
+( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC  >& A,
@@ -720,34 +667,28 @@ elemental::basic::internal::LocalTrrk
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
         LocalTrrkKernel
-        ( shape, orientationOfA, orientationOfB, alpha, A, B, beta, C );
+        ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-
         DistMatrix<T,STAR,MC> AL(g), AR(g);
-
         DistMatrix<T,MR,STAR> BT(g), 
                               BB(g);
-
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
 
         const unsigned half = C.Height() / 2;
-
         LockedPartitionRight( A, AL, AR, half );
-
         LockedPartitionDown
         ( B, BT, 
              BB, half );
-
         PartitionDownDiagonal
         ( C, CTL, CTR,
              CBL, CBR, half );
 
-        if( shape == LOWER )
+        if( uplo == LOWER )
         { 
             basic::internal::LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, CBL );
@@ -760,10 +701,9 @@ elemental::basic::internal::LocalTrrk
 
         // Recurse
         basic::internal::LocalTrrk
-        ( shape, orientationOfA, orientationOfB, alpha, AL, BT, beta, CTL );
-
+        ( uplo, orientationOfA, orientationOfB, alpha, AL, BT, beta, CTL );
         basic::internal::LocalTrrk
-        ( shape, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
+        ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
