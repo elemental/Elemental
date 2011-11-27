@@ -128,7 +128,7 @@ elemental::advanced::LU
 #endif
     const Grid& g = A.Grid();
     if( !p.Viewing() )
-        p.ResizeTo( min(A.Height(),A.Width()), 1 );
+        p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     DistMatrix<F,MC,MR>

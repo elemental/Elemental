@@ -341,7 +341,7 @@ elemental::basic::internal::LocalSymmetricAccumulateRU
         ZTAdjOrTrans_MR_STAR(g),  Z1AdjOrTrans_MR_STAR(g),
                                   Z2AdjOrTrans_MR_STAR(g);
 
-    const int ratio = max( g.Height(), g.Width() );
+    const int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal

@@ -124,7 +124,7 @@ elemental::advanced::internal::PanelLQ
     PushCallStack("advanced::internal::PanelLQ");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
-    if( t.Height() != min(A.Height(),A.Width()) || t.Width() != 1 )
+    if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
         throw std::logic_error
         ("t must be a vector of height equal to the minimum dimension of A");
     if( !t.AlignedWithDiagonal( A, 0 ) )

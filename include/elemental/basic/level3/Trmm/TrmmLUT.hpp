@@ -283,7 +283,7 @@ elemental::basic::internal::LocalTrmmAccumulateLUT
         ZB_MR_STAR(g),  Z1_MR_STAR(g),
                         Z2_MR_STAR(g);
 
-    const int ratio = max( g.Height(), g.Width() );
+    const int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal

@@ -450,13 +450,13 @@ DistMatrix<T,MC,MR,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
     Int length;
     if( offset > 0 )
     {
-        const Int remainingWidth = max(width-offset,0);
-        length = min(height,remainingWidth);
+        const Int remainingWidth = std::max(width-offset,0);
+        length = std::min(height,remainingWidth);
     }
     else
     {
-        const Int remainingHeight = max(height+offset,0);
-        length = min(remainingHeight,width);
+        const Int remainingHeight = std::max(height+offset,0);
+        length = std::min(remainingHeight,width);
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Height() )
@@ -540,13 +540,13 @@ DistMatrix<T,MC,MR,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
     Int length;
     if( offset > 0 )
     {
-        const Int remainingWidth = max(width-offset,0);
-        length = min(height,remainingWidth);
+        const Int remainingWidth = std::max(width-offset,0);
+        length = std::min(height,remainingWidth);
     }
     else
     {
-        const Int remainingHeight = max(height+offset,0);
-        length = min(remainingHeight,width);
+        const Int remainingHeight = std::max(height+offset,0);
+        length = std::min(remainingHeight,width);
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Width() )
@@ -632,13 +632,13 @@ DistMatrix<T,MC,MR,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
     Int length;
     if( offset > 0 )
     {
-        const Int remainingWidth = max(width-offset,0);
-        length = min(height,remainingWidth);
+        const Int remainingWidth = std::max(width-offset,0);
+        length = std::min(height,remainingWidth);
     }
     else
     {
-        const Int remainingHeight = max(height+offset,0);
-        length = min(remainingHeight,width);
+        const Int remainingHeight = std::max(height+offset,0);
+        length = std::min(remainingHeight,width);
     }
 #ifndef RELEASE
     if( d.Viewing() && length != d.Width() )

@@ -275,7 +275,7 @@ elemental::basic::internal::LocalTrmmAccumulateRUT
         ZBAdjOrTrans_MC_STAR(g),  Z1AdjOrTrans_MC_STAR(g),
                                   Z2AdjOrTrans_MC_STAR(g);
 
-    const int ratio = max( g.Height(), g.Width() );
+    const int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal

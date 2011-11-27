@@ -259,7 +259,7 @@ elemental::basic::internal::LocalTrmmAccumulateRUN
         ZBHermOrTrans_MR_STAR(g),  Z1HermOrTrans_MR_STAR(g),
                                    Z2HermOrTrans_MR_STAR(g);
 
-    const int ratio = max( g.Height(), g.Width() );
+    const int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal
