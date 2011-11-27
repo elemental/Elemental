@@ -199,58 +199,58 @@ public:
 
     // Aligns all of our DistMatrix's distributions that match a distribution
     // of the argument DistMatrix.
-    template<typename S> 
-    void AlignWith( const DistMatrix<S,MC,MR,Int>& A );
-    template<typename S> 
-    void AlignWith( const DistMatrix<S,MC,STAR,Int>& A );
-    template<typename S> 
-    void AlignWith( const DistMatrix<S,STAR,MR,Int>& A );
-    template<typename S> 
-    void AlignWith( const DistMatrix<S,MR,MC,Int>& A );
-    template<typename S> 
-    void AlignWith( const DistMatrix<S,MR,STAR,Int>& A );
-    template<typename S> 
-    void AlignWith( const DistMatrix<S,STAR,MC,Int>& A );
-    template<typename S> 
-    void AlignWith( const DistMatrix<S,VC,STAR,Int>& A );
-    template<typename S> 
-    void AlignWith( const DistMatrix<S,STAR,VC,Int>& A );
-    template<typename S> 
-    void AlignWith( const DistMatrix<S,VR,STAR,Int>& A );
-    template<typename S> 
-    void AlignWith( const DistMatrix<S,STAR,VR,Int>& A );
+    template<typename S,typename N> 
+    void AlignWith( const DistMatrix<S,MC,MR,N>& A );
+    template<typename S,typename N> 
+    void AlignWith( const DistMatrix<S,MC,STAR,N>& A );
+    template<typename S,typename N> 
+    void AlignWith( const DistMatrix<S,STAR,MR,N>& A );
+    template<typename S,typename N> 
+    void AlignWith( const DistMatrix<S,MR,MC,N>& A );
+    template<typename S,typename N> 
+    void AlignWith( const DistMatrix<S,MR,STAR,N>& A );
+    template<typename S,typename N> 
+    void AlignWith( const DistMatrix<S,STAR,MC,N>& A );
+    template<typename S,typename N> 
+    void AlignWith( const DistMatrix<S,VC,STAR,N>& A );
+    template<typename S,typename N> 
+    void AlignWith( const DistMatrix<S,STAR,VC,N>& A );
+    template<typename S,typename N> 
+    void AlignWith( const DistMatrix<S,VR,STAR,N>& A );
+    template<typename S,typename N> 
+    void AlignWith( const DistMatrix<S,STAR,VR,N>& A );
 
     // Aligns our column distribution (i.e., MC) with the matching distribution
     // of the argument. We recognize that a VC distribution can be a subset
     // of an MC distribution.
-    template<typename S> 
-    void AlignColsWith( const DistMatrix<S,MC,MR,Int>& A );
-    template<typename S> 
-    void AlignColsWith( const DistMatrix<S,MC,STAR,Int>& A );
-    template<typename S> 
-    void AlignColsWith( const DistMatrix<S,MR,MC,Int>& A );
-    template<typename S> 
-    void AlignColsWith( const DistMatrix<S,STAR,MC,Int>& A );
-    template<typename S> 
-    void AlignColsWith( const DistMatrix<S,VC,STAR,Int>& A );
-    template<typename S> 
-    void AlignColsWith( const DistMatrix<S,STAR,VC,Int>& A );
+    template<typename S,typename N> 
+    void AlignColsWith( const DistMatrix<S,MC,MR,N>& A );
+    template<typename S,typename N> 
+    void AlignColsWith( const DistMatrix<S,MC,STAR,N>& A );
+    template<typename S,typename N> 
+    void AlignColsWith( const DistMatrix<S,MR,MC,N>& A );
+    template<typename S,typename N> 
+    void AlignColsWith( const DistMatrix<S,STAR,MC,N>& A );
+    template<typename S,typename N> 
+    void AlignColsWith( const DistMatrix<S,VC,STAR,N>& A );
+    template<typename S,typename N> 
+    void AlignColsWith( const DistMatrix<S,STAR,VC,N>& A );
 
     // Aligns our row distribution (i.e., MR) with the matching distribution 
     // of the argument. We recognize that a VR distribution can be a subset
     // of an MR distribution.
-    template<typename S> 
-    void AlignRowsWith( const DistMatrix<S,MC,MR,Int>& A );
-    template<typename S> 
-    void AlignRowsWith( const DistMatrix<S,STAR,MR,Int>& A );
-    template<typename S> 
-    void AlignRowsWith( const DistMatrix<S,MR,MC,Int>& A );
-    template<typename S> 
-    void AlignRowsWith( const DistMatrix<S,MR,STAR,Int>& A );
-    template<typename S> 
-    void AlignRowsWith( const DistMatrix<S,VR,STAR,Int>& A );
-    template<typename S> 
-    void AlignRowsWith( const DistMatrix<S,STAR,VR,Int>& A );
+    template<typename S,typename N> 
+    void AlignRowsWith( const DistMatrix<S,MC,MR,N>& A );
+    template<typename S,typename N> 
+    void AlignRowsWith( const DistMatrix<S,STAR,MR,N>& A );
+    template<typename S,typename N> 
+    void AlignRowsWith( const DistMatrix<S,MR,MC,N>& A );
+    template<typename S,typename N> 
+    void AlignRowsWith( const DistMatrix<S,MR,STAR,N>& A );
+    template<typename S,typename N> 
+    void AlignRowsWith( const DistMatrix<S,VR,STAR,N>& A );
+    template<typename S,typename N> 
+    void AlignRowsWith( const DistMatrix<S,STAR,VR,N>& A );
 
     // (Immutable) view of a distributed matrix
     void View( DistMatrix<T,MC,MR,Int>& A );
@@ -715,9 +715,9 @@ DistMatrix<T,MC,MR,Int>::SetGrid( const elemental::Grid& grid )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MC,MR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MC,MR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([MC,MR])");
@@ -725,16 +725,16 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MC,MR,Int>& A )
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    this->colAlignment_ = A.ColAlignment();
-    this->rowAlignment_ = A.RowAlignment();
+    this->colAlignment_ = A.ColAlignment(); 
+    this->rowAlignment_ = A.RowAlignment(); 
     this->constrainedColAlignment_ = true;
     this->constrainedRowAlignment_ = true;
     this->height_ = 0;
     this->width_ = 0;
     if( this->Grid().InGrid() )
     {
-        this->colShift_ = A.ColShift();
-        this->rowShift_ = A.RowShift();
+        this->colShift_ = A.ColShift(); 
+        this->rowShift_ = A.RowShift(); 
         this->localMatrix_.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
@@ -743,16 +743,16 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MC,MR,Int>& A )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MC,STAR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MC,STAR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([MC,* ])");
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
-    this->colAlignment_ = A.ColAlignment();
+    this->colAlignment_ = A.ColAlignment(); 
     this->constrainedColAlignment_ = true;
     this->height_ = 0;
     this->width_ = 0;
@@ -767,16 +767,16 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MC,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,MR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,MR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([* ,MR])");
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    this->rowAlignment_ = A.RowAlignment();
+    this->rowAlignment_ = A.RowAlignment(); 
     this->constrainedRowAlignment_ = true;
     this->height_ = 0;
     this->width_ = 0;
@@ -791,9 +791,9 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,MR,Int>& A )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MR,MC,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MR,MC,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([MR,MC])");
@@ -801,16 +801,16 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MR,MC,Int>& A )
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    this->colAlignment_ = A.RowAlignment();
-    this->rowAlignment_ = A.ColAlignment();
+    this->colAlignment_ = A.RowAlignment(); 
+    this->rowAlignment_ = A.ColAlignment(); 
     this->constrainedColAlignment_ = true;
     this->constrainedRowAlignment_ = true;
     this->height_ = 0;
     this->width_ = 0;
     if( this->Grid().InGrid() )
     {
-        this->colShift_ = A.RowShift();
-        this->rowShift_ = A.ColShift();
+        this->colShift_ = A.RowShift(); 
+        this->rowShift_ = A.ColShift(); 
         this->localMatrix_.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
@@ -819,22 +819,22 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MR,MC,Int>& A )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MR,STAR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MR,STAR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([MR,* ])");
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    this->rowAlignment_ = A.ColAlignment();
+    this->rowAlignment_ = A.ColAlignment(); 
     this->constrainedRowAlignment_ = true;
     this->height_ = 0;
     this->width_ = 0;
     if( this->Grid().InGrid() )
     {
-        this->rowShift_ = A.ColShift();
+        this->rowShift_ = A.ColShift(); 
         this->localMatrix_.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
@@ -843,22 +843,22 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,MR,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,MC,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,MC,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([* ,MC])");
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
-    this->colAlignment_ = A.RowAlignment();
+    this->colAlignment_ = A.RowAlignment(); 
     this->constrainedColAlignment_ = true;
     this->height_ = 0;
     this->width_ = 0;
     if( this->Grid().InGrid() )
     {
-        this->colShift_ = A.RowShift();
+        this->colShift_ = A.RowShift(); 
         this->localMatrix_.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
@@ -867,9 +867,9 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,MC,Int>& A )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,VC,STAR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,VC,STAR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([VC,* ])");
@@ -884,7 +884,7 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,VC,STAR,Int>& A )
     if( g.InGrid() )
     {
         this->colShift_ =
-            Shift( g.MCRank(), this->ColAlignment(), g.Height() );
+            Shift<Int>( g.MCRank(), this->ColAlignment(), g.Height() );
         this->localMatrix_.ResizeTo( 0, 0 );
     }
 #ifndef RELEASE
@@ -893,9 +893,9 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,VC,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,VC,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,VC,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([* ,VC])");
@@ -919,9 +919,9 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,VC,Int>& A )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,VR,STAR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,VR,STAR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([VR,* ])");
@@ -945,9 +945,9 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,VR,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,VR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,VR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignWith([* ,VR])");
@@ -971,10 +971,9 @@ DistMatrix<T,MC,MR,Int>::AlignWith( const DistMatrix<S,STAR,VR,Int>& A )
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignColsWith
-( const DistMatrix<S,MC,MR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignColsWith( const DistMatrix<S,MC,MR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignColsWith([MC,MR])");
@@ -996,10 +995,9 @@ DistMatrix<T,MC,MR,Int>::AlignColsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignColsWith
-( const DistMatrix<S,MC,STAR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignColsWith( const DistMatrix<S,MC,STAR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignColsWith([MC,* ])");
@@ -1021,10 +1019,9 @@ DistMatrix<T,MC,MR,Int>::AlignColsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignColsWith
-( const DistMatrix<S,MR,MC,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignColsWith( const DistMatrix<S,MR,MC,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignColsWith([MR,MC])");
@@ -1046,10 +1043,9 @@ DistMatrix<T,MC,MR,Int>::AlignColsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignColsWith
-( const DistMatrix<S,STAR,MC,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignColsWith( const DistMatrix<S,STAR,MC,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignColsWith([* ,MC])");
@@ -1071,10 +1067,9 @@ DistMatrix<T,MC,MR,Int>::AlignColsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignColsWith
-( const DistMatrix<S,VC,STAR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignColsWith( const DistMatrix<S,VC,STAR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignColsWith([VC,* ])");
@@ -1098,10 +1093,9 @@ DistMatrix<T,MC,MR,Int>::AlignColsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignColsWith
-( const DistMatrix<S,STAR,VC,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignColsWith( const DistMatrix<S,STAR,VC,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignColsWith([* ,VC])");
@@ -1125,10 +1119,9 @@ DistMatrix<T,MC,MR,Int>::AlignColsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignRowsWith
-( const DistMatrix<S,MC,MR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignRowsWith( const DistMatrix<S,MC,MR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignRowsWith([MC,MR])");
@@ -1150,10 +1143,9 @@ DistMatrix<T,MC,MR,Int>::AlignRowsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignRowsWith
-( const DistMatrix<S,STAR,MR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignRowsWith( const DistMatrix<S,STAR,MR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignRowsWith([* ,MR])");
@@ -1175,10 +1167,9 @@ DistMatrix<T,MC,MR,Int>::AlignRowsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignRowsWith
-( const DistMatrix<S,MR,MC,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignRowsWith( const DistMatrix<S,MR,MC,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignRowsWith([MR,MC])");
@@ -1200,10 +1191,9 @@ DistMatrix<T,MC,MR,Int>::AlignRowsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignRowsWith
-( const DistMatrix<S,MR,STAR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignRowsWith( const DistMatrix<S,MR,STAR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignRowsWith([MR,* ])");
@@ -1225,10 +1215,9 @@ DistMatrix<T,MC,MR,Int>::AlignRowsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignRowsWith
-( const DistMatrix<S,VR,STAR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignRowsWith( const DistMatrix<S,VR,STAR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignRowsWith([VR,* ])");
@@ -1252,10 +1241,9 @@ DistMatrix<T,MC,MR,Int>::AlignRowsWith
 }
 
 template<typename T,typename Int>
-template<typename S>
+template<typename S,typename N>
 inline void
-DistMatrix<T,MC,MR,Int>::AlignRowsWith
-( const DistMatrix<S,STAR,VR,Int>& A )
+DistMatrix<T,MC,MR,Int>::AlignRowsWith( const DistMatrix<S,STAR,VR,N>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::AlignRowsWith([* ,VR])");
