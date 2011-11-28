@@ -38,7 +38,7 @@
 namespace elemental {
 
 // Matrix base for arbitrary rings
-template<typename T,typename Integer=int>
+template<typename T,typename Int=int>
 class Matrix
 {
 public:    
@@ -47,11 +47,11 @@ public:
     // 
 
     Matrix(); 
-    Matrix( Integer height, Integer width );
-    Matrix( Integer height, Integer width, Integer ldim );
-    Matrix( Integer height, Integer width, const T* buffer, Integer ldim );
-    Matrix( Integer height, Integer width, T* buffer, Integer ldim );
-    Matrix( const Matrix<T,Integer>& A );
+    Matrix( Int height, Int width );
+    Matrix( Int height, Int width, Int ldim );
+    Matrix( Int height, Int width, const T* buffer, Int ldim );
+    Matrix( Int height, Int width, T* buffer, Int ldim );
+    Matrix( const Matrix<T,Int>& A );
 
     //
     // Destructor
@@ -63,20 +63,19 @@ public:
     // Basic information
     //
 
-    Integer Height() const;
-    Integer Width() const;
-    Integer DiagonalLength( Integer offset=0 ) const;
-    Integer LDim() const;
-    Integer MemorySize() const;
+    Int Height() const;
+    Int Width() const;
+    Int DiagonalLength( Int offset=0 ) const;
+    Int LDim() const;
+    Int MemorySize() const;
 
     T* Buffer();
-    T* Buffer( Integer i, Integer j );
-    T* Buffer( Integer i, Integer j, Integer height, Integer width );
+    T* Buffer( Int i, Int j );
+    T* Buffer( Int i, Int j, Int height, Int width );
 
     const T* LockedBuffer() const;
-    const T* LockedBuffer( Integer i, Integer j ) const;
-    const T* LockedBuffer
-    ( Integer i, Integer j, Integer height, Integer width ) const;
+    const T* LockedBuffer( Int i, Int j ) const;
+    const T* LockedBuffer( Int i, Int j, Int height, Int width ) const;
 
     //
     // I/O
@@ -89,35 +88,35 @@ public:
     // Entry manipulation
     //
 
-    T Get( Integer i, Integer j ) const;
-    void Set( Integer i, Integer j, T alpha );
-    void Update( Integer i, Integer j, T alpha );
+    T Get( Int i, Int j ) const;
+    void Set( Int i, Int j, T alpha );
+    void Update( Int i, Int j, T alpha );
 
-    void GetDiagonal( Matrix<T,Integer>& d, Integer offset=0 ) const;
-    void SetDiagonal( const Matrix<T,Integer>& d, Integer offset=0 );
-    void UpdateDiagonal( const Matrix<T,Integer>& d, Integer offset=0 );
+    void GetDiagonal( Matrix<T,Int>& d, Int offset=0 ) const;
+    void SetDiagonal( const Matrix<T,Int>& d, Int offset=0 );
+    void UpdateDiagonal( const Matrix<T,Int>& d, Int offset=0 );
 
     // Only valid for complex datatypes
 
-    typename RealBase<T>::type GetReal( Integer i, Integer j ) const;
-    typename RealBase<T>::type GetImag( Integer i, Integer j ) const;
-    void SetReal( Integer i, Integer j, typename RealBase<T>::type alpha );
-    void SetImag( Integer i, Integer j, typename RealBase<T>::type alpha );
-    void UpdateReal( Integer i, Integer j, typename RealBase<T>::type alpha );
-    void UpdateImag( Integer i, Integer j, typename RealBase<T>::type alpha );
+    typename RealBase<T>::type GetReal( Int i, Int j ) const;
+    typename RealBase<T>::type GetImag( Int i, Int j ) const;
+    void SetReal( Int i, Int j, typename RealBase<T>::type alpha );
+    void SetImag( Int i, Int j, typename RealBase<T>::type alpha );
+    void UpdateReal( Int i, Int j, typename RealBase<T>::type alpha );
+    void UpdateImag( Int i, Int j, typename RealBase<T>::type alpha );
 
     void GetRealDiagonal
-    ( Matrix<typename RealBase<T>::type>& d, Integer offset=0 ) const;
+    ( Matrix<typename RealBase<T>::type>& d, Int offset=0 ) const;
     void GetImagDiagonal
-    ( Matrix<typename RealBase<T>::type>& d, Integer offset=0 ) const;
+    ( Matrix<typename RealBase<T>::type>& d, Int offset=0 ) const;
     void SetRealDiagonal
-    ( const Matrix<typename RealBase<T>::type>& d, Integer offset=0 );
+    ( const Matrix<typename RealBase<T>::type>& d, Int offset=0 );
     void SetImagDiagonal
-    ( const Matrix<typename RealBase<T>::type>& d, Integer offset=0 );
+    ( const Matrix<typename RealBase<T>::type>& d, Int offset=0 );
     void UpdateRealDiagonal
-    ( const Matrix<typename RealBase<T>::type>& d, Integer offset=0 );
+    ( const Matrix<typename RealBase<T>::type>& d, Int offset=0 );
     void UpdateImagDiagonal
-    ( const Matrix<typename RealBase<T>::type>& d, Integer offset=0 );
+    ( const Matrix<typename RealBase<T>::type>& d, Int offset=0 );
 
     //
     // Viewing other matrix instances (or buffers)
@@ -126,42 +125,41 @@ public:
     bool Viewing() const;
     bool LockedView() const;
 
-    void View( Integer height, Integer width, T* buffer, Integer ldim );
-    void View( Matrix<T,Integer>& A);
-    void View
-    ( Matrix<T,Integer>& A, 
-      Integer i, Integer j, Integer height, Integer width );
-    void View1x2( Matrix<T,Integer>& AL, Matrix<T,Integer>& AR );
-    void View2x1( Matrix<T,Integer>& AT, 
-                  Matrix<T,Integer>& AB );
-    void View2x2( Matrix<T,Integer>& ATL, Matrix<T,Integer>& ATR,
-                  Matrix<T,Integer>& ABL, Matrix<T,Integer>& ABR );
+    void View( Int height, Int width, T* buffer, Int ldim );
+    void View( Matrix<T,Int>& A);
+    void View( Matrix<T,Int>& A, Int i, Int j, Int height, Int width );
+    void View1x2( Matrix<T,Int>& AL, Matrix<T,Int>& AR );
+    void View2x1( Matrix<T,Int>& AT, 
+                  Matrix<T,Int>& AB );
+    void View2x2( Matrix<T,Int>& ATL, Matrix<T,Int>& ATR,
+                  Matrix<T,Int>& ABL, Matrix<T,Int>& ABR );
 
+    void LockedView( Int height, Int width, const T* buffer, Int ldim );
+    void LockedView( const Matrix<T,Int>& A );
     void LockedView
-    ( Integer height, Integer width, const T* buffer, Integer ldim );
-    void LockedView( const Matrix<T,Integer>& A );
-    void LockedView
-    ( const Matrix<T,Integer>& A, 
-      Integer i, Integer j, Integer height, Integer width );
+    ( const Matrix<T,Int>& A, Int i, Int j, Int height, Int width );
     void LockedView1x2
-    ( const Matrix<T,Integer>& AL, const Matrix<T,Integer>& AR );
+    ( const Matrix<T,Int>& AL, const Matrix<T,Int>& AR );
     void LockedView2x1
-    ( const Matrix<T,Integer>& AT, 
-      const Matrix<T,Integer>& AB );
+    ( const Matrix<T,Int>& AT, 
+      const Matrix<T,Int>& AB );
     void LockedView2x2
-    ( const Matrix<T,Integer>& ATL, const Matrix<T,Integer>& ATR,
-      const Matrix<T,Integer>& ABL, const Matrix<T,Integer>& ABR );
+    ( const Matrix<T,Int>& ATL, const Matrix<T,Int>& ATR,
+      const Matrix<T,Int>& ABL, const Matrix<T,Int>& ABR );
 
     //
     // Utilities
     //
 
-    const Matrix<T,Integer>& operator=( const Matrix<T,Integer>& A );
+    const Matrix<T,Int>& operator=( const Matrix<T,Int>& A );
 
     void Empty();
 
-    void ResizeTo( Integer height, Integer width );
-    void ResizeTo( Integer height, Integer width, Integer ldim );
+    void ResizeTo( Int height, Int width );
+    void ResizeTo( Int height, Int width, Int ldim );
+
+    void MakeTrapezoidal( Side side, UpperOrLower uplo, Int offset=0 );
+    void ScaleTrapezoid( T alpha, Side side, UpperOrLower uplo, Int offset=0 );
 
     void SetToIdentity();
     void SetToRandom();
@@ -170,24 +168,24 @@ public:
 private:
     bool      viewing_;
     bool      lockedView_;
-    Integer   height_;
-    Integer   width_;
+    Int   height_;
+    Int   width_;
     T*        data_;
     const T*  lockedData_;
-    Integer   ldim_;
+    Int   ldim_;
     Memory<T> memory_;
 
     template<typename Z>
     struct GetRealHelper
     {
-        static Z Func( const Matrix<Z>& parent, Integer i, Integer j );
+        static Z Func( const Matrix<Z>& parent, Int i, Int j );
     };
 #ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct GetRealHelper<std::complex<Z> >
     {
         static Z Func
-        ( const Matrix<std::complex<Z> >& parent, Integer i, Integer j );
+        ( const Matrix<std::complex<Z> >& parent, Int i, Int j );
     };
 #endif
     template<typename Z> friend struct GetRealHelper;
@@ -195,14 +193,14 @@ private:
     template<typename Z>
     struct GetImagHelper
     {
-        static Z Func( const Matrix<Z>& parent, Integer i, Integer j );
+        static Z Func( const Matrix<Z>& parent, Int i, Int j );
     };
 #ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct GetImagHelper<std::complex<Z> >
     {
         static Z Func
-        ( const Matrix<std::complex<Z> >& parent, Integer i, Integer j );
+        ( const Matrix<std::complex<Z> >& parent, Int i, Int j );
     };
 #endif
     template<typename Z> friend struct GetImagHelper;
@@ -210,14 +208,14 @@ private:
     template<typename Z>
     struct SetRealHelper
     {
-        static void Func( Matrix<Z>& parent, Integer i, Integer j, Z alpha );
+        static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
 #ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct SetRealHelper<std::complex<Z> >
     {
         static void Func
-        ( Matrix<std::complex<Z> >& parent, Integer i, Integer j, Z alpha );
+        ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
     };
 #endif
     template<typename Z> friend struct SetRealHelper;
@@ -225,14 +223,14 @@ private:
     template<typename Z>
     struct SetImagHelper
     {
-        static void Func( Matrix<Z>& parent, Integer i, Integer j, Z alpha );
+        static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
 #ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct SetImagHelper<std::complex<Z> >
     {
         static void Func
-        ( Matrix<std::complex<Z> >& parent, Integer i, Integer j, Z alpha );
+        ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
     };
 #endif
     template<typename Z> friend struct SetImagHelper;
@@ -240,14 +238,14 @@ private:
     template<typename Z>
     struct UpdateRealHelper
     {
-        static void Func( Matrix<Z>& parent, Integer i, Integer j, Z alpha );
+        static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
 #ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct UpdateRealHelper<std::complex<Z> >
     {
         static void Func
-        ( Matrix<std::complex<Z> >& parent, Integer i, Integer j, Z alpha );
+        ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
     };
 #endif
     template<typename Z> friend struct UpdateRealHelper;
@@ -255,14 +253,14 @@ private:
     template<typename Z>
     struct UpdateImagHelper
     {
-        static void Func( Matrix<Z>& parent, Integer i, Integer j, Z alpha );
+        static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
 #ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct UpdateImagHelper<std::complex<Z> >
     {
         static void Func
-        ( Matrix<std::complex<Z> >& parent, Integer i, Integer j, Z alpha );
+        ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
     };
 #endif
     template<typename Z> friend struct UpdateImagHelper;
@@ -276,17 +274,17 @@ private:
 // Constructors
 //
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline
-Matrix<T,Integer>::Matrix()
+Matrix<T,Int>::Matrix()
 : viewing_(false), lockedView_(false),
   height_(0), width_(0), data_(0), lockedData_(0), ldim_(1),
   memory_()
 { }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline
-Matrix<T,Integer>::Matrix( Integer height, Integer width )
+Matrix<T,Int>::Matrix( Int height, Int width )
 : viewing_(false), lockedView_(false),
   height_(height), width_(width), lockedData_(0), ldim_(std::max(height,1))
 {
@@ -302,10 +300,10 @@ Matrix<T,Integer>::Matrix( Integer height, Integer width )
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline 
-Matrix<T,Integer>::Matrix
-( Integer height, Integer width, Integer ldim )
+Matrix<T,Int>::Matrix
+( Int height, Int width, Int ldim )
 : viewing_(false), lockedView_(false),
   height_(height), width_(width), lockedData_(0), ldim_(ldim)
 {
@@ -331,10 +329,10 @@ Matrix<T,Integer>::Matrix
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline
-Matrix<T,Integer>::Matrix
-( Integer height, Integer width, const T* buffer, Integer ldim )
+Matrix<T,Int>::Matrix
+( Int height, Int width, const T* buffer, Int ldim )
 : viewing_(true), lockedView_(true),
   height_(height), width_(width), data_(0), lockedData_(buffer), ldim_(ldim)
 {
@@ -356,10 +354,10 @@ Matrix<T,Integer>::Matrix
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline
-Matrix<T,Integer>::Matrix
-( Integer height, Integer width, T* buffer, Integer ldim )
+Matrix<T,Int>::Matrix
+( Int height, Int width, T* buffer, Int ldim )
 : viewing_(true), lockedView_(false),
   height_(height), width_(width), data_(buffer), lockedData_(0), ldim_(ldim)
 {
@@ -381,10 +379,10 @@ Matrix<T,Integer>::Matrix
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline
-Matrix<T,Integer>::Matrix
-( const Matrix<T,Integer>& A )
+Matrix<T,Int>::Matrix
+( const Matrix<T,Int>& A )
 : viewing_(false), lockedView_(false), 
   height_(0), width_(0), data_(0), lockedData_(0), ldim_(1)
 {
@@ -405,43 +403,43 @@ Matrix<T,Integer>::Matrix
 // Destructor
 //
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline
-Matrix<T,Integer>::~Matrix()
+Matrix<T,Int>::~Matrix()
 { }
 
 //
 // Basic information
 //
 
-template<typename T,typename Integer>
-inline Integer 
-Matrix<T,Integer>::Height() const
+template<typename T,typename Int>
+inline Int 
+Matrix<T,Int>::Height() const
 { return height_; }
 
-template<typename T,typename Integer>
-inline Integer
-Matrix<T,Integer>::Width() const
+template<typename T,typename Int>
+inline Int
+Matrix<T,Int>::Width() const
 { return width_; }
 
-template<typename T,typename Integer>
-inline Integer
-Matrix<T,Integer>::DiagonalLength( Integer offset ) const
+template<typename T,typename Int>
+inline Int
+Matrix<T,Int>::DiagonalLength( Int offset ) const
 { return elemental::DiagonalLength(height_,width_,offset); }
 
-template<typename T,typename Integer>
-inline Integer
-Matrix<T,Integer>::LDim() const
+template<typename T,typename Int>
+inline Int
+Matrix<T,Int>::LDim() const
 { return ldim_; }
 
-template<typename T,typename Integer>
-inline Integer
-Matrix<T,Integer>::MemorySize() const
+template<typename T,typename Int>
+inline Int
+Matrix<T,Int>::MemorySize() const
 { return memory_.Size(); }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline T*
-Matrix<T,Integer>::Buffer()
+Matrix<T,Int>::Buffer()
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Buffer");
@@ -453,9 +451,9 @@ Matrix<T,Integer>::Buffer()
     return data_;
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline const T*
-Matrix<T,Integer>::LockedBuffer() const
+Matrix<T,Int>::LockedBuffer() const
 {
     if( lockedView_ )
         return lockedData_;
@@ -463,9 +461,9 @@ Matrix<T,Integer>::LockedBuffer() const
         return data_;
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline T*
-Matrix<T,Integer>::Buffer( Integer i, Integer j )
+Matrix<T,Int>::Buffer( Int i, Int j )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Buffer");
@@ -479,9 +477,9 @@ Matrix<T,Integer>::Buffer( Integer i, Integer j )
     return &data_[i+j*ldim_];
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline const T*
-Matrix<T,Integer>::LockedBuffer( Integer i, Integer j ) const
+Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedBuffer");
@@ -495,9 +493,9 @@ Matrix<T,Integer>::LockedBuffer( Integer i, Integer j ) const
         return &data_[i+j*ldim_];
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline T*
-Matrix<T,Integer>::Buffer( Integer i, Integer j, Integer height, Integer width )
+Matrix<T,Int>::Buffer( Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Buffer");
@@ -513,10 +511,10 @@ Matrix<T,Integer>::Buffer( Integer i, Integer j, Integer height, Integer width )
     return &data_[i+j*ldim_];
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline const T*
-Matrix<T,Integer>::LockedBuffer
-( Integer i, Integer j, Integer height, Integer width ) const
+Matrix<T,Int>::LockedBuffer
+( Int i, Int j, Int height, Int width ) const
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedBuffer");
@@ -538,9 +536,9 @@ Matrix<T,Integer>::LockedBuffer
 // I/O
 //
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::Print( std::ostream& os, const std::string msg ) const
+Matrix<T,Int>::Print( std::ostream& os, const std::string msg ) const
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Print");
@@ -548,12 +546,12 @@ Matrix<T,Integer>::Print( std::ostream& os, const std::string msg ) const
     if( msg != "" )
         os << msg << std::endl;
 
-    const Integer height = Height();
-    const Integer width = Width();
+    const Int height = Height();
+    const Int width = Width();
 
-    for( Integer i=0; i<height; ++i )
+    for( Int i=0; i<height; ++i )
     {
-        for( Integer j=0; j<width; ++j )
+        for( Int j=0; j<width; ++j )
             os << WrapScalar(Get(i,j)) << " ";
         os << std::endl;
     }
@@ -563,18 +561,18 @@ Matrix<T,Integer>::Print( std::ostream& os, const std::string msg ) const
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::Print( const std::string msg ) const
+Matrix<T,Int>::Print( const std::string msg ) const
 { Print( std::cout, msg ); }
 
 //
 // Entry manipulation
 //
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline T
-Matrix<T,Integer>::Get( Integer i, Integer j ) const
+Matrix<T,Int>::Get( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Get");
@@ -596,9 +594,9 @@ Matrix<T,Integer>::Get( Integer i, Integer j ) const
         return data_[i+j*ldim_];
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::Set( Integer i, Integer j, T alpha ) 
+Matrix<T,Int>::Set( Int i, Int j, T alpha ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Set");
@@ -621,9 +619,9 @@ Matrix<T,Integer>::Set( Integer i, Integer j, T alpha )
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::Update( Integer i, Integer j, T alpha ) 
+Matrix<T,Int>::Update( Int i, Int j, T alpha ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Update");
@@ -646,9 +644,9 @@ Matrix<T,Integer>::Update( Integer i, Integer j, T alpha )
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::GetDiagonal( Matrix<T,Integer>& d, Integer offset ) const
+Matrix<T,Int>::GetDiagonal( Matrix<T,Int>& d, Int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetDiagonal");
@@ -658,72 +656,72 @@ Matrix<T,Integer>::GetDiagonal( Matrix<T,Integer>& d, Integer offset ) const
         (d.Height() != DiagonalLength(offset) || d.Width() != 1 ))
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const Integer diagLength = DiagonalLength(offset);
+    const Int diagLength = DiagonalLength(offset);
     if( !d.Viewing() )    
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             d.Set( j, 0, Get(j,j+offset) );
     else
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             d.Set( j, 0, Get(j-offset,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::SetDiagonal( const Matrix<T,Integer>& d, Integer offset )
+Matrix<T,Int>::SetDiagonal( const Matrix<T,Int>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const Integer diagLength = DiagonalLength(offset);
+    const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             Set( j, j+offset, d.Get(j,0) );
     else
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             Set( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::UpdateDiagonal( const Matrix<T,Integer>& d, Integer offset )
+Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const Integer diagLength = DiagonalLength(offset);
+    const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             Update( j, j+offset, d.Get(j,0) );
     else
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             Update( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline typename RealBase<T>::type
-Matrix<T,Integer>::GetReal( Integer i, Integer j ) const
+Matrix<T,Int>::GetReal( Int i, Int j ) const
 { return GetRealHelper<T>::Func( *this, i, j ); }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline Z
-Matrix<T,Integer>::GetRealHelper<Z>::Func
-( const Matrix<Z>& parent, Integer i, Integer j )
+Matrix<T,Int>::GetRealHelper<Z>::Func
+( const Matrix<Z>& parent, Int i, Int j )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::GetRealHelper::Func");
@@ -732,11 +730,11 @@ Matrix<T,Integer>::GetRealHelper<Z>::Func
 }
     
 #ifndef WITHOUT_COMPLEX
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline Z
-Matrix<T,Integer>::GetRealHelper<std::complex<Z> >::Func
-( const Matrix<std::complex<Z> >& parent, Integer i, Integer j ) 
+Matrix<T,Int>::GetRealHelper<std::complex<Z> >::Func
+( const Matrix<std::complex<Z> >& parent, Int i, Int j ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::GetRealHelper::Func");
@@ -759,16 +757,16 @@ Matrix<T,Integer>::GetRealHelper<std::complex<Z> >::Func
 }
 #endif // WITHOUT_COMPLEX
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline typename RealBase<T>::type
-Matrix<T,Integer>::GetImag( Integer i, Integer j ) const
+Matrix<T,Int>::GetImag( Int i, Int j ) const
 { return GetImagHelper<T>::Func( *this, i, j ); }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline Z
-Matrix<T,Integer>::GetImagHelper<Z>::Func
-( const Matrix<Z>& parent, Integer i, Integer j )
+Matrix<T,Int>::GetImagHelper<Z>::Func
+( const Matrix<Z>& parent, Int i, Int j )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::GetImagHelper::Func");
@@ -777,11 +775,11 @@ Matrix<T,Integer>::GetImagHelper<Z>::Func
 }
     
 #ifndef WITHOUT_COMPLEX
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline Z
-Matrix<T,Integer>::GetImagHelper<std::complex<Z> >::Func
-( const Matrix<std::complex<Z> >& parent, Integer i, Integer j )
+Matrix<T,Int>::GetImagHelper<std::complex<Z> >::Func
+( const Matrix<std::complex<Z> >& parent, Int i, Int j )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::GetImagHelper::Func");
@@ -804,17 +802,17 @@ Matrix<T,Integer>::GetImagHelper<std::complex<Z> >::Func
 }
 #endif // WITHOUT_COMPLEX
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::SetReal
-( Integer i, Integer j, typename RealBase<T>::type alpha )
+Matrix<T,Int>::SetReal
+( Int i, Int j, typename RealBase<T>::type alpha )
 { SetRealHelper<T>::Func( *this, i, j, alpha ); }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Integer>::SetRealHelper<Z>::Func
-( Matrix<Z>& parent, Integer i, Integer j, Z alpha )
+Matrix<T,Int>::SetRealHelper<Z>::Func
+( Matrix<Z>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetRealHelper::Func");
@@ -823,11 +821,11 @@ Matrix<T,Integer>::SetRealHelper<Z>::Func
 }
     
 #ifndef WITHOUT_COMPLEX
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Integer>::SetRealHelper<std::complex<Z> >::Func
-( Matrix<std::complex<Z> >& parent, Integer i, Integer j, Z alpha )
+Matrix<T,Int>::SetRealHelper<std::complex<Z> >::Func
+( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetRealHelper::Func");
@@ -850,17 +848,17 @@ Matrix<T,Integer>::SetRealHelper<std::complex<Z> >::Func
 }
 #endif // WITHOUT_COMPLEX
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::SetImag
-( Integer i, Integer j, typename RealBase<T>::type alpha ) 
+Matrix<T,Int>::SetImag
+( Int i, Int j, typename RealBase<T>::type alpha ) 
 { SetImagHelper<T>::Func( *this, i, j, alpha ); }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Integer>::SetImagHelper<Z>::Func
-( Matrix<Z>& parent, Integer i, Integer j, Z alpha ) 
+Matrix<T,Int>::SetImagHelper<Z>::Func
+( Matrix<Z>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetImagHelper::Func");
@@ -869,11 +867,11 @@ Matrix<T,Integer>::SetImagHelper<Z>::Func
 }
     
 #ifndef WITHOUT_COMPLEX
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Integer>::SetImagHelper<std::complex<Z> >::Func
-( Matrix<std::complex<Z> >& parent, Integer i, Integer j, Z alpha ) 
+Matrix<T,Int>::SetImagHelper<std::complex<Z> >::Func
+( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetImagHelper::Func");
@@ -896,17 +894,17 @@ Matrix<T,Integer>::SetImagHelper<std::complex<Z> >::Func
 }
 #endif // WITHOUT_COMPLEX
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::UpdateReal
-( Integer i, Integer j, typename RealBase<T>::type alpha )
+Matrix<T,Int>::UpdateReal
+( Int i, Int j, typename RealBase<T>::type alpha )
 { UpdateRealHelper<T>::Func( *this, i, j, alpha ); }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Integer>::UpdateRealHelper<Z>::Func
-( Matrix<Z>& parent, Integer i, Integer j, Z alpha ) 
+Matrix<T,Int>::UpdateRealHelper<Z>::Func
+( Matrix<Z>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateRealHelper::Func");
@@ -915,11 +913,11 @@ Matrix<T,Integer>::UpdateRealHelper<Z>::Func
 }
     
 #ifndef WITHOUT_COMPLEX
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Integer>::UpdateRealHelper<std::complex<Z> >::Func
-( Matrix<std::complex<Z> >& parent, Integer i, Integer j, Z alpha )
+Matrix<T,Int>::UpdateRealHelper<std::complex<Z> >::Func
+( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateRealHelper::Func");
@@ -943,17 +941,17 @@ Matrix<T,Integer>::UpdateRealHelper<std::complex<Z> >::Func
 }
 #endif // WITHOUT_COMPLEX
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::UpdateImag
-( Integer i, Integer j, typename RealBase<T>::type alpha ) 
+Matrix<T,Int>::UpdateImag
+( Int i, Int j, typename RealBase<T>::type alpha ) 
 { UpdateImagHelper<T>::Func( *this, i, j, alpha ); }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Integer>::UpdateImagHelper<Z>::Func
-( Matrix<Z>& parent, Integer i, Integer j, Z alpha )
+Matrix<T,Int>::UpdateImagHelper<Z>::Func
+( Matrix<Z>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateImagHelper::Func");
@@ -962,11 +960,11 @@ Matrix<T,Integer>::UpdateImagHelper<Z>::Func
 }
     
 #ifndef WITHOUT_COMPLEX
-template<typename T,typename Integer>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Integer>::UpdateImagHelper<std::complex<Z> >::Func
-( Matrix<std::complex<Z> >& parent, Integer i, Integer j, Z alpha )
+Matrix<T,Int>::UpdateImagHelper<std::complex<Z> >::Func
+( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateImagHelper::Func");
@@ -990,10 +988,10 @@ Matrix<T,Integer>::UpdateImagHelper<std::complex<Z> >::Func
 }
 #endif // WITHOUT_COMPLEX
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::GetRealDiagonal
-( Matrix<typename RealBase<T>::type>& d, Integer offset ) const
+Matrix<T,Int>::GetRealDiagonal
+( Matrix<typename RealBase<T>::type>& d, Int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetRealDiagonal");
@@ -1003,24 +1001,24 @@ Matrix<T,Integer>::GetRealDiagonal
         (d.Height() != DiagonalLength(offset) || d.Width() != 1))
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const Integer diagLength = DiagonalLength(offset);
+    const Int diagLength = DiagonalLength(offset);
     if( !d.Viewing() )    
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             d.Set( j, 0, GetReal(j,j+offset) );
     else
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             d.Set( j, 0, GetReal(j-offset,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::GetImagDiagonal
-( Matrix<typename RealBase<T>::type>& d, Integer offset ) const
+Matrix<T,Int>::GetImagDiagonal
+( Matrix<typename RealBase<T>::type>& d, Int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetImagDiagonal");
@@ -1030,102 +1028,102 @@ Matrix<T,Integer>::GetImagDiagonal
         (d.Height() != DiagonalLength(offset) || d.Width() != 1))
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const Integer diagLength = DiagonalLength(offset);
+    const Int diagLength = DiagonalLength(offset);
     if( !d.Viewing() )    
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             d.Set( j, 0, GetImag(j,j+offset) );
     else
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             d.Set( j, 0, GetImag(j-offset,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::SetRealDiagonal
-( const Matrix<typename RealBase<T>::type>& d, Integer offset )
+Matrix<T,Int>::SetRealDiagonal
+( const Matrix<typename RealBase<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetRealDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const Integer diagLength = DiagonalLength(offset);
+    const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             SetReal( j, j+offset, d.Get(j,0) );
     else
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             SetReal( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::SetImagDiagonal
-( const Matrix<typename RealBase<T>::type>& d, Integer offset )
+Matrix<T,Int>::SetImagDiagonal
+( const Matrix<typename RealBase<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetImagDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const Integer diagLength = DiagonalLength(offset);
+    const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             SetImag( j, j+offset, d.Get(j,0) );
     else
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             SetImag( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::UpdateRealDiagonal
-( const Matrix<typename RealBase<T>::type>& d, Integer offset )
+Matrix<T,Int>::UpdateRealDiagonal
+( const Matrix<typename RealBase<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateRealDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const Integer diagLength = DiagonalLength(offset);
+    const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             UpdateReal( j, j+offset, d.Get(j,0) );
     else
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             UpdateReal( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::UpdateImagDiagonal
-( const Matrix<typename RealBase<T>::type>& d, Integer offset )
+Matrix<T,Int>::UpdateImagDiagonal
+( const Matrix<typename RealBase<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateImagDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    const Integer diagLength = DiagonalLength(offset);
+    const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             UpdateImag( j, j+offset, d.Get(j,0) );
     else
-        for( Integer j=0; j<diagLength; ++j )
+        for( Int j=0; j<diagLength; ++j )
             UpdateImag( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
@@ -1136,20 +1134,20 @@ Matrix<T,Integer>::UpdateImagDiagonal
 // Viewing other Matrix instances
 //
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline bool
-Matrix<T,Integer>::Viewing() const
+Matrix<T,Int>::Viewing() const
 { return viewing_; }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline bool
-Matrix<T,Integer>::LockedView() const
+Matrix<T,Int>::LockedView() const
 { return lockedView_; }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::View
-( Integer height, Integer width, T* buffer, Integer ldim )
+Matrix<T,Int>::View
+( Int height, Int width, T* buffer, Int ldim )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View(buffer)");
@@ -1167,9 +1165,9 @@ Matrix<T,Integer>::View
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::View( Matrix<T,Integer>& A )
+Matrix<T,Int>::View( Matrix<T,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View(A)");
@@ -1187,10 +1185,10 @@ Matrix<T,Integer>::View( Matrix<T,Integer>& A )
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::LockedView
-( Integer height, Integer width, const T* buffer, Integer ldim )
+Matrix<T,Int>::LockedView
+( Int height, Int width, const T* buffer, Int ldim )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView(buffer)");
@@ -1208,9 +1206,9 @@ Matrix<T,Integer>::LockedView
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::LockedView( const Matrix<T,Integer>& A )
+Matrix<T,Int>::LockedView( const Matrix<T,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView(A)");
@@ -1228,10 +1226,10 @@ Matrix<T,Integer>::LockedView( const Matrix<T,Integer>& A )
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::View
-( Matrix<T,Integer>& A, Integer i, Integer j, Integer height, Integer width )
+Matrix<T,Int>::View
+( Matrix<T,Int>& A, Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View(A,i,j,height,width)");
@@ -1261,10 +1259,10 @@ Matrix<T,Integer>::View
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::LockedView
-( const Matrix<T,Integer>& A, Integer i, Integer j, Integer height, Integer width )
+Matrix<T,Int>::LockedView
+( const Matrix<T,Int>& A, Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView(A,i,j,height,width)");
@@ -1294,9 +1292,9 @@ Matrix<T,Integer>::LockedView
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::View1x2( Matrix<T,Integer>& AL, Matrix<T,Integer>& AR )
+Matrix<T,Int>::View1x2( Matrix<T,Int>& AL, Matrix<T,Int>& AR )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View1x2");
@@ -1320,9 +1318,9 @@ Matrix<T,Integer>::View1x2( Matrix<T,Integer>& AL, Matrix<T,Integer>& AR )
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::LockedView1x2( const Matrix<T,Integer>& AL, const Matrix<T,Integer>& AR )
+Matrix<T,Int>::LockedView1x2( const Matrix<T,Int>& AL, const Matrix<T,Int>& AR )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView1x2");
@@ -1346,11 +1344,11 @@ Matrix<T,Integer>::LockedView1x2( const Matrix<T,Integer>& AL, const Matrix<T,In
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::View2x1
-( Matrix<T,Integer>& AT,
-  Matrix<T,Integer>& AB )
+Matrix<T,Int>::View2x1
+( Matrix<T,Int>& AT,
+  Matrix<T,Int>& AB )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View2x1");
@@ -1374,11 +1372,11 @@ Matrix<T,Integer>::View2x1
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::LockedView2x1
-( const Matrix<T,Integer>& AT,
-  const Matrix<T,Integer>& AB )
+Matrix<T,Int>::LockedView2x1
+( const Matrix<T,Int>& AT,
+  const Matrix<T,Int>& AB )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView2x1");
@@ -1402,11 +1400,11 @@ Matrix<T,Integer>::LockedView2x1
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::View2x2
-( Matrix<T,Integer>& ATL, Matrix<T,Integer>& ATR,
-  Matrix<T,Integer>& ABL, Matrix<T,Integer>& ABR )
+Matrix<T,Int>::View2x2
+( Matrix<T,Int>& ATL, Matrix<T,Int>& ATR,
+  Matrix<T,Int>& ABL, Matrix<T,Int>& ABR )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View2x2");
@@ -1437,11 +1435,11 @@ Matrix<T,Integer>::View2x2
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::LockedView2x2
-( const Matrix<T,Integer>& ATL, const Matrix<T,Integer>& ATR,
-  const Matrix<T,Integer>& ABL, const Matrix<T,Integer>& ABR )
+Matrix<T,Int>::LockedView2x2
+( const Matrix<T,Int>& ATL, const Matrix<T,Int>& ATR,
+  const Matrix<T,Int>& ABL, const Matrix<T,Int>& ABR )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView2x2");
@@ -1476,9 +1474,9 @@ Matrix<T,Integer>::LockedView2x2
 // Utilities
 //
 
-template<typename T,typename Integer>
-inline const Matrix<T,Integer>&
-Matrix<T,Integer>::operator=( const Matrix<T,Integer>& A )
+template<typename T,typename Int>
+inline const Matrix<T,Int>&
+Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::operator=");
@@ -1491,15 +1489,15 @@ Matrix<T,Integer>::operator=( const Matrix<T,Integer>& A )
     if( !viewing_ )
         ResizeTo( A.Height(), A.Width() );
 
-    const Integer height = Height();
-    const Integer width = Width();
-    const Integer ldim = LDim();
-    const Integer ldimOfA = A.LDim();
+    const Int height = Height();
+    const Int width = Width();
+    const Int ldim = LDim();
+    const Int ldimOfA = A.LDim();
     const T* data = A.LockedBuffer();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( Integer j=0; j<width; ++j )
+    for( Int j=0; j<width; ++j )
         std::memcpy( &data_[j*ldim], &data[j*ldimOfA], height*sizeof(T) );
 #ifndef RELEASE
     PopCallStack();
@@ -1507,9 +1505,9 @@ Matrix<T,Integer>::operator=( const Matrix<T,Integer>& A )
     return *this;
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::Empty()
+Matrix<T,Int>::Empty()
 {
     memory_.Empty();
     height_ = 0;
@@ -1521,9 +1519,9 @@ Matrix<T,Integer>::Empty()
     lockedView_ = false;
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::ResizeTo( Integer height, Integer width )
+Matrix<T,Int>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::ResizeTo(height,width)");
@@ -1534,7 +1532,7 @@ Matrix<T,Integer>::ResizeTo( Integer height, Integer width )
 #endif
     // Only change the ldim when necessary. Simply 'shrink' our view if 
     // possible.
-    const Integer minLDim = 1;
+    const Int minLDim = 1;
     if( height > height_ || width > width_ )
         ldim_ = std::max( height, minLDim );
 
@@ -1548,9 +1546,9 @@ Matrix<T,Integer>::ResizeTo( Integer height, Integer width )
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::ResizeTo( Integer height, Integer width, Integer ldim )
+Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::ResizeTo(height,width,ldim)");
@@ -1576,60 +1574,211 @@ Matrix<T,Integer>::ResizeTo( Integer height, Integer width, Integer ldim )
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::SetToIdentity()
+Matrix<T,Int>::MakeTrapezoidal( Side side, UpperOrLower uplo, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::MakeTrapezoidal");
+    if( lockedView_ )
+        throw std::logic_error("Cannot modify a locked view");
+#endif
+    const Int height = Height();
+    const Int width = Width();
+    const Int ldim = LDim();
+    T* buffer = Buffer();
+
+    if( uplo == LOWER )
+    {
+        if( side == LEFT )
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( Int j=std::max(0,offset+1); j<width; ++j )
+            {
+                const Int lastZeroRow = j-offset-1;
+                const Int numZeroRows = std::min( lastZeroRow+1, height );
+                std::memset( &buffer[j*ldim], 0, numZeroRows*sizeof(T) );
+            }
+        }
+        else
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( Int j=std::max(0,offset-height+width+1); j<width; ++j )
+            {
+                const Int lastZeroRow = j-offset+height-width-1;
+                const Int numZeroRows = std::min( lastZeroRow+1, height );
+                std::memset( &buffer[j*ldim], 0, numZeroRows*sizeof(T) );
+            }
+        }
+    }
+    else
+    {
+        if( side == LEFT )
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( Int j=0; j<width; ++j )
+            {
+                const Int firstZeroRow = std::max(j-offset+1,0);
+                if( firstZeroRow < height )
+                    std::memset
+                    ( &buffer[firstZeroRow+j*ldim], 0, 
+                      (height-firstZeroRow)*sizeof(T) );
+            }
+        }
+        else
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( Int j=0; j<width; ++j )
+            {
+                const Int firstZeroRow = std::max(j-offset+height-width+1,0);
+                if( firstZeroRow < height )
+                    std::memset
+                    ( &buffer[firstZeroRow+j*ldim], 0,
+                      (height-firstZeroRow)*sizeof(T) );
+            }
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+Matrix<T,Int>::ScaleTrapezoid
+( T alpha, Side side, UpperOrLower uplo, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::ScaleTrapezoid");
+    if( lockedView_ )
+        throw std::logic_error("Cannot modify a locked view");
+#endif
+    const Int height = Height();
+    const Int width = Width();
+    const Int ldim = LDim();
+    T* buffer = Buffer();
+
+    if( uplo == UPPER )
+    {
+        if( side == LEFT )
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( Int j=std::max(0,offset-1); j<width; ++j )
+            {
+                const Int numRows = j-offset+1;
+                for( Int i=0; i<numRows; ++i )
+                    buffer[i+j*ldim] *= alpha;
+            }
+        }
+        else
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( Int j=std::max(0,offset-height+width-1); j<width; ++j )
+            {
+                const Int numRows = j-offset+height-width+1;
+                for( Int i=0; i<numRows; ++i )
+                    buffer[i+j*ldim] *= alpha;
+            }
+        }
+    }
+    else
+    {
+        if( side == LEFT )
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( Int j=0; j<width; ++j )
+            {
+                const Int numZeroRows = std::max(j-offset,0);
+                for( Int i=numZeroRows; i<height; ++i )
+                    buffer[i+j*ldim] *= alpha;
+            }
+        }
+        else
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( Int j=0; j<width; ++j )
+            {
+                const Int numZeroRows = std::max(j-offset+height-width,0);
+                for( Int i=numZeroRows; i<height; ++i )
+                    buffer[i+j*ldim] *= alpha;
+            }
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+Matrix<T,Int>::SetToIdentity()
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetToIdentity");
     if( lockedView_ )
         throw std::logic_error("Cannot set a locked view to identity");
 #endif
-    const Integer height = Height();
-    const Integer width = Width();
+    const Int height = Height();
+    const Int width = Width();
 
     SetToZero();
-    for( Integer j=0; j<std::min(height,width); ++j )
+    for( Int j=0; j<std::min(height,width); ++j )
         data_[j+j*ldim_] = (T)1;
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::SetToRandom()
+Matrix<T,Int>::SetToRandom()
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetToRandom");
     if( lockedView_ )
         throw std::logic_error("Cannot change the data of a locked view");
 #endif
-    const Integer height = Height();
-    const Integer width = Width();
-    for( Integer j=0; j<width; ++j )
-        for( Integer i=0; i<height; ++i )
+    const Int height = Height();
+    const Int width = Width();
+    for( Int j=0; j<width; ++j )
+        for( Int i=0; i<height; ++i )
             data_[i+j*ldim_] = SampleUnitBall<T>();
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,typename Integer>
+template<typename T,typename Int>
 inline void
-Matrix<T,Integer>::SetToZero()
+Matrix<T,Int>::SetToZero()
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetToZero");
     if( lockedView_ )
         throw std::logic_error("Cannot set a locked view to zero");
 #endif
-    const Integer height = Height();
-    const Integer width = Width();
+    const Int height = Height();
+    const Int width = Width();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for( Integer j=0; j<width; ++j )
+    for( Int j=0; j<width; ++j )
         std::memset( &data_[j*ldim_], 0, height*sizeof(T) );
 #ifndef RELEASE
     PopCallStack();

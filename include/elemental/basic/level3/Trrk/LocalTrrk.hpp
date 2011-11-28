@@ -36,7 +36,27 @@ namespace basic {
 namespace trrk_util {
 
 #ifndef RELEASE
-// C := alpha A B + beta C
+// Local C := alpha A B + beta C
+template<typename T>
+inline void 
+CheckInputNN
+( const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
+{
+    if( A.Height() != C.Height() || B.Width()  != C.Width() ||
+        A.Width()  != B.Height() || A.Height() != B.Width() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal LocalTrrk: \n"
+            << "  A ~ " << A.Height() << " x "
+                        << A.Width()  << "\n"
+            << "  B ~ " << B.Height() << " x "
+                        << B.Width()  << "\n"
+            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+}
+
+// Distributed C := alpha A B + beta C
 template<typename T>
 inline void 
 CheckInput
@@ -72,7 +92,30 @@ CheckInput
     }
 }
 
-// C := alpha A B^{T/H} + beta C
+// Local C := alpha A B^{T/H} + beta C
+template<typename T>
+inline void
+CheckInputNT
+( Orientation orientationOfB,
+  const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
+{
+    if( orientationOfB == NORMAL )
+        throw std::logic_error("B must be (Conjugate)Transpose'd");
+    if( A.Height() != C.Height() || B.Height() != C.Width() ||
+        A.Width()  != B.Width()  || A.Height() != B.Height() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal LocalTrrk: \n"
+            << "  A ~ " << A.Height() << " x "
+                        << A.Width()  << "\n"
+            << "  B ~ " << B.Height() << " x "
+                        << B.Width()  << "\n"
+            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+}
+
+// Distributed C := alpha A B^{T/H} + beta C
 template<typename T>
 inline void
 CheckInput
@@ -111,7 +154,30 @@ CheckInput
     }
 }
 
-// C := alpha A^{T/H} B + beta C
+// Local C := alpha A^{T/H} B + beta C
+template<typename T>
+inline void
+CheckInputTN
+( Orientation orientationOfA,
+  const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
+{
+    if( orientationOfA == NORMAL )
+        throw std::logic_error("A must be (Conjugate)Transpose'd");
+    if( A.Width() != C.Height() || B.Width() != C.Width() ||
+        A.Height() != B.Height() || A.Width() != B.Width() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal LocalTrrk: \n"
+            << "  A ~ " << A.Height() << " x "
+                        << A.Width()  << "\n"
+            << "  B ~ " << B.Height() << " x "
+                        << B.Width()  << "\n"
+            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+}
+
+// Distributed C := alpha A^{T/H} B + beta C
 template<typename T>
 inline void
 CheckInput
@@ -150,7 +216,33 @@ CheckInput
     }
 }
 
-// C := alpha A^{T/H} B^{T/H} + beta C
+// Local C := alpha A^{T/H} B^{T/H} + beta C
+template<typename T>
+inline void
+CheckInputTT
+( Orientation orientationOfA,
+  Orientation orientationOfB,
+  const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
+{
+    if( orientationOfA == NORMAL )
+        throw std::logic_error("A must be (Conjugate)Transpose'd");
+    if( orientationOfB == NORMAL )
+        throw std::logic_error("B must be (Conjugate)Transpose'd");
+    if( A.Width() != C.Height() || B.Height() != C.Width() ||
+        A.Height() != B.Width() || A.Width() != B.Height() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal LocalTrrk: \n"
+            << "  A ~ " << A.Height() << " x "
+                        << A.Width()  << "\n"
+            << "  B ~ " << B.Height() << " x "
+                        << B.Width()  << "\n"
+            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+}
+
+// Distributed C := alpha A^{T/H} B^{T/H} + beta C
 template<typename T>
 inline void
 CheckInput
@@ -193,7 +285,57 @@ CheckInput
 }
 #endif // WITHOUT_COMPLEX
 
-// C := alpha A B + beta C
+// Local C := alpha A B + beta C
+template<typename T>
+inline void
+LocalTrrkNNKernel
+( UpperOrLower uplo, 
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("LocalTrrkNNKernel");
+    CheckInputNN( A, B, C );
+#endif
+    Matrix<T> AT,
+              AB;
+    Matrix<T> BL, BR;
+    Matrix<T> CTL, CTR,
+              CBL, CBR;
+    Matrix<T> DTL, DBR;
+
+    const unsigned half = C.Height()/2;
+    basic::Scal( beta, C );
+    LockedPartitionDown
+    ( A, AT,
+         AB, half );
+    LockedPartitionRight( B, BL, BR, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
+
+    DTL.ResizeTo( CTL.Height(), CTL.Width() );
+    DBR.ResizeTo( CBR.Height(), CBR.Width() );
+    //------------------------------------------------------------------------//
+    if( uplo == LOWER )
+        basic::Gemm( NORMAL, NORMAL, alpha, AB, BL, (T)1, CBL );
+    else
+        basic::Gemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, CTR );
+
+    basic::Gemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, DTL );
+    DTL.MakeTrapezoidal( LEFT, uplo );
+    basic::Axpy( (T)1, DTL, CTL );
+
+    basic::Gemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, DBR );
+    DBR.MakeTrapezoidal( LEFT, uplo );
+    basic::Axpy( (T)1, DBR, CBR );
+    //------------------------------------------------------------------------//
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Distributed C := alpha A B + beta C
 template<typename T>
 inline void
 LocalTrrkKernel
@@ -216,7 +358,7 @@ LocalTrrkKernel
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
-    basic::Scal( beta, C );
+    C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -258,7 +400,63 @@ LocalTrrkKernel
 #endif
 }
 
-// C := alpha A B^{T/H} + beta C
+// Local C := alpha A B^{T/H} + beta C
+template<typename T>
+inline void
+LocalTrrkNTKernel
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("LocalTrrkNTKernel");
+    CheckInputNT( orientationOfB, A, B, C );
+#endif
+    Matrix<T> AT,
+              AB;
+    Matrix<T> BT,
+              BB;
+    Matrix<T> CTL, CTR,
+              CBL, CBR;
+    Matrix<T> DTL, DBR;
+
+    const unsigned half = C.Height()/2;
+    C.ScaleTrapezoid( beta, LEFT, uplo );
+    LockedPartitionDown
+    ( A, AT,
+         AB, half );
+    LockedPartitionDown
+    ( B, BT, 
+         BB, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
+
+    DTL.ResizeTo( CTL.Height(), CTL.Width() );
+    DBR.ResizeTo( CBR.Height(), CBR.Width() );
+    //------------------------------------------------------------------------//
+    if( uplo == LOWER )
+        basic::Gemm( NORMAL, orientationOfB, alpha, AB, BT, (T)1, CBL );
+    else
+        basic::Gemm( NORMAL, orientationOfB, alpha, AT, BB, (T)1, CTR );
+
+    basic::Gemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, DTL );
+    // TODO: AxpyTrapezoidal?
+    DTL.MakeTrapezoidal( LEFT, uplo );
+    basic::Axpy( (T)1, DTL, CTL );
+
+    basic::Gemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, DBR );
+    // TODO: AxpyTrapezoidal?
+    DBR.MakeTrapezoidal( LEFT, uplo );
+    basic::Axpy( (T)1, DBR, CBR );
+    //------------------------------------------------------------------------//
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Distributed C := alpha A B^{T/H} + beta C
 template<typename T>
 inline void
 LocalTrrkKernel
@@ -283,7 +481,7 @@ LocalTrrkKernel
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
-    basic::Scal( beta, C );
+    C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -329,7 +527,55 @@ LocalTrrkKernel
 #endif
 }
 
-// C := alpha A^{T/H} B + beta C
+// Local C := alpha A^{T/H} B + beta C
+template<typename T>
+inline void
+LocalTrrkTNKernel
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("LocalTrrkTNKernel");
+    CheckInputTN( orientationOfA, A, B, C );
+#endif
+    Matrix<T> AL, AR;
+    Matrix<T> BL, BR;
+    Matrix<T> CTL, CTR,
+              CBL, CBR;
+    Matrix<T> DTL, DBR;
+
+    const unsigned half = C.Height()/2;
+    C.ScaleTrapezoid( beta, LEFT, uplo );
+    LockedPartitionRight( A, AL, AR, half );
+    LockedPartitionRight( B, BL, BR, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
+
+    DTL.ResizeTo( CTL.Height(), CTL.Width() );
+    DBR.ResizeTo( CBR.Height(), CBR.Width() );
+    //------------------------------------------------------------------------//
+    if( uplo == LOWER )
+        basic::Gemm( orientationOfA, NORMAL, alpha, AR, BL, (T)1, CBL );
+    else
+        basic::Gemm( orientationOfA, NORMAL, alpha, AL, BR, (T)1, CTR );
+
+    basic::Gemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, DTL );
+    DTL.MakeTrapezoidal( LEFT, uplo );
+    basic::Axpy( (T)1, DTL, CTL );
+
+    basic::Gemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, DBR );
+    DBR.MakeTrapezoidal( LEFT, uplo );
+    basic::Axpy( (T)1, DBR, CBR );
+    //------------------------------------------------------------------------//
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Distributed C := alpha A^{T/H} B + beta C
 template<typename T>
 inline void
 LocalTrrkKernel
@@ -352,7 +598,7 @@ LocalTrrkKernel
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
-    basic::Scal( beta, C );
+    C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
@@ -392,7 +638,59 @@ LocalTrrkKernel
 #endif
 }
 
-// C := alpha A^{T/H} B^{T/H} + beta C
+// Local C := alpha A^{T/H} B^{T/H} + beta C
+template<typename T>
+inline void
+LocalTrrkTTKernel
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("LocalTrrkTTKernel");
+    CheckInputTT( orientationOfA, orientationOfB, A, B, C );
+#endif
+    Matrix<T> AL, AR;
+    Matrix<T> BT,
+              BB;
+    Matrix<T> CTL, CTR,
+              CBL, CBR;
+    Matrix<T> DTL, DBR;
+
+    const unsigned half = C.Height()/2;
+    C.ScaleTrapezoid( beta, LEFT, uplo );
+    LockedPartitionRight( A, AL, AR, half );
+    LockedPartitionDown
+    ( B, BT, 
+         BB, half );
+    PartitionDownDiagonal
+    ( C, CTL, CTR,
+         CBL, CBR, half );
+
+    DTL.ResizeTo( CTL.Height(), CTL.Width() );
+    DBR.ResizeTo( CBR.Height(), CBR.Width() );
+    //------------------------------------------------------------------------//
+    if( uplo == LOWER )
+        basic::Gemm( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, CBL );
+    else
+        basic::Gemm( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, CTR );
+
+    basic::Gemm( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, DTL );
+    DTL.MakeTrapezoidal( LEFT, uplo );
+    basic::Axpy( (T)1, DTL, CTL );
+
+    basic::Gemm( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, DBR );
+    DBR.MakeTrapezoidal( LEFT, uplo );
+    basic::Axpy( (T)1, DBR, CBR );
+    //------------------------------------------------------------------------//
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Distributed C := alpha A^{T/H} B^{T/H} + beta C
 template<typename T>
 inline void
 LocalTrrkKernel
@@ -417,7 +715,7 @@ LocalTrrkKernel
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const unsigned half = C.Height()/2;
-    basic::Scal( beta, C );
+    C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT, 
@@ -463,7 +761,57 @@ LocalTrrkKernel
 } // namespace basic
 } // namespace elemental
 
-// C := alpha A B + beta C
+// Local C := alpha A B + beta C
+template<typename T>
+inline void
+elemental::basic::internal::LocalTrrkNN
+( UpperOrLower uplo,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+    using namespace trrk_util;
+#ifndef RELEASE
+    PushCallStack("basic::internal::LocalTrrkNN");
+    CheckInputNN( A, B, C );
+#endif
+    if( C.Height() < LocalTrrkBlocksize<T>() )
+    {
+        LocalTrrkNNKernel( uplo, alpha, A, B, beta, C );
+    }
+    else
+    {
+        // Split C in four roughly equal pieces, perform a large gemm on corner
+        // and recurse on CTL and CBR.
+        Matrix<T> AT,
+                  AB;
+        Matrix<T> BL, BR;
+        Matrix<T> CTL, CTR,
+                  CBL, CBR;
+
+        const unsigned half = C.Height() / 2;
+        LockedPartitionDown
+        ( A, AT,
+             AB, half );
+        LockedPartitionRight( B, BL, BR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
+
+        if( uplo == LOWER )
+            basic::Gemm( NORMAL, NORMAL, alpha, AB, BL, beta, CBL );
+        else
+            basic::Gemm( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
+
+        // Recurse
+        basic::internal::LocalTrrkNN( uplo, alpha, AT, BL, beta, CTL );
+        basic::internal::LocalTrrkNN( uplo, alpha, AB, BR, beta, CBR );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Distributed C := alpha A B + beta C
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrrk
@@ -522,7 +870,63 @@ elemental::basic::internal::LocalTrrk
 #endif
 }
 
-// C := alpha A B^{T/H} + beta C
+// Local C := alpha A B^{T/H} + beta C
+template<typename T>
+inline void
+elemental::basic::internal::LocalTrrkNT
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+    using namespace trrk_util;
+#ifndef RELEASE
+    PushCallStack("basic::internal::LocalTrrkNT");
+    CheckInputNT( orientationOfB, A, B, C );
+#endif
+    if( C.Height() < LocalTrrkBlocksize<T>() )
+    {
+        LocalTrrkNTKernel( uplo, orientationOfB, alpha, A, B, beta, C );
+    }
+    else
+    {
+        // Split C in four roughly equal pieces, perform a large gemm on corner
+        // and recurse on CTL and CBR.
+        Matrix<T> AT,
+                  AB;
+        Matrix<T> BT,
+                  BB;
+        Matrix<T> CTL, CTR,
+                  CBL, CBR;
+
+        const unsigned half = C.Height() / 2;
+        LockedPartitionDown
+        ( A, AT,
+             AB, half );
+        LockedPartitionDown
+        ( B, BT, 
+             BB, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
+
+        if( uplo == LOWER )
+            basic::Gemm( NORMAL, orientationOfB, alpha, AB, BT, beta, CBL );
+        else
+            basic::Gemm( NORMAL, orientationOfB, alpha, AT, BB, beta, CTR );
+
+        // Recurse
+        basic::internal::LocalTrrkNT
+        ( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
+        basic::internal::LocalTrrkNT
+        ( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Distributed C := alpha A B^{T/H} + beta C
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrrk
@@ -587,7 +991,57 @@ elemental::basic::internal::LocalTrrk
 #endif
 }
 
-// C := alpha A^{T/H} B + beta C
+// Local C := alpha A^{T/H} B + beta C
+template<typename T>
+inline void
+elemental::basic::internal::LocalTrrkTN
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+    using namespace trrk_util;
+#ifndef RELEASE
+    PushCallStack("basic::internal::LocalTrrkTN");
+    CheckInputTN( orientationOfA, A, B, C );
+#endif
+    if( C.Height() < LocalTrrkBlocksize<T>() )
+    {
+        LocalTrrkKernelTN( uplo, orientationOfA, alpha, A, B, beta, C );
+    }
+    else
+    {
+        // Split C in four roughly equal pieces, perform a large gemm on corner
+        // and recurse on CTL and CBR.
+        Matrix<T> AL, AR;
+        Matrix<T> BL, BR;
+        Matrix<T> CTL, CTR,
+                  CBL, CBR;
+
+        const unsigned half = C.Height() / 2;
+        LockedPartitionRight( A, AL, AR, half );
+        LockedPartitionRight( B, BL, BR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
+
+        if( uplo == LOWER )
+            basic::Gemm( orientationOfA, NORMAL, alpha, AR, BL, beta, CBL );
+        else
+            basic::Gemm( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
+
+        // Recurse
+        basic::internal::LocalTrrkTN
+        ( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
+        basic::internal::LocalTrrkTN
+        ( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Distributed C := alpha A^{T/H} B + beta C
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrrk
@@ -646,13 +1100,68 @@ elemental::basic::internal::LocalTrrk
 #endif
 }
 
-// C := alpha A^{T/H} B^{T/H} + beta C
+// Local C := alpha A^{T/H} B^{T/H} + beta C
+template<typename T>
+inline void
+elemental::basic::internal::LocalTrrkTT
+( UpperOrLower uplo,
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+    using namespace trrk_util;
+#ifndef RELEASE
+    PushCallStack("basic::internal::LocalTrrkTT");
+    CheckInputTT( orientationOfA, orientationOfB, A, B, C );
+#endif
+    if( C.Height() < LocalTrrkBlocksize<T>() )
+    {
+        LocalTrrkKernelTT
+        ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
+    }
+    else
+    {
+        // Split C in four roughly equal pieces, perform a large gemm on corner
+        // and recurse on CTL and CBR.
+        Matrix<T> AL, AR;
+        Matrix<T> BT,
+                  BB;
+        Matrix<T> CTL, CTR,
+                  CBL, CBR;
+
+        const unsigned half = C.Height() / 2;
+        LockedPartitionRight( A, AL, AR, half );
+        LockedPartitionDown
+        ( B, BT, 
+             BB, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
+
+        if( uplo == LOWER )
+            basic::Gemm
+            ( orientationOfA, orientationOfB, alpha, AR, BT, beta, CBL );
+        else
+            basic::Gemm
+            ( orientationOfA, orientationOfB, alpha, AL, BB, beta, CTR );
+
+        // Recurse
+        basic::internal::LocalTrrkTT
+        ( uplo, orientationOfA, orientationOfB, alpha, AL, BT, beta, CTL );
+        basic::internal::LocalTrrkTT
+        ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Distributed C := alpha A^{T/H} B^{T/H} + beta C
 template<typename T>
 inline void
 elemental::basic::internal::LocalTrrk
 ( UpperOrLower uplo,
-  Orientation orientationOfA,
-  Orientation orientationOfB,
+  Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC  >& A,
            const DistMatrix<T,MR,  STAR>& B,
   T beta,        DistMatrix<T,MC,  MR  >& C )
@@ -709,3 +1218,4 @@ elemental::basic::internal::LocalTrrk
     PopCallStack();
 #endif
 }
+

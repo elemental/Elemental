@@ -63,7 +63,7 @@ elemental::basic::internal::HerkUN
     DistMatrix<T,STAR,MR  > A1Adj_STAR_MR(g);
 
     // Start the algorithm
-    C.ScaleTrapezoidal( beta, LEFT, UPPER );
+    C.ScaleTrapezoid( beta, LEFT, UPPER );
     LockedPartitionRight( A, AL, AR, 0 );
     while( AR.Width() > 0 )
     {

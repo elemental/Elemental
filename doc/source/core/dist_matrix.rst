@@ -242,7 +242,7 @@ to be available for all matrix distributions.
       diagonal, :math:`-1` denotes the subdiagonal, and :math:`+1` denotes the 
       superdiagonal).
 
-   .. cpp:function:: void ScaleTrapezoidal( T alpha, Side side, Shape shape, int offset=0 )
+   .. cpp:function:: void ScaleTrapezoid( T alpha, Side side, Shape shape, int offset=0 )
 
       Scale the portion of the matrix determined by the above discussion by the 
       scalar :math:`\alpha`.

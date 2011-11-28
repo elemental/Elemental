@@ -531,6 +531,25 @@ leading dimension equal to <cite>ldim</cite> (which must be greater than or equa
 </dd></dl>
 
 <dl class="function">
+<dt id="Matrix:T:::MakeTrapezoidal__Side.Shape.i">
+void <tt class="descname">MakeTrapezoidal</tt><big>(</big><a class="reference internal" href="environment.html#Side" title="Side">Side</a> <em>side</em>, Shape <em>shape</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::MakeTrapezoidal__Side.Shape.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly introduce zeroes into the distributed matrix such that it is
+trapezoidal with respect to the left or right diagonal (as chosen by the
+<tt class="docutils literal"><span class="pre">side</span></tt> parameter). Whether or not the matrix is lower or upper
+trapezoidal is determined by the <tt class="docutils literal"><span class="pre">shape</span></tt> parameter, and the diagonal
+offset is chosen by the <tt class="docutils literal"><span class="pre">offset</span></tt> parameter (<img class="math" src="../_images/math/bc1f9d9bf8a1b606a4188b5ce9a2af1809e27a89.png" alt="0"/> denotes the main
+diagonal, <img class="math" src="../_images/math/bae5aba07d37ff6ff813107e76260fb31ad5794e.png" alt="-1"/> denotes the subdiagonal, and <img class="math" src="../_images/math/1178af8fcc5f3f3acb9f151f7dcc2c4eefe88fd9.png" alt="+1"/> denotes the
+superdiagonal).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Matrix:T:::ScaleTrapezoid__T.Side.Shape.i">
+void <tt class="descname">ScaleTrapezoid</tt><big>(</big>T <em>alpha</em>, <a class="reference internal" href="environment.html#Side" title="Side">Side</a> <em>side</em>, Shape <em>shape</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#Matrix:T:::ScaleTrapezoid__T.Side.Shape.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale the portion of the matrix determined by the above discussion by the
+scalar <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="Matrix:T:::SetToIdentity">
 void <tt class="descname">SetToIdentity</tt><big>(</big><big>)</big><a class="headerlink" href="#Matrix:T:::SetToIdentity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the entire matrix to zero, with the exception of the main diagonal

@@ -371,6 +371,21 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
       leading dimension equal to `ldim` (which must be greater than or equal to 
       ``std::min(height,1)``).
 
+   .. cpp:function:: void MakeTrapezoidal( Side side, Shape shape, int offset=0 )
+
+      Explicitly introduce zeroes into the distributed matrix such that it is
+      trapezoidal with respect to the left or right diagonal (as chosen by the
+      ``side`` parameter). Whether or not the matrix is lower or upper
+      trapezoidal is determined by the ``shape`` parameter, and the diagonal
+      offset is chosen by the ``offset`` parameter (:math:`0` denotes the main
+      diagonal, :math:`-1` denotes the subdiagonal, and :math:`+1` denotes the
+      superdiagonal).
+
+   .. cpp:function:: void ScaleTrapezoid( T alpha, Side side, Shape shape, int offset=0 )
+
+      Scale the portion of the matrix determined by the above discussion by the
+      scalar :math:`\alpha`.
+
    .. cpp:function:: void SetToIdentity()
 
       Sets the entire matrix to zero, with the exception of the main diagonal 

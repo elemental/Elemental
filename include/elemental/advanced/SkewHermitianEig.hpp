@@ -313,7 +313,7 @@ elemental::advanced::SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
+    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
     advanced::HermitianEig( uplo, G, wImag, Z );
@@ -345,7 +345,7 @@ elemental::advanced::SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
+    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
     advanced::HermitianEig( uplo, G, wImag, Z, a, b );
@@ -375,7 +375,7 @@ elemental::advanced::SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
+    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
     advanced::HermitianEig( uplo, G, wImag, Z, a, b );
@@ -401,7 +401,7 @@ elemental::advanced::SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
+    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
     advanced::HermitianEig( uplo, G, wImag );
@@ -432,7 +432,7 @@ elemental::advanced::SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
+    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
     advanced::HermitianEig( uplo, G, wImag, a, b );
@@ -461,7 +461,7 @@ elemental::advanced::SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const std::complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoidal( negativeImagOne, LEFT, uplo );
+    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
     advanced::HermitianEig( uplo, G, wImag, a, b );

@@ -64,7 +64,7 @@ elemental::basic::internal::SyrkUT
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
 
     // Start the algorithm
-    C.ScaleTrapezoidal( beta, LEFT, UPPER );
+    C.ScaleTrapezoid( beta, LEFT, UPPER );
     LockedPartitionUp
     ( A, AT, 
          AB, 0 );

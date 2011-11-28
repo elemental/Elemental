@@ -105,7 +105,7 @@ public:
     virtual void MakeTrapezoidal
     ( Side side, UpperOrLower uplo, int offset=0 );
 
-    virtual void ScaleTrapezoidal
+    virtual void ScaleTrapezoid
     ( T alpha, Side side, UpperOrLower uplo, int offset=0 );
 
     virtual void ResizeTo( int height, int width );

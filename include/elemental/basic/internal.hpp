@@ -772,20 +772,35 @@ template<typename T>
 void SyrkUT
 ( T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
-// Triangular Rank-k Update:
+// Triangular rank-k Update:
 // tril(C) := alpha tril( A B ) + beta tril(C)
 //   or 
 // triu(C) := alpha triu( A B ) + beta triu(C)
+
+template<typename T>
+void LocalTrrkNN
+( UpperOrLower uplo,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C );
+
 template<typename T>
 void LocalTrrk
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B,
   T beta,        DistMatrix<T,MC,MR  >& C );
 
-// Triangular Rank-k Update:
+// Triangular rank-k Update:
 // tril(C) := alpha tril( A B^{T/H} ) + beta tril(C)
 //   or 
 // triu(C) := alpha triu( A B^{T/H} ) + beta triu(C)
+
+template<typename T>
+void LocalTrrkNT
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C );
+
 template<typename T>
 void LocalTrrk
 ( UpperOrLower uplo,
@@ -793,10 +808,18 @@ void LocalTrrk
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
   T beta,        DistMatrix<T,MC,  MR>& C );
 
-// Triangular Rank-k Update:
+// Triangular rank-k Update:
 // tril(C) := alpha tril( A^{T/H} B ) + beta tril(C)
 //   or 
 // triu(C) := alpha triu( A^{T/H} B ) + beta triu(C)
+
+template<typename T>
+void LocalTrrkTN
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C );
+
 template<typename T>
 void LocalTrrk
 ( UpperOrLower uplo,
@@ -804,19 +827,26 @@ void LocalTrrk
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B,
   T beta,        DistMatrix<T,MC,  MR>& C );
 
-// Triangular Rank-k Update:
+// Triangular rank-k Update:
 // tril(C) := alpha tril( A^{T/H} B^{T/H} ) + beta tril(C)
 //   or 
 // triu(C) := alpha triu( A^{T/H} B^{T/H} ) + beta triu(C)
+
+template<typename T>
+void LocalTrrkTT
+( UpperOrLower uplo,
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C );
+
 template<typename T>
 void LocalTrrk
 ( UpperOrLower uplo,
-  Orientation orientationOfA,
-  Orientation orientationOfB,
+  Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B,
   T beta,        DistMatrix<T,MC,  MR>& C );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A B + C D ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B + C D ) + beta triu(E)
@@ -827,7 +857,7 @@ void LocalTrr2k
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A B + C D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B + C D^{T/H} ) + beta triu(E)
@@ -839,7 +869,7 @@ void LocalTrr2k
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,MR  >& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A B + C^{T/H} D ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B + C^{T/H} D ) + beta triu(E)
@@ -851,7 +881,7 @@ void LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A B + C^{T/H} D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B + C^{T/H} D^{T/H} ) + beta triu(E)
@@ -864,7 +894,7 @@ void LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A B^{T/H} + C D ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B^{T/H} + C D ) + beta triu(E)
@@ -876,7 +906,7 @@ void LocalTrr2k
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,MR  >& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A B^{T/H} + C D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B^{T/H} + C D^{T/H} ) + beta triu(E)
@@ -889,7 +919,7 @@ void LocalTrr2k
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,MR  >& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A B^{T/H} + C^{T/H} D ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B^{T/H} + C^{T/H} D ) + beta triu(E)
@@ -902,7 +932,7 @@ void LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A B^{T/H} + C^{T/H} D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B^{T/H} + C^{T/H} D^{T/H} ) + beta triu(E)
@@ -916,7 +946,7 @@ void LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,MR  >& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A^{T/H} B + C D ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B + C D ) + beta triu(E)
@@ -928,7 +958,7 @@ void LocalTrr2k
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A^{T/H} B + C D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B + C D^{T/H} ) + beta triu(E)
@@ -941,7 +971,7 @@ void LocalTrr2k
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,MR,  STAR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A^{T/H} B + C^{T/H} D ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B + C^{T/H} D ) + beta triu(E)
@@ -954,7 +984,7 @@ void LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A^{T/H} B + C^{T/H} D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B + C^{T/H} D^{T/H} ) + beta triu(E)
@@ -968,7 +998,7 @@ void LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A^{T/H} B^{T/H} + C D ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C D ) + beta triu(E)
@@ -981,7 +1011,7 @@ void LocalTrr2k
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A^{T/H} B^{T/H} + C D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C D^{T/H} ) + beta triu(E)
@@ -995,7 +1025,7 @@ void LocalTrr2k
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,MR  >& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A^{T/H} B^{T/H} + C^{T/H} D ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C^{T/H} D ) + beta triu(E)
@@ -1009,7 +1039,7 @@ void LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E );
 
-// Triangular Rank-2k Update:
+// Triangular rank-2k Update:
 // tril(E) := alpha tril( A^{T/H} B^{T/H} + C^{T/H} D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C^{T/H} D^{T/H} ) + beta triu(E)

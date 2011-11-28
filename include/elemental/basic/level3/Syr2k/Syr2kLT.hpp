@@ -77,7 +77,7 @@ elemental::basic::internal::Syr2kLT
     DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
 
     // Start the algorithm
-    C.ScaleTrapezoidal( beta, LEFT, LOWER );
+    C.ScaleTrapezoid( beta, LEFT, LOWER );
     LockedPartitionDown
     ( A, AT, 
          AB, 0 );

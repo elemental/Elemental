@@ -1026,42 +1026,42 @@ DistMatrix<T,MC,MR,Int>::MakeTrapezoidal
     const Int colShift = this->ColShift();
     const Int rowShift = this->RowShift();
 
+    T* thisLocalBuffer = this->LocalBuffer();
+    const Int thisLDim = this->LocalLDim();
+
     if( uplo == LOWER )
     {
-        T* thisLocalBuffer = this->LocalBuffer();
-        const Int thisLDim = this->LocalLDim();
+
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            Int j = rowShift + jLocal*c;
-            Int lastZeroRow = 
+            const Int j = rowShift + jLocal*c;
+            const Int lastZeroRow = 
                 ( side==LEFT ? j-offset-1
                              : j-offset+height-width-1 );
             if( lastZeroRow >= 0 )
             {
-                Int boundary = std::min( lastZeroRow+1, height );
-                Int numZeroRows = RawLocalLength( boundary, colShift, r );
-                T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-                std::memset( thisCol, 0, numZeroRows*sizeof(T) );
+                const Int boundary = std::min( lastZeroRow+1, height );
+                const Int numZeroRows = RawLocalLength( boundary, colShift, r );
+                std::memset
+                ( &thisLocalBuffer[jLocal*thisLDim], 0, numZeroRows*sizeof(T) );
             }
         }
     }
     else
     {
-        T* thisLocalBuffer = this->LocalBuffer();
-        const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            Int j = rowShift + jLocal*c;
-            Int firstZeroRow = 
+            const Int j = rowShift + jLocal*c;
+            const Int firstZeroRow = 
                 ( side==LEFT ? std::max(j-offset+1,0)
                              : std::max(j-offset+height-width+1,0) );
-            Int numNonzeroRows = RawLocalLength(firstZeroRow,colShift,r);
+            const Int numNonzeroRows = RawLocalLength(firstZeroRow,colShift,r);
             if( numNonzeroRows < localHeight )
             {
                 T* thisCol = &thisLocalBuffer[numNonzeroRows+jLocal*thisLDim];
@@ -1077,11 +1077,11 @@ DistMatrix<T,MC,MR,Int>::MakeTrapezoidal
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,MR,Int>::ScaleTrapezoidal
+DistMatrix<T,MC,MR,Int>::ScaleTrapezoid
 ( T alpha, Side side, UpperOrLower uplo, Int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,MR]::ScaleTrapezoidal");
+    PushCallStack("[MC,MR]::ScaleTrapezoid");
     this->AssertNotLockedView();
 #endif
     const Int height = this->Height();

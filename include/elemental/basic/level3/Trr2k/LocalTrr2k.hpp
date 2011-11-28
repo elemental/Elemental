@@ -891,7 +891,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -971,7 +971,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1053,7 +1053,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1132,7 +1132,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1212,7 +1212,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1294,7 +1294,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1379,7 +1379,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1463,7 +1463,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1545,7 +1545,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionDown
@@ -1624,7 +1624,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionDown
@@ -1704,7 +1704,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionRight( C, CL, CR, half );
@@ -1782,7 +1782,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionRight( C, CL, CR, half );
@@ -1861,7 +1861,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT,
@@ -1945,7 +1945,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT,
@@ -2029,7 +2029,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT,
@@ -2109,7 +2109,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const unsigned half = E.Height()/2;
-    basic::Scal( beta, E );
+    E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT,

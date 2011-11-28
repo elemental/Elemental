@@ -64,7 +64,7 @@ elemental::basic::internal::HerkLC
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
 
     // Start the algorithm
-    C.ScaleTrapezoidal( beta, LEFT, LOWER );
+    C.ScaleTrapezoid( beta, LEFT, LOWER );
     LockedPartitionDown
     ( A, AT, 
          AB, 0 );

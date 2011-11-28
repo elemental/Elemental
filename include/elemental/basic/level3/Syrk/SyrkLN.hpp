@@ -63,7 +63,7 @@ elemental::basic::internal::SyrkLN
     DistMatrix<T,STAR,MR  > A1Trans_STAR_MR(g);
 
     // Start the algorithm
-    C.ScaleTrapezoidal( beta, LEFT, LOWER );
+    C.ScaleTrapezoid( beta, LEFT, LOWER );
     LockedPartitionRight( A, AL, AR, 0 );
     while( AR.Width() > 0 )
     {

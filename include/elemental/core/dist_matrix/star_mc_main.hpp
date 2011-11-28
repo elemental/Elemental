@@ -623,11 +623,11 @@ DistMatrix<T,STAR,MC>::MakeTrapezoidal
 
 template<typename T>
 inline void
-DistMatrix<T,STAR,MC>::ScaleTrapezoidal
+DistMatrix<T,STAR,MC>::ScaleTrapezoid
 ( T alpha, Side side, UpperOrLower uplo, int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MC]::ScaleTrapezoidal");
+    PushCallStack("[* ,MC]::ScaleTrapezoid");
     this->AssertNotLockedView();
 #endif
     const int height = this->Height();

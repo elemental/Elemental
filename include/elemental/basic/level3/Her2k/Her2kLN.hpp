@@ -73,7 +73,7 @@ elemental::basic::internal::Her2kLN
     DistMatrix<T,STAR,MR  > B1Adj_STAR_MR(g);
 
     // Start the algorithm
-    C.ScaleTrapezoidal( beta, LEFT, LOWER );
+    C.ScaleTrapezoid( beta, LEFT, LOWER );
     LockedPartitionRight( A, AL, AR, 0 );
     LockedPartitionRight( B, BL, BR, 0 );
     while( AR.Width() > 0 )
