@@ -82,7 +82,41 @@ template<> float MachineOverflowThreshold<float>();
 template<> double MachineOverflowThreshold<double>();
 
 //
-// Factorizations
+// For safely computing norms without overflow/underflow
+//
+
+float SafeNorm( float alpha, float beta );
+double SafeNorm( double alpha, double beta );
+float SafeNorm( float alpha, float beta, float gamma );
+double SafeNorm( double alpha, double beta, double gamma );
+
+//
+// Given phi and gamma, compute a Givens rotation such that
+//
+//  |       cs   sn | |   phi |  = | rho |, where cs^2 + |sn|^2 = 1
+//  | -conj(sn)  cs | | gamma |    |  0  |
+//
+// This routine should use the stable approach suggested by Kahan and Demmel
+//
+
+void ComputeGivens
+( float phi, float gamma,
+  float* cs, float* sn, float* rho );
+
+void ComputeGivens
+( double phi, double gamma,
+  double* cs, double* sn, double* rho );
+
+void ComputeGivens
+( scomplex phi, scomplex gamma,
+  float* cs, scomplex* sn, scomplex* rho );
+
+void ComputeGivens
+( dcomplex phi, dcomplex gamma,
+  double* cs, dcomplex* sn, dcomplex* rho );
+
+//
+// Cholesky factorization
 //
 
 void Cholesky( char uplo, int n, const float* A, int lda );
@@ -92,6 +126,10 @@ void Cholesky( char uplo, int n, const scomplex* A, int lda );
 void Cholesky( char uplo, int n, const dcomplex* A, int lda );
 #endif
 
+//
+// LU factorization (with partial pivoting)
+//
+
 void LU( int m, int n, float* A, int lda, int* p );
 void LU( int m, int n, double* A, int lda, int* p );
 #ifndef WITHOUT_COMPLEX
@@ -100,7 +138,8 @@ void LU( int m, int n, dcomplex* A, int lda, int* p );
 #endif
 
 //
-// Utilities
+// For reducing well-conditioned Hermitian generalized-definite EVP's
+// to standard form.
 //
 
 void Hegst
@@ -118,10 +157,9 @@ void Hegst
   int n, dcomplex* A, int lda, const dcomplex* B, int ldb );
 #endif
 
-float SafeNorm( float alpha, float beta );
-double SafeNorm( double alpha, double beta );
-float SafeNorm( float alpha, float beta, float gamma );
-double SafeNorm( double alpha, double beta, double gamma );
+//
+// For computing the inverse of a triangular matrix
+//
 
 void TriangularInverse
 ( char uplo, char diag, int n, const float* A, int lda );
@@ -139,18 +177,35 @@ void TriangularInverse
 
 extern "C" {
 
-//
 // Machine constants
-//
-
 float LAPACK(slamch)( const char* cmach );
 double LAPACK(dlamch)( const char* cmach );
 
-//
-// Factorizations
-//
+// Safe norms
+float LAPACK(slapy2)
+( const float* alpha, const float* beta );
+double LAPACK(dlapy2)
+( const double* alpha, const double* beta );
+float LAPACK(slapy3)
+( const float* alpha, const float* beta, const float* gamma );
+double LAPACK(dlapy3)
+( const double* alpha, const double* beta, const double* gamma );
 
-// Cholesky
+// Safely compute a Givens rotation
+void LAPACK(slartg)
+( const float* phi, const float* gamma,
+  float* c, float* s, float* rho );
+void LAPACK(dlartg)
+( const double* phi, const double* gamma,
+  double* c, double* s, double* rho );
+void LAPACK(clartg)
+( const elemental::scomplex* phi, const elemental::scomplex* gamma,
+  float* c, elemental::scomplex* s, elemental::scomplex* rho );
+void LAPACK(zlartg)
+( const elemental::dcomplex* phi, const elemental::dcomplex* gamma,
+  double* c, elemental::dcomplex* s, elemental::dcomplex* rho );
+
+// Cholesky factorization
 void LAPACK(spotrf)
 ( const char* uplo, const int* n, const float* A, const int* lda,
   int* info );
@@ -166,7 +221,7 @@ void LAPACK(zpotrf)
   const int* lda, int* info );
 #endif
 
-// LU
+// LU factorization (with partial pivoting)
 void LAPACK(sgetrf)
 ( const int* m, const int* n, 
   float* A, const int* lda, int* p, int* info );
@@ -182,21 +237,8 @@ void LAPACK(zgetrf)
   elemental::dcomplex* A, const int* lda, int* p, int* info );
 #endif
 
-//
-// Utilities
-//
-
-// Safe norms
-float LAPACK(slapy2)
-( const float* alpha, const float* beta );
-double LAPACK(dlapy2)
-( const double* alpha, const double* beta );
-float LAPACK(slapy3)
-( const float* alpha, const float* beta, const float* gamma );
-double LAPACK(dlapy3)
-( const double* alpha, const double* beta, const double* gamma );
-
-// Hermitian generalized EVP to hermitian standard EVP
+// For reducing well-conditioned Hermitian generalized EVP to Hermitian 
+// standard form
 void LAPACK(ssygst)
 ( const int* itype, const char* uplo, const int* n,
   float* A, int* lda, const float* B, int* ldb, int* info );

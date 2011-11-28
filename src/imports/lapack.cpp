@@ -149,7 +149,59 @@ elemental::lapack::MachineOverflowThreshold<double>()
 }
 
 //
-// Factorizations
+// Safely compute norms
+//
+
+float
+elemental::lapack::SafeNorm
+( float alpha, float beta )
+{ return LAPACK(slapy2)( &alpha, &beta ); }
+
+double
+elemental::lapack::SafeNorm
+( double alpha, double beta )
+{ return LAPACK(dlapy2)( &alpha, &beta ); }
+
+float
+elemental::lapack::SafeNorm
+( float alpha, float beta, float gamma )
+{ return LAPACK(slapy3)( &alpha, &beta, &gamma ); }
+
+double
+elemental::lapack::SafeNorm
+( double alpha, double beta, double gamma )
+{ return LAPACK(dlapy3)( &alpha, &beta, &gamma ); }
+
+//
+// Safely compute Givens rotations (using Demmel and Kahan's algorithm)
+//
+
+void
+elemental::lapack::ComputeGivens
+( float phi, float gamma,
+  float* c, float* s, float* rho )
+{ LAPACK(slartg)( &phi, &gamma, c, s, rho ); }
+
+void
+elemental::lapack::ComputeGivens
+( double phi, double gamma,
+  double* c, double* s, double* rho )
+{ LAPACK(dlartg)( &phi, &gamma, c, s, rho ); }
+
+void
+elemental::lapack::ComputeGivens
+( scomplex phi, scomplex gamma,
+  float* c, scomplex* s, scomplex* rho )
+{ LAPACK(clartg)( &phi, &gamma, c, s, rho ); }
+
+void
+elemental::lapack::ComputeGivens
+( dcomplex phi, dcomplex gamma,
+  double* c, dcomplex* s, dcomplex* rho )
+{ LAPACK(zlartg)( &phi, &gamma, c, s, rho ); }
+
+//
+// Cholesky factorization
 //
 
 void
@@ -242,6 +294,10 @@ elemental::lapack::Cholesky
 }
 #endif // WITHOUT_COMPLEX
 
+//
+// LU factorization
+//
+
 void
 elemental::lapack::LU
 ( int m, int n, float* A, int lda, int* p )
@@ -333,7 +389,8 @@ elemental::lapack::LU
 #endif // WITHOUT_COMPLEX
 
 //
-// Utilities
+// Reduced a well-conditioned Hermitian generalized definite EVP to 
+// standard form
 //
 
 void
@@ -422,61 +479,9 @@ elemental::lapack::Hegst
 }
 #endif // WITHOUT_COMPLEX
 
-float
-elemental::lapack::SafeNorm
-( float alpha, float beta )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::SafeNorm");
-#endif
-    float gamma = LAPACK(slapy2)( &alpha, &beta );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return gamma;
-}
-
-double
-elemental::lapack::SafeNorm
-( double alpha, double beta )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::SafeNorm");
-#endif
-    double gamma = LAPACK(dlapy2)( &alpha, &beta );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return gamma;
-}
-
-float
-elemental::lapack::SafeNorm
-( float alpha, float beta, float gamma )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::SafeNorm");
-#endif
-    float delta = LAPACK(slapy3)( &alpha, &beta, &gamma );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return delta;
-}
-
-double
-elemental::lapack::SafeNorm
-( double alpha, double beta, double gamma )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::SafeNorm");
-#endif
-    double delta = LAPACK(dlapy3)( &alpha, &beta, &gamma );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return delta;
-}
+//
+// Triangular inversion
+//
 
 void
 elemental::lapack::TriangularInverse
