@@ -34,6 +34,84 @@
 template<typename F>
 inline void
 elemental::advanced::ApplyColumnPivots
+( Matrix<F>& A, const Matrix<int>& p )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::ApplyColumnPivots");
+    if( p.Width() != 1 )
+        throw std::logic_error("p must be a column vector");
+    if( p.Height() != A.Width() )
+        throw std::logic_error("p must be the same length as the width of A");
+#endif
+    const int height = A.Height();
+    const int width = A.Width();
+    if( height == 0 || width == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
+    for( int j=0; j<width; ++j )
+    {
+        const int k = p.Get(j,0);
+        F* Aj = A.Buffer(0,j);
+        F* Ak = A.Buffer(0,k);
+        for( int i=0; i<height; ++i )
+        {
+            F temp = Aj[i];
+            Aj[i] = Ak[i];
+            Ak[i] = temp;
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+elemental::advanced::ApplyInverseColumnPivots
+( Matrix<F>& A, const Matrix<int>& p )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::ApplyInverseColumnPivots");
+    if( p.Width() != 1 )
+        throw std::logic_error("p must be a column vector");
+    if( p.Height() != A.Width() )
+        throw std::logic_error("p must be the same length as the width of A");
+#endif
+    const int height = A.Height();
+    const int width = A.Width();
+    if( height == 0 || width == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
+    for( int j=width-1; j>=0; --j )
+    {
+        const int k = p.Get(j,0);
+        F* Aj = A.Buffer(0,j);
+        F* Ak = A.Buffer(0,k);
+        for( int i=0; i<height; ++i )
+        {
+            F temp = Aj[i];
+            Aj[i] = Ak[i];
+            Ak[i] = temp;
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+elemental::advanced::ApplyColumnPivots
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
@@ -41,6 +119,21 @@ elemental::advanced::ApplyColumnPivots
 #endif
     DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
     advanced::ApplyColumnPivots( A, p_STAR_STAR );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+elemental::advanced::ApplyInverseColumnPivots
+( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::ApplyInverseColumnPivots");
+#endif
+    DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
+    advanced::ApplyInverseColumnPivots( A, p_STAR_STAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -57,6 +150,22 @@ elemental::advanced::ApplyColumnPivots
     std::vector<int> image, preimage;
     advanced::ComposePivots( p, image, preimage );
     advanced::ApplyColumnPivots( A, image, preimage );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+elemental::advanced::ApplyInverseColumnPivots
+( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::ApplyInverseColumnPivots");
+#endif
+    std::vector<int> image, preimage;
+    advanced::ComposePivots( p, image, preimage );
+    advanced::ApplyColumnPivots( A, preimage, image );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -155,7 +264,6 @@ elemental::advanced::ApplyColumnPivots
 #endif
 
     // Fill vectors with the send data
-    const int ALDim = A.LocalLDim();
     std::vector<F> sendData(std::max(1,totalSend));
     std::vector<int> offsets(c,0);
     const int localWidth = LocalLength( b, rowShift, c );
@@ -227,7 +335,7 @@ elemental::advanced::ApplyColumnPivots
                 std::memcpy
                 ( A.LocalBuffer(0,jLocal), &recvData[offset], 
                   localHeight*sizeof(F) );
-                offsets[recvFrom] += localWidth;
+                offsets[recvFrom] += localHeight;
             }
         }
     }

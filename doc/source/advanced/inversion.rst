@@ -3,7 +3,28 @@ In-place inversion
 
 General inversion
 -----------------
-Not yet written, but relatively trivial and planned.
+This routine computes the in-place inverse of a general fully-populated 
+(invertible) matrix :math:`A` as
+
+.. math::
+   :nowrap:
+
+   \[
+   A^{-1} = U^{-1} L^{-1} P,
+   \]
+
+where :math:`PA=LU` is the result of LU factorization with partial pivoting.
+The algorithm essentially factors :math:`A`, inverts :math:`U` in place, 
+solves against :math:`L` one block column at a time, and then applies the 
+row pivots in reverse order to the columns of the result.
+
+.. cpp:function:: void advanced::Inverse( Matrix<F>& A )
+
+   Overwrites the general matrix `A` with its inverse.
+
+.. cpp:function:: void advanced::Inverse( DistMatrix<F,MC,MR>& A )
+
+   The same as above, but for distributed matrices.
 
 HPD inversion
 -------------

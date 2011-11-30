@@ -34,6 +34,86 @@
 template<typename F>
 inline void
 elemental::advanced::ApplyRowPivots
+( Matrix<F>& A, const Matrix<int>& p )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::ApplyRowPivots");
+    if( p.Width() != 1 )
+        throw std::logic_error("p must be a column vector");
+    if( p.Height() != A.Height() )
+        throw std::logic_error("p must be the same length as the height of A");
+#endif
+    const int height = A.Height();
+    const int width = A.Width();
+    if( height == 0 || width == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
+    const int ldim = A.LDim();
+    for( int i=0; i<height; ++i )
+    {
+        const int k = p.Get(i,0);
+        F* Ai = A.Buffer(i,0);
+        F* Ak = A.Buffer(k,0);
+        for( int j=0; j<width; ++j )
+        {
+            F temp = Ai[j*ldim];
+            Ai[j*ldim] = Ak[j*ldim];
+            Ak[j*ldim] = temp;
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+elemental::advanced::ApplyInverseRowPivots
+( Matrix<F>& A, const Matrix<int>& p )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::ApplyInverseRowPivots");
+    if( p.Width() != 1 )
+        throw std::logic_error("p must be a column vector");
+    if( p.Height() != A.Height() )
+        throw std::logic_error("p must be the same length as the height of A");
+#endif
+    const int height = A.Height();
+    const int width = A.Width();
+    if( height == 0 || width == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
+    const int ldim = A.LDim();
+    for( int i=height-1; i>=0; --i )
+    {
+        const int k = p.Get(i,0);
+        F* Ai = A.Buffer(i,0);
+        F* Ak = A.Buffer(k,0);
+        for( int j=0; j<width; ++j )
+        {
+            F temp = Ai[j*ldim];
+            Ai[j*ldim] = Ak[j*ldim];
+            Ak[j*ldim] = temp;
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+elemental::advanced::ApplyRowPivots
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
@@ -41,6 +121,21 @@ elemental::advanced::ApplyRowPivots
 #endif
     DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
     advanced::ApplyRowPivots( A, p_STAR_STAR );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+elemental::advanced::ApplyInverseRowPivots
+( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::ApplyInverseRowPivots");
+#endif
+    DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
+    advanced::ApplyInverseRowPivots( A, p_STAR_STAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -57,6 +152,22 @@ elemental::advanced::ApplyRowPivots
     std::vector<int> image, preimage;
     advanced::ComposePivots( p, image, preimage );
     advanced::ApplyRowPivots( A, image, preimage );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+elemental::advanced::ApplyInverseRowPivots
+( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::ApplyInverseRowPivots");
+#endif
+    std::vector<int> image, preimage;
+    advanced::ComposePivots( p, image, preimage );
+    advanced::ApplyRowPivots( A, preimage, image );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -165,8 +276,8 @@ elemental::advanced::ApplyRowPivots
         const int sendTo = (colAlignment+sendRow) % r;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
         const F* ABuffer = A.LocalBuffer(iLocal,0);
-        for( int j=0; j<localWidth; ++j )     
-            sendData[offset+j] = ABuffer[j*ALDim];
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            sendData[offset+jLocal] = ABuffer[jLocal*ALDim];
         offsets[sendTo] += localWidth;
     }
     for( int i=0; i<b; ++i )
@@ -181,8 +292,8 @@ elemental::advanced::ApplyRowPivots
                 const int iLocal = (recvRow-colShift) / r;
                 const int offset = sendDispls[recvTo]+offsets[recvTo];
                 const F* ABuffer = A.LocalBuffer(iLocal,0);
-                for( int j=0; j<localWidth; ++j )
-                    sendData[offset+j] = ABuffer[j*ALDim];
+                for( int jLocal=0; jLocal<localWidth; ++jLocal )
+                    sendData[offset+jLocal] = ABuffer[jLocal*ALDim];
                 offsets[recvTo] += localWidth;
             }
         }
@@ -208,8 +319,8 @@ elemental::advanced::ApplyRowPivots
                 const int offset = recvDispls[k]+offsets[k];
                 const int iLocal = (sendRow-colShift) / r;
                 F* ABuffer = A.LocalBuffer(iLocal,0);
-                for( int j=0; j<localWidth; ++j )
-                    ABuffer[j*ALDim] = recvData[offset+j];
+                for( int jLocal=0; jLocal<localWidth; ++jLocal )
+                    ABuffer[jLocal*ALDim] = recvData[offset+jLocal];
                 offsets[k] += localWidth;
             }
         }
@@ -226,8 +337,8 @@ elemental::advanced::ApplyRowPivots
                 const int iLocal = (i-colShift) / r;
                 const int offset = recvDispls[recvFrom]+offsets[recvFrom];
                 F* ABuffer = A.LocalBuffer(iLocal,0);
-                for( int j=0; j<localWidth; ++j )
-                    ABuffer[j*ALDim] = recvData[offset+j];
+                for( int jLocal=0; jLocal<localWidth; ++jLocal )
+                    ABuffer[jLocal*ALDim] = recvData[offset+jLocal];
                 offsets[recvFrom] += localWidth;
             }
         }

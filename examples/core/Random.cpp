@@ -40,7 +40,7 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
     const int commSize = mpi::CommSize( comm );
-    const int n = 8;
+    const int n = 14;
 
     try
     {
@@ -54,7 +54,6 @@ main( int argc, char* argv[] )
         }
         DistMatrix<double> X( n, n );
         X.SetToRandom();
-        X.Print("X");
 
         const double trace = advanced::Trace( X );
         const double det = advanced::Determinant( X );

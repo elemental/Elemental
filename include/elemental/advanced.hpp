@@ -136,7 +136,7 @@ void ApplyPackedReflectors
 #endif
 
 //----------------------------------------------------------------------------//
-// ApplyColumnPivots/ApplyRowPivots                                           //
+// Apply[Inverse]ColumnPivots/Apply[Inverse]RowPivots                         //
 //                                                                            //
 // Pivot the columns/rows of the matrix A using the pivot vector (or the      //
 // image and preimage of the associated permutation).                         //
@@ -144,14 +144,31 @@ void ApplyPackedReflectors
 // SEE: ComposePivots                                                         //
 //----------------------------------------------------------------------------//
 
-// TODO: Serial versions
+template<typename F>
+void ApplyColumnPivots( Matrix<F>& A, const Matrix<int>& p );
+template<typename F>
+void ApplyInverseColumnPivots( Matrix<F>& A, const Matrix<int>& p );
+
+template<typename F>
+void ApplyRowPivots( Matrix<F>& A, const Matrix<int>& p );
+template<typename F>
+void ApplyInverseRowPivots( Matrix<F>& A, const Matrix<int>& p );
 
 template<typename F>
 void ApplyColumnPivots
 (       DistMatrix<F,  MC,MR  >& A,
   const DistMatrix<int,VC,STAR>& p );
 template<typename F>
+void ApplyInverseColumnPivots
+(       DistMatrix<F,  MC,MR  >& A,
+  const DistMatrix<int,VC,STAR>& p );
+
+template<typename F>
 void ApplyRowPivots
+(       DistMatrix<F,  MC,MR  >& A,
+  const DistMatrix<int,VC,STAR>& p );
+template<typename F>
+void ApplyInverseRowPivots
 (       DistMatrix<F,  MC,MR  >& A,
   const DistMatrix<int,VC,STAR>& p );
 
@@ -160,7 +177,16 @@ void ApplyColumnPivots
 (       DistMatrix<F,  MC,  MR  >& A,
   const DistMatrix<int,STAR,STAR>& p );
 template<typename F>
+void ApplyInverseColumnPivots
+(       DistMatrix<F,  MC,  MR  >& A,
+  const DistMatrix<int,STAR,STAR>& p );
+
+template<typename F>
 void ApplyRowPivots
+(       DistMatrix<F,  MC,  MR  >& A,
+  const DistMatrix<int,STAR,STAR>& p );
+template<typename F>
+void ApplyInverseRowPivots
 (       DistMatrix<F,  MC,  MR  >& A,
   const DistMatrix<int,STAR,STAR>& p );
 
@@ -556,6 +582,18 @@ void HouseholderSolve
 
 template<typename F>
 void HPDInverse( UpperOrLower uplo, DistMatrix<F,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
+// Inverse:                                                                   //
+//                                                                            //
+// Inverts a general fully-populated matrix.                                  //
+//----------------------------------------------------------------------------//
+
+template<typename F>
+void Inverse( Matrix<F>& A );
+
+template<typename F>
+void Inverse( DistMatrix<F,MC,MR>& A );
 
 //----------------------------------------------------------------------------//
 // LDLH (LDL^H factorization):                                                //
@@ -981,6 +1019,7 @@ void TriangularInverse
 #include "./advanced/HermitianTridiag.hpp"
 #include "./advanced/HouseholderSolve.hpp"
 #include "./advanced/HPDInverse.hpp"
+#include "./advanced/Inverse.hpp"
 #include "./advanced/LDL.hpp"
 #include "./advanced/LQ.hpp"
 #include "./advanced/LU.hpp"
