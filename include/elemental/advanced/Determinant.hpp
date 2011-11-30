@@ -51,7 +51,7 @@ elemental::advanced::SafeDeterminant( DistMatrix<F,MC,MR>& A )
     {
         DistMatrix<int,VC,STAR> p;
         advanced::LU( A, p );
-        const bool isOdd = advanced::internal::Parity( p );
+        const bool isOdd = advanced::PivotParity( p );
 
         DistMatrix<F,MD,STAR> d(g);
         A.GetDiagonal( d );
@@ -117,7 +117,7 @@ elemental::advanced::SafeDeterminant( Matrix<F>& A )
     {
         Matrix<int> p;
         advanced::LU( A, p ); 
-        const bool isOdd = advanced::internal::Parity( p );
+        const bool isOdd = advanced::PivotParity( p );
         
         Matrix<F> d;
         A.GetDiagonal( d );

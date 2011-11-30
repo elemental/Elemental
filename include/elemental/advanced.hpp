@@ -136,10 +136,10 @@ void ApplyPackedReflectors
 #endif
 
 //----------------------------------------------------------------------------//
-// ApplyRowPivots                                                             //
+// ApplyColumnPivots/ApplyRowPivots                                           //
 //                                                                            //
-// Pivot the rows of the matrix A using the pivot vector (or the image and    //
-// preimage of the associated permutation).                                   //
+// Pivot the columns/rows of the matrix A using the pivot vector (or the      //
+// image and preimage of the associated permutation).                         //
 //                                                                            //
 // SEE: ComposePivots                                                         //
 //----------------------------------------------------------------------------//
@@ -147,20 +147,41 @@ void ApplyPackedReflectors
 // TODO: Serial versions
 
 template<typename F>
+void ApplyColumnPivots
+(       DistMatrix<F,  MC,MR  >& A,
+  const DistMatrix<int,VC,STAR>& p );
+template<typename F>
 void ApplyRowPivots
 (       DistMatrix<F,  MC,MR  >& A,
   const DistMatrix<int,VC,STAR>& p );
 
+template<typename F>
+void ApplyColumnPivots
+(       DistMatrix<F,  MC,  MR  >& A,
+  const DistMatrix<int,STAR,STAR>& p );
 template<typename F>
 void ApplyRowPivots
 (       DistMatrix<F,  MC,  MR  >& A,
   const DistMatrix<int,STAR,STAR>& p );
 
 template<typename F>
+void ApplyColumnPivots
+(       DistMatrix<F,MC,MR>& A,
+  const std::vector<int>& image,
+  const std::vector<int>& preimage );
+template<typename F>
 void ApplyRowPivots
 (       DistMatrix<F,MC,MR>& A,
   const std::vector<int>& image,
   const std::vector<int>& preimage );
+
+//----------------------------------------------------------------------------//
+// PivotParity                                                                //
+//                                                                            //
+// Returns true iff the permutation is odd.                                   //
+//----------------------------------------------------------------------------//
+bool PivotParity( const Matrix<int>& p, int pivotOffset=0 );
+bool PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset=0 );
 
 //----------------------------------------------------------------------------//
 // Cholesky:                                                                  //
@@ -194,7 +215,7 @@ void CholeskySolve
 // Explicitly form the image and preimage of the permutation associated with  //
 // the given pivot vector.                                                    //
 //                                                                            //
-// SEE: ApplyRowPivots                                                        //
+// SEE: ApplyColumnPivots/ApplyRowPivots                                      //
 //----------------------------------------------------------------------------//
 
 void ComposePivots
@@ -946,8 +967,11 @@ void TriangularInverse
 
 #include "./advanced/internal.hpp"
 #include "./advanced/ApplyPackedReflectors.hpp"
+#include "./advanced/ApplyColumnPivots.hpp"
+#include "./advanced/ApplyRowPivots.hpp"
 #include "./advanced/Cholesky.hpp"
 #include "./advanced/CholeskySolve.hpp"
+#include "./advanced/ComposePivots.hpp"
 #include "./advanced/Determinant.hpp"
 #include "./advanced/GaussianElimination.hpp"
 #include "./advanced/Hegst.hpp"
@@ -961,6 +985,7 @@ void TriangularInverse
 #include "./advanced/LQ.hpp"
 #include "./advanced/LU.hpp"
 #include "./advanced/Norm.hpp"
+#include "./advanced/PivotParity.hpp"
 #include "./advanced/QR.hpp"
 #include "./advanced/Reflector.hpp"
 #include "./advanced/SkewHermitianEig.hpp"

@@ -36,11 +36,11 @@
 // nontrivial pivots were performed.
 
 inline bool
-elemental::advanced::internal::Parity
+elemental::advanced::PivotParity
 ( const Matrix<int>& p, int pivotOffset )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::Parity");
+    PushCallStack("advanced::PivotParity");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( pivotOffset < 0 )
@@ -58,11 +58,11 @@ elemental::advanced::internal::Parity
 }
 
 inline bool
-elemental::advanced::internal::Parity
+elemental::advanced::PivotParity
 ( const DistMatrix<int,VC,STAR>& p, int pivotOffset ) 
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::Parity");
+    PushCallStack("advanced::PivotParity");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( pivotOffset < 0 )

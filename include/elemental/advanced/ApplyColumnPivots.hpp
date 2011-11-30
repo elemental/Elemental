@@ -33,14 +33,14 @@
 
 template<typename F>
 inline void
-elemental::advanced::ApplyRowPivots
+elemental::advanced::ApplyColumnPivots
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyRowPivots");
+    PushCallStack("advanced::ApplyColumnPivots");
 #endif
     DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
-    advanced::ApplyRowPivots( A, p_STAR_STAR );
+    advanced::ApplyColumnPivots( A, p_STAR_STAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -48,15 +48,15 @@ elemental::advanced::ApplyRowPivots
 
 template<typename F>
 inline void
-elemental::advanced::ApplyRowPivots
+elemental::advanced::ApplyColumnPivots
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyRowPivots");
+    PushCallStack("advanced::ApplyColumnPivots");
 #endif
     std::vector<int> image, preimage;
     advanced::ComposePivots( p, image, preimage );
-    advanced::ApplyRowPivots( A, image, preimage );
+    advanced::ApplyColumnPivots( A, image, preimage );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -64,83 +64,84 @@ elemental::advanced::ApplyRowPivots
 
 template<typename F> // represents a real or complex number
 inline void
-elemental::advanced::ApplyRowPivots
+elemental::advanced::ApplyColumnPivots
 ( DistMatrix<F,MC,MR>& A, 
   const std::vector<int>& image,
   const std::vector<int>& preimage )
 {
     const int b = image.size();
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyRowPivots");
-    if( A.Height() < b || b != preimage.size() )
+    PushCallStack("advanced::ApplyColumnPivots");
+    if( A.Width() < b || b != preimage.size() )
         throw std::logic_error
         ("image and preimage must be vectors of equal length that are not "
-         "taller than A.");
+         "wider than A.");
 #endif
-    const int localWidth = A.LocalWidth();
-    if( A.Width() == 0 )
+    const int localHeight = A.LocalHeight();
+    if( A.Height() == 0 || A.Width() == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
         return;
-    
+    }
+
     // Extract the relevant process grid information
     const Grid& g = A.Grid();
-    const int r = g.Height();
-    const int colAlignment = A.ColAlignment();
-    const int colShift = A.ColShift();
-    const int myRow = g.MCRank();
+    const int c = g.Width();
+    const int rowAlignment = A.RowAlignment();
+    const int rowShift = A.RowShift();
+    const int myCol = g.MRRank();
 
     // Extract the send and recv counts from the image and preimage.
     // This process's sends may be logically partitioned into two sets:
     //   (a) sends from rows [0,...,b-1]
     //   (b) sends from rows [b,...]
     // The latter is analyzed with image, the former deduced with preimage.
-    std::vector<int> sendCounts(r,0), recvCounts(r,0);
-    for( int i=colShift; i<b; i+=r )
+    std::vector<int> sendCounts(c,0), recvCounts(c,0);
+    for( int j=rowShift; j<b; j+=c )
     {
-        const int sendRow = preimage[i];         
-        const int sendTo = (colAlignment+sendRow) % r; 
-        sendCounts[sendTo] += localWidth;
+        const int sendCol = preimage[j];         
+        const int sendTo = (rowAlignment+sendCol) % c; 
+        sendCounts[sendTo] += localHeight;
 
-        const int recvRow = image[i];
-        const int recvFrom = (colAlignment+recvRow) % r;
-        recvCounts[recvFrom] += localWidth;
+        const int recvCol = image[j];
+        const int recvFrom = (rowAlignment+recvCol) % c;
+        recvCounts[recvFrom] += localHeight;
     }
-    for( int i=0; i<b; ++i )
+    for( int j=0; j<b; ++j )
     {
-        const int sendRow = preimage[i];
-        if( sendRow >= b )
+        const int sendCol = preimage[j];
+        if( sendCol >= b )
         {
-            const int sendTo = (colAlignment+sendRow) % r;
-            if( sendTo == myRow )
+            const int sendTo = (rowAlignment+sendCol) % c;
+            if( sendTo == myCol )
             {
-                const int sendFrom = (colAlignment+i) % r;
-                recvCounts[sendFrom] += localWidth;
+                const int sendFrom = (rowAlignment+j) % c;
+                recvCounts[sendFrom] += localHeight;
             }
         }
 
-        const int recvRow = image[i];
-        if( recvRow >= b )
+        const int recvCol = image[j];
+        if( recvCol >= b )
         {
-            const int recvFrom = (colAlignment+recvRow) % r;
-            if( recvFrom == myRow )
+            const int recvFrom = (rowAlignment+recvCol) % c;
+            if( recvFrom == myCol )
             {
-                const int recvTo = (colAlignment+i) % r;
-                sendCounts[recvTo] += localWidth;
+                const int recvTo = (rowAlignment+j) % c;
+                sendCounts[recvTo] += localHeight;
             }
         }
     }
 
     // Construct the send and recv displacements from the counts
-    std::vector<int> sendDispls(r), recvDispls(r);
-    int totalSend = 0;
-    for( int i=0; i<r; ++i )
+    std::vector<int> sendDispls(c), recvDispls(c);
+    int totalSend=0, totalRecv=0;
+    for( int i=0; i<c; ++i )
     {
         sendDispls[i] = totalSend;
-        totalSend += sendCounts[i];
-    }
-    int totalRecv = 0;
-    for( int i=0; i<r; ++i )
-    {
         recvDispls[i] = totalRecv;
+        totalSend += sendCounts[i];
         totalRecv += recvCounts[i];
     }
 #ifndef RELEASE
@@ -156,33 +157,32 @@ elemental::advanced::ApplyRowPivots
     // Fill vectors with the send data
     const int ALDim = A.LocalLDim();
     std::vector<F> sendData(std::max(1,totalSend));
-    std::vector<int> offsets(r,0);
-    const int localHeight = LocalLength( b, colShift, r );
-    for( int i=0; i<localHeight; ++i )
+    std::vector<int> offsets(c,0);
+    const int localWidth = LocalLength( b, rowShift, c );
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
-        const int sendRow = preimage[colShift+i*r];
-        const int sendTo = (colAlignment+sendRow) % r;
+        const int sendCol = preimage[rowShift+jLocal*c];
+        const int sendTo = (rowAlignment+sendCol) % c;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
-        const F* ABuffer = A.LocalBuffer(i,0);
-        for( int j=0; j<localWidth; ++j )     
-            sendData[offset+j] = ABuffer[j*ALDim];
-        offsets[sendTo] += localWidth;
+        std::memcpy
+        ( &sendData[offset], A.LocalBuffer(0,jLocal), localHeight*sizeof(F) );
+        offsets[sendTo] += localHeight;
     }
-    for( int i=0; i<b; ++i )
+    for( int j=0; j<b; ++j )
     {
-        const int recvRow = image[i];
-        if( recvRow >= b )
+        const int recvCol = image[j];
+        if( recvCol >= b )
         {
-            const int recvFrom = (colAlignment+recvRow) % r; 
-            if( recvFrom == myRow )
+            const int recvFrom = (rowAlignment+recvCol) % c; 
+            if( recvFrom == myCol )
             {
-                const int recvTo = (colAlignment+i) % r;
-                const int iLocal = (recvRow-colShift) / r;
+                const int recvTo = (rowAlignment+j) % c;
+                const int jLocal = (recvCol-rowShift) / c;
                 const int offset = sendDispls[recvTo]+offsets[recvTo];
-                const F* ABuffer = A.LocalBuffer(iLocal,0);
-                for( int j=0; j<localWidth; ++j )
-                    sendData[offset+j] = ABuffer[j*ALDim];
-                offsets[recvTo] += localWidth;
+                std::memcpy
+                ( &sendData[offset], A.LocalBuffer(0,jLocal), 
+                  localHeight*sizeof(F) );
+                offsets[recvTo] += localHeight;
             }
         }
     }
@@ -191,42 +191,42 @@ elemental::advanced::ApplyRowPivots
     std::vector<F> recvData(std::max(1,totalRecv));
     mpi::AllToAll
     ( &sendData[0], &sendCounts[0], &sendDispls[0],
-      &recvData[0], &recvCounts[0], &recvDispls[0], g.MCComm() );
+      &recvData[0], &recvCounts[0], &recvDispls[0], g.MRComm() );
 
     // Unpack the recv data
-    for( int k=0; k<r; ++k )
+    for( int k=0; k<c; ++k )
     {
         offsets[k] = 0;
-        int thisColShift = Shift( k, colAlignment, r );
-        for( int i=thisColShift; i<b; i+=r )
+        int thisRowShift = Shift( k, rowAlignment, c );
+        for( int j=thisRowShift; j<b; j+=c )
         {
-            const int sendRow = preimage[i];
-            const int sendTo = (colAlignment+sendRow) % r;
-            if( sendTo == myRow )
+            const int sendCol = preimage[j];
+            const int sendTo = (rowAlignment+sendCol) % c;
+            if( sendTo == myCol )
             {
                 const int offset = recvDispls[k]+offsets[k];
-                const int iLocal = (sendRow-colShift) / r;
-                F* ABuffer = A.LocalBuffer(iLocal,0);
-                for( int j=0; j<localWidth; ++j )
-                    ABuffer[j*ALDim] = recvData[offset+j];
-                offsets[k] += localWidth;
+                const int jLocal = (sendCol-rowShift) / c;
+                std::memcpy
+                ( A.LocalBuffer(0,jLocal), &recvData[offset], 
+                  localHeight*sizeof(F) );
+                offsets[k] += localHeight;
             }
         }
     }
-    for( int i=0; i<b; ++i )
+    for( int j=0; j<b; ++j )
     {
-        const int recvRow = image[i];
-        if( recvRow >= b )
+        const int recvCol = image[j];
+        if( recvCol >= b )
         {
-            const int recvTo = (colAlignment+i) % r;
-            if( recvTo == myRow )
+            const int recvTo = (rowAlignment+j) % c;
+            if( recvTo == myCol )
             {
-                const int recvFrom = (colAlignment+recvRow) % r; 
-                const int iLocal = (i-colShift) / r;
+                const int recvFrom = (rowAlignment+recvCol) % c; 
+                const int jLocal = (j-rowShift) / c;
                 const int offset = recvDispls[recvFrom]+offsets[recvFrom];
-                F* ABuffer = A.LocalBuffer(iLocal,0);
-                for( int j=0; j<localWidth; ++j )
-                    ABuffer[j*ALDim] = recvData[offset+j];
+                std::memcpy
+                ( A.LocalBuffer(0,jLocal), &recvData[offset], 
+                  localHeight*sizeof(F) );
                 offsets[recvFrom] += localWidth;
             }
         }

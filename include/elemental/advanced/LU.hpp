@@ -31,11 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./LU/ApplyRowPivots.hpp"
-#include "./LU/ComposePivots.hpp"
 #include "./LU/LocalLU.hpp"
 #include "./LU/PanelLU.hpp"
-#include "./LU/Parity.hpp"
 
 // Performs LU factorization without pivoting
 template<typename F> 
