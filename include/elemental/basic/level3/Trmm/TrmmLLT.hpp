@@ -173,7 +173,9 @@ elemental::basic::internal::TrmmLLTC
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<T,STAR,VR  > X1_STAR_VR(g);
-    DistMatrix<T,STAR,MR  > D1_STAR_MR(g);
+    DistMatrix<T,MR,  STAR> D1AdjOrTrans_MR_STAR(g);
+    DistMatrix<T,MR,  MC  > D1AdjOrTrans_MR_MC(g);
+    DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm
     basic::Scal( alpha, X );
@@ -198,8 +200,11 @@ elemental::basic::internal::TrmmLLTC
           XB,  X2 ); 
 
         L21_MC_STAR.AlignWith( X2 );
-        D1_STAR_MR.AlignWith( X1 );
-        D1_STAR_MR.ResizeTo( X1.Height(), X1.Width() );
+        D1AdjOrTrans_MR_STAR.AlignWith( X1 );
+        D1AdjOrTrans_MR_MC.AlignWith( X1 );
+        D1.AlignWith( X1 );
+        D1AdjOrTrans_MR_STAR.ResizeTo( X1.Width(), X1.Height() );
+        D1.ResizeTo( X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
         X1_STAR_VR = X1;
         L11_STAR_STAR = L11;
@@ -209,11 +214,21 @@ elemental::basic::internal::TrmmLLTC
  
         L21_MC_STAR = L21;
         basic::internal::LocalGemm
-        ( orientation, NORMAL, (T)1, L21_MC_STAR, X2, (T)0, D1_STAR_MR );
-        X1.SumScatterUpdate( (T)1, D1_STAR_MR );
+        ( orientation, NORMAL, 
+          (T)1, X2, L21_MC_STAR, (T)0, D1AdjOrTrans_MR_STAR );
+        D1AdjOrTrans_MR_MC.SumScatterFrom( D1AdjOrTrans_MR_STAR );
+        if( orientation == TRANSPOSE )
+            basic::Transpose
+            ( D1AdjOrTrans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
+        else
+            basic::Adjoint
+            ( D1AdjOrTrans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
+        basic::Axpy( (T)1, D1, X1 );
        //--------------------------------------------------------------------//
+        D1.FreeAlignments();
+        D1AdjOrTrans_MR_MC.FreeAlignments();
+        D1AdjOrTrans_MR_STAR.FreeAlignments();
         L21_MC_STAR.FreeAlignments();
-        D1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,

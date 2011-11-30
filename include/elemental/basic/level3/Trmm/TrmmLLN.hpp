@@ -156,7 +156,9 @@ elemental::basic::internal::TrmmLLNC
     DistMatrix<T,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,STAR,VR  > X1_STAR_VR(g);
-    DistMatrix<T,STAR,MR  > D1_STAR_MR(g);
+    DistMatrix<T,MR,  STAR> D1Trans_MR_STAR(g);
+    DistMatrix<T,MR,  MC  > D1Trans_MR_MC(g);
+    DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm
     basic::Scal( alpha, X );
@@ -181,8 +183,11 @@ elemental::basic::internal::TrmmLLNC
           XB,  X2 );
 
         L10_STAR_MC.AlignWith( X0 );
-        D1_STAR_MR.AlignWith( X1 );
-        D1_STAR_MR.ResizeTo( X1.Height(), X1.Width() );
+        D1Trans_MR_STAR.AlignWith( X1 );
+        D1Trans_MR_MC.AlignWith( X1 );
+        D1.AlignWith( X1 );
+        D1Trans_MR_STAR.ResizeTo( X1.Width(), X1.Height() );
+        D1.ResizeTo( X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
         L11_STAR_STAR = L11;
         X1_STAR_VR = X1;
@@ -192,11 +197,15 @@ elemental::basic::internal::TrmmLLNC
 
         L10_STAR_MC = L10;
         basic::internal::LocalGemm
-        ( NORMAL, NORMAL, (T)1, L10_STAR_MC, X0, (T)0, D1_STAR_MR );
-        X1.SumScatterUpdate( (T)1, D1_STAR_MR );
+        ( TRANSPOSE, TRANSPOSE, (T)1, X0, L10_STAR_MC, (T)0, D1Trans_MR_STAR );
+        D1Trans_MR_MC.SumScatterFrom( D1Trans_MR_STAR );
+        basic::Transpose( D1Trans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
+        basic::Axpy( (T)1, D1, X1 );
         //--------------------------------------------------------------------//
+        D1.FreeAlignments();
+        D1Trans_MR_MC.FreeAlignments();
+        D1Trans_MR_STAR.FreeAlignments();
         L10_STAR_MC.FreeAlignments();
-        D1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( LTL, /**/ LTR,  L00, /**/ L01, L02,
