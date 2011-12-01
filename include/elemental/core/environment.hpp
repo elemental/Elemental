@@ -163,10 +163,10 @@ struct NullStream : std::ostream
     struct NullStreamBuffer : std::streambuf
     {
         int overflow( int c ) { return traits_type::not_eof(c); }
-    } _nullStreamBuffer;
+    } nullStreamBuffer_;
 
     NullStream() 
-    : std::ios(&_nullStreamBuffer), std::ostream(&_nullStreamBuffer) 
+    : std::ios(&nullStreamBuffer_), std::ostream(&nullStreamBuffer_) 
     { }
 };
 
@@ -180,14 +180,14 @@ struct NullStream : std::ostream
 template<typename R>
 class ScalarWrapper
 {
-    const R _value;
+    const R value_;
 public:
-    ScalarWrapper( R alpha ) : _value(alpha) { }
+    ScalarWrapper( R alpha ) : value_(alpha) { }
 
     friend std::ostream& operator<<
     ( std::ostream& out, ScalarWrapper<R> alpha )
     {
-        out << alpha._value;
+        out << alpha.value_;
         return out;
     }
 };
@@ -196,14 +196,14 @@ public:
 template<typename R>
 class ScalarWrapper<std::complex<R> >
 {
-    const std::complex<R> _value;
+    const std::complex<R> value_;
 public:
-    ScalarWrapper( std::complex<R> alpha ) : _value(alpha) { }
+    ScalarWrapper( std::complex<R> alpha ) : value_(alpha) { }
 
     friend std::ostream& operator<<
     ( std::ostream& os, ScalarWrapper<std::complex<R> > alpha )
     {
-        os << std::real(alpha._value) << "+" << std::imag(alpha._value) << "i";
+        os << std::real(alpha.value_) << "+" << std::imag(alpha.value_) << "i";
         return os;
     }
 };
