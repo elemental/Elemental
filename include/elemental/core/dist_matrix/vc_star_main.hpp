@@ -1828,7 +1828,6 @@ DistMatrix<T,VC,STAR>::SumScatterFrom
         this->ResizeTo( A.Height(), A.Width() );
 
     const int p = g.Size();
-    const int VCRank = g.VCRank();
     const int colAlignment = this->ColAlignment();
 
     const int height = this->Height();
@@ -2005,7 +2004,6 @@ DistMatrix<T,VC,STAR>::SumScatterUpdate
     const elemental::Grid& g = this->Grid();
 
     const int p = g.Size();
-    const int VCRank = g.VCRank();
     const int colAlignment = this->ColAlignment();
 
     const int height = this->Height();
