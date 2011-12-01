@@ -230,7 +230,7 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
             if( thisIsMyCol )
             {
                 // Pack the broadcast buffer with a21 and tau
-                memcpy
+                std::memcpy
                 ( &rowBroadcastBuffer[0], 
                   a21.LocalBuffer(), 
                   a21LocalHeight*sizeof(R) );
@@ -242,13 +242,13 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
               a21LocalHeight+1, a21.RowAlignment(), g.MRComm() );
             // Store a21[MC,* ] into its DistMatrix class and also store a copy
             // for the next iteration
-            memcpy
+            std::memcpy
             ( a21_MC_STAR.LocalBuffer(), 
               &rowBroadcastBuffer[0],
               a21LocalHeight*sizeof(R) );
             // Store a21[MC,* ] into APan[MC,* ]
             int APan_MC_STAR_Offset = APan_MC_STAR.LocalHeight()-a21LocalHeight;
-            memcpy
+            std::memcpy
             ( APan_MC_STAR.LocalBuffer(APan_MC_STAR_Offset,0), 
               &rowBroadcastBuffer[0],
               (APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset)*sizeof(R) );
@@ -259,7 +259,7 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
             // a21[MR,* ] from a21[MC,* ]
             if( onDiagonal )
             {
-                memcpy
+                std::memcpy
                 ( a21_MR_STAR.LocalBuffer(),
                   a21_MC_STAR.LocalBuffer(),
                   a21LocalHeight*sizeof(R) );
@@ -277,7 +277,7 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
             // Store a21[MR,* ]
             int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
-            memcpy
+            std::memcpy
             ( APan_MR_STAR.LocalBuffer(APan_MR_STAR_Offset,A00.Width()),
               a21_MR_STAR.LocalBuffer(),
               (APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset)*sizeof(R) );

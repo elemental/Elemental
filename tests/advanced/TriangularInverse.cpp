@@ -66,9 +66,9 @@ void TestCorrectness
     Y = X;
 
     // Since A o A^-1 = I, test the change introduced by the approximate comp.
-    basic::Trmm( LEFT, uplo, NORMAL, NON_UNIT, (F)1, A, Y );
-    basic::Trmm( LEFT, uplo, NORMAL, NON_UNIT, (F)1, AOrig, Y );
-    basic::Axpy( (F)-1, Y, X );
+    basic::Trmm( LEFT, uplo, NORMAL, diagonal, (F)1, A,     Y );
+    basic::Trmm( LEFT, uplo, NORMAL, diagonal, (F)1, AOrig, Y );
+    basic::Axpy( (F)-1, X, Y );
 
     F oneNormOfError = advanced::Norm( Y, ONE_NORM );
     F infNormOfError = advanced::Norm( Y, INFINITY_NORM );

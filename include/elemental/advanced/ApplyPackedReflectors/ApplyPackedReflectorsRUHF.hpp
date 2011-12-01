@@ -64,8 +64,8 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
     DistMatrix<R,STAR,VR  > HPan_STAR_VR(g);
     DistMatrix<R,STAR,MR  > HPan_STAR_MR(g);
     DistMatrix<R,STAR,STAR> SInv_STAR_STAR(g);
-    DistMatrix<R,MC,  STAR> Z_MC_STAR(g);
-    DistMatrix<R,VC,  STAR> Z_VC_STAR(g);
+    DistMatrix<R,STAR,MC  > ZTrans_STAR_MC(g);
+    DistMatrix<R,STAR,VC  > ZTrans_STAR_VC(g);
 
     LockedPartitionDownDiagonal
     ( H, HTL, HTR,
@@ -89,9 +89,9 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         HPan_STAR_MR.AlignWith( AR );
-        Z_MC_STAR.AlignWith( AR );
-        Z_VC_STAR.AlignWith( AR );
-        Z_MC_STAR.ResizeTo( AR.Height(), HPanHeight );
+        ZTrans_STAR_MC.AlignWith( AR );
+        ZTrans_STAR_VC.AlignWith( AR );
+        ZTrans_STAR_MC.ResizeTo( HPanHeight, AR.Height() );
         SInv_STAR_STAR.ResizeTo( HPanHeight, HPanHeight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
@@ -109,21 +109,21 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
         HPan_STAR_MR = HPan_STAR_VR;
         basic::internal::LocalGemm
         ( NORMAL, TRANSPOSE,
-          (R)1, AR, HPan_STAR_MR, (R)0, Z_MC_STAR );
-        Z_VC_STAR.SumScatterFrom( Z_MC_STAR );
+          (R)1, HPan_STAR_MR, AR, (R)0, ZTrans_STAR_MC );
+        ZTrans_STAR_VC.SumScatterFrom( ZTrans_STAR_MC );
 
         basic::internal::LocalTrsm
-        ( RIGHT, LOWER, TRANSPOSE, NON_UNIT,
-          (R)1, SInv_STAR_STAR, Z_VC_STAR );
+        ( LEFT, LOWER, NORMAL, NON_UNIT,
+          (R)1, SInv_STAR_STAR, ZTrans_STAR_VC );
 
-        Z_MC_STAR = Z_VC_STAR;
+        ZTrans_STAR_MC = ZTrans_STAR_VC;
         basic::internal::LocalGemm
-        ( NORMAL, NORMAL,
-          (R)-1, Z_MC_STAR, HPan_STAR_MR, (R)1, AR );
+        ( TRANSPOSE, NORMAL,
+          (R)-1, ZTrans_STAR_MC, HPan_STAR_MR, (R)1, AR );
         //--------------------------------------------------------------------//
         HPan_STAR_MR.FreeAlignments();
-        Z_MC_STAR.FreeAlignments();
-        Z_VC_STAR.FreeAlignments();
+        ZTrans_STAR_MC.FreeAlignments();
+        ZTrans_STAR_VC.FreeAlignments();
 
         SlidePartitionRight
         ( AL,     /**/ AR,
@@ -186,8 +186,8 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
     DistMatrix<C,STAR,MR  > HPan_STAR_MR(g);
     DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> SInv_STAR_STAR(g);
-    DistMatrix<C,MC,  STAR> Z_MC_STAR(g);
-    DistMatrix<C,VC,  STAR> Z_VC_STAR(g);
+    DistMatrix<C,STAR,MC  > ZAdj_STAR_MC(g);
+    DistMatrix<C,STAR,VC  > ZAdj_STAR_VC(g);
 
     LockedPartitionDownDiagonal
     ( H, HTL, HTR,
@@ -221,9 +221,9 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
           A0, /**/ A1, A2 );
 
         HPan_STAR_MR.AlignWith( AR );
-        Z_MC_STAR.AlignWith( AR );
-        Z_VC_STAR.AlignWith( AR );
-        Z_MC_STAR.ResizeTo( AR.Height(), HPanHeight );
+        ZAdj_STAR_MC.AlignWith( AR );
+        ZAdj_STAR_VC.AlignWith( AR );
+        ZAdj_STAR_MC.ResizeTo( HPanHeight, AR.Height() );
         SInv_STAR_STAR.ResizeTo( HPanHeight, HPanHeight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
@@ -241,20 +241,20 @@ elemental::advanced::internal::ApplyPackedReflectorsRUHF
 
         HPan_STAR_MR = HPan_STAR_VR;
         basic::internal::LocalGemm
-        ( NORMAL, ADJOINT, (C)1, AR, HPan_STAR_MR, (C)0, Z_MC_STAR );
-        Z_VC_STAR.SumScatterFrom( Z_MC_STAR );
+        ( NORMAL, ADJOINT, (C)1, HPan_STAR_MR, AR, (C)0, ZAdj_STAR_MC );
+        ZAdj_STAR_VC.SumScatterFrom( ZAdj_STAR_MC );
 
         basic::internal::LocalTrsm
-        ( RIGHT, LOWER, ADJOINT, NON_UNIT,
-          (C)1, SInv_STAR_STAR, Z_VC_STAR );
+        ( LEFT, LOWER, NORMAL, NON_UNIT,
+          (C)1, SInv_STAR_STAR, ZAdj_STAR_VC );
 
-        Z_MC_STAR = Z_VC_STAR;
+        ZAdj_STAR_MC = ZAdj_STAR_VC;
         basic::internal::LocalGemm
-        ( NORMAL, NORMAL, (C)-1, Z_MC_STAR, HPan_STAR_MR, (C)1, AR );
+        ( ADJOINT, NORMAL, (C)-1, ZAdj_STAR_MC, HPan_STAR_MR, (C)1, AR );
         //--------------------------------------------------------------------//
         HPan_STAR_MR.FreeAlignments();
-        Z_MC_STAR.FreeAlignments();
-        Z_VC_STAR.FreeAlignments();
+        ZAdj_STAR_MC.FreeAlignments();
+        ZAdj_STAR_VC.FreeAlignments();
 
         SlidePartitionRight
         ( AL,     /**/ AR,

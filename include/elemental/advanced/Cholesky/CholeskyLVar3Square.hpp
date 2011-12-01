@@ -132,7 +132,7 @@ elemental::advanced::internal::CholeskyLVar3Square
             if( onDiagonal )
             { 
                 const int size = A11.Height()*A22.LocalWidth();
-                memcpy
+                std::memcpy
                 ( A21Adj_STAR_MR.LocalBuffer(), A21Trans_STAR_MC.LocalBuffer(),
                   size*sizeof(F) );
             }

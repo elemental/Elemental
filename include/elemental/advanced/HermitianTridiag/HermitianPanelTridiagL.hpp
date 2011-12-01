@@ -996,7 +996,7 @@ elemental::advanced::internal::HermitianPanelTridiagL
             if( thisIsMyCol )
             {
                 // Pack the broadcast buffer with a21 and tau
-                memcpy
+                std::memcpy
                 ( &rowBroadcastBuffer[0], 
                   a21.LocalBuffer(), 
                   a21LocalHeight*sizeof(C) );
@@ -1008,13 +1008,13 @@ elemental::advanced::internal::HermitianPanelTridiagL
               a21LocalHeight+1, a21.RowAlignment(), g.MRComm() );
             // Store a21[MC,* ] into its DistMatrix class and also store a copy
             // for the next iteration
-            memcpy
+            std::memcpy
             ( a21_MC_STAR.LocalBuffer(), 
               &rowBroadcastBuffer[0],
               a21LocalHeight*sizeof(C) );
             // Store a21[MC,* ] into APan[MC,* ]
             int APan_MC_STAR_Offset = APan_MC_STAR.LocalHeight()-a21LocalHeight;
-            memcpy
+            std::memcpy
             ( APan_MC_STAR.LocalBuffer(APan_MC_STAR_Offset,0), 
               &rowBroadcastBuffer[0],
               (APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset)*sizeof(C) );
@@ -1025,7 +1025,7 @@ elemental::advanced::internal::HermitianPanelTridiagL
             // Store a21[MR,* ]
             int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
-            memcpy
+            std::memcpy
             ( APan_MR_STAR.LocalBuffer(APan_MR_STAR_Offset,A00.Width()),
               a21_MR_STAR.LocalBuffer(),
               (APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset)*sizeof(C) );
@@ -1039,11 +1039,11 @@ elemental::advanced::internal::HermitianPanelTridiagL
             if( thisIsMyCol ) 
             {
                 // Pack the broadcast buffer with a21, w21Last, and tau
-                memcpy
+                std::memcpy
                 ( &rowBroadcastBuffer[0], 
                   a21.LocalBuffer(),
                   a21LocalHeight*sizeof(C) );
-                memcpy
+                std::memcpy
                 ( &rowBroadcastBuffer[a21LocalHeight], 
                   &w21LastLocalBuffer[0],
                   w21LastLocalHeight*sizeof(C) );
@@ -1055,33 +1055,33 @@ elemental::advanced::internal::HermitianPanelTridiagL
               a21LocalHeight+w21LastLocalHeight+1, 
               a21.RowAlignment(), g.MRComm() );
             // Store a21[MC,* ] into its DistMatrix class 
-            memcpy
+            std::memcpy
             ( a21_MC_STAR.LocalBuffer(), 
               &rowBroadcastBuffer[0],
               a21LocalHeight*sizeof(C) );
             // Store a21[MC,* ] into APan[MC,* ]
             int APan_MC_STAR_Offset = APan_MC_STAR.LocalHeight()-a21LocalHeight;
-            memcpy
+            std::memcpy
             ( APan_MC_STAR.LocalBuffer(APan_MC_STAR_Offset,A00.Width()), 
               &rowBroadcastBuffer[0],
               (APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset)*sizeof(C) );
             // Store w21Last[MC,* ] into its DistMatrix class
             w21Last_MC_STAR.AlignWith( alpha11 );
             w21Last_MC_STAR.ResizeTo( a21.Height()+1, 1 );
-            memcpy
+            std::memcpy
             ( w21Last_MC_STAR.LocalBuffer(), 
               &rowBroadcastBuffer[a21LocalHeight], 
               w21LastLocalHeight*sizeof(C) );
             // Store the bottom part of w21Last[MC,* ] into WB[MC,* ] and, 
             // if necessary, w21.
             int W_MC_STAR_Offset = W_MC_STAR.LocalHeight()-w21LastLocalHeight;
-            memcpy
+            std::memcpy
             ( W_MC_STAR.LocalBuffer(W_MC_STAR_Offset,A00.Width()-1),
               &rowBroadcastBuffer[a21LocalHeight],
               (W_MC_STAR.LocalHeight()-W_MC_STAR_Offset)*sizeof(C) );
             if( g.MRRank() == w21Last.RowAlignment() )
             {
-                memcpy
+                std::memcpy
                 ( w21Last.LocalBuffer(),
                   &rowBroadcastBuffer[a21LocalHeight],
                   w21LastLocalHeight*sizeof(C) );
@@ -1176,14 +1176,14 @@ elemental::advanced::internal::HermitianPanelTridiagL
             // Store w21Last[MR,* ]
             int W_MR_STAR_Offset = 
                 W_MR_STAR.LocalHeight()-w21Last_MR_STAR.LocalHeight();
-            memcpy
+            std::memcpy
             ( W_MR_STAR.LocalBuffer(W_MR_STAR_Offset,A00.Width()-1),
               w21Last_MR_STAR.LocalBuffer(),
               (W_MR_STAR.LocalHeight()-W_MR_STAR_Offset)*sizeof(C) );
             // Store a21[MR,* ]
             int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
-            memcpy
+            std::memcpy
             ( APan_MR_STAR.LocalBuffer(APan_MR_STAR_Offset,A00.Width()),
               a21_MR_STAR.LocalBuffer(),
               (APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset)*sizeof(C) );

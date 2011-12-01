@@ -123,7 +123,7 @@ RealToRealInPlaceRedist
         {
             const double* dataCol = &(data[j*localHeight]);
             double* thisCol = paddedZ.LocalBuffer(0,thisRowOffset+j*r);
-            memcpy( thisCol, dataCol, localHeight*sizeof(double) );
+            std::memcpy( thisCol, dataCol, localHeight*sizeof(double) );
         }
     }
 }

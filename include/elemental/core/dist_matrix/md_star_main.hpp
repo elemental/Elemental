@@ -712,7 +712,7 @@ DistMatrix<T,MD,STAR>::MakeTrapezoidal
                     int boundary = std::min( lastZeroRow+1, height );
                     int numZeroRows = RawLocalLength( boundary, colShift, lcm );
                     T* thisCol = &thisLocalBuffer[j*thisLDim];
-                    memset( thisCol, 0, numZeroRows*sizeof(T) );
+                    std::memset( thisCol, 0, numZeroRows*sizeof(T) );
                 }
             }
         }
@@ -732,7 +732,7 @@ DistMatrix<T,MD,STAR>::MakeTrapezoidal
                 if( numNonzeroRows < localHeight )
                 {
                     T* thisCol = &thisLocalBuffer[numNonzeroRows+j*thisLDim];
-                    memset
+                    std::memset
                     ( thisCol, 0, (localHeight-numNonzeroRows)*sizeof(T) );
                 }
             }

@@ -585,7 +585,7 @@ DistMatrix<T,STAR,VC>::MakeTrapezoidal
             {
                 int boundary = std::min( lastZeroRow+1, height );
                 T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-                memset( thisCol, 0, boundary*sizeof(T) );
+                std::memset( thisCol, 0, boundary*sizeof(T) );
             }
         }
     }
@@ -605,7 +605,7 @@ DistMatrix<T,STAR,VC>::MakeTrapezoidal
             if( firstZeroRow < height )
             {
                 T* thisCol = &thisLocalBuffer[firstZeroRow+jLocal*thisLDim];
-                memset( thisCol, 0, (height-firstZeroRow)*sizeof(T) );
+                std::memset( thisCol, 0, (height-firstZeroRow)*sizeof(T) );
             }
         }
     }
@@ -895,7 +895,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,MR,MC>& A )
             {
                 const T* ACol = &ALocalBuffer[(thisRowOffset+jLocal*c)*ALDim];
                 T* dataCol = &data[jLocal*localHeightOfA];
-                memcpy( dataCol, ACol, localHeightOfA*sizeof(T) );
+                std::memcpy( dataCol, ACol, localHeightOfA*sizeof(T) );
             }
         }
 
@@ -982,7 +982,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,MR,MC>& A )
             {
                 const T* ACol = &ALocalBuffer[(thisRowOffset+jLocal*c)*ALDim];
                 T* dataCol = &data[jLocal*localHeightOfA];
-                memcpy( dataCol, ACol, localHeightOfA*sizeof(T) );
+                std::memcpy( dataCol, ACol, localHeightOfA*sizeof(T) );
             }
         }
 
@@ -1092,7 +1092,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,MC>& A )
         {
             const T* ACol = &ALocalBuffer[(rowOffset+jLocal*c)*ALDim];
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-            memcpy( thisCol, ACol, height*sizeof(T) );
+            std::memcpy( thisCol, ACol, height*sizeof(T) );
         }
     }
     else
@@ -1142,7 +1142,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,MC>& A )
         {
             const T* ACol = &ALocalBuffer[(sendRowOffset+jLocal*c)*ALDim];
             T* sendBufferCol = &sendBuffer[jLocal*height];
-            memcpy( sendBufferCol, ACol, height*sizeof(T) );
+            std::memcpy( sendBufferCol, ACol, height*sizeof(T) );
         }
 
         // Communicate
@@ -1160,7 +1160,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,MC>& A )
         {
             const T* recvBufferCol = &recvBuffer[jLocal*height];
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-            memcpy( thisCol, recvBufferCol, height*sizeof(T) );
+            std::memcpy( thisCol, recvBufferCol, height*sizeof(T) );
         }
         this->auxMemory_.Release();
     }
@@ -1262,7 +1262,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,VC>& A )
         {
             const T* ACol = &ALocalBuffer[jLocal*ALDim];
             T* sendBufferCol = &sendBuffer[jLocal*height];
-            memcpy( sendBufferCol, ACol, height*sizeof(T) );
+            std::memcpy( sendBufferCol, ACol, height*sizeof(T) );
         }
 
         // Communicate
@@ -1280,7 +1280,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,VC>& A )
         {
             const T* recvBufferCol = &recvBuffer[jLocal*height];
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-            memcpy( thisCol, recvBufferCol, height*sizeof(T) );
+            std::memcpy( thisCol, recvBufferCol, height*sizeof(T) );
         }
         this->auxMemory_.Release();
     }
@@ -1366,7 +1366,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,VR>& A )
     {
         const T* ACol = &ALocalBuffer[jLocal*ALDim];
         T* sendBufferCol = &sendBuffer[jLocal*height];
-        memcpy( sendBufferCol, ACol, height*sizeof(T) );
+        std::memcpy( sendBufferCol, ACol, height*sizeof(T) );
     }
 
     // Communicate
@@ -1384,7 +1384,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,VR>& A )
     {
         const T* recvBufferCol = &recvBuffer[jLocal*height];
         T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-        memcpy( thisCol, recvBufferCol, height*sizeof(T) );
+        std::memcpy( thisCol, recvBufferCol, height*sizeof(T) );
     }
     this->auxMemory_.Release();
 #ifndef RELEASE
@@ -1424,7 +1424,7 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,STAR,STAR>& A )
     {
         const T* ACol = &ALocalBuffer[(rowShift+jLocal*p)*ALDim];
         T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-        memcpy( thisCol, ACol, height*sizeof(T) );
+        std::memcpy( thisCol, ACol, height*sizeof(T) );
     }
 
 #ifndef RELEASE
@@ -1503,7 +1503,7 @@ DistMatrix<T,STAR,VC>::SumScatterFrom( const DistMatrix<T,STAR,MC>& A )
             {
                 const T* ACol = &ALocalBuffer[(thisRowOffset+jLocal*c)*ALDim];
                 T* dataCol = &data[jLocal*height];
-                memcpy( dataCol, ACol, height*sizeof(T) );
+                std::memcpy( dataCol, ACol, height*sizeof(T) );
             }
         }
 
@@ -1521,7 +1521,7 @@ DistMatrix<T,STAR,VC>::SumScatterFrom( const DistMatrix<T,STAR,MC>& A )
         {
             const T* recvBufferCol = &recvBuffer[jLocal*height];
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-            memcpy( thisCol, recvBufferCol, height*sizeof(T) );
+            std::memcpy( thisCol, recvBufferCol, height*sizeof(T) );
         }
         this->auxMemory_.Release();
     }
@@ -1594,7 +1594,7 @@ DistMatrix<T,STAR,VC>::SumScatterUpdate
             {
                 const T* ACol = &ALocalBuffer[(thisRowOffset+jLocal*c)*ALDim];
                 T* dataCol = &data[jLocal*height];
-                memcpy( dataCol, ACol, height*sizeof(T) );
+                std::memcpy( dataCol, ACol, height*sizeof(T) );
             }
         }
 
