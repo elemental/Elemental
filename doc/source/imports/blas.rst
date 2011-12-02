@@ -6,6 +6,11 @@ official BLAS interface uses different routine names for different datatypes,
 the following interfaces are built directly on top of the datatype-specific 
 versions.
 
+The prototypes can be found in 
+`include/elemental/imports/blas.hpp <../../../../include/elemental/imports/blas.hpp>`_,
+while the implementations are in 
+`src/imports/blas.cpp <../../../../src/imports/blas.cpp>`_.
+
 Level 1
 -------
 

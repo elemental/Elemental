@@ -6,6 +6,11 @@ factorization, triangular inversion, and a few other utilities. In addition,
 there are several BLAS-like routines which are technically part of LAPACK 
 (e.g., ``csyr``) which were included in the BLAS imports section.
 
+The prototypes can be found in
+`include/elemental/imports/lapack.hpp <../../../../include/elemental/imports/lapack.hpp>`_,
+while the implementations are in
+`src/imports/lapack.cpp <../../../../src/imports/lapack.cpp>`_.
+
 Machine information
 -------------------
 

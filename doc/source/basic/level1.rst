@@ -1,6 +1,10 @@
 Level 1
 =======
 
+The prototypes for the following routines can be found at 
+`include/elemental/basic.hpp <../../../../include/elemental/basic.hpp>`_, while the
+implementations are in `include/elemental/basic/level1/ <../../../../include/elemental/basic/level1/>`_.
+
 Adjoint
 -------
 .. note:: 

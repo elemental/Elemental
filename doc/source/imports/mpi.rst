@@ -7,6 +7,11 @@ MPI interface. This has the added benefit of localizing the changes required
 for porting Elemental to architectures that do not have full MPI 
 implementations available.
 
+The prototypes can be found in
+`include/elemental/imports/mpi.hpp <../../../../include/elemental/imports/mpi.hpp>`_,
+while the implementations are in
+`src/imports/mpi.cpp <../../../../src/imports/mpi.cpp>`_.
+
 Datatypes
 ---------
 

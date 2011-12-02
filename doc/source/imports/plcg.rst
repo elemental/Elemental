@@ -7,6 +7,11 @@ Parallel LCG (PLCG) is to provide a provably independent generalization of a
 simple (but well-studied) Linear Congruential Generator. Knuth's constants from
 The Art of Computer Programming Vol. 2 are used.
 
+The prototypes can be found in
+`include/elemental/imports/plcg.hpp <../../../../include/elemental/imports/plcg.hpp>`_,
+while the implementations are in
+`external/plcg/parallel_lcg.cpp <../../../../external/plcg/parallel_lcg.cpp>`_.
+
 Datatypes
 ---------
 

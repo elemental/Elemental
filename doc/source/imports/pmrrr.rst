@@ -4,6 +4,11 @@ Rather than directly using Petschow and Bientinesi's parallel implementation of
 the Multiple Relatively Robust Representations (MRRR) algorithm, several 
 simplified interfaces have been exposed.
 
+The prototypes can be found in
+`include/elemental/imports/pmrrr.hpp <../../../../include/elemental/imports/pmrrr.hpp>`_,
+while the implementations are in the folder
+`external/pmrrr/ <../../../../external/pmrrr/>`_.
+
 Data structures
 ---------------
 

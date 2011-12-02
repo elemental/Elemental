@@ -1,6 +1,11 @@
 Level 3
 =======
 
+The prototypes for the following routines can be found at          
+`include/elemental/basic.hpp <../../../../include/elemental/basic.hpp>`_, while the
+implementations are in `include/elemental/basic/level3/ <../../../../include/elemental/b
+asic/level3/>`_.
+
 Gemm
 ----
 General matrix-matrix multiplication: updates
