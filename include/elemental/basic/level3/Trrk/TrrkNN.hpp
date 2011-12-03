@@ -31,59 +31,71 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Trrk/LocalTrrk.hpp"
-#include "./Trrk/TrrkNN.hpp"
-#include "./Trrk/TrrkNT.hpp"
-#include "./Trrk/TrrkTN.hpp"
-#include "./Trrk/TrrkTT.hpp"
-
+// Distributed C := alpha A B + beta C
 template<typename T>
 inline void
-elemental::basic::Trrk
-( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C )
-{
-#ifndef RELEASE
-    PushCallStack("basic::Trrk");
-#endif
-    if( orientationOfA==NORMAL && orientationOfB==NORMAL )
-        basic::internal::TrrkNN( uplo, alpha, A, B, beta, C );
-    else if( orientationOfA==NORMAL )
-        basic::internal::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
-    else if( orientationOfB==NORMAL )
-        basic::internal::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
-    else
-        basic::internal::TrrkTT
-        ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-inline void
-elemental::basic::Trrk
-( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
+elemental::basic::internal::TrrkNN
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trrk");
+    PushCallStack("basic::internal::TrrkNN");
+    if( C.Height() != C.Width() ||
+        A.Height() != C.Height() || 
+        B.Width() != C.Width() ||
+        A.Width() != B.Height() )
+        throw std::logic_error("Nonconformal TrrkNN");
 #endif
-    if( orientationOfA==NORMAL && orientationOfB==NORMAL )
-        basic::internal::TrrkNN( uplo, alpha, A, B, beta, C );
-    else if( orientationOfA==NORMAL )
-        basic::internal::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
-    else if( orientationOfB==NORMAL )
-        basic::internal::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
-    else
-        basic::internal::TrrkTT
-        ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
+    const Grid& g = C.Grid();
+
+    DistMatrix<T,MC,MR> AL(g), AR(g),
+                        A0(g), A1(g), A2(g);
+    DistMatrix<T,MC,MR> BT(g),  B0(g),
+                        BB(g),  B1(g),
+                                B2(g);
+
+    DistMatrix<T,MC,STAR> A1_MC_STAR(g);
+    DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g);
+
+    LockedPartitionRight( A, AL, AR, 0 );
+    LockedPartitionDown
+    ( B, BT,
+         BB, 0 );
+    while( AL.Width() < A.Width() )
+    {
+        LockedRepartitionRight
+        ( AL, /**/ AR,
+          A0, /**/ A1, A2 );
+        LockedRepartitionDown
+        ( BT,  B0,
+         /**/ /**/
+               B1,
+          BB,  B2 );
+
+        A1_MC_STAR.AlignWith( C );
+        B1Trans_MR_STAR.AlignWith( C );
+        //--------------------------------------------------------------------//
+        A1_MC_STAR = A1;
+        B1Trans_MR_STAR.TransposeFrom( B1 );
+        basic::internal::LocalTrrk
+        ( uplo, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, beta, C );
+        //--------------------------------------------------------------------//
+        B1Trans_MR_STAR.FreeAlignments();
+        A1_MC_STAR.FreeAlignments();
+
+        SlidePartitionDown
+        ( BT,  B0,
+               B1,
+         /**/ /**/
+          BB,  B2 );
+        SlidePartitionRight
+        ( AL,     /**/ AR,
+          A0, A1, /**/ A2 );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+

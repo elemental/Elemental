@@ -778,7 +778,7 @@ void SyrkUT
 // triu(C) := alpha triu( A B ) + beta triu(C)
 
 template<typename T>
-void LocalTrrkNN
+void TrrkNN
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C );
@@ -795,7 +795,7 @@ void LocalTrrk
 // triu(C) := alpha triu( A B^{T/H} ) + beta triu(C)
 
 template<typename T>
-void LocalTrrkNT
+void TrrkNT
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
@@ -814,7 +814,7 @@ void LocalTrrk
 // triu(C) := alpha triu( A^{T/H} B ) + beta triu(C)
 
 template<typename T>
-void LocalTrrkTN
+void TrrkTN
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
@@ -833,7 +833,7 @@ void LocalTrrk
 // triu(C) := alpha triu( A^{T/H} B^{T/H} ) + beta triu(C)
 
 template<typename T>
-void LocalTrrkTT
+void TrrkTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,

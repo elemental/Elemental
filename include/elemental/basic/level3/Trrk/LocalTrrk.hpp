@@ -764,19 +764,19 @@ LocalTrrkKernel
 // Local C := alpha A B + beta C
 template<typename T>
 inline void
-elemental::basic::internal::LocalTrrkNN
+elemental::basic::internal::TrrkNN
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
     using namespace trrk_util;
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTrrkNN");
+    PushCallStack("basic::internal::TrrkNN");
     CheckInputNN( A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkNNKernel( uplo, alpha, A, B, beta, C );
+        TrrkNNKernel( uplo, alpha, A, B, beta, C );
     }
     else
     {
@@ -803,8 +803,8 @@ elemental::basic::internal::LocalTrrkNN
             basic::Gemm( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
 
         // Recurse
-        basic::internal::LocalTrrkNN( uplo, alpha, AT, BL, beta, CTL );
-        basic::internal::LocalTrrkNN( uplo, alpha, AB, BR, beta, CBR );
+        basic::internal::TrrkNN( uplo, alpha, AT, BL, beta, CTL );
+        basic::internal::TrrkNN( uplo, alpha, AB, BR, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -873,7 +873,7 @@ elemental::basic::internal::LocalTrrk
 // Local C := alpha A B^{T/H} + beta C
 template<typename T>
 inline void
-elemental::basic::internal::LocalTrrkNT
+elemental::basic::internal::TrrkNT
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
@@ -881,12 +881,12 @@ elemental::basic::internal::LocalTrrkNT
 {
     using namespace trrk_util;
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTrrkNT");
+    PushCallStack("basic::internal::TrrkNT");
     CheckInputNT( orientationOfB, A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkNTKernel( uplo, orientationOfB, alpha, A, B, beta, C );
+        TrrkNTKernel( uplo, orientationOfB, alpha, A, B, beta, C );
     }
     else
     {
@@ -916,9 +916,9 @@ elemental::basic::internal::LocalTrrkNT
             basic::Gemm( NORMAL, orientationOfB, alpha, AT, BB, beta, CTR );
 
         // Recurse
-        basic::internal::LocalTrrkNT
+        basic::internal::TrrkNT
         ( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
-        basic::internal::LocalTrrkNT
+        basic::internal::TrrkNT
         ( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
     }
 #ifndef RELEASE
@@ -994,7 +994,7 @@ elemental::basic::internal::LocalTrrk
 // Local C := alpha A^{T/H} B + beta C
 template<typename T>
 inline void
-elemental::basic::internal::LocalTrrkTN
+elemental::basic::internal::TrrkTN
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
@@ -1002,12 +1002,12 @@ elemental::basic::internal::LocalTrrkTN
 {
     using namespace trrk_util;
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTrrkTN");
+    PushCallStack("basic::internal::TrrkTN");
     CheckInputTN( orientationOfA, A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkKernelTN( uplo, orientationOfA, alpha, A, B, beta, C );
+        TrrkKernelTN( uplo, orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
@@ -1031,9 +1031,9 @@ elemental::basic::internal::LocalTrrkTN
             basic::Gemm( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
 
         // Recurse
-        basic::internal::LocalTrrkTN
+        basic::internal::TrrkTN
         ( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
-        basic::internal::LocalTrrkTN
+        basic::internal::TrrkTN
         ( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
     }
 #ifndef RELEASE
@@ -1103,7 +1103,7 @@ elemental::basic::internal::LocalTrrk
 // Local C := alpha A^{T/H} B^{T/H} + beta C
 template<typename T>
 inline void
-elemental::basic::internal::LocalTrrkTT
+elemental::basic::internal::TrrkTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
@@ -1111,12 +1111,12 @@ elemental::basic::internal::LocalTrrkTT
 {
     using namespace trrk_util;
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTrrkTT");
+    PushCallStack("basic::internal::TrrkTT");
     CheckInputTT( orientationOfA, orientationOfB, A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkKernelTT
+        TrrkKernelTT
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else
@@ -1146,9 +1146,9 @@ elemental::basic::internal::LocalTrrkTT
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, CTR );
 
         // Recurse
-        basic::internal::LocalTrrkTT
+        basic::internal::TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, AL, BT, beta, CTL );
-        basic::internal::LocalTrrkTT
+        basic::internal::TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
     }
 #ifndef RELEASE

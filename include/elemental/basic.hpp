@@ -845,9 +845,14 @@ void Trr2k
 // and 'orientationOfB'. Only the triangle of C specified by 'uplo' is updated.
 //
 
-// TODO: Serial version
+// Serial version
+template<typename T>
+void Trrk
+( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, 
+  T beta,        Matrix<T>& C );
 
-// Parallel version (NOT YET WRITTEN!)
+// Parallel version 
 template<typename T>
 void Trrk
 ( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB,
