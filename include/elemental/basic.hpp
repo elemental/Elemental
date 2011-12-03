@@ -824,7 +824,7 @@ void Trmm
 
 // TODO: Serial version
 
-// Parallel version (NOT YET WRITTEN!)
+// Parallel version 
 template<typename T>
 void Trr2k
 ( UpperOrLower uplo, 

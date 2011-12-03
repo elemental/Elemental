@@ -32,25 +32,128 @@
 */
 
 #include "./Trr2k/LocalTrr2k.hpp"
+#include "./Trr2k/Trr2kNNNN.hpp"
+#include "./Trr2k/Trr2kNNNT.hpp"
+#include "./Trr2k/Trr2kNNTN.hpp"
+#include "./Trr2k/Trr2kNNTT.hpp"
+#include "./Trr2k/Trr2kNTNN.hpp"
+#include "./Trr2k/Trr2kNTNT.hpp"
+#include "./Trr2k/Trr2kNTTN.hpp"
+#include "./Trr2k/Trr2kNTTT.hpp"
+#include "./Trr2k/Trr2kTNNN.hpp"
+#include "./Trr2k/Trr2kTNNT.hpp"
+#include "./Trr2k/Trr2kTNTN.hpp"
+#include "./Trr2k/Trr2kTNTT.hpp"
+#include "./Trr2k/Trr2kTTNN.hpp"
+#include "./Trr2k/Trr2kTTNT.hpp"
+#include "./Trr2k/Trr2kTTTN.hpp"
+#include "./Trr2k/Trr2kTTTT.hpp"
+
+// This will be enabled as soon as the underlying routines are written
 /*
-#include "./Trr2k/Trr2kLNN.hpp"
-#include "./Trr2k/Trr2kLNT.hpp"
-#include "./Trr2k/Trr2kLTN.hpp"
-#include "./Trr2k/Trr2kLTT.hpp"
-#include "./Trr2k/Trr2kUNN.hpp"
-#include "./Trr2k/Trr2kUNT.hpp"
-#include "./Trr2k/Trr2kUTN.hpp"
-#include "./Trr2k/Trr2kUTT.hpp"
+template<typename T>
+inline void
+elemental::basic::Trr2k
+( UpperOrLower uplo, 
+  Orientation orientationOfA, Orientation orientationOfB,
+  Orientation orientationOfC, Orientation orientationOfD,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+           const Matrix<T>& C, const Matrix<T>& D,
+  T beta,        Matrix<T>& E )
+{
+#ifndef RELEASE
+    PushCallStack("basic::Trr2k");
+#endif
+    const bool normalA = orientationOfA == NORMAL;
+    const bool normalB = orientationOfB == NORMAL;
+    const bool normalC = orientationOfC == NORMAL;
+    const bool normalD = orientationOfD == NORMAL;
+    int subcase = 8*normalA + 4*normalB + 2*normalC + normalD;
+    switch( subcase )
+    {
+    case 0: 
+        basic::internal::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
+        break;
+    case 1:
+        basic::internal::Trr2kNNNT
+        ( uplo, orientationOfD, alpha, A, B, C, D, beta, E );
+        break;
+    case 2:
+        basic::internal::Trr2kNNTN
+        ( uplo, orientationOfC, alpha, A, B, C, D, beta, E );
+        break;
+    case 3:
+        basic::internal::Trr2kNNTT
+        ( uplo, orientationOfC, orientationOfD, alpha, A, B, C, D, beta, E );
+        break;
+    case 4:
+        basic::internal::Trr2kNTNN
+        ( uplo, orientationOfB, alpha, A, B, C, D, beta, E );
+        break;
+    case 5:
+        basic::internal::Trr2kNTNT
+        ( uplo, orientationOfB, orientationOfD, alpha, A, B, C, D, beta, E );
+        break;
+    case 6:
+        basic::internal::Trr2kNTTN
+        ( uplo, orientationOfB, orientationOfC, alpha, A, B, C, D, beta, E );
+        break;
+    case 7:
+        basic::internal::Trr2kNTTT
+        ( uplo, orientationOfB, orientationOfC, orientationOfD, 
+          alpha, A, B, C, D, beta, E );
+        break;
+    case 8:
+        basic::internal::Trr2kTNNN
+        ( uplo, orientationOfA, alpha, A, B, C, D, beta, E );
+        break;
+    case 9:
+        basic::internal::Trr2kTNNT
+        ( uplo, orientationOfA, orientationOfD, alpha, A, B, C, D, beta, E );
+        break;
+    case 10:
+        basic::internal::Trr2kTNTN
+        ( uplo, orientationOfA, orientationOfC, alpha, A, B, C, D, beta, E );
+        break;
+    case 11:
+        basic::internal::Trr2kTNTT
+        ( uplo, orientationOfA, orientationOfC, orientationOfD,
+          alpha, A, B, C, D, beta, E );
+        break;
+    case 12:
+        basic::internal::Trr2kTTNN
+        ( uplo, orientationOfA, orientationOfB, alpha, A, B, C, D, beta, E );
+        break;
+    case 13:
+        basic::internal::Trr2kTTNT
+        ( uplo, orientationOfA, orientationOfB, orientationOfD,
+          alpha, A, B, C, D, beta, E );
+        break;
+    case 14:
+        basic::internal::Trr2kTTTN
+        ( uplo, orientationOfA, orientationOfB, orientationOfC,
+          alpha, A, B, C, D, beta, E );
+        break;
+    case 14:
+        basic::internal::Trr2kTTTN
+        ( uplo, orientationOfA, orientationOfB, orientationOfC, orientationOfD,
+          alpha, A, B, C, D, beta, E );
+        break;
+    default:
+        throw std::logic_error("Impossible subcase");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 */
 
 template<typename T>
 inline void
 elemental::basic::Trr2k
 ( UpperOrLower uplo, 
-  Orientation orientationOfA,
-  Orientation orientationOfB,
-  Orientation orientationOfC,
-  Orientation orientationOfD,
+  Orientation orientationOfA, Orientation orientationOfB,
+  Orientation orientationOfC, Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
            const DistMatrix<T,MC,MR>& C,
@@ -60,17 +163,84 @@ elemental::basic::Trr2k
 #ifndef RELEASE
     PushCallStack("basic::Trr2k");
 #endif
-    throw std::logic_error("basic::Trr2k is not yet written");
-    /*
-    if( uplo == LOWER )
+    const bool normalA = orientationOfA == NORMAL;
+    const bool normalB = orientationOfB == NORMAL;
+    const bool normalC = orientationOfC == NORMAL;
+    const bool normalD = orientationOfD == NORMAL;
+    int subcase = 8*normalA + 4*normalB + 2*normalC + normalD;
+    switch( subcase )
     {
-        // TODO
+    case 0: 
+        basic::internal::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
+        break;
+    case 1:
+        basic::internal::Trr2kNNNT
+        ( uplo, orientationOfD, alpha, A, B, C, D, beta, E );
+        break;
+    case 2:
+        basic::internal::Trr2kNNTN
+        ( uplo, orientationOfC, alpha, A, B, C, D, beta, E );
+        break;
+    case 3:
+        basic::internal::Trr2kNNTT
+        ( uplo, orientationOfC, orientationOfD, alpha, A, B, C, D, beta, E );
+        break;
+    case 4:
+        basic::internal::Trr2kNTNN
+        ( uplo, orientationOfB, alpha, A, B, C, D, beta, E );
+        break;
+    case 5:
+        basic::internal::Trr2kNTNT
+        ( uplo, orientationOfB, orientationOfD, alpha, A, B, C, D, beta, E );
+        break;
+    case 6:
+        basic::internal::Trr2kNTTN
+        ( uplo, orientationOfB, orientationOfC, alpha, A, B, C, D, beta, E );
+        break;
+    case 7:
+        basic::internal::Trr2kNTTT
+        ( uplo, orientationOfB, orientationOfC, orientationOfD, 
+          alpha, A, B, C, D, beta, E );
+        break;
+    case 8:
+        basic::internal::Trr2kTNNN
+        ( uplo, orientationOfA, alpha, A, B, C, D, beta, E );
+        break;
+    case 9:
+        basic::internal::Trr2kTNNT
+        ( uplo, orientationOfA, orientationOfD, alpha, A, B, C, D, beta, E );
+        break;
+    case 10:
+        basic::internal::Trr2kTNTN
+        ( uplo, orientationOfA, orientationOfC, alpha, A, B, C, D, beta, E );
+        break;
+    case 11:
+        basic::internal::Trr2kTNTT
+        ( uplo, orientationOfA, orientationOfC, orientationOfD,
+          alpha, A, B, C, D, beta, E );
+        break;
+    case 12:
+        basic::internal::Trr2kTTNN
+        ( uplo, orientationOfA, orientationOfB, alpha, A, B, C, D, beta, E );
+        break;
+    case 13:
+        basic::internal::Trr2kTTNT
+        ( uplo, orientationOfA, orientationOfB, orientationOfD,
+          alpha, A, B, C, D, beta, E );
+        break;
+    case 14:
+        basic::internal::Trr2kTTTN
+        ( uplo, orientationOfA, orientationOfB, orientationOfC,
+          alpha, A, B, C, D, beta, E );
+        break;
+    case 14:
+        basic::internal::Trr2kTTTN
+        ( uplo, orientationOfA, orientationOfB, orientationOfC, orientationOfD,
+          alpha, A, B, C, D, beta, E );
+        break;
+    default:
+        throw std::logic_error("Impossible subcase");
     }
-    else
-    {
-        // TODO
-    }
-    */
 #ifndef RELEASE
     PopCallStack();
 #endif
