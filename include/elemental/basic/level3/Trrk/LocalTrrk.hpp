@@ -288,13 +288,13 @@ CheckInput
 // Local C := alpha A B + beta C
 template<typename T>
 inline void
-LocalTrrkNNKernel
+TrrkNNKernel
 ( UpperOrLower uplo, 
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrrkNNKernel");
+    PushCallStack("TrrkNNKernel");
     CheckInputNN( A, B, C );
 #endif
     Matrix<T> AT,
@@ -403,14 +403,14 @@ LocalTrrkKernel
 // Local C := alpha A B^{T/H} + beta C
 template<typename T>
 inline void
-LocalTrrkNTKernel
+TrrkNTKernel
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrrkNTKernel");
+    PushCallStack("TrrkNTKernel");
     CheckInputNT( orientationOfB, A, B, C );
 #endif
     Matrix<T> AT,
@@ -530,14 +530,14 @@ LocalTrrkKernel
 // Local C := alpha A^{T/H} B + beta C
 template<typename T>
 inline void
-LocalTrrkTNKernel
+TrrkTNKernel
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrrkTNKernel");
+    PushCallStack("TrrkTNKernel");
     CheckInputTN( orientationOfA, A, B, C );
 #endif
     Matrix<T> AL, AR;
@@ -641,7 +641,7 @@ LocalTrrkKernel
 // Local C := alpha A^{T/H} B^{T/H} + beta C
 template<typename T>
 inline void
-LocalTrrkTTKernel
+TrrkTTKernel
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
@@ -649,7 +649,7 @@ LocalTrrkTTKernel
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrrkTTKernel");
+    PushCallStack("TrrkTTKernel");
     CheckInputTT( orientationOfA, orientationOfB, A, B, C );
 #endif
     Matrix<T> AL, AR;
