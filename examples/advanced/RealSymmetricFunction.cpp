@@ -60,7 +60,7 @@ main( int argc, char* argv[] )
 
         // Fill the matrix since we did not pass in a buffer. 
         //
-        // We will fill entry (i,j) with the value i-j so that
+        // We will fill entry (i,j) with the value i+j so that
         // the global matrix is symmetric. However, only one triangle of the 
         // matrix actually needs to be filled, the symmetry can be implicit.
         //
@@ -78,7 +78,7 @@ main( int argc, char* argv[] )
                 //              and the cols { n \in N_0 : n mod c = rowShift }
                 const int i = colShift + iLocal*r;
                 const int j = rowShift + jLocal*c;
-                H.SetLocalEntry( iLocal, jLocal, R(i-j) );
+                H.SetLocalEntry( iLocal, jLocal, R(i+j) );
             }
         }
 
@@ -86,7 +86,7 @@ main( int argc, char* argv[] )
         H.Print("H");
 
         // Reform the matrix with the exponentials of the original eigenvalues
-        advanced::HermitianFunction( LOWER, H, ExpFunctor() );
+        advanced::RealHermitianFunction( LOWER, H, ExpFunctor() );
 
         // Print the exponential of the original matrix
         H.Print("exp(H)");

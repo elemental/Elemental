@@ -124,33 +124,41 @@ routine from the following list:
    Sort a set of real eigenvalues and complex eigenvectors into non-decreasing
    order (based on the eigenvalues).
 
-Hermitian function
-------------------
+Hermitian functions
+-------------------
 Reform the matrix with the eigenvalues modified by a user-defined function. 
-One possible use would be in computing the matrix exponential of a Hermitian 
-matrix. 
+When the user-defined function is real-valued, the result will remain Hermitian,
+but when the function is complex-valued, the result is best characterized as 
+normal.
 
 .. note:: 
 
    Since Elemental currently depends on PMRRR for its tridiagonal 
    eigensolver, only double-precision results are supported as of now.
 
-.. cpp:function:: void advanced::HermitianFunction( UpperOrLower uplo, DistMatrix<R,MC,MR>& A, EigFunctor f )
+.. cpp:function:: void advanced::RealHermitianFunction( UpperOrLower uplo, DistMatrix<R,MC,MR>& A, const RealFunctor& f )
 
    Modifies the eigenvalues of the passed-in real symmetric matrix by replacing 
-   each :math:`\omega_i` with :math:`f(\omega_i)`. ``EigFunctor`` is any 
+   each :math:`\omega_i` with :math:`f(\omega_i) \in \mathbb{R}`. 
+   ``RealFunctor`` is any 
    class which has the member function ``R operator()( R omega ) const``.
-   See `examples/advanced/SymmetricFunction.cpp <../../../../examples/advanced/SymmetricFunction.cpp>`_ for an example usage.
+   See `examples/advanced/RealSymmetricFunction.cpp <../../../../examples/advanced/RealSymmetricFunction.cpp>`_ for an example usage.
 
-.. cpp:function:: void advanced::HermitianFunction( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
+.. cpp:function:: void advanced::RealHermitianFunction( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A, const RealFunctor& f )
 
    Modifies the eigenvalues of the passed-in complex Hermitian matrix by 
-   replacing each :math:`\omega_i` with :math:`f(\omega_i)`. ``EigFunctor`` 
-   can be any class which has the member function 
+   replacing each :math:`\omega_i` with :math:`f(\omega_i) \in \mathbb{R}`. 
+   ``RealFunctor`` can be any class which has the member function 
    ``R operator()( R omega ) const``.
-   See `examples/advanced/HermitianFunction.cpp <../../../../examples/advanced/HermitianFunction.cpp>`_ for an example usage.
+   See `examples/advanced/RealHermitianFunction.cpp <../../../../examples/advanced/RealHermitianFunction.cpp>`_ for an example usage.
 
+.. cpp:function:: void advanced::ComplexHermitianFunction( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A, const ComplexFunctor& f )
 
+   Modifies the eigenvalues of the passed-in complex Hermitian matrix by
+   replacing each eigenvalue :math:`\omega_i` with 
+   :math:`f(\omega_i) \in \mathbb{C}`. ``ComplexFunctor`` can be any class
+   which has the member function ``std::complex<R> operator()( R omega ) const``.
+   See `examples/advanced/ComplexHermitianFunction.cpp <../../../../examples/advanced/ComplexHermitianFunction.cpp>`_ for an example usage.
 
 Skew-Hermitian eigensolver
 --------------------------

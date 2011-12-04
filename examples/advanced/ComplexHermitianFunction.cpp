@@ -38,10 +38,14 @@ using namespace elemental;
 typedef double R;
 typedef complex<R> C;
 
-// A functor for returning the exponential of a real number
-class ExpFunctor {
+// A functor for returning the imaginary exponential of a real number
+class ImagExpFunctor {
 public:
-    R operator()( R alpha ) const { return std::exp(alpha); }
+    C operator()( R alpha ) const 
+    { 
+        const C imagAlpha = C(0,alpha);
+        return std::exp(imagAlpha);
+    }
 };
 
 int
@@ -87,10 +91,10 @@ main( int argc, char* argv[] )
         H.Print("H");
 
         // Reform H with the exponentials of the original eigenvalues
-        advanced::HermitianFunction( LOWER, H, ExpFunctor() );
+        advanced::ComplexHermitianFunction( LOWER, H, ImagExpFunctor() );
 
-        // Print the exponential of the matrix
-        H.Print("exp(H)");
+        // Print the imaginary exponential of the matrix
+        H.Print("exp(i*H)");
     }
     catch( exception& e )
     {

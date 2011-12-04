@@ -553,9 +553,11 @@ if(BUILD_EXAMPLES)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     if(NOT WITHOUT_COMPLEX)
-      list(APPEND ADVANCED_EXAMPLES HermitianEig HermitianFunction)
+      list(APPEND ADVANCED_EXAMPLES HermitianEig 
+                                    ComplexHermitianFunction 
+                                    RealHermitianFunction)
     endif(NOT WITHOUT_COMPLEX)
-    list(APPEND ADVANCED_EXAMPLES SymmetricEig SymmetricFunction)
+    list(APPEND ADVANCED_EXAMPLES SymmetricEig RealSymmetricFunction)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
   # Build the core test(s)

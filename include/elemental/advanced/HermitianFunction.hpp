@@ -37,17 +37,18 @@ namespace elemental {
 namespace advanced {
 namespace hermitian_function_util {
 
-// Distributed C := alpha A B^{T/H} + beta C
-template<typename R>
+// A :=  Z f(Omega) Z^T, where f is real-valued
+template<typename R,class RealFunctor>
 inline void
-ReformMatrix
+ReformHermitianMatrix
 ( UpperOrLower uplo,
         DistMatrix<R,MC,MR>& A,
   const DistMatrix<R,VR,STAR>& w,
-  const DistMatrix<R,MC,MR>& Z )
+  const DistMatrix<R,MC,MR>& Z,
+  const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::hermitian_function_util::ReformMatrix");
+    PushCallStack("advanced::hermitian_function_util::ReformHermitianMatrix");
 #endif
     const Grid& g = A.Grid();
 
@@ -62,7 +63,10 @@ ReformMatrix
     DistMatrix<R,STAR,MR  > Z1Trans_STAR_MR(g);
     DistMatrix<R,STAR,STAR> w1_STAR_STAR(g);
 
-    A.SetToZero();
+    if( uplo == LOWER )
+        A.MakeTrapezoidal( LEFT, UPPER, 1 );
+    else
+        A.MakeTrapezoidal( LEFT, LOWER, -1 );
     LockedPartitionRight( Z, ZL, ZR, 0 );
     LockedPartitionDown
     ( w, wT,
@@ -91,7 +95,7 @@ ReformMatrix
         const int localHeight = Z1_VR_STAR.LocalHeight();
         for( int j=0; j<width; ++j )
         {
-            const R omega = w1_STAR_STAR.GetLocalEntry(j,0);
+            const R omega = f(w1_STAR_STAR.GetLocalEntry(j,0));
             R* buffer = Z1_VR_STAR.LocalBuffer(0,j);
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
                 buffer[iLocal] *= omega;
@@ -120,16 +124,104 @@ ReformMatrix
 }
 
 #ifndef WITHOUT_COMPLEX
-template<typename R>
+// A :=  Z f(Omega) Z^T, where f is real-valued
+template<typename R,class RealFunctor>
 inline void
-ReformMatrix
+ReformHermitianMatrix
 ( UpperOrLower uplo,
         DistMatrix<std::complex<R>,MC,MR>& A,
   const DistMatrix<R,VR,STAR>& w,
-  const DistMatrix<std::complex<R>,MC,MR>& Z )
+  const DistMatrix<std::complex<R>,MC,MR>& Z,
+  const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::hermitian_function_util::ReformMatrix");
+    PushCallStack("advanced::hermitian_function_util::ReformHermitianMatrix");
+#endif
+    const Grid& g = A.Grid();
+    typedef std::complex<R> C;
+
+    DistMatrix<C,MC,MR> ZL(g), ZR(g),
+                        Z0(g), Z1(g), Z2(g);
+    DistMatrix<R,VR,STAR> wT(g),  w0(g),
+                          wB(g),  w1(g),
+                                  w2(g);
+
+    DistMatrix<C,MC,  STAR> Z1_MC_STAR(g);
+    DistMatrix<C,VR,  STAR> Z1_VR_STAR(g);
+    DistMatrix<C,STAR,MR  > Z1Adj_STAR_MR(g);
+    DistMatrix<R,STAR,STAR> w1_STAR_STAR(g);
+
+    if( uplo == LOWER )
+        A.MakeTrapezoidal( LEFT, UPPER, 1 );
+    else
+        A.MakeTrapezoidal( LEFT, LOWER, -1 );
+    LockedPartitionRight( Z, ZL, ZR, 0 );
+    LockedPartitionDown
+    ( w, wT,
+         wB, 0 );
+    while( ZL.Width() < Z.Width() )
+    {
+        LockedRepartitionRight
+        ( ZL, /**/ ZR,
+          Z0, /**/ Z1, Z2 );
+        LockedRepartitionDown
+        ( wT,  w0,
+         /**/ /**/
+               w1,
+          wB,  w2 );
+
+        Z1_MC_STAR.AlignWith( A );
+        Z1_VR_STAR.AlignWith( A );
+        Z1Adj_STAR_MR.AlignWith( A );
+        //--------------------------------------------------------------------//
+        Z1_MC_STAR = Z1;
+        Z1_VR_STAR = Z1_MC_STAR;
+        w1_STAR_STAR = w1;
+
+        // Scale Z1[VR,* ] with the modified eigenvalues
+        const int width = Z1_VR_STAR.Width();
+        const int localHeight = Z1_VR_STAR.LocalHeight();
+        for( int j=0; j<width; ++j )
+        {
+            const R omega = f(w1_STAR_STAR.GetLocalEntry(j,0));
+            C* buffer = Z1_VR_STAR.LocalBuffer(0,j);
+            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+                buffer[iLocal] *= omega;
+        }
+
+        Z1Adj_STAR_MR.AdjointFrom( Z1_VR_STAR );
+        basic::internal::LocalTrrk
+        ( uplo, (C)1, Z1_MC_STAR, Z1Adj_STAR_MR, (C)1, A );
+        //--------------------------------------------------------------------//
+        Z1Adj_STAR_MR.FreeAlignments();
+        Z1_VR_STAR.FreeAlignments();
+        Z1_MC_STAR.FreeAlignments();
+
+        SlideLockedPartitionDown
+        ( wT,  w0,
+               w1,
+         /**/ /**/
+          wB,  w2 );
+        SlideLockedPartitionRight
+        ( ZL,     /**/ ZR,
+          Z0, Z1, /**/ Z2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// A :=  Z f(Omega) Z^T, where f is complex-valued
+template<typename R,class ComplexFunctor>
+inline void
+ReformNormalMatrix
+(       DistMatrix<std::complex<R>,MC,MR>& A,
+  const DistMatrix<R,VR,STAR>& w,
+  const DistMatrix<std::complex<R>,MC,MR>& Z,
+  const ComplexFunctor& f )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::hermitian_function_util::ReformNormalMatrix");
 #endif
     const Grid& g = A.Grid();
     typedef std::complex<R> C;
@@ -174,15 +266,15 @@ ReformMatrix
         const int localHeight = Z1_VR_STAR.LocalHeight();
         for( int j=0; j<width; ++j )
         {
-            const R omega = w1_STAR_STAR.GetLocalEntry(j,0);
+            const C conjOmega = Conj(f(w1_STAR_STAR.GetLocalEntry(j,0)));
             C* buffer = Z1_VR_STAR.LocalBuffer(0,j);
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                buffer[iLocal] *= omega;
+                buffer[iLocal] *= conjOmega;
         }
 
         Z1Adj_STAR_MR.AdjointFrom( Z1_VR_STAR );
-        basic::internal::LocalTrrk
-        ( uplo, (C)1, Z1_MC_STAR, Z1Adj_STAR_MR, (C)1, A );
+        basic::internal::LocalGemm
+        ( NORMAL, NORMAL, (C)1, Z1_MC_STAR, Z1Adj_STAR_MR, (C)1, A );
         //--------------------------------------------------------------------//
         Z1Adj_STAR_MR.FreeAlignments();
         Z1_VR_STAR.FreeAlignments();
@@ -207,16 +299,18 @@ ReformMatrix
 } // namespace advanced
 } // namespace elemental
 
-//----------------------------------------------------------------------------//
-// Grab the full set of eigenpairs of the real, symmetric matrix A            //
-//----------------------------------------------------------------------------//
-template<typename R,class EigFunctor>
+//
+// Modify the eigenvalues of A with the real-valued function f, which will 
+// therefore result in a Hermitian matrix, which we store in-place.
+//
+
+template<typename R,class RealFunctor>
 inline void
-elemental::advanced::HermitianFunction
-( UpperOrLower uplo, DistMatrix<R,MC,MR>& A, EigFunctor f )
+elemental::advanced::RealHermitianFunction
+( UpperOrLower uplo, DistMatrix<R,MC,MR>& A, const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianFunction");
+    PushCallStack("advanced::RealHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -227,33 +321,22 @@ elemental::advanced::HermitianFunction
     DistMatrix<R,MC,MR> Z(g);
     advanced::HermitianEig( uplo, A, w, Z );
 
-    // Modify the eigenvalues
-    const int numLocalEigvals = w.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalEigvals; ++iLocal )
-    {
-        const R omega = w.GetLocalEntry(iLocal,0);
-        w.SetLocalEntry(iLocal,0,f(omega));
-    }
-
-    // Form the custom outer product, Z Omega Z^T
-    hermitian_function_util::ReformMatrix( uplo, A, w, Z );
+    // Form the custom outer product, Z f(Omega) Z^T
+    hermitian_function_util::ReformHermitianMatrix( uplo, A, w, Z, f );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
 #ifndef WITHOUT_COMPLEX
-//----------------------------------------------------------------------------//
-// Grab the full set of eigenpairs of the complex, Hermitian matrix A         //
-//----------------------------------------------------------------------------//
-template<typename R,class EigFunctor>
+template<typename R,class RealFunctor>
 inline void
-elemental::advanced::HermitianFunction
+elemental::advanced::RealHermitianFunction
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,MR>& A, EigFunctor f )
+  DistMatrix<std::complex<R>,MC,MR>& A, const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianFunction");
+    PushCallStack("advanced::RealHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -264,16 +347,40 @@ elemental::advanced::HermitianFunction
     DistMatrix<std::complex<R>,MC,MR> Z(g);
     advanced::HermitianEig( uplo, A, w, Z );
 
-    // Modify the eigenvalues
-    const int numLocalEigvals = w.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalEigvals; ++iLocal )
-    {
-        const R omega = w.GetLocalEntry(iLocal,0);
-        w.SetLocalEntry(iLocal,0,f(omega));
-    }
+    // Form the custom outer product, Z f(Omega) Z^H
+    hermitian_function_util::ReformHermitianMatrix( uplo, A, w, Z, f );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
-    // Form the custom outer product, Z Omega Z^H
-    hermitian_function_util::ReformMatrix( uplo, A, w, Z );
+//
+// Modify the eigenvalues of A with the complex-valued function f, which will
+// therefore result in a normal (in general, non-Hermitian) matrix, which we 
+// store in-place. At some point a version will be written which takes a real
+// symmetric matrix as input and produces a complex normal matrix.
+//
+
+template<typename R,class ComplexFunctor>
+inline void
+elemental::advanced::ComplexHermitianFunction
+( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A, 
+  const ComplexFunctor& f )
+{
+#ifndef RELEASE
+    PushCallStack("advanced::ComplexHermitianFunction");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square");
+
+    // Get the EVD of A
+    const Grid& g = A.Grid();
+    DistMatrix<R,VR,STAR> w(g);
+    DistMatrix<std::complex<R>,MC,MR> Z(g);
+    advanced::HermitianEig( uplo, A, w, Z );
+
+    // Form the custom outer product, Z f(Omega) Z^H
+    hermitian_function_util::ReformNormalMatrix( A, w, Z, f );
 #ifndef RELEASE
     PopCallStack();
 #endif

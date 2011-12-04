@@ -553,23 +553,31 @@ void HermitianEig
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
-// HermitianFunction (Hermitian matrix function)                              //
+// [Real/Complex]HermitianFunction                                            //
 //                                                                            //
 // Uses a Hermitian eigenvalue decomposition and the passed in functor to     //
 // modify the eigenvalues of the passed-in matrix.                            //
+//                                                                            //
+// When the functor's range is real, the resulting matrix will remain         //
+// Hermitian, but when the functor's range is complex, the matrix is only     //
+// normal (and hence the full matrix must be stored).                         //
 //----------------------------------------------------------------------------//
 
 #ifndef WITHOUT_PMRRR
-// Grab the full set of eigenpairs of the real, symmetric matrix A
-template<typename R,class EigFunctor>
-void HermitianFunction
+template<typename R,class RealFunctor>
+void RealHermitianFunction
 ( UpperOrLower uplo, 
-  DistMatrix<R,MC,MR>& A, EigFunctor eigFunctor );
+  DistMatrix<R,MC,MR>& A, const RealFunctor& f );
 #ifndef WITHOUT_COMPLEX
-template<typename R,class EigFunctor>
-void HermitianFunction
+template<typename R,class RealFunctor>
+void RealHermitianFunction
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,MR>& A, EigFunctor eigFunctor );
+  DistMatrix<std::complex<R>,MC,MR>& A, const RealFunctor& f );
+
+template<typename R,class ComplexFunctor>
+void ComplexHermitianFunction
+( UpperOrLower uplo, 
+  DistMatrix<std::complex<R>,MC,MR>& A, const ComplexFunctor& f );
 #endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
