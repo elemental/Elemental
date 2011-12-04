@@ -582,6 +582,22 @@ void ComplexHermitianFunction
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
+// HermitianPseudoinverse                                                     //
+//                                                                            //
+// Specializes RealHermitianFunction routine to compute the pseudoinverse.    //
+//----------------------------------------------------------------------------//
+
+#ifndef WITHOUT_PMRRR
+template<typename R>
+void HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void HermitianPseudoinverse
+( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A );
+#endif // WITHOUT_COMPLEX
+#endif // WITHOUT_PMRRR
+
+//----------------------------------------------------------------------------//
 // HouseholderSolve:                                                          //
 //                                                                            //
 // Overwrite B with the solution of inv(A) B or inv(A)^H B, where A need not  //
@@ -1046,6 +1062,7 @@ void TriangularInverse
 #include "./advanced/HermitianFunction.hpp"
 #include "./advanced/HermitianGenDefiniteEig.hpp"
 #include "./advanced/HermitianNorm.hpp"
+#include "./advanced/HermitianPseudoinverse.hpp"
 #include "./advanced/HermitianTridiag.hpp"
 #include "./advanced/HouseholderSolve.hpp"
 #include "./advanced/HPDInverse.hpp"

@@ -33,7 +33,7 @@
 
 namespace elemental {
 namespace basic {
-namespace trr2k_util {
+namespace trr2k {
 
 #ifndef RELEASE
 // E := alpha (A B + C D) + beta E
@@ -2163,7 +2163,7 @@ LocalTrr2kKernel
 #endif
 }
 
-} // namespace trr2k_util
+} // namespace trr2k
 } // namespace basic
 } // namespace elemental
 
@@ -2176,7 +2176,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( A, B, C, D, E );
@@ -2245,7 +2245,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfD, A, B, C, D, E );
@@ -2319,7 +2319,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfC, A, B, C, D, E );
@@ -2390,7 +2390,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
@@ -2466,7 +2466,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfB, A, B, C, D, E );
@@ -2541,7 +2541,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
@@ -2620,7 +2620,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
@@ -2698,7 +2698,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
@@ -2776,7 +2776,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfA, A, B, C, D, E );
@@ -2847,7 +2847,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
@@ -2924,7 +2924,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
@@ -2996,7 +2996,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
@@ -3071,7 +3071,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
@@ -3149,7 +3149,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,  MR  >& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfA, orientationOfB, orientationOfD, A, B, C, D, E );
@@ -3229,7 +3229,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
@@ -3306,7 +3306,7 @@ elemental::basic::internal::LocalTrr2k
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E  )
 {
-    using namespace trr2k_util;
+    using namespace trr2k;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrr2k");
     CheckInput

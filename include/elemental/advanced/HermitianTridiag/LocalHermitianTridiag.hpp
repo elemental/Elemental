@@ -33,7 +33,7 @@
 
 namespace elemental {
 namespace advanced {
-namespace hermitian_tridiag_util {
+namespace hermitian_tridiag {
 
 template<typename R> // representation of a real number
 void
@@ -339,7 +339,7 @@ HermitianTridiagU
 }
 #endif // WITHOUT_COMPLEX
 
-} // namespace hermitian_tridiag_util
+} // namespace hermitian_tridiag
 } // namespace advanced
 } // namespace elemental
 
@@ -348,14 +348,13 @@ inline void
 elemental::advanced::HermitianTridiag
 ( UpperOrLower uplo, Matrix<R>& A )
 {
-    using namespace hermitian_tridiag_util;
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");
 #endif
     if( uplo == LOWER )
-        HermitianTridiagL( A );
+        hermitian_tridiag::HermitianTridiagL( A );
     else
-        HermitianTridiagU( A );
+        hermitian_tridiag::HermitianTridiagU( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -367,14 +366,13 @@ inline void
 elemental::advanced::HermitianTridiag
 ( UpperOrLower uplo, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {
-    using namespace hermitian_tridiag_util;
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");
 #endif
     if( uplo == LOWER )
-        HermitianTridiagL( A, t );
+        hermitian_tridiag::HermitianTridiagL( A, t );
     else
-        HermitianTridiagU( A, t );
+        hermitian_tridiag::HermitianTridiagU( A, t );
 #ifndef RELEASE
     PopCallStack();
 #endif

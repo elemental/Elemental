@@ -555,7 +555,8 @@ if(BUILD_EXAMPLES)
     if(NOT WITHOUT_COMPLEX)
       list(APPEND ADVANCED_EXAMPLES HermitianEig 
                                     ComplexHermitianFunction 
-                                    RealHermitianFunction)
+                                    RealHermitianFunction
+                                    HermitianPseudoinverse )
     endif(NOT WITHOUT_COMPLEX)
     list(APPEND ADVANCED_EXAMPLES SymmetricEig RealSymmetricFunction)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)

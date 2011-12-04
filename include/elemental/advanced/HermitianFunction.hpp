@@ -35,7 +35,7 @@
 
 namespace elemental {
 namespace advanced {
-namespace hermitian_function_util {
+namespace hermitian_function {
 
 // A :=  Z f(Omega) Z^T, where f is real-valued
 template<typename R,class RealFunctor>
@@ -48,7 +48,7 @@ ReformHermitianMatrix
   const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::hermitian_function_util::ReformHermitianMatrix");
+    PushCallStack("advanced::hermitian_function::ReformHermitianMatrix");
 #endif
     const Grid& g = A.Grid();
 
@@ -135,7 +135,7 @@ ReformHermitianMatrix
   const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::hermitian_function_util::ReformHermitianMatrix");
+    PushCallStack("advanced::hermitian_function::ReformHermitianMatrix");
 #endif
     const Grid& g = A.Grid();
     typedef std::complex<R> C;
@@ -221,7 +221,7 @@ ReformNormalMatrix
   const ComplexFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::hermitian_function_util::ReformNormalMatrix");
+    PushCallStack("advanced::hermitian_function::ReformNormalMatrix");
 #endif
     const Grid& g = A.Grid();
     typedef std::complex<R> C;
@@ -295,7 +295,7 @@ ReformNormalMatrix
 }
 #endif // WITHOUT_COMPLEX
 
-} // namespace hermitian_eig_util
+} // namespace hermitian_eig
 } // namespace advanced
 } // namespace elemental
 
@@ -319,10 +319,10 @@ elemental::advanced::RealHermitianFunction
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> w(g);
     DistMatrix<R,MC,MR> Z(g);
-    advanced::HermitianEig( uplo, A, w, Z );
+    HermitianEig( uplo, A, w, Z );
 
     // Form the custom outer product, Z f(Omega) Z^T
-    hermitian_function_util::ReformHermitianMatrix( uplo, A, w, Z, f );
+    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z, f );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -345,10 +345,10 @@ elemental::advanced::RealHermitianFunction
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> w(g);
     DistMatrix<std::complex<R>,MC,MR> Z(g);
-    advanced::HermitianEig( uplo, A, w, Z );
+    HermitianEig( uplo, A, w, Z );
 
     // Form the custom outer product, Z f(Omega) Z^H
-    hermitian_function_util::ReformHermitianMatrix( uplo, A, w, Z, f );
+    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z, f );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -377,10 +377,10 @@ elemental::advanced::ComplexHermitianFunction
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> w(g);
     DistMatrix<std::complex<R>,MC,MR> Z(g);
-    advanced::HermitianEig( uplo, A, w, Z );
+    HermitianEig( uplo, A, w, Z );
 
     // Form the custom outer product, Z f(Omega) Z^H
-    hermitian_function_util::ReformNormalMatrix( A, w, Z, f );
+    hermitian_function::ReformNormalMatrix( A, w, Z, f );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -33,7 +33,7 @@
 
 namespace elemental {
 namespace basic {
-namespace trrk_util {
+namespace trrk {
 
 #ifndef RELEASE
 // Local C := alpha A B + beta C
@@ -757,7 +757,7 @@ LocalTrrkKernel
 #endif
 }
 
-} // namespace trrk_util
+} // namespace trrk
 } // namespace basic
 } // namespace elemental
 
@@ -769,7 +769,7 @@ elemental::basic::internal::TrrkNN
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
-    using namespace trrk_util;
+    using namespace trrk;
 #ifndef RELEASE
     PushCallStack("basic::internal::TrrkNN");
     CheckInputNN( A, B, C );
@@ -820,7 +820,7 @@ elemental::basic::internal::LocalTrrk
            const DistMatrix<T,STAR,MR  >& B,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
-    using namespace trrk_util;
+    using namespace trrk;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrrk");
     CheckInput( A, B, C );
@@ -879,7 +879,7 @@ elemental::basic::internal::TrrkNT
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
-    using namespace trrk_util;
+    using namespace trrk;
 #ifndef RELEASE
     PushCallStack("basic::internal::TrrkNT");
     CheckInputNT( orientationOfB, A, B, C );
@@ -936,7 +936,7 @@ elemental::basic::internal::LocalTrrk
            const DistMatrix<T,MR,STAR>& B,
   T beta,        DistMatrix<T,MC,MR  >& C )
 {
-    using namespace trrk_util;
+    using namespace trrk;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrrk");
     CheckInput( orientationOfB, A, B, C );
@@ -1000,7 +1000,7 @@ elemental::basic::internal::TrrkTN
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
-    using namespace trrk_util;
+    using namespace trrk;
 #ifndef RELEASE
     PushCallStack("basic::internal::TrrkTN");
     CheckInputTN( orientationOfA, A, B, C );
@@ -1051,7 +1051,7 @@ elemental::basic::internal::LocalTrrk
            const DistMatrix<T,STAR,MR>& B,
   T beta,        DistMatrix<T,MC,  MR>& C )
 {
-    using namespace trrk_util;
+    using namespace trrk;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrrk");
     CheckInput( orientationOfA, A, B, C );
@@ -1109,7 +1109,7 @@ elemental::basic::internal::TrrkTT
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
-    using namespace trrk_util;
+    using namespace trrk;
 #ifndef RELEASE
     PushCallStack("basic::internal::TrrkTT");
     CheckInputTT( orientationOfA, orientationOfB, A, B, C );
@@ -1166,7 +1166,7 @@ elemental::basic::internal::LocalTrrk
            const DistMatrix<T,MR,  STAR>& B,
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
-    using namespace trrk_util;
+    using namespace trrk;
 #ifndef RELEASE
     PushCallStack("basic::internal::LocalTrrk");
     CheckInput( orientationOfA, orientationOfB, A, B, C );

@@ -45,7 +45,7 @@
 // eigensolver in order to minimize the temporary memory usage.
 namespace elemental {
 namespace advanced {
-namespace hermitian_eig_util {
+namespace hermitian_eig {
 inline void
 RealToRealInPlaceRedist
 ( DistMatrix<double,MC,MR>& paddedZ,
@@ -216,7 +216,7 @@ RealToComplexInPlaceRedist
 }
 #endif // WITHOUT_COMPLEX
 
-} // namespace hermitian_eig_util
+} // namespace hermitian_eig
 } // namespace advanced
 } // namespace elemental
 
@@ -230,7 +230,6 @@ elemental::advanced::HermitianEig
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& paddedZ )
 {
-    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -363,13 +362,9 @@ elemental::advanced::HermitianEig
             const int b = paddedZ1.Width();
             const int width = std::min(b,k-paddedZL.Width());
 
-            //----------------------------------------------------------------//
-
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            RealToRealInPlaceRedist
+            hermitian_eig::RealToRealInPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
-
-            //----------------------------------------------------------------//
 
             SlidePartitionRight
             ( paddedZL,           /**/ paddedZR,  
@@ -415,7 +410,6 @@ elemental::advanced::HermitianEig
   DistMatrix<double,MC,  MR>& paddedZ,
   int lowerBound, int upperBound )
 {
-    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -549,13 +543,9 @@ elemental::advanced::HermitianEig
             const int b = paddedZ1.Width();
             const int width = std::min(b,k-paddedZL.Width());
 
-            //----------------------------------------------------------------//
-
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            RealToRealInPlaceRedist
+            hermitian_eig::RealToRealInPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
-
-            //----------------------------------------------------------------//
 
             SlidePartitionRight
             ( paddedZL,           /**/ paddedZR,
@@ -599,7 +589,6 @@ elemental::advanced::HermitianEig
   DistMatrix<double,MC,  MR>& paddedZ,
   double lowerBound, double upperBound )
 {
-    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -745,13 +734,9 @@ elemental::advanced::HermitianEig
             const int b = paddedZ1.Width();
             const int width = std::min(b,k-paddedZL.Width());
 
-            //----------------------------------------------------------------//
-
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            RealToRealInPlaceRedist
+            hermitian_eig::RealToRealInPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
-
-            //----------------------------------------------------------------//
 
             SlidePartitionRight
             ( paddedZL,           /**/ paddedZR,
@@ -1078,7 +1063,6 @@ elemental::advanced::HermitianEig
   DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ )
 {
-    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -1212,13 +1196,9 @@ elemental::advanced::HermitianEig
             const int b = paddedZ1.Width();
             const int width = std::min(b,k-paddedZL.Width());
 
-            //----------------------------------------------------------------//
-
             // Z1[MC,MR] <- Z1[* ,VR]
-            RealToComplexInPlaceRedist
+            hermitian_eig::RealToComplexInPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
-
-            //----------------------------------------------------------------//
 
             SlidePartitionRight
             ( paddedZL,           /**/ paddedZR,
@@ -1265,7 +1245,6 @@ elemental::advanced::HermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   int lowerBound, int upperBound )
 {
-    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -1400,13 +1379,9 @@ elemental::advanced::HermitianEig
             const int b = paddedZ1.Width();
             const int width = std::min(b,k-paddedZL.Width());
 
-            //----------------------------------------------------------------//
-
             // Z1[MC,MR] <- Z1[* ,VR]
-            RealToComplexInPlaceRedist
+            hermitian_eig::RealToComplexInPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
-
-            //----------------------------------------------------------------//
 
             SlidePartitionRight
             ( paddedZL,           /**/ paddedZR,
@@ -1451,7 +1426,6 @@ elemental::advanced::HermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ,
   double lowerBound, double upperBound )
 {
-    using namespace hermitian_eig_util;
 #ifndef RELEASE
     PushCallStack("advanced::HermitianEig");
 #endif
@@ -1597,13 +1571,9 @@ elemental::advanced::HermitianEig
             const int b = paddedZ1.Width();
             const int width = std::min(b,k-paddedZL.Width());
 
-            //----------------------------------------------------------------//
-
             // Z1[MC,MR] <- Z1[* ,VR]
-            RealToComplexInPlaceRedist
+            hermitian_eig::RealToComplexInPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
-
-            //----------------------------------------------------------------//
 
             SlidePartitionRight
             ( paddedZL,           /**/ paddedZR,

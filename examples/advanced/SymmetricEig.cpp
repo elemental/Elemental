@@ -102,7 +102,7 @@ main( int argc, char* argv[] )
         //
 
         // Print our matrix.
-        H.Print("H:");
+        H.Print("H");
 
         // Print its trace
         const R trace = advanced::Trace( H );
@@ -118,18 +118,21 @@ main( int argc, char* argv[] )
         advanced::HermitianEig( LOWER, H, w, X ); // only access lower half of H
 
         // Print the eigensolution
-        w.Print("Eigenvalues of H:");
-        X.Print("Eigenvectors of H:");
+        w.Print("Eigenvalues of H");
+        X.Print("Eigenvectors of H");
 
         // Sort the eigensolution, then reprint
         advanced::SortEig( w, X );
-        w.Print("Sorted eigenvalues of H:");
-        X.Print("Sorted eigenvectors of H:");
+        w.Print("Sorted eigenvalues of H");
+        X.Print("Sorted eigenvectors of H");
     }
     catch( exception& e )
     {
         cerr << "Process " << commRank << " caught exception with message: "
              << e.what() << endl;
+#ifndef RELEASE
+        DumpCallStack();
+#endif
     }
 
     Finalize();
