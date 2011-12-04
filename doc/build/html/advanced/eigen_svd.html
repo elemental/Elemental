@@ -211,6 +211,14 @@ order (based on the eigenvalues).</p>
 When the user-defined function is real-valued, the result will remain Hermitian,
 but when the function is complex-valued, the result is best characterized as
 normal.</p>
+<p>When the user-defined function, say <img class="math" src="../_images/math/bb2c93730dbb48558bb3c4738c956c4e8f816437.png" alt="f"/>, is analytic, we can say much
+more about the result: if the eigenvalue decomposition of the
+Hermitian matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is <img class="math" src="../_images/math/efc8c3f5200c949f3cdba974936b91be0b6a9807.png" alt="A=Z \Omega Z^H"/>, then</p>
+<div class="math">
+<p><img src="../_images/math/8d5ba8aa264e83427bdc0599b419d15cc4876457.png" alt="f(A) = f(Z \Omega Z^H) = Z f(\Omega) Z^H."/></p>
+</div><p>Two important special cases are <img class="math" src="../_images/math/ac1c08876a0e5ed799dcd99c9fdba7cec3978228.png" alt="f(\lambda) = \exp(\lambda)"/> and
+<img class="math" src="../_images/math/e35eb2b96977d189df0be2f8dbe697e35cbdd220.png" alt="f(\lambda)=\exp(i \lambda)"/>, where the former results in a Hermitian
+matrix and the latter in a normal (in fact, unitary) matrix.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Since Elemental currently depends on PMRRR for its tridiagonal

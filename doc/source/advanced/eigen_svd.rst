@@ -129,7 +129,19 @@ Hermitian functions
 Reform the matrix with the eigenvalues modified by a user-defined function. 
 When the user-defined function is real-valued, the result will remain Hermitian,
 but when the function is complex-valued, the result is best characterized as 
-normal.
+normal. 
+
+When the user-defined function, say :math:`f`, is analytic, we can say much
+more about the result: if the eigenvalue decomposition of the 
+Hermitian matrix :math:`A` is :math:`A=Z \Omega Z^H`, then
+
+.. math::
+
+   f(A) = f(Z \Omega Z^H) = Z f(\Omega) Z^H.
+
+Two important special cases are :math:`f(\lambda) = \exp(\lambda)` and 
+:math:`f(\lambda)=\exp(i \lambda)`, where the former results in a Hermitian 
+matrix and the latter in a normal (in fact, unitary) matrix.
 
 .. note:: 
 
