@@ -220,7 +220,7 @@ eigensolver, only double-precision results are supported as of now.</p>
 <dt id="advanced::RealHermitianFunction__UpperOrLower.DistMatrix:R.MC.MR:R.RealFunctorCR">
 void <tt class="descclassname">advanced::</tt><tt class="descname">RealHermitianFunction</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em>, const RealFunctor&amp; <em>f</em><big>)</big><a class="headerlink" href="#advanced::RealHermitianFunction__UpperOrLower.DistMatrix:R.MC.MR:R.RealFunctorCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Modifies the eigenvalues of the passed-in real symmetric matrix by replacing
-each <img class="math" src="../_images/math/8fc80d5e036efbaf3de0e9dab053194a1e6676ee.png" alt="\omega_i"/> with <img class="math" src="../_images/math/0e908c184b35e991c28fa6abc15e5407a227b74a.png" alt="f(\omega_i) \in \mathbb{R}"/>.
+each eigenvalue <img class="math" src="../_images/math/8fc80d5e036efbaf3de0e9dab053194a1e6676ee.png" alt="\omega_i"/> with <img class="math" src="../_images/math/0e908c184b35e991c28fa6abc15e5407a227b74a.png" alt="f(\omega_i) \in \mathbb{R}"/>.
 <tt class="docutils literal"><span class="pre">RealFunctor</span></tt> is any
 class which has the member function <tt class="docutils literal"><span class="pre">R</span> <span class="pre">operator()(</span> <span class="pre">R</span> <span class="pre">omega</span> <span class="pre">)</span> <span class="pre">const</span></tt>.
 See <a class="reference external" href="../../../../examples/advanced/RealSymmetricFunction.cpp">examples/advanced/RealSymmetricFunction.cpp</a> for an example usage.</p>
@@ -230,7 +230,8 @@ See <a class="reference external" href="../../../../examples/advanced/RealSymmet
 <dt id="advanced::RealHermitianFunction__UpperOrLower.DistMatrix:std::complex:R:.MC.MR:R.RealFunctorCR">
 void <tt class="descclassname">advanced::</tt><tt class="descname">RealHermitianFunction</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, const RealFunctor&amp; <em>f</em><big>)</big><a class="headerlink" href="#advanced::RealHermitianFunction__UpperOrLower.DistMatrix:std::complex:R:.MC.MR:R.RealFunctorCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Modifies the eigenvalues of the passed-in complex Hermitian matrix by
-replacing each <img class="math" src="../_images/math/8fc80d5e036efbaf3de0e9dab053194a1e6676ee.png" alt="\omega_i"/> with <img class="math" src="../_images/math/0e908c184b35e991c28fa6abc15e5407a227b74a.png" alt="f(\omega_i) \in \mathbb{R}"/>.
+replacing each eigenvalue <img class="math" src="../_images/math/8fc80d5e036efbaf3de0e9dab053194a1e6676ee.png" alt="\omega_i"/> with
+<img class="math" src="../_images/math/0e908c184b35e991c28fa6abc15e5407a227b74a.png" alt="f(\omega_i) \in \mathbb{R}"/>.
 <tt class="docutils literal"><span class="pre">RealFunctor</span></tt> can be any class which has the member function
 <tt class="docutils literal"><span class="pre">R</span> <span class="pre">operator()(</span> <span class="pre">R</span> <span class="pre">omega</span> <span class="pre">)</span> <span class="pre">const</span></tt>.
 See <a class="reference external" href="../../../../examples/advanced/RealHermitianFunction.cpp">examples/advanced/RealHermitianFunction.cpp</a> for an example usage.</p>

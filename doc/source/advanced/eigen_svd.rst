@@ -139,7 +139,7 @@ normal.
 .. cpp:function:: void advanced::RealHermitianFunction( UpperOrLower uplo, DistMatrix<R,MC,MR>& A, const RealFunctor& f )
 
    Modifies the eigenvalues of the passed-in real symmetric matrix by replacing 
-   each :math:`\omega_i` with :math:`f(\omega_i) \in \mathbb{R}`. 
+   each eigenvalue :math:`\omega_i` with :math:`f(\omega_i) \in \mathbb{R}`. 
    ``RealFunctor`` is any 
    class which has the member function ``R operator()( R omega ) const``.
    See `examples/advanced/RealSymmetricFunction.cpp <../../../../examples/advanced/RealSymmetricFunction.cpp>`_ for an example usage.
@@ -147,7 +147,8 @@ normal.
 .. cpp:function:: void advanced::RealHermitianFunction( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A, const RealFunctor& f )
 
    Modifies the eigenvalues of the passed-in complex Hermitian matrix by 
-   replacing each :math:`\omega_i` with :math:`f(\omega_i) \in \mathbb{R}`. 
+   replacing each eigenvalue :math:`\omega_i` with 
+   :math:`f(\omega_i) \in \mathbb{R}`. 
    ``RealFunctor`` can be any class which has the member function 
    ``R operator()( R omega ) const``.
    See `examples/advanced/RealHermitianFunction.cpp <../../../../examples/advanced/RealHermitianFunction.cpp>`_ for an example usage.
