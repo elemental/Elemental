@@ -245,6 +245,27 @@ void Gather
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, int root, Comm comm );
 #endif
+
+void Gather
+( const byte* sbuf, int sc,
+        byte* rbuf, int* rcs, int* rds, int root, Comm comm );
+void Gather
+( const int* sbuf, int sc,
+        int* rbuf, int* rcs, int* rds, int root, Comm comm );
+void Gather
+( const float* sbuf, int sc,
+        float* rbuf, int* rcs, int* rds, int root, Comm comm );
+void Gather
+( const double* sbuf, int sc,
+        double* rbuf, int* rcs, int* rds, int root, Comm comm );
+#ifndef WITHOUT_COMPLEX
+void Gather
+( const scomplex* sbuf, int sc,
+        scomplex* rbuf, int* rcs, int* rds, int root, Comm comm );
+void Gather
+( const dcomplex* sbuf, int sc,
+        dcomplex* rbuf, int* rcs, int* rds, int root, Comm comm );
+#endif // WITHOUT_COMPLEX
  
 void AllGather
 ( const byte* sbuf, int sc,
