@@ -553,6 +553,27 @@ void HermitianEig
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
+// HermitianFunction (Hermitian matrix function)                              //
+//                                                                            //
+// Uses a Hermitian eigenvalue decomposition and the passed in functor to     //
+// modify the eigenvalues of the passed-in matrix.                            //
+//----------------------------------------------------------------------------//
+
+#ifndef WITHOUT_PMRRR
+// Grab the full set of eigenpairs of the real, symmetric matrix A
+template<typename R,class EigFunctor>
+void HermitianFunction
+( UpperOrLower uplo, 
+  DistMatrix<R,MC,MR>& A, EigFunctor eigFunctor );
+#ifndef WITHOUT_COMPLEX
+template<typename R,class EigFunctor>
+void HermitianFunction
+( UpperOrLower uplo, 
+  DistMatrix<std::complex<R>,MC,MR>& A, EigFunctor eigFunctor );
+#endif // WITHOUT_COMPLEX
+#endif // WITHOUT_PMRRR
+
+//----------------------------------------------------------------------------//
 // HouseholderSolve:                                                          //
 //                                                                            //
 // Overwrite B with the solution of inv(A) B or inv(A)^H B, where A need not  //
@@ -1014,6 +1035,7 @@ void TriangularInverse
 #include "./advanced/GaussianElimination.hpp"
 #include "./advanced/Hegst.hpp"
 #include "./advanced/HermitianEig.hpp"
+#include "./advanced/HermitianFunction.hpp"
 #include "./advanced/HermitianGenDefiniteEig.hpp"
 #include "./advanced/HermitianNorm.hpp"
 #include "./advanced/HermitianTridiag.hpp"

@@ -122,20 +122,20 @@ elemental::basic::internal::Trr2kNNTT
         B1Trans_MR_STAR.FreeAlignments();
         A1_MC_STAR.FreeAlignments();
 
-        SlidePartitionRight
+        SlideLockedPartitionRight
         ( DL,     /**/ DR,
           D0, D1, /**/ D2 );
-        SlidePartitionDown
+        SlideLockedPartitionDown
         ( CT,  C0,
                C1,
          /**/ /**/
           CB,  C2 );
-        SlidePartitionDown
+        SlideLockedPartitionDown
         ( BT,  B0,
                B1,
          /**/ /**/
           BB,  B2 );
-        SlidePartitionRight
+        SlideLockedPartitionRight
         ( AL,     /**/ AR,
           A0, A1, /**/ A2 );
     }

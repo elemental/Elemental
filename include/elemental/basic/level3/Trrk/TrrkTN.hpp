@@ -94,12 +94,12 @@ elemental::basic::internal::TrrkTN
         B1Trans_MR_STAR.FreeAlignments();
         A1_STAR_MC.FreeAlignments();
 
-        SlidePartitionDown
+        SlideLockedPartitionDown
         ( BT,  B0,
                B1,
          /**/ /**/
           BB,  B2 );
-        SlidePartitionDown
+        SlideLockedPartitionDown
         ( AT,  A0,
                A1,
          /**/ /**/

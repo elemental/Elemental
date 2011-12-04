@@ -90,10 +90,10 @@ elemental::basic::internal::TrrkNT
         B1_VR_STAR.FreeAlignments();
         A1_MC_STAR.FreeAlignments();
 
-        SlidePartitionRight
+        SlideLockedPartitionRight
         ( BL,     /**/ BR,
           B0, B1, /**/ B2 );
-        SlidePartitionRight
+        SlideLockedPartitionRight
         ( AL,     /**/ AR,
           A0, A1, /**/ A2 );
     }

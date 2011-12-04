@@ -427,15 +427,6 @@ file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${PROJECT_SOURCE_DIR}
      "src/*.c" "src/*.cpp")
 file(GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
      "include/*.h" "include/*.hpp")
-if(WITHOUT_PMRRR)
-  message(STATUS "Removing eigensolver source from Elemental")
-  list(REMOVE_ITEM ELEMENTAL_CPP
-       "src/advanced/HermitianEig/HermitianEig.cpp")
-  list(REMOVE_ITEM ELEMENTAL_CPP
-       "src/advanced/SkewHermitianEig/SkewHermitianEig.cpp")
-  list(REMOVE_ITEM ELEMENTAL_CPP
-       "src/advanced/HermitianGenDefiniteEig/HermitianGenDefiniteEig.cpp")
-endif(WITHOUT_PMRRR)
 set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
 # Create a dummy library in order to be able to force the math (and potentially
@@ -562,9 +553,9 @@ if(BUILD_EXAMPLES)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     if(NOT WITHOUT_COMPLEX)
-      list(APPEND ADVANCED_EXAMPLES HermitianEig)
+      list(APPEND ADVANCED_EXAMPLES HermitianEig HermitianFunction)
     endif(NOT WITHOUT_COMPLEX)
-    list(APPEND ADVANCED_EXAMPLES SymmetricEig)
+    list(APPEND ADVANCED_EXAMPLES SymmetricEig SymmetricFunction)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
   # Build the core test(s)
