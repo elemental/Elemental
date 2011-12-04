@@ -175,6 +175,50 @@ whether :math:`A` is treated as unit diagonal or not).
 
    The distributed implementation (templated over the datatype).
 
+Trr2k
+-----
+Triangular rank-2k update: performs 
+:math:`E := \alpha ( \mbox{op}(A) \mbox{op}(B) + \mbox{op}(C) \mbox{op}(D) ) + \beta E`,
+where only the triangle of `E` specified by `uplo` is modified, and 
+:math:`\mbox{op}(X)` is determined by `orientationOfX`, for each 
+:math:`X \in \left\{A,B,C,D\right\}`.
+
+.. note::
+
+   There is no corresponding BLAS routine, but it is a natural generalization
+   of "symmetric" and "Hermitian" updates.
+
+.. cpp:function:: void basic::Trr2k( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, Orientation orientationOfC, Orientation orientationOfD, T alpha, const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C, const Matrix<T>& D, T beta, Matrix<T>& E )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Trr2k( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, Orientation orientationOfC, Orientation orientationOfD, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D, T beta, DistMatrix<T,MC,MR>& E )
+
+   The distributed implementation (templated over the datatype).
+
+Trrk
+----
+Triangular rank-k update: performs 
+:math:`C := \alpha \mbox{op}(A) \mbox{op}(B) + \beta C`, where only the 
+triangle of `C` specified by `uplo` is modified, and :math:`\mbox{op}(A)` and 
+:math:`\mbox{op}(B)` are determined by `orientationOfA` and `orientationOfB`, 
+respectively.
+
+.. note::
+
+   There is no corresponding BLAS routine, but this type of update is frequently
+   encountered, even in serial. For instance, the symmetric rank-k update 
+   performed during an LDL factorization is symmetric but one of the 
+   two update matrices is scaled by D.
+
+.. cpp:function:: void basic::Trrk( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+
+   The serial implementation (templated over the datatype).
+
+.. cpp:function:: void basic::Trrk( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+
+   The distributed implementation (templated over the datatype).
+
 Trsm
 ----
 Triangular solve with multiple right-hand sides: performs

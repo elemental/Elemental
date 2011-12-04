@@ -213,7 +213,7 @@ ReformMatrix
 template<typename R,class EigFunctor>
 inline void
 elemental::advanced::HermitianFunction
-( UpperOrLower uplo, DistMatrix<R,MC,MR>& A, EigFunctor eigFunctor )
+( UpperOrLower uplo, DistMatrix<R,MC,MR>& A, EigFunctor f )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianFunction");
@@ -232,7 +232,7 @@ elemental::advanced::HermitianFunction
     for( int iLocal=0; iLocal<numLocalEigvals; ++iLocal )
     {
         const R omega = w.GetLocalEntry(iLocal,0);
-        w.SetLocalEntry(iLocal,0,eigFunctor(omega));
+        w.SetLocalEntry(iLocal,0,f(omega));
     }
 
     // Form the custom outer product, Z Omega Z^T
@@ -250,7 +250,7 @@ template<typename R,class EigFunctor>
 inline void
 elemental::advanced::HermitianFunction
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,MR>& A, EigFunctor eigFunctor )
+  DistMatrix<std::complex<R>,MC,MR>& A, EigFunctor f )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianFunction");
@@ -269,7 +269,7 @@ elemental::advanced::HermitianFunction
     for( int iLocal=0; iLocal<numLocalEigvals; ++iLocal )
     {
         const R omega = w.GetLocalEntry(iLocal,0);
-        w.SetLocalEntry(iLocal,0,eigFunctor(omega));
+        w.SetLocalEntry(iLocal,0,f(omega));
     }
 
     // Form the custom outer product, Z Omega Z^H

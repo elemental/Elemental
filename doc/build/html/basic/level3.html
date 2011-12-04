@@ -259,6 +259,58 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Trmm</tt><big>(<
 </dd></dl>
 
 </div>
+<div class="section" id="trr2k">
+<h2>Trr2k<a class="headerlink" href="#trr2k" title="Permalink to this headline">¶</a></h2>
+<p>Triangular rank-2k update: performs
+<img class="math" src="../_images/math/09416fb010cc94c0085742c7a3b1d0d316852781.png" alt="E := \alpha ( \mbox{op}(A) \mbox{op}(B) + \mbox{op}(C) \mbox{op}(D) ) + \beta E"/>,
+where only the triangle of <cite>E</cite> specified by <cite>uplo</cite> is modified, and
+<img class="math" src="../_images/math/8746f2560f8f027929ed2ff34bf20e58b62e3a3e.png" alt="\mbox{op}(X)"/> is determined by <cite>orientationOfX</cite>, for each
+<img class="math" src="../_images/math/557784c165bdd488a8ad3aa225c6beda48973b6b.png" alt="X \in \left\{A,B,C,D\right\}"/>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There is no corresponding BLAS routine, but it is a natural generalization
+of &#8220;symmetric&#8221; and &#8220;Hermitian&#8221; updates.</p>
+</div>
+<dl class="function">
+<dt id="basic::Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Trr2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfC</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfD</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, const Matrix&lt;T&gt;&amp; <em>C</em>, const Matrix&lt;T&gt;&amp; <em>D</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>E</em><big>)</big><a class="headerlink" href="#basic::Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Trr2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfC</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfD</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>D</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>E</em><big>)</big><a class="headerlink" href="#basic::Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="trrk">
+<h2>Trrk<a class="headerlink" href="#trrk" title="Permalink to this headline">¶</a></h2>
+<p>Triangular rank-k update: performs
+<img class="math" src="../_images/math/8a2b05ad42956576822fd98e4c7185542527b0fc.png" alt="C := \alpha \mbox{op}(A) \mbox{op}(B) + \beta C"/>, where only the
+triangle of <cite>C</cite> specified by <cite>uplo</cite> is modified, and <img class="math" src="../_images/math/7fc24681030cd4fbb78b30e05fb2ca510195f6f5.png" alt="\mbox{op}(A)"/> and
+<img class="math" src="../_images/math/af15b965fdff12da633b32eca2568af13b1ebcbe.png" alt="\mbox{op}(B)"/> are determined by <cite>orientationOfA</cite> and <cite>orientationOfB</cite>,
+respectively.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There is no corresponding BLAS routine, but this type of update is frequently
+encountered, even in serial. For instance, the symmetric rank-k update
+performed during an LDL factorization is symmetric but one of the
+two update matrices is scaled by D.</p>
+</div>
+<dl class="function">
+<dt id="basic::Trrk__UpperOrLower.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Trrk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Trrk__UpperOrLower.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The serial implementation (templated over the datatype).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="basic::Trrk__UpperOrLower.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descclassname">basic::</tt><tt class="descname">Trrk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Trrk__UpperOrLower.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distributed implementation (templated over the datatype).</p>
+</dd></dl>
+
+</div>
 <div class="section" id="trsm">
 <h2>Trsm<a class="headerlink" href="#trsm" title="Permalink to this headline">¶</a></h2>
 <p>Triangular solve with multiple right-hand sides: performs
@@ -304,6 +356,8 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Trsm</tt><big>(<
 <li><a class="reference internal" href="#syr2k">Syr2k</a></li>
 <li><a class="reference internal" href="#syrk">Syrk</a></li>
 <li><a class="reference internal" href="#trmm">Trmm</a></li>
+<li><a class="reference internal" href="#trr2k">Trr2k</a></li>
+<li><a class="reference internal" href="#trrk">Trrk</a></li>
 <li><a class="reference internal" href="#trsm">Trsm</a></li>
 </ul>
 </li>

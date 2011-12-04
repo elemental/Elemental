@@ -37,6 +37,7 @@ using namespace elemental;
 // Create a typedef for convenience
 typedef double R;
 
+// A functor for returning the exponential of a real number
 class ExpFunctor {
 public:
     R operator()( R alpha ) const { return std::exp(alpha); }
@@ -84,8 +85,10 @@ main( int argc, char* argv[] )
         // Print our matrix.
         H.Print("H");
 
+        // Reform the matrix with the exponentials of the original eigenvalues
         advanced::HermitianFunction( LOWER, H, ExpFunctor() );
 
+        // Print the exponential of the original matrix
         H.Print("exp(H)");
     }
     catch( exception& e )

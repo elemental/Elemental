@@ -124,6 +124,34 @@ routine from the following list:
    Sort a set of real eigenvalues and complex eigenvectors into non-decreasing
    order (based on the eigenvalues).
 
+Hermitian function
+------------------
+Reform the matrix with the eigenvalues modified by a user-defined function. 
+One possible use would be in computing the matrix exponential of a Hermitian 
+matrix. 
+
+.. note:: 
+
+   Since Elemental currently depends on PMRRR for its tridiagonal 
+   eigensolver, only double-precision results are supported as of now.
+
+.. cpp:function:: void advanced::HermitianFunction( UpperOrLower uplo, DistMatrix<R,MC,MR>& A, EigFunctor f )
+
+   Modifies the eigenvalues of the passed-in real symmetric matrix by replacing 
+   each :math:`\omega_i` with :math:`f(\omega_i)`. ``EigFunctor`` is any 
+   class which has the member function ``R operator()( R omega ) const``.
+   See `examples/advanced/SymmetricFunction.cpp <../../../../examples/advanced/SymmetricFunction.cpp>`_ for an example usage.
+
+.. cpp:function:: void advanced::HermitianFunction( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
+
+   Modifies the eigenvalues of the passed-in complex Hermitian matrix by 
+   replacing each :math:`\omega_i` with :math:`f(\omega_i)`. ``EigFunctor`` 
+   can be any class which has the member function 
+   ``R operator()( R omega ) const``.
+   See `examples/advanced/HermitianFunction.cpp <../../../../examples/advanced/HermitianFunction.cpp>`_ for an example usage.
+
+
+
 Skew-Hermitian eigensolver
 --------------------------
 **TODO:** Describe :math:`Gx=\lambda x` and ``advanced::SkewHermitianEig`` here.
