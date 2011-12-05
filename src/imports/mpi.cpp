@@ -1494,12 +1494,18 @@ elemental::mpi::Gather
     PushCallStack("mpi::Gather");
 #endif
 #ifdef AVOID_COMPLEX_MPI
+    const int commRank = mpi::CommRank( comm );
     const int commSize = mpi::CommSize( comm );
-    std::vector<int> rcsDouble(commSize), rdsDouble(commSize);
-    for( int i=0; i<commSize; ++i )
+    std::vector<int> rcsDouble, rdsDouble;
+    if( commRank == root )
     {
-        rcsDouble[i] = 2*rcs[i];
-        rdsDouble[i] = 2*rds[i];
+        rcsDouble.resize( commSize );
+        rdsDouble.resize( commSize );
+        for( int i=0; i<commSize; ++i )
+        {
+            rcsDouble[i] = 2*rcs[i];
+            rdsDouble[i] = 2*rds[i];
+        }
     }
     SafeMpi(
         MPI_Gatherv
@@ -1528,12 +1534,18 @@ elemental::mpi::Gather
     PushCallStack("mpi::Gather");
 #endif
 #ifdef AVOID_COMPLEX_MPI
+    const int commRank = mpi::CommRank( comm );
     const int commSize = mpi::CommSize( comm );
-    std::vector<int> rcsDouble(commSize), rdsDouble(commSize);
-    for( int i=0; i<commSize; ++i )
+    std::vector<int> rcsDouble, rdsDouble;
+    if( commRank == root )
     {
-        rcsDouble[i] = 2*rcs[i];
-        rdsDouble[i] = 2*rds[i];
+        rcsDouble.resize( commSize );
+        rdsDouble.resize( commSize );
+        for( int i=0; i<commSize; ++i )
+        {
+            rcsDouble[i] = 2*rcs[i];
+            rdsDouble[i] = 2*rds[i];
+        }
     }
     SafeMpi(
         MPI_Gatherv
