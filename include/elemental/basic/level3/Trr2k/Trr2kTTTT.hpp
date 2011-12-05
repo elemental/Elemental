@@ -34,7 +34,7 @@
 // Distributed E := alpha (A^{T/H} B^{T/H} + C^{T/H} D^{T/H}) + beta E
 template<typename T>
 inline void
-elemental::basic::internal::Trr2kTTNT
+elemental::basic::internal::Trr2kTTTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD, 
