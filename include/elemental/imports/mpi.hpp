@@ -60,8 +60,15 @@ const ErrorHandler ERRORS_ARE_FATAL = MPI_ERRORS_ARE_FATAL;
 const Group GROUP_EMPTY = MPI_GROUP_EMPTY;
 const Request REQUEST_NULL = MPI_REQUEST_NULL;
 const Op MAX = MPI_MAX;
+const Op MIN = MPI_MIN;
 const Op PROD = MPI_PROD;
 const Op SUM = MPI_SUM;
+const Op LOGICAL_AND = MPI_LAND;
+const Op LOGICAL_OR = MPI_LOR;
+const Op LOGICAL_XOR = MPI_LXOR;
+const Op BINARY_AND = MPI_BAND;
+const Op BINARY_OR = MPI_BOR;
+const Op BINARY_XOR = MPI_BXOR;
 
 // Added constant(s)
 const int MIN_COLL_MSG = 1; // minimum message size for collectives

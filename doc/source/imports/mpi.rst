@@ -102,6 +102,10 @@ Constants
 
    Equivalent to ``MPI_MAX``.
 
+.. cpp:member:: const mpi::Op mpi::MIN
+
+   Equivalent to ``MPI_MIN``.
+
 .. cpp:member:: const mpi::Op mpi::PROD
 
    Equivalent to ``MPI_PROD``.
@@ -109,6 +113,30 @@ Constants
 .. cpp:member:: const mpi::Op mpi::SUM
 
    Equivalent to ``MPI_SUM``.
+
+.. cpp:member:: const mpi::Op mpi::LOGICAL_AND
+
+   Equivalent to ``MPI_LAND``.
+
+.. cpp:member:: const mpi::Op mpi::LOGICAL_OR
+
+   Equivalent to ``MPI_LOR``.
+
+.. cpp:member:: const mpi::Op mpi::LOGICAL_XOR
+
+   Equivalent to ``MPI_LXOR``.
+
+.. cpp:member:: const mpi::Op mpi::BINARY_AND
+
+   Equivalent to ``MPI_BAND``.
+
+.. cpp:member:: const mpi::Op mpi::BINARY_OR
+
+   Equivalent to ``MPI_BOR``.
+
+.. cpp:member:: const mpi::Op mpi::BINARY_XOR
+
+   Equivalent to ``MPI_BXOR``.
 
 .. cpp:member:: const int mpi::MIN_COLL_MSG
 
