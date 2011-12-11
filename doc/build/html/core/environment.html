@@ -307,6 +307,24 @@ specify the error message.</p>
 </div>
 </dd></dl>
 
+<dl class="class">
+<dt id="NonHPSDMatrixException">
+<em class="property">class </em><tt class="descname">NonHPSDMatrixException</tt><a class="headerlink" href="#NonHPSDMatrixException" title="Permalink to this definition">¶</a></dt>
+<dd><p>An extension of <tt class="docutils literal"><span class="pre">std::runtime_error</span></tt> which is meant to be thrown when
+a non positive semi-definite Hermitian matrix is unexpectedly encountered
+(e.g., during computation of the square root of a Hermitian matrix).</p>
+<dl class="function">
+<dt id="NonHPSDMatrixException::NonHPSDMatrixException__cCP">
+ <tt class="descname">NonHPSDMatrixException</tt><big>(</big>const char* <em>msg</em><em>=&quot;Matrix was not HPSD&quot;</em><big>)</big><a class="headerlink" href="#NonHPSDMatrixException::NonHPSDMatrixException__cCP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds an instance of the exception which allows one to optionally
+specify the error message.</p>
+</dd></dl>
+
+<div class="highlight-cpp"><div class="highlight"><pre><span class="k">throw</span> <span class="n">elemental</span><span class="o">::</span><span class="n">NonHPSDMatrixException</span><span class="p">();</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </div>
 <div class="section" id="call-stack-manipulation">
 <h2>Call stack manipulation<a class="headerlink" href="#call-stack-manipulation" title="Permalink to this headline">¶</a></h2>

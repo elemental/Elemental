@@ -618,7 +618,7 @@ void HouseholderSolve
   DistMatrix<std::complex<R>,MC,MR>& B );
 
 //----------------------------------------------------------------------------//
-// HPDInverse:                                                              //
+// HPDInverse:                                                                //
 //                                                                            //
 // Inverts a Hermitian positive-definite matrix.                              //
 //----------------------------------------------------------------------------//
@@ -627,6 +627,42 @@ void HouseholderSolve
 
 template<typename F>
 void HPDInverse( UpperOrLower uplo, DistMatrix<F,MC,MR>& A );
+
+//----------------------------------------------------------------------------//
+// HPSDCholesky                                                               //
+//                                                                            //
+// Compute the Cholesky factors of a potentially singular HPSD matrix through //
+// the QR or LQ factorization of its matrix square-root:                      //
+//    If sqrtA*sqrtA = A, and QR=sqrtA, then sqrtA=sqrtA' implies             //
+//               R' Q' Q R = R' R = A,                                        //
+// and a similar argument yields L L' = A.                                    //
+//----------------------------------------------------------------------------//
+
+#ifndef WITHOUT_PMRRR
+template<typename R>
+void HPSDCholesky( UpperOrLower uplo, DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void HPSDCholesky( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A );
+#endif // WITHOUT_COMPLEX
+#endif // WITHOUT_PMRRR
+
+//----------------------------------------------------------------------------//
+// SquareRoot                                                                 //
+//                                                                            //
+// Compute the square-root of a Hermitian positive semi-definite matrix       //
+// through its eigenvalue decomposition:                                      //
+// A = U Lambda U^H => sqrt(A) = U sqrt(Lambda) U^H                           //
+//----------------------------------------------------------------------------//
+
+#ifndef WITHOUT_PMRRR
+template<typename R>
+void SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A );
+#ifndef WITHOUT_COMPLEX
+template<typename R>
+void SquareRoot( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A );
+#endif // WITHOUT_COMPLEX
+#endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
 // Inverse:                                                                   //
@@ -1066,6 +1102,7 @@ void TriangularInverse
 #include "./advanced/HermitianTridiag.hpp"
 #include "./advanced/HouseholderSolve.hpp"
 #include "./advanced/HPDInverse.hpp"
+#include "./advanced/HPSDCholesky.hpp"
 #include "./advanced/Inverse.hpp"
 #include "./advanced/LDL.hpp"
 #include "./advanced/LQ.hpp"
@@ -1076,6 +1113,7 @@ void TriangularInverse
 #include "./advanced/Reflector.hpp"
 #include "./advanced/SkewHermitianEig.hpp"
 #include "./advanced/SortEig.hpp"
+#include "./advanced/SquareRoot.hpp"
 #include "./advanced/Trace.hpp"
 #include "./advanced/TriangularInverse.hpp"
 

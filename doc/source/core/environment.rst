@@ -201,6 +201,21 @@ Custom exceptions
 
       throw elemental::NonHPDMatrixException();
 
+.. cpp:class:: NonHPSDMatrixException 
+
+   An extension of ``std::runtime_error`` which is meant to be thrown when
+   a non positive semi-definite Hermitian matrix is unexpectedly encountered
+   (e.g., during computation of the square root of a Hermitian matrix).
+
+   .. cpp:function:: NonHPSDMatrixException( const char* msg="Matrix was not HPSD" )
+
+      Builds an instance of the exception which allows one to optionally 
+      specify the error message.
+
+   .. code-block:: cpp
+
+      throw elemental::NonHPSDMatrixException();
+
 Call stack manipulation
 -----------------------
 

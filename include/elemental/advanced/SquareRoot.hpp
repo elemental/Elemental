@@ -35,7 +35,7 @@
 
 namespace elemental {
 namespace advanced {
-namespace hermitian_pseudoinverse {
+namespace hpsd_square_root {
 
 template<typename R>
 class Functor
@@ -46,28 +46,28 @@ public:
 
     R operator()( R alpha ) const
     {
-        if( Abs(alpha) < tolerance_ )    
-            return 0;
+        if( alpha >= 0 )
+            return sqrt(alpha);
         else
-            return 1/alpha;
+            return 0;
     }
 };
 
-} // namespace hermitian_pseudoinverse
+} // namespace hpsd_square_root
 } // namespace advanced
 } // namespace elemental
 
 //
-// Invert the sufficiently large eigenvalues of A.
+// Square root the eigenvalues of A (and treat the sufficiently small negative
+// ones as zero).
 //
 
 template<typename R>
 inline void
-elemental::advanced::HermitianPseudoinverse
-( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
+elemental::advanced::SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianPseudoinverse");
+    PushCallStack("advanced::SquareRoot");
 #endif
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -85,13 +85,24 @@ elemental::advanced::HermitianPseudoinverse
     R twoNorm;
     mpi::AllReduce( &maxLocalAbsEig, &twoNorm, 1, mpi::MAX, g.VCComm() );
 
+    // Compute the smallest eigenvalue of A
+    R minLocalEig = twoNorm;
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        minLocalEig = std::min(minLocalEig,w.GetLocalEntry(iLocal,0));
+    R minEig;
+    mpi::AllReduce( &minLocalEig, &minEig, 1, mpi::MIN, g.VCComm() );
+
     // Set the tolerance equal to n ||A||_2 eps
     const int n = A.Height();
     const R eps = lapack::MachineEpsilon<R>();
     const R tolerance = n*twoNorm*eps;
 
+    // Ensure that the minimum eigenvalue is not less than - n ||A||_2 eps
+    if( minEig < -tolerance )
+        throw NonHPSDMatrixException();
+
     // Form the pseudoinverse
-    hermitian_pseudoinverse::Functor<R> f( tolerance );
+    hpsd_square_root::Functor<R> f( tolerance );
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z, f );
 #ifndef RELEASE
     PopCallStack();
@@ -101,11 +112,11 @@ elemental::advanced::HermitianPseudoinverse
 #ifndef WITHOUT_COMPLEX
 template<typename R>
 inline void
-elemental::advanced::HermitianPseudoinverse
+elemental::advanced::SquareRoot
 ( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianPseudoinverse");
+    PushCallStack("advanced::SquareRoot");
 #endif
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -113,8 +124,8 @@ elemental::advanced::HermitianPseudoinverse
     DistMatrix<std::complex<R>,MC,MR> Z(g);
     HermitianEig( uplo, A, w, Z );
 
-    // Compute the two-norm of A as the maximum absolute value of its
-    // eigenvalues
+    // Compute the two-norm of A as the maximum absolute value 
+    // of its eigenvalues
     R maxLocalAbsEig = 0;
     const int localHeight = w.LocalHeight();
     for( int iLocal=0; iLocal<localHeight; ++iLocal )
@@ -123,13 +134,24 @@ elemental::advanced::HermitianPseudoinverse
     R twoNorm;
     mpi::AllReduce( &maxLocalAbsEig, &twoNorm, 1, mpi::MAX, g.VCComm() );
 
+    // Compute the smallest eigenvalue of A
+    R minLocalEig = twoNorm;
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        minLocalEig = std::min(minLocalEig,w.GetLocalEntry(iLocal,0));
+    R minEig;
+    mpi::AllReduce( &minLocalEig, &minEig, 1, mpi::MIN, g.VCComm() );
+
     // Set the tolerance equal to n ||A||_2 eps
     const int n = A.Height();
     const R eps = lapack::MachineEpsilon<R>();
     const R tolerance = n*twoNorm*eps;
 
+    // Ensure that the minimum eigenvalue is not less than - n ||A||_2 eps
+    if( minEig < -tolerance )
+        throw NonHPSDMatrixException();
+
     // Form the pseudoinverse
-    hermitian_pseudoinverse::Functor<R> f( tolerance );
+    hpsd_square_root::Functor<R> f( tolerance );
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z, f );
 #ifndef RELEASE
     PopCallStack();

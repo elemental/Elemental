@@ -80,6 +80,35 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">Inverse</tt><
 </dd></dl>
 
 </div>
+<div class="section" id="hermitian-pseudoinverse">
+<h2>Hermitian pseudoinverse<a class="headerlink" href="#hermitian-pseudoinverse" title="Permalink to this headline">¶</a></h2>
+<p>Computes the pseudoinverse of a Hermitian matrix through a customized version of
+<tt class="docutils literal"><span class="pre">advanced::RealHermitianFunction</span></tt> which used the eigenvalue mapping function</p>
+<div class="math">
+<p><img src="../_images/math/d1a898238083da90233e8848705c6a513277300f.png" alt="\[
+f(\omega_i) = \left\{\begin{array}{cc}
+  1/\omega_i, &amp; |\omega_i| \ge \epsilon \, n \, ||A||_2 \\
+      0,      &amp; \mbox{otherwise}
+\end{array}\right.,
+\]"/></p>
+</div><p>where <img class="math" src="../_images/math/eaf4418fbe935c15a606516d8f55dc380cd8e822.png" alt="\epsilon"/> is the relative machine precision,
+<img class="math" src="../_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/> is the height of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, and <img class="math" src="../_images/math/91bcc9c03ff7fa6ae822b009a2c3f69c5e355c5a.png" alt="||A||_2"/> can be computed
+as the maximum absolute value of the eigenvalues of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>.</p>
+<dl class="function">
+<dt id="advanced::HermitianPseudoinverse__UpperOrLower.DistMatrix:R.MC.MR:R">
+ <tt class="descclassname">advanced::</tt><tt class="descname">HermitianPseudoinverse</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HermitianPseudoinverse__UpperOrLower.DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the pseudoinverse of a distributed real symmetric matrix with data
+stored in the <cite>uplo</cite> triangle.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="advanced::HermitianPseudoinverse__UpperOrLower.DistMatrix:std::complex:R:.MC.MR:R">
+ <tt class="descclassname">advanced::</tt><tt class="descname">HermitianPseudoinverse</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HermitianPseudoinverse__UpperOrLower.DistMatrix:std::complex:R:.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the pseudoinverse of a distributed complex Hermitian matrix with
+data stored in the <cite>uplo</cite> triangle.</p>
+</dd></dl>
+
+</div>
 <div class="section" id="hpd-inversion">
 <h2>HPD inversion<a class="headerlink" href="#hpd-inversion" title="Permalink to this headline">¶</a></h2>
 <p>This routine uses a custom algorithm for computing the inverse of a
@@ -142,6 +171,7 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">TriangularInv
   <ul>
 <li><a class="reference internal" href="#">In-place inversion</a><ul>
 <li><a class="reference internal" href="#general-inversion">General inversion</a></li>
+<li><a class="reference internal" href="#hermitian-pseudoinverse">Hermitian pseudoinverse</a></li>
 <li><a class="reference internal" href="#hpd-inversion">HPD inversion</a></li>
 <li><a class="reference internal" href="#triangular-inversion">Triangular inversion</a></li>
 </ul>

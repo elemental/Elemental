@@ -75,6 +75,41 @@ void <tt class="descclassname">advanced::</tt><tt class="descname">Cholesky</tt>
 Cholesky factor.</p>
 </dd></dl>
 
+<p>It is also possible to form the Cholesky factors of Hermitian positive
+semi-definite (HPSD) matrices through their eigenvalue decomposition, though it
+is significantly more expensive than the HPD case: Let <img class="math" src="../_images/math/b0508dacb65f268df9af735e4faf60322d690b82.png" alt="A = U \Lambda U^H"/>
+be the eigenvalue decomposition of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, where all entries of <img class="math" src="../_images/math/2d295c3b71504a216422e5fffdfbad742c7add64.png" alt="\Lambda"/>
+are non-negative. Then <img class="math" src="../_images/math/df96f9f8a6b18c3a70feadae3c1e72455b776548.png" alt="B = U \sqrt \Lambda U^H"/> is the matrix square root
+of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, i.e., <img class="math" src="../_images/math/dcef07968874b907682ce329977421e0b0c38029.png" alt="B B = A"/>, and it follows that the QR and LQ
+factorizations of <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/> yield Cholesky factors of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>:</p>
+<div class="math">
+<p><img src="../_images/math/142cf591b24c8466ffc38b316cc9d4d173295a5c.png" alt="A = B B = B^H B = (Q R)^H (Q R) = R^H Q^H Q R = R^H R,"/></p>
+</div><p>and</p>
+<div class="math">
+<p><img src="../_images/math/af98144b75be122fad198d03171a620e24e0c184.png" alt="A = B B = B B^H = (L Q) (L Q)^H = L Q Q^H L^H = L L^H."/></p>
+</div><p>If <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is found to have eigenvalues less than <img class="math" src="../_images/math/60c039da126159e46c98e041d7652feb5fd08c9d.png" alt="-n \epsilon ||A||_2"/>,
+then a <tt class="docutils literal"><span class="pre">NonHPSDMatrixException</span></tt> will be thrown.</p>
+<dl class="function">
+<dt id="advanced::HPSDCholesky__UpperOrLower.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">HPSDCholesky</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::HPSDCholesky__UpperOrLower.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the <cite>uplo</cite> triangle of the distributed HPSD matrix <cite>A</cite> with its
+Cholesky factor.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="square-root">
+<h2>Square root<a class="headerlink" href="#square-root" title="Permalink to this headline">¶</a></h2>
+<p>As described above, Hermitian matrices with non-negative eigenvalues have a
+natural matrix square root through their eigenvalue decomposition. This routine
+attempts to compute said matrix square root and throws a
+<tt class="docutils literal"><span class="pre">NonHPSDMatrixException</span></tt> if any sufficiently negative eigenvalues are
+computed.</p>
+<dl class="function">
+<dt id="advanced::SquareRoot__UpperOrLower.DistMatrix:F.MC.MR:R">
+void <tt class="descclassname">advanced::</tt><tt class="descname">SquareRoot</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::SquareRoot__UpperOrLower.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites the distributed matrix <cite>A</cite> with its matrix square root.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="factorization">
 <h2><img class="math" src="../_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization<a class="headerlink" href="#factorization" title="Permalink to this headline">¶</a></h2>
@@ -250,6 +285,7 @@ Householder transformations and is stored in the column vector <cite>t</cite>.</
   <ul>
 <li><a class="reference internal" href="#">Factorizations</a><ul>
 <li><a class="reference internal" href="#cholesky-factorization">Cholesky factorization</a></li>
+<li><a class="reference internal" href="#square-root">Square root</a></li>
 <li><a class="reference internal" href="#factorization"><img class="math" src="../_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization</a></li>
 <li><a class="reference internal" href="#id1"><img class="math" src="../_images/math/5fbc3d9844e93a5532a86bf869c414323a828464.png" alt="LDL^T"/> factorization</a></li>
 <li><a class="reference internal" href="#id2"><img class="math" src="../_images/math/f41c1b0893f231128abe8ae33a92b366d6c65db3.png" alt="LU"/> factorization</a></li>

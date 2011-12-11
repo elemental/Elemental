@@ -13,7 +13,7 @@ solution of the Hermitian eigenvalue problem
 where `A` is the given Hermitian matrix, and unitary `Z` and real diagonal 
 :math:`\Omega` are sought. In particular, with the eigenvalues and 
 corresponding eigenpairs labeled in non-decreasing order, the three basic 
-modes are::
+modes are:
 
 1. Compute all eigenvalues or eigenpairs, :math:`\{\omega_i\}_{i=0}^{n-1}` or 
    :math:`\{(x_i,\omega_i)\}_{i=0}^{n-1}`.
@@ -173,35 +173,6 @@ matrix and the latter in a normal (in fact, unitary) matrix.
    which has the member function ``std::complex<R> operator()( R omega ) const``.
    See `examples/advanced/ComplexHermitianFunction.cpp <../../../../examples/advanced/ComplexHermitianFunction.cpp>`_ for an example usage.
 
-Hermitian pseudoinverse
------------------------
-Computes the pseudoinverse of a Hermitian matrix through a customized version of 
-``advanced::RealHermitianFunction`` which used the eigenvalue mapping function
-
-.. math::
-   :nowrap:
-
-   \[
-   f(\omega_i) = \left\{\begin{array}{cc} 
-     1/\omega_i, & |\omega_i| \ge \epsilon \, n \, ||A||_2 \\
-         0,      & \mbox{otherwise}
-   \end{array}\right.,
-   \]
-
-where :math:`\epsilon` is the relative machine precision, 
-:math:`n` is the height of :math:`A`, and :math:`||A||_2` can be computed
-as the maximum absolute value of the eigenvalues of :math:`A`.
-
-.. cpp:function:: advanced::HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
-
-   Computes the pseudoinverse of a distributed real symmetric matrix with data 
-   stored in the `uplo` triangle.
-
-.. cpp:function:: advanced::HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
-
-   Computes the pseudoinverse of a distributed complex Hermitian matrix with 
-   data stored in the `uplo` triangle.
- 
 Skew-Hermitian eigensolver
 --------------------------
 **TODO:** Describe :math:`Gx=\lambda x` and ``advanced::SkewHermitianEig`` here.

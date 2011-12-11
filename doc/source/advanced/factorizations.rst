@@ -18,6 +18,42 @@ a ``NonHPDMatrixException`` will be thrown.
    Overwrite the `uplo` triangle of the distributed HPD matrix `A` with its 
    Cholesky factor.
 
+It is also possible to form the Cholesky factors of Hermitian positive 
+semi-definite (HPSD) matrices through their eigenvalue decomposition, though it 
+is significantly more expensive than the HPD case: Let :math:`A = U \Lambda U^H`
+be the eigenvalue decomposition of :math:`A`, where all entries of :math:`\Lambda`
+are non-negative. Then :math:`B = U \sqrt \Lambda U^H` is the matrix square root
+of :math:`A`, i.e., :math:`B B = A`, and it follows that the QR and LQ 
+factorizations of :math:`B` yield Cholesky factors of :math:`A`:
+
+.. math::
+   A = B B = B^H B = (Q R)^H (Q R) = R^H Q^H Q R = R^H R,
+
+and
+
+.. math::
+   A = B B = B B^H = (L Q) (L Q)^H = L Q Q^H L^H = L L^H.
+
+If :math:`A` is found to have eigenvalues less than :math:`-n \epsilon ||A||_2`, 
+then a ``NonHPSDMatrixException`` will be thrown.
+
+.. cpp:function:: void advanced::HPSDCholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+
+   Overwrite the `uplo` triangle of the distributed HPSD matrix `A` with its
+   Cholesky factor.
+
+Square root
+-----------
+As described above, Hermitian matrices with non-negative eigenvalues have a 
+natural matrix square root through their eigenvalue decomposition. This routine 
+attempts to compute said matrix square root and throws a 
+``NonHPSDMatrixException`` if any sufficiently negative eigenvalues are 
+computed.
+
+.. cpp:function:: void advanced::SquareRoot( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+
+   Overwrites the distributed matrix `A` with its matrix square root.
+
 :math:`LDL^H` factorization
 ---------------------------
 Though the Cholesky factorization is ideal for most HPD matrices, there exist 
