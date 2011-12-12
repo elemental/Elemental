@@ -155,7 +155,6 @@ main( int argc, char* argv[] )
         ( printMatrices, side, uplo, orientation, diagonal, 
           m, n, (double)3, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -165,7 +164,6 @@ main( int argc, char* argv[] )
         TestTrsm<dcomplex>
         ( printMatrices, side, uplo, orientation, diagonal, 
           m, n, (dcomplex)3, g );
-#endif
     }
     catch( exception& e )
     {

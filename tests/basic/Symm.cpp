@@ -160,7 +160,6 @@ main( int argc, char* argv[] )
         TestSymm<double>
         ( side, uplo, m, n, (double)3, (double)4, printMatrices, g ); 
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -169,7 +168,6 @@ main( int argc, char* argv[] )
         }
         TestSymm<dcomplex>
         ( side, uplo, m, n, (dcomplex)3, (dcomplex)4, printMatrices, g ); 
-#endif
     }
     catch( exception& e )
     {

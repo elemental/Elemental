@@ -283,7 +283,7 @@ CheckInput
         throw std::logic_error( msg.str().c_str() );
     }
 }
-#endif // WITHOUT_COMPLEX
+#endif // ifndef RELEASE
 
 // Local C := alpha A B + beta C
 template<typename T>

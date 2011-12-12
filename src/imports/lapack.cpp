@@ -248,7 +248,6 @@ elemental::lapack::Cholesky
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::lapack::Cholesky
 ( char uplo, int n, const scomplex* A, int lda )
@@ -292,7 +291,6 @@ elemental::lapack::Cholesky
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 //
 // LU factorization
@@ -342,7 +340,6 @@ elemental::lapack::LU
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::lapack::LU
 ( int m, int n, scomplex* A, int lda, int* p )
@@ -386,7 +383,6 @@ elemental::lapack::LU
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 //
 // Reduced a well-conditioned Hermitian generalized definite EVP to 
@@ -435,7 +431,6 @@ elemental::lapack::Hegst
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::lapack::Hegst
 ( int itype, char uplo, int n,
@@ -477,7 +472,6 @@ elemental::lapack::Hegst
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 //
 // Triangular inversion
@@ -527,7 +521,6 @@ elemental::lapack::TriangularInverse
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::lapack::TriangularInverse
 ( char uplo, char diag, int n, const scomplex* A, int lda )
@@ -571,5 +564,4 @@ elemental::lapack::TriangularInverse
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 

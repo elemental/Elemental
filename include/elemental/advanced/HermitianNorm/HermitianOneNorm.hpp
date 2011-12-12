@@ -72,7 +72,6 @@ elemental::advanced::internal::HermitianOneNorm
     return maxColSum;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianOneNorm
@@ -114,7 +113,6 @@ elemental::advanced::internal::HermitianOneNorm
 #endif
     return maxColSum;
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename R> // representation of a real number
 inline R
@@ -236,7 +234,6 @@ elemental::advanced::internal::HermitianOneNorm
     return maxColSum;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 R
 elemental::advanced::internal::HermitianOneNorm
@@ -355,4 +352,3 @@ elemental::advanced::internal::HermitianOneNorm
 #endif
     return maxColSum;
 }
-#endif // WITHOUT_COMPLEX

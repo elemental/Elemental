@@ -35,7 +35,7 @@
 
 namespace elemental {
 namespace advanced {
-namespace hpsd_square_root {
+namespace square_root {
 
 template<typename R>
 class Functor
@@ -53,7 +53,7 @@ public:
     }
 };
 
-} // namespace hpsd_square_root
+} // namespace square_root
 } // namespace advanced
 } // namespace elemental
 
@@ -102,14 +102,13 @@ elemental::advanced::SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
         throw NonHPSDMatrixException();
 
     // Form the pseudoinverse
-    hpsd_square_root::Functor<R> f( tolerance );
+    square_root::Functor<R> f( tolerance );
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z, f );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 inline void
 elemental::advanced::SquareRoot
@@ -151,11 +150,10 @@ elemental::advanced::SquareRoot
         throw NonHPSDMatrixException();
 
     // Form the pseudoinverse
-    hpsd_square_root::Functor<R> f( tolerance );
+    square_root::Functor<R> f( tolerance );
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z, f );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR

@@ -37,10 +37,8 @@ namespace elemental {
 
 typedef unsigned char byte;
  
-#ifndef WITHOUT_COMPLEX
 typedef std::complex<float>  scomplex; 
 typedef std::complex<double> dcomplex;
-#endif
 
 // For the safe computation of products. The result is given by 
 //   product = rho * exp(kappa*n)

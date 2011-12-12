@@ -130,7 +130,6 @@ elemental::advanced::HouseholderSolve
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HouseholderSolve
@@ -235,4 +234,3 @@ elemental::advanced::HouseholderSolve
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX

@@ -240,7 +240,6 @@ elemental::advanced::HermitianGenDefiniteEig
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 // Grab the full set of eigenpairs
 template<typename R> // representation of a real number
 inline void
@@ -459,5 +458,4 @@ elemental::advanced::HermitianGenDefiniteEig
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR

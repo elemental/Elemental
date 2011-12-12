@@ -145,7 +145,6 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVF
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::internal::ApplyPackedReflectorsLLVF
@@ -285,4 +284,3 @@ elemental::advanced::internal::ApplyPackedReflectorsLLVF
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX

@@ -182,7 +182,6 @@ main( int argc, char* argv[] )
         TestTriangularInverse<double>
         ( testCorrectness, printMatrices, uplo, diagonal, m, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -191,7 +190,6 @@ main( int argc, char* argv[] )
         }
         TestTriangularInverse<dcomplex>
         ( testCorrectness, printMatrices, uplo, diagonal, m, g );
-#endif
     }
     catch( exception& e )
     {

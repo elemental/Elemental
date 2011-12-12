@@ -481,7 +481,6 @@ elemental::mpi::GetCount<double>( mpi::Status& status )
     return count;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 int
 elemental::mpi::GetCount<elemental::scomplex>( mpi::Status& status )
@@ -511,7 +510,6 @@ elemental::mpi::GetCount<elemental::dcomplex>( mpi::Status& status )
 #endif
     return count;
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::Send
@@ -712,7 +710,6 @@ elemental::mpi::ISSend
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::Send
 ( const scomplex* buf, int count, int to, int tag, mpi::Comm comm )
@@ -862,7 +859,6 @@ elemental::mpi::ISSend
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::Recv
@@ -980,7 +976,6 @@ elemental::mpi::IRecv
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::Recv
 ( scomplex* buf, int count, int from, int tag, mpi::Comm comm )
@@ -1060,7 +1055,6 @@ elemental::mpi::IRecv
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::SendRecv
@@ -1138,7 +1132,6 @@ elemental::mpi::SendRecv
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::SendRecv
 ( const scomplex* sbuf, int sc, int to,   int stag,
@@ -1196,7 +1189,6 @@ elemental::mpi::SendRecv
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::Broadcast
@@ -1250,7 +1242,6 @@ elemental::mpi::Broadcast
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::Broadcast
 ( scomplex* buf, int count, int root, mpi::Comm comm )
@@ -1284,7 +1275,6 @@ elemental::mpi::Broadcast
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::Gather
@@ -1358,7 +1348,6 @@ elemental::mpi::Gather
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::Gather
 ( const scomplex* sbuf, int sc,
@@ -1410,7 +1399,6 @@ elemental::mpi::Gather
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::Gather
@@ -1484,7 +1472,6 @@ elemental::mpi::Gather
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::Gather
 ( const scomplex* sbuf, int sc,
@@ -1565,7 +1552,6 @@ elemental::mpi::Gather
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::AllGather
@@ -1664,7 +1650,6 @@ elemental::mpi::AllGather
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::AllGather
 ( const scomplex* sbuf, int sc,
@@ -1734,7 +1719,6 @@ elemental::mpi::AllGather
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::Scatter
@@ -1808,7 +1792,6 @@ elemental::mpi::Scatter
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::Scatter
 ( const scomplex* sbuf, int sc,
@@ -1860,7 +1843,6 @@ elemental::mpi::Scatter
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::AllToAll
@@ -1934,7 +1916,6 @@ elemental::mpi::AllToAll
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::AllToAll
 ( const scomplex* sbuf, int sc,
@@ -1986,7 +1967,6 @@ elemental::mpi::AllToAll
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::AllToAll
@@ -2088,7 +2068,6 @@ elemental::mpi::AllToAll
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::AllToAll
 ( const scomplex* sbuf, const int* scs, const int* sds,
@@ -2184,7 +2163,6 @@ elemental::mpi::AllToAll
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::Reduce
@@ -2341,7 +2319,6 @@ elemental::mpi::Reduce
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::Reduce
 ( const scomplex* sbuf, scomplex* rbuf, int count, mpi::Op op, int root, 
@@ -2492,7 +2469,6 @@ elemental::mpi::Reduce
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::AllReduce
@@ -2644,7 +2620,6 @@ elemental::mpi::AllReduce
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::AllReduce
 ( const scomplex* sbuf, scomplex* rbuf, int count, mpi::Op op, mpi::Comm comm )
@@ -2791,7 +2766,6 @@ elemental::mpi::AllReduce
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 void
 elemental::mpi::ReduceScatter
@@ -2861,7 +2835,6 @@ elemental::mpi::ReduceScatter
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 void
 elemental::mpi::ReduceScatter
 ( const scomplex* sbuf, scomplex* rbuf, const int* rcs, mpi::Op op, 
@@ -2945,5 +2918,4 @@ elemental::mpi::ReduceScatter
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 

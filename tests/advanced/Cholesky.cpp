@@ -207,9 +207,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         basic::SetLocalTrrkBlocksize<double>( nbLocal );
-#ifndef WITHOUT_COMPLEX
         basic::SetLocalTrrkBlocksize<complex<double> >( nbLocal );
-#endif
 
         if( rank == 0 )
             cout << "Will test Cholesky" << UpperOrLowerToChar(uplo) << endl;
@@ -223,7 +221,6 @@ main( int argc, char* argv[] )
         TestCholesky<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -232,7 +229,6 @@ main( int argc, char* argv[] )
         }
         TestCholesky<dcomplex>
         ( testCorrectness, printMatrices, uplo, m, g );
-#endif
     }
     catch( exception& e )
     {

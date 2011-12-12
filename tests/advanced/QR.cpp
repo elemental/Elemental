@@ -118,7 +118,6 @@ void TestCorrectness
     }
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
@@ -192,7 +191,6 @@ void TestCorrectness
              << "    ||A - QR||_F  = " << frobNormOfError << endl;
     }
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename F> // represents a real or complex field
 void TestQR
@@ -251,7 +249,6 @@ void TestQR<double>
         TestCorrectness( printMatrices, A, AOrig );
 }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 void TestQR< complex<double> >
 ( bool testCorrectness, bool printMatrices,
@@ -304,7 +301,6 @@ void TestQR< complex<double> >
     if( testCorrectness )
         TestCorrectness( printMatrices, A, t, AOrig );
 }
-#endif
 
 int 
 main( int argc, char* argv[] )
@@ -354,7 +350,6 @@ main( int argc, char* argv[] )
         TestQR<double>
         ( testCorrectness, printMatrices, m, n, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -363,7 +358,6 @@ main( int argc, char* argv[] )
         }
         TestQR<dcomplex>
         ( testCorrectness, printMatrices, m, n, g );
-#endif
     }
     catch( exception& e )
     {

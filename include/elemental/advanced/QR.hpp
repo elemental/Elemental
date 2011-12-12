@@ -95,7 +95,6 @@ elemental::advanced::QR( DistMatrix<R,MC,MR>& A )
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::QR
@@ -184,4 +183,3 @@ elemental::advanced::QR
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX

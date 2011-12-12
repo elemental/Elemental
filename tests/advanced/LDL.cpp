@@ -196,9 +196,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         basic::SetLocalTrrkBlocksize<double>( nbLocal );
-#ifndef WITHOUT_COMPLEX
         basic::SetLocalTrrkBlocksize<complex<double> >( nbLocal );
-#endif
 
         if( rank == 0 )
             cout << "Will test LDL" << (conjugated?"^H":"^T") << endl;
@@ -212,7 +210,6 @@ main( int argc, char* argv[] )
         TestLDL<double>
         ( conjugated, testCorrectness, printMatrices, m, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -221,7 +218,6 @@ main( int argc, char* argv[] )
         }
         TestLDL<dcomplex>
         ( conjugated, testCorrectness, printMatrices, m, g );
-#endif
     }
     catch( exception& e )
     {

@@ -66,7 +66,6 @@ elemental::advanced::HermitianNorm
     return norm;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::HermitianNorm
@@ -96,7 +95,6 @@ elemental::advanced::HermitianNorm
 #endif
     return norm;
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename R> // representation of a real number
 inline R
@@ -128,7 +126,6 @@ elemental::advanced::HermitianNorm
     return norm;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::HermitianNorm
@@ -158,4 +155,3 @@ elemental::advanced::HermitianNorm
 #endif
     return norm;
 }
-#endif // WITHOUT_COMPLEX

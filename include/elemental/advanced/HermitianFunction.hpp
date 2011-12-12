@@ -123,7 +123,6 @@ ReformHermitianMatrix
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 // A :=  Z f(Omega) Z^T, where f is real-valued
 template<typename R,class RealFunctor>
 inline void
@@ -293,7 +292,6 @@ ReformNormalMatrix
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 } // namespace hermitian_eig
 } // namespace advanced
@@ -328,7 +326,6 @@ elemental::advanced::RealHermitianFunction
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R,class RealFunctor>
 inline void
 elemental::advanced::RealHermitianFunction
@@ -385,5 +382,4 @@ elemental::advanced::ComplexHermitianFunction
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR

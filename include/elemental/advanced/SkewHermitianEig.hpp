@@ -31,7 +31,6 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef WITHOUT_COMPLEX
 #ifndef WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
@@ -470,5 +469,4 @@ elemental::advanced::SkewHermitianEig
 #endif
 }
 #endif // WITHOUT_PMRRR
-#endif // WITHOUT_COMPLEX
 

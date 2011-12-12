@@ -133,7 +133,6 @@ elemental::advanced::HPSDCholesky( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 inline void
 elemental::advanced::HPSDCholesky
@@ -162,5 +161,4 @@ elemental::advanced::HPSDCholesky
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR

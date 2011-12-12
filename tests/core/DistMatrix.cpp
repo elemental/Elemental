@@ -332,7 +332,6 @@ main( int argc, char* argv[] )
         }
         DistMatrixTest<double>( m, n, g );
 
-#ifndef WITHOUT_COMPLEX
         if( commRank == 0 )
         {
             std::cout << "--------------------------------------\n"
@@ -348,7 +347,6 @@ main( int argc, char* argv[] )
                       << "--------------------------------------" << std::endl;
         }
         DistMatrixTest<dcomplex>( m, n, g );
-#endif
     }
     catch( std::exception& e )
     {

@@ -125,7 +125,6 @@ elemental::advanced::internal::RowReflector
     return tau;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 inline std::complex<R>
 elemental::advanced::internal::RowReflector
@@ -216,4 +215,3 @@ elemental::advanced::internal::RowReflector
 #endif
     return tau;
 }
-#endif // WITHOUT_COMPLEX

@@ -344,7 +344,6 @@ main( int argc, char* argv[] )
         TestHegst<double>
         ( testCorrectness, printMatrices, side, uplo, m, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -353,7 +352,6 @@ main( int argc, char* argv[] )
         }
         TestHegst<dcomplex>
         ( testCorrectness, printMatrices, side, uplo, m, g );
-#endif
     }
     catch( exception& e )
     {

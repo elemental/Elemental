@@ -117,7 +117,6 @@ elemental::advanced::internal::PanelQR
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::internal::PanelQR
@@ -232,4 +231,3 @@ elemental::advanced::internal::PanelQR
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX

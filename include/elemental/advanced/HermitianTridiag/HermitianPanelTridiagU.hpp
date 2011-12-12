@@ -764,7 +764,6 @@ elemental::advanced::internal::HermitianPanelTridiagU
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::internal::HermitianPanelTridiagU
@@ -1528,4 +1527,3 @@ elemental::advanced::internal::HermitianPanelTridiagU
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX

@@ -54,7 +54,6 @@ elemental::advanced::internal::FrobeniusNorm( const Matrix<R>& A )
     return norm;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::FrobeniusNorm( const Matrix<std::complex<R> >& A )
@@ -78,7 +77,6 @@ elemental::advanced::internal::FrobeniusNorm( const Matrix<std::complex<R> >& A 
 #endif
     return norm;
 }
-#endif
 
 template<typename R> // representation of a real number
 inline R
@@ -109,7 +107,6 @@ elemental::advanced::internal::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
     return norm;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::FrobeniusNorm
@@ -140,4 +137,3 @@ elemental::advanced::internal::FrobeniusNorm
 #endif
     return norm;
 }
-#endif // WITHOUT_COMPLEX

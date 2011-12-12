@@ -123,7 +123,6 @@ elemental::advanced::HermitianTridiag
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::HermitianTridiag
@@ -211,5 +210,4 @@ elemental::advanced::HermitianTridiag
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 

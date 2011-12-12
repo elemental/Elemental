@@ -99,7 +99,6 @@ HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> 
 void
 FixDiagonal
@@ -132,7 +131,6 @@ FixDiagonal
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 } // internal
 } // advanced

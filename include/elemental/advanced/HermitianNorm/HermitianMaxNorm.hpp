@@ -71,7 +71,6 @@ elemental::advanced::internal::HermitianMaxNorm
     return maxAbs;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianMaxNorm
@@ -111,7 +110,6 @@ elemental::advanced::internal::HermitianMaxNorm
 #endif
     return maxAbs;
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename R> // representation of a real number
 inline R
@@ -167,7 +165,6 @@ elemental::advanced::internal::HermitianMaxNorm
     return maxAbs;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianMaxNorm
@@ -221,4 +218,3 @@ elemental::advanced::internal::HermitianMaxNorm
 #endif
     return maxAbs;
 }
-#endif // WITHOUT_COMPLEX

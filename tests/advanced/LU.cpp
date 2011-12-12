@@ -207,7 +207,6 @@ main( int argc, char* argv[] )
         TestLU<double>
         ( pivot, testCorrectness, printMatrices, m, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -216,7 +215,6 @@ main( int argc, char* argv[] )
         }
         TestLU<dcomplex>
         ( pivot, testCorrectness, printMatrices, m, g );
-#endif
     }
     catch( exception& e )
     {

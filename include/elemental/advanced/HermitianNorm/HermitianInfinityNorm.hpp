@@ -50,7 +50,6 @@ elemental::advanced::internal::HermitianInfinityNorm
     return maxRowSum;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianInfinityNorm
@@ -65,7 +64,6 @@ elemental::advanced::internal::HermitianInfinityNorm
 #endif
     return maxRowSum;
 }
-#endif
 
 template<typename R> // representation of a real number
 inline R
@@ -82,7 +80,6 @@ elemental::advanced::internal::HermitianInfinityNorm
     return maxRowSum;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::HermitianInfinityNorm
@@ -97,4 +94,3 @@ elemental::advanced::internal::HermitianInfinityNorm
 #endif
     return maxRowSum;
 }
-#endif // WITHOUT_COMPLEX

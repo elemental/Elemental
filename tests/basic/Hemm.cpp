@@ -161,7 +161,6 @@ main( int argc, char* argv[] )
         TestHemm<double>
         ( printMatrices, side, uplo, m, n, (double)3, (double)4, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -170,7 +169,6 @@ main( int argc, char* argv[] )
         }
         TestHemm<dcomplex>
         ( printMatrices, side, uplo, m, n, (dcomplex)3, (dcomplex)4, g );
-#endif
     }
     catch( exception& e )
     {

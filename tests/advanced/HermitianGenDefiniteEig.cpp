@@ -292,7 +292,6 @@ void TestCorrectnessDouble
     }
 }
 
-#ifndef WITHOUT_COMPLEX
 void TestCorrectnessDoubleComplex
 ( bool printMatrices,
   HermitianGenDefiniteEigType eigType,
@@ -555,7 +554,6 @@ void TestCorrectnessDoubleComplex
                  << "    ||X^H B^-1 X - I||_F  = " << frobNormOfError << endl;
     }
 }
-#endif // WITHOUT_COMPLEX
 
 void TestHermitianGenDefiniteEigDouble
 ( bool testCorrectness, bool printMatrices,
@@ -652,7 +650,6 @@ void TestHermitianGenDefiniteEigDouble
     }
 }
     
-#ifndef WITHOUT_COMPLEX
 void TestHermitianGenDefiniteEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
   HermitianGenDefiniteEigType eigType, 
@@ -753,7 +750,6 @@ void TestHermitianGenDefiniteEigDoubleComplex
         ( printMatrices, eigType, uplo, A, B, w, X, AOrig, BOrig );
     }
 }
-#endif // WITHOUT_COMPLEX
 
 int 
 main( int argc, char* argv[] )
@@ -837,9 +833,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         basic::SetLocalSymvBlocksize<double>( nbLocalSymv );
-#ifndef WITHOUT_COMPLEX
         basic::SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
-#endif
 
         if( rank == 0 )
         {
@@ -887,7 +881,6 @@ main( int argc, char* argv[] )
         ( testCorrectness, printMatrices, 
           eigType, onlyEigenvalues, uplo, m, range, vl, vu, il, iu, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "-------------------------------------------------------\n"
@@ -926,7 +919,6 @@ main( int argc, char* argv[] )
         TestHermitianGenDefiniteEigDoubleComplex
         ( testCorrectness, printMatrices, 
           eigType, onlyEigenvalues, uplo, m, range, vl, vu, il, iu, g );
-#endif 
     }
     catch( exception& e )
     {

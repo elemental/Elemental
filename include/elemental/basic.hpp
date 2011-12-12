@@ -45,68 +45,52 @@ namespace basic {
 template<typename T> void SetLocalHemvBlocksize( int blocksize );
 template<> void SetLocalHemvBlocksize<float>( int blocksize );
 template<> void SetLocalHemvBlocksize<double>( int blocksize );
-#ifndef WITHOUT_COMPLEX
 template<> void SetLocalHemvBlocksize<std::complex<float> >( int blocksize );
 template<> void SetLocalHemvBlocksize<std::complex<double> >( int blocksize );
-#endif // WITHOUT_COMPLEX
 
 template<typename T> void SetLocalSymvBlocksize( int blocksize );
 template<> void SetLocalSymvBlocksize<float>( int blocksize );
 template<> void SetLocalSymvBlocksize<double>( int blocksize );
-#ifndef WITHOUT_COMPLEX
 template<> void SetLocalSymvBlocksize<std::complex<float> >( int blocksize );
 template<> void SetLocalSymvBlocksize<std::complex<double> >( int blocksize );
-#endif // WITHOUT_COMPLEX
 
 template<typename T> void SetLocalTrrkBlocksize( int blocksize );
 template<> void SetLocalTrrkBlocksize<float>( int blocksize );
 template<> void SetLocalTrrkBlocksize<double>( int blocksize );
-#ifndef WITHOUT_COMPLEX
 template<> void 
 SetLocalTrrkBlocksize<std::complex<float> >( int blocksize );
 template<> void 
 SetLocalTrrkBlocksize<std::complex<double> >( int blocksize );
-#endif // WITHOUT_COMPLEX
 
 template<typename T> void SetLocalTrr2kBlocksize( int blocksize );
 template<> void SetLocalTrr2kBlocksize<float>( int blocksize );
 template<> void SetLocalTrr2kBlocksize<double>( int blocksize );
-#ifndef WITHOUT_COMPLEX
 template<> void SetLocalTrr2kBlocksize<std::complex<float> >( int blocksize );
 template<> void SetLocalTrr2kBlocksize<std::complex<double> >( int blocksize );
-#endif // WITHOUT_COMPLEX
 
 template<typename T> int LocalHemvBlocksize();
 template<> int LocalHemvBlocksize<float>();
 template<> int LocalHemvBlocksize<double>();
-#ifndef WITHOUT_COMPLEX
 template<> int LocalHemvBlocksize<scomplex>();
 template<> int LocalHemvBlocksize<dcomplex>();
-#endif // WITHOUT_COMPLEX
 
 template<typename T> int LocalSymvBlocksize();
 template<> int LocalSymvBlocksize<float>();
 template<> int LocalSymvBlocksize<double>();
-#ifndef WITHOUT_COMPLEX
 template<> int LocalSymvBlocksize<scomplex>();
 template<> int LocalSymvBlocksize<dcomplex>();
-#endif // WITHOUT_COMPLEX
 
 template<typename T> int LocalTrrkBlocksize();
 template<> int LocalTrrkBlocksize<float>();
 template<> int LocalTrrkBlocksize<double>();
-#ifndef WITHOUT_COMPLEX
 template<> int LocalTrrkBlocksize<scomplex>();
 template<> int LocalTrrkBlocksize<dcomplex>();
-#endif // WITHOUT_COMPLEX
 
 template<typename T> int LocalTrr2kBlocksize();
 template<> int LocalTrr2kBlocksize<float>();
 template<> int LocalTrr2kBlocksize<double>();
-#ifndef WITHOUT_COMPLEX
 template<> int LocalTrr2kBlocksize<scomplex>();
 template<> int LocalTrr2kBlocksize<dcomplex>();
-#endif // WITHOUT_COMPLEX
 
 //----------------------------------------------------------------------------//
 // Level 1 BLAS-like functionality                                            //
@@ -261,27 +245,19 @@ Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y );
 
 // Serial version for real datatypes
 template<typename R>
-R
-Nrm2( const Matrix<R>& x ); 
+R Nrm2( const Matrix<R>& x ); 
 
-#ifndef WITHOUT_COMPLEX
 // Serial version for complex datatypes
 template<typename R>
-R
-Nrm2( const Matrix<std::complex<R> >& x );
-#endif
+R Nrm2( const Matrix<std::complex<R> >& x );
 
 // Parallel version for real datatypes
 template<typename R>
-R
-Nrm2( const DistMatrix<R,MC,MR>& x );
+R Nrm2( const DistMatrix<R,MC,MR>& x );
 
-#ifndef WITHOUT_COMPLEX
 // Parallel version for complex datatypes
 template<typename R>
-R
-Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x );
-#endif
+R Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x );
 
 // 
 // Scal:
@@ -291,14 +267,11 @@ Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x );
 
 // Serial version
 template<typename T>
-void
-Scal( T alpha, Matrix<T>& X );
+void Scal( T alpha, Matrix<T>& X );
     
 // Parallel version
 template<typename T, Distribution U, Distribution V>
-void
-Scal
-( T alpha, DistMatrix<T,U,V>& X );
+void Scal( T alpha, DistMatrix<T,U,V>& X );
     
 //----------------------------------------------------------------------------//
 // Level 1 BLAS-like extensions                                               //
@@ -316,11 +289,9 @@ Scal
 template<typename Z>
 void Conjugate( Matrix<Z>& A );
 
-#ifndef WITHOUT_COMPLEX
 // In-place serial version for complex datatypes.
 template<typename Z>
 void Conjugate( Matrix<std::complex<Z> >& A );
-#endif
 
 // In-place parallel version
 template<typename T, Distribution U, Distribution V>
@@ -1081,8 +1052,7 @@ elemental::basic::DiagonalSolve
 
 template<typename T>
 inline T
-elemental::basic::Dot
-( const Matrix<T>& x, const Matrix<T>& y )
+elemental::basic::Dot( const Matrix<T>& x, const Matrix<T>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::Dot");
@@ -1127,8 +1097,7 @@ elemental::basic::Dot
 
 template<typename T>
 inline T
-elemental::basic::Dotc
-( const Matrix<T>& x, const Matrix<T>& y )
+elemental::basic::Dotc( const Matrix<T>& x, const Matrix<T>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::Dotc");
@@ -1173,8 +1142,7 @@ elemental::basic::Dotc
 
 template<typename T>
 inline T
-elemental::basic::Dotu
-( const Matrix<T>& x, const Matrix<T>& y )
+elemental::basic::Dotu( const Matrix<T>& x, const Matrix<T>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::Dotu");
@@ -1219,8 +1187,7 @@ elemental::basic::Dotu
 
 template<typename R>
 inline R
-elemental::basic::Nrm2
-( const Matrix<R>& x )
+elemental::basic::Nrm2( const Matrix<R>& x )
 {
 #ifndef RELEASE
     PushCallStack("basic::Nrm2");
@@ -1238,11 +1205,9 @@ elemental::basic::Nrm2
     return norm;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 inline R
-elemental::basic::Nrm2
-( const Matrix<std::complex<R> >& x )
+elemental::basic::Nrm2( const Matrix<std::complex<R> >& x )
 {
 #ifndef RELEASE
     PushCallStack("basic::Nrm2");
@@ -1259,12 +1224,10 @@ elemental::basic::Nrm2
 #endif
     return norm;
 }
-#endif
 
 template<typename T>
 inline void
-elemental::basic::Scal
-( T alpha, Matrix<T>& X )
+elemental::basic::Scal( T alpha, Matrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("basic::Scal");
@@ -1294,12 +1257,10 @@ inline void
 elemental::basic::Conjugate( Matrix<Z>& A )
 { }
 
-#ifndef WITHOUT_COMPLEX
 // Specialization is to complex datatypes
 template<typename Z>
 inline void
-elemental::basic::Conjugate
-( Matrix<std::complex<Z> >& A )
+elemental::basic::Conjugate( Matrix<std::complex<Z> >& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Conjugate (in-place)");
@@ -1313,7 +1274,6 @@ elemental::basic::Conjugate
     PopCallStack();
 #endif
 }
-#endif
 
 template<typename T>
 inline void

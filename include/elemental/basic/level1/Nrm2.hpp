@@ -34,8 +34,7 @@
 namespace elemental {
 
 template<typename R>
-inline R
-basic::Nrm2( const DistMatrix<R,MC,MR>& x )
+inline R basic::Nrm2( const DistMatrix<R,MC,MR>& x )
 {
 #ifndef RELEASE
     PushCallStack("basic::Nrm2");
@@ -81,11 +80,8 @@ basic::Nrm2( const DistMatrix<R,MC,MR>& x )
     return norm;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
-inline R
-basic::Nrm2
-( const DistMatrix<std::complex<R>, MC, MR >& x )
+inline R basic::Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x )
 {
 #ifndef RELEASE
     PushCallStack("basic::Nrm2");
@@ -130,6 +126,5 @@ basic::Nrm2
 #endif
     return norm;
 }
-#endif // WITHOUT_COMPLEX
 
 } // namespace elemental

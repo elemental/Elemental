@@ -151,9 +151,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         basic::SetLocalTrr2kBlocksize<double>( nbLocal );
-#ifndef WITHOUT_COMPLEX
         basic::SetLocalTrr2kBlocksize<complex<double> >( nbLocal );
-#endif
 
         if( rank == 0 )
         {
@@ -171,7 +169,6 @@ main( int argc, char* argv[] )
         ( printMatrices, uplo, orientation, 
           m, k, (double)3, (double)4, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -181,7 +178,6 @@ main( int argc, char* argv[] )
         TestSyr2k<dcomplex>
         ( printMatrices, uplo, orientation, 
           m, k, (dcomplex)3, (dcomplex)4, g );
-#endif
     }
     catch( exception& e )
     {

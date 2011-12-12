@@ -115,8 +115,6 @@ void ApplyPackedReflectors
   int offset,
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A );
-
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 void ApplyPackedReflectors
 ( Side side, UpperOrLower uplo,
@@ -133,7 +131,6 @@ void ApplyPackedReflectors
   const DistMatrix<std::complex<R>,MC,  MR  >& H,
   const DistMatrix<std::complex<R>,STAR,STAR>& t,
         DistMatrix<std::complex<R>,MC,  MR  >& A );
-#endif
 
 //----------------------------------------------------------------------------//
 // Apply[Inverse]ColumnPivots/Apply[Inverse]RowPivots                         //
@@ -367,8 +364,6 @@ void HermitianGenDefiniteEig
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w,
   R a, R b );
-
-#ifndef WITHOUT_COMPLEX
 // Grab the full set of eigenpairs of complex Hermitian A and HPD B
 template<typename R>
 void HermitianGenDefiniteEig    
@@ -426,7 +421,6 @@ void HermitianGenDefiniteEig
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w,
   R a, R b );
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
@@ -503,7 +497,6 @@ void HermitianEig
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   double a, double b );
-#ifndef WITHOUT_COMPLEX
 // Grab the full set of eigenpairs of the complex, Hermitian matrix A
 void HermitianEig    
 ( UpperOrLower uplo,
@@ -549,7 +542,6 @@ void HermitianEig
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   double a, double b );
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
@@ -568,7 +560,6 @@ template<typename R,class RealFunctor>
 void RealHermitianFunction
 ( UpperOrLower uplo, 
   DistMatrix<R,MC,MR>& A, const RealFunctor& f );
-#ifndef WITHOUT_COMPLEX
 template<typename R,class RealFunctor>
 void RealHermitianFunction
 ( UpperOrLower uplo, 
@@ -578,7 +569,6 @@ template<typename R,class ComplexFunctor>
 void ComplexHermitianFunction
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,MR>& A, const ComplexFunctor& f );
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
@@ -590,11 +580,10 @@ void ComplexHermitianFunction
 #ifndef WITHOUT_PMRRR
 template<typename R>
 void HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<R,MC,MR>& A );
-#ifndef WITHOUT_COMPLEX
+
 template<typename R>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A );
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
@@ -641,10 +630,9 @@ void HPDInverse( UpperOrLower uplo, DistMatrix<F,MC,MR>& A );
 #ifndef WITHOUT_PMRRR
 template<typename R>
 void HPSDCholesky( UpperOrLower uplo, DistMatrix<R,MC,MR>& A );
-#ifndef WITHOUT_COMPLEX
+
 template<typename R>
 void HPSDCholesky( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A );
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
@@ -658,10 +646,9 @@ void HPSDCholesky( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A );
 #ifndef WITHOUT_PMRRR
 template<typename R>
 void SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A );
-#ifndef WITHOUT_COMPLEX
+
 template<typename R>
 void SquareRoot( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A );
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
@@ -753,12 +740,10 @@ void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 template<typename R>
 void LQ( DistMatrix<R,MC,MR>& A );
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 void LQ
 ( DistMatrix<std::complex<R>,MC,MR  >& A, 
   DistMatrix<std::complex<R>,MD,STAR>& t );
-#endif
 
 //----------------------------------------------------------------------------//
 // Norm                                                                       //
@@ -770,14 +755,12 @@ R Norm( const Matrix<R>& A, NormType type=FROBENIUS_NORM );
 template<typename R>
 R Norm( const DistMatrix<R,MC,MR>& A, NormType type=FROBENIUS_NORM );
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 R Norm( const Matrix<std::complex<R> >& A, NormType type=FROBENIUS_NORM );
 
 template<typename R>
 R Norm
 ( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type=FROBENIUS_NORM );
-#endif
 
 //----------------------------------------------------------------------------//
 // HermitianNorm                                                              //
@@ -793,7 +776,6 @@ R HermitianNorm
 ( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, 
   NormType type=FROBENIUS_NORM );
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 R HermitianNorm
 ( UpperOrLower uplo, const Matrix<std::complex<R> >& A, 
@@ -803,7 +785,6 @@ template<typename R>
 R HermitianNorm
 ( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A, 
   NormType type=FROBENIUS_NORM );
-#endif
 
 //----------------------------------------------------------------------------//
 // SymmetricNorm                                                              //
@@ -819,7 +800,6 @@ R SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, 
   NormType type=FROBENIUS_NORM );
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 R SymmetricNorm
 ( UpperOrLower uplo, const Matrix<std::complex<R> >& A, 
@@ -829,7 +809,6 @@ template<typename R>
 R SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A, 
   NormType type=FROBENIUS_NORM );
-#endif
 
 //----------------------------------------------------------------------------//
 // QR (QR factorization):                                                     //
@@ -866,12 +845,10 @@ R SymmetricNorm
 template<typename R>
 void QR( DistMatrix<R,MC,MR>& A );
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 void QR
 ( DistMatrix<std::complex<R>,MC,MR  >& A, 
   DistMatrix<std::complex<R>,MD,STAR>& t );
-#endif
 
 //----------------------------------------------------------------------------//
 // Reflector (Householder reflector):                                         //
@@ -880,11 +857,9 @@ void QR
 template<typename R>
 R Reflector( Matrix<R>& chi, Matrix<R>& x );
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 std::complex<R>
 Reflector( Matrix<std::complex<R> >& chi, Matrix<std::complex<R> >& x );
-#endif
 
 template<typename F>
 F Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x );
@@ -893,7 +868,6 @@ F Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x );
 // SkewHermitianEig (Skew-Hermitian Eigensolver)                              //
 //----------------------------------------------------------------------------//
 
-#ifndef WITHOUT_COMPLEX
 #ifndef WITHOUT_PMRRR
 // Grab the full set of eigenpairs of the real, skew-symmetric matrix G
 void SkewHermitianEig
@@ -987,7 +961,6 @@ void SkewHermitianEig
   DistMatrix<double,              VR,STAR>& wImag,
   double a, double b );
 #endif // WITHOUT_PMRRR
-#endif // WITHOUT_COMPLEX
 
 //----------------------------------------------------------------------------//
 // SortEig                                                                    //
@@ -1022,23 +995,19 @@ void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z );
 template<typename R>
 void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A );
 
-#ifndef WITHOUT_COMPLEX
 // NOTE: Currently unblocked
 template<typename R>
 void HermitianTridiag
 ( UpperOrLower uplo, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t );
-#endif
 
 template<typename R>
 void HermitianTridiag( UpperOrLower uplo, DistMatrix<R,MC,MR>& A );
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 void HermitianTridiag
 ( UpperOrLower uplo,
   DistMatrix<std::complex<R>,MC,  MR  >& A,
   DistMatrix<std::complex<R>,STAR,STAR>& t );
-#endif
 
 void SetHermitianTridiagApproach( HermitianTridiagApproach approach );
 HermitianTridiagApproach GetHermitianTridiagApproach();
@@ -1209,7 +1178,6 @@ elemental::advanced::SymmetricNorm
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 inline R
 elemental::advanced::SymmetricNorm
@@ -1237,7 +1205,6 @@ elemental::advanced::SymmetricNorm
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename F>
 inline void

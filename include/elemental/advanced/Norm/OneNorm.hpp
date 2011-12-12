@@ -52,7 +52,6 @@ elemental::advanced::internal::OneNorm( const Matrix<R>& A )
     return maxColSum;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::OneNorm( const Matrix<std::complex<R> >& A )
@@ -73,7 +72,6 @@ elemental::advanced::internal::OneNorm( const Matrix<std::complex<R> >& A )
 #endif
     return maxColSum;
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename R> // representation of a real number
 inline R
@@ -112,7 +110,6 @@ elemental::advanced::internal::OneNorm( const DistMatrix<R,MC,MR>& A )
     return maxColSum;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::OneNorm
@@ -150,4 +147,3 @@ elemental::advanced::internal::OneNorm
 #endif
     return maxColSum;
 }
-#endif // WITHOUT_COMPLEX

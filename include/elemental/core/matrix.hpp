@@ -180,14 +180,12 @@ private:
     {
         static Z Func( const Matrix<Z>& parent, Int i, Int j );
     };
-#ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct GetRealHelper<std::complex<Z> >
     {
         static Z Func
         ( const Matrix<std::complex<Z> >& parent, Int i, Int j );
     };
-#endif
     template<typename Z> friend struct GetRealHelper;
 
     template<typename Z>
@@ -195,14 +193,12 @@ private:
     {
         static Z Func( const Matrix<Z>& parent, Int i, Int j );
     };
-#ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct GetImagHelper<std::complex<Z> >
     {
         static Z Func
         ( const Matrix<std::complex<Z> >& parent, Int i, Int j );
     };
-#endif
     template<typename Z> friend struct GetImagHelper;
 
     template<typename Z>
@@ -210,14 +206,12 @@ private:
     {
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
-#ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct SetRealHelper<std::complex<Z> >
     {
         static void Func
         ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
     };
-#endif
     template<typename Z> friend struct SetRealHelper;
 
     template<typename Z>
@@ -225,14 +219,12 @@ private:
     {
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
-#ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct SetImagHelper<std::complex<Z> >
     {
         static void Func
         ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
     };
-#endif
     template<typename Z> friend struct SetImagHelper;
 
     template<typename Z>
@@ -240,14 +232,12 @@ private:
     {
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
-#ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct UpdateRealHelper<std::complex<Z> >
     {
         static void Func
         ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
     };
-#endif
     template<typename Z> friend struct UpdateRealHelper;
 
     template<typename Z>
@@ -255,14 +245,12 @@ private:
     {
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
-#ifndef WITHOUT_COMPLEX
     template<typename Z>
     struct UpdateImagHelper<std::complex<Z> >
     {
         static void Func
         ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
     };
-#endif
     template<typename Z> friend struct UpdateImagHelper;
 };
 
@@ -729,7 +717,6 @@ Matrix<T,Int>::GetRealHelper<Z>::Func
     throw std::logic_error("Called complex-only routine with real datatype");
 }
     
-#ifndef WITHOUT_COMPLEX
 template<typename T,typename Int>
 template<typename Z>
 inline Z
@@ -755,7 +742,6 @@ Matrix<T,Int>::GetRealHelper<std::complex<Z> >::Func
     else
         return std::real(parent.data_[i+j*parent.ldim_]);
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename T,typename Int>
 inline typename RealBase<T>::type
@@ -774,7 +760,6 @@ Matrix<T,Int>::GetImagHelper<Z>::Func
     throw std::logic_error("Called complex-only routine with real datatype");
 }
     
-#ifndef WITHOUT_COMPLEX
 template<typename T,typename Int>
 template<typename Z>
 inline Z
@@ -800,7 +785,6 @@ Matrix<T,Int>::GetImagHelper<std::complex<Z> >::Func
     else
         return std::imag(parent.data_[i+j*parent.ldim_]);
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename T,typename Int>
 inline void
@@ -820,7 +804,6 @@ Matrix<T,Int>::SetRealHelper<Z>::Func
     throw std::logic_error("Called complex-only routine with real datatype");
 }
     
-#ifndef WITHOUT_COMPLEX
 template<typename T,typename Int>
 template<typename Z>
 inline void
@@ -846,7 +829,6 @@ Matrix<T,Int>::SetRealHelper<std::complex<Z> >::Func
     const Z beta = std::imag(parent.data_[i+j*parent.ldim_]);
     parent.data_[i+j*parent.ldim_] = std::complex<Z>( alpha, beta );
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename T,typename Int>
 inline void
@@ -866,7 +848,6 @@ Matrix<T,Int>::SetImagHelper<Z>::Func
     throw std::logic_error("Called complex-only routine with real datatype");
 }
     
-#ifndef WITHOUT_COMPLEX
 template<typename T,typename Int>
 template<typename Z>
 inline void
@@ -892,7 +873,6 @@ Matrix<T,Int>::SetImagHelper<std::complex<Z> >::Func
     const Z beta = std::real(parent.data_[i+j*parent.ldim_]);
     parent.data_[i+j*parent.ldim_] = std::complex<Z>( beta, alpha );
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename T,typename Int>
 inline void
@@ -912,7 +892,6 @@ Matrix<T,Int>::UpdateRealHelper<Z>::Func
     throw std::logic_error("Called complex-only routine with real datatype");
 }
     
-#ifndef WITHOUT_COMPLEX
 template<typename T,typename Int>
 template<typename Z>
 inline void
@@ -939,7 +918,6 @@ Matrix<T,Int>::UpdateRealHelper<std::complex<Z> >::Func
     parent.data_[i+j*parent.ldim_] = 
         std::complex<Z>( std::real(beta)+alpha, std::imag(beta) );
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename T,typename Int>
 inline void
@@ -959,7 +937,6 @@ Matrix<T,Int>::UpdateImagHelper<Z>::Func
     throw std::logic_error("Called complex-only routine with real datatype");
 }
     
-#ifndef WITHOUT_COMPLEX
 template<typename T,typename Int>
 template<typename Z>
 inline void
@@ -986,7 +963,6 @@ Matrix<T,Int>::UpdateImagHelper<std::complex<Z> >::Func
     parent.data_[i+j*parent.ldim_] = 
         std::complex<Z>( std::real(beta), std::imag(beta)+alpha );
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename T,typename Int>
 inline void

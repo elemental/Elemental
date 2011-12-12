@@ -123,7 +123,6 @@ void TestCorrectness
     }
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
@@ -200,7 +199,6 @@ void TestCorrectness
              << "    ||AOrig - Q^H A Q||_F      = " << frobNormOfError << endl;
     }
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename F> // represents a real or complex number
 void TestHermitianTridiag
@@ -259,7 +257,6 @@ void TestHermitianTridiag<double>
         TestCorrectness( printMatrices, uplo, A, AOrig );
 }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 void TestHermitianTridiag<complex<double> >
 ( bool testCorrectness, bool printMatrices,
@@ -317,7 +314,6 @@ void TestHermitianTridiag<complex<double> >
     if( testCorrectness )
         TestCorrectness( printMatrices, uplo, A, t, AOrig );
 }
-#endif // WITHOUT_COMPLEX
 
 int 
 main( int argc, char* argv[] )
@@ -356,9 +352,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         basic::SetLocalSymvBlocksize<double>( nbLocalSymv );
-#ifndef WITHOUT_COMPLEX
         basic::SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
-#endif
 
         if( rank == 0 )
             cout << "Will test HermitianTridiag" << UpperOrLowerToChar(uplo) 
@@ -398,7 +392,6 @@ main( int argc, char* argv[] )
         TestHermitianTridiag<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "------------------------------------------\n"
@@ -434,7 +427,6 @@ main( int argc, char* argv[] )
         advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianTridiag<complex<double> >
         ( testCorrectness, printMatrices, uplo, m, g );
-#endif
     }
     catch( exception& e )
     {

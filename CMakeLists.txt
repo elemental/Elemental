@@ -34,7 +34,7 @@ cmake_minimum_required(VERSION 2.8.5)
 project(Elemental)
 
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 71)
+set(Elemental_VERSION_MINOR 72)
 
 # Check if an in-source build was attempted
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
@@ -66,11 +66,7 @@ if(WIN32)
 else(WIN32)
   option(BUILD_PMRRR "Build and link against eigensolver PMRRR" ON)
 endif(WIN32)
-
-option(WITHOUT_COMPLEX "Avoid all usage of complex numbers" OFF)
-if(NOT WITHOUT_COMPLEX)
-  option(AVOID_COMPLEX_MPI "Avoid complex MPI routines for robustness" ON)
-endif(NOT WITHOUT_COMPLEX)
+option(AVOID_COMPLEX_MPI "Avoid complex MPI routines for robustness" ON)
 
 # Bug fix for Darwin g++ compiler throwing an internal compiler error.
 # It seems to have somehow been circumvented after pulling most of the library
@@ -552,14 +548,12 @@ if(BUILD_EXAMPLES)
   set(ADVANCED_EXAMPLES GaussianElimination)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-    if(NOT WITHOUT_COMPLEX)
-      list(APPEND ADVANCED_EXAMPLES HermitianEig 
-                                    ComplexHermitianFunction 
-                                    RealHermitianFunction
-                                    HermitianPseudoinverse
-                                    HPSDCholesky
-                                    SquareRoot )
-    endif(NOT WITHOUT_COMPLEX)
+    list(APPEND ADVANCED_EXAMPLES HermitianEig 
+                                  ComplexHermitianFunction 
+                                  RealHermitianFunction
+                                  HermitianPseudoinverse
+                                  HPSDCholesky
+                                  SquareRoot)
     list(APPEND ADVANCED_EXAMPLES SymmetricEig RealSymmetricFunction)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
@@ -616,6 +610,5 @@ endif(BUILD_EXAMPLES)
 #set(LAPACK_POST ${LAPACK_POST} PARENT_SCOPE)
 #set(WITHOUT_PMRRR ${WITHOUT_PMRRR} PARENT_SCOPE)
 #set(DISABLE_SCALAR_WRAPPER ${DISABLE_SCALAR_WRAPPER} PARENT_SCOPE)
-#set(WITHOUT_COMPLEX ${WITHOUT_COMPLEX} PARENT_SCOPE)
 #set(AVOID_COMPLEX_MPI ${AVOID_COMPLEX_MPI} PARENT_SCOPE)
 #set(USE_BYTE_ALLGATHERS ${USE_BYTE_ALLGATHERS} PARENT_SCOPE)

@@ -53,7 +53,6 @@ elemental::advanced::internal::MaxNorm( const Matrix<R>& A )
     return maxAbs;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::MaxNorm( const Matrix<std::complex<R> >& A )
@@ -75,7 +74,6 @@ elemental::advanced::internal::MaxNorm( const Matrix<std::complex<R> >& A )
 #endif
     return maxAbs;
 }
-#endif
 
 template<typename R> // representation of a real number
 inline R
@@ -104,7 +102,6 @@ elemental::advanced::internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
     return maxAbs;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::MaxNorm
@@ -132,4 +129,3 @@ elemental::advanced::internal::MaxNorm
 #endif
     return maxAbs;
 }
-#endif // WITHOUT_COMPLEX

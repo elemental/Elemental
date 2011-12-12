@@ -65,7 +65,6 @@ elemental::advanced::Norm( const Matrix<R>& A, NormType type )
     return norm;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::Norm( const Matrix<std::complex<R> >& A, NormType type )
@@ -94,7 +93,6 @@ elemental::advanced::Norm( const Matrix<std::complex<R> >& A, NormType type )
 #endif
     return norm;
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename R> // representation of a real number
 inline R
@@ -125,7 +123,6 @@ elemental::advanced::Norm( const DistMatrix<R,MC,MR>& A, NormType type )
     return norm;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::Norm
@@ -155,4 +152,3 @@ elemental::advanced::Norm
 #endif
     return norm;
 }
-#endif // WITHOUT_COMPLEX

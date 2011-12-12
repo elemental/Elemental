@@ -102,14 +102,12 @@ main( int argc, char* argv[] )
         }
         TestMatrix<double>( m, n, ldim );
 
-#ifndef WITHOUT_COMPLEX
         if( commRank == 0 )
         {
             std::cout << "Testing with double-precision complex...";
             std::cout.flush();
         }
         TestMatrix<dcomplex>( m, n, ldim );
-#endif
     }
     catch( std::exception& e )
     {

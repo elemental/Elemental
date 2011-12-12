@@ -91,10 +91,8 @@ elemental::Initialize( int& argc, char**& argv )
     // Build the pivot operations needed by the distributed LU
     advanced::internal::CreatePivotOp<float>();
     advanced::internal::CreatePivotOp<double>();
-#ifndef WITHOUT_COMPLEX
     advanced::internal::CreatePivotOp<scomplex>();
     advanced::internal::CreatePivotOp<dcomplex>();
-#endif
 
     // Seed the parallel random number generator, PLCG
     plcg::UInt64 seed;
@@ -129,10 +127,8 @@ elemental::Finalize()
         // Destroy the pivot ops needed by the distributed LU
         advanced::internal::DestroyPivotOp<float>();
         advanced::internal::DestroyPivotOp<double>();
-#ifndef WITHOUT_COMPLEX
         advanced::internal::DestroyPivotOp<scomplex>();
         advanced::internal::DestroyPivotOp<dcomplex>();
-#endif
 
         // Delete the default grid
         delete ::defaultGrid;
@@ -212,31 +208,23 @@ elemental::DumpCallStack()
 namespace {
 int localHemvFloatBlocksize = 64;
 int localHemvDoubleBlocksize = 64;
-#ifndef WITHOUT_COMPLEX
 int localHemvComplexFloatBlocksize = 64;
 int localHemvComplexDoubleBlocksize = 64;
-#endif // WITHOUT_COMPLEX
 
 int localSymvFloatBlocksize = 64;
 int localSymvDoubleBlocksize = 64;
-#ifndef WITHOUT_COMPLEX
 int localSymvComplexFloatBlocksize = 64;
 int localSymvComplexDoubleBlocksize = 64;
-#endif // WITHOUT_COMPLEX
 
 int localTrr2kFloatBlocksize = 64;
 int localTrr2kDoubleBlocksize = 64;
-#ifndef WITHOUT_COMPLEX
 int localTrr2kComplexFloatBlocksize = 64;
 int localTrr2kComplexDoubleBlocksize = 64;
-#endif // WITHOUT_COMPLEX
 
 int localTrrkFloatBlocksize = 64;
 int localTrrkDoubleBlocksize = 64;
-#ifndef WITHOUT_COMPLEX
 int localTrrkComplexFloatBlocksize = 64;
 int localTrrkComplexDoubleBlocksize = 64;
-#endif // WITHOUT_COMPLEX
 }
 
 template<>
@@ -251,7 +239,6 @@ elemental::basic::SetLocalHemvBlocksize<double>
 ( int blocksize )
 { ::localHemvDoubleBlocksize = blocksize; }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 void
 elemental::basic::SetLocalHemvBlocksize< std::complex<float> >
@@ -263,7 +250,6 @@ void
 elemental::basic::SetLocalHemvBlocksize< std::complex<double> >
 ( int blocksize )
 { ::localHemvComplexDoubleBlocksize = blocksize; }
-#endif // WITHOUT_COMPLEX
 
 template<>
 int
@@ -275,7 +261,6 @@ int
 elemental::basic::LocalHemvBlocksize<double>()
 { return ::localHemvDoubleBlocksize; }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 int
 elemental::basic::LocalHemvBlocksize<scomplex>()
@@ -285,7 +270,6 @@ template<>
 int
 elemental::basic::LocalHemvBlocksize<dcomplex>()
 { return ::localHemvComplexDoubleBlocksize; }
-#endif // WITHOUT_COMPLEX
 
 template<>
 void
@@ -299,7 +283,6 @@ elemental::basic::SetLocalSymvBlocksize<double>
 ( int blocksize )
 { ::localSymvDoubleBlocksize = blocksize; }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 void
 elemental::basic::SetLocalSymvBlocksize< std::complex<float> >
@@ -311,7 +294,6 @@ void
 elemental::basic::SetLocalSymvBlocksize< std::complex<double> >
 ( int blocksize )
 { ::localSymvComplexDoubleBlocksize = blocksize; }
-#endif // WITHOUT_COMPLEX
 
 template<>
 int
@@ -323,7 +305,6 @@ int
 elemental::basic::LocalSymvBlocksize<double>()
 { return ::localSymvDoubleBlocksize; }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 int
 elemental::basic::LocalSymvBlocksize<scomplex>()
@@ -333,7 +314,6 @@ template<>
 int
 elemental::basic::LocalSymvBlocksize<dcomplex>()
 { return ::localSymvComplexDoubleBlocksize; }
-#endif // WITHOUT_COMPLEX
 
 template<>
 void
@@ -347,7 +327,6 @@ elemental::basic::SetLocalTrr2kBlocksize<double>
 ( int blocksize )
 { ::localTrr2kDoubleBlocksize = blocksize; }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 void
 elemental::basic::SetLocalTrr2kBlocksize< std::complex<float> >
@@ -359,7 +338,6 @@ void
 elemental::basic::SetLocalTrr2kBlocksize< std::complex<double> >
 ( int blocksize )
 { ::localTrr2kComplexDoubleBlocksize = blocksize; }
-#endif // WITHOUT_COMPLEX
 
 template<>
 int
@@ -371,7 +349,6 @@ int
 elemental::basic::LocalTrr2kBlocksize<double>()
 { return ::localTrr2kDoubleBlocksize; }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 int
 elemental::basic::LocalTrr2kBlocksize<scomplex>()
@@ -381,7 +358,6 @@ template<>
 int
 elemental::basic::LocalTrr2kBlocksize<dcomplex>()
 { return ::localTrr2kComplexDoubleBlocksize; }
-#endif // WITHOUT_COMPLEX
 
 template<>
 void
@@ -395,7 +371,6 @@ elemental::basic::SetLocalTrrkBlocksize<double>
 ( int blocksize )
 { ::localTrrkDoubleBlocksize = blocksize; }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 void
 elemental::basic::SetLocalTrrkBlocksize< std::complex<float> >
@@ -407,7 +382,6 @@ void
 elemental::basic::SetLocalTrrkBlocksize< std::complex<double> >
 ( int blocksize )
 { ::localTrrkComplexDoubleBlocksize = blocksize; }
-#endif // WITHOUT_COMPLEX
 
 template<>
 int
@@ -419,7 +393,6 @@ int
 elemental::basic::LocalTrrkBlocksize<double>()
 { return ::localTrrkDoubleBlocksize; }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 int
 elemental::basic::LocalTrrkBlocksize<scomplex>()
@@ -429,7 +402,6 @@ template<>
 int
 elemental::basic::LocalTrrkBlocksize<dcomplex>()
 { return ::localTrrkComplexDoubleBlocksize; }
-#endif // WITHOUT_COMPLEX
 
 //----------------------------------------------------------------------------//
 // Variables for advanced routines                                            //

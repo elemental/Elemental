@@ -52,7 +52,6 @@ elemental::advanced::internal::InfinityNorm( const Matrix<R>& A )
     return maxRowSum;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::InfinityNorm( const Matrix<std::complex<R> >& A )
@@ -73,7 +72,6 @@ elemental::advanced::internal::InfinityNorm( const Matrix<std::complex<R> >& A )
 #endif
     return maxRowSum;
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename R> // representation of a real number
 inline R
@@ -112,7 +110,6 @@ elemental::advanced::internal::InfinityNorm( const DistMatrix<R,MC,MR>& A )
     return maxRowSum;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline R
 elemental::advanced::internal::InfinityNorm
@@ -150,5 +147,4 @@ elemental::advanced::internal::InfinityNorm
 #endif
     return maxRowSum;
 }
-#endif // WITHOUT_COMPLEX
 

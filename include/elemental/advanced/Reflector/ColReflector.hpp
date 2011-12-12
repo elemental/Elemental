@@ -125,7 +125,6 @@ elemental::advanced::internal::ColReflector
     return tau;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> 
 inline std::complex<R>
 elemental::advanced::internal::ColReflector
@@ -216,4 +215,3 @@ elemental::advanced::internal::ColReflector
 #endif
     return tau;
 }
-#endif // WITHOUT_COMPLEX

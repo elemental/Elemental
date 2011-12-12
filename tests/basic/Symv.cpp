@@ -126,11 +126,7 @@ main( int argc, char* argv[] )
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
         const int nbLocalDouble = atoi(argv[++argNum]);
-#ifndef WITHOUT_COMPLEX
         const int nbLocalComplexDouble = atoi(argv[++argNum]);
-#else
-        ++argNum;
-#endif
         const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
         if( rank == 0 )
@@ -143,9 +139,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         basic::SetLocalSymvBlocksize<double>( nbLocalDouble );
-#ifndef WITHOUT_COMPLEX
         basic::SetLocalSymvBlocksize<complex<double> >( nbLocalComplexDouble );
-#endif
 
         if( rank == 0 )
             cout << "Will test Symv" << UpperOrLowerToChar(uplo) << endl;
@@ -159,7 +153,6 @@ main( int argc, char* argv[] )
         TestSymv<double>
         ( uplo, m, (double)3, (double)4, printMatrices, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -168,7 +161,6 @@ main( int argc, char* argv[] )
         }
         TestSymv<dcomplex>
         ( uplo, m, (dcomplex)3, (dcomplex)4, printMatrices, g );
-#endif
     }
     catch( exception& e )
     {

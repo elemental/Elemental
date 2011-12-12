@@ -287,7 +287,6 @@ main( int argc, char* argv[] )
         ( printMatrices, orientationOfA, orientationOfB,
           m, n, k, (double)3, (double)4, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -297,7 +296,6 @@ main( int argc, char* argv[] )
         TestGemm<dcomplex>
         ( printMatrices, orientationOfA, orientationOfB,
           m, n, k, (dcomplex)3, (dcomplex)4, g );
-#endif
     }
     catch( exception& e )
     {

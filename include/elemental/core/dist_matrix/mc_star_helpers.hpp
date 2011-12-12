@@ -51,7 +51,6 @@ DistMatrix<T,MC,STAR,Int>::SetToRandomHermitianHelper<Z>::Func
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename T,typename Int>
 template<typename Z>
 inline void
@@ -89,7 +88,6 @@ DistMatrix<T,MC,STAR,Int>::SetToRandomHermitianHelper<std::complex<Z> >::Func
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename T,typename Int>
 template<typename Z>
@@ -126,7 +124,6 @@ DistMatrix<T,MC,STAR,Int>::SetToRandomHPDHelper<Z>::Func
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename T,typename Int>
 template<typename Z>
 inline void
@@ -884,6 +881,5 @@ DistMatrix<T,MC,STAR,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 
 } // namespace elemental

@@ -121,10 +121,8 @@ void ComputeGivens
 
 void Cholesky( char uplo, int n, const float* A, int lda );
 void Cholesky( char uplo, int n, const double* A, int lda );
-#ifndef WITHOUT_COMPLEX
 void Cholesky( char uplo, int n, const scomplex* A, int lda );
 void Cholesky( char uplo, int n, const dcomplex* A, int lda );
-#endif
 
 //
 // LU factorization (with partial pivoting)
@@ -132,10 +130,8 @@ void Cholesky( char uplo, int n, const dcomplex* A, int lda );
 
 void LU( int m, int n, float* A, int lda, int* p );
 void LU( int m, int n, double* A, int lda, int* p );
-#ifndef WITHOUT_COMPLEX
 void LU( int m, int n, scomplex* A, int lda, int* p );
 void LU( int m, int n, dcomplex* A, int lda, int* p );
-#endif
 
 //
 // For reducing well-conditioned Hermitian generalized-definite EVP's
@@ -148,14 +144,12 @@ void Hegst
 void Hegst
 ( int itype, char uplo,
   int n, double* A, int lda, const double* B, int ldb );
-#ifndef WITHOUT_COMPLEX
 void Hegst
 ( int itype, char uplo,
   int n, scomplex* A, int lda, const scomplex* B, int ldb );
 void Hegst
 ( int itype, char uplo,
   int n, dcomplex* A, int lda, const dcomplex* B, int ldb );
-#endif
 
 //
 // For computing the inverse of a triangular matrix
@@ -165,12 +159,10 @@ void TriangularInverse
 ( char uplo, char diag, int n, const float* A, int lda );
 void TriangularInverse
 ( char uplo, char diag, int n, const double* A, int lda );
-#ifndef WITHOUT_COMPLEX
 void TriangularInverse
 ( char uplo, char diag, int n, const scomplex* A, int lda );
 void TriangularInverse
 ( char uplo, char diag, int n, const dcomplex* A, int lda );
-#endif
 
 } // lapack
 } // elemental
@@ -212,14 +204,12 @@ void LAPACK(spotrf)
 void LAPACK(dpotrf)
 ( const char* uplo, const int* n, const double* A, const int* lda,
   int* info );
-#ifndef WITHOUT_COMPLEX
 void LAPACK(cpotrf)
 ( const char* uplo, const int* n, const elemental::scomplex* A, 
   const int* lda, int* info );
 void LAPACK(zpotrf)
 ( const char* uplo, const int* n, const elemental::dcomplex* A, 
   const int* lda, int* info );
-#endif
 
 // LU factorization (with partial pivoting)
 void LAPACK(sgetrf)
@@ -228,14 +218,12 @@ void LAPACK(sgetrf)
 void LAPACK(dgetrf)
 ( const int* m, const int* n, 
   double* A, const int* lda, int* p, int* info );
-#ifndef WITHOUT_COMPLEX
 void LAPACK(cgetrf)
 ( const int* m, const int* n, 
   elemental::scomplex* A, const int* lda, int* p, int* info );
 void LAPACK(zgetrf)
 ( const int* m, const int* n, 
   elemental::dcomplex* A, const int* lda, int* p, int* info );
-#endif
 
 // For reducing well-conditioned Hermitian generalized EVP to Hermitian 
 // standard form
@@ -245,7 +233,6 @@ void LAPACK(ssygst)
 void LAPACK(dsygst)
 ( const int* itype, const char* uplo, const int* n,
   double* A, int* lda, const double* B, int* ldb, int* info );
-#ifndef WITHOUT_COMPLEX
 void LAPACK(chegst)
 ( const int* itype, const char* uplo, const int* n,
         elemental::scomplex* A, const int* lda, 
@@ -254,7 +241,6 @@ void LAPACK(zhegst)
 ( const int* itype, const char* uplo, const int* n,
         elemental::dcomplex* A, const int* lda,
   const elemental::dcomplex* B, const int* ldb, int* info );
-#endif
 
 // Triangular inversion
 void LAPACK(strtri)
@@ -263,14 +249,12 @@ void LAPACK(strtri)
 void LAPACK(dtrtri)
 ( const char* uplo, const char* diag, 
   const int* n, const double* A, const int* lda, int* info );
-#ifndef WITHOUT_COMPLEX
 void LAPACK(ctrtri)
 ( const char* uplo, const char* diag,
   const int* n, const elemental::scomplex* A, const int* lda, int* info );
 void LAPACK(ztrtri)
 ( const char* uplo, const char* diag,
   const int* n, const elemental::dcomplex* A, const int* lda, int* info );
-#endif
 
 } // extern "C"
 

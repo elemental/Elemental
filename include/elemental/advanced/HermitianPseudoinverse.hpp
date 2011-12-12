@@ -98,7 +98,6 @@ elemental::advanced::HermitianPseudoinverse
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R>
 inline void
 elemental::advanced::HermitianPseudoinverse
@@ -135,5 +134,4 @@ elemental::advanced::HermitianPseudoinverse
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR

@@ -35,16 +35,12 @@
 namespace {
 bool createdPivotOpFloat = false;
 bool createdPivotOpDouble = false;
-#ifndef WITHOUT_COMPLEX
 bool createdPivotOpScomplex = false;
 bool createdPivotOpDcomplex = false;
-#endif
 elemental::mpi::Op pivotOpFloat;
 elemental::mpi::Op pivotOpDouble;
-#ifndef WITHOUT_COMPLEX
 elemental::mpi::Op pivotOpScomplex;
 elemental::mpi::Op pivotOpDcomplex;
-#endif
 }   
 template<typename T> // represents a real or complex ring
 void
@@ -108,7 +104,6 @@ elemental::advanced::internal::CreatePivotOp<double>()
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 void
 elemental::advanced::internal::CreatePivotOp<elemental::scomplex>()
@@ -142,7 +137,6 @@ elemental::advanced::internal::CreatePivotOp<elemental::dcomplex>()
     PopCallStack();
 #endif
 }
-#endif
 
 template<>
 void
@@ -178,7 +172,6 @@ elemental::advanced::internal::DestroyPivotOp<double>()
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 void
 elemental::advanced::internal::DestroyPivotOp<elemental::scomplex>()
@@ -212,7 +205,6 @@ elemental::advanced::internal::DestroyPivotOp<elemental::dcomplex>()
     PopCallStack();
 #endif
 }
-#endif
 
 template<>
 MPI_Op
@@ -240,7 +232,6 @@ elemental::advanced::internal::PivotOp<double>()
     return ::pivotOpDouble;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 elemental::mpi::Op
 elemental::advanced::internal::PivotOp<elemental::scomplex>()
@@ -266,7 +257,6 @@ elemental::advanced::internal::PivotOp<elemental::dcomplex>()
 #endif
     return ::pivotOpDcomplex;
 }
-#endif // WITHOUT_COMPLEX
 
 template void
 elemental::advanced::internal::PivotFunc<float>
@@ -276,7 +266,6 @@ template void
 elemental::advanced::internal::PivotFunc<double>
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
-#ifndef WITHOUT_COMPLEX
 template void
 elemental::advanced::internal::PivotFunc<elemental::scomplex>
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
@@ -284,4 +273,3 @@ elemental::advanced::internal::PivotFunc<elemental::scomplex>
 template void
 elemental::advanced::internal::PivotFunc<elemental::dcomplex>
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
-#endif

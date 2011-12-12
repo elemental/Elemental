@@ -33,10 +33,6 @@
 #ifndef ELEMENTAL_RANDOM_HPP
 #define ELEMENTAL_RANDOM_HPP 1
 
-#ifndef WITHOUT_COMPLEX
-#include <complex>
-#endif
-
 // Template conventions:
 //   G: general datatype
 //
@@ -78,12 +74,10 @@ SampleUnitBall<int>()
         return +1;
 }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 inline std::complex<int>
 SampleUnitBall< std::complex<int> >()
 { return std::complex<int>( SampleUnitBall<int>(), SampleUnitBall<int>() ); }
-#endif // WITHOUT_COMPLEX
 
 template<>
 inline float
@@ -95,7 +89,6 @@ inline double
 SampleUnitBall<double>()
 { return 2*plcg::ParallelUniform<double>()-1.0; }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 inline std::complex<float>
 SampleUnitBall< std::complex<float> >()
@@ -119,7 +112,6 @@ SampleUnitBall< std::complex<double> >()
 
     return u;
 }
-#endif
 
 } // elemental
 

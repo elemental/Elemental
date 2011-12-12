@@ -113,7 +113,6 @@ elemental::advanced::internal::PanelLQ( DistMatrix<R,MC,MR>& A )
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // representation of a real number
 inline void
 elemental::advanced::internal::PanelLQ
@@ -227,4 +226,3 @@ elemental::advanced::internal::PanelLQ
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX

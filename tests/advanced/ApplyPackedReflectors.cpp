@@ -128,7 +128,6 @@ void TestCorrectness
     }
 }
 
-#ifndef WITHOUT_COMPLEX
 template<typename R> // represents a real number
 void TestCorrectness
 ( Side side,
@@ -208,7 +207,6 @@ void TestCorrectness
         }
     }
 }
-#endif // WITHOUT_COMPLEX
 
 template<typename F> // represents a real or complex number
 void TestUT
@@ -264,7 +262,6 @@ void TestUT<double>
         TestCorrectness( side, uplo, order, offset, printMatrices, H );
 }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 void TestUT< complex<double> >
 ( Side side, UpperOrLower uplo, ForwardOrBackward order, Conjugation conjugation,
@@ -345,7 +342,6 @@ void TestUT< complex<double> >
         ( side, uplo, order, conjugation, offset, printMatrices, H, t );
     }
 }
-#endif
 
 int 
 main( int argc, char* argv[] )
@@ -408,7 +404,6 @@ main( int argc, char* argv[] )
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
 
-#ifndef WITHOUT_COMPLEX
         if( rank == 0 )
         {
             cout << "--------------------------------------\n"
@@ -418,7 +413,6 @@ main( int argc, char* argv[] )
         TestUT<dcomplex>
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
-#endif
     }
     catch( exception& e )
     {

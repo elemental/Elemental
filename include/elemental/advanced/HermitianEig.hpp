@@ -128,7 +128,6 @@ RealToRealInPlaceRedist
     }
 }
 
-#ifndef WITHOUT_COMPLEX
 inline void
 RealToComplexInPlaceRedist
 ( DistMatrix<std::complex<double>,MC,MR>& paddedZ,
@@ -214,7 +213,6 @@ RealToComplexInPlaceRedist
         }
     }
 }
-#endif // WITHOUT_COMPLEX
 
 } // namespace hermitian_eig
 } // namespace advanced
@@ -1052,7 +1050,6 @@ elemental::advanced::HermitianEig
 #endif
 }
 
-#ifndef WITHOUT_COMPLEX
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs of the complex, Hermitian matrix A         //
 //----------------------------------------------------------------------------//
@@ -1890,7 +1887,6 @@ elemental::advanced::HermitianEig
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_COMPLEX
 #endif // WITHOUT_PMRRR
 
 #undef TARGET_CHUNKS

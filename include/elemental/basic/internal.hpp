@@ -1737,7 +1737,6 @@ SymvGFlops<double>
 ( int m, double seconds )
 { return SymvGFlops<float>(m,seconds); }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 SymvGFlops<scomplex>
@@ -1749,7 +1748,6 @@ inline double
 SymvGFlops<dcomplex>
 ( int m, double seconds )
 { return 4.*SymvGFlops<float>(m,seconds); }
-#endif
 
 //
 // Level 3 Utility functions
@@ -1767,7 +1765,6 @@ GemmGFlops<double>
 ( int m, int n, int k, double seconds )
 { return GemmGFlops<float>(m,n,k,seconds); }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 GemmGFlops<scomplex>
@@ -1779,7 +1776,6 @@ inline double
 GemmGFlops<dcomplex>
 ( int m, int n, int k, double seconds )
 { return 4.*GemmGFlops<float>(m,n,k,seconds); }
-#endif
 
 template<>
 inline double
@@ -1798,7 +1794,6 @@ HemmGFlops<double>
 ( Side side, int m, int n, double seconds )
 { return HemmGFlops<float>(side,m,n,seconds); }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 HemmGFlops<scomplex>
@@ -1810,7 +1805,6 @@ inline double
 HemmGFlops<dcomplex>
 ( Side side, int m, int n, double seconds )
 { return 4.*HemmGFlops<float>(side,m,n,seconds); }
-#endif
 
 template<>
 inline double
@@ -1824,7 +1818,6 @@ Her2kGFlops<double>
 ( int m, int k, double seconds )
 { return Her2kGFlops<float>(m,k,seconds); }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 Her2kGFlops<scomplex>
@@ -1836,7 +1829,6 @@ inline double
 Her2kGFlops<dcomplex>
 ( int m, int k, double seconds )
 { return 4.*Her2kGFlops<float>(m,k,seconds); }
-#endif
 
 template<>
 inline double
@@ -1850,7 +1842,6 @@ HerkGFlops<double>
 ( int m, int k, double seconds )
 { return HerkGFlops<float>(m,k,seconds); }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 HerkGFlops<scomplex>
@@ -1862,7 +1853,6 @@ inline double
 HerkGFlops<dcomplex>
 ( int m, int k, double seconds )
 { return 4.*HerkGFlops<float>(m,k,seconds); }
-#endif
 
 template<>
 inline double
@@ -1874,7 +1864,6 @@ inline double
 HetrmmGFlops<double>( int n, double seconds )
 { return HetrmmGFlops<float>( n, seconds ); }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 HetrmmGFlops<scomplex>( int n, double seconds )
@@ -1884,7 +1873,6 @@ template<>
 inline double
 HetrmmGFlops<dcomplex>( int n, double seconds )
 { return 4.*HetrmmGFlops<double>( n, seconds ); }
-#endif
             
 template<>
 inline double
@@ -1903,7 +1891,6 @@ SymmGFlops<double>
 ( Side side, int m, int n, double seconds ) 
 { return SymmGFlops<float>(side,m,n,seconds); }
             
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 SymmGFlops<scomplex>
@@ -1915,7 +1902,6 @@ inline double
 SymmGFlops<dcomplex>
 ( Side side, int m, int n, double seconds )
 { return 4.*SymmGFlops<float>(side,m,n,seconds); }
-#endif
             
 template<>
 inline double
@@ -1929,7 +1915,6 @@ Syr2kGFlops<double>
 ( int m, int k, double seconds )
 { return Syr2kGFlops<float>(m,k,seconds); }
             
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 Syr2kGFlops<scomplex>
@@ -1941,7 +1926,6 @@ inline double
 Syr2kGFlops<dcomplex>
 ( int m, int k, double seconds )
 { return 4.*Syr2kGFlops<float>(m,k,seconds); }
-#endif
             
 template<>
 inline double
@@ -1955,7 +1939,6 @@ SyrkGFlops<double>
 ( int m, int k, double seconds )
 { return SyrkGFlops<float>(m,k,seconds); }
             
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 SyrkGFlops<scomplex>
@@ -1967,7 +1950,6 @@ inline double
 SyrkGFlops<dcomplex>
 ( int m, int k, double seconds )
 { return 4.*SyrkGFlops<float>(m,k,seconds); }
-#endif
             
 template<>
 inline double
@@ -1986,7 +1968,6 @@ TrmmGFlops<double>
 ( Side side, int m, int n, double seconds )
 { return TrmmGFlops<float>(side,m,n,seconds); }
 
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 TrmmGFlops<scomplex>
@@ -1998,7 +1979,6 @@ inline double
 TrmmGFlops<dcomplex>
 ( Side side, int m, int n, double seconds )
 { return 4.*TrmmGFlops<float>(side,m,n,seconds); }
-#endif
             
 template<>
 inline double
@@ -2017,7 +1997,6 @@ TrsmGFlops<double>
 ( Side side, int m, int n, double seconds )
 { return TrsmGFlops<float>(side,m,n,seconds); }
             
-#ifndef WITHOUT_COMPLEX
 template<>
 inline double
 TrsmGFlops<scomplex>
@@ -2029,7 +2008,6 @@ inline double
 TrsmGFlops<dcomplex>
 ( Side side, int m, int n, double seconds )
 { return 4.*TrsmGFlops<float>(side,m,n,seconds); }
-#endif
             
 } // internal
 } // basic
