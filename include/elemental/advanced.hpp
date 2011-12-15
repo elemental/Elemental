@@ -976,6 +976,31 @@ template<typename R>
 void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z );
 
 //----------------------------------------------------------------------------//
+// Bidiag (Reduce general matrix to bidiagonal form):                         //
+//                                                                            //
+//----------------------------------------------------------------------------//
+
+// NOTE: Currently unblocked
+template<typename R>
+void Bidiag( Matrix<R>& A );
+
+// NOTE: Currently unblocked
+template<typename R>
+void Bidiag
+( Matrix<std::complex<R> >& A, 
+  Matrix<std::complex<R> >& tP, 
+  Matrix<std::complex<R> >& tQ );
+
+template<typename R>
+void Bidiag( DistMatrix<R,MC,MR>& A );
+
+template<typename R>
+void Bidiag
+( DistMatrix<std::complex<R>,MC,MR>& A,
+  DistMatrix<std::complex<R>,STAR,STAR>& tP,
+  DistMatrix<std::complex<R>,STAR,STAR>& tQ );
+
+//----------------------------------------------------------------------------//
 // HermitianTridiag (Reduce Hermitian matrix to tridiagonal form):            //
 //                                                                            //
 // The diagonal and sub/super-diagonal of A are overwritten with a similar    //
@@ -1057,6 +1082,7 @@ void TriangularInverse
 #include "./advanced/ApplyPackedReflectors.hpp"
 #include "./advanced/ApplyColumnPivots.hpp"
 #include "./advanced/ApplyRowPivots.hpp"
+#include "./advanced/Bidiag.hpp"
 #include "./advanced/Cholesky.hpp"
 #include "./advanced/CholeskySolve.hpp"
 #include "./advanced/ComposePivots.hpp"

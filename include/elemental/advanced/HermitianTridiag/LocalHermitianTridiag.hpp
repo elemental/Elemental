@@ -36,8 +36,7 @@ namespace advanced {
 namespace hermitian_tridiag {
 
 template<typename R> // representation of a real number
-void
-HermitianTridiagL( Matrix<R>& A )
+inline void HermitianTridiagL( Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiagL");
@@ -71,16 +70,14 @@ HermitianTridiagL( Matrix<R>& A )
 
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
-        R tau = advanced::Reflector( alpha21T, a21B );
-
-        R epsilon1 = alpha21T.Get(0,0);
+        const R tau = advanced::Reflector( alpha21T, a21B );
+        const R epsilon1 = alpha21T.Get(0,0);
         alpha21T.Set(0,0,(R)1);
 
         basic::Symv( LOWER, tau, A22, a21, (R)0, w21 );
-        R alpha = -static_cast<R>(0.5)*tau*basic::Dot( w21, a21 );
+        const R alpha = -static_cast<R>(0.5)*tau*basic::Dot( w21, a21 );
         basic::Axpy( alpha, a21, w21 );
         basic::Syr2( LOWER, (R)-1, a21, w21, A22 );
-
         alpha21T.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -97,8 +94,7 @@ HermitianTridiagL( Matrix<R>& A )
 }
 
 template<typename R> // representation of a real number
-void
-HermitianTridiagU( Matrix<R>& A )
+inline void HermitianTridiagU( Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiagU");
@@ -132,16 +128,14 @@ HermitianTridiagU( Matrix<R>& A )
 
         w01.ResizeTo( a01.Height(), 1 );
         //--------------------------------------------------------------------//
-        R tau = advanced::Reflector( alpha01B, a01T );
-
-        R epsilon1 = alpha01B.Get(0,0);
+        const R tau = advanced::Reflector( alpha01B, a01T );
+        const R epsilon1 = alpha01B.Get(0,0);
         alpha01B.Set(0,0,(R)1);
 
         basic::Symv( UPPER, tau, A00, a01, (R)0, w01 );
-        R alpha = -static_cast<R>(0.5)*tau*basic::Dot( w01, a01 );
+        const R alpha = -static_cast<R>(0.5)*tau*basic::Dot( w01, a01 );
         basic::Axpy( alpha, a01, w01 );
         basic::Syr2( UPPER, (R)-1, a01, w01, A00 );
-
         alpha01B.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -158,32 +152,29 @@ HermitianTridiagU( Matrix<R>& A )
 }
 
 template<typename R> // representation of a real number
-void
-HermitianTridiagL
+inline void HermitianTridiagL
 ( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiagL");
+#endif
+    const int tHeight = std::max(A.Height()-1,0);
+#ifndef RELEASE
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
-    if( t.Viewing() && (t.Height() != A.Height()-1 || t.Width() != 1) )
-        throw std::logic_error
-        ("t must be a vector of the same height as A minus one");
+    if( t.Viewing() && (t.Height() != tHeight || t.Width() != 1) )
+        throw std::logic_error("t is of the wrong size");
 #endif
     typedef std::complex<R> C;
 
     if( !t.Viewing() )
-        t.ResizeTo( A.Height()-1, 1 );
+        t.ResizeTo( tHeight, 1 );
 
     // Matrix views 
     Matrix<C>
         ATL, ATR,  A00, a01,     A02,  alpha21T,
         ABL, ABR,  a10, alpha11, a12,  a21B,
                    A20, a21,     A22;
-    Matrix<C>
-        tT,  t0,
-        tB,  tau1,
-             t2;
 
     // Temporary matrices
     Matrix<C> w21;
@@ -192,9 +183,6 @@ HermitianTridiagL
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionDown
-    ( t, tT,
-         tB, 0 );
     while( ATL.Height()+1 < A.Height() )
     {
         RepartitionDownDiagonal
@@ -203,29 +191,21 @@ HermitianTridiagL
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        RepartitionDown
-        ( tT,  t0, 
-         /**/ /**/
-               tau1,
-          tB,  t2 );
-
         PartitionDown
         ( a21, alpha21T,
                a21B,     1 );
 
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
-        C tau = advanced::Reflector( alpha21T, a21B );
-        tau1.Set(0,0,tau);
-
-        R epsilon1 = alpha21T.GetReal(0,0);
+        const C tau = advanced::Reflector( alpha21T, a21B );
+        const R epsilon1 = alpha21T.GetReal(0,0);
+        t.Set(A00.Height(),0,tau);
         alpha21T.Set(0,0,(C)1);
 
         basic::Hemv( LOWER, tau, A22, a21, (C)0, w21 );
-        C alpha = -static_cast<C>(0.5)*tau*basic::Dot( w21, a21 );
+        const C alpha = -static_cast<C>(0.5)*tau*basic::Dot( w21, a21 );
         basic::Axpy( alpha, a21, w21 );
         basic::Her2( LOWER, (C)-1, a21, w21, A22 );
-
         alpha21T.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -234,12 +214,6 @@ HermitianTridiagL
                /**/       a10, alpha11, /**/ a12,
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
-
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
     }
     PopBlocksizeStack();
 #ifndef RELEASE
@@ -248,32 +222,29 @@ HermitianTridiagL
 }
 
 template<typename R> // representation of a real number
-void
-HermitianTridiagU
+inline void HermitianTridiagU
 ( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiagU");
+#endif
+    const int tHeight = std::max(A.Height()-1,0);
+#ifndef RELEASE
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
-    if( t.Viewing() && (t.Height() != A.Height()-1 || t.Width() != 1) )
-        throw std::logic_error
-        ("t must be a vector of the same height as A minus one");
+    if( t.Viewing() && (t.Height() != tHeight || t.Width() != 1) )
+        throw std::logic_error("t is of the wrong size");
 #endif
     typedef std::complex<R> C;
     
     if( !t.Viewing() )
-        t.ResizeTo( A.Height()-1, 1 );
+        t.ResizeTo( tHeight, 1 );
 
     // Matrix views 
     Matrix<C>
         ATL, ATR,  A00, a01,     A02,  a01T,
         ABL, ABR,  a10, alpha11, a12,  alpha01B,
                    A20, a21,     A22;
-    Matrix<C>
-        tT,  t0,
-        tB,  tau1,
-             t2;
 
     // Temporary matrices
     Matrix<C> w01;
@@ -282,9 +253,6 @@ HermitianTridiagU
     PartitionUpDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionUp
-    ( t, tT,
-         tB, 0 );
     while( ABR.Height()+1 < A.Height() )
     {
         RepartitionUpDiagonal
@@ -293,29 +261,21 @@ HermitianTridiagU
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
 
-        RepartitionUp
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
-
         PartitionUp
         ( a01, a01T,
                alpha01B, 1 );
 
         w01.ResizeTo( a01.Height(), 1 );
         //--------------------------------------------------------------------//
-        C tau = advanced::Reflector( alpha01B, a01T );
-        tau1.Set(0,0,tau);
-
-        R epsilon1 = alpha01B.GetReal(0,0);
+        const C tau = advanced::Reflector( alpha01B, a01T );
+        const R epsilon1 = alpha01B.GetReal(0,0);
+        t.Set(t.Height()-1-A22.Height(),0,tau);
         alpha01B.Set(0,0,(C)1);
 
         basic::Hemv( UPPER, tau, A00, a01, (C)0, w01 );
-        C alpha = -static_cast<C>(0.5)*tau*basic::Dot( w01, a01 );
+        const C alpha = -static_cast<C>(0.5)*tau*basic::Dot( w01, a01 );
         basic::Axpy( alpha, a01, w01 );
         basic::Her2( UPPER, (C)-1, a01, w01, A00 );
-
         alpha01B.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -324,12 +284,6 @@ HermitianTridiagU
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
-
-        SlidePartitionUp
-        ( tT,  t0,
-         /**/ /****/
-               tau1,
-          tB,  t2 );
     }
     PopBlocksizeStack();
 #ifndef RELEASE
@@ -342,12 +296,11 @@ HermitianTridiagU
 } // namespace elemental
 
 template<typename R> // representation of a real number
-inline void
-elemental::advanced::HermitianTridiag
+inline void elemental::advanced::HermitianTridiag
 ( UpperOrLower uplo, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianTridiag");
+    PushCallStack("advanced::HermitianTridiag");
 #endif
     if( uplo == LOWER )
         hermitian_tridiag::HermitianTridiagL( A );
@@ -359,12 +312,11 @@ elemental::advanced::HermitianTridiag
 }
 
 template<typename R> // representation of a real number
-inline void
-elemental::advanced::HermitianTridiag
+inline void elemental::advanced::HermitianTridiag
 ( UpperOrLower uplo, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianTridiag");
+    PushCallStack("advanced::HermitianTridiag");
 #endif
     if( uplo == LOWER )
         hermitian_tridiag::HermitianTridiagL( A, t );
