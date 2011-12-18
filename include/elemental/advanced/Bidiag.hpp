@@ -31,7 +31,10 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 #include "./Bidiag/LocalBidiag.hpp"
+#include "./Bidiag/PanelBidiagU.hpp"
+#include "./Bidiag/BidiagU.hpp"
 
 template<typename R> 
 inline void elemental::advanced::Bidiag( DistMatrix<R,MC,MR>& A )
@@ -39,13 +42,11 @@ inline void elemental::advanced::Bidiag( DistMatrix<R,MC,MR>& A )
 #ifndef RELEASE
     PushCallStack("advanced::Bidiag");
 #endif
-    throw std::logic_error("This routine not yet written");
-    /*
     if( A.Height() >= A.Width() )
         advanced::internal::BidiagU( A );
     else
-        advanced::internal::BidiagL( A );
-    */
+        throw std::logic_error("This routine is not yet written");
+        // advanced::internal::BidiagL( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -60,14 +61,11 @@ inline void elemental::advanced::Bidiag
 #ifndef RELEASE
     PushCallStack("advanced::Bidiag");
 #endif
-    typedef std::complex<R> C;
-    throw std::logic_error("This routine not yet written");
-    /*
     if( A.Height() >= A.Width() )
         advanced::internal::BidiagU( A, tP, tQ );
     else
-        advanced::internal::BidiagL( A, tP, tQ );
-    */
+        throw std::logic_error("This routine is not yet written");
+        //advanced::internal::BidiagL( A, tP, tQ );
 #ifndef RELEASE
     PopCallStack();
 #endif

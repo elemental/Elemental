@@ -97,17 +97,13 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
 
     // Temporary distributions
     std::vector<R> w21LastLocalBuffer(A.Height()/r+1);
-    DistMatrix<R,MC,STAR> a21_MC_STAR(g);
-    DistMatrix<R,MC,STAR> a21B_MC_STAR(g);
-    DistMatrix<R,MR,STAR> a21_MR_STAR(g);
-    DistMatrix<R,MC,STAR> p21_MC_STAR(g);
-    DistMatrix<R,MC,STAR> p21B_MC_STAR(g);
+    DistMatrix<R,MC,STAR> a21_MC_STAR(g), a21B_MC_STAR(g), a21Last_MC_STAR(g);
+    DistMatrix<R,MR,STAR> a21_MR_STAR(g), a21Last_MR_STAR(g);
+    DistMatrix<R,MC,STAR> p21_MC_STAR(g), p21B_MC_STAR(g);
     DistMatrix<R,MR,STAR> p21_MR_STAR(g);
     DistMatrix<R,MR,STAR> q21_MR_STAR(g);
     DistMatrix<R,MR,STAR> x01_MR_STAR(g);
     DistMatrix<R,MR,STAR> y01_MR_STAR(g);
-    DistMatrix<R,MC,STAR> a21Last_MC_STAR(g);
-    DistMatrix<R,MR,STAR> a21Last_MR_STAR(g);
     DistMatrix<R,MC,STAR> w21Last_MC_STAR(g);
     DistMatrix<R,MR,STAR> w21Last_MR_STAR(g);
 
@@ -177,13 +173,14 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
         p21_MC_STAR.AlignWith( A22 );
         p21_MR_STAR.AlignWith( A22 );
         q21_MR_STAR.AlignWith( A22 );
+        x01_MR_STAR.AlignWith( W20B );
+        y01_MR_STAR.AlignWith( W20B );
+
         a21_MC_STAR.ResizeTo( a21.Height(), 1 );
         a21_MR_STAR.ResizeTo( a21.Height(), 1 );
         p21_MC_STAR.ResizeTo( a21.Height(), 1 );
         p21_MR_STAR.ResizeTo( a21.Height(), 1 );
         q21_MR_STAR.ResizeTo( a21.Height(), 1 );
-        x01_MR_STAR.AlignWith( W20B );
-        y01_MR_STAR.AlignWith( W20B );
         x01_MR_STAR.ResizeTo( W20B.Width(), 1 );
         y01_MR_STAR.ResizeTo( W20B.Width(), 1 );
 
@@ -411,21 +408,21 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
             // entries. We trash the upper triangle of our panel of A since we 
             // are only doing slightly more work and we can replace it
             // afterwards.
-            DistMatrix<R,MC,STAR> a21Last_MC_STAR_Bottom(g);
-            DistMatrix<R,MR,STAR> a21Last_MR_STAR_Bottom(g);
-            DistMatrix<R,MC,STAR> w21Last_MC_STAR_Bottom(g);
-            DistMatrix<R,MR,STAR> w21Last_MR_STAR_Bottom(g);
+            DistMatrix<R,MC,STAR> a21Last_MC_STAR_Bottom(g),
+                                  w21Last_MC_STAR_Bottom(g);
+            DistMatrix<R,MR,STAR> a21Last_MR_STAR_Bottom(g),
+                                  w21Last_MR_STAR_Bottom(g);
             a21Last_MC_STAR_Bottom.View
             ( a21Last_MC_STAR, 1, 0, a21Last_MC_STAR.Height()-1, 1 );
-            a21Last_MR_STAR_Bottom.View
-            ( a21Last_MR_STAR, 1, 0, a21Last_MR_STAR.Height()-1, 1 );
             w21Last_MC_STAR_Bottom.View
             ( w21Last_MC_STAR, 1, 0, w21Last_MC_STAR.Height()-1, 1 );
+            a21Last_MR_STAR_Bottom.View
+            ( a21Last_MR_STAR, 1, 0, a21Last_MR_STAR.Height()-1, 1 );
             w21Last_MR_STAR_Bottom.View
             ( w21Last_MR_STAR, 1, 0, w21Last_MR_STAR.Height()-1, 1 );
             const R* a21_MC_STAR_Buffer = a21Last_MC_STAR_Bottom.LocalBuffer();
-            const R* a21_MR_STAR_Buffer = a21Last_MR_STAR_Bottom.LocalBuffer();
             const R* w21_MC_STAR_Buffer = w21Last_MC_STAR_Bottom.LocalBuffer();
+            const R* a21_MR_STAR_Buffer = a21Last_MR_STAR_Bottom.LocalBuffer();
             const R* w21_MR_STAR_Buffer = w21Last_MR_STAR_Bottom.LocalBuffer();
             R* A22Buffer = A22.LocalBuffer();
             int localHeight = W22.LocalHeight();
@@ -733,23 +730,24 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
         x01_MR_STAR.FreeAlignments();
         y01_MR_STAR.FreeAlignments();
 
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+        SlidePartitionDown
+        ( eT,  e0,
+               epsilon1,
+         /**/ /********/
+          eB,  e2 );
 
         SlidePartitionDownDiagonal
         ( WTL, /**/ WTR,  W00, w01,     /**/ W02,
                /**/       w10, omega11, /**/ w12,
          /*************/ /**********************/
           WBL, /**/ WBR,  W20, w21,     /**/ W22 );
-        
-        SlidePartitionDown
-        ( eT,  e0,
-               epsilon1,
-         /**/ /********/
-          eB,  e2 );
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
+               /**/       a10, alpha11, /**/ a12,
+         /*************/ /**********************/
+          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+
         firstIteration = false;
     }
     PopBlocksizeStack();
@@ -841,17 +839,13 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
 
     // Temporary distributions
     std::vector<C> w21LastLocalBuffer(A.Height()/r+1);
-    DistMatrix<C,MC,STAR> a21_MC_STAR(g);
-    DistMatrix<C,MC,STAR> a21B_MC_STAR(g);
-    DistMatrix<C,MR,STAR> a21_MR_STAR(g);
-    DistMatrix<C,MC,STAR> p21_MC_STAR(g);
-    DistMatrix<C,MC,STAR> p21B_MC_STAR(g);
+    DistMatrix<C,MC,STAR> a21_MC_STAR(g), a21B_MC_STAR(g), a21Last_MC_STAR(g);
+    DistMatrix<C,MR,STAR> a21_MR_STAR(g), a21Last_MR_STAR(g);
+    DistMatrix<C,MC,STAR> p21_MC_STAR(g), p21B_MC_STAR(g);
     DistMatrix<C,MR,STAR> p21_MR_STAR(g);
     DistMatrix<C,MR,STAR> q21_MR_STAR(g);
     DistMatrix<C,MR,STAR> x01_MR_STAR(g);
     DistMatrix<C,MR,STAR> y01_MR_STAR(g);
-    DistMatrix<C,MC,STAR> a21Last_MC_STAR(g);
-    DistMatrix<C,MR,STAR> a21Last_MR_STAR(g);
     DistMatrix<C,MC,STAR> w21Last_MC_STAR(g);
     DistMatrix<C,MR,STAR> w21Last_MR_STAR(g);
 
@@ -930,13 +924,14 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
         p21_MC_STAR.AlignWith( A22 );
         p21_MR_STAR.AlignWith( A22 );
         q21_MR_STAR.AlignWith( A22 );
+        x01_MR_STAR.AlignWith( W20B );
+        y01_MR_STAR.AlignWith( W20B );
+
         a21_MC_STAR.ResizeTo( a21.Height(), 1 );
         a21_MR_STAR.ResizeTo( a21.Height(), 1 );
         p21_MC_STAR.ResizeTo( a21.Height(), 1 );
         p21_MR_STAR.ResizeTo( a21.Height(), 1 );
         q21_MR_STAR.ResizeTo( a21.Height(), 1 );
-        x01_MR_STAR.AlignWith( W20B );
-        y01_MR_STAR.AlignWith( W20B );
         x01_MR_STAR.ResizeTo( W20B.Width(), 1 );
         y01_MR_STAR.ResizeTo( W20B.Width(), 1 );
 
@@ -1166,21 +1161,21 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
             // entries. We trash the upper triangle of our panel of A since we 
             // are only doing slightly more work and we can replace it
             // afterwards.
-            DistMatrix<C,MC,STAR> a21Last_MC_STAR_Bottom(g);
-            DistMatrix<C,MR,STAR> a21Last_MR_STAR_Bottom(g);
-            DistMatrix<C,MC,STAR> w21Last_MC_STAR_Bottom(g);
-            DistMatrix<C,MR,STAR> w21Last_MR_STAR_Bottom(g);
+            DistMatrix<C,MC,STAR> a21Last_MC_STAR_Bottom(g),
+                                  w21Last_MC_STAR_Bottom(g);
+            DistMatrix<C,MR,STAR> a21Last_MR_STAR_Bottom(g),
+                                  w21Last_MR_STAR_Bottom(g);
             a21Last_MC_STAR_Bottom.View
             ( a21Last_MC_STAR, 1, 0, a21Last_MC_STAR.Height()-1, 1 );
-            a21Last_MR_STAR_Bottom.View
-            ( a21Last_MR_STAR, 1, 0, a21Last_MR_STAR.Height()-1, 1 );
             w21Last_MC_STAR_Bottom.View
             ( w21Last_MC_STAR, 1, 0, w21Last_MC_STAR.Height()-1, 1 );
+            a21Last_MR_STAR_Bottom.View
+            ( a21Last_MR_STAR, 1, 0, a21Last_MR_STAR.Height()-1, 1 );
             w21Last_MR_STAR_Bottom.View
             ( w21Last_MR_STAR, 1, 0, w21Last_MR_STAR.Height()-1, 1 );
             const C* a21_MC_STAR_Buffer = a21Last_MC_STAR_Bottom.LocalBuffer();
-            const C* a21_MR_STAR_Buffer = a21Last_MR_STAR_Bottom.LocalBuffer();
             const C* w21_MC_STAR_Buffer = w21Last_MC_STAR_Bottom.LocalBuffer();
+            const C* a21_MR_STAR_Buffer = a21Last_MR_STAR_Bottom.LocalBuffer();
             const C* w21_MR_STAR_Buffer = w21Last_MR_STAR_Bottom.LocalBuffer();
             C* A22Buffer = A22.LocalBuffer();
             int localHeight = W22.LocalHeight();
@@ -1491,29 +1486,30 @@ elemental::advanced::internal::HermitianPanelTridiagLSquare
         x01_MR_STAR.FreeAlignments();
         y01_MR_STAR.FreeAlignments();
 
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+        SlidePartitionDown
+        ( tT,  t0,
+               tau1,
+         /**/ /****/
+          tB,  t2 );
 
-        SlidePartitionDownDiagonal
-        ( WTL, /**/ WTR,  W00, w01,     /**/ W02,
-               /**/       w10, omega11, /**/ w12,
-         /*************/ /**********************/
-          WBL, /**/ WBR,  W20, w21,     /**/ W22 );
-        
         SlidePartitionDown
         ( eT,  e0,
                epsilon1,
          /**/ /********/
           eB,  e2 );
 
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
+        SlidePartitionDownDiagonal
+        ( WTL, /**/ WTR,  W00, w01,     /**/ W02,
+               /**/       w10, omega11, /**/ w12,
+         /*************/ /**********************/
+          WBL, /**/ WBR,  W20, w21,     /**/ W22 );
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
+               /**/       a10, alpha11, /**/ a12,
+         /*************/ /**********************/
+          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+
         firstIteration = false;
     }
     PopBlocksizeStack();

@@ -81,8 +81,8 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
 
     // Matrix views 
     DistMatrix<R,MC,MR> 
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g), a01Top(g),
-        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),           alpha01Bottom(g),
+        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g), a01T(g),
+        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),           alpha01B(g),
                          A20(g), a21(g),     A22(g),  A02T(g), A00Pan(g);
     DistMatrix<R,MC,MR> 
         WTL(g), WTR(g),  W00(g), w01(g),     W02(g),  WCol(g),
@@ -94,17 +94,13 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
 
     // Temporary distributions
     std::vector<R> w01LastLocalBuffer(A.Height()/r+1);
-    DistMatrix<R,MC,STAR> a01_MC_STAR(g);
-    DistMatrix<R,MC,STAR> a01T_MC_STAR(g);
-    DistMatrix<R,MR,STAR> a01_MR_STAR(g);
-    DistMatrix<R,MC,STAR> p01_MC_STAR(g);
-    DistMatrix<R,MC,STAR> p01T_MC_STAR(g);
+    DistMatrix<R,MC,STAR> a01_MC_STAR(g), a01T_MC_STAR(g), a01Last_MC_STAR(g);
+    DistMatrix<R,MR,STAR> a01_MR_STAR(g), a01Last_MR_STAR(g);
+    DistMatrix<R,MC,STAR> p01_MC_STAR(g), p01T_MC_STAR(g);
     DistMatrix<R,MR,STAR> p01_MR_STAR(g);
     DistMatrix<R,MR,STAR> q01_MR_STAR(g);
     DistMatrix<R,MR,STAR> x21_MR_STAR(g);
     DistMatrix<R,MR,STAR> y21_MR_STAR(g);
-    DistMatrix<R,MC,STAR> a01Last_MC_STAR(g);
-    DistMatrix<R,MR,STAR> a01Last_MR_STAR(g);
     DistMatrix<R,MC,STAR> w01Last_MC_STAR(g);
     DistMatrix<R,MR,STAR> w01Last_MR_STAR(g);
 
@@ -169,21 +165,22 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
         }
             
         PartitionUp
-        ( a01, a01Top,
-               alpha01Bottom, 1 );
+        ( a01, a01T,
+               alpha01B, 1 );
 
         a01_MC_STAR.AlignWith( A00 );
         a01_MR_STAR.AlignWith( A00 );
         p01_MC_STAR.AlignWith( A00 );
         p01_MR_STAR.AlignWith( A00 );
         q01_MR_STAR.AlignWith( A00 );
+        x21_MR_STAR.AlignWith( A02T );
+        y21_MR_STAR.AlignWith( A02T );
+
         a01_MC_STAR.ResizeTo( a01.Height(), 1 );
         a01_MR_STAR.ResizeTo( a01.Height(), 1 );
         p01_MC_STAR.ResizeTo( a01.Height(), 1 );
         p01_MR_STAR.ResizeTo( a01.Height(), 1 );
         q01_MR_STAR.ResizeTo( a01.Height(), 1 );
-        x21_MR_STAR.AlignWith( A02T );
-        y21_MR_STAR.AlignWith( A02T );
         x21_MR_STAR.ResizeTo( A02.Width(), 1 );
         y21_MR_STAR.ResizeTo( A02.Width(), 1 );
 
@@ -211,12 +208,12 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
         if( thisIsMyCol )
         {
             // Compute the Householder reflector
-            tau = advanced::internal::ColReflector( alpha01Bottom, a01Top );
+            tau = advanced::internal::ColReflector( alpha01B, a01T );
         }
         // Store the subdiagonal value and turn a01 into a proper scaled 
         // reflector by explicitly placing the implicit one in its bottom entry
-        alpha01Bottom.GetDiagonal( epsilon1 );
-        alpha01Bottom.Set( 0, 0, (R)1 );
+        alpha01B.GetDiagonal( epsilon1 );
+        alpha01B.Set( 0, 0, (R)1 );
 
         // If this is the first iteration, have each member of the owning 
         // process column broadcast tau and a01 within its process row. 
@@ -400,21 +397,19 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
             // entries. We trash the lower triangle of our panel of A since we 
             // are only doing slightly more work and we can replace it
             // afterwards.
-            DistMatrix<R,MC,STAR> a01Last_MC_STAR_Top(g);
-            DistMatrix<R,MR,STAR> a01Last_MR_STAR_TopPan(g);
-            DistMatrix<R,MC,STAR> w01Last_MC_STAR_Top(g);
-            DistMatrix<R,MR,STAR> w01Last_MR_STAR_TopPan(g);
-            a01Last_MC_STAR_Top.View
-            ( a01Last_MC_STAR, 0, 0, a01.Height(), 1 );
+            DistMatrix<R,MC,STAR> a01Last_MC_STAR_Top(g),
+                                  w01Last_MC_STAR_Top(g);
+            DistMatrix<R,MR,STAR> a01Last_MR_STAR_TopPan(g),
+                                  w01Last_MR_STAR_TopPan(g);
+            a01Last_MC_STAR_Top.View( a01Last_MC_STAR, 0, 0, a01.Height(), 1 );
+            w01Last_MC_STAR_Top.View( w01Last_MC_STAR, 0, 0, a01.Height(), 1 );
             a01Last_MR_STAR_TopPan.View
             ( a01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
-            w01Last_MC_STAR_Top.View
-            ( w01Last_MC_STAR, 0, 0, a01.Height(), 1 );
             w01Last_MR_STAR_TopPan.View
             ( w01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
             const R* a01_MC_STAR_Buffer = a01Last_MC_STAR_Top.LocalBuffer();
-            const R* a01_MR_STAR_Buffer = a01Last_MR_STAR_TopPan.LocalBuffer();
             const R* w01_MC_STAR_Buffer = w01Last_MC_STAR_Top.LocalBuffer();
+            const R* a01_MR_STAR_Buffer = a01Last_MR_STAR_TopPan.LocalBuffer();
             const R* w01_MR_STAR_Buffer = w01Last_MR_STAR_TopPan.LocalBuffer();
             R* A00PanBuffer = A00Pan.LocalBuffer();
             int localHeight = A00Pan.LocalHeight();
@@ -721,6 +716,18 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
         q01_MR_STAR.FreeAlignments();
         x21_MR_STAR.FreeAlignments();
         y21_MR_STAR.FreeAlignments();
+        
+        SlidePartitionUp
+        ( eT,  e0,
+         /**/ /********/
+               epsilon1,
+          eB,  e2 );
+ 
+        SlidePartitionUpDiagonal
+        ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
+         /*************/ /**********************/
+               /**/       w10, /**/ omega11, w12,
+          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
 
         SlidePartitionUpDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
@@ -728,18 +735,7 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        SlidePartitionUpDiagonal
-        ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
-         /*************/ /**********************/
-               /**/       w10, /**/ omega11, w12,
-          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
-        
-        SlidePartitionUp
-        ( eT,  e0,
-         /**/ /********/
-               epsilon1,
-          eB,  e2 );
-        firstIteration = false;
+       firstIteration = false;
     }
     PopBlocksizeStack();
 
@@ -805,8 +801,8 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
 
     // Matrix views 
     DistMatrix<C,MC,MR> 
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g), a01Top(g),
-        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),           alpha01Bottom(g),
+        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g), a01T(g),
+        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),           alpha01B(g),
                          A20(g), a21(g),     A22(g),  A02T(g), A00Pan(g);
     DistMatrix<C,MC,MR> 
         WTL(g), WTR(g),  W00(g), w01(g),     W02(g),  WCol(g),
@@ -822,17 +818,13 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
 
     // Temporary distributions
     std::vector<C> w01LastLocalBuffer(A.Height()/r+1);
-    DistMatrix<C,MC,STAR> a01_MC_STAR(g);
-    DistMatrix<C,MC,STAR> a01T_MC_STAR(g);
-    DistMatrix<C,MR,STAR> a01_MR_STAR(g);
-    DistMatrix<C,MC,STAR> p01_MC_STAR(g);
-    DistMatrix<C,MC,STAR> p01T_MC_STAR(g);
+    DistMatrix<C,MC,STAR> a01_MC_STAR(g), a01T_MC_STAR(g), a01Last_MC_STAR(g);
+    DistMatrix<C,MR,STAR> a01_MR_STAR(g), a01Last_MR_STAR(g);
+    DistMatrix<C,MC,STAR> p01_MC_STAR(g), p01T_MC_STAR(g);
     DistMatrix<C,MR,STAR> p01_MR_STAR(g);
     DistMatrix<C,MR,STAR> q01_MR_STAR(g);
     DistMatrix<C,MR,STAR> x21_MR_STAR(g);
     DistMatrix<C,MR,STAR> y21_MR_STAR(g);
-    DistMatrix<C,MC,STAR> a01Last_MC_STAR(g);
-    DistMatrix<C,MR,STAR> a01Last_MR_STAR(g);
     DistMatrix<C,MC,STAR> w01Last_MC_STAR(g);
     DistMatrix<C,MR,STAR> w01Last_MR_STAR(g);
 
@@ -906,21 +898,22 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
         }
             
         PartitionUp
-        ( a01, a01Top,
-               alpha01Bottom, 1 );
+        ( a01, a01T,
+               alpha01B, 1 );
 
         a01_MC_STAR.AlignWith( A00 );
         a01_MR_STAR.AlignWith( A00 );
         p01_MC_STAR.AlignWith( A00 );
         p01_MR_STAR.AlignWith( A00 );
         q01_MR_STAR.AlignWith( A00 );
+        x21_MR_STAR.AlignWith( A02T );
+        y21_MR_STAR.AlignWith( A02T );
+        
         a01_MC_STAR.ResizeTo( a01.Height(), 1 );
         a01_MR_STAR.ResizeTo( a01.Height(), 1 );
         p01_MC_STAR.ResizeTo( a01.Height(), 1 );
         p01_MR_STAR.ResizeTo( a01.Height(), 1 );
         q01_MR_STAR.ResizeTo( a01.Height(), 1 );
-        x21_MR_STAR.AlignWith( A02T );
-        y21_MR_STAR.AlignWith( A02T );
         x21_MR_STAR.ResizeTo( A02.Width(), 1 );
         y21_MR_STAR.ResizeTo( A02.Width(), 1 );
 
@@ -948,14 +941,14 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
         if( thisIsMyCol )
         {
             // Compute the Householder reflector
-            tau = advanced::internal::ColReflector( alpha01Bottom, a01Top );
-            if( g.MCRank() == alpha01Bottom.ColAlignment() )
+            tau = advanced::internal::ColReflector( alpha01B, a01T );
+            if( g.MCRank() == alpha01B.ColAlignment() )
                 tau1.SetLocalEntry(0,0,tau);
         }
         // Store the subdiagonal value and turn a01 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry.
-        alpha01Bottom.GetRealDiagonal( epsilon1 );
-        alpha01Bottom.Set( 0, 0, (C)1 );
+        alpha01B.GetRealDiagonal( epsilon1 );
+        alpha01B.Set( 0, 0, (C)1 );
 
         // If this is the first iteration, have each member of the owning 
         // process column broadcast tau and a01 within its process row. 
@@ -1139,21 +1132,19 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
             // entries. We trash the lower triangle of our panel of A since we 
             // are only doing slightly more work and we can replace it
             // afterwards.
-            DistMatrix<C,MC,STAR> a01Last_MC_STAR_Top(g);
-            DistMatrix<C,MR,STAR> a01Last_MR_STAR_TopPan(g);
-            DistMatrix<C,MC,STAR> w01Last_MC_STAR_Top(g);
-            DistMatrix<C,MR,STAR> w01Last_MR_STAR_TopPan(g);
-            a01Last_MC_STAR_Top.View
-            ( a01Last_MC_STAR, 0, 0, a01.Height(), 1 );            
+            DistMatrix<C,MC,STAR> a01Last_MC_STAR_Top(g),
+                                  w01Last_MC_STAR_Top(g);
+            DistMatrix<C,MR,STAR> a01Last_MR_STAR_TopPan(g),
+                                  w01Last_MR_STAR_TopPan(g);
+            a01Last_MC_STAR_Top.View( a01Last_MC_STAR, 0, 0, a01.Height(), 1 ); 
+            w01Last_MC_STAR_Top.View( w01Last_MC_STAR, 0, 0, a01.Height(), 1 );
             a01Last_MR_STAR_TopPan.View
             ( a01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
-            w01Last_MC_STAR_Top.View
-            ( w01Last_MC_STAR, 0, 0, a01.Height(), 1 );
             w01Last_MR_STAR_TopPan.View
             ( w01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
             const C* a01_MC_STAR_Buffer = a01Last_MC_STAR_Top.LocalBuffer();
-            const C* a01_MR_STAR_Buffer = a01Last_MR_STAR_TopPan.LocalBuffer();
             const C* w01_MC_STAR_Buffer = w01Last_MC_STAR_Top.LocalBuffer();
+            const C* a01_MR_STAR_Buffer = a01Last_MR_STAR_TopPan.LocalBuffer();
             const C* w01_MR_STAR_Buffer = w01Last_MR_STAR_TopPan.LocalBuffer();
             C* A00PanBuffer = A00Pan.LocalBuffer();
             int localHeight = A00Pan.LocalHeight();
@@ -1466,29 +1457,30 @@ elemental::advanced::internal::HermitianPanelTridiagUSquare
         x21_MR_STAR.FreeAlignments();
         y21_MR_STAR.FreeAlignments();
 
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+        SlidePartitionUp
+        ( tT,  t0,
+         /**/ /****/
+               tau1,
+          tB,  t2 );
 
-        SlidePartitionUpDiagonal
-        ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
-         /*************/ /**********************/
-               /**/       w10, /**/ omega11, w12,
-          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
-        
         SlidePartitionUp
         ( eT,  e0,
          /**/ /********/
                epsilon1,
           eB,  e2 );
 
-        SlidePartitionUp
-        ( tT,  t0,
-         /**/ /****/
-               tau1,
-          tB,  t2 );
+        SlidePartitionUpDiagonal
+        ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
+         /*************/ /**********************/
+               /**/       w10, /**/ omega11, w12,
+          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
+ 
+        SlidePartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
+         /*************/ /**********************/
+               /**/       a10, /**/ alpha11, a12,
+          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+
         firstIteration = false;
     }
     PopBlocksizeStack();

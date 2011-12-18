@@ -991,9 +991,11 @@ void Bidiag
   Matrix<std::complex<R> >& tP, 
   Matrix<std::complex<R> >& tQ );
 
+// WARNING: Not yet finished
 template<typename R>
 void Bidiag( DistMatrix<R,MC,MR>& A );
 
+// WARNING: Not yet finished
 template<typename R>
 void Bidiag
 ( DistMatrix<std::complex<R>,MC,MR>& A,
