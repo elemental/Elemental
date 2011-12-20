@@ -50,14 +50,15 @@ elemental::advanced::internal::BidiagU( DistMatrix<R,MC,MR>& A )
 
     // Temporary distributions
     DistMatrix<R,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<R,MC,  MR  > XColPan(g);
-    DistMatrix<R,MC,  MR  > YRowPan(g);
+    DistMatrix<R,MC,  MR  > X(g), X11(g),
+                                  X21(g);
+    DistMatrix<R,MC,  MR  > Y(g), Y11(g),
+                                  Y21(g);
+    DistMatrix<R,MC,  STAR> X21_MC_STAR(g);
+    DistMatrix<R,MR,  STAR> Y21_MR_STAR(g);
     DistMatrix<R,MC,  STAR> AColPan_MC_STAR(g), A11_MC_STAR(g),
                                                 A21_MC_STAR(g);
-    DistMatrix<R,MC,  STAR> XColPan_MC_STAR(g), X11_MC_STAR(g),
-                                                X21_MC_STAR(g);
     DistMatrix<R,STAR,MR  > ARowPan_STAR_MR(g), A11_STAR_MR(g), A12_STAR_MR(g);
-    DistMatrix<R,STAR,MR  > YRowPan_STAR_MR(g), Y11_STAR_MR(g), Y12_STAR_MR(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -72,47 +73,47 @@ elemental::advanced::internal::BidiagU( DistMatrix<R,MC,MR>& A )
 
         if( A22.Width() > 0 )
         {
-            XColPan.AlignWith( A11 );
-            YRowPan.AlignWith( A11 );
             AColPan_MC_STAR.AlignWith( A11 );
-            XColPan_MC_STAR.AlignWith( A11 );
             ARowPan_STAR_MR.AlignWith( A11 );
-            YRowPan_STAR_MR.AlignWith( A11 );
+            X.AlignWith( A11 );
+            Y.AlignWith( A11 );
+            X21.AlignWith( A21 );
+            Y21.AlignWith( A12 );
             //----------------------------------------------------------------//
-            XColPan.ResizeTo( ABR.Height(), A11.Width() );
-            YRowPan.ResizeTo( A11.Height(), ABR.Width() );
+            X.ResizeTo( ABR.Height(), A11.Width() );
+            Y.ResizeTo( ABR.Width(),  A11.Height() );
             AColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
-            XColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
             ARowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
-            YRowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
 
             advanced::internal::PanelBidiagU
-            ( ABR, XColPan, YRowPan, 
-              AColPan_MC_STAR, XColPan_MC_STAR,
-              ARowPan_STAR_MR, YRowPan_STAR_MR );
+            ( ABR, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
             PartitionDown
             ( AColPan_MC_STAR, A11_MC_STAR,
                                A21_MC_STAR, A11.Height() );
-            PartitionDown
-            ( XColPan_MC_STAR, X11_MC_STAR,
-                               X21_MC_STAR, A11.Height() );
             PartitionRight
             ( ARowPan_STAR_MR, A11_STAR_MR, A12_STAR_MR, A11.Width() );
-            PartitionRight
-            ( YRowPan_STAR_MR, Y11_STAR_MR, Y12_STAR_MR, A11.Width() );
+
+            PartitionDown
+            ( X, X11,
+                 X21, A11.Height() );
+            PartitionDown
+            ( Y, Y11,
+                 Y21, A11.Width() );
+            X21_MC_STAR = X21;
+            Y21_MR_STAR = Y21;
 
             basic::internal::LocalGemm
-            ( NORMAL, NORMAL, (R)-1, A21_MC_STAR, YRowPan_STAR_MR, (R)1, A22 );
+            ( NORMAL, TRANSPOSE, (R)-1, A21_MC_STAR, Y21_MR_STAR, (R)1, A22 );
             basic::internal::LocalGemm
-            ( NORMAL, NORMAL, (R)-1, XColPan_MC_STAR, A12_STAR_MR, (R)1, A22 );
+            ( NORMAL, NORMAL, (R)-1, X21_MC_STAR, A12_STAR_MR, (R)1, A22 );
             //----------------------------------------------------------------//
-            YRowPan_STAR_MR.FreeAlignments();
             ARowPan_STAR_MR.FreeAlignments();
-            XColPan_MC_STAR.FreeAlignments();
             AColPan_MC_STAR.FreeAlignments();
-            YRowPan.FreeAlignments();
-            XColPan.FreeAlignments();
+            Y21_MR_STAR.FreeAlignments();
+            X21_MC_STAR.FreeAlignments();
+            Y.FreeAlignments();
+            X.FreeAlignments();
         }
         else
         {
@@ -176,14 +177,15 @@ elemental::advanced::internal::BidiagU
     DistMatrix<C,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> tP1_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> tQ1_STAR_STAR(g);
-    DistMatrix<C,MC,  MR  > XColPan(g);
-    DistMatrix<C,MC,  MR  > YRowPan(g);
+    DistMatrix<C,MC,  MR  > X(g), X11(g),
+                                  X21(g);
+    DistMatrix<C,MC,  MR  > Y(g), Y11(g),
+                                  Y21(g);
+    DistMatrix<C,MC,  STAR> X21_MC_STAR(g);
+    DistMatrix<C,MR,  STAR> Y21_MR_STAR(g);
     DistMatrix<C,MC,  STAR> AColPan_MC_STAR(g), A11_MC_STAR(g),
                                                 A21_MC_STAR(g);
-    DistMatrix<C,MC,  STAR> XColPan_MC_STAR(g), X11_MC_STAR(g),
-                                                X21_MC_STAR(g);
     DistMatrix<C,STAR,MR  > ARowPan_STAR_MR(g), A11_STAR_MR(g), A12_STAR_MR(g);
-    DistMatrix<C,STAR,MR  > YRowPan_STAR_MR(g), Y11_STAR_MR(g), Y12_STAR_MR(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -216,47 +218,47 @@ elemental::advanced::internal::BidiagU
         
         if( A22.Width() > 0 )
         {
-            XColPan.AlignWith( A11 );
-            YRowPan.AlignWith( A11 );
+            X.AlignWith( A11 );
+            Y.AlignWith( A11 );
+            X21_MC_STAR.AlignWith( A21 );
+            Y21_MR_STAR.AlignWith( A12 );
             AColPan_MC_STAR.AlignWith( A11 );
-            XColPan_MC_STAR.AlignWith( A11 );
             ARowPan_STAR_MR.AlignWith( A11 );
-            YRowPan_STAR_MR.AlignWith( A11 );
             //----------------------------------------------------------------//
-            XColPan.ResizeTo( ABR.Height(), A11.Width() );
-            YRowPan.ResizeTo( A11.Height(), ABR.Width() );
+            X.ResizeTo( ABR.Height(), A11.Width() );
+            Y.ResizeTo( ABR.Width(), A11.Height() );
             AColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
-            XColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
             ARowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
-            YRowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
 
             advanced::internal::PanelBidiagU
-            ( ABR, tP1, tQ1, XColPan, YRowPan, 
-              AColPan_MC_STAR, XColPan_MC_STAR,
-              ARowPan_STAR_MR, YRowPan_STAR_MR );
+            ( ABR, tP1, tQ1, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
             PartitionDown
             ( AColPan_MC_STAR, A11_MC_STAR,
                                A21_MC_STAR, A11.Height() );
-            PartitionDown
-            ( XColPan_MC_STAR, X11_MC_STAR,
-                               X21_MC_STAR, A11.Height() );
             PartitionRight
             ( ARowPan_STAR_MR, A11_STAR_MR, A12_STAR_MR, A11.Width() );
-            PartitionRight
-            ( YRowPan_STAR_MR, Y11_STAR_MR, Y12_STAR_MR, A11.Width() );
+
+            PartitionDown
+            ( X, X11,
+                 X21, A11.Height() );
+            PartitionDown
+            ( Y, Y11,
+                 Y21, A11.Width() );
+            X21_MC_STAR = X21;
+            Y21_MR_STAR = Y21;
 
             basic::internal::LocalGemm
-            ( NORMAL, NORMAL, (C)-1, A21_MC_STAR, YRowPan_STAR_MR, (C)1, A22 );
+            ( NORMAL, ADJOINT, (C)-1, A21_MC_STAR, Y21_MR_STAR, (C)1, A22 );
             basic::internal::LocalGemm
-            ( NORMAL, NORMAL, (C)-1, XColPan_MC_STAR, A12_STAR_MR, (C)1, A22 );
+            ( NORMAL, NORMAL, (C)-1, X21_MC_STAR, A12_STAR_MR, (C)1, A22 );
             //----------------------------------------------------------------//
-            YRowPan_STAR_MR.FreeAlignments();
             ARowPan_STAR_MR.FreeAlignments();
-            XColPan_MC_STAR.FreeAlignments();
             AColPan_MC_STAR.FreeAlignments();
-            YRowPan.FreeAlignments();
-            XColPan.FreeAlignments();
+            Y21_MR_STAR.FreeAlignments();
+            X21_MC_STAR.FreeAlignments();
+            Y.FreeAlignments();
+            X.FreeAlignments();
         }
         else
         {
