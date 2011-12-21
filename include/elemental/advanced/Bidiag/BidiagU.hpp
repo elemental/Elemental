@@ -77,8 +77,8 @@ elemental::advanced::internal::BidiagU( DistMatrix<R,MC,MR>& A )
             ARowPan_STAR_MR.AlignWith( A11 );
             X.AlignWith( A11 );
             Y.AlignWith( A11 );
-            X21.AlignWith( A21 );
-            Y21.AlignWith( A12 );
+            X21_MC_STAR.AlignWith( A21 );
+            Y21_MR_STAR.AlignWith( A12 );
             //----------------------------------------------------------------//
             X.ResizeTo( ABR.Height(), A11.Width() );
             Y.ResizeTo( ABR.Width(),  A11.Height() );

@@ -51,12 +51,12 @@ elemental::advanced::internal::PanelBidiagU
         throw std::logic_error("A must be at least as tall as it is wide");
     if( A.Height() != X.Height() )
         throw std::logic_error("A and X must be the same height");
-    if( A.Width() != Y.Width() )
-        throw std::logic_error("A and Y must be the same width");
+    if( A.Width() != Y.Height() )
+        throw std::logic_error("Y must be the same height as A's width");
     if( X.Height() < panelSize )
         throw std::logic_error("X must be a column panel");
-    if( Y.Height() != panelSize )
-        throw std::logic_error("Y is the wrong height");
+    if( Y.Width() != panelSize )
+        throw std::logic_error("Y is the wrong width");
     if( A.ColAlignment() != X.ColAlignment() || 
         A.RowAlignment() != X.RowAlignment() )
         throw std::logic_error("A and X must be aligned");
@@ -71,17 +71,17 @@ elemental::advanced::internal::PanelBidiagU
 
     // Matrix views 
     DistMatrix<R,MC,MR> 
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  AB0(g), aB1(g), AB2(g),
+        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aB1(g), AB2(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),  alpha12L(g), a12R(g),
-                         A20(g), a21(g),     A22(g),  A2B(g);
+                         A20(g), a21(g),     A22(g),  A2L(g);
     DistMatrix<R,MC,MR>
-        XTL(g), XTR(g),  X00(g), x01(g),   X02(g),  XB0(g),
+        XTL(g), XTR(g),  X00(g), x01(g),   X02(g), 
         XBL(g), XBR(g),  x10(g), chi11(g), x12(g), 
                          X20(g), x21(g),   X22(g);
     DistMatrix<R,MC,MR>
         YTL(g), YTR(g),  Y00(g), y01(g),   Y02(g),
         YBL(g), YBR(g),  y10(g), psi11(g), y12(g),
-                         Y20(g), y21(g),   Y22(g),  Y2B(g);
+                         Y20(g), y21(g),   Y22(g),  Y2L(g);
 
     DistMatrix<R,MD,STAR> d(g), dT(g), d0(g), 
                                 dB(g), delta1(g),
@@ -135,6 +135,7 @@ elemental::advanced::internal::PanelBidiagU
     PartitionDown
     ( e, eT,
          eB, 0 );
+    PushBlocksizeStack( 1 );
     while( ATL.Width() < panelSize )
     {
         RepartitionDownDiagonal
@@ -167,20 +168,11 @@ elemental::advanced::internal::PanelBidiagU
                epsilon1,
           eB,  e2 );
 
-        AB0.View2x1( a10,
-                     A20 );
-        aB1.View2x1( alpha11,
-                     a21 );
-        AB2.View2x1( a12,
-                     A22 );
-
-        A2B.View1x2( A20, a21 );
-
+        PartitionRight( ABR, aB1, AB2, 1 );
         PartitionRight( a12, alpha12L, a12R, 1 );
 
-        XB0.View2x1( x10,
-                     X20 );
-        Y2B.View1x2( Y20, y21 );
+        A2L.View1x2( A20, a21 );
+        Y2L.View1x2( Y20, y21 );
 
         a12_STAR_MR.View
         ( ARowPan_STAR_MR, ATL.Height(), ATL.Width()+1, 1, a12.Width() );
@@ -190,14 +182,14 @@ elemental::advanced::internal::PanelBidiagU
         // Main alignments
         a01_MR_STAR.AlignWith( ABL );
         a10_STAR_MR.AlignWith( Y20 );
-        a12_STAR_MC.AlignWith( Y2B );
+        a12_STAR_MC.AlignWith( Y2L );
         x10_STAR_MC.AlignWith( A02 );
         y10_STAR_MR.AlignWith( ABL );
 
         // Auxilliary alignments
         uB1_MC_STAR.AlignWith( ABL );
         z01_MC_STAR.AlignWith( A02 );
-        z01_MR_STAR.AlignWith( AB0 );
+        z01_MR_STAR.AlignWith( ABL );
         z21_MC_STAR.AlignWith( Y20 );
         z21_MR_STAR.AlignWith( AB2 );
         q21.AlignWith( y21 );
@@ -207,7 +199,7 @@ elemental::advanced::internal::PanelBidiagU
         s01_MC_STAR.AlignWith( A02 );
         s01_MR_STAR.AlignWith( X20 );
         s21_MC_STAR.AlignWith( A22 );
-        sB1_MR_STAR.AlignWith( Y2B );
+        sB1_MR_STAR.AlignWith( Y2L );
 
         // Auxilliary resizes
         uB1_MC_STAR.ResizeTo( ABL.Height(), 1 );
@@ -218,7 +210,7 @@ elemental::advanced::internal::PanelBidiagU
         q21_MR_STAR.ResizeTo( A22.Width(), 1 );
         s01_MC_STAR.ResizeTo( A00.Height(), 1 );
         s21_MC_STAR.ResizeTo( A22.Height(), 1 );
-        sB1_MR_STAR.ResizeTo( ABL.Height(), 1 );
+        sB1_MR_STAR.ResizeTo( Y2L.Width(), 1 );
 
         const bool thisIsMyRow = ( g.MCRank() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.MRRank() == alpha11.RowAlignment() );
@@ -253,13 +245,14 @@ elemental::advanced::internal::PanelBidiagU
                 delta1.SetLocalEntry(0,0,alpha);
                 alpha11.SetLocalEntry(0,0,(R)1);
             }
+            mpi::Broadcast( &alpha, 1, alpha11.RowAlignment(), g.MRComm() );
         }
 
         // Compute y21
         aB1_MC_STAR = aB1;
         basic::Gemv
         ( TRANSPOSE, 
-          (R)1, AB0.LocalMatrix(), aB1_MC_STAR.LocalMatrix(), 
+          (R)1, ABL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(), 
           (R)0, z01_MR_STAR.LocalMatrix() );
         basic::Gemv
         ( TRANSPOSE, 
@@ -272,18 +265,19 @@ elemental::advanced::internal::PanelBidiagU
           (R)0, z21_MC_STAR.LocalMatrix() );
         basic::Gemv
         ( TRANSPOSE,
-          (R)1, XB0.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
+          (R)1, XBL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (R)0, z01_MR_STAR.LocalMatrix() );
         z01_MR_MC.SumScatterFrom( z01_MR_STAR );
         z01_MC_STAR = z01_MR_MC;
         basic::Gemv
         ( TRANSPOSE,
-          (R)1, A02.LocalMatrix(), z01_MC_STAR.LocalMatrix(),
-          (R)1, z21_MR_STAR );
+          (R)-1, A02.LocalMatrix(), z01_MC_STAR.LocalMatrix(),
+          (R)1, z21_MR_STAR.LocalMatrix() );
         z21_MR_MC.SumScatterFrom( z21_MR_STAR );
         y21 = z21_MR_MC;
         y21.SumScatterUpdate( (R)-1, z21_MC_STAR );
-        basic::Scal( tauQ, y21 );
+        if( thisIsMyCol )
+            basic::Scal( tauQ, y21 );
 
         // Update a12
         a10_STAR_MR = a10;
@@ -301,7 +295,15 @@ elemental::advanced::internal::PanelBidiagU
           (R)1, A02.LocalMatrix(), x10_STAR_MC.LocalMatrix(),
           (R)0, q21_MR_STAR.LocalMatrix() );
         q21_MR_MC.SumScatterUpdate( (R)1, q21_MR_STAR );
-        basic::Axpy( (R)-1, q21_MR_MC.LocalMatrix(), a12.LocalMatrix() );
+        if( thisIsMyRow )
+        {
+            const int localWidth = a12.LocalWidth();
+            R* a12Buffer = a12.LocalBuffer();
+            const R* q21Buffer = q21_MR_MC.LockedLocalBuffer();
+            const int a12LDim = a12.LocalLDim();
+            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+                a12Buffer[jLocal*a12LDim] -= q21Buffer[jLocal];
+        }
 
         // Annihilate a12
         R tauP = 0;
@@ -310,12 +312,11 @@ elemental::advanced::internal::PanelBidiagU
             tauP = advanced::internal::RowReflector( alpha12L, a12R );
             if( nextIsMyCol )
             {
-                alpha = alpha12L.GetLocalEntry(0,0);
-                epsilon1.SetLocalEntry(0,0,alpha);
+                epsilon1.SetLocalEntry(0,0,alpha12L.GetLocalEntry(0,0));
                 alpha12L.SetLocalEntry(0,0,(R)1);
             }
         }
-        mpi::Broadcast( &tauP, 1, a12.ColAlignment(), g.MCComm() );
+        mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.MCComm() );
 
         // Compute x21
         a12_STAR_MR = a12;
@@ -326,12 +327,12 @@ elemental::advanced::internal::PanelBidiagU
           (R)0, s21_MC_STAR.LocalMatrix() );
         basic::Gemv
         ( TRANSPOSE,
-          (R)1, Y2B.LocalMatrix(), a12_STAR_MC.LocalMatrix(),
+          (R)1, Y2L.LocalMatrix(), a12_STAR_MC.LocalMatrix(),
           (R)0, sB1_MR_STAR.LocalMatrix() );
         sB1_MR_STAR.SumOverCol(); 
         basic::Gemv
         ( NORMAL, 
-          (R)-1, A2B.LocalMatrix(), sB1_MR_STAR.LocalMatrix(),
+          (R)-1, A2L.LocalMatrix(), sB1_MR_STAR.LocalMatrix(),
           (R)1,  s21_MC_STAR.LocalMatrix() );
         basic::Gemv
         ( NORMAL,
@@ -364,6 +365,7 @@ elemental::advanced::internal::PanelBidiagU
         // Main alignments
         y10_STAR_MR.FreeAlignments();
         x10_STAR_MC.FreeAlignments();
+        a12_STAR_MC.FreeAlignments();
         a10_STAR_MR.FreeAlignments();
         a01_MR_STAR.FreeAlignments();
 
@@ -397,10 +399,13 @@ elemental::advanced::internal::PanelBidiagU
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
+    PopBlocksizeStack();
 
     // Put back d and e
     ATL.SetDiagonal( d, 0 );
-    ATL.SetDiagonal( e, 1 );
+    DistMatrix<R,MC,MR> ATLExpanded(g);
+    ATLExpanded.View( A, 0, 0, ATL.Height(), ATL.Width()+1 );
+    ATLExpanded.SetDiagonal( e, 1 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -435,12 +440,12 @@ elemental::advanced::internal::PanelBidiagU
         throw std::logic_error("A must be at least as tall as it is wide");
     if( A.Height() != X.Height() )
         throw std::logic_error("A and X must be the same height");
-    if( A.Width() != Y.Width() )
-        throw std::logic_error("A and Y must be the same width");
+    if( A.Width() != Y.Height() )
+        throw std::logic_error("Y must be the same height as A's width");
     if( X.Height() < panelSize )
         throw std::logic_error("X must be a column panel");
-    if( Y.Height() != panelSize )
-        throw std::logic_error("Y is the wrong height");
+    if( Y.Width() != panelSize )
+        throw std::logic_error("Y is the wrong width");
     if( A.ColAlignment() != X.ColAlignment() || 
         A.RowAlignment() != X.RowAlignment() )
         throw std::logic_error("A and X must be aligned");
@@ -457,17 +462,17 @@ elemental::advanced::internal::PanelBidiagU
 
     // Matrix views 
     DistMatrix<C,MC,MR> 
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  AB0(g), aB1(g), AB2(g),
+        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aB1(g), AB2(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),  alpha12L(g), a12R(g),
-                         A20(g), a21(g),     A22(g),  A2B(g);
+                         A20(g), a21(g),     A22(g),  A2L(g);
     DistMatrix<C,MC,MR>
-        XTL(g), XTR(g),  X00(g), x01(g),   X02(g),  XB0(g),
+        XTL(g), XTR(g),  X00(g), x01(g),   X02(g), 
         XBL(g), XBR(g),  x10(g), chi11(g), x12(g), 
                          X20(g), x21(g),   X22(g);
     DistMatrix<C,MC,MR>
         YTL(g), YTR(g),  Y00(g), y01(g),   Y02(g),
         YBL(g), YBR(g),  y10(g), psi11(g), y12(g),
-                         Y20(g), y21(g),   Y22(g),  Y2B(g);
+                         Y20(g), y21(g),   Y22(g),  Y2L(g);
     DistMatrix<C,MD,STAR> d(g), dT(g), d0(g),
                                 dB(g), delta1(g),
                                        d2(g);
@@ -527,6 +532,7 @@ elemental::advanced::internal::PanelBidiagU
     PartitionDown
     ( tQ, tQT,
           tQB, 0 );
+    PushBlocksizeStack( 1 );
     while( ATL.Width() < panelSize )
     {
         RepartitionDownDiagonal
@@ -571,20 +577,11 @@ elemental::advanced::internal::PanelBidiagU
                 tauQ1,
           tQB,  tQ2 );
 
-        AB0.View2x1( a10,
-                     A20 );
-        aB1.View2x1( alpha11,
-                     a21 );
-        AB2.View2x1( a12,
-                     A22 );
-
-        A2B.View1x2( A20, a21 );
-
+        PartitionRight( ABR, aB1, AB2, 1 );
         PartitionRight( a12, alpha12L, a12R, 1 );
 
-        XB0.View2x1( x10,
-                     X20 );
-        Y2B.View1x2( Y20, y21 );
+        A2L.View1x2( A20, a21 );
+        Y2L.View1x2( Y20, y21 );
 
         a12_STAR_MR.View
         ( ARowPan_STAR_MR, ATL.Height(), ATL.Width()+1, 1, a12.Width() );
@@ -594,14 +591,14 @@ elemental::advanced::internal::PanelBidiagU
         // Main alignments
         a01_MR_STAR.AlignWith( ABL );
         a10_STAR_MR.AlignWith( Y20 );
-        a12_STAR_MC.AlignWith( Y2B );
+        a12_STAR_MC.AlignWith( Y2L );
         x10_STAR_MC.AlignWith( A02 );
         y10_STAR_MR.AlignWith( ABL );
 
         // Auxilliary alignments
         uB1_MC_STAR.AlignWith( ABL );
         z01_MC_STAR.AlignWith( A02 );
-        z01_MR_STAR.AlignWith( AB0 );
+        z01_MR_STAR.AlignWith( ABL );
         z21_MC_STAR.AlignWith( Y20 );
         z21_MR_STAR.AlignWith( AB2 );
         q21.AlignWith( y21 );
@@ -611,7 +608,7 @@ elemental::advanced::internal::PanelBidiagU
         s01_MC_STAR.AlignWith( A02 );
         s01_MR_STAR.AlignWith( X20 );
         s21_MC_STAR.AlignWith( A22 );
-        sB1_MR_STAR.AlignWith( Y2B );
+        sB1_MR_STAR.AlignWith( Y2L );
         
         // Auxilliary resizes
         uB1_MC_STAR.ResizeTo( ABL.Height(), 1 );
@@ -622,7 +619,7 @@ elemental::advanced::internal::PanelBidiagU
         q21_MR_STAR.ResizeTo( A22.Width(), 1 );
         s01_MC_STAR.ResizeTo( A00.Height(), 1 );
         s21_MC_STAR.ResizeTo( A22.Height(), 1 );
-        sB1_MR_STAR.ResizeTo( ABL.Height(), 1 );
+        sB1_MR_STAR.ResizeTo( Y2L.Width(), 1 );
 
         const bool thisIsMyRow = ( g.MCRank() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.MRRank() == alpha11.RowAlignment() );
@@ -659,13 +656,14 @@ elemental::advanced::internal::PanelBidiagU
                 tauQ1.SetLocalEntry(0,0,tauQ);
                 alpha11.SetLocalEntry(0,0,(C)1);
             }
+            mpi::Broadcast( &alpha, 1, alpha11.RowAlignment(), g.MRComm() );
         }
 
         // Compute y21
         aB1_MC_STAR = aB1;
         basic::Gemv
         ( ADJOINT,
-          (C)1, AB0.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
+          (C)1, ABL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (C)0, z01_MR_STAR.LocalMatrix() );
         basic::Gemv
         ( ADJOINT,
@@ -678,13 +676,13 @@ elemental::advanced::internal::PanelBidiagU
           (C)0, z21_MC_STAR.LocalMatrix() );
         basic::Gemv
         ( ADJOINT,
-          (C)1, XB0.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
+          (C)1, XBL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (C)0, z01_MR_STAR.LocalMatrix() );
         z01_MR_MC.SumScatterFrom( z01_MR_STAR );
         z01_MC_STAR = z01_MR_MC;
         basic::Gemv
         ( ADJOINT,
-          (C)1, A02.LocalMatrix(), z01_MC_STAR.LocalMatrix(),
+          (C)-1, A02.LocalMatrix(), z01_MC_STAR.LocalMatrix(),
           (C)1, z21_MR_STAR.LocalMatrix() );
         z21_MR_MC.SumScatterFrom( z21_MR_STAR );
         y21 = z21_MR_MC;
@@ -712,7 +710,15 @@ elemental::advanced::internal::PanelBidiagU
           (C)1, A02.LocalMatrix(), x10_STAR_MC.LocalMatrix(),
           (C)0, q21_MR_STAR.LocalMatrix() );
         q21_MR_MC.SumScatterUpdate( (C)1, q21_MR_STAR );
-        basic::Axpy( (C)-1, q21_MR_MC.LocalMatrix(), a12.LocalMatrix() );
+        if( thisIsMyRow )
+        {
+            const int localWidth = a12.LocalWidth();
+            C* a12Buffer = a12.LocalBuffer();
+            const C* q21Buffer = q21_MR_MC.LockedLocalBuffer();
+            const int a12LDim = a12.LocalLDim();
+            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+                a12Buffer[jLocal*a12LDim] -= q21Buffer[jLocal];
+        }
         basic::Conjugate( a12 );
 
         // Annihilate a12
@@ -728,7 +734,7 @@ elemental::advanced::internal::PanelBidiagU
                 alpha12L.SetLocalEntry(0,0,(C)1);
             }
         }
-        mpi::Broadcast( &tauP, 1, a12.ColAlignment(), g.MCComm() );
+        mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.MCComm() );
 
         // Compute x21
         a12_STAR_MR = a12;
@@ -739,12 +745,12 @@ elemental::advanced::internal::PanelBidiagU
           (C)0, s21_MC_STAR.LocalMatrix() );
         basic::Gemv
         ( ADJOINT,
-          (C)1, Y2B.LocalMatrix(), a12_STAR_MC.LocalMatrix(),
+          (C)1, Y2L.LocalMatrix(), a12_STAR_MC.LocalMatrix(),
           (C)0, sB1_MR_STAR.LocalMatrix() );
         sB1_MR_STAR.SumOverCol(); 
         basic::Gemv
         ( NORMAL, 
-          (C)-1, A2B.LocalMatrix(), sB1_MR_STAR.LocalMatrix(),
+          (C)-1, A2L.LocalMatrix(), sB1_MR_STAR.LocalMatrix(),
           (C)1,  s21_MC_STAR.LocalMatrix() );
         basic::Gemv
         ( NORMAL,
@@ -778,6 +784,7 @@ elemental::advanced::internal::PanelBidiagU
         // Main alignments
         y10_STAR_MR.FreeAlignments();
         x10_STAR_MC.FreeAlignments();
+        a12_STAR_MC.FreeAlignments();
         a10_STAR_MR.FreeAlignments();
         a01_MR_STAR.FreeAlignments();
 
@@ -823,10 +830,13 @@ elemental::advanced::internal::PanelBidiagU
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
+    PopBlocksizeStack();
 
     // Put back d and e
     ATL.SetDiagonal( d, 0 );
-    ATL.SetDiagonal( e, 1 );
+    DistMatrix<R,MC,MR> ATLExpanded(g);
+    ATLExpanded.View( A, 0, 0, ATL.Height(), ATL.Width()+1 );
+    ATLExpanded.SetDiagonal( e, 1 );
 #ifndef RELEASE
     PopCallStack();
 #endif
