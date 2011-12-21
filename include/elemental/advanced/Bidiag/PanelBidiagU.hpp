@@ -685,7 +685,7 @@ elemental::advanced::internal::PanelBidiagU
         basic::Gemv
         ( ADJOINT,
           (C)1, A02.LocalMatrix(), z01_MC_STAR.LocalMatrix(),
-          (C)1, z21_MR_STAR );
+          (C)1, z21_MR_STAR.LocalMatrix() );
         z21_MR_MC.SumScatterFrom( z21_MR_STAR );
         y21 = z21_MR_MC;
         y21.SumScatterUpdate( (C)-1, z21_MC_STAR );
@@ -716,7 +716,7 @@ elemental::advanced::internal::PanelBidiagU
         basic::Conjugate( a12 );
 
         // Annihilate a12
-        R tauP = 0;
+        C tauP = 0;
         if( thisIsMyRow )
         {
             tauP = advanced::internal::RowReflector( alpha12L, a12R );
@@ -724,7 +724,7 @@ elemental::advanced::internal::PanelBidiagU
             {
                 alpha = alpha12L.GetLocalEntry(0,0);
                 epsilon1.SetLocalEntry(0,0,alpha);
-                tauP.SetLocalEntry(0,0,tauP);
+                tauP1.SetLocalEntry(0,0,tauP);
                 alpha12L.SetLocalEntry(0,0,(C)1);
             }
         }
