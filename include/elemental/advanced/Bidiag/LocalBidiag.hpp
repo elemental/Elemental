@@ -363,13 +363,15 @@ inline void BidiagU
 } // namespace advanced
 } // namespace elemental
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
 elemental::advanced::Bidiag( Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Bidiag");
 #endif
+    if( IsComplex<R>::val )
+        throw std::logic_error("Called real routine with complex datatype");
     if( A.Height() >= A.Width() )
         bidiag::BidiagU( A );
     else
@@ -379,7 +381,7 @@ elemental::advanced::Bidiag( Matrix<R>& A )
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void elemental::advanced::Bidiag
 ( Matrix<std::complex<R> >& A, 
   Matrix<std::complex<R> >& tP, 

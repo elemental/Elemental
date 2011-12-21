@@ -42,6 +42,8 @@ inline void elemental::advanced::Bidiag( DistMatrix<R,MC,MR>& A )
 #ifndef RELEASE
     PushCallStack("advanced::Bidiag");
 #endif
+    if( IsComplex<R>::val )
+        throw std::logic_error("Called real routine with complex datatype");
     if( A.Height() >= A.Width() )
         advanced::internal::BidiagU( A );
     else

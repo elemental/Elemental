@@ -41,7 +41,7 @@
 #include "./HermitianTridiag/HermitianTridiagUSquare.hpp"
 #include "./HermitianTridiag/LocalHermitianTridiag.hpp"
 
-template<typename R> // representation of a real number
+template<typename R>
 inline void
 elemental::advanced::HermitianTridiag
 ( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
@@ -49,6 +49,8 @@ elemental::advanced::HermitianTridiag
 #ifndef RELEASE
     PushCallStack("advanced::HermitianTridiag");
 #endif
+    if( IsComplex<R>::val )
+        throw std::logic_error("Called real routine with complex datatype");
     const Grid& g = A.Grid();
     const HermitianTridiagApproach approach = GetHermitianTridiagApproach();
     const GridOrder order = GetHermitianTridiagGridOrder();
@@ -123,7 +125,7 @@ elemental::advanced::HermitianTridiag
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
 elemental::advanced::HermitianTridiag
 ( UpperOrLower uplo, 

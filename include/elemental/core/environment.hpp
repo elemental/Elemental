@@ -80,6 +80,14 @@ template<typename R>
 struct RealBase<std::complex<R> >
 { typedef R type; };
 
+template<typename R>
+struct IsComplex
+{ enum { val=0 }; };
+
+template<typename R>
+struct IsComplex<std::complex<R> >
+{ enum { val=1 }; };
+
 } // namespace elemental
 
 #include "elemental/core/types.hpp"

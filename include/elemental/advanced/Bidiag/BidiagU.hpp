@@ -73,12 +73,12 @@ elemental::advanced::internal::BidiagU( DistMatrix<R,MC,MR>& A )
 
         if( A22.Width() > 0 )
         {
-            AColPan_MC_STAR.AlignWith( A11 );
-            ARowPan_STAR_MR.AlignWith( A11 );
             X.AlignWith( A11 );
             Y.AlignWith( A11 );
             X21_MC_STAR.AlignWith( A21 );
             Y21_MR_STAR.AlignWith( A12 );
+            AColPan_MC_STAR.AlignWith( A11 );
+            ARowPan_STAR_MR.AlignWith( A11 );
             //----------------------------------------------------------------//
             X.ResizeTo( ABR.Height(), A11.Width() );
             Y.ResizeTo( ABR.Width(),  A11.Height() );

@@ -44,13 +44,15 @@
 // where tau_j is the j'th entry of t and u_j is the j'th unscaled Householder
 // reflector.
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
 elemental::advanced::QR( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::QR");
 #endif
+    if( IsComplex<R>::val )
+        throw std::logic_error("Called real routine with complex datatype");
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -95,7 +97,7 @@ elemental::advanced::QR( DistMatrix<R,MC,MR>& A )
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
 elemental::advanced::QR
 ( DistMatrix<std::complex<R>,MC,MR  >& A, 

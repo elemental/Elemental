@@ -295,13 +295,15 @@ inline void HermitianTridiagU
 } // namespace advanced
 } // namespace elemental
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void elemental::advanced::HermitianTridiag
 ( UpperOrLower uplo, Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::HermitianTridiag");
 #endif
+    if( IsComplex<R>::val )
+        throw std::logic_error("Called real routine with complex datatype");
     if( uplo == LOWER )
         hermitian_tridiag::HermitianTridiagL( A );
     else
@@ -311,7 +313,7 @@ inline void elemental::advanced::HermitianTridiag
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void elemental::advanced::HermitianTridiag
 ( UpperOrLower uplo, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {

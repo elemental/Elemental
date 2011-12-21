@@ -235,17 +235,14 @@ elemental::advanced::internal::PanelBidiagU
 
         // Annihilate a21
         R tauQ = 0;
-        R alpha = 0;
         if( thisIsMyCol )
         {
             tauQ = advanced::internal::ColReflector( alpha11, a21 );
             if( thisIsMyRow )
             {
-                alpha = alpha11.GetLocalEntry(0,0);
-                delta1.SetLocalEntry(0,0,alpha);
+                delta1.SetLocalEntry(0,0,alpha11.GetLocalEntry(0,0));
                 alpha11.SetLocalEntry(0,0,(R)1);
             }
-            mpi::Broadcast( &alpha, 1, alpha11.RowAlignment(), g.MRComm() );
         }
 
         // Compute y21
@@ -288,7 +285,7 @@ elemental::advanced::internal::PanelBidiagU
           (R)0, q21_MC_STAR.LocalMatrix() );
         q21.SumScatterFrom( q21_MC_STAR );
         if( thisIsMyCol )
-            basic::Axpy( alpha, y21, q21 );
+            basic::Axpy( (R)1, y21, q21 );
         q21_MR_MC = q21;
         basic::Gemv
         ( TRANSPOSE,
@@ -305,7 +302,7 @@ elemental::advanced::internal::PanelBidiagU
                 a12Buffer[jLocal*a12LDim] -= q21Buffer[jLocal];
         }
 
-        // Annihilate a12
+        // Annihilate a12R
         R tauP = 0;
         if( thisIsMyRow )
         {
@@ -511,6 +508,11 @@ elemental::advanced::internal::PanelBidiagU
     DistMatrix<C,MC,  STAR> s21_MC_STAR(g);
     DistMatrix<C,MR,  STAR> sB1_MR_STAR(g);
 
+    d.AlignWithDiagonal( A, 0 );
+    e.AlignWithDiagonal( A, 1 );
+    d.ResizeTo( panelSize, 1 );
+    e.ResizeTo( panelSize, 1 );
+
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -645,18 +647,15 @@ elemental::advanced::internal::PanelBidiagU
 
         // Annihilate a21
         C tauQ = 0;
-        C alpha = 0;
         if( thisIsMyCol )
         {
             tauQ = advanced::internal::ColReflector( alpha11, a21 );
             if( thisIsMyRow )
             {
-                alpha = alpha11.GetLocalEntry(0,0);
-                delta1.SetLocalEntry(0,0,alpha);
+                delta1.SetLocalEntry(0,0,alpha11.GetLocalEntry(0,0));
                 tauQ1.SetLocalEntry(0,0,tauQ);
                 alpha11.SetLocalEntry(0,0,(C)1);
             }
-            mpi::Broadcast( &alpha, 1, alpha11.RowAlignment(), g.MRComm() );
         }
 
         // Compute y21
@@ -687,10 +686,10 @@ elemental::advanced::internal::PanelBidiagU
         z21_MR_MC.SumScatterFrom( z21_MR_STAR );
         y21 = z21_MR_MC;
         y21.SumScatterUpdate( (C)-1, z21_MC_STAR );
-        basic::Scal( tauQ, y21 );
+        if( thisIsMyCol )
+            basic::Scal( tauQ, y21 );
 
         // Update a12
-        basic::Conjugate( a12 );
         basic::Conjugate( a10 );
         basic::Conjugate( x10 );
         a10_STAR_MR = a10;
@@ -703,13 +702,14 @@ elemental::advanced::internal::PanelBidiagU
           (C)0, q21_MC_STAR.LocalMatrix() );
         q21.SumScatterFrom( q21_MC_STAR );
         if( thisIsMyCol )
-            basic::Axpy( alpha, y21, q21 );
+            basic::Axpy( (C)1, y21, q21 );
         q21_MR_MC = q21;
         basic::Gemv
         ( ADJOINT,
           (C)1, A02.LocalMatrix(), x10_STAR_MC.LocalMatrix(),
           (C)0, q21_MR_STAR.LocalMatrix() );
         q21_MR_MC.SumScatterUpdate( (C)1, q21_MR_STAR );
+        basic::Conjugate( a12 );
         if( thisIsMyRow )
         {
             const int localWidth = a12.LocalWidth();
@@ -719,17 +719,15 @@ elemental::advanced::internal::PanelBidiagU
             for( int jLocal=0; jLocal<localWidth; ++jLocal )
                 a12Buffer[jLocal*a12LDim] -= q21Buffer[jLocal];
         }
-        basic::Conjugate( a12 );
 
-        // Annihilate a12
+        // Annihilate a12R
         C tauP = 0;
         if( thisIsMyRow )
         {
             tauP = advanced::internal::RowReflector( alpha12L, a12R );
             if( nextIsMyCol )
             {
-                alpha = alpha12L.GetLocalEntry(0,0);
-                epsilon1.SetLocalEntry(0,0,alpha);
+                epsilon1.SetLocalEntry(0,0,alpha12L.GetLocalEntry(0,0));
                 tauP1.SetLocalEntry(0,0,tauP);
                 alpha12L.SetLocalEntry(0,0,(C)1);
             }
@@ -756,7 +754,7 @@ elemental::advanced::internal::PanelBidiagU
         ( NORMAL,
           (C)1, A02.LocalMatrix(), a12_STAR_MR.LocalMatrix(),
           (C)0, s01_MC_STAR.LocalMatrix() );
-        s01.SumScatterFrom( z01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
+        s01.SumScatterFrom( s01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
         s01_MR_STAR = s01;
         basic::Gemv
         ( NORMAL,
@@ -765,6 +763,7 @@ elemental::advanced::internal::PanelBidiagU
         x21.SumScatterFrom( s21_MC_STAR );
         basic::Scal( tauP, x21.LocalMatrix() );
         basic::Conjugate( a12 );
+        basic::Conjugate( a12_STAR_MR );
         //--------------------------------------------------------------------//
         // Auxilliary alignments
         sB1_MR_STAR.FreeAlignments();
@@ -834,7 +833,7 @@ elemental::advanced::internal::PanelBidiagU
 
     // Put back d and e
     ATL.SetDiagonal( d, 0 );
-    DistMatrix<R,MC,MR> ATLExpanded(g);
+    DistMatrix<std::complex<R>,MC,MR> ATLExpanded(g);
     ATLExpanded.View( A, 0, 0, ATL.Height(), ATL.Width()+1 );
     ATLExpanded.SetDiagonal( e, 1 );
 #ifndef RELEASE
