@@ -256,7 +256,6 @@ subdirectory of your main project folder, say ``external/elemental``, and uncomm
 out the bottom section of Elemental's ``CMakeLists.txt``, i.e., change ::
 
     # Simplify the inclusion of Elemental as a subproject in another build system
-    #
     #set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
     #set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)
     #set(MPI_C_COMPILE_FLAGS ${MPI_C_COMPILE_FLAGS} PARENT_SCOPE)
