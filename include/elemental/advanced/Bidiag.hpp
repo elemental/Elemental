@@ -33,7 +33,9 @@
 
 
 #include "./Bidiag/LocalBidiag.hpp"
+#include "./Bidiag/PanelBidiagL.hpp"
 #include "./Bidiag/PanelBidiagU.hpp"
+#include "./Bidiag/BidiagL.hpp"
 #include "./Bidiag/BidiagU.hpp"
 
 template<typename R> 
@@ -47,8 +49,7 @@ inline void elemental::advanced::Bidiag( DistMatrix<R,MC,MR>& A )
     if( A.Height() >= A.Width() )
         advanced::internal::BidiagU( A );
     else
-        throw std::logic_error("This routine is not yet written");
-        // advanced::internal::BidiagL( A );
+        advanced::internal::BidiagL( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -66,8 +67,7 @@ inline void elemental::advanced::Bidiag
     if( A.Height() >= A.Width() )
         advanced::internal::BidiagU( A, tP, tQ );
     else
-        throw std::logic_error("This routine is not yet written");
-        //advanced::internal::BidiagL( A, tP, tQ );
+        advanced::internal::BidiagL( A, tP, tQ );
 #ifndef RELEASE
     PopCallStack();
 #endif

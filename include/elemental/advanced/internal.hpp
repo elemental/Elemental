@@ -362,14 +362,28 @@ std::complex<R> RowReflector
 //----------------------------------------------------------------------------//
 
 template<typename R>
+void BidiagL( DistMatrix<R,MC,MR>& A );
+template<typename R>
 void BidiagU( DistMatrix<R,MC,MR>& A );
 
+template<typename R>
+void BidiagL
+( DistMatrix<std::complex<R>,MC,MR>& A,
+  DistMatrix<std::complex<R>,STAR,STAR>& tP,
+  DistMatrix<std::complex<R>,STAR,STAR>& tQ );
 template<typename R>
 void BidiagU
 ( DistMatrix<std::complex<R>,MC,MR>& A, 
   DistMatrix<std::complex<R>,STAR,STAR>& tP,
   DistMatrix<std::complex<R>,STAR,STAR>& tQ );
 
+template<typename R>
+void PanelBidiagL
+( DistMatrix<R,MC,  MR  >& A,
+  DistMatrix<R,MC,  MR  >& X,
+  DistMatrix<R,MC,  MR  >& Y,
+  DistMatrix<R,MC,  STAR>& AColPan_MC_STAR,
+  DistMatrix<R,STAR,MR  >& ARowPan_STAR_MR );
 template<typename R>
 void PanelBidiagU
 ( DistMatrix<R,MC,  MR  >& A,
@@ -378,6 +392,15 @@ void PanelBidiagU
   DistMatrix<R,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<R,STAR,MR  >& ARowPan_STAR_MR );
 
+template<typename R>
+void PanelBidiagL
+( DistMatrix<std::complex<R>,MC,  MR  >& A,
+  DistMatrix<std::complex<R>,MD,  STAR>& tP,
+  DistMatrix<std::complex<R>,MD,  STAR>& tQ,
+  DistMatrix<std::complex<R>,MC,  MR  >& X,
+  DistMatrix<std::complex<R>,MC,  MR  >& Y,
+  DistMatrix<std::complex<R>,MC,  STAR>& AColPan_MC_STAR,
+  DistMatrix<std::complex<R>,STAR,MR  >& ARowPan_STAR_MR );
 template<typename R>
 void PanelBidiagU
 ( DistMatrix<std::complex<R>,MC,  MR  >& A,

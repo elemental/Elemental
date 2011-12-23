@@ -433,8 +433,6 @@ elemental::advanced::internal::PanelBidiagU
         throw std::logic_error("tQ was not the right size");
     if( A.Height() < A.Width() )
         throw std::logic_error("A must be at least as tall as it is wide");
-    if( A.Height() < A.Width() )
-        throw std::logic_error("A must be at least as tall as it is wide");
     if( A.Height() != X.Height() )
         throw std::logic_error("A and X must be the same height");
     if( A.Width() != Y.Height() )
