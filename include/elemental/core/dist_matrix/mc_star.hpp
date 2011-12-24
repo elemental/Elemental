@@ -94,6 +94,7 @@ public:
 
     const DistMatrix<T,MC,STAR,Int>& 
     operator=( const DistMatrix<T,MD,STAR,Int>& A );
+
     const DistMatrix<T,MC,STAR,Int>& 
     operator=( const DistMatrix<T,STAR,MD,Int>& A );
 

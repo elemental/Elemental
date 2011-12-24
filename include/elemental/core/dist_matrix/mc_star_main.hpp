@@ -1515,11 +1515,11 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    std::auto_ptr< DistMatrix<T,VR,STAR,Int> > A_VR_STAR
+    std::auto_ptr<DistMatrix<T,VR,STAR,Int> > A_VR_STAR
     ( new DistMatrix<T,VR,STAR,Int>(g) );
     *A_VR_STAR = A;
 
-    std::auto_ptr< DistMatrix<T,VC,STAR,Int> > A_VC_STAR
+    std::auto_ptr<DistMatrix<T,VC,STAR,Int> > A_VC_STAR
     ( new DistMatrix<T,VC,STAR,Int>(true,this->ColAlignment(),g) );
     *A_VC_STAR = *A_VR_STAR;
     delete A_VR_STAR.release(); // lowers memory highwater
@@ -1543,11 +1543,11 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    std::auto_ptr< DistMatrix<T,VR,STAR,Int> > A_VR_STAR
+    std::auto_ptr<DistMatrix<T,VR,STAR,Int> > A_VR_STAR
     ( new DistMatrix<T,VR,STAR,Int>(g) );
     *A_VR_STAR = A;
 
-    std::auto_ptr< DistMatrix<T,VC,STAR,Int> > A_VC_STAR
+    std::auto_ptr<DistMatrix<T,VC,STAR,Int> > A_VC_STAR
     ( new DistMatrix<T,VC,STAR,Int>(true,this->ColAlignment(),g) );
     *A_VC_STAR = *A_VR_STAR;
     delete A_VR_STAR.release(); // lowers memory highwater
@@ -1571,16 +1571,16 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    std::auto_ptr< DistMatrix<T,MR,MC,Int> > 
+    std::auto_ptr<DistMatrix<T,MR,MC,Int> > 
         A_MR_MC( new DistMatrix<T,MR,MC,Int>(g) );
     *A_MR_MC = A;
 
-    std::auto_ptr< DistMatrix<T,VR,STAR,Int> > 
+    std::auto_ptr<DistMatrix<T,VR,STAR,Int> > 
         A_VR_STAR( new DistMatrix<T,VR,STAR,Int>(g) );
     *A_VR_STAR = *A_MR_MC;
     delete A_MR_MC.release(); // lowers memory highwater
 
-    std::auto_ptr< DistMatrix<T,VC,STAR,Int> > 
+    std::auto_ptr<DistMatrix<T,VC,STAR,Int> > 
         A_VC_STAR( new DistMatrix<T,VC,STAR,Int>(true,this->ColAlignment(),g) );
     *A_VC_STAR = *A_VR_STAR;
     delete A_VR_STAR.release(); // lowers memory highwater
@@ -1798,11 +1798,11 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
         this->AssertSameSize( A );
 #endif
     const elemental::Grid& g = this->Grid();
-    std::auto_ptr< DistMatrix<T,STAR,VR,Int> > 
+    std::auto_ptr<DistMatrix<T,STAR,VR,Int> > 
         A_STAR_VR( new DistMatrix<T,STAR,VR,Int>(g) );
     *A_STAR_VR = A;
 
-    std::auto_ptr< DistMatrix<T,MC,MR,Int> > 
+    std::auto_ptr<DistMatrix<T,MC,MR,Int> > 
         A_MC_MR
         ( new DistMatrix<T,MC,MR,Int>(true,false,this->ColAlignment(),0,g) );
     *A_MC_MR = *A_STAR_VR;

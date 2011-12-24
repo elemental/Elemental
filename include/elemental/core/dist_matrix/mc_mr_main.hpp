@@ -2305,12 +2305,12 @@ DistMatrix<T,MC,MR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         {
             if( A.Height() >= A.Width() )
             {
-                std::auto_ptr< DistMatrix<T,VR,STAR,Int> > A_VR_STAR
+                std::auto_ptr<DistMatrix<T,VR,STAR,Int> > A_VR_STAR
                 ( new DistMatrix<T,VR,STAR,Int>(g) );
 
                 *A_VR_STAR = A;
 
-                std::auto_ptr< DistMatrix<T,VC,STAR,Int> > A_VC_STAR
+                std::auto_ptr<DistMatrix<T,VC,STAR,Int> > A_VC_STAR
                 ( new DistMatrix<T,VC,STAR,Int>(true,this->ColAlignment(),g) );
                 *A_VC_STAR = *A_VR_STAR;
                 delete A_VR_STAR.release(); // lowers memory highwater
@@ -2319,11 +2319,11 @@ DistMatrix<T,MC,MR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
             }
             else
             {
-                std::auto_ptr< DistMatrix<T,STAR,VC,Int> > A_STAR_VC
+                std::auto_ptr<DistMatrix<T,STAR,VC,Int> > A_STAR_VC
                 ( new DistMatrix<T,STAR,VC,Int>(g) );
                 *A_STAR_VC = A;
 
-                std::auto_ptr< DistMatrix<T,STAR,VR,Int> > A_STAR_VR
+                std::auto_ptr<DistMatrix<T,STAR,VR,Int> > A_STAR_VR
                 ( new DistMatrix<T,STAR,VR,Int>(true,this->RowAlignment(),g) );
                 *A_STAR_VR = *A_STAR_VC;
                 delete A_STAR_VC.release(); // lowers memory highwater
@@ -2356,11 +2356,11 @@ DistMatrix<T,MC,MR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
 #endif
     const elemental::Grid& g = this->Grid();
 
-    std::auto_ptr< DistMatrix<T,VR,STAR,Int> > A_VR_STAR
+    std::auto_ptr<DistMatrix<T,VR,STAR,Int> > A_VR_STAR
     ( new DistMatrix<T,VR,STAR,Int>(g) );
     *A_VR_STAR = A;
 
-    std::auto_ptr< DistMatrix<T,VC,STAR,Int> > A_VC_STAR
+    std::auto_ptr<DistMatrix<T,VC,STAR,Int> > A_VC_STAR
     ( new DistMatrix<T,VC,STAR,Int>(true,this->ColAlignment(),g) );
     *A_VC_STAR = *A_VR_STAR;
     delete A_VR_STAR.release(); // lowers memory highwater
@@ -2385,11 +2385,11 @@ DistMatrix<T,MC,MR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
 #endif
     const elemental::Grid& g = this->Grid();
 
-    std::auto_ptr< DistMatrix<T,STAR,VC,Int> > A_STAR_VC
+    std::auto_ptr<DistMatrix<T,STAR,VC,Int> > A_STAR_VC
     ( new DistMatrix<T,STAR,VC,Int>(g) );
     *A_STAR_VC = A;
 
-    std::auto_ptr< DistMatrix<T,STAR,VR,Int> > A_STAR_VR
+    std::auto_ptr<DistMatrix<T,STAR,VR,Int> > A_STAR_VR
     ( new DistMatrix<T,STAR,VR,Int>(true,this->RowAlignment(),g) );
     *A_STAR_VR = *A_STAR_VC;
     delete A_STAR_VC.release(); // lowers memory highwater
