@@ -33,11 +33,11 @@
 
 namespace elemental {
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::SetToRandomHermitianHelper<Z>::Func
-( DistMatrix<Z,STAR,STAR>& parent )
+DistMatrix<T,STAR,STAR,Int>::SetToRandomHermitianHelper<Z>::Func
+( DistMatrix<Z,STAR,STAR,Int>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHermitian");
@@ -52,11 +52,11 @@ DistMatrix<T,STAR,STAR>::SetToRandomHermitianHelper<Z>::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::SetToRandomHermitianHelper<std::complex<Z> >::
-Func( DistMatrix<std::complex<Z>,STAR,STAR>& parent )
+DistMatrix<T,STAR,STAR,Int>::SetToRandomHermitianHelper<std::complex<Z> >::
+Func( DistMatrix<std::complex<Z>,STAR,STAR,Int>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHermitian");
@@ -66,17 +66,17 @@ Func( DistMatrix<std::complex<Z>,STAR,STAR>& parent )
 #endif
     if( parent.Grid().InGrid() )
     {
-        const int height = parent.Height();
-        const int width = parent.Width();
+        const Int height = parent.Height();
+        const Int width = parent.Width();
 
         parent.SetToRandom();
 
         std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int j=0; j<std::min(height,width); ++j )
+        for( Int j=0; j<std::min(height,width); ++j )
         {
             const Z value = real(thisLocalBuffer[j+j*thisLDim]);
             thisLocalBuffer[j+j*thisLDim] = value;
@@ -87,11 +87,11 @@ Func( DistMatrix<std::complex<Z>,STAR,STAR>& parent )
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<Z>::Func
-( DistMatrix<Z,STAR,STAR>& parent )
+DistMatrix<T,STAR,STAR,Int>::SetToRandomHPDHelper<Z>::Func
+( DistMatrix<Z,STAR,STAR,Int>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHPD");
@@ -101,17 +101,17 @@ DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<Z>::Func
 #endif
     if( parent.Grid().InGrid() )
     {
-        const int height = parent.Height();
-        const int width = parent.Width();
+        const Int height = parent.Height();
+        const Int width = parent.Width();
 
         parent.SetToRandom();
 
         Z* thisLocalBuffer = parent.LocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int j=0; j<std::min(height,width); ++j )
+        for( Int j=0; j<std::min(height,width); ++j )
             thisLocalBuffer[j+j*thisLDim] += width;
     }
 #ifndef RELEASE
@@ -119,11 +119,11 @@ DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<Z>::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,STAR,STAR>& parent )
+DistMatrix<T,STAR,STAR,Int>::SetToRandomHPDHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,STAR,STAR,Int>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetToRandomHPD");
@@ -133,17 +133,17 @@ DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<std::complex<Z> >::Func
 #endif
     if( parent.Grid().InGrid() )
     {
-        const int height = parent.Height();
-        const int width = parent.Width();
+        const Int height = parent.Height();
+        const Int width = parent.Width();
 
         parent.SetToRandom();
 
         std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
-        const int thisLDim = parent.LocalLDim();
+        const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
-        for( int j=0; j<std::min(height,width); ++j )
+        for( Int j=0; j<std::min(height,width); ++j )
         {
             const Z value = real(thisLocalBuffer[j+j*thisLDim]);
             thisLocalBuffer[j+j*thisLDim] = value + width;
@@ -154,18 +154,18 @@ DistMatrix<T,STAR,STAR>::SetToRandomHPDHelper<std::complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline Z
-DistMatrix<T,STAR,STAR>::GetRealHelper<std::complex<Z> >::Func
-( const DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j ) 
+DistMatrix<T,STAR,STAR,Int>::GetRealHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,STAR,STAR,Int>& parent, Int i, Int j ) 
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::GetReal");
     parent.AssertValidEntry( i, j );
 #endif
-    const int viewingSize = mpi::CommSize( parent.Grid().ViewingComm() );
-    const int owningSize = mpi::GroupSize( parent.Grid().OwningGroup() );
+    const Int viewingSize = mpi::CommSize( parent.Grid().ViewingComm() );
+    const Int owningSize = mpi::GroupSize( parent.Grid().OwningGroup() );
     Z u;
     if( viewingSize == owningSize )
     {
@@ -187,18 +187,18 @@ DistMatrix<T,STAR,STAR>::GetRealHelper<std::complex<Z> >::Func
     return u;
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline Z
-DistMatrix<T,STAR,STAR>::GetImagHelper<std::complex<Z> >::Func
-( const DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j ) 
+DistMatrix<T,STAR,STAR,Int>::GetImagHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,STAR,STAR,Int>& parent, Int i, Int j ) 
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::GetImag");
     parent.AssertValidEntry( i, j );
 #endif
-    const int viewingSize = mpi::CommSize( parent.Grid().ViewingComm() );
-    const int owningSize = mpi::GroupSize( parent.Grid().OwningGroup() );
+    const Int viewingSize = mpi::CommSize( parent.Grid().ViewingComm() );
+    const Int owningSize = mpi::GroupSize( parent.Grid().OwningGroup() );
     Z u;
     if( viewingSize == owningSize )
     {
@@ -220,11 +220,11 @@ DistMatrix<T,STAR,STAR>::GetImagHelper<std::complex<Z> >::Func
     return u;
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::SetRealHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
+DistMatrix<T,STAR,STAR,Int>::SetRealHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,STAR,STAR,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetReal");
@@ -237,11 +237,11 @@ DistMatrix<T,STAR,STAR>::SetRealHelper<std::complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::SetImagHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
+DistMatrix<T,STAR,STAR,Int>::SetImagHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,STAR,STAR,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::SetImag");
@@ -254,11 +254,11 @@ DistMatrix<T,STAR,STAR>::SetImagHelper<std::complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::UpdateRealHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
+DistMatrix<T,STAR,STAR,Int>::UpdateRealHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,STAR,STAR,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::UpdateReal");
@@ -271,11 +271,11 @@ DistMatrix<T,STAR,STAR>::UpdateRealHelper<std::complex<Z> >::Func
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,STAR,STAR>::UpdateImagHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,STAR,STAR>& parent, int i, int j, Z u )
+DistMatrix<T,STAR,STAR,Int>::UpdateImagHelper<std::complex<Z> >::Func
+( DistMatrix<std::complex<Z>,STAR,STAR,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::UpdateImag");
