@@ -371,7 +371,14 @@ void AllReduce( float* buf, int count, Op op, Comm comm );
 void AllReduce( double* buf, int count, Op op, Comm comm );
 void AllReduce( scomplex* buf, int count, Op op, Comm comm );
 void AllReduce( dcomplex* buf, int count, Op op, Comm comm );
-        
+
+void ReduceScatter( byte* sbuf, byte* rbuf, int rc, Op op, Comm comm );
+void ReduceScatter( int* sbuf, int* rbuf, int rc, Op op, Comm comm );
+void ReduceScatter( float* sbuf, float* rbuf, int rc, Op op, Comm comm );
+void ReduceScatter( double* sbuf, double* rbuf, int rc, Op op, Comm comm );
+void ReduceScatter( scomplex* sbuf, scomplex* rbuf, int rc, Op op, Comm comm );
+void ReduceScatter( dcomplex* sbuf, dcomplex* rbuf, int rc, Op op, Comm comm );
+
 void ReduceScatter
 ( const byte* sbuf, byte* rbuf, const int* rcs, Op op, Comm comm );
 void ReduceScatter

@@ -2953,6 +2953,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
         else
         {
             const Int r = g.Height();
+            const Int myRow = g.MCRank();
             const Int rowAlignment = this->RowAlignment();
 
             const Int width = this->Width();
@@ -2964,14 +2965,10 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
                 std::max(localHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
             const Int sendSize = r * recvSize;
 
-            this->auxMemory_.Require( sendSize + recvSize );
-
-            T* buffer = this->auxMemory_.Buffer();
-            T* sendBuffer = &buffer[0];
-            T* recvBuffer = &buffer[sendSize];
+            this->auxMemory_.Require( sendSize );
+            T* sendBuffer = this->auxMemory_.Buffer();
 
             // Pack 
-            std::vector<int> recvSizes(r);
             const T* ALocalBuffer = A.LockedLocalBuffer();
             const Int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -2980,7 +2977,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
             for( Int k=0; k<r; ++k )
             {
                 T* data = &sendBuffer[k*recvSize];
-                recvSizes[k] = recvSize;
 
                 const Int thisRowShift = RawShift( k, rowAlignment, r );
                 const Int thisLocalWidth = 
@@ -2998,12 +2994,12 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
                 }
             }
 
-            // Reduce-scatter over each process column
-            mpi::ReduceScatter
-            ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.MCComm() );
+            // AllReduce over each process column
+            mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.MCComm() );
 
             // Unpack our received data
             T* thisLocalBuffer = this->LocalBuffer();
+            const T* recvBuffer = &sendBuffer[myRow*recvSize];
             const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
             #pragma omp parallel for
@@ -3102,7 +3098,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
             T* secondBuffer = &buffer[recvSize_RS];
 
             // Pack
-            std::vector<int> recvSizes(r);
             const T* ALocalBuffer = A.LockedLocalBuffer();
             const Int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -3111,7 +3106,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
             for( Int k=0; k<r; ++k )
             {
                 T* data = &secondBuffer[k*recvSize_RS];
-                recvSizes[k] = recvSize_RS;
 
                 const Int thisRowShift = RawShift( k, rowAlignment, r );
                 const Int thisLocalWidth = RawLocalLength(width,thisRowShift,r);
@@ -3130,7 +3124,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
 
             // Reduce-scatter over each process col
             mpi::ReduceScatter
-            ( secondBuffer, firstBuffer, &recvSizes[0], mpi::SUM, g.MCComm() );
+            ( secondBuffer, firstBuffer, recvSize_RS, mpi::SUM, g.MCComm() );
 
             // Trade reduced data with the appropriate process col
             mpi::SendRecv
@@ -3202,6 +3196,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
     if( this->RowAlignment() == A.RowAlignment() )
     {
         const Int c = g.Width();
+        const Int myCol = g.MRRank();
         const Int colAlignment = this->ColAlignment();
 
         const Int height = this->Height();
@@ -3213,14 +3208,10 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
             std::max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
         const Int sendSize = c * recvSize;
 
-        this->auxMemory_.Require( sendSize + recvSize );
-
-        T* buffer = this->auxMemory_.Buffer();
-        T* sendBuffer = &buffer[0];
-        T* recvBuffer = &buffer[sendSize];
+        this->auxMemory_.Require( sendSize );
+        T* sendBuffer = this->auxMemory_.Buffer();
 
         // Pack 
-        std::vector<int> recvSizes(c);
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -3229,7 +3220,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
         for( Int k=0; k<c; ++k )
         {
             T* data = &sendBuffer[k*recvSize];
-            recvSizes[k] = recvSize;
 
             const Int thisColShift = RawShift( k, colAlignment, c );
             const Int thisLocalHeight = 
@@ -3244,12 +3234,12 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
                         ALocalBuffer[(thisColShift+iLocal*c)+jLocal*ALDim];
         }
 
-        // Reduce-scatter over each process row
-        mpi::ReduceScatter
-        ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.MRComm() );
+        // AllReduce over each process row
+        mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.MRComm() );
 
         // Unpack our received data
         T* thisLocalBuffer = this->LocalBuffer();
+        const T* recvBuffer = &sendBuffer[myCol*recvSize];
         const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
@@ -3298,7 +3288,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
         T* secondBuffer = &buffer[recvSize_RS];
 
         // Pack 
-        std::vector<int> recvSizes(c);
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -3307,7 +3296,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
         for( Int k=0; k<c; ++k )
         {
             T* data = &secondBuffer[k*recvSize_RS];
-            recvSizes[k] = recvSize_RS;
 
             const Int thisColShift = RawShift( k, colAlignment, c );
             const Int thisLocalHeight = 
@@ -3324,7 +3312,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
 
         // Reduce-scatter over each process row
         mpi::ReduceScatter
-        ( secondBuffer, firstBuffer, &recvSizes[0], mpi::SUM, g.MRComm() );
+        ( secondBuffer, firstBuffer, recvSize_RS, mpi::SUM, g.MRComm() );
 
         // Trade reduced data with the appropriate process row
         mpi::SendRecv
@@ -3368,6 +3356,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,STAR,Int>& A )
     const elemental::Grid& g = this->Grid();
     const Int r = g.Height();
     const Int c = g.Width();
+    const Int myRank = g.VRRank();
     const Int colAlignment = this->ColAlignment();
     const Int rowAlignment = this->RowAlignment();
 
@@ -3382,14 +3371,10 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,STAR,Int>& A )
         std::max(maxLocalHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
     const Int sendSize = r * c * recvSize;
 
-    this->auxMemory_.Require( sendSize + recvSize );
-
-    T* buffer = this->auxMemory_.Buffer();
-    T* sendBuffer = &buffer[0];
-    T* recvBuffer = &buffer[sendSize];
+    this->auxMemory_.Require( sendSize );
+    T* sendBuffer = this->auxMemory_.Buffer();
 
     // Pack 
-    std::vector<int> recvSizes(r*c);
     const T* ALocalBuffer = A.LockedLocalBuffer();
     const Int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -3403,7 +3388,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,STAR,Int>& A )
         for( Int k=0; k<c; ++k )
         {
             T* data = &sendBuffer[(k+l*c)*recvSize];
-            recvSizes[k+l*c] = recvSize;
 
             const Int thisColShift = RawShift( k, colAlignment, c );
             const Int thisLocalHeight = 
@@ -3420,12 +3404,12 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,STAR,Int>& A )
         }
     }
 
-    // Reduce-scatter over each process col
-    mpi::ReduceScatter
-    ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.VRComm() );
+    // AllReduce over the grid
+    mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.VRComm() );
 
     // Unpack our received data
     T* thisLocalBuffer = this->LocalBuffer();
+    const T* recvBuffer = &sendBuffer[myRank*recvSize];
     const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
@@ -3494,6 +3478,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         else
         {
             const Int r = g.Height();
+            const Int myRow = g.MCRank();
             const Int rowAlignment = this->RowAlignment();
 
             const Int width = this->Width();
@@ -3503,15 +3488,12 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
 
             const Int portionSize = 
                 std::max(localHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
+            const Int sendSize = r*portionSize;
 
-            this->auxMemory_.Require( (r+1)*portionSize );
-
-            T* buffer = this->auxMemory_.Buffer();
-            T* recvBuffer = &buffer[0];
-            T* sendBuffer = &buffer[portionSize];
+            this->auxMemory_.Require( sendSize );
+            T* sendBuffer = this->auxMemory_.Buffer();
 
             // Pack 
-            std::vector<int> recvSizes(r);
             const T* ALocalBuffer = A.LockedLocalBuffer();
             const Int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -3520,7 +3502,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             for( Int k=0; k<r; ++k )
             {
                 T* data = &sendBuffer[k*portionSize];
-                recvSizes[k] = portionSize;
 
                 const Int thisRowShift = RawShift( k, rowAlignment, r );
                 const Int thisLocalWidth = RawLocalLength(width,thisRowShift,r);
@@ -3537,12 +3518,12 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
                 }
             }
 
-            // Reduce-scatter over each process column
-            mpi::ReduceScatter
-            ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.MCComm() );
+            // AllReduce over each process column
+            mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.MCComm() );
 
             // Update with our received data
             T* thisLocalBuffer = this->LocalBuffer();
+            const T* recvBuffer = &sendBuffer[myRow*portionSize];
             const Int thisLDim = this->LocalLDim();
 #if defined(_OPENMP) && !defined(AVOID_OMP_FMA)
             #pragma omp parallel for
@@ -3645,7 +3626,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             T* secondBuffer = &buffer[recvSize_RS];
 
             // Pack 
-            std::vector<int> recvSizes(r);
             const T* ALocalBuffer = A.LockedLocalBuffer();
             const Int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -3654,7 +3634,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             for( Int k=0; k<r; ++k )
             {
                 T* data = &secondBuffer[k*recvSize_RS];
-                recvSizes[k] = recvSize_RS;
 
                 const Int thisRowShift = RawShift( k, rowAlignment, r );
                 const Int thisLocalWidth = RawLocalLength(width,thisRowShift,r);
@@ -3673,7 +3652,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
 
             // Reduce-scatter over each process col
             mpi::ReduceScatter
-            ( secondBuffer, firstBuffer, &recvSizes[0], mpi::SUM, g.MCComm() );
+            ( secondBuffer, firstBuffer, recvSize_RS, mpi::SUM, g.MCComm() );
 
             // Trade reduced data with the appropriate process col
             mpi::SendRecv
@@ -3735,6 +3714,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
     if( this->RowAlignment() == A.RowAlignment() )
     {
         const Int c = g.Width();
+        const Int myCol = g.MRRank();
         const Int colAlignment = this->ColAlignment();
 
         const Int height = this->Height();
@@ -3746,14 +3726,10 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             std::max(maxLocalHeight*localWidth,mpi::MIN_COLL_MSG);
         const Int sendSize = c * recvSize;
 
-        this->auxMemory_.Require( sendSize + recvSize );
-
-        T* buffer = this->auxMemory_.Buffer();
-        T* sendBuffer = &buffer[0];
-        T* recvBuffer = &buffer[sendSize];
+        this->auxMemory_.Require( sendSize );
+        T* sendBuffer = this->auxMemory_.Buffer();
 
         // Pack
-        std::vector<int> recvSizes(c);
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -3762,7 +3738,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         for( Int k=0; k<c; ++k )
         {
             T* data = &sendBuffer[k*recvSize];
-            recvSizes[k] = recvSize;
 
             const Int thisColShift = RawShift( k, colAlignment, c );
             const Int thisLocalHeight = 
@@ -3777,12 +3752,12 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
                         ALocalBuffer[(thisColShift+iLocal*c)+jLocal*ALDim];
         }
 
-        // Reduce-scatter over each process row
-        mpi::ReduceScatter
-        ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.MRComm() );
+        // AllReduce over each process row
+        mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.MRComm() );
 
         // Update with our received data
         T* thisLocalBuffer = this->LocalBuffer();
+        const T* recvBuffer = &sendBuffer[myCol*recvSize];
         const Int thisLDim = this->LocalLDim();
 #if defined(_OPENMP) && !defined(AVOID_OMP_FMA)
         #pragma omp parallel for
@@ -3832,7 +3807,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         T* secondBuffer = &buffer[recvSize_RS];
 
         // Pack 
-        std::vector<int> recvSizes(c);
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -3841,7 +3815,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         for( Int k=0; k<c; ++k )
         {
             T* data = &secondBuffer[k*recvSize_RS];
-            recvSizes[k] = recvSize_RS;
 
             const Int thisColShift = RawShift( k, colAlignment, c );
             const Int thisLocalHeight = 
@@ -3858,7 +3831,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
 
         // Reduce-scatter over each process row
         mpi::ReduceScatter
-        ( secondBuffer, firstBuffer, &recvSizes[0], mpi::SUM, g.MRComm() );
+        ( secondBuffer, firstBuffer, recvSize_RS, mpi::SUM, g.MRComm() );
 
         // Trade reduced data with the appropriate process row
         mpi::SendRecv
@@ -3904,6 +3877,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
     const elemental::Grid& g = this->Grid();
     const Int r = g.Height();
     const Int c = g.Width();
+    const Int myRank = g.VRRank();
     const Int colAlignment = this->ColAlignment();
     const Int rowAlignment = this->RowAlignment();
 
@@ -3918,14 +3892,10 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         std::max(maxLocalHeight*maxLocalWidth,mpi::MIN_COLL_MSG);
     const Int sendSize = r * c * recvSize;
 
-    this->auxMemory_.Require( sendSize + recvSize );
-
-    T* buffer = this->auxMemory_.Buffer();
-    T* sendBuffer = &buffer[0];
-    T* recvBuffer = &buffer[sendSize];
+    this->auxMemory_.Require( sendSize );
+    T* sendBuffer = this->auxMemory_.Buffer();
 
     // Pack 
-    std::vector<int> recvSizes(r*c);
     const T* ALocalBuffer = A.LockedLocalBuffer();
     const Int ALDim = A.LocalLDim();
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -3939,7 +3909,6 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         for( Int k=0; k<c; ++k )
         {
             T* data = &sendBuffer[(k+l*c)*recvSize];
-            recvSizes[k+l*c] = recvSize;
 
             const Int thisColShift = RawShift( k, colAlignment, c );
             const Int thisLocalHeight = 
@@ -3956,12 +3925,12 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         }
     }
 
-    // Reduce-scatter over each process col
-    mpi::ReduceScatter
-    ( sendBuffer, recvBuffer, &recvSizes[0], mpi::SUM, g.VRComm() );
+    // AllReduce over the grid
+    mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.VRComm() );
 
     // Unpack our received data
     T* thisLocalBuffer = this->LocalBuffer();
+    const T* recvBuffer = &sendBuffer[myRank*recvSize];
     const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for

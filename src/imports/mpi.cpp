@@ -2767,6 +2767,102 @@ elemental::mpi::AllReduce
 #endif
 }
 
+void 
+elemental::mpi::ReduceScatter
+( byte* sbuf, byte* rbuf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( sbuf, rc*commSize, op, comm );
+    std::memcpy( rbuf, &sbuf[commRank*rc], rc );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( int* sbuf, int* rbuf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( sbuf, rc*commSize, op, comm );
+    std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(int) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( float* sbuf, float* rbuf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( sbuf, rc*commSize, op, comm );
+    std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(float) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( double* sbuf, double* rbuf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( sbuf, rc*commSize, op, comm );
+    std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(double) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( scomplex* sbuf, scomplex* rbuf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( sbuf, rc*commSize, op, comm );
+    std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(scomplex) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( dcomplex* sbuf, dcomplex* rbuf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( sbuf, rc*commSize, op, comm );
+    std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(dcomplex) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 void
 elemental::mpi::ReduceScatter
 ( const byte* sbuf, byte* rbuf, const int* rcs, mpi::Op op, mpi::Comm comm )
