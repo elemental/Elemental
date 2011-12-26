@@ -34,6 +34,77 @@
 namespace elemental {
 
 template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,STAR,Int>::DistMatrix( const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (0,0,false,false,0,0,0,0,0,0,g)
+{ }
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,STAR,Int>::DistMatrix
+( Int height, Int width, const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (height,width,false,false,0,0,0,0,height,width,g)
+{ }
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,STAR,Int>::DistMatrix
+( Int height, Int width, Int ldim, const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (height,width,false,false,0,0,0,0,height,width,ldim,g)
+{ }
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,STAR,Int>::DistMatrix
+( Int height, Int width, const T* buffer, Int ldim, const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (height,width,0,0,0,0,height,width,buffer,ldim,g)
+{ }
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,STAR,Int>::DistMatrix
+( Int height, Int width, T* buffer, Int ldim, const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (height,width,0,0,0,0,height,width,buffer,ldim,g)
+{ }
+
+template<typename T,typename Int>
+template<Distribution U,Distribution V>
+inline
+DistMatrix<T,STAR,STAR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
+: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
+{
+#ifndef RELEASE
+    PushCallStack("DistMatrix[* ,* ]::DistMatrix");
+#endif
+    if( STAR != U || STAR != V || 
+        reinterpret_cast<const DistMatrix<T,STAR,STAR,Int>*>(&A) != this )    
+        *this = A;
+    else
+        throw std::logic_error("Tried to construct [* ,* ] with itself");
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,STAR,Int>::~DistMatrix()
+{ }
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,STAR,STAR,Int>::SetGrid( const elemental::Grid& grid )
+{
+    this->Empty();
+    this->grid_ = &grid;
+}
+
+template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,STAR,Int>::PrintBase
 ( std::ostream& os, const std::string msg ) const

@@ -34,6 +34,275 @@
 namespace elemental {
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::SetToRandomHermitian()
+{ SetToRandomHermitianHelper<T>::Func( *this ); }
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::SetToRandomHPD()
+{ SetToRandomHPDHelper<T>::Func( *this ); }
+
+template<typename T,typename Int>
+inline typename RealBase<T>::type
+DistMatrix<T,MR,MC,Int>::GetReal( Int i, Int j ) const
+{ return GetRealHelper<T>::Func( *this, i, j ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline Z
+DistMatrix<T,MR,MC,Int>::GetRealHelper<Z>::Func
+( const DistMatrix<Z,MR,MC,Int>& parent, Int i, Int j )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::GetReal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline typename RealBase<T>::type
+DistMatrix<T,MR,MC,Int>::GetImag( Int i, Int j ) const
+{ return GetImagHelper<T>::Func( *this, i, j ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline Z
+DistMatrix<T,MR,MC,Int>::GetImagHelper<Z>::Func
+( const DistMatrix<Z,MR,MC,Int>& parent, Int i, Int j )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::GetImag");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::SetReal
+( Int i, Int j, typename RealBase<T>::type alpha )
+{ SetRealHelper<T>::Func( *this, i, j, alpha ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::SetRealHelper<Z>::Func
+( DistMatrix<Z,MR,MC,Int>& parent, Int i, Int j, Z alpha )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::SetReal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::SetImag
+( Int i, Int j, typename RealBase<T>::type alpha )
+{ SetImagHelper<T>::Func( *this, i, j, alpha ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::SetImagHelper<Z>::Func
+( DistMatrix<Z,MR,MC,Int>& parent, Int i, Int j, Z alpha )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::SetImag");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::UpdateReal
+( Int i, Int j, typename RealBase<T>::type alpha )
+{ UpdateRealHelper<T>::Func( *this, i, j, alpha ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::UpdateRealHelper<Z>::Func
+( DistMatrix<Z,MR,MC,Int>& parent, Int i, Int j, Z alpha )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::UpdateReal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::UpdateImag
+( Int i, Int j, typename RealBase<T>::type alpha )
+{ UpdateImagHelper<T>::Func( *this, i, j, alpha ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::UpdateImagHelper<Z>::Func
+( DistMatrix<Z,MR,MC,Int>& parent, Int i, Int j, Z alpha )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::UpdateImag");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::GetRealDiagonal
+( DistMatrix<typename RealBase<T>::type,MD,STAR,Int>& d, Int offset ) const
+{ GetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MR,MC,Int>& parent, 
+        DistMatrix<Z,MD,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::GetRealDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::GetRealDiagonal
+( DistMatrix<typename RealBase<T>::type,STAR,MD,Int>& d, Int offset ) const
+{ GetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MR,MC,Int>& parent, 
+        DistMatrix<Z,STAR,MD,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::GetRealDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::GetImagDiagonal
+( DistMatrix<typename RealBase<T>::type,MD,STAR,Int>& d, Int offset ) const
+{ GetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MR,MC,Int>& parent, 
+        DistMatrix<Z,MD,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::GetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::GetImagDiagonal
+( DistMatrix<typename RealBase<T>::type,STAR,MD,Int>& d, Int offset ) const
+{ GetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MR,MC,Int>& parent, 
+        DistMatrix<Z,STAR,MD,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::GetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::SetRealDiagonal
+( const DistMatrix<typename RealBase<T>::type,MD,STAR,Int>& d, Int offset )
+{ SetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<Z>::Func
+(       DistMatrix<Z,MR,MC,Int>& parent, 
+  const DistMatrix<Z,MD,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::SetRealDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::SetRealDiagonal
+( const DistMatrix<typename RealBase<T>::type,STAR,MD,Int>& d, Int offset ) 
+{ SetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<Z>::Func
+(       DistMatrix<Z,MR,MC,Int>& parent, 
+  const DistMatrix<Z,STAR,MD,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::SetRealDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::SetImagDiagonal
+( const DistMatrix<typename RealBase<T>::type,MD,STAR,Int>& d, Int offset ) 
+{ SetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<Z>::Func
+(       DistMatrix<Z,MR,MC,Int>& parent, 
+  const DistMatrix<Z,MD,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::SetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MR,MC,Int>::SetImagDiagonal
+( const DistMatrix<typename RealBase<T>::type,STAR,MD,Int>& d, Int offset ) 
+{ SetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<Z>::Func
+(       DistMatrix<Z,MR,MC,Int>& parent, 
+  const DistMatrix<Z,STAR,MD,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MR,MC]::SetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+
+template<typename T,typename Int>
 template<typename Z>
 inline void
 DistMatrix<T,MR,MC,Int>::SetToRandomHermitianHelper<Z>::Func

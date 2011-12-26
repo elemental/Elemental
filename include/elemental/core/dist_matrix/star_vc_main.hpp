@@ -34,6 +34,422 @@
 namespace elemental {
 
 template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,VC,Int>::DistMatrix( const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (0,0,false,false,0,0,
+   0,(g.InGrid() ? g.VCRank() : 0 ),
+   0,0,g)
+{ }
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,VC,Int>::DistMatrix
+( Int height, Int width, const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (height,width,false,false,0,0,
+   0,(g.InGrid() ? g.VCRank() : 0),
+   height,(g.InGrid() ? LocalLength(width,g.VCRank(),0,g.Size()) : 0),
+   g)
+{ }
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,VC,Int>::DistMatrix
+( bool constrainedRowAlignment, Int rowAlignment, const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (0,0,false,constrainedRowAlignment,0,rowAlignment,
+   0,(g.InGrid() ? Shift(g.VCRank(),rowAlignment,g.Size()) : 0),
+   0,0,g)
+{ }
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,VC,Int>::DistMatrix
+( Int height, Int width, bool constrainedRowAlignment, Int rowAlignment,
+  const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (height,width,false,constrainedRowAlignment,0,rowAlignment,
+   0,(g.InGrid() ? Shift(g.VCRank(),rowAlignment,g.Size()) : 0),
+   height,
+   (g.InGrid() ? LocalLength(width,g.VCRank(),rowAlignment,g.Size()) : 0),
+   g)
+{ }
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,VC,Int>::DistMatrix
+( Int height, Int width, bool constrainedRowAlignment, Int rowAlignment,
+  Int ldim, const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (height,width,false,constrainedRowAlignment,0,rowAlignment,
+   0,(g.InGrid() ? Shift(g.VCRank(),rowAlignment,g.Size()) : 0),
+   height,
+   (g.InGrid() ? LocalLength(width,g.VCRank(),rowAlignment,g.Size()) : 0),
+   ldim,g)
+{ }
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,VC,Int>::DistMatrix
+( Int height, Int width, Int rowAlignment, const T* buffer, Int ldim,
+  const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (height,width,0,rowAlignment,
+   0,(g.InGrid() ? Shift(g.VCRank(),rowAlignment,g.Size()) : 0),
+   height,
+   (g.InGrid() ? LocalLength(width,g.VCRank(),rowAlignment,g.Size()) : 0),
+   buffer,ldim,g)
+{ }
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,VC,Int>::DistMatrix
+( Int height, Int width, Int rowAlignment, T* buffer, Int ldim,
+  const elemental::Grid& g )
+: AbstractDistMatrix<T,Int>
+  (height,width,0,rowAlignment,
+   0,(g.InGrid() ? Shift(g.VCRank(),rowAlignment,g.Size()) : 0),
+   height,
+   (g.InGrid() ? LocalLength(width,g.VCRank(),rowAlignment,g.Size()) : 0),
+   buffer,ldim,g)
+{ }
+
+template<typename T,typename Int>
+template<Distribution U,Distribution V>
+inline
+DistMatrix<T,STAR,VC,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
+: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
+{
+#ifndef RELEASE
+    PushCallStack("DistMatrix[* ,VC]::DistMatrix");
+#endif
+    if( STAR != U || VC != V || 
+        reinterpret_cast<const DistMatrix<T,STAR,VC,Int>*>(&A) != this )
+        *this = A;
+    else
+        throw std::logic_error("Tried to construct [* ,VC] with itself");
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline
+DistMatrix<T,STAR,VC,Int>::~DistMatrix()
+{ }
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,STAR,VC,Int>::SetGrid( const elemental::Grid& grid )
+{
+    this->Empty();
+    this->grid_ = &grid;
+    this->rowAlignment_ = 0;
+    this->rowShift_ = grid.VCRank();
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignWith( const DistMatrix<S,MC,MR,N>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignWith([MC,MR])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    this->rowAlignment_ = A.ColAlignment();
+    this->rowShift_ = Shift( g.VCRank(), this->RowAlignment(), g.Size() );
+    this->constrainedRowAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignWith( const DistMatrix<S,MR,MC,N>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignWith([MR,MC])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    this->rowAlignment_ = A.RowAlignment();
+    this->rowShift_ = Shift( g.VCRank(), this->RowAlignment(), g.Size() );
+    this->constrainedRowAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignWith( const DistMatrix<S,MC,STAR,N>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignWith([MC,* ])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    this->rowAlignment_ = A.ColAlignment();
+    this->rowShift_ = Shift( g.VCRank(), this->RowAlignment(), g.Size() );
+    this->constrainedRowAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignWith( const DistMatrix<S,STAR,MC,N>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignWith([* ,MC])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    this->rowAlignment_ = A.RowAlignment();
+    this->rowShift_ = Shift( g.VCRank(), this->RowAlignment(), g.Size() );
+    this->constrainedRowAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignWith( const DistMatrix<S,STAR,VC,N>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignWith([* ,VC])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    this->rowAlignment_ = A.RowAlignment();
+    this->rowShift_ = A.RowShift();
+    this->constrainedRowAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignWith( const DistMatrix<S,VC,STAR,N>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignWith([VC,* ])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    this->rowAlignment_ = A.ColAlignment();
+    this->rowShift_ = A.ColShift();
+    this->constrainedRowAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignRowsWith( const DistMatrix<S,MC,MR,N>& A )
+{ AlignWith( A ); }
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignRowsWith( const DistMatrix<S,MR,MC,N>& A )
+{ AlignWith( A ); }
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignRowsWith( const DistMatrix<S,MC,STAR,N>& A )
+{ AlignWith( A ); }
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignRowsWith( const DistMatrix<S,STAR,MC,N>& A )
+{ AlignWith( A ); }
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignRowsWith( const DistMatrix<S,STAR,VC,N>& A )
+{ AlignWith( A ); }
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignRowsWith( const DistMatrix<S,VC,STAR,N>& A )
+{ AlignWith( A ); }
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline bool
+DistMatrix<T,STAR,VC,Int>::AlignedWithDiagonal
+( const DistMatrix<S,VC,STAR,N>& A, Int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignedWithDiagonal([* ,MC])");
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const Int p = g.Size();
+    const Int colAlignment = A.ColAlignment();
+    bool aligned;
+
+    if( offset >= 0 )
+    {
+        const Int ownerRank = colAlignment;
+        aligned = ( this->RowAlignment() == ownerRank );
+    }
+    else
+    {
+        const Int ownerRank = (colAlignment-offset) % p;
+        aligned = ( this->RowAlignment() == ownerRank );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return aligned;
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline bool
+DistMatrix<T,STAR,VC,Int>::AlignedWithDiagonal
+( const DistMatrix<S,STAR,VC,N>& A, Int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignedWithDiagonal([* ,VC])");
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const Int p = g.Size();
+    const Int rowAlignment = A.RowAlignment();
+    bool aligned;
+
+    if( offset >= 0 )
+    {
+        const Int ownerRank = (rowAlignment + offset) % p;
+        aligned = ( this->RowAlignment() == ownerRank );
+    }
+    else
+    {
+        const Int ownerRank = rowAlignment;
+        aligned = ( this->RowAlignment() == ownerRank );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return aligned;
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignWithDiagonal
+( const DistMatrix<S,VC,STAR,N>& A, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignWithDiagonal([VC,* ])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const Int p = g.Size();
+    const Int colAlignment = A.ColAlignment();
+
+    if( offset >= 0 )
+    {
+        const Int ownerRank = colAlignment;
+        this->rowAlignment_ = ownerRank;
+    }
+    else
+    {
+        const Int ownerRank = (colAlignment-offset) % p;
+        this->rowAlignment_ = ownerRank;
+    }
+    if( g.InGrid() )
+        this->rowShift_ = Shift(g.VCRank(),this->rowAlignment_,p);
+    this->constrainedRowAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,VC,Int>::AlignWithDiagonal
+( const DistMatrix<S,STAR,VC,N>& A, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,VC]::AlignWithDiagonal([* ,VC])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elemental::Grid& g = this->Grid();
+    const Int p = g.Size();
+    const Int rowAlignment = A.RowAlignment();
+
+    if( offset >= 0 )
+    {
+        const Int ownerRank = (rowAlignment+offset) % p;
+        this->rowAlignment_ = ownerRank;
+    }
+    else
+    {
+        const Int ownerRank = rowAlignment;
+        this->rowAlignment_ = ownerRank;
+    }
+    if( g.InGrid() )
+        this->rowShift_ = Shift(g.VCRank(),this->rowAlignment_,p);
+    this->constrainedRowAlignment_ = true;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->localMatrix_.ResizeTo( 0, 0 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,VC,Int>::PrintBase
 ( std::ostream& os, const std::string msg ) const

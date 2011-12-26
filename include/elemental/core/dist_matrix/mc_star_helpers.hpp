@@ -34,6 +34,11 @@
 namespace elemental {
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetToRandomHermitian()
+{ SetToRandomHermitianHelper<T>::Func( *this ); }
+
+template<typename T,typename Int>
 template<typename Z>
 inline void
 DistMatrix<T,MC,STAR,Int>::SetToRandomHermitianHelper<Z>::Func
@@ -88,6 +93,11 @@ DistMatrix<T,MC,STAR,Int>::SetToRandomHermitianHelper<std::complex<Z> >::Func
     PopCallStack();
 #endif
 }
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetToRandomHPD()
+{ SetToRandomHPDHelper<T>::Func( *this ); }
 
 template<typename T,typename Int>
 template<typename Z>
@@ -163,6 +173,23 @@ DistMatrix<T,MC,STAR,Int>::SetToRandomHPDHelper<std::complex<Z> >::Func
 }
 
 template<typename T,typename Int>
+inline typename RealBase<T>::type
+DistMatrix<T,MC,STAR,Int>::GetReal( Int i, Int j ) const
+{ return GetRealHelper<T>::Func( *this, i, j ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline Z
+DistMatrix<T,MC,STAR,Int>::GetRealHelper<Z>::Func
+( const DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetRealHelper");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
 template<typename Z>
 inline Z
 DistMatrix<T,MC,STAR,Int>::GetRealHelper<std::complex<Z> >::Func
@@ -189,6 +216,23 @@ DistMatrix<T,MC,STAR,Int>::GetRealHelper<std::complex<Z> >::Func
     PopCallStack();
 #endif
     return u;
+}
+
+template<typename T,typename Int>
+inline typename RealBase<T>::type
+DistMatrix<T,MC,STAR,Int>::GetImag( Int i, Int j ) const
+{ return GetImagHelper<T>::Func( *this, i, j ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline Z
+DistMatrix<T,MC,STAR,Int>::GetImagHelper<Z>::Func
+( const DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetImag");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
 }
 
 template<typename T,typename Int>
@@ -221,6 +265,24 @@ DistMatrix<T,MC,STAR,Int>::GetImagHelper<std::complex<Z> >::Func
 }
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetReal
+( Int i, Int j, typename RealBase<T>::type alpha )
+{ SetRealHelper<T>::Func( *this, i, j, alpha ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetRealHelper<Z>::Func
+( DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j, Z alpha )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetReal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
 template<typename Z>
 inline void
 DistMatrix<T,MC,STAR,Int>::SetRealHelper<std::complex<Z> >::Func
@@ -241,6 +303,24 @@ DistMatrix<T,MC,STAR,Int>::SetRealHelper<std::complex<Z> >::Func
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetImag
+( Int i, Int j, typename RealBase<T>::type alpha )
+{ SetImagHelper<T>::Func( *this, i, j, alpha ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetImagHelper<Z>::Func
+( DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j, Z alpha )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetImag");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
 }
 
 template<typename T,typename Int>
@@ -267,6 +347,24 @@ DistMatrix<T,MC,STAR,Int>::SetImagHelper<std::complex<Z> >::Func
 }
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::UpdateReal
+( Int i, Int j, typename RealBase<T>::type alpha )
+{ UpdateRealHelper<T>::Func( *this, i, j, alpha ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::UpdateRealHelper<Z>::Func
+( DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j, Z alpha )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::UpdateReal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
 template<typename Z>
 inline void
 DistMatrix<T,MC,STAR,Int>::UpdateRealHelper<std::complex<Z> >::Func
@@ -290,6 +388,24 @@ DistMatrix<T,MC,STAR,Int>::UpdateRealHelper<std::complex<Z> >::Func
 }
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::UpdateImag
+( Int i, Int j, typename RealBase<T>::type alpha )
+{ UpdateImagHelper<T>::Func( *this, i, j, alpha ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::UpdateImagHelper<Z>::Func
+( DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j, Z alpha )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::UpdateImag");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
 template<typename Z>
 inline void
 DistMatrix<T,MC,STAR,Int>::UpdateImagHelper<std::complex<Z> >::Func
@@ -310,6 +426,26 @@ DistMatrix<T,MC,STAR,Int>::UpdateImagHelper<std::complex<Z> >::Func
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetRealDiagonal
+( DistMatrix<typename RealBase<T>::type,MC,STAR,Int>& d, Int offset ) const
+{ GetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetRealDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MC,STAR,Int>& parent, 
+        DistMatrix<Z,MC,STAR,Int>& d, 
+  Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetRealDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
 }
 
 template<typename T,typename Int>
@@ -387,77 +523,22 @@ DistMatrix<T,MC,STAR,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
 }
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetRealDiagonal
+( DistMatrix<typename RealBase<T>::type,STAR,MC,Int>& d, Int offset ) const
+{ GetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,STAR,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
-( const DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
-        DistMatrix<Z,MC,STAR,Int>& d, Int offset )
+DistMatrix<T,MC,STAR,Int>::GetRealDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MC,STAR,Int>& parent, 
+        DistMatrix<Z,STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::GetImagDiagonal");
-    if( d.Viewing() )
-        parent.AssertSameGrid( d );
+    PushCallStack("[MC,* ]::GetRealDiagonal");
 #endif
-    const Int length = parent.DiagonalLength(offset);
-#ifndef RELEASE
-    if( d.Viewing() && length != d.Height() )
-    {
-        std::ostringstream msg; 
-        msg << "d is not of the same length as the diagonal:\n"
-            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
-            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-            << "  A diag length: " << length << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
-    if( ( d.Viewing() || d.ConstrainedColAlignment() ) && 
-        !d.AlignedWithDiagonal( parent, offset ) )
-        throw std::logic_error("d must be aligned with the offset diag");
-#endif
-    const elemental::Grid& g = parent.Grid();
-    if( !d.Viewing() )
-    {
-        d.SetGrid( g );
-        if( !d.ConstrainedColAlignment() )
-            d.AlignWithDiagonal( parent, offset );
-        d.ResizeTo( length, 1 );
-    }
-
-    if( g.InGrid() )
-    {
-        const Int r = g.Height();
-        const Int colShift = parent.ColShift();
-        const Int diagShift = d.ColShift();
-
-        Int iStart, jStart;
-        if( offset >= 0 )
-        {
-            iStart = diagShift;
-            jStart = diagShift+offset;
-        }
-        else
-        {
-            iStart = diagShift-offset;
-            jStart = diagShift;
-        }
-
-        const Int iLocalStart = (iStart-colShift) / r;
-        const Int localDiagLength = d.LocalHeight();
-        const std::complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
-        const Int thisLDim = parent.LocalLDim();
-        Z* dLocalBuffer = d.LocalBuffer();
-#ifdef _OPENMP
-        #pragma omp parallel for
-#endif
-        for( Int k=0; k<localDiagLength; ++k )
-        {
-            const Int iLocal = iLocalStart+k;
-            const Int jLocal = jStart+k*r;
-            dLocalBuffer[k] = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
-        }
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
 }
 
 template<typename T,typename Int>
@@ -537,6 +618,118 @@ DistMatrix<T,MC,STAR,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
 }
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetImagDiagonal
+( DistMatrix<typename RealBase<T>::type,MC,STAR,Int>& d, Int offset ) const
+{ GetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetImagDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MC,STAR,Int>& parent, 
+        DistMatrix<Z,MC,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
+( const DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+        DistMatrix<Z,MC,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetImagDiagonal");
+    if( d.Viewing() )
+        parent.AssertSameGrid( d );
+#endif
+    const Int length = parent.DiagonalLength(offset);
+#ifndef RELEASE
+    if( d.Viewing() && length != d.Height() )
+    {
+        std::ostringstream msg; 
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( ( d.Viewing() || d.ConstrainedColAlignment() ) && 
+        !d.AlignedWithDiagonal( parent, offset ) )
+        throw std::logic_error("d must be aligned with the offset diag");
+#endif
+    const elemental::Grid& g = parent.Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.ConstrainedColAlignment() )
+            d.AlignWithDiagonal( parent, offset );
+        d.ResizeTo( length, 1 );
+    }
+
+    if( g.InGrid() )
+    {
+        const Int r = g.Height();
+        const Int colShift = parent.ColShift();
+        const Int diagShift = d.ColShift();
+
+        Int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int localDiagLength = d.LocalHeight();
+        const std::complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const Int thisLDim = parent.LocalLDim();
+        Z* dLocalBuffer = d.LocalBuffer();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLocal = iLocalStart+k;
+            const Int jLocal = jStart+k*r;
+            dLocalBuffer[k] = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetImagDiagonal
+( DistMatrix<typename RealBase<T>::type,STAR,MC,Int>& d, Int offset ) const
+{ GetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetImagDiagonalHelper<Z>::Func
+( const DistMatrix<Z,MC,STAR,Int>& parent, 
+        DistMatrix<Z,STAR,MC,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
 template<typename Z>
 inline void
 DistMatrix<T,MC,STAR,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
@@ -613,11 +806,30 @@ DistMatrix<T,MC,STAR,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
 }
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetRealDiagonal
+( const DistMatrix<typename RealBase<T>::type,MC,STAR,Int>& d, Int offset )
+{ SetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetRealDiagonalHelper<Z>::Func
+(       DistMatrix<Z,MC,STAR,Int>& parent, 
+  const DistMatrix<Z,MC,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetRealDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
 template<typename Z>
 inline void
 DistMatrix<T,MC,STAR,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
-(      DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
- const DistMatrix<Z,MC,STAR,Int>& d, Int offset )
+(       DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+  const DistMatrix<Z,MC,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetRealDiagonal");
@@ -680,78 +892,30 @@ DistMatrix<T,MC,STAR,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
 }
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetRealDiagonal
+( const DistMatrix<typename RealBase<T>::type,STAR,MC,Int>& d, Int offset )
+{ SetRealDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MC,STAR,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
-(      DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
- const DistMatrix<Z,MC,STAR,Int>& d, Int offset )
+DistMatrix<T,MC,STAR,Int>::SetRealDiagonalHelper<Z>::Func
+(       DistMatrix<Z,MC,STAR,Int>& parent, 
+  const DistMatrix<Z,STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::SetImagDiagonal");
-    parent.AssertSameGrid( d );
-    if( d.Width() != 1 )
-        throw std::logic_error("d must be a column vector");
-    const Int length = parent.DiagonalLength(offset);
-    if( length != d.Height() )
-    {
-        std::ostringstream msg;
-        msg << "d is not of the same length as the diagonal:\n"
-            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
-            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-            << "  A diag length: " << length << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
-    if( !d.AlignedWithDiagonal( parent, offset ) )
-        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+    PushCallStack("[MC,* ]::SetRealDiagonal");
 #endif
-    const elemental::Grid& g = parent.Grid();
-    if( g.InGrid() )
-    {
-        const Int r = g.Height();
-        const Int colShift = parent.ColShift();
-        const Int diagShift = d.ColShift();
-
-        Int iStart, jStart;
-        if( offset >= 0 )
-        {
-            iStart = diagShift;
-            jStart = diagShift+offset;
-        }
-        else
-        {
-            iStart = diagShift-offset;
-            jStart = diagShift;
-        }
-
-        const Int iLocalStart = (iStart-colShift)/r;
-        const Int localDiagLength = d.LocalHeight();
-
-        const Z* dLocalBuffer = d.LockedLocalBuffer();
-        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
-        const Int thisLDim = parent.LocalLDim();
-#ifdef _OPENMP
-        #pragma omp parallel for
-#endif
-        for( Int k=0; k<localDiagLength; ++k )
-        {
-            const Int iLocal = iLocalStart+k;
-            const Int jLocal = jStart+k*r;
-            const Z u = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
-            const Z v = dLocalBuffer[k];
-            thisLocalBuffer[iLocal+jLocal*thisLDim] = std::complex<Z>(u,v);
-        }
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
 }
 
 template<typename T,typename Int>
 template<typename Z>
 inline void
 DistMatrix<T,MC,STAR,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
-(      DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
- const DistMatrix<Z,STAR,MC,Int>& d, Int offset )
+(       DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+  const DistMatrix<Z,STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetRealDiagonal");
@@ -815,11 +979,116 @@ DistMatrix<T,MC,STAR,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
 }
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetImagDiagonal
+( const DistMatrix<typename RealBase<T>::type,MC,STAR,Int>& d, Int offset )
+{ SetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetImagDiagonalHelper<Z>::Func
+(       DistMatrix<Z,MC,STAR,Int>& parent, 
+  const DistMatrix<Z,MC,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
 template<typename Z>
 inline void
 DistMatrix<T,MC,STAR,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
-(      DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
- const DistMatrix<Z,STAR,MC,Int>& d, Int offset )
+(       DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+  const DistMatrix<Z,MC,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetImagDiagonal");
+    parent.AssertSameGrid( d );
+    if( d.Width() != 1 )
+        throw std::logic_error("d must be a column vector");
+    const Int length = parent.DiagonalLength(offset);
+    if( length != d.Height() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << parent.Height() << " x " << parent.Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( parent, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    const elemental::Grid& g = parent.Grid();
+    if( g.InGrid() )
+    {
+        const Int r = g.Height();
+        const Int colShift = parent.ColShift();
+        const Int diagShift = d.ColShift();
+
+        Int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const Int iLocalStart = (iStart-colShift)/r;
+        const Int localDiagLength = d.LocalHeight();
+
+        const Z* dLocalBuffer = d.LockedLocalBuffer();
+        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        const Int thisLDim = parent.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLocal = iLocalStart+k;
+            const Int jLocal = jStart+k*r;
+            const Z u = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            const Z v = dLocalBuffer[k];
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = std::complex<Z>(u,v);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetImagDiagonal
+( const DistMatrix<typename RealBase<T>::type,STAR,MC,Int>& d, Int offset )
+{ SetImagDiagonalHelper<T>::Func( *this, d, offset ); }
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetImagDiagonalHelper<Z>::Func
+(       DistMatrix<Z,MC,STAR,Int>& parent, 
+  const DistMatrix<Z,STAR,MC,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetImagDiagonal");
+#endif
+    throw std::logic_error("Called complex-only routine with real datatype");
+}
+
+template<typename T,typename Int>
+template<typename Z>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
+(       DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+  const DistMatrix<Z,STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetImagDiagonal");
