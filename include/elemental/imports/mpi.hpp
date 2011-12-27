@@ -291,6 +291,14 @@ void Scatter
 void Scatter
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, int root, Comm comm );
+
+// In-place option
+void Scatter( byte* buf, int sc, int rc, int root, Comm comm );
+void Scatter( int* buf, int sc, int rc, int root, Comm comm );
+void Scatter( float* buf, int sc, int rc, int root, Comm comm );
+void Scatter( double* buf, int sc, int rc, int root, Comm comm );
+void Scatter( scomplex* buf, int sc, int rc, int root, Comm comm );
+void Scatter( dcomplex* buf, int sc, int rc, int root, Comm comm );
  
 void AllToAll
 ( const byte* sbuf, int sc,
@@ -378,6 +386,14 @@ void ReduceScatter( float* sbuf, float* rbuf, int rc, Op op, Comm comm );
 void ReduceScatter( double* sbuf, double* rbuf, int rc, Op op, Comm comm );
 void ReduceScatter( scomplex* sbuf, scomplex* rbuf, int rc, Op op, Comm comm );
 void ReduceScatter( dcomplex* sbuf, dcomplex* rbuf, int rc, Op op, Comm comm );
+
+// In-place option
+void ReduceScatter( byte* buf, int rc, Op op, Comm comm );
+void ReduceScatter( int* buf, int rc, Op op, Comm comm );
+void ReduceScatter( float* buf, int rc, Op op, Comm comm );
+void ReduceScatter( double* buf, int rc, Op op, Comm comm );
+void ReduceScatter( scomplex* buf, int rc, Op op, Comm comm );
+void ReduceScatter( dcomplex* buf, int rc, Op op, Comm comm );
 
 void ReduceScatter
 ( const byte* sbuf, byte* rbuf, const int* rcs, Op op, Comm comm );

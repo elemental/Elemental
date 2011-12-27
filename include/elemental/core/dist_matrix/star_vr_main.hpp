@@ -1983,7 +1983,6 @@ DistMatrix<T,STAR,VR,Int>::SumScatterFrom( const DistMatrix<T,STAR,MR,Int>& A )
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = r * c;
-        const Int myRow = g.MCRank();
         const Int myCol = g.MRRank();
         const Int rowAlignment = this->RowAlignment();
         const Int rowShiftOfA = A.RowShift();
@@ -1997,7 +1996,7 @@ DistMatrix<T,STAR,VR,Int>::SumScatterFrom( const DistMatrix<T,STAR,MR,Int>& A )
         const Int sendSize = r*recvSize;
 
         this->auxMemory_.Require( sendSize );
-        T* sendBuffer = this->auxMemory_.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
 
         // Pack
         const T* ALocalBuffer = A.LockedLocalBuffer();
@@ -2007,7 +2006,7 @@ DistMatrix<T,STAR,VR,Int>::SumScatterFrom( const DistMatrix<T,STAR,MR,Int>& A )
 #endif
         for( Int k=0; k<r; ++k )
         {
-            T* data = &sendBuffer[k*recvSize];
+            T* data = &buffer[k*recvSize];
 
             const Int thisRank = myCol+k*c;
             const Int thisRowShift = RawShift( thisRank, rowAlignment, p );
@@ -2025,21 +2024,20 @@ DistMatrix<T,STAR,VR,Int>::SumScatterFrom( const DistMatrix<T,STAR,MR,Int>& A )
             }
         }
 
-        // AllReduce over each process column
-        mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.MCComm() );
+        // Communicate
+        mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.MCComm() );
 
         // Unpack our received data
         T* thisLocalBuffer = this->LocalBuffer();
-        const T* recvBuffer = &sendBuffer[myRow*recvSize];
         const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            const T* recvBufferCol = &recvBuffer[jLocal*height];
+            const T* bufferCol = &buffer[jLocal*height];
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
-            std::memcpy( thisCol, recvBufferCol, height*sizeof(T) );
+            std::memcpy( thisCol, bufferCol, height*sizeof(T) );
         }
         this->auxMemory_.Release();
     }
@@ -2070,7 +2068,6 @@ DistMatrix<T,STAR,VR,Int>::SumScatterUpdate
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = r * c;
-        const Int myRow = g.MCRank();
         const Int myCol = g.MRRank();
         const Int rowAlignment = this->RowAlignment();
         const Int rowShiftOfA = A.RowShift();
@@ -2084,7 +2081,7 @@ DistMatrix<T,STAR,VR,Int>::SumScatterUpdate
         const Int sendSize = r*recvSize;
 
         this->auxMemory_.Require( sendSize );
-        T* sendBuffer = this->auxMemory_.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
 
         // Pack
         const T* ALocalBuffer = A.LockedLocalBuffer();
@@ -2094,7 +2091,7 @@ DistMatrix<T,STAR,VR,Int>::SumScatterUpdate
 #endif
         for( Int k=0; k<r; ++k )
         {
-            T* data = &sendBuffer[k*recvSize];
+            T* data = &buffer[k*recvSize];
 
             const Int thisRank = myCol+k*c;
             const Int thisRowShift = RawShift( thisRank, rowAlignment, p );
@@ -2112,22 +2109,21 @@ DistMatrix<T,STAR,VR,Int>::SumScatterUpdate
             }
         }
 
-        // AllReduce over each process column
-        mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.MCComm() );
+        // Communicate
+        mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.MCComm() );
 
         // Unpack our received data
         T* thisLocalBuffer = this->LocalBuffer();
-        const T* recvBuffer = &sendBuffer[myRow*recvSize];
         const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            const T* recvBufferCol = &recvBuffer[jLocal*height];
+            const T* bufferCol = &buffer[jLocal*height];
             T* thisCol = &thisLocalBuffer[jLocal*thisLDim];
             for( Int i=0; i<height; ++i )
-                thisCol[i] += alpha*recvBufferCol[i];
+                thisCol[i] += alpha*bufferCol[i];
         }
         this->auxMemory_.Release();
     }

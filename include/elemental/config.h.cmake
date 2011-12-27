@@ -65,6 +65,8 @@
 #cmakedefine WITHOUT_PMRRR
 #cmakedefine DISABLE_SCALAR_WRAPPER
 #cmakedefine AVOID_COMPLEX_MPI
+#cmakedefine HAVE_REDUCE_SCATTER_BLOCK
+#cmakedefine REDUCE_SCATTER_BLOCK_VIA_ALL_REDUCE
 #cmakedefine USE_BYTE_ALLGATHERS
 
 /* Advanced configuration options */

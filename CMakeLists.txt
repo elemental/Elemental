@@ -70,6 +70,12 @@ mark_as_advanced(AVOID_OMP_FMA)
 option(USE_BYTE_ALLGATHERS "Avoid BG/P Allgather performance bug." ON)
 mark_as_advanced(USE_BYTE_ALLGATHERS)
 
+# If MPI_Reduce_scatter_block doesn't exist, perform it by composing 
+# MPI_Allreduce and std::memcpy rather than MPI_Reduce and MPI_Scatter
+option(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+       "AllReduce based block MPI_Reduce_scatter" OFF)
+mark_as_advanced(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE)
+
 # This can easily be performed, but is likely not a good idea
 option(POOL_MEMORY "Make Memory class accumulate memory until destruction" OFF)
 mark_as_advanced(POOL_MEMORY)
@@ -365,10 +371,19 @@ else(HAVE_DPOTRF)
   endif(HAVE_DPOTRF_POST)
 endif(HAVE_DPOTRF)
 
-# Attempt to detect whether or not we have MKL by looking for 
-# mkl_set_num_threads
+# Attempt to detect whether or not we have MKL
 set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
 check_function_exists(mkl_set_num_threads MATH_HAS_MKL)
+
+# Look for MPI_Reduce_scatter_block (and MPI_Reduce_scatter as sanity check)
+set(CMAKE_REQUIRED_FLAGS ${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS})
+set(CMAKE_REQUIRED_INCLUDE ${MPI_C_INCLUDE_PATH})
+set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
+check_function_exists(MPI_Reduce_scatter HAVE_MPI_REDUCE_SCATTER)
+check_function_exists(MPI_Reduce_scatter_block HAVE_MPI_REDUCE_SCATTER_BLOCK)
+if(NOT HAVE_MPI_REDUCE_SCATTER)
+  message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
+endif(NOT HAVE_MPI_REDUCE_SCATTER)
 
 # Look for restrict support
 include(CheckCXXSourceCompiles)
@@ -603,4 +618,6 @@ endif(BUILD_EXAMPLES)
 #set(WITHOUT_PMRRR ${WITHOUT_PMRRR} PARENT_SCOPE)
 #set(DISABLE_SCALAR_WRAPPER ${DISABLE_SCALAR_WRAPPER} PARENT_SCOPE)
 #set(AVOID_COMPLEX_MPI ${AVOID_COMPLEX_MPI} PARENT_SCOPE)
+#set(HAVE_REDUCE_SCATTER_BLOCK ${HAVE_REDUCE_SCATTER_BLOCK} PARENT_SCOPE)
+#set(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE ${REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE} PARENT_SCOPE)
 #set(USE_BYTE_ALLGATHERS ${USE_BYTE_ALLGATHERS} PARENT_SCOPE)

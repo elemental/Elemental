@@ -1845,6 +1845,212 @@ elemental::mpi::Scatter
 }
 
 void
+elemental::mpi::Scatter
+( byte* buf, int sc, int rc, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Scatter");
+#endif
+    const int commRank = CommRank( comm );
+    if( commRank == root )
+    {
+        SafeMpi(
+            MPI_Scatter
+            ( buf,          sc, MPI_UNSIGNED_CHAR, 
+              MPI_IN_PLACE, rc, MPI_UNSIGNED_CHAR, root, comm )
+        );
+    }
+    else
+    {
+        SafeMpi(
+            MPI_Scatter
+            ( 0,   sc, MPI_UNSIGNED_CHAR, 
+              buf, rc, MPI_UNSIGNED_CHAR, root, comm )
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::Scatter
+( int* buf, int sc, int rc, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Scatter");
+#endif
+    const int commRank = CommRank( comm );
+    if( commRank == root )
+    {
+        SafeMpi(
+            MPI_Scatter
+            ( buf,          sc, MPI_INT, 
+              MPI_IN_PLACE, rc, MPI_INT, root, comm )
+        );
+    }
+    else
+    {
+        SafeMpi(
+            MPI_Scatter
+            ( 0,   sc, MPI_INT, 
+              buf, rc, MPI_INT, root, comm )
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::Scatter
+( float* buf, int sc, int rc, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Scatter");
+#endif
+    const int commRank = CommRank( comm );
+    if( commRank == root )
+    {
+        SafeMpi(
+            MPI_Scatter
+            ( buf,          sc, MPI_FLOAT, 
+              MPI_IN_PLACE, rc, MPI_FLOAT, root, comm )
+        );
+    }
+    else
+    {
+        SafeMpi(
+            MPI_Scatter
+            ( 0,   sc, MPI_FLOAT, 
+              buf, rc, MPI_FLOAT, root, comm )
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::Scatter
+( double* buf, int sc, int rc, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Scatter");
+#endif
+    const int commRank = CommRank( comm );
+    if( commRank == root )
+    {
+        SafeMpi(
+            MPI_Scatter
+            ( buf,          sc, MPI_DOUBLE, 
+              MPI_IN_PLACE, rc, MPI_DOUBLE, root, comm )
+        );
+    }
+    else
+    {
+        SafeMpi(
+            MPI_Scatter
+            ( 0,   sc, MPI_DOUBLE, 
+              buf, rc, MPI_DOUBLE, root, comm )
+        );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::Scatter
+( scomplex* buf, int sc, int rc, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Scatter");
+#endif
+    const int commRank = CommRank( comm );
+    if( commRank == root )
+    {
+#ifdef AVOID_COMPLEX_MPI
+        SafeMpi(
+            MPI_Scatter
+            ( buf,          2*sc, MPI_FLOAT, 
+              MPI_IN_PLACE, 2*rc, MPI_FLOAT, root, comm )
+        );
+#else
+        SafeMpi(
+            MPI_Scatter
+            ( buf,          sc, MPI_COMPLEX, 
+              MPI_IN_PLACE, rc, MPI_COMPLEX, root, comm )
+        );
+#endif
+    }
+    else
+    {
+#ifdef AVOID_COMPLEX_MPI
+        SafeMpi(
+            MPI_Scatter
+            ( 0,   2*sc, MPI_FLOAT, 
+              buf, 2*rc, MPI_FLOAT, root, comm )
+        );
+#else
+        SafeMpi(
+            MPI_Scatter
+            ( 0,   sc, MPI_COMPLEX, 
+              buf, rc, MPI_COMPLEX, root, comm )
+        );
+#endif
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
+elemental::mpi::Scatter
+( dcomplex* buf, int sc, int rc, int root, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Scatter");
+#endif
+    const int commRank = CommRank( comm );
+    if( commRank == root )
+    {
+#ifdef AVOID_COMPLEX_MPI
+        SafeMpi(
+            MPI_Scatter
+            ( buf,          2*sc, MPI_DOUBLE, 
+              MPI_IN_PLACE, 2*rc, MPI_DOUBLE, root, comm )
+        );
+#else
+        SafeMpi(
+            MPI_Scatter
+            ( buf,          sc, MPI_DOUBLE_COMPLEX, 
+              MPI_IN_PLACE, rc, MPI_DOUBLE_COMPLEX, root, comm )
+        );
+#endif
+    }
+    else
+    {
+#ifdef AVOID_COMPLEX_MPI
+        SafeMpi(
+            MPI_Scatter
+            ( 0,   2*sc, MPI_DOUBLE, 
+              buf, 2*rc, MPI_DOUBLE, root, comm )
+        );
+#else
+        SafeMpi(
+            MPI_Scatter
+            ( 0,   sc, MPI_DOUBLE_COMPLEX, 
+              buf, rc, MPI_DOUBLE_COMPLEX, root, comm )
+        );
+#endif
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void
 elemental::mpi::AllToAll
 ( const byte* sbuf, int sc,
         byte* rbuf, int rc, mpi::Comm comm )
@@ -2194,10 +2400,17 @@ elemental::mpi::Reduce
 #endif
     if( count != 0 )
     {
-        SafeMpi( 
-            MPI_Reduce
-            ( MPI_IN_PLACE, buf, count, MPI_UNSIGNED_CHAR, op, root, comm )
-        );
+        const int commRank = CommRank( comm );
+        if( commRank == root )
+            SafeMpi( 
+                MPI_Reduce
+                ( MPI_IN_PLACE, buf, count, MPI_UNSIGNED_CHAR, op, root, comm )
+            );
+        else
+            SafeMpi(
+                MPI_Reduce
+                ( buf, 0, count, MPI_UNSIGNED_CHAR, op, root, comm )
+            );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2232,9 +2445,17 @@ elemental::mpi::Reduce
 #endif
     if( count != 0 )
     {
-        SafeMpi( 
-            MPI_Reduce( MPI_IN_PLACE, buf, count, MPI_INT, op, root, comm ) 
-        );
+        const int commRank = CommRank( comm );
+        if( commRank == root )
+            SafeMpi( 
+                MPI_Reduce
+                ( MPI_IN_PLACE, buf, count, MPI_INT, op, root, comm )
+            );
+        else
+            SafeMpi(
+                MPI_Reduce
+                ( buf, 0, count, MPI_INT, op, root, comm )
+            );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2270,9 +2491,17 @@ elemental::mpi::Reduce
 #endif
     if( count != 0 )
     {
-        SafeMpi( 
-            MPI_Reduce( MPI_IN_PLACE, buf, count, MPI_FLOAT, op, root, comm ) 
-        );
+        const int commRank = CommRank( comm );
+        if( commRank == root )
+            SafeMpi( 
+                MPI_Reduce
+                ( MPI_IN_PLACE, buf, count, MPI_FLOAT, op, root, comm )
+            );
+        else
+            SafeMpi(
+                MPI_Reduce
+                ( buf, 0, count, MPI_FLOAT, op, root, comm )
+            );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2309,10 +2538,17 @@ elemental::mpi::Reduce
 #endif
     if( count != 0 )
     {
-        SafeMpi( 
-            MPI_Reduce
-            ( MPI_IN_PLACE, buf, count, MPI_DOUBLE, op, root, comm )
-        );
+        const int commRank = CommRank( comm );
+        if( commRank == root )
+            SafeMpi( 
+                MPI_Reduce
+                ( MPI_IN_PLACE, buf, count, MPI_DOUBLE, op, root, comm )
+            );
+        else
+            SafeMpi(
+                MPI_Reduce
+                ( buf, 0, count, MPI_DOUBLE, op, root, comm )
+            );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2368,25 +2604,45 @@ elemental::mpi::Reduce
 #endif
     if( count != 0 )
     {
+        const int commRank = CommRank( comm );
 #ifdef AVOID_COMPLEX_MPI
         if( op == mpi::SUM )
         {
-            SafeMpi(
-                MPI_Reduce
-                ( MPI_IN_PLACE, buf, 2*count, MPI_FLOAT, op, root, comm )
-            );
+            if( commRank == root )
+                SafeMpi(
+                    MPI_Reduce
+                    ( MPI_IN_PLACE, buf, 2*count, MPI_FLOAT, op, root, comm )
+                );
+            else
+                SafeMpi(
+                    MPI_Reduce
+                    ( buf, 0, 2*count, MPI_FLOAT, op, root, comm )
+                );
         }
         else
         {
-            SafeMpi(
+            if( commRank == root )
+                SafeMpi(
+                    MPI_Reduce
+                    ( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, root, comm )
+                );
+            else
+                SafeMpi(
+                    MPI_Reduce
+                    ( buf, 0, count, MPI_COMPLEX, op, root, comm )
+                );
+        }
+#else
+        if( commRank == root )
+            SafeMpi( 
                 MPI_Reduce
                 ( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, root, comm )
             );
-        }
-#else
-        SafeMpi( 
-            MPI_Reduce( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, root, comm )
-        );
+        else
+            SafeMpi(
+                MPI_Reduce
+                ( buf, 0, count, MPI_COMPLEX, op, root, comm )
+            );
 #endif
     }
 #ifndef RELEASE
@@ -2443,26 +2699,46 @@ elemental::mpi::Reduce
 #endif
     if( count != 0 )
     {
+        const int commRank = CommRank( comm );
 #ifdef AVOID_COMPLEX_MPI
         if( op == mpi::SUM )
         {
-            SafeMpi(
-                MPI_Reduce
-                ( MPI_IN_PLACE, buf, 2*count, MPI_DOUBLE, op, root, comm )
-            );
+            if( commRank == root )
+                SafeMpi(
+                    MPI_Reduce
+                    ( MPI_IN_PLACE, buf, 2*count, MPI_DOUBLE, op, root, comm )
+                );
+            else
+                SafeMpi(
+                    MPI_Reduce
+                    ( buf, 0, 2*count, MPI_DOUBLE, op, root, comm )
+                );
         }
         else
         {
-            SafeMpi(
+            if( commRank == root )
+                SafeMpi(
+                    MPI_Reduce
+                    ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, 
+                      op, root, comm )
+                );
+            else
+                SafeMpi(
+                    MPI_Reduce
+                    ( buf, 0, count, MPI_DOUBLE_COMPLEX, op, root, comm )
+                );
+        }
+#else
+        if( commRank == root )
+            SafeMpi( 
                 MPI_Reduce
                 ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
             );
-        }
-#else
-        SafeMpi( 
-            MPI_Reduce
-            ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
-        );
+        else
+            SafeMpi(
+                MPI_Reduce
+                ( buf, 0, count, MPI_DOUBLE_COMPLEX, op, root, comm )
+            );
 #endif
     }
 #ifndef RELEASE
@@ -2774,12 +3050,18 @@ elemental::mpi::ReduceScatter
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+    SafeMpi( 
+        MPI_Reduce_scatter_block( sbuf, rbuf, rc, MPI_UNSIGNED_CHAR, op, comm )
+    );
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
-#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc );
 #else
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
     Reduce( sbuf, rc*commSize, op, 0, comm );
     Scatter( sbuf, rc, rbuf, rc, 0, comm );
 #endif
@@ -2795,12 +3077,17 @@ elemental::mpi::ReduceScatter
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+    SafeMpi( 
+        MPI_Reduce_scatter_block( sbuf, rbuf, rc, MPI_INT, op, comm )
+    );
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
-#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(int) );
 #else
+    const int commSize = CommSize( comm );
     Reduce( sbuf, rc*commSize, op, 0, comm );
     Scatter( sbuf, rc, rbuf, rc, 0, comm );
 #endif
@@ -2816,12 +3103,17 @@ elemental::mpi::ReduceScatter
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+    SafeMpi( 
+        MPI_Reduce_scatter_block( sbuf, rbuf, rc, MPI_FLOAT, op, comm )
+    );
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
-#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(float) );
 #else
+    const int commSize = CommSize( comm );
     Reduce( sbuf, rc*commSize, op, 0, comm );
     Scatter( sbuf, rc, rbuf, rc, 0, comm );
 #endif
@@ -2837,12 +3129,17 @@ elemental::mpi::ReduceScatter
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+    SafeMpi( 
+        MPI_Reduce_scatter_block( sbuf, rbuf, rc, MPI_DOUBLE, op, comm )
+    );
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
-#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(double) );
 #else
+    const int commSize = CommSize( comm );
     Reduce( sbuf, rc*commSize, op, 0, comm );
     Scatter( sbuf, rc, rbuf, rc, 0, comm );
 #endif
@@ -2858,12 +3155,25 @@ elemental::mpi::ReduceScatter
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+# ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Reduce_scatter_block
+        ( sbuf, rbuf, 2*rc, MPI_FLOAT, op, comm )
+    );
+# else
+    SafeMpi( 
+        MPI_Reduce_scatter_block
+        ( sbuf, rbuf, rc, MPI_COMPLEX, op, comm )
+    );
+# endif
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
-#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(scomplex) );
 #else
+    const int commSize = CommSize( comm );
     Reduce( sbuf, rc*commSize, op, 0, comm );
     Scatter( sbuf, rc, rbuf, rc, 0, comm );
 #endif
@@ -2879,14 +3189,212 @@ elemental::mpi::ReduceScatter
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+# ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Reduce_scatter_block
+        ( sbuf, rbuf, 2*rc, MPI_DOUBLE, op, comm )
+    );
+# else
+    SafeMpi( 
+        MPI_Reduce_scatter_block
+        ( sbuf, rbuf, rc, MPI_DOUBLE_COMPLEX, op, comm )
+    );
+# endif
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
-#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(dcomplex) );
 #else
+    const int commSize = CommSize( comm );
     Reduce( sbuf, rc*commSize, op, 0, comm );
     Scatter( sbuf, rc, rbuf, rc, 0, comm );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( byte* buf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+    SafeMpi( 
+        MPI_Reduce_scatter_block
+        ( MPI_IN_PLACE, buf, rc, MPI_UNSIGNED_CHAR, op, comm )
+    );
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( buf, rc*commSize, op, comm );
+    if( commRank != 0 )
+        std::memcpy( buf, &buf[commRank*rc], rc );
+#else
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    Reduce( buf, rc*commSize, op, 0, comm );
+    Scatter( buf, rc, rc, 0, comm );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( int* buf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+    SafeMpi( 
+        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, MPI_INT, op, comm )
+    );
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( buf, rc*commSize, op, comm );
+    if( commRank != 0 )
+        std::memcpy( buf, &buf[commRank*rc], rc*sizeof(int) );
+#else
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    Reduce( buf, rc*commSize, op, 0, comm );
+    Scatter( buf, rc, rc, 0, comm );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( float* buf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+    SafeMpi( 
+        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, MPI_FLOAT, op, comm )
+    );
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( buf, rc*commSize, op, comm );
+    if( commRank != 0 )
+        std::memcpy( buf, &buf[commRank*rc], rc*sizeof(float) );
+#else
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    Reduce( buf, rc*commSize, op, 0, comm );
+    Scatter( buf, rc, rc, 0, comm );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( double* buf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+    SafeMpi( 
+        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, MPI_DOUBLE, op, comm )
+    );
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( buf, rc*commSize, op, comm );
+    if( commRank != 0 )
+        std::memcpy( buf, &buf[commRank*rc], rc*sizeof(double) );
+#else
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    Reduce( buf, rc*commSize, op, 0, comm );
+    Scatter( buf, rc, rc, 0, comm );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( scomplex* buf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+# ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Reduce_scatter_block
+        ( MPI_IN_PLACE, buf, 2*rc, MPI_FLOAT, op, comm )
+    );
+# else
+    SafeMpi( 
+        MPI_Reduce_scatter_block
+        ( MPI_IN_PLACE, buf, rc, MPI_COMPLEX, op, comm )
+    );
+# endif
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( buf, rc*commSize, op, comm );
+    if( commRank != 0 )
+        std::memcpy( buf, &buf[commRank*rc], rc*sizeof(scomplex) );
+#else
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    Reduce( buf, rc*commSize, op, 0, comm );
+    Scatter( buf, rc, rc, 0, comm );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void 
+elemental::mpi::ReduceScatter
+( dcomplex* buf, int rc, mpi::Op op, mpi::Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+# ifdef AVOID_COMPLEX_MPI
+    SafeMpi(
+        MPI_Reduce_scatter_block
+        ( MPI_IN_PLACE, buf, 2*rc, MPI_DOUBLE, op, comm )
+    );
+# else
+    SafeMpi( 
+        MPI_Reduce_scatter_block
+        ( MPI_IN_PLACE, buf, rc, MPI_DOUBLE_COMPLEX, op, comm )
+    );
+# endif
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( buf, rc*commSize, op, comm );
+    if( commRank != 0 )
+        std::memcpy( buf, &buf[commRank*rc], rc*sizeof(dcomplex) );
+#else
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    Reduce( buf, rc*commSize, op, 0, comm );
+    Scatter( buf, rc, rc, 0, comm );
 #endif
 #ifndef RELEASE
     PopCallStack();

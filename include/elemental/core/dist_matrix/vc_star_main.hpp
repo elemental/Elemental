@@ -2152,7 +2152,6 @@ DistMatrix<T,VC,STAR,Int>::SumScatterFrom
         const Int c = g.Width();
         const Int p = r * c;
         const Int myRow = g.MCRank();
-        const Int myCol = g.MRRank();
         const Int colAlignment = this->ColAlignment();
         const Int colShiftOfA = A.ColShift();
 
@@ -2165,7 +2164,7 @@ DistMatrix<T,VC,STAR,Int>::SumScatterFrom
         const Int sendSize = c*recvSize;
 
         this->auxMemory_.Require( sendSize );
-        T* sendBuffer = this->auxMemory_.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
 
         // Pack
         const T* ALocalBuffer = A.LockedLocalBuffer();
@@ -2175,7 +2174,7 @@ DistMatrix<T,VC,STAR,Int>::SumScatterFrom
 #endif
         for( Int k=0; k<c; ++k )
         {
-            T* data = &sendBuffer[k*recvSize];
+            T* data = &buffer[k*recvSize];
 
             const Int thisRank = myRow+k*r;
             const Int thisColShift = RawShift( thisRank, colAlignment, p );
@@ -2192,21 +2191,20 @@ DistMatrix<T,VC,STAR,Int>::SumScatterFrom
                         ALocalBuffer[(thisColOffset+iLocal*c)+j*ALDim];
         }
 
-        // AllReduce over each process row
-        mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.MRComm() );
+        // Communicate
+        mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.MRComm() );
 
         // Unpack our received data
         T* thisLocalBuffer = this->LocalBuffer();
-        const T* recvBuffer = &sendBuffer[myCol*recvSize];
         const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
         {
-            const T* recvBufferCol = &recvBuffer[j*localHeight];
+            const T* bufferCol = &buffer[j*localHeight];
             T* thisCol = &thisLocalBuffer[j*thisLDim];
-            std::memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
+            std::memcpy( thisCol, bufferCol, localHeight*sizeof(T) );
         }
         this->auxMemory_.Release();
     }
@@ -2237,7 +2235,6 @@ DistMatrix<T,VC,STAR,Int>::SumScatterFrom
         this->ResizeTo( A.Height(), A.Width() );
 
     const Int p = g.Size();
-    const Int myRank = g.VCRank();
     const Int colAlignment = this->ColAlignment();
 
     const Int height = this->Height();
@@ -2249,7 +2246,7 @@ DistMatrix<T,VC,STAR,Int>::SumScatterFrom
     const Int sendSize = p*recvSize;
 
     this->auxMemory_.Require( sendSize );
-    T* sendBuffer = this->auxMemory_.Buffer();
+    T* buffer = this->auxMemory_.Buffer();
 
     // Pack
     const T* ALocalBuffer = A.LockedLocalBuffer();
@@ -2259,7 +2256,7 @@ DistMatrix<T,VC,STAR,Int>::SumScatterFrom
 #endif
     for( Int k=0; k<p; ++k )
     {
-        T* data = &sendBuffer[k*recvSize];
+        T* data = &buffer[k*recvSize];
 
         const Int thisColShift = RawShift( k, colAlignment, p );
         const Int thisLocalHeight = RawLocalLength( height, thisColShift, p );
@@ -2273,21 +2270,20 @@ DistMatrix<T,VC,STAR,Int>::SumScatterFrom
                     ALocalBuffer[(thisColShift+iLocal*p)+j*ALDim];
     }
 
-    // AllReduce over the grid
-    mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.VCComm() );
+    // Communicate
+    mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.VCComm() );
 
     // Unpack our received data
     T* thisLocalBuffer = this->LocalBuffer();
-    const T* recvBuffer = &sendBuffer[myRank*recvSize];
     const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
     {
-        const T* recvBufferCol = &recvBuffer[j*localHeight];
+        const T* bufferCol = &buffer[j*localHeight];
         T* thisCol = &thisLocalBuffer[j*thisLDim];
-        std::memcpy( thisCol, recvBufferCol, localHeight*sizeof(T) );
+        std::memcpy( thisCol, bufferCol, localHeight*sizeof(T) );
     }
     this->auxMemory_.Release();
 #ifndef RELEASE
@@ -2322,7 +2318,6 @@ DistMatrix<T,VC,STAR,Int>::SumScatterUpdate
         const Int c = g.Width();
         const Int p = r * c;
         const Int myRow = g.MCRank();
-        const Int myCol = g.MRRank();
         const Int colAlignment = this->ColAlignment();
         const Int colShiftOfA = A.ColShift();
 
@@ -2335,7 +2330,7 @@ DistMatrix<T,VC,STAR,Int>::SumScatterUpdate
         const Int sendSize = c*recvSize;
 
         this->auxMemory_.Require( sendSize );
-        T* sendBuffer = this->auxMemory_.Buffer();
+        T* buffer = this->auxMemory_.Buffer();
 
         // Pack
         const T* ALocalBuffer = A.LockedLocalBuffer();
@@ -2345,7 +2340,7 @@ DistMatrix<T,VC,STAR,Int>::SumScatterUpdate
 #endif
         for( Int k=0; k<c; ++k )
         {
-            T* data = &sendBuffer[k*recvSize];
+            T* data = &buffer[k*recvSize];
 
             const Int thisRank = myRow+k*r;
             const Int thisColShift = RawShift( thisRank, colAlignment, p );
@@ -2362,22 +2357,21 @@ DistMatrix<T,VC,STAR,Int>::SumScatterUpdate
                         ALocalBuffer[(thisColOffset+iLocal*c)+j*ALDim];
         }
 
-        // AllReduce over each process row
-        mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.MRComm() );
+        // Communicate
+        mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.MRComm() );
 
         // Unpack our received data
         T* thisLocalBuffer = this->LocalBuffer();
-        const T* recvBuffer = &sendBuffer[myCol*recvSize];
         const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
         {
-            const T* recvBufferCol = &recvBuffer[j*localHeight];
+            const T* bufferCol = &buffer[j*localHeight];
             T* thisCol = &thisLocalBuffer[j*thisLDim];
             for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-                thisCol[iLocal] += alpha*recvBufferCol[iLocal];
+                thisCol[iLocal] += alpha*bufferCol[iLocal];
         }
         this->auxMemory_.Release();
     }
@@ -2405,7 +2399,6 @@ DistMatrix<T,VC,STAR,Int>::SumScatterUpdate
     const elemental::Grid& g = this->Grid();
 
     const Int p = g.Size();
-    const Int myRank = g.VCRank();
     const Int colAlignment = this->ColAlignment();
 
     const Int height = this->Height();
@@ -2417,7 +2410,7 @@ DistMatrix<T,VC,STAR,Int>::SumScatterUpdate
     const Int sendSize = p*recvSize;
 
     this->auxMemory_.Require( sendSize );
-    T* sendBuffer = this->auxMemory_.Buffer();
+    T* buffer = this->auxMemory_.Buffer();
 
     // Pack
     const T* ALocalBuffer = A.LockedLocalBuffer();
@@ -2427,7 +2420,7 @@ DistMatrix<T,VC,STAR,Int>::SumScatterUpdate
 #endif
     for( Int k=0; k<p; ++k )
     {
-        T* data = &sendBuffer[k*recvSize];
+        T* data = &buffer[k*recvSize];
 
         const Int thisColShift = RawShift( k, colAlignment, p );
         const Int thisLocalHeight = RawLocalLength( height, thisColShift, p );
@@ -2441,22 +2434,21 @@ DistMatrix<T,VC,STAR,Int>::SumScatterUpdate
                     ALocalBuffer[(thisColShift+iLocal*p)+j*ALDim];
     }
 
-    // AllReduce over the grid
-    mpi::AllReduce( sendBuffer, sendSize, mpi::SUM, g.VCComm() );
+    // Communicate
+    mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.VCComm() );
 
     // Unpack our received data
     T* thisLocalBuffer = this->LocalBuffer();
-    const T* recvBuffer = &sendBuffer[myRank*recvSize];
     const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
     {
-        const T* recvBufferCol = &recvBuffer[j*localHeight];
+        const T* bufferCol = &buffer[j*localHeight];
         T* thisCol = &thisLocalBuffer[j*thisLDim];
         for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-            thisCol[iLocal] += alpha*recvBufferCol[iLocal];
+            thisCol[iLocal] += alpha*bufferCol[iLocal];
     }
     this->auxMemory_.Release();
 #ifndef RELEASE
