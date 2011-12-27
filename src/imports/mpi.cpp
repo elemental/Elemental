@@ -2775,9 +2775,14 @@ elemental::mpi::ReduceScatter
     PushCallStack("mpi::ReduceScatter");
 #endif
     const int commSize = CommSize( comm );
+#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc );
+#else
+    Reduce( sbuf, rc*commSize, op, 0, comm );
+    Scatter( sbuf, rc, rbuf, rc, 0, comm );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2791,9 +2796,14 @@ elemental::mpi::ReduceScatter
     PushCallStack("mpi::ReduceScatter");
 #endif
     const int commSize = CommSize( comm );
+#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(int) );
+#else
+    Reduce( sbuf, rc*commSize, op, 0, comm );
+    Scatter( sbuf, rc, rbuf, rc, 0, comm );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2807,9 +2817,14 @@ elemental::mpi::ReduceScatter
     PushCallStack("mpi::ReduceScatter");
 #endif
     const int commSize = CommSize( comm );
+#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(float) );
+#else
+    Reduce( sbuf, rc*commSize, op, 0, comm );
+    Scatter( sbuf, rc, rbuf, rc, 0, comm );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2823,9 +2838,14 @@ elemental::mpi::ReduceScatter
     PushCallStack("mpi::ReduceScatter");
 #endif
     const int commSize = CommSize( comm );
+#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(double) );
+#else
+    Reduce( sbuf, rc*commSize, op, 0, comm );
+    Scatter( sbuf, rc, rbuf, rc, 0, comm );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2839,9 +2859,14 @@ elemental::mpi::ReduceScatter
     PushCallStack("mpi::ReduceScatter");
 #endif
     const int commSize = CommSize( comm );
+#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(scomplex) );
+#else
+    Reduce( sbuf, rc*commSize, op, 0, comm );
+    Scatter( sbuf, rc, rbuf, rc, 0, comm );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2855,9 +2880,14 @@ elemental::mpi::ReduceScatter
     PushCallStack("mpi::ReduceScatter");
 #endif
     const int commSize = CommSize( comm );
+#ifdef ALL_REDUCE_SCATTER
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(dcomplex) );
+#else
+    Reduce( sbuf, rc*commSize, op, 0, comm );
+    Scatter( sbuf, rc, rbuf, rc, 0, comm );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif
