@@ -376,7 +376,7 @@ set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
 check_function_exists(mkl_set_num_threads MATH_HAS_MKL)
 
 # Look for MPI_Reduce_scatter_block (and MPI_Reduce_scatter as sanity check)
-set(CMAKE_REQUIRED_FLAGS ${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS})
+set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
 set(CMAKE_REQUIRED_INCLUDE ${MPI_C_INCLUDE_PATH})
 set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
 check_function_exists(MPI_Reduce_scatter HAVE_MPI_REDUCE_SCATTER)
