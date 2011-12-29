@@ -45,7 +45,7 @@ enum AxpyType { LOCAL_TO_GLOBAL, GLOBAL_TO_LOCAL };
 }
 using namespace axpy_type_wrapper;
 
-template<typename T>
+template<typename T,typename Int=int>
 class AxpyInterface
 {   
 public:
@@ -58,13 +58,13 @@ public:
     void Attach( AxpyType type,       DistMatrix<T,MC,MR>& Z ); 
     void Attach( AxpyType type, const DistMatrix<T,MC,MR>& Z ); 
 
-    void Axpy( T alpha,       Matrix<T>& Z, int i, int j );
-    void Axpy( T alpha, const Matrix<T>& Z, int i, int j );
+    void Axpy( T alpha,       Matrix<T>& Z, Int i, Int j );
+    void Axpy( T alpha, const Matrix<T>& Z, Int i, Int j );
 
     void Detach();
 
 private:
-    static const int 
+    static const Int 
         DATA_TAG        =1, 
         EOM_TAG         =2, 
         DATA_REQUEST_TAG=3, 
@@ -97,11 +97,11 @@ private:
     void StartSendingEoms();
     void FinishSendingEoms();
 
-    void AxpyLocalToGlobal( T alpha, const Matrix<T>& X, int i, int j );
-    void AxpyGlobalToLocal( T alpha,       Matrix<T>& Y, int i, int j );
+    void AxpyLocalToGlobal( T alpha, const Matrix<T>& X, Int i, Int j );
+    void AxpyGlobalToLocal( T alpha,       Matrix<T>& Y, Int i, Int j );
 
-    int ReadyForSend
-    ( int sendSize,
+    Int ReadyForSend
+    ( Int sendSize,
       std::deque<std::vector<byte> >& sendVectors,
       std::deque<mpi::Request>& requests, 
       std::deque<bool>& requestStatuses );
@@ -111,9 +111,9 @@ private:
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-template<typename T>
+template<typename T,typename Int>
 inline bool
-AxpyInterface<T>::Finished()
+AxpyInterface<T,Int>::Finished()
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Finished");
@@ -123,10 +123,10 @@ AxpyInterface<T>::Finished()
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
                       globalToLocalMat_->Grid() );
-    const int p = g.Size();
+    const Int p = g.Size();
 
     bool finished = true; 
-    for( int rank=0; rank<p; ++rank )
+    for( Int rank=0; rank<p; ++rank )
     {
         if( !sentEomTo_[rank] || !haveEomFrom_[rank] )
         {
@@ -140,9 +140,9 @@ AxpyInterface<T>::Finished()
     return finished;
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline void
-AxpyInterface<T>::HandleEoms()
+AxpyInterface<T,Int>::HandleEoms()
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::HandleEoms");
@@ -150,17 +150,17 @@ AxpyInterface<T>::HandleEoms()
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
                       globalToLocalMat_->Grid() );
-    const int p = g.Size();
+    const Int p = g.Size();
 
     UpdateRequestStatuses();
 
     // Try to progress our EOM sends
-    for( int i=0; i<p; ++i )
+    for( Int i=0; i<p; ++i )
     {
         if( !sentEomTo_[i] )
         {
             bool shouldSendEom = true;
-            for( int j=0; j<sendingData_[i].size(); ++j )
+            for( Int j=0; j<sendingData_[i].size(); ++j )
             {
                 if( sendingData_[i][j] )
                 {
@@ -168,7 +168,7 @@ AxpyInterface<T>::HandleEoms()
                     break;
                 }
             }
-            for( int j=0; j<sendingRequest_[i].size(); ++j )
+            for( Int j=0; j<sendingRequest_[i].size(); ++j )
             {
                 if( !shouldSendEom || sendingRequest_[i][j] )
                 {
@@ -176,7 +176,7 @@ AxpyInterface<T>::HandleEoms()
                     break;
                 }
             }
-            for( int j=0; j<sendingReply_[i].size(); ++j )
+            for( Int j=0; j<sendingReply_[i].size(); ++j )
             {
                 if( !shouldSendEom || sendingReply_[i][j] )
                 {
@@ -197,7 +197,7 @@ AxpyInterface<T>::HandleEoms()
     mpi::Status status;
     if( mpi::IProbe( mpi::ANY_SOURCE, EOM_TAG, g.VCComm(), status ) )
     {
-        const int source = status.MPI_SOURCE;
+        const Int source = status.MPI_SOURCE;
         mpi::Recv( &recvDummy_, 1, source, EOM_TAG, g.VCComm() );
         haveEomFrom_[source] = true;
     }
@@ -206,44 +206,44 @@ AxpyInterface<T>::HandleEoms()
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline void
-AxpyInterface<T>::HandleLocalToGlobalData()
+AxpyInterface<T,Int>::HandleLocalToGlobalData()
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::HandleLocalToGlobalData");
 #endif
     DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
     const Grid& g = Y.Grid();
-    const int r = g.Height();
-    const int c = g.Width();
-    const int myRow = g.MCRank();
-    const int myCol = g.MRRank();
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int myRow = g.MCRank();
+    const Int myCol = g.MRRank();
 
     mpi::Status status;
     if( mpi::IProbe( mpi::ANY_SOURCE, DATA_TAG, g.VCComm(), status ) )
     {
         // Message exists, so recv and pack    
-        const int count = mpi::GetCount<byte>( status );
+        const Int count = mpi::GetCount<byte>( status );
 #ifndef RELEASE
-        if( count < 4*sizeof(int)+sizeof(T) )
+        if( count < 4*sizeof(Int)+sizeof(T) )
             throw std::logic_error("Count was too small");
 #endif
-        const int source = status.MPI_SOURCE;
+        const Int source = status.MPI_SOURCE;
         recvVector_.resize( count );
         byte* recvBuffer = &recvVector_[0];
         mpi::Recv( recvBuffer, count, source, DATA_TAG, g.VCComm() );
 
         // Extract the header
         byte* head = recvBuffer;
-        const int i = *reinterpret_cast<const int*>(head); 
-        head += sizeof(int);
-        const int j = *reinterpret_cast<const int*>(head); 
-        head += sizeof(int);
-        const int height = *reinterpret_cast<const int*>(head); 
-        head += sizeof(int);
-        const int width = *reinterpret_cast<const int*>(head); 
-        head += sizeof(int);
+        const Int i = *reinterpret_cast<const Int*>(head); 
+        head += sizeof(Int);
+        const Int j = *reinterpret_cast<const Int*>(head); 
+        head += sizeof(Int);
+        const Int height = *reinterpret_cast<const Int*>(head); 
+        head += sizeof(Int);
+        const Int width = *reinterpret_cast<const Int*>(head); 
+        head += sizeof(Int);
         const T alpha = *reinterpret_cast<const T*>(head); 
         head += sizeof(T);
 #ifndef RELEASE
@@ -290,21 +290,21 @@ AxpyInterface<T>::HandleLocalToGlobalData()
 
         // Update Y
         const T* XBuffer = reinterpret_cast<const T*>(head);
-        const int colAlignment = (Y.ColAlignment()+i) % r;
-        const int rowAlignment = (Y.RowAlignment()+j) % c;
-        const int colShift = Shift( myRow, colAlignment, r );
-        const int rowShift = Shift( myCol, rowAlignment, c );
+        const Int colAlignment = (Y.ColAlignment()+i) % r;
+        const Int rowAlignment = (Y.RowAlignment()+j) % c;
+        const Int colShift = Shift( myRow, colAlignment, r );
+        const Int rowShift = Shift( myCol, rowAlignment, c );
 
-        const int localHeight = LocalLength( height, colShift, r );
-        const int localWidth = LocalLength( width, rowShift, c );
-        const int iLocalOffset = LocalLength( i, Y.ColShift(), r );
-        const int jLocalOffset = LocalLength( j, Y.RowShift(), c );
+        const Int localHeight = LocalLength( height, colShift, r );
+        const Int localWidth = LocalLength( width, rowShift, c );
+        const Int iLocalOffset = LocalLength( i, Y.ColShift(), r );
+        const Int jLocalOffset = LocalLength( j, Y.RowShift(), c );
 
-        for( int t=0; t<localWidth; ++t )
+        for( Int t=0; t<localWidth; ++t )
         {
             T* YCol = Y.LocalBuffer(iLocalOffset,jLocalOffset+t);
             const T* XCol = &XBuffer[t*localHeight];
-            for( int s=0; s<localHeight; ++s )
+            for( Int s=0; s<localHeight; ++s )
                 YCol[s] += alpha*XCol[s];
         }
 
@@ -316,54 +316,54 @@ AxpyInterface<T>::HandleLocalToGlobalData()
 #endif
 }
     
-template<typename T>
+template<typename T,typename Int>
 inline void
-AxpyInterface<T>::HandleGlobalToLocalRequest()
+AxpyInterface<T,Int>::HandleGlobalToLocalRequest()
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::HandleGlobalToLocalRequest");
 #endif
     const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
     const Grid& g = X.Grid();
-    const int r = g.Height();
-    const int c = g.Width();
-    const int myRow = g.MCRank();
-    const int myCol = g.MRRank();
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int myRow = g.MCRank();
+    const Int myCol = g.MRRank();
 
     mpi::Status status;
     if( mpi::IProbe( mpi::ANY_SOURCE, DATA_REQUEST_TAG, g.VCComm(), status ) )
     {
         // Request exists, so recv
-        const int source = status.MPI_SOURCE;
-        recvVector_.resize( 4*sizeof(int) );
+        const Int source = status.MPI_SOURCE;
+        recvVector_.resize( 4*sizeof(Int) );
         byte* recvBuffer = &recvVector_[0];
         mpi::Recv
-        ( recvBuffer, 4*sizeof(int), source, DATA_REQUEST_TAG, g.VCComm() );
+        ( recvBuffer, 4*sizeof(Int), source, DATA_REQUEST_TAG, g.VCComm() );
 
         // Extract the header
         const byte* recvHead = recvBuffer;
-        const int i = *reinterpret_cast<const int*>(recvHead); 
-        recvHead += sizeof(int);
-        const int j = *reinterpret_cast<const int*>(recvHead);
-        recvHead += sizeof(int);
-        const int height = *reinterpret_cast<const int*>(recvHead);
-        recvHead += sizeof(int);
-        const int width = *reinterpret_cast<const int*>(recvHead);
-        recvHead += sizeof(int);
+        const Int i = *reinterpret_cast<const Int*>(recvHead); 
+        recvHead += sizeof(Int);
+        const Int j = *reinterpret_cast<const Int*>(recvHead);
+        recvHead += sizeof(Int);
+        const Int height = *reinterpret_cast<const Int*>(recvHead);
+        recvHead += sizeof(Int);
+        const Int width = *reinterpret_cast<const Int*>(recvHead);
+        recvHead += sizeof(Int);
 
-        const int colAlignment = (X.ColAlignment()+i) % r;
-        const int rowAlignment = (X.RowAlignment()+j) % c;
-        const int colShift = Shift( myRow, colAlignment, r );
-        const int rowShift = Shift( myCol, rowAlignment, c );
+        const Int colAlignment = (X.ColAlignment()+i) % r;
+        const Int rowAlignment = (X.RowAlignment()+j) % c;
+        const Int colShift = Shift( myRow, colAlignment, r );
+        const Int rowShift = Shift( myCol, rowAlignment, c );
 
-        const int iLocalOffset = LocalLength( i, X.ColShift(), r );
-        const int jLocalOffset = LocalLength( j, X.RowShift(), c );
-        const int localHeight = LocalLength( height, colShift, r );
-        const int localWidth = LocalLength( width, rowShift, c );
-        const int numEntries = localHeight*localWidth;
+        const Int iLocalOffset = LocalLength( i, X.ColShift(), r );
+        const Int jLocalOffset = LocalLength( j, X.RowShift(), c );
+        const Int localHeight = LocalLength( height, colShift, r );
+        const Int localWidth = LocalLength( width, rowShift, c );
+        const Int numEntries = localHeight*localWidth;
 
-        const int bufferSize = 2*sizeof(int) + numEntries*sizeof(T);
-        const int index = 
+        const Int bufferSize = 2*sizeof(Int) + numEntries*sizeof(T);
+        const Int index = 
             ReadyForSend
             ( bufferSize, replyVectors_[source], 
               replySendRequests_[source], sendingReply_[source] );
@@ -371,12 +371,12 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
         // Pack the reply header
         byte* sendBuffer = &replyVectors_[source][index][0];
         byte* sendHead = sendBuffer;
-        *reinterpret_cast<int*>(sendHead) = myRow; sendHead += sizeof(int);
-        *reinterpret_cast<int*>(sendHead) = myCol; sendHead += sizeof(int);
+        *reinterpret_cast<Int*>(sendHead) = myRow; sendHead += sizeof(Int);
+        *reinterpret_cast<Int*>(sendHead) = myCol; sendHead += sizeof(Int);
 
         // Pack the payload
         T* sendData = reinterpret_cast<T*>(sendHead);
-        for( int t=0; t<localWidth; ++t )
+        for( Int t=0; t<localWidth; ++t )
         {
             T* sendCol = &sendData[t*localHeight];
             const T* XCol = X.LockedLocalBuffer(iLocalOffset,jLocalOffset+t);
@@ -393,16 +393,16 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline
-AxpyInterface<T>::AxpyInterface()
+AxpyInterface<T,Int>::AxpyInterface()
 : attachedForLocalToGlobal_(false), attachedForGlobalToLocal_(false), 
   localToGlobalMat_(0), globalToLocalMat_(0)
 { }
 
-template<typename T>
+template<typename T,typename Int>
 inline
-AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
+AxpyInterface<T,Int>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::AxpyInterface");
@@ -422,7 +422,7 @@ AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
         globalToLocalMat_ = &Z;
     }
 
-    const int p = Z.Grid().Size();
+    const Int p = Z.Grid().Size();
     sentEomTo_.resize( p, false );
     haveEomFrom_.resize( p, false );
 
@@ -444,9 +444,9 @@ AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline
-AxpyInterface<T>::AxpyInterface
+AxpyInterface<T,Int>::AxpyInterface
 ( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
@@ -464,7 +464,7 @@ AxpyInterface<T>::AxpyInterface
         globalToLocalMat_ = &X;
     }
 
-    const int p = X.Grid().Size();
+    const Int p = X.Grid().Size();
     sentEomTo_.resize( p, false );
     haveEomFrom_.resize( p, false );
 
@@ -486,9 +486,9 @@ AxpyInterface<T>::AxpyInterface
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline
-AxpyInterface<T>::~AxpyInterface()
+AxpyInterface<T,Int>::~AxpyInterface()
 { 
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
     {
@@ -517,9 +517,9 @@ AxpyInterface<T>::~AxpyInterface()
     }
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline void
-AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
+AxpyInterface<T,Int>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Attach");
@@ -538,7 +538,7 @@ AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
         globalToLocalMat_ = &Z;
     }
 
-    const int p = Z.Grid().Size();
+    const Int p = Z.Grid().Size();
     sentEomTo_.resize( p, false );
     haveEomFrom_.resize( p, false );
 
@@ -560,9 +560,9 @@ AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline void
-AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
+AxpyInterface<T,Int>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Attach");
@@ -580,7 +580,7 @@ AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
         globalToLocalMat_ = &X;
     }
 
-    const int p = X.Grid().Size();
+    const Int p = X.Grid().Size();
     sentEomTo_.resize( p, false );
     haveEomFrom_.resize( p, false );
 
@@ -602,9 +602,9 @@ AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline void 
-AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, int i, int j )
+AxpyInterface<T,Int>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Axpy");
@@ -620,9 +620,9 @@ AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, int i, int j )
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline void 
-AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, int i, int j )
+AxpyInterface<T,Int>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::Axpy");
@@ -639,10 +639,10 @@ AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, int i, int j )
 }
 
 // Update Y(i:i+height-1,j:j+width-1) += alpha X, where X is height x width
-template<typename T>
+template<typename T,typename Int>
 inline void
-AxpyInterface<T>::AxpyLocalToGlobal
-( T alpha, const Matrix<T>& X, int i, int j )
+AxpyInterface<T,Int>::AxpyLocalToGlobal
+( T alpha, const Matrix<T>& X, Int i, Int j )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::AxpyLocalToGlobal");
@@ -654,33 +654,33 @@ AxpyInterface<T>::AxpyLocalToGlobal
         throw std::logic_error("Submatrix out of bounds of global matrix");
 
     const Grid& g = Y.Grid();
-    const int r = g.Height();
-    const int c = g.Width();
-    const int p = g.Size();
-    const int myProcessRow = g.MCRank();
-    const int myProcessCol = g.MRRank();
-    const int colAlignment = (Y.ColAlignment() + i) % r;
-    const int rowAlignment = (Y.RowAlignment() + j) % c;
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int p = g.Size();
+    const Int myProcessRow = g.MCRank();
+    const Int myProcessCol = g.MRRank();
+    const Int colAlignment = (Y.ColAlignment() + i) % r;
+    const Int rowAlignment = (Y.RowAlignment() + j) % c;
 
-    const int height = X.Height();
-    const int width = X.Width();
+    const Int height = X.Height();
+    const Int width = X.Width();
 
-    int receivingRow = myProcessRow;
-    int receivingCol = myProcessCol;
-    for( int step=0; step<p; ++step )
+    Int receivingRow = myProcessRow;
+    Int receivingCol = myProcessCol;
+    for( Int step=0; step<p; ++step )
     {
-        const int colShift = Shift( receivingRow, colAlignment, r );
-        const int rowShift = Shift( receivingCol, rowAlignment, c );
-        const int localHeight = LocalLength( height, colShift, r );
-        const int localWidth = LocalLength( width, rowShift, c );
-        const int numEntries = localHeight*localWidth;
+        const Int colShift = Shift( receivingRow, colAlignment, r );
+        const Int rowShift = Shift( receivingCol, rowAlignment, c );
+        const Int localHeight = LocalLength( height, colShift, r );
+        const Int localWidth = LocalLength( width, rowShift, c );
+        const Int numEntries = localHeight*localWidth;
 
         if( numEntries != 0 )
         {
-            const int destination = receivingRow + r*receivingCol;
-            const int bufferSize = 4*sizeof(int) + (numEntries+1)*sizeof(T);
+            const Int destination = receivingRow + r*receivingCol;
+            const Int bufferSize = 4*sizeof(Int) + (numEntries+1)*sizeof(T);
 
-            const int index = 
+            const Int index = 
                 ReadyForSend
                 ( bufferSize, dataVectors_[destination], 
                   dataSendRequests_[destination], sendingData_[destination] );
@@ -692,21 +692,21 @@ AxpyInterface<T>::AxpyLocalToGlobal
             // Pack the header
             byte* sendBuffer = &dataVectors_[destination][index][0];
             byte* head = sendBuffer;
-            *reinterpret_cast<int*>(head) = i; head += sizeof(int);
-            *reinterpret_cast<int*>(head) = j; head += sizeof(int);
-            *reinterpret_cast<int*>(head) = height; head += sizeof(int);
-            *reinterpret_cast<int*>(head) = width; head += sizeof(int);
+            *reinterpret_cast<Int*>(head) = i; head += sizeof(Int);
+            *reinterpret_cast<Int*>(head) = j; head += sizeof(Int);
+            *reinterpret_cast<Int*>(head) = height; head += sizeof(Int);
+            *reinterpret_cast<Int*>(head) = width; head += sizeof(Int);
             *reinterpret_cast<T*>(head) = alpha; head += sizeof(T);
 
             // Pack the payload
             T* sendData = reinterpret_cast<T*>(head);
             const T* XBuffer = X.LockedBuffer();
-            const int XLDim = X.LDim();
-            for( int t=0; t<localWidth; ++t )
+            const Int XLDim = X.LDim();
+            for( Int t=0; t<localWidth; ++t )
             {
                 T* thisSendCol = &sendData[t*localHeight];
                 const T* thisXCol = &XBuffer[(rowShift+t*c)*XLDim];
-                for( int s=0; s<localHeight; ++s )
+                for( Int s=0; s<localHeight; ++s )
                     thisSendCol[s] = thisXCol[colShift+s*r];
             }
 
@@ -726,31 +726,31 @@ AxpyInterface<T>::AxpyLocalToGlobal
 }
 
 // Update Y += alpha X(i:i+height-1,j:j+width-1), where X is the dist-matrix
-template<typename T>
+template<typename T,typename Int>
 inline void
-AxpyInterface<T>::AxpyGlobalToLocal
-( T alpha, Matrix<T>& Y, int i, int j )
+AxpyInterface<T,Int>::AxpyGlobalToLocal
+( T alpha, Matrix<T>& Y, Int i, Int j )
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::AxpyGlobalToLocal");
 #endif
     const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
 
-    const int height = Y.Height();
-    const int width = Y.Width();
+    const Int height = Y.Height();
+    const Int width = Y.Width();
     if( i+height > X.Height() || j+width > X.Width() )
         throw std::logic_error("Invalid AxpyGlobalToLocal submatrix");
 
     const Grid& g = X.Grid();
-    const int r = g.Height();
-    const int c = g.Width();
-    const int p = g.Size();
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int p = g.Size();
 
     // Send out the requests to all processes in the grid
-    for( int rank=0; rank<p; ++rank )
+    for( Int rank=0; rank<p; ++rank )
     {
-        const int bufferSize = 4*sizeof(int);
-        const int index = 
+        const Int bufferSize = 4*sizeof(Int);
+        const Int index = 
             ReadyForSend
             ( bufferSize, requestVectors_[rank], 
               requestSendRequests_[rank], sendingRequest_[rank] );
@@ -758,10 +758,10 @@ AxpyInterface<T>::AxpyGlobalToLocal
         // Copy the request header into the send buffer
         byte* sendBuffer = &requestVectors_[rank][index][0];
         byte* head = sendBuffer;
-        *reinterpret_cast<int*>(head) = i; head += sizeof(int);
-        *reinterpret_cast<int*>(head) = j; head += sizeof(int);
-        *reinterpret_cast<int*>(head) = height; head += sizeof(int);
-        *reinterpret_cast<int*>(head) = width; head += sizeof(int);
+        *reinterpret_cast<Int*>(head) = i; head += sizeof(Int);
+        *reinterpret_cast<Int*>(head) = j; head += sizeof(Int);
+        *reinterpret_cast<Int*>(head) = height; head += sizeof(Int);
+        *reinterpret_cast<Int*>(head) = width; head += sizeof(Int);
 
         // Begin the non-blocking send
         mpi::ISSend
@@ -770,7 +770,7 @@ AxpyInterface<T>::AxpyGlobalToLocal
     }
 
     // Receive all of the replies
-    int numReplies = 0;
+    Int numReplies = 0;
     while( numReplies < p )
     {
         HandleGlobalToLocalRequest();
@@ -778,10 +778,10 @@ AxpyInterface<T>::AxpyGlobalToLocal
         mpi::Status status;
         if( mpi::IProbe( mpi::ANY_SOURCE, DATA_REPLY_TAG, g.VCComm(), status ) )
         {
-            const int source = status.MPI_SOURCE;
+            const Int source = status.MPI_SOURCE;
 
             // Ensure that we have a recv buffer
-            const int count = mpi::GetCount<byte>( status );
+            const Int count = mpi::GetCount<byte>( status );
             recvVector_.resize( count );
             byte* recvBuffer = &recvVector_[0];
 
@@ -790,26 +790,26 @@ AxpyInterface<T>::AxpyGlobalToLocal
 
             // Unpack the reply header
             const byte* head = recvBuffer;
-            const int row = *reinterpret_cast<const int*>(head); 
-            head += sizeof(int);
-            const int col = *reinterpret_cast<const int*>(head); 
-            head += sizeof(int);
+            const Int row = *reinterpret_cast<const Int*>(head); 
+            head += sizeof(Int);
+            const Int col = *reinterpret_cast<const Int*>(head); 
+            head += sizeof(Int);
             const T* recvData = reinterpret_cast<const T*>(head);
 
             // Compute the local heights and offsets
-            const int colAlignment = (X.ColAlignment()+i) % r;
-            const int rowAlignment = (X.RowAlignment()+j) % c;
-            const int colShift = Shift( row, colAlignment, r );
-            const int rowShift = Shift( col, rowAlignment, c );
-            const int localHeight = LocalLength( height, colShift, r );
-            const int localWidth = LocalLength( width, rowShift, c );
+            const Int colAlignment = (X.ColAlignment()+i) % r;
+            const Int rowAlignment = (X.RowAlignment()+j) % c;
+            const Int colShift = Shift( row, colAlignment, r );
+            const Int rowShift = Shift( col, rowAlignment, c );
+            const Int localHeight = LocalLength( height, colShift, r );
+            const Int localWidth = LocalLength( width, rowShift, c );
 
             // Unpack the local matrix
-            for( int t=0; t<localWidth; ++t )
+            for( Int t=0; t<localWidth; ++t )
             {
                 T* YCol = Y.Buffer(0,rowShift+t*c);
                 const T* XCol = &recvData[t*localHeight];
-                for( int s=0; s<localHeight; ++s )
+                for( Int s=0; s<localHeight; ++s )
                     YCol[colShift+s*r] += alpha*XCol[s];
             }
 
@@ -821,10 +821,10 @@ AxpyInterface<T>::AxpyGlobalToLocal
 #endif
 }
 
-template<typename T>
-inline int
-AxpyInterface<T>::ReadyForSend
-( int sendSize,
+template<typename T,typename Int>
+inline Int
+AxpyInterface<T,Int>::ReadyForSend
+( Int sendSize,
   std::deque<std::vector<byte> >& sendVectors,
   std::deque<mpi::Request>& requests, 
   std::deque<bool>& requestStatuses )
@@ -832,14 +832,14 @@ AxpyInterface<T>::ReadyForSend
 #ifndef RELEASE
     PushCallStack("AxpyInterface::ReadyForSend");
 #endif
-    const int commRank = mpi::CommRank( mpi::COMM_WORLD );
+    const Int commRank = mpi::CommRank( mpi::COMM_WORLD );
 
-    const int numCreated = sendVectors.size();
+    const Int numCreated = sendVectors.size();
 #ifndef RELEASE
     if( numCreated != requests.size() || numCreated != requestStatuses.size() )
         throw std::logic_error("size mismatch");
 #endif
-    for( int i=0; i<numCreated; ++i )
+    for( Int i=0; i<numCreated; ++i )
     {
         // If this request is still running, test to see if it finished.
         if( requestStatuses[i] )
@@ -870,9 +870,9 @@ AxpyInterface<T>::ReadyForSend
     return numCreated;
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline void
-AxpyInterface<T>::UpdateRequestStatuses()
+AxpyInterface<T,Int>::UpdateRequestStatuses()
 {
 #ifndef RELEASE
     PushCallStack("AxpyInterface::UpdateRequestStatuses");
@@ -880,19 +880,19 @@ AxpyInterface<T>::UpdateRequestStatuses()
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
                       globalToLocalMat_->Grid() );
-    const int p = g.Size();
+    const Int p = g.Size();
 
-    for( int i=0; i<p; ++i )
+    for( Int i=0; i<p; ++i )
     {
-        for( int j=0; j<dataSendRequests_[i].size(); ++j )
+        for( Int j=0; j<dataSendRequests_[i].size(); ++j )
             if( sendingData_[i][j] )
                 sendingData_[i][j] = 
                     !mpi::Test( dataSendRequests_[i][j] );
-        for( int j=0; j<requestSendRequests_[i].size(); ++j )
+        for( Int j=0; j<requestSendRequests_[i].size(); ++j )
             if( sendingRequest_[i][j] )
                 sendingRequest_[i][j] = 
                     !mpi::Test( requestSendRequests_[i][j] );
-        for( int j=0; j<replySendRequests_[i].size(); ++j )
+        for( Int j=0; j<replySendRequests_[i].size(); ++j )
             if( sendingReply_[i][j] )
                 sendingReply_[i][j] = 
                     !mpi::Test( replySendRequests_[i][j] );
@@ -902,9 +902,9 @@ AxpyInterface<T>::UpdateRequestStatuses()
 #endif
 }
 
-template<typename T>
+template<typename T,typename Int>
 inline void
-AxpyInterface<T>::Detach()
+AxpyInterface<T,Int>::Detach()
 {
 #ifndef RELEASE    
     PushCallStack("AxpyInterface::Detach");

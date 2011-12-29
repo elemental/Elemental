@@ -38,17 +38,17 @@ namespace elemental {
 template<typename G>
 class Memory
 {
-    size_t size_;
+    std::size_t size_;
     G*     buffer_;
 public:
     Memory();
-    Memory( size_t size );
+    Memory( std::size_t size );
     ~Memory();
 
-    G*     Buffer() const;
-    size_t Size()   const;
+    G*          Buffer() const;
+    std::size_t Size()   const;
 
-    void   Require( size_t size );
+    void   Require( std::size_t size );
     void   Release();
     void   Empty();
 };
@@ -63,7 +63,7 @@ inline Memory<G>::Memory()
 { }
 
 template<typename G>
-inline Memory<G>::Memory( size_t size )
+inline Memory<G>::Memory( std::size_t size )
 : size_(size), buffer_(new G[size])
 { }
 
@@ -76,11 +76,11 @@ inline G* Memory<G>::Buffer() const
 { return buffer_; }
 
 template<typename G>
-inline size_t Memory<G>::Size() const
+inline std::size_t Memory<G>::Size() const
 { return size_; }
 
 template<typename G>
-inline void Memory<G>::Require( size_t size )
+inline void Memory<G>::Require( std::size_t size )
 {
     if( size > size_ )
     {

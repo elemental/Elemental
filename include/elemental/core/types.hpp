@@ -43,14 +43,14 @@ typedef std::complex<double> dcomplex;
 // For the safe computation of products. The result is given by 
 //   product = rho * exp(kappa*n)
 // where rho lies in (usually on) the unit circle and kappa is real-valued.
-template<typename F>
+template<typename F,typename Int=int>
 struct SafeProduct
 {
     F rho;
     typename RealBase<F>::type kappa;
-    int n;
+    Int n;
 
-    SafeProduct( int numEntries ) : rho(1), kappa(0), n(numEntries) { }
+    SafeProduct( Int numEntries ) : rho(1), kappa(0), n(numEntries) { }
 };
 
 namespace diagonal_wrapper {

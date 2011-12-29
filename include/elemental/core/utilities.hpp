@@ -35,63 +35,63 @@
 
 namespace elemental {
 
-template<typename Integer>
-Integer DiagonalLength( Integer height, Integer width, Integer offset=0 );
+template<typename Int>
+Int DiagonalLength( Int height, Int width, Int offset=0 );
 
-template<typename Integer>
-Integer GCD( Integer a, Integer b ); 
+template<typename Int>
+Int GCD( Int a, Int b ); 
 
-template<typename Integer>
-Integer RawGCD( Integer a, Integer b ); 
+template<typename Int>
+Int RawGCD( Int a, Int b ); 
 
-template<typename Integer>
-Integer LocalLength( Integer n, Integer shift, Integer modulus );
+template<typename Int>
+Int LocalLength( Int n, Int shift, Int modulus );
 
-template<typename Integer>
-Integer RawLocalLength( Integer n, Integer shift, Integer modulus );
+template<typename Int>
+Int RawLocalLength( Int n, Int shift, Int modulus );
 
-template<typename Integer>
-Integer LocalLength
-( Integer n, Integer index, Integer alignment, Integer modulus );
+template<typename Int>
+Int LocalLength
+( Int n, Int index, Int alignment, Int modulus );
 
-template<typename Integer>
-Integer RawLocalLength
-( Integer n, Integer index, Integer alignment, Integer modulus );
+template<typename Int>
+Int RawLocalLength
+( Int n, Int index, Int alignment, Int modulus );
 
-template<typename Integer>
-Integer MaxLocalLength( Integer n, Integer modulus );
+template<typename Int>
+Int MaxLocalLength( Int n, Int modulus );
 
-template<typename Integer>
-Integer RawMaxLocalLength( Integer n, Integer modulus );
+template<typename Int>
+Int RawMaxLocalLength( Int n, Int modulus );
 
-template<typename Integer>
-Integer Shift( Integer index, Integer alignment, Integer modulus );
+template<typename Int>
+Int Shift( Int index, Int alignment, Int modulus );
 
-template<typename Integer>
-Integer RawShift( Integer index, Integer alignment, Integer modulus );
+template<typename Int>
+Int RawShift( Int index, Int alignment, Int modulus );
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-template<typename Integer>
-inline Integer 
-DiagonalLength( Integer height, Integer width, Integer offset )
+template<typename Int>
+inline Int 
+DiagonalLength( Int height, Int width, Int offset )
 {
     if( offset > 0 )
     {
-        Integer remainingWidth = std::max(width-offset,0);
+        Int remainingWidth = std::max(width-offset,0);
         return std::min(height,remainingWidth);
     }
     else
     {
-        Integer remainingHeight = std::max(height+offset,0);
+        Int remainingHeight = std::max(height+offset,0);
         return std::min(remainingHeight,width);
     }
 }
 
-template<typename Integer>
-inline Integer GCD( Integer a, Integer b )
+template<typename Int>
+inline Int GCD( Int a, Int b )
 {
 #ifndef RELEASE
     if( a < 0 || b < 0 )
@@ -100,8 +100,8 @@ inline Integer GCD( Integer a, Integer b )
     return RawGCD( a, b );
 }
 
-template<typename Integer>
-inline Integer RawGCD( Integer a, Integer b )
+template<typename Int>
+inline Int RawGCD( Int a, Int b )
 {
     if( b == 0 )
         return a;
@@ -109,8 +109,8 @@ inline Integer RawGCD( Integer a, Integer b )
         return RawGCD( b, a-b*(a/b) );
 }
 
-template<typename Integer>
-inline Integer LocalLength( Integer n, Integer shift, Integer modulus )
+template<typename Int>
+inline Int LocalLength( Int n, Int shift, Int modulus )
 {
 #ifndef RELEASE
     PushCallStack("LocalLength");
@@ -130,38 +130,38 @@ inline Integer LocalLength( Integer n, Integer shift, Integer modulus )
     return RawLocalLength( n, shift, modulus );
 }
 
-template<typename Integer>
-inline Integer RawLocalLength( Integer n, Integer shift, Integer modulus )
+template<typename Int>
+inline Int RawLocalLength( Int n, Int shift, Int modulus )
 {
     return ( n > shift ? (n - shift - 1)/modulus + 1 : 0 );
 }
 
-template<typename Integer>
-inline Integer 
-LocalLength( Integer n, Integer index, Integer alignment, Integer modulus )
+template<typename Int>
+inline Int 
+LocalLength( Int n, Int index, Int alignment, Int modulus )
 {
 #ifndef RELEASE
     PushCallStack("LocalLength");
 #endif
-    Integer shift = Shift( index, alignment, modulus );
-    Integer localLength = LocalLength( n, shift, modulus );
+    Int shift = Shift( index, alignment, modulus );
+    Int localLength = LocalLength( n, shift, modulus );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return localLength;
 }
 
-template<typename Integer>
-inline Integer RawLocalLength
-( Integer n, Integer index, Integer alignment, Integer modulus )
+template<typename Int>
+inline Int RawLocalLength
+( Int n, Int index, Int alignment, Int modulus )
 {
-    Integer shift = RawShift( index, alignment, modulus );
-    Integer localLength = RawLocalLength( n, shift, modulus );
+    Int shift = RawShift( index, alignment, modulus );
+    Int localLength = RawLocalLength( n, shift, modulus );
     return localLength;
 }
 
-template<typename Integer>
-inline Integer MaxLocalLength( Integer n, Integer modulus )
+template<typename Int>
+inline Int MaxLocalLength( Int n, Int modulus )
 {
 #ifndef RELEASE
     PushCallStack("MaxLocalLength");
@@ -174,8 +174,8 @@ inline Integer MaxLocalLength( Integer n, Integer modulus )
     return RawMaxLocalLength( n, modulus );
 }
 
-template<typename Integer>
-inline Integer RawMaxLocalLength( Integer n, Integer modulus )
+template<typename Int>
+inline Int RawMaxLocalLength( Int n, Int modulus )
 {
     return ( n > 0 ? (n - 1)/modulus + 1 : 0 );
 }
@@ -183,8 +183,8 @@ inline Integer RawMaxLocalLength( Integer n, Integer modulus )
 // For determining the first global element of process row/column 
 // 'index', with distribution alignment 'alignment' and number of process 
 // rows/cols 'modulus'
-template<typename Integer>
-inline Integer Shift( Integer index, Integer alignment, Integer modulus )
+template<typename Int>
+inline Int Shift( Int index, Int alignment, Int modulus )
 {
 #ifndef RELEASE
     PushCallStack("Shift");
@@ -209,8 +209,8 @@ inline Integer Shift( Integer index, Integer alignment, Integer modulus )
     return RawShift( index, alignment, modulus );
 }
 
-template<typename Integer>
-inline Integer RawShift( Integer index, Integer alignment, Integer modulus )
+template<typename Int>
+inline Int RawShift( Int index, Int alignment, Int modulus )
 {
     return (index + modulus - alignment) % modulus;
 }

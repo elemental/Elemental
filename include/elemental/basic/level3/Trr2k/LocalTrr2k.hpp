@@ -890,7 +890,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -970,7 +970,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -1052,7 +1052,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -1131,7 +1131,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -1211,7 +1211,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -1293,7 +1293,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -1378,7 +1378,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -1462,7 +1462,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -1544,7 +1544,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
@@ -1623,7 +1623,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
@@ -1703,7 +1703,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
@@ -1781,7 +1781,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
@@ -1860,7 +1860,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
@@ -1944,7 +1944,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
@@ -2028,7 +2028,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
@@ -2108,7 +2108,7 @@ LocalTrr2kKernel
                         EBL(g), EBR(g);
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
-    const unsigned half = E.Height()/2;
+    const int half = E.Height()/2;
     E.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
@@ -2198,7 +2198,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -2268,7 +2268,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -2342,7 +2342,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -2415,7 +2415,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -2489,7 +2489,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -2564,7 +2564,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -2645,7 +2645,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -2723,7 +2723,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -2799,7 +2799,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
         LockedPartitionDown
@@ -2872,7 +2872,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
         LockedPartitionDown
@@ -2947,7 +2947,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
         LockedPartitionRight( C, CL, CR, half );
@@ -3021,7 +3021,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
         LockedPartitionRight( C, CL, CR, half );
@@ -3096,7 +3096,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionDown
         ( B, BT,
@@ -3174,7 +3174,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionDown
         ( B, BT,
@@ -3254,7 +3254,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionDown
         ( B, BT, 
@@ -3332,7 +3332,7 @@ elemental::basic::internal::LocalTrr2k
         DistMatrix<T,MC,MR> ETL(g), ETR(g),
                             EBL(g), EBR(g);
 
-        const unsigned half = E.Height() / 2;
+        const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionDown
         ( B, BT,

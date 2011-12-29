@@ -304,7 +304,7 @@ TrrkNNKernel
               CBL, CBR;
     Matrix<T> DTL, DBR;
 
-    const unsigned half = C.Height()/2;
+    const int half = C.Height()/2;
     basic::Scal( beta, C );
     LockedPartitionDown
     ( A, AT,
@@ -357,7 +357,7 @@ LocalTrrkKernel
                         CBL(g), CBR(g);
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
-    const unsigned half = C.Height()/2;
+    const int half = C.Height()/2;
     C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -421,7 +421,7 @@ TrrkNTKernel
               CBL, CBR;
     Matrix<T> DTL, DBR;
 
-    const unsigned half = C.Height()/2;
+    const int half = C.Height()/2;
     C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -480,7 +480,7 @@ LocalTrrkKernel
                         CBL(g), CBR(g);
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
-    const unsigned half = C.Height()/2;
+    const int half = C.Height()/2;
     C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionDown
     ( A, AT,
@@ -546,7 +546,7 @@ TrrkTNKernel
               CBL, CBR;
     Matrix<T> DTL, DBR;
 
-    const unsigned half = C.Height()/2;
+    const int half = C.Height()/2;
     C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
@@ -597,7 +597,7 @@ LocalTrrkKernel
                         CBL(g), CBR(g);
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
-    const unsigned half = C.Height()/2;
+    const int half = C.Height()/2;
     C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
@@ -659,7 +659,7 @@ TrrkTTKernel
               CBL, CBR;
     Matrix<T> DTL, DBR;
 
-    const unsigned half = C.Height()/2;
+    const int half = C.Height()/2;
     C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
@@ -714,7 +714,7 @@ LocalTrrkKernel
                         CBL(g), CBR(g);
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
-    const unsigned half = C.Height()/2;
+    const int half = C.Height()/2;
     C.ScaleTrapezoid( beta, LEFT, uplo );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
@@ -788,7 +788,7 @@ elemental::basic::internal::TrrkNN
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
-        const unsigned half = C.Height() / 2;
+        const int half = C.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -841,7 +841,7 @@ elemental::basic::internal::LocalTrrk
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
 
-        const unsigned half = C.Height() / 2;
+        const int half = C.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -899,7 +899,7 @@ elemental::basic::internal::TrrkNT
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
-        const unsigned half = C.Height() / 2;
+        const int half = C.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -958,7 +958,7 @@ elemental::basic::internal::LocalTrrk
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
 
-        const unsigned half = C.Height() / 2;
+        const int half = C.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -1018,7 +1018,7 @@ elemental::basic::internal::TrrkTN
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
-        const unsigned half = C.Height() / 2;
+        const int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
         PartitionDownDiagonal
@@ -1071,7 +1071,7 @@ elemental::basic::internal::LocalTrrk
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
 
-        const unsigned half = C.Height() / 2;
+        const int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
         PartitionDownDiagonal
@@ -1129,7 +1129,7 @@ elemental::basic::internal::TrrkTT
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
-        const unsigned half = C.Height() / 2;
+        const int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionDown
         ( B, BT, 
@@ -1188,7 +1188,7 @@ elemental::basic::internal::LocalTrrk
         DistMatrix<T,MC,MR> CTL(g), CTR(g),
                             CBL(g), CBR(g);
 
-        const unsigned half = C.Height() / 2;
+        const int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionDown
         ( B, BT, 
