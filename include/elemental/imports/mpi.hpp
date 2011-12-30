@@ -36,6 +36,21 @@
 namespace elemental {
 namespace mpi {
 
+#if defined(HAVE_MPI3_NONBLOCKING_COLLECTIVES) || \
+    defined(HAVE_MPIX_NONBLOCKING_COLLECTIVES)
+#define HAVE_NONBLOCKING 1
+#else
+#define HAVE_NONBLOCKING 0
+#endif
+
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+#ifdef HAVE_MPI3_NONBLOCKING_COLLECTIVES
+#define NONBLOCKING_COLL(name) MPI_ ## name
+#else
+#define NONBLOCKING_COLL(name) MPIX_ ## name
+#endif
+#endif
+
 // Datatype definitions
 typedef MPI_Comm Comm;
 typedef MPI_Datatype Datatype;
@@ -216,6 +231,21 @@ void Broadcast( double* buf, int count, int root, Comm comm );
 void Broadcast( scomplex* buf, int count, int root, Comm comm );
 void Broadcast( dcomplex* buf, int count, int root, Comm comm );
 
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IBroadcast
+( byte* buf, int count, int root, Comm comm, Request& request );
+void IBroadcast
+( int* buf, int count, int root, Comm comm, Request& request );
+void IBroadcast
+( float* buf, int count, int root, Comm comm, Request& request );
+void IBroadcast
+( double* buf, int count, int root, Comm comm, Request& request );
+void IBroadcast
+( scomplex* buf, int count, int root, Comm comm, Request& request );
+void IBroadcast
+( dcomplex* buf, int count, int root, Comm comm, Request& request );
+#endif
+
 void Gather
 ( const byte* sbuf, int sc,
         byte* rbuf, int rc, int root, Comm comm );
@@ -235,6 +265,27 @@ void Gather
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, int root, Comm comm );
 
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IGather
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, int root, Comm comm, Request& request );
+void IGather
+( const int* sbuf, int sc,
+        int* rbuf, int rc, int root, Comm comm, Request& request );
+void IGather
+( const float* sbuf, int sc,
+        float* rbuf, int rc, int root, Comm comm, Request& request );
+void IGather
+( const double* sbuf, int sc,
+        double* rbuf, int rc, int root, Comm comm, Request& request );
+void IGather
+( const scomplex* sbuf, int sc,
+        scomplex* rbuf, int rc, int root, Comm comm, Request& request );
+void IGather
+( const dcomplex* sbuf, int sc,
+        dcomplex* rbuf, int rc, int root, Comm comm, Request& request );
+#endif
+
 void Gather
 ( const byte* sbuf, int sc,
         byte* rbuf, int* rcs, int* rds, int root, Comm comm );
@@ -253,7 +304,34 @@ void Gather
 void Gather
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int* rcs, int* rds, int root, Comm comm );
- 
+
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IGather
+( const byte* sbuf, int sc,
+        byte* rbuf, int* rcs, int* rds, 
+        int root, Comm comm, Request& request );
+void IGather
+( const int* sbuf, int sc,
+        int* rbuf, int* rcs, int* rds, 
+        int root, Comm comm, Request& request );
+void IGather
+( const float* sbuf, int sc,
+        float* rbuf, int* rcs, int* rds, 
+        int root, Comm comm, Request& request );
+void IGather
+( const double* sbuf, int sc,
+        double* rbuf, int* rcs, int* rds, 
+        int root, Comm comm, Request& request );
+void IGather
+( const scomplex* sbuf, int sc,
+        scomplex* rbuf, int* rcs, int* rds, 
+        int root, Comm comm, Request& request );
+void IGather
+( const dcomplex* sbuf, int sc,
+        dcomplex* rbuf, int* rcs, int* rds, 
+        int root, Comm comm, Request& request );
+#endif
+
 void AllGather
 ( const byte* sbuf, int sc,
         byte* rbuf, int rc, Comm comm );
@@ -272,6 +350,27 @@ void AllGather
 void AllGather
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, Comm comm );
+
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IAllGather
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, Comm comm, Request& request );
+void IAllGather
+( const int* sbuf, int sc,
+        int* rbuf, int rc, Comm comm, Request& request );
+void IAllGather
+( const float* sbuf, int sc,
+        float* rbuf, int rc, Comm comm, Request& request );
+void IAllGather
+( const double* sbuf, int sc,
+        double* rbuf, int rc, Comm comm, Request& request );
+void IAllGather
+( const scomplex* sbuf, int sc,
+        scomplex* rbuf, int rc, Comm comm, Request& request );
+void IAllGather
+( const dcomplex* sbuf, int sc,
+        dcomplex* rbuf, int rc, Comm comm, Request& request );
+#endif
 
 void Scatter
 ( const byte* sbuf, int sc,
@@ -292,6 +391,27 @@ void Scatter
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, int root, Comm comm );
 
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IScatter
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, int root, Comm comm, Request& request );
+void IScatter
+( const int* sbuf, int sc,
+        int* rbuf, int rc, int root, Comm comm, Request& request );
+void IScatter
+( const float* sbuf, int sc,
+        float* rbuf, int rc, int root, Comm comm, Request& request );
+void IScatter
+( const double* sbuf, int sc,
+        double* rbuf, int rc, int root, Comm comm, Request& request );
+void IScatter
+( const scomplex* sbuf, int sc,
+        scomplex* rbuf, int rc, int root, Comm comm, Request& request );
+void IScatter
+( const dcomplex* sbuf, int sc,
+        dcomplex* rbuf, int rc, int root, Comm comm, Request& request );
+#endif
+
 // In-place option
 void Scatter( byte* buf, int sc, int rc, int root, Comm comm );
 void Scatter( int* buf, int sc, int rc, int root, Comm comm );
@@ -299,6 +419,10 @@ void Scatter( float* buf, int sc, int rc, int root, Comm comm );
 void Scatter( double* buf, int sc, int rc, int root, Comm comm );
 void Scatter( scomplex* buf, int sc, int rc, int root, Comm comm );
 void Scatter( dcomplex* buf, int sc, int rc, int root, Comm comm );
+
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+// TODO: Nonblocking in-place Scatter?
+#endif
  
 void AllToAll
 ( const byte* sbuf, int sc,
@@ -318,6 +442,27 @@ void AllToAll
 void AllToAll
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, Comm comm );
+
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IAllToAll
+( const byte* sbuf, int sc,
+        byte* rbuf, int rc, Comm comm, Request& request );
+void IAllToAll
+( const int* sbuf, int sc,
+        int* rbuf, int rc, Comm comm, Request& request );
+void IAllToAll
+( const float* sbuf, int sc,
+        float* rbuf, int rc, Comm comm, Request& request );
+void IAllToAll
+( const double* sbuf, int sc,
+        double* rbuf, int rc, Comm comm, Request& request );
+void IAllToAll
+( const scomplex* sbuf, int sc,
+        scomplex* rbuf, int rc, Comm comm, Request& request );
+void IAllToAll
+( const dcomplex* sbuf, int sc,
+        dcomplex* rbuf, int rc, Comm comm, Request& request );
+#endif
 
 void AllToAll
 ( const byte* sbuf, const int* scs, const int* sds,
@@ -338,6 +483,33 @@ void AllToAll
 ( const dcomplex* sbuf, const int* scs, const int* sds,
         dcomplex* rbuf, const int* rcs, const int* rds, Comm comm );
 
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IAllToAll
+( const byte* sbuf, const int* scs, const int* sds,
+        byte* rbuf, const int* rcs, const int* rds, 
+        Comm comm, Request& request );
+void IAllToAll
+( const int* sbuf, const int* scs, const int* sds,
+        int* rbuf, const int* rcs, const int* rds, 
+        Comm comm, Request& request );
+void IAllToAll
+( const float* sbuf, const int* scs, const int* sds,
+        float* rbuf, const int* rcs, const int* rds, 
+        Comm comm, Request& request );
+void IAllToAll
+( const double* sbuf, const int* scs, const int* sds,
+        double* rbuf, const int* rcs, const int* rds, 
+        Comm comm, Request& request );
+void IAllToAll
+( const scomplex* sbuf, const int* scs, const int* sds,
+        scomplex* rbuf, const int* rcs, const int* rds, 
+        Comm comm, Request& request );
+void IAllToAll
+( const dcomplex* sbuf, const int* scs, const int* sds,
+        dcomplex* rbuf, const int* rcs, const int* rds, 
+        Comm comm, Request& request );
+#endif
+
 void Reduce
 ( const byte* sbuf, byte* rbuf, int count, Op op, int root, Comm comm );
 void Reduce
@@ -351,6 +523,27 @@ void Reduce
 void Reduce
 ( const dcomplex* sbuf, dcomplex* rbuf, int count, Op op, int root, Comm comm );
 
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IReduce
+( const byte* sbuf, byte* rbuf, int count, 
+  Op op, int root, Comm comm, Request& request );
+void IReduce
+( const int* sbuf, int* rbuf, int count, 
+  Op op, int root, Comm comm, Request& request );
+void IReduce
+( const float* sbuf, float* rbuf, int count, 
+  Op op, int root, Comm comm, Request& request );
+void IReduce
+( const double* sbuf, double* rbuf, int count, 
+  Op op, int root, Comm comm, Request& request );
+void IReduce
+( const scomplex* sbuf, scomplex* rbuf, int count, 
+  Op op, int root, Comm comm, Request& request );
+void IReduce
+( const dcomplex* sbuf, dcomplex* rbuf, int count, 
+  Op op, int root, Comm comm, Request& request );
+#endif
+
 // In-place option
 void Reduce( byte* buf, int count, Op op, int root, Comm comm );
 void Reduce( int* buf, int count, Op op, int root, Comm comm );
@@ -358,6 +551,10 @@ void Reduce( float* buf, int count, Op op, int root, Comm comm );
 void Reduce( double* buf, int count, Op op, int root, Comm comm );
 void Reduce( scomplex* buf, int count, Op op, int root, Comm comm );
 void Reduce( dcomplex* buf, int count, Op op, int root, Comm comm );
+
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+// TODO: Add in-place nonblocking Reduce?
+#endif
     
 void AllReduce
 ( const byte* sbuf, byte* rbuf, int count, Op op, Comm comm );
@@ -372,6 +569,27 @@ void AllReduce
 void AllReduce
 ( const dcomplex* sbuf, dcomplex* rbuf, int count, Op op, Comm comm );
 
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IAllReduce
+( const byte* sbuf, byte* rbuf, int count, 
+  Op op, Comm comm, Request& request );
+void IAllReduce
+( const int* sbuf, int* rbuf, int count, 
+  Op op, Comm comm, Request& request );
+void IAllReduce
+( const float* sbuf, float* rbuf, int count, 
+  Op op, Comm comm, Request& request );
+void IAllReduce
+( const double* sbuf, double* rbuf, int count, 
+  Op op, Comm comm, Request& request );
+void IAllReduce
+( const scomplex* sbuf, scomplex* rbuf, int count, 
+  Op op, Comm comm, Request& request );
+void IAllReduce
+( const dcomplex* sbuf, dcomplex* rbuf, int count, 
+  Op op, Comm comm, Request& request );
+#endif
+
 // In-place option
 void AllReduce( byte* buf, int count, Op op, Comm comm );
 void AllReduce( int* buf, int count, Op op, Comm comm );
@@ -380,12 +598,31 @@ void AllReduce( double* buf, int count, Op op, Comm comm );
 void AllReduce( scomplex* buf, int count, Op op, Comm comm );
 void AllReduce( dcomplex* buf, int count, Op op, Comm comm );
 
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+// TODO: Add in-place nonblocking AllReduce?
+#endif
+
 void ReduceScatter( byte* sbuf, byte* rbuf, int rc, Op op, Comm comm );
 void ReduceScatter( int* sbuf, int* rbuf, int rc, Op op, Comm comm );
 void ReduceScatter( float* sbuf, float* rbuf, int rc, Op op, Comm comm );
 void ReduceScatter( double* sbuf, double* rbuf, int rc, Op op, Comm comm );
 void ReduceScatter( scomplex* sbuf, scomplex* rbuf, int rc, Op op, Comm comm );
 void ReduceScatter( dcomplex* sbuf, dcomplex* rbuf, int rc, Op op, Comm comm );
+
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IReduceScatter
+( byte* sbuf, byte* rbuf, int rc, Op op, Comm comm, Request& request );
+void IReduceScatter
+( int* sbuf, int* rbuf, int rc, Op op, Comm comm, Request& request );
+void IReduceScatter
+( float* sbuf, float* rbuf, int rc, Op op, Comm comm, Request& request );
+void IReduceScatter
+( double* sbuf, double* rbuf, int rc, Op op, Comm comm, Request& request );
+void IReduceScatter
+( scomplex* sbuf, scomplex* rbuf, int rc, Op op, Comm comm, Request& request );
+void IReduceScatter
+( dcomplex* sbuf, dcomplex* rbuf, int rc, Op op, Comm comm, Request& request );
+#endif
 
 // In-place option
 void ReduceScatter( byte* buf, int rc, Op op, Comm comm );
@@ -394,6 +631,10 @@ void ReduceScatter( float* buf, int rc, Op op, Comm comm );
 void ReduceScatter( double* buf, int rc, Op op, Comm comm );
 void ReduceScatter( scomplex* buf, int rc, Op op, Comm comm );
 void ReduceScatter( dcomplex* buf, int rc, Op op, Comm comm );
+
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+// TODO: Add in-place nonblocking ReduceScatter?
+#endif
 
 void ReduceScatter
 ( const byte* sbuf, byte* rbuf, const int* rcs, Op op, Comm comm );
@@ -407,6 +648,27 @@ void ReduceScatter
 ( const scomplex* sbuf, scomplex* rbuf, const int* rcs, Op op, Comm comm );
 void ReduceScatter
 ( const dcomplex* sbuf, dcomplex* rbuf, const int* rcs, Op op, Comm comm );
+
+#ifdef HAVE_NONBLOCKING_COLLECTIVES
+void IReduceScatter
+( const byte* sbuf, byte* rbuf, const int* rcs, 
+  Op op, Comm comm, Request& request );
+void IReduceScatter
+( const int* sbuf, int* rbuf, const int* rcs, 
+  Op op, Comm comm, Request& request );
+void IReduceScatter
+( const float* sbuf, float* rbuf, const int* rcs, 
+  Op op, Comm comm, Request& request );
+void IReduceScatter
+( const double* sbuf, double* rbuf, const int* rcs, 
+  Op op, Comm comm, Request& request );
+void IReduceScatter
+( const scomplex* sbuf, scomplex* rbuf, const int* rcs, 
+  Op op, Comm comm, Request& request );
+void IReduceScatter
+( const dcomplex* sbuf, dcomplex* rbuf, const int* rcs, 
+  Op op, Comm comm, Request& request );
+#endif
 
 } // mpi
 } // elemental
