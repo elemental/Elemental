@@ -34,9 +34,12 @@
 #include "./Gemv/GemvN.hpp"
 #include "./Gemv/GemvT.hpp"
 
+namespace elemental {
+namespace basic {
+
 template<typename T>
 inline void
-elemental::basic::Gemv
+Gemv
 ( Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, 
            const DistMatrix<T,MC,MR>& x,
@@ -46,11 +49,14 @@ elemental::basic::Gemv
     PushCallStack("basic::Gemv");
 #endif
     if( orientation == NORMAL )
-        basic::internal::GemvN( alpha, A, x, beta, y );
+        internal::GemvN( alpha, A, x, beta, y );
     else
-        basic::internal::GemvT( orientation, alpha, A, x, beta, y );
+        internal::GemvT( orientation, alpha, A, x, beta, y );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace basic
+} // namespace elemental
 

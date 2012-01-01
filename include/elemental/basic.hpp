@@ -868,14 +868,16 @@ void Trsm
 #include "./basic/level2.hpp"
 #include "./basic/level3.hpp"
 
+namespace elemental {
+namespace basic {
+
 //----------------------------------------------------------------------------//
 // Local BLAS-like routines: Level 1                                          //
 //----------------------------------------------------------------------------//
 
 template<typename T>
 inline void
-elemental::basic::Axpy
-( T alpha, const Matrix<T>& X, Matrix<T>& Y )
+Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
 {
 #ifndef RELEASE
     PushCallStack("basic::Axpy");
@@ -892,22 +894,22 @@ elemental::basic::Axpy
 #endif
         if( X.Width()==1 && Y.Width()==1 )
         {
-            elemental::blas::Axpy
+            blas::Axpy
             ( XLength, alpha, X.LockedBuffer(0,0), 1, Y.Buffer(0,0), 1 );
         }
         else if( X.Width()==1 )
         {
-            elemental::blas::Axpy
+            blas::Axpy
             ( XLength, alpha, X.LockedBuffer(0,0), 1, Y.Buffer(0,0), Y.LDim() );
         }
         else if( Y.Width()==1 )
         {
-            elemental::blas::Axpy
+            blas::Axpy
             ( XLength, alpha, X.LockedBuffer(0,0), X.LDim(), Y.Buffer(0,0), 1 );
         }
         else
         {
-            elemental::blas::Axpy
+            blas::Axpy
             ( XLength, alpha, 
               X.LockedBuffer(0,0), X.LDim(), Y.Buffer(0,0), Y.LDim() );
         }
@@ -922,7 +924,7 @@ elemental::basic::Axpy
         {
             for( int j=0; j<X.Width(); ++j )
             {
-                elemental::blas::Axpy
+                blas::Axpy
                 ( X.Height(), alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
             }
         }
@@ -930,7 +932,7 @@ elemental::basic::Axpy
         {
             for( int i=0; i<X.Height(); ++i )
             {
-                elemental::blas::Axpy
+                blas::Axpy
                 ( X.Width(), alpha, X.LockedBuffer(i,0), X.LDim(),
                                     Y.Buffer(i,0),       Y.LDim() );
             }
@@ -943,8 +945,7 @@ elemental::basic::Axpy
 
 template<typename T>
 inline void
-elemental::basic::Copy
-( const Matrix<T>& A, Matrix<T>& B )
+Copy( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
     PushCallStack("basic::Copy");
@@ -957,7 +958,7 @@ elemental::basic::Copy
 
 template<typename T>
 inline void 
-elemental::basic::DiagonalScale
+DiagonalScale
 ( Side side, Orientation orientation, const Matrix<T>& d, Matrix<T>& X )
 {
 #ifndef RELEASE
@@ -1001,7 +1002,7 @@ elemental::basic::DiagonalScale
 
 template<typename F>
 inline void 
-elemental::basic::DiagonalSolve
+DiagonalSolve
 ( Side side, Orientation orientation, const Matrix<F>& d, Matrix<F>& X,
   bool checkIfSingular )
 {
@@ -1052,7 +1053,7 @@ elemental::basic::DiagonalSolve
 
 template<typename T>
 inline T
-elemental::basic::Dot( const Matrix<T>& x, const Matrix<T>& y )
+Dot( const Matrix<T>& x, const Matrix<T>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::Dot");
@@ -1097,7 +1098,7 @@ elemental::basic::Dot( const Matrix<T>& x, const Matrix<T>& y )
 
 template<typename T>
 inline T
-elemental::basic::Dotc( const Matrix<T>& x, const Matrix<T>& y )
+Dotc( const Matrix<T>& x, const Matrix<T>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::Dotc");
@@ -1142,7 +1143,7 @@ elemental::basic::Dotc( const Matrix<T>& x, const Matrix<T>& y )
 
 template<typename T>
 inline T
-elemental::basic::Dotu( const Matrix<T>& x, const Matrix<T>& y )
+Dotu( const Matrix<T>& x, const Matrix<T>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::Dotu");
@@ -1187,7 +1188,7 @@ elemental::basic::Dotu( const Matrix<T>& x, const Matrix<T>& y )
 
 template<typename R>
 inline R
-elemental::basic::Nrm2( const Matrix<R>& x )
+Nrm2( const Matrix<R>& x )
 {
 #ifndef RELEASE
     PushCallStack("basic::Nrm2");
@@ -1207,7 +1208,7 @@ elemental::basic::Nrm2( const Matrix<R>& x )
 
 template<typename R>
 inline R
-elemental::basic::Nrm2( const Matrix<std::complex<R> >& x )
+Nrm2( const Matrix<std::complex<R> >& x )
 {
 #ifndef RELEASE
     PushCallStack("basic::Nrm2");
@@ -1227,7 +1228,7 @@ elemental::basic::Nrm2( const Matrix<std::complex<R> >& x )
 
 template<typename T>
 inline void
-elemental::basic::Scal( T alpha, Matrix<T>& X )
+Scal( T alpha, Matrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("basic::Scal");
@@ -1254,13 +1255,13 @@ elemental::basic::Scal( T alpha, Matrix<T>& X )
 // Default case is for real datatypes
 template<typename Z>
 inline void
-elemental::basic::Conjugate( Matrix<Z>& A )
+Conjugate( Matrix<Z>& A )
 { }
 
 // Specialization is to complex datatypes
 template<typename Z>
 inline void
-elemental::basic::Conjugate( Matrix<std::complex<Z> >& A )
+Conjugate( Matrix<std::complex<Z> >& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Conjugate (in-place)");
@@ -1277,7 +1278,7 @@ elemental::basic::Conjugate( Matrix<std::complex<Z> >& A )
 
 template<typename T>
 inline void
-elemental::basic::Conjugate( const Matrix<T>& A, Matrix<T>& B )
+Conjugate( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
     PushCallStack("basic::Conjugate");
@@ -1295,7 +1296,7 @@ elemental::basic::Conjugate( const Matrix<T>& A, Matrix<T>& B )
 
 template<typename T>
 inline void
-elemental::basic::Adjoint( const Matrix<T>& A, Matrix<T>& B )
+Adjoint( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
     PushCallStack("basic::Adjoint");
@@ -1317,7 +1318,7 @@ elemental::basic::Adjoint( const Matrix<T>& A, Matrix<T>& B )
 
 template<typename T>
 inline void
-elemental::basic::Transpose( const Matrix<T>& A, Matrix<T>& B )
+Transpose( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
     PushCallStack("basic::Transpose");
@@ -1343,7 +1344,7 @@ elemental::basic::Transpose( const Matrix<T>& A, Matrix<T>& B )
 
 template<typename T>
 inline void
-elemental::basic::Gemv
+Gemv
 ( Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
@@ -1400,7 +1401,7 @@ elemental::basic::Gemv
     }
     else
     {
-        basic::Scal( beta, y );
+        Scal( beta, y );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1409,8 +1410,7 @@ elemental::basic::Gemv
 
 template<typename T>
 inline void
-elemental::basic::Ger
-( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Ger");
@@ -1443,8 +1443,7 @@ elemental::basic::Ger
 
 template<typename T>
 inline void
-elemental::basic::Gerc
-( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+Gerc( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Gerc");
@@ -1470,8 +1469,7 @@ elemental::basic::Gerc
 
 template<typename T>
 inline void
-elemental::basic::Geru
-( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Geru");
@@ -1497,7 +1495,7 @@ elemental::basic::Geru
 
 template<typename T>
 inline void
-elemental::basic::Hemv
+Hemv
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
@@ -1528,8 +1526,7 @@ elemental::basic::Hemv
 
 template<typename T>
 inline void
-elemental::basic::Her
-( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
+Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Her");
@@ -1553,7 +1550,7 @@ elemental::basic::Her
 
 template<typename T>
 inline void
-elemental::basic::Her2
+Her2
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
@@ -1584,7 +1581,7 @@ elemental::basic::Her2
 
 template<typename T>
 inline void
-elemental::basic::Symv
+Symv
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
@@ -1615,8 +1612,7 @@ elemental::basic::Symv
 
 template<typename T>
 inline void
-elemental::basic::Syr
-( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
+Syr( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Syr");
@@ -1640,7 +1636,7 @@ elemental::basic::Syr
 
 template<typename T>
 inline void
-elemental::basic::Syr2
+Syr2
 ( UpperOrLower uplo, 
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
@@ -1671,7 +1667,7 @@ elemental::basic::Syr2
 
 template<typename T>
 inline void
-elemental::basic::Trmv
+Trmv
 ( UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   const Matrix<T>& A, Matrix<T>& x )
 {
@@ -1700,7 +1696,7 @@ elemental::basic::Trmv
 
 template<typename F>
 inline void
-elemental::basic::Trsv
+Trsv
 ( UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   const Matrix<F>& A, Matrix<F>& x )
 {
@@ -1733,7 +1729,7 @@ elemental::basic::Trsv
 
 template<typename T>
 inline void
-elemental::basic::Gemm
+Gemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
@@ -1782,7 +1778,7 @@ elemental::basic::Gemm
     }
     else
     {
-        basic::Scal( beta, C );
+        Scal( beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1791,7 +1787,7 @@ elemental::basic::Gemm
 
 template<typename T>
 inline void
-elemental::basic::Hemm
+Hemm
 ( Side side, UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
@@ -1812,7 +1808,7 @@ elemental::basic::Hemm
 
 template<typename T>
 inline void
-elemental::basic::Her2k
+Her2k
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
@@ -1849,7 +1845,7 @@ elemental::basic::Her2k
 
 template<typename T>
 inline void
-elemental::basic::Herk
+Herk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 {
@@ -1882,7 +1878,7 @@ elemental::basic::Herk
 
 template<typename T>
 inline void
-elemental::basic::Hetrmm( UpperOrLower uplo, Matrix<T>& A )
+Hetrmm( UpperOrLower uplo, Matrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Hetrmm");
@@ -1896,7 +1892,7 @@ elemental::basic::Hetrmm( UpperOrLower uplo, Matrix<T>& A )
 
 template<typename T>
 inline void
-elemental::basic::Symm
+Symm
 ( Side side, UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
@@ -1917,7 +1913,7 @@ elemental::basic::Symm
 
 template<typename T>
 inline void
-elemental::basic::Syr2k
+Syr2k
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
@@ -1954,7 +1950,7 @@ elemental::basic::Syr2k
 
 template<typename T>
 inline void
-elemental::basic::Syrk
+Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 {
@@ -1988,7 +1984,7 @@ elemental::basic::Syrk
 
 template<typename T>
 inline void
-elemental::basic::Trmm
+Trmm
 ( Side side, UpperOrLower uplo, 
   Orientation orientation, Diagonal diagonal,
   T alpha, const Matrix<T>& A, Matrix<T>& B )
@@ -2022,7 +2018,7 @@ elemental::basic::Trmm
 
 template<typename F>
 inline void
-elemental::basic::Trsm
+Trsm
 ( Side side, UpperOrLower uplo,
   Orientation orientation,Diagonal diagonal,
   F alpha, const Matrix<F>& A, Matrix<F>& B,
@@ -2066,10 +2062,9 @@ elemental::basic::Trsm
 // Distributed BLAS-like routines: Level 1                                    //
 //----------------------------------------------------------------------------//
 
-template<typename T, elemental::Distribution U, elemental::Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline void
-elemental::basic::Axpy
-( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
+Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 {
 #ifndef RELEASE
     PushCallStack("basic::Axpy");
@@ -2080,17 +2075,16 @@ elemental::basic::Axpy
         X.RowAlignment() != Y.RowAlignment() )
         throw std::logic_error("Axpy requires X and Y be aligned");
 #endif
-    basic::Axpy( alpha, X.LockedLocalMatrix(), Y.LocalMatrix() );
+    Axpy( alpha, X.LockedLocalMatrix(), Y.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T, elemental::Distribution U, elemental::Distribution V,
-                     elemental::Distribution W, elemental::Distribution Z >
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
 inline void
-elemental::basic::Copy
-( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
+Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
     PushCallStack("basic::Copy");
@@ -2101,10 +2095,10 @@ elemental::basic::Copy
 #endif
 }
 
-template<typename T, elemental::Distribution U, elemental::Distribution V,
-                     elemental::Distribution W, elemental::Distribution Z>
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
 inline void
-elemental::basic::DiagonalScale
+DiagonalScale
 ( Side side, Orientation orientation, 
   const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X )
 {
@@ -2115,14 +2109,14 @@ elemental::basic::DiagonalScale
     {
         if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
         {
-            basic::DiagonalScale
+            DiagonalScale
             ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
         }
         else
         {
             DistMatrix<T,W,STAR> d_W_STAR( X.Grid() );
             d_W_STAR = d;
-            basic::DiagonalScale
+            DiagonalScale
             ( LEFT, orientation, 
               d_W_STAR.LockedLocalMatrix(), X.LocalMatrix() );
         }
@@ -2131,14 +2125,14 @@ elemental::basic::DiagonalScale
     {
         if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
         {
-            basic::DiagonalScale
+            DiagonalScale
             ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
         }
         else
         {
             DistMatrix<T,Z,STAR> d_Z_STAR( X.Grid() );
             d_Z_STAR = d;
-            basic::DiagonalScale
+            DiagonalScale
             ( RIGHT, orientation, 
               d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix() );
         }
@@ -2148,10 +2142,10 @@ elemental::basic::DiagonalScale
 #endif
 }
 
-template<typename F, elemental::Distribution U, elemental::Distribution V,
-                     elemental::Distribution W, elemental::Distribution Z>
+template<typename F,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
 inline void
-elemental::basic::DiagonalSolve
+DiagonalSolve
 ( Side side, Orientation orientation, 
   const DistMatrix<F,U,V>& d, DistMatrix<F,W,Z>& X,
   bool checkIfSingular )
@@ -2163,7 +2157,7 @@ elemental::basic::DiagonalSolve
     {
         if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
         {
-            basic::DiagonalSolve
+            DiagonalSolve
             ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix(),
               checkIfSingular );
         }
@@ -2171,7 +2165,7 @@ elemental::basic::DiagonalSolve
         {
             DistMatrix<F,W,STAR> d_W_STAR( X.Grid() );
             d_W_STAR = d;
-            basic::DiagonalSolve
+            DiagonalSolve
             ( LEFT, orientation, 
               d_W_STAR.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
         }
@@ -2180,7 +2174,7 @@ elemental::basic::DiagonalSolve
     {
         if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
         {
-            basic::DiagonalSolve
+            DiagonalSolve
             ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix(),
               checkIfSingular );
         }
@@ -2188,7 +2182,7 @@ elemental::basic::DiagonalSolve
         {
             DistMatrix<F,Z,STAR> d_Z_STAR( X.Grid() );
             d_Z_STAR = d;
-            basic::DiagonalSolve
+            DiagonalSolve
             ( RIGHT, orientation, 
               d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
         }
@@ -2200,31 +2194,29 @@ elemental::basic::DiagonalSolve
 
 // Our extended Dotc is equivalent to our extended Dot, 
 // but we are burdened with consistency
-template<typename T, elemental::Distribution U, elemental::Distribution V,
-                     elemental::Distribution W, elemental::Distribution Z >
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
 inline T
-elemental::basic::Dotc
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
+Dotc( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
 {
 #ifndef RELEASE
     PushCallStack("basic::Dotc");
 #endif
-    T globalDot = basic::Dot( x, y );
+    T globalDot = Dot( x, y );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return globalDot;
 }
 
-template<typename T, elemental::Distribution U, elemental::Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline void
-elemental::basic::Scal
-( T alpha, DistMatrix<T,U,V>& A )
+Scal( T alpha, DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Scal");
 #endif
-    basic::Scal( alpha, A.LocalMatrix() );
+    Scal( alpha, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2234,40 +2226,38 @@ elemental::basic::Scal
 // Distributed BLAS-like routines: Level 1 (extensions)                       //
 //----------------------------------------------------------------------------//
 
-template<typename T, elemental::Distribution U, elemental::Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline void
-elemental::basic::Conjugate( DistMatrix<T,U,V>& A )
+Conjugate( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
     PushCallStack("basic::Conjugate (in-place)");
 #endif
-    basic::Conjugate( A.LocalMatrix() );
+    Conjugate( A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T, elemental::Distribution U, elemental::Distribution V,
-                     elemental::Distribution W, elemental::Distribution Z >
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
 inline void
-elemental::basic::Conjugate
-( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
+Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
     PushCallStack("basic::Conjugate");
 #endif
     B = A;
-    basic::Conjugate( B ); 
+    Conjugate( B ); 
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T, elemental::Distribution U, elemental::Distribution V,
-                     elemental::Distribution W, elemental::Distribution Z >
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
 inline void
-elemental::basic::Adjoint
-( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
+Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
     PushCallStack("basic::Adjoint");
@@ -2276,7 +2266,7 @@ elemental::basic::Adjoint
         A.ColAlignment() == B.RowAlignment() && 
         A.RowAlignment() == B.ColAlignment() )
     {
-        basic::Adjoint( A.LockedLocalMatrix(), B.LocalMatrix() );
+        Adjoint( A.LockedLocalMatrix(), B.LocalMatrix() );
     }
     else
     {
@@ -2300,18 +2290,17 @@ elemental::basic::Adjoint
             throw std::logic_error
             ("If Adjoint'ing into a view, it must be the right size");
         }
-        basic::Adjoint( C.LockedLocalMatrix(), B.LocalMatrix() );
+        Adjoint( C.LockedLocalMatrix(), B.LocalMatrix() );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T, elemental::Distribution U, elemental::Distribution V,
-                     elemental::Distribution W, elemental::Distribution Z >
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
 inline void
-elemental::basic::Transpose
-( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
+Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
     PushCallStack("basic::Transpose");
@@ -2320,7 +2309,7 @@ elemental::basic::Transpose
         A.ColAlignment() == B.RowAlignment() && 
         A.RowAlignment() == B.ColAlignment() )
     {
-        basic::Transpose( A.LockedLocalMatrix(), B.LocalMatrix() );
+        Transpose( A.LockedLocalMatrix(), B.LocalMatrix() );
     }
     else
     {
@@ -2344,7 +2333,7 @@ elemental::basic::Transpose
             throw std::logic_error
             ("If Transposing into a view, it must be the right size");
         }
-        basic::Transpose( C.LockedLocalMatrix(), B.LocalMatrix() );
+        Transpose( C.LockedLocalMatrix(), B.LocalMatrix() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2358,7 +2347,7 @@ elemental::basic::Transpose
 // Our extended Ger and Gerc are equivalent
 template<typename T>
 inline void
-elemental::basic::Gerc
+Gerc
 ( T alpha, const DistMatrix<T,MC,MR>& x,
            const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A )
@@ -2366,11 +2355,14 @@ elemental::basic::Gerc
 #ifndef RELEASE
     PushCallStack("basic::Gerc");
 #endif
-    basic::Ger( alpha, x, y, A );
+    Ger( alpha, x, y, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace basic
+} // namespace elemental
 
 #endif /* ELEMENTAL_BASIC_HPP */
 

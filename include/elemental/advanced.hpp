@@ -1114,10 +1114,12 @@ void TriangularInverse
 #include "./advanced/Trace.hpp"
 #include "./advanced/TriangularInverse.hpp"
 
+namespace elemental {
+namespace advanced {
+
 template<typename F>
 inline void
-elemental::advanced::Cholesky
-( UpperOrLower uplo, Matrix<F>& A )
+Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Cholesky");
@@ -1133,8 +1135,7 @@ elemental::advanced::Cholesky
 
 template<typename F>
 inline void
-elemental::advanced::Hegst
-( Side side, UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& B )
+Hegst( Side side, UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("advanced::Hegst");
@@ -1157,8 +1158,7 @@ elemental::advanced::Hegst
 
 template<typename F>
 inline void
-elemental::advanced::LU
-( Matrix<F>& A, Matrix<int>& p )
+LU( Matrix<F>& A, Matrix<int>& p )
 {
 #ifndef RELEASE
     PushCallStack("advanced::LU");
@@ -1180,8 +1180,7 @@ elemental::advanced::LU
 
 template<typename R>
 inline R
-elemental::advanced::SymmetricNorm
-( UpperOrLower uplo, const Matrix<R>& A, NormType type )
+SymmetricNorm( UpperOrLower uplo, const Matrix<R>& A, NormType type )
 { 
 #ifndef RELEASE
     PushCallStack("advanced::SymmetricNorm");
@@ -1194,7 +1193,7 @@ elemental::advanced::SymmetricNorm
 
 template<typename R>
 inline R
-elemental::advanced::SymmetricNorm
+SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, NormType type )
 { 
 #ifndef RELEASE
@@ -1208,7 +1207,7 @@ elemental::advanced::SymmetricNorm
 
 template<typename R>
 inline R
-elemental::advanced::SymmetricNorm
+SymmetricNorm
 ( UpperOrLower uplo, const Matrix<std::complex<R> >& A, NormType type )
 { 
 #ifndef RELEASE
@@ -1222,7 +1221,7 @@ elemental::advanced::SymmetricNorm
 
 template<typename R>
 inline R
-elemental::advanced::SymmetricNorm
+SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
 { 
 #ifndef RELEASE
@@ -1236,7 +1235,7 @@ elemental::advanced::SymmetricNorm
 
 template<typename F>
 inline void
-elemental::advanced::TriangularInverse
+TriangularInverse
 ( UpperOrLower uplo, Diagonal diagonal, Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -1252,6 +1251,9 @@ elemental::advanced::TriangularInverse
     PopCallStack();
 #endif
 }
+
+} // namespace advanced
+} // namespace elemental
 
 #endif /* ELEMENTAL_ADVANCED_HPP */
 
