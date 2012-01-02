@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Linear solvers &mdash; Elemental v0.72 documentation</title>
+    <title>Linear solvers &mdash; Elemental 0.72 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental 0.72 documentation" href="../index.html" />
     <link rel="up" title="Advanced linear algebra" href="../advanced.html" />
     <link rel="next" title="In-place inversion" href="inversion.html" />
     <link rel="prev" title="Factorizations" href="factorizations.html" /> 
@@ -40,7 +43,7 @@
         <li class="right" >
           <a href="factorizations.html" title="Factorizations"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" accesskey="U">Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>  
@@ -59,7 +62,7 @@
 first finding the Cholesky factorization of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and then performing two
 successive triangular solves against <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>:</p>
 <div class="math">
-<p><img src="../_images/math/06eb928e2b49f225204f45b7afd827573f3a12d4.png" alt="B := A^{-1} B = (L L^H)^{-1} B = L^{-H} L^{-1} B" /></p>
+<p><img src="../_images/math/06eb928e2b49f225204f45b7afd827573f3a12d4.png" alt="B := A^{-1} B = (L L^H)^{-1} B = L^{-H} L^{-1} B"/></p>
 </div><dl class="function">
 <dt id="CholeskySolve__UpperOrLower.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R">
 void <tt class="descname">CholeskySolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#CholeskySolve__UpperOrLower.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
@@ -139,7 +142,7 @@ factorization, and <img class="math" src="../_images/math/ff5fb3d775862e2123b007
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -165,13 +168,13 @@ factorization, and <img class="math" src="../_images/math/ff5fb3d775862e2123b007
         <li class="right" >
           <a href="factorizations.html" title="Factorizations"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" >Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

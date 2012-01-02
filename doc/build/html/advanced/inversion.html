@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>In-place inversion &mdash; Elemental v0.72 documentation</title>
+    <title>In-place inversion &mdash; Elemental 0.72 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental 0.72 documentation" href="../index.html" />
     <link rel="up" title="Advanced linear algebra" href="../advanced.html" />
     <link rel="next" title="Reduction to condensed form" href="condensed.html" />
     <link rel="prev" title="Linear solvers" href="solvers.html" /> 
@@ -40,7 +43,7 @@
         <li class="right" >
           <a href="solvers.html" title="Linear solvers"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" accesskey="U">Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>  
@@ -59,7 +62,7 @@
 <div class="math">
 <p><img src="../_images/math/d7c6f528a51c2e02c1de138ef2262ff304d2eb2b.png" alt="\[
 A^{-1} = U^{-1} L^{-1} P,
-\]" /></p>
+\]"/></p>
 </div><p>where <img class="math" src="../_images/math/d38165f6cb26decf3c20b44fe86276382079540a.png" alt="PA=LU"/> is the result of LU factorization with partial pivoting.
 The algorithm essentially factors <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, inverts <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> in place,
 solves against <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> one block column at a time, and then applies the
@@ -87,7 +90,7 @@ f(\omega_i) = \left\{\begin{array}{cc}
   1/\omega_i, &amp; |\omega_i| \ge \epsilon \, n \, ||A||_2 \\
       0,      &amp; \mbox{otherwise}
 \end{array}\right.,
-\]" /></p>
+\]"/></p>
 </div><p>where <img class="math" src="../_images/math/eaf4418fbe935c15a606516d8f55dc380cd8e822.png" alt="\epsilon"/> is the relative machine precision,
 <img class="math" src="../_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/> is the height of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, and <img class="math" src="../_images/math/91bcc9c03ff7fa6ae822b009a2c3f69c5e355c5a.png" alt="||A||_2"/> can be computed
 as the maximum absolute value of the eigenvalues of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>.</p>
@@ -113,7 +116,7 @@ Hermitian positive-definite matrix <img class="math" src="../_images/math/019e98
 <div class="math">
 <p><img src="../_images/math/2fbf1af98250da6bc759d638325f09a369b35849.png" alt="\[
 A^{-1} = (L L^H)^{-1} = L^{-H} L^{-1},
-\]" /></p>
+\]"/></p>
 </div><p>where <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> is the lower Cholesky factor of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> (the upper Cholesky
 factor is computed in the case of upper-triangular storage). Rather than
 performing Cholesky factorization, triangular inversion, and then the Hermitian
@@ -189,7 +192,7 @@ void <tt class="descname">TriangularInverse</tt><big>(</big><a class="reference 
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -215,13 +218,13 @@ void <tt class="descname">TriangularInverse</tt><big>(</big><a class="reference 
         <li class="right" >
           <a href="solvers.html" title="Linear solvers"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" >Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

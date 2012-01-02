@@ -32,7 +32,6 @@
 */
 
 namespace elemental {
-namespace basic {
 namespace internal {
 
 template<typename T> // represents a real or complex ring
@@ -64,6 +63,5 @@ SetDiagonalToOne( DistMatrix<T,MC,MR>& D )
 }
 
 } // internal namespace
-} // basic namespace
 } // elemental namespace
 

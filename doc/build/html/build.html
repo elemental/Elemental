@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Build system &mdash; Elemental v0.72 documentation</title>
+    <title>Build system &mdash; Elemental 0.72 documentation</title>
+    
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Elemental v0.72 documentation" href="index.html" />
+    <link rel="top" title="Elemental 0.72 documentation" href="index.html" />
     <link rel="next" title="Imported library routines" href="imports.html" />
     <link rel="prev" title="Introduction" href="intro.html" /> 
   </head>
@@ -39,7 +42,7 @@
         <li class="right" >
           <a href="intro.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Elemental v0.72 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Elemental 0.72 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -308,6 +311,8 @@ out the bottom section of Elemental&#8217;s <tt class="docutils literal"><span c
 <span class="c">#set(WITHOUT_PMRRR ${WITHOUT_PMRRR} PARENT_SCOPE)</span>
 <span class="c">#set(DISABLE_SCALAR_WRAPPER ${DISABLE_SCALAR_WRAPPER} PARENT_SCOPE)</span>
 <span class="c">#set(AVOID_COMPLEX_MPI ${AVOID_COMPLEX_MPI} PARENT_SCOPE)</span>
+<span class="c">#set(HAVE_REDUCE_SCATTER_BLOCK ${HAVE_REDUCE_SCATTER_BLOCK} PARENT_SCOPE)</span>
+<span class="c">#set(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE ${REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE} PARENT_SCOPE)</span>
 <span class="c">#set(USE_BYTE_ALLGATHERS ${USE_BYTE_ALLGATHERS} PARENT_SCOPE)</span>
 </pre></div>
 </div>
@@ -331,6 +336,8 @@ set(LAPACK_POST ${LAPACK_POST} PARENT_SCOPE)
 set(WITHOUT_PMRRR ${WITHOUT_PMRRR} PARENT_SCOPE)
 set(DISABLE_SCALAR_WRAPPER ${DISABLE_SCALAR_WRAPPER} PARENT_SCOPE)
 set(AVOID_COMPLEX_MPI ${AVOID_COMPLEX_MPI} PARENT_SCOPE)
+set(HAVE_REDUCE_SCATTER_BLOCK ${HAVE_REDUCE_SCATTER_BLOCK} PARENT_SCOPE)
+set(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE ${REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE} PARENT_SCOPE)
 set(USE_BYTE_ALLGATHERS ${USE_BYTE_ALLGATHERS} PARENT_SCOPE)</pre>
 </div>
 <p>Afterwards, create a <tt class="docutils literal"><span class="pre">CMakeLists.txt</span></tt> in your main project folder that builds
@@ -399,7 +406,7 @@ your build directory. Please only direct general usage questions to
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -425,12 +432,12 @@ your build directory. Please only direct general usage questions to
         <li class="right" >
           <a href="intro.html" title="Introduction"
              >previous</a> |</li>
-        <li><a href="index.html">Elemental v0.72 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Elemental 0.72 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>
