@@ -31,16 +31,17 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // A permutation is even if and only if it is the product of an even number 
 // of transpositions, so we can decide this by simply checking how many 
 // nontrivial pivots were performed.
 
 inline bool
-elemental::advanced::PivotParity
-( const Matrix<int>& p, int pivotOffset )
+PivotParity( const Matrix<int>& p, int pivotOffset )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::PivotParity");
+    PushCallStack("PivotParity");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( pivotOffset < 0 )
@@ -58,11 +59,10 @@ elemental::advanced::PivotParity
 }
 
 inline bool
-elemental::advanced::PivotParity
-( const DistMatrix<int,VC,STAR>& p, int pivotOffset ) 
+PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset ) 
 {
 #ifndef RELEASE
-    PushCallStack("advanced::PivotParity");
+    PushCallStack("PivotParity");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( pivotOffset < 0 )
@@ -94,3 +94,4 @@ elemental::advanced::PivotParity
     return isOdd;
 }
 
+} // namespace elemental

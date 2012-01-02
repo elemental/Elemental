@@ -3,16 +3,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Tuning parameters &mdash; Elemental 0.72 documentation</title>
-    
+    <title>Tuning parameters &mdash; Elemental v0.72 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -25,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental 0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
     <link rel="up" title="Basic linear algebra" href="../basic.html" />
     <link rel="next" title="Advanced linear algebra" href="../advanced.html" />
     <link rel="prev" title="Level 3" href="level3.html" /> 
@@ -43,7 +40,7 @@
         <li class="right" >
           <a href="level3.html" title="Level 3"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../basic.html" accesskey="U">Basic linear algebra</a> &raquo;</li> 
       </ul>
     </div>  
@@ -62,17 +59,17 @@ of tuning parameters, those of <tt class="docutils literal"><span class="pre">Lo
 <div class="section" id="localhemvblocksize">
 <h2>LocalHemvBlocksize<a class="headerlink" href="#localhemvblocksize" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="basic::SetLocalHemvBlocksize:T:__i">
-void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalHemvBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalHemvBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the local blocksize for the distributed <tt class="docutils literal"><span class="pre">basic::Hemv</span></tt> routine for
+<dt id="SetLocalHemvBlocksize:T:__i">
+void <tt class="descname">SetLocalHemvBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#SetLocalHemvBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local blocksize for the distributed <tt class="docutils literal"><span class="pre">Hemv</span></tt> routine for
 datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is set to 64 by
 default and is important for the reduction of a complex Hermitian
 matrix to real symmetric tridiagonal form.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::LocalHemvBlocksize:T:">
-int <tt class="descclassname">basic::</tt><tt class="descname">LocalHemvBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalHemvBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dt id="LocalHemvBlocksize:T:">
+int <tt class="descname">LocalHemvBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#LocalHemvBlocksize:T:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the local <tt class="docutils literal"><span class="pre">Hemv</span></tt> blocksize for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
 </dd></dl>
 
@@ -80,16 +77,16 @@ int <tt class="descclassname">basic::</tt><tt class="descname">LocalHemvBlocksiz
 <div class="section" id="localsymvblocksize">
 <h2>LocalSymvBlocksize<a class="headerlink" href="#localsymvblocksize" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="basic::SetLocalSymvBlocksize:T:__i">
-void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalSymvBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalSymvBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the local blocksize for the distributed <tt class="docutils literal"><span class="pre">basic::Symv</span></tt> routine for
+<dt id="SetLocalSymvBlocksize:T:__i">
+void <tt class="descname">SetLocalSymvBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#SetLocalSymvBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local blocksize for the distributed <tt class="docutils literal"><span class="pre">Symv</span></tt> routine for
 datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is set to 64 by default and is important for the reduction
 of a real symmetric matrix to symmetric tridiagonal form.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::LocalSymvBlocksize:T:">
-int <tt class="descclassname">basic::</tt><tt class="descname">LocalSymvBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalSymvBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dt id="LocalSymvBlocksize:T:">
+int <tt class="descname">LocalSymvBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#LocalSymvBlocksize:T:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the local <tt class="docutils literal"><span class="pre">Symv</span></tt> blocksize for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
 </dd></dl>
 
@@ -97,39 +94,39 @@ int <tt class="descclassname">basic::</tt><tt class="descname">LocalSymvBlocksiz
 <div class="section" id="localtrrkblocksize">
 <h2>LocalTrrkBlocksize<a class="headerlink" href="#localtrrkblocksize" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="basic::SetLocalTrrkBlocksize:T:__i">
-void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalTrrkBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalTrrkBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dt id="SetLocalTrrkBlocksize:T:__i">
+void <tt class="descname">SetLocalTrrkBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#SetLocalTrrkBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the local blocksize for the distributed
-<tt class="docutils literal"><span class="pre">basic::internal::LocalTrrk</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
+<tt class="docutils literal"><span class="pre">internal::LocalTrrk</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
 set to 64 by default and is important for routines that perform distributed
-<tt class="docutils literal"><span class="pre">basic::Syrk</span></tt> or <tt class="docutils literal"><span class="pre">basic::Herk</span></tt> updates, e.g., Cholesky factorization.</p>
+<tt class="docutils literal"><span class="pre">Syrk</span></tt> or <tt class="docutils literal"><span class="pre">Herk</span></tt> updates, e.g., Cholesky factorization.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::LocalTrrkBlocksize:T:">
-int <tt class="descclassname">basic::</tt><tt class="descname">LocalTrrkBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalTrrkBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dt id="LocalTrrkBlocksize:T:">
+int <tt class="descname">LocalTrrkBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#LocalTrrkBlocksize:T:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the local blocksize for the distributed
-<tt class="docutils literal"><span class="pre">basic::internal::LocalTrrk</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+<tt class="docutils literal"><span class="pre">internal::LocalTrrk</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="localtrr2kblocksize">
 <h2>LocalTrr2kBlocksize<a class="headerlink" href="#localtrr2kblocksize" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="basic::SetLocalTrr2kBlocksize:T:__i">
-void <tt class="descclassname">basic::</tt><tt class="descname">SetLocalTrr2kBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#basic::SetLocalTrr2kBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
+<dt id="SetLocalTrr2kBlocksize:T:__i">
+void <tt class="descname">SetLocalTrr2kBlocksize&lt;T&gt;</tt><big>(</big>int <em>blocksize</em><big>)</big><a class="headerlink" href="#SetLocalTrr2kBlocksize:T:__i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the local blocksize for the distributed
-<tt class="docutils literal"><span class="pre">basic::internal::LocalTrr2k</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
+<tt class="docutils literal"><span class="pre">internal::LocalTrr2k</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>. It is
 set to 64 by default and is important for routines that perform distributed
-<tt class="docutils literal"><span class="pre">basic::Syr2k</span></tt> or <tt class="docutils literal"><span class="pre">basic::Her2k</span></tt> updates, e.g., Householder
+<tt class="docutils literal"><span class="pre">Syr2k</span></tt> or <tt class="docutils literal"><span class="pre">Her2k</span></tt> updates, e.g., Householder
 tridiagonalization.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::LocalTrr2kBlocksize:T:">
-int <tt class="descclassname">basic::</tt><tt class="descname">LocalTrr2kBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#basic::LocalTrr2kBlocksize:T:" title="Permalink to this definition">¶</a></dt>
+<dt id="LocalTrr2kBlocksize:T:">
+int <tt class="descname">LocalTrr2kBlocksize&lt;T&gt;</tt><big>(</big><big>)</big><a class="headerlink" href="#LocalTrr2kBlocksize:T:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the local blocksize for the distributed
-<tt class="docutils literal"><span class="pre">basic::internal::LocalTrr2k</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
+<tt class="docutils literal"><span class="pre">internal::LocalTrr2k</span></tt> routine for datatype <tt class="docutils literal"><span class="pre">T</span></tt>.</p>
 </dd></dl>
 
 </div>
@@ -169,7 +166,7 @@ int <tt class="descclassname">basic::</tt><tt class="descname">LocalTrr2kBlocksi
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -195,13 +192,13 @@ int <tt class="descclassname">basic::</tt><tt class="descname">LocalTrr2kBlocksi
         <li class="right" >
           <a href="level3.html" title="Level 3"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../basic.html" >Basic linear algebra</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

@@ -36,9 +36,11 @@
 #include "./Gemm/GemmTN.hpp"
 #include "./Gemm/GemmTT.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Gemm
+Gemm
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -46,24 +48,23 @@ elemental::basic::Gemm
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Gemm");
+    PushCallStack("Gemm");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
-        basic::internal::GemmNN( alpha, A, B, beta, C );
+        internal::GemmNN( alpha, A, B, beta, C );
     }
     else if( orientationOfA == NORMAL )
     {
-        basic::internal::GemmNT( orientationOfB, alpha, A, B, beta, C );
+        internal::GemmNT( orientationOfB, alpha, A, B, beta, C );
     }
     else if( orientationOfB == NORMAL )
     {
-        basic::internal::GemmTN
-        ( orientationOfA, alpha, A, B, beta, C );
+        internal::GemmTN( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::GemmTT
+        internal::GemmTT
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
@@ -73,7 +74,7 @@ elemental::basic::Gemm
 
 template<typename T>
 inline void
-elemental::basic::internal::GemmA
+internal::GemmA
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -81,23 +82,23 @@ elemental::basic::internal::GemmA
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmA");
+    PushCallStack("internal::GemmA");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
-        basic::internal::GemmNNA( alpha, A, B, beta, C );
+        internal::GemmNNA( alpha, A, B, beta, C );
     }
     else if( orientationOfA == NORMAL )
     {
-        basic::internal::GemmNTA( orientationOfB, alpha, A, B, beta, C );
+        internal::GemmNTA( orientationOfB, alpha, A, B, beta, C );
     }
     else if( orientationOfB == NORMAL )
     {
-        basic::internal::GemmTNA( orientationOfA, alpha, A, B, beta, C );
+        internal::GemmTNA( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::GemmTTA
+        internal::GemmTTA
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
@@ -107,7 +108,7 @@ elemental::basic::internal::GemmA
 
 template<typename T>
 inline void
-elemental::basic::internal::GemmB
+internal::GemmB
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -115,23 +116,23 @@ elemental::basic::internal::GemmB
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmB");
+    PushCallStack("internal::GemmB");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
-        basic::internal::GemmNNB( alpha, A, B, beta, C );
+        internal::GemmNNB( alpha, A, B, beta, C );
     }
     else if( orientationOfA == NORMAL )
     {
-        basic::internal::GemmNTB( orientationOfB, alpha, A, B, beta, C );
+        internal::GemmNTB( orientationOfB, alpha, A, B, beta, C );
     }
     else if( orientationOfB == NORMAL )
     {
-        basic::internal::GemmTNB( orientationOfA, alpha, A, B, beta, C );
+        internal::GemmTNB( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::GemmTTB
+        internal::GemmTTB
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
@@ -141,7 +142,7 @@ elemental::basic::internal::GemmB
 
 template<typename T>
 inline void
-elemental::basic::internal::GemmC
+internal::GemmC
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -149,23 +150,23 @@ elemental::basic::internal::GemmC
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmC");
+    PushCallStack("internal::GemmC");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
-        basic::internal::GemmNNC( alpha, A, B, beta, C );
+        internal::GemmNNC( alpha, A, B, beta, C );
     }
     else if( orientationOfA == NORMAL )
     {
-        basic::internal::GemmNTC( orientationOfB, alpha, A, B, beta, C );
+        internal::GemmNTC( orientationOfB, alpha, A, B, beta, C );
     }
     else if( orientationOfB == NORMAL )
     {
-        basic::internal::GemmTNC( orientationOfA, alpha, A, B, beta, C );
+        internal::GemmTNC( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::GemmTTC
+        internal::GemmTTC
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
@@ -175,7 +176,7 @@ elemental::basic::internal::GemmC
 
 template<typename T>
 inline void
-elemental::basic::internal::GemmDot
+internal::GemmDot
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -183,25 +184,25 @@ elemental::basic::internal::GemmDot
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmDot");
+    PushCallStack("internal::GemmDot");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
-        basic::internal::GemmNNDot( alpha, A, B, beta, C );
+        internal::GemmNNDot( alpha, A, B, beta, C );
     else
         throw std::logic_error("GemmDot only implemented for NN case");
     // This code will be enabled when the routines are implemented
     /*
     else if( orientationOfA == NORMAL )
     {
-        basic::internal::GemmNTDot( orientationOfB, alpha, A, B, beta, C );
+        internal::GemmNTDot( orientationOfB, alpha, A, B, beta, C );
     }
     else if( orientationOfB == NORMAL )
     {
-        basic::internal::GemmTNDot( orientationOfA, alpha, A, B, beta, C );
+        internal::GemmTNDot( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::GemmTTDot( orientationOfA, orientationOfB,
+        internal::GemmTTDot( orientationOfA, orientationOfB,
                                    alpha, A, B, beta, C );
     }
     */
@@ -209,3 +210,5 @@ elemental::basic::internal::GemmDot
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

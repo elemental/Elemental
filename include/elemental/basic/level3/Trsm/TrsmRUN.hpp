@@ -31,12 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Right Upper Normal (Non)Unit Trsm
 //   X := X triu(U)^-1, and
 //   X := X triuu(U)^-1
 template<typename F>
 inline void
-elemental::basic::internal::TrsmRUN
+internal::TrsmRUN
 ( Diagonal diagonal,
   F alpha, 
   const DistMatrix<F,MC,MR>& U,
@@ -44,7 +46,7 @@ elemental::basic::internal::TrsmRUN
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmRUN");
+    PushCallStack("internal::TrsmRUN");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -75,7 +77,7 @@ elemental::basic::internal::TrsmRUN
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);    
     
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -99,7 +101,7 @@ elemental::basic::internal::TrsmRUN
         X1_VC_STAR    = X1;  // X1[VC,*] <- X1[MC,MR]
 
         // X1[VC,*] := X1[VC,*] (U11[*,*])^-1
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, UPPER, NORMAL, diagonal, (F)1, U11_STAR_STAR, X1_VC_STAR,
           checkIfSingular );
 
@@ -108,7 +110,7 @@ elemental::basic::internal::TrsmRUN
         U12_STAR_MR = U12;        // U12[*,MR] <- U12[MC,MR]
 
         // X2[MC,MR] -= X1[MC,*] U12[*,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)-1, X1_MC_STAR, U12_STAR_MR, (F)1, X2 );
         //--------------------------------------------------------------------//
         X1_MC_STAR.FreeAlignments();
@@ -128,3 +130,5 @@ elemental::basic::internal::TrsmRUN
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

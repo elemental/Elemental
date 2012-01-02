@@ -36,16 +36,18 @@
 #include "./Herk/HerkUC.hpp"
 #include "./Herk/HerkUN.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Herk
+Herk
 ( UpperOrLower uplo, 
   Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Herk");
+    PushCallStack("Herk");
     if( A.Grid() != C.Grid() )
         throw std::logic_error
         ("A and C must be distributed over the same grid");
@@ -54,14 +56,16 @@ elemental::basic::Herk
         ("Herk accepts NORMAL and ADJOINT options");
 #endif
     if( uplo == LOWER && orientation == NORMAL )
-        basic::internal::HerkLN( alpha, A, beta, C );
+        internal::HerkLN( alpha, A, beta, C );
     else if( uplo == LOWER )
-        basic::internal::HerkLC( alpha, A, beta, C );
+        internal::HerkLC( alpha, A, beta, C );
     else if( orientation == NORMAL )
-        basic::internal::HerkUN( alpha, A, beta, C );
+        internal::HerkUN( alpha, A, beta, C );
     else
-        basic::internal::HerkUC( alpha, A, beta, C );
+        internal::HerkUC( alpha, A, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

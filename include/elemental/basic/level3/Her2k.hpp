@@ -36,9 +36,11 @@
 #include "./Her2k/Her2kUC.hpp"
 #include "./Her2k/Her2kUN.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Her2k
+Her2k
 ( UpperOrLower uplo, 
   Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -46,19 +48,21 @@ elemental::basic::Her2k
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Her2k");
+    PushCallStack("Her2k");
     if( orientation == TRANSPOSE )
         throw std::logic_error("Her2k accepts NORMAL and ADJOINT options");
 #endif
     if( uplo == LOWER && orientation == NORMAL )
-        basic::internal::Her2kLN( alpha, A, B, beta, C );
+        internal::Her2kLN( alpha, A, B, beta, C );
     else if( uplo == LOWER )
-        basic::internal::Her2kLC( alpha, A, B, beta, C );
+        internal::Her2kLC( alpha, A, B, beta, C );
     else if( orientation == NORMAL )
-        basic::internal::Her2kUN( alpha, A, B, beta, C );
+        internal::Her2kUN( alpha, A, B, beta, C );
     else
-        basic::internal::Her2kUC( alpha, A, B, beta, C );
+        internal::Her2kUC( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -68,17 +68,17 @@ void TestCorrectness
     {
         // Test correctness by comparing the application of AOrig against a 
         // random set of 100 vectors to the application of tril(A) tril(A)^H
-        basic::Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, Y );
-        basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, Y );
-        basic::Hemm( LEFT, LOWER, (F)-1, AOrig, X, (F)1, Y );
-        F oneNormOfError = advanced::Norm( Y, ONE_NORM );
-        F infNormOfError = advanced::Norm( Y, INFINITY_NORM );
-        F frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        F infNormOfA = advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        F frobNormOfA = advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        F oneNormOfX = advanced::Norm( X, ONE_NORM );
-        F infNormOfX = advanced::Norm( X, INFINITY_NORM );
-        F frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
+        Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, Y );
+        Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, Y );
+        Hemm( LEFT, LOWER, (F)-1, AOrig, X, (F)1, Y );
+        F oneNormOfError = Norm( Y, ONE_NORM );
+        F infNormOfError = Norm( Y, INFINITY_NORM );
+        F frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        F infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+        F frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+        F oneNormOfX = Norm( X, ONE_NORM );
+        F infNormOfX = Norm( X, INFINITY_NORM );
+        F frobNormOfX = Norm( X, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << Abs(infNormOfA) << "\n"
@@ -95,17 +95,17 @@ void TestCorrectness
     {
         // Test correctness by comparing the application of AOrig against a 
         // random set of 100 vectors to the application of triu(A)^H triu(A)
-        basic::Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, Y );
-        basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, Y );
-        basic::Hemm( LEFT, UPPER, (F)-1, AOrig, X, (F)1, Y );
-        F oneNormOfError = advanced::Norm( Y, ONE_NORM );
-        F infNormOfError = advanced::Norm( Y, INFINITY_NORM );
-        F frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-        F infNormOfA = advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        F frobNormOfA = advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        F oneNormOfX = advanced::Norm( X, ONE_NORM );
-        F infNormOfX = advanced::Norm( X, INFINITY_NORM );
-        F frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
+        Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, Y );
+        Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, Y );
+        Hemm( LEFT, UPPER, (F)-1, AOrig, X, (F)1, Y );
+        F oneNormOfError = Norm( Y, ONE_NORM );
+        F infNormOfError = Norm( Y, INFINITY_NORM );
+        F frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        F infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+        F frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+        F oneNormOfX = Norm( X, ONE_NORM );
+        F infNormOfX = Norm( X, INFINITY_NORM );
+        F frobNormOfX = Norm( X, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << Abs(infNormOfA) << "\n"
@@ -153,11 +153,11 @@ void TestCholesky
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::Cholesky( uplo, A );
+    Cholesky( uplo, A );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::CholeskyGFlops<F>( m, runTime );
+    gFlops = internal::CholeskyGFlops<F>( m, runTime );
     if( g.Rank() == 0 )
     {
         cout << "DONE.\n"
@@ -206,8 +206,8 @@ main( int argc, char* argv[] )
 #endif
         const Grid g( comm, r, c );
         SetBlocksize( nb );
-        basic::SetLocalTrrkBlocksize<double>( nbLocal );
-        basic::SetLocalTrrkBlocksize<complex<double> >( nbLocal );
+        SetLocalTrrkBlocksize<double>( nbLocal );
+        SetLocalTrrkBlocksize<complex<double> >( nbLocal );
 
         if( rank == 0 )
             cout << "Will test Cholesky" << UpperOrLowerToChar(uplo) << endl;

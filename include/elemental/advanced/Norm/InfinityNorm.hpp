@@ -31,12 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R> 
 inline R
-elemental::advanced::internal::InfinityNorm( const Matrix<R>& A )
+internal::InfinityNorm( const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::InfinityNorm");
+    PushCallStack("internal::InfinityNorm");
 #endif
     R maxRowSum = 0;
     for( int i=0; i<A.Height(); ++i )
@@ -52,12 +54,12 @@ elemental::advanced::internal::InfinityNorm( const Matrix<R>& A )
     return maxRowSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::internal::InfinityNorm( const Matrix<std::complex<R> >& A )
+internal::InfinityNorm( const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::InfinityNorm");
+    PushCallStack("internal::InfinityNorm");
 #endif
     R maxRowSum = 0;
     for( int i=0; i<A.Height(); ++i )
@@ -73,12 +75,12 @@ elemental::advanced::internal::InfinityNorm( const Matrix<std::complex<R> >& A )
     return maxRowSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::internal::InfinityNorm( const DistMatrix<R,MC,MR>& A )
+internal::InfinityNorm( const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::InfinityNorm");
+    PushCallStack("internal::InfinityNorm");
 #endif
     // Compute the partial row sums defined by our local matrix, A[MC,MR]
     std::vector<R> myPartialRowSums(A.LocalHeight());
@@ -110,13 +112,13 @@ elemental::advanced::internal::InfinityNorm( const DistMatrix<R,MC,MR>& A )
     return maxRowSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::internal::InfinityNorm
+internal::InfinityNorm
 ( const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::InfinityNorm");
+    PushCallStack("internal::InfinityNorm");
 #endif
     // Compute the partial row sums defined by our local matrix, A[MC,MR]
     std::vector<R> myPartialRowSums(A.LocalHeight());
@@ -148,3 +150,4 @@ elemental::advanced::internal::InfinityNorm
     return maxRowSum;
 }
 
+} // namespace elemental

@@ -31,12 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R> 
 inline R
-elemental::advanced::internal::FrobeniusNorm( const Matrix<R>& A )
+internal::FrobeniusNorm( const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::FrobeniusNorm");
+    PushCallStack("internal::FrobeniusNorm");
 #endif
     R normSquared = 0;
     for( int j=0; j<A.Width(); ++j )
@@ -54,12 +56,12 @@ elemental::advanced::internal::FrobeniusNorm( const Matrix<R>& A )
     return norm;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::FrobeniusNorm( const Matrix<std::complex<R> >& A )
+internal::FrobeniusNorm( const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::FrobeniusNorm");
+    PushCallStack("internal::FrobeniusNorm");
 #endif
     R normSquared = 0;
     for( int j=0; j<A.Width(); ++j )
@@ -78,12 +80,12 @@ elemental::advanced::internal::FrobeniusNorm( const Matrix<std::complex<R> >& A 
     return norm;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::internal::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
+internal::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::FrobeniusNorm");
+    PushCallStack("internal::FrobeniusNorm");
 #endif
     R localNormSquared = 0;
     for( int j=0; j<A.LocalWidth(); ++j )
@@ -107,13 +109,13 @@ elemental::advanced::internal::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
     return norm;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::internal::FrobeniusNorm
+internal::FrobeniusNorm
 ( const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::FrobeniusNorm");
+    PushCallStack("internal::FrobeniusNorm");
 #endif
     R localNormSquared = 0;
     for( int j=0; j<A.LocalWidth(); ++j )
@@ -137,3 +139,5 @@ elemental::advanced::internal::FrobeniusNorm
 #endif
     return norm;
 }
+
+} // namespace elemental

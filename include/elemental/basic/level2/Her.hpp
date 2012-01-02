@@ -31,15 +31,17 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Her
+Her
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& x,
                  DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Her");
+    PushCallStack("Her");
     if( A.Grid() != x.Grid() )
         throw std::logic_error("{A,x} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -86,8 +88,8 @@ elemental::basic::Her
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      elemental::Conj(x_MC_STAR.GetLocalEntry(iLoc,0))*
-                                      x_MR_STAR.GetLocalEntry(jLoc,0) );
+                      Conj(x_MC_STAR.GetLocalEntry(iLoc,0))*
+                           x_MR_STAR.GetLocalEntry(jLoc,0) );
                 }
             }
         }
@@ -103,8 +105,8 @@ elemental::basic::Her
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      elemental::Conj(x_MC_STAR.GetLocalEntry(iLoc,0))*
-                                      x_MR_STAR.GetLocalEntry(jLoc,0) ); 
+                      Conj(x_MC_STAR.GetLocalEntry(iLoc,0))*
+                           x_MR_STAR.GetLocalEntry(jLoc,0) ); 
                 }
             }
         }
@@ -135,8 +137,8 @@ elemental::basic::Her
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      elemental::Conj(x_STAR_MC.GetLocalEntry(0,iLoc))*
-                                      x_STAR_MR.GetLocalEntry(0,jLoc) );
+                      Conj(x_STAR_MC.GetLocalEntry(0,iLoc))*
+                           x_STAR_MR.GetLocalEntry(0,jLoc) );
                 }
             }
         }
@@ -152,8 +154,8 @@ elemental::basic::Her
                     A.SetLocalEntry
                     ( iLoc, jLoc,
                       value + alpha*
-                      elemental::Conj(x_STAR_MC.GetLocalEntry(0,iLoc))*
-                                      x_STAR_MR.GetLocalEntry(0,jLoc) );
+                      Conj(x_STAR_MC.GetLocalEntry(0,iLoc))*
+                           x_STAR_MR.GetLocalEntry(0,jLoc) );
                 }
             }
         }
@@ -166,3 +168,4 @@ elemental::basic::Her
 #endif
 }
 
+} // namespace elemental

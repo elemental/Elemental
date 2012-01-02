@@ -32,7 +32,6 @@
 */
 
 namespace elemental {
-namespace basic {
 namespace internal {
 
 template<typename T>
@@ -44,7 +43,7 @@ GemvT
   T beta,        DistMatrix<T,MC,MR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemvT");
+    PushCallStack("internal::GemvT");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw std::logic_error
         ("{A,x,y} must be distributed over the same grid");
@@ -194,5 +193,4 @@ GemvT
 }
 
 } // namespace internal
-} // namespace basic
 } // namespace elemental

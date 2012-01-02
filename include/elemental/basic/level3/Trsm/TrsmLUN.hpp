@@ -31,20 +31,22 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Left Upper Normal (Non)Unit Trsm
 //   X := triu(U)^-1  X, or
 //   X := triuu(U)^-1 X
 
 template<typename F>
 inline void
-elemental::basic::internal::TrsmLUNLarge
+internal::TrsmLUNLarge
 ( Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& U,
                  DistMatrix<F,MC,MR>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmLUNLarge");
+    PushCallStack("internal::TrsmLUNLarge");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -76,7 +78,7 @@ elemental::basic::internal::TrsmLUNLarge
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -104,7 +106,7 @@ elemental::basic::internal::TrsmLUNLarge
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
         
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, NORMAL, diagonal, (F)1, U11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
@@ -113,7 +115,7 @@ elemental::basic::internal::TrsmLUNLarge
         U01_MC_STAR = U01;        // U01[MC,* ] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)-1, U01_MC_STAR, X1_STAR_MR, (F)1, X0 );
         //--------------------------------------------------------------------//
         U01_MC_STAR.FreeAlignments();
@@ -138,14 +140,14 @@ elemental::basic::internal::TrsmLUNLarge
 
 template<typename F>
 inline void
-elemental::basic::internal::TrsmLUNMedium
+internal::TrsmLUNMedium
 ( Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& U,
                  DistMatrix<F,MC,MR>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmLUNMedium");
+    PushCallStack("internal::TrsmLUNMedium");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -176,7 +178,7 @@ elemental::basic::internal::TrsmLUNMedium
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -206,7 +208,7 @@ elemental::basic::internal::TrsmLUNMedium
         // X1[* ,MR] := U11^-1[* ,* ] X1[* ,MR]
         //
         // X1^T[MR,* ] := X1^T[MR,* ] U11^-T[* ,* ]
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, UPPER, TRANSPOSE, diagonal, 
           (F)1, U11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
         X1.TransposeFrom( X1Trans_MR_STAR );
@@ -214,7 +216,7 @@ elemental::basic::internal::TrsmLUNMedium
         U01_MC_STAR = U01;  // U01[MC,* ] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, TRANSPOSE, (F)-1, U01_MC_STAR, X1Trans_MR_STAR, (F)1, X0 );
         //--------------------------------------------------------------------//
         U01_MC_STAR.FreeAlignments();
@@ -239,14 +241,14 @@ elemental::basic::internal::TrsmLUNMedium
 
 template<typename F>
 inline void
-elemental::basic::internal::TrsmLUNSmall
+internal::TrsmLUNSmall
 ( Diagonal diagonal,
   F alpha, const DistMatrix<F,VC,STAR>& U,
                  DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmLUNSmall");
+    PushCallStack("internal::TrsmLUNSmall");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -278,7 +280,7 @@ elemental::basic::internal::TrsmLUNSmall
     DistMatrix<F,STAR,STAR> X1_STAR_STAR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -304,13 +306,13 @@ elemental::basic::internal::TrsmLUNSmall
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
         
         // X1[* ,* ] := U11^-1[* ,* ] X1[* ,* ]
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, NORMAL, diagonal,
           (F)1, U11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
         X1 = X1_STAR_STAR;
 
         // X0[VC,* ] -= U01[VC,* ] X1[* ,* ]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)-1, U01, X1_STAR_STAR, (F)1, X0 );
         //--------------------------------------------------------------------//
 
@@ -330,3 +332,5 @@ elemental::basic::internal::TrsmLUNSmall
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

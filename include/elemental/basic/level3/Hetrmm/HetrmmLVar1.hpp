@@ -31,12 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::HetrmmLVar1( DistMatrix<T,MC,MR>& L )
+internal::HetrmmLVar1( DistMatrix<T,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::HetrmmLVar1");
+    PushCallStack("internal::HetrmmLVar1");
     if( L.Height() != L.Width() )
         throw std::logic_error("L must be square");
 #endif
@@ -75,15 +77,15 @@ elemental::basic::internal::HetrmmLVar1( DistMatrix<T,MC,MR>& L )
         L10_STAR_VC = L10_STAR_VR;
         L10_STAR_MC = L10_STAR_VC;
         L10_STAR_MR = L10_STAR_VR;
-        basic::internal::LocalTrrk
+        internal::LocalTrrk
         ( LOWER, ADJOINT, (T)1, L10_STAR_MC, L10_STAR_MR, (T)1, L22 );
 
         L11_STAR_STAR = L11;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( LEFT, LOWER, ADJOINT, NON_UNIT, (T)1, L11_STAR_STAR, L10_STAR_VR );
         L10 = L10_STAR_VR;
 
-        basic::internal::LocalHetrmm( LOWER, L11_STAR_STAR );
+        internal::LocalHetrmm( LOWER, L11_STAR_STAR );
         L11 = L11_STAR_STAR;
         //--------------------------------------------------------------------//
         L10_STAR_MR.FreeAlignments();
@@ -101,3 +103,5 @@ elemental::basic::internal::HetrmmLVar1( DistMatrix<T,MC,MR>& L )
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

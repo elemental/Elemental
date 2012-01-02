@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // F represents a real or complex field
+namespace elemental {
+
+template<typename F> 
 inline void
-elemental::advanced::internal::HegstRUVar3
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
+internal::HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HegstRUVar4");
+    PushCallStack("internal::HegstRUVar4");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( U.Height() != U.Width() )
@@ -122,13 +123,13 @@ elemental::advanced::internal::HegstRUVar3
         Z12_STAR_MR.AlignWith( U02 );
         //--------------------------------------------------------------------//
         // A01 := A01 - 1/2 Y01
-        basic::Axpy( (F)-0.5, Y01, A01 );
+        Axpy( (F)-0.5, Y01, A01 );
 
         // A11 := A11 - (A01' U01 + U01' A01)
         A01_VC_STAR = A01;
         U01_VC_STAR = U01;
         X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
-        basic::Her2k
+        Her2k
         ( UPPER, ADJOINT, 
           (F)1, A01_VC_STAR.LocalMatrix(), U01_VC_STAR.LocalMatrix(),
           (F)0, X11_STAR_STAR.LocalMatrix() );
@@ -138,38 +139,35 @@ elemental::advanced::internal::HegstRUVar3
         // A11 := inv(U11)' A11 inv(U11)
         A11_STAR_STAR = A11;
         U11_STAR_STAR = U11;
-        advanced::internal::LocalHegst
-        ( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        internal::LocalHegst( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A12 := A12 - U01' A02
         U01_MC_STAR = U01;
         X12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
-        basic::internal::LocalGemm
-        ( ADJOINT, NORMAL, 
-          (F)1, U01_MC_STAR, A02, (F)0, X12_STAR_MR );
+        internal::LocalGemm
+        ( ADJOINT, NORMAL, (F)1, U01_MC_STAR, A02, (F)0, X12_STAR_MR );
         A12.SumScatterUpdate( (F)-1, X12_STAR_MR );
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
 
         // A01 := A01 - 1/2 Y01
-        basic::Axpy( (F)-0.5, Y01, A01 );
+        Axpy( (F)-0.5, Y01, A01 );
 
         // A01 := A01 inv(U11)
         A01_VC_STAR = A01;
-        basic::internal::LocalTrsm
-        ( RIGHT, UPPER, NORMAL, NON_UNIT,
-          (F)1, U11_STAR_STAR, A01_VC_STAR );
+        internal::LocalTrsm
+        ( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U11_STAR_STAR, A01_VC_STAR );
         A01 = A01_VC_STAR;
 
         // Y02 := Y02 + A01 U12
         A01_MC_STAR = A01;
         U12Adj_MR_STAR.AdjointFrom( U12 );
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, ADJOINT, (F)1, A01_MC_STAR, U12Adj_MR_STAR, (F)1, Y02 );
 
         // Y12 := Y12 + A11 U12
@@ -186,12 +184,12 @@ elemental::advanced::internal::HegstRUVar3
                     A11Buffer[j+i*ldim] = Conj(A11Buffer[i+j*ldim]);
         }
         A11_MC_STAR = A11_STAR_STAR;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, ADJOINT, (F)1, A11_MC_STAR, U12Adj_MR_STAR, (F)0, Y12 );
 
         // Y12 := Y12 + A01' U02
         Z12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( ADJOINT, NORMAL, (F)1, A01_MC_STAR, U02, (F)0, Z12_STAR_MR );
         Y12.SumScatterUpdate( (F)1, Z12_STAR_MR );
         //--------------------------------------------------------------------//
@@ -227,3 +225,5 @@ elemental::advanced::internal::HegstRUVar3
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

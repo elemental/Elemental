@@ -37,44 +37,40 @@
   
    The compromise is to have the user-level routine, 
   
-     template<typename T, Distribution U, Distribution V,
-                          Distribution W, Distribution Z >
-     T
-     basic::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y );
+     template<typename T,Distribution U,Distribution V,
+                         Distribution W,Distribution Z>
+     T Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y );
 
    simply route to overloaded pseudo-partial-specializations within the 
-   basic::internal namespace. For example,
+   internal namespace. For example,
 
-     template<typename T, Distribution U, Distribution V>
-     T
-     basic::internal::Dotu
+     template<typename T,Distribution U,Distribution V>
+     T internal::Dotu
      ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 */
 namespace elemental {
 
-template<typename T, Distribution U, Distribution V,
-                     Distribution W, Distribution Z >
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
 inline T
-basic::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
+Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Dotu");
+    PushCallStack("Dotu");
 #endif
-    T dotProduct = basic::internal::Dotu( x, y );
+    T dotProduct = internal::Dotu( x, y );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return dotProduct;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -98,10 +94,8 @@ basic::internal::Dotu
         if( g.MRRank() == ownerCol )
         { 
             T localDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce
-            ( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
     }
@@ -115,10 +109,8 @@ basic::internal::Dotu
         if( g.MCRank() == ownerRow )
         {
             T localDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce
-            ( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
     }
@@ -132,10 +124,8 @@ basic::internal::Dotu
         if( g.MRRank() == ownerCol )
         {
             T localDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce
-            ( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
     }
@@ -149,10 +139,8 @@ basic::internal::Dotu
         if( g.MCRank() == ownerRow )
         {
             T localDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce
-            ( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
     }
@@ -162,13 +150,12 @@ basic::internal::Dotu
     return globalDotu;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -189,8 +176,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
     }
     else if( x.Width() == 1 )
@@ -203,8 +189,7 @@ basic::internal::Dotu
         if( g.MCRank() == ownerRow )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
     }
@@ -215,8 +200,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
     }
     else
@@ -229,8 +213,7 @@ basic::internal::Dotu
         if( g.MCRank() == ownerRow )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
     }
@@ -240,13 +223,12 @@ basic::internal::Dotu
     return globalDotu;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -270,8 +252,7 @@ basic::internal::Dotu
         if( g.MRRank() == ownerCol )
         { 
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
     }
@@ -282,8 +263,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
     }
     else if( y.Width() == 1 )
@@ -296,8 +276,7 @@ basic::internal::Dotu
         if( g.MRRank() == ownerCol )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
     }
@@ -308,8 +287,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
     }
 #ifndef RELEASE
@@ -318,13 +296,12 @@ basic::internal::Dotu
     return globalDotu;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -348,10 +325,8 @@ basic::internal::Dotu
         if( g.MCRank() == ownerRow )
         { 
             T localDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce
-            ( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
     }
@@ -365,10 +340,8 @@ basic::internal::Dotu
         if( g.MRRank() == ownerCol )
         {
             T localDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce
-            ( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
     }
@@ -382,10 +355,8 @@ basic::internal::Dotu
         if( g.MCRank() == ownerRow )
         {
             T localDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce
-            ( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
     }
@@ -399,10 +370,8 @@ basic::internal::Dotu
         if( g.MRRank() == ownerCol )
         {
             T localDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce
-            ( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
     }
@@ -412,13 +381,12 @@ basic::internal::Dotu
     return globalDotu;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -439,8 +407,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
     }
     else if( x.Width() == 1 )
@@ -453,8 +420,7 @@ basic::internal::Dotu
         if( g.MRRank() == ownerCol )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
     }
@@ -465,8 +431,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
     }
     else
@@ -479,8 +444,7 @@ basic::internal::Dotu
         if( g.MRRank() == ownerCol )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
     }
@@ -490,13 +454,12 @@ basic::internal::Dotu
     return globalDotu;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -520,8 +483,7 @@ basic::internal::Dotu
         if( g.MCRank() == ownerRow )
         { 
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
     }
@@ -532,8 +494,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
     }
     else if( y.Width() == 1 )
@@ -546,8 +507,7 @@ basic::internal::Dotu
         if( g.MCRank() == ownerRow )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
     }
@@ -558,8 +518,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
     }
 #ifndef RELEASE
@@ -568,13 +527,12 @@ basic::internal::Dotu
     return globalDotu;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -595,8 +553,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.VCComm() );
     }
     else if( x.Width() == 1 )
@@ -609,8 +566,7 @@ basic::internal::Dotu
         if( g.VCRank() == owner )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, owner, g.VCComm() );
     }
@@ -621,8 +577,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.VCComm() );
     }
     else
@@ -635,8 +590,7 @@ basic::internal::Dotu
         if( g.VCRank() == owner )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, owner, g.VCComm() );
     }
@@ -646,13 +600,12 @@ basic::internal::Dotu
     return globalDotu;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -676,8 +629,7 @@ basic::internal::Dotu
         if( g.VCRank() == owner )
         { 
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, owner, g.VCComm() );
     }
@@ -688,8 +640,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.VCComm() );
     }
     else if( y.Width() == 1 )
@@ -702,8 +653,7 @@ basic::internal::Dotu
         if( g.VCRank() == owner )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, owner, g.VCComm() );
     }
@@ -714,8 +664,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.VCComm() );
     }
 #ifndef RELEASE
@@ -724,13 +673,12 @@ basic::internal::Dotu
     return globalDotu;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -751,8 +699,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.VRComm() );
     }
     else if( x.Width() == 1 )
@@ -765,8 +712,7 @@ basic::internal::Dotu
         if( g.VRRank() == owner )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, owner, g.VRComm() );
     }
@@ -777,8 +723,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.VRComm() );
     }
     else
@@ -791,8 +736,7 @@ basic::internal::Dotu
         if( g.VRRank() == owner )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, owner, g.VRComm() );
     }
@@ -802,13 +746,12 @@ basic::internal::Dotu
     return globalDotu;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -832,8 +775,7 @@ basic::internal::Dotu
         if( g.VRRank() == owner )
         { 
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, owner, g.VRComm() );
     }
@@ -844,8 +786,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.VRComm() );
     }
     else if( y.Width() == 1 )
@@ -858,8 +799,7 @@ basic::internal::Dotu
         if( g.VRRank() == owner )
         {
             globalDotu = 
-                basic::Dotu
-                ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+                Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
         mpi::Broadcast( &globalDotu, 1, owner, g.VRComm() );
     }
@@ -870,8 +810,7 @@ basic::internal::Dotu
         xRedist = x;
 
         T localDotu = 
-            basic::Dotu
-            ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+            Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.VRComm() );
     }
 #ifndef RELEASE
@@ -880,13 +819,12 @@ basic::internal::Dotu
     return globalDotu;
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline T
-basic::internal::Dotu
-( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y )
+internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Dotu");
+    PushCallStack("internal::Dotu");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -903,8 +841,7 @@ basic::internal::Dotu
     xRedist = x;
 
     T globalDotu = 
-        basic::Dotu
-        ( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
+        Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

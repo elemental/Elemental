@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R> 
 inline R
-elemental::advanced::internal::HermitianOneNorm
-( UpperOrLower uplo, const Matrix<R>& A )
+internal::HermitianOneNorm( UpperOrLower uplo, const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianOneNorm");
+    PushCallStack("internal::HermitianOneNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::runtime_error("Hermitian matrices must be square.");
@@ -72,13 +73,13 @@ elemental::advanced::internal::HermitianOneNorm
     return maxColSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::internal::HermitianOneNorm
+internal::HermitianOneNorm
 ( UpperOrLower uplo, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianOneNorm");
+    PushCallStack("internal::HermitianOneNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::runtime_error("Hermitian matrices must be square.");
@@ -114,13 +115,12 @@ elemental::advanced::internal::HermitianOneNorm
     return maxColSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::internal::HermitianOneNorm
-( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
+internal::HermitianOneNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianOneNorm");
+    PushCallStack("internal::HermitianOneNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::runtime_error("Hermitian matrices must be square.");
@@ -234,13 +234,13 @@ elemental::advanced::internal::HermitianOneNorm
     return maxColSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 R
-elemental::advanced::internal::HermitianOneNorm
+internal::HermitianOneNorm
 ( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianOneNorm");
+    PushCallStack("internal::HermitianOneNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::runtime_error("Hermitian matrices must be square.");
@@ -352,3 +352,5 @@ elemental::advanced::internal::HermitianOneNorm
 #endif
     return maxColSum;
 }
+
+} // namespace elemental

@@ -31,12 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // represents a real number
+namespace elemental {
+
+template<typename R>
 inline R
-elemental::advanced::internal::OneNorm( const Matrix<R>& A )
+internal::OneNorm( const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::OneNorm");
+    PushCallStack("internal::OneNorm");
 #endif
     R maxColSum = 0;
     for( int j=0; j<A.Width(); ++j )
@@ -52,12 +54,12 @@ elemental::advanced::internal::OneNorm( const Matrix<R>& A )
     return maxColSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::OneNorm( const Matrix<std::complex<R> >& A )
+internal::OneNorm( const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::OneNorm");
+    PushCallStack("internal::OneNorm");
 #endif
     R maxColSum = 0;
     for( int j=0; j<A.Width(); ++j )
@@ -73,12 +75,12 @@ elemental::advanced::internal::OneNorm( const Matrix<std::complex<R> >& A )
     return maxColSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::OneNorm( const DistMatrix<R,MC,MR>& A )
+internal::OneNorm( const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::OneNorm");
+    PushCallStack("internal::OneNorm");
 #endif
     // Compute the partial column sums defined by our local matrix, A[MC,MR]
     std::vector<R> myPartialColSums(A.LocalWidth());
@@ -110,13 +112,12 @@ elemental::advanced::internal::OneNorm( const DistMatrix<R,MC,MR>& A )
     return maxColSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::internal::OneNorm
-( const DistMatrix<std::complex<R>,MC,MR>& A )
+internal::OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::OneNorm");
+    PushCallStack("internal::OneNorm");
 #endif
     // Compute the partial column sums defined by our local matrix, A[MC,MR]
     std::vector<R> myPartialColSums(A.LocalWidth());
@@ -147,3 +148,5 @@ elemental::advanced::internal::OneNorm
 #endif
     return maxColSum;
 }
+
+} // namespace elemental

@@ -31,9 +31,11 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::LocalHemvColAccumulateU
+internal::LocalHemvColAccumulateU
 ( T alpha, 
   const DistMatrix<T,MC,MR  >& A,
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
@@ -42,7 +44,7 @@ elemental::basic::internal::LocalHemvColAccumulateU
         DistMatrix<T,MR,STAR>& z_MR_STAR )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalHemvColAccumulateU");
+    PushCallStack("internal::LocalHemvColAccumulateU");
     if( A.Grid() != x_MC_STAR.Grid() ||
         x_MC_STAR.Grid() != x_MR_STAR.Grid() ||
         x_MR_STAR.Grid() != z_MC_STAR.Grid() ||
@@ -163,26 +165,26 @@ elemental::basic::internal::LocalHemvColAccumulateU
         //--------------------------------------------------------------------//
         D11 = A11;
         D11.MakeTrapezoidal( LEFT, UPPER );
-        basic::Gemv
+        Gemv
         ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
                  x1_MR_STAR.LockedLocalMatrix(),
           (T)1,  z1_MC_STAR.LocalMatrix() );
         D11.MakeTrapezoidal( LEFT, UPPER, 1 );
 
-        basic::Gemv
+        Gemv
         ( ADJOINT,
           alpha, D11.LockedLocalMatrix(),
                  x1_MC_STAR.LockedLocalMatrix(),
           (T)1,  z1_MR_STAR.LocalMatrix() );
 
-        basic::Gemv
+        Gemv
         ( NORMAL,
           alpha, A12.LockedLocalMatrix(),
                  x2_MR_STAR.LockedLocalMatrix(),
           (T)1,  z1_MC_STAR.LocalMatrix() );
 
-        basic::Gemv
+        Gemv
         ( ADJOINT,
           alpha, A12.LockedLocalMatrix(),
                  x1_MC_STAR.LockedLocalMatrix(),
@@ -230,7 +232,7 @@ elemental::basic::internal::LocalHemvColAccumulateU
 
 template<typename T>
 inline void
-elemental::basic::internal::LocalHemvRowAccumulateU
+internal::LocalHemvRowAccumulateU
 ( T alpha, 
   const DistMatrix<T,MC,  MR>& A,
   const DistMatrix<T,STAR,MC>& x_STAR_MC,
@@ -239,7 +241,7 @@ elemental::basic::internal::LocalHemvRowAccumulateU
         DistMatrix<T,STAR,MR>& z_STAR_MR )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalHemvRowAccumulateU");
+    PushCallStack("internal::LocalHemvRowAccumulateU");
     if( A.Grid() != x_STAR_MC.Grid() ||
         x_STAR_MC.Grid() != x_STAR_MR.Grid() ||
         x_STAR_MR.Grid() != z_STAR_MC.Grid() ||
@@ -340,26 +342,26 @@ elemental::basic::internal::LocalHemvRowAccumulateU
         //--------------------------------------------------------------------//
         D11 = A11;
         D11.MakeTrapezoidal( LEFT, UPPER );
-        basic::Gemv
+        Gemv
         ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
                  x1_STAR_MR.LockedLocalMatrix(),
           (T)1,  z1_STAR_MC.LocalMatrix() );
         D11.MakeTrapezoidal( LEFT, UPPER, 1 );
 
-        basic::Gemv
+        Gemv
         ( ADJOINT,
           alpha, D11.LockedLocalMatrix(),
                  x1_STAR_MC.LockedLocalMatrix(),
           (T)1,  z1_STAR_MR.LocalMatrix() );
 
-        basic::Gemv
+        Gemv
         ( NORMAL,
           alpha, A12.LockedLocalMatrix(),
                  x2_STAR_MR.LockedLocalMatrix(),
           (T)1,  z1_STAR_MC.LocalMatrix() );
 
-        basic::Gemv
+        Gemv
         ( ADJOINT,
           alpha, A12.LockedLocalMatrix(),
                  x1_STAR_MC.LockedLocalMatrix(),
@@ -394,3 +396,5 @@ elemental::basic::internal::LocalHemvRowAccumulateU
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -36,34 +36,38 @@
 #include "./Hemm/HemmRL.hpp"
 #include "./Hemm/HemmRU.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Hemm
+Hemm
 (  Side side, UpperOrLower uplo,
    T alpha, const DistMatrix<T,MC,MR>& A,
             const DistMatrix<T,MC,MR>& B,
    T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Hemm");
+    PushCallStack("Hemm");
 #endif
     if( side == LEFT && uplo == LOWER )
     {
-        basic::internal::HemmLL( alpha, A, B, beta, C );
+        internal::HemmLL( alpha, A, B, beta, C );
     }
     else if( side == LEFT )
     {
-        basic::internal::HemmLU( alpha, A, B, beta, C );
+        internal::HemmLU( alpha, A, B, beta, C );
     }
     else if( uplo == LOWER )
     {
-        basic::internal::HemmRL( alpha, A, B, beta, C );
+        internal::HemmRL( alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::HemmRU( alpha, A, B, beta, C );
+        internal::HemmRU( alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename F>
 inline void
-elemental::advanced::ApplyColumnPivots
-( Matrix<F>& A, const Matrix<int>& p )
+ApplyColumnPivots( Matrix<F>& A, const Matrix<int>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyColumnPivots");
+    PushCallStack("ApplyColumnPivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( p.Height() != A.Width() )
@@ -72,11 +73,10 @@ elemental::advanced::ApplyColumnPivots
 
 template<typename F>
 inline void
-elemental::advanced::ApplyInverseColumnPivots
-( Matrix<F>& A, const Matrix<int>& p )
+ApplyInverseColumnPivots( Matrix<F>& A, const Matrix<int>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyInverseColumnPivots");
+    PushCallStack("ApplyInverseColumnPivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( p.Height() != A.Width() )
@@ -111,14 +111,28 @@ elemental::advanced::ApplyInverseColumnPivots
 
 template<typename F>
 inline void
-elemental::advanced::ApplyColumnPivots
+ApplyColumnPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
+{
+#ifndef RELEASE
+    PushCallStack("ApplyColumnPivots");
+#endif
+    DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
+    ApplyColumnPivots( A, p_STAR_STAR );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+ApplyInverseColumnPivots
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyColumnPivots");
+    PushCallStack("ApplyInverseColumnPivots");
 #endif
     DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
-    advanced::ApplyColumnPivots( A, p_STAR_STAR );
+    ApplyInverseColumnPivots( A, p_STAR_STAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -126,14 +140,14 @@ elemental::advanced::ApplyColumnPivots
 
 template<typename F>
 inline void
-elemental::advanced::ApplyInverseColumnPivots
-( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
+ApplyColumnPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyInverseColumnPivots");
+    PushCallStack("ApplyColumnPivots");
 #endif
-    DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
-    advanced::ApplyInverseColumnPivots( A, p_STAR_STAR );
+    std::vector<int> image, preimage;
+    ComposePivots( p, image, preimage );
+    ApplyColumnPivots( A, image, preimage );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -141,46 +155,30 @@ elemental::advanced::ApplyInverseColumnPivots
 
 template<typename F>
 inline void
-elemental::advanced::ApplyColumnPivots
+ApplyInverseColumnPivots
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyColumnPivots");
+    PushCallStack("ApplyInverseColumnPivots");
 #endif
     std::vector<int> image, preimage;
-    advanced::ComposePivots( p, image, preimage );
-    advanced::ApplyColumnPivots( A, image, preimage );
+    ComposePivots( p, image, preimage );
+    ApplyColumnPivots( A, preimage, image );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename F>
+template<typename F> 
 inline void
-elemental::advanced::ApplyInverseColumnPivots
-( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::ApplyInverseColumnPivots");
-#endif
-    std::vector<int> image, preimage;
-    advanced::ComposePivots( p, image, preimage );
-    advanced::ApplyColumnPivots( A, preimage, image );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F> // represents a real or complex number
-inline void
-elemental::advanced::ApplyColumnPivots
+ApplyColumnPivots
 ( DistMatrix<F,MC,MR>& A, 
   const std::vector<int>& image,
   const std::vector<int>& preimage )
 {
     const int b = image.size();
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyColumnPivots");
+    PushCallStack("ApplyColumnPivots");
     if( A.Width() < b || b != preimage.size() )
         throw std::logic_error
         ("image and preimage must be vectors of equal length that are not "
@@ -343,3 +341,5 @@ elemental::advanced::ApplyColumnPivots
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

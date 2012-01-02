@@ -31,15 +31,17 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::GemmNN
+internal::GemmNN
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmNN");
+    PushCallStack("internal::GemmNN");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -52,19 +54,19 @@ elemental::basic::internal::GemmNN
 
     if( weightAwayFromDot*m <= k && weightAwayFromDot*n <= k )
     {
-        basic::internal::GemmNNDot( alpha, A, B, beta, C );
+        internal::GemmNNDot( alpha, A, B, beta, C );
     }
     else if( m <= n && weightTowardsC*m <= k )
     {
-        basic::internal::GemmNNB( alpha, A, B, beta, C );    
+        internal::GemmNNB( alpha, A, B, beta, C );    
     }
     else if( n <= m && weightTowardsC*n <= k )
     {
-        basic::internal::GemmNNA( alpha, A, B, beta, C );
+        internal::GemmNNA( alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::GemmNNC( alpha, A, B, beta, C );
+        internal::GemmNNC( alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -74,13 +76,13 @@ elemental::basic::internal::GemmNN
 // Normal Normal Gemm that avoids communicating the matrix A.
 template<typename T>
 inline void
-elemental::basic::internal::GemmNNA
+internal::GemmNNA
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmNNA");
+    PushCallStack("internal::GemmNNA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -110,7 +112,7 @@ elemental::basic::internal::GemmNNA
     DistMatrix<T,MC,STAR> D1_MC_STAR(g);
 
     // Start the algorithm
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionRight( B, BL, BR, 0 );
     PartitionRight( C, CL, CR, 0 );
     while( BR.Width() > 0 )
@@ -132,7 +134,7 @@ elemental::basic::internal::GemmNNA
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, (T)0, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
@@ -158,13 +160,13 @@ elemental::basic::internal::GemmNNA
 // Normal Normal Gemm that avoids communicating the matrix B.
 template<typename T>
 inline void 
-elemental::basic::internal::GemmNNB
+internal::GemmNNB
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmNNB");
+    PushCallStack("internal::GemmNNB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -195,7 +197,7 @@ elemental::basic::internal::GemmNNB
     DistMatrix<T,STAR,MR> D1_STAR_MR(g);
 
     // Start the algorithm
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionDown
     ( A, AT,
          AB, 0 );
@@ -223,7 +225,7 @@ elemental::basic::internal::GemmNNB
         A1_STAR_MC = A1; // A1[*,MC] <- A1[MC,MR]
 
         // D1[*,MR] := alpha A1[*,MC] B[MC,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, alpha, A1_STAR_MC, B, (T)0, D1_STAR_MR );
 
         // C1[MC,MR] += scattered result of D1[*,MR] summed over grid cols
@@ -252,13 +254,13 @@ elemental::basic::internal::GemmNNB
 // Normal Normal Gemm that avoids communicating the matrix C.
 template<typename T>
 inline void 
-elemental::basic::internal::GemmNNC
+internal::GemmNNC
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmNNC");
+    PushCallStack("internal::GemmNNC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -289,7 +291,7 @@ elemental::basic::internal::GemmNNC
     DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g); 
 
     // Start the algorithm
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionRight( A, AL, AR, 0 ); 
     LockedPartitionDown
     ( B, BT, 
@@ -312,7 +314,7 @@ elemental::basic::internal::GemmNNC
 
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_STAR.FreeAlignments();
@@ -334,13 +336,13 @@ elemental::basic::internal::GemmNNC
 // Normal Normal Gemm for panel-panel dot products. 
 template<typename T>
 inline void 
-elemental::basic::internal::GemmNNDot
+internal::GemmNNDot
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmNNDot");
+    PushCallStack("internal::GemmNNDot");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -378,7 +380,7 @@ elemental::basic::internal::GemmNNDot
         DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
 
         // Star the algorithm
-        basic::Scal( beta, C );
+        Scal( beta, C );
         LockedPartitionDown
         ( A, AT,
              AB, 0 );
@@ -420,7 +422,7 @@ elemental::basic::internal::GemmNNDot
                 C11_STAR_STAR.ResizeTo( C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 B1_VC_STAR = B1;
-                basic::internal::LocalGemm
+                internal::LocalGemm
                 ( NORMAL, NORMAL, 
                   alpha, A1_STAR_VC, B1_VC_STAR, (T)0, C11_STAR_STAR );
                 C11.SumScatterUpdate( (T)1, C11_STAR_STAR );
@@ -471,7 +473,7 @@ elemental::basic::internal::GemmNNDot
         DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
 
         // Star the algorithm
-        basic::Scal( beta, C );
+        Scal( beta, C );
         LockedPartitionRight( B, BL, BR, 0 );
         PartitionRight( C, CL, CR, 0 );
         while( BR.Width() > 0 )
@@ -513,7 +515,7 @@ elemental::basic::internal::GemmNNDot
                 C11_STAR_STAR.ResizeTo( C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 A1_STAR_VR = A1;
-                basic::internal::LocalGemm
+                internal::LocalGemm
                 ( NORMAL, NORMAL, 
                   alpha, A1_STAR_VR, B1_VR_STAR, (T)0, C11_STAR_STAR );
                 C11.SumScatterUpdate( (T)1, C11_STAR_STAR );
@@ -547,3 +549,5 @@ elemental::basic::internal::GemmNNDot
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

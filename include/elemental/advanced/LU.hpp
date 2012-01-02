@@ -34,13 +34,15 @@
 #include "./LU/LocalLU.hpp"
 #include "./LU/PanelLU.hpp"
 
+namespace elemental {
+
 // Performs LU factorization without pivoting
 template<typename F> 
 inline void
-elemental::advanced::LU( DistMatrix<F,MC,MR>& A )
+LU( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LU");
+    PushCallStack("LU");
 #endif
     const Grid& g = A.Grid();
 
@@ -74,22 +76,22 @@ elemental::advanced::LU( DistMatrix<F,MC,MR>& A )
         A11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        advanced::internal::LocalLU( A11_STAR_STAR );
+        internal::LocalLU( A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A21_MC_STAR = A21;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, A11_STAR_STAR, A21_MC_STAR );
         A21 = A21_MC_STAR;
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
         A12_STAR_VR = A12;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
 
         A12_STAR_MR = A12_STAR_VR;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, A12_STAR_MR, (F)1, A22 );
         A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//
@@ -111,11 +113,10 @@ elemental::advanced::LU( DistMatrix<F,MC,MR>& A )
 // Performs LU factorization with partial pivoting
 template<typename F> 
 inline void
-elemental::advanced::LU
-( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p )
+LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LU");
+    PushCallStack("LU");
     if( A.Grid() != p.Grid() )
         throw std::logic_error("{A,p} must be distributed over the same grid");
     if( p.Viewing() && 
@@ -180,20 +181,20 @@ elemental::advanced::LU
         //--------------------------------------------------------------------//
         A21_MC_STAR = A21;
         A11_STAR_STAR = A11;
-        advanced::internal::PanelLU
+        internal::PanelLU
         ( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, pivotOffset );
-        advanced::internal::ComposePanelPivots
+        internal::ComposePanelPivots
         ( p1_STAR_STAR, pivotOffset, image, preimage );
-        advanced::ApplyRowPivots( AB, image, preimage );
+        ApplyRowPivots( AB, image, preimage );
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
         A12_STAR_VR = A12;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
 
         A12_STAR_MR = A12_STAR_VR;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, A12_STAR_MR, (F)1, A22 );
 
         A11 = A11_STAR_STAR;
@@ -221,3 +222,5 @@ elemental::advanced::LU
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

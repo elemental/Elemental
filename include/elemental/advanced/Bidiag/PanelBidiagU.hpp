@@ -31,9 +31,11 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename R>
 inline void 
-elemental::advanced::internal::PanelBidiagU
+internal::PanelBidiagU
 ( DistMatrix<R,MC,  MR  >& A, 
   DistMatrix<R,MC,  MR  >& X, 
   DistMatrix<R,MC,  MR  >& Y,
@@ -42,7 +44,7 @@ elemental::advanced::internal::PanelBidiagU
 {
     const int panelSize = X.Width();
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelBidiagU");
+    PushCallStack("internal::PanelBidiagU");
     if( A.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
         Y.Grid() != ARowPan_STAR_MR.Grid() )
@@ -222,11 +224,11 @@ elemental::advanced::internal::PanelBidiagU
         {
             y10_STAR_MR = y10;
             a01_MR_STAR = a01;
-            basic::Gemv
+            Gemv
             ( NORMAL, 
               (R)1, ABL.LocalMatrix(), y10_STAR_MR.LocalMatrix(), 
               (R)0, uB1_MC_STAR.LocalMatrix() );
-            basic::Gemv
+            Gemv
             ( NORMAL,
               (R)1, XBL.LocalMatrix(), a01_MR_STAR.LocalMatrix(),
               (R)1, uB1_MC_STAR.LocalMatrix() );
@@ -237,7 +239,7 @@ elemental::advanced::internal::PanelBidiagU
         R tauQ = 0;
         if( thisIsMyCol )
         {
-            tauQ = advanced::internal::ColReflector( alpha11, a21 );
+            tauQ = internal::ColReflector( alpha11, a21 );
             if( thisIsMyRow )
             {
                 delta1.SetLocalEntry(0,0,alpha11.GetLocalEntry(0,0));
@@ -247,26 +249,26 @@ elemental::advanced::internal::PanelBidiagU
 
         // Compute y21
         aB1_MC_STAR = aB1;
-        basic::Gemv
+        Gemv
         ( TRANSPOSE, 
           (R)1, ABL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(), 
           (R)0, z01_MR_STAR.LocalMatrix() );
-        basic::Gemv
+        Gemv
         ( TRANSPOSE, 
           (R)1, AB2.LocalMatrix(), aB1_MC_STAR.LocalMatrix(), 
           (R)0, z21_MR_STAR.LocalMatrix() );
         z01_MR_STAR.SumOverCol();
-        basic::Gemv 
+        Gemv 
         ( NORMAL, 
           (R)1, Y20.LocalMatrix(), z01_MR_STAR.LocalMatrix(),
           (R)0, z21_MC_STAR.LocalMatrix() );
-        basic::Gemv
+        Gemv
         ( TRANSPOSE,
           (R)1, XBL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (R)0, z01_MR_STAR.LocalMatrix() );
         z01_MR_MC.SumScatterFrom( z01_MR_STAR );
         z01_MC_STAR = z01_MR_MC;
-        basic::Gemv
+        Gemv
         ( TRANSPOSE,
           (R)-1, A02.LocalMatrix(), z01_MC_STAR.LocalMatrix(),
           (R)1, z21_MR_STAR.LocalMatrix() );
@@ -274,20 +276,20 @@ elemental::advanced::internal::PanelBidiagU
         y21 = z21_MR_MC;
         y21.SumScatterUpdate( (R)-1, z21_MC_STAR );
         if( thisIsMyCol )
-            basic::Scal( tauQ, y21 );
+            Scal( tauQ, y21 );
 
         // Update a12
         a10_STAR_MR = a10;
         x10_STAR_MC = x10;
-        basic::Gemv
+        Gemv
         ( NORMAL, 
           (R)1, Y20.LocalMatrix(), a10_STAR_MR.LocalMatrix(),
           (R)0, q21_MC_STAR.LocalMatrix() );
         q21.SumScatterFrom( q21_MC_STAR );
         if( thisIsMyCol )
-            basic::Axpy( (R)1, y21, q21 );
+            Axpy( (R)1, y21, q21 );
         q21_MR_MC = q21;
-        basic::Gemv
+        Gemv
         ( TRANSPOSE,
           (R)1, A02.LocalMatrix(), x10_STAR_MC.LocalMatrix(),
           (R)0, q21_MR_STAR.LocalMatrix() );
@@ -306,7 +308,7 @@ elemental::advanced::internal::PanelBidiagU
         R tauP = 0;
         if( thisIsMyRow )
         {
-            tauP = advanced::internal::RowReflector( alpha12L, a12R );
+            tauP = internal::RowReflector( alpha12L, a12R );
             if( nextIsMyCol )
             {
                 epsilon1.SetLocalEntry(0,0,alpha12L.GetLocalEntry(0,0));
@@ -318,31 +320,31 @@ elemental::advanced::internal::PanelBidiagU
         // Compute x21
         a12_STAR_MR = a12;
         a12_STAR_MC = a12;
-        basic::Gemv
+        Gemv
         ( NORMAL,
           (R)1, A22.LocalMatrix(), a12_STAR_MR.LocalMatrix(),
           (R)0, s21_MC_STAR.LocalMatrix() );
-        basic::Gemv
+        Gemv
         ( TRANSPOSE,
           (R)1, Y2L.LocalMatrix(), a12_STAR_MC.LocalMatrix(),
           (R)0, sB1_MR_STAR.LocalMatrix() );
         sB1_MR_STAR.SumOverCol(); 
-        basic::Gemv
+        Gemv
         ( NORMAL, 
           (R)-1, A2L.LocalMatrix(), sB1_MR_STAR.LocalMatrix(),
           (R)1,  s21_MC_STAR.LocalMatrix() );
-        basic::Gemv
+        Gemv
         ( NORMAL,
           (R)1, A02.LocalMatrix(), a12_STAR_MR.LocalMatrix(),
           (R)0, s01_MC_STAR.LocalMatrix() );
         s01.SumScatterFrom( s01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
         s01_MR_STAR = s01;
-        basic::Gemv
+        Gemv
         ( NORMAL,
           (R)-1, X20.LocalMatrix(), s01_MR_STAR.LocalMatrix(),
           (R)1,  s21_MC_STAR.LocalMatrix() );
         x21.SumScatterFrom( s21_MC_STAR );
-        basic::Scal( tauP, x21.LocalMatrix() );
+        Scal( tauP, x21.LocalMatrix() );
         //--------------------------------------------------------------------//
         // Auxilliary alignments
         sB1_MR_STAR.FreeAlignments();
@@ -410,7 +412,7 @@ elemental::advanced::internal::PanelBidiagU
 
 template<typename R> 
 inline void
-elemental::advanced::internal::PanelBidiagU
+internal::PanelBidiagU
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,MD,  STAR>& tP,
   DistMatrix<std::complex<R>,MD,  STAR>& tQ,
@@ -421,7 +423,7 @@ elemental::advanced::internal::PanelBidiagU
 {
     const int panelSize = X.Width();
 #ifndef RELEASE
-    PushCallStack("advanced::internal::BidiagU");
+    PushCallStack("internal::BidiagU");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
         tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
@@ -629,14 +631,14 @@ elemental::advanced::internal::PanelBidiagU
         // Update the current column of A
         if( !firstIteration )
         {
-            basic::Conjugate( y10 );
+            Conjugate( y10 );
             y10_STAR_MR = y10;
             a01_MR_STAR = a01;
-            basic::Gemv
+            Gemv
             ( NORMAL, 
               (C)1, ABL.LocalMatrix(), y10_STAR_MR.LocalMatrix(), 
               (C)0, uB1_MC_STAR.LocalMatrix() );
-            basic::Gemv
+            Gemv
             ( NORMAL,
               (C)1, XBL.LocalMatrix(), a01_MR_STAR.LocalMatrix(),
               (C)1, uB1_MC_STAR.LocalMatrix() );
@@ -647,7 +649,7 @@ elemental::advanced::internal::PanelBidiagU
         C tauQ = 0;
         if( thisIsMyCol )
         {
-            tauQ = advanced::internal::ColReflector( alpha11, a21 );
+            tauQ = internal::ColReflector( alpha11, a21 );
             if( thisIsMyRow )
             {
                 delta1.SetLocalEntry(0,0,alpha11.GetLocalEntry(0,0));
@@ -658,26 +660,26 @@ elemental::advanced::internal::PanelBidiagU
 
         // Compute y21
         aB1_MC_STAR = aB1;
-        basic::Gemv
+        Gemv
         ( ADJOINT,
           (C)1, ABL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (C)0, z01_MR_STAR.LocalMatrix() );
-        basic::Gemv
+        Gemv
         ( ADJOINT,
           (C)1, AB2.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (C)0, z21_MR_STAR.LocalMatrix() );
         z01_MR_STAR.SumOverCol();
-        basic::Gemv
+        Gemv
         ( NORMAL,
           (C)1, Y20.LocalMatrix(), z01_MR_STAR.LocalMatrix(),
           (C)0, z21_MC_STAR.LocalMatrix() );
-        basic::Gemv
+        Gemv
         ( ADJOINT,
           (C)1, XBL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (C)0, z01_MR_STAR.LocalMatrix() );
         z01_MR_MC.SumScatterFrom( z01_MR_STAR );
         z01_MC_STAR = z01_MR_MC;
-        basic::Gemv
+        Gemv
         ( ADJOINT,
           (C)-1, A02.LocalMatrix(), z01_MC_STAR.LocalMatrix(),
           (C)1, z21_MR_STAR.LocalMatrix() );
@@ -685,29 +687,29 @@ elemental::advanced::internal::PanelBidiagU
         y21 = z21_MR_MC;
         y21.SumScatterUpdate( (C)-1, z21_MC_STAR );
         if( thisIsMyCol )
-            basic::Scal( tauQ, y21 );
+            Scal( tauQ, y21 );
 
         // Update a12
-        basic::Conjugate( a10 );
-        basic::Conjugate( x10 );
+        Conjugate( a10 );
+        Conjugate( x10 );
         a10_STAR_MR = a10;
         x10_STAR_MC = x10;
-        basic::Conjugate( a10 );
-        basic::Conjugate( x10 );
-        basic::Gemv
+        Conjugate( a10 );
+        Conjugate( x10 );
+        Gemv
         ( NORMAL, 
           (C)1, Y20.LocalMatrix(), a10_STAR_MR.LocalMatrix(),
           (C)0, q21_MC_STAR.LocalMatrix() );
         q21.SumScatterFrom( q21_MC_STAR );
         if( thisIsMyCol )
-            basic::Axpy( (C)1, y21, q21 );
+            Axpy( (C)1, y21, q21 );
         q21_MR_MC = q21;
-        basic::Gemv
+        Gemv
         ( ADJOINT,
           (C)1, A02.LocalMatrix(), x10_STAR_MC.LocalMatrix(),
           (C)0, q21_MR_STAR.LocalMatrix() );
         q21_MR_MC.SumScatterUpdate( (C)1, q21_MR_STAR );
-        basic::Conjugate( a12 );
+        Conjugate( a12 );
         if( thisIsMyRow )
         {
             const int localWidth = a12.LocalWidth();
@@ -722,7 +724,7 @@ elemental::advanced::internal::PanelBidiagU
         C tauP = 0;
         if( thisIsMyRow )
         {
-            tauP = advanced::internal::RowReflector( alpha12L, a12R );
+            tauP = internal::RowReflector( alpha12L, a12R );
             if( nextIsMyCol )
             {
                 epsilon1.SetLocalEntry(0,0,alpha12L.GetLocalEntry(0,0));
@@ -735,33 +737,33 @@ elemental::advanced::internal::PanelBidiagU
         // Compute x21
         a12_STAR_MR = a12;
         a12_STAR_MC = a12;
-        basic::Gemv
+        Gemv
         ( NORMAL,
           (C)1, A22.LocalMatrix(), a12_STAR_MR.LocalMatrix(),
           (C)0, s21_MC_STAR.LocalMatrix() );
-        basic::Gemv
+        Gemv
         ( ADJOINT,
           (C)1, Y2L.LocalMatrix(), a12_STAR_MC.LocalMatrix(),
           (C)0, sB1_MR_STAR.LocalMatrix() );
         sB1_MR_STAR.SumOverCol(); 
-        basic::Gemv
+        Gemv
         ( NORMAL, 
           (C)-1, A2L.LocalMatrix(), sB1_MR_STAR.LocalMatrix(),
           (C)1,  s21_MC_STAR.LocalMatrix() );
-        basic::Gemv
+        Gemv
         ( NORMAL,
           (C)1, A02.LocalMatrix(), a12_STAR_MR.LocalMatrix(),
           (C)0, s01_MC_STAR.LocalMatrix() );
         s01.SumScatterFrom( s01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
         s01_MR_STAR = s01;
-        basic::Gemv
+        Gemv
         ( NORMAL,
           (C)-1, X20.LocalMatrix(), s01_MR_STAR.LocalMatrix(),
           (C)1,  s21_MC_STAR.LocalMatrix() );
         x21.SumScatterFrom( s21_MC_STAR );
-        basic::Scal( tauP, x21.LocalMatrix() );
-        basic::Conjugate( a12 );
-        basic::Conjugate( a12_STAR_MR );
+        Scal( tauP, x21.LocalMatrix() );
+        Conjugate( a12 );
+        Conjugate( a12_STAR_MR );
         //--------------------------------------------------------------------//
         // Auxilliary alignments
         sB1_MR_STAR.FreeAlignments();
@@ -838,3 +840,5 @@ elemental::advanced::internal::PanelBidiagU
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

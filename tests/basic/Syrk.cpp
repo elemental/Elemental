@@ -82,11 +82,11 @@ void TestSyrk
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::Syrk( uplo, orientation, alpha, A, beta, C );
+    Syrk( uplo, orientation, alpha, A, beta, C );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = basic::internal::SyrkGFlops<T>(m,k,runTime);
+    gFlops = internal::SyrkGFlops<T>(m,k,runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -141,8 +141,8 @@ main( int argc, char* argv[] )
 #endif
         const Grid g( comm, r, c );
         SetBlocksize( nb );
-        basic::SetLocalTrrkBlocksize<double>( nbLocal );
-        basic::SetLocalTrrkBlocksize<complex<double> >( nbLocal );
+        SetLocalTrrkBlocksize<double>( nbLocal );
+        SetLocalTrrkBlocksize<complex<double> >( nbLocal );
 
         if( rank == 0 )
         {

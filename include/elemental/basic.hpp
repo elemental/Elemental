@@ -36,7 +36,6 @@
 #include "elemental/core/partitioning.hpp"
 
 namespace elemental {
-namespace basic {
 
 //----------------------------------------------------------------------------//
 // Tuning parameters                                                          //
@@ -856,7 +855,6 @@ void Trsm
   F alpha, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B,
   bool checkIfSingular=false );
 
-} // basic
 } // elemental
 
 //----------------------------------------------------------------------------//
@@ -869,7 +867,6 @@ void Trsm
 #include "./basic/level3.hpp"
 
 namespace elemental {
-namespace basic {
 
 //----------------------------------------------------------------------------//
 // Local BLAS-like routines: Level 1                                          //
@@ -880,7 +877,7 @@ inline void
 Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Axpy");
+    PushCallStack("Axpy");
 #endif
     // If X and Y are vectors, we can allow one to be a column and the other
     // to be a row. Otherwise we force X and Y to be the same dimension.
@@ -948,7 +945,7 @@ inline void
 Copy( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Copy");
+    PushCallStack("Copy");
 #endif
     B = A;
 #ifndef RELEASE
@@ -962,7 +959,7 @@ DiagonalScale
 ( Side side, Orientation orientation, const Matrix<T>& d, Matrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::DiagonalScale");
+    PushCallStack("DiagonalScale");
 #endif
     const int m = X.Height();
     const int n = X.Width();
@@ -1007,7 +1004,7 @@ DiagonalSolve
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::DiagonalSolve");
+    PushCallStack("DiagonalSolve");
 #endif
     const int m = X.Height();
     const int n = X.Width();
@@ -1056,7 +1053,7 @@ inline T
 Dot( const Matrix<T>& x, const Matrix<T>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Dot");
+    PushCallStack("Dot");
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
         throw std::logic_error("Expected vector inputs");
@@ -1101,7 +1098,7 @@ inline T
 Dotc( const Matrix<T>& x, const Matrix<T>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Dotc");
+    PushCallStack("Dotc");
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
         throw std::logic_error("Expected vector inputs");
@@ -1146,7 +1143,7 @@ inline T
 Dotu( const Matrix<T>& x, const Matrix<T>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Dotu");
+    PushCallStack("Dotu");
     if( (x.Height() != 1 && x.Width() != 1) ||
         (y.Height() != 1 && y.Width() != 1) )
         throw std::logic_error("Expected vector inputs");
@@ -1191,7 +1188,7 @@ inline R
 Nrm2( const Matrix<R>& x )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Nrm2");
+    PushCallStack("Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("Expected vector input");
 #endif
@@ -1211,7 +1208,7 @@ inline R
 Nrm2( const Matrix<std::complex<R> >& x )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Nrm2");
+    PushCallStack("Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("Expected vector input");
 #endif
@@ -1231,7 +1228,7 @@ inline void
 Scal( T alpha, Matrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Scal");
+    PushCallStack("Scal");
 #endif
     if( alpha != (T)1 )
     {
@@ -1264,7 +1261,7 @@ inline void
 Conjugate( Matrix<std::complex<Z> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Conjugate (in-place)");
+    PushCallStack("Conjugate (in-place)");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -1281,7 +1278,7 @@ inline void
 Conjugate( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Conjugate");
+    PushCallStack("Conjugate");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -1299,7 +1296,7 @@ inline void
 Adjoint( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Adjoint");
+    PushCallStack("Adjoint");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -1321,7 +1318,7 @@ inline void
 Transpose( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Transpose");
+    PushCallStack("Transpose");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -1349,7 +1346,7 @@ Gemv
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Gemv");
+    PushCallStack("Gemv");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
     {
@@ -1413,7 +1410,7 @@ inline void
 Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Ger");
+    PushCallStack("Ger");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
         throw std::logic_error("x and y must be vectors");
@@ -1446,7 +1443,7 @@ inline void
 Gerc( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Gerc");
+    PushCallStack("Gerc");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
         throw std::logic_error("x and y must be vectors");
@@ -1472,7 +1469,7 @@ inline void
 Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Geru");
+    PushCallStack("Geru");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
         throw std::logic_error("x and y must be vectors");
@@ -1500,7 +1497,7 @@ Hemv
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Hemv");
+    PushCallStack("Hemv");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
@@ -1529,7 +1526,7 @@ inline void
 Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Her");
+    PushCallStack("Her");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( x.Width() != 1 && x.Height() != 1 )
@@ -1555,7 +1552,7 @@ Her2
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Her2");
+    PushCallStack("Her2");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( (x.Width() != 1 && x.Height() != 1) || 
@@ -1586,7 +1583,7 @@ Symv
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Symv");
+    PushCallStack("Symv");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
@@ -1615,7 +1612,7 @@ inline void
 Syr( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Syr");
+    PushCallStack("Syr");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( x.Width() != 1 && x.Height() != 1 )
@@ -1641,7 +1638,7 @@ Syr2
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Syr2");
+    PushCallStack("Syr2");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( (x.Width() != 1 && x.Height() != 1) || 
@@ -1672,7 +1669,7 @@ Trmv
   const Matrix<T>& A, Matrix<T>& x )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trmv");
+    PushCallStack("Trmv");
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("x must be a vector");
     if( A.Height() != A.Width() )
@@ -1701,7 +1698,7 @@ Trsv
   const Matrix<F>& A, Matrix<F>& x )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trsv");
+    PushCallStack("Trsv");
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("x must be a vector");
     if( A.Height() != A.Width() )
@@ -1734,7 +1731,7 @@ Gemm
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Gemm");
+    PushCallStack("Gemm");
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         if( A.Height() != C.Height() ||
@@ -1792,7 +1789,7 @@ Hemm
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Hemm");
+    PushCallStack("Hemm");
 #endif
     const char sideChar = SideToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -1813,7 +1810,7 @@ Her2k
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Her2k");
+    PushCallStack("Her2k");
     if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
@@ -1850,7 +1847,7 @@ Herk
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Herk");
+    PushCallStack("Herk");
     if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() )
@@ -1881,7 +1878,7 @@ inline void
 Hetrmm( UpperOrLower uplo, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Hetrmm");
+    PushCallStack("Hetrmm");
 #endif
     const char uploChar = UpperOrLowerToChar( uplo );
     blas::Hetrmm( uploChar, A.Height(), A.Buffer(), A.LDim() );
@@ -1897,7 +1894,7 @@ Symm
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Symm");
+    PushCallStack("Symm");
 #endif
     const char sideChar = SideToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -1918,7 +1915,7 @@ Syr2k
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Syr2k");
+    PushCallStack("Syr2k");
     if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
@@ -1955,7 +1952,7 @@ Syrk
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Syrk");
+    PushCallStack("Syrk");
     if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() )
@@ -1990,7 +1987,7 @@ Trmm
   T alpha, const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trmm");
+    PushCallStack("Trmm");
     if( A.Height() != A.Width() )
         throw std::logic_error("Triangular matrix must be square");
     if( side == LEFT )
@@ -2025,7 +2022,7 @@ Trsm
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trsm");
+    PushCallStack("Trsm");
     if( A.Height() != A.Width() )
         throw std::logic_error("Triangular matrix must be square");
     if( side == LEFT )
@@ -2067,7 +2064,7 @@ inline void
 Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Axpy");
+    PushCallStack("Axpy");
     if( X.Grid() != Y.Grid() )
         throw std::logic_error
         ("X and Y must be distributed over the same grid");
@@ -2087,7 +2084,7 @@ inline void
 Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Copy");
+    PushCallStack("Copy");
 #endif
     B = A;
 #ifndef RELEASE
@@ -2103,7 +2100,7 @@ DiagonalScale
   const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::DiagonalScale");
+    PushCallStack("DiagonalScale");
 #endif
     if( side == LEFT )
     {
@@ -2151,7 +2148,7 @@ DiagonalSolve
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::DiagonalSolve");
+    PushCallStack("DiagonalSolve");
 #endif
     if( side == LEFT )
     {
@@ -2200,7 +2197,7 @@ inline T
 Dotc( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Dotc");
+    PushCallStack("Dotc");
 #endif
     T globalDot = Dot( x, y );
 #ifndef RELEASE
@@ -2214,7 +2211,7 @@ inline void
 Scal( T alpha, DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Scal");
+    PushCallStack("Scal");
 #endif
     Scal( alpha, A.LocalMatrix() );
 #ifndef RELEASE
@@ -2231,7 +2228,7 @@ inline void
 Conjugate( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Conjugate (in-place)");
+    PushCallStack("Conjugate (in-place)");
 #endif
     Conjugate( A.LocalMatrix() );
 #ifndef RELEASE
@@ -2245,7 +2242,7 @@ inline void
 Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Conjugate");
+    PushCallStack("Conjugate");
 #endif
     B = A;
     Conjugate( B ); 
@@ -2260,7 +2257,7 @@ inline void
 Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Adjoint");
+    PushCallStack("Adjoint");
 #endif
     if( U == Z && V == W && 
         A.ColAlignment() == B.RowAlignment() && 
@@ -2303,7 +2300,7 @@ inline void
 Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Transpose");
+    PushCallStack("Transpose");
 #endif
     if( U == Z && V == W && 
         A.ColAlignment() == B.RowAlignment() && 
@@ -2353,7 +2350,7 @@ Gerc
                  DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Gerc");
+    PushCallStack("Gerc");
 #endif
     Ger( alpha, x, y, A );
 #ifndef RELEASE
@@ -2361,7 +2358,6 @@ Gerc
 #endif
 }
 
-} // namespace basic
 } // namespace elemental
 
 #endif /* ELEMENTAL_BASIC_HPP */

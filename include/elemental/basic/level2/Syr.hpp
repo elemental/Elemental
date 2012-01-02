@@ -31,15 +31,17 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Syr
+Syr
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& x,
                  DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Syr");
+    PushCallStack("Syr");
     if( A.Grid() != x.Grid() )
         throw std::logic_error
         ("A and x must be distributed over the same grid");
@@ -162,3 +164,5 @@ elemental::basic::Syr
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

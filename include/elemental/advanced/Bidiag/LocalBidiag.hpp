@@ -32,14 +32,14 @@
 */
 
 namespace elemental {
-namespace advanced {
+
 namespace bidiag {
 
 template<typename R>
 inline void BidiagL( Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::bidiag::BidiagL");
+    PushCallStack("bidiag::BidiagL");
     if( A.Height() > A.Width() )
         throw std::logic_error("A must be at least as wide as it is tall");
 #endif
@@ -70,11 +70,11 @@ inline void BidiagL( Matrix<R>& A )
         w12.ResizeTo( 1, a12.Width() );
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
-        const R tauP = advanced::Reflector( alpha11, a12 );
+        const R tauP = Reflector( alpha11, a12 );
         const R epsilonP = alpha11.Get(0,0);
         alpha11.Set(0,0,(R)1);
-        basic::Gemv( NORMAL, tauP, A2R, a1R, (R)0, w21 );
-        basic::Ger( (R)-1, w21, a1R, A2R );
+        Gemv( NORMAL, tauP, A2R, a1R, (R)0, w21 );
+        Ger( (R)-1, w21, a1R, A2R );
         alpha11.Set(0,0,epsilonP);
 
         if( A22.Height() != 0 )
@@ -83,11 +83,11 @@ inline void BidiagL( Matrix<R>& A )
             ( a21, alpha21T,
                    a21B );
 
-            const R tauQ = advanced::Reflector( alpha21T, a21B );
+            const R tauQ = Reflector( alpha21T, a21B );
             const R epsilonQ = alpha21T.Get(0,0);
             alpha21T.Set(0,0,(R)1);
-            basic::Gemv( TRANSPOSE, tauQ, A22, a21, (R)0, w12 );
-            basic::Ger( (R)-1, a21, w12, A22 );
+            Gemv( TRANSPOSE, tauQ, A22, a21, (R)0, w12 );
+            Ger( (R)-1, a21, w12, A22 );
             alpha21T.Set(0,0,epsilonQ);
         }
         //--------------------------------------------------------------------//
@@ -108,7 +108,7 @@ template<typename R>
 inline void BidiagU( Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::bidiag::BidiagU");
+    PushCallStack("bidiag::BidiagU");
     if( A.Height() < A.Width() )
         throw std::logic_error("A must be at least as tall as it is wide");
 #endif
@@ -143,22 +143,22 @@ inline void BidiagU( Matrix<R>& A )
         w12.ResizeTo( 1, a12.Width() );
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
-        const R tauQ = advanced::Reflector( alpha11, a21 );
+        const R tauQ = Reflector( alpha11, a21 );
         const R epsilonQ = alpha11.Get(0,0);
         alpha11.Set(0,0,(R)1);
-        basic::Gemv( TRANSPOSE, tauQ, AB2, aB1, (R)0, w12 );
-        basic::Ger( (R)-1, aB1, w12, AB2 );
+        Gemv( TRANSPOSE, tauQ, AB2, aB1, (R)0, w12 );
+        Ger( (R)-1, aB1, w12, AB2 );
         alpha11.Set(0,0,epsilonQ);
 
         if( A22.Width() != 0 )
         {
             PartitionRight( a12, alpha12L, a12R );
 
-            const R tauP = advanced::Reflector( alpha12L, a12R );
+            const R tauP = Reflector( alpha12L, a12R );
             const R epsilonP = alpha12L.Get(0,0);
             alpha12L.Set(0,0,(R)1);
-            basic::Gemv( NORMAL, tauP, A22, a12, (R)0, w21 );
-            basic::Ger( (R)-1, w21, a12, A22 );
+            Gemv( NORMAL, tauP, A22, a12, (R)0, w21 );
+            Ger( (R)-1, w21, a12, A22 );
             alpha12L.Set(0,0,epsilonP);
         }
         //--------------------------------------------------------------------//
@@ -182,7 +182,7 @@ inline void BidiagL
   Matrix<std::complex<R> >& tQ )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::bidiag::BidiagL");
+    PushCallStack("bidiag::BidiagL");
 #endif
     const int tPHeight = A.Height();
     const int tQHeight = std::max(A.Height()-1,0);
@@ -228,15 +228,15 @@ inline void BidiagL
         w12.ResizeTo( 1, a12.Width() );
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
-        basic::Conjugate( a1R );
-        const C tauP = advanced::Reflector( alpha11, a12 );
+        Conjugate( a1R );
+        const C tauP = Reflector( alpha11, a12 );
         const C epsilonP = alpha11.Get(0,0);
         alpha11.Set(0,0,(C)1);
-        basic::Gemv( NORMAL, tauP, A2R, a1R, (C)0, w21 );
-        basic::Ger( (C)-1, w21, a1R, A2R );
+        Gemv( NORMAL, tauP, A2R, a1R, (C)0, w21 );
+        Ger( (C)-1, w21, a1R, A2R );
         alpha11.Set(0,0,epsilonP);
         tP.Set(A00.Height(),0,tauP);
-        basic::Conjugate( a1R );
+        Conjugate( a1R );
 
         if( A22.Height() != 0 )
         {
@@ -244,11 +244,11 @@ inline void BidiagL
             ( a21, alpha21T,
                    a21B );
 
-            const C tauQ = advanced::Reflector( alpha21T, a21B );
+            const C tauQ = Reflector( alpha21T, a21B );
             const C epsilonQ = alpha21T.Get(0,0);
             alpha21T.Set(0,0,(C)1);
-            basic::Gemv( ADJOINT, tauQ, A22, a21, (C)0, w12 );
-            basic::Ger( (C)-1, a21, w12, A22 );
+            Gemv( ADJOINT, tauQ, A22, a21, (C)0, w12 );
+            Ger( (C)-1, a21, w12, A22 );
             alpha21T.Set(0,0,epsilonQ);
             tQ.Set(A00.Height(),0,tauQ);
         }
@@ -266,7 +266,7 @@ inline void BidiagL
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void BidiagU
 ( Matrix<std::complex<R> >& A, 
   Matrix<std::complex<R> >& tP,
@@ -323,11 +323,11 @@ inline void BidiagU
         w12.ResizeTo( 1, a12.Width() );
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
-        const C tauQ = advanced::Reflector( alpha11, a21 );
+        const C tauQ = Reflector( alpha11, a21 );
         const C epsilonQ = alpha11.Get(0,0);
         alpha11.Set(0,0,(C)1);
-        basic::Gemv( ADJOINT, tauQ, AB2, aB1, (C)0, w12 );
-        basic::Ger( (C)-1, aB1, w12, AB2 );
+        Gemv( ADJOINT, tauQ, AB2, aB1, (C)0, w12 );
+        Ger( (C)-1, aB1, w12, AB2 );
         alpha11.Set(0,0,epsilonQ);
         tQ.Set(A00.Height(),0,tauQ );
 
@@ -335,14 +335,14 @@ inline void BidiagU
         {
             PartitionRight( a12, alpha12L, a12R );
 
-            basic::Conjugate( a12 ); 
-            const C tauP = advanced::Reflector( alpha12L, a12R );
+            Conjugate( a12 ); 
+            const C tauP = Reflector( alpha12L, a12R );
             const C epsilonP = alpha12L.Get(0,0);
             alpha12L.Set(0,0,(C)1);
-            basic::Gemv( NORMAL, tauP, A22, a12, (C)0, w21 );
-            basic::Ger( (C)-1, w21, a12, A22 );
+            Gemv( NORMAL, tauP, A22, a12, (C)0, w21 );
+            Ger( (C)-1, w21, a12, A22 );
             alpha12L.Set(0,0,epsilonP);
-            basic::Conjugate( a12 );
+            Conjugate( a12 );
             tP.Set(A00.Height(),0,tauP);
         }
         //--------------------------------------------------------------------//
@@ -360,15 +360,13 @@ inline void BidiagU
 }
 
 } // namespace bidiag
-} // namespace advanced
-} // namespace elemental
 
 template<typename R> 
 inline void
-elemental::advanced::Bidiag( Matrix<R>& A )
+Bidiag( Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Bidiag");
+    PushCallStack("Bidiag");
 #endif
     if( IsComplex<R>::val )
         throw std::logic_error("Called real routine with complex datatype");
@@ -382,13 +380,13 @@ elemental::advanced::Bidiag( Matrix<R>& A )
 }
 
 template<typename R> 
-inline void elemental::advanced::Bidiag
+inline void Bidiag
 ( Matrix<std::complex<R> >& A, 
   Matrix<std::complex<R> >& tP, 
   Matrix<std::complex<R> >& tQ )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Bidiag");
+    PushCallStack("Bidiag");
 #endif
     if( A.Height() >= A.Width() )
         bidiag::BidiagU( A, tP, tQ );
@@ -398,3 +396,5 @@ inline void elemental::advanced::Bidiag
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

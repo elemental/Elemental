@@ -31,16 +31,18 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Meant for composing an entire pivot vector for an n x n matrix.
 // Requires O(n) work for an n x n matrix.
 
 inline void
-elemental::advanced::ComposePivots
+ComposePivots
 ( const Matrix<int>& p,
   std::vector<int>& image, std::vector<int>& preimage )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ComposePivots");
+    PushCallStack("ComposePivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
 #endif
@@ -69,12 +71,12 @@ elemental::advanced::ComposePivots
 }
 
 inline void
-elemental::advanced::ComposePivots
+ComposePivots
 ( const DistMatrix<int,VC,STAR>& p,
   std::vector<int>& image, std::vector<int>& preimage )
 {
 #ifndef RELEASE    
-    PushCallStack("advanced::ComposePivots");
+    PushCallStack("ComposePivots");
 #endif
     DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
     ComposePivots( p_STAR_STAR, image, preimage );
@@ -84,7 +86,7 @@ elemental::advanced::ComposePivots
 }
 
 inline void
-elemental::advanced::ComposePivots
+ComposePivots
 ( const DistMatrix<int,STAR,STAR>& p, 
   std::vector<int>& image, std::vector<int>& preimage )
 { ComposePivots( p.LockedLocalMatrix(), image, preimage ); }
@@ -94,12 +96,12 @@ elemental::advanced::ComposePivots
 // Requires O(b^2) work.
 
 inline void
-elemental::advanced::internal::ComposePanelPivots
+internal::ComposePanelPivots
 ( const Matrix<int>& p, int pivotOffset,
   std::vector<int>& image, std::vector<int>& preimage )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ComposePanelPivots");
+    PushCallStack("internal::ComposePanelPivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( pivotOffset < 0 )
@@ -144,8 +146,9 @@ elemental::advanced::internal::ComposePanelPivots
 }
 
 inline void
-elemental::advanced::internal::ComposePanelPivots
+internal::ComposePanelPivots
 ( const DistMatrix<int,STAR,STAR>& p, int pivotOffset,
   std::vector<int>& image, std::vector<int>& preimage )
 { ComposePanelPivots( p.LockedLocalMatrix(), pivotOffset, image, preimage ); }
 
+} // namespace elemental

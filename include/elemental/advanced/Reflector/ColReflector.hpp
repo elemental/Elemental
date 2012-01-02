@@ -35,13 +35,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename R>
 inline R
-elemental::advanced::internal::ColReflector
-( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
+internal::ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ColReflector");
+    PushCallStack("internal::ColReflector");
     if( chi.Grid() != x.Grid() )
         throw std::logic_error
         ("chi and x must be distributed over the same grid");
@@ -71,7 +72,7 @@ elemental::advanced::internal::ColReflector
     }
 
     std::vector<R> localNorms(gridHeight);
-    R localNorm = basic::Nrm2( x.LockedLocalMatrix() ); 
+    R localNorm = Nrm2( x.LockedLocalMatrix() ); 
     mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
     R norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
 
@@ -97,12 +98,12 @@ elemental::advanced::internal::ColReflector
         do
         {
             ++count;
-            basic::Scal( invOfSafeInv, x );
+            Scal( invOfSafeInv, x );
             alpha *= invOfSafeInv;
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
 
-        localNorm = basic::Nrm2( x.LockedLocalMatrix() );
+        localNorm = Nrm2( x.LockedLocalMatrix() );
         mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
         norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
         if( alpha <= 0 )
@@ -112,7 +113,7 @@ elemental::advanced::internal::ColReflector
     }
 
     R tau = (beta-alpha)/beta;
-    basic::Scal( one/(alpha-beta), x );
+    Scal( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
         beta *= safeInv;
@@ -127,11 +128,11 @@ elemental::advanced::internal::ColReflector
 
 template<typename R> 
 inline std::complex<R>
-elemental::advanced::internal::ColReflector
+internal::ColReflector
 ( DistMatrix<std::complex<R>,MC,MR>& chi, DistMatrix<std::complex<R>,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ColReflector");
+    PushCallStack("internal::ColReflector");
     if( chi.Grid() != x.Grid() )
         throw std::logic_error
         ("chi and x must be distributed over the same grid");
@@ -152,7 +153,7 @@ elemental::advanced::internal::ColReflector
     const int colAlignment = chi.ColAlignment();
 
     std::vector<R> localNorms(gridHeight);
-    R localNorm = basic::Nrm2( x.LockedLocalMatrix() ); 
+    R localNorm = Nrm2( x.LockedLocalMatrix() ); 
     mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
     R norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
 
@@ -188,12 +189,12 @@ elemental::advanced::internal::ColReflector
         do
         {
             ++count;
-            basic::Scal( (C)invOfSafeInv, x );
+            Scal( (C)invOfSafeInv, x );
             alpha *= invOfSafeInv;
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
 
-        localNorm = basic::Nrm2( x.LockedLocalMatrix() );
+        localNorm = Nrm2( x.LockedLocalMatrix() );
         mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
         norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
         if( real(alpha) <= 0 )
@@ -203,7 +204,7 @@ elemental::advanced::internal::ColReflector
     }
 
     C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );
-    basic::Scal( one/(alpha-beta), x );
+    Scal( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
         beta *= safeInv;
@@ -215,3 +216,5 @@ elemental::advanced::internal::ColReflector
 #endif
     return tau;
 }
+
+} // namespace elemental

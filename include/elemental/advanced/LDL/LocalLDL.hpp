@@ -31,14 +31,16 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename F>
 inline void
-elemental::advanced::LDLH( Matrix<F>& A, Matrix<F>& d )
+LDLH( Matrix<F>& A, Matrix<F>& d )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LDLH");
+    PushCallStack("LDLH");
 #endif
-    advanced::internal::LDLVar3( ADJOINT, A, d );
+    internal::LDLVar3( ADJOINT, A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -46,25 +48,24 @@ elemental::advanced::LDLH( Matrix<F>& A, Matrix<F>& d )
 
 template<typename F>
 inline void
-elemental::advanced::LDLT( Matrix<F>& A, Matrix<F>& d )
+LDLT( Matrix<F>& A, Matrix<F>& d )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LDLT");
+    PushCallStack("LDLT");
 #endif
-    advanced::internal::LDLVar3( TRANSPOSE, A, d );
+    internal::LDLVar3( TRANSPOSE, A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
 // Unblocked serial LDL _without_ partial pivoting
-template<typename F> // representation of a field
+template<typename F> 
 inline void
-elemental::advanced::internal::LDLVar3
-( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
+internal::LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LDLVar3");
+    PushCallStack("LDLVar3");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
@@ -138,3 +139,4 @@ elemental::advanced::internal::LDLVar3
 #endif
 }
 
+} // namespace elemental

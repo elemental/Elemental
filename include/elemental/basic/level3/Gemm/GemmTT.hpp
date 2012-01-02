@@ -31,9 +31,11 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::GemmTT
+internal::GemmTT
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -41,7 +43,7 @@ elemental::basic::internal::GemmTT
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmTT");
+    PushCallStack("internal::GemmTT");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -55,17 +57,17 @@ elemental::basic::internal::GemmTT
 
     if( m <= n && weightTowardsC*m <= k )
     {
-        basic::internal::GemmTTB
+        internal::GemmTTB
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else if( n <= m && weightTowardsC*n <= k )
     {
-        basic::internal::GemmTTA
+        internal::GemmTTA
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::GemmTTC
+        internal::GemmTTC
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
@@ -76,7 +78,7 @@ elemental::basic::internal::GemmTT
 // Transpose Transpose Gemm that avoids communicating the matrix A.
 template<typename T>
 inline void
-elemental::basic::internal::GemmTTA
+internal::GemmTTA
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -84,7 +86,7 @@ elemental::basic::internal::GemmTTA
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmTTA");
+    PushCallStack("internal::GemmTTA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -120,7 +122,7 @@ elemental::basic::internal::GemmTTA
     DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionDown
     ( B, BT,
          BB, 0 );
@@ -146,14 +148,14 @@ elemental::basic::internal::GemmTTA
 
         // D1[MR,*] := alpha (A[MC,MR])^T (B1[*,MC])^T
         //           = alpha (A^T)[MR,MC] (B1^T)[MC,*]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientationOfA, orientationOfB, 
           alpha, A, B1_STAR_MC, (T)0, D1_MR_STAR );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
         D1_MR_MC.SumScatterFrom( D1_MR_STAR );
         D1 = D1_MR_MC; 
-        basic::Axpy( (T)1, D1, C1 );
+        Axpy( (T)1, D1, C1 );
         //--------------------------------------------------------------------//
         B1_STAR_MC.FreeAlignments();
         D1_MR_STAR.FreeAlignments();
@@ -177,7 +179,7 @@ elemental::basic::internal::GemmTTA
 // Transpose Transpose Gemm that avoids communicating the matrix B.
 template<typename T>
 inline void
-elemental::basic::internal::GemmTTB
+internal::GemmTTB
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -185,7 +187,7 @@ elemental::basic::internal::GemmTTB
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmTTB");
+    PushCallStack("internal::GemmTTB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -221,7 +223,7 @@ elemental::basic::internal::GemmTTB
     DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm 
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionRight( A, AL, AR, 0 );
     PartitionDown
     ( C, CT,
@@ -247,14 +249,14 @@ elemental::basic::internal::GemmTTB
  
         // D1[*,MC] := alpha (A1[MR,*])^T (B[MC,MR])^T
         //           = alpha (A1^T)[*,MR] (B^T)[MR,MC]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientationOfA, orientationOfB, 
           alpha, A1_MR_STAR, B, (T)0, D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
         D1_MR_MC.SumScatterFrom( D1_STAR_MC );
         D1 = D1_MR_MC; 
-        basic::Axpy( (T)1, D1, C1 );
+        Axpy( (T)1, D1, C1 );
         //--------------------------------------------------------------------//
         A1_MR_STAR.FreeAlignments();
         D1_STAR_MC.FreeAlignments();
@@ -278,7 +280,7 @@ elemental::basic::internal::GemmTTB
 // Transpose Transpose Gemm that avoids communicating the matrix C.
 template<typename T>
 inline void
-elemental::basic::internal::GemmTTC
+internal::GemmTTC
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -286,7 +288,7 @@ elemental::basic::internal::GemmTTC
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmTTC");
+    PushCallStack("internal::GemmTTC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -320,7 +322,7 @@ elemental::basic::internal::GemmTTC
     DistMatrix<T,MR,STAR> B1_MR_STAR(g);
     
     // Start the algorithm    
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionDown
     ( A, AT,
          AB, 0 ); 
@@ -345,7 +347,7 @@ elemental::basic::internal::GemmTTC
 
         // C[MC,MR] += alpha (A1[*,MC])^T (B1[MR,*])^T
         //           = alpha (A1^T)[MC,*] (B1^T)[*,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientationOfA, orientationOfB, 
           alpha, A1_STAR_MC, B1_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
@@ -366,3 +368,5 @@ elemental::basic::internal::GemmTTC
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

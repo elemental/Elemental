@@ -56,8 +56,8 @@ main( int argc, char* argv[] )
         I.SetToIdentity();
         I.Print("Identity");
 
-        const double trace = advanced::Trace( I );
-        const double det = advanced::Determinant( I );
+        const double trace = Trace( I );
+        const double det = Determinant( I );
         if( commRank == 0 )
             std::cout << "Tr(I) = " << trace << "\n"
                       << "Det(I) = " << det << std::endl;

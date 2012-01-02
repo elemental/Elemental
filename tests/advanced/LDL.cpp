@@ -69,23 +69,23 @@ void TestCorrectness
     // Test correctness by comparing the application of AOrig against a 
     // random set of 100 vectors to the application of tril(A) tril(A)^H
     if( conjugated )
-        basic::Trmm( LEFT, LOWER, ADJOINT, UNIT, (F)1, A, Y );
+        Trmm( LEFT, LOWER, ADJOINT, UNIT, (F)1, A, Y );
     else
-        basic::Trmm( LEFT, LOWER, TRANSPOSE, UNIT, (F)1, A, Y );
-    basic::DiagonalScale( LEFT, NORMAL, d, Y );
-    basic::Trmm( LEFT, LOWER, NORMAL, UNIT, (F)1, A, Y );
+        Trmm( LEFT, LOWER, TRANSPOSE, UNIT, (F)1, A, Y );
+    DiagonalScale( LEFT, NORMAL, d, Y );
+    Trmm( LEFT, LOWER, NORMAL, UNIT, (F)1, A, Y );
     if( conjugated )
-        basic::Hemm( LEFT, LOWER, (F)-1, AOrig, X, (F)1, Y );
+        Hemm( LEFT, LOWER, (F)-1, AOrig, X, (F)1, Y );
     else
-        basic::Symm( LEFT, LOWER, (F)-1, AOrig, X, (F)1, Y );
-    F oneNormOfError = advanced::Norm( Y, ONE_NORM );
-    F infNormOfError = advanced::Norm( Y, INFINITY_NORM );
-    F frobNormOfError = advanced::Norm( Y, FROBENIUS_NORM );
-    F infNormOfA = advanced::HermitianNorm( LOWER, AOrig, INFINITY_NORM );
-    F frobNormOfA = advanced::HermitianNorm( LOWER, AOrig, FROBENIUS_NORM );
-    F oneNormOfX = advanced::Norm( X, ONE_NORM );
-    F infNormOfX = advanced::Norm( X, INFINITY_NORM );
-    F frobNormOfX = advanced::Norm( X, FROBENIUS_NORM );
+        Symm( LEFT, LOWER, (F)-1, AOrig, X, (F)1, Y );
+    F oneNormOfError = Norm( Y, ONE_NORM );
+    F infNormOfError = Norm( Y, INFINITY_NORM );
+    F frobNormOfError = Norm( Y, FROBENIUS_NORM );
+    F infNormOfA = HermitianNorm( LOWER, AOrig, INFINITY_NORM );
+    F frobNormOfA = HermitianNorm( LOWER, AOrig, FROBENIUS_NORM );
+    F oneNormOfX = Norm( X, ONE_NORM );
+    F infNormOfX = Norm( X, INFINITY_NORM );
+    F frobNormOfX = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "||A||_1 = ||A||_oo   = " << Abs(infNormOfA) << "\n"
@@ -137,16 +137,16 @@ void TestLDL
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
     if( !conjugated )
-        advanced::LDLT( A, d );
+        LDLT( A, d );
     else
-        advanced::LDLH( A, d );
+        LDLH( A, d );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
     if( conjugated )
-        gFlops = advanced::internal::LDLHGFlops<F>( m, runTime );
+        gFlops = internal::LDLHGFlops<F>( m, runTime );
     else
-        gFlops = advanced::internal::LDLTGFlops<F>( m, runTime );
+        gFlops = internal::LDLTGFlops<F>( m, runTime );
     if( g.Rank() == 0 )
     {
         cout << "DONE.\n"
@@ -195,8 +195,8 @@ main( int argc, char* argv[] )
 #endif
         const Grid g( comm, r, c );
         SetBlocksize( nb );
-        basic::SetLocalTrrkBlocksize<double>( nbLocal );
-        basic::SetLocalTrrkBlocksize<complex<double> >( nbLocal );
+        SetLocalTrrkBlocksize<double>( nbLocal );
+        SetLocalTrrkBlocksize<complex<double> >( nbLocal );
 
         if( rank == 0 )
             cout << "Will test LDL" << (conjugated?"^H":"^T") << endl;

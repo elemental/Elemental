@@ -32,11 +32,13 @@
 */
 #include "elemental/core/environment.hpp"
 
+namespace elemental {
+
 //----------------------------------------------------------------------------//
 // Level 1 BLAS                                                               //
 //----------------------------------------------------------------------------//
 void
-elemental::blas::Axpy
+blas::Axpy
 ( int n, int alpha, const int* x, int incx, int* y, int incy )
 {
     for( int i=0; i<n; ++i )
@@ -44,158 +46,158 @@ elemental::blas::Axpy
 }
 
 void
-elemental::blas::Axpy
+blas::Axpy
 ( int n, float alpha, const float* x, int incx, float* y, int incy )
 { BLAS(saxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
 void
-elemental::blas::Axpy
+blas::Axpy
 ( int n, double alpha, const double* x, int incx, double* y, int incy )
 { BLAS(daxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
 void
-elemental::blas::Axpy
+blas::Axpy
 ( int n, scomplex alpha, const scomplex* x, int incx, scomplex* y, int incy )
 { BLAS(caxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
 void
-elemental::blas::Axpy
+blas::Axpy
 ( int n, dcomplex alpha, const dcomplex* x, int incx, dcomplex* y, int incy )
 { BLAS(zaxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
 float
-elemental::blas::Dot
+blas::Dot
 ( int n, const float* x, int incx, const float* y, int incy )
 { return BLAS(sdot)( &n, x, &incx, y, &incy ); }
 
 double
-elemental::blas::Dot
+blas::Dot
 ( int n, const double* x, int incx, const double* y, int incy )
 { return BLAS(ddot)( &n, x, &incx, y, &incy ); }
 
-elemental::scomplex
-elemental::blas::Dot
-( int n, const elemental::scomplex* x, int incx,
-         const elemental::scomplex* y, int incy )
+scomplex
+blas::Dot
+( int n, const scomplex* x, int incx,
+         const scomplex* y, int incy )
 { 
-    elemental::scomplex alpha = 0;
+    scomplex alpha = 0;
     for( int i=0; i<n; ++i ) 
         alpha += std::conj(x[i*incx])*y[i*incy];
     return alpha;
 }
 
-elemental::dcomplex
-elemental::blas::Dot
-( int n, const elemental::dcomplex* x, int incx,
-         const elemental::dcomplex* y, int incy )
+dcomplex
+blas::Dot
+( int n, const dcomplex* x, int incx,
+         const dcomplex* y, int incy )
 {
-    elemental::dcomplex alpha = 0;
+    dcomplex alpha = 0;
     for( int i=0; i<n; ++i ) 
         alpha += std::conj(x[i*incx])*y[i*incy];
     return alpha;
 }
 
 float
-elemental::blas::Dotc
+blas::Dotc
 ( int n, const float* x, int incx, const float* y, int incy )
 { return BLAS(sdot)( &n, x, &incx, y, &incy ); }
 
 double
-elemental::blas::Dotc
+blas::Dotc
 ( int n, const double* x, int incx, const double* y, int incy )
 { return BLAS(ddot)( &n, x, &incx, y, &incy ); }
 
-elemental::scomplex
-elemental::blas::Dotc
-( int n, const elemental::scomplex* x, int incx,
-         const elemental::scomplex* y, int incy )
+scomplex
+blas::Dotc
+( int n, const scomplex* x, int incx,
+         const scomplex* y, int incy )
 { 
-    elemental::scomplex alpha = 0;
+    scomplex alpha = 0;
     for( int i=0; i<n; ++i ) 
         alpha += std::conj(x[i*incx])*y[i*incy];
     return alpha;
 }
 
-elemental::dcomplex
-elemental::blas::Dotc
-( int n, const elemental::dcomplex* x, int incx,
-         const elemental::dcomplex* y, int incy )
+dcomplex
+blas::Dotc
+( int n, const dcomplex* x, int incx,
+         const dcomplex* y, int incy )
 { 
-    elemental::dcomplex alpha = 0;
+    dcomplex alpha = 0;
     for( int i=0; i<n; ++i ) 
         alpha += std::conj(x[i*incx])*y[i*incy];
     return alpha;
 }
 
 float
-elemental::blas::Dotu
+blas::Dotu
 ( int n, const float* x, int incx, const float* y, int incy )
 { return BLAS(sdot)( &n, x, &incx, y, &incy ); }
 
 double
-elemental::blas::Dotu
+blas::Dotu
 ( int n, const double* x, int incx, const double* y, int incy )
 { return BLAS(ddot)( &n, x, &incx, y, &incy ); }
 
-elemental::scomplex
-elemental::blas::Dotu
-( int n, const elemental::scomplex* x, int incx,
-         const elemental::scomplex* y, int incy )
+scomplex
+blas::Dotu
+( int n, const scomplex* x, int incx,
+         const scomplex* y, int incy )
 {
-    elemental::scomplex alpha = 0;
+    scomplex alpha = 0;
     for( int i=0; i<n; ++i ) 
         alpha += x[i*incx]*y[i*incy];
     return alpha;
 }
 
-elemental::dcomplex
-elemental::blas::Dotu
-( int n, const elemental::dcomplex* x, int incx,
-         const elemental::dcomplex* y, int incy )
+dcomplex
+blas::Dotu
+( int n, const dcomplex* x, int incx,
+         const dcomplex* y, int incy )
 {
-    elemental::dcomplex alpha = 0;
+    dcomplex alpha = 0;
     for( int i=0; i<n; ++i ) 
         alpha += x[i*incx]*y[i*incy];
     return alpha;
 }
 
 float
-elemental::blas::Nrm2
+blas::Nrm2
 ( int n, const float* x, int incx )
 { return BLAS(snrm2)( &n, x, &incx ); }
 
 double
-elemental::blas::Nrm2
+blas::Nrm2
 ( int n, const double* x, int incx )
 { return BLAS(dnrm2)( &n, x, &incx ); }
 
 float
-elemental::blas::Nrm2
+blas::Nrm2
 ( int n, const scomplex* x, int incx )
 { return BLAS(scnrm2)( &n, x, &incx ); }
 
 double
-elemental::blas::Nrm2
+blas::Nrm2
 ( int n, const dcomplex* x, int incx )
 { return BLAS(dznrm2)( &n, x, &incx ); }
 
 void
-elemental::blas::Scal
+blas::Scal
 ( int n, float alpha, float* x, int incx )
 { BLAS(sscal)( &n, &alpha, x, &incx ); }
 
 void
-elemental::blas::Scal
+blas::Scal
 ( int n, double alpha, double* x, int incx )
 { BLAS(dscal)( &n, &alpha, x, &incx ); }
 
 void
-elemental::blas::Scal
+blas::Scal
 ( int n, scomplex alpha, scomplex* x, int incx )
 { BLAS(cscal)( &n, &alpha, x, &incx ); }
 
 void
-elemental::blas::Scal
+blas::Scal
 ( int n, dcomplex alpha, dcomplex* x, int incx )
 { BLAS(zscal)( &n, &alpha, x, &incx ); }
 
@@ -203,7 +205,7 @@ elemental::blas::Scal
 // Level 2 BLAS                                                               //
 //----------------------------------------------------------------------------//
 void
-elemental::blas::Gemv
+blas::Gemv
 ( char trans, int m, int n,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy )
@@ -214,7 +216,7 @@ elemental::blas::Gemv
 }
 
 void
-elemental::blas::Gemv
+blas::Gemv
 ( char trans, int m, int n,
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy )
@@ -225,199 +227,199 @@ elemental::blas::Gemv
 }
 
 void
-elemental::blas::Gemv
+blas::Gemv
 ( char trans, int m, int n,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy )
 { BLAS(cgemv)( &trans, &m, &n, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::blas::Gemv
+blas::Gemv
 ( char trans, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy )
 { BLAS(zgemv)( &trans, &m, &n, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::blas::Ger
+blas::Ger
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
 { BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Ger
+blas::Ger
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda  )
 { BLAS(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Ger
+blas::Ger
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
 { BLAS(cgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Ger
+blas::Ger
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
 { BLAS(zgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Gerc
+blas::Gerc
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
 { BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Gerc
+blas::Gerc
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
 { BLAS(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Gerc
+blas::Gerc
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
 { BLAS(cgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Gerc
+blas::Gerc
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
 { BLAS(zgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Geru
+blas::Geru
 ( int m, int n,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
 { BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Geru
+blas::Geru
 ( int m, int n,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
 { BLAS(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Geru
+blas::Geru
 ( int m, int n,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
 { BLAS(cgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Geru
+blas::Geru
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
 { BLAS(zgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Hemv
+blas::Hemv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy )
 { BLAS(ssymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::blas::Hemv
+blas::Hemv
 ( char uplo, int m,
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy )
 { BLAS(dsymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::blas::Hemv
+blas::Hemv
 ( char uplo, int m,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy )
 { BLAS(chemv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::blas::Hemv
+blas::Hemv
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy )
 { BLAS(zhemv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::blas::Her
+blas::Her
 ( char uplo, int m,
   float alpha, const float* x, int incx, float* A, int lda )
 { BLAS(ssyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void
-elemental::blas::Her
+blas::Her
 ( char uplo, int m,
   double alpha, const double* x, int incx, double* A, int lda )
 { BLAS(dsyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void
-elemental::blas::Her
+blas::Her
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda )
 { BLAS(cher)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void
-elemental::blas::Her
+blas::Her
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda )
 { BLAS(zher)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void
-elemental::blas::Her2
+blas::Her2
 ( char uplo, int m,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
 { BLAS(ssyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Her2
+blas::Her2
 ( char uplo, int m,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
 { BLAS(dsyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Her2
+blas::Her2
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
 { BLAS(cher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Her2
+blas::Her2
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
 { BLAS(zher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Symv
+blas::Symv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
   float beta,        float* y, int incy )
 { BLAS(ssymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::blas::Symv
+blas::Symv
 ( char uplo, int m,
   double alpha, const double* A, int lda, const double* x, int incx,
   double beta,        double* y, int incy )
 { BLAS(dsymv)( &uplo, &m, &alpha, A, &lda, x, &incx, &beta, y, &incy ); }
 
 void
-elemental::blas::Symv
+blas::Symv
 ( char uplo, int m,
   scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
   scomplex beta,        scomplex* y, int incy )
@@ -427,7 +429,7 @@ elemental::blas::Symv
 }
 
 void
-elemental::blas::Symv
+blas::Symv
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy )
@@ -437,19 +439,19 @@ elemental::blas::Symv
 }
 
 void
-elemental::blas::Syr
+blas::Syr
 ( char uplo, int m,
   float alpha, const float* x, int incx, float* A, int lda  )
 { BLAS(ssyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void
-elemental::blas::Syr
+blas::Syr
 ( char uplo, int m,
   double alpha, const double* x, int incx, double* A, int lda )
 { BLAS(dsyr)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void
-elemental::blas::Syr
+blas::Syr
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda )
 {
@@ -458,7 +460,7 @@ elemental::blas::Syr
 }
 
 void
-elemental::blas::Syr
+blas::Syr
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda )
 {
@@ -467,21 +469,21 @@ elemental::blas::Syr
 }
 
 void
-elemental::blas::Syr2
+blas::Syr2
 ( char uplo, int m,
   float alpha, const float* x, int incx, const float* y, int incy,
                      float* A, int lda )
 { BLAS(ssyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Syr2
+blas::Syr2
 ( char uplo, int m,
   double alpha, const double* x, int incx, const double* y, int incy,
                       double* A, int lda )
 { BLAS(dsyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void
-elemental::blas::Syr2
+blas::Syr2
 ( char uplo, int m,
   scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
                         scomplex* A, int lda )
@@ -498,7 +500,7 @@ elemental::blas::Syr2
 }
 
 void
-elemental::blas::Syr2
+blas::Syr2
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
@@ -515,49 +517,49 @@ elemental::blas::Syr2
 }
 
 void
-elemental::blas::Trmv
+blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const float* A, int lda, float* x, int incx )
 { BLAS(strmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::blas::Trmv
+blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const double* A, int lda, double* x, int incx )
 { BLAS(dtrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::blas::Trmv
+blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const scomplex* A, int lda, scomplex* x, int incx )
 { BLAS(ctrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::blas::Trmv
+blas::Trmv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx )
 { BLAS(ztrmv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::blas::Trsv
+blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const float* A, int lda, float* x, int incx )
 { BLAS(strsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::blas::Trsv
+blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const double* A, int lda, double* x, int incx )
 { BLAS(dtrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::blas::Trsv
+blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const scomplex* A, int lda, scomplex* x, int incx )
 { BLAS(ctrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
 
 void
-elemental::blas::Trsv
+blas::Trsv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx )
 { BLAS(ztrsv)( &uplo, &trans, &diag, &m, A, &lda, x, &incx ); }
@@ -566,7 +568,7 @@ elemental::blas::Trsv
 // Level 3 BLAS                                                               //
 //----------------------------------------------------------------------------//
 void
-elemental::blas::Gemm
+blas::Gemm
 ( char transA, char transB, int m, int n, int k, 
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
@@ -578,7 +580,7 @@ elemental::blas::Gemm
 }
 
 void
-elemental::blas::Gemm
+blas::Gemm
 ( char transA, char transB,
   int m, int n, int k, 
   double alpha, const double* A, int lda, const double* B, int ldb,
@@ -591,7 +593,7 @@ elemental::blas::Gemm
 }
 
 void
-elemental::blas::Gemm
+blas::Gemm
 ( char transA, char transB, int m, int n, int k, 
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
@@ -601,7 +603,7 @@ elemental::blas::Gemm
 }
 
 void
-elemental::blas::Gemm
+blas::Gemm
 ( char transA, char transB, int m, int n, int k, 
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -611,7 +613,7 @@ elemental::blas::Gemm
 }
 
 void
-elemental::blas::Hemm
+blas::Hemm
 ( char side, char uplo, int m, int n,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
@@ -621,7 +623,7 @@ elemental::blas::Hemm
 }
 
 void
-elemental::blas::Hemm
+blas::Hemm
 ( char side, char uplo, int m, int n,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
@@ -631,7 +633,7 @@ elemental::blas::Hemm
 }
 
 void
-elemental::blas::Hemm
+blas::Hemm
 ( char side, char uplo, int m, int n,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
@@ -641,7 +643,7 @@ elemental::blas::Hemm
 }
 
 void
-elemental::blas::Hemm
+blas::Hemm
 ( char side, char uplo, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -651,7 +653,7 @@ elemental::blas::Hemm
 }
 
 void
-elemental::blas::Her2k
+blas::Her2k
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
@@ -662,7 +664,7 @@ elemental::blas::Her2k
 }
 
 void
-elemental::blas::Her2k
+blas::Her2k
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
@@ -673,7 +675,7 @@ elemental::blas::Her2k
 }
 
 void
-elemental::blas::Her2k
+blas::Her2k
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
@@ -683,7 +685,7 @@ elemental::blas::Her2k
 }
 
 void
-elemental::blas::Her2k
+blas::Her2k
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -693,7 +695,7 @@ elemental::blas::Her2k
 }
 
 void
-elemental::blas::Herk
+blas::Herk
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda,
   float beta,        float* C, int ldc )
@@ -703,7 +705,7 @@ elemental::blas::Herk
 }
 
 void
-elemental::blas::Herk
+blas::Herk
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda,
   double beta,        double* C, int ldc )
@@ -713,21 +715,21 @@ elemental::blas::Herk
 }
 
 void
-elemental::blas::Herk
+blas::Herk
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda,
   scomplex beta,        scomplex* C, int ldc )
 { BLAS(cherk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 void
-elemental::blas::Herk
+blas::Herk
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc )
 { BLAS(zherk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 void
-elemental::blas::Hetrmm( char uplo, int n, float* A, int lda )
+blas::Hetrmm( char uplo, int n, float* A, int lda )
 {
 #ifndef RELEASE
     PushCallStack("blas::Hetrmm");
@@ -746,7 +748,7 @@ elemental::blas::Hetrmm( char uplo, int n, float* A, int lda )
 }
 
 void
-elemental::blas::Hetrmm( char uplo, int n, double* A, int lda )
+blas::Hetrmm( char uplo, int n, double* A, int lda )
 {
 #ifndef RELEASE
     PushCallStack("blas::Hetrmm");
@@ -765,7 +767,7 @@ elemental::blas::Hetrmm( char uplo, int n, double* A, int lda )
 }
 
 void
-elemental::blas::Hetrmm( char uplo, int n, scomplex* A, int lda )
+blas::Hetrmm( char uplo, int n, scomplex* A, int lda )
 {
 #ifndef RELEASE
     PushCallStack("blas::Hetrmm");
@@ -784,7 +786,7 @@ elemental::blas::Hetrmm( char uplo, int n, scomplex* A, int lda )
 }
 
 void
-elemental::blas::Hetrmm( char uplo, int n, dcomplex* A, int lda )
+blas::Hetrmm( char uplo, int n, dcomplex* A, int lda )
 {
 #ifndef RELEASE
     PushCallStack("blas::Hetrmm");
@@ -803,7 +805,7 @@ elemental::blas::Hetrmm( char uplo, int n, dcomplex* A, int lda )
 }
 
 void
-elemental::blas::Symm
+blas::Symm
 ( char side, char uplo, int m, int n,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
@@ -813,7 +815,7 @@ elemental::blas::Symm
 }
 
 void
-elemental::blas::Symm
+blas::Symm
 ( char side, char uplo, int m, int n,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
@@ -823,7 +825,7 @@ elemental::blas::Symm
 }
 
 void
-elemental::blas::Symm
+blas::Symm
 ( char side, char uplo, int m, int n,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
@@ -833,7 +835,7 @@ elemental::blas::Symm
 }
 
 void
-elemental::blas::Symm
+blas::Symm
 ( char side, char uplo, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -843,7 +845,7 @@ elemental::blas::Symm
 }
 
 void
-elemental::blas::Syr2k
+blas::Syr2k
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
@@ -853,7 +855,7 @@ elemental::blas::Syr2k
 }
 
 void
-elemental::blas::Syr2k
+blas::Syr2k
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
@@ -863,7 +865,7 @@ elemental::blas::Syr2k
 }
 
 void
-elemental::blas::Syr2k
+blas::Syr2k
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
@@ -873,7 +875,7 @@ elemental::blas::Syr2k
 }
 
 void
-elemental::blas::Syr2k
+blas::Syr2k
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
@@ -883,35 +885,35 @@ elemental::blas::Syr2k
 }
 
 void
-elemental::blas::Syrk
+blas::Syrk
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda,
   float beta,        float* C, int ldc )
 { BLAS(ssyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 void
-elemental::blas::Syrk
+blas::Syrk
 ( char uplo, char trans, int n, int k,
   double alpha, const double* A, int lda,
   double beta,        double* C, int ldc )
 { BLAS(dsyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 void
-elemental::blas::Syrk
+blas::Syrk
 ( char uplo, char trans, int n, int k,
   scomplex alpha, const scomplex* A, int lda,
   scomplex beta,        scomplex* C, int ldc )
 { BLAS(csyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 void
-elemental::blas::Syrk
+blas::Syrk
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc )
 { BLAS(zsyrk)( &uplo, &trans, &n, &k, &alpha, A, &lda, &beta, C, &ldc ); }
 
 void
-elemental::blas::Trmm
+blas::Trmm
 ( char side, char uplo, char trans, char unit, int m, int n,
   float alpha, const float* A, int lda, float* B, int ldb )
 {
@@ -921,7 +923,7 @@ elemental::blas::Trmm
 }
 
 void
-elemental::blas::Trmm
+blas::Trmm
 ( char side, char uplo, char trans, char unit, int m, int n,
   double alpha, const double* A, int lda, double* B, int ldb )
 {
@@ -931,7 +933,7 @@ elemental::blas::Trmm
 }
 
 void
-elemental::blas::Trmm
+blas::Trmm
 ( char side, char uplo, char trans, char unit, int m, int n,
   scomplex alpha, const scomplex* A, int lda, scomplex* B, int ldb )
 {
@@ -940,7 +942,7 @@ elemental::blas::Trmm
 }
 
 void
-elemental::blas::Trmm
+blas::Trmm
 ( char side, char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb )
 {
@@ -949,7 +951,7 @@ elemental::blas::Trmm
 }
 
 void
-elemental::blas::Trsm
+blas::Trsm
 ( char side, char uplo, char trans, char unit, int m, int n,
   float alpha, const float* A, int lda, float* B, int ldb )
 {
@@ -959,7 +961,7 @@ elemental::blas::Trsm
 } 
 
 void
-elemental::blas::Trsm
+blas::Trsm
 ( char side, char uplo, char trans, char unit, int m, int n,
   double alpha, const double* A, int lda, double* B, int ldb )
 {
@@ -969,7 +971,7 @@ elemental::blas::Trsm
 } 
 
 void
-elemental::blas::Trsm
+blas::Trsm
 ( char side, char uplo, char trans, char unit, int m, int n,
   scomplex alpha, const scomplex* A, int lda, scomplex* B, int ldb )
 {
@@ -978,7 +980,7 @@ elemental::blas::Trsm
 } 
 
 void
-elemental::blas::Trsm
+blas::Trsm
 ( char side, char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb )
 {
@@ -986,3 +988,4 @@ elemental::blas::Trsm
                  &alpha, A, &lda, B, &ldb );
 } 
 
+} // namespace elemental

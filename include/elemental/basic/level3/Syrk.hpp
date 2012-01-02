@@ -36,28 +36,32 @@
 #include "./Syrk/SyrkUN.hpp"
 #include "./Syrk/SyrkUT.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Syrk
+Syrk
 ( UpperOrLower uplo, 
   Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Syrk");
+    PushCallStack("Syrk");
     if( orientation == ADJOINT )
         throw std::logic_error("Syrk accepts NORMAL and TRANSPOSE options");
 #endif
     if( uplo == LOWER && orientation == NORMAL )
-        basic::internal::SyrkLN( alpha, A, beta, C );
+        internal::SyrkLN( alpha, A, beta, C );
     else if( uplo == LOWER )
-        basic::internal::SyrkLT( alpha, A, beta, C );
+        internal::SyrkLT( alpha, A, beta, C );
     else if( orientation == NORMAL )
-        basic::internal::SyrkUN( alpha, A, beta, C );
+        internal::SyrkUN( alpha, A, beta, C );
     else
-        basic::internal::SyrkUT( alpha, A, beta, C );
+        internal::SyrkUT( alpha, A, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

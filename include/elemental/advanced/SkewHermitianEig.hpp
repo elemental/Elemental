@@ -33,18 +33,20 @@
 
 #ifndef WITHOUT_PMRRR
 
+namespace elemental {
+
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs of the real, skew-symmetric matrix G       //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("SkewHermitian matrices must be square");
@@ -69,7 +71,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, A, wImag, Z );
+    HermitianEig( uplo, A, wImag, Z );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -82,7 +84,7 @@ elemental::advanced::SkewHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.           //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
@@ -90,7 +92,7 @@ elemental::advanced::SkewHermitianEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -115,7 +117,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, A, wImag, Z, a, b );
+    HermitianEig( uplo, A, wImag, Z, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -123,10 +125,10 @@ elemental::advanced::SkewHermitianEig
 
 //----------------------------------------------------------------------------//
 // Grab a partial set of eigenpairs of the real, skew-symmetric n x n matrix  //
-// G. The partial set is determined by the half-open imaginary interval (a,b] // 
+// G. The partial set is determined by the half-open imaginary interval (a,b] //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,              MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
@@ -134,7 +136,7 @@ elemental::advanced::SkewHermitianEig
   double a, double b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("SkewHermitian matrices must be square");
@@ -159,7 +161,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, A, wImag, Z, a, b );
+    HermitianEig( uplo, A, wImag, Z, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -169,13 +171,13 @@ elemental::advanced::SkewHermitianEig
 // Grab the full set of eigenvalues the of the real, skew-symmetric matrix G  //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& G,
   DistMatrix<double,VR,STAR>& wImag )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("SkewHermitian matrices must be square");
@@ -200,7 +202,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, A, wImag );
+    HermitianEig( uplo, A, wImag );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -213,14 +215,14 @@ elemental::advanced::SkewHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.           //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& G,
   DistMatrix<double,VR,STAR>& wImag,
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -245,7 +247,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, A, wImag, a, b );
+    HermitianEig( uplo, A, wImag, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -256,14 +258,14 @@ elemental::advanced::SkewHermitianEig
 // G. The partial set is determined by the half-open imaginary interval (a,b] //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& G,
   DistMatrix<double,VR,STAR>& wImag,
   double a, double b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -288,7 +290,7 @@ elemental::advanced::SkewHermitianEig
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, A, wImag, a, b );
+    HermitianEig( uplo, A, wImag, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -298,14 +300,14 @@ elemental::advanced::SkewHermitianEig
 // Grab the full set of eigenpairs of the complex, skew-hermitian matrix G    //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   DistMatrix<std::complex<double>,MC,  MR>& Z )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -315,7 +317,7 @@ elemental::advanced::SkewHermitianEig
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, G, wImag, Z );
+    HermitianEig( uplo, G, wImag, Z );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -324,12 +326,12 @@ elemental::advanced::SkewHermitianEig
 //----------------------------------------------------------------------------//
 // Grab a partial set of eigenpairs of the complex, skew-hermitian n x n      //
 // matrix G. The partial set is determined by the inclusive zero-indexed      //
-// range                                                                      // 
+// range                                                                      //
 //   a,a+1,...,b    ; a >= 0, b < n                                           //
 // of the n eigenpairs sorted from smallest to largest eigenvalues.           //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
@@ -337,7 +339,7 @@ elemental::advanced::SkewHermitianEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -347,7 +349,7 @@ elemental::advanced::SkewHermitianEig
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, G, wImag, Z, a, b );
+    HermitianEig( uplo, G, wImag, Z, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -359,7 +361,7 @@ elemental::advanced::SkewHermitianEig
 // (a,b].                                                                     //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
@@ -367,7 +369,7 @@ elemental::advanced::SkewHermitianEig
   double a, double b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -377,7 +379,7 @@ elemental::advanced::SkewHermitianEig
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, G, wImag, Z, a, b );
+    HermitianEig( uplo, G, wImag, Z, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -387,13 +389,13 @@ elemental::advanced::SkewHermitianEig
 // Grab the full set of eigenvalues of the complex, skew-Hermitian matrix G   //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -403,7 +405,7 @@ elemental::advanced::SkewHermitianEig
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, G, wImag );
+    HermitianEig( uplo, G, wImag );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -417,14 +419,14 @@ elemental::advanced::SkewHermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.           //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -434,7 +436,7 @@ elemental::advanced::SkewHermitianEig
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, G, wImag, a, b );
+    HermitianEig( uplo, G, wImag, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -446,14 +448,14 @@ elemental::advanced::SkewHermitianEig
 // interval (a,b].                                                            //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::SkewHermitianEig
+SkewHermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& G,
   DistMatrix<double,              VR,STAR>& wImag,
   double a, double b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SkewHermitianEig");
+    PushCallStack("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -463,10 +465,12 @@ elemental::advanced::SkewHermitianEig
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
-    advanced::HermitianEig( uplo, G, wImag, a, b );
+    HermitianEig( uplo, G, wImag, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_PMRRR
 
+} // namespace elemental
+
+#endif // WITHOUT_PMRRR

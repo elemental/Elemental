@@ -31,15 +31,17 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R>
 inline void
-elemental::advanced::internal::ApplyPackedReflectorsRUVF
+internal::ApplyPackedReflectorsRUVF
 ( int offset, 
   const DistMatrix<R,MC,MR>& H,
         DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ApplyPackedReflectorsRUVF");
+    PushCallStack("internal::ApplyPackedReflectorsRUVF");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
     if( offset > H.Height() )
@@ -48,7 +50,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUVF
         throw std::logic_error("Transforms cannot extend below matrix");
     if( H.Height() != A.Width() )
         throw std::logic_error
-              ("Height of transforms must equal width of target matrix");
+        ("Height of transforms must equal width of target matrix");
 #endif
     const Grid& g = H.Grid();
 
@@ -95,7 +97,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUVF
         SetDiagonalToOne( RIGHT, offset, HPanCopy );
 
         HPan_VC_STAR = HPanCopy;
-        basic::Syrk
+        Syrk
         ( UPPER, TRANSPOSE, 
           (R)1, HPan_VC_STAR.LockedLocalMatrix(),
           (R)0, SInv_STAR_STAR.LocalMatrix() );
@@ -103,17 +105,17 @@ elemental::advanced::internal::ApplyPackedReflectorsRUVF
         HalveMainDiagonal( SInv_STAR_STAR );
 
         HPan_MR_STAR = HPan_VC_STAR;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL,
           (R)1, ALeft, HPan_MR_STAR, (R)0, Z_MC_STAR );
         Z_VC_STAR.SumScatterFrom( Z_MC_STAR );
         
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, 
           (R)1, SInv_STAR_STAR, Z_VC_STAR );
 
         Z_MC_STAR = Z_VC_STAR;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, TRANSPOSE, 
           (R)-1, Z_MC_STAR, HPan_MR_STAR, (R)1, ALeft );
         //--------------------------------------------------------------------//
@@ -132,16 +134,16 @@ elemental::advanced::internal::ApplyPackedReflectorsRUVF
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::internal::ApplyPackedReflectorsRUVF
+internal::ApplyPackedReflectorsRUVF
 ( Conjugation conjugation, int offset, 
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ApplyPackedReflectorsRUVF");
+    PushCallStack("internal::ApplyPackedReflectorsRUVF");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error
               ("{H,t,A} must be distributed over the same grid");
@@ -218,7 +220,7 @@ elemental::advanced::internal::ApplyPackedReflectorsRUVF
         SetDiagonalToOne( RIGHT, offset, HPanCopy );
  
         HPan_VC_STAR = HPanCopy;
-        basic::Herk
+        Herk
         ( UPPER, ADJOINT, 
           (C)1, HPan_VC_STAR.LockedLocalMatrix(),
           (C)0, SInv_STAR_STAR.LocalMatrix() ); 
@@ -227,17 +229,17 @@ elemental::advanced::internal::ApplyPackedReflectorsRUVF
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 
         HPan_MR_STAR = HPan_VC_STAR;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL,
           (C)1, ALeft, HPan_MR_STAR, (C)0, Z_MC_STAR );
         Z_VC_STAR.SumScatterFrom( Z_MC_STAR );
         
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, 
           (C)1, SInv_STAR_STAR, Z_VC_STAR );
 
         Z_MC_STAR = Z_VC_STAR;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, ADJOINT, (C)-1, Z_MC_STAR, HPan_MR_STAR, (C)1, ALeft );
         //--------------------------------------------------------------------//
         HPan_MR_STAR.FreeAlignments();
@@ -260,3 +262,5 @@ elemental::advanced::internal::ApplyPackedReflectorsRUVF
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

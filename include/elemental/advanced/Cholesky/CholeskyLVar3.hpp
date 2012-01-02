@@ -31,6 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 /*
    Parallelization of Variant 3 Lower Cholesky factorization. 
 
@@ -57,13 +59,12 @@
    A21[MC,MR] <- A21^T[* ,MC]
    -----------------------------------------------------
 */
-template<typename F> // representation of real or complex number
+template<typename F>
 inline void
-elemental::advanced::internal::CholeskyLVar3
-( DistMatrix<F,MC,MR>& A )
+internal::CholeskyLVar3( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CholeskyLVar3");
+    PushCallStack("internal::CholeskyLVar3");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -101,11 +102,11 @@ elemental::advanced::internal::CholeskyLVar3
         A21Adj_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        advanced::internal::LocalCholesky( LOWER, A11_STAR_STAR );
+        internal::LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A21_VC_STAR = A21;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
 
         A21_VR_STAR = A21_VC_STAR;
@@ -114,7 +115,7 @@ elemental::advanced::internal::CholeskyLVar3
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
-        basic::internal::LocalTrrk
+        internal::LocalTrrk
         ( LOWER, TRANSPOSE, 
           (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
 
@@ -161,13 +162,12 @@ elemental::advanced::internal::CholeskyLVar3
    A21[MC,MR] <- A21[MC,* ]
    -----------------------------------------------------
 */
-template<typename F> // representation of real or complex number
+template<typename F>
 inline void
-elemental::advanced::internal::CholeskyLVar3Naive
-( DistMatrix<F,MC,MR>& A )
+internal::CholeskyLVar3Naive( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CholeskyLVar3Naive");
+    PushCallStack("internal::CholeskyLVar3Naive");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -209,11 +209,11 @@ elemental::advanced::internal::CholeskyLVar3Naive
         A21_MR_STAR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        advanced::internal::LocalCholesky( LOWER, A11_STAR_STAR );
+        internal::LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A21_VC_STAR = A21;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
 
         A21_MC_STAR = A21_VC_STAR;
@@ -221,7 +221,7 @@ elemental::advanced::internal::CholeskyLVar3Naive
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
-        basic::internal::LocalTrrk
+        internal::LocalTrrk
         ( LOWER, ADJOINT, (F)-1, A21_MC_STAR, A21_MR_STAR, (F)1, A22 );
 
         A21 = A21_MC_STAR;
@@ -240,3 +240,5 @@ elemental::advanced::internal::CholeskyLVar3Naive
     PopCallStack();
 #endif
 } 
+
+} // namespace elemental

@@ -31,6 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Left Upper (Conjugate)Transpose (Non)Unit Trsm
 //   X := triu(U)^-T  X, 
 //   X := triu(U)^-H  X,
@@ -40,7 +42,7 @@
 // width(X) >> p
 template<typename F>
 inline void
-elemental::basic::internal::TrsmLUTLarge
+internal::TrsmLUTLarge
 ( Orientation orientation, 
   Diagonal diagonal,
   F alpha, 
@@ -49,7 +51,7 @@ elemental::basic::internal::TrsmLUTLarge
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmLUTLarge");
+    PushCallStack("internal::TrsmLUTLarge");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -83,7 +85,7 @@ elemental::basic::internal::TrsmLUTLarge
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -111,7 +113,7 @@ elemental::basic::internal::TrsmLUTLarge
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
         
         // X1[* ,VR] := U11^-[T/H][*,*] X1[* ,VR]
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, orientation, diagonal, (F)1, U11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
@@ -121,7 +123,7 @@ elemental::basic::internal::TrsmLUTLarge
 
         // X2[MC,MR] -= (U12[* ,MC])^(T/H) X1[* ,MR]
         //            = U12^(T/H)[MC,*] X1[* ,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientation, NORMAL, (F)-1, U12_STAR_MC, X1_STAR_MR, (F)1, X2 );
         //--------------------------------------------------------------------//
         U12_STAR_MC.FreeAlignments();
@@ -147,7 +149,7 @@ elemental::basic::internal::TrsmLUTLarge
 // width(X) ~= p
 template<typename F>
 inline void
-elemental::basic::internal::TrsmLUTMedium
+internal::TrsmLUTMedium
 ( Orientation orientation, 
   Diagonal diagonal,
   F alpha, 
@@ -156,7 +158,7 @@ elemental::basic::internal::TrsmLUTMedium
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmLUTMedium");
+    PushCallStack("internal::TrsmLUTMedium");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -189,7 +191,7 @@ elemental::basic::internal::TrsmLUTMedium
     DistMatrix<F,MR,  STAR> X1AdjOrTrans_MR_STAR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -223,7 +225,7 @@ elemental::basic::internal::TrsmLUTMedium
         // X1[* ,MR] := U11^-[T/H][*,*] X1[* ,MR]
         //
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] U11^-1[* ,* ]
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, UPPER, NORMAL, diagonal, 
           (F)1, U11_STAR_STAR, X1AdjOrTrans_MR_STAR, checkIfSingular );
 
@@ -236,7 +238,7 @@ elemental::basic::internal::TrsmLUTMedium
 
         // X2[MC,MR] -= (U12[* ,MC])^[T/H] X1[* ,MR]
         //            = U12^[T/H][MC,*] X1[* ,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientation, orientation, 
           (F)-1, U12_STAR_MC, X1AdjOrTrans_MR_STAR, (F)1, X2 );
         //--------------------------------------------------------------------//
@@ -263,7 +265,7 @@ elemental::basic::internal::TrsmLUTMedium
 // width(X) << p
 template<typename F>
 inline void
-elemental::basic::internal::TrsmLUTSmall
+internal::TrsmLUTSmall
 ( Orientation orientation, 
   Diagonal diagonal,
   F alpha, 
@@ -272,7 +274,7 @@ elemental::basic::internal::TrsmLUTSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmLUTSmall");
+    PushCallStack("internal::TrsmLUTSmall");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -306,7 +308,7 @@ elemental::basic::internal::TrsmLUTSmall
     DistMatrix<F,STAR,STAR> X1_STAR_STAR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -332,14 +334,14 @@ elemental::basic::internal::TrsmLUTSmall
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]
         
         // X1[* ,* ] := U11^-[T/H][* ,* ] X1[* ,* ]
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, orientation, diagonal,
           (F)1, U11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
 
         X1 = X1_STAR_STAR;
 
         // X2[VR,* ] -= U12[* ,VR]^[T/H] X1[* ,* ]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientation, NORMAL, (F)-1, U12, X1_STAR_STAR, (F)1, X2 );
         //--------------------------------------------------------------------//
 
@@ -360,3 +362,4 @@ elemental::basic::internal::TrsmLUTSmall
 #endif
 }
 
+} // namespace elemental

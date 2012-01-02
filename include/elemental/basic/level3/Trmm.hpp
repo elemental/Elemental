@@ -41,50 +41,48 @@
 #include "./Trmm/TrmmRUN.hpp"
 #include "./Trmm/TrmmRUT.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Trmm
-( Side side, 
-  UpperOrLower uplo, 
-  Orientation orientation, 
-  Diagonal diagonal,
-  T alpha, 
-  const DistMatrix<T,MC,MR>& A,
-        DistMatrix<T,MC,MR>& X   )
+Trmm
+( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
+  T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trmm");
+    PushCallStack("Trmm");
 #endif
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
-            basic::internal::TrmmLLN( diagonal, alpha, A, X );
+            internal::TrmmLLN( diagonal, alpha, A, X );
         else
-            basic::internal::TrmmLLT( orientation, diagonal, alpha, A, X );
+            internal::TrmmLLT( orientation, diagonal, alpha, A, X );
     }
     else if( side == LEFT )
     {
         if( orientation == NORMAL )
-            basic::internal::TrmmLUN( diagonal, alpha, A, X );
+            internal::TrmmLUN( diagonal, alpha, A, X );
         else
-            basic::internal::TrmmLUT( orientation, diagonal, alpha, A, X );
+            internal::TrmmLUT( orientation, diagonal, alpha, A, X );
     }
     else if( uplo == LOWER )
     {
         if( orientation == NORMAL )
-            basic::internal::TrmmRLN( diagonal, alpha, A, X );
+            internal::TrmmRLN( diagonal, alpha, A, X );
         else
-            basic::internal::TrmmRLT( orientation, diagonal, alpha, A, X );
+            internal::TrmmRLT( orientation, diagonal, alpha, A, X );
     }
     else
     {
         if( orientation == NORMAL )
-            basic::internal::TrmmRUN( diagonal, alpha, A, X );
+            internal::TrmmRUN( diagonal, alpha, A, X );
         else
-            basic::internal::TrmmRUT( orientation, diagonal, alpha, A, X );
+            internal::TrmmRUT( orientation, diagonal, alpha, A, X );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+} // namespace elemental

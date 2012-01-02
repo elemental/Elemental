@@ -3,16 +3,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Level 2 &mdash; Elemental 0.72 documentation</title>
-    
+    <title>Level 2 &mdash; Elemental v0.72 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -25,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental 0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
     <link rel="up" title="Basic linear algebra" href="../basic.html" />
     <link rel="next" title="Level 3" href="level3.html" />
     <link rel="prev" title="Level 1" href="level1.html" /> 
@@ -43,7 +40,7 @@
         <li class="right" >
           <a href="level1.html" title="Level 1"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../basic.html" accesskey="U">Basic linear algebra</a> &raquo;</li> 
       </ul>
     </div>  
@@ -66,14 +63,14 @@ where <img class="math" src="../_images/math/7fc24681030cd4fbb78b30e05fb2ca51019
 Whether or not <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> and <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/> are stored as row vectors, they will
 be interpreted as column vectors.</p>
 <dl class="function">
-<dt id="basic::Gemv__Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Gemv</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Gemv__Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Gemv__Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Gemv</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Gemv__Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Gemv__Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Gemv</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Gemv__Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Gemv__Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Gemv</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Gemv__Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -84,31 +81,31 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Gemv</tt><big>(<
 are free to be stored as either row or column vectors, but they will be
 interpreted as column vectors.</p>
 <dl class="function">
-<dt id="basic::Ger__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Ger</tt><big>(</big>T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Ger__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Ger__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Ger</tt><big>(</big>T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Ger__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Ger__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Ger</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Ger__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Ger__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Ger</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Ger__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
 </div>
 <div class="section" id="gerc">
 <h2>Gerc<a class="headerlink" href="#gerc" title="Permalink to this headline">¶</a></h2>
-<p>This is the same as <tt class="docutils literal"><span class="pre">basic::Ger</span></tt>, but the name is provided because it exists
+<p>This is the same as <tt class="docutils literal"><span class="pre">Ger</span></tt>, but the name is provided because it exists
 in the BLAS.</p>
 <dl class="function">
-<dt id="basic::Gerc__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Gerc</tt><big>(</big>T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Gerc__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Gerc__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Gerc</tt><big>(</big>T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Gerc__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Gerc__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Gerc</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Gerc__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Gerc__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Gerc</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Gerc__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -119,14 +116,14 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Gerc</tt><big>(<
 are free to be stored as either row or column vectors, but they will be
 interpreted as column vectors.</p>
 <dl class="function">
-<dt id="basic::Geru__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Geru</tt><big>(</big>T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Geru__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Geru__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Geru</tt><big>(</big>T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Geru__T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Geru__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Geru</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Geru__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Geru__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Geru</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Geru__T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -136,34 +133,34 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Geru</tt><big>(<
 <p>Hermitian matrix-vector multiply: <img class="math" src="../_images/math/8b1bf0f00fbd87968ea839435c17c78efbc6eded.png" alt="y := \alpha A x + \beta y"/>, where
 <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is Hermitian.</p>
 <dl class="function">
-<dt id="basic::Hemv__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Hemv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Hemv__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Hemv__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Hemv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Hemv__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Hemv__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Hemv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Hemv__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Hemv__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Hemv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Hemv__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
-<p>Please see <tt class="docutils literal"><span class="pre">basic::SetLocalHemvBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt> and
-<tt class="docutils literal"><span class="pre">int</span> <span class="pre">basic::LocalHemvBlocksize&lt;T&gt;()</span></tt> in the <em>Tuning parameters</em> section for
-information on tuning the distributed <tt class="docutils literal"><span class="pre">basic::Hemv</span></tt>.</p>
+<p>Please see <tt class="docutils literal"><span class="pre">SetLocalHemvBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt> and
+<tt class="docutils literal"><span class="pre">int</span> <span class="pre">LocalHemvBlocksize&lt;T&gt;()</span></tt> in the <em>Tuning parameters</em> section for
+information on tuning the distributed <tt class="docutils literal"><span class="pre">Hemv</span></tt>.</p>
 </div>
 <div class="section" id="her">
 <h2>Her<a class="headerlink" href="#her" title="Permalink to this headline">¶</a></h2>
 <p>Hermitian rank-one update: implicitly performs <img class="math" src="../_images/math/b25fc235dcb33b88a863aed9585ac583c27bf04a.png" alt="A := \alpha x x^H + A"/>,
 where only the triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> specified by <cite>uplo</cite> is updated.</p>
 <dl class="function">
-<dt id="basic::Her__UpperOrLower.T.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Her</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Her__UpperOrLower.T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Her__UpperOrLower.T.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Her</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Her__UpperOrLower.T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Her__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Her</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Her__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Her__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Her</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Her__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -174,14 +171,14 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Her</tt><big>(</
 <img class="math" src="../_images/math/2ba80f9399575769c5dcd374933b8e3acdad7e06.png" alt="A := \alpha ( x y^H + y x^H ) + A"/>,
 where only the triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> specified by <cite>uplo</cite> is updated.</p>
 <dl class="function">
-<dt id="basic::Her2__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Her2</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Her2__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Her2__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Her2</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Her2__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Her2__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Her2</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Her2__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Her2__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Her2</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Her2__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -191,34 +188,34 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Her2</tt><big>(<
 <p>Symmetric matrix-vector multiply: <img class="math" src="../_images/math/8b1bf0f00fbd87968ea839435c17c78efbc6eded.png" alt="y := \alpha A x + \beta y"/>, where
 <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is symmetric.</p>
 <dl class="function">
-<dt id="basic::Symv__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Symv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Symv__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Symv__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Symv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Symv__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Symv__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Symv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Symv__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Symv__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Symv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Symv__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
-<p>Please see <tt class="docutils literal"><span class="pre">basic::SetLocalSymvBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt> and
-<tt class="docutils literal"><span class="pre">int</span> <span class="pre">basic::LocalSymvBlocksize&lt;T&gt;()</span></tt> in the <em>Tuning parameters</em> section for
-information on tuning the distributed <tt class="docutils literal"><span class="pre">basic::Symv</span></tt>.</p>
+<p>Please see <tt class="docutils literal"><span class="pre">SetLocalSymvBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt> and
+<tt class="docutils literal"><span class="pre">int</span> <span class="pre">LocalSymvBlocksize&lt;T&gt;()</span></tt> in the <em>Tuning parameters</em> section for
+information on tuning the distributed <tt class="docutils literal"><span class="pre">Symv</span></tt>.</p>
 </div>
 <div class="section" id="syr">
 <h2>Syr<a class="headerlink" href="#syr" title="Permalink to this headline">¶</a></h2>
 <p>Symmetric rank-one update: implicitly performs <img class="math" src="../_images/math/60f2228f5d9b787516af5dd5ffff73a8d6d68566.png" alt="A := \alpha x x^T + A"/>,
 where only the triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> specified by <cite>uplo</cite> is updated.</p>
 <dl class="function">
-<dt id="basic::Syr__UpperOrLower.T.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Syr</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Syr__UpperOrLower.T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Syr__UpperOrLower.T.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Syr</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Syr__UpperOrLower.T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Syr__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Syr</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Syr__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Syr__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Syr</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Syr__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -229,14 +226,14 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Syr</tt><big>(</
 <img class="math" src="../_images/math/0447e12195681e7f2cdc628c0aa47ea39f468dab.png" alt="A := \alpha ( x y^T + y x^T ) + A"/>,
 where only the triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> specified by <cite>uplo</cite> is updated.</p>
 <dl class="function">
-<dt id="basic::Syr2__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Syr2</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Syr2__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Syr2__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Syr2</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Syr2__UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Syr2__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Syr2</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Syr2__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Syr2__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Syr2</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>x</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>y</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Syr2__UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -253,14 +250,14 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Syr2</tt><big>(<
 lower or upper triangular matrix, depending upon <cite>uplo</cite>. <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can also be
 treated as implicitly having a unit diagonal if <cite>diagonal</cite> is set to <tt class="docutils literal"><span class="pre">UNIT</span></tt>.</p>
 <dl class="function">
-<dt id="basic::Trsv__UpperOrLower.Orientation.Diagonal.Matrix:F:CR.Matrix:F:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Trsv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, const Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#basic::Trsv__UpperOrLower.Orientation.Diagonal.Matrix:F:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trsv__UpperOrLower.Orientation.Diagonal.Matrix:F:CR.Matrix:F:R">
+void <tt class="descname">Trsv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, const Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Trsv__UpperOrLower.Orientation.Diagonal.Matrix:F:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Trsv__UpperOrLower.Orientation.Diagonal.DistMatrix:F.MC.MR:CR.DistMatrix:F.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Trsv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, const DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#basic::Trsv__UpperOrLower.Orientation.Diagonal.DistMatrix:F.MC.MR:CR.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trsv__UpperOrLower.Orientation.Diagonal.DistMatrix:F.MC.MR:CR.DistMatrix:F.MC.MR:R">
+void <tt class="descname">Trsv</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, const DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Trsv__UpperOrLower.Orientation.Diagonal.DistMatrix:F.MC.MR:CR.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -309,7 +306,7 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Trsv</tt><big>(<
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -335,13 +332,13 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Trsv</tt><big>(<
         <li class="right" >
           <a href="level1.html" title="Level 1"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../basic.html" >Basic linear algebra</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

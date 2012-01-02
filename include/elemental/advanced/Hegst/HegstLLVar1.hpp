@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // F represents a real or complex field
+namespace elemental {
+
+template<typename F> 
 inline void
-elemental::advanced::internal::HegstLLVar1
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+internal::HegstLLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HegstLLVar1");
+    PushCallStack("internal::HegstLLVar1");
     if( A.Height() != A.Width() )
         throw std::logic_error( "A must be square." );
     if( L.Height() != L.Width() )
@@ -111,7 +112,7 @@ elemental::advanced::internal::HegstLLVar1
         Z21_MR_STAR.ResizeTo( A21.Height(), A21.Width() );
         Z21_MC_STAR.SetToZero();
         Z21_MR_STAR.SetToZero();
-        basic::internal::LocalSymmetricAccumulateLL
+        internal::LocalSymmetricAccumulateLL
         ( ADJOINT, 
           (F)1, A22, L21_MC_STAR, L21Adj_STAR_MR, Z21_MC_STAR, Z21_MR_STAR );
         Z21_MR_MC.SumScatterFrom( Z21_MR_STAR );
@@ -121,33 +122,33 @@ elemental::advanced::internal::HegstLLVar1
         // A21 := A21 L11
         A21_VC_STAR = A21;
         L11_STAR_STAR = L11;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, L11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
 
         // A21 := A21 + 1/2 Y21
-        basic::Axpy( (F)0.5, Y21, A21 );
+        Axpy( (F)0.5, Y21, A21 );
 
         // A11 := L11' A11 L11
         A11_STAR_STAR = A11;
-        advanced::internal::LocalHegst
+        internal::LocalHegst
         ( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A11 := A11 + (A21' L21 + L21' A21)
         A21_VC_STAR = A21;
         X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
-        basic::Her2k
+        Her2k
         ( LOWER, ADJOINT,
           (F)1, A21_VC_STAR.LocalMatrix(), L21_VC_STAR.LocalMatrix(),
           (F)0, X11_STAR_STAR.LocalMatrix() );
         A11.SumScatterUpdate( (F)1, X11_STAR_STAR );
 
         // A21 := A21 + 1/2 Y21
-        basic::Axpy( (F)0.5, Y21, A21 );
+        Axpy( (F)0.5, Y21, A21 );
 
         // A21 := L22' A21
-        basic::Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, L22, A21 );
+        Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, L22, A21 );
         //--------------------------------------------------------------------//
         A21_VC_STAR.FreeAlignments();
         L21_MC_STAR.FreeAlignments();
@@ -176,3 +177,4 @@ elemental::advanced::internal::HegstLLVar1
 #endif
 }
 
+} // namespace elemental

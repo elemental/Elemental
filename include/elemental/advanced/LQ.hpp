@@ -33,6 +33,8 @@
 
 #include "./LQ/PanelLQ.hpp"
 
+namespace elemental {
+
 // On exit, the lower triangle of A is overwritten by L, and the Householder
 // transforms that determine Q are stored above the diagonal of A with an 
 // implicit one on the diagonal. 
@@ -46,10 +48,10 @@
 
 template<typename R> 
 inline void
-elemental::advanced::LQ( DistMatrix<R,MC,MR>& A )
+LQ( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LQ");
+    PushCallStack("LQ");
 #endif
     if( IsComplex<R>::val )
         throw std::logic_error("Called real routine with complex datatype");
@@ -76,8 +78,8 @@ elemental::advanced::LQ( DistMatrix<R,MC,MR>& A )
         ABottomPan.View1x2( A21, A22 );
 
         //--------------------------------------------------------------------//
-        advanced::internal::PanelLQ( ATopPan );
-        advanced::ApplyPackedReflectors
+        internal::PanelLQ( ATopPan );
+        ApplyPackedReflectors
         ( RIGHT, UPPER, HORIZONTAL, FORWARD, 0, ATopPan, ABottomPan );
         //--------------------------------------------------------------------//
 
@@ -94,12 +96,11 @@ elemental::advanced::LQ( DistMatrix<R,MC,MR>& A )
 
 template<typename R> 
 inline void
-elemental::advanced::LQ
-( DistMatrix<std::complex<R>,MC,MR  >& A, 
-  DistMatrix<std::complex<R>,MD,STAR>& t )
+LQ( DistMatrix<std::complex<R>,MC,MR  >& A, 
+    DistMatrix<std::complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LQ");
+    PushCallStack("LQ");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
 #endif
@@ -152,8 +153,8 @@ elemental::advanced::LQ
         ABottomPan.View1x2( A21, A22 );
 
         //--------------------------------------------------------------------//
-        advanced::internal::PanelLQ( ATopPan, t1 );
-        advanced::ApplyPackedReflectors
+        internal::PanelLQ( ATopPan, t1 );
+        ApplyPackedReflectors
         ( RIGHT, UPPER, HORIZONTAL, FORWARD, CONJUGATED,
           0, ATopPan, t1, ABottomPan );
         //--------------------------------------------------------------------//
@@ -174,3 +175,5 @@ elemental::advanced::LQ
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -3,16 +3,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Level 1 &mdash; Elemental 0.72 documentation</title>
-    
+    <title>Level 1 &mdash; Elemental v0.72 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -25,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental 0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
     <link rel="up" title="Basic linear algebra" href="../basic.html" />
     <link rel="next" title="Level 2" href="level2.html" />
     <link rel="prev" title="Basic linear algebra" href="../basic.html" /> 
@@ -43,7 +40,7 @@
         <li class="right" >
           <a href="../basic.html" title="Basic linear algebra"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../basic.html" accesskey="U">Basic linear algebra</a> &raquo;</li> 
       </ul>
     </div>  
@@ -66,14 +63,14 @@ implementations are in <a class="reference external" href="../../../../include/e
 </div>
 <p><img class="math" src="../_images/math/1b0919626e16d0864d1026655b4e1df238bf464b.png" alt="B := A^H"/>.</p>
 <dl class="function">
-<dt id="basic::Adjoint__Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Adjoint</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Adjoint__Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Adjoint__Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Adjoint</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Adjoint__Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial version (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Adjoint__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Adjoint</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>A</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Adjoint__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Adjoint__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
+void <tt class="descname">Adjoint</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>A</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Adjoint__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed version (templated over the datatype and the individual
 distributions of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>).</p>
 </dd></dl>
@@ -83,14 +80,14 @@ distributions of <img class="math" src="../_images/math/019e9892786e493964e145e7
 <h2>Axpy<a class="headerlink" href="#axpy" title="Permalink to this headline">¶</a></h2>
 <p>Performs <img class="math" src="../_images/math/e9f26f3c91f19d510485873b15f652eba13a72d6.png" alt="Y := \alpha X + Y"/> (hence the name <em>axpy</em>).</p>
 <dl class="function">
-<dt id="basic::Axpy__T.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Axpy</tt><big>(</big>T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>X</em>, Matrix&lt;T&gt;&amp; <em>Y</em><big>)</big><a class="headerlink" href="#basic::Axpy__T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Axpy__T.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Axpy</tt><big>(</big>T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>X</em>, Matrix&lt;T&gt;&amp; <em>Y</em><big>)</big><a class="headerlink" href="#Axpy__T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Axpy__T.DistMatrix:T.U.V:CR.DistMatrix:T.U.V:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Axpy</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, U, V&gt;&amp; <em>X</em>, DistMatrix&lt;T, U, V&gt;&amp; <em>Y</em><big>)</big><a class="headerlink" href="#basic::Axpy__T.DistMatrix:T.U.V:CR.DistMatrix:T.U.V:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Axpy__T.DistMatrix:T.U.V:CR.DistMatrix:T.U.V:R">
+void <tt class="descname">Axpy</tt><big>(</big>T <em>alpha</em>, const DistMatrix&lt;T, U, V&gt;&amp; <em>X</em>, DistMatrix&lt;T, U, V&gt;&amp; <em>Y</em><big>)</big><a class="headerlink" href="#Axpy__T.DistMatrix:T.U.V:CR.DistMatrix:T.U.V:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype and the shared
 distribution of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>).</p>
 </dd></dl>
@@ -104,28 +101,28 @@ distribution of <img class="math" src="../_images/math/019e9892786e493964e145e7c
 </div>
 <p><img class="math" src="../_images/math/813320c87acf25a7c18a8894bed40a663a56747a.png" alt="A := \bar A"/>. For real datatypes, this is a no-op.</p>
 <dl class="function">
-<dt id="basic::Conjugate__Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Conjugate</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Conjugate__Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Conjugate__Matrix:T:R">
+void <tt class="descname">Conjugate</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Conjugate__Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial version (templated over datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Conjugate__DistMatrix:T.U.V:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Conjugate</tt><big>(</big>DistMatrix&lt;T, U, V&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Conjugate__DistMatrix:T.U.V:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Conjugate__DistMatrix:T.U.V:R">
+void <tt class="descname">Conjugate</tt><big>(</big>DistMatrix&lt;T, U, V&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Conjugate__DistMatrix:T.U.V:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed version (templated over the datatype and the distribution of
 <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>).</p>
 </dd></dl>
 
 <p><img class="math" src="../_images/math/0aa69ca0b0e02f0be5578004655ed6bfd83c4366.png" alt="B := \bar A"/>.</p>
 <dl class="function">
-<dt id="basic::Conjugate__Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Conjugate</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Conjugate__Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Conjugate__Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Conjugate</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Conjugate__Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial version (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Conjugate__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Conjugate</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>A</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Conjugate__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Conjugate__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
+void <tt class="descname">Conjugate</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>A</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Conjugate__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed version (templated over the datatype and the individual
 distributions of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>).</p>
 </dd></dl>
@@ -135,14 +132,14 @@ distributions of <img class="math" src="../_images/math/019e9892786e493964e145e7
 <h2>Copy<a class="headerlink" href="#copy" title="Permalink to this headline">¶</a></h2>
 <p>Sets <img class="math" src="../_images/math/9a5407b103acea878d91780e85a589cfcde5af0b.png" alt="Y := X"/>.</p>
 <dl class="function">
-<dt id="basic::Copy__Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Copy</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>X</em>, Matrix&lt;T&gt;&amp; <em>Y</em><big>)</big><a class="headerlink" href="#basic::Copy__Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Copy__Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Copy</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>X</em>, Matrix&lt;T&gt;&amp; <em>Y</em><big>)</big><a class="headerlink" href="#Copy__Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Copy__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Copy</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>A</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Copy__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Copy__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
+void <tt class="descname">Copy</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>A</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Copy__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype and the
 individual distributions of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>).</p>
 </dd></dl>
@@ -158,14 +155,14 @@ individual distributions of <img class="math" src="../_images/math/019e9892786e4
 where <img class="math" src="../_images/math/471ba291329d771104a53e59a4f8d97e367842cf.png" alt="op(D)"/> equals <img class="math" src="../_images/math/6156922f2de2fd8e091ab30ac8312cc6975662ee.png" alt="D=D^T"/>, or <img class="math" src="../_images/math/c80064cb888e98df33e384bf805d4279b88449dd.png" alt="D^H=\bar D"/>, where
 <img class="math" src="../_images/math/3e097736f719e84a4f83273b9239a33b59a32964.png" alt="D = \mbox{diag}(d)"/> and <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> is a column vector.</p>
 <dl class="function">
-<dt id="basic::DiagonalScale__Side.Orientation.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalScale</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;T&gt;&amp; <em>d</em>, Matrix&lt;T&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#basic::DiagonalScale__Side.Orientation.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="DiagonalScale__Side.Orientation.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">DiagonalScale</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;T&gt;&amp; <em>d</em>, Matrix&lt;T&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#DiagonalScale__Side.Orientation.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::DiagonalScale__Side.Orientation.DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalScale</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;T, U, V&gt;&amp; <em>d</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#basic::DiagonalScale__Side.Orientation.DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
+<dt id="DiagonalScale__Side.Orientation.DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
+void <tt class="descname">DiagonalScale</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;T, U, V&gt;&amp; <em>d</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#DiagonalScale__Side.Orientation.DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype and the
 individual distributions of <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> and <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>).</p>
 </dd></dl>
@@ -181,14 +178,14 @@ individual distributions of <img class="math" src="../_images/math/96ab646de7704
 <img class="math" src="../_images/math/3657c1e25a1eeaa589879d37e6337d0b13b3b95b.png" alt="X := X \mbox{op}(D)^{-1}"/>, where <img class="math" src="../_images/math/3e097736f719e84a4f83273b9239a33b59a32964.png" alt="D = \mbox{diag}(d)"/> and <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>
 is a column vector.</p>
 <dl class="function">
-<dt id="basic::DiagonalSolve__Side.Orientation.Matrix:F:CR.Matrix:F:R.b">
-void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>d</em>, Matrix&lt;F&gt;&amp; <em>X</em>, bool <em>checkIfSingular</em><em>=false </em><big>)</big><a class="headerlink" href="#basic::DiagonalSolve__Side.Orientation.Matrix:F:CR.Matrix:F:R.b" title="Permalink to this definition">¶</a></dt>
+<dt id="DiagonalSolve__Side.Orientation.Matrix:F:CR.Matrix:F:R.b">
+void <tt class="descname">DiagonalSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>d</em>, Matrix&lt;F&gt;&amp; <em>X</em>, bool <em>checkIfSingular</em><em>=false </em><big>)</big><a class="headerlink" href="#DiagonalSolve__Side.Orientation.Matrix:F:CR.Matrix:F:R.b" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::DiagonalSolve__Side.Orientation.DistMatrix:F.U.V:CR.DistMatrix:F.W.Z:R.b">
-void <tt class="descclassname">basic::</tt><tt class="descname">DiagonalSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;F, U, V&gt;&amp; <em>d</em>, DistMatrix&lt;F, W, Z&gt;&amp; <em>X</em>, bool <em>checkIfSingular</em><em>=false </em><big>)</big><a class="headerlink" href="#basic::DiagonalSolve__Side.Orientation.DistMatrix:F.U.V:CR.DistMatrix:F.W.Z:R.b" title="Permalink to this definition">¶</a></dt>
+<dt id="DiagonalSolve__Side.Orientation.DistMatrix:F.U.V:CR.DistMatrix:F.W.Z:R.b">
+void <tt class="descname">DiagonalSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;F, U, V&gt;&amp; <em>d</em>, DistMatrix&lt;F, W, Z&gt;&amp; <em>X</em>, bool <em>checkIfSingular</em><em>=false </em><big>)</big><a class="headerlink" href="#DiagonalSolve__Side.Orientation.DistMatrix:F.U.V:CR.DistMatrix:F.W.Z:R.b" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype and the
 individual distributions of <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> and <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>).</p>
 </dd></dl>
@@ -199,14 +196,14 @@ individual distributions of <img class="math" src="../_images/math/96ab646de7704
 <p>Returns <img class="math" src="../_images/math/cb73b4438b7d7f021e3c81a99278aad90134b678.png" alt="(x,y) = x^H y"/>. <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> and <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/> are both allowed to be
 stored as column or row vectors, but will be interpreted as column vectors.</p>
 <dl class="function">
-<dt id="basic::Dot__Matrix:T:CR.Matrix:T:CR">
-T <tt class="descclassname">basic::</tt><tt class="descname">Dot</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Dot__Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Dot__Matrix:T:CR.Matrix:T:CR">
+T <tt class="descname">Dot</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Dot__Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Dot__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR">
-T <tt class="descclassname">basic::</tt><tt class="descname">Dot</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>x</em>, const DistMatrix&lt;T, W, Z&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Dot__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Dot__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR">
+T <tt class="descname">Dot</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>x</em>, const DistMatrix&lt;T, W, Z&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Dot__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype and the
 individual distributions of <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> and <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/>).</p>
 </dd></dl>
@@ -214,17 +211,17 @@ individual distributions of <img class="math" src="../_images/math/26eeb5258ca50
 </div>
 <div class="section" id="dotc">
 <h2>Dotc<a class="headerlink" href="#dotc" title="Permalink to this headline">¶</a></h2>
-<p>Same as <tt class="docutils literal"><span class="pre">basic::Dot</span></tt>. This routine name is provided since it is the usual
+<p>Same as <tt class="docutils literal"><span class="pre">Dot</span></tt>. This routine name is provided since it is the usual
 BLAS naming convention.</p>
 <dl class="function">
-<dt id="basic::Dotc__Matrix:T:CR.Matrix:T:CR">
-T <tt class="descclassname">basic::</tt><tt class="descname">Dotc</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Dotc__Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Dotc__Matrix:T:CR.Matrix:T:CR">
+T <tt class="descname">Dotc</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Dotc__Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Dotc__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR">
-T <tt class="descclassname">basic::</tt><tt class="descname">Dotc</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>x</em>, const DistMatrix&lt;T, W, Z&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Dotc__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Dotc__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR">
+T <tt class="descname">Dotc</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>x</em>, const DistMatrix&lt;T, W, Z&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Dotc__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype and the
 individual distributions of <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> and <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/>).</p>
 </dd></dl>
@@ -234,14 +231,14 @@ individual distributions of <img class="math" src="../_images/math/26eeb5258ca50
 <h2>Dotu<a class="headerlink" href="#dotu" title="Permalink to this headline">¶</a></h2>
 <p>Returns <img class="math" src="../_images/math/fe9c89c573f3ae7a6a6782a775f0cbcab1178779.png" alt="x^T y"/>, which is <strong>not</strong> an inner product.</p>
 <dl class="function">
-<dt id="basic::Dotu__Matrix:T:CR.Matrix:T:CR">
-T <tt class="descclassname">basic::</tt><tt class="descname">Dotu</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Dotu__Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Dotu__Matrix:T:CR.Matrix:T:CR">
+T <tt class="descname">Dotu</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>x</em>, const Matrix&lt;T&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Dotu__Matrix:T:CR.Matrix:T:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Dotu__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR">
-T <tt class="descclassname">basic::</tt><tt class="descname">Dotu</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>x</em>, const DistMatrix&lt;T, W, Z&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#basic::Dotu__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Dotu__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR">
+T <tt class="descname">Dotu</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>x</em>, const DistMatrix&lt;T, W, Z&gt;&amp; <em>y</em><big>)</big><a class="headerlink" href="#Dotu__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype and the
 individual distributions of <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> and <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/>).</p>
 </dd></dl>
@@ -253,26 +250,26 @@ individual distributions of <img class="math" src="../_images/math/26eeb5258ca50
 routines, even if <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> is stored as a row vector, it will be interpreted
 as a column vector.</p>
 <dl class="function">
-<dt id="basic::Nrm2__Matrix:R:CR">
-R <tt class="descclassname">basic::</tt><tt class="descname">Nrm2</tt><big>(</big>const Matrix&lt;R&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#basic::Nrm2__Matrix:R:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Nrm2__Matrix:R:CR">
+R <tt class="descname">Nrm2</tt><big>(</big>const Matrix&lt;R&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Nrm2__Matrix:R:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serial version for real datatypes.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Nrm2__Matrix:std::complex:R::CR">
-R <tt class="descclassname">basic::</tt><tt class="descname">Nrm2</tt><big>(</big>const Matrix&lt;std::complex&lt;R&gt;&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#basic::Nrm2__Matrix:std::complex:R::CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Nrm2__Matrix:std::complex:R::CR">
+R <tt class="descname">Nrm2</tt><big>(</big>const Matrix&lt;std::complex&lt;R&gt;&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Nrm2__Matrix:std::complex:R::CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serial version for complex datatypes.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Nrm2__DistMatrix:R.MC.MR:CR">
-R <tt class="descclassname">basic::</tt><tt class="descname">Nrm2</tt><big>(</big>const DistMatrix&lt;R, MC, MR&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#basic::Nrm2__DistMatrix:R.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Nrm2__DistMatrix:R.MC.MR:CR">
+R <tt class="descname">Nrm2</tt><big>(</big>const DistMatrix&lt;R, MC, MR&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Nrm2__DistMatrix:R.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Distributed version for real datatypes.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Nrm2__DistMatrix:std::complex:R:.MC.MR:CR">
-R <tt class="descclassname">basic::</tt><tt class="descname">Nrm2</tt><big>(</big>const DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#basic::Nrm2__DistMatrix:std::complex:R:.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Nrm2__DistMatrix:std::complex:R:.MC.MR:CR">
+R <tt class="descname">Nrm2</tt><big>(</big>const DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Nrm2__DistMatrix:std::complex:R:.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Distributed version for complex datatypes.</p>
 </dd></dl>
 
@@ -281,14 +278,14 @@ R <tt class="descclassname">basic::</tt><tt class="descname">Nrm2</tt><big>(</bi
 <h2>Scal<a class="headerlink" href="#scal" title="Permalink to this headline">¶</a></h2>
 <p><img class="math" src="../_images/math/5017ae34d3562663ba48c51e6a95fa94dda2a751.png" alt="X := \alpha X"/>.</p>
 <dl class="function">
-<dt id="basic::Scal__T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Scal</tt><big>(</big>T <em>alpha</em>, Matrix&lt;T&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#basic::Scal__T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Scal__T.Matrix:T:R">
+void <tt class="descname">Scal</tt><big>(</big>T <em>alpha</em>, Matrix&lt;T&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#Scal__T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Scal__T.DistMatrix:T.U.V:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Scal</tt><big>(</big>T <em>alpha</em>, DistMatrix&lt;T, U, V&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#basic::Scal__T.DistMatrix:T.U.V:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Scal__T.DistMatrix:T.U.V:R">
+void <tt class="descname">Scal</tt><big>(</big>T <em>alpha</em>, DistMatrix&lt;T, U, V&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#Scal__T.DistMatrix:T.U.V:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype and the
 distribution of <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>).</p>
 </dd></dl>
@@ -302,14 +299,14 @@ distribution of <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6a
 </div>
 <p><img class="math" src="../_images/math/c8fd9333be03c0844063f11d489c0956c8be7168.png" alt="B := A^T"/>.</p>
 <dl class="function">
-<dt id="basic::Transpose__Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Transpose</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Transpose__Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Transpose__Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Transpose</tt><big>(</big>const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Transpose__Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial version (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Transpose__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Transpose</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>A</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Transpose__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Transpose__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R">
+void <tt class="descname">Transpose</tt><big>(</big>const DistMatrix&lt;T, U, V&gt;&amp; <em>A</em>, DistMatrix&lt;T, W, Z&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Transpose__DistMatrix:T.U.V:CR.DistMatrix:T.W.Z:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed version (templated over the datatype and the individual
 distributions of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>).</p>
 </dd></dl>
@@ -359,7 +356,7 @@ distributions of <img class="math" src="../_images/math/019e9892786e493964e145e7
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -385,13 +382,13 @@ distributions of <img class="math" src="../_images/math/019e9892786e493964e145e7
         <li class="right" >
           <a href="../basic.html" title="Basic linear algebra"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../basic.html" >Basic linear algebra</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

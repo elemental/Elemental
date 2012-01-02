@@ -34,21 +34,24 @@
 #include "./Hetrmm/HetrmmLVar1.hpp"
 #include "./Hetrmm/HetrmmUVar1.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Hetrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
+Hetrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Hetrmm");
+    PushCallStack("Hetrmm");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
     if( uplo == LOWER )
-        basic::internal::HetrmmLVar1( A );
+        internal::HetrmmLVar1( A );
     else
-        basic::internal::HetrmmUVar1( A );
+        internal::HetrmmUVar1( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+} // namespace elemental

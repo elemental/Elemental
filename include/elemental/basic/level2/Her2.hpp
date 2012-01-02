@@ -31,16 +31,18 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Her2
+Her2
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& x,
            const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Her2");
+    PushCallStack("Her2");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw std::logic_error
         ("{A,x,y} must be distributed over the same grid");
@@ -97,9 +99,9 @@ elemental::basic::Her2
                     ( iLoc, jLoc,
                       value + alpha*
                       (                 x_MC_STAR.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) + 
-                                        y_MC_STAR.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
+                        Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) + 
+                             y_MC_STAR.GetLocalEntry(iLoc,0)*
+                        Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
@@ -116,9 +118,9 @@ elemental::basic::Her2
                     ( iLoc, jLoc,
                       value + alpha*
                       (                 x_MC_STAR.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) + 
-                                        y_MC_STAR.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
+                        Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) + 
+                             y_MC_STAR.GetLocalEntry(iLoc,0)*
+                        Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
@@ -158,9 +160,9 @@ elemental::basic::Her2
                     ( iLoc, jLoc,
                       value + alpha*
                       (                 x_MC_STAR.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) + 
-                                        y_STAR_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
+                        Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) + 
+                             y_STAR_MC.GetLocalEntry(0,iLoc)*
+                        Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
@@ -177,9 +179,9 @@ elemental::basic::Her2
                     ( iLoc, jLoc,
                       value + alpha*
                       (                 x_MC_STAR.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) +
-                                        y_STAR_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
+                        Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) +
+                             y_STAR_MC.GetLocalEntry(0,iLoc)*
+                        Conj(x_MR_STAR.GetLocalEntry(jLoc,0)) ) );
                 }
             }
         }
@@ -219,9 +221,9 @@ elemental::basic::Her2
                     ( iLoc, jLoc,
                       value + alpha*
                       (                 x_STAR_MC.GetLocalEntry(0,iLoc)* 
-                        elemental::Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) + 
-                                        y_MC_STAR.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
+                        Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) + 
+                             y_MC_STAR.GetLocalEntry(iLoc,0)*
+                        Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
@@ -238,9 +240,9 @@ elemental::basic::Her2
                     ( iLoc, jLoc,
                       value + alpha*
                       (                 x_STAR_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) +
-                                        y_MC_STAR.GetLocalEntry(iLoc,0)*
-                        elemental::Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
+                        Conj(y_MR_STAR.GetLocalEntry(jLoc,0)) +
+                             y_MC_STAR.GetLocalEntry(iLoc,0)*
+                        Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
@@ -280,9 +282,9 @@ elemental::basic::Her2
                     ( iLoc, jLoc,
                       value + alpha*
                       (                 x_STAR_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) + 
-                                        y_STAR_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
+                        Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) + 
+                             y_STAR_MC.GetLocalEntry(0,iLoc)*
+                        Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
@@ -299,9 +301,9 @@ elemental::basic::Her2
                     ( iLoc, jLoc,
                       value + alpha*
                       (                 x_STAR_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) + 
-                                        y_STAR_MC.GetLocalEntry(0,iLoc)*
-                        elemental::Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
+                        Conj(y_STAR_MR.GetLocalEntry(0,jLoc)) + 
+                             y_STAR_MC.GetLocalEntry(0,iLoc)*
+                        Conj(x_STAR_MR.GetLocalEntry(0,jLoc)) ) );
                 }
             }
         }
@@ -315,3 +317,5 @@ elemental::basic::Her2
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

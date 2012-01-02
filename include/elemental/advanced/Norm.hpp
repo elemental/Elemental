@@ -36,27 +36,29 @@
 #include "./Norm/MaxNorm.hpp"
 #include "./Norm/OneNorm.hpp"
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R>
 inline R
-elemental::advanced::Norm( const Matrix<R>& A, NormType type )
+Norm( const Matrix<R>& A, NormType type )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Norm");
+    PushCallStack("Norm");
 #endif
     R norm = 0;
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::InfinityNorm( A );
+        norm = internal::InfinityNorm( A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::FrobeniusNorm( A );
+        norm = internal::FrobeniusNorm( A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::MaxNorm( A );
+        norm = internal::MaxNorm( A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::OneNorm( A );
+        norm = internal::OneNorm( A );
         break;
     }
 #ifndef RELEASE
@@ -65,27 +67,27 @@ elemental::advanced::Norm( const Matrix<R>& A, NormType type )
     return norm;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::Norm( const Matrix<std::complex<R> >& A, NormType type )
+Norm( const Matrix<std::complex<R> >& A, NormType type )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Norm");
+    PushCallStack("Norm");
 #endif
     R norm = 0;
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::InfinityNorm( A );
+        norm = internal::InfinityNorm( A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::FrobeniusNorm( A );
+        norm = internal::FrobeniusNorm( A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::MaxNorm( A );
+        norm = internal::MaxNorm( A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::OneNorm( A );
+        norm = internal::OneNorm( A );
         break;
     }
 #ifndef RELEASE
@@ -94,27 +96,27 @@ elemental::advanced::Norm( const Matrix<std::complex<R> >& A, NormType type )
     return norm;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::Norm( const DistMatrix<R,MC,MR>& A, NormType type )
+Norm( const DistMatrix<R,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Norm");
+    PushCallStack("Norm");
 #endif
     R norm = 0;
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::InfinityNorm( A );
+        norm = internal::InfinityNorm( A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::FrobeniusNorm( A );
+        norm = internal::FrobeniusNorm( A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::MaxNorm( A );
+        norm = internal::MaxNorm( A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::OneNorm( A );
+        norm = internal::OneNorm( A );
         break;
     }
 #ifndef RELEASE
@@ -123,28 +125,27 @@ elemental::advanced::Norm( const DistMatrix<R,MC,MR>& A, NormType type )
     return norm;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::Norm
-( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
+Norm( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Norm");
+    PushCallStack("Norm");
 #endif
     R norm = 0;
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::InfinityNorm( A );
+        norm = internal::InfinityNorm( A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::FrobeniusNorm( A );
+        norm = internal::FrobeniusNorm( A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::MaxNorm( A );
+        norm = internal::MaxNorm( A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::OneNorm( A );
+        norm = internal::OneNorm( A );
         break;
     }
 #ifndef RELEASE
@@ -152,3 +153,5 @@ elemental::advanced::Norm
 #endif
     return norm;
 }
+
+} // namespace elemental

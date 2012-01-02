@@ -31,16 +31,18 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // represents a real or complex number
+namespace elemental {
+
+template<typename F>
 inline void
-elemental::advanced::internal::PanelLU
+internal::PanelLU
 ( DistMatrix<F,  STAR,STAR>& A, 
   DistMatrix<F,  MC,  STAR>& B, 
   DistMatrix<int,STAR,STAR>& p, 
   int pivotOffset )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelLU");
+    PushCallStack("internal::PanelLU");
     if( A.Grid() != p.Grid() || p.Grid() != B.Grid() )
         throw std::logic_error
         ("Matrices must be distributed over the same grid");
@@ -202,12 +204,10 @@ elemental::advanced::internal::PanelLU
         if( alpha == (F)0 )
             throw SingularMatrixException();
         F alpha11Inv = ((F)1) / alpha;
-        basic::Scal( alpha11Inv, a21.LocalMatrix() );
-        basic::Scal( alpha11Inv, b1.LocalMatrix()  );
-        basic::Geru
-        ( (F)-1, a21.LocalMatrix(), a12.LocalMatrix(), A22.LocalMatrix() );
-        basic::Geru
-        ( (F)-1, b1.LocalMatrix(), a12.LocalMatrix(), B2.LocalMatrix() );
+        Scal( alpha11Inv, a21.LocalMatrix() );
+        Scal( alpha11Inv, b1.LocalMatrix()  );
+        Geru( (F)-1, a21.LocalMatrix(), a12.LocalMatrix(), A22.LocalMatrix() );
+        Geru( (F)-1, b1.LocalMatrix(), a12.LocalMatrix(), B2.LocalMatrix() );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -232,3 +232,5 @@ elemental::advanced::internal::PanelLU
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

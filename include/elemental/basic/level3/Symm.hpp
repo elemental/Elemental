@@ -36,35 +36,38 @@
 #include "./Symm/SymmRL.hpp"
 #include "./Symm/SymmRU.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Symm
+Symm
 (  Side side, UpperOrLower uplo,
    T alpha, const DistMatrix<T,MC,MR>& A,
             const DistMatrix<T,MC,MR>& B,
    T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Symm");
+    PushCallStack("Symm");
 #endif
     if( side == LEFT && uplo == LOWER )
     {
-        basic::internal::SymmLL( alpha, A, B, beta, C );
+        internal::SymmLL( alpha, A, B, beta, C );
     }
     else if( side == LEFT )
     {
-        basic::internal::SymmLU( alpha, A, B, beta, C );
+        internal::SymmLU( alpha, A, B, beta, C );
     }
     else if( uplo == LOWER )
     {
-        basic::internal::SymmRL( alpha, A, B, beta, C );
+        internal::SymmRL( alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::SymmRU( alpha, A, B, beta, C );
+        internal::SymmRU( alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+} // namespace elemental

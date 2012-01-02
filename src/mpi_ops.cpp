@@ -32,6 +32,7 @@
 */
 #include "elemental.hpp"
 
+
 namespace {
 bool createdPivotOpFloat = false;
 bool createdPivotOpDouble = false;
@@ -42,9 +43,12 @@ elemental::mpi::Op pivotOpDouble;
 elemental::mpi::Op pivotOpScomplex;
 elemental::mpi::Op pivotOpDcomplex;
 }   
-template<typename T> // represents a real or complex ring
+
+namespace elemental {
+
+template<typename T>
 void
-elemental::advanced::internal::PivotFunc
+internal::PivotFunc
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype )
 {           
     if( *length == 0 )
@@ -71,11 +75,10 @@ elemental::advanced::internal::PivotFunc
 }
 
 template<>
-void
-elemental::advanced::internal::CreatePivotOp<float>()
+void internal::CreatePivotOp<float>()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CreatePivotOp<float>");
+    PushCallStack("internal::CreatePivotOp<float>");
     if( ::createdPivotOpFloat )
         throw std::logic_error("Already created pivot op");
 #endif
@@ -88,11 +91,10 @@ elemental::advanced::internal::CreatePivotOp<float>()
 }
 
 template<>
-void
-elemental::advanced::internal::CreatePivotOp<double>()
+void internal::CreatePivotOp<double>()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CreatePivotOp<double>");
+    PushCallStack("internal::CreatePivotOp<double>");
     if( ::createdPivotOpDouble )
         throw std::logic_error("Already created pivot op");
 #endif  
@@ -105,16 +107,16 @@ elemental::advanced::internal::CreatePivotOp<double>()
 }
 
 template<>
-void
-elemental::advanced::internal::CreatePivotOp<elemental::scomplex>()
+void internal::CreatePivotOp<std::complex<float> >()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CreatePivotOp<scomplex>");
+    PushCallStack("internal::CreatePivotOp");
     if( ::createdPivotOpScomplex )
         throw std::logic_error("Alread created pivot op");
 #endif
     mpi::OpCreate
-    ( (mpi::UserFunction*)PivotFunc<scomplex>, true, ::pivotOpScomplex );
+    ( (mpi::UserFunction*)PivotFunc<std::complex<float> >, true, 
+      ::pivotOpScomplex );
     ::createdPivotOpScomplex = true;
 #ifndef RELEASE
     PopCallStack();
@@ -122,16 +124,16 @@ elemental::advanced::internal::CreatePivotOp<elemental::scomplex>()
 }
 
 template<>
-void
-elemental::advanced::internal::CreatePivotOp<elemental::dcomplex>()
+void internal::CreatePivotOp<std::complex<double> >()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CreatePivotOp<dcomplex>");
+    PushCallStack("internal::CreatePivotOp");
     if( ::createdPivotOpDcomplex )
         throw std::logic_error("Already created pivot op");
 #endif
     mpi::OpCreate
-    ( (mpi::UserFunction*)PivotFunc<dcomplex>, true, ::pivotOpDcomplex );
+    ( (mpi::UserFunction*)PivotFunc<std::complex<double> >, true, 
+      ::pivotOpDcomplex );
     ::createdPivotOpDcomplex = true;
 #ifndef RELEASE
     PopCallStack();
@@ -139,11 +141,10 @@ elemental::advanced::internal::CreatePivotOp<elemental::dcomplex>()
 }
 
 template<>
-void
-elemental::advanced::internal::DestroyPivotOp<float>()
+void internal::DestroyPivotOp<float>()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::DestroyPivotOp<float>");
+    PushCallStack("internal::DestroyPivotOp<float>");
     if( ! ::createdPivotOpFloat )
         throw std::logic_error("Have not created this pivot op");
 #endif
@@ -156,11 +157,10 @@ elemental::advanced::internal::DestroyPivotOp<float>()
 }
 
 template<>
-void
-elemental::advanced::internal::DestroyPivotOp<double>()
+void internal::DestroyPivotOp<double>()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::DestroyPivotOp<double>");
+    PushCallStack("internal::DestroyPivotOp<double>");
     if( ! ::createdPivotOpDouble )
         throw std::logic_error("Have not created ths pivot op");
 #endif
@@ -173,11 +173,10 @@ elemental::advanced::internal::DestroyPivotOp<double>()
 }
 
 template<>
-void
-elemental::advanced::internal::DestroyPivotOp<elemental::scomplex>()
+void internal::DestroyPivotOp<std::complex<float> >()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::DestroyPivotOp<scomplex>");
+    PushCallStack("internal::DestroyPivotOp");
     if( ! ::createdPivotOpScomplex )
         throw std::logic_error("Have not created this pivot op");
 #endif
@@ -190,11 +189,10 @@ elemental::advanced::internal::DestroyPivotOp<elemental::scomplex>()
 }
 
 template<>
-void
-elemental::advanced::internal::DestroyPivotOp<elemental::dcomplex>()
+void internal::DestroyPivotOp<std::complex<double> >()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::DestroyPivotOp<dcomplex>");
+    PushCallStack("internal::DestroyPivotOp");
     if( ! ::createdPivotOpDcomplex )
         throw std::logic_error("Have not created this pivot op");
 #endif
@@ -207,11 +205,10 @@ elemental::advanced::internal::DestroyPivotOp<elemental::dcomplex>()
 }
 
 template<>
-MPI_Op
-elemental::advanced::internal::PivotOp<float>()
+mpi::Op internal::PivotOp<float>()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PivotOp<float>");
+    PushCallStack("internal::PivotOp<float>");
     if( ! ::createdPivotOpFloat )
         throw std::logic_error("Tried to return uncreated pivot op");
     PopCallStack();
@@ -220,11 +217,10 @@ elemental::advanced::internal::PivotOp<float>()
 }
 
 template<>
-elemental::mpi::Op
-elemental::advanced::internal::PivotOp<double>()
+mpi::Op internal::PivotOp<double>()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PivotOp<double>");
+    PushCallStack("internal::PivotOp<double>");
     if( ! ::createdPivotOpDouble )
         throw std::logic_error("Tried to return uncreated pivot op");
     PopCallStack();
@@ -233,11 +229,10 @@ elemental::advanced::internal::PivotOp<double>()
 }
 
 template<>
-elemental::mpi::Op
-elemental::advanced::internal::PivotOp<elemental::scomplex>()
+mpi::Op internal::PivotOp<std::complex<float> >()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PivotOp<scomplex>");
+    PushCallStack("internal::PivotOp");
     if( ! ::createdPivotOpScomplex )
         throw std::logic_error("Tried to return uncreated pivot op");
     PopCallStack();
@@ -246,11 +241,10 @@ elemental::advanced::internal::PivotOp<elemental::scomplex>()
 }
 
 template<>
-elemental::mpi::Op
-elemental::advanced::internal::PivotOp<elemental::dcomplex>()
+mpi::Op internal::PivotOp<std::complex<double> >()
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PivotOp<dcomplex>");
+    PushCallStack("internal::PivotOp");
     if( ! ::createdPivotOpDcomplex )
         throw std::logic_error("Tried to return uncreated pivot op");
     PopCallStack();
@@ -258,18 +252,20 @@ elemental::advanced::internal::PivotOp<elemental::dcomplex>()
     return ::pivotOpDcomplex;
 }
 
+} // namespace elemental
+
 template void
-elemental::advanced::internal::PivotFunc<float>
+elemental::internal::PivotFunc<float>
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
 template void
-elemental::advanced::internal::PivotFunc<double>
+elemental::internal::PivotFunc<double>
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
 template void
-elemental::advanced::internal::PivotFunc<elemental::scomplex>
+elemental::internal::PivotFunc<std::complex<float> >
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
 template void
-elemental::advanced::internal::PivotFunc<elemental::dcomplex>
+elemental::internal::PivotFunc<std::complex<double> >
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );

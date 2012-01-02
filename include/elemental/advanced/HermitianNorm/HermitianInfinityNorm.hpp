@@ -31,66 +31,69 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // The operator L1 and Linf norms for Hermitian matrices are identical. The 
 // former is the maximum column L1 norm and the latter is the maximum row L1 
 // norm. Hermiticity implies their equivalence.
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::HermitianInfinityNorm
-( UpperOrLower uplo, const Matrix<R>& A )
+internal::HermitianInfinityNorm( UpperOrLower uplo, const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianInfinityNorm");
+    PushCallStack("internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::internal::HermitianOneNorm( uplo, A );
+    R maxRowSum = internal::HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return maxRowSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::internal::HermitianInfinityNorm
+internal::HermitianInfinityNorm
 ( UpperOrLower uplo, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianInfinityNorm");
+    PushCallStack("internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::internal::HermitianOneNorm( uplo, A );
+    R maxRowSum = internal::HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return maxRowSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::HermitianInfinityNorm
+internal::HermitianInfinityNorm
 ( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianInfinityNorm");
+    PushCallStack("internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::internal::HermitianOneNorm( uplo, A );
+    R maxRowSum = internal::HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return maxRowSum;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::HermitianInfinityNorm
+internal::HermitianInfinityNorm
 ( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianInfinityNorm");
+    PushCallStack("internal::HermitianInfinityNorm");
 #endif
-    R maxRowSum = advanced::internal::HermitianOneNorm( uplo, A );
+    R maxRowSum = internal::HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return maxRowSum;
 }
+
+} // namespace elemental

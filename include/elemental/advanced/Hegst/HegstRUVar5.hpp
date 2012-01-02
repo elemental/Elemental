@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // F represents a real or complex field
+namespace elemental {
+
+template<typename F> 
 inline void
-elemental::advanced::internal::HegstRUVar5
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
+internal::HegstRUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HegstRUVar5");
+    PushCallStack("internal::HegstRUVar5");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( U.Height() != U.Width() )
@@ -106,14 +107,13 @@ elemental::advanced::internal::HegstRUVar5
         // A11 := inv(U11)' A11 inv(U11)
         U11_STAR_STAR = U11;
         A11_STAR_STAR = A11;
-        advanced::internal::LocalHegst
-        ( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        internal::LocalHegst( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // Y12 := A11 U12
         U12_STAR_VR = U12;
         Y12_STAR_VR.ResizeTo( A12.Height(), A12.Width() );
-        basic::Hemm
+        Hemm
         ( LEFT, UPPER,
           (F)1, A11_STAR_STAR.LocalMatrix(), U12_STAR_VR.LocalMatrix(),
           (F)0, Y12_STAR_VR.LocalMatrix() );
@@ -121,12 +121,12 @@ elemental::advanced::internal::HegstRUVar5
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
 
         // A12 := A12 - 1/2 Y12
-        basic::Axpy( (F)-0.5, Y12, A12 );
+        Axpy( (F)-0.5, Y12, A12 );
 
         // A22 := A22 - (A12' U12 + U12' A12)
         A12_STAR_VR = A12;
@@ -136,19 +136,19 @@ elemental::advanced::internal::HegstRUVar5
         U12_STAR_MC = U12_STAR_VC;
         A12_STAR_MR = A12_STAR_VR;
         U12_STAR_MR = U12_STAR_VR;
-        basic::internal::LocalTrr2k
+        internal::LocalTrr2k
         ( UPPER, ADJOINT, ADJOINT,
           (F)-1, U12_STAR_MC, A12_STAR_MR,
                  A12_STAR_MC, U12_STAR_MR,
           (F)1, A22 );
 
         // A12 := A12 - 1/2 Y12
-        basic::Axpy( (F)-0.5, Y12, A12 );
+        Axpy( (F)-0.5, Y12, A12 );
 
         // A12 := A12 inv(U22)
         //
         // This is the bottleneck because A12 only has blocksize rows
-        basic::Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U22, A12 );
+        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U22, A12 );
         //--------------------------------------------------------------------//
         A12_STAR_MC.FreeAlignments();
         A12_STAR_MR.FreeAlignments();
@@ -177,3 +177,5 @@ elemental::advanced::internal::HegstRUVar5
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

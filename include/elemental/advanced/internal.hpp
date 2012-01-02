@@ -36,7 +36,6 @@
 #include "elemental/advanced.hpp"
 
 namespace elemental {
-namespace advanced {
 namespace internal {
 
 //----------------------------------------------------------------------------//
@@ -773,7 +772,6 @@ template<typename F>
 double ApplyPackedReflectorsGFlops( int m, double seconds );
 
 } // internal
-} // advanced
 } // elemental
 
 //----------------------------------------------------------------------------//
@@ -781,7 +779,6 @@ double ApplyPackedReflectorsGFlops( int m, double seconds );
 //----------------------------------------------------------------------------//
 
 namespace elemental {
-namespace advanced {
 namespace internal {
 
 //
@@ -794,7 +791,7 @@ LocalCholesky
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::LocalCholesky");
+    PushCallStack("internal::LocalCholesky");
 #endif
     Cholesky( uplo, A.LocalMatrix() );
 #ifndef RELEASE
@@ -809,7 +806,7 @@ LocalHegst
   DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::LocalHegst");
+    PushCallStack("internal::LocalHegst");
 #endif
     Hegst( side, uplo, A.LocalMatrix(), B.LockedLocalMatrix() );
 #ifndef RELEASE
@@ -824,14 +821,14 @@ LocalLDL
   DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::LocalLDL");
+    PushCallStack("internal::LocalLDL");
     if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
         throw std::logic_error
         ("d must be a column vector of the same height as A");
 #endif
     if( !d.Viewing() )
         d.ResizeTo( A.Height(), 1 );
-    advanced::internal::LDLVar3
+    internal::LDLVar3
     ( orientation, A.LocalMatrix(), d.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
@@ -843,9 +840,9 @@ inline void
 LocalLU( DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::LocalLU");
+    PushCallStack("internal::LocalLU");
 #endif
-    advanced::LU( A.LocalMatrix() );
+    LU( A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -856,7 +853,7 @@ inline void
 LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 { 
 #ifndef RELEASE
-    PushCallStack("advanced::internal::LocalHPDInverse");
+    PushCallStack("internal::LocalHPDInverse");
 #endif
     HPDInverse( uplo, A.LocalMatrix() );
 #ifndef RELEASE
@@ -870,7 +867,7 @@ LocalTriangularInverse
 ( UpperOrLower uplo, Diagonal diagonal, DistMatrix<F,STAR,STAR>& A )
 { 
 #ifndef RELEASE
-    PushCallStack("advanced::internal::LocalTriangularInverse");
+    PushCallStack("internal::LocalTriangularInverse");
 #endif
     TriangularInverse( uplo, diagonal, A.LocalMatrix() );
 #ifndef RELEASE
@@ -1107,7 +1104,6 @@ ApplyPackedReflectorsGFlops<dcomplex>
 { return 4.*ApplyPackedReflectorsGFlops<float>(m,seconds); }
 
 } // internal
-} // advanced
 } // elemental
 
 #endif /* ELEMENTAL_ADVANCED_INTERNAL_HPP */

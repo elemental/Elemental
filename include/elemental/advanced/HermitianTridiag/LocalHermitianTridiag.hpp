@@ -32,10 +32,10 @@
 */
 
 namespace elemental {
-namespace advanced {
+
 namespace hermitian_tridiag {
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void HermitianTridiagL( Matrix<R>& A )
 {
 #ifndef RELEASE
@@ -70,14 +70,14 @@ inline void HermitianTridiagL( Matrix<R>& A )
 
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
-        const R tau = advanced::Reflector( alpha21T, a21B );
+        const R tau = Reflector( alpha21T, a21B );
         const R epsilon1 = alpha21T.Get(0,0);
         alpha21T.Set(0,0,(R)1);
 
-        basic::Symv( LOWER, tau, A22, a21, (R)0, w21 );
-        const R alpha = -static_cast<R>(0.5)*tau*basic::Dot( w21, a21 );
-        basic::Axpy( alpha, a21, w21 );
-        basic::Syr2( LOWER, (R)-1, a21, w21, A22 );
+        Symv( LOWER, tau, A22, a21, (R)0, w21 );
+        const R alpha = -static_cast<R>(0.5)*tau*Dot( w21, a21 );
+        Axpy( alpha, a21, w21 );
+        Syr2( LOWER, (R)-1, a21, w21, A22 );
         alpha21T.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -93,7 +93,7 @@ inline void HermitianTridiagL( Matrix<R>& A )
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void HermitianTridiagU( Matrix<R>& A )
 {
 #ifndef RELEASE
@@ -128,14 +128,14 @@ inline void HermitianTridiagU( Matrix<R>& A )
 
         w01.ResizeTo( a01.Height(), 1 );
         //--------------------------------------------------------------------//
-        const R tau = advanced::Reflector( alpha01B, a01T );
+        const R tau = Reflector( alpha01B, a01T );
         const R epsilon1 = alpha01B.Get(0,0);
         alpha01B.Set(0,0,(R)1);
 
-        basic::Symv( UPPER, tau, A00, a01, (R)0, w01 );
-        const R alpha = -static_cast<R>(0.5)*tau*basic::Dot( w01, a01 );
-        basic::Axpy( alpha, a01, w01 );
-        basic::Syr2( UPPER, (R)-1, a01, w01, A00 );
+        Symv( UPPER, tau, A00, a01, (R)0, w01 );
+        const R alpha = -static_cast<R>(0.5)*tau*Dot( w01, a01 );
+        Axpy( alpha, a01, w01 );
+        Syr2( UPPER, (R)-1, a01, w01, A00 );
         alpha01B.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -151,7 +151,7 @@ inline void HermitianTridiagU( Matrix<R>& A )
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline void HermitianTridiagL
 ( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {
@@ -197,15 +197,15 @@ inline void HermitianTridiagL
 
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
-        const C tau = advanced::Reflector( alpha21T, a21B );
+        const C tau = Reflector( alpha21T, a21B );
         const R epsilon1 = alpha21T.GetReal(0,0);
         t.Set(A00.Height(),0,tau);
         alpha21T.Set(0,0,(C)1);
 
-        basic::Hemv( LOWER, tau, A22, a21, (C)0, w21 );
-        const C alpha = -static_cast<C>(0.5)*tau*basic::Dot( w21, a21 );
-        basic::Axpy( alpha, a21, w21 );
-        basic::Her2( LOWER, (C)-1, a21, w21, A22 );
+        Hemv( LOWER, tau, A22, a21, (C)0, w21 );
+        const C alpha = -static_cast<C>(0.5)*tau*Dot( w21, a21 );
+        Axpy( alpha, a21, w21 );
+        Her2( LOWER, (C)-1, a21, w21, A22 );
         alpha21T.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -221,7 +221,7 @@ inline void HermitianTridiagL
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline void HermitianTridiagU
 ( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {
@@ -267,15 +267,15 @@ inline void HermitianTridiagU
 
         w01.ResizeTo( a01.Height(), 1 );
         //--------------------------------------------------------------------//
-        const C tau = advanced::Reflector( alpha01B, a01T );
+        const C tau = Reflector( alpha01B, a01T );
         const R epsilon1 = alpha01B.GetReal(0,0);
         t.Set(t.Height()-1-A22.Height(),0,tau);
         alpha01B.Set(0,0,(C)1);
 
-        basic::Hemv( UPPER, tau, A00, a01, (C)0, w01 );
-        const C alpha = -static_cast<C>(0.5)*tau*basic::Dot( w01, a01 );
-        basic::Axpy( alpha, a01, w01 );
-        basic::Her2( UPPER, (C)-1, a01, w01, A00 );
+        Hemv( UPPER, tau, A00, a01, (C)0, w01 );
+        const C alpha = -static_cast<C>(0.5)*tau*Dot( w01, a01 );
+        Axpy( alpha, a01, w01 );
+        Her2( UPPER, (C)-1, a01, w01, A00 );
         alpha01B.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -292,15 +292,12 @@ inline void HermitianTridiagU
 }
 
 } // namespace hermitian_tridiag
-} // namespace advanced
-} // namespace elemental
 
 template<typename R> 
-inline void elemental::advanced::HermitianTridiag
-( UpperOrLower uplo, Matrix<R>& A )
+inline void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianTridiag");
+    PushCallStack("HermitianTridiag");
 #endif
     if( IsComplex<R>::val )
         throw std::logic_error("Called real routine with complex datatype");
@@ -314,11 +311,11 @@ inline void elemental::advanced::HermitianTridiag
 }
 
 template<typename R> 
-inline void elemental::advanced::HermitianTridiag
+inline void HermitianTridiag
 ( UpperOrLower uplo, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianTridiag");
+    PushCallStack("HermitianTridiag");
 #endif
     if( uplo == LOWER )
         hermitian_tridiag::HermitianTridiagL( A, t );
@@ -328,3 +325,5 @@ inline void elemental::advanced::HermitianTridiag
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

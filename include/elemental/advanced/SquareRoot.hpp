@@ -34,7 +34,7 @@
 #ifndef WITHOUT_PMRRR
 
 namespace elemental {
-namespace advanced {
+
 namespace square_root {
 
 template<typename R>
@@ -54,8 +54,6 @@ public:
 };
 
 } // namespace square_root
-} // namespace advanced
-} // namespace elemental
 
 //
 // Square root the eigenvalues of A (and treat the sufficiently small negative
@@ -64,10 +62,10 @@ public:
 
 template<typename R>
 inline void
-elemental::advanced::SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
+SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SquareRoot");
+    PushCallStack("SquareRoot");
 #endif
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -111,11 +109,10 @@ elemental::advanced::SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 
 template<typename R>
 inline void
-elemental::advanced::SquareRoot
-( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
+SquareRoot( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SquareRoot");
+    PushCallStack("SquareRoot");
 #endif
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -156,4 +153,7 @@ elemental::advanced::SquareRoot
     PopCallStack();
 #endif
 }
+
+} // namespace elemental
+
 #endif // WITHOUT_PMRRR

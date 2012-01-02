@@ -65,9 +65,9 @@ void TestCorrectness
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Z(m,n,g);
     Z.SetToIdentity();
-    advanced::ApplyPackedReflectors
+    ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, Z );
-    advanced::ApplyPackedReflectors
+    ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, FORWARD, 0, A, Z );
 
     DistMatrix<R,MC,MR> ZUpper(g);
@@ -78,11 +78,11 @@ void TestCorrectness
     X.SetToIdentity();
 
     // Form X := I - Q^H Q
-    basic::Axpy( (R)-1, ZUpper, X );
+    Axpy( (R)-1, ZUpper, X );
 
-    R oneNormOfError = advanced::Norm( X, ONE_NORM );
-    R infNormOfError = advanced::Norm( X, INFINITY_NORM );
-    R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    R oneNormOfError = Norm( X, ONE_NORM );
+    R infNormOfError = Norm( X, INFINITY_NORM );
+    R frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
@@ -98,18 +98,18 @@ void TestCorrectness
     // Form L Q
     DistMatrix<R,MC,MR> L( A );
     L.MakeTrapezoidal( LEFT, LOWER );
-    advanced::ApplyPackedReflectors
+    ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, L );
 
     // Form L Q - A
-    basic::Axpy( (R)-1, AOrig, L );
+    Axpy( (R)-1, AOrig, L );
     
-    R oneNormOfA = advanced::Norm( AOrig, ONE_NORM );
-    R infNormOfA = advanced::Norm( AOrig, INFINITY_NORM );
-    R frobNormOfA = advanced::Norm( AOrig, FROBENIUS_NORM );
-    oneNormOfError = advanced::Norm( L, ONE_NORM );
-    infNormOfError = advanced::Norm( L, INFINITY_NORM );
-    frobNormOfError = advanced::Norm( L, FROBENIUS_NORM );
+    R oneNormOfA = Norm( AOrig, ONE_NORM );
+    R infNormOfA = Norm( AOrig, INFINITY_NORM );
+    R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
+    oneNormOfError = Norm( L, ONE_NORM );
+    infNormOfError = Norm( L, INFINITY_NORM );
+    frobNormOfError = Norm( L, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"
@@ -141,9 +141,9 @@ void TestCorrectness
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<C,MC,MR> Z(m,n,g);
     Z.SetToIdentity();
-    advanced::ApplyPackedReflectors
+    ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, Z );
-    advanced::ApplyPackedReflectors
+    ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, FORWARD, CONJUGATED, 0, A, t, Z );
     
     DistMatrix<C,MC,MR> ZUpper(g);
@@ -154,11 +154,11 @@ void TestCorrectness
     X.SetToIdentity();
 
     // Form X := I - Q^H Q
-    basic::Axpy( (C)-1, ZUpper, X );
+    Axpy( (C)-1, ZUpper, X );
 
-    R oneNormOfError = advanced::Norm( X, ONE_NORM );
-    R infNormOfError = advanced::Norm( X, INFINITY_NORM );
-    R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    R oneNormOfError = Norm( X, ONE_NORM );
+    R infNormOfError = Norm( X, INFINITY_NORM );
+    R frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
@@ -172,18 +172,18 @@ void TestCorrectness
     // Form L Q
     DistMatrix<C,MC,MR> L( A );
     L.MakeTrapezoidal( LEFT, LOWER );
-    advanced::ApplyPackedReflectors
+    ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, L );
 
     // Form L Q - A
-    basic::Axpy( (C)-1, AOrig, L );
+    Axpy( (C)-1, AOrig, L );
     
-    R oneNormOfA = advanced::Norm( AOrig, ONE_NORM );
-    R infNormOfA = advanced::Norm( AOrig, INFINITY_NORM );
-    R frobNormOfA = advanced::Norm( AOrig, FROBENIUS_NORM );
-    oneNormOfError = advanced::Norm( L, ONE_NORM );
-    infNormOfError = advanced::Norm( L, INFINITY_NORM );
-    frobNormOfError = advanced::Norm( L, FROBENIUS_NORM );
+    R oneNormOfA = Norm( AOrig, ONE_NORM );
+    R infNormOfA = Norm( AOrig, INFINITY_NORM );
+    R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
+    oneNormOfError = Norm( L, ONE_NORM );
+    infNormOfError = Norm( L, INFINITY_NORM );
+    frobNormOfError = Norm( L, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"
@@ -235,11 +235,11 @@ void TestLQ<double>
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::LQ( A );
+    LQ( A );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::LQGFlops<R>( m, n, runTime );
+    gFlops = internal::LQGFlops<R>( m, n, runTime );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -288,11 +288,11 @@ void TestLQ< complex<double> >
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::LQ( A, t );
+    LQ( A, t );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::LQGFlops<C>( m, n, runTime );
+    gFlops = internal::LQGFlops<C>( m, n, runTime );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

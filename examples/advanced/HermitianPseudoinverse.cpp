@@ -81,7 +81,7 @@ main( int argc, char* argv[] )
         H.Print("H");
 
         // Replace H with its pseudoinverse
-        advanced::HermitianPseudoinverse( LOWER, H );
+        HermitianPseudoinverse( LOWER, H );
 
         // Print the pseudoinverse
         H.Print("pinv(H)");

@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // represents a real or complex number
+namespace elemental {
+
+template<typename F>
 inline void
-elemental::advanced::internal::TriangularInverseLVar3
-( Diagonal diagonal, DistMatrix<F,MC,MR>& L )
+internal::TriangularInverseLVar3( Diagonal diagonal, DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::TriangularInverseLVar3");
+    PushCallStack("internal::TriangularInverseLVar3");
     if( L.Height() != L.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -72,22 +73,21 @@ elemental::advanced::internal::TriangularInverseLVar3
         L21_MC_STAR.AlignWith( L20 );
         //--------------------------------------------------------------------//
         L11_STAR_STAR = L11;
-        advanced::internal::LocalTriangularInverse
-        ( LOWER, diagonal, L11_STAR_STAR );
+        internal::LocalTriangularInverse( LOWER, diagonal, L11_STAR_STAR );
         L11 = L11_STAR_STAR;
 
         L10_STAR_VR = L10;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( LEFT, LOWER, NORMAL, diagonal, (F)-1, L11_STAR_STAR, L10_STAR_VR );
 
         L21_MC_STAR = L21;
         L10_STAR_MR = L10_STAR_VR;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)1, L21_MC_STAR, L10_STAR_MR, (F)1, L20 );
         L10 = L10_STAR_MR;
 
         L21_VC_STAR = L21_MC_STAR;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( RIGHT, LOWER, NORMAL, diagonal, (F)1, L11_STAR_STAR, L21_VC_STAR );
         L21 = L21_VC_STAR;
         //--------------------------------------------------------------------//
@@ -104,3 +104,5 @@ elemental::advanced::internal::TriangularInverseLVar3
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

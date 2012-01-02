@@ -31,12 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename R>
 inline void 
-elemental::advanced::internal::BidiagL( DistMatrix<R,MC,MR>& A )
+internal::BidiagL( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::BidiagL");
+    PushCallStack("internal::BidiagL");
     if( A.Height() > A.Width() )
         throw std::logic_error("A must be at least as wide as it is tall");
 #endif
@@ -85,7 +87,7 @@ elemental::advanced::internal::BidiagL( DistMatrix<R,MC,MR>& A )
             AColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
             ARowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
 
-            advanced::internal::PanelBidiagL
+            internal::PanelBidiagL
             ( ABR, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
             PartitionDown
@@ -103,9 +105,9 @@ elemental::advanced::internal::BidiagL( DistMatrix<R,MC,MR>& A )
             X21_MC_STAR = X21;
             Y21_MR_STAR = Y21;
 
-            basic::internal::LocalGemm
+            internal::LocalGemm
             ( NORMAL, TRANSPOSE, (R)-1, A21_MC_STAR, Y21_MR_STAR, (R)1, A22 );
-            basic::internal::LocalGemm
+            internal::LocalGemm
             ( NORMAL, NORMAL, (R)-1, X21_MC_STAR, A12_STAR_MR, (R)1, A22 );
             //----------------------------------------------------------------//
             ARowPan_STAR_MR.FreeAlignments();
@@ -118,7 +120,7 @@ elemental::advanced::internal::BidiagL( DistMatrix<R,MC,MR>& A )
         else
         {
             A11_STAR_STAR = A11;
-            advanced::Bidiag( A11_STAR_STAR.LocalMatrix() );
+            Bidiag( A11_STAR_STAR.LocalMatrix() );
             A11 = A11_STAR_STAR;
         }
 
@@ -135,13 +137,13 @@ elemental::advanced::internal::BidiagL( DistMatrix<R,MC,MR>& A )
 
 template<typename R> 
 inline void
-elemental::advanced::internal::BidiagL
+internal::BidiagL
 ( DistMatrix<std::complex<R>,MC,  MR  >& A,
   DistMatrix<std::complex<R>,STAR,STAR>& tP,
   DistMatrix<std::complex<R>,STAR,STAR>& tQ )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::BidiagL");
+    PushCallStack("internal::BidiagL");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
         throw std::logic_error
         ("{A,tP,tQ} must be distributed over the same grid");
@@ -230,7 +232,7 @@ elemental::advanced::internal::BidiagL
             AColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
             ARowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
 
-            advanced::internal::PanelBidiagL
+            internal::PanelBidiagL
             ( ABR, tP1, tQ1, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
             PartitionDown
@@ -248,9 +250,9 @@ elemental::advanced::internal::BidiagL
             X21_MC_STAR = X21;
             Y21_MR_STAR = Y21;
 
-            basic::internal::LocalGemm
+            internal::LocalGemm
             ( NORMAL, ADJOINT, (C)-1, A21_MC_STAR, Y21_MR_STAR, (C)1, A22 );
-            basic::internal::LocalGemm
+            internal::LocalGemm
             ( NORMAL, NORMAL, (C)-1, X21_MC_STAR, A12_STAR_MR, (C)1, A22 );
             //----------------------------------------------------------------//
             ARowPan_STAR_MR.FreeAlignments();
@@ -266,7 +268,7 @@ elemental::advanced::internal::BidiagL
             tP1_STAR_STAR.ResizeTo( tP1.Height(), 1 );
             tQ1_STAR_STAR.ResizeTo( tQ1.Height(), 1 );
 
-            advanced::Bidiag
+            Bidiag
             ( A11_STAR_STAR.LocalMatrix(), 
               tP1_STAR_STAR.LocalMatrix(), 
               tQ1_STAR_STAR.LocalMatrix() );
@@ -302,3 +304,5 @@ elemental::advanced::internal::BidiagL
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

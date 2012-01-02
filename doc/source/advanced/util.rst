@@ -9,7 +9,7 @@ treat the identity matrix as a Householder transform since it requires the
 
 Applying packed Householder transforms
 --------------------------------------
-**TODO:** Describe ``advanced::ApplyPackedReflectors`` here.
+**TODO:** Describe ``ApplyPackedReflectors`` here.
 
 Applying pivots
 ---------------

@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R>
 inline R
-elemental::advanced::internal::HermitianMaxNorm
-( UpperOrLower uplo, const Matrix<R>& A )
+internal::HermitianMaxNorm( UpperOrLower uplo, const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianMaxNorm");
+    PushCallStack("internal::HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -71,13 +72,13 @@ elemental::advanced::internal::HermitianMaxNorm
     return maxAbs;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::HermitianMaxNorm
+internal::HermitianMaxNorm
 ( UpperOrLower uplo, const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianMaxNorm");
+    PushCallStack("internal::HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -111,13 +112,12 @@ elemental::advanced::internal::HermitianMaxNorm
     return maxAbs;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::HermitianMaxNorm
-( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
+internal::HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianMaxNorm");
+    PushCallStack("internal::HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -157,21 +157,20 @@ elemental::advanced::internal::HermitianMaxNorm
     }
 
     R maxAbs;
-    mpi::AllReduce
-    ( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
+    mpi::AllReduce( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return maxAbs;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::HermitianMaxNorm
+internal::HermitianMaxNorm
 ( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianMaxNorm");
+    PushCallStack("internal::HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -211,10 +210,11 @@ elemental::advanced::internal::HermitianMaxNorm
     }
 
     R maxAbs;
-    mpi::AllReduce
-    ( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
+    mpi::AllReduce( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return maxAbs;
 }
+
+} // namespace elemental

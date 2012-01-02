@@ -92,12 +92,12 @@ void TestGemm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::internal::GemmA
+    internal::GemmA
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = basic::internal::GemmGFlops<T>(m,n,k,runTime);
+    gFlops = internal::GemmGFlops<T>(m,n,k,runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -130,12 +130,12 @@ void TestGemm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::internal::GemmB
+    internal::GemmB
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = basic::internal::GemmGFlops<T>(m,n,k,runTime);
+    gFlops = internal::GemmGFlops<T>(m,n,k,runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl 
@@ -168,12 +168,12 @@ void TestGemm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::internal::GemmC
+    internal::GemmC
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = basic::internal::GemmGFlops<T>(m,n,k,runTime);
+    gFlops = internal::GemmGFlops<T>(m,n,k,runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -208,12 +208,12 @@ void TestGemm
         }
         mpi::Barrier( g.Comm() );
         startTime = mpi::Time();
-        basic::internal::GemmDot
+        internal::GemmDot
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
         mpi::Barrier( g.Comm() );
         endTime = mpi::Time();
         runTime = endTime - startTime;
-        gFlops = basic::internal::GemmGFlops<T>(m,n,k,runTime);
+        gFlops = internal::GemmGFlops<T>(m,n,k,runTime);
         if( g.Rank() == 0 )
         {
             cout << "DONE. " << endl

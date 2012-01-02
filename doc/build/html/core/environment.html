@@ -3,16 +3,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Environment &mdash; Elemental 0.72 documentation</title>
-    
+    <title>Environment &mdash; Elemental v0.72 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -25,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental 0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
     <link rel="up" title="Core functionality" href="../core.html" />
     <link rel="next" title="The Matrix class" href="matrix.html" />
     <link rel="prev" title="Core functionality" href="../core.html" /> 
@@ -43,7 +40,7 @@
         <li class="right" >
           <a href="../core.html" title="Core functionality"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../core.html" accesskey="U">Core functionality</a> &raquo;</li> 
       </ul>
     </div>  
@@ -136,7 +133,7 @@ Z <tt class="descname">Abs</tt><big>(</big>Z <em>alpha</em><big>)</big><a class=
 Z <tt class="descname">Abs</tt><big>(</big>std::complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#Abs__std::complex:Z:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the absolute value of complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>:</p>
 <div class="math">
-<p><img src="../_images/math/6116edc70d651f8bb7a736be40b41286cac67728.png" alt="|\alpha| = \sqrt{|\mathcal{R}(\alpha)|^2+|\mathcal{I}(\alpha)|^2}"/></p>
+<p><img src="../_images/math/6116edc70d651f8bb7a736be40b41286cac67728.png" alt="|\alpha| = \sqrt{|\mathcal{R}(\alpha)|^2+|\mathcal{I}(\alpha)|^2}" /></p>
 </div></dd></dl>
 
 <dl class="function">
@@ -150,7 +147,7 @@ Z <tt class="descname">FastAbs</tt><big>(</big>Z <em>alpha</em><big>)</big><a cl
 Z <tt class="descname">FastAbs</tt><big>(</big>std::complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#FastAbs__std::complex:Z:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a cheaper norm of the complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>:</p>
 <div class="math">
-<p><img src="../_images/math/e162513b2f86191ee0cb9bef2f46e5581ec6ae54.png" alt="|\alpha|_{\mbox{fast}} = |\mathcal{R}(\alpha)| + |\mathcal{I}(\alpha)|"/></p>
+<p><img src="../_images/math/e162513b2f86191ee0cb9bef2f46e5581ec6ae54.png" alt="|\alpha|_{\mbox{fast}} = |\mathcal{R}(\alpha)| + |\mathcal{I}(\alpha)|" /></p>
 </div></dd></dl>
 
 <dl class="function">
@@ -165,7 +162,7 @@ which is simply <img class="math" src="../_images/math/10f32377ac67d94f764f12a15
 std::complex&lt;Z&gt; <tt class="descname">Conj</tt><big>(</big>std::complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#Conj__std::complex:Z:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the complex conjugate of the complex variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>,</p>
 <div class="math">
-<p><img src="../_images/math/0222e01aafe874b9c99cfa1c9cc8f3fa2c1b3796.png" alt="\bar \alpha = \mathcal{R}(\alpha) - \mathcal{I}(\alpha) i"/></p>
+<p><img src="../_images/math/0222e01aafe874b9c99cfa1c9cc8f3fa2c1b3796.png" alt="\bar \alpha = \mathcal{R}(\alpha) - \mathcal{I}(\alpha) i" /></p>
 </div></dd></dl>
 
 <dl class="class">
@@ -263,10 +260,10 @@ matrix:</p>
 <dt id="GridOrder">
 <em class="property">type </em><tt class="descname">GridOrder</tt><a class="headerlink" href="#GridOrder" title="Permalink to this definition">¶</a></dt>
 <dd><p>An enum for specifying either a <tt class="docutils literal"><span class="pre">ROW_MAJOR</span></tt> or <tt class="docutils literal"><span class="pre">COLUMN_MAJOR</span></tt> ordering;
-it is used to tune one of the algorithms in <tt class="docutils literal"><span class="pre">advanced::HermitianTridiag</span></tt>
+it is used to tune one of the algorithms in <tt class="docutils literal"><span class="pre">HermitianTridiag</span></tt>
 which requires building a smaller square process grid from a rectangular
 process grid, as the ordering of the processes can greatly impact
-performance. See <tt class="docutils literal"><span class="pre">advanced::SetHermitianTridiagGridOrder</span></tt>.</p>
+performance. See <tt class="docutils literal"><span class="pre">SetHermitianTridiagGridOrder</span></tt>.</p>
 </dd></dl>
 
 </div>
@@ -409,7 +406,7 @@ manually specify a process grid, e.g.,</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -435,13 +432,13 @@ manually specify a process grid, e.g.,</p>
         <li class="right" >
           <a href="../core.html" title="Core functionality"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../core.html" >Core functionality</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

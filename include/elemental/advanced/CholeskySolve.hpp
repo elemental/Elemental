@@ -31,31 +31,34 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // F represents a real or complex field
+namespace elemental {
+
+template<typename F>
 inline void
-elemental::advanced::CholeskySolve
+CholeskySolve
 ( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::CholeskySolve");
+    PushCallStack("CholeskySolve");
     if( A.Width() != B.Height() )
         throw std::logic_error("A and B do not conform");
 #endif
-    advanced::Cholesky( uplo, A );
+    Cholesky( uplo, A );
     if( uplo == LOWER )
     {
         // B := inv(L L^H) B = inv(L)^H inv(L) B
-        basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, B );
-        basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, B );
     }
     else // uplo == UPPER
     {
         // B := inv(U^H U) B = inv(U) inv(U)^H B
-        basic::Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, B );
-        basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+} // namespace elemental

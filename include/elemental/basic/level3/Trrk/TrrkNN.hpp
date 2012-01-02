@@ -31,17 +31,19 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Distributed C := alpha A B + beta C
 template<typename T>
 inline void
-elemental::basic::internal::TrrkNN
+internal::TrrkNN
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrrkNN");
+    PushCallStack("internal::TrrkNN");
     if( C.Height() != C.Width() ||
         A.Height() != C.Height() || 
         B.Width() != C.Width() ||
@@ -79,7 +81,7 @@ elemental::basic::internal::TrrkNN
         //--------------------------------------------------------------------//
         A1_MC_STAR = A1;
         B1Trans_MR_STAR.TransposeFrom( B1 );
-        basic::internal::LocalTrrk
+        internal::LocalTrrk
         ( uplo, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, beta, C );
         //--------------------------------------------------------------------//
         B1Trans_MR_STAR.FreeAlignments();
@@ -99,3 +101,4 @@ elemental::basic::internal::TrrkNN
 #endif
 }
 
+} // namespace elemental

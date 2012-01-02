@@ -32,117 +32,119 @@
 */
 #include "elemental/core/environment.hpp"
 
+namespace elemental {
+
 //
 // Machine constants
 //
 
 template<> float 
-elemental::lapack::MachineEpsilon<float>()
+lapack::MachineEpsilon<float>()
 {
     const char cmach = 'E';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::lapack::MachineEpsilon<double>()
+lapack::MachineEpsilon<double>()
 {
     const char cmach = 'E';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::lapack::MachineSafeMin<float>()
+lapack::MachineSafeMin<float>()
 {
     const char cmach = 'S';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::lapack::MachineSafeMin<double>()
+lapack::MachineSafeMin<double>()
 {
     const char cmach = 'S';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::lapack::MachineBase<float>()
+lapack::MachineBase<float>()
 {
     const char cmach = 'B';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::lapack::MachineBase<double>()
+lapack::MachineBase<double>()
 {
     const char cmach = 'B';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::lapack::MachinePrecision<float>()
+lapack::MachinePrecision<float>()
 {
     const char cmach = 'P';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::lapack::MachinePrecision<double>()
+lapack::MachinePrecision<double>()
 {
     const char cmach = 'P';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::lapack::MachineUnderflowExponent<float>()
+lapack::MachineUnderflowExponent<float>()
 {
     const char cmach = 'M';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::lapack::MachineUnderflowExponent<double>()
+lapack::MachineUnderflowExponent<double>()
 {
     const char cmach = 'M';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::lapack::MachineUnderflowThreshold<float>()
+lapack::MachineUnderflowThreshold<float>()
 {
     const char cmach = 'U';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::lapack::MachineUnderflowThreshold<double>()
+lapack::MachineUnderflowThreshold<double>()
 {
     const char cmach = 'U';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::lapack::MachineOverflowExponent<float>()
+lapack::MachineOverflowExponent<float>()
 {
     const char cmach = 'L';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::lapack::MachineOverflowExponent<double>()
+lapack::MachineOverflowExponent<double>()
 {
     const char cmach = 'L';
     return LAPACK(dlamch)( &cmach );
 }
 
 template<> float 
-elemental::lapack::MachineOverflowThreshold<float>()
+lapack::MachineOverflowThreshold<float>()
 {
     const char cmach = 'O';
     return LAPACK(slamch)( &cmach );
 }
 
 template<> double 
-elemental::lapack::MachineOverflowThreshold<double>()
+lapack::MachineOverflowThreshold<double>()
 {
     const char cmach = 'O';
     return LAPACK(dlamch)( &cmach );
@@ -153,22 +155,22 @@ elemental::lapack::MachineOverflowThreshold<double>()
 //
 
 float
-elemental::lapack::SafeNorm
+lapack::SafeNorm
 ( float alpha, float beta )
 { return LAPACK(slapy2)( &alpha, &beta ); }
 
 double
-elemental::lapack::SafeNorm
+lapack::SafeNorm
 ( double alpha, double beta )
 { return LAPACK(dlapy2)( &alpha, &beta ); }
 
 float
-elemental::lapack::SafeNorm
+lapack::SafeNorm
 ( float alpha, float beta, float gamma )
 { return LAPACK(slapy3)( &alpha, &beta, &gamma ); }
 
 double
-elemental::lapack::SafeNorm
+lapack::SafeNorm
 ( double alpha, double beta, double gamma )
 { return LAPACK(dlapy3)( &alpha, &beta, &gamma ); }
 
@@ -177,25 +179,25 @@ elemental::lapack::SafeNorm
 //
 
 void
-elemental::lapack::ComputeGivens
+lapack::ComputeGivens
 ( float phi, float gamma,
   float* c, float* s, float* rho )
 { LAPACK(slartg)( &phi, &gamma, c, s, rho ); }
 
 void
-elemental::lapack::ComputeGivens
+lapack::ComputeGivens
 ( double phi, double gamma,
   double* c, double* s, double* rho )
 { LAPACK(dlartg)( &phi, &gamma, c, s, rho ); }
 
 void
-elemental::lapack::ComputeGivens
+lapack::ComputeGivens
 ( scomplex phi, scomplex gamma,
   float* c, scomplex* s, scomplex* rho )
 { LAPACK(clartg)( &phi, &gamma, c, s, rho ); }
 
 void
-elemental::lapack::ComputeGivens
+lapack::ComputeGivens
 ( dcomplex phi, dcomplex gamma,
   double* c, dcomplex* s, dcomplex* rho )
 { LAPACK(zlartg)( &phi, &gamma, c, s, rho ); }
@@ -205,7 +207,7 @@ elemental::lapack::ComputeGivens
 //
 
 void
-elemental::lapack::Cholesky
+lapack::Cholesky
 ( char uplo, int n, const float* A, int lda )
 {
 #ifndef RELEASE
@@ -227,7 +229,7 @@ elemental::lapack::Cholesky
 }
 
 void
-elemental::lapack::Cholesky
+lapack::Cholesky
 ( char uplo, int n, const double* A, int lda )
 {
 #ifndef RELEASE
@@ -249,7 +251,7 @@ elemental::lapack::Cholesky
 }
 
 void
-elemental::lapack::Cholesky
+lapack::Cholesky
 ( char uplo, int n, const scomplex* A, int lda )
 {
 #ifndef RELEASE
@@ -271,7 +273,7 @@ elemental::lapack::Cholesky
 }
 
 void
-elemental::lapack::Cholesky
+lapack::Cholesky
 ( char uplo, int n, const dcomplex* A, int lda )
 {
 #ifndef RELEASE
@@ -297,7 +299,7 @@ elemental::lapack::Cholesky
 //
 
 void
-elemental::lapack::LU
+lapack::LU
 ( int m, int n, float* A, int lda, int* p )
 {
 #ifndef RELEASE
@@ -319,7 +321,7 @@ elemental::lapack::LU
 }
 
 void
-elemental::lapack::LU
+lapack::LU
 ( int m, int n, double* A, int lda, int* p )
 {
 #ifndef RELEASE
@@ -341,7 +343,7 @@ elemental::lapack::LU
 }
 
 void
-elemental::lapack::LU
+lapack::LU
 ( int m, int n, scomplex* A, int lda, int* p )
 {
 #ifndef RELEASE
@@ -363,7 +365,7 @@ elemental::lapack::LU
 }
 
 void
-elemental::lapack::LU
+lapack::LU
 ( int m, int n, dcomplex* A, int lda, int* p )
 {
 #ifndef RELEASE
@@ -390,7 +392,7 @@ elemental::lapack::LU
 //
 
 void
-elemental::lapack::Hegst
+lapack::Hegst
 ( int itype, char uplo, int n,
   float* A, int lda, const float* B, int ldb )
 {
@@ -411,7 +413,7 @@ elemental::lapack::Hegst
 }
 
 void
-elemental::lapack::Hegst
+lapack::Hegst
 ( int itype, char uplo, int n,
   double* A, int lda, const double* B, int ldb )
 {
@@ -432,7 +434,7 @@ elemental::lapack::Hegst
 }
 
 void
-elemental::lapack::Hegst
+lapack::Hegst
 ( int itype, char uplo, int n,
   scomplex* A, int lda, const scomplex* B, int ldb )
 {
@@ -453,7 +455,7 @@ elemental::lapack::Hegst
 }
 
 void
-elemental::lapack::Hegst
+lapack::Hegst
 ( int itype, char uplo, int n,
   dcomplex* A, int lda, const dcomplex* B, int ldb )
 {
@@ -478,7 +480,7 @@ elemental::lapack::Hegst
 //
 
 void
-elemental::lapack::TriangularInverse
+lapack::TriangularInverse
 ( char uplo, char diag, int n, const float* A, int lda )
 {
 #ifndef RELEASE
@@ -500,7 +502,7 @@ elemental::lapack::TriangularInverse
 }
 
 void
-elemental::lapack::TriangularInverse
+lapack::TriangularInverse
 ( char uplo, char diag, int n, const double* A, int lda )
 {
 #ifndef RELEASE
@@ -522,7 +524,7 @@ elemental::lapack::TriangularInverse
 }
 
 void
-elemental::lapack::TriangularInverse
+lapack::TriangularInverse
 ( char uplo, char diag, int n, const scomplex* A, int lda )
 {
 #ifndef RELEASE
@@ -544,7 +546,7 @@ elemental::lapack::TriangularInverse
 }
 
 void
-elemental::lapack::TriangularInverse
+lapack::TriangularInverse
 ( char uplo, char diag, int n, const dcomplex* A, int lda )
 {
 #ifndef RELEASE
@@ -565,3 +567,4 @@ elemental::lapack::TriangularInverse
 #endif
 }
 
+} // namespace elemental

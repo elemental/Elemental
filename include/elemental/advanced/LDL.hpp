@@ -33,39 +33,39 @@
 
 #include "./LDL/LocalLDL.hpp"
 
+namespace elemental {
+
 template<typename F>
-inline void elemental::advanced::LDLT
-( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
+inline void LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LDLT");
+    PushCallStack("LDLT");
 #endif
-    advanced::internal::LDLVar3( TRANSPOSE, A, d );
+    internal::LDLVar3( TRANSPOSE, A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
 template<typename F>
-inline void elemental::advanced::LDLH
-( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
+inline void LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LDLH");
+    PushCallStack("LDLH");
 #endif
-    advanced::internal::LDLVar3( ADJOINT, A, d );
+    internal::LDLVar3( ADJOINT, A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename F> // F represents a real or complex field
+template<typename F>
 inline void
-elemental::advanced::internal::LDLVar3
+internal::LDLVar3
 ( Orientation orientation, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::LDLVar3");
+    PushCallStack("internal::LDLVar3");
     if( orientation == NORMAL )
         throw std::logic_error("Can only perform LDL^T and LDL^H");
     if( A.Height() != A.Width() )
@@ -130,29 +130,29 @@ elemental::advanced::internal::LDLVar3
         A21AdjOrTrans_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11; 
-        advanced::internal::LocalLDL
+        internal::LocalLDL
         ( orientation, A11_STAR_STAR, d1_STAR_STAR );
         A11 = A11_STAR_STAR;
         d1 = d1_STAR_STAR;
 
         A21_VC_STAR = A21;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, LOWER, orientation, UNIT, 
           (F)1, A11_STAR_STAR, A21_VC_STAR );
 
         S21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
-        basic::DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, A21_VC_STAR );
+        DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, A21_VC_STAR );
         A21_VR_STAR = A21_VC_STAR;
         if( orientation == ADJOINT )
             A21AdjOrTrans_STAR_MR.AdjointFrom( A21_VR_STAR );
         else
             A21AdjOrTrans_STAR_MR.TransposeFrom( A21_VR_STAR );
 
-        basic::internal::LocalTrrk
+        internal::LocalTrrk
         ( LOWER, TRANSPOSE,
           (F)-1, S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, (F)1, A22 );
 
-        basic::DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
+        DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
         A21.TransposeFrom( S21Trans_STAR_MC );
         //--------------------------------------------------------------------//
         A21_VC_STAR.FreeAlignments();
@@ -176,3 +176,5 @@ elemental::advanced::internal::LDLVar3
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

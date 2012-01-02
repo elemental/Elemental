@@ -34,7 +34,7 @@
 #ifndef WITHOUT_PMRRR
 
 namespace elemental {
-namespace advanced {
+
 namespace hermitian_function {
 
 // A :=  Z f(Omega) Z^T, where f is real-valued
@@ -48,7 +48,7 @@ ReformHermitianMatrix
   const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::hermitian_function::ReformHermitianMatrix");
+    PushCallStack("hermitian_function::ReformHermitianMatrix");
 #endif
     const Grid& g = A.Grid();
 
@@ -102,8 +102,7 @@ ReformHermitianMatrix
         }
 
         Z1Trans_STAR_MR.TransposeFrom( Z1_VR_STAR );
-        basic::internal::LocalTrrk
-        ( uplo, (R)1, Z1_MC_STAR, Z1Trans_STAR_MR, (R)1, A );
+        internal::LocalTrrk( uplo, (R)1, Z1_MC_STAR, Z1Trans_STAR_MR, (R)1, A );
         //--------------------------------------------------------------------//
         Z1Trans_STAR_MR.FreeAlignments();
         Z1_VR_STAR.FreeAlignments();
@@ -134,7 +133,7 @@ ReformHermitianMatrix
   const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::hermitian_function::ReformHermitianMatrix");
+    PushCallStack("hermitian_function::ReformHermitianMatrix");
 #endif
     const Grid& g = A.Grid();
     typedef std::complex<R> C;
@@ -189,8 +188,7 @@ ReformHermitianMatrix
         }
 
         Z1Adj_STAR_MR.AdjointFrom( Z1_VR_STAR );
-        basic::internal::LocalTrrk
-        ( uplo, (C)1, Z1_MC_STAR, Z1Adj_STAR_MR, (C)1, A );
+        internal::LocalTrrk( uplo, (C)1, Z1_MC_STAR, Z1Adj_STAR_MR, (C)1, A );
         //--------------------------------------------------------------------//
         Z1Adj_STAR_MR.FreeAlignments();
         Z1_VR_STAR.FreeAlignments();
@@ -220,7 +218,7 @@ ReformNormalMatrix
   const ComplexFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::hermitian_function::ReformNormalMatrix");
+    PushCallStack("hermitian_function::ReformNormalMatrix");
 #endif
     const Grid& g = A.Grid();
     typedef std::complex<R> C;
@@ -272,7 +270,7 @@ ReformNormalMatrix
         }
 
         Z1Adj_STAR_MR.AdjointFrom( Z1_VR_STAR );
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (C)1, Z1_MC_STAR, Z1Adj_STAR_MR, (C)1, A );
         //--------------------------------------------------------------------//
         Z1Adj_STAR_MR.FreeAlignments();
@@ -294,8 +292,6 @@ ReformNormalMatrix
 }
 
 } // namespace hermitian_eig
-} // namespace advanced
-} // namespace elemental
 
 //
 // Modify the eigenvalues of A with the real-valued function f, which will 
@@ -304,11 +300,11 @@ ReformNormalMatrix
 
 template<typename R,class RealFunctor>
 inline void
-elemental::advanced::RealHermitianFunction
+RealHermitianFunction
 ( UpperOrLower uplo, DistMatrix<R,MC,MR>& A, const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::RealHermitianFunction");
+    PushCallStack("RealHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -328,12 +324,12 @@ elemental::advanced::RealHermitianFunction
 
 template<typename R,class RealFunctor>
 inline void
-elemental::advanced::RealHermitianFunction
+RealHermitianFunction
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,MR>& A, const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::RealHermitianFunction");
+    PushCallStack("RealHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -360,12 +356,12 @@ elemental::advanced::RealHermitianFunction
 
 template<typename R,class ComplexFunctor>
 inline void
-elemental::advanced::ComplexHermitianFunction
+ComplexHermitianFunction
 ( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A, 
   const ComplexFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ComplexHermitianFunction");
+    PushCallStack("ComplexHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -382,4 +378,7 @@ elemental::advanced::ComplexHermitianFunction
     PopCallStack();
 #endif
 }
+
+} // namespace elemental
+
 #endif // WITHOUT_PMRRR

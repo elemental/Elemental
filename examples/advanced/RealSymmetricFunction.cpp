@@ -86,7 +86,7 @@ main( int argc, char* argv[] )
         H.Print("H");
 
         // Reform the matrix with the exponentials of the original eigenvalues
-        advanced::RealHermitianFunction( LOWER, H, ExpFunctor() );
+        RealHermitianFunction( LOWER, H, ExpFunctor() );
 
         // Print the exponential of the original matrix
         H.Print("exp(H)");

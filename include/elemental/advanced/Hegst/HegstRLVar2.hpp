@@ -31,15 +31,16 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // This routine has only partially been optimized. The ReduceScatter operations
 // need to be (conjugate-)transposed in order to play nice with cache.
-template<typename F> // F represents a real or complex field
+template<typename F>
 inline void
-elemental::advanced::internal::HegstRLVar2
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+internal::HegstRLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HegstRLVar2");
+    PushCallStack("internal::HegstRLVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( L.Height() != L.Width() )
@@ -118,55 +119,54 @@ elemental::advanced::internal::HegstRLVar2
         F10Adj_MR_STAR.ResizeTo( A10.Width(), A10.Height() );
         Y10Adj_MC_STAR.SetToZero();
         F10Adj_MR_STAR.SetToZero();
-        basic::internal::LocalSymmetricAccumulateRL
+        internal::LocalSymmetricAccumulateRL
         ( ADJOINT,
           (F)1, A00, L10_STAR_MC, L10Adj_MR_STAR, 
           Y10Adj_MC_STAR, F10Adj_MR_STAR );
         Y10Adj.SumScatterFrom( Y10Adj_MC_STAR );
         Y10Adj_MR_MC = Y10Adj;
         Y10Adj_MR_MC.SumScatterUpdate( (F)1, F10Adj_MR_STAR );
-        basic::Adjoint( Y10Adj_MR_MC.LockedLocalMatrix(), Y10Local );
+        Adjoint( Y10Adj_MR_MC.LockedLocalMatrix(), Y10Local );
 
         // X11 := A10 L10'
         X11_MC_STAR.ResizeTo( A11.Height(), A11.Width() );
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)1, A10, L10Adj_MR_STAR, (F)0, X11_MC_STAR );
 
         // A10 := A10 - Y10
-        basic::Axpy( (F)-1, Y10Local, A10.LocalMatrix() );
+        Axpy( (F)-1, Y10Local, A10.LocalMatrix() );
         A10Adj_MR_STAR.AdjointFrom( A10 );
         
         // A11 := A11 - (X11 + L10 A10') = A11 - (A10 L10' + L10 A10')
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL,
           (F)1, L10, A10Adj_MR_STAR, (F)1, X11_MC_STAR );
         X11.SumScatterFrom( X11_MC_STAR );
         X11.MakeTrapezoidal( LEFT, LOWER );
-        basic::Axpy( (F)-1, X11, A11 );
+        Axpy( (F)-1, X11, A11 );
 
         // A10 := inv(L11) A10
         L11_STAR_STAR = L11;
         A10_STAR_VR.AdjointFrom( A10Adj_MR_STAR );
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;
 
         // A11 := inv(L11) A11 inv(L11)'
         A11_STAR_STAR = A11;
-        advanced::internal::LocalHegst
-        ( RIGHT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
+        internal::LocalHegst( RIGHT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A21 := A21 - A20 L10'
         X21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL,
           (F)1, A20, L10Adj_MR_STAR, (F)0, X21_MC_STAR );
         A21.SumScatterUpdate( (F)-1, X21_MC_STAR );
 
         // A21 := A21 inv(L11)'
         A21_VC_STAR =  A21;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, L11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
@@ -197,3 +197,5 @@ elemental::advanced::internal::HegstRLVar2
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

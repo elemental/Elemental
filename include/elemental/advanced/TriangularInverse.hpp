@@ -34,17 +34,19 @@
 #include "./TriangularInverse/TriangularInverseLVar3.hpp"
 #include "./TriangularInverse/TriangularInverseUVar3.hpp"
 
-template<typename F> // represents a real or complex number
+namespace elemental {
+
+template<typename F>
 inline void
-elemental::advanced::TriangularInverse
+TriangularInverse
 ( UpperOrLower uplo, 
   Diagonal diagonal, 
   DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::TriangularInverse");
+    PushCallStack("TriangularInverse");
 #endif
-    advanced::internal::TriangularInverseVar3( uplo, diagonal, A );
+    internal::TriangularInverseVar3( uplo, diagonal, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -52,19 +54,21 @@ elemental::advanced::TriangularInverse
 
 template<typename F>
 inline void
-elemental::advanced::internal::TriangularInverseVar3
+internal::TriangularInverseVar3
 ( UpperOrLower uplo, 
   Diagonal diagonal, 
   DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::TriangularInverseVar3");
+    PushCallStack("internal::TriangularInverseVar3");
 #endif
     if( uplo == LOWER )
-        advanced::internal::TriangularInverseLVar3( diagonal, A );
+        internal::TriangularInverseLVar3( diagonal, A );
     else
-        advanced::internal::TriangularInverseUVar3( diagonal, A );
+        internal::TriangularInverseUVar3( diagonal, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

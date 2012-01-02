@@ -35,7 +35,6 @@
 #include "./Gemv/GemvT.hpp"
 
 namespace elemental {
-namespace basic {
 
 template<typename T>
 inline void
@@ -46,7 +45,7 @@ Gemv
   T beta,        DistMatrix<T,MC,MR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Gemv");
+    PushCallStack("Gemv");
 #endif
     if( orientation == NORMAL )
         internal::GemvN( alpha, A, x, beta, y );
@@ -57,6 +56,5 @@ Gemv
 #endif
 }
 
-} // namespace basic
 } // namespace elemental
 

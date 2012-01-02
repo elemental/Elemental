@@ -31,6 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Start by forming the partially pivoted LU decomposition of A,
 //     P A = L U,
 // then inverting the system of equations,
@@ -38,18 +40,18 @@
 // then,
 //     inv(A) = inv(U) inv(L) P.
 
-template<typename F> // represents a real or complex number
+template<typename F> 
 inline void
-elemental::advanced::Inverse( Matrix<F>& A )
+Inverse( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Inverse");
+    PushCallStack("Inverse");
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot invert non-square matrices");
 #endif
     Matrix<int> p;
-    advanced::LU( A, p );
-    advanced::TriangularInverse( UPPER, NON_UNIT, A );
+    LU( A, p );
+    TriangularInverse( UPPER, NON_UNIT, A );
 
     // Solve inv(A) L = inv(U) for inv(A)
     Matrix<F> ATL, ATR,
@@ -84,10 +86,10 @@ elemental::advanced::Inverse( Matrix<F>& A )
         A21.SetToZero();
 
         // Perform the lazy update of A1
-        basic::Gemm( NORMAL, NORMAL, (F)-1, A2, L21, (F)1, A1 );
+        Gemm( NORMAL, NORMAL, (F)-1, A2, L21, (F)1, A1 );
 
         // Solve against this diagonal block of L11
-        basic::Trsm( RIGHT, LOWER, NORMAL, UNIT, (F)1, L11, A1 );
+        Trsm( RIGHT, LOWER, NORMAL, UNIT, (F)1, L11, A1 );
         //--------------------------------------------------------------------//
 
         SlidePartitionUpDiagonal
@@ -98,24 +100,25 @@ elemental::advanced::Inverse( Matrix<F>& A )
     }
 
     // inv(A) := inv(A) P
-    advanced::ApplyInverseColumnPivots( A, p );
+    ApplyInverseColumnPivots( A, p );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-template<typename F> // represents a real or complex number
+
+template<typename F> 
 inline void
-elemental::advanced::Inverse( DistMatrix<F,MC,MR>& A )
+Inverse( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Inverse");
+    PushCallStack("Inverse");
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot invert non-square matrices");
 #endif
     const Grid& g = A.Grid();
     DistMatrix<int,VC,STAR> p( g );
-    advanced::LU( A, p );
-    advanced::TriangularInverse( UPPER, NON_UNIT, A );
+    LU( A, p );
+    TriangularInverse( UPPER, NON_UNIT, A );
 
     // Solve inv(A) L = inv(U) for inv(A)
     DistMatrix<F,MC,MR> ATL(g), ATR(g), 
@@ -158,14 +161,14 @@ elemental::advanced::Inverse( DistMatrix<F,MC,MR>& A )
         A21.SetToZero();
 
         // Perform the lazy update of A1
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, TRANSPOSE, 
           (F)-1, A2, L21Trans_STAR_MR, (F)0, Z1 );
         A1.SumScatterUpdate( (F)1, Z1 );
 
         // Solve against this diagonal block of L11
         A1_VC_STAR = A1;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, LOWER, NORMAL, UNIT, (F)1, L11_STAR_STAR, A1_VC_STAR );
         A1 = A1_VC_STAR;
         //--------------------------------------------------------------------//
@@ -181,8 +184,10 @@ elemental::advanced::Inverse( DistMatrix<F,MC,MR>& A )
     }
 
     // inv(A) := inv(A) P
-    advanced::ApplyInverseColumnPivots( A, p );
+    ApplyInverseColumnPivots( A, p );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

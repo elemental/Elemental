@@ -31,6 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 /*
    Parallelization of Variant 2 Upper Cholesky factorization. 
 
@@ -62,11 +64,10 @@
 */
 template<typename F> // representation of real or complex number
 inline void
-elemental::advanced::internal::CholeskyUVar2
-( DistMatrix<F,MC,MR>& A )
+internal::CholeskyUVar2( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CholeskyUVar2");
+    PushCallStack("internal::CholeskyUVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -113,26 +114,26 @@ elemental::advanced::internal::CholeskyUVar2
         X12Adj_MR_STAR.ResizeTo( A12.Width(), A12.Height() );
         //--------------------------------------------------------------------//
         A01_MC_STAR = A01;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( ADJOINT, NORMAL, 
           (F)1, A01, A01_MC_STAR, (F)0, X11Adj_MR_STAR );
         X11Adj_MR_MC.SumScatterFrom( X11Adj_MR_STAR );
-        basic::Adjoint( X11Adj_MR_MC, X11 );
-        basic::Axpy( (F)-1, X11, A11 );
+        Adjoint( X11Adj_MR_MC, X11 );
+        Axpy( (F)-1, X11, A11 );
 
         A11_STAR_STAR = A11;
-        advanced::internal::LocalCholesky( UPPER, A11_STAR_STAR );
+        internal::LocalCholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( ADJOINT, NORMAL, 
           (F)1, A02, A01_MC_STAR, (F)0, X12Adj_MR_STAR );
         X12Adj_MR_MC.SumScatterFrom( X12Adj_MR_STAR );
-        basic::Adjoint( X12Adj_MR_MC, X12 );
-        basic::Axpy( (F)-1, X12, A12 );
+        Adjoint( X12Adj_MR_MC, X12 );
+        Axpy( (F)-1, X12, A12 );
 
         A12_STAR_VR = A12;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
@@ -184,13 +185,12 @@ elemental::advanced::internal::CholeskyUVar2
    A12[MC,MR] <- A12[* ,VR]
    -----------------------------------------------------
 */
-template<typename F> // representation of real or complex number
+template<typename F> 
 inline void
-elemental::advanced::internal::CholeskyUVar2Naive
-( DistMatrix<F,MC,MR>& A )
+internal::CholeskyUVar2Naive( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CholeskyUVar2Naive");
+    PushCallStack("internal::CholeskyUVar2Naive");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ( "Can only compute Cholesky factor of square matrices." );
@@ -235,21 +235,21 @@ elemental::advanced::internal::CholeskyUVar2Naive
         X12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
         //--------------------------------------------------------------------//
         A01_MC_STAR = A01;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( ADJOINT, NORMAL, 
           (F)1, A01_MC_STAR, A01, (F)0, X11_STAR_MR );
         A11.SumScatterUpdate( (F)-1, X11_STAR_MR );
 
         A11_STAR_STAR = A11;
-        advanced::internal::LocalCholesky( UPPER, A11_STAR_STAR );
+        internal::LocalCholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( ADJOINT, NORMAL, (F)1, A01_MC_STAR, A02, (F)0, X12_STAR_MR );
         A12.SumScatterUpdate( (F)-1, X12_STAR_MR );
 
         A12_STAR_VR = A12;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
@@ -267,3 +267,5 @@ elemental::advanced::internal::CholeskyUVar2Naive
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

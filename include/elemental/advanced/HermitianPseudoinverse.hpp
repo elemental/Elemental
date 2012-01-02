@@ -34,7 +34,7 @@
 #ifndef WITHOUT_PMRRR
 
 namespace elemental {
-namespace advanced {
+
 namespace hermitian_pseudoinverse {
 
 template<typename R>
@@ -54,8 +54,6 @@ public:
 };
 
 } // namespace hermitian_pseudoinverse
-} // namespace advanced
-} // namespace elemental
 
 //
 // Invert the sufficiently large eigenvalues of A.
@@ -63,11 +61,10 @@ public:
 
 template<typename R>
 inline void
-elemental::advanced::HermitianPseudoinverse
-( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
+HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianPseudoinverse");
+    PushCallStack("HermitianPseudoinverse");
 #endif
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -100,11 +97,11 @@ elemental::advanced::HermitianPseudoinverse
 
 template<typename R>
 inline void
-elemental::advanced::HermitianPseudoinverse
+HermitianPseudoinverse
 ( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianPseudoinverse");
+    PushCallStack("HermitianPseudoinverse");
 #endif
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -134,4 +131,7 @@ elemental::advanced::HermitianPseudoinverse
     PopCallStack();
 #endif
 }
+
+} // namespace elemental
+
 #endif // WITHOUT_PMRRR

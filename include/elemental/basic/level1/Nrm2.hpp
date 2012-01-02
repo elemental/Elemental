@@ -34,10 +34,10 @@
 namespace elemental {
 
 template<typename R>
-inline R basic::Nrm2( const DistMatrix<R,MC,MR>& x )
+inline R Nrm2( const DistMatrix<R,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Nrm2");
+    PushCallStack("Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("x must be a vector");
 #endif
@@ -53,9 +53,8 @@ inline R basic::Nrm2( const DistMatrix<R,MC,MR>& x )
             
             const int r = g.Height();
             std::vector<R> localNorms(r);
-            R* localNormsPtr = &localNorms[0];
-            mpi::AllGather( &localNorm, 1, localNormsPtr, 1, g.MCComm() );
-            norm = blas::Nrm2( r, localNormsPtr, 1 );
+            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
+            norm = blas::Nrm2( r, &localNorms[0], 1 );
         }
         mpi::Broadcast( &norm, 1, ownerCol, g.MRComm() );
     }
@@ -68,9 +67,8 @@ inline R basic::Nrm2( const DistMatrix<R,MC,MR>& x )
 
             const int c = g.Width();
             std::vector<R> localNorms(c);
-            R* localNormsPtr = &localNorms[0];
-            mpi::AllGather( &localNorm, 1, localNormsPtr, 1, g.MRComm() );
-            norm = blas::Nrm2( c, localNormsPtr, 1 );
+            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
+            norm = blas::Nrm2( c, &localNorms[0], 1 );
         }
         mpi::Broadcast( &norm, 1, ownerRow, g.MCComm() );
     }
@@ -81,10 +79,10 @@ inline R basic::Nrm2( const DistMatrix<R,MC,MR>& x )
 }
 
 template<typename R>
-inline R basic::Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x )
+inline R Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Nrm2");
+    PushCallStack("Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("x must be a vector");
 #endif
@@ -100,9 +98,8 @@ inline R basic::Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x )
             
             const int r = g.Height();
             std::vector<R> localNorms(r);
-            R* localNormsPtr = &localNorms[0];
-            mpi::AllGather( &localNorm, 1, localNormsPtr, 1, g.MCComm() );
-            norm = blas::Nrm2( r, localNormsPtr, 1 );
+            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
+            norm = blas::Nrm2( r, &localNorms[0], 1 );
         }
         mpi::Broadcast( &norm, 1, ownerCol, g.MRComm() );
     }
@@ -115,9 +112,8 @@ inline R basic::Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x )
 
             const int c = g.Width();
             std::vector<R> localNorms(c);
-            R* localNormsPtr = &localNorms[0];
-            mpi::AllGather( &localNorm, 1, localNormsPtr, 1, g.MRComm() );
-            norm = blas::Nrm2( c, localNormsPtr, 1 );
+            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
+            norm = blas::Nrm2( c, &localNorms[0], 1 );
         }
         mpi::Broadcast( &norm, 1, ownerRow, g.MCComm() );
     }

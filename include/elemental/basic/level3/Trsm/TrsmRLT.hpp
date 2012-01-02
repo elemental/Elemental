@@ -31,6 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Right Lower (Conjugate)Transpose (Non)Unit Trsm
 //   X := X tril(L)^-T,
 //   X := X tril(L)^-H,
@@ -38,7 +40,7 @@
 //   X := X trilu(L)^-H
 template<typename F>
 inline void
-elemental::basic::internal::TrsmRLT
+internal::TrsmRLT
 ( Orientation orientation, 
   Diagonal diagonal,
   F alpha, 
@@ -47,7 +49,7 @@ elemental::basic::internal::TrsmRLT
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmRLT");
+    PushCallStack("internal::TrsmRLT");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -80,7 +82,7 @@ elemental::basic::internal::TrsmRLT
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -104,7 +106,7 @@ elemental::basic::internal::TrsmRLT
         X1_VC_STAR    = X1;  // X1[VC,*] <- X1[MC,MR]
         
         // X1[VC,*] := X1[VC,*] (L11[*,*])^-(T/H)
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, LOWER, orientation, diagonal, 
           (F)1, L11_STAR_STAR, X1_VC_STAR, checkIfSingular );
 
@@ -114,7 +116,7 @@ elemental::basic::internal::TrsmRLT
 
         // X2[MC,MR] -= X1[MC,*] (L21[MR,*])^(T/H)
         //            = X1[MC,*] (L21^(T/H))[*,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, orientation, (F)-1, X1_MC_STAR, L21_MR_STAR, (F)1, X2 );
         //--------------------------------------------------------------------//
         X1_MC_STAR.FreeAlignments();
@@ -135,3 +137,4 @@ elemental::basic::internal::TrsmRLT
 #endif
 }
 
+} // namespace elemental

@@ -3,16 +3,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Invariants &mdash; Elemental 0.72 documentation</title>
-    
+    <title>Invariants &mdash; Elemental v0.72 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -25,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental 0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
     <link rel="up" title="Advanced linear algebra" href="../advanced.html" />
     <link rel="next" title="Factorizations" href="factorizations.html" />
     <link rel="prev" title="Norms" href="norms.html" /> 
@@ -43,7 +40,7 @@
         <li class="right" >
           <a href="norms.html" title="Norms"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" accesskey="U">Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>  
@@ -63,7 +60,7 @@ the product of the eigenvalues (including multiplicity):</p>
 <div class="math">
 <p><img src="../_images/math/4cfa69537fbf45a84fca2b72b23596cee5911fc1.png" alt="\[
 \mbox{det}(A) = \prod_{i=0}^{n-1} \lambda_i.
-\]"/></p>
+\]" /></p>
 </div><p>Since <img class="math" src="../_images/math/d13588b3335e422418e96554ee604f63d355f37b.png" alt="\mbox{det}(AB)=\mbox{det}(A)\mbox{det}(B)"/>, we can compute the
 determinant of an arbitrary matrix in <img class="math" src="../_images/math/02efe75fee022db7fc9f5f3e78c5e9c79ba510dc.png" alt="\mathcal{O}(n^3)"/> work by
 computing its LU decomposition (with partial pivoting), <img class="math" src="../_images/math/d38165f6cb26decf3c20b44fe86276382079540a.png" alt="PA=LU"/>,
@@ -74,7 +71,7 @@ recognizing that <img class="math" src="../_images/math/347aaf19d43d29ffaf21a192
 \mbox{det}(A) = \mbox{det}(P)\mbox{det}(L)\mbox{det}(U)
               = \mbox{det}(P) \prod_{i=0}^{n-1} \upsilon_{i,i}
               = \pm \prod_{i=0}^{n-1} \upsilon_{i,i},
-\]"/></p>
+\]" /></p>
 </div><p>where <img class="math" src="../_images/math/9d4d3bca48056b5b4fbaecc6037889e0cd247a0d.png" alt="\upsilon_{i,i}"/> is the i&#8217;th diagonal entry of <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -82,15 +79,15 @@ recognizing that <img class="math" src="../_images/math/347aaf19d43d29ffaf21a192
 in order to efficiently compute the determinant.</p>
 </div>
 <dl class="function">
-<dt id="advanced::Determinant__Matrix:F:R">
-F <tt class="descclassname">advanced::</tt><tt class="descname">Determinant</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Determinant__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Determinant__Matrix:F:R">
+F <tt class="descname">Determinant</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Determinant__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the determinant of the (fully populated) square matrix <cite>A</cite>, which is
 overwritten during the computation.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="advanced::Determinant__DistMatrix:F.MC.MR:R">
-F <tt class="descclassname">advanced::</tt><tt class="descname">Determinant</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Determinant__DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Determinant__DistMatrix:F.MC.MR:R">
+F <tt class="descname">Determinant</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Determinant__DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but for a distributed matrix.</p>
 </dd></dl>
 
@@ -122,15 +119,15 @@ int <tt class="descname">n</tt><a class="headerlink" href="#SafeProduct:F:::n__i
 </dd></dl>
 
 <dl class="function">
-<dt id="advanced::SafeDeterminant__Matrix:F:R">
-<a class="reference internal" href="#SafeProduct:F:__struct" title="SafeProduct&lt;F&gt;">SafeProduct&lt;F&gt;</a> <tt class="descclassname">advanced::</tt><tt class="descname">SafeDeterminant</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::SafeDeterminant__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dt id="SafeDeterminant__Matrix:F:R">
+<a class="reference internal" href="#SafeProduct:F:__struct" title="SafeProduct&lt;F&gt;">SafeProduct&lt;F&gt;</a> <tt class="descname">SafeDeterminant</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#SafeDeterminant__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the determinant of the square matrix <cite>A</cite> in an expanded form
 which is less likely to over/under-flow.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="advanced::SafeDeterminant__DistMatrix:F.MC.MR:R">
-<a class="reference internal" href="#SafeProduct:F:__struct" title="SafeProduct&lt;F&gt;">SafeProduct&lt;F&gt;</a> <tt class="descclassname">advanced::</tt><tt class="descname">SafeDeterminant</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::SafeDeterminant__DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="SafeDeterminant__DistMatrix:F.MC.MR:R">
+<a class="reference internal" href="#SafeProduct:F:__struct" title="SafeProduct&lt;F&gt;">SafeProduct&lt;F&gt;</a> <tt class="descname">SafeDeterminant</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#SafeDeterminant__DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but for a distributed matrix.</p>
 </dd></dl>
 
@@ -142,20 +139,20 @@ which is less likely to over/under-flow.</p>
 <div class="math">
 <p><img src="../_images/math/8f8904d60943c1e6bb6498861fb4f977f20f653f.png" alt="\[
 \mbox{tr}(A) = \sum_{i=0}^{n-1} \alpha_{i,i} = \sum_{i=0}^{n-1} \lambda_i,
-\]"/></p>
+\]" /></p>
 </div><p>where <img class="math" src="../_images/math/5544b20d6339d971b56be8329ac83a29c14de99e.png" alt="\alpha_{i,i}"/> is the i&#8217;th diagonal entry of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and
 <img class="math" src="../_images/math/f9092807df2606b64909623baacf32bf722daff7.png" alt="\lambda_i"/> is the i&#8217;th eigenvalue (counting multiplicity) of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>.</p>
 <p>Clearly the former equation is easier to compute, but the latter is an
 important characterization.</p>
 <dl class="function">
-<dt id="advanced::Trace__Matrix:F:CR">
-F <tt class="descclassname">advanced::</tt><tt class="descname">Trace</tt><big>(</big>const Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Trace__Matrix:F:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Trace__Matrix:F:CR">
+F <tt class="descname">Trace</tt><big>(</big>const Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Trace__Matrix:F:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the trace of the square matrix <cite>A</cite>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="advanced::Trace__DistMatrix:F.MC.MR:CR">
-F <tt class="descclassname">advanced::</tt><tt class="descname">Trace</tt><big>(</big>const DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#advanced::Trace__DistMatrix:F.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="Trace__DistMatrix:F.MC.MR:CR">
+F <tt class="descname">Trace</tt><big>(</big>const DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Trace__DistMatrix:F.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but for a distributed matrix.</p>
 </dd></dl>
 
@@ -194,7 +191,7 @@ F <tt class="descclassname">advanced::</tt><tt class="descname">Trace</tt><big>(
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -220,13 +217,13 @@ F <tt class="descclassname">advanced::</tt><tt class="descname">Trace</tt><big>(
         <li class="right" >
           <a href="norms.html" title="Norms"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" >Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

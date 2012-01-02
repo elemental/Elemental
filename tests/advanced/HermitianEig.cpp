@@ -86,10 +86,10 @@ void TestCorrectnessDouble
         cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<double,MC,MR> X(k,k,g);
     X.SetToIdentity();
-    basic::Herk( uplo, ADJOINT, (double)-1, Z, (double)1, X );
-    double oneNormOfError = advanced::Norm( X, ONE_NORM );
-    double infNormOfError = advanced::Norm( X, INFINITY_NORM );
-    double frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    Herk( uplo, ADJOINT, (double)-1, Z, (double)1, X );
+    double oneNormOfError = Norm( X, ONE_NORM );
+    double infNormOfError = Norm( X, INFINITY_NORM );
+    double frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
@@ -100,7 +100,7 @@ void TestCorrectnessDouble
     // Set X := AZ
     X.AlignWith( Z );
     X.ResizeTo( n, k );
-    basic::Hemm( LEFT, uplo, (double)1, AOrig, Z, (double)0, X );
+    Hemm( LEFT, uplo, (double)1, AOrig, Z, (double)0, X );
     // Set X := X - ZW = AZ - ZW
     for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
     {
@@ -113,16 +113,14 @@ void TestCorrectnessDouble
         }
     }
     // Find the infinity norms of A, Z, and AZ-ZW
-    double infNormOfA = 
-        advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-    double frobNormOfA = 
-        advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-    double oneNormOfZ = advanced::Norm( Z, ONE_NORM );
-    double infNormOfZ = advanced::Norm( Z, INFINITY_NORM );
-    double frobNormOfZ = advanced::Norm( Z, FROBENIUS_NORM );
-    oneNormOfError = advanced::Norm( X, ONE_NORM );
-    infNormOfError = advanced::Norm( X, INFINITY_NORM );
-    frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+    double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+    double oneNormOfZ = Norm( Z, ONE_NORM );
+    double infNormOfZ = Norm( Z, INFINITY_NORM );
+    double frobNormOfZ = Norm( Z, FROBENIUS_NORM );
+    oneNormOfError = Norm( X, ONE_NORM );
+    infNormOfError = Norm( X, INFINITY_NORM );
+    frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -162,13 +160,13 @@ void TestCorrectnessDoubleComplex
         cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<complex<double>,MC,MR> X( k, k, g );
     X.SetToIdentity();
-    basic::Herk
+    Herk
     ( uplo, ADJOINT, 
       complex<double>(-1), Z, 
       complex<double>(1), X );
-    double oneNormOfError = advanced::Norm( X, ONE_NORM );
-    double infNormOfError = advanced::Norm( X, INFINITY_NORM );
-    double frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    double oneNormOfError = Norm( X, ONE_NORM );
+    double infNormOfError = Norm( X, INFINITY_NORM );
+    double frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
@@ -179,7 +177,7 @@ void TestCorrectnessDoubleComplex
     // X := AZ
     X.AlignWith( Z );
     X.ResizeTo( n, k );
-    basic::Hemm
+    Hemm
     ( LEFT, uplo, 
       complex<double>(1), AOrig, Z, 
       complex<double>(0), X );
@@ -195,16 +193,14 @@ void TestCorrectnessDoubleComplex
         }
     }
     // Find the infinity norms of A, Z, and AZ-ZW
-    double infNormOfA = 
-        advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-    double frobNormOfA = 
-        advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-    double oneNormOfZ = advanced::Norm( Z, ONE_NORM );
-    double infNormOfZ = advanced::Norm( Z, INFINITY_NORM );
-    double frobNormOfZ = advanced::Norm( Z, FROBENIUS_NORM );
-    oneNormOfError = advanced::Norm( X, ONE_NORM );
-    infNormOfError = advanced::Norm( X, INFINITY_NORM );
-    frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+    double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+    double oneNormOfZ = Norm( Z, ONE_NORM );
+    double infNormOfZ = Norm( Z, INFINITY_NORM );
+    double frobNormOfZ = Norm( Z, FROBENIUS_NORM );
+    oneNormOfError = Norm( X, ONE_NORM );
+    infNormOfError = Norm( X, INFINITY_NORM );
+    frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -254,20 +250,20 @@ void TestHermitianEigDouble
     if( onlyEigenvalues )
     {
         if( range == 'A' )
-            advanced::HermitianEig( uplo, A, w );
+            HermitianEig( uplo, A, w );
         else if( range == 'I' )
-            advanced::HermitianEig( uplo, A, w, il, iu );
+            HermitianEig( uplo, A, w, il, iu );
         else
-            advanced::HermitianEig( uplo, A, w, vl, vu );
+            HermitianEig( uplo, A, w, vl, vu );
     }
     else
     {
         if( range == 'A' )
-            advanced::HermitianEig( uplo, A, w, Z );
+            HermitianEig( uplo, A, w, Z );
         else if( range == 'I' )
-            advanced::HermitianEig( uplo, A, w, Z, il, iu );
+            HermitianEig( uplo, A, w, Z, il, iu );
         else
-            advanced::HermitianEig( uplo, A, w, Z, vl, vu );
+            HermitianEig( uplo, A, w, Z, vl, vu );
     }
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
@@ -327,20 +323,20 @@ void TestHermitianEigDoubleComplex
     if( onlyEigenvalues )
     {
         if( range == 'A' )
-            advanced::HermitianEig( uplo, A, w );
+            HermitianEig( uplo, A, w );
         else if( range == 'I' )
-            advanced::HermitianEig( uplo, A, w, il, iu );
+            HermitianEig( uplo, A, w, il, iu );
         else
-            advanced::HermitianEig( uplo, A, w, vl, vu );
+            HermitianEig( uplo, A, w, vl, vu );
     }
     else
     {
         if( range == 'A' )
-            advanced::HermitianEig( uplo, A, w, Z );
+            HermitianEig( uplo, A, w, Z );
         else if( range == 'I' )
-            advanced::HermitianEig( uplo, A, w, Z, il, iu );
+            HermitianEig( uplo, A, w, Z, il, iu );
         else
-            advanced::HermitianEig( uplo, A, w, Z, vl, vu );
+            HermitianEig( uplo, A, w, Z, vl, vu );
     }
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
@@ -425,8 +421,8 @@ main( int argc, char* argv[] )
 #endif
         const Grid g( comm, r, c );
         SetBlocksize( nb );
-        basic::SetLocalSymvBlocksize<double>( nbLocalSymv );
-        basic::SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
+        SetLocalSymvBlocksize<double>( nbLocalSymv );
+        SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
 
         if( rank == 0 )
         {
@@ -440,7 +436,7 @@ main( int argc, char* argv[] )
                  << "Double-precision normal tridiag algorithm:\n"
                  << "------------------------------------------" << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
           onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
@@ -452,8 +448,8 @@ main( int argc, char* argv[] )
                  << "row-major grid:\n"
                  << "------------------------------------------" << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
           onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
@@ -465,8 +461,8 @@ main( int argc, char* argv[] )
                  << "col-major grid:\n"
                  << "------------------------------------------" << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
           onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
@@ -478,7 +474,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------------------" 
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
           onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
@@ -491,8 +487,8 @@ main( int argc, char* argv[] )
                  << "---------------------------------------------------"
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
           onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
@@ -505,8 +501,8 @@ main( int argc, char* argv[] )
                  << "---------------------------------------------------"
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
           onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );

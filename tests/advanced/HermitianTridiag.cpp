@@ -92,28 +92,28 @@ void TestCorrectness
     // Reverse the accumulated Householder transforms, ignoring symmetry
     if( uplo == LOWER )
     {
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, B );
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( RIGHT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, B );
     }
     else
     {
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD, subdiagonal, A, B );
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( RIGHT, UPPER, VERTICAL, FORWARD, subdiagonal, A, B );
     }
 
     // Compare the appropriate triangle of AOrig and B
     AOrig.MakeTrapezoidal( LEFT, uplo );
     B.MakeTrapezoidal( LEFT, uplo );
-    basic::Axpy( (R)-1, AOrig, B );
+    Axpy( (R)-1, AOrig, B );
 
-    R infNormOfAOrig = advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-    R frobNormOfAOrig = advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-    R infNormOfError = advanced::HermitianNorm( uplo, B, INFINITY_NORM );
-    R frobNormOfError = advanced::HermitianNorm( uplo, B, FROBENIUS_NORM );
+    R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+    R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+    R infNormOfError = HermitianNorm( uplo, B, INFINITY_NORM );
+    R frobNormOfError = HermitianNorm( uplo, B, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -165,19 +165,19 @@ void TestCorrectness
     // Reverse the accumulated Householder transforms, ignoring symmetry
     if( uplo == LOWER )
     {
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, 
           CONJUGATED, subdiagonal, A, t, B );
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( RIGHT, LOWER, VERTICAL, BACKWARD, 
           CONJUGATED, subdiagonal, A, t, B );
     }
     else
     {
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD, 
           UNCONJUGATED, subdiagonal, A, t, B );
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( RIGHT, UPPER, VERTICAL, FORWARD, 
           UNCONJUGATED, subdiagonal, A, t, B );
     }
@@ -185,12 +185,12 @@ void TestCorrectness
     // Compare the appropriate triangle of AOrig and B
     AOrig.MakeTrapezoidal( LEFT, uplo );
     B.MakeTrapezoidal( LEFT, uplo );
-    basic::Axpy( (C)-1, AOrig, B );
+    Axpy( (C)-1, AOrig, B );
 
-    R infNormOfAOrig = advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-    R frobNormOfAOrig = advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-    R infNormOfError = advanced::HermitianNorm( uplo, B, INFINITY_NORM );
-    R frobNormOfError = advanced::HermitianNorm( uplo, B, FROBENIUS_NORM );
+    R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+    R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+    R infNormOfError = HermitianNorm( uplo, B, INFINITY_NORM );
+    R frobNormOfError = HermitianNorm( uplo, B, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -240,11 +240,11 @@ void TestHermitianTridiag<double>
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::HermitianTridiag( uplo, A );
+    HermitianTridiag( uplo, A );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::HermitianTridiagGFlops<R>( m, runTime );
+    gFlops = internal::HermitianTridiagGFlops<R>( m, runTime );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -294,12 +294,11 @@ void TestHermitianTridiag<complex<double> >
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = 
-        advanced::internal::HermitianTridiagGFlops<complex<R> >( m, runTime );
+    gFlops = internal::HermitianTridiagGFlops<complex<R> >( m, runTime );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -351,8 +350,8 @@ main( int argc, char* argv[] )
 #endif
         const Grid g( comm, r, c );
         SetBlocksize( nb );
-        basic::SetLocalSymvBlocksize<double>( nbLocalSymv );
-        basic::SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
+        SetLocalSymvBlocksize<double>( nbLocalSymv );
+        SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
 
         if( rank == 0 )
             cout << "Will test HermitianTridiag" << UpperOrLowerToChar(uplo) 
@@ -364,7 +363,7 @@ main( int argc, char* argv[] )
                  << "Double-precision normal algorithm:\n"
                  << "----------------------------------" << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianTridiag<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
@@ -375,8 +374,8 @@ main( int argc, char* argv[] )
                  << "--------------------------------------------------" 
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianTridiag<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
@@ -387,8 +386,8 @@ main( int argc, char* argv[] )
                  << "--------------------------------------------------" 
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianTridiag<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
@@ -398,7 +397,7 @@ main( int argc, char* argv[] )
                  << "Double-precision complex normal algorithm:\n"
                  << "------------------------------------------" << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianTridiag<complex<double> >
         ( testCorrectness, printMatrices, uplo, m, g );
 
@@ -410,8 +409,8 @@ main( int argc, char* argv[] )
                  << "-------------------------------------------" 
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        advanced::SetHermitianTridiagGridOrder( ROW_MAJOR );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianTridiag<complex<double> >
         ( testCorrectness, printMatrices, uplo, m, g );
 
@@ -423,8 +422,8 @@ main( int argc, char* argv[] )
                  << "-------------------------------------------" 
                  << endl;
         }
-        advanced::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        advanced::SetHermitianTridiagGridOrder( COLUMN_MAJOR );
+        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
+        SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianTridiag<complex<double> >
         ( testCorrectness, printMatrices, uplo, m, g );
     }

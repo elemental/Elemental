@@ -50,30 +50,34 @@
 #include "./Hegst/HegstRUVar4.hpp"
 #include "./Hegst/HegstRUVar5.hpp"
 
-template<typename F> // F represents a real or complex field
+namespace elemental {
+
+template<typename F> 
 inline void
-elemental::advanced::Hegst
+Hegst
 ( Side side, UpperOrLower uplo, 
   DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Hegst");
+    PushCallStack("Hegst");
 #endif
     if( side == LEFT )
     {
         if( uplo == LOWER )
-            advanced::internal::HegstLLVar4( A, B );
+            internal::HegstLLVar4( A, B );
         else
-            advanced::internal::HegstLUVar4( A, B );
+            internal::HegstLUVar4( A, B );
     }
     else
     {
         if( uplo == LOWER )
-            advanced::internal::HegstRLVar4( A, B );
+            internal::HegstRLVar4( A, B );
         else
-            advanced::internal::HegstRUVar4( A, B );
+            internal::HegstRUVar4( A, B );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

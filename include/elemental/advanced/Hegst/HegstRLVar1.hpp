@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // F represents a real or complex field
+namespace elemental {
+
+template<typename F> 
 inline void
-elemental::advanced::internal::HegstRLVar1
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+internal::HegstRLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HegstRLVar1");
+    PushCallStack("internal::HegstRLVar1");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( L.Height() != L.Width() )
@@ -112,7 +113,7 @@ elemental::advanced::internal::HegstRLVar1
         Z10Adj_MR_STAR.ResizeTo( A10.Width(), A10.Height() );
         Z10Adj_MC_STAR.SetToZero();
         Z10Adj_MR_STAR.SetToZero();
-        basic::internal::LocalSymmetricAccumulateRL
+        internal::LocalSymmetricAccumulateRL
         ( ADJOINT,
           (F)1, A00, L10_STAR_MC, L10Adj_MR_STAR, 
           Z10Adj_MC_STAR, Z10Adj_MR_STAR );
@@ -120,20 +121,20 @@ elemental::advanced::internal::HegstRLVar1
         Z10Adj_MR_MC = Z10Adj;
         Z10Adj_MR_MC.SumScatterUpdate( (F)1, Z10Adj_MR_STAR );
         Y10.ResizeTo( A10.Height(), A10.Width() );
-        basic::Adjoint( Z10Adj_MR_MC.LocalMatrix(), Y10.LocalMatrix() );
+        Adjoint( Z10Adj_MR_MC.LocalMatrix(), Y10.LocalMatrix() );
 
         // A10 := A10 inv(L00)'
         // This is the bottleneck because A10 only has blocksize rows
-        basic::Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, L00, A10 );
+        Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, L00, A10 );
 
         // A10 := A10 - 1/2 Y10
-        basic::Axpy( (F)-0.5, Y10, A10 );
+        Axpy( (F)-0.5, Y10, A10 );
 
         // A11 := A11 - (A10 L10' + L10 A10')
         A10_STAR_VR = A10;
         L10_STAR_VR = L10;
         X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
-        basic::Her2k
+        Her2k
         ( LOWER, NORMAL,
           (F)-1, A10_STAR_VR.LocalMatrix(), L10_STAR_VR.LocalMatrix(), 
           (F)0, X11_STAR_STAR.LocalMatrix() );
@@ -142,16 +143,15 @@ elemental::advanced::internal::HegstRLVar1
         // A11 := inv(L11) A11 inv(L11)'
         A11_STAR_STAR = A11;
         L11_STAR_STAR = L11;
-        advanced::internal::LocalHegst
-        ( RIGHT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
+        internal::LocalHegst( RIGHT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A10 := A10 - 1/2 Y10
-        basic::Axpy( (F)-0.5, Y10, A10 );
+        Axpy( (F)-0.5, Y10, A10 );
 
         // A10 := inv(L11) A10
         A10_STAR_VR = A10;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;
         //--------------------------------------------------------------------//
@@ -182,3 +182,5 @@ elemental::advanced::internal::HegstRLVar1
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

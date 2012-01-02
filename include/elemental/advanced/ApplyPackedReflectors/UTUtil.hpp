@@ -32,9 +32,7 @@
 */
 
 namespace elemental {
-namespace advanced {
 namespace internal {
-using namespace elemental;
 
 template<typename T> 
 void
@@ -133,5 +131,4 @@ FixDiagonal
 }
 
 } // internal
-} // advanced
 } // elemental

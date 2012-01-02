@@ -36,12 +36,12 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
    The following functions overwrite the input matrix with its LU factorization
    in order to efficiently compute the determinant.
 
-.. cpp:function:: F advanced::Determinant( Matrix<F>& A )
+.. cpp:function:: F Determinant( Matrix<F>& A )
 
    Returns the determinant of the (fully populated) square matrix `A`, which is 
    overwritten during the computation.
 
-.. cpp:function:: F advanced::Determinant( DistMatrix<F,MC,MR>& A )
+.. cpp:function:: F Determinant( DistMatrix<F,MC,MR>& A )
 
    Same as above, but for a distributed matrix.
 
@@ -64,12 +64,12 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
 
       The number of values in the product.
 
-.. cpp:function:: SafeProduct<F> advanced::SafeDeterminant( Matrix<F>& A )
+.. cpp:function:: SafeProduct<F> SafeDeterminant( Matrix<F>& A )
 
    Returns the determinant of the square matrix `A` in an expanded form 
    which is less likely to over/under-flow.
 
-.. cpp:function:: SafeProduct<F> advanced::SafeDeterminant( DistMatrix<F,MC,MR>& A )
+.. cpp:function:: SafeProduct<F> SafeDeterminant( DistMatrix<F,MC,MR>& A )
 
    Same as above, but for a distributed matrix.
 
@@ -91,11 +91,11 @@ where :math:`\alpha_{i,i}` is the i'th diagonal entry of :math:`A` and
 Clearly the former equation is easier to compute, but the latter is an 
 important characterization.
 
-.. cpp:function:: F advanced::Trace( const Matrix<F>& A )
+.. cpp:function:: F Trace( const Matrix<F>& A )
 
    Return the trace of the square matrix `A`.
 
-.. cpp:function:: F advanced::Trace( const DistMatrix<F,MC,MR>& A )
+.. cpp:function:: F Trace( const DistMatrix<F,MC,MR>& A )
 
    Same as above, but for a distributed matrix.
 

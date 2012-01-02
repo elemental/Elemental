@@ -38,13 +38,14 @@
 #include "./Cholesky/CholeskyUVar3.hpp"
 #include "./Cholesky/CholeskyUVar3Square.hpp"
 
-template<typename F> // F represents a real or complex field
+namespace elemental {
+
+template<typename F> 
 inline void
-elemental::advanced::Cholesky
-( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+Cholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Cholesky");
+    PushCallStack("Cholesky");
 #endif
     const Grid& g = A.Grid();
 
@@ -52,19 +53,20 @@ elemental::advanced::Cholesky
     if( g.Height() == g.Width() )
     {
         if( uplo == LOWER )
-            advanced::internal::CholeskyLVar3Square( A );
+            internal::CholeskyLVar3Square( A );
         else
-            advanced::internal::CholeskyUVar3Square( A );
+            internal::CholeskyUVar3Square( A );
     }
     else
     {
         if( uplo == LOWER )
-            advanced::internal::CholeskyLVar3( A );
+            internal::CholeskyLVar3( A );
         else
-            advanced::internal::CholeskyUVar3( A );
+            internal::CholeskyUVar3( A );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+} // namespace elemental

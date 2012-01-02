@@ -31,16 +31,18 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename F>
 inline void
-elemental::basic::internal::TrsvLT
+internal::TrsvLT
 ( Orientation orientation,
   Diagonal diagonal, 
   const DistMatrix<F,MC,MR>& L, 
         DistMatrix<F,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsvLT");
+    PushCallStack("internal::TrsvLT");
     if( L.Grid() != x.Grid() )
         throw std::logic_error("{L,x} must be distributed over the same grid");
     if( orientation == NORMAL )
@@ -104,21 +106,21 @@ elemental::basic::internal::TrsvLT
             //----------------------------------------------------------------//
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
-            basic::Trsv
+            Trsv
             ( LOWER, orientation, diagonal,
               L11_STAR_STAR.LockedLocalMatrix(),
               x1_STAR_STAR.LocalMatrix() );
             x1 = x1_STAR_STAR;
 
             x1_MC_STAR = x1_STAR_STAR;
-            basic::Gemv
+            Gemv
             ( orientation, (F)-1, 
               L10.LockedLocalMatrix(), 
               x1_MC_STAR.LockedLocalMatrix(),
               (F)0, z0_MR_STAR.LocalMatrix() );
             z0_MR_MC.SumScatterFrom( z0_MR_STAR );
             z0 = z0_MR_MC;
-            basic::Axpy( (F)1, z0, x0 );
+            Axpy( (F)1, z0, x0 );
             //----------------------------------------------------------------//
             x1_MC_STAR.FreeAlignments();
             z0_MR_STAR.FreeAlignments();
@@ -177,14 +179,14 @@ elemental::basic::internal::TrsvLT
             //----------------------------------------------------------------//
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
-            basic::Trsv
+            Trsv
             ( LOWER, orientation, diagonal,
               L11_STAR_STAR.LockedLocalMatrix(),
               x1_STAR_STAR.LocalMatrix() );
             x1 = x1_STAR_STAR;
 
             x1_STAR_MC = x1_STAR_STAR;
-            basic::Gemv
+            Gemv
             ( orientation, (F)-1, 
               L10.LockedLocalMatrix(), 
               x1_STAR_MC.LockedLocalMatrix(),
@@ -209,3 +211,5 @@ elemental::basic::internal::TrsvLT
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

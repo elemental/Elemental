@@ -31,7 +31,9 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace {
+namespace elemental {
+
+namespace internal {
 
 template<typename R>
 struct IndexValuePair {
@@ -53,14 +55,14 @@ struct IndexValuePair<std::complex<R> > {
     { return Abs(a.value) < Abs(b.value); }
 };
 
-} // anonymous namespace
+} // namespace internal
 
 template<typename R>
 inline void
-elemental::advanced::SortEig( DistMatrix<R,VR,STAR>& w )
+SortEig( DistMatrix<R,VR,STAR>& w )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SortEig");
+    PushCallStack("SortEig");
 #endif
     const int k = w.Height();
 
@@ -78,11 +80,10 @@ elemental::advanced::SortEig( DistMatrix<R,VR,STAR>& w )
 
 template<typename R>
 inline void
-elemental::advanced::SortEig
-( DistMatrix<R,VR,STAR>& w, DistMatrix<R,MC,MR>& Z )
+SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R,MC,MR>& Z )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SortEig");
+    PushCallStack("SortEig");
 #endif
     const int n = Z.Height();
     const int k = Z.Width();
@@ -92,7 +93,7 @@ elemental::advanced::SortEig
     DistMatrix<R,STAR,STAR> w_STAR_STAR( w );
 
     // Initialize the pairs of indices and eigenvalues
-    std::vector<IndexValuePair<R> > pairs( k );
+    std::vector<internal::IndexValuePair<R> > pairs( k );
     for( int i=0; i<k; ++i )
     {
         pairs[i].index = i;
@@ -100,7 +101,8 @@ elemental::advanced::SortEig
     }
 
     // Sort the eigenvalues and simultaneously form the permutation
-    std::sort( pairs.begin(), pairs.end(), IndexValuePair<R>::Compare );
+    std::sort
+    ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Compare );
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering
     const int mLocal = Z_VC_STAR.LocalHeight();
@@ -124,11 +126,10 @@ elemental::advanced::SortEig
 
 template<typename R> 
 inline void
-elemental::advanced::SortEig
-( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z )
+SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SortEig");
+    PushCallStack("SortEig");
 #endif
     const int n = Z.Height();
     const int k = Z.Width();
@@ -138,7 +139,7 @@ elemental::advanced::SortEig
     DistMatrix<R,STAR,STAR> w_STAR_STAR( w );
 
     // Initialize the pairs of indices and eigenvalues
-    std::vector<IndexValuePair<R> > pairs( k );
+    std::vector<internal::IndexValuePair<R> > pairs( k );
     for( int i=0; i<k; ++i )
     {
         pairs[i].index = i;
@@ -146,7 +147,8 @@ elemental::advanced::SortEig
     }
 
     // Sort the eigenvalues and simultaneously form the permutation
-    std::sort( pairs.begin(), pairs.end(), IndexValuePair<R>::Compare );
+    std::sort
+    ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Compare );
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering
     const int mLocal = Z_VC_STAR.LocalHeight();
@@ -168,3 +170,4 @@ elemental::advanced::SortEig
 #endif
 }
 
+} // namespace elemental

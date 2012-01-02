@@ -31,24 +31,26 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Right Lower Normal (Non)Unit Trmm
 //   X := X tril(L), and
 //   X := X trilu(L)
 template<typename T>
 inline void
-elemental::basic::internal::TrmmRLN
+internal::TrmmRLN
 ( Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& L,
                  DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrmmRLN");
+    PushCallStack("internal::TrmmRLN");
 #endif
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
-        basic::internal::TrmmRLNA( diagonal, alpha, L, X );
+        internal::TrmmRLNA( diagonal, alpha, L, X );
     else
-        basic::internal::TrmmRLNC( diagonal, alpha, L, X );
+        internal::TrmmRLNC( diagonal, alpha, L, X );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -56,13 +58,13 @@ elemental::basic::internal::TrmmRLN
 
 template<typename T>
 inline void
-elemental::basic::internal::TrmmRLNA
+internal::TrmmRLNA
 ( Diagonal diagonal, 
   T alpha, const DistMatrix<T,MC,MR>& L,
                  DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrmmRLNA");
+    PushCallStack("internal::TrmmRLNA");
     if( L.Grid() != X.Grid() )
         throw std::logic_error("{L,X} must be distributed over the same grid");
 #endif
@@ -98,11 +100,11 @@ elemental::basic::internal::TrmmRLNA
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
         Z1Trans_MR_STAR.SetToZero();
-        basic::internal::LocalTrmmAccumulateRLN
+        internal::LocalTrmmAccumulateRLN
         ( TRANSPOSE, diagonal, alpha, L, X1_STAR_MC, Z1Trans_MR_STAR );
 
         Z1Trans_MR_MC.SumScatterFrom( Z1Trans_MR_STAR );
-        basic::Transpose( Z1Trans_MR_MC.LocalMatrix(), X1.LocalMatrix() );
+        Transpose( Z1Trans_MR_MC.LocalMatrix(), X1.LocalMatrix() );
         //--------------------------------------------------------------------//
         X1_STAR_VC.FreeAlignments();
         X1_STAR_MC.FreeAlignments();
@@ -122,13 +124,13 @@ elemental::basic::internal::TrmmRLNA
     
 template<typename T>
 inline void
-elemental::basic::internal::TrmmRLNC
+internal::TrmmRLNC
 ( Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& L,
                  DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrmmRLNC");
+    PushCallStack("internal::TrmmRLNC");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -159,7 +161,7 @@ elemental::basic::internal::TrmmRLNC
     DistMatrix<T,MC,  STAR> D1_MC_STAR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -182,12 +184,12 @@ elemental::basic::internal::TrmmRLNC
         //--------------------------------------------------------------------//
         X1_VC_STAR = X1;
         L11_STAR_STAR = L11;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( RIGHT, LOWER, NORMAL, diagonal, (T)1, L11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
  
         L21_MR_STAR = L21;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (T)1, X2, L21_MR_STAR, (T)0, D1_MC_STAR );
         X1.SumScatterUpdate( (T)1, D1_MC_STAR );
        //--------------------------------------------------------------------//
@@ -211,14 +213,14 @@ elemental::basic::internal::TrmmRLNC
 
 template<typename T>
 inline void
-elemental::basic::internal::LocalTrmmAccumulateRLN
+internal::LocalTrmmAccumulateRLN
 ( Orientation orientation, Diagonal diagonal, T alpha,
   const DistMatrix<T,MC,  MR  >& L,
   const DistMatrix<T,STAR,MC  >& X_STAR_MC,
         DistMatrix<T,MR,  STAR>& ZAdjOrTrans_MR_STAR )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTrmmAccumulateRLN");
+    PushCallStack("internal::LocalTrmmAccumulateRLN");
     if( L.Grid() != X_STAR_MC.Grid() || 
         X_STAR_MC.Grid() != ZAdjOrTrans_MR_STAR.Grid() )
         throw std::logic_error
@@ -293,11 +295,11 @@ elemental::basic::internal::LocalTrmmAccumulateRLN
         D11.MakeTrapezoidal( LEFT, LOWER );
         if( diagonal == UNIT )
             SetDiagonalToOne( D11 );
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientation, orientation,
           alpha, D11, X1_STAR_MC, (T)1, Z1AdjOrTrans_MR_STAR );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientation, orientation,
           alpha, L21, X2_STAR_MC, (T)1, Z1AdjOrTrans_MR_STAR );
         //--------------------------------------------------------------------//
@@ -324,3 +326,5 @@ elemental::basic::internal::LocalTrmmAccumulateRLN
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

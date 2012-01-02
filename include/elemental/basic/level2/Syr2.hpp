@@ -31,16 +31,18 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Syr2
+Syr2
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& x,
            const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Syr2");
+    PushCallStack("Syr2");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw std::logic_error
         ("{A,x,y} must be distributed over the same grid");
@@ -315,3 +317,5 @@ elemental::basic::Syr2
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

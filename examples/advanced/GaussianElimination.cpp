@@ -77,7 +77,7 @@ main( int argc, char* argv[] )
             }
             mpi::Barrier( mpi::COMM_WORLD );
             double startTime = mpi::Time();
-            advanced::GaussianElimination( A, X );
+            GaussianElimination( A, X );
             mpi::Barrier( mpi::COMM_WORLD );
             double stopTime = mpi::Time();
             if( commRank == 0 )
@@ -85,14 +85,14 @@ main( int argc, char* argv[] )
 
             // Form R := A X - B
             DistMatrix<double> R( B );
-            basic::Gemm( NORMAL, NORMAL, (double)1, ACopy, X, (double)-1, R );
+            Gemm( NORMAL, NORMAL, (double)1, ACopy, X, (double)-1, R );
 
             // Compute the relevant Frobenius norms and a relative residual
             const double epsilon = lapack::MachineEpsilon<double>();
-            const double AFrobNorm = advanced::Norm( ACopy, FROBENIUS_NORM );
-            const double BFrobNorm = advanced::Norm( B,     FROBENIUS_NORM );
-            const double XFrobNorm = advanced::Norm( X,     FROBENIUS_NORM );
-            const double RFrobNorm = advanced::Norm( R,     FROBENIUS_NORM );
+            const double AFrobNorm = Norm( ACopy, FROBENIUS_NORM );
+            const double BFrobNorm = Norm( B,     FROBENIUS_NORM );
+            const double XFrobNorm = Norm( X,     FROBENIUS_NORM );
+            const double RFrobNorm = Norm( R,     FROBENIUS_NORM );
             const double frobResidual = 
                 RFrobNorm / (AFrobNorm*XFrobNorm*epsilon*n);
             if( commRank == 0 )
@@ -104,10 +104,10 @@ main( int argc, char* argv[] )
                           << frobResidual << "\n" << std::endl;
 
             // Compute the relevant infinity norms and a relative residual
-            const double AInfNorm = advanced::Norm( ACopy, INFINITY_NORM );
-            const double BInfNorm = advanced::Norm( B,     INFINITY_NORM );
-            const double XInfNorm = advanced::Norm( X,     INFINITY_NORM );
-            const double RInfNorm = advanced::Norm( R,     INFINITY_NORM );
+            const double AInfNorm = Norm( ACopy, INFINITY_NORM );
+            const double BInfNorm = Norm( B,     INFINITY_NORM );
+            const double XInfNorm = Norm( X,     INFINITY_NORM );
+            const double RInfNorm = Norm( R,     INFINITY_NORM );
             const double infResidual = RInfNorm / (AInfNorm*XInfNorm*epsilon*n);
             if( commRank == 0 )
                 std::cout << "||A||_oo       = " << AInfNorm << "\n"
@@ -118,10 +118,10 @@ main( int argc, char* argv[] )
                           << infResidual << "\n" << std::endl;
 
             // Compute the relevant one norms and a relative residual
-            const double AOneNorm = advanced::Norm( ACopy, ONE_NORM );
-            const double BOneNorm = advanced::Norm( B,     ONE_NORM );
-            const double XOneNorm = advanced::Norm( X,     ONE_NORM );
-            const double ROneNorm = advanced::Norm( R,     ONE_NORM );
+            const double AOneNorm = Norm( ACopy, ONE_NORM );
+            const double BOneNorm = Norm( B,     ONE_NORM );
+            const double XOneNorm = Norm( X,     ONE_NORM );
+            const double ROneNorm = Norm( R,     ONE_NORM );
             const double oneResidual = ROneNorm / (AOneNorm*XOneNorm*epsilon*n);
             if( commRank == 0 )
                 std::cout << "||A||_1       = " << AOneNorm << "\n"

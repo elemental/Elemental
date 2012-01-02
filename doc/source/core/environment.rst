@@ -164,10 +164,10 @@ Custom datatypes
 .. cpp:type:: GridOrder
 
    An enum for specifying either a ``ROW_MAJOR`` or ``COLUMN_MAJOR`` ordering;
-   it is used to tune one of the algorithms in ``advanced::HermitianTridiag``
+   it is used to tune one of the algorithms in ``HermitianTridiag``
    which requires building a smaller square process grid from a rectangular 
    process grid, as the ordering of the processes can greatly impact 
-   performance. See ``advanced::SetHermitianTridiagGridOrder``.
+   performance. See ``SetHermitianTridiagGridOrder``.
 
 Custom exceptions
 -----------------

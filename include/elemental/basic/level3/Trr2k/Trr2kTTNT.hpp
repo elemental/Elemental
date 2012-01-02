@@ -31,10 +31,12 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Distributed E := alpha (A^{T/H} B^{T/H} + C D^{T/H}) + beta E
 template<typename T>
 inline void
-elemental::basic::internal::Trr2kTTNT
+internal::Trr2kTTNT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfD, 
@@ -43,9 +45,9 @@ elemental::basic::internal::Trr2kTTNT
   T beta,        DistMatrix<T,MC,MR>& E )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Trr2kTTNT");
+    PushCallStack("internal::Trr2kTTNT");
 #endif
-    basic::internal::Trr2kNTTT
+    internal::Trr2kNTTT
     ( uplo, orientationOfD, orientationOfA, orientationOfB,
       alpha, C, D, A, B, beta, E );
 #ifndef RELEASE
@@ -53,3 +55,4 @@ elemental::basic::internal::Trr2kTTNT
 #endif
 }
 
+} // namespace elemental

@@ -40,9 +40,11 @@
 #include "./Trsm/TrsmRUN.hpp"
 #include "./Trsm/TrsmRUT.hpp"
 
+namespace elemental {
+
 template<typename F>
 inline void
-elemental::basic::Trsm
+Trsm
 ( Side side, 
   UpperOrLower uplo, 
   Orientation orientation, 
@@ -53,7 +55,7 @@ elemental::basic::Trsm
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trsm");
+    PushCallStack("Trsm");
 #endif
     const int p = X.Grid().Size();
     if( side == LEFT && uplo == LOWER )
@@ -61,19 +63,19 @@ elemental::basic::Trsm
         if( orientation == NORMAL )
         {
             if( X.Width() > 5*p )
-                basic::internal::TrsmLLNLarge
+                internal::TrsmLLNLarge
                 ( diagonal, alpha, A, X, checkIfSingular );
             else
-                basic::internal::TrsmLLNMedium
+                internal::TrsmLLNMedium
                 ( diagonal, alpha, A, X, checkIfSingular );
         }
         else
         {
             if( X.Width() > 5*p )
-                basic::internal::TrsmLLTLarge
+                internal::TrsmLLTLarge
                 ( orientation, diagonal, alpha, A, X, checkIfSingular );
             else
-                basic::internal::TrsmLLTMedium
+                internal::TrsmLLTMedium
                 ( orientation, diagonal, alpha, A, X, checkIfSingular );
         }
     }
@@ -82,41 +84,41 @@ elemental::basic::Trsm
         if( orientation == NORMAL )
         {
             if( X.Width() > 5*p )
-                basic::internal::TrsmLUNLarge
+                internal::TrsmLUNLarge
                 ( diagonal, alpha, A, X, checkIfSingular );
             else
-                basic::internal::TrsmLUNMedium
+                internal::TrsmLUNMedium
                 ( diagonal, alpha, A, X, checkIfSingular );
         }
         else
         {
             if( X.Width() > 5*p )
-                basic::internal::TrsmLUTLarge
+                internal::TrsmLUTLarge
                 ( orientation, diagonal, alpha, A, X, checkIfSingular );
             else
-                basic::internal::TrsmLUTMedium
+                internal::TrsmLUTMedium
                 ( orientation, diagonal, alpha, A, X, checkIfSingular );
         }
     }
     else if( side == RIGHT && uplo == LOWER )
     {
         if( orientation == NORMAL )
-            basic::internal::TrsmRLN
-            ( diagonal, alpha, A, X, checkIfSingular );
+            internal::TrsmRLN( diagonal, alpha, A, X, checkIfSingular );
         else
-            basic::internal::TrsmRLT
+            internal::TrsmRLT
             ( orientation, diagonal, alpha, A, X, checkIfSingular );
     }
     else if( side == RIGHT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            basic::internal::TrsmRUN
-            ( diagonal, alpha, A, X, checkIfSingular );
+            internal::TrsmRUN( diagonal, alpha, A, X, checkIfSingular );
         else
-            basic::internal::TrsmRUT
+            internal::TrsmRUT
             ( orientation, diagonal, alpha, A, X, checkIfSingular );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

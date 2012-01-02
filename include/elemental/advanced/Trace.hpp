@@ -31,11 +31,13 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename F> 
-inline F elemental::advanced::Trace( const DistMatrix<F,MC,MR>& A )
+inline F Trace( const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Trace");
+    PushCallStack("Trace");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot compute trace of nonsquare matrix");
@@ -59,10 +61,10 @@ inline F elemental::advanced::Trace( const DistMatrix<F,MC,MR>& A )
 }
 
 template<typename F>
-inline F elemental::advanced::Trace( const Matrix<F>& A )
+inline F Trace( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Trace");
+    PushCallStack("Trace");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot compute trace of nonsquare matrix");
@@ -78,3 +80,5 @@ inline F elemental::advanced::Trace( const Matrix<F>& A )
 #endif
     return trace;
 }
+
+} // namespace elemental

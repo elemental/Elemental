@@ -31,15 +31,17 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::Her2kUN
+internal::Her2kUN
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Her2kUN");
+    PushCallStack("internal::Her2kUN");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -101,7 +103,7 @@ elemental::basic::internal::Her2kUN
         B1_VR_STAR = B1_MC_STAR = B1;
         B1Adj_STAR_MR.AdjointFrom( B1_VR_STAR );
 
-        basic::internal::LocalTrr2k
+        internal::LocalTrr2k
         ( UPPER, 
           alpha, A1_MC_STAR, B1Adj_STAR_MR,
                  B1_MC_STAR, A1Adj_STAR_MR,
@@ -126,3 +128,5 @@ elemental::basic::internal::Her2kUN
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

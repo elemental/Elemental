@@ -71,22 +71,21 @@ void TestCorrectness
     // Form Z := Q^H Q or Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Y(m,m,g);
     Y.SetToIdentity();
-    advanced::ApplyPackedReflectors
-    ( side, uplo, VERTICAL, order, offset, H, Y );
+    ApplyPackedReflectors( side, uplo, VERTICAL, order, offset, H, Y );
     if( printMatrices )
     {
         DistMatrix<R,MC,MR> W(m,m,g);
         W.SetToIdentity();
         if( order == FORWARD )
         {
-            advanced::ApplyPackedReflectors
+            ApplyPackedReflectors
             ( side, uplo, VERTICAL, BACKWARD, offset, H, W );
             Y.Print("Q");
             W.Print("Q^H");
         }
         else
         {
-            advanced::ApplyPackedReflectors
+            ApplyPackedReflectors
             ( side, uplo, VERTICAL, FORWARD, offset, H, W );
             Y.Print("Q^H");
             W.Print("Q");
@@ -94,12 +93,12 @@ void TestCorrectness
     }
     DistMatrix<R,MC,MR> Z(m,m,g);
     Z.SetToZero();
-    basic::Syrk( uplo, NORMAL, 1.0, Y, 0.0, Z );
+    Syrk( uplo, NORMAL, 1.0, Y, 0.0, Z );
 
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<R,MC,MR> X(m,m,g);
     X.SetToIdentity();
-    basic::Axpy( (R)-1, Z, X );
+    Axpy( (R)-1, Z, X );
     if( printMatrices )
     {
         if( order == FORWARD )
@@ -108,9 +107,9 @@ void TestCorrectness
             X.Print("I - Q^H Q");
     }
 
-    R oneNormOfError = advanced::Norm( X, ONE_NORM );
-    R infNormOfError = advanced::Norm( X, INFINITY_NORM );
-    R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    R oneNormOfError = Norm( X, ONE_NORM );
+    R infNormOfError = Norm( X, INFINITY_NORM );
+    R frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         if( order == FORWARD )
@@ -150,7 +149,7 @@ void TestCorrectness
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
     DistMatrix<C,MC,MR> Y(m,m,g);
     Y.SetToIdentity();
-    advanced::ApplyPackedReflectors
+    ApplyPackedReflectors
     ( side, uplo, VERTICAL, order, conjugation, offset, H, t, Y );
     if( printMatrices )
     {
@@ -158,14 +157,14 @@ void TestCorrectness
         W.SetToIdentity();
         if( order == FORWARD )
         {
-            advanced::ApplyPackedReflectors
+            ApplyPackedReflectors
             ( side, uplo, VERTICAL, BACKWARD, conjugation, offset, H, t, W );
             Y.Print("Q");
             W.Print("Q^H");
         }
         else
         {
-            advanced::ApplyPackedReflectors
+            ApplyPackedReflectors
             ( side, uplo, VERTICAL, FORWARD, conjugation, offset, H, t, W );
             Y.Print("Q^H");
             W.Print("Q");
@@ -173,12 +172,12 @@ void TestCorrectness
     }
     DistMatrix<C,MC,MR> Z(m,m,g);
     Z.SetToZero();
-    basic::Herk( uplo, NORMAL, (C)1, Y, (C)0, Z );
+    Herk( uplo, NORMAL, (C)1, Y, (C)0, Z );
     
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<C,MC,MR> X(m,m,g);
     X.SetToIdentity();
-    basic::Axpy( (C)-1, Z, X );
+    Axpy( (C)-1, Z, X );
     if( printMatrices )
     {
         if( order == FORWARD )
@@ -188,9 +187,9 @@ void TestCorrectness
     }
 
     // Compute the maximum deviance
-    R oneNormOfError = advanced::Norm( X, ONE_NORM );
-    R infNormOfError = advanced::Norm( X, INFINITY_NORM );
-    R frobNormOfError = advanced::Norm( X, FROBENIUS_NORM );
+    R oneNormOfError = Norm( X, ONE_NORM );
+    R infNormOfError = Norm( X, INFINITY_NORM );
+    R frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         if( order == FORWARD )
@@ -244,12 +243,12 @@ void TestUT<double>
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::ApplyPackedReflectors
+    ApplyPackedReflectors
     ( side, uplo, VERTICAL, order, offset, H, A );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::ApplyPackedReflectorsGFlops<R>( m, runTime );
+    gFlops = internal::ApplyPackedReflectorsGFlops<R>( m, runTime );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -291,7 +290,7 @@ void TestUT< complex<double> >
         {
             // View below the diagonal containing the implicit 1
             HCol.View( H, i-offset+1, i, m-(i-offset+1), 1 );
-            C norm = basic::Nrm2( HCol );
+            C norm = Nrm2( HCol );
             C alpha = 2./(norm*norm+1.);
             t.Set( i, 0, alpha );
         }
@@ -302,7 +301,7 @@ void TestUT< complex<double> >
         {
             // View above the diagonal containing the implicit 1
             HCol.View( H, 0, i+offset, i, 1 );
-            C norm = basic::Nrm2( HCol );
+            C norm = Nrm2( HCol );
             C alpha = 2./(norm*norm+1.);
             t.Set( i, 0, alpha );
         }
@@ -322,12 +321,12 @@ void TestUT< complex<double> >
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::ApplyPackedReflectors
+    ApplyPackedReflectors
     ( side, uplo, VERTICAL, order, conjugation, offset, H, t, A );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::ApplyPackedReflectorsGFlops<C>( m, runTime );
+    gFlops = internal::ApplyPackedReflectorsGFlops<C>( m, runTime );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

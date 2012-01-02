@@ -31,15 +31,17 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R> 
 inline void
-elemental::advanced::internal::ApplyPackedReflectorsLLHF
+internal::ApplyPackedReflectorsLLHF
 ( int offset, 
   const DistMatrix<R,MC,MR>& H,
         DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ApplyPackedReflectorsLLHF");
+    PushCallStack("internal::ApplyPackedReflectorsLLHF");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
     if( offset > 0 )
@@ -51,16 +53,16 @@ elemental::advanced::internal::ApplyPackedReflectorsLLHF
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
-elemental::advanced::internal::ApplyPackedReflectorsLLHF
+internal::ApplyPackedReflectorsLLHF
 ( Conjugation conjugation, int offset, 
   const DistMatrix<std::complex<R>,MC,MR  >& H,
   const DistMatrix<std::complex<R>,MD,STAR>& t,
         DistMatrix<std::complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ApplyPackedReflectorsLLHF");
+    PushCallStack("internal::ApplyPackedReflectorsLLHF");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error("{H,t,A} must be distributed over same grid");
     if( offset > 0 )
@@ -71,3 +73,5 @@ elemental::advanced::internal::ApplyPackedReflectorsLLHF
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

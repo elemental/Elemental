@@ -31,6 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 //
 // This approach is based upon the reordered Variant 2 algorithm from Fig. 9 in 
 // Bientinesi et al.'s "Families of Algorithms Related to the Inversion of 
@@ -39,10 +41,10 @@
 
 template<typename F> 
 inline void
-elemental::advanced::internal::HPDInverseUVar2( DistMatrix<F,MC,MR>& A )
+internal::HPDInverseUVar2( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HPDInverseUVar2");
+    PushCallStack("internal::HPDInverseUVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -86,42 +88,42 @@ elemental::advanced::internal::HPDInverseUVar2( DistMatrix<F,MC,MR>& A )
         A12_STAR_MC.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        advanced::internal::LocalCholesky( UPPER, A11_STAR_STAR );
+        internal::LocalCholesky( UPPER, A11_STAR_STAR );
 
         A01_VC_STAR = A01;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, A11_STAR_STAR, A01_VC_STAR );
 
         A12_STAR_VR = A12;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
 
         A01Trans_STAR_MC.TransposeFrom( A01_VC_STAR );
         A01_VR_STAR = A01_VC_STAR;
         A01Adj_STAR_MR.AdjointFrom( A01_VR_STAR );
-        basic::internal::LocalTrrk
+        internal::LocalTrrk
         ( UPPER, TRANSPOSE,
           (F)1, A01Trans_STAR_MC, A01Adj_STAR_MR, (F)1, A00 );
 
         A12_STAR_MR = A12_STAR_VR;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( TRANSPOSE, NORMAL, (F)-1, A01Trans_STAR_MC, A12_STAR_MR, (F)1, A02 );
 
         A12_STAR_MC = A12_STAR_VR;
-        basic::internal::LocalTrrk
+        internal::LocalTrrk
         ( UPPER, ADJOINT,
           (F)-1, A12_STAR_MC, A12_STAR_MR, (F)1, A22 );
 
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A01_VC_STAR );
 
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, NORMAL, NON_UNIT, (F)-1, A11_STAR_STAR, A12_STAR_VR );
 
-        advanced::internal::LocalTriangularInverse
+        internal::LocalTriangularInverse
         ( UPPER, NON_UNIT, A11_STAR_STAR );
 
-        basic::internal::LocalHetrmm( UPPER, A11_STAR_STAR );
+        internal::LocalHetrmm( UPPER, A11_STAR_STAR );
 
         A11 = A11_STAR_STAR;
         A01 = A01_VC_STAR;
@@ -145,3 +147,5 @@ elemental::advanced::internal::HPDInverseUVar2( DistMatrix<F,MC,MR>& A )
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

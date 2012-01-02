@@ -90,11 +90,11 @@ void TestHer2k
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::Her2k( uplo, orientation, alpha, A, B, beta, C );
+    Her2k( uplo, orientation, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = basic::internal::Her2kGFlops<T>(m,k,runTime);
+    gFlops = internal::Her2kGFlops<T>(m,k,runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -149,8 +149,8 @@ main( int argc, char* argv[] )
 #endif
         const Grid g( comm, r, c );
         SetBlocksize( nb );
-        basic::SetLocalTrr2kBlocksize<double>( nbLocal );
-        basic::SetLocalTrr2kBlocksize<complex<double> >( nbLocal );
+        SetLocalTrr2kBlocksize<double>( nbLocal );
+        SetLocalTrr2kBlocksize<complex<double> >( nbLocal );
 
         if( rank == 0 )
         {

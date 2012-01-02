@@ -91,7 +91,7 @@ main( int argc, char* argv[] )
         H.Print("H");
 
         // Reform H with the exponentials of the original eigenvalues
-        advanced::ComplexHermitianFunction( LOWER, H, ImagExpFunctor() );
+        ComplexHermitianFunction( LOWER, H, ImagExpFunctor() );
 
         // Print the imaginary exponential of the matrix
         H.Print("exp(i*H)");

@@ -105,7 +105,7 @@ main( int argc, char* argv[] )
         H.Print("H");
 
         // Print its trace
-        const C trace = advanced::Trace( H );
+        const C trace = Trace( H );
         if( commRank == 0 )
             std::cout << "Tr(H) = " << trace << std::endl;
 
@@ -115,14 +115,14 @@ main( int argc, char* argv[] )
         DistMatrix<C,MC,MR> X( g );
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        advanced::HermitianEig( LOWER, H, w, X ); // only use lower half of H
+        HermitianEig( LOWER, H, w, X ); // only use lower half of H
 
         // Print the eigensolution
         w.Print("Eigenvalues of H");
         X.Print("Eigenvectors of H");
 
         // Sort the eigensolution, then reprint
-        advanced::SortEig( w, X );
+        SortEig( w, X );
         w.Print("Sorted eigenvalues of H");
         X.Print("Sorted eigenvectors of H");
     }

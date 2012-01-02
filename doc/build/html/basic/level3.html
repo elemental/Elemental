@@ -3,16 +3,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Level 3 &mdash; Elemental 0.72 documentation</title>
-    
+    <title>Level 3 &mdash; Elemental v0.72 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -25,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental 0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
     <link rel="up" title="Basic linear algebra" href="../basic.html" />
     <link rel="next" title="Tuning parameters" href="tuning.html" />
     <link rel="prev" title="Level 2" href="level2.html" /> 
@@ -43,7 +40,7 @@
         <li class="right" >
           <a href="level2.html" title="Level 2"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../basic.html" accesskey="U">Basic linear algebra</a> &raquo;</li> 
       </ul>
     </div>  
@@ -65,14 +62,14 @@ implementations are in <a class="reference external" href="../../../../include/e
 where <img class="math" src="../_images/math/448bafecececfd73506341d7d2284efe4a515eac.png" alt="\mbox{op}_A(M)"/> and <img class="math" src="../_images/math/34f17594afaa0ac739c0aea13eea95d55c7a6be2.png" alt="\mbox{op}_B(M)"/> can each be chosen from
 <img class="math" src="../_images/math/5d1e4485dc90c450e8c76826516c1b2ccb8fce16.png" alt="M"/>, <img class="math" src="../_images/math/af230fe2189b0aac066f69f62feb5f5b8d82155b.png" alt="M^T"/>, and <img class="math" src="../_images/math/270714217c19fc180c3e7ae5af701b7116ec1708.png" alt="M^H"/>.</p>
 <dl class="function">
-<dt id="basic::Gemm__Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Gemm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Gemm__Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Gemm__Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Gemm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Gemm__Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Gemm__Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Gemm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Gemm__Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Gemm__Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Gemm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Gemm__Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -86,14 +83,14 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Gemm</tt><big>(<
 <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is implicitly Hermitian and only the triangle specified by <cite>uplo</cite> is
 accessed.</p>
 <dl class="function">
-<dt id="basic::Hemm__Side.UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Hemm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Hemm__Side.UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Hemm__Side.UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Hemm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Hemm__Side.UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Hemm__Side.UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Hemm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Hemm__Side.UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Hemm__Side.UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Hemm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Hemm__Side.UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -106,21 +103,21 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Hemm</tt><big>(<
 <cite>orientation</cite> is set to <tt class="docutils literal"><span class="pre">NORMAL</span></tt> or <tt class="docutils literal"><span class="pre">ADJOINT</span></tt>, respectively. Only the
 triangle of <img class="math" src="../_images/math/c3355896da590fc491a10150a50416687626d7cc.png" alt="C"/> specified by the <cite>uplo</cite> parameter is modified.</p>
 <dl class="function">
-<dt id="basic::Her2k__UpperOrLower.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Her2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Her2k__UpperOrLower.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Her2k__UpperOrLower.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Her2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Her2k__UpperOrLower.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Her2k__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Her2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Her2k__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Her2k__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Her2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Her2k__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
-<p>Please see <tt class="docutils literal"><span class="pre">basic::SetLocalTrr2kBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt>
-and <tt class="docutils literal"><span class="pre">int</span> <span class="pre">basic::LocalTrr2kBlocksize&lt;T&gt;()</span></tt> in the
+<p>Please see <tt class="docutils literal"><span class="pre">SetLocalTrr2kBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt>
+and <tt class="docutils literal"><span class="pre">int</span> <span class="pre">LocalTrr2kBlocksize&lt;T&gt;()</span></tt> in the
 <em>Tuning parameters</em> section for information on tuning the distributed
-<tt class="docutils literal"><span class="pre">basic::Her2k</span></tt>.</p>
+<tt class="docutils literal"><span class="pre">Her2k</span></tt>.</p>
 </div>
 <div class="section" id="herk">
 <h2>Herk<a class="headerlink" href="#herk" title="Permalink to this headline">¶</a></h2>
@@ -130,20 +127,20 @@ and <tt class="docutils literal"><span class="pre">int</span> <span class="pre">
 set to <tt class="docutils literal"><span class="pre">NORMAL</span></tt> or <tt class="docutils literal"><span class="pre">ADJOINT</span></tt>, respectively. Only the triangle of <img class="math" src="../_images/math/c3355896da590fc491a10150a50416687626d7cc.png" alt="C"/>
 specified by the <cite>uplo</cite> parameter is modified.</p>
 <dl class="function">
-<dt id="basic::Herk__UpperOrLower.Orientation.T.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Herk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Herk__UpperOrLower.Orientation.T.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Herk__UpperOrLower.Orientation.T.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Herk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Herk__UpperOrLower.Orientation.T.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Herk__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Herk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Herk__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Herk__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Herk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Herk__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
-<p>Please see <tt class="docutils literal"><span class="pre">basic::SetLocalTrrkBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt>
-and <tt class="docutils literal"><span class="pre">int</span> <span class="pre">basic::LocalTrrkBlocksize&lt;T&gt;()</span></tt> in the <em>Tuning parameters</em>
-section for information on tuning the distributed <tt class="docutils literal"><span class="pre">basic::Herk</span></tt>.</p>
+<p>Please see <tt class="docutils literal"><span class="pre">SetLocalTrrkBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt>
+and <tt class="docutils literal"><span class="pre">int</span> <span class="pre">LocalTrrkBlocksize&lt;T&gt;()</span></tt> in the <em>Tuning parameters</em>
+section for information on tuning the distributed <tt class="docutils literal"><span class="pre">Herk</span></tt>.</p>
 </div>
 <div class="section" id="hetrmm">
 <h2>Hetrmm<a class="headerlink" href="#hetrmm" title="Permalink to this headline">¶</a></h2>
@@ -157,14 +154,14 @@ BLAS-like routines in Elemental.</p>
 <img class="math" src="../_images/math/5b17e7837eb63f6e641900dad6ed7599d18c4d52.png" alt="L := L^H L"/> or <img class="math" src="../_images/math/c320e65f5403a7cfadc46a72ac6886228256ed01.png" alt="U := U U^H"/>, depending upon the choice of the
 <cite>uplo</cite> parameter.</p>
 <dl class="function">
-<dt id="basic::Hetrmm__UpperOrLower.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Hetrmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Hetrmm__UpperOrLower.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Hetrmm__UpperOrLower.Matrix:T:R">
+void <tt class="descname">Hetrmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Hetrmm__UpperOrLower.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Hetrmm__UpperOrLower.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Hetrmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#basic::Hetrmm__UpperOrLower.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Hetrmm__UpperOrLower.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Hetrmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Hetrmm__UpperOrLower.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -178,14 +175,14 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Hetrmm</tt><big>
 <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is implicitly symmetric and only the triangle specified by <cite>uplo</cite>
 is accessed.</p>
 <dl class="function">
-<dt id="basic::Symm__Side.UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Symm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Symm__Side.UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Symm__Side.UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Symm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Symm__Side.UpperOrLower.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Symm__Side.UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Symm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Symm__Side.UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Symm__Side.UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Symm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Symm__Side.UpperOrLower.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -198,21 +195,21 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Symm</tt><big>(<
 <cite>orientation</cite> is set to <tt class="docutils literal"><span class="pre">NORMAL</span></tt> or <tt class="docutils literal"><span class="pre">TRANSPOSE</span></tt>, respectively. Only the
 triangle of <img class="math" src="../_images/math/c3355896da590fc491a10150a50416687626d7cc.png" alt="C"/> specified by the <cite>uplo</cite> parameter is modified.</p>
 <dl class="function">
-<dt id="basic::Syr2k__UpperOrLower.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Syr2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Syr2k__UpperOrLower.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Syr2k__UpperOrLower.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Syr2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Syr2k__UpperOrLower.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Syr2k__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Syr2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Syr2k__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Syr2k__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Syr2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Syr2k__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
-<p>Please see <tt class="docutils literal"><span class="pre">basic::SetLocalTrr2kBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt>
-and <tt class="docutils literal"><span class="pre">int</span> <span class="pre">basic::LocalTrr2kBlocksize&lt;T&gt;()</span></tt> in the
+<p>Please see <tt class="docutils literal"><span class="pre">SetLocalTrr2kBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt>
+and <tt class="docutils literal"><span class="pre">int</span> <span class="pre">LocalTrr2kBlocksize&lt;T&gt;()</span></tt> in the
 <em>Tuning parameters</em> section for information on tuning the distributed
-<tt class="docutils literal"><span class="pre">basic::Syr2k</span></tt>.</p>
+<tt class="docutils literal"><span class="pre">Syr2k</span></tt>.</p>
 </div>
 <div class="section" id="syrk">
 <h2>Syrk<a class="headerlink" href="#syrk" title="Permalink to this headline">¶</a></h2>
@@ -222,20 +219,20 @@ and <tt class="docutils literal"><span class="pre">int</span> <span class="pre">
 set to <tt class="docutils literal"><span class="pre">NORMAL</span></tt> or <tt class="docutils literal"><span class="pre">TRANSPOSE</span></tt>, respectively. Only the triangle of <img class="math" src="../_images/math/c3355896da590fc491a10150a50416687626d7cc.png" alt="C"/>
 specified by the <cite>uplo</cite> parameter is modified.</p>
 <dl class="function">
-<dt id="basic::Syrk__UpperOrLower.Orientation.T.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Syrk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Syrk__UpperOrLower.Orientation.T.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Syrk__UpperOrLower.Orientation.T.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Syrk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Syrk__UpperOrLower.Orientation.T.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Syrk__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Syrk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Syrk__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Syrk__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Syrk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Syrk__UpperOrLower.Orientation.T.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
-<p>Please see <tt class="docutils literal"><span class="pre">basic::SetLocalTrrkBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt>
-and <tt class="docutils literal"><span class="pre">int</span> <span class="pre">basic::LocalTrrkBlocksize&lt;T&gt;()</span></tt> in the <em>Tuning parameters</em>
-section for information on tuning the distributed <tt class="docutils literal"><span class="pre">basic::Syrk</span></tt>.</p>
+<p>Please see <tt class="docutils literal"><span class="pre">SetLocalTrrkBlocksize&lt;T&gt;(</span> <span class="pre">int</span> <span class="pre">blocksize</span> <span class="pre">)</span></tt>
+and <tt class="docutils literal"><span class="pre">int</span> <span class="pre">LocalTrrkBlocksize&lt;T&gt;()</span></tt> in the <em>Tuning parameters</em>
+section for information on tuning the distributed <tt class="docutils literal"><span class="pre">Syrk</span></tt>.</p>
 </div>
 <div class="section" id="trmm">
 <h2>Trmm<a class="headerlink" href="#trmm" title="Permalink to this headline">¶</a></h2>
@@ -247,14 +244,14 @@ lower or upper triangular is determined by <cite>uplo</cite>, and <img class="ma
 can be any of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, <img class="math" src="../_images/math/4a113a49a168242ef8398e336b3e7bd9bef597e6.png" alt="A^T"/>, and <img class="math" src="../_images/math/7b82dd68a42b65efdc9ac248cb183e9b6982c654.png" alt="A^H"/> (and <cite>diagonal</cite> determines
 whether <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is treated as unit diagonal or not).</p>
 <dl class="function">
-<dt id="basic::Trmm__Side.UpperOrLower.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Trmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Trmm__Side.UpperOrLower.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trmm__Side.UpperOrLower.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Trmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Trmm__Side.UpperOrLower.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Trmm__Side.UpperOrLower.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Trmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Trmm__Side.UpperOrLower.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trmm__Side.UpperOrLower.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Trmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Trmm__Side.UpperOrLower.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -272,14 +269,14 @@ where only the triangle of <cite>E</cite> specified by <cite>uplo</cite> is modi
 of &#8220;symmetric&#8221; and &#8220;Hermitian&#8221; updates.</p>
 </div>
 <dl class="function">
-<dt id="basic::Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Trr2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfC</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfD</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, const Matrix&lt;T&gt;&amp; <em>C</em>, const Matrix&lt;T&gt;&amp; <em>D</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>E</em><big>)</big><a class="headerlink" href="#basic::Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Trr2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfC</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfD</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, const Matrix&lt;T&gt;&amp; <em>C</em>, const Matrix&lt;T&gt;&amp; <em>D</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>E</em><big>)</big><a class="headerlink" href="#Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Trr2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfC</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfD</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>D</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>E</em><big>)</big><a class="headerlink" href="#basic::Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Trr2k</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfC</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfD</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>D</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>E</em><big>)</big><a class="headerlink" href="#Trr2k__UpperOrLower.Orientation.Orientation.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -299,14 +296,14 @@ performed during an LDL factorization is symmetric but one of the
 two update matrices is scaled by D.</p>
 </div>
 <dl class="function">
-<dt id="basic::Trrk__UpperOrLower.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Trrk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Trrk__UpperOrLower.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trrk__UpperOrLower.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R">
+void <tt class="descname">Trrk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, const Matrix&lt;T&gt;&amp; <em>B</em>, T <em>beta</em>, Matrix&lt;T&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Trrk__UpperOrLower.Orientation.Orientation.T.Matrix:T:CR.Matrix:T:CR.T.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Trrk__UpperOrLower.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Trrk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#basic::Trrk__UpperOrLower.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trrk__UpperOrLower.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Trrk</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfA</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientationOfB</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em>, T <em>beta</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>C</em><big>)</big><a class="headerlink" href="#Trrk__UpperOrLower.Orientation.Orientation.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:CR.T.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -321,14 +318,14 @@ as lower or upper triangular is determined by <cite>uplo</cite>, and <img class=
 can be any of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, <img class="math" src="../_images/math/4a113a49a168242ef8398e336b3e7bd9bef597e6.png" alt="A^T"/>, and <img class="math" src="../_images/math/7b82dd68a42b65efdc9ac248cb183e9b6982c654.png" alt="A^H"/> (and <cite>diagonal</cite> determines
 whether <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is treated as unit diagonal or not).</p>
 <dl class="function">
-<dt id="basic::Trsm__Side.UpperOrLower.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Trsm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Trsm__Side.UpperOrLower.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trsm__Side.UpperOrLower.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R">
+void <tt class="descname">Trsm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, T <em>alpha</em>, const Matrix&lt;T&gt;&amp; <em>A</em>, Matrix&lt;T&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Trsm__Side.UpperOrLower.Orientation.Diagonal.T.Matrix:T:CR.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The serial implementation (templated over the datatype).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="basic::Trsm__Side.UpperOrLower.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
-void <tt class="descclassname">basic::</tt><tt class="descname">Trsm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#basic::Trsm__Side.UpperOrLower.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trsm__Side.UpperOrLower.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R">
+void <tt class="descname">Trsm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Side" title="Side">Side</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#Diagonal" title="Diagonal">Diagonal</a> <em>diagonal</em>, T <em>alpha</em>, const DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#Trsm__Side.UpperOrLower.Orientation.Diagonal.T.DistMatrix:T.MC.MR:CR.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>The distributed implementation (templated over the datatype).</p>
 </dd></dl>
 
@@ -377,7 +374,7 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Trsm</tt><big>(<
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -403,13 +400,13 @@ void <tt class="descclassname">basic::</tt><tt class="descname">Trsm</tt><big>(<
         <li class="right" >
           <a href="level2.html" title="Level 2"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../basic.html" >Basic linear algebra</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

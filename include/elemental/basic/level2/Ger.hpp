@@ -31,15 +31,17 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Ger
+Ger
 ( T alpha, const DistMatrix<T,MC,MR>& x,
            const DistMatrix<T,MC,MR>& y,
                  DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Internal::Ger");
+    PushCallStack("Ger");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw std::logic_error
         ("{A,x,y} must be distributed over the same grid");
@@ -71,7 +73,7 @@ elemental::basic::Ger
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
         y_MR_STAR = y;
-        basic::Ger
+        Ger
         ( alpha, x_MC_STAR.LockedLocalMatrix(),
                  y_MR_STAR.LockedLocalMatrix(),
                  A.LocalMatrix() );
@@ -91,7 +93,7 @@ elemental::basic::Ger
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
         y_STAR_MR = y;
-        basic::Ger
+        Ger
         ( alpha, x_MC_STAR.LockedLocalMatrix(),
                  y_STAR_MR.LockedLocalMatrix(),
                  A.LocalMatrix() );
@@ -111,7 +113,7 @@ elemental::basic::Ger
         //--------------------------------------------------------------------//
         x_STAR_MC = x;
         y_MR_STAR = y;
-        basic::Ger
+        Ger
         ( alpha, x_STAR_MC.LockedLocalMatrix(),
                  y_MR_STAR.LockedLocalMatrix(),
                  A.LocalMatrix() );
@@ -131,7 +133,7 @@ elemental::basic::Ger
         //--------------------------------------------------------------------//
         x_STAR_MC = x;
         y_STAR_MR = y;
-        basic::Ger
+        Ger
         ( alpha, x_STAR_MC.LockedLocalMatrix(),
                  y_STAR_MR.LockedLocalMatrix(),
                  A.LocalMatrix() );
@@ -143,3 +145,5 @@ elemental::basic::Ger
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

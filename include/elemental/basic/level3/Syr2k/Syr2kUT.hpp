@@ -31,15 +31,17 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::Syr2kUT
+internal::Syr2kUT
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Syr2kUT");
+    PushCallStack("internal::Syr2kUT");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -111,7 +113,7 @@ elemental::basic::internal::Syr2kUT
         B1_STAR_VR.TransposeFrom( B1Trans_MR_STAR );
         B1_STAR_MC = B1_STAR_VR;
 
-        basic::internal::LocalTrr2k
+        internal::LocalTrr2k
         ( UPPER, TRANSPOSE, TRANSPOSE, TRANSPOSE, TRANSPOSE, 
           alpha, A1_STAR_MC, B1Trans_MR_STAR,
                  B1_STAR_MC, A1Trans_MR_STAR,
@@ -138,3 +140,5 @@ elemental::basic::internal::Syr2kUT
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

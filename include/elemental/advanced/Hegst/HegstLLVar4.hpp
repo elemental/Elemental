@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // F represents a real or complex field
+namespace elemental {
+
+template<typename F>
 inline void
-elemental::advanced::internal::HegstLLVar4
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+internal::HegstLLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HegstLLVar4");
+    PushCallStack("internal::HegstLLVar4");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( L.Height() != L.Width() )
@@ -105,7 +106,7 @@ elemental::advanced::internal::HegstLLVar4
         L10_STAR_VR = L10;
         Y10_STAR_VR.ResizeTo( A10.Height(), A10.Width() );
         Y10_STAR_VR.SetToZero();
-        basic::Hemm
+        Hemm
         ( LEFT, LOWER,
           (F)0.5, A11_STAR_STAR.LockedLocalMatrix(),
                   L10_STAR_VR.LockedLocalMatrix(),
@@ -113,41 +114,41 @@ elemental::advanced::internal::HegstLLVar4
 
         // A10 := A10 + 1/2 Y10
         A10_STAR_VR = A10;
-        basic::Axpy( (F)1, Y10_STAR_VR, A10_STAR_VR );
+        Axpy( (F)1, Y10_STAR_VR, A10_STAR_VR );
 
         // A00 := A00 + (A10' L10 + L10' A10)
         A10_STAR_MR = A10_STAR_VR;
         A10_STAR_MC = A10_STAR_VR;
         L10_STAR_MR = L10_STAR_VR;
         L10_STAR_MC = L10_STAR_VR;
-        basic::internal::LocalTrr2k
+        internal::LocalTrr2k
         ( LOWER, ADJOINT, ADJOINT,
           (F)1, A10_STAR_MC, L10_STAR_MR, 
                 L10_STAR_MC, A10_STAR_MR, 
           (F)1, A00 );
 
         // A10 := A10 + 1/2 Y10
-        basic::Axpy( (F)1, Y10_STAR_VR, A10_STAR_VR );
+        Axpy( (F)1, Y10_STAR_VR, A10_STAR_VR );
 
         // A10 := L11' A10
         L11_STAR_STAR = L11;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;
 
         // A20 := A20 + A21 L10
         A21_MC_STAR = A21;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)1, A21_MC_STAR, L10_STAR_MR, (F)1, A20 );
 
         // A11 := L11' A11 L11
-        advanced::internal::LocalHegst
+        internal::LocalHegst
         ( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A21 := A21 L11
         A21_VC_STAR = A21_MC_STAR;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, L11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
@@ -176,3 +177,5 @@ elemental::advanced::internal::HegstLLVar4
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

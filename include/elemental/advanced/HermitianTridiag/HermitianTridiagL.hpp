@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R>
 inline void
-elemental::advanced::internal::HermitianTridiagL
-( DistMatrix<R,MC,MR>& A )
+internal::HermitianTridiagL( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianTridiagL");
+    PushCallStack("internal::HermitianTridiagL");
     if( A.Height() != A.Width() )
         throw std::logic_error( "A must be square." );
 #endif
@@ -88,7 +89,7 @@ elemental::advanced::internal::HermitianTridiagL
                 APan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
                 WPan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
 
-                advanced::internal::HermitianPanelTridiagL
+                internal::HermitianPanelTridiagL
                 ( ABR, WPan, 
                   APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
 
@@ -105,7 +106,7 @@ elemental::advanced::internal::HermitianTridiagL
                 ( WPan_MR_STAR, W11_MR_STAR,
                                 W21_MR_STAR, A11.Height() );
 
-                basic::internal::LocalTrr2k
+                internal::LocalTrr2k
                 ( LOWER, TRANSPOSE, TRANSPOSE,
                   (R)-1, A21_MC_STAR, W21_MR_STAR,
                          W21_MC_STAR, A21_MR_STAR,
@@ -120,8 +121,7 @@ elemental::advanced::internal::HermitianTridiagL
             else
             {
                 A11_STAR_STAR = A11;
-                advanced::HermitianTridiag
-                ( LOWER, A11_STAR_STAR.LocalMatrix() );
+                HermitianTridiag( LOWER, A11_STAR_STAR.LocalMatrix() );
                 A11 = A11_STAR_STAR;
             }
 
@@ -137,14 +137,14 @@ elemental::advanced::internal::HermitianTridiagL
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
-elemental::advanced::internal::HermitianTridiagL
+internal::HermitianTridiagL
 ( DistMatrix<std::complex<R>,MC,  MR  >& A,
   DistMatrix<std::complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HermitianTridiagL");
+    PushCallStack("internal::HermitianTridiagL");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -217,7 +217,7 @@ elemental::advanced::internal::HermitianTridiagL
                 APan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
                 WPan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
 
-                advanced::internal::HermitianPanelTridiagL
+                internal::HermitianPanelTridiagL
                 ( ABR, WPan, t1,
                   APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
 
@@ -234,7 +234,7 @@ elemental::advanced::internal::HermitianTridiagL
                 ( WPan_MR_STAR, W11_MR_STAR,
                                 W21_MR_STAR, A11.Height() );
 
-                basic::internal::LocalTrr2k
+                internal::LocalTrr2k
                 ( LOWER, ADJOINT, ADJOINT,
                   (C)-1, A21_MC_STAR, W21_MR_STAR,
                          W21_MC_STAR, A21_MR_STAR,
@@ -251,7 +251,7 @@ elemental::advanced::internal::HermitianTridiagL
                 A11_STAR_STAR = A11;
                 t1_STAR_STAR.ResizeTo( t1.Height(), 1 );
 
-                advanced::HermitianTridiag
+                HermitianTridiag
                 ( LOWER, A11_STAR_STAR.LocalMatrix(), 
                   t1_STAR_STAR.LocalMatrix() );
 
@@ -278,3 +278,5 @@ elemental::advanced::internal::HermitianTridiagL
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

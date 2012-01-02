@@ -31,10 +31,12 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Distributed E := alpha (A B^{T/H} + C^{T/H} D) + beta E
 template<typename T>
 inline void
-elemental::basic::internal::Trr2kNTTN
+internal::Trr2kNTTN
 ( UpperOrLower uplo,
   Orientation orientationOfB, Orientation orientationOfC,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
@@ -42,7 +44,7 @@ elemental::basic::internal::Trr2kNTTN
   T beta,        DistMatrix<T,MC,MR>& E )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Trr2kNTTN");
+    PushCallStack("internal::Trr2kNTTN");
     if( E.Height() != E.Width()  || A.Width()  != C.Height() ||
         A.Height() != E.Height() || C.Width()  != E.Height() ||
         B.Height() != E.Width()  || D.Width()  != E.Width()  ||
@@ -110,7 +112,7 @@ elemental::basic::internal::Trr2kNTTN
         else
             B1AdjOrTrans_STAR_MR.TransposeFrom( B1_VR_STAR );
         D1Trans_MR_STAR.TransposeFrom( D1 );
-        basic::internal::LocalTrr2k 
+        internal::LocalTrr2k 
         ( uplo, orientationOfC, TRANSPOSE,
           alpha, A1_MC_STAR, B1AdjOrTrans_STAR_MR,
                  C1_STAR_MC, D1Trans_MR_STAR,
@@ -143,3 +145,5 @@ elemental::basic::internal::Trr2kNTTN
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -56,9 +56,11 @@ int PMRRR
 
 } // extern "C"
 
+namespace elemental {
+
 // Return upper bounds on the number of (local) eigenvalues in the given range,
 // (lowerBound,upperBound]
-elemental::pmrrr::Estimate elemental::pmrrr::EigEstimate
+pmrrr::Estimate pmrrr::EigEstimate
 ( int n, const double* d, const double* e, double* w, 
   mpi::Comm comm, double lowerBound, double upperBound )
 {
@@ -93,7 +95,7 @@ elemental::pmrrr::Estimate elemental::pmrrr::EigEstimate
 }
 
 // Compute all of the eigenvalues
-elemental::pmrrr::Info elemental::pmrrr::Eig
+pmrrr::Info pmrrr::Eig
 ( int n, const double* d, const double* e, double* w, mpi::Comm comm )
 {
 #ifndef RELEASE
@@ -129,7 +131,7 @@ elemental::pmrrr::Info elemental::pmrrr::Eig
 }
 
 // Compute all of the eigenpairs
-elemental::pmrrr::Info elemental::pmrrr::Eig
+pmrrr::Info pmrrr::Eig
 ( int n, const double* d, const double* e, double* w, double* Z, int ldz, 
   mpi::Comm comm )
 {
@@ -165,7 +167,7 @@ elemental::pmrrr::Info elemental::pmrrr::Eig
 }
 
 // Compute all of the eigenvalues in (lowerBound,upperBound]
-elemental::pmrrr::Info elemental::pmrrr::Eig
+pmrrr::Info pmrrr::Eig
 ( int n, const double* d, const double* e, double* w, 
   mpi::Comm comm, double lowerBound, double upperBound )
 {
@@ -201,7 +203,7 @@ elemental::pmrrr::Info elemental::pmrrr::Eig
 }
 
 // Compute all of the eigenpairs with eigenvalues in (lowerBound,upperBound]
-elemental::pmrrr::Info elemental::pmrrr::Eig
+pmrrr::Info pmrrr::Eig
 ( int n, const double* d, const double* e, double* w, double* Z, int ldz, 
   mpi::Comm comm, double lowerBound, double upperBound )
 {
@@ -236,7 +238,7 @@ elemental::pmrrr::Info elemental::pmrrr::Eig
 }
 
 // Compute all of the eigenvalues with indices in [lowerBound,upperBound]
-elemental::pmrrr::Info elemental::pmrrr::Eig
+pmrrr::Info pmrrr::Eig
 ( int n, const double* d, const double* e, double* w, 
   mpi::Comm comm, int lowerBound, int upperBound )
 {
@@ -275,7 +277,7 @@ elemental::pmrrr::Info elemental::pmrrr::Eig
 
 // Compute all of the eigenpairs with eigenvalues indices in 
 // [lowerBound,upperBound]
-elemental::pmrrr::Info elemental::pmrrr::Eig
+pmrrr::Info pmrrr::Eig
 ( int n, const double* d, const double* e, double* w, double* Z, int ldz, 
   mpi::Comm comm, int lowerBound, int upperBound )
 {
@@ -311,3 +313,4 @@ elemental::pmrrr::Info elemental::pmrrr::Eig
     return info;
 }
 
+} // namespace elemental

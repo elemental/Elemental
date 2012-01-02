@@ -31,13 +31,15 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // represents a real or complex number
+namespace elemental {
+
+template<typename F>
 inline void
-elemental::advanced::internal::TriangularInverseUVar3
+internal::TriangularInverseUVar3
 ( Diagonal diagonal, DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::TriangularInverseUVar3");
+    PushCallStack("internal::TriangularInverseUVar3");
     if( U.Height() != U.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -73,12 +75,12 @@ elemental::advanced::internal::TriangularInverseUVar3
         U12Trans_MR_STAR.AlignWith( U02 );
         //--------------------------------------------------------------------//
         U11_STAR_STAR = U11;
-        advanced::internal::LocalTriangularInverse
+        internal::LocalTriangularInverse
         ( UPPER, diagonal, U11_STAR_STAR );
         U11 = U11_STAR_STAR;
 
         U01_VC_STAR = U01;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( RIGHT, UPPER, NORMAL, diagonal, (F)-1, U11_STAR_STAR, U01_VC_STAR );
 
         // We transpose before the communication to avoid cache-thrashing
@@ -86,13 +88,13 @@ elemental::advanced::internal::TriangularInverseUVar3
         U12Trans_MR_STAR.TransposeFrom( U12 );
         U01Trans_STAR_MC.TransposeFrom( U01_VC_STAR );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( TRANSPOSE, TRANSPOSE, 
           (F)1, U01Trans_STAR_MC, U12Trans_MR_STAR, (F)1, U02 );
         U01.TransposeFrom( U01Trans_STAR_MC );
 
         U12_STAR_VR.TransposeFrom( U12Trans_MR_STAR );
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( LEFT, UPPER, NORMAL, diagonal, (F)1, U11_STAR_STAR, U12_STAR_VR );
         U12 = U12_STAR_VR;
         //--------------------------------------------------------------------//
@@ -109,3 +111,5 @@ elemental::advanced::internal::TriangularInverseUVar3
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

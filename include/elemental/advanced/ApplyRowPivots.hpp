@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename F>
 inline void
-elemental::advanced::ApplyRowPivots
-( Matrix<F>& A, const Matrix<int>& p )
+ApplyRowPivots( Matrix<F>& A, const Matrix<int>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyRowPivots");
+    PushCallStack("ApplyRowPivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( p.Height() != A.Height() )
@@ -73,11 +74,10 @@ elemental::advanced::ApplyRowPivots
 
 template<typename F>
 inline void
-elemental::advanced::ApplyInverseRowPivots
-( Matrix<F>& A, const Matrix<int>& p )
+ApplyInverseRowPivots( Matrix<F>& A, const Matrix<int>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyInverseRowPivots");
+    PushCallStack("ApplyInverseRowPivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( p.Height() != A.Height() )
@@ -113,14 +113,28 @@ elemental::advanced::ApplyInverseRowPivots
 
 template<typename F>
 inline void
-elemental::advanced::ApplyRowPivots
+ApplyRowPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
+{
+#ifndef RELEASE
+    PushCallStack("ApplyRowPivots");
+#endif
+    DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
+    ApplyRowPivots( A, p_STAR_STAR );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+ApplyInverseRowPivots
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyRowPivots");
+    PushCallStack("ApplyInverseRowPivots");
 #endif
     DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
-    advanced::ApplyRowPivots( A, p_STAR_STAR );
+    ApplyInverseRowPivots( A, p_STAR_STAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -128,14 +142,14 @@ elemental::advanced::ApplyRowPivots
 
 template<typename F>
 inline void
-elemental::advanced::ApplyInverseRowPivots
-( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
+ApplyRowPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyInverseRowPivots");
+    PushCallStack("ApplyRowPivots");
 #endif
-    DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
-    advanced::ApplyInverseRowPivots( A, p_STAR_STAR );
+    std::vector<int> image, preimage;
+    ComposePivots( p, image, preimage );
+    ApplyRowPivots( A, image, preimage );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -143,46 +157,30 @@ elemental::advanced::ApplyInverseRowPivots
 
 template<typename F>
 inline void
-elemental::advanced::ApplyRowPivots
+ApplyInverseRowPivots
 ( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyRowPivots");
+    PushCallStack("ApplyInverseRowPivots");
 #endif
     std::vector<int> image, preimage;
-    advanced::ComposePivots( p, image, preimage );
-    advanced::ApplyRowPivots( A, image, preimage );
+    ComposePivots( p, image, preimage );
+    ApplyRowPivots( A, preimage, image );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename F>
+template<typename F> 
 inline void
-elemental::advanced::ApplyInverseRowPivots
-( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
-{
-#ifndef RELEASE
-    PushCallStack("advanced::ApplyInverseRowPivots");
-#endif
-    std::vector<int> image, preimage;
-    advanced::ComposePivots( p, image, preimage );
-    advanced::ApplyRowPivots( A, preimage, image );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F> // represents a real or complex number
-inline void
-elemental::advanced::ApplyRowPivots
+ApplyRowPivots
 ( DistMatrix<F,MC,MR>& A, 
   const std::vector<int>& image,
   const std::vector<int>& preimage )
 {
     const int b = image.size();
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyRowPivots");
+    PushCallStack("ApplyRowPivots");
     if( A.Height() < b || b != preimage.size() )
         throw std::logic_error
         ("image and preimage must be vectors of equal length that are not "
@@ -347,3 +345,5 @@ elemental::advanced::ApplyRowPivots
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

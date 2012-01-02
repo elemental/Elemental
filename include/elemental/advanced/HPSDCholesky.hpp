@@ -34,7 +34,6 @@
 #ifndef WITHOUT_PMRRR
 
 namespace elemental {
-namespace advanced {
 namespace hpsd_cholesky {
 
 template<typename F>
@@ -67,23 +66,23 @@ void MakeExplicitlyHermitian( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
         //--------------------------------------------------------------------//
         A11_MR_MC = A11;
         A11Adj.ResizeTo( A11.Height(), A11.Width() );
-        basic::Adjoint( A11_MR_MC.LocalMatrix(), A11Adj.LocalMatrix() );
+        Adjoint( A11_MR_MC.LocalMatrix(), A11Adj.LocalMatrix() );
 
         if( uplo == LOWER )
         {
             A11Adj.MakeTrapezoidal( LEFT, UPPER, 1 );
-            basic::Axpy( (F)1, A11Adj, A11 );
+            Axpy( (F)1, A11Adj, A11 );
 
             A21_MR_MC = A21;
-            basic::Adjoint( A21_MR_MC.LocalMatrix(), A12.LocalMatrix() ); 
+            Adjoint( A21_MR_MC.LocalMatrix(), A12.LocalMatrix() ); 
         }
         else
         {
             A11Adj.MakeTrapezoidal( LEFT, LOWER, -1 );
-            basic::Axpy( (F)1, A11Adj, A11 );
+            Axpy( (F)1, A11Adj, A11 );
 
             A12_MR_MC = A12;
-            basic::Adjoint( A12_MR_MC.LocalMatrix(), A21.LocalMatrix() );
+            Adjoint( A12_MR_MC.LocalMatrix(), A21.LocalMatrix() );
         }
         //--------------------------------------------------------------------//
         A21_MR_MC.FreeAlignments();
@@ -100,8 +99,6 @@ void MakeExplicitlyHermitian( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 }
 
 } // namespace hpsd_cholesky
-} // namespace advanced
-} // namespace elemental
 
 //
 // Compute the Cholesky factor of a potentially singular Hermitian semi-definite
@@ -110,22 +107,22 @@ void MakeExplicitlyHermitian( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 
 template<typename R>
 inline void
-elemental::advanced::HPSDCholesky( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
+HPSDCholesky( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HPSDCholesky");
+    PushCallStack("HPSDCholesky");
 #endif
     SquareRoot( uplo, A );
     hpsd_cholesky::MakeExplicitlyHermitian( uplo, A );
 
     if( uplo == LOWER )
     {
-        advanced::LQ( A );
+        LQ( A );
         A.MakeTrapezoidal( LEFT, LOWER );
     }
     else
     {
-        advanced::QR( A );
+        QR( A );
         A.MakeTrapezoidal( RIGHT, UPPER );
     }
 #ifndef RELEASE
@@ -135,11 +132,10 @@ elemental::advanced::HPSDCholesky( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 
 template<typename R>
 inline void
-elemental::advanced::HPSDCholesky
-( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
+HPSDCholesky( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HPSDCholesky");
+    PushCallStack("HPSDCholesky");
 #endif
     SquareRoot( uplo, A );
     hpsd_cholesky::MakeExplicitlyHermitian( uplo, A );
@@ -148,17 +144,20 @@ elemental::advanced::HPSDCholesky
     if( uplo == LOWER )
     {
         DistMatrix<std::complex<R>,MD,STAR> t(g);
-        advanced::LQ( A, t );
+        LQ( A, t );
         A.MakeTrapezoidal( LEFT, LOWER );
     }
     else
     {
         DistMatrix<std::complex<R>,MD,STAR> t(g);
-        advanced::QR( A, t );
+        QR( A, t );
         A.MakeTrapezoidal( RIGHT, UPPER );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental
+
 #endif // WITHOUT_PMRRR

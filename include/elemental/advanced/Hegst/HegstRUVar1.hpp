@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // F represents a real or complex field
+namespace elemental {
+
+template<typename F> 
 inline void
-elemental::advanced::internal::HegstRUVar1
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
+internal::HegstRUVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HegstRUVar1");
+    PushCallStack("internal::HegstRUVar1");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( U.Height() != U.Width() )
@@ -110,7 +111,7 @@ elemental::advanced::internal::HegstRUVar1
         Z01_MR_STAR.ResizeTo( A01.Height(), A01.Width() );
         Z01_MC_STAR.SetToZero();
         Z01_MR_STAR.SetToZero();
-        basic::internal::LocalSymmetricAccumulateLU
+        internal::LocalSymmetricAccumulateLU
         ( ADJOINT, 
           (F)1, A00, U01_MC_STAR, U01Adj_STAR_MR, Z01_MC_STAR, Z01_MR_STAR );
         Z01_MR_MC.SumScatterFrom( Z01_MR_STAR );
@@ -120,16 +121,16 @@ elemental::advanced::internal::HegstRUVar1
         // A01 := inv(U00)' A01
         //
         // This is the bottleneck because A01 only has blocksize columns
-        basic::Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U00, A01 );
+        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U00, A01 );
 
         // A01 := A01 - 1/2 Y01
-        basic::Axpy( (F)-0.5, Y01, A01 );
+        Axpy( (F)-0.5, Y01, A01 );
 
         // A11 := A11 - (U01' A01 + A01' U01)
         A01_VC_STAR = A01;
         U01_VC_STAR = U01_MC_STAR;
         X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
-        basic::Her2k
+        Her2k
         ( UPPER, ADJOINT,
           (F)-1, A01_VC_STAR.LocalMatrix(), U01_VC_STAR.LocalMatrix(),
           (F)0, X11_STAR_STAR.LocalMatrix() );
@@ -138,16 +139,15 @@ elemental::advanced::internal::HegstRUVar1
         // A11 := inv(U11)' A11 inv(U11)
         A11_STAR_STAR = A11;
         U11_STAR_STAR = U11;
-        advanced::internal::LocalHegst
-        ( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        internal::LocalHegst( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A01 := A01 - 1/2 Y01
-        basic::Axpy( (F)-0.5, Y01, A01 );
+        Axpy( (F)-0.5, Y01, A01 );
 
         // A01 := A01 inv(U11)
         A01_VC_STAR = A01;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U11_STAR_STAR, A01_VC_STAR );
         A01 = A01_VC_STAR;
         //--------------------------------------------------------------------//
@@ -177,3 +177,5 @@ elemental::advanced::internal::HegstRUVar1
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

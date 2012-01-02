@@ -31,9 +31,11 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename R>
 inline void 
-elemental::advanced::internal::PanelBidiagL
+internal::PanelBidiagL
 ( DistMatrix<R,MC,  MR  >& A, 
   DistMatrix<R,MC,  MR  >& X, 
   DistMatrix<R,MC,  MR  >& Y,
@@ -42,7 +44,7 @@ elemental::advanced::internal::PanelBidiagL
 {
     const int panelSize = X.Width();
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelBidiagL");
+    PushCallStack("internal::PanelBidiagL");
     if( A.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
         Y.Grid() != ARowPan_STAR_MR.Grid() )
@@ -77,7 +79,7 @@ elemental::advanced::internal::PanelBidiagL
 
 template<typename R> 
 inline void
-elemental::advanced::internal::PanelBidiagL
+internal::PanelBidiagL
 ( DistMatrix<std::complex<R>,MC,  MR  >& A, 
   DistMatrix<std::complex<R>,MD,  STAR>& tP,
   DistMatrix<std::complex<R>,MD,  STAR>& tQ,
@@ -88,7 +90,7 @@ elemental::advanced::internal::PanelBidiagL
 {
     const int panelSize = X.Width();
 #ifndef RELEASE
-    PushCallStack("advanced::internal::BidiagL");
+    PushCallStack("internal::BidiagL");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
         tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
@@ -127,3 +129,5 @@ elemental::advanced::internal::PanelBidiagL
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

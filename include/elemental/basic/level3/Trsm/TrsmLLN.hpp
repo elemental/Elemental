@@ -31,6 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Left Lower NORMAL (Non)Unit Trsm 
 //   X := tril(L)^-1  X, or
 //   X := trilu(L)^-1 X
@@ -38,14 +40,14 @@
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
 inline void
-elemental::basic::internal::TrsmLLNLarge
+internal::TrsmLLNLarge
 ( Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& L,
                  DistMatrix<F,MC,MR>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmLLNLarge");
+    PushCallStack("internal::TrsmLLNLarge");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -77,7 +79,7 @@ elemental::basic::internal::TrsmLLNLarge
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -105,7 +107,7 @@ elemental::basic::internal::TrsmLLNLarge
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
 
         // X1[* ,VR] := L11^-1[* ,* ] X1[* ,VR]
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, LOWER, NORMAL, diagonal, (F)1, L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
@@ -114,7 +116,7 @@ elemental::basic::internal::TrsmLLNLarge
         L21_MC_STAR = L21;        // L21[MC,* ] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)-1, L21_MC_STAR, X1_STAR_MR, (F)1, X2 );
         //--------------------------------------------------------------------//
         L21_MC_STAR.FreeAlignments();
@@ -140,14 +142,14 @@ elemental::basic::internal::TrsmLLNLarge
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
 inline void
-elemental::basic::internal::TrsmLLNMedium
+internal::TrsmLLNMedium
 ( Diagonal diagonal,
   F alpha, const DistMatrix<F,MC,MR>& L,
                  DistMatrix<F,MC,MR>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmLLNMedium");
+    PushCallStack("internal::TrsmLLNMedium");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -178,7 +180,7 @@ elemental::basic::internal::TrsmLLNMedium
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -207,7 +209,7 @@ elemental::basic::internal::TrsmLLNMedium
 
         // X1[* ,MR] := L11^-1[* ,* ] X1[* ,MR]
         // X1^T[MR,* ] := X1^T[MR,* ] L11^-T[* ,* ]
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( RIGHT, LOWER, TRANSPOSE, diagonal, 
           (F)1, L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
@@ -215,7 +217,7 @@ elemental::basic::internal::TrsmLLNMedium
         L21_MC_STAR = L21;                   // L21[MC,* ] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, TRANSPOSE, (F)-1, L21_MC_STAR, X1Trans_MR_STAR, (F)1, X2 );
         //--------------------------------------------------------------------//
         L21_MC_STAR.FreeAlignments();
@@ -241,14 +243,14 @@ elemental::basic::internal::TrsmLLNMedium
 // For small numbers of RHS's, e.g., width(X) < p
 template<typename F>
 inline void
-elemental::basic::internal::TrsmLLNSmall
+internal::TrsmLLNSmall
 ( Diagonal diagonal,
   F alpha, const DistMatrix<F,VC,STAR>& L,
                  DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsmLLNSmall");
+    PushCallStack("internal::TrsmLLNSmall");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -280,7 +282,7 @@ elemental::basic::internal::TrsmLLNSmall
     DistMatrix<F,STAR,STAR> X1_STAR_STAR(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -306,12 +308,12 @@ elemental::basic::internal::TrsmLLNSmall
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
 
         // X1[* ,* ] := (L11[* ,* ])^-1 X1[* ,* ]
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, LOWER, NORMAL, diagonal, 
           (F)1, L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
 
         // X2[VC,* ] -= L21[VC,* ] X1[* ,* ]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)-1, L21, X1_STAR_STAR, (F)1, X2 );
         //--------------------------------------------------------------------//
 
@@ -332,3 +334,4 @@ elemental::basic::internal::TrsmLLNSmall
 #endif
 }
 
+} // namespace elemental

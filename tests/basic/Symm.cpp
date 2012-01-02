@@ -86,11 +86,11 @@ void TestSymm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::Symm( side, uplo, alpha, A, B, beta, C );
+    Symm( side, uplo, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = basic::internal::SymmGFlops<T>(side,m,n,runTime);
+    gFlops = internal::SymmGFlops<T>(side,m,n,runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

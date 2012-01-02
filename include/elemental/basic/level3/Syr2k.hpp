@@ -36,9 +36,11 @@
 #include "./Syr2k/Syr2kUN.hpp"
 #include "./Syr2k/Syr2kUT.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Syr2k
+Syr2k
 ( UpperOrLower uplo, 
   Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -46,20 +48,21 @@ elemental::basic::Syr2k
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Syr2k");
+    PushCallStack("Syr2k");
     if( orientation == ADJOINT )
         throw std::logic_error("Syr2k accepts Normal and Transpose options");
 #endif
     if( uplo == LOWER && orientation == NORMAL )
-        basic::internal::Syr2kLN( alpha, A, B, beta, C );
+        internal::Syr2kLN( alpha, A, B, beta, C );
     else if( uplo == LOWER )
-        basic::internal::Syr2kLT( alpha, A, B, beta, C );
+        internal::Syr2kLT( alpha, A, B, beta, C );
     else if( orientation == NORMAL )
-        basic::internal::Syr2kUN( alpha, A, B, beta, C );
+        internal::Syr2kUN( alpha, A, B, beta, C );
     else
-        basic::internal::Syr2kUT( alpha, A, B, beta, C );
+        internal::Syr2kUT( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+} // namespace elemental

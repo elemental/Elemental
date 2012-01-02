@@ -49,31 +49,31 @@ Norm
 
 For computing norms of fully-populated matrices.
 
-.. cpp:function:: R advanced::Norm( const Matrix<R>& A, NormType type=FROBENIUS_NORM )
+.. cpp:function:: R Norm( const Matrix<R>& A, NormType type=FROBENIUS_NORM )
 
    Return the norm of the fully-populated real matrix `A`.
 
-.. cpp:function:: R advanced::Norm( const DistMatrix<R,MC,MR>& A, NormType type=FROBENIUS_NORM )
+.. cpp:function:: R Norm( const DistMatrix<R,MC,MR>& A, NormType type=FROBENIUS_NORM )
 
    Return the norm of the fully-populated real distributed matrix `A`.
 
-.. cpp:function:: R advanced::Norm( const Matrix<std::complex<R> >& A, NormType type=FROBENIUS_NORM )
+.. cpp:function:: R Norm( const Matrix<std::complex<R> >& A, NormType type=FROBENIUS_NORM )
 
    Return the norm of the fully-populated complex matrix `A`.
 
-.. cpp:function:: R advanced::Norm( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type=FROBENIUS_NORM )
+.. cpp:function:: R Norm( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type=FROBENIUS_NORM )
 
    Return the norm of the fully-populated complex distributed matrix `A`.
 
 HermitianNorm
 -------------
 
-Same as ``advanced::Norm``, but the (distributed) matrix is implicitly Hermitian 
+Same as ``Norm``, but the (distributed) matrix is implicitly Hermitian 
 with the data stored in the triangle specified by ``UpperOrLower``.
 
 SymmetricNorm
 -------------
 
-Same as ``advanced::Norm``, but the (distributed) matrix is implicitly symmetric
+Same as ``Norm``, but the (distributed) matrix is implicitly symmetric
 with the data stored in the triangle specified by ``UpperOrLower``.
 

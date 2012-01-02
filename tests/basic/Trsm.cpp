@@ -83,11 +83,11 @@ void TestTrsm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::Trsm( side, uplo, orientation, diagonal, alpha, A, X );
+    Trsm( side, uplo, orientation, diagonal, alpha, A, X );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = basic::internal::TrsmGFlops<F>(side,m,n,runTime);
+    gFlops = internal::TrsmGFlops<F>(side,m,n,runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

@@ -4,7 +4,7 @@ Tuning parameters
 Hermitian to tridiagonal
 ------------------------
 Two different basic strategies are available for the reduction to tridiagonal
-form::
+form:
 
 1. Run a pipelined algorithm designed for general (rectangular) process grids.
 2. Redistribute the matrix so that it is owned by a perfect square number of
@@ -47,20 +47,20 @@ though usually either a row-major or column-major ordering of the first
    .. note::
    
       The first algorithm heavily depends upon the performance of distributed 
-      ``basic::Symv`` and ``basic::Hemv`` (for real and complex data, 
+      ``Symv`` and ``Hemv`` (for real and complex data, 
       respectively), so users interested in maximizing the performance of the 
       first algorithm will likely want to investigate different values for the 
       local blocksizes through the routines 
-      ``basic::SetLocalSymvBlocksize<T>( int blocksize )`` and 
-      ``basic::SetLocalHemvBlocksize<T>( int blocksize )``; the default values 
+      ``SetLocalSymvBlocksize<T>( int blocksize )`` and 
+      ``SetLocalHemvBlocksize<T>( int blocksize )``; the default values 
       are both 64.
 
-.. cpp:function:: void advanced::SetHermitianTridiagApproach( HermitianTridiagApproach approach )
+.. cpp:function:: void SetHermitianTridiagApproach( HermitianTridiagApproach approach )
 
    Sets the algorithm used by subsequent calls to
-   ``advanced::HermitianTridiag``.
+   ``HermitianTridiag``.
 
-.. cpp:function:: HermitianTridiagApproach advanced::GetHermitianTridiagApproach()
+.. cpp:function:: HermitianTridiagApproach GetHermitianTridiagApproach()
 
    Queries the currently set approach for the reduction of a Hermitian matrix
    to tridiagonal form.

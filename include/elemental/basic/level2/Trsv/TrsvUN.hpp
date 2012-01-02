@@ -31,15 +31,17 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename F>
 inline void
-elemental::basic::internal::TrsvUN
+internal::TrsvUN
 ( Diagonal diagonal, 
   const DistMatrix<F,MC,MR>& U, 
         DistMatrix<F,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrsvUN");
+    PushCallStack("internal::TrsvUN");
     if( U.Grid() != x.Grid() )
         throw std::logic_error("{U,x} must be distributed over the same grid");
     if( U.Height() != U.Width() )
@@ -98,14 +100,14 @@ elemental::basic::internal::TrsvUN
             //----------------------------------------------------------------//
             x1_STAR_STAR = x1;
             U11_STAR_STAR = U11;
-            basic::Trsv
+            Trsv
             ( UPPER, NORMAL, diagonal,
               U11_STAR_STAR.LockedLocalMatrix(),
               x1_STAR_STAR.LocalMatrix() );
             x1 = x1_STAR_STAR;
 
             x1_MR_STAR = x1_STAR_STAR;
-            basic::Gemv
+            Gemv
             ( NORMAL, (F)-1, 
               U01.LockedLocalMatrix(), 
               x1_MR_STAR.LockedLocalMatrix(),
@@ -172,21 +174,21 @@ elemental::basic::internal::TrsvUN
             //----------------------------------------------------------------//
             x1_STAR_STAR = x1;
             U11_STAR_STAR = U11;
-            basic::Trsv
+            Trsv
             ( UPPER, NORMAL, diagonal,
               U11_STAR_STAR.LockedLocalMatrix(),
               x1_STAR_STAR.LocalMatrix() );
             x1 = x1_STAR_STAR;
 
             x1_STAR_MR = x1_STAR_STAR;
-            basic::Gemv
+            Gemv
             ( NORMAL, (F)-1, 
               U01.LockedLocalMatrix(), 
               x1_STAR_MR.LockedLocalMatrix(),
               (F)0, z0_STAR_MC.LocalMatrix() );
             z0_MR_MC.SumScatterFrom( z0_STAR_MC );
             z0 = z0_MR_MC;
-            basic::Axpy( (F)1, z0, x0 );
+            Axpy( (F)1, z0, x0 );
             //----------------------------------------------------------------//
             x1_STAR_MR.FreeAlignments();
             z0_STAR_MC.FreeAlignments();
@@ -207,3 +209,5 @@ elemental::basic::internal::TrsvUN
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

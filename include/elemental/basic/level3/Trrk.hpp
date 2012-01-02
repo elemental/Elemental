@@ -37,25 +37,27 @@
 #include "./Trrk/TrrkTN.hpp"
 #include "./Trrk/TrrkTT.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Trrk
+Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trrk");
+    PushCallStack("Trrk");
 #endif
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
-        basic::internal::TrrkNN( uplo, alpha, A, B, beta, C );
+        internal::TrrkNN( uplo, alpha, A, B, beta, C );
     else if( orientationOfA==NORMAL )
-        basic::internal::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
+        internal::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
     else if( orientationOfB==NORMAL )
-        basic::internal::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
+        internal::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
     else
-        basic::internal::TrrkTT
+        internal::TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
@@ -64,7 +66,7 @@ elemental::basic::Trrk
 
 template<typename T>
 inline void
-elemental::basic::Trrk
+Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -72,18 +74,20 @@ elemental::basic::Trrk
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trrk");
+    PushCallStack("Trrk");
 #endif
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
-        basic::internal::TrrkNN( uplo, alpha, A, B, beta, C );
+        internal::TrrkNN( uplo, alpha, A, B, beta, C );
     else if( orientationOfA==NORMAL )
-        basic::internal::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
+        internal::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
     else if( orientationOfB==NORMAL )
-        basic::internal::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
+        internal::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
     else
-        basic::internal::TrrkTT
+        internal::TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

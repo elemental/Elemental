@@ -100,7 +100,7 @@ main( int argc, char* argv[] )
         ASqrt = A;
         ASqrt.Print("ASqrt := A");
 
-        basic::Scal( 2.0, ASqrt );
+        Scal( 2.0, ASqrt );
         ASqrt.Print("ASqrt := 2 ASqrt");
 
         A = ASqrt;

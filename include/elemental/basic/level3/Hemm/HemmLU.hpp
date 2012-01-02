@@ -31,21 +31,23 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::HemmLU
+internal::HemmLU
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::HemmLU");
+    PushCallStack("internal::HemmLU");
 #endif
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Width() )
-        basic::internal::HemmLUA( alpha, A, B, beta, C );
+        internal::HemmLUA( alpha, A, B, beta, C );
     else
-        basic::internal::HemmLUC( alpha, A, B, beta, C );
+        internal::HemmLUC( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -53,13 +55,13 @@ elemental::basic::internal::HemmLU
 
 template<typename T>
 inline void
-elemental::basic::internal::HemmLUA
+internal::HemmLUA
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::HemmLUA");
+    PushCallStack("internal::HemmLUA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -82,7 +84,7 @@ elemental::basic::internal::HemmLUA
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
     DistMatrix<T,MR,MC  > Z1_MR_MC(g);
 
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionRight
     ( B, BL, BR, 0 );
     PartitionRight
@@ -111,14 +113,14 @@ elemental::basic::internal::HemmLUA
         B1Adj_STAR_MR.AdjointFrom( B1_VR_STAR );
         Z1_MC_STAR.SetToZero();
         Z1_MR_STAR.SetToZero();
-        basic::internal::LocalSymmetricAccumulateLU
+        internal::LocalSymmetricAccumulateLU
         ( ADJOINT,
           alpha, A, B1_MC_STAR, B1Adj_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
 
         Z1_MR_MC.SumScatterFrom( Z1_MR_STAR );
         Z1 = Z1_MR_MC;
         Z1.SumScatterUpdate( (T)1, Z1_MC_STAR );
-        basic::Axpy( (T)1, Z1, C1 );
+        Axpy( (T)1, Z1, C1 );
         //--------------------------------------------------------------------//
         B1_MC_STAR.FreeAlignments();
         B1_VR_STAR.FreeAlignments();
@@ -142,13 +144,13 @@ elemental::basic::internal::HemmLUA
 
 template<typename T>
 inline void
-elemental::basic::internal::HemmLUC
+internal::HemmLUC
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::HemmLUC");
+    PushCallStack("internal::HemmLUC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -175,7 +177,7 @@ elemental::basic::internal::HemmLUC
     DistMatrix<T,MR,  STAR> B1Adj_MR_STAR(g);
 
     // Start the algorithm
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -230,11 +232,11 @@ elemental::basic::internal::HemmLUC
 
         B1Adj_MR_STAR.AdjointFrom( B1 );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, ADJOINT, 
           alpha, AColPan_MC_STAR, B1Adj_MR_STAR, (T)1, CAbove );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( ADJOINT, ADJOINT, 
           alpha, ARowPan_STAR_MC, B1Adj_MR_STAR, (T)1, CBelow );
         //--------------------------------------------------------------------//
@@ -267,7 +269,7 @@ elemental::basic::internal::HemmLUC
 
 template<typename T>
 inline void
-elemental::basic::internal::LocalSymmetricAccumulateLU
+internal::LocalSymmetricAccumulateLU
 ( Orientation orientation, T alpha,
   const DistMatrix<T,MC,  MR  >& A,
   const DistMatrix<T,MC,  STAR>& B_MC_STAR,
@@ -276,7 +278,7 @@ elemental::basic::internal::LocalSymmetricAccumulateLU
         DistMatrix<T,MR,  STAR>& Z_MR_STAR )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalSymmetricAccumulateLU");
+    PushCallStack("internal::LocalSymmetricAccumulateLU");
     if( A.Grid() != B_MC_STAR.Grid() ||
         B_MC_STAR.Grid() != BAdjOrTrans_STAR_MR.Grid() ||
         BAdjOrTrans_STAR_MR.Grid() != Z_MC_STAR.Grid() ||
@@ -392,20 +394,20 @@ elemental::basic::internal::LocalSymmetricAccumulateLU
         //--------------------------------------------------------------------//
         D11 = A11;
         D11.MakeTrapezoidal( LEFT, UPPER );
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, orientation, alpha, D11, B1AdjOrTrans_STAR_MR, 
           (T)1, Z1_MC_STAR );
         D11.MakeTrapezoidal( LEFT, UPPER, 1 );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientation, NORMAL,
           alpha, D11, B1_MC_STAR, (T)1, Z1_MR_STAR );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, orientation, alpha, A12, B2AdjOrTrans_STAR_MR, 
           (T)1, Z1_MC_STAR );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientation, NORMAL,
           alpha, A12, B1_MC_STAR, (T)1, Z2_MR_STAR );
         //--------------------------------------------------------------------//
@@ -444,3 +446,5 @@ elemental::basic::internal::LocalSymmetricAccumulateLU
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

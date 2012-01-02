@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // I do not see any algorithmic optimizations to make for the upper var3 
 // Cholesky, since most memory access is stride one.
-template<typename F> // representation of real or complex number
+template<typename F> 
 inline void
-elemental::advanced::internal::CholeskyUVar3
-( DistMatrix<F,MC,MR>& A )
-{ elemental::advanced::internal::CholeskyUVar3Naive( A ); }
+internal::CholeskyUVar3( DistMatrix<F,MC,MR>& A )
+{ internal::CholeskyUVar3Naive( A ); }
 
 /*
    Parallelization of Variant 3 Upper Cholesky factorization. 
@@ -64,13 +65,12 @@ elemental::advanced::internal::CholeskyUVar3
    A22[MC,MR] := A22[MC,MR] - (A12[* ,MC])^H A12[* ,MR]
    -----------------------------------------------------
 */
-template<typename F> // representation of real or complex number
+template<typename F> 
 inline void
-elemental::advanced::internal::CholeskyUVar3Naive
-( DistMatrix<F,MC,MR>& A )
+internal::CholeskyUVar3Naive( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::CholeskyUVar3Naive");
+    PushCallStack("internal::CholeskyUVar3Naive");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ( "Can only compute Cholesky factor of square matrices." );
@@ -106,16 +106,16 @@ elemental::advanced::internal::CholeskyUVar3Naive
         A12_STAR_VR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        advanced::internal::LocalCholesky( UPPER, A11_STAR_STAR );
+        internal::LocalCholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A12_STAR_VR = A12;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
 
         A12_STAR_MC = A12_STAR_VR;
         A12_STAR_MR = A12_STAR_VR;
-        basic::internal::LocalTrrk
+        internal::LocalTrrk
         ( UPPER, ADJOINT, (F)-1, A12_STAR_MC, A12_STAR_MR, (F)1, A22 );
         A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//
@@ -133,3 +133,5 @@ elemental::advanced::internal::CholeskyUVar3Naive
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

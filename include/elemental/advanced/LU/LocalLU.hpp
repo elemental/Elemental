@@ -31,13 +31,15 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Local LU _without_ partial pivoting
-template<typename F> // representation of a field
+template<typename F> 
 inline void
-elemental::advanced::LU( Matrix<F>& A )
+LU( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LU");
+    PushCallStack("LU");
 #endif
     // Matrix views 
     Matrix<F>
@@ -61,8 +63,8 @@ elemental::advanced::LU( Matrix<F>& A )
         F alpha = alpha11.Get(0,0);
         if( alpha == static_cast<F>(0) )
             throw SingularMatrixException();
-        basic::Scal( static_cast<F>(1)/alpha, a21 );
-        basic::Geru( (F)-1, a21, a12, A22 );
+        Scal( static_cast<F>(1)/alpha, a21 );
+        Geru( (F)-1, a21, a12, A22 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -76,3 +78,5 @@ elemental::advanced::LU( Matrix<F>& A )
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

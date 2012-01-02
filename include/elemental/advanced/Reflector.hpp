@@ -38,13 +38,14 @@
 #include "./Reflector/ColReflector.hpp"
 #include "./Reflector/RowReflector.hpp"
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R>
 inline R
-elemental::advanced::Reflector
-( Matrix<R>& chi, Matrix<R>& x )
+Reflector( Matrix<R>& chi, Matrix<R>& x )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::Reflector");
+    PushCallStack("Reflector");
 #endif
     if( x.Height() == 0 )
     {
@@ -55,7 +56,7 @@ elemental::advanced::Reflector
         return (R)2;
     }
 
-    R norm = basic::Nrm2( x );
+    R norm = Nrm2( x );
     R alpha = chi.Get(0,0);
 
     R beta;
@@ -75,12 +76,12 @@ elemental::advanced::Reflector
         do
         {
             ++count;
-            basic::Scal( invOfSafeInv, x );
+            Scal( invOfSafeInv, x );
             alpha *= invOfSafeInv;
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
 
-        norm = basic::Nrm2( x );
+        norm = Nrm2( x );
         if( alpha <= 0 )
             beta = lapack::SafeNorm( alpha, norm );
         else
@@ -88,7 +89,7 @@ elemental::advanced::Reflector
     }
 
     R tau = (beta-alpha) / beta;
-    basic::Scal( one/(alpha-beta), x );
+    Scal( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
         beta *= safeInv;
@@ -99,17 +100,16 @@ elemental::advanced::Reflector
     return tau;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline std::complex<R>
-elemental::advanced::Reflector
-( Matrix<std::complex<R> >& chi, Matrix<std::complex<R> >& x )
+Reflector( Matrix<std::complex<R> >& chi, Matrix<std::complex<R> >& x )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::Reflector");
+    PushCallStack("Reflector");
 #endif
     typedef std::complex<R> C;
 
-    R norm = basic::Nrm2( x );
+    R norm = Nrm2( x );
     C alpha = chi.Get(0,0);
 
     if( norm == 0 && imag(alpha) == (R)0 )
@@ -138,12 +138,12 @@ elemental::advanced::Reflector
         do
         {
             ++count;
-            basic::Scal( (C)invOfSafeInv, x );
+            Scal( (C)invOfSafeInv, x );
             alpha *= invOfSafeInv;
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
 
-        norm = basic::Nrm2( x );
+        norm = Nrm2( x );
         if( real(alpha) <= 0 )
             beta = lapack::SafeNorm( real(alpha), imag(alpha), norm );
         else
@@ -151,7 +151,7 @@ elemental::advanced::Reflector
     }
 
     C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );
-    basic::Scal( one/(alpha-beta), x );
+    Scal( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
         beta *= safeInv;
@@ -162,13 +162,12 @@ elemental::advanced::Reflector
     return tau;
 }
 
-template<typename F> // represents a real or complex number
+template<typename F>
 inline F
-elemental::advanced::Reflector
-( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x )
+Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::Reflector");
+    PushCallStack("Reflector");
     if( chi.Grid() != x.Grid() )
         throw std::logic_error
         ("chi and x must be distributed over the same grid");
@@ -182,13 +181,13 @@ elemental::advanced::Reflector
     if( x.Width() == 1 && x.RowAlignment() == chi.RowAlignment() )
     {
         if( g.MRRank() == x.RowAlignment() )
-            tau = advanced::internal::ColReflector( chi, x );
+            tau = internal::ColReflector( chi, x );
         mpi::Broadcast( &tau, 1, x.RowAlignment(), g.MRComm() );
     }
     else
     {
         if( g.MCRank() == x.ColAlignment() )
-            tau = advanced::internal::RowReflector( chi, x );
+            tau = internal::RowReflector( chi, x );
         mpi::Broadcast( &tau, 1, x.ColAlignment(), g.MCComm() );
     }
 #ifndef RELEASE
@@ -196,3 +195,5 @@ elemental::advanced::Reflector
 #endif
     return tau;
 }
+
+} // namespace elemental

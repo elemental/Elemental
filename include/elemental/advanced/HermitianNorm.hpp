@@ -36,28 +36,29 @@
 #include "./HermitianNorm/HermitianMaxNorm.hpp"
 #include "./HermitianNorm/HermitianOneNorm.hpp"
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R>
 inline R
-elemental::advanced::HermitianNorm
-( UpperOrLower uplo, const Matrix<R>& A, NormType type )
+HermitianNorm( UpperOrLower uplo, const Matrix<R>& A, NormType type )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianNorm");
+    PushCallStack("HermitianNorm");
 #endif
     R norm = 0;
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::HermitianInfinityNorm( uplo, A );
+        norm = internal::HermitianInfinityNorm( uplo, A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::HermitianFrobeniusNorm( uplo, A );
+        norm = internal::HermitianFrobeniusNorm( uplo, A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::HermitianMaxNorm( uplo, A );
+        norm = internal::HermitianMaxNorm( uplo, A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::HermitianOneNorm( uplo, A );
+        norm = internal::HermitianOneNorm( uplo, A );
         break;
     }
 #ifndef RELEASE
@@ -66,28 +67,28 @@ elemental::advanced::HermitianNorm
     return norm;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::HermitianNorm
+HermitianNorm
 ( UpperOrLower uplo, const Matrix<std::complex<R> >& A, NormType type )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianNorm");
+    PushCallStack("HermitianNorm");
 #endif
     R norm = 0;
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::HermitianInfinityNorm( uplo, A );
+        norm = internal::HermitianInfinityNorm( uplo, A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::HermitianFrobeniusNorm( uplo, A );
+        norm = internal::HermitianFrobeniusNorm( uplo, A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::HermitianMaxNorm( uplo, A );
+        norm = internal::HermitianMaxNorm( uplo, A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::HermitianOneNorm( uplo, A );
+        norm = internal::HermitianOneNorm( uplo, A );
         break;
     }
 #ifndef RELEASE
@@ -96,28 +97,27 @@ elemental::advanced::HermitianNorm
     return norm;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::HermitianNorm
-( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, NormType type )
+HermitianNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianNorm");
+    PushCallStack("HermitianNorm");
 #endif
     R norm = 0;
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::HermitianInfinityNorm( uplo, A );
+        norm = internal::HermitianInfinityNorm( uplo, A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::HermitianFrobeniusNorm( uplo, A );
+        norm = internal::HermitianFrobeniusNorm( uplo, A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::HermitianMaxNorm( uplo, A );
+        norm = internal::HermitianMaxNorm( uplo, A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::HermitianOneNorm( uplo, A );
+        norm = internal::HermitianOneNorm( uplo, A );
         break;
     }
 #ifndef RELEASE
@@ -126,28 +126,28 @@ elemental::advanced::HermitianNorm
     return norm;
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline R
-elemental::advanced::HermitianNorm
+HermitianNorm
 ( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianNorm");
+    PushCallStack("HermitianNorm");
 #endif
     R norm = 0;
     switch( type )
     {
     case INFINITY_NORM:
-        norm = advanced::internal::HermitianInfinityNorm( uplo, A );
+        norm = internal::HermitianInfinityNorm( uplo, A );
         break;
     case FROBENIUS_NORM: 
-        norm = advanced::internal::HermitianFrobeniusNorm( uplo, A );
+        norm = internal::HermitianFrobeniusNorm( uplo, A );
         break;
     case MAX_NORM:
-        norm = advanced::internal::HermitianMaxNorm( uplo, A );
+        norm = internal::HermitianMaxNorm( uplo, A );
         break;
     case ONE_NORM:
-        norm = advanced::internal::HermitianOneNorm( uplo, A );
+        norm = internal::HermitianOneNorm( uplo, A );
         break;
     }
 #ifndef RELEASE
@@ -155,3 +155,5 @@ elemental::advanced::HermitianNorm
 #endif
     return norm;
 }
+
+} // namespace elemental

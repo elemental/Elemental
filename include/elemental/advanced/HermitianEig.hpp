@@ -35,16 +35,16 @@
 
 #include "elemental/imports/pmrrr.hpp"
 
+// We create specialized redistribution routines for redistributing the 
+// real eigenvectors of the symmetric tridiagonal matrix at the core of our 
+// eigensolver in order to minimize the temporary memory usage.
+namespace elemental {
+
 // The targeted number of pieces to break the eigenvectors into during the
 // redistribution from the [* ,VR] distribution after PMRRR to the [MC,MR]
 // distribution needed for backtransformation.
 #define TARGET_CHUNKS 20
 
-// We create specialized redistribution routines for redistributing the 
-// real eigenvectors of the symmetric tridiagonal matrix at the core of our 
-// eigensolver in order to minimize the temporary memory usage.
-namespace elemental {
-namespace advanced {
 namespace hermitian_eig {
 inline void
 RealToRealInPlaceRedist
@@ -215,21 +215,19 @@ RealToComplexInPlaceRedist
 }
 
 } // namespace hermitian_eig
-} // namespace advanced
-} // namespace elemental
 
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs of the real, symmetric matrix A            //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<double,MC,  MR>& paddedZ )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -276,7 +274,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -295,7 +293,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( uplo, A );
+    HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -379,15 +377,15 @@ elemental::advanced::HermitianEig
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() ); // We can simply shrink matrices
     if( uplo == LOWER )
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
     else
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w );
+        Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -401,7 +399,7 @@ elemental::advanced::HermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.           //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
@@ -409,7 +407,7 @@ elemental::advanced::HermitianEig
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -456,7 +454,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -475,7 +473,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( uplo, A );
+    HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -560,15 +558,15 @@ elemental::advanced::HermitianEig
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
     if( uplo == LOWER )
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
     else
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w );
+        Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -580,7 +578,7 @@ elemental::advanced::HermitianEig
 // (where a=lowerBound, b=upperBound)                                         //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
@@ -588,7 +586,7 @@ elemental::advanced::HermitianEig
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -630,7 +628,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -649,7 +647,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( uplo, A );
+    HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -751,15 +749,15 @@ elemental::advanced::HermitianEig
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
     if( uplo == LOWER )
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
     else
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w );
+        Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -769,13 +767,13 @@ elemental::advanced::HermitianEig
 // Grab the full set of eigenvalues the of the real, symmetric matrix A       //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -802,7 +800,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -821,7 +819,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( uplo, A );
+    HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -851,7 +849,7 @@ elemental::advanced::HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w );
+        Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -865,14 +863,14 @@ elemental::advanced::HermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.           //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   int lowerBound, int upperBound ) 
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -899,7 +897,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -918,7 +916,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( uplo, A );
+    HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -948,7 +946,7 @@ elemental::advanced::HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w );
+        Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -960,14 +958,14 @@ elemental::advanced::HermitianEig
 // (where a=lowerBound and b=upperBound)                                      //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double,MC,  MR>& A,
   DistMatrix<double,VR,STAR>& w,
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -992,7 +990,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1011,7 +1009,7 @@ elemental::advanced::HermitianEig
     }
 
     // Tridiagonalize A
-    advanced::HermitianTridiag( uplo, A );
+    HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1044,7 +1042,7 @@ elemental::advanced::HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( neededScaling ) 
-        basic::Scal( 1/scale, w );
+        Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1054,14 +1052,14 @@ elemental::advanced::HermitianEig
 // Grab the full set of eigenpairs of the complex, Hermitian matrix A         //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   DistMatrix<std::complex<double>,MC,  MR>& paddedZ )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -1108,7 +1106,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1128,7 +1126,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1212,17 +1210,17 @@ elemental::advanced::HermitianEig
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() ); 
     if( uplo == LOWER )
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w );
+        Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1235,7 +1233,7 @@ elemental::advanced::HermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.           //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
@@ -1243,7 +1241,7 @@ elemental::advanced::HermitianEig
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -1290,7 +1288,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1310,7 +1308,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1395,17 +1393,17 @@ elemental::advanced::HermitianEig
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
     if( uplo == LOWER )
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w );
+        Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1416,7 +1414,7 @@ elemental::advanced::HermitianEig
 // The partial set is determined by the half-open range (a,b].                //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
@@ -1424,7 +1422,7 @@ elemental::advanced::HermitianEig
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -1466,7 +1464,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1486,7 +1484,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1587,17 +1585,17 @@ elemental::advanced::HermitianEig
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
     if( uplo == LOWER )
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
-        advanced::ApplyPackedReflectors
+        ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w );
+        Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1607,13 +1605,13 @@ elemental::advanced::HermitianEig
 // Grab the full set of eigenvalues of the complex, Hermitian matrix A        //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -1640,7 +1638,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1660,7 +1658,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1690,7 +1688,7 @@ elemental::advanced::HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w );
+        Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1703,14 +1701,14 @@ elemental::advanced::HermitianEig
 // of the n eigenpairs sorted from smallest to largest eigenvalues.           //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -1737,7 +1735,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1757,7 +1755,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1787,7 +1785,7 @@ elemental::advanced::HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w ); 
+        Scal( 1/scale, w ); 
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1798,14 +1796,14 @@ elemental::advanced::HermitianEig
 // The partial set is determined by the half-open interval (a,b].             //
 //----------------------------------------------------------------------------//
 inline void
-elemental::advanced::HermitianEig
+HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<double>,MC,  MR>& A,
   DistMatrix<             double, VR,STAR>& w,
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianEig");
+    PushCallStack("HermitianEig");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -1830,7 +1828,7 @@ elemental::advanced::HermitianEig
     // Check if we need to scale the matrix, and do so if necessary
     double scale = 1;
     bool neededScaling = false;
-    const double maxNormOfA = advanced::HermitianNorm( uplo, A, MAX_NORM );
+    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
     const double underflowThreshold = 
         lapack::MachineUnderflowThreshold<double>();
     const double overflowThreshold = 
@@ -1850,7 +1848,7 @@ elemental::advanced::HermitianEig
 
     // Tridiagonalize A
     DistMatrix<std::complex<double>,STAR,STAR> t(g);
-    advanced::HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
@@ -1882,11 +1880,14 @@ elemental::advanced::HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( neededScaling )
-        basic::Scal( 1/scale, w ); 
+        Scal( 1/scale, w ); 
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-#endif // WITHOUT_PMRRR
 
 #undef TARGET_CHUNKS
+
+} // namespace elemental
+
+#endif // WITHOUT_PMRRR

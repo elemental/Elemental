@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // representation of a real or complex number
+namespace elemental {
+
+template<typename F> 
 inline void
-elemental::advanced::GaussianElimination
-( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
+GaussianElimination( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::GaussianElimination");
+    PushCallStack("GaussianElimination");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -45,23 +46,22 @@ elemental::advanced::GaussianElimination
     if( A.Height() != B.Height() )
         throw std::logic_error("A and B must be the same height");
 #endif
-    advanced::internal::ReduceToRowEchelon( A, B );
+    internal::ReduceToRowEchelon( A, B );
     if( B.Width() == 1 )
-        basic::Trsv( UPPER, NORMAL, NON_UNIT, A, B );
+        Trsv( UPPER, NORMAL, NON_UNIT, A, B );
     else
-        basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename F> // representation of a real or complex number
+template<typename F> 
 inline void
-elemental::advanced::internal::ReduceToRowEchelon
-( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
+internal::ReduceToRowEchelon( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::ReduceToRowEchelon");
+    PushCallStack("internal::ReduceToRowEchelon");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != B.Height() )
@@ -133,33 +133,33 @@ elemental::advanced::internal::ReduceToRowEchelon
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
         A21_MC_STAR = A21;
-        advanced::internal::PanelLU
+        internal::PanelLU
         ( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, A00.Height() );
-        advanced::internal::ComposePanelPivots
+        internal::ComposePanelPivots
         ( p1_STAR_STAR, A00.Height(), image, preimage );
-        advanced::ApplyRowPivots( APan, image, preimage );
-        advanced::ApplyRowPivots( BB,   image, preimage );
+        ApplyRowPivots( APan, image, preimage );
+        ApplyRowPivots( BB,   image, preimage );
 
         A12_STAR_VR = A12;
         B1_STAR_VR = B1;
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
-        basic::internal::LocalTrsm
+        internal::LocalTrsm
         ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, B1_STAR_VR );
 
         A12_STAR_MR = A12_STAR_VR;
         B1_STAR_MR = B1_STAR_VR;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, A12_STAR_MR, (F)1, A22 );
         if( BAligned )
         {
-            basic::internal::LocalGemm
+            internal::LocalGemm
             ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, B1_STAR_MR, (F)1, B2 );
         }
         else
         {
             A21_MC_STAR_B = A21_MC_STAR;
-            basic::internal::LocalGemm
+            internal::LocalGemm
             ( NORMAL, NORMAL, (F)-1, A21_MC_STAR_B, B1_STAR_MR, (F)1, B2 );
         }
 
@@ -191,3 +191,5 @@ elemental::advanced::internal::ReduceToRowEchelon
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

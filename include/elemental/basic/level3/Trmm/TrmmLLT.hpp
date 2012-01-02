@@ -31,6 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Left Lower (Conjugate)Transpose (Non)Unit Trmm
 //   X := tril(L)^T,
 //   X := tril(L)^H,
@@ -38,7 +40,7 @@
 //   X := trilu(L)^H
 template<typename T>
 inline void
-elemental::basic::internal::TrmmLLT
+internal::TrmmLLT
 ( Orientation orientation, 
   Diagonal diagonal,
   T alpha, 
@@ -46,13 +48,13 @@ elemental::basic::internal::TrmmLLT
         DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrmmLLT");
+    PushCallStack("internal::TrmmLLT");
 #endif
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Width() )
-        basic::internal::TrmmLLTA( orientation, diagonal, alpha, L, X );
+        internal::TrmmLLTA( orientation, diagonal, alpha, L, X );
     else
-        basic::internal::TrmmLLTC( orientation, diagonal, alpha, L, X );
+        internal::TrmmLLTC( orientation, diagonal, alpha, L, X );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -60,7 +62,7 @@ elemental::basic::internal::TrmmLLT
  
 template<typename T>
 inline void
-elemental::basic::internal::TrmmLLTA
+internal::TrmmLLTA
 ( Orientation orientation, 
   Diagonal diagonal,
   T alpha, 
@@ -68,7 +70,7 @@ elemental::basic::internal::TrmmLLTA
         DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrmmLLTA");
+    PushCallStack("internal::TrmmLLTA");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -114,7 +116,7 @@ elemental::basic::internal::TrmmLLTA
         //--------------------------------------------------------------------//
         X1_MC_STAR = X1;
         Z1_MR_STAR.SetToZero();
-        basic::internal::LocalTrmmAccumulateLLT
+        internal::LocalTrmmAccumulateLLT
         ( orientation, diagonal, alpha, L, X1_MC_STAR, Z1_MR_STAR );
 
         Z1_MR_MC.SumScatterFrom( Z1_MR_STAR );
@@ -134,7 +136,7 @@ elemental::basic::internal::TrmmLLTA
    
 template<typename T>
 inline void
-elemental::basic::internal::TrmmLLTC
+internal::TrmmLLTC
 ( Orientation orientation, 
   Diagonal diagonal,
   T alpha, 
@@ -142,7 +144,7 @@ elemental::basic::internal::TrmmLLTC
         DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrmmLLTC");
+    PushCallStack("internal::TrmmLLTC");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -178,7 +180,7 @@ elemental::basic::internal::TrmmLLTC
     DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -208,22 +210,20 @@ elemental::basic::internal::TrmmLLTC
         //--------------------------------------------------------------------//
         X1_STAR_VR = X1;
         L11_STAR_STAR = L11;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( LEFT, LOWER, orientation, diagonal, (T)1, L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
  
         L21_MC_STAR = L21;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientation, NORMAL, 
           (T)1, X2, L21_MC_STAR, (T)0, D1AdjOrTrans_MR_STAR );
         D1AdjOrTrans_MR_MC.SumScatterFrom( D1AdjOrTrans_MR_STAR );
         if( orientation == TRANSPOSE )
-            basic::Transpose
-            ( D1AdjOrTrans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
+            Transpose( D1AdjOrTrans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
         else
-            basic::Adjoint
-            ( D1AdjOrTrans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
-        basic::Axpy( (T)1, D1, X1 );
+            Adjoint( D1AdjOrTrans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
+        Axpy( (T)1, D1, X1 );
        //--------------------------------------------------------------------//
         D1.FreeAlignments();
         D1AdjOrTrans_MR_MC.FreeAlignments();
@@ -249,14 +249,14 @@ elemental::basic::internal::TrmmLLTC
 
 template<typename T>
 inline void
-elemental::basic::internal::LocalTrmmAccumulateLLT
+internal::LocalTrmmAccumulateLLT
 ( Orientation orientation, Diagonal diagonal, T alpha,
   const DistMatrix<T,MC,MR  >& L,
   const DistMatrix<T,MC,STAR>& X_MC_STAR,
         DistMatrix<T,MR,STAR>& Z_MR_STAR )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTrmmAccumulateLLT");
+    PushCallStack("internal::LocalTrmmAccumulateLLT");
     if( L.Grid() != X_MC_STAR.Grid() ||
         X_MC_STAR.Grid() != Z_MR_STAR.Grid() )
         throw std::logic_error
@@ -336,11 +336,11 @@ elemental::basic::internal::LocalTrmmAccumulateLLT
         D11.MakeTrapezoidal( LEFT, LOWER );
         if( diagonal == UNIT )
             SetDiagonalToOne( D11 );
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientation, NORMAL,
           alpha, D11, X1_MC_STAR, (T)1, Z1_MR_STAR );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( orientation, NORMAL,
           alpha, L21, X2_MC_STAR, (T)1, Z1_MR_STAR );
         //--------------------------------------------------------------------//
@@ -369,3 +369,5 @@ elemental::basic::internal::LocalTrmmAccumulateLLT
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

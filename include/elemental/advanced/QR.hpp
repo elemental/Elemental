@@ -33,6 +33,8 @@
 
 #include "./QR/PanelQR.hpp"
 
+namespace elemental {
+
 // On exit, the upper triangle of A is overwritten by R, and the Householder
 // transforms that determine Q are stored below the diagonal of A with an 
 // implicit one on the diagonal. 
@@ -46,10 +48,10 @@
 
 template<typename R> 
 inline void
-elemental::advanced::QR( DistMatrix<R,MC,MR>& A )
+QR( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::QR");
+    PushCallStack("QR");
 #endif
     if( IsComplex<R>::val )
         throw std::logic_error("Called real routine with complex datatype");
@@ -81,8 +83,8 @@ elemental::advanced::QR( DistMatrix<R,MC,MR>& A )
           A22 );
 
         //--------------------------------------------------------------------//
-        advanced::internal::PanelQR( ALeftPan );
-        advanced::ApplyPackedReflectors
+        internal::PanelQR( ALeftPan );
+        ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, FORWARD, 0, ALeftPan, ARightPan );
         //--------------------------------------------------------------------//
 
@@ -99,12 +101,11 @@ elemental::advanced::QR( DistMatrix<R,MC,MR>& A )
 
 template<typename R> 
 inline void
-elemental::advanced::QR
-( DistMatrix<std::complex<R>,MC,MR  >& A, 
-  DistMatrix<std::complex<R>,MD,STAR>& t )
+QR( DistMatrix<std::complex<R>,MC,MR  >& A, 
+    DistMatrix<std::complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::QR");
+    PushCallStack("QR");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,s} must be distributed over the same grid");
 #endif
@@ -163,8 +164,8 @@ elemental::advanced::QR
           A22 );
 
         //--------------------------------------------------------------------//
-        advanced::internal::PanelQR( ALeftPan, t1 );
-        advanced::ApplyPackedReflectors
+        internal::PanelQR( ALeftPan, t1 );
+        ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 
           0, ALeftPan, t1, ARightPan );
         //--------------------------------------------------------------------//
@@ -185,3 +186,5 @@ elemental::advanced::QR
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -31,13 +31,15 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R>
 inline void
-elemental::advanced::HouseholderSolve
+HouseholderSolve
 ( Orientation orientation, DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& B )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HouseholderSolve");
+    PushCallStack("HouseholderSolve");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("Grids do not match");
 #endif
@@ -51,16 +53,16 @@ elemental::advanced::HouseholderSolve
             if( m != B.Height() )
                 throw std::logic_error("A and B do not conform");
 
-            advanced::QR( A );
+            QR( A );
             // Apply Q' to B
-            advanced::ApplyPackedReflectors
+            ApplyPackedReflectors
             ( LEFT, LOWER, VERTICAL, FORWARD, 0, A, B );
             // Shrink B to its new height
             B.ResizeTo( n, B.Width() );
             // Solve against R (checking for singularities)
             DistMatrix<R,MC,MR> AT;
             AT.LockedView( A, 0, 0, n, n );
-            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, AT, B, true );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, AT, B, true );
         }
         else
         {
@@ -73,15 +75,14 @@ elemental::advanced::HouseholderSolve
             PartitionDown( B, BT,
                               BB, m );
 
-            advanced::LQ( A );
+            LQ( A );
             // Solve against L (checking for singularities)
             DistMatrix<R,MC,MR> AL;
             AL.LockedView( A, 0, 0, m, m );
-            basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, AL, BT, true );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, AL, BT, true );
             // Apply Q' to B (explicitly zero the bottom of B first)
             BB.SetToZero();
-            advanced::ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, FORWARD, 0, A, B );
+            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, FORWARD, 0, A, B );
         }
     }
     else // orientation == ADJOINT
@@ -97,32 +98,28 @@ elemental::advanced::HouseholderSolve
             PartitionDown( B, BT,
                               BB, n );
 
-            advanced::QR( A );
+            QR( A );
             // Solve against R' (checking for singularities)
             DistMatrix<R,MC,MR> AT;
             AT.LockedView( A, 0, 0, n, n );
-            basic::Trsm
-            ( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, AT, BT, true );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, AT, BT, true );
             // Apply Q to B (explicitly zero the bottom of B first)
             BB.SetToZero();
-            advanced::ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, B );
+            ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, B );
         }
         else
         {
             if( n != B.Height() )
                 throw std::logic_error("A and B do not conform");
 
-            advanced::LQ( A );
+            LQ( A );
             // Apply Q to B
-            advanced::ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, A, B );
+            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, A, B );
             B.ResizeTo( m, B.Width() );
             // Solve against L' (check for singularities)
             DistMatrix<R,MC,MR> AL;
             AL.LockedView( A, 0, 0, m, m );
-            basic::Trsm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, AL, B, true );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, AL, B, true );
         }
     }
 #ifndef RELEASE
@@ -130,15 +127,15 @@ elemental::advanced::HouseholderSolve
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
-elemental::advanced::HouseholderSolve
+HouseholderSolve
 ( Orientation orientation, 
   DistMatrix<std::complex<R>,MC,MR>& A, 
   DistMatrix<std::complex<R>,MC,MR>& B )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HouseholderSolve");
+    PushCallStack("HouseholderSolve");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("Grids do not match");
     if( orientation == TRANSPOSE )
@@ -156,16 +153,16 @@ elemental::advanced::HouseholderSolve
             if( m != B.Height() )
                 throw std::logic_error("A and B do not conform");
 
-            advanced::QR( A, t );
+            QR( A, t );
             // Apply Q' to B
-            advanced::ApplyPackedReflectors
+            ApplyPackedReflectors
             ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, B );
             // Shrink B to its new height
             B.ResizeTo( n, B.Width() );
             // Solve against R (checking for singularities)
             DistMatrix<C,MC,MR> AT;
             AT.LockedView( A, 0, 0, n, n );
-            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, AT, B, true );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, AT, B, true );
         }
         else
         {
@@ -178,14 +175,14 @@ elemental::advanced::HouseholderSolve
             PartitionDown( B, BT,
                               BB, m );
 
-            advanced::LQ( A, t );
+            LQ( A, t );
             // Solve against L (checking for singularities)
             DistMatrix<C,MC,MR> AL;
             AL.LockedView( A, 0, 0, m, m );
-            basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, AL, BT, true );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, AL, BT, true );
             // Apply Q' to B (explicitly zero the bottom of B first)
             BB.SetToZero();
-            advanced::ApplyPackedReflectors
+            ApplyPackedReflectors
             ( LEFT, UPPER, HORIZONTAL, FORWARD, CONJUGATED, 0, A, t, B );
         }
     }
@@ -202,15 +199,14 @@ elemental::advanced::HouseholderSolve
             PartitionDown( B, BT,
                               BB, n );
 
-            advanced::QR( A, t );
+            QR( A, t );
             // Solve against R' (checking for singularities)
             DistMatrix<C,MC,MR> AT;
             AT.LockedView( A, 0, 0, n, n );
-            basic::Trsm
-            ( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, AT, BT, true );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, AT, BT, true );
             // Apply Q to B (explicitly zero the bottom of B first)
             BB.SetToZero();
-            advanced::ApplyPackedReflectors
+            ApplyPackedReflectors
             ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, B );
         }
         else
@@ -218,19 +214,20 @@ elemental::advanced::HouseholderSolve
             if( n != B.Height() )
                 throw std::logic_error("A and B do not conform");
 
-            advanced::LQ( A, t );
+            LQ( A, t );
             // Apply Q to B
-            advanced::ApplyPackedReflectors
+            ApplyPackedReflectors
             ( LEFT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, B );
             B.ResizeTo( m, B.Width() );
             // Solve against L' (check for singularities)
             DistMatrix<C,MC,MR> AL;
             AL.LockedView( A, 0, 0, m, m );
-            basic::Trsm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, (C)1, AL, B, true );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (C)1, AL, B, true );
         }
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

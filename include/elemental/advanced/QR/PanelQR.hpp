@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R>
 inline void
-elemental::advanced::internal::PanelQR
-( DistMatrix<R,MC,MR>& A )
+internal::PanelQR( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelQR");
+    PushCallStack("internal::PanelQR");
 #endif
     const Grid& g = A.Grid();
 
@@ -73,7 +74,7 @@ elemental::advanced::internal::PanelQR
         Z_MR_STAR.AlignWith( ARightPan );
         Z_MR_STAR.ResizeTo( ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
-        R tau = advanced::Reflector( alpha11, a21 );
+        R tau = Reflector( alpha11, a21 );
 
         bool myDiagonalEntry = ( g.MCRank() == alpha11.ColAlignment() && 
                                  g.MRRank() == alpha11.RowAlignment() );
@@ -86,14 +87,14 @@ elemental::advanced::internal::PanelQR
 
         aLeftCol_MC_STAR = aLeftCol;
 
-        basic::Gemv
+        Gemv
         ( TRANSPOSE, 
           (R)1, ARightPan.LockedLocalMatrix(), 
                 aLeftCol_MC_STAR.LockedLocalMatrix(),
           (R)0, Z_MR_STAR.LocalMatrix() );
         Z_MR_STAR.SumOverCol(); 
 
-        basic::Ger
+        Ger
         ( -tau, 
           aLeftCol_MC_STAR.LockedLocalMatrix(), 
           Z_MR_STAR.LockedLocalMatrix(),
@@ -117,14 +118,14 @@ elemental::advanced::internal::PanelQR
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
-elemental::advanced::internal::PanelQR
+internal::PanelQR
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelQR");
+    PushCallStack("internal::PanelQR");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
     if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
@@ -181,7 +182,7 @@ elemental::advanced::internal::PanelQR
         Z_MR_STAR.AlignWith( ARightPan );
         Z_MR_STAR.ResizeTo( ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
-        C tau = advanced::Reflector( alpha11, a21 );
+        C tau = Reflector( alpha11, a21 );
         tau1.Set( 0, 0, tau );
 
         bool myDiagonalEntry = ( g.MCRank() == alpha11.ColAlignment() && 
@@ -195,14 +196,14 @@ elemental::advanced::internal::PanelQR
 
         aLeftCol_MC_STAR = aLeftCol;
 
-        basic::Gemv
+        Gemv
         ( ADJOINT, 
           (C)1, ARightPan.LockedLocalMatrix(), 
                 aLeftCol_MC_STAR.LockedLocalMatrix(),
           (C)0, Z_MR_STAR.LocalMatrix() );
         Z_MR_STAR.SumOverCol(); 
 
-        basic::Ger
+        Ger
         ( -conj(tau), 
           aLeftCol_MC_STAR.LockedLocalMatrix(), 
           Z_MR_STAR.LockedLocalMatrix(),
@@ -231,3 +232,5 @@ elemental::advanced::internal::PanelQR
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

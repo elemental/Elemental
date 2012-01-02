@@ -31,16 +31,18 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::GemmNT
+internal::GemmNT
 ( Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmNT");
+    PushCallStack("internal::GemmNT");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -55,15 +57,15 @@ elemental::basic::internal::GemmNT
 
     if( m <= n && weightTowardsC*m <= k )
     {
-        basic::internal::GemmNTB( orientationOfB, alpha, A, B, beta, C );
+        internal::GemmNTB( orientationOfB, alpha, A, B, beta, C );
     }
     else if( n <= m && weightTowardsC*n <= k )
     {
-        basic::internal::GemmNTA( orientationOfB, alpha, A, B, beta, C );
+        internal::GemmNTA( orientationOfB, alpha, A, B, beta, C );
     }
     else
     {
-        basic::internal::GemmNTC( orientationOfB, alpha, A, B, beta, C );
+        internal::GemmNTC( orientationOfB, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -73,14 +75,14 @@ elemental::basic::internal::GemmNT
 // Normal Transpose Gemm that avoids communicating the matrix A.
 template<typename T>
 inline void
-elemental::basic::internal::GemmNTA
+internal::GemmNTA
 ( Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmNTA");
+    PushCallStack("internal::GemmNTA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -114,7 +116,7 @@ elemental::basic::internal::GemmNTA
     DistMatrix<T,MC,STAR> D1_MC_STAR(g);
 
     // Start the algorithm
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionDown
     ( B, BT,
          BB, 0 );
@@ -139,7 +141,7 @@ elemental::basic::internal::GemmNTA
 
         // C1[MC,*] := alpha A[MC,MR] (B1[*,MR])^T
         //           = alpha A[MC,MR] (B1^T)[MR,*]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, A, B1_STAR_MR, (T)0, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
@@ -166,14 +168,14 @@ elemental::basic::internal::GemmNTA
 // Normal Transpose Gemm that avoids communicating the matrix B.
 template<typename T>
 inline void
-elemental::basic::internal::GemmNTB
+internal::GemmNTB
 ( Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmNTB");
+    PushCallStack("internal::GemmNTB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -210,7 +212,7 @@ elemental::basic::internal::GemmNTB
     DistMatrix<T,MC,  MR> D1(g);
 
     // Start the algorithm
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionDown
     ( A, AT,
          AB, 0 );
@@ -240,13 +242,13 @@ elemental::basic::internal::GemmNTB
 
         // D1[*,MC] := alpha A1[*,MR] (B[MC,MR])^T
         //           = alpha A1[*,MR] (B^T)[MR,MC]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, A1_STAR_MR, B, (T)0, D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
         D1_MR_MC.SumScatterFrom( D1_STAR_MC );
         D1 = D1_MR_MC; 
-        basic::Axpy( (T)1, D1, C1 );
+        Axpy( (T)1, D1, C1 );
         //--------------------------------------------------------------------//
         A1_STAR_MR.FreeAlignments();
         D1_STAR_MC.FreeAlignments();
@@ -272,14 +274,14 @@ elemental::basic::internal::GemmNTB
 // Normal Transpose Gemm that avoids communicating the matrix C.
 template<typename T>
 inline void
-elemental::basic::internal::GemmNTC
+internal::GemmNTC
 ( Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::GemmNTC");
+    PushCallStack("internal::GemmNTC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -312,7 +314,7 @@ elemental::basic::internal::GemmNTC
     DistMatrix<T,MR,STAR> B1_MR_STAR(g);
 
     // Start the algorithm
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionRight( A, AL, AR, 0 );
     LockedPartitionRight( B, BL, BR, 0 );
     while( AR.Width() > 0 )
@@ -333,7 +335,7 @@ elemental::basic::internal::GemmNTC
 
         // C[MC,MR] += alpha A1[MC,*] (B1[MR,*])^T
         //           = alpha A1[MC,*] (B1^T)[*,MR]
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, orientationOfB, alpha, A1_MC_STAR, B1_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_STAR.FreeAlignments();
@@ -351,3 +353,5 @@ elemental::basic::internal::GemmNTC
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -49,9 +49,11 @@
 #include "./ApplyPackedReflectors/ApplyPackedReflectorsRUVB.hpp"
 #include "./ApplyPackedReflectors/ApplyPackedReflectorsRUVF.hpp"
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R> 
 inline void
-elemental::advanced::ApplyPackedReflectors
+ApplyPackedReflectors
 ( Side side, UpperOrLower uplo, 
   VectorDirection direction, ForwardOrBackward order,
   int offset,
@@ -59,7 +61,7 @@ elemental::advanced::ApplyPackedReflectors
         DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyPackedReflectors");
+    PushCallStack("ApplyPackedReflectors");
 #endif
     // Since the complex version does not have the same argument list, there is
     // currently no good way to ensure that this version is not called with 
@@ -73,24 +75,24 @@ elemental::advanced::ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsLLVF( offset, H, A );
+                internal::ApplyPackedReflectorsLLVF( offset, H, A );
             else if( direction == VERTICAL )
-                advanced::internal::ApplyPackedReflectorsLLVB( offset, H, A );
+                internal::ApplyPackedReflectorsLLVB( offset, H, A );
             else if( order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsLLHF( offset, H, A );
+                internal::ApplyPackedReflectorsLLHF( offset, H, A );
             else
-                advanced::internal::ApplyPackedReflectorsLLHB( offset, H, A );
+                internal::ApplyPackedReflectorsLLHB( offset, H, A );
         }
         else
         {
             if( direction == VERTICAL && order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsLUVF( offset, H, A );
+                internal::ApplyPackedReflectorsLUVF( offset, H, A );
             else if( direction == VERTICAL )
-                advanced::internal::ApplyPackedReflectorsLUVB( offset, H, A );
+                internal::ApplyPackedReflectorsLUVB( offset, H, A );
             else if( order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsLUHF( offset, H, A );
+                internal::ApplyPackedReflectorsLUHF( offset, H, A );
             else
-                advanced::internal::ApplyPackedReflectorsLUHB( offset, H, A );
+                internal::ApplyPackedReflectorsLUHB( offset, H, A );
         }
     }
     else
@@ -98,24 +100,24 @@ elemental::advanced::ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsRLVF( offset, H, A );
+                internal::ApplyPackedReflectorsRLVF( offset, H, A );
             else if( direction == VERTICAL )
-                advanced::internal::ApplyPackedReflectorsRLVB( offset, H, A );
+                internal::ApplyPackedReflectorsRLVB( offset, H, A );
             else if( order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsRLHF( offset, H, A );
+                internal::ApplyPackedReflectorsRLHF( offset, H, A );
             else
-                advanced::internal::ApplyPackedReflectorsRLHB( offset, H, A );
+                internal::ApplyPackedReflectorsRLHB( offset, H, A );
         }
         else
         {
             if( direction == VERTICAL && order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsRUVF( offset, H, A );
+                internal::ApplyPackedReflectorsRUVF( offset, H, A );
             else if( direction == VERTICAL )
-                advanced::internal::ApplyPackedReflectorsRUVB( offset, H, A );
+                internal::ApplyPackedReflectorsRUVB( offset, H, A );
             else if( order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsRUHF( offset, H, A );
+                internal::ApplyPackedReflectorsRUHF( offset, H, A );
             else
-                advanced::internal::ApplyPackedReflectorsRUHB( offset, H, A );
+                internal::ApplyPackedReflectorsRUHB( offset, H, A );
         }
     }
 #ifndef RELEASE
@@ -125,7 +127,7 @@ elemental::advanced::ApplyPackedReflectors
 
 template<typename R> // representation of a real number
 inline void
-elemental::advanced::ApplyPackedReflectors
+ApplyPackedReflectors
 ( Side side, UpperOrLower uplo, 
   VectorDirection direction, ForwardOrBackward order, 
   Conjugation conjugation,
@@ -135,38 +137,38 @@ elemental::advanced::ApplyPackedReflectors
         DistMatrix<std::complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyPackedReflectors");
+    PushCallStack("ApplyPackedReflectors");
 #endif
     if( side == LEFT )
     {
         if( uplo == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsLLVF
+                internal::ApplyPackedReflectorsLLVF
                 ( conjugation, offset, H, t, A );
             else if( direction == VERTICAL )
-                advanced::internal::ApplyPackedReflectorsLLVB
+                internal::ApplyPackedReflectorsLLVB
                 ( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsLLHF
+                internal::ApplyPackedReflectorsLLHF
                 ( conjugation, offset, H, t, A );
             else
-                advanced::internal::ApplyPackedReflectorsLLHB
+                internal::ApplyPackedReflectorsLLHB
                 ( conjugation, offset, H, t, A );
         }
         else
         {
             if( direction == VERTICAL && order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsLUVF
+                internal::ApplyPackedReflectorsLUVF
                 ( conjugation, offset, H, t, A );
             else if( direction == VERTICAL )
-                advanced::internal::ApplyPackedReflectorsLUVB
+                internal::ApplyPackedReflectorsLUVB
                 ( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsLUHF
+                internal::ApplyPackedReflectorsLUHF
                 ( conjugation, offset, H, t, A );
             else
-                advanced::internal::ApplyPackedReflectorsLUHB
+                internal::ApplyPackedReflectorsLUHB
                 ( conjugation, offset, H, t, A );
         }
     }
@@ -175,31 +177,31 @@ elemental::advanced::ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( direction == VERTICAL && order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsRLVF
+                internal::ApplyPackedReflectorsRLVF
                 ( conjugation, offset, H, t, A );
             else if( direction == VERTICAL )
-                advanced::internal::ApplyPackedReflectorsRLVB
+                internal::ApplyPackedReflectorsRLVB
                 ( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsRLHF
+                internal::ApplyPackedReflectorsRLHF
                 ( conjugation, offset, H, t, A );
             else
-                advanced::internal::ApplyPackedReflectorsRLHB
+                internal::ApplyPackedReflectorsRLHB
                 ( conjugation, offset, H, t, A );
         }
         else
         {
             if( direction == VERTICAL && order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsRUVF
+                internal::ApplyPackedReflectorsRUVF
                 ( conjugation, offset, H, t, A );
             else if( direction == VERTICAL )
-                advanced::internal::ApplyPackedReflectorsRUVB
+                internal::ApplyPackedReflectorsRUVB
                 ( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                advanced::internal::ApplyPackedReflectorsRUHF
+                internal::ApplyPackedReflectorsRUHF
                 ( conjugation, offset, H, t, A );
             else
-                advanced::internal::ApplyPackedReflectorsRUHB
+                internal::ApplyPackedReflectorsRUHB
                 ( conjugation, offset, H, t, A );
         }
     }
@@ -210,7 +212,7 @@ elemental::advanced::ApplyPackedReflectors
 
 template<typename R> // representation of a real number
 inline void
-elemental::advanced::ApplyPackedReflectors
+ApplyPackedReflectors
 ( Side side, UpperOrLower uplo, 
   VectorDirection direction, ForwardOrBackward order,
   Conjugation conjugation,
@@ -220,14 +222,16 @@ elemental::advanced::ApplyPackedReflectors
         DistMatrix<std::complex<R>,MC,  MR  >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::ApplyPackedReflectors");
+    PushCallStack("ApplyPackedReflectors");
 #endif
     DistMatrix<std::complex<R>,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );
     tDiag = t;
-    advanced::ApplyPackedReflectors
+    ApplyPackedReflectors
     ( side, uplo, direction, order, conjugation, offset, H, tDiag, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -31,21 +31,23 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::SymmRU
+internal::SymmRU
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::SymmRU");
+    PushCallStack("internal::SymmRU");
 #endif
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Height() )
-        basic::internal::SymmRUA( alpha, A, B, beta, C );
+        internal::SymmRUA( alpha, A, B, beta, C );
     else
-        basic::internal::SymmRUC( alpha, A, B, beta, C );
+        internal::SymmRUC( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -53,13 +55,13 @@ elemental::basic::internal::SymmRU
 
 template<typename T>
 inline void
-elemental::basic::internal::SymmRUA
+internal::SymmRUA
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::SymmRUA");
+    PushCallStack("internal::SymmRUA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -86,7 +88,7 @@ elemental::basic::internal::SymmRUA
 
     Matrix<T> Z1Local;
 
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionDown
     ( B, BT,
          BB, 0 );
@@ -121,15 +123,15 @@ elemental::basic::internal::SymmRUA
         B1_STAR_MC.TransposeFrom( B1Trans_VC_STAR );
         Z1Trans_MC_STAR.SetToZero();
         Z1Trans_MR_STAR.SetToZero();
-        basic::internal::LocalSymmetricAccumulateRU
+        internal::LocalSymmetricAccumulateRU
         ( TRANSPOSE, alpha, A, B1_STAR_MC, B1Trans_MR_STAR, 
           Z1Trans_MC_STAR, Z1Trans_MR_STAR );
 
         Z1Trans.SumScatterFrom( Z1Trans_MC_STAR );
         Z1Trans_MR_MC = Z1Trans;
         Z1Trans_MR_MC.SumScatterUpdate( (T)1, Z1Trans_MR_STAR );
-        basic::Transpose( Z1Trans_MR_MC.LockedLocalMatrix(), Z1Local );
-        basic::Axpy( (T)1, Z1Local, C1.LocalMatrix() );
+        Transpose( Z1Trans_MR_MC.LockedLocalMatrix(), Z1Local );
+        Axpy( (T)1, Z1Local, C1.LocalMatrix() );
         //--------------------------------------------------------------------//
         B1Trans_MR_STAR.FreeAlignments();
         B1Trans_VC_STAR.FreeAlignments();
@@ -157,13 +159,13 @@ elemental::basic::internal::SymmRUA
 
 template<typename T>
 inline void
-elemental::basic::internal::SymmRUC
+internal::SymmRUC
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::SymmRUC");
+    PushCallStack("internal::SymmRUC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error("{A,B,C} must be distributed on the same grid");
 #endif
@@ -189,7 +191,7 @@ elemental::basic::internal::SymmRUC
     DistMatrix<T,MR,  STAR> ARowPanTrans_MR_STAR(g);
 
     // Start the algorithm
-    basic::Scal( beta, C );
+    Scal( beta, C );
     LockedPartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -234,11 +236,11 @@ elemental::basic::internal::SymmRUC
         ARowPanTrans_MR_STAR.MakeTrapezoidal( LEFT, LOWER );
         AColPanTrans_STAR_MR.MakeTrapezoidal( RIGHT, LOWER, -1 );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, TRANSPOSE, 
           alpha, B1_MC_STAR, ARowPanTrans_MR_STAR, (T)1, CRight );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL,
           alpha, B1_MC_STAR, AColPanTrans_STAR_MR, (T)1, CLeft );
         //--------------------------------------------------------------------//
@@ -265,3 +267,5 @@ elemental::basic::internal::SymmRUC
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

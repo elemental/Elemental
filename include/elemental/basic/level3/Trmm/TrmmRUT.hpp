@@ -31,6 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Right Upper Adjoint/Transpose (Non)Unit Trmm
 //   X := X triu(U)^T, 
 //   X := X triu(U)^H,
@@ -38,20 +40,20 @@
 //   X := X triuu(U)^H
 template<typename T>
 inline void
-elemental::basic::internal::TrmmRUT
+internal::TrmmRUT
 ( Orientation orientation, 
   Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& U,
                  DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrmmRUT");
+    PushCallStack("internal::TrmmRUT");
 #endif
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )
-        basic::internal::TrmmRUTA( orientation, diagonal, alpha, U, X );
+        internal::TrmmRUTA( orientation, diagonal, alpha, U, X );
     else
-        basic::internal::TrmmRUTC( orientation, diagonal, alpha, U, X );
+        internal::TrmmRUTC( orientation, diagonal, alpha, U, X );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -59,13 +61,13 @@ elemental::basic::internal::TrmmRUT
 
 template<typename T>
 inline void
-elemental::basic::internal::TrmmRUTA
+internal::TrmmRUTA
 ( Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& U,
                  DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrmmRUTA");
+    PushCallStack("internal::TrmmRUTA");
     if( U.Grid() != X.Grid() )
         throw std::logic_error("{U,X} must be distributed over the same grid");
 #endif
@@ -102,18 +104,16 @@ elemental::basic::internal::TrmmRUTA
         else
             X1AdjOrTrans_MR_STAR.TransposeFrom( X1 );
         Z1AdjOrTrans_MC_STAR.SetToZero();
-        basic::internal::LocalTrmmAccumulateRUT
+        internal::LocalTrmmAccumulateRUT
         ( orientation, diagonal, alpha,
           U, X1AdjOrTrans_MR_STAR, Z1AdjOrTrans_MC_STAR );
 
         Z1AdjOrTrans.SumScatterFrom( Z1AdjOrTrans_MC_STAR );
         Z1AdjOrTrans_MR_MC = Z1AdjOrTrans;
         if( orientation == ADJOINT )
-            basic::Adjoint
-            ( Z1AdjOrTrans_MR_MC.LocalMatrix(), X1.LocalMatrix() );
+            Adjoint( Z1AdjOrTrans_MR_MC.LocalMatrix(), X1.LocalMatrix() );
         else
-            basic::Transpose
-            ( Z1AdjOrTrans_MR_MC.LocalMatrix(), X1.LocalMatrix() );
+            Transpose( Z1AdjOrTrans_MR_MC.LocalMatrix(), X1.LocalMatrix() );
         //--------------------------------------------------------------------//
         X1AdjOrTrans_MR_STAR.FreeAlignments();
         Z1AdjOrTrans_MC_STAR.FreeAlignments();
@@ -132,14 +132,14 @@ elemental::basic::internal::TrmmRUTA
 
 template<typename T>
 inline void
-elemental::basic::internal::TrmmRUTC
+internal::TrmmRUTC
 ( Orientation orientation, 
   Diagonal diagonal,
   T alpha, const DistMatrix<T,MC,MR>& U,
                  DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::TrmmRUTC");
+    PushCallStack("internal::TrmmRUTC");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -172,7 +172,7 @@ elemental::basic::internal::TrmmRUTC
     DistMatrix<T,MC,  STAR> D1_MC_STAR(g);
     
     // Start the algorithm
-    basic::Scal( alpha, X );
+    Scal( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -195,13 +195,13 @@ elemental::basic::internal::TrmmRUTC
         //--------------------------------------------------------------------//
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( RIGHT, UPPER, orientation, diagonal, 
           (T)1, U11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
  
         U12_STAR_MR = U12;
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, orientation, (T)1, X2, U12_STAR_MR, (T)0, D1_MC_STAR );
         X1.SumScatterUpdate( (T)1, D1_MC_STAR );
        //--------------------------------------------------------------------//
@@ -225,14 +225,14 @@ elemental::basic::internal::TrmmRUTC
 
 template<typename T>
 inline void
-elemental::basic::internal::LocalTrmmAccumulateRUT
+internal::LocalTrmmAccumulateRUT
 ( Orientation orientation, Diagonal diagonal, T alpha,
   const DistMatrix<T,MC,MR  >& U,
   const DistMatrix<T,MR,STAR>& XAdjOrTrans_MR_STAR,
         DistMatrix<T,MC,STAR>& ZAdjOrTrans_MC_STAR )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTrmmAccumulateRUT");
+    PushCallStack("internal::LocalTrmmAccumulateRUT");
     if( U.Grid() != XAdjOrTrans_MR_STAR.Grid() ||
         XAdjOrTrans_MR_STAR.Grid() != ZAdjOrTrans_MC_STAR.Grid() )
         throw std::logic_error
@@ -314,11 +314,11 @@ elemental::basic::internal::LocalTrmmAccumulateRUT
         if( diagonal == UNIT )
             SetDiagonalToOne( D11 );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, alpha, D11, X1AdjOrTrans_MR_STAR,
           (T)1, Z1AdjOrTrans_MC_STAR );
 
-        basic::internal::LocalGemm
+        internal::LocalGemm
         ( NORMAL, NORMAL, alpha, U01, X1AdjOrTrans_MR_STAR,
           (T)1, Z0AdjOrTrans_MC_STAR );
         //--------------------------------------------------------------------//
@@ -347,3 +347,5 @@ elemental::basic::internal::LocalTrmmAccumulateRUT
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -55,8 +55,8 @@ main( int argc, char* argv[] )
         DistMatrix<double> X( n, n );
         X.SetToRandom();
 
-        const double trace = advanced::Trace( X );
-        const double det = advanced::Determinant( X );
+        const double trace = Trace( X );
+        const double det = Determinant( X );
         if( commRank == 0 )
             std::cout << "Tr(X) = " << trace << "\n"
                       << "Det(X) = " << det << std::endl;

@@ -36,16 +36,15 @@
 #include "elemental/basic.hpp"
 
 namespace elemental {
-namespace basic {
 namespace internal {
 
 //----------------------------------------------------------------------------//
 // Local BLAS-like: Level 3                                                   //
 //----------------------------------------------------------------------------//
 
-template<typename T, Distribution AColDist, Distribution ARowDist,
-                     Distribution BColDist, Distribution BRowDist,
-                     Distribution CColDist, Distribution CRowDist>
+template<typename T,Distribution AColDist,Distribution ARowDist,
+                     Distribution BColDist,Distribution BRowDist,
+                     Distribution CColDist,Distribution CRowDist>
 void LocalGemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,AColDist,ARowDist>& A, 
@@ -55,13 +54,13 @@ void LocalGemm
 template<typename T>
 void LocalHetrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A );
 
-template<typename T, Distribution BColDist, Distribution BRowDist>
+template<typename T,Distribution BColDist,Distribution BRowDist>
 void LocalTrmm
 ( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   T alpha, const DistMatrix<T,STAR,STAR>& A,
                  DistMatrix<T,BColDist,BRowDist>& B );
 
-template<typename F, Distribution XColDist, Distribution XRowDist>
+template<typename F,Distribution XColDist,Distribution XRowDist>
 void LocalTrsm
 ( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
   F alpha, const DistMatrix<F,STAR,STAR>& A, 
@@ -74,93 +73,93 @@ void LocalTrsm
 // Distributed BLAS-like helpers: Level 1                                     //
 //----------------------------------------------------------------------------//
             
-// Pseudo-partial-specializations of basic::Dot
-template<typename T, Distribution U, Distribution V>
+// Pseudo-partial-specializations of Dot
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y );
             
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y );
             
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y );
             
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dot
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y );
 
-// Pseudo-partial-specializations of basic::Dotu
-template<typename T, Distribution U, Distribution V>
+// Pseudo-partial-specializations of Dotu
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y );
             
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y );
             
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y );
             
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 T Dotu
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y );
 
@@ -1575,7 +1574,6 @@ TrsmGFlops
 ( Side side, int m, int n, double seconds );
 
 } // internal
-} // basic
 } // elemental
 
 //----------------------------------------------------------------------------//
@@ -1583,16 +1581,15 @@ TrsmGFlops
 //----------------------------------------------------------------------------//
 
 namespace elemental {
-namespace basic {
 namespace internal {
 
 //
 // Level 3 Local BLAS-like routines
 //
 
-template<typename T, Distribution AColDist, Distribution ARowDist,
-                     Distribution BColDist, Distribution BRowDist,
-                     Distribution CColDist, Distribution CRowDist>
+template<typename T,Distribution AColDist,Distribution ARowDist,
+                     Distribution BColDist,Distribution BRowDist,
+                     Distribution CColDist,Distribution CRowDist>
 inline void LocalGemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,AColDist,ARowDist>& A, 
@@ -1600,61 +1597,61 @@ inline void LocalGemm
   T beta,        DistMatrix<T,CColDist,CRowDist>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalGemm");
+    PushCallStack("internal::LocalGemm");
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         if( AColDist != CColDist || 
             ARowDist != BColDist || 
             BRowDist != CRowDist )
-            throw std::logic_error( "C[X,Y] = A[X,Z] B[Z,Y]." );
+            throw std::logic_error("C[X,Y] = A[X,Z] B[Z,Y]");
         if( A.ColAlignment() != C.ColAlignment() )
-            throw std::logic_error( "A's cols must align with C's rows." );
+            throw std::logic_error("A's cols must align with C's rows");
         if( A.RowAlignment() != B.ColAlignment() )
-            throw std::logic_error( "A's rows must align with B's cols." );
+            throw std::logic_error("A's rows must align with B's cols");
         if( B.RowAlignment() != C.RowAlignment() )
-            throw std::logic_error( "B's rows must align with C's rows." );
+            throw std::logic_error("B's rows must align with C's rows");
     }
     else if( orientationOfA == NORMAL )
     {
         if( AColDist != CColDist ||
             ARowDist != BRowDist ||
             BColDist != CRowDist )
-            throw std::logic_error( "C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)" );
+            throw std::logic_error("C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)");
         if( A.ColAlignment() != C.ColAlignment() )
-            throw std::logic_error( "A's cols must align with C's rows." );
+            throw std::logic_error("A's cols must align with C's rows");
         if( A.RowAlignment() != B.RowAlignment() )
-            throw std::logic_error( "A's rows must align with B's rows." );
+            throw std::logic_error("A's rows must align with B's rows");
         if( B.ColAlignment() != C.RowAlignment() )
-            throw std::logic_error( "B's cols must align with C's rows." );
+            throw std::logic_error("B's cols must align with C's rows");
     }
     else if( orientationOfB == NORMAL )
     {
         if( ARowDist != CColDist ||
             AColDist != BColDist ||
             BRowDist != CRowDist )
-            throw std::logic_error( "C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]" );
+            throw std::logic_error("C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]");
         if( A.RowAlignment() != C.ColAlignment() )
-            throw std::logic_error( "A's rows must align with C's cols." );
+            throw std::logic_error("A's rows must align with C's cols");
         if( A.ColAlignment() != B.ColAlignment() )
-            throw std::logic_error( "A's cols must align with B's cols." );
+            throw std::logic_error("A's cols must align with B's cols");
         if( B.RowAlignment() != C.RowAlignment() )
-            throw std::logic_error( "B's rows must align with C's rows." );
+            throw std::logic_error("B's rows must align with C's rows");
     }
     else
     {
         if( ARowDist != CColDist ||
             AColDist != BRowDist ||
             BColDist != CRowDist )
-            throw std::logic_error( "C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)" );
+            throw std::logic_error("C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)");
         if( A.RowAlignment() != C.ColAlignment() )
-            throw std::logic_error( "A's rows must align with C's cols." );
+            throw std::logic_error("A's rows must align with C's cols");
         if( A.ColAlignment() != B.RowAlignment() )
-            throw std::logic_error( "A's cols must align with B's rows." );
+            throw std::logic_error("A's cols must align with B's rows");
         if( B.ColAlignment() != C.RowAlignment() )
-            throw std::logic_error( "B's cols must align with C's rows." );
+            throw std::logic_error("B's cols must align with C's rows");
     }
 #endif
-    basic::Gemm
+    Gemm
     ( orientationOfA , orientationOfB, 
       alpha, A.LockedLocalMatrix(), B.LockedLocalMatrix(),
       beta, C.LocalMatrix() );
@@ -1668,15 +1665,15 @@ inline void
 LocalHetrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalHetrmm");
+    PushCallStack("internal::LocalHetrmm");
 #endif
-    basic::Hetrmm( uplo, A.LocalMatrix() );
+    Hetrmm( uplo, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T, Distribution BColDist, Distribution BRowDist>
+template<typename T,Distribution BColDist,Distribution BRowDist>
 inline void
 LocalTrmm
 ( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
@@ -1684,13 +1681,13 @@ LocalTrmm
                  DistMatrix<T,BColDist,BRowDist>& B )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTrmm");
+    PushCallStack("internal::LocalTrmm");
     if( (side == LEFT && BColDist != STAR) || 
         (side == RIGHT && BRowDist != STAR) )
         throw std::logic_error
-        ( "Distribution of RHS must conform with that of triangle." );
+        ("Distribution of RHS must conform with that of triangle");
 #endif
-    basic::Trmm
+    Trmm
     ( side, uplo, orientation, diagonal, 
       alpha, A.LockedLocalMatrix(), B.LocalMatrix() );
 #ifndef RELEASE
@@ -1698,7 +1695,7 @@ LocalTrmm
 #endif
 }
 
-template<typename F, Distribution XColDist, Distribution XRowDist>
+template<typename F,Distribution XColDist,Distribution XRowDist>
 inline void
 LocalTrsm
 ( Side side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal,
@@ -1707,13 +1704,13 @@ LocalTrsm
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::LocalTrsm");
+    PushCallStack("internal::LocalTrsm");
     if( (side == LEFT && XColDist != STAR) || 
         (side == RIGHT && XRowDist != STAR) )
         throw std::logic_error
-        ( "Distribution of RHS must conform with that of triangle." );
+        ("Distribution of RHS must conform with that of triangle");
 #endif
-    basic::Trsm
+    Trsm
     ( side, uplo, orientation, diagonal,
       alpha, A.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
 #ifndef RELEASE
@@ -2010,7 +2007,6 @@ TrsmGFlops<dcomplex>
 { return 4.*TrsmGFlops<float>(side,m,n,seconds); }
             
 } // internal
-} // basic
 } // elemental
 
 #endif /* ELEMENTAL_BASIC_INTERNAL_HPP */

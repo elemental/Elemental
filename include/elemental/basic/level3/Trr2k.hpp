@@ -49,11 +49,13 @@
 #include "./Trr2k/Trr2kTTTN.hpp"
 #include "./Trr2k/Trr2kTTTT.hpp"
 
+namespace elemental {
+
 // This will be enabled as soon as the underlying routines are written
 /*
 template<typename T>
 inline void
-elemental::basic::Trr2k
+Trr2k
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
@@ -62,7 +64,7 @@ elemental::basic::Trr2k
   T beta,        Matrix<T>& E )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trr2k");
+    PushCallStack("Trr2k");
 #endif
     const bool normalA = orientationOfA == NORMAL;
     const bool normalB = orientationOfB == NORMAL;
@@ -72,70 +74,70 @@ elemental::basic::Trr2k
     switch( subcase )
     {
     case 0: 
-        basic::internal::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
+        internal::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
         break;
     case 1:
-        basic::internal::Trr2kNNNT
+        internal::Trr2kNNNT
         ( uplo, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 2:
-        basic::internal::Trr2kNNTN
+        internal::Trr2kNNTN
         ( uplo, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 3:
-        basic::internal::Trr2kNNTT
+        internal::Trr2kNNTT
         ( uplo, orientationOfC, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 4:
-        basic::internal::Trr2kNTNN
+        internal::Trr2kNTNN
         ( uplo, orientationOfB, alpha, A, B, C, D, beta, E );
         break;
     case 5:
-        basic::internal::Trr2kNTNT
+        internal::Trr2kNTNT
         ( uplo, orientationOfB, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 6:
-        basic::internal::Trr2kNTTN
+        internal::Trr2kNTTN
         ( uplo, orientationOfB, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 7:
-        basic::internal::Trr2kNTTT
+        internal::Trr2kNTTT
         ( uplo, orientationOfB, orientationOfC, orientationOfD, 
           alpha, A, B, C, D, beta, E );
         break;
     case 8:
-        basic::internal::Trr2kTNNN
+        internal::Trr2kTNNN
         ( uplo, orientationOfA, alpha, A, B, C, D, beta, E );
         break;
     case 9:
-        basic::internal::Trr2kTNNT
+        internal::Trr2kTNNT
         ( uplo, orientationOfA, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 10:
-        basic::internal::Trr2kTNTN
+        internal::Trr2kTNTN
         ( uplo, orientationOfA, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 11:
-        basic::internal::Trr2kTNTT
+        internal::Trr2kTNTT
         ( uplo, orientationOfA, orientationOfC, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
     case 12:
-        basic::internal::Trr2kTTNN
+        internal::Trr2kTTNN
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, C, D, beta, E );
         break;
     case 13:
-        basic::internal::Trr2kTTNT
+        internal::Trr2kTTNT
         ( uplo, orientationOfA, orientationOfB, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
     case 14:
-        basic::internal::Trr2kTTTN
+        internal::Trr2kTTTN
         ( uplo, orientationOfA, orientationOfB, orientationOfC,
           alpha, A, B, C, D, beta, E );
         break;
-    case 14:
-        basic::internal::Trr2kTTTN
+    case 15:
+        internal::Trr2kTTTN
         ( uplo, orientationOfA, orientationOfB, orientationOfC, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
@@ -150,7 +152,7 @@ elemental::basic::Trr2k
 
 template<typename T>
 inline void
-elemental::basic::Trr2k
+Trr2k
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
@@ -161,7 +163,7 @@ elemental::basic::Trr2k
   T beta,        DistMatrix<T,MC,MR>& E )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trr2k");
+    PushCallStack("Trr2k");
 #endif
     const bool normalA = orientationOfA == NORMAL;
     const bool normalB = orientationOfB == NORMAL;
@@ -171,70 +173,70 @@ elemental::basic::Trr2k
     switch( subcase )
     {
     case 0: 
-        basic::internal::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
+        internal::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
         break;
     case 1:
-        basic::internal::Trr2kNNNT
+        internal::Trr2kNNNT
         ( uplo, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 2:
-        basic::internal::Trr2kNNTN
+        internal::Trr2kNNTN
         ( uplo, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 3:
-        basic::internal::Trr2kNNTT
+        internal::Trr2kNNTT
         ( uplo, orientationOfC, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 4:
-        basic::internal::Trr2kNTNN
+        internal::Trr2kNTNN
         ( uplo, orientationOfB, alpha, A, B, C, D, beta, E );
         break;
     case 5:
-        basic::internal::Trr2kNTNT
+        internal::Trr2kNTNT
         ( uplo, orientationOfB, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 6:
-        basic::internal::Trr2kNTTN
+        internal::Trr2kNTTN
         ( uplo, orientationOfB, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 7:
-        basic::internal::Trr2kNTTT
+        internal::Trr2kNTTT
         ( uplo, orientationOfB, orientationOfC, orientationOfD, 
           alpha, A, B, C, D, beta, E );
         break;
     case 8:
-        basic::internal::Trr2kTNNN
+        internal::Trr2kTNNN
         ( uplo, orientationOfA, alpha, A, B, C, D, beta, E );
         break;
     case 9:
-        basic::internal::Trr2kTNNT
+        internal::Trr2kTNNT
         ( uplo, orientationOfA, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 10:
-        basic::internal::Trr2kTNTN
+        internal::Trr2kTNTN
         ( uplo, orientationOfA, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 11:
-        basic::internal::Trr2kTNTT
+        internal::Trr2kTNTT
         ( uplo, orientationOfA, orientationOfC, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
     case 12:
-        basic::internal::Trr2kTTNN
+        internal::Trr2kTTNN
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, C, D, beta, E );
         break;
     case 13:
-        basic::internal::Trr2kTTNT
+        internal::Trr2kTTNT
         ( uplo, orientationOfA, orientationOfB, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
     case 14:
-        basic::internal::Trr2kTTTN
+        internal::Trr2kTTTN
         ( uplo, orientationOfA, orientationOfB, orientationOfC,
           alpha, A, B, C, D, beta, E );
         break;
-    case 14:
-        basic::internal::Trr2kTTTN
+    case 15:
+        internal::Trr2kTTTN
         ( uplo, orientationOfA, orientationOfB, orientationOfC, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
@@ -245,3 +247,5 @@ elemental::basic::Trr2k
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -31,14 +31,16 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::HerkLC
+internal::HerkLC
 ( T alpha, const DistMatrix<T,MC,MR>& A,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::HerkLC");
+    PushCallStack("internal::HerkLC");
     if( A.Grid() != C.Grid() )
         throw std::logic_error
         ("A and C must be distributed over the same grid");
@@ -83,7 +85,7 @@ elemental::basic::internal::HerkLC
         A1_STAR_VR.TransposeFrom( A1Trans_MR_STAR );
         A1_STAR_MC = A1_STAR_VR;
 
-        basic::internal::LocalTrrk
+        internal::LocalTrrk
         ( LOWER, ADJOINT, TRANSPOSE,
           alpha, A1_STAR_MC, A1Trans_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
@@ -100,3 +102,5 @@ elemental::basic::internal::HerkLC
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

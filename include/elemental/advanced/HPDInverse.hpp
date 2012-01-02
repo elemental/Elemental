@@ -34,19 +34,22 @@
 #include "./HPDInverse/HPDInverseLVar2.hpp"
 #include "./HPDInverse/HPDInverseUVar2.hpp"
 
-template<typename F> // represents a real or complex number
+namespace elemental {
+
+template<typename F>
 inline void
-elemental::advanced::HPDInverse
-( UpperOrLower uplo, DistMatrix<F,MC,MR>& A  )
+HPDInverse( UpperOrLower uplo, DistMatrix<F,MC,MR>& A  )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HPDInverse");
+    PushCallStack("HPDInverse");
 #endif
     if( uplo == LOWER )
-        advanced::internal::HPDInverseLVar2( A );
+        internal::HPDInverseLVar2( A );
     else
-        advanced::internal::HPDInverseUVar2( A );
+        internal::HPDInverseUVar2( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -36,9 +36,11 @@
 #include "./Trsv/TrsvUN.hpp"
 #include "./Trsv/TrsvUT.hpp"
 
+namespace elemental {
+
 template<typename F>
 inline void
-elemental::basic::Trsv
+Trsv
 ( UpperOrLower uplo,
   Orientation orientation,
   Diagonal diagonal,
@@ -46,23 +48,25 @@ elemental::basic::Trsv
         DistMatrix<F,MC,MR>& x   )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Trsv");
+    PushCallStack("Trsv");
 #endif
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
-            basic::internal::TrsvLN( diagonal, A, x );
+            internal::TrsvLN( diagonal, A, x );
         else
-            basic::internal::TrsvLT( orientation, diagonal, A, x );
+            internal::TrsvLT( orientation, diagonal, A, x );
     }
     else
     {
         if( orientation == NORMAL )
-            basic::internal::TrsvUN( diagonal, A, x );
+            internal::TrsvUN( diagonal, A, x );
         else
-            basic::internal::TrsvUT( orientation, diagonal, A, x );
+            internal::TrsvUT( orientation, diagonal, A, x );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

@@ -31,24 +31,52 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 #include "elemental.hpp"
-using namespace elemental;
 
-//----------------------------------------------------------------------------//
-// Variables for core routines                                                //
-//----------------------------------------------------------------------------//
 namespace {
+// Core routines
 bool initializedElemental = false;
 bool elementalInitializedMpi;
 std::stack<int> blocksizeStack;
-Grid* defaultGrid = 0;
+elemental::Grid* defaultGrid = 0;
+
+// Debugging
+#ifndef RELEASE
+std::stack<std::string> callStack;
+#endif
+
+// Tuning paramters for basic routines
+int localHemvFloatBlocksize = 64;
+int localHemvDoubleBlocksize = 64;
+int localHemvComplexFloatBlocksize = 64;
+int localHemvComplexDoubleBlocksize = 64;
+
+int localSymvFloatBlocksize = 64;
+int localSymvDoubleBlocksize = 64;
+int localSymvComplexFloatBlocksize = 64;
+int localSymvComplexDoubleBlocksize = 64;
+
+int localTrr2kFloatBlocksize = 64;
+int localTrr2kDoubleBlocksize = 64;
+int localTrr2kComplexFloatBlocksize = 64;
+int localTrr2kComplexDoubleBlocksize = 64;
+
+int localTrrkFloatBlocksize = 64;
+int localTrrkDoubleBlocksize = 64;
+int localTrrkComplexFloatBlocksize = 64;
+int localTrrkComplexDoubleBlocksize = 64;
+
+// Tuning parameters for advanced routines
+using namespace elemental;
+HermitianTridiagApproach tridiagApproach = HERMITIAN_TRIDIAG_DEFAULT;
+GridOrder gridOrder = ROW_MAJOR;
 }
 
-bool
-elemental::Initialized()
+namespace elemental {
+
+bool Initialized()
 { return ::initializedElemental; }
 
-void
-elemental::Initialize( int& argc, char**& argv )
+void Initialize( int& argc, char**& argv )
 {
     // If Elemental is currently initialized, then this is a no-op
     if( ::initializedElemental )
@@ -89,10 +117,10 @@ elemental::Initialize( int& argc, char**& argv )
     defaultGrid = new Grid( mpi::COMM_WORLD );
 
     // Build the pivot operations needed by the distributed LU
-    advanced::internal::CreatePivotOp<float>();
-    advanced::internal::CreatePivotOp<double>();
-    advanced::internal::CreatePivotOp<scomplex>();
-    advanced::internal::CreatePivotOp<dcomplex>();
+    internal::CreatePivotOp<float>();
+    internal::CreatePivotOp<double>();
+    internal::CreatePivotOp<std::complex<float> >();
+    internal::CreatePivotOp<std::complex<double> >();
 
     // Seed the parallel random number generator, PLCG
     plcg::UInt64 seed;
@@ -107,8 +135,7 @@ elemental::Initialize( int& argc, char**& argv )
     ::initializedElemental = true;
 }
 
-void
-elemental::Finalize()
+void Finalize()
 {
 #ifndef RELEASE
     PushCallStack("Finalize");
@@ -125,10 +152,10 @@ elemental::Finalize()
     else if( ::elementalInitializedMpi )
     {
         // Destroy the pivot ops needed by the distributed LU
-        advanced::internal::DestroyPivotOp<float>();
-        advanced::internal::DestroyPivotOp<double>();
-        advanced::internal::DestroyPivotOp<scomplex>();
-        advanced::internal::DestroyPivotOp<dcomplex>();
+        internal::DestroyPivotOp<float>();
+        internal::DestroyPivotOp<double>();
+        internal::DestroyPivotOp<std::complex<float> >();
+        internal::DestroyPivotOp<std::complex<double> >();
 
         // Delete the default grid
         delete ::defaultGrid;
@@ -147,24 +174,19 @@ elemental::Finalize()
 #endif
 }
 
-int
-elemental::Blocksize()
+int Blocksize()
 { return ::blocksizeStack.top(); }
 
-void
-elemental::SetBlocksize( int blocksize )
+void SetBlocksize( int blocksize )
 { ::blocksizeStack.top() = blocksize; }
 
-void
-elemental::PushBlocksizeStack( int blocksize )
+void PushBlocksizeStack( int blocksize )
 { ::blocksizeStack.push( blocksize ); }
 
-void
-elemental::PopBlocksizeStack()
+void PopBlocksizeStack()
 { ::blocksizeStack.pop(); }
 
-const Grid&
-elemental::DefaultGrid()
+const Grid& DefaultGrid()
 {
 #ifndef RELEASE
     PushCallStack("DefaultGrid");
@@ -179,18 +201,13 @@ elemental::DefaultGrid()
 
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
 #ifndef RELEASE
-namespace { std::stack<std::string> callStack; }
-
-void
-elemental::PushCallStack( std::string s )
+void PushCallStack( std::string s )
 { ::callStack.push(s); }
 
-void
-elemental::PopCallStack()
+void PopCallStack()
 { ::callStack.pop(); }
 
-void
-elemental::DumpCallStack()
+void DumpCallStack()
 {
     std::ostringstream msg;
     while( ! ::callStack.empty() )
@@ -202,229 +219,144 @@ elemental::DumpCallStack()
 }
 #endif // RELEASE
 
-//----------------------------------------------------------------------------//
-// Variables for basic routines                                               //
-//----------------------------------------------------------------------------//
-namespace {
-int localHemvFloatBlocksize = 64;
-int localHemvDoubleBlocksize = 64;
-int localHemvComplexFloatBlocksize = 64;
-int localHemvComplexDoubleBlocksize = 64;
-
-int localSymvFloatBlocksize = 64;
-int localSymvDoubleBlocksize = 64;
-int localSymvComplexFloatBlocksize = 64;
-int localSymvComplexDoubleBlocksize = 64;
-
-int localTrr2kFloatBlocksize = 64;
-int localTrr2kDoubleBlocksize = 64;
-int localTrr2kComplexFloatBlocksize = 64;
-int localTrr2kComplexDoubleBlocksize = 64;
-
-int localTrrkFloatBlocksize = 64;
-int localTrrkDoubleBlocksize = 64;
-int localTrrkComplexFloatBlocksize = 64;
-int localTrrkComplexDoubleBlocksize = 64;
-}
-
 template<>
-void
-elemental::basic::SetLocalHemvBlocksize<float>
-( int blocksize )
+void SetLocalHemvBlocksize<float>( int blocksize )
 { ::localHemvFloatBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalHemvBlocksize<double>
-( int blocksize )
+void SetLocalHemvBlocksize<double>( int blocksize )
 { ::localHemvDoubleBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalHemvBlocksize< std::complex<float> >
-( int blocksize )
+void SetLocalHemvBlocksize<std::complex<float> >( int blocksize )
 { ::localHemvComplexFloatBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalHemvBlocksize< std::complex<double> >
-( int blocksize )
+void SetLocalHemvBlocksize<std::complex<double> >( int blocksize )
 { ::localHemvComplexDoubleBlocksize = blocksize; }
 
 template<>
-int
-elemental::basic::LocalHemvBlocksize<float>()
+int LocalHemvBlocksize<float>()
 { return ::localHemvFloatBlocksize; }
 
 template<>
-int
-elemental::basic::LocalHemvBlocksize<double>()
+int LocalHemvBlocksize<double>()
 { return ::localHemvDoubleBlocksize; }
 
 template<>
-int
-elemental::basic::LocalHemvBlocksize<scomplex>()
+int LocalHemvBlocksize<std::complex<float> >()
 { return ::localHemvComplexFloatBlocksize; }
 
 template<>
-int
-elemental::basic::LocalHemvBlocksize<dcomplex>()
+int LocalHemvBlocksize<std::complex<double> >()
 { return ::localHemvComplexDoubleBlocksize; }
 
 template<>
-void
-elemental::basic::SetLocalSymvBlocksize<float>
-( int blocksize )
+void SetLocalSymvBlocksize<float>( int blocksize )
 { ::localSymvFloatBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalSymvBlocksize<double>
-( int blocksize )
+void SetLocalSymvBlocksize<double>( int blocksize )
 { ::localSymvDoubleBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalSymvBlocksize< std::complex<float> >
-( int blocksize )
+void SetLocalSymvBlocksize<std::complex<float> >( int blocksize )
 { ::localSymvComplexFloatBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalSymvBlocksize< std::complex<double> >
-( int blocksize )
+void SetLocalSymvBlocksize<std::complex<double> >( int blocksize )
 { ::localSymvComplexDoubleBlocksize = blocksize; }
 
 template<>
-int
-elemental::basic::LocalSymvBlocksize<float>()
+int LocalSymvBlocksize<float>()
 { return ::localSymvFloatBlocksize; }
 
 template<>
-int
-elemental::basic::LocalSymvBlocksize<double>()
+int LocalSymvBlocksize<double>()
 { return ::localSymvDoubleBlocksize; }
 
 template<>
-int
-elemental::basic::LocalSymvBlocksize<scomplex>()
+int LocalSymvBlocksize<std::complex<float> >()
 { return ::localSymvComplexFloatBlocksize; }
 
 template<>
-int
-elemental::basic::LocalSymvBlocksize<dcomplex>()
+int LocalSymvBlocksize<std::complex<double> >()
 { return ::localSymvComplexDoubleBlocksize; }
 
 template<>
-void
-elemental::basic::SetLocalTrr2kBlocksize<float>
-( int blocksize )
+void SetLocalTrr2kBlocksize<float>( int blocksize )
 { ::localTrr2kFloatBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalTrr2kBlocksize<double>
-( int blocksize )
+void SetLocalTrr2kBlocksize<double>( int blocksize )
 { ::localTrr2kDoubleBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalTrr2kBlocksize< std::complex<float> >
-( int blocksize )
+void SetLocalTrr2kBlocksize<std::complex<float> >( int blocksize )
 { ::localTrr2kComplexFloatBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalTrr2kBlocksize< std::complex<double> >
-( int blocksize )
+void SetLocalTrr2kBlocksize<std::complex<double> >( int blocksize )
 { ::localTrr2kComplexDoubleBlocksize = blocksize; }
 
 template<>
-int
-elemental::basic::LocalTrr2kBlocksize<float>()
+int LocalTrr2kBlocksize<float>()
 { return ::localTrr2kFloatBlocksize; }
 
 template<>
-int
-elemental::basic::LocalTrr2kBlocksize<double>()
+int LocalTrr2kBlocksize<double>()
 { return ::localTrr2kDoubleBlocksize; }
 
 template<>
-int
-elemental::basic::LocalTrr2kBlocksize<scomplex>()
+int LocalTrr2kBlocksize<std::complex<float> >()
 { return ::localTrr2kComplexFloatBlocksize; }
 
 template<>
-int
-elemental::basic::LocalTrr2kBlocksize<dcomplex>()
+int LocalTrr2kBlocksize<std::complex<double> >()
 { return ::localTrr2kComplexDoubleBlocksize; }
 
 template<>
-void
-elemental::basic::SetLocalTrrkBlocksize<float>
-( int blocksize )
+void SetLocalTrrkBlocksize<float>( int blocksize )
 { ::localTrrkFloatBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalTrrkBlocksize<double>
-( int blocksize )
+void SetLocalTrrkBlocksize<double>( int blocksize )
 { ::localTrrkDoubleBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalTrrkBlocksize< std::complex<float> >
-( int blocksize )
+void SetLocalTrrkBlocksize<std::complex<float> >( int blocksize )
 { ::localTrrkComplexFloatBlocksize = blocksize; }
 
 template<>
-void
-elemental::basic::SetLocalTrrkBlocksize< std::complex<double> >
-( int blocksize )
+void SetLocalTrrkBlocksize<std::complex<double> >( int blocksize )
 { ::localTrrkComplexDoubleBlocksize = blocksize; }
 
 template<>
-int
-elemental::basic::LocalTrrkBlocksize<float>()
+int LocalTrrkBlocksize<float>()
 { return ::localTrrkFloatBlocksize; }
 
 template<>
-int
-elemental::basic::LocalTrrkBlocksize<double>()
+int LocalTrrkBlocksize<double>()
 { return ::localTrrkDoubleBlocksize; }
 
 template<>
-int
-elemental::basic::LocalTrrkBlocksize<scomplex>()
+int LocalTrrkBlocksize<std::complex<float> >()
 { return ::localTrrkComplexFloatBlocksize; }
 
 template<>
-int
-elemental::basic::LocalTrrkBlocksize<dcomplex>()
+int LocalTrrkBlocksize<std::complex<double> >()
 { return ::localTrrkComplexDoubleBlocksize; }
 
-//----------------------------------------------------------------------------//
-// Variables for advanced routines                                            //
-//----------------------------------------------------------------------------//
-namespace {
-HermitianTridiagApproach tridiagApproach = HERMITIAN_TRIDIAG_DEFAULT;
-GridOrder gridOrder = ROW_MAJOR;
-}
-
-void
-elemental::advanced::SetHermitianTridiagApproach
-( HermitianTridiagApproach approach )
+void SetHermitianTridiagApproach( HermitianTridiagApproach approach )
 { ::tridiagApproach = approach; }
 
-HermitianTridiagApproach
-elemental::advanced::GetHermitianTridiagApproach()
+HermitianTridiagApproach GetHermitianTridiagApproach()
 { return ::tridiagApproach; }
 
-void
-elemental::advanced::SetHermitianTridiagGridOrder( GridOrder order )
+void SetHermitianTridiagGridOrder( GridOrder order )
 { ::gridOrder = order; }
 
-GridOrder
-elemental::advanced::GetHermitianTridiagGridOrder()
+GridOrder GetHermitianTridiagGridOrder()
 { return ::gridOrder; }
 
+} // namespace elemental

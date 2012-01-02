@@ -41,13 +41,14 @@
 #include "./HermitianTridiag/HermitianTridiagUSquare.hpp"
 #include "./HermitianTridiag/LocalHermitianTridiag.hpp"
 
+namespace elemental {
+
 template<typename R>
 inline void
-elemental::advanced::HermitianTridiag
-( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
+HermitianTridiag( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianTridiag");
+    PushCallStack("HermitianTridiag");
 #endif
     if( IsComplex<R>::val )
         throw std::logic_error("Called real routine with complex datatype");
@@ -58,15 +59,15 @@ elemental::advanced::HermitianTridiag
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( uplo == LOWER )
-            advanced::internal::HermitianTridiagL( A );
+            internal::HermitianTridiagL( A );
         else 
-            advanced::internal::HermitianTridiagU( A );
+            internal::HermitianTridiagU( A );
     }
     else if( approach == HERMITIAN_TRIDIAG_SQUARE )
     {
         // Drop down to a square mesh
-        int p = g.Size();
-        int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
+        const int p = g.Size();
+        const int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
         if( order == COLUMN_MAJOR )
@@ -94,9 +95,9 @@ elemental::advanced::HermitianTridiag
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
         if( uplo == LOWER )
-            advanced::internal::HermitianTridiagLSquare( ASquare );
+            internal::HermitianTridiagLSquare( ASquare );
         else
-            advanced::internal::HermitianTridiagUSquare( ASquare ); 
+            internal::HermitianTridiagUSquare( ASquare ); 
         A = ASquare;
 
         mpi::GroupFree( squareGroup );
@@ -108,16 +109,16 @@ elemental::advanced::HermitianTridiag
         if( g.Height() == g.Width() )
         {
             if( uplo == LOWER )
-                advanced::internal::HermitianTridiagLSquare( A );
+                internal::HermitianTridiagLSquare( A );
             else
-                advanced::internal::HermitianTridiagUSquare( A );
+                internal::HermitianTridiagUSquare( A );
         }
         else
         {
             if( uplo == LOWER )
-                advanced::internal::HermitianTridiagL( A );
+                internal::HermitianTridiagL( A );
             else
-                advanced::internal::HermitianTridiagU( A );
+                internal::HermitianTridiagU( A );
         }
     }
 #ifndef RELEASE
@@ -127,13 +128,13 @@ elemental::advanced::HermitianTridiag
 
 template<typename R> 
 inline void
-elemental::advanced::HermitianTridiag
+HermitianTridiag
 ( UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR  >& A,
   DistMatrix<std::complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianTridiag");
+    PushCallStack("HermitianTridiag");
 #endif
     typedef std::complex<R> C;
 
@@ -144,15 +145,15 @@ elemental::advanced::HermitianTridiag
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( uplo == LOWER )
-            advanced::internal::HermitianTridiagL( A, t );
+            internal::HermitianTridiagL( A, t );
         else
-            advanced::internal::HermitianTridiagU( A, t );
+            internal::HermitianTridiagU( A, t );
     }
     else if( approach == HERMITIAN_TRIDIAG_SQUARE )
     {
         // Drop down to a square mesh 
-        int p = g.Size();
-        int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
+        const int p = g.Size();
+        const int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
         if( order == COLUMN_MAJOR )
@@ -181,9 +182,9 @@ elemental::advanced::HermitianTridiag
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
         if( uplo == LOWER )
-            advanced::internal::HermitianTridiagLSquare( ASquare, tSquare );
+            internal::HermitianTridiagLSquare( ASquare, tSquare );
         else
-            advanced::internal::HermitianTridiagUSquare( ASquare, tSquare ); 
+            internal::HermitianTridiagUSquare( ASquare, tSquare ); 
         A = ASquare;
         t = tSquare;
 
@@ -196,16 +197,16 @@ elemental::advanced::HermitianTridiag
         if( g.Height() == g.Width() )
         {
             if( uplo == LOWER )
-                advanced::internal::HermitianTridiagLSquare( A, t );
+                internal::HermitianTridiagLSquare( A, t );
             else
-                advanced::internal::HermitianTridiagUSquare( A, t ); 
+                internal::HermitianTridiagUSquare( A, t ); 
         }
         else
         {
             if( uplo == LOWER )
-                advanced::internal::HermitianTridiagL( A, t );
+                internal::HermitianTridiagL( A, t );
             else
-                advanced::internal::HermitianTridiagU( A, t );
+                internal::HermitianTridiagU( A, t );
         }
     }
 #ifndef RELEASE
@@ -213,3 +214,4 @@ elemental::advanced::HermitianTridiag
 #endif
 }
 
+} // namespace elemental

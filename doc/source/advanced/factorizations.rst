@@ -9,11 +9,11 @@ triangular, and Cholesky factorization provides such an :math:`L` (or :math:`U`)
 given an HPD :math:`A`. If :math:`A` is found to be numerically indefinite, then 
 a ``NonHPDMatrixException`` will be thrown.
 
-.. cpp:function:: void advanced::Cholesky( UpperOrLower uplo, Matrix<F>& A )
+.. cpp:function:: void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 
    Overwrite the `uplo` triangle of the HPD matrix `A` with its Cholesky factor.
 
-.. cpp:function:: void advanced::Cholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void Cholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 
    Overwrite the `uplo` triangle of the distributed HPD matrix `A` with its 
    Cholesky factor.
@@ -37,7 +37,7 @@ and
 If :math:`A` is found to have eigenvalues less than :math:`-n \epsilon ||A||_2`, 
 then a ``NonHPSDMatrixException`` will be thrown.
 
-.. cpp:function:: void advanced::HPSDCholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void HPSDCholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 
    Overwrite the `uplo` triangle of the distributed HPSD matrix `A` with its
    Cholesky factor.
@@ -50,7 +50,7 @@ attempts to compute said matrix square root and throws a
 ``NonHPSDMatrixException`` if any sufficiently negative eigenvalues are 
 computed.
 
-.. cpp:function:: void advanced::SquareRoot( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void SquareRoot( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 
    Overwrites the distributed matrix `A` with its matrix square root.
 
@@ -67,14 +67,14 @@ be numerically singular, then a ``SingularMatrixException`` will be thrown.
 
       The following routines do not pivot, so please use with caution.
 
-.. cpp:function:: void advanced::LDLH( Matrix<F>& A, Matrix<F>& d )
+.. cpp:function:: void LDLH( Matrix<F>& A, Matrix<F>& d )
 
    Overwrite the strictly lower triangle of :math:`A` with the strictly lower 
    portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
    the diagonal with :math:`D`, and then also return the diagonal of :math:`D` 
    in the vector `d`. 
 
-.. cpp:function:: void advanced::LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
+.. cpp:function:: void LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 
    Same as above, but for distributed matrices.
 
@@ -88,14 +88,14 @@ be numerically singular, then a ``SingularMatrixException`` will be thrown.
 
       The following routines do not pivot, so please use with caution.
 
-.. cpp:function:: void advanced::LDLT( Matrix<F>& A, Matrix<F>& d )
+.. cpp:function:: void LDLT( Matrix<F>& A, Matrix<F>& d )
 
    Overwrite the strictly lower triangle of :math:`A` with the strictly lower 
    portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
    the diagonal with :math:`D`, and then also return the diagonal of :math:`D` 
    in the vector `d`. 
 
-.. cpp:function:: void advanced::LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
+.. cpp:function:: void LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 
    Same as above, but for distributed matrices.
 
@@ -111,11 +111,11 @@ portion of :math:`A` can be overwritten with the strictly lower portion of
 :math:`L`. If :math:`A` is found to be numerically singular, then a 
 ``SingularMatrixException`` will be thrown.
 
-.. cpp:function:: void advanced::LU( Matrix<F>& A )
+.. cpp:function:: void LU( Matrix<F>& A )
 
    Overwrites :math:`A` with its LU decomposition.
 
-.. cpp:function:: void advanced::LU( DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void LU( DistMatrix<F,MC,MR>& A )
 
    Overwrites :math:`A` with its LU decomposition.
 
@@ -126,12 +126,12 @@ pivoted). An LU factorization with partial pivoting therefore computes
 :math:`P`, :math:`L`, and :math:`U` such that :math:`PA=LU`, where :math:`L` 
 and :math:`U` are as described above and :math:`P` is a permutation matrix.
 
-.. cpp:function:: void advanced::LU( Matrix<F>& A, Matrix<int>& p )
+.. cpp:function:: void LU( Matrix<F>& A, Matrix<int>& p )
 
    Ovewrites :math:`A` with the LU decomposition of :math:`PA`, where 
    :math:`P` is represented by the pivot vector `p`.
 
-.. cpp:function:: void advanced::LU( DistMatrix<F,MC,MR>& A, DistMatrix<F,VC,STAR>& p )
+.. cpp:function:: void LU( DistMatrix<F,MC,MR>& A, DistMatrix<F,VC,STAR>& p )
 
    Overwrites the distributed matrix :math:`A` with the LU decomposition of 
    :math:`PA`, where :math:`P` is represented by the pivot vector `p`.
@@ -149,12 +149,12 @@ stored in the lower trapezoid of :math:`A` and the Householder reflectors
 representing :math:`\hat Q` are stored within the rows of the strictly upper 
 trapezoid.
 
-.. cpp:function:: void advanced::LQ( DistMatrix<R,MC,MR>& A )
+.. cpp:function:: void LQ( DistMatrix<R,MC,MR>& A )
 
    Overwrite the real distributed matrix :math:`A` with :math:`L` and the 
    Householder reflectors representing :math:`\hat Q`.
 
-.. cpp:function:: void advanced::LQ( DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,MD,STAR>& t )
+.. cpp:function:: void LQ( DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,MD,STAR>& t )
 
    Overwrite the complex distributed matrix :math:`A` with :math:`L` and the 
    Householder reflectors representing :math:`\hat Q`; unlike the real case, 
@@ -174,12 +174,12 @@ stored in the upper trapezoid of :math:`A` and the Householder reflectors
 representing :math:`\hat Q` are stored within the columns of the strictly lower 
 trapezoid.
 
-.. cpp:function:: void advanced::QR( DistMatrix<R,MC,MR>& A )
+.. cpp:function:: void QR( DistMatrix<R,MC,MR>& A )
 
    Overwrite the real distributed matrix :math:`A` with :math:`R` and the 
    Householder reflectors representing :math:`\hat Q`.
 
-.. cpp:function:: void advanced::QR( DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,MD,STAR>& t )
+.. cpp:function:: void QR( DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,MD,STAR>& t )
 
    Overwrite the complex distributed matrix :math:`A` with :math:`R` and the 
    Householder reflectors representing :math:`\hat Q`; unlike the real case, 

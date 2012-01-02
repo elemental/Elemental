@@ -31,14 +31,16 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::internal::SyrkUN
+internal::SyrkUN
 ( T alpha, const DistMatrix<T,MC,MR>& A,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::SyrkUN");
+    PushCallStack("internal::SyrkUN");
     if( A.Grid() != C.Grid() )
         throw std::logic_error
         ("A and C must be distributed over the same grid");
@@ -78,7 +80,7 @@ elemental::basic::internal::SyrkUN
         A1_VR_STAR = A1_MC_STAR = A1;
         A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR );
 
-        basic::internal::LocalTrrk
+        internal::LocalTrrk
         ( UPPER, alpha, A1_MC_STAR, A1Trans_STAR_MR, (T)1, C ); 
         //--------------------------------------------------------------------//
         A1_MC_STAR.FreeAlignments();
@@ -94,3 +96,4 @@ elemental::basic::internal::SyrkUN
 #endif
 }
 
+} // namespace elemental

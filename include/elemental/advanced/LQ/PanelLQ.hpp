@@ -31,12 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R> 
 inline void
-elemental::advanced::internal::PanelLQ( DistMatrix<R,MC,MR>& A )
+internal::PanelLQ( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelLQ");
+    PushCallStack("internal::PanelLQ");
 #endif
     const Grid& g = A.Grid();
 
@@ -69,10 +71,10 @@ elemental::advanced::internal::PanelLQ( DistMatrix<R,MC,MR>& A )
         Z_MC_STAR.AlignWith( ABottomPan );
         Z_MC_STAR.ResizeTo( ABottomPan.Height(), 1 );
         //--------------------------------------------------------------------//
-        R tau = advanced::Reflector( alpha11, a12 );
+        R tau = Reflector( alpha11, a12 );
 
-        bool myDiagonalEntry = ( g.MCRank() == alpha11.ColAlignment() &&
-                                 g.MRRank() == alpha11.RowAlignment() );
+        const bool myDiagonalEntry = ( g.MCRank() == alpha11.ColAlignment() &&
+                                       g.MRRank() == alpha11.RowAlignment() );
         R alpha = (R)0;
         if( myDiagonalEntry )
         {
@@ -82,14 +84,14 @@ elemental::advanced::internal::PanelLQ( DistMatrix<R,MC,MR>& A )
 
         aTopRow_STAR_MR = aTopRow;
 
-        basic::Gemv
+        Gemv
         ( NORMAL,
           (R)1, ABottomPan.LockedLocalMatrix(),
                 aTopRow_STAR_MR.LockedLocalMatrix(),
           (R)0, Z_MC_STAR.LocalMatrix() );
         Z_MC_STAR.SumOverRow();
 
-        basic::Ger
+        Ger
         ( -tau,
           Z_MC_STAR.LockedLocalMatrix(),
           aTopRow_STAR_MR.LockedLocalMatrix(),
@@ -113,14 +115,14 @@ elemental::advanced::internal::PanelLQ( DistMatrix<R,MC,MR>& A )
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::internal::PanelLQ
+internal::PanelLQ
 ( DistMatrix<std::complex<R>,MC,MR  >& A,
   DistMatrix<std::complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::PanelLQ");
+    PushCallStack("internal::PanelLQ");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
     if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
@@ -175,11 +177,11 @@ elemental::advanced::internal::PanelLQ
         Z_MC_STAR.AlignWith( ABottomPan );
         Z_MC_STAR.ResizeTo( ABottomPan.Height(), 1 );
         //--------------------------------------------------------------------//
-        C tau = advanced::Reflector( alpha11, a12 );
+        C tau = Reflector( alpha11, a12 );
         tau1.Set( 0, 0, tau );
 
-        bool myDiagonalEntry = ( g.MCRank() == alpha11.ColAlignment() &&
-                                 g.MRRank() == alpha11.RowAlignment() );
+        const bool myDiagonalEntry = ( g.MCRank() == alpha11.ColAlignment() &&
+                                       g.MRRank() == alpha11.RowAlignment() );
         C alpha = (C)0;
         if( myDiagonalEntry )
         {
@@ -187,17 +189,17 @@ elemental::advanced::internal::PanelLQ
             alpha11.SetLocalEntry(0,0,1);
         }
 
-        basic::Conjugate( aTopRow, aTopRowConj );
+        Conjugate( aTopRow, aTopRowConj );
         aTopRowConj_STAR_MR = aTopRowConj;
 
-        basic::Gemv
+        Gemv
         ( NORMAL,
           (C)1, ABottomPan.LockedLocalMatrix(),
                 aTopRowConj_STAR_MR.LockedLocalMatrix(),
           (C)0, Z_MC_STAR.LocalMatrix() );
         Z_MC_STAR.SumOverRow();
 
-        basic::Ger
+        Ger
         ( -conj(tau),
           Z_MC_STAR.LockedLocalMatrix(),
           aTopRowConj_STAR_MR.LockedLocalMatrix(),
@@ -226,3 +228,5 @@ elemental::advanced::internal::PanelLQ
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

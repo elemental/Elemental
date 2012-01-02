@@ -31,13 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename F> // F represents a real or complex field
+namespace elemental {
+
+template<typename F> 
 inline void
-elemental::advanced::internal::HegstLLVar5
-( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+internal::HegstLLVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::HegstLLVar5");
+    PushCallStack("internal::HegstLLVar5");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( L.Height() != L.Width() )
@@ -103,17 +104,17 @@ elemental::advanced::internal::HegstLLVar5
         A11_STAR_STAR = A11;
         L10_STAR_VR = L10;
         Y10_STAR_VR.ResizeTo( A10.Height(), A10.Width() );
-        basic::Hemm
+        Hemm
         ( LEFT, LOWER, 
           (F)1, A11_STAR_STAR.LocalMatrix(), L10_STAR_VR.LocalMatrix(),
           (F)0, Y10_STAR_VR.LocalMatrix() );
         Y10 = Y10_STAR_VR;
 
         // A10 := A10 L00
-        basic::Trmm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, L00, A10 );
+        Trmm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, L00, A10 );
 
         // A10 := A10 + 1/2 Y10
-        basic::Axpy( (F)0.5, Y10, A10 );
+        Axpy( (F)0.5, Y10, A10 );
 
         // A00 := A00 + (L10' A10 + A10' L10)
         A10Trans_MR_STAR.TransposeFrom( A10 );
@@ -121,23 +122,23 @@ elemental::advanced::internal::HegstLLVar5
         A10_STAR_VR = A10;
         A10_STAR_MC = A10_STAR_VR;
         L10_STAR_MC = L10_STAR_VR;
-        basic::internal::LocalTrr2k
+        internal::LocalTrr2k
         ( LOWER, ADJOINT, TRANSPOSE, ADJOINT,
           (F)1, L10_STAR_MC, A10Trans_MR_STAR, 
                 A10_STAR_MC, L10_STAR_MR, 
           (F)1, A00 );
 
         // A10 := A10 + 1/2 Y10
-        basic::Axpy( (F)0.5, Y10_STAR_VR, A10_STAR_VR );
+        Axpy( (F)0.5, Y10_STAR_VR, A10_STAR_VR );
 
         // A10 := L11' A10
         L11_STAR_STAR = L11;
-        basic::internal::LocalTrmm
+        internal::LocalTrmm
         ( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;
 
         // A11 := L11' A11 L11
-        advanced::internal::LocalHegst
+        internal::LocalHegst
         ( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
         //--------------------------------------------------------------------//
@@ -166,3 +167,5 @@ elemental::advanced::internal::HegstLLVar5
     PopCallStack();
 #endif
 }
+
+} // namespace elemental

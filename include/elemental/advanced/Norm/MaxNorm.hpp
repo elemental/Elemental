@@ -31,12 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename R> // representation of a real number
+namespace elemental {
+
+template<typename R> 
 inline R
-elemental::advanced::internal::MaxNorm( const Matrix<R>& A )
+internal::MaxNorm( const Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::MaxNorm");
+    PushCallStack("internal::MaxNorm");
 #endif
     R maxAbs = 0;
     for( int j=0; j<A.Width(); ++j )
@@ -53,12 +55,12 @@ elemental::advanced::internal::MaxNorm( const Matrix<R>& A )
     return maxAbs;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::MaxNorm( const Matrix<std::complex<R> >& A )
+internal::MaxNorm( const Matrix<std::complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::MaxNorm");
+    PushCallStack("internal::MaxNorm");
 #endif
     R maxAbs = 0;
     for( int j=0; j<A.Width(); ++j )
@@ -75,12 +77,12 @@ elemental::advanced::internal::MaxNorm( const Matrix<std::complex<R> >& A )
     return maxAbs;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
+internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::MaxNorm");
+    PushCallStack("internal::MaxNorm");
 #endif
     R localMaxAbs = 0;
     for( int j=0; j<A.LocalWidth(); ++j )
@@ -102,13 +104,12 @@ elemental::advanced::internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
     return maxAbs;
 }
 
-template<typename R> // representation of a real number
+template<typename R>
 inline R
-elemental::advanced::internal::MaxNorm
-( const DistMatrix<std::complex<R>,MC,MR>& A )
+internal::MaxNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::internal::MaxNorm");
+    PushCallStack("internal::MaxNorm");
 #endif
     R localMaxAbs = 0;
     for( int j=0; j<A.LocalWidth(); ++j )
@@ -129,3 +130,5 @@ elemental::advanced::internal::MaxNorm
 #endif
     return maxAbs;
 }
+
+} // namespace elemental

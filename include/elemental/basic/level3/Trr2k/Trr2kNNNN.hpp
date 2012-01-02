@@ -31,17 +31,19 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 // Distributed E := alpha (A B + C D) + beta E
 template<typename T>
 inline void
-elemental::basic::internal::Trr2kNNNN
+internal::Trr2kNNNN
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
            const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
   T beta,        DistMatrix<T,MC,MR>& E )
 {
 #ifndef RELEASE
-    PushCallStack("basic::internal::Trr2kNNNN");
+    PushCallStack("internal::Trr2kNNNN");
     if( E.Height() != E.Width()  || A.Width()  != C.Width()  ||
         A.Height() != E.Height() || C.Height() != E.Height() ||
         B.Width()  != E.Width()  || D.Width()  != E.Width()  ||
@@ -103,7 +105,7 @@ elemental::basic::internal::Trr2kNNNN
         C1_MC_STAR = C1;
         B1Trans_MR_STAR.TransposeFrom( B1 );
         D1Trans_MR_STAR.TransposeFrom( D1 );
-        basic::internal::LocalTrr2k
+        internal::LocalTrr2k
         ( uplo, TRANSPOSE, TRANSPOSE, 
           alpha, A1_MC_STAR, B1Trans_MR_STAR, 
                  C1_MC_STAR, D1Trans_MR_STAR,
@@ -136,3 +138,4 @@ elemental::basic::internal::Trr2kNNNN
 #endif
 }
 
+} // namespace elemental

@@ -33,10 +33,12 @@
 
 #ifndef WITHOUT_PMRRR
 
+namespace elemental {
+
 // Grab the full set of eigenpairs.
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
@@ -44,29 +46,29 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<R,MC,  MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w, X );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w, X );
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
-            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
-            basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -77,9 +79,9 @@ elemental::advanced::HermitianGenDefiniteEig
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
@@ -88,29 +90,29 @@ elemental::advanced::HermitianGenDefiniteEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w, X, a, b );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
-            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
-            basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -119,9 +121,9 @@ elemental::advanced::HermitianGenDefiniteEig
 
 // Grab a partial set of eigenpairs.
 // The partial set is determined by the half-open interval (a,b]
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
@@ -130,29 +132,29 @@ elemental::advanced::HermitianGenDefiniteEig
   R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w, X, a, b );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
         else
-            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
         else
-            basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -160,25 +162,25 @@ elemental::advanced::HermitianGenDefiniteEig
 }
 
 // Grab the full set of eigenvalues
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
   DistMatrix<R,VR,STAR>& w )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -188,9 +190,9 @@ elemental::advanced::HermitianGenDefiniteEig
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
@@ -198,16 +200,16 @@ elemental::advanced::HermitianGenDefiniteEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w, a, b );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -215,9 +217,9 @@ elemental::advanced::HermitianGenDefiniteEig
 
 // Grab a partial set of eigenvalues.
 // The partial set is determined by the half-open interval (a,b]
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,MC,  MR>& B,
@@ -225,25 +227,25 @@ elemental::advanced::HermitianGenDefiniteEig
   R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w, a, b );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
 // Grab the full set of eigenpairs
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
@@ -251,33 +253,29 @@ elemental::advanced::HermitianGenDefiniteEig
   DistMatrix<std::complex<R>,MC,  MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w, X );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w, X );
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            basic::Trsm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
-            basic::Trsm
-            ( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            basic::Trmm
-            ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
-            basic::Trmm
-            ( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -288,9 +286,9 @@ elemental::advanced::HermitianGenDefiniteEig
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
@@ -299,33 +297,29 @@ elemental::advanced::HermitianGenDefiniteEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w, X, a, b );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            basic::Trsm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
-            basic::Trsm
-            ( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            basic::Trmm
-            ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
-            basic::Trmm
-            ( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -334,9 +328,9 @@ elemental::advanced::HermitianGenDefiniteEig
 
 // Grab a partial set of eigenpairs.
 // The partial set is determined by the half-open interval (a,b]
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
@@ -345,33 +339,29 @@ elemental::advanced::HermitianGenDefiniteEig
   R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w, X, a, b );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            basic::Trsm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
         else
-            basic::Trsm
-            ( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            basic::Trmm
-            ( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
         else
-            basic::Trmm
-            ( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -379,25 +369,25 @@ elemental::advanced::HermitianGenDefiniteEig
 }
 
 // Grab a full set of eigenvalues
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
   DistMatrix<             R, VR,STAR>& w )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -407,9 +397,9 @@ elemental::advanced::HermitianGenDefiniteEig
 // The partial set is determined by the inclusive zero-indexed range 
 //   a,a+1,...,b    ; a >= 0, b < n  
 // of the n eigenpairs sorted from smallest to largest eigenvalues.  
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
@@ -417,16 +407,16 @@ elemental::advanced::HermitianGenDefiniteEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w, a, b );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -434,9 +424,9 @@ elemental::advanced::HermitianGenDefiniteEig
 
 // Grab a partial set of eigenvalues.
 // The partial set is determined by the half-open interval (a,b]
-template<typename R> // representation of a real number
+template<typename R>
 inline void
-elemental::advanced::HermitianGenDefiniteEig
+HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<std::complex<R>,MC,  MR>& A,
   DistMatrix<std::complex<R>,MC,  MR>& B,
@@ -444,18 +434,21 @@ elemental::advanced::HermitianGenDefiniteEig
   R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::HermitianGenDefiniteEig");
+    PushCallStack("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     const Side side = ( type==AXBX ? RIGHT : LEFT );
 
-    advanced::Cholesky( uplo, B );
-    advanced::Hegst( side, uplo, A, B );
-    advanced::HermitianEig( uplo, A, w, a, b );
+    Cholesky( uplo, B );
+    Hegst( side, uplo, A, B );
+    HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace elemental
+
 #endif // WITHOUT_PMRRR

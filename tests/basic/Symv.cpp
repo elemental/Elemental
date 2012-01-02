@@ -83,11 +83,11 @@ void TestSymv
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    basic::Symv( uplo, alpha, A, x, beta, y );
+    Symv( uplo, alpha, A, x, beta, y );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = basic::internal::SymvGFlops<T>(m,runTime);
+    gFlops = internal::SymvGFlops<T>(m,runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -138,8 +138,8 @@ main( int argc, char* argv[] )
 #endif
         const Grid g( comm, r, c );
         SetBlocksize( nb );
-        basic::SetLocalSymvBlocksize<double>( nbLocalDouble );
-        basic::SetLocalSymvBlocksize<complex<double> >( nbLocalComplexDouble );
+        SetLocalSymvBlocksize<double>( nbLocalDouble );
+        SetLocalSymvBlocksize<complex<double> >( nbLocalComplexDouble );
 
         if( rank == 0 )
             cout << "Will test Symv" << UpperOrLowerToChar(uplo) << endl;

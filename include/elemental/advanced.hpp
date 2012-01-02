@@ -44,7 +44,7 @@ namespace elemental {
 // using namespace elemental;
 // Matrix<double> A;
 // ...
-// double norm = advanced::Norm( A, ONE_NORM );
+// double norm = Norm( A, ONE_NORM );
 //
 
 namespace norm_type_wrapper {
@@ -77,8 +77,6 @@ enum HermitianTridiagApproach
 };
 }
 using namespace hermitian_tridiag_approach_wrapper;
-
-namespace advanced {
 
 //----------------------------------------------------------------------------//
 // ApplyPackedReflectors                                                      //
@@ -1073,7 +1071,6 @@ template<typename F>
 void TriangularInverse
 ( UpperOrLower uplo, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
-} // advanced
 } // elemental
 
 //----------------------------------------------------------------------------//
@@ -1115,14 +1112,13 @@ void TriangularInverse
 #include "./advanced/TriangularInverse.hpp"
 
 namespace elemental {
-namespace advanced {
 
 template<typename F>
 inline void
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Cholesky");
+    PushCallStack("Cholesky");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
@@ -1138,7 +1134,7 @@ inline void
 Hegst( Side side, UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Hegst");
+    PushCallStack("Hegst");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( B.Height() != B.Width() )
@@ -1161,7 +1157,7 @@ inline void
 LU( Matrix<F>& A, Matrix<int>& p )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::LU");
+    PushCallStack("LU");
     if( p.Height() != A.Height() )
         throw std::logic_error("A and p must be the same height");
 #endif
@@ -1183,7 +1179,7 @@ inline R
 SymmetricNorm( UpperOrLower uplo, const Matrix<R>& A, NormType type )
 { 
 #ifndef RELEASE
-    PushCallStack("advanced::SymmetricNorm");
+    PushCallStack("SymmetricNorm");
 #endif
     HermitianNorm( uplo, A, type );
 #ifndef RELEASE
@@ -1197,7 +1193,7 @@ SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, NormType type )
 { 
 #ifndef RELEASE
-    PushCallStack("advanced::SymmetricNorm");
+    PushCallStack("SymmetricNorm");
 #endif
     HermitianNorm( uplo, A, type );
 #ifndef RELEASE
@@ -1211,7 +1207,7 @@ SymmetricNorm
 ( UpperOrLower uplo, const Matrix<std::complex<R> >& A, NormType type )
 { 
 #ifndef RELEASE
-    PushCallStack("advanced::SymmetricNorm");
+    PushCallStack("SymmetricNorm");
 #endif
     HermitianNorm( uplo, A, type );
 #ifndef RELEASE
@@ -1225,7 +1221,7 @@ SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
 { 
 #ifndef RELEASE
-    PushCallStack("advanced::SymmetricNorm");
+    PushCallStack("SymmetricNorm");
 #endif
     HermitianNorm( uplo, A, type );
 #ifndef RELEASE
@@ -1239,7 +1235,7 @@ TriangularInverse
 ( UpperOrLower uplo, Diagonal diagonal, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::TriangularInverse");
+    PushCallStack("TriangularInverse");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
@@ -1252,7 +1248,6 @@ TriangularInverse
 #endif
 }
 
-} // namespace advanced
 } // namespace elemental
 
 #endif /* ELEMENTAL_ADVANCED_HPP */

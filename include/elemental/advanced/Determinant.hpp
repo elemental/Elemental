@@ -31,12 +31,14 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elemental {
+
 template<typename F> 
-inline elemental::SafeProduct<F> 
-elemental::advanced::SafeDeterminant( DistMatrix<F,MC,MR>& A )
+inline SafeProduct<F> 
+SafeDeterminant( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SafeDeterminant");
+    PushCallStack("SafeDeterminant");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error
@@ -50,8 +52,8 @@ elemental::advanced::SafeDeterminant( DistMatrix<F,MC,MR>& A )
     try
     {
         DistMatrix<int,VC,STAR> p;
-        advanced::LU( A, p );
-        const bool isOdd = advanced::PivotParity( p );
+        LU( A, p );
+        const bool isOdd = PivotParity( p );
 
         DistMatrix<F,MD,STAR> d(g);
         A.GetDiagonal( d );
@@ -85,10 +87,10 @@ elemental::advanced::SafeDeterminant( DistMatrix<F,MC,MR>& A )
 }
 
 template<typename F> 
-inline F elemental::advanced::Determinant( DistMatrix<F,MC,MR>& A )
+inline F Determinant( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Determinant");
+    PushCallStack("Determinant");
 #endif
     SafeProduct<F> safeDet = SafeDeterminant( A );
     F det = safeDet.rho * std::exp(safeDet.kappa*safeDet.n);
@@ -99,11 +101,11 @@ inline F elemental::advanced::Determinant( DistMatrix<F,MC,MR>& A )
 }
 
 template<typename F>
-inline elemental::SafeProduct<F> 
-elemental::advanced::SafeDeterminant( Matrix<F>& A )
+inline SafeProduct<F> 
+SafeDeterminant( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::SafeDeterminant");
+    PushCallStack("SafeDeterminant");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error
@@ -116,8 +118,8 @@ elemental::advanced::SafeDeterminant( Matrix<F>& A )
     try
     {
         Matrix<int> p;
-        advanced::LU( A, p ); 
-        const bool isOdd = advanced::PivotParity( p );
+        LU( A, p ); 
+        const bool isOdd = PivotParity( p );
         
         Matrix<F> d;
         A.GetDiagonal( d );
@@ -143,10 +145,10 @@ elemental::advanced::SafeDeterminant( Matrix<F>& A )
 }
 
 template<typename F>
-inline F elemental::advanced::Determinant( Matrix<F>& A )
+inline F Determinant( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("advanced::Determinant");
+    PushCallStack("Determinant");
 #endif
     SafeProduct<F> safeDet = SafeDeterminant( A );
     F det = safeDet.rho * std::exp(safeDet.kappa*safeDet.n);
@@ -155,3 +157,5 @@ inline F elemental::advanced::Determinant( Matrix<F>& A )
 #endif
     return det;
 }
+
+} // namespace elemental

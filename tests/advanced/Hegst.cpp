@@ -74,19 +74,17 @@ void TestCorrectness
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // tril(B)^-1 AOrig tril(B)^-H
-            basic::Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, B, Y );
-            basic::Hemm( LEFT, LOWER, (F)1, AOrig, Y, (F)0, Z );
-            basic::Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, B, Z );
-            basic::Hemm( LEFT, LOWER, (F)-1, A, X, (F)1, Z );
-            F infNormOfAOrig = 
-                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-            F frobNormOfAOrig = 
-                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-            F infNormOfA = advanced::HermitianNorm( uplo, A, INFINITY_NORM );
-            F frobNormOfA = advanced::HermitianNorm( uplo, A, FROBENIUS_NORM );
-            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
-            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
-            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, B, Y );
+            Hemm( LEFT, LOWER, (F)1, AOrig, Y, (F)0, Z );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, B, Z );
+            Hemm( LEFT, LOWER, (F)-1, A, X, (F)1, Z );
+            F infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+            F frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+            F infNormOfA = HermitianNorm( uplo, A, INFINITY_NORM );
+            F frobNormOfA = HermitianNorm( uplo, A, FROBENIUS_NORM );
+            F oneNormOfError = Norm( Z, ONE_NORM );
+            F infNormOfError = Norm( Z, INFINITY_NORM );
+            F frobNormOfError = Norm( Z, FROBENIUS_NORM );
             if( g.Rank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo     = "
@@ -110,19 +108,17 @@ void TestCorrectness
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // triu(B)^-H AOrig triu(B)^-1
-            basic::Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, B, Y );
-            basic::Hemm( LEFT, UPPER, (F)1, AOrig, Y, (F)0, Z );
-            basic::Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, B, Z );
-            basic::Hemm( LEFT, UPPER, (F)-1, A, X, (F)1, Z );
-            F infNormOfAOrig = 
-                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-            F frobNormOfAOrig = 
-                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-            F infNormOfA = advanced::HermitianNorm( uplo, A, INFINITY_NORM );
-            F frobNormOfA = advanced::HermitianNorm( uplo, A, FROBENIUS_NORM );
-            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
-            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
-            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, B, Y );
+            Hemm( LEFT, UPPER, (F)1, AOrig, Y, (F)0, Z );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, B, Z );
+            Hemm( LEFT, UPPER, (F)-1, A, X, (F)1, Z );
+            F infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+            F frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+            F infNormOfA = HermitianNorm( uplo, A, INFINITY_NORM );
+            F frobNormOfA = HermitianNorm( uplo, A, FROBENIUS_NORM );
+            F oneNormOfError = Norm( Z, ONE_NORM );
+            F infNormOfError = Norm( Z, INFINITY_NORM );
+            F frobNormOfError = Norm( Z, FROBENIUS_NORM );
             if( g.Rank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo     = "
@@ -149,21 +145,17 @@ void TestCorrectness
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // tril(B)^H AOrig tril(B)
-            basic::Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, B, Y );
-            basic::Hemm( LEFT, LOWER, (F)1, AOrig, Y, (F)0, Z );
-            basic::Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, B, Z );
-            basic::Hemm( LEFT, LOWER, (F)-1, A, X, (F)1, Z );
-            F infNormOfAOrig = 
-                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-            F frobNormOfAOrig = 
-                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-            F infNormOfA = 
-                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-            F frobNormOfA = 
-                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
-            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
-            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, B, Y );
+            Hemm( LEFT, LOWER, (F)1, AOrig, Y, (F)0, Z );
+            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, B, Z );
+            Hemm( LEFT, LOWER, (F)-1, A, X, (F)1, Z );
+            F infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+            F frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+            F infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+            F frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+            F oneNormOfError = Norm( Z, ONE_NORM );
+            F infNormOfError = Norm( Z, INFINITY_NORM );
+            F frobNormOfError = Norm( Z, FROBENIUS_NORM );
             if( g.Rank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo = "
@@ -187,21 +179,17 @@ void TestCorrectness
             // Test correctness by comparing the application of A against a 
             // random set of 100 vectors to the application of 
             // triu(B) AOrig triu(B)^H
-            basic::Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, B, Y );
-            basic::Hemm( LEFT, UPPER, (F)1, AOrig, Y, (F)0, Z );
-            basic::Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, B, Z );
-            basic::Hemm( LEFT, UPPER, (F)-1, A, X, (F)1, Z );
-            F infNormOfAOrig = 
-                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-            F frobNormOfAOrig = 
-                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-            F infNormOfA = 
-                advanced::HermitianNorm( uplo, AOrig, INFINITY_NORM );
-            F frobNormOfA = 
-                advanced::HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-            F oneNormOfError = advanced::Norm( Z, ONE_NORM );
-            F infNormOfError = advanced::Norm( Z, INFINITY_NORM );
-            F frobNormOfError = advanced::Norm( Z, FROBENIUS_NORM );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, B, Y );
+            Hemm( LEFT, UPPER, (F)1, AOrig, Y, (F)0, Z );
+            Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, B, Z );
+            Hemm( LEFT, UPPER, (F)-1, A, X, (F)1, Z );
+            F infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+            F frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+            F infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+            F frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+            F oneNormOfError = Norm( Z, ONE_NORM );
+            F infNormOfError = Norm( Z, INFINITY_NORM );
+            F frobNormOfError = Norm( Z, FROBENIUS_NORM );
             if( g.Rank() == 0 )
             {
                 cout << "||AOrig||_1 = ||AOrig||_oo = "
@@ -240,10 +228,10 @@ void TestHegst
     {
         DistMatrix<F,MC,MR> C( m, m, g );
         C.SetToRandom();
-        basic::Herk( uplo, NORMAL, (F)1, C, (F)0, A );
+        Herk( uplo, NORMAL, (F)1, C, (F)0, A );
         C.SetToRandom();
-        basic::Herk( uplo, NORMAL, (F)1, C, (F)0, B );
-        advanced::Cholesky( uplo, B );
+        Herk( uplo, NORMAL, (F)1, C, (F)0, B );
+        Cholesky( uplo, B );
     }
     else
     {
@@ -275,11 +263,11 @@ void TestHegst
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    advanced::Hegst( side, uplo, A, B );
+    Hegst( side, uplo, A, B );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = advanced::internal::HegstGFlops<F>( m, runTime );
+    gFlops = internal::HegstGFlops<F>( m, runTime );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

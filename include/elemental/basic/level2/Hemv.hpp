@@ -34,16 +34,18 @@
 #include "./Hemv/HemvL.hpp"
 #include "./Hemv/HemvU.hpp"
 
+namespace elemental {
+
 template<typename T>
 inline void
-elemental::basic::Hemv
+Hemv
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& x,
   T beta,        DistMatrix<T,MC,MR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("basic::Hemv");
+    PushCallStack("Hemv");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw std::logic_error
         ("{A,x,y} must be distributed over the same grid");
@@ -77,7 +79,7 @@ elemental::basic::Hemv
         DistMatrix<T,MC,MR  > z(g);
 
         // Begin the algoritm
-        basic::Scal( beta, y );
+        Scal( beta, y );
         x_MC_STAR.AlignWith( A );
         x_MR_STAR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
@@ -92,19 +94,19 @@ elemental::basic::Hemv
         x_MR_STAR = x_MC_STAR;
         if( uplo == LOWER )
         {
-            basic::internal::LocalHemvColAccumulateL
+            internal::LocalHemvColAccumulateL
             ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
         }
         else
         {
-            basic::internal::LocalHemvColAccumulateU
+            internal::LocalHemvColAccumulateU
             ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
         }
 
         z_MR_MC.SumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
         z.SumScatterUpdate( (T)1, z_MC_STAR );
-        basic::Axpy( (T)1, z, y );
+        Axpy( (T)1, z, y );
         //--------------------------------------------------------------------//
         x_MC_STAR.FreeAlignments();
         x_MR_STAR.FreeAlignments();
@@ -124,7 +126,7 @@ elemental::basic::Hemv
         DistMatrix<T,MC,MR  > zTrans(g);
 
         // Begin the algoritm
-        basic::Scal( beta, y );
+        Scal( beta, y );
         x_MC_STAR.AlignWith( A );
         x_MR_STAR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
@@ -140,20 +142,20 @@ elemental::basic::Hemv
         x_MR_STAR = x_MC_STAR;
         if( uplo == LOWER )
         {
-            basic::internal::LocalHemvColAccumulateL
+            internal::LocalHemvColAccumulateL
             ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
         }
         else
         {
-            basic::internal::LocalHemvColAccumulateU
+            internal::LocalHemvColAccumulateU
             ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
         }
 
         z.SumScatterFrom( z_MC_STAR );
         z_MR_MC = z;
         z_MR_MC.SumScatterUpdate( (T)1, z_MR_STAR );
-        basic::Transpose( z_MR_MC, zTrans );
-        basic::Axpy( (T)1, zTrans, y );
+        Transpose( z_MR_MC, zTrans );
+        Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
         x_MC_STAR.FreeAlignments();
         x_MR_STAR.FreeAlignments();
@@ -174,7 +176,7 @@ elemental::basic::Hemv
         DistMatrix<T,MR,  MC> z_MR_MC(g);
 
         // Begin the algoritm
-        basic::Scal( beta, y );
+        Scal( beta, y );
         x_STAR_MC.AlignWith( A );
         x_STAR_MR.AlignWith( A );
         z_STAR_MC.AlignWith( A );
@@ -190,20 +192,20 @@ elemental::basic::Hemv
         x_STAR_MC = x_STAR_MR;
         if( uplo == LOWER )
         {
-            basic::internal::LocalHemvRowAccumulateL
+            internal::LocalHemvRowAccumulateL
             ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR );
         }
         else
         {
-            basic::internal::LocalHemvRowAccumulateU
+            internal::LocalHemvRowAccumulateU
             ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR );
         }
 
         z.SumScatterFrom( z_STAR_MR );
         z_MR_MC = z;
         z_MR_MC.SumScatterUpdate( (T)1, z_STAR_MC );
-        basic::Transpose( z_MR_MC, zTrans );
-        basic::Axpy( (T)1, zTrans, y );
+        Transpose( z_MR_MC, zTrans );
+        Axpy( (T)1, zTrans, y );
         //--------------------------------------------------------------------//
         x_STAR_MC.FreeAlignments();
         x_STAR_MR.FreeAlignments();
@@ -223,7 +225,7 @@ elemental::basic::Hemv
         DistMatrix<T,MR,  MC> z_MR_MC(g);
 
         // Begin the algoritm
-        basic::Scal( beta, y );
+        Scal( beta, y );
         x_STAR_MC.AlignWith( A );
         x_STAR_MR.AlignWith( A );
         z_STAR_MC.AlignWith( A );
@@ -239,19 +241,19 @@ elemental::basic::Hemv
         x_STAR_MC = x_STAR_MR;
         if( uplo == LOWER )
         {
-            basic::internal::LocalHemvRowAccumulateL
+            internal::LocalHemvRowAccumulateL
             ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR );
         }
         else
         {
-            basic::internal::LocalHemvRowAccumulateU
+            internal::LocalHemvRowAccumulateU
             ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR );
         }
 
         z_MR_MC.SumScatterFrom( z_STAR_MC );
         z = z_MR_MC;
         z.SumScatterUpdate( (T)1, z_STAR_MR );
-        basic::Axpy( (T)1, z, y );
+        Axpy( (T)1, z, y );
         //--------------------------------------------------------------------//
         x_STAR_MC.FreeAlignments();
         x_STAR_MR.FreeAlignments();
@@ -264,3 +266,5 @@ elemental::basic::Hemv
     PopCallStack();
 #endif
 }
+
+} // namespace elemental
