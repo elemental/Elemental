@@ -78,7 +78,7 @@ internal::HetrmmUVar1( DistMatrix<T,MC,MR>& U )
         U01_VR_STAR = U01_VC_STAR;
         U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
         internal::LocalTrrk
-        ( UPPER, (T)1, U01_MC_STAR, U01Adj_STAR_MR, (T)1, U22 );
+        ( UPPER, (T)1, U01_MC_STAR, U01Adj_STAR_MR, (T)1, U00 );
 
         U11_STAR_STAR = U11;
         internal::LocalTrmm
