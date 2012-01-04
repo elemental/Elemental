@@ -1,8 +1,8 @@
 /*
-   A simple parallel Linear Congruential Generator (LCG)
+   Copyright (c) 2009-2012, Jack Poulson
+   All rights reserved.
 
-   Copyright (C) 2011 Jack Poulson, Lexing Ying, and
-   The University of Texas at Austin
+   This file is part of Elemental.
 
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions are met:

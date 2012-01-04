@@ -2,7 +2,7 @@
    Copyright (C) 1992-2008 The University of Tennessee
    All rights reserved.
 
-   Copyright (c) 2009-2011, Jack Poulson
+   Copyright (c) 2009-2012, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is partially based upon the LAPACK 
