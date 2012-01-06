@@ -30,7 +30,7 @@ though usually either a row-major or column-major ordering of the first
 
 .. cpp:type:: HermitianTridiagApproach
 
-   * ``HERMITIAN_TRIDIAG_NORM``: Run the pipelined rectangular algorithm.
+   * ``HERMITIAN_TRIDIAG_NORMAL``: Run the pipelined rectangular algorithm.
    * ``HERMITIAN_TRIDIAG_SQUARE``: Run the square grid algorithm on the largest
      possible square process grid.
    * ``HERMITIAN_TRIDIAG_DEFAULT``: If the given process grid is already square,
