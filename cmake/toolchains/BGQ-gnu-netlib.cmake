@@ -53,6 +53,4 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 ##############################################################
 
-set(BLAS_LIB   "-L/home/xajhammond/LAPACK -lblas_BGQ_GNU")
-set(LAPACK_LIB "-L/home/xajhammond/LAPACK -llapack_BGQ_GNU")
-set(MATH_LIBS  "-L/home/xajhammond/LAPACK -llapack_BGQ_GNU -lblas_BGQ_GNU -lgfortran -lm")
+set(MATH_LIBS "-L/home/xajhammond/LAPACK -llapack_BGQ_GNU -lblas_BGQ_GNU -lgfortran -lm")
