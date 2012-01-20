@@ -35,7 +35,7 @@
 using namespace elemental;
 
 extern "C" {
-#include "c_interface.hpp"
+#include "c_interface.h"
 }
 
 namespace {

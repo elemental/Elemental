@@ -618,7 +618,7 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c_interface")
   add_executable(
       experimental-c-interface-test
-      ${EXPERIMENTAL_DIR}/c_interface/c_interface_test.cpp
+      ${EXPERIMENTAL_DIR}/c_interface/c_interface_test.c
   )
   target_link_libraries(
       experimental-c-interface-test experimental elemental cmake-dummy-lib

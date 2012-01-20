@@ -1,4 +1,5 @@
-#include "./c_interface.hpp"
+#include "./c_interface.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 int
@@ -28,10 +29,10 @@ main( int argc, char* argv[] )
     BBuffer = (double*)malloc(localHeight*localWidth*sizeof(double));
 
     /* Set entry (i,j) of the A matrix to i+j, which is symmetric */
-    for( jLocal=gridCol; jLocal<n; jLocal+=gridWidth )
+    for( jLocal=0; jLocal<localWidth; ++jLocal )
     {
         j = gridCol + jLocal*gridWidth;
-        for( iLocal=gridRow; iLocal<n; iLocal+=gridHeight )
+        for( iLocal=0; iLocal<localHeight; ++iLocal )
         {
             i = gridRow + iLocal*gridHeight;
             ABuffer[iLocal+jLocal*localHeight] = (double)i+j;
@@ -39,16 +40,16 @@ main( int argc, char* argv[] )
     }
 
     /* Set B to twice the identity since it is a trivial SPD matrix */
-    for( jLocal=gridCol; jLocal<n; jLocal+=gridWidth )
+    for( jLocal=0; jLocal<localWidth; ++jLocal )
     {
         j = gridCol + jLocal*gridWidth;
-        for( iLocal=gridRow; iLocal<n; iLocal+=gridHeight )
+        for( iLocal=0; iLocal<localHeight; ++iLocal )
         {
             i = gridRow + iLocal*gridHeight;
             if( i == j )
-                ABuffer[iLocal+jLocal*localHeight] = 2.0;
+                BBuffer[iLocal+jLocal*localHeight] = 2.0;
             else
-                ABuffer[iLocal+jLocal*localHeight] = 0.0;
+                BBuffer[iLocal+jLocal*localHeight] = 0.0;
         }
     }
 
