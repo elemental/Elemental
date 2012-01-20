@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2011, Jack Poulson
+#  Copyright (c) 2009-2012, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental.
@@ -106,14 +106,7 @@ else(PURE)
 endif(PURE)
 
 if(MISSING_LAPACK)
-  if(NOT CMAKE_Fortran_COMPILER)
-    # For some reason enable_language( ... OPTIONAL) causes an error, so we 
-    # should instead manually probe for a Fortran compiler first
-    #enable_language(Fortran OPTIONAL)
-    find_program(FORTRAN_COMPILER NAMES gfortran ifort xlf_r xlf)
-  endif(NOT CMAKE_Fortran_COMPILER)
-  if(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
-    enable_language(Fortran)
+  if(CMAKE_Fortran_COMPILER_WORKS)
     if(NOT CMAKE_Fortran_COMPILER_SUPPORTS_F90)
       message(
         WARNING 
@@ -157,12 +150,6 @@ if(MISSING_LAPACK)
     get_filename_component(Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
     set(LAPACK_ADDONS_LIBS "")
     if(Fortran_COMPILER_NAME STREQUAL "gfortran")
-      if(F_FROM_C_DEFS)
-        message(STATUS "Using user-defined F_FROM_C_DEFS=${F_FROM_C_DEFS}")
-      else(F_FROM_C_DEFS)
-        # gfortran should append an underscore by default
-        set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
-      endif(F_FROM_C_DEFS)
       # This library should be in your LD_LIBRARY_PATH. CMake does not appear
       # to find it in cases where it is a shared library with extensions, e.g.,
       # if /usr/lib/libgfortran.so.1 exists, but /usr/lib/libgfortran.so 
@@ -195,21 +182,7 @@ if(MISSING_LAPACK)
         endif(GFORTRAN_LIB)
       endif(GFORTRAN_LIB)
       set(LAPACK_ADDONS_LIBS ${GFORTRAN_LIB})
-    elseif(Fortran_COMPILER_NAME STREQUAL "bgxlf_r" OR
-           Fortran_COMPILER_NAME STREQUAL "bgxlf" OR
-           Fortran_COMPILER_NAME STREQUAL "xlf" OR
-           Fortran_COMPILER_NAME STREQUAL "xlf_r")
-      if(F_FROM_C_DEFS)
-        message(STATUS "Using user-defined F_FROM_C_DEFS=${F_FROM_C_DEFS}")
-      else(F_FROM_C_DEFS)
-        set(F_FROM_C_DEFS "")
-      endif(F_FROM_C_DEFS)
     elseif(Fortran_COMPILER_NAME STREQUAL "ifort")
-      if(F_FROM_C_DEFS)
-        message(STATUS "Using user-defined F_FROM_C_DEFS=${F_FROM_C_DEFS}")
-      else(F_FROM_C_DEFS)
-        set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
-      endif(F_FROM_C_DEFS)
       if(IFCORE_LIB)
         message(STATUS "Using user-defined IFCORE_LIB=${IFCORE_LIB}")
         set(LAPACK_ADDONS_LIBS ${IFCORE_LIB})
@@ -227,32 +200,27 @@ if(MISSING_LAPACK)
           message(FATAL_ERROR "Could not find ifcore library")
         endif(IFCORE_LIB)
       endif(IFCORE_LIB)
-    else(Fortran_COMPILER_NAME STREQUAL "gfortran")
-      # The list of other compiler options should grow quickly. It is best      
-      # to default to assuming an appended underscore.
-      if(F_FROM_C_DEFS)
-        message(STATUS "Using user-defined F_FROM_C_DEFS=${F_FROM_C_DEFS}")
-      else(F_FROM_C_DEFS) 
-        set(F_FROM_C_DEFS "-DBLAS_POST -DLAPACK_POST")
-      endif(F_FROM_C_DEFS)
     endif(Fortran_COMPILER_NAME STREQUAL "gfortran")
-    set(F_FROM_C_DEFS "${F_FROM_C_DEFS} -DPREPEND_X")
-    
+   
     file(
       GLOB_RECURSE LAPACK_ADDON_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.f"
     )
     add_library(lapack-addons STATIC ${LAPACK_ADDON_SRC})
     target_link_libraries(lapack-addons ${LAPACK_ADDONS_LIBS})
-  else(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
+  else(CMAKE_Fortran_COMPILER_WORKS)
     set(FAILED_PMRRR TRUE PARENT_SCOPE)
     message(WARNING "F90 compiler not found; cannot build PMRRR using the supplied MATH_LIBS")
     return()
-  endif(CMAKE_Fortran_COMPILER OR FORTRAN_COMPILER)
+  endif(CMAKE_Fortran_COMPILER_WORKS)
 endif(MISSING_LAPACK)
 
-# Add in the preprocessor definitions 
+# Add in the preprocessor definitions and fortran name-mangling
 if(MISSING_LAPACK)
-  set(C_BASE_FLAGS "${F_FROM_C_DEFS}")
+  set(C_BASE_FLAGS "-DCUSTOM_BLAS_LAPACK")
+  include(CFortranInterface)
+  FortranCInterface_VERIFY()
+  FortranCInterface_HEADER(${CMAKE_CURRENT_BINARY_DIR}/include/FCMangle.h 
+                           MACRO_NAMESPACE "FC_")
 else(MISSING_LAPACK)
   set(C_BASE_FLAGS "${BLAS_DEFS} ${LAPACK_DEFS}")
 endif(MISSING_LAPACK)

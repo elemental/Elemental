@@ -52,6 +52,10 @@
 
 #include "elemental/config.h"
 
+#ifdef HAVE_FORTRAN_INTERFACE
+# include "elemental/FCMangle.h"
+#endif
+
 // If defined, the _OPENMP macro contains the date of the specification
 #ifdef _OPENMP
 # include <omp.h>

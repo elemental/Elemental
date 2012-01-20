@@ -426,6 +426,9 @@ endif(HAVE___restrict__)
 # Add the Parallel Linear Congruential Generator (PLCG) project
 add_subdirectory(external/plcg)
 
+# Try to enable Fortran 
+enable_language(Fortran OPTIONAL)
+
 # Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
 # if necessary
 if(BUILD_PMRRR)
@@ -436,6 +439,18 @@ if(BUILD_PMRRR AND NOT FAILED_PMRRR)
 else(BUILD_PMRRR AND NOT FAILED_PMRRR)
   set(WITHOUT_PMRRR TRUE)
 endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
+
+set(HAVE_FORTRAN_INTERFACE FALSE)
+if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
+  include(CFortranInterface)
+  FortranCInterface_VERIFY(CXX)
+  if(FortranCInterface_VERIFIED_CXX)
+    set(HAVE_FORTRAN_INTERFACE TRUE)
+    FortranCInterface_HEADER(
+      ${CMAKE_CURRENT_BINARY_DIR}/include/elemental/FCMangle.h 
+      MACRO_NAMESPACE "FC_")
+  endif(FortranCInterface_VERIFIED_CXX)
+endif(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
 
 # Create the Elemental configuration header
 configure_file( 

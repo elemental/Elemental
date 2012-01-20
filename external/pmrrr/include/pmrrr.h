@@ -241,45 +241,32 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
  *
  */
 
-/* BLAS function prototypes
+/* 
+ * BLAS/LAPACK function prototypes
  * 
  * These macros were added by Jack Poulson for easing integration into 
- * Elemental */
-#if defined(BLAS_POST)
-# if defined(PREPEND_X)
-#  define BLAS(name) x ## name ## _
-# else
-#  define BLAS(name) name ## _
-# endif
+ * Elemental 
+ */
+#if defined(CUSTOM_BLAS_LAPACK)
+#  include "FCMangle.h"
+#  define BLAS(name) x ## FC_GLOBAL(name)
+#  define LAPACK(name) x ## FC_GLOBAL(name)
 #else
-# if defined(PREPEND_X)
-#  define BLAS(name) x ## name
+# if defined(BLAS_POST)
+#  define BLAS(name) name ## _
 # else
 #  define BLAS(name) name
 # endif
-#endif
-void pmrrr_dscal(int*, double*, double*, int*);
-void BLAS(dscal)(int*, double*, double*, int*);
-
-/* LAPACK function prototypes
- * Note: type specifier 'extern' does not matter in declaration
- * so here used to mark routines from LAPACK and BLAS libraries 
- * 
- * The macros for determining underscore convention were added by 
- * Jack Poulson to ease integration into Elemental */
-#if defined(LAPACK_POST)
-# if defined(PREPEND_X)
-#  define LAPACK(name) x ## name ## _
-# else
+# if defined(LAPACK_POST)
 #  define LAPACK(name) name ## _
-# endif
-#else
-# if defined(PREPEND_X)
-#  define LAPACK(name) x ## name
 # else
 #  define LAPACK(name) name
 # endif
 #endif
+
+void pmrrr_dscal(int*, double*, double*, int*);
+void BLAS(dscal)(int*, double*, double*, int*);
+
 double LAPACK(dlamch)(char*);
 
 double LAPACK(dlanst)(char*, int*, double*, double*);
