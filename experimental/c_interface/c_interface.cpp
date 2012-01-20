@@ -34,18 +34,20 @@
 #include "elemental.hpp"
 using namespace elemental;
 
-extern "C" {
-#include "c_interface.h"
-}
+typedef int GridHandle;
+typedef int RealDistMatHandle;
+typedef int ComplexDistMatHandle;
+typedef int RealDistColVecHandle;
+typedef int ComplexDistColVecHandle;
 
 namespace {
+
 std::vector<Grid*> gridList;
 
 std::vector<DistMatrix<double,MC,MR>*> realDistMatList;
 std::vector<DistMatrix<std::complex<double>,MC,MR>*> complexDistMatList;
 
 std::vector<DistMatrix<double,VR,STAR>*> realDistColVecList;
-}
 
 Grid& TranslateGridHandle( GridHandle handle )
 { return *gridList[handle]; }
@@ -61,6 +63,8 @@ DistMatrix<std::complex<double>,MC,MR>& TranslateComplexDistMatHandle
 DistMatrix<double,VR,STAR>& TranslateRealDistColVecHandle
 ( RealDistColVecHandle realDistColVecHandle )
 { return *realDistColVecList[realDistColVecHandle]; }
+
+}
 
 extern "C" {
 
@@ -81,6 +85,8 @@ int LocalLength( int n, int shift, int modulus )
 
 GridHandle CreateGrid( MPI_Comm comm )
 {
+    // TODO: Switch from O(n) algorithm to O(1) algorithm by keeping static 
+    //       data which tracks the last free index (if it exists)
     unsigned index;
     for( index=0; index<gridList.size(); ++index )
     {

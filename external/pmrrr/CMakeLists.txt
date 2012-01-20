@@ -228,11 +228,6 @@ if(NOT HAVE_SPINLOCKS)
   set(C_BASE_FLAGS "${C_BASE_FLAGS} -DNOSPINLOCKS")
 endif(NOT HAVE_SPINLOCKS)
 
-# Grab all of the .c and .h files
-file(GLOB_RECURSE PMRRR_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.c")
-file(GLOB_RECURSE PMRRR_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
-set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
-
 # Ensure that an MPI C compiler was found
 if(NOT MPI_C_FOUND)
     message(WARNING "No MPI C compiler was found, so PMRRR cannot be built")
@@ -258,8 +253,12 @@ if(NOT CMAKE_THREAD_LIBS_INIT)
   endif(NOT CMAKE_USE_PTHREADS_INIT)
 endif(NOT CMAKE_THREAD_LIBS_INIT)
 
-# Build PMRRR and set the link libraries
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+# Grab all of the .c and .h files
+file(GLOB_RECURSE PMRRR_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.c")
+file(GLOB_RECURSE PMRRR_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
+set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
+
+# Define the main library and its link libraries
 if(MISSING_LAPACK)
   add_library(pmrrr STATIC ${PMRRR_SRC})
   target_link_libraries(
@@ -271,3 +270,25 @@ else(MISSING_LAPACK)
   target_link_libraries(pmrrr ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
   install(TARGETS pmrrr DESTINATION lib)
 endif(MISSING_LAPACK)
+
+# Define the header-preparation rules
+set(PREPARED_HEADERS)
+foreach(HEADER ${PMRRR_H})
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${HEADER}
+            ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${HEADER}"
+  )
+  list(APPEND PREPARED_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/${HEADER})
+
+  get_filename_component(HEADER_PATH ${HEADER} PATH)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${HEADER} 
+          DESTINATION ${HEADER_PATH})
+endforeach(HEADER)
+add_custom_target(prepare_pmrrr_headers DEPENDS ${PREPARED_HEADERS})
+add_dependencies(pmrrr prepare_pmrrr_headers)
+
+# Make sure that the PMRRR headers can be found
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
+

@@ -62,7 +62,7 @@
 #cmakedefine RELEASE
 #cmakedefine BLAS_POST
 #cmakedefine LAPACK_POST
-#cmakedefine HAVE_FORTRAN_INTERFACE
+#cmakedefine HAVE_F90_INTERFACE
 #cmakedefine WITHOUT_PMRRR
 #cmakedefine DISABLE_SCALAR_WRAPPER
 #cmakedefine AVOID_COMPLEX_MPI

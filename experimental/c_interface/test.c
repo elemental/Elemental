@@ -1,4 +1,4 @@
-#include "./c_interface.h"
+#include "./elemental.h"
 #include <stdio.h>
 #include <stdlib.h>
 

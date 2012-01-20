@@ -74,13 +74,9 @@ internal::TriangularInverseUVar3
         U01Trans_STAR_MC.AlignWith( U02 );
         U12Trans_MR_STAR.AlignWith( U02 );
         //--------------------------------------------------------------------//
-        U11_STAR_STAR = U11;
-        internal::LocalTriangularInverse
-        ( UPPER, diagonal, U11_STAR_STAR );
-        U11 = U11_STAR_STAR;
-
         U01_VC_STAR = U01;
-        internal::LocalTrmm
+        U11_STAR_STAR = U11;
+        internal::LocalTrsm
         ( RIGHT, UPPER, NORMAL, diagonal, (F)-1, U11_STAR_STAR, U01_VC_STAR );
 
         // We transpose before the communication to avoid cache-thrashing
@@ -94,8 +90,10 @@ internal::TriangularInverseUVar3
         U01.TransposeFrom( U01Trans_STAR_MC );
 
         U12_STAR_VR.TransposeFrom( U12Trans_MR_STAR );
-        internal::LocalTrmm
+        internal::LocalTrsm
         ( LEFT, UPPER, NORMAL, diagonal, (F)1, U11_STAR_STAR, U12_STAR_VR );
+        internal::LocalTriangularInverse( UPPER, diagonal, U11_STAR_STAR );
+        U11 = U11_STAR_STAR;
         U12 = U12_STAR_VR;
         //--------------------------------------------------------------------//
         U01Trans_STAR_MC.FreeAlignments();

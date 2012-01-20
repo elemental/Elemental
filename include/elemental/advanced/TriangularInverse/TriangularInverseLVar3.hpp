@@ -72,12 +72,9 @@ internal::TriangularInverseLVar3( Diagonal diagonal, DistMatrix<F,MC,MR>& L )
         L10_STAR_MR.AlignWith( L20 );
         L21_MC_STAR.AlignWith( L20 );
         //--------------------------------------------------------------------//
-        L11_STAR_STAR = L11;
-        internal::LocalTriangularInverse( LOWER, diagonal, L11_STAR_STAR );
-        L11 = L11_STAR_STAR;
-
         L10_STAR_VR = L10;
-        internal::LocalTrmm
+        L11_STAR_STAR = L11;
+        internal::LocalTrsm
         ( LEFT, LOWER, NORMAL, diagonal, (F)-1, L11_STAR_STAR, L10_STAR_VR );
 
         L21_MC_STAR = L21;
@@ -87,8 +84,10 @@ internal::TriangularInverseLVar3( Diagonal diagonal, DistMatrix<F,MC,MR>& L )
         L10 = L10_STAR_MR;
 
         L21_VC_STAR = L21_MC_STAR;
-        internal::LocalTrmm
+        internal::LocalTrsm
         ( RIGHT, LOWER, NORMAL, diagonal, (F)1, L11_STAR_STAR, L21_VC_STAR );
+        internal::LocalTriangularInverse( LOWER, diagonal, L11_STAR_STAR );
+        L11 = L11_STAR_STAR;
         L21 = L21_VC_STAR;
         //--------------------------------------------------------------------//
         L10_STAR_MR.FreeAlignments();

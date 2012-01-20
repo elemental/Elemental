@@ -426,8 +426,19 @@ endif(HAVE___restrict__)
 # Add the Parallel Linear Congruential Generator (PLCG) project
 add_subdirectory(external/plcg)
 
-# Try to enable Fortran 
-enable_language(Fortran OPTIONAL)
+# Go ahead and check for Fortran
+enable_language(Fortran OPTIONAL)  
+set(HAVE_F90_INTERFACE FALSE)
+if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
+  include(FortranCInterface)
+  FortranCInterface_VERIFY(CXX)
+  if(FortranCInterface_VERIFIED_CXX)
+    set(HAVE_F90_INTERFACE TRUE)
+    FortranCInterface_HEADER(
+      ${CMAKE_CURRENT_BINARY_DIR}/include/elemental/FCMangle.h 
+      MACRO_NAMESPACE "FC_")
+  endif(FortranCInterface_VERIFIED_CXX)
+endif(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
 
 # Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
 # if necessary
@@ -439,18 +450,6 @@ if(BUILD_PMRRR AND NOT FAILED_PMRRR)
 else(BUILD_PMRRR AND NOT FAILED_PMRRR)
   set(WITHOUT_PMRRR TRUE)
 endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
-
-set(HAVE_FORTRAN_INTERFACE FALSE)
-if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
-  include(CFortranInterface)
-  FortranCInterface_VERIFY(CXX)
-  if(FortranCInterface_VERIFIED_CXX)
-    set(HAVE_FORTRAN_INTERFACE TRUE)
-    FortranCInterface_HEADER(
-      ${CMAKE_CURRENT_BINARY_DIR}/include/elemental/FCMangle.h 
-      MACRO_NAMESPACE "FC_")
-  endif(FortranCInterface_VERIFIED_CXX)
-endif(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
 
 # Create the Elemental configuration header
 configure_file( 
@@ -621,22 +620,20 @@ endif(BUILD_EXAMPLES)
 
 if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
-
-  # Grab all of the experimental source and header files
-  file(GLOB_RECURSE EXPERIMENTAL_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
-       "experimental/*.cpp")
-  file(GLOB_RECURSE EXPERIMENTAL_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
-       "include/*.h" "include/*.hpp")
-  set(EXPERIMENTAL_SRC "${EXPERIMENTAL_CPP};${EXPERIMENTAL_HEADERS}")
-  add_library(experimental STATIC ${EXPERIMENTAL_SRC})
-
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c_interface")
+
+  # Build the experimental C interface
+  file(GLOB_RECURSE EXPERIMENTAL_C_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
+       "experimental/c_interface/c_interface.cpp")
+  add_library(experimental-c-interface STATIC ${EXPERIMENTAL_C_CPP})
+
   add_executable(
       experimental-c-interface-test
-      ${EXPERIMENTAL_DIR}/c_interface/c_interface_test.c
+      ${EXPERIMENTAL_DIR}/c_interface/test.c
   )
   target_link_libraries(
-      experimental-c-interface-test experimental elemental cmake-dummy-lib
+      experimental-c-interface-test experimental-c-interface 
+      elemental cmake-dummy-lib
   )
   set_target_properties(
       experimental-c-interface-test PROPERTIES OUTPUT_NAME c_interface_test
@@ -648,7 +645,47 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
     )
   endif(MPI_LINK_FLAGS)
   install(TARGETS experimental-c-interface-test 
-          DESTINATION bin/experimental/c_interface)
+          DESTINATION bin/experimental/c_interface)  
+  add_custom_command(
+    OUTPUT ${PROJECT_BINARY_DIR}/include/elemental.h
+    COMMAND ${CMAKE_COMMAND} -E copy 
+            ${PROJECT_SOURCE_DIR}/experimental/c_interface/elemental.h
+            ${PROJECT_BINARY_DIR}/include/elemental.h
+    DEPENDS "${PROJECT_SOURCE_DIR}/experimental/c_interface/elemental.h"
+  )
+  install(FILES ${PROJECT_BINARY_DIR}/include/elemental.h 
+          DESTINATION include/elemental.h)
+
+  if(HAVE_F90_INTERFACE)
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90_interface")
+
+    # Build the experimental F90 interface
+    file(GLOB_RECURSE EXPERIMENTAL_F90_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
+         "experimental/f90_interface/f90_interface.cpp")
+    add_library(experimental-f90-interface STATIC ${EXPERIMENTAL_F90_CPP})
+
+    add_executable(
+        experimental-f90-interface-test
+        ${EXPERIMENTAL_DIR}/f90_interface/test.f90
+    )
+    target_link_libraries(
+        experimental-f90-interface-test experimental-f90-interface 
+        elemental cmake-dummy-lib
+    )
+    set_target_properties(
+        experimental-f90-interface-test 
+        PROPERTIES OUTPUT_NAME f90_interface_test
+        RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+    )
+    if(MPI_LINK_FLAGS)
+      set_target_properties(
+          experimental-f90-interface-test 
+          PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS}
+      )
+    endif(MPI_LINK_FLAGS)
+    install(TARGETS experimental-f90-interface-test 
+            DESTINATION bin/experimental/f90_interface)  
+  endif(HAVE_F90_INTERFACE)
 endif(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
 
 # Simplify the inclusion of Elemental as a subproject in another build system
