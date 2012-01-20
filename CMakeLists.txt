@@ -43,6 +43,7 @@ endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 
 option(BUILD_EXAMPLES "Build the examples" ON)
 option(BUILD_TESTS "Build a collection of test executables" OFF)
+option(BUILD_EXPERIMENTAL "Build experimental code" OFF)
 
 # Do not attempt to build PMRRR if on a Windows platform (it requires pthreads)
 if(WIN32)
@@ -602,6 +603,38 @@ if(BUILD_EXAMPLES)
             DESTINATION bin/examples/advanced)
   endforeach(EXAMPLE)
 endif(BUILD_EXAMPLES)
+
+if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
+  set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
+
+  # Grab all of the experimental source and header files
+  file(GLOB_RECURSE EXPERIMENTAL_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
+       "experimental/*.cpp")
+  file(GLOB_RECURSE EXPERIMENTAL_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
+       "include/*.h" "include/*.hpp")
+  set(EXPERIMENTAL_SRC "${EXPERIMENTAL_CPP};${EXPERIMENTAL_HEADERS}")
+  add_library(experimental STATIC ${EXPERIMENTAL_SRC})
+
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c_interface")
+  add_executable(
+      experimental-c-interface-test
+      ${EXPERIMENTAL_DIR}/c_interface/c_interface_test.cpp
+  )
+  target_link_libraries(
+      experimental-c-interface-test experimental elemental cmake-dummy-lib
+  )
+  set_target_properties(
+      experimental-c-interface-test PROPERTIES OUTPUT_NAME c_interface_test
+                                    RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+  )
+  if(MPI_LINK_FLAGS)
+    set_target_properties(
+        experimental-c-interface-test PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS}
+    )
+  endif(MPI_LINK_FLAGS)
+  install(TARGETS experimental-c-interface-test 
+          DESTINATION bin/experimental/c_interface)
+endif(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
 
 # Simplify the inclusion of Elemental as a subproject in another build system
 #set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
