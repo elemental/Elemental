@@ -147,6 +147,20 @@ if(NOT WIN32)
   endif(PURE_RELEASE AND NOT CXX_PURE_RELEASE_FLAGS)
 endif(NOT WIN32)
 
+# Go ahead and check for Fortran
+enable_language(Fortran OPTIONAL)  
+set(HAVE_F90_INTERFACE FALSE)
+if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
+  include(FortranCInterface)
+  FortranCInterface_VERIFY(CXX)
+  if(FortranCInterface_VERIFIED_CXX)
+    set(HAVE_F90_INTERFACE TRUE)
+    FortranCInterface_HEADER(
+      ${CMAKE_CURRENT_BINARY_DIR}/include/elemental/FCMangle.h 
+      MACRO_NAMESPACE "FC_")
+  endif(FortranCInterface_VERIFIED_CXX)
+endif(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
+
 # Make sure that MPI is available
 find_package(MPI)
 if(NOT MPI_CXX_FOUND)
@@ -425,20 +439,6 @@ endif(HAVE___restrict__)
 
 # Add the Parallel Linear Congruential Generator (PLCG) project
 add_subdirectory(external/plcg)
-
-# Go ahead and check for Fortran
-enable_language(Fortran OPTIONAL)  
-set(HAVE_F90_INTERFACE FALSE)
-if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
-  include(FortranCInterface)
-  FortranCInterface_VERIFY(CXX)
-  if(FortranCInterface_VERIFIED_CXX)
-    set(HAVE_F90_INTERFACE TRUE)
-    FortranCInterface_HEADER(
-      ${CMAKE_CURRENT_BINARY_DIR}/include/elemental/FCMangle.h 
-      MACRO_NAMESPACE "FC_")
-  endif(FortranCInterface_VERIFIED_CXX)
-endif(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
 
 # Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
 # if necessary
