@@ -371,8 +371,8 @@ void SymmetricAxBx
 
     *wHandle = CreateEmptyRealDistColVec( A.Grid() ); 
     *XHandle = CreateEmptyRealDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( wHandle );
-    DistMatrix<double,MC,MR>& X   = TranslateRealDistMatHandle( XHandle );
+    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
+    DistMatrix<double,MC,MR>& X   = TranslateRealDistMatHandle( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X );
 }
@@ -387,8 +387,8 @@ void SymmetricAxBxPartialRange
     
     *wHandle = CreateEmptyRealDistColVec( A.Grid() ); 
     *XHandle = CreateEmptyRealDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( wHandle );
-    DistMatrix<double,MC,MR>& X   = TranslateRealDistMatHandle( XHandle );
+    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
+    DistMatrix<double,MC,MR>& X   = TranslateRealDistMatHandle( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, a, b );
 }
@@ -403,8 +403,8 @@ void SymmetricAxBxPartialIndices
 
     *wHandle = CreateEmptyRealDistColVec( A.Grid() ); 
     *XHandle = CreateEmptyRealDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( wHandle );
-    DistMatrix<double,MC,MR>& X   = TranslateRealDistMatHandle( XHandle );
+    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
+    DistMatrix<double,MC,MR>& X   = TranslateRealDistMatHandle( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, a, b );
 }
@@ -420,8 +420,8 @@ void HermitianAxBx
     
     *wHandle = CreateEmptyRealDistColVec( A.Grid() ); 
     *XHandle = CreateEmptyComplexDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( wHandle );
-    DistMatrix<C,MC,MR>& X        = TranslateComplexDistMatHandle( XHandle );
+    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
+    DistMatrix<C,MC,MR>& X        = TranslateComplexDistMatHandle( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X );
 }
@@ -438,8 +438,8 @@ void HermitianAxBxPartialRange
 
     *wHandle = CreateEmptyRealDistColVec( A.Grid() ); 
     *XHandle = CreateEmptyComplexDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( wHandle );
-    DistMatrix<C,MC,MR>& X        = TranslateComplexDistMatHandle( XHandle );
+    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
+    DistMatrix<C,MC,MR>& X        = TranslateComplexDistMatHandle( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, a, b );
 }
@@ -456,8 +456,8 @@ void HermitianAxBxPartialIndices
 
     *wHandle = CreateEmptyRealDistColVec( A.Grid() ); 
     *XHandle = CreateEmptyComplexDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( wHandle );
-    DistMatrix<C,MC,MR>& X        = TranslateComplexDistMatHandle( XHandle );
+    DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
+    DistMatrix<C,MC,MR>& X        = TranslateComplexDistMatHandle( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, a, b );
 }

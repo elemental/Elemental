@@ -69,10 +69,10 @@ main( int argc, char* argv[] )
     SymmetricAxBx( A, B, &w, &X );
 
     if( gridRank == 0 )
-        printf("X:");
+        printf("X:\n");
     PrintRealDistMat( X );
     if( gridRank == 0 )
-        printf("w:");
+        printf("w:\n");
     PrintRealDistColVec( w );
 
     Finalize();

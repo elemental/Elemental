@@ -374,7 +374,7 @@ void FC_GLOBAL_(symmetric_axbx,NAME)
     DistMatrix<double,MC,MR>& B   = TranslateRealDistMatHandle( *BHandle );
 
     *wHandle = CreateEmptyRealDistColVec( A.Grid() );
-    *XHandle = CreateEmtpyRealDistMat( A.Grid() );
+    *XHandle = CreateEmptyRealDistMat( A.Grid() );
     DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
     DistMatrix<double,MC,MR>& X   = TranslateRealDistMatHandle( *XHandle );
     
