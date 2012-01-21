@@ -64,13 +64,9 @@ main( int argc, char* argv[] )
         printf("B:\n");
     PrintRealDistMat( B );
 
-    /* Create empty objects for the eigenvalues, w, and eigenvectors, X */
-    w = CreateEmptyRealDistColVec( grid );
-    X = CreateEmptyRealDistMat( grid );
-
     if( gridRank == 0 )
         printf("Solving for (w,X) in AX=BXW\n");
-    SymmetricAxBx( A, B, w, X );
+    SymmetricAxBx( A, B, &w, &X );
 
     if( gridRank == 0 )
         printf("X:");

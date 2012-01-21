@@ -76,24 +76,24 @@ void PrintRealDistColVec( RealDistColVecHandle AHandle );
 
 void SymmetricAxBx
 ( RealDistMatHandle AHandle, RealDistMatHandle BHandle,
-  RealDistColVecHandle wHandle, RealDistMatHandle XHandle );
+  RealDistColVecHandle* wHandle, RealDistMatHandle* XHandle );
 void SymmetricAxBxPartialRange
 ( RealDistMatHandle AHandle, RealDistMatHandle BHandle,
-  RealDistColVecHandle wHandle, RealDistMatHandle XHandle,
+  RealDistColVecHandle* wHandle, RealDistMatHandle* XHandle,
   double a, double b );
 void SymmetricAxBxPartialIndices
 ( RealDistMatHandle AHandle, RealDistMatHandle BHandle,
-  RealDistColVecHandle wHandle, RealDistMatHandle XHandle,
+  RealDistColVecHandle* wHandle, RealDistMatHandle* XHandle,
   int a, int b );
 
 void HermitianAxBx
 ( ComplexDistMatHandle AHandle, ComplexDistMatHandle BHandle,
-  RealDistColVecHandle wHandle, ComplexDistMatHandle XHandle );
+  RealDistColVecHandle* wHandle, ComplexDistMatHandle* XHandle );
 void HermitianAxBxPartialRange
 ( ComplexDistMatHandle AHandle, ComplexDistMatHandle BHandle,
-  RealDistColVecHandle wHandle, ComplexDistMatHandle XHandle,
+  RealDistColVecHandle* wHandle, ComplexDistMatHandle* XHandle,
   double a, double b );
 void HermitianAxBxPartialIndices
 ( ComplexDistMatHandle AHandle, ComplexDistMatHandle BHandle,
-  RealDistColVecHandle wHandle, ComplexDistMatHandle XHandle,
+  RealDistColVecHandle* wHandle, ComplexDistMatHandle* XHandle,
   int a, int b );

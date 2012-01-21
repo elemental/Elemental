@@ -68,10 +68,6 @@ program main
   !end if
   call print_real_dist_mat( b )
 
-  ! Create empty objects for the eigenvalues, w, and eigenvectors, X 
-  call create_empty_real_dist_col_vec( grid, w )
-  call create_empty_real_dist_mat( grid, x )
-
   !if( rank == 0 ) then
   !  print*, 'Solving for (w,X) in AX=BXW...'
   !end if

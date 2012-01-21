@@ -64,6 +64,60 @@ DistMatrix<double,VR,STAR>& TranslateRealDistColVecHandle
 ( RealDistColVecHandle realDistColVecHandle )
 { return *realDistColVecList[realDistColVecHandle]; }
 
+RealDistMatHandle CreateEmptyRealDistMat( const Grid& grid )
+{
+    int index;
+    for( index=0; index<realDistMatList.size(); ++index )
+    {
+        if( realDistMatList[index] == 0 )
+        {
+            realDistMatList[index] = new DistMatrix<double,MC,MR>(grid);
+            break;
+        }
+    }
+
+    if( index == realDistMatList.size() )
+        realDistMatList.push_back( new DistMatrix<double,MC,MR>(grid) );
+    return index;
+}
+
+ComplexDistMatHandle CreateEmptyComplexDistMat( const Grid& grid )
+{
+    int index;
+    for( index=0; index<complexDistMatList.size(); ++index )
+    {
+        if( complexDistMatList[index] == 0 )
+        {
+            complexDistMatList[index] = 
+                new DistMatrix<std::complex<double>,MC,MR>(grid);
+            break;
+        }
+    }
+
+    if( index == complexDistMatList.size() )
+        complexDistMatList.push_back( 
+            new DistMatrix<std::complex<double>,MC,MR>(grid) 
+        );
+    return index;
+}
+
+RealDistColVecHandle CreateEmptyRealDistColVec( const Grid& grid )
+{
+    int index;
+    for( index=0; index<realDistColVecList.size(); ++index )
+    {
+        if( realDistColVecList[index] == 0 )
+        {
+            realDistColVecList[index] = new DistMatrix<double,VR,STAR>(grid);
+            break;
+        }
+    }
+
+    if( index == realDistColVecList.size() )
+        realDistColVecList.push_back( new DistMatrix<double,VR,STAR>(grid) );
+    return index;
+}
+
 }
 
 extern "C" {
@@ -318,6 +372,9 @@ void FC_GLOBAL_(symmetric_axbx,NAME)
 {
     DistMatrix<double,MC,MR>& A   = TranslateRealDistMatHandle( *AHandle );
     DistMatrix<double,MC,MR>& B   = TranslateRealDistMatHandle( *BHandle );
+
+    *wHandle = CreateEmptyRealDistColVec( A.Grid() );
+    *XHandle = CreateEmtpyRealDistMat( A.Grid() );
     DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
     DistMatrix<double,MC,MR>& X   = TranslateRealDistMatHandle( *XHandle );
     
@@ -331,6 +388,9 @@ void FC_GLOBAL_(symmetric_axbx_partial_range,NAME)
 {
     DistMatrix<double,MC,MR>& A   = TranslateRealDistMatHandle( *AHandle );
     DistMatrix<double,MC,MR>& B   = TranslateRealDistMatHandle( *BHandle );
+
+    *wHandle = CreateEmptyRealDistColVec( A.Grid() );
+    *XHandle = CreateEmptyRealDistMat( A.Grid() );
     DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
     DistMatrix<double,MC,MR>& X   = TranslateRealDistMatHandle( *XHandle );
     
@@ -344,6 +404,9 @@ void FC_GLOBAL_(symmetric_axbx_partial_indices,NAME)
 {
     DistMatrix<double,MC,MR>& A   = TranslateRealDistMatHandle( *AHandle );
     DistMatrix<double,MC,MR>& B   = TranslateRealDistMatHandle( *BHandle );
+
+    *wHandle = CreateEmptyRealDistColVec( A.Grid() );
+    *XHandle = CreateEmptyRealDistMat( A.Grid() );
     DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
     DistMatrix<double,MC,MR>& X   = TranslateRealDistMatHandle( *XHandle );
 
@@ -362,6 +425,9 @@ void FC_GLOBAL_(hermitian_axbx,NAME)
 
     DistMatrix<C,MC,MR>& A        = TranslateComplexDistMatHandle( *AHandle );
     DistMatrix<C,MC,MR>& B        = TranslateComplexDistMatHandle( *BHandle );
+
+    *wHandle = CreateEmptyRealDistColVec( A.Grid() );
+    *XHandle = CreateEmptyComplexDistMat( A.Grid() );
     DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
     DistMatrix<C,MC,MR>& X        = TranslateComplexDistMatHandle( *XHandle );
     
@@ -377,6 +443,9 @@ void FC_GLOBAL_(hermitian_axbx_partial_range,NAME)
 
     DistMatrix<C,MC,MR>& A        = TranslateComplexDistMatHandle( *AHandle );
     DistMatrix<C,MC,MR>& B        = TranslateComplexDistMatHandle( *BHandle );
+    
+    *wHandle = CreateEmptyRealDistColVec( A.Grid() );
+    *XHandle = CreateEmptyComplexDistMat( A.Grid() );
     DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
     DistMatrix<C,MC,MR>& X        = TranslateComplexDistMatHandle( *XHandle );
     
@@ -392,6 +461,9 @@ void FC_GLOBAL_(hermitian_axbx_partial_indices,NAME)
 
     DistMatrix<C,MC,MR>& A        = TranslateComplexDistMatHandle( *AHandle );
     DistMatrix<C,MC,MR>& B        = TranslateComplexDistMatHandle( *BHandle );
+    
+    *wHandle = CreateEmptyRealDistColVec( A.Grid() );
+    *XHandle = CreateEmptyComplexDistMat( A.Grid() );
     DistMatrix<double,VR,STAR>& w = TranslateRealDistColVecHandle( *wHandle );
     DistMatrix<C,MC,MR>& X        = TranslateComplexDistMatHandle( *XHandle );
     
