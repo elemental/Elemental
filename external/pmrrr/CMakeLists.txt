@@ -217,7 +217,7 @@ endif(MISSING_LAPACK)
 # Add in the preprocessor definitions and fortran name-mangling
 if(MISSING_LAPACK)
   set(C_BASE_FLAGS "-DCUSTOM_BLAS_LAPACK")
-  include(CFortranInterface)
+  include(FortranCInterface)
   FortranCInterface_VERIFY()
   FortranCInterface_HEADER(${CMAKE_CURRENT_BINARY_DIR}/include/FCMangle.h 
                            MACRO_NAMESPACE "FC_")

@@ -52,7 +52,7 @@
 
 #include "elemental/config.h"
 
-#ifdef HAVE_FORTRAN_INTERFACE
+#ifdef HAVE_F90_INTERFACE
 # include "elemental/FCMangle.h"
 #endif
 

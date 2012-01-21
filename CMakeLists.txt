@@ -619,6 +619,15 @@ if(BUILD_EXAMPLES)
 endif(BUILD_EXAMPLES)
 
 if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
+  if(NOT MPI_C_FOUND)
+    message(FATAL_ERROR "Could not build C interface without C MPI")
+  endif(NOT MPI_C_FOUND)
+  include_directories(${MPI_C_INCLUDE_PATH})
+  set(CMAKE_C_FLAGS_HYBRIDDEBUG "${MPI_C_COMPILE_FLAGS}")
+  set(CMAKE_C_FLAGS_HYBRIDRELEASE "${MPI_C_COMPILE_FLAGS}")
+  set(CMAKE_C_FLAGS_PUREDEBUG "${MPI_C_COMPILE_FLAGS}")
+  set(CMAKE_C_FLAGS_PURERELEASE "${MPI_C_COMPILE_FLAGS}")
+
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c_interface")
 
@@ -657,6 +666,15 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
           DESTINATION include/elemental.h)
 
   if(HAVE_F90_INTERFACE)
+    if(NOT MPI_Fortran_FOUND)
+      message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
+    endif(NOT MPI_Fortran_FOUND)
+    include_directories(${MPI_Fortran_INCLUDE_PATH})
+    set(CMAKE_Fortran_FLAGS_HYBRIDDEBUG "${MPI_Fortran_COMPILE_FLAGS}")
+    set(CMAKE_Fortran_FLAGS_HYBRIDRELEASE "${MPI_Fortran_COMPILE_FLAGS}")
+    set(CMAKE_Fortran_FLAGS_PUREDEBUG "${MPI_Fortran_COMPILE_FLAGS}")
+    set(CMAKE_Fortran_FLAGS_PURERELEASE "${MPI_Fortran_COMPILE_FLAGS}")
+
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90_interface")
 
     # Build the experimental F90 interface

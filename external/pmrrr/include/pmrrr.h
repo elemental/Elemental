@@ -249,16 +249,16 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
  */
 #if defined(CUSTOM_BLAS_LAPACK)
 #  include "FCMangle.h"
-#  define BLAS(name) x ## FC_GLOBAL(name,NAME)
-#  define LAPACK(name) x ## FC_GLOBAL(name,NAME)
+#  define BLAS(name) FC_GLOBAL(x##name,NAME)
+#  define LAPACK(name) FC_GLOBAL(x##name,NAME)
 #else
 # if defined(BLAS_POST)
-#  define BLAS(name) name ## _
+#  define BLAS(name) name##_
 # else
 #  define BLAS(name) name
 # endif
 # if defined(LAPACK_POST)
-#  define LAPACK(name) name ## _
+#  define LAPACK(name) name##_
 # else
 #  define LAPACK(name) name
 # endif
