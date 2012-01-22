@@ -33,6 +33,8 @@
 #ifndef ELEMENTAL_TYPES_HPP
 #define ELEMENTAL_TYPES_HPP 1
 
+#include "elemental/core/complex.hpp"
+
 namespace elemental {
 
 typedef unsigned char byte;

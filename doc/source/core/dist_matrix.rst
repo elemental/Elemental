@@ -18,8 +18,8 @@ the ``DistMatrix`` class.
    Since the ``DistMatrix`` class makes use of MPI for message passing, 
    custom interfaces must be written for nonstandard datatypes. As of now, 
    the following datatypes are fully supported for ``DistMatrix``:
-   ``int``, ``float``, ``double``, ``std::complex<float>``, and
-   ``std::complex<double>``.
+   ``int``, ``float``, ``double``, ``Complex<float>``, and
+   ``Complex<double>``.
 
 AbstractDistMatrix
 ------------------

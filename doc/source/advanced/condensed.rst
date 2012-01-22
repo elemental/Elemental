@@ -15,7 +15,7 @@ and stores the scaled Householder vectors in place of the introduced zeroes.
    `A` with its similar symmetric tridiagonal matrix and stores the scaled 
    Householder vectors below (above) its tridiagonal entries.
 
-.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
+.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
 
    Similar to above, but the complex Hermitian matrix is reduced to 
    real symmetric tridiagonal form, with the added complication of needing to 
@@ -29,7 +29,7 @@ and stores the scaled Householder vectors in place of the introduced zeroes.
    `A` with its similar symmetric tridiagonal matrix and stores the scaled 
    Householder vectors below (above) its tridiagonal entries.
 
-.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,STAR,STAR>& t )
+.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A, DistMatrix<Complex<R>,STAR,STAR>& t )
 
    Similar to above, but the complex Hermitian matrix is reduced to 
    real symmetric tridiagonal form, with the added complication of needing to 
@@ -59,7 +59,7 @@ matrix.
    the resulting bidiagonal matrix and stores the scaled Householder vectors in 
    the remainder of the matrix.
 
-.. cpp:function:: void Bidiag( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& tP, Matrix<std::complex<R> >& tQ )
+.. cpp:function:: void Bidiag( Matrix<Complex<R> >& A, Matrix<Complex<R> >& tP, Matrix<Complex<R> >& tQ )
 
    Same as above, but the complex scalings for the Householder reflectors are 
    returned in the vectors `tP` and `tQ`.
@@ -72,7 +72,7 @@ matrix.
 
    .. note:: The :math:`m < n` case is not yet supported.
 
-.. cpp:function:: void Bidiag( DistMatrix<std::complex<R>,MC,MR>& A, DistMatrix<std::complex<R>,STAR,STAR>& tP, DistMatrix<std::complex<R>,STAR,STAR>& tQ )
+.. cpp:function:: void Bidiag( DistMatrix<Complex<R>,MC,MR>& A, DistMatrix<Complex<R>,STAR,STAR>& tP, DistMatrix<Complex<R>,STAR,STAR>& tQ )
 
    Same as above, but the complex scalings for the Householder reflectors are 
    returned in the vectors `tP` and `tQ`.

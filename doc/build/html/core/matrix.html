@@ -76,15 +76,15 @@ This constraint is enforced so that <tt class="docutils literal"><span class="pr
 quickly set matrices to zero.</li>
 <li>If the <tt class="docutils literal"><span class="pre">SetToRandom()</span></tt> member function is to be used, then the routine
 <tt class="docutils literal"><span class="pre">T</span> <span class="pre">elemental::SampleUnitBall&lt;T&gt;()</span></tt> must exist. This is already
-provided for <tt class="docutils literal"><span class="pre">int</span></tt>, <tt class="docutils literal"><span class="pre">float</span></tt>, <tt class="docutils literal"><span class="pre">double</span></tt>, <tt class="docutils literal"><span class="pre">std::complex&lt;float&gt;</span></tt>,
-and <tt class="docutils literal"><span class="pre">std::complex&lt;double&gt;</span></tt>, and could be easily extended to new
+provided for <tt class="docutils literal"><span class="pre">int</span></tt>, <tt class="docutils literal"><span class="pre">float</span></tt>, <tt class="docutils literal"><span class="pre">double</span></tt>, <tt class="docutils literal"><span class="pre">Complex&lt;float&gt;</span></tt>,
+and <tt class="docutils literal"><span class="pre">Complex&lt;double&gt;</span></tt>, and could be easily extended to new
 datatypes.</li>
 </ol>
 <p>It is important to note that these requirements are not strictly weaker or
 strictly stronger than requiring <tt class="docutils literal"><span class="pre">T</span></tt> to be POD (Plain Old Data), as
 requirements (2) and (3) are not necessary for a type to be POD, whereas
 POD types are not allowed to have user-defined constructors. Any complex
-variable (defined using <tt class="docutils literal"><span class="pre">std::complex</span></tt>) fits our requirements, but is not
+variable (defined using <tt class="docutils literal"><span class="pre">Complex</span></tt>) fits our requirements, but is not
 considered POD since it has several custom constructors.</p>
 </div></blockquote>
 </div>
@@ -133,7 +133,7 @@ to view the bottom-right <img class="math" src="../_images/math/92df365f89d2233a
 <blockquote>
 <div><div class="highlight-cpp"><div class="highlight"><pre><span class="cp">#include &quot;elemental.hpp&quot;</span>
 <span class="p">...</span>
-<span class="n">Matrix</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">complex</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">ABR</span><span class="p">;</span>
+<span class="n">Matrix</span><span class="o">&lt;</span><span class="n">Complex</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">ABR</span><span class="p">;</span>
 <span class="n">ABR</span><span class="p">.</span><span class="n">View</span><span class="p">(</span> <span class="n">A</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span> <span class="p">);</span>
 </pre></div>
 </div>

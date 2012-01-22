@@ -24,15 +24,15 @@ storage.
        quickly set matrices to zero.
     4. If the ``SetToRandom()`` member function is to be used, then the routine 
        ``T elemental::SampleUnitBall<T>()`` must exist. This is already 
-       provided for ``int``, ``float``, ``double``, ``std::complex<float>``, 
-       and ``std::complex<double>``, and could be easily extended to new 
+       provided for ``int``, ``float``, ``double``, ``Complex<float>``, 
+       and ``Complex<double>``, and could be easily extended to new 
        datatypes.
 
     It is important to note that these requirements are not strictly weaker or 
     strictly stronger than requiring ``T`` to be POD (Plain Old Data), as 
     requirements (2) and (3) are not necessary for a type to be POD, whereas 
     POD types are not allowed to have user-defined constructors. Any complex
-    variable (defined using ``std::complex``) fits our requirements, but is not
+    variable (defined using ``Complex``) fits our requirements, but is not
     considered POD since it has several custom constructors.
 
 An example of generating an :math:`m \times n` matrix of real double-precision 
@@ -83,7 +83,7 @@ to view the bottom-right :math:`6 \times 7` submatrix using
 
      #include "elemental.hpp"
      ...
-     Matrix<std::complex<double> > ABR;
+     Matrix<Complex<double> > ABR;
      ABR.View( A, 4, 3, 6, 7 );
 
 since the bottom-right :math:`6 \times 7` submatrix beings at index 

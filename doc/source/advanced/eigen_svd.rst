@@ -43,7 +43,7 @@ Full spectrum computation
    Compute the full set of eigenvalues of the double-precision real symmetric 
    distributed matrix `A`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w )
 
    Compute the full set of eigenvalues of the double-precision complex
    Hermitian distributed matrix `A`.
@@ -53,7 +53,7 @@ Full spectrum computation
    Compute the full set of eigenpairs of the double-precision real symmetric 
    distributed matrix `A`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
 
    Compute the full set of eigenpairs of the double-precision complex Hermitian
    distributed matrix `A`.
@@ -66,7 +66,7 @@ Index-based subset computation
    Compute the eigenvalues of a double-precision real symmetric distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, int a, int b )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, int a, int b )
 
    Compute the eigenvalues of a double-precision complex Hermitian distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
@@ -76,7 +76,7 @@ Index-based subset computation
    Compute the eigenpairs of a double-precision real symmetric distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
 
    Compute the eigenpairs of a double-precision complex Hermitian distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
@@ -89,7 +89,7 @@ Range-based subset computation
    Compute the eigenvalues of a double-precision real symmetric distributed 
    matrix `A` lying in the half-open interval :math:`(a,b]`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, double a, double b )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, double a, double b )
 
    Compute the eigenvalues of a double-precision complex Hermitian distributed 
    matrix `A` lying in the half-open interval :math:`(a,b]`.
@@ -99,7 +99,7 @@ Range-based subset computation
    Compute the eigenpairs of a double-precision real symmetric distributed 
    matrix `A` with eigenvalues lying in the half-open interval :math:`(a,b]`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<std::complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
 
    Compute the eigenpairs of a double-precision complex Hermitian distributed 
    matrix `A` with eigenvalues lying in the half-open interval :math:`(a,b]`.
@@ -119,7 +119,7 @@ routine from the following list:
    Sort a set of real eigenpairs into non-decreasing order (based on the 
    eigenvalues).
 
-.. cpp:function:: void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z )
+.. cpp:function:: void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R>,MC,MR>& Z )
 
    Sort a set of real eigenvalues and complex eigenvectors into non-decreasing
    order (based on the eigenvalues).
@@ -156,7 +156,7 @@ matrix and the latter in a normal (in fact, unitary) matrix.
    class which has the member function ``R operator()( R omega ) const``.
    See `examples/advanced/RealSymmetricFunction.cpp <../../../../examples/advanced/RealSymmetricFunction.cpp>`_ for an example usage.
 
-.. cpp:function:: void RealHermitianFunction( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A, const RealFunctor& f )
+.. cpp:function:: void RealHermitianFunction( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A, const RealFunctor& f )
 
    Modifies the eigenvalues of the passed-in complex Hermitian matrix by 
    replacing each eigenvalue :math:`\omega_i` with 
@@ -165,12 +165,12 @@ matrix and the latter in a normal (in fact, unitary) matrix.
    ``R operator()( R omega ) const``.
    See `examples/advanced/RealHermitianFunction.cpp <../../../../examples/advanced/RealHermitianFunction.cpp>`_ for an example usage.
 
-.. cpp:function:: void ComplexHermitianFunction( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A, const ComplexFunctor& f )
+.. cpp:function:: void ComplexHermitianFunction( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A, const ComplexFunctor& f )
 
    Modifies the eigenvalues of the passed-in complex Hermitian matrix by
    replacing each eigenvalue :math:`\omega_i` with 
    :math:`f(\omega_i) \in \mathbb{C}`. ``ComplexFunctor`` can be any class
-   which has the member function ``std::complex<R> operator()( R omega ) const``.
+   which has the member function ``Complex<R> operator()( R omega ) const``.
    See `examples/advanced/ComplexHermitianFunction.cpp <../../../../examples/advanced/ComplexHermitianFunction.cpp>`_ for an example usage.
 
 Skew-Hermitian eigensolver

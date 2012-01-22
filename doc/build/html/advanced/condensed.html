@@ -3,16 +3,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Reduction to condensed form &mdash; Elemental 0.72 documentation</title>
-    
+    <title>Reduction to condensed form &mdash; Elemental v0.72 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -25,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental 0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
     <link rel="up" title="Advanced linear algebra" href="../advanced.html" />
     <link rel="next" title="Eigensolvers and SVD" href="eigen_svd.html" />
     <link rel="prev" title="In-place inversion" href="inversion.html" /> 
@@ -43,7 +40,7 @@
         <li class="right" >
           <a href="inversion.html" title="In-place inversion"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" accesskey="U">Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>  
@@ -71,8 +68,8 @@ Householder vectors below (above) its tridiagonal entries.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="HermitianTridiag__UpperOrLower.Matrix:std::complex:R::R.Matrix:std::complex:R::R">
-void <tt class="descname">HermitianTridiag</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;std::complex&lt;R&gt;&gt;&amp; <em>A</em>, Matrix&lt;std::complex&lt;R&gt;&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#HermitianTridiag__UpperOrLower.Matrix:std::complex:R::R.Matrix:std::complex:R::R" title="Permalink to this definition">¶</a></dt>
+<dt id="HermitianTridiag__UpperOrLower.Matrix:Complex:R::R.Matrix:Complex:R::R">
+void <tt class="descname">HermitianTridiag</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#HermitianTridiag__UpperOrLower.Matrix:Complex:R::R.Matrix:Complex:R::R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Similar to above, but the complex Hermitian matrix is reduced to
 real symmetric tridiagonal form, with the added complication of needing to
 also store the phase information for the Householder vectors (the scaling can
@@ -89,8 +86,8 @@ Householder vectors below (above) its tridiagonal entries.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="HermitianTridiag__UpperOrLower.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R">
-void <tt class="descname">HermitianTridiag</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;std::complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#HermitianTridiag__UpperOrLower.DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="HermitianTridiag__UpperOrLower.DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.STAR.STAR:R">
+void <tt class="descname">HermitianTridiag</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;Complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;Complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#HermitianTridiag__UpperOrLower.DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.STAR.STAR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Similar to above, but the complex Hermitian matrix is reduced to
 real symmetric tridiagonal form, with the added complication of needing to
 also store the phase information for the Householder vectors (the scaling can
@@ -122,8 +119,8 @@ the remainder of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Bidiag__Matrix:std::complex:R::R.Matrix:std::complex:R::R.Matrix:std::complex:R::R">
-void <tt class="descname">Bidiag</tt><big>(</big>Matrix&lt;std::complex&lt;R&gt;&gt;&amp; <em>A</em>, Matrix&lt;std::complex&lt;R&gt;&gt;&amp; <em>tP</em>, Matrix&lt;std::complex&lt;R&gt;&gt;&amp; <em>tQ</em><big>)</big><a class="headerlink" href="#Bidiag__Matrix:std::complex:R::R.Matrix:std::complex:R::R.Matrix:std::complex:R::R" title="Permalink to this definition">¶</a></dt>
+<dt id="Bidiag__Matrix:Complex:R::R.Matrix:Complex:R::R.Matrix:Complex:R::R">
+void <tt class="descname">Bidiag</tt><big>(</big>Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>tP</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>tQ</em><big>)</big><a class="headerlink" href="#Bidiag__Matrix:Complex:R::R.Matrix:Complex:R::R.Matrix:Complex:R::R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the complex scalings for the Householder reflectors are
 returned in the vectors <cite>tP</cite> and <cite>tQ</cite>.</p>
 </dd></dl>
@@ -141,8 +138,8 @@ Householder vectors in the remainder of the matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Bidiag__DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R.DistMatrix:std::complex:R:.STAR.STAR:R">
-void <tt class="descname">Bidiag</tt><big>(</big>DistMatrix&lt;std::complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;std::complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>tP</em>, DistMatrix&lt;std::complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>tQ</em><big>)</big><a class="headerlink" href="#Bidiag__DistMatrix:std::complex:R:.MC.MR:R.DistMatrix:std::complex:R:.STAR.STAR:R.DistMatrix:std::complex:R:.STAR.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Bidiag__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.STAR.STAR:R.DistMatrix:Complex:R:.STAR.STAR:R">
+void <tt class="descname">Bidiag</tt><big>(</big>DistMatrix&lt;Complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;Complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>tP</em>, DistMatrix&lt;Complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>tQ</em><big>)</big><a class="headerlink" href="#Bidiag__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.STAR.STAR:R.DistMatrix:Complex:R:.STAR.STAR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the complex scalings for the Householder reflectors are
 returned in the vectors <cite>tP</cite> and <cite>tQ</cite>.</p>
 <div class="admonition note">
@@ -187,7 +184,7 @@ returned in the vectors <cite>tP</cite> and <cite>tQ</cite>.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -213,13 +210,13 @@ returned in the vectors <cite>tP</cite> and <cite>tQ</cite>.</p>
         <li class="right" >
           <a href="inversion.html" title="In-place inversion"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" >Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

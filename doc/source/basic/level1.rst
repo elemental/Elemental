@@ -166,7 +166,7 @@ as a column vector.
 
    Serial version for real datatypes.
 
-.. cpp:function:: R Nrm2( const Matrix<std::complex<R> >& x )
+.. cpp:function:: R Nrm2( const Matrix<Complex<R> >& x )
 
    Serial version for complex datatypes.
 
@@ -174,7 +174,7 @@ as a column vector.
 
    Distributed version for real datatypes.
 
-.. cpp:function:: R Nrm2( const DistMatrix<std::complex<R>,MC,MR>& x )
+.. cpp:function:: R Nrm2( const DistMatrix<Complex<R>,MC,MR>& x )
 
    Distributed version for complex datatypes.
 

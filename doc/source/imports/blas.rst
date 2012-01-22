@@ -40,7 +40,7 @@ Level 1
    Return the Euclidean two-norm of the vector `x`, where
    :math:`||x||_2 = \sqrt{\sum_{i=0}^{n-1} |x_i|^2}`. Note that if `T` 
    represents a complex field, then the return type is the underlying real field
-   (e.g., ``T=std::complex<double>`` results in a return type of `double`), 
+   (e.g., ``T=Complex<double>`` results in a return type of `double`), 
    otherwise `T` equals the return type.
 
 .. cpp:function:: void blas::Scal( int n, T alpha, T* x, int incx )

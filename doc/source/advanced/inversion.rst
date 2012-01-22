@@ -50,7 +50,7 @@ as the maximum absolute value of the eigenvalues of :math:`A`.
    Computes the pseudoinverse of a distributed real symmetric matrix with data
    stored in the `uplo` triangle.
 
-.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
+.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A )
 
    Computes the pseudoinverse of a distributed complex Hermitian matrix with
    data stored in the `uplo` triangle.

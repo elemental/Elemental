@@ -133,13 +133,3 @@ Sampling
 
    Return a single sample from a normal distribution with mean 0 and 
    standard deviation 1, but using the parallel LCG.
-   
-.. cpp:function:: void plcg::SerialGaussianRandomVariable( std::complex<R>& X )
-
-   Return a single complex sample from a normal distribution with mean 0 and 
-   standard deviation 1 using the serial LCG.
-
-.. cpp:function:: void plcg::ParallelGaussianRandomVariable( std::complex<R>& X )
-
-   Return a single complex sample from a normal distribution with mean 0 and 
-   standard deviation 1, but using the parallel LCG.
