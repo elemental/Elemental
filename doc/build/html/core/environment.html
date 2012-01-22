@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Environment &mdash; Elemental v0.72 documentation</title>
+    <title>Environment &mdash; Elemental 0.73 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.72',
+        VERSION:     '0.73',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental 0.73 documentation" href="../index.html" />
     <link rel="up" title="Core functionality" href="../core.html" />
     <link rel="next" title="The Matrix class" href="matrix.html" />
     <link rel="prev" title="Core functionality" href="../core.html" /> 
@@ -40,7 +43,7 @@
         <li class="right" >
           <a href="../core.html" title="Core functionality"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.73 documentation</a> &raquo;</li>
           <li><a href="../core.html" accesskey="U">Core functionality</a> &raquo;</li> 
       </ul>
     </div>  
@@ -133,7 +136,7 @@ Z <tt class="descname">Abs</tt><big>(</big>Z <em>alpha</em><big>)</big><a class=
 Z <tt class="descname">Abs</tt><big>(</big>Complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#Abs__Complex:Z:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the absolute value of complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>:</p>
 <div class="math">
-<p><img src="../_images/math/6116edc70d651f8bb7a736be40b41286cac67728.png" alt="|\alpha| = \sqrt{|\mathcal{R}(\alpha)|^2+|\mathcal{I}(\alpha)|^2}" /></p>
+<p><img src="../_images/math/6116edc70d651f8bb7a736be40b41286cac67728.png" alt="|\alpha| = \sqrt{|\mathcal{R}(\alpha)|^2+|\mathcal{I}(\alpha)|^2}"/></p>
 </div></dd></dl>
 
 <dl class="function">
@@ -147,7 +150,7 @@ Z <tt class="descname">FastAbs</tt><big>(</big>Z <em>alpha</em><big>)</big><a cl
 Z <tt class="descname">FastAbs</tt><big>(</big>Complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#FastAbs__Complex:Z:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a cheaper norm of the complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>:</p>
 <div class="math">
-<p><img src="../_images/math/e162513b2f86191ee0cb9bef2f46e5581ec6ae54.png" alt="|\alpha|_{\mbox{fast}} = |\mathcal{R}(\alpha)| + |\mathcal{I}(\alpha)|" /></p>
+<p><img src="../_images/math/e162513b2f86191ee0cb9bef2f46e5581ec6ae54.png" alt="|\alpha|_{\mbox{fast}} = |\mathcal{R}(\alpha)| + |\mathcal{I}(\alpha)|"/></p>
 </div></dd></dl>
 
 <dl class="function">
@@ -162,7 +165,7 @@ which is simply <img class="math" src="../_images/math/10f32377ac67d94f764f12a15
 Complex&lt;Z&gt; <tt class="descname">Conj</tt><big>(</big>Complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#Conj__Complex:Z:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the complex conjugate of the complex variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>,</p>
 <div class="math">
-<p><img src="../_images/math/0222e01aafe874b9c99cfa1c9cc8f3fa2c1b3796.png" alt="\bar \alpha = \mathcal{R}(\alpha) - \mathcal{I}(\alpha) i" /></p>
+<p><img src="../_images/math/0222e01aafe874b9c99cfa1c9cc8f3fa2c1b3796.png" alt="\bar \alpha = \mathcal{R}(\alpha) - \mathcal{I}(\alpha) i"/></p>
 </div></dd></dl>
 
 <dl class="class">
@@ -294,132 +297,132 @@ Complex&lt;R&gt;&amp; <tt class="descname">operator/=</tt><big>(</big>const Comp
 <dd><p>Divide with a complex value.</p>
 </dd></dl>
 
-<dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator+( const Complex&lt;R&gt;&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (complex,complex) addition.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator+( const Complex&lt;R&gt;&amp; alpha, const R&amp; beta )</tt></dt>
-<dd><p>Global (complex,real) addition.</p>
+<dt id="add-operator__Complex:R:CR.Complex:R:CR">
+Complex&lt;R&gt; <tt class="descname">operator+</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#add-operator__Complex:R:CR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,complex) addition.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator+( const R&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (real,complex) addition.</p>
+<dt id="add-operator__Complex:R:CR.RCR">
+Complex&lt;R&gt; <tt class="descname">operator+</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, const R&amp; <em>beta</em><big>)</big><a class="headerlink" href="#add-operator__Complex:R:CR.RCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,real) addition.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator-( const Complex&lt;R&gt;&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (complex,complex) subtraction.</p>
+<dt id="add-operator__RCR.Complex:R:CR">
+Complex&lt;R&gt; <tt class="descname">operator+</tt><big>(</big>const R&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#add-operator__RCR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(real,complex) addition.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator-( const Complex&lt;R&gt;&amp; alpha, R&amp; beta )</tt></dt>
-<dd><p>Global (complex,real) subtraction.</p>
+<dt id="sub-operator__Complex:R:CR.Complex:R:CR">
+Complex&lt;R&gt; <tt class="descname">operator-</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#sub-operator__Complex:R:CR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,complex) subtraction.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator-( const R&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (real,complex) subtraction.</p>
+<dt id="sub-operator__Complex:R:CR.RR">
+Complex&lt;R&gt; <tt class="descname">operator-</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, R&amp; <em>beta</em><big>)</big><a class="headerlink" href="#sub-operator__Complex:R:CR.RR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,real) subtraction.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator*( const Complex&lt;R&gt;&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (complex,complex) multiplication.</p>
+<dt id="sub-operator__RCR.Complex:R:CR">
+Complex&lt;R&gt; <tt class="descname">operator-</tt><big>(</big>const R&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#sub-operator__RCR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(real,complex) subtraction.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator*( const Complex&lt;R&gt;&amp; alpha, R&amp; beta )</tt></dt>
-<dd><p>Global (complex,real) multiplication.</p>
+<dt id="mul-operator__Complex:R:CR.Complex:R:CR">
+Complex&lt;R&gt; <tt class="descname">operator*</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#mul-operator__Complex:R:CR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,complex) multiplication.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator*( const R&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (real,complex) multiplication.</p>
+<dt id="mul-operator__Complex:R:CR.RR">
+Complex&lt;R&gt; <tt class="descname">operator*</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, R&amp; <em>beta</em><big>)</big><a class="headerlink" href="#mul-operator__Complex:R:CR.RR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,real) multiplication.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator/( const Complex&lt;R&gt;&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (complex,complex) division.</p>
+<dt id="mul-operator__RCR.Complex:R:CR">
+Complex&lt;R&gt; <tt class="descname">operator*</tt><big>(</big>const R&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#mul-operator__RCR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(real,complex) multiplication.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator/( const Complex&lt;R&gt;&amp; alpha, const R&amp; beta )</tt></dt>
-<dd><p>Global (complex,real) division.</p>
+<dt id="div-operator__Complex:R:CR.Complex:R:CR">
+Complex&lt;R&gt; <tt class="descname">operator/</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#div-operator__Complex:R:CR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,complex) division.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator/( const R&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (real,complex) division.</p>
+<dt id="div-operator__Complex:R:CR.RCR">
+Complex&lt;R&gt; <tt class="descname">operator/</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, const R&amp; <em>beta</em><big>)</big><a class="headerlink" href="#div-operator__Complex:R:CR.RCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,real) division.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator+( const Complex&lt;R&gt;&amp; alpha )</tt></dt>
+<dt id="div-operator__RCR.Complex:R:CR">
+Complex&lt;R&gt; <tt class="descname">operator/</tt><big>(</big>const R&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#div-operator__RCR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(real,complex) division.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="add-operator__Complex:R:CR">
+Complex&lt;R&gt; <tt class="descname">operator+</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#add-operator__Complex:R:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <cite>alpha</cite>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend Complex&lt;R&gt; operator-( const Complex&lt;R&gt;&amp; alpha )</tt></dt>
+<dt id="sub-operator__Complex:R:CR">
+Complex&lt;R&gt; <tt class="descname">operator-</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#sub-operator__Complex:R:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns negative <cite>alpha</cite>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">friend bool operator==( const Complex&lt;R&gt;&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (complex,complex) equality check.</p>
+<dt id="eq-operator__Complex:R:CR.Complex:R:CR">
+bool <tt class="descname">operator==</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#eq-operator__Complex:R:CR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,complex) equality check.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="eq-operator__Complex:R:CR.RCR">
+bool <tt class="descname">operator==</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, const R&amp; <em>beta</em><big>)</big><a class="headerlink" href="#eq-operator__Complex:R:CR.RCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,real) equality check.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="eq-operator__RCR.Complex:R:CR">
+bool <tt class="descname">operator==</tt><big>(</big>const R&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#eq-operator__RCR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(real,complex) equality check.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="neq-operator__Complex:R:CR.Complex:R:CR">
+bool <tt class="descname">operator!=</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#neq-operator__Complex:R:CR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,complex) inequality check.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="neq-operator__Complex:R:CR.RCR">
+bool <tt class="descname">operator!=</tt><big>(</big>const Complex&lt;R&gt;&amp; <em>alpha</em>, const R&amp; <em>beta</em><big>)</big><a class="headerlink" href="#neq-operator__Complex:R:CR.RCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(complex,real) inequality check.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="neq-operator__RCR.Complex:R:CR">
+bool <tt class="descname">operator!=</tt><big>(</big>const R&amp; <em>alpha</em>, const Complex&lt;R&gt;&amp; <em>beta</em><big>)</big><a class="headerlink" href="#neq-operator__RCR.Complex:R:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>(real,complex) inequality check.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
-<tt class="descname">friend bool operator==( const Complex&lt;R&gt;&amp; alpha, const R&amp; beta )</tt></dt>
-<dd><p>Global (complex,real) equality check.</p>
-</dd></dl>
-
-<dl class="function">
-<dt>
-<tt class="descname">friend bool operator==( const R&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (real,complex) equality check.</p>
-</dd></dl>
-
-<dl class="function">
-<dt>
-<tt class="descname">friend bool operator!=( const Complex&lt;R&gt;&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (complex,complex) inequality check.</p>
-</dd></dl>
-
-<dl class="function">
-<dt>
-<tt class="descname">friend bool operator!=( const Complex&lt;R&gt;&amp; alpha, const R&amp; beta )</tt></dt>
-<dd><p>Global (complex,real) inequality check.</p>
-</dd></dl>
-
-<dl class="function">
-<dt>
-<tt class="descname">friend bool operator!=( const R&amp; alpha, const Complex&lt;R&gt;&amp; beta )</tt></dt>
-<dd><p>Global (real,complex) inequality check.</p>
-</dd></dl>
-
-<dl class="function">
-<dt>
-<tt class="descname">friend std::ostream&amp; operator&lt;&lt;( std::ostream&amp; os, Complex&lt;R&gt; alpha )</tt></dt>
+<tt class="descname">std::ostream&amp; operator&lt;&lt;( std::ostream&amp; os, Complex&lt;R&gt; alpha )</tt></dt>
 <dd><p>Pretty prints <cite>alpha</cite> in the form <tt class="docutils literal"><span class="pre">a+bi</span></tt>.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="type">
@@ -638,7 +641,7 @@ manually specify a process grid, e.g.,</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -664,13 +667,13 @@ manually specify a process grid, e.g.,</p>
         <li class="right" >
           <a href="../core.html" title="Core functionality"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.73 documentation</a> &raquo;</li>
           <li><a href="../core.html" >Core functionality</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

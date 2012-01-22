@@ -182,89 +182,89 @@ Custom datatypes
 
       Divide with a complex value.
 
-   .. cpp:function:: friend Complex<R> operator+( const Complex<R>& alpha, const Complex<R>& beta )
+.. cpp:function:: Complex<R> operator+( const Complex<R>& alpha, const Complex<R>& beta )
 
-      Global (complex,complex) addition.
+   (complex,complex) addition.
 
-   .. cpp:function:: friend Complex<R> operator+( const Complex<R>& alpha, const R& beta )
+.. cpp:function:: Complex<R> operator+( const Complex<R>& alpha, const R& beta )
 
-      Global (complex,real) addition.
+   (complex,real) addition.
 
-   .. cpp:function:: friend Complex<R> operator+( const R& alpha, const Complex<R>& beta )
+.. cpp:function:: Complex<R> operator+( const R& alpha, const Complex<R>& beta )
 
-      Global (real,complex) addition.
+   (real,complex) addition.
 
-   .. cpp:function:: friend Complex<R> operator-( const Complex<R>& alpha, const Complex<R>& beta )
+.. cpp:function:: Complex<R> operator-( const Complex<R>& alpha, const Complex<R>& beta )
 
-      Global (complex,complex) subtraction.
+   (complex,complex) subtraction.
 
-   .. cpp:function:: friend Complex<R> operator-( const Complex<R>& alpha, R& beta )
+.. cpp:function:: Complex<R> operator-( const Complex<R>& alpha, R& beta )
 
-      Global (complex,real) subtraction.
+   (complex,real) subtraction.
 
-   .. cpp:function:: friend Complex<R> operator-( const R& alpha, const Complex<R>& beta )
+.. cpp:function:: Complex<R> operator-( const R& alpha, const Complex<R>& beta )
 
-      Global (real,complex) subtraction.
+   (real,complex) subtraction.
 
-   .. cpp:function:: friend Complex<R> operator*( const Complex<R>& alpha, const Complex<R>& beta )
+.. cpp:function:: Complex<R> operator*( const Complex<R>& alpha, const Complex<R>& beta )
 
-      Global (complex,complex) multiplication.
+   (complex,complex) multiplication.
 
-   .. cpp:function:: friend Complex<R> operator*( const Complex<R>& alpha, R& beta )
+.. cpp:function:: Complex<R> operator*( const Complex<R>& alpha, R& beta )
 
-      Global (complex,real) multiplication.
+   (complex,real) multiplication.
 
-   .. cpp:function:: friend Complex<R> operator*( const R& alpha, const Complex<R>& beta )
+.. cpp:function:: Complex<R> operator*( const R& alpha, const Complex<R>& beta )
 
-      Global (real,complex) multiplication.
+   (real,complex) multiplication.
 
-   .. cpp:function:: friend Complex<R> operator/( const Complex<R>& alpha, const Complex<R>& beta )
+.. cpp:function:: Complex<R> operator/( const Complex<R>& alpha, const Complex<R>& beta )
 
-      Global (complex,complex) division.
+   (complex,complex) division.
 
-   .. cpp:function:: friend Complex<R> operator/( const Complex<R>& alpha, const R& beta )
+.. cpp:function:: Complex<R> operator/( const Complex<R>& alpha, const R& beta )
 
-      Global (complex,real) division.
+   (complex,real) division.
 
-   .. cpp:function:: friend Complex<R> operator/( const R& alpha, const Complex<R>& beta )
+.. cpp:function:: Complex<R> operator/( const R& alpha, const Complex<R>& beta )
 
-      Global (real,complex) division.
+   (real,complex) division.
 
-   .. cpp:function:: friend Complex<R> operator+( const Complex<R>& alpha )
+.. cpp:function:: Complex<R> operator+( const Complex<R>& alpha )
 
-      Returns `alpha`.
+   Returns `alpha`.
 
-   .. cpp:function:: friend Complex<R> operator-( const Complex<R>& alpha )
+.. cpp:function:: Complex<R> operator-( const Complex<R>& alpha )
 
-      Returns negative `alpha`.
+   Returns negative `alpha`.
 
-   .. cpp:function:: friend bool operator==( const Complex<R>& alpha, const Complex<R>& beta )
+.. cpp:function:: bool operator==( const Complex<R>& alpha, const Complex<R>& beta )
 
-      Global (complex,complex) equality check.
+   (complex,complex) equality check.
 
-   .. cpp:function:: friend bool operator==( const Complex<R>& alpha, const R& beta )
+.. cpp:function:: bool operator==( const Complex<R>& alpha, const R& beta )
 
-      Global (complex,real) equality check.
+   (complex,real) equality check.
 
-   .. cpp:function:: friend bool operator==( const R& alpha, const Complex<R>& beta )
+.. cpp:function:: bool operator==( const R& alpha, const Complex<R>& beta )
 
-      Global (real,complex) equality check.
+   (real,complex) equality check.
 
-   .. cpp:function:: friend bool operator!=( const Complex<R>& alpha, const Complex<R>& beta )
+.. cpp:function:: bool operator!=( const Complex<R>& alpha, const Complex<R>& beta )
 
-      Global (complex,complex) inequality check.
+   (complex,complex) inequality check.
 
-   .. cpp:function:: friend bool operator!=( const Complex<R>& alpha, const R& beta )
+.. cpp:function:: bool operator!=( const Complex<R>& alpha, const R& beta )
 
-      Global (complex,real) inequality check.
+   (complex,real) inequality check.
 
-   .. cpp:function:: friend bool operator!=( const R& alpha, const Complex<R>& beta )
+.. cpp:function:: bool operator!=( const R& alpha, const Complex<R>& beta )
 
-      Global (real,complex) inequality check.
+   (real,complex) inequality check.
 
-   .. cpp:function:: friend std::ostream& operator<<( std::ostream& os, Complex<R> alpha )
+.. cpp:function:: std::ostream& operator<<( std::ostream& os, Complex<R> alpha )
 
-      Pretty prints `alpha` in the form ``a+bi``.
+   Pretty prints `alpha` in the form ``a+bi``.
 
 .. cpp:type:: scomplex
 

@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Factorizations &mdash; Elemental v0.72 documentation</title>
+    <title>Factorizations &mdash; Elemental 0.73 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.72',
+        VERSION:     '0.73',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental 0.73 documentation" href="../index.html" />
     <link rel="up" title="Advanced linear algebra" href="../advanced.html" />
     <link rel="next" title="Linear solvers" href="solvers.html" />
     <link rel="prev" title="Invariants" href="invariants.html" /> 
@@ -40,7 +43,7 @@
         <li class="right" >
           <a href="invariants.html" title="Invariants"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.73 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" accesskey="U">Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>  
@@ -80,10 +83,10 @@ are non-negative. Then <img class="math" src="../_images/math/df96f9f8a6b18c3a70
 of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, i.e., <img class="math" src="../_images/math/dcef07968874b907682ce329977421e0b0c38029.png" alt="B B = A"/>, and it follows that the QR and LQ
 factorizations of <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/> yield Cholesky factors of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>:</p>
 <div class="math">
-<p><img src="../_images/math/142cf591b24c8466ffc38b316cc9d4d173295a5c.png" alt="A = B B = B^H B = (Q R)^H (Q R) = R^H Q^H Q R = R^H R," /></p>
+<p><img src="../_images/math/142cf591b24c8466ffc38b316cc9d4d173295a5c.png" alt="A = B B = B^H B = (Q R)^H (Q R) = R^H Q^H Q R = R^H R,"/></p>
 </div><p>and</p>
 <div class="math">
-<p><img src="../_images/math/af98144b75be122fad198d03171a620e24e0c184.png" alt="A = B B = B B^H = (L Q) (L Q)^H = L Q Q^H L^H = L L^H." /></p>
+<p><img src="../_images/math/af98144b75be122fad198d03171a620e24e0c184.png" alt="A = B B = B B^H = (L Q) (L Q)^H = L Q Q^H L^H = L L^H."/></p>
 </div><p>If <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is found to have eigenvalues less than <img class="math" src="../_images/math/60c039da126159e46c98e041d7652feb5fd08c9d.png" alt="-n \epsilon ||A||_2"/>,
 then a <tt class="docutils literal"><span class="pre">NonHPSDMatrixException</span></tt> will be thrown.</p>
 <dl class="function">
@@ -306,7 +309,7 @@ Householder transformations and is stored in the column vector <cite>t</cite>.</
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -332,13 +335,13 @@ Householder transformations and is stored in the column vector <cite>t</cite>.</
         <li class="right" >
           <a href="invariants.html" title="Invariants"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.73 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" >Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

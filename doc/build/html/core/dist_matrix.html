@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The DistMatrix class &mdash; Elemental v0.72 documentation</title>
+    <title>The DistMatrix class &mdash; Elemental 0.73 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.72',
+        VERSION:     '0.73',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental 0.73 documentation" href="../index.html" />
     <link rel="up" title="Core functionality" href="../core.html" />
     <link rel="next" title="Partitioning" href="partitioning.html" />
     <link rel="prev" title="The Grid class" href="grid.html" /> 
@@ -40,7 +43,7 @@
         <li class="right" >
           <a href="grid.html" title="The Grid class"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.73 documentation</a> &raquo;</li>
           <li><a href="../core.html" accesskey="U">Core functionality</a> &raquo;</li> 
       </ul>
     </div>  
@@ -446,7 +449,7 @@ column and row alignments are both 0):</p>
   1 &amp; 3 &amp; 5 &amp; 1 &amp; 3 &amp; 5 &amp; 1 \\
   0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4 &amp; 0
 \end{array}\right)
-\]" /></p>
+\]"/></p>
 </div><p>Similarly, if the column alignment is kept at 0 and the row alignment is changed
 to 2 (meaning that the third process column owns the first column of the
 matrix), the individual entries would be owned as follows:</p>
@@ -461,7 +464,7 @@ matrix), the individual entries would be owned as follows:</p>
   5 &amp; 1 &amp; 3 &amp; 5 &amp; 1 &amp; 3 &amp; 5 \\
   4 &amp; 0 &amp; 2 &amp; 4 &amp; 0 &amp; 2 &amp; 4
 \end{array}\right)
-\]" /></p>
+\]"/></p>
 </div><p>It should also be noted that this is the default distribution format for the
 <tt class="docutils literal"><span class="pre">DistMatrix</span></tt> class, as <tt class="docutils literal"><span class="pre">DistMatrix&lt;T&gt;</span></tt> defaults to <tt class="docutils literal"><span class="pre">DistMatrix&lt;T,MC,MR&gt;</span></tt>.</p>
 <dl class="class">
@@ -1154,7 +1157,7 @@ not yet been documented.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -1180,13 +1183,13 @@ not yet been documented.</p>
         <li class="right" >
           <a href="grid.html" title="The Grid class"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.73 documentation</a> &raquo;</li>
           <li><a href="../core.html" >Core functionality</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

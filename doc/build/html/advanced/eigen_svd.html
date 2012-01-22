@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Eigensolvers and SVD &mdash; Elemental v0.72 documentation</title>
+    <title>Eigensolvers and SVD &mdash; Elemental 0.73 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.72',
+        VERSION:     '0.73',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Elemental v0.72 documentation" href="../index.html" />
+    <link rel="top" title="Elemental 0.73 documentation" href="../index.html" />
     <link rel="up" title="Advanced linear algebra" href="../advanced.html" />
     <link rel="next" title="Utilities" href="util.html" />
     <link rel="prev" title="Reduction to condensed form" href="condensed.html" /> 
@@ -40,7 +43,7 @@
         <li class="right" >
           <a href="condensed.html" title="Reduction to condensed form"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.73 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" accesskey="U">Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>  
@@ -57,7 +60,7 @@
 <p>Elemental provides a collection of routines for both full and partial
 solution of the Hermitian eigenvalue problem</p>
 <div class="math">
-<p><img src="../_images/math/e4d04fa78917b60c00fb05c24a098cf2bc7417ed.png" alt="A Z = Z \Omega," /></p>
+<p><img src="../_images/math/e4d04fa78917b60c00fb05c24a098cf2bc7417ed.png" alt="A Z = Z \Omega,"/></p>
 </div><p>where <cite>A</cite> is the given Hermitian matrix, and unitary <cite>Z</cite> and real diagonal
 <img class="math" src="../_images/math/9e2b196e9b7e57d1ec99f6534c581ea9759d2170.png" alt="\Omega"/> are sought. In particular, with the eigenvalues and
 corresponding eigenpairs labeled in non-decreasing order, the three basic
@@ -212,7 +215,7 @@ normal.</p>
 more about the result: if the eigenvalue decomposition of the
 Hermitian matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is <img class="math" src="../_images/math/efc8c3f5200c949f3cdba974936b91be0b6a9807.png" alt="A=Z \Omega Z^H"/>, then</p>
 <div class="math">
-<p><img src="../_images/math/8d5ba8aa264e83427bdc0599b419d15cc4876457.png" alt="f(A) = f(Z \Omega Z^H) = Z f(\Omega) Z^H." /></p>
+<p><img src="../_images/math/8d5ba8aa264e83427bdc0599b419d15cc4876457.png" alt="f(A) = f(Z \Omega Z^H) = Z f(\Omega) Z^H."/></p>
 </div><p>Two important special cases are <img class="math" src="../_images/math/ac1c08876a0e5ed799dcd99c9fdba7cec3978228.png" alt="f(\lambda) = \exp(\lambda)"/> and
 <img class="math" src="../_images/math/e35eb2b96977d189df0be2f8dbe697e35cbdd220.png" alt="f(\lambda)=\exp(i \lambda)"/>, where the former results in a Hermitian
 matrix and the latter in a normal (in fact, unitary) matrix.</p>
@@ -335,7 +338,7 @@ Divide and Conquer algorithm for the bidiagonal SVD.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -361,13 +364,13 @@ Divide and Conquer algorithm for the bidiagonal SVD.</p>
         <li class="right" >
           <a href="condensed.html" title="Reduction to condensed form"
              >previous</a> |</li>
-        <li><a href="../index.html">Elemental v0.72 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Elemental 0.73 documentation</a> &raquo;</li>
           <li><a href="../advanced.html" >Advanced linear algebra</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>
