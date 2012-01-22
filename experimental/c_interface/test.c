@@ -4,17 +4,33 @@
 
 int
 main( int argc, char* argv[] )
-{
-    int gridHeight, gridWidth, gridRow, gridCol, gridRank;
-    int n=10, localHeight, localWidth, i, j, iLocal, jLocal;
-    double *ABuffer, *BBuffer;
-    MPI_Comm comm;
+{    
+    /* Handles for Elemental C++ objects */
     GridHandle grid;
     RealDistMatHandle A, B, X;
     RealDistColVecHandle w;
 
+    /* Process grid information */
+    int gridHeight, gridWidth, gridRow, gridCol, gridRank;
+
+    /* Dimensions of our local matrix (for A and B) */
+    int localHeight, localWidth; 
+
+    /* Local buffers for the distributed A and B matrices */
+    double *ABuffer, *BBuffer;
+
+    /* Indices */
+    int i, j, iLocal, jLocal;
+
+    /* Useful constants */
+    int n=10;                       /* problem size */
+    int nb=96;                      /* algorithmic blocksize */
+    MPI_Comm comm = MPI_COMM_WORLD; /* global communicator */
+
+    /* Initialize Elemental and MPI */
     Initialize( &argc, &argv );
-    comm = MPI_COMM_WORLD;
+
+    /* Create a process grid and extract the relevant information */
     grid = CreateGrid( comm );
     gridHeight = GridHeight( grid );
     gridWidth = GridWidth( grid );
@@ -57,6 +73,7 @@ main( int argc, char* argv[] )
     A = RegisterRealDistMat( n, n, 0, 0, ABuffer, localHeight, grid );
     B = RegisterRealDistMat( n, n, 0, 0, BBuffer, localHeight, grid );
 
+    /* Print the input matrices */
     if( gridRank == 0 )
         printf("A:\n");
     PrintRealDistMat( A );
@@ -64,10 +81,15 @@ main( int argc, char* argv[] )
         printf("B:\n");
     PrintRealDistMat( B );
 
+    /* Set the algorithmic blocksize to 'nb' */
+    SetBlocksize( nb );
+
+    /* Run the eigensolver */
     if( gridRank == 0 )
         printf("Solving for (w,X) in AX=BXW\n");
     SymmetricAxBx( A, B, &w, &X );
 
+    /* Print the eigenvalues and eigenvectors */
     if( gridRank == 0 )
         printf("X:\n");
     PrintRealDistMat( X );
@@ -75,6 +97,8 @@ main( int argc, char* argv[] )
         printf("w:\n");
     PrintRealDistColVec( w );
 
+    /* Shut down Elemental and MPI */
     Finalize();
+
     return 0;
 }

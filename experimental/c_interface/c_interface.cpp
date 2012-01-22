@@ -53,258 +53,99 @@ Grid& TranslateGridHandle( GridHandle handle )
 { return *gridList[handle]; }
 
 DistMatrix<double,MC,MR>& TranslateRealDistMatHandle
-( RealDistMatHandle realDistMatHandle )
-{ return *realDistMatList[realDistMatHandle]; }
+( RealDistMatHandle handle )
+{ return *realDistMatList[handle]; }
 
 DistMatrix<std::complex<double>,MC,MR>& TranslateComplexDistMatHandle
-( ComplexDistMatHandle complexDistMatHandle )
-{ return *complexDistMatList[complexDistMatHandle]; }
+( ComplexDistMatHandle handle )
+{ return *complexDistMatList[handle]; }
 
 DistMatrix<double,VR,STAR>& TranslateRealDistColVecHandle
-( RealDistColVecHandle realDistColVecHandle )
-{ return *realDistColVecList[realDistColVecHandle]; }
+( RealDistColVecHandle handle )
+{ return *realDistColVecList[handle]; }
+
+template<typename T>
+unsigned GetOpenIndex( std::vector<T*>& list )
+{
+    unsigned index;
+    for( index=0; index<list.size(); ++index )
+        if( list[index] == 0 )
+            break;
+    if( index == list.size() )
+        list.push_back( 0 );
+    return index;
+}
 
 RealDistMatHandle CreateEmptyRealDistMat( const Grid& grid )
 {
-    int index;
-    for( index=0; index<realDistMatList.size(); ++index )
-    {
-        if( realDistMatList[index] == 0 )
-        {
-            realDistMatList[index] = new DistMatrix<double,MC,MR>(grid);
-            break;
-        }
-    }
-
-    if( index == realDistMatList.size() )
-        realDistMatList.push_back( new DistMatrix<double,MC,MR>(grid) );
+    const unsigned index = GetOpenIndex( realDistMatList );
+    realDistMatList[index] = new DistMatrix<double,MC,MR>( grid );
     return index;
 }
 
 ComplexDistMatHandle CreateEmptyComplexDistMat( const Grid& grid )
 {
-    int index;
-    for( index=0; index<complexDistMatList.size(); ++index )
-    {
-        if( complexDistMatList[index] == 0 )
-        {
-            complexDistMatList[index] =
-                new DistMatrix<std::complex<double>,MC,MR>(grid);
-            break;
-        }
-    }
-
-    if( index == complexDistMatList.size() )
-        complexDistMatList.push_back(
-            new DistMatrix<std::complex<double>,MC,MR>(grid)
-        );
+    const unsigned index = GetOpenIndex( complexDistMatList );
+    complexDistMatList[index] = 
+        new DistMatrix<std::complex<double>,MC,MR>( grid );
     return index;
 }
 
 RealDistColVecHandle CreateEmptyRealDistColVec( const Grid& grid )
 {
-    int index;
-    for( index=0; index<realDistColVecList.size(); ++index )
-    {
-        if( realDistColVecList[index] == 0 )
-        {
-            realDistColVecList[index] = new DistMatrix<double,VR,STAR>(grid);
-            break;
-        }
-    }
-
-    if( index == realDistColVecList.size() )
-        realDistColVecList.push_back( new DistMatrix<double,VR,STAR>(grid) );
+    const unsigned index = GetOpenIndex( realDistColVecList );
+    realDistColVecList[index] = new DistMatrix<double,VR,STAR>( grid );
     return index;
 }
 
-}
+} // anonymous namespace
 
 extern "C" {
 
+//
+// Environment controls
+//
+
 void Initialize( int* argc, char** argv[] )
-{
-    elemental::Initialize( *argc, *argv );
-}
+{ elemental::Initialize( *argc, *argv ); }
 
 void Finalize()
-{
-    elemental::Finalize();
-}
+{ elemental::Finalize(); }
 
-int LocalLength( int n, int shift, int modulus )
-{
-    return elemental::LocalLength<int>(n,shift,modulus);
-}
+void SetBlocksize( int blocksize )
+{ elemental::SetBlocksize( blocksize ); }
+
+int Blocksize()
+{ return elemental::Blocksize(); }
+
+//
+// Process grid management
+//
 
 GridHandle CreateGrid( MPI_Comm comm )
 {
-    // TODO: Switch from O(n) algorithm to O(1) algorithm by keeping static 
-    //       data which tracks the last free index (if it exists)
-    unsigned index;
-    for( index=0; index<gridList.size(); ++index )
-    {
-        if( gridList[index] == 0 )
-        {
-            gridList[index] = new Grid( comm );        
-            break;
-        }
-    }
-
-    if( index == gridList.size() )
-        gridList.push_back( new Grid( comm ) );
+    const unsigned index = GetOpenIndex( gridList );
+    gridList[index] = new Grid( comm );
     return index;
 }
 
 int GridHeight( GridHandle handle )
-{
-    return gridList[handle]->Height();
-}
+{ return gridList[handle]->Height(); }
 
 int GridWidth( GridHandle handle )
-{
-    return gridList[handle]->Width();
-}
+{ return gridList[handle]->Width(); }
 
 int GridSize( GridHandle handle )
-{
-    return gridList[handle]->Size();
-}
+{ return gridList[handle]->Size(); }
 
 int GridRow( GridHandle handle )
-{
-    return gridList[handle]->MCRank();
-}
+{ return gridList[handle]->MCRank(); }
 
 int GridCol( GridHandle handle )
-{
-    return gridList[handle]->MRRank();
-}
+{ return gridList[handle]->MRRank(); }
 
 int GridRank( GridHandle handle )
-{
-    return gridList[handle]->Rank();
-}
-
-RealDistMatHandle RegisterRealDistMat
-( int height, int width, int colAlignment, int rowAlignment, 
-  double* buffer, int ldim, GridHandle gridHandle )
-{
-    const Grid& grid = TranslateGridHandle( gridHandle );
-
-    unsigned index;
-    for( index=0; index<realDistMatList.size(); ++index )
-    {
-        if( realDistMatList[index] == 0 )
-        {
-            realDistMatList[index] = 
-                new DistMatrix<double,MC,MR>
-                (height,width,colAlignment,rowAlignment,buffer,ldim,grid);
-            break;
-        }
-    }
-
-    if( index == realDistMatList.size() )
-    {
-        realDistMatList.push_back( 
-            new DistMatrix<double,MC,MR>
-            (height,width,colAlignment,rowAlignment,buffer,ldim,grid)
-        );
-    }
-    return index;
-}
-
-RealDistMatHandle CreateEmptyRealDistMat( GridHandle gridHandle )
-{
-    const Grid& grid = TranslateGridHandle( gridHandle );
-
-    unsigned index;
-    for( index=0; index<realDistMatList.size(); ++index )
-    {
-        if( realDistMatList[index] == 0 )
-        {
-            realDistMatList[index] = new DistMatrix<double,MC,MR>(grid);
-            break;
-        }
-    }
-
-    if( index == realDistMatList.size() )
-        realDistMatList.push_back( new DistMatrix<double,MC,MR>(grid) );
-    return index;
-}
-
-ComplexDistMatHandle RegisterComplexDistMat
-( int height, int width, int colAlignment, int rowAlignment, 
-  void* voidBuffer, int ldim, GridHandle gridHandle )
-{
-    typedef std::complex<double> C;
-    const Grid& grid = TranslateGridHandle( gridHandle );
-    C* buffer = static_cast<C*>(voidBuffer);
-
-    unsigned index;
-    for( index=0; index<complexDistMatList.size(); ++index )
-    {
-        if( complexDistMatList[index] == 0 )
-        {
-            complexDistMatList[index] = 
-                new DistMatrix<std::complex<double>,MC,MR>
-                (height,width,colAlignment,rowAlignment,buffer,ldim,grid);
-            break;
-        }
-    }
-
-    if( index == complexDistMatList.size() )
-    {
-        complexDistMatList.push_back( 
-            new DistMatrix<std::complex<double>,MC,MR>
-            (height,width,colAlignment,rowAlignment,buffer,ldim,grid)
-        );
-    }
-    return index;
-}
-
-ComplexDistMatHandle CreateEmptyComplexDistMat( GridHandle gridHandle )
-{
-    const Grid& grid = TranslateGridHandle( gridHandle );
-
-    unsigned index;
-    for( index=0; index<complexDistMatList.size(); ++index )
-    {
-        if( complexDistMatList[index] == 0 )
-        {
-            complexDistMatList[index] = 
-                new DistMatrix<std::complex<double>,MC,MR>(grid);
-            break;
-        }
-    }
-
-    if( index == complexDistMatList.size() )
-    {
-        complexDistMatList.push_back( 
-                new DistMatrix<std::complex<double>,MC,MR>(grid) 
-        );
-    }
-    return index;
-}
-
-RealDistColVecHandle CreateEmptyRealDistColVec( GridHandle gridHandle )
-{
-    const Grid& grid = TranslateGridHandle( gridHandle );
-
-    unsigned index;
-    for( index=0; index<realDistColVecList.size(); ++index )
-    {
-        if( realDistColVecList[index] == 0 )
-        {
-            realDistColVecList[index] = new DistMatrix<double,VR,STAR>(grid);
-            break;
-        }
-    }
-
-    if( index == realDistColVecList.size() )
-        realDistColVecList.push_back( new DistMatrix<double,VR,STAR>(grid) );
-    return index;
-}
+{ return gridList[handle]->Rank(); }
 
 void FreeGrid( GridHandle handle )
 {
@@ -313,6 +154,54 @@ void FreeGrid( GridHandle handle )
         delete gridList[handle];
         gridList[handle] = 0;
     }
+}
+
+//
+// Distributed matrix management
+//
+
+RealDistMatHandle RegisterRealDistMat
+( int height, int width, int colAlignment, int rowAlignment, 
+  double* buffer, int ldim, GridHandle gridHandle )
+{
+    const Grid& grid = TranslateGridHandle( gridHandle );
+    const unsigned index = GetOpenIndex( realDistMatList );
+    realDistMatList[index] = 
+        new DistMatrix<double,MC,MR>
+        (height,width,colAlignment,rowAlignment,buffer,ldim,grid);
+    return index;
+}
+
+RealDistMatHandle CreateEmptyRealDistMat( GridHandle gridHandle )
+{
+    const Grid& grid = TranslateGridHandle( gridHandle );
+    const unsigned index = GetOpenIndex( realDistMatList );
+    realDistMatList[index] = new DistMatrix<double,MC,MR>( grid );
+    return index;
+}
+
+ComplexDistMatHandle RegisterComplexDistMat
+( int height, int width, int colAlignment, int rowAlignment, 
+  void* voidBuffer, int ldim, GridHandle gridHandle )
+{
+    typedef std::complex<double> C;
+    C* buffer = static_cast<C*>(voidBuffer);
+
+    const Grid& grid = TranslateGridHandle( gridHandle );
+    const unsigned index = GetOpenIndex( complexDistMatList );
+    complexDistMatList[index] = 
+        new DistMatrix<std::complex<double>,MC,MR>
+        (height,width,colAlignment,rowAlignment,buffer,ldim,grid);
+    return index;
+}
+
+ComplexDistMatHandle CreateEmptyComplexDistMat( GridHandle gridHandle )
+{
+    const Grid& grid = TranslateGridHandle( gridHandle );
+    const unsigned index = GetOpenIndex( complexDistMatList );
+    complexDistMatList[index] = 
+        new DistMatrix<std::complex<double>,MC,MR>( grid );
+    return index;
 }
 
 void FreeRealDistMat( RealDistMatHandle handle )
@@ -333,15 +222,6 @@ void FreeComplexDistMat( ComplexDistMatHandle handle )
     }
 }
 
-void FreeRealDistColVec( RealDistColVecHandle handle )
-{
-    if( realDistColVecList[handle] != 0 )
-    {
-        delete realDistColVecList[handle];
-        realDistColVecList[handle] = 0;
-    }
-}
-
 void PrintRealDistMat( RealDistMatHandle AHandle )
 {
     const DistMatrix<double,MC,MR>& A = TranslateRealDistMatHandle( AHandle );
@@ -355,12 +235,37 @@ void PrintComplexDistMat( ComplexDistMatHandle AHandle )
     A.Print();
 }
 
+//
+// Distributed column vector management
+//
+
+RealDistColVecHandle CreateEmptyRealDistColVec( GridHandle gridHandle )
+{
+    const Grid& grid = TranslateGridHandle( gridHandle );
+    const unsigned index = GetOpenIndex( realDistColVecList );
+    realDistColVecList[index] = new DistMatrix<double,VR,STAR>( grid );
+    return index;
+}
+
+void FreeRealDistColVec( RealDistColVecHandle handle )
+{
+    if( realDistColVecList[handle] != 0 )
+    {
+        delete realDistColVecList[handle];
+        realDistColVecList[handle] = 0;
+    }
+}
+
 void PrintRealDistColVec( RealDistColVecHandle AHandle )
 {
     const DistMatrix<double,VR,STAR>& A = 
         TranslateRealDistColVecHandle( AHandle );
     A.Print();
 }
+
+//
+// Generalized Hermitian-definite eigensolvers for A X = B X \Lambda
+//
 
 void SymmetricAxBx
 ( RealDistMatHandle AHandle, RealDistMatHandle BHandle,
@@ -461,5 +366,12 @@ void HermitianAxBxPartialIndices
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, a, b );
 }
+
+//
+// Utilities
+//
+
+int LocalLength( int n, int shift, int modulus )
+{ return elemental::LocalLength<int>(n,shift,modulus); }
 
 } // extern "C"

@@ -38,12 +38,16 @@ typedef unsigned RealDistMatHandle;
 typedef unsigned ComplexDistMatHandle;
 typedef unsigned RealDistColVecHandle;
 
+/* Environment controls */
 void Initialize( int* argc, char** argv[] );
 void Finalize();
+void SetBlocksize( int blocksize );
+int Blocksize();
+/* TODO: other tuning parameters */
 
-int LocalLength( int n, int shift, int modulus );
-
+/* Process grid management */
 GridHandle CreateGrid( MPI_Comm comm );
+void FreeGrid( GridHandle handle );
 int GridHeight( GridHandle gridHandle );
 int GridWidth( GridHandle gridHandle );
 int GridSize( GridHandle gridHandle );
@@ -51,29 +55,26 @@ int GridRow( GridHandle gridHandle );
 int GridCol( GridHandle gridHandle );
 int GridRank( GridHandle gridHandle );
 
+/* Distributed matrix management */
+RealDistMatHandle CreateEmptyRealDistMat( GridHandle gridHandle );
+ComplexDistMatHandle CreateEmptyComplexDistMat( GridHandle gridHandle );
 RealDistMatHandle RegisterRealDistMat
 ( int height, int width, int colAlignment, int rowAlignment, 
   double* buffer, int ldim, GridHandle gridHandle );
-
 ComplexDistMatHandle RegisterComplexDistMat
 ( int height, int width, int colAlignment, int rowAlignment, 
   void* voidBuffer, int ldim, GridHandle gridHandle );
-
-RealDistMatHandle CreateEmptyRealDistMat( GridHandle gridHandle );
-ComplexDistMatHandle CreateEmptyComplexDistMat( GridHandle gridHandle );
-
-RealDistColVecHandle CreateEmptyRealDistColVec( GridHandle gridHandle );
-
-void FreeGrid( GridHandle handle );
 void FreeRealDistMat( RealDistMatHandle handle );
 void FreeComplexDistMat( ComplexDistMatHandle handle );
-void FreeRealDistColVec( RealDistColVecHandle handle );
-
 void PrintRealDistMat( RealDistMatHandle AHandle );
 void PrintComplexDistMat( ComplexDistMatHandle AHandle );
 
+/* Distributed column vector management */
+RealDistColVecHandle CreateEmptyRealDistColVec( GridHandle gridHandle );
+void FreeRealDistColVec( RealDistColVecHandle handle );
 void PrintRealDistColVec( RealDistColVecHandle AHandle );
 
+/* Generalized Hermitian-definite eigensolvers */
 void SymmetricAxBx
 ( RealDistMatHandle AHandle, RealDistMatHandle BHandle,
   RealDistColVecHandle* wHandle, RealDistMatHandle* XHandle );
@@ -85,7 +86,6 @@ void SymmetricAxBxPartialIndices
 ( RealDistMatHandle AHandle, RealDistMatHandle BHandle,
   RealDistColVecHandle* wHandle, RealDistMatHandle* XHandle,
   int a, int b );
-
 void HermitianAxBx
 ( ComplexDistMatHandle AHandle, ComplexDistMatHandle BHandle,
   RealDistColVecHandle* wHandle, ComplexDistMatHandle* XHandle );
@@ -97,3 +97,6 @@ void HermitianAxBxPartialIndices
 ( ComplexDistMatHandle AHandle, ComplexDistMatHandle BHandle,
   RealDistColVecHandle* wHandle, ComplexDistMatHandle* XHandle,
   int a, int b );
+
+/* Utility functions */
+int LocalLength( int n, int shift, int modulus );

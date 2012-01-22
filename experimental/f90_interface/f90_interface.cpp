@@ -53,74 +53,58 @@ Grid& TranslateGridHandle( GridHandle handle )
 { return *gridList[handle]; }
 
 DistMatrix<double,MC,MR>& TranslateRealDistMatHandle
-( RealDistMatHandle realDistMatHandle )
-{ return *realDistMatList[realDistMatHandle]; }
+( RealDistMatHandle handle )
+{ return *realDistMatList[handle]; }
 
 DistMatrix<std::complex<double>,MC,MR>& TranslateComplexDistMatHandle
-( ComplexDistMatHandle complexDistMatHandle )
-{ return *complexDistMatList[complexDistMatHandle]; }
+( ComplexDistMatHandle handle )
+{ return *complexDistMatList[handle]; }
 
 DistMatrix<double,VR,STAR>& TranslateRealDistColVecHandle
-( RealDistColVecHandle realDistColVecHandle )
-{ return *realDistColVecList[realDistColVecHandle]; }
+( RealDistColVecHandle handle )
+{ return *realDistColVecList[handle]; }
+
+template<typename T>
+int GetOpenIndex( std::vector<T*>& list )
+{
+    int index;
+    for( index=0; index<list.size(); ++index )
+        if( list[index] == 0 )
+            break;
+    if( index == list.size() )
+        list.push_back( 0 );
+    return index;
+}
 
 RealDistMatHandle CreateEmptyRealDistMat( const Grid& grid )
 {
-    int index;
-    for( index=0; index<realDistMatList.size(); ++index )
-    {
-        if( realDistMatList[index] == 0 )
-        {
-            realDistMatList[index] = new DistMatrix<double,MC,MR>(grid);
-            break;
-        }
-    }
-
-    if( index == realDistMatList.size() )
-        realDistMatList.push_back( new DistMatrix<double,MC,MR>(grid) );
+    const int index = GetOpenIndex( realDistMatList );
+    realDistMatList[index] = new DistMatrix<double,MC,MR>( grid );
     return index;
 }
 
 ComplexDistMatHandle CreateEmptyComplexDistMat( const Grid& grid )
 {
-    int index;
-    for( index=0; index<complexDistMatList.size(); ++index )
-    {
-        if( complexDistMatList[index] == 0 )
-        {
-            complexDistMatList[index] = 
-                new DistMatrix<std::complex<double>,MC,MR>(grid);
-            break;
-        }
-    }
-
-    if( index == complexDistMatList.size() )
-        complexDistMatList.push_back( 
-            new DistMatrix<std::complex<double>,MC,MR>(grid) 
-        );
+    const int index = GetOpenIndex( complexDistMatList );
+    complexDistMatList[index] = 
+        new DistMatrix<std::complex<double>,MC,MR>( grid );
     return index;
 }
 
 RealDistColVecHandle CreateEmptyRealDistColVec( const Grid& grid )
 {
-    int index;
-    for( index=0; index<realDistColVecList.size(); ++index )
-    {
-        if( realDistColVecList[index] == 0 )
-        {
-            realDistColVecList[index] = new DistMatrix<double,VR,STAR>(grid);
-            break;
-        }
-    }
-
-    if( index == realDistColVecList.size() )
-        realDistColVecList.push_back( new DistMatrix<double,VR,STAR>(grid) );
+    const int index = GetOpenIndex( realDistColVecList );
+    realDistColVecList[index] = new DistMatrix<double,VR,STAR>( grid );
     return index;
 }
 
-}
+} // anonymous namespace
 
 extern "C" {
+
+//
+// Environment controls
+//
 
 void FC_GLOBAL(initialize,NAME)()
 {
@@ -130,185 +114,42 @@ void FC_GLOBAL(initialize,NAME)()
 }
 
 void FC_GLOBAL(finalize,NAME)()
-{
-    elemental::Finalize();
-}
+{ elemental::Finalize(); }
 
-void FC_GLOBAL_(local_length,NAME)
-( int* n, int* shift, int* modulus, int* localLength )
-{
-    *localLength = elemental::LocalLength<int>(*n,*shift,*modulus);
-}
+void FC_GLOBAL_(set_blocksize,NAME)( int blocksize )
+{ elemental::SetBlocksize( blocksize ); }
+
+void FC_GLOBAL(blocksize,NAME)( int* blocksize )
+{ *blocksize = elemental::Blocksize(); }
+
+//
+// Process grid management
+//
 
 void FC_GLOBAL_(create_grid,NAME)( MPI_Comm* comm, int* gridHandle )
 {
-    int index;
-    for( index=0; index<gridList.size(); ++index )
-    {
-        if( gridList[index] == 0 )
-        {
-            gridList[index] = new Grid( *comm );        
-            break;
-        }
-    }
-
-    if( index == gridList.size() )
-        gridList.push_back( new Grid( *comm ) );
+    const int index = GetOpenIndex( gridList );
+    gridList[index] = new Grid( *comm );
     *gridHandle = index;
 }
 
 void FC_GLOBAL_(grid_height,NAME)( int* handle, int* height )
-{
-    *height = gridList[*handle]->Height();
-}
+{ *height = gridList[*handle]->Height(); }
 
 void FC_GLOBAL_(grid_width,NAME)( int* handle, int* width )
-{
-    *width = gridList[*handle]->Width();
-}
+{ *width = gridList[*handle]->Width(); }
 
 void FC_GLOBAL_(grid_size,NAME)( int* handle, int* size )
-{
-    *size = gridList[*handle]->Size();
-}
+{ *size = gridList[*handle]->Size(); }
 
 void FC_GLOBAL_(grid_row,NAME)( int* handle, int* row )
-{
-    *row = gridList[*handle]->MCRank();
-}
+{ *row = gridList[*handle]->MCRank(); }
 
 void FC_GLOBAL_(grid_col,NAME)( int* handle, int* col )
-{
-    *col = gridList[*handle]->MRRank();
-}
+{ *col = gridList[*handle]->MRRank(); }
 
 void FC_GLOBAL_(grid_rank,NAME)( int* handle, int* rank )
-{
-    *rank = gridList[*handle]->Rank();
-}
-
-void FC_GLOBAL_(register_real_dist_mat,NAME)
-( int* height, int* width, int* colAlignment, int* rowAlignment, 
-  double* buffer, int* ldim, int* gridHandle, int* matHandle )
-{
-    const Grid& grid = TranslateGridHandle( *gridHandle );
-
-    int index;
-    for( index=0; index<realDistMatList.size(); ++index )
-    {
-        if( realDistMatList[index] == 0 )
-        {
-            realDistMatList[index] = 
-                new DistMatrix<double,MC,MR>
-                (*height,*width,*colAlignment,*rowAlignment,buffer,*ldim,grid);
-            break;
-        }
-    }
-
-    if( index == realDistMatList.size() )
-    {
-        realDistMatList.push_back( 
-            new DistMatrix<double,MC,MR>
-            (*height,*width,*colAlignment,*rowAlignment,buffer,*ldim,grid)
-        );
-    }
-    *matHandle = index;
-}
-
-void FC_GLOBAL_(create_empty_real_dist_mat,NAME)
-( int* gridHandle, int* matHandle )
-{
-    const Grid& grid = TranslateGridHandle( *gridHandle );
-
-    int index;
-    for( index=0; index<realDistMatList.size(); ++index )
-    {
-        if( realDistMatList[index] == 0 )
-        {
-            realDistMatList[index] = new DistMatrix<double,MC,MR>(grid);
-            break;
-        }
-    }
-
-    if( index == realDistMatList.size() )
-        realDistMatList.push_back( new DistMatrix<double,MC,MR>(grid) );
-    *matHandle = index;
-}
-
-void FC_GLOBAL_(register_complex_dist_mat,NAME)
-( int* height, int* width, int* colAlignment, int* rowAlignment, 
-  void* voidBuffer, int* ldim, int* gridHandle, int* matHandle )
-{
-    typedef std::complex<double> C;
-    const Grid& grid = TranslateGridHandle( *gridHandle );
-    C* buffer = static_cast<C*>(voidBuffer);
-
-    int index;
-    for( index=0; index<complexDistMatList.size(); ++index )
-    {
-        if( complexDistMatList[index] == 0 )
-        {
-            complexDistMatList[index] = 
-                new DistMatrix<std::complex<double>,MC,MR>
-                (*height,*width,*colAlignment,*rowAlignment,buffer,*ldim,grid);
-            break;
-        }
-    }
-
-    if( index == complexDistMatList.size() )
-    {
-        complexDistMatList.push_back( 
-            new DistMatrix<std::complex<double>,MC,MR>
-            (*height,*width,*colAlignment,*rowAlignment,buffer,*ldim,grid)
-        );
-    }
-    *matHandle = index;
-}
-
-void FC_GLOBAL_(create_empty_complex_dist_mat,NAME)
-( int* gridHandle, int* matHandle )
-{
-    const Grid& grid = TranslateGridHandle( *gridHandle );
-
-    int index;
-    for( index=0; index<complexDistMatList.size(); ++index )
-    {
-        if( complexDistMatList[index] == 0 )
-        {
-            complexDistMatList[index] = 
-                new DistMatrix<std::complex<double>,MC,MR>(grid);
-            break;
-        }
-    }
-
-    if( index == complexDistMatList.size() )
-    {
-        complexDistMatList.push_back( 
-                new DistMatrix<std::complex<double>,MC,MR>(grid) 
-        );
-    }
-    *matHandle = index;
-}
-
-void FC_GLOBAL_(create_empty_real_dist_col_vec,NAME)
-( int* gridHandle, int* vecHandle )
-{
-    const Grid& grid = TranslateGridHandle( *gridHandle );
-
-    int index;
-    for( index=0; index<realDistColVecList.size(); ++index )
-    {
-        if( realDistColVecList[index] == 0 )
-        {
-            realDistColVecList[index] = new DistMatrix<double,VR,STAR>(grid);
-            break;
-        }
-    }
-
-    if( index == realDistColVecList.size() )
-        realDistColVecList.push_back( new DistMatrix<double,VR,STAR>(grid) );
-    *vecHandle = index;
-}
+{ *rank = gridList[*handle]->Rank(); }
 
 void FC_GLOBAL_(free_grid,NAME)( int* handle )
 {
@@ -317,6 +158,56 @@ void FC_GLOBAL_(free_grid,NAME)( int* handle )
         delete gridList[*handle];
         gridList[*handle] = 0;
     }
+}
+
+//
+// Distributed matrix management
+//
+
+void FC_GLOBAL_(register_real_dist_mat,NAME)
+( int* height, int* width, int* colAlignment, int* rowAlignment, 
+  double* buffer, int* ldim, int* gridHandle, int* matHandle )
+{
+    const Grid& grid = TranslateGridHandle( *gridHandle );
+    const int index = GetOpenIndex( realDistMatList );
+    realDistMatList[index] = 
+        new DistMatrix<double,MC,MR>
+        (*height,*width,*colAlignment,*rowAlignment,buffer,*ldim,grid);
+    *matHandle = index;
+}
+
+void FC_GLOBAL_(create_empty_real_dist_mat,NAME)
+( int* gridHandle, int* matHandle )
+{
+    const Grid& grid = TranslateGridHandle( *gridHandle );
+    const int index = GetOpenIndex( realDistMatList );
+    realDistMatList[index] = new DistMatrix<double,MC,MR>( grid );
+    *matHandle = index;
+}
+
+void FC_GLOBAL_(register_complex_dist_mat,NAME)
+( int* height, int* width, int* colAlignment, int* rowAlignment, 
+  void* voidBuffer, int* ldim, int* gridHandle, int* matHandle )
+{
+    typedef std::complex<double> C;
+    C* buffer = static_cast<C*>(voidBuffer);
+
+    const Grid& grid = TranslateGridHandle( *gridHandle );
+    const int index = GetOpenIndex( complexDistMatList );
+    complexDistMatList[index] = 
+        new DistMatrix<C,MC,MR>
+        (*height,*width,*colAlignment,*rowAlignment,buffer,*ldim,grid);
+    *matHandle = index;
+}
+
+void FC_GLOBAL_(create_empty_complex_dist_mat,NAME)
+( int* gridHandle, int* matHandle )
+{
+    const Grid& grid = TranslateGridHandle( *gridHandle );
+    const int index = GetOpenIndex( complexDistMatList );
+    complexDistMatList[index] = 
+        new DistMatrix<std::complex<double>,MC,MR>( grid );
+    *matHandle = index;
 }
 
 void FC_GLOBAL_(free_real_dist_mat,NAME)( int* handle )
@@ -337,15 +228,6 @@ void FC_GLOBAL_(free_complex_dist_mat,NAME)( int* handle )
     }
 }
 
-void FC_GLOBAL_(free_real_dist_col_vec,NAME)( int* handle )
-{
-    if( realDistColVecList[*handle] != 0 )
-    {
-        delete realDistColVecList[*handle];
-        realDistColVecList[*handle] = 0;
-    }
-}
-
 void FC_GLOBAL_(print_real_dist_mat,NAME)( int* AHandle )
 {
     const DistMatrix<double,MC,MR>& A = TranslateRealDistMatHandle( *AHandle );
@@ -359,12 +241,38 @@ void FC_GLOBAL_(print_complex_dist_mat,NAME)( int* AHandle )
     A.Print();
 }
 
+//
+// Distributed column vector management
+//
+
+void FC_GLOBAL_(create_empty_real_dist_col_vec,NAME)
+( int* gridHandle, int* vecHandle )
+{
+    const Grid& grid = TranslateGridHandle( *gridHandle );
+    const int index = GetOpenIndex( realDistColVecList );
+    realDistColVecList[index] = new DistMatrix<double,VR,STAR>( grid );
+    *vecHandle = index;
+}
+
+void FC_GLOBAL_(free_real_dist_col_vec,NAME)( int* handle )
+{
+    if( realDistColVecList[*handle] != 0 )
+    {
+        delete realDistColVecList[*handle];
+        realDistColVecList[*handle] = 0;
+    }
+}
+
 void FC_GLOBAL_(print_real_dist_col_vec,NAME)( int* AHandle )
 {
     const DistMatrix<double,VR,STAR>& A = 
         TranslateRealDistColVecHandle( *AHandle );
     A.Print();
 }
+
+//
+// Generalized Hermitian-definite eigensolvers for A X = B X \Lambda
+//
 
 void FC_GLOBAL_(symmetric_axbx,NAME)
 ( int* AHandle, int* BHandle,
@@ -473,5 +381,13 @@ void FC_GLOBAL_(hermitian_axbx_partial_indices,NAME)
 
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, aC, bC );
 }
+
+//
+// Utilities
+//
+
+void FC_GLOBAL_(local_length,NAME)
+( int* n, int* shift, int* modulus, int* localLength )
+{ *localLength = elemental::LocalLength<int>(*n,*shift,*modulus); }
 
 } // extern "C"
