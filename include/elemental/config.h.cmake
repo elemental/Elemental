@@ -64,7 +64,6 @@
 #cmakedefine LAPACK_POST
 #cmakedefine HAVE_F90_INTERFACE
 #cmakedefine WITHOUT_PMRRR
-#cmakedefine DISABLE_SCALAR_WRAPPER
 #cmakedefine AVOID_COMPLEX_MPI
 #cmakedefine HAVE_REDUCE_SCATTER_BLOCK
 #cmakedefine HAVE_MPI3_NONBLOCKING_COLLECTIVES

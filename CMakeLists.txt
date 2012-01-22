@@ -55,12 +55,6 @@ endif(WIN32)
 # Bugs in the complex version of MPI routines are quite common
 option(AVOID_COMPLEX_MPI "Avoid complex MPI routines for robustness" ON)
 
-# Bug fix for Darwin g++ compiler throwing an internal compiler error.
-# It seems to have somehow been circumvented after pulling most of the library
-# into header files.
-option(DISABLE_SCALAR_WRAPPER "Avoid pretty-printing of complex numbers" OFF)
-mark_as_advanced(DISABLE_SCALAR_WRAPPER)
-
 # Bug fix for IBM's compiler miscompiling OpenMP a[i] += alpha b[i] statements
 # for complex datatypes
 option(AVOID_OMP_FMA "Avoid a bug in the IBM compilers." ON)
@@ -723,7 +717,6 @@ endif(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
 #set(BLAS_POST ${BLAS_POST} PARENT_SCOPE)
 #set(LAPACK_POST ${LAPACK_POST} PARENT_SCOPE)
 #set(WITHOUT_PMRRR ${WITHOUT_PMRRR} PARENT_SCOPE)
-#set(DISABLE_SCALAR_WRAPPER ${DISABLE_SCALAR_WRAPPER} PARENT_SCOPE)
 #set(AVOID_COMPLEX_MPI ${AVOID_COMPLEX_MPI} PARENT_SCOPE)
 #set(HAVE_REDUCE_SCATTER_BLOCK ${HAVE_REDUCE_SCATTER_BLOCK} PARENT_SCOPE)
 #set(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE ${REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE} PARENT_SCOPE)
